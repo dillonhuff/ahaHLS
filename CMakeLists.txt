@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(ProcGen)
+project(DHLS)
 
 SET(LLVM_DIR /usr/local/opt/llvm/lib/cmake/llvm)
 find_package(LLVM REQUIRED CONFIG)
@@ -25,12 +25,12 @@ SET(CPP_FILES ./src/frontend.cpp)
 
 llvm_map_components_to_libnames(llvm_libs support core irreader)
 
-add_library(procgen ${CPP_FILES})
-target_link_libraries(procgen ${llvm_libs})
+add_library(dhls ${CPP_FILES})
+target_link_libraries(dhls ${llvm_libs})
 
 # Test executables
 SET(ALL_TEST_FILES ./test/frontend_tests.cpp)
 
 add_executable(all-tests test/test_main.cpp ${ALL_TEST_FILES})
 
-target_link_libraries(all-tests procgen ${llvm_libs})
+target_link_libraries(all-tests dhls ${llvm_libs})
