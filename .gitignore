@@ -1,0 +1,7 @@
+*~
+all-tests
+cmake_install.cmake
+*.a
+CMakeCache.txt
+CMakeFiles/
+Makefile

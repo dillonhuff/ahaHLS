@@ -20,7 +20,7 @@ SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${CXX_OCL_LINK_FLAGS}")
 
 INCLUDE_DIRECTORIES(./src/)
 
-SET(CPP_FILES ./src/frontend.cpp)
+SET(CPP_FILES ./src/scheduling.cpp)
 
 llvm_map_components_to_libnames(llvm_libs support core irreader)
 
@@ -28,8 +28,8 @@ add_library(dhls ${CPP_FILES})
 target_link_libraries(dhls ${llvm_libs})
 
 # Test executables
-SET(ALL_TEST_FILES ./test/frontend_tests.cpp)
+SET(ALL_TEST_FILES ./test/scheduling.cpp)
 
-add_executable(all-tests test/test_main.cpp ${ALL_TEST_FILES})
+add_executable(all-tests ${ALL_TEST_FILES})
 
 target_link_libraries(all-tests dhls ${llvm_libs})
