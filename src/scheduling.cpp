@@ -91,13 +91,13 @@ namespace DHLS {
 
       map_insert(sched.blockTimes, blk.first, (int) m.eval(srcExpr).get_numeral_int64());
       map_insert(sched.blockTimes, blk.first, (int) m.eval(snkExpr).get_numeral_int64());
-      cout << srcExpr << " = " << m.eval(srcExpr) << endl; //.get_numeral_int64();
-      cout << snkExpr << " = " << m.eval(snkExpr) << endl; //.get_numeral_int64();
+      cout << srcExpr << " = " << m.eval(srcExpr) << endl;
+      cout << snkExpr << " = " << m.eval(snkExpr) << endl;
     }
 
     for (auto v : schedVars) {
       for (auto ex : v.second) {
-        map_insert(sched.instrTimes, v.first, (int) m.eval(ex).get_numeral_int64());        
+        map_insert(sched.instrTimes, v.first, (int) m.eval(ex).get_numeral_int64());
         cout << ex << " = " << m.eval(ex) << endl;
       }
     }
