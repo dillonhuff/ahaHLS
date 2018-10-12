@@ -50,6 +50,9 @@ namespace DHLS {
 
         // TODO: Add latency lookup instead of assuming it here
         int latency = 3;
+        if (ReturnInst::classof(iptr)) {
+          latency = 0;
+        }
 
         schedVars[iptr] = {};
         string instrPre = "instr_" + to_string(blockNo) + "_" + to_string(instrNo);
