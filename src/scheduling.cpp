@@ -19,6 +19,13 @@ namespace DHLS {
 
     context c;
     solver s(c);
+    
+    int blockNo = 0;
+    string snkPre = "ssnk_";
+    for (auto& bb : f->getBasicBlockList()) {
+      blockSinks[&bb] = {c.int_const((snkPre + to_string(blockNo)).c_str())};
+      blockNo += 1;
+    }
 
     auto satRes = s.check();
 
