@@ -10,21 +10,67 @@ using namespace z3;
 
 namespace DHLS {
 
+  expr blockSource(BasicBlock* const bb,
+                   const map<BasicBlock*, vector<expr> >& vars) {
+    return map_find(bb, vars).front();
+  }
+
+  expr blockSink(BasicBlock* const bb,
+                 const map<BasicBlock*, vector<expr> >& vars) {
+    return map_find(bb, vars).back();
+  }
+  
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc) {
     // Now need to: Create a Z3 context that can take in scheduling variables
     // and compute values for them
 
     map<Instruction*, vector<expr> > schedVars;
-    map<BasicBlock*, vector<expr> > blockSinks;
+    map<BasicBlock*, vector<expr> > blockVars;
 
     context c;
     solver s(c);
     
     int blockNo = 0;
     string snkPre = "ssnk_";
+    string srcPre = "ssrc_";
+
     for (auto& bb : f->getBasicBlockList()) {
-      blockSinks[&bb] = {c.int_const((snkPre + to_string(blockNo)).c_str())};
+      blockVars[&bb] = {c.int_const((srcPre + to_string(blockNo)).c_str()), c.int_const((snkPre + to_string(blockNo)).c_str())};
       blockNo += 1;
+
+      // Basic blocks cannot start before the beginning of time
+      s.add(blockSource(&bb, blockVars) >= 0);
+      // Basic blocks must start before they finish
+      s.add(blockSource(&bb, blockVars) <= blockSink(&bb, blockVars));
+
+      int instrNo = 0;
+      for (auto& instr : bb) {
+        Instruction* iptr = &instr;
+
+        // TODO: Add latency lookup instead of assuming it here
+        int latency = 3;
+
+        schedVars[iptr] = {};
+        string instrPre = "instr_" + to_string(blockNo) + "_" + to_string(instrNo);
+        for (int i = 0; i <= latency; i++) {
+          map_insert(schedVars, iptr, c.int_const((instrPre + "_" + to_string(i)).c_str()));
+        }
+
+        auto svs = map_find(iptr, schedVars);
+        assert(svs.size() > 0);
+
+        // Operations must be processed within the basic block that contains them
+        s.add(svs.front() >= blockSource(&bb, blockVars));
+        s.add(svs.back() <= blockSink(&bb, blockVars));
+
+        // Operations with latency N take N clock ticks to finish
+        for (int i = 1; i < svs.size(); i++) {
+          s.add(svs[i - 1] + 1 == svs[i]);
+        }
+
+        // Every operation in a basic block
+        instrNo += 1;
+      }
     }
 
     auto satRes = s.check();
@@ -33,9 +79,24 @@ namespace DHLS {
       cout << "NO VIABLE SCHEDULE" << endl;
       assert(false);
     }
-    
+
     model m = s.get_model();
 
+    cout << "Final schedule" << endl;
+    for (auto blk : blockVars) {
+      auto srcExpr = blk.second.front();
+      auto snkExpr = blk.second.back();
+
+      cout << srcExpr << " = " << m.eval(srcExpr) << endl; //.get_numeral_int64();
+      cout << snkExpr << " = " << m.eval(snkExpr) << endl; //.get_numeral_int64();
+    }
+
+    for (auto v : schedVars) {
+      for (auto ex : v.second) {
+        cout << ex << " = " << m.eval(ex) << endl;
+      }
+    }
+    
     Schedule sched;
     return sched;
   }

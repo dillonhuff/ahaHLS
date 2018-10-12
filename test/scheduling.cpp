@@ -141,7 +141,7 @@ namespace DHLS {
     HardwareConstraints hcs;
     hcs.setLatency(STORE_OP, 3);
 
-    Function* f = Mod->getFunction("single_store");    
+    Function* f = Mod->getFunction("single_store");
     Schedule s = scheduleFunction(f, hcs);
 
     REQUIRE(s.clockTicksToFinish() == 3);
