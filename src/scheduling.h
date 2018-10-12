@@ -23,9 +23,19 @@ namespace DHLS {
   };
 
   class Schedule {
-  public:
+
+  public:    
+    std::map<llvm::Instruction*, std::vector<int> > instrTimes;
+    std::map<llvm::BasicBlock*, std::vector<int> > blockTimes;
+
     int clockTicksToFinish() const {
-      return 0;
+      int maxFinishTime = 0;
+      for (auto b : blockTimes) {
+        if (b.second.back() > maxFinishTime) {
+          maxFinishTime = b.second.back();
+        }
+      }
+      return maxFinishTime;
     }
   };
 
