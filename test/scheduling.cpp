@@ -4,6 +4,8 @@
 
 #include "algorithm.h"
 
+#include "scheduling.h"
+
 #include <fstream>
 
 #include "llvm/IR/Instructions.h"
@@ -31,10 +33,10 @@ using namespace std;
 
 LLVMContext context;
 
-namespace ProcGen {
+namespace DHLS {
 
-  void cFileToBitCode(const std::string& fileName) {
-    assert(false);
+  void createLLFile(const std::string& moduleName) {
+    system(("clang -O1 -c -S -emit-llvm " + moduleName + ".c -o " + moduleName + ".ll").c_str());
   }
 
   class FSMState {
@@ -123,7 +125,32 @@ namespace ProcGen {
     out.close();
   }
 
+  TEST_CASE("Schedule a single store operation") {
+    createLLFile("./test/ll_files/single_store");    
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+
+    string modFile = "./test/ll_files/single_store.ll";
+    std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
+    if (!Mod) {
+      outs() << "Error: No mod\n";
+      assert(false);
+    }
+
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+
+    Function* f = Mod->getFunction("single_store");    
+    Schedule s = scheduleFunction(f, hcs);
+
+    REQUIRE(s.clockTicksToFinish() == 3);
+
+  }
+
   TEST_CASE("Parse a tiny C program") {
+    createLLFile("./test/ll_files/tiny_test");
+
     SMDiagnostic Err;
     LLVMContext Context;
 
@@ -132,27 +159,6 @@ namespace ProcGen {
     if (!Mod) {
       outs() << "Error: No mod\n";
       assert(false);
-      //Err.print(argv[0], errs());
-      //return 1;
-    }
-
-    // Go over all named mdnodes in the module
-    for (Module::const_named_metadata_iterator I = Mod->named_metadata_begin(),
-           E = Mod->named_metadata_end();
-         I != E; ++I) {
-      outs() << "Found MDNode:\n";
-      // These dumps only work with LLVM built with a special cmake flag enabling
-      // dumps.
-      // I->dump();
-
-      for (unsigned i = 0, e = I->getNumOperands(); i != e; ++i) {
-        Metadata *Op = I->getOperand(i);
-        if (auto *N = dyn_cast<MDNode>(Op)) {
-          outs() << "  Has MDNode operand:\n  ";
-          // N->dump();
-          outs() << "  " << N->getNumOperands() << " operands\n";
-        }
-      }
     }
 
     outs() << "--All functions\n";
@@ -160,21 +166,7 @@ namespace ProcGen {
       outs() << "\t" << f.getName() << "\n";
     }
 
-    //Mod->print(llvm::errs(), nullptr);
-
-    const SymbolTableList<GlobalVariable>& gt = Mod->getGlobalList();
-      
-    outs() << "# of globals = " << gt.size() << "\n";
-
-    for (auto& g : gt) {
-      if (g.hasName()) {
-        outs() << "Name = " << g.getName() << "\n";
-      } else {
-        outs() << "Global with no name?\n";
-      }
-    }
-
-    Function* f = Mod->getFunction("main");
+    Function* f = Mod->getFunction("foo");
     assert(f != nullptr);
 
     LowFSM programState;

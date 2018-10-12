@@ -1,10 +1,7 @@
-void foo(int* b) {
-  *b = 0;
+#define N 100
 
-  while (*b < 10) {
-    *b += 1;
+void foo(int* __restrict a, int* __restrict b, int* __restrict c) {
+  for (int i = 0; i < N; i++) {
+    c[i] = a[i] + b[i];
   }
-
-  *b = *b - 3;
-
 }
