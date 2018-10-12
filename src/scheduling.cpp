@@ -1,9 +1,11 @@
 #include "scheduling.h"
 
+#include "algorithm.h"
 #include "z3++.h"
 
-using namespace std;
+using namespace dbhc;
 using namespace llvm;
+using namespace std;
 using namespace z3;
 
 namespace DHLS {
@@ -13,7 +15,7 @@ namespace DHLS {
     // and compute values for them
 
     map<Instruction*, vector<expr> > schedVars;
-    
+    map<BasicBlock*, vector<expr> > blockSinks;
 
     context c;
     solver s(c);

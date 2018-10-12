@@ -148,73 +148,73 @@ namespace DHLS {
 
   }
 
-  TEST_CASE("Parse a tiny C program") {
-    createLLFile("./test/ll_files/tiny_test");
+  // TEST_CASE("Parse a tiny C program") {
+  //   createLLFile("./test/ll_files/tiny_test");
 
-    SMDiagnostic Err;
-    LLVMContext Context;
+  //   SMDiagnostic Err;
+  //   LLVMContext Context;
 
-    string modFile = "./test/ll_files/tiny_test.ll";
-    std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
-    if (!Mod) {
-      outs() << "Error: No mod\n";
-      assert(false);
-    }
+  //   string modFile = "./test/ll_files/tiny_test.ll";
+  //   std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
+  //   if (!Mod) {
+  //     outs() << "Error: No mod\n";
+  //     assert(false);
+  //   }
 
-    outs() << "--All functions\n";
-    for (auto& f : Mod->functions()) {
-      outs() << "\t" << f.getName() << "\n";
-    }
+  //   outs() << "--All functions\n";
+  //   for (auto& f : Mod->functions()) {
+  //     outs() << "\t" << f.getName() << "\n";
+  //   }
 
-    Function* f = Mod->getFunction("foo");
-    assert(f != nullptr);
+  //   Function* f = Mod->getFunction("foo");
+  //   assert(f != nullptr);
 
-    LowFSM programState;
+  //   LowFSM programState;
 
-    map<BasicBlock*, NodeId> bbIds;
+  //   map<BasicBlock*, NodeId> bbIds;
 
-    cout << "Basic blocks in main" << endl;
-    for (auto& bb : f->getBasicBlockList()) {
-      NodeId id = programState.addState({});
+  //   cout << "Basic blocks in main" << endl;
+  //   for (auto& bb : f->getBasicBlockList()) {
+  //     NodeId id = programState.addState({});
 
-      bbIds.insert({&bb, id});
+  //     bbIds.insert({&bb, id});
 
-      outs() << "----- BASIC BLOCK" << "\n";
-      outs() << bb << "\n";
-      outs() << "Terminator for this block" << "\n";
-    }
+  //     outs() << "----- BASIC BLOCK" << "\n";
+  //     outs() << bb << "\n";
+  //     outs() << "Terminator for this block" << "\n";
+  //   }
 
-    for (auto& bb : f->getBasicBlockList()) {
-      assert(contains_key(&bb, bbIds));
+  //   for (auto& bb : f->getBasicBlockList()) {
+  //     assert(contains_key(&bb, bbIds));
       
-      auto termInst = bb.getTerminator();
-      outs() << bb.getTerminator()->getOpcode() << "\n";
-      if (BranchInst::classof(termInst)) {
-        outs() << "\t\tIs a branch" << "\n";
-      } else {
-        outs() << "\t\tNOT branch" << "\n";
-      }
+  //     auto termInst = bb.getTerminator();
+  //     outs() << bb.getTerminator()->getOpcode() << "\n";
+  //     if (BranchInst::classof(termInst)) {
+  //       outs() << "\t\tIs a branch" << "\n";
+  //     } else {
+  //       outs() << "\t\tNOT branch" << "\n";
+  //     }
 
-      if (termInst->getNumSuccessors() == 1) {
-        for (auto* nextBB : termInst->successors()) {
-          assert(contains_key(nextBB, bbIds));
+  //     if (termInst->getNumSuccessors() == 1) {
+  //       for (auto* nextBB : termInst->successors()) {
+  //         assert(contains_key(nextBB, bbIds));
 
-          programState.addEdge(map_find(&bb, bbIds),
-                               map_find(nextBB, bbIds), {});
-        }
-      } else if (termInst->getNumSuccessors() == 0) {
-        programState.addEdge(map_find(&bb, bbIds),
-                             map_find(&bb, bbIds), {});
-      }
+  //         programState.addEdge(map_find(&bb, bbIds),
+  //                              map_find(nextBB, bbIds), {});
+  //       }
+  //     } else if (termInst->getNumSuccessors() == 0) {
+  //       programState.addEdge(map_find(&bb, bbIds),
+  //                            map_find(&bb, bbIds), {});
+  //     }
 
-    }
+  //   }
 
-    auto& bb = f->getEntryBlock();
-    assert(contains_key(&bb, bbIds));
+  //   auto& bb = f->getEntryBlock();
+  //   assert(contains_key(&bb, bbIds));
 
-    programState.setStartState(map_find(&bb, bbIds));
+  //   programState.setStartState(map_find(&bb, bbIds));
 
-    emitVerilog("tiny_test", programState);
-  }
+  //   emitVerilog("tiny_test", programState);
+  // }
 
 }
