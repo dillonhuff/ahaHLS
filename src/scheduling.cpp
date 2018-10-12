@@ -1,7 +1,8 @@
 #include "scheduling.h"
 
-#include "algorithm.h"
 #include "z3++.h"
+
+#include <llvm/IR/Instructions.h>
 
 using namespace dbhc;
 using namespace llvm;
@@ -68,8 +69,21 @@ namespace DHLS {
           s.add(svs[i - 1] + 1 == svs[i]);
         }
 
-        // Every operation in a basic block
         instrNo += 1;
+      }
+
+      auto termInstr = bb.getTerminator();
+      if (!BranchInst::classof(termInstr)) {
+        // This is a return instr?
+        assert(ReturnInst::classof(termInstr));
+
+        // Return instructions must finish after every instruction
+        for (auto& instr : bb) {
+          Instruction* iptr = &instr;
+          if (iptr != termInstr) {
+            s.add(map_find(iptr, schedVars).back() <= map_find((Instruction*) termInstr, schedVars).front());
+          }
+        }
       }
     }
 

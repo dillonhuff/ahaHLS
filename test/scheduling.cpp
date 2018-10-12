@@ -146,6 +146,10 @@ namespace DHLS {
 
     REQUIRE(s.clockTicksToFinish() == 3);
 
+    auto& retInstr = f->getBasicBlockList().back().back();
+    //cout << "Retinstr = " << retInstr << endl;
+    REQUIRE(s.startTime(&retInstr) == 3);
+
   }
 
   // TEST_CASE("Parse a tiny C program") {
