@@ -5,6 +5,7 @@
 #include "algorithm.h"
 
 #include "scheduling.h"
+#include "verilog_backend.h"
 
 #include <fstream>
 
@@ -35,6 +36,43 @@ LLVMContext context;
 
 namespace DHLS {
 
+  bool runCmd(const std::string& cmd) {
+    cout << "Running command: " << cmd << endl;
+    bool res = system(cmd.c_str());
+    return res == 0;
+  }
+
+  bool runIVerilogTB(const std::string& moduleName) {
+    string mainName = moduleName + "_tb.v";
+    string modFile = moduleName + ".v";
+
+    //runCmd("cat " + modFile);
+    runCmd("iverilog -EV");
+
+    string genCmd = "iverilog -g2005-sv -o " + moduleName + " " + mainName + " " + modFile;
+    bool compiled = runCmd(genCmd);
+
+    if (!compiled) {
+      return false;
+    }
+
+    string resFile = moduleName + "_tb_result.txt";
+    string exeCmd = "./" + moduleName + " > " + resFile;
+    bool ran = runCmd(exeCmd);
+
+    assert(ran);
+
+    ifstream res(resFile);
+    std::string str((std::istreambuf_iterator<char>(res)),
+                    std::istreambuf_iterator<char>());
+
+    cout << "str = " << str << endl;
+    
+    runCmd("rm -f " + resFile);
+
+    return str == "Passed\n";
+  }
+  
   void createLLFile(const std::string& moduleName) {
     system(("clang -O1 -c -S -emit-llvm " + moduleName + ".c -o " + moduleName + ".ll").c_str());
   }
@@ -100,30 +138,30 @@ namespace DHLS {
     }
   };
 
-  void emitVerilog(const std::string& moduleName, const LowFSM& fsm) {
-    ofstream out(moduleName + ".v");
-    out << "module " << moduleName << "(input clk, input rst)" << endl;
+  // void emitVerilog(const std::string& moduleName, const LowFSM& fsm) {
+  //   ofstream out(moduleName + ".v");
+  //   out << "module " << moduleName << "(input clk, input rst)" << endl;
 
-    out << "\treg [31:0] current_state;" << endl;
-    out << "\talways @(negedge rst) begin" << endl;
-    out << "\t\tcurrent_state <= " << fsm.startStateId() << ";" << endl;
-    out << "\tend" << endl;
+  //   out << "\treg [31:0] current_state;" << endl;
+  //   out << "\talways @(negedge rst) begin" << endl;
+  //   out << "\t\tcurrent_state <= " << fsm.startStateId() << ";" << endl;
+  //   out << "\tend" << endl;
 
-    out << "\talways @(posedge clk) begin" << endl;
-    for (auto nodeId : fsm.getNodeIds()) {
-      out << "\t\t// Code for state " << nodeId << endl;
-      out << "\t\tif (current_state == " << nodeId << ") begin" << endl;
-      for (auto rc : fsm.getReceivers(nodeId)) {
-        out << "\t\t\t" << "current_state <= " << rc.dst << ";" << endl;
-      }
-      out << "\t\tend" << endl;
-    }
-    out << "\tend" << endl;
+  //   out << "\talways @(posedge clk) begin" << endl;
+  //   for (auto nodeId : fsm.getNodeIds()) {
+  //     out << "\t\t// Code for state " << nodeId << endl;
+  //     out << "\t\tif (current_state == " << nodeId << ") begin" << endl;
+  //     for (auto rc : fsm.getReceivers(nodeId)) {
+  //       out << "\t\t\t" << "current_state <= " << rc.dst << ";" << endl;
+  //     }
+  //     out << "\t\tend" << endl;
+  //   }
+  //   out << "\tend" << endl;
 
-    out << "endmodule" << endl;
+  //   out << "endmodule" << endl;
     
-    out.close();
-  }
+  //   out.close();
+  // }
 
   TEST_CASE("Schedule a single store operation") {
     createLLFile("./test/ll_files/single_store");    
@@ -157,6 +195,34 @@ namespace DHLS {
 
     REQUIRE(graph.numControlStates() == 4);
 
+    // Now we should emit verilog.
+    // I don't really understand the interaction between edge transitions in CDFG,
+    // edge transitions in the STG, registers and wires in final verilog. Also
+    // I dont really understand the meaning of repeatedly going to the same state if
+    // there is more than one instruction there. What does staying in state 3 mean
+    // if the end of the store instruction is there and the return instruction
+    // is there? I guess the completion of the store would not be executed.
+    // Maybe that is where guard conditions come in to play. The store is guarded
+    // by a condition that guarantees that it only executes when you reached
+    // state 3 from state 2
+
+    // Note: The condition that you got to state 3 from state 2 is really a
+    // description of what happened in the past. When you reach state 3 from
+    // state 2 that means that a store instruction that started in state 0 is
+    // just now finishing. When you reach state 3 from state 3
+
+    // Actually there maybe is nothing to do for store on state 3, because
+    // stores do not produce a value that needs to be saved. If it did produce
+    // a value I guess there would be a need to store the produced value if
+    // the previous state was state 2
+
+    // Also what does it mean for "middle" states of the store operation to be
+    // "executed"? The functional unit is just working at that time, so I guess
+    // just don't do anything?
+
+    emitVerilog(f, graph);
+
+    REQUIRE(runIVerilogTB("single_store"));
   }
 
   // TEST_CASE("Parse a tiny C program") {
