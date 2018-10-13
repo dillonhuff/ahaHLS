@@ -125,8 +125,8 @@ namespace DHLS {
   // What is left after creating the instruction bindings?
   //   1. Creating state transitions
   //   2. Add operation guards
-  STG buildSTG(const Schedule& sched, llvm::Function* const f) {
-    STG g;
+  STG buildSTG(Schedule& sched, llvm::Function* const f) {
+    STG g(sched);
     for (auto var : sched.instrTimes) {
       for (auto state : var.second) {
         map_insert(g.opStates, state, {var.first, Condition()});

@@ -3,6 +3,7 @@
 #include <fstream>
 #include <llvm/IR/Instructions.h>
 
+using namespace dbhc;
 using namespace llvm;
 using namespace std;
 
@@ -43,7 +44,7 @@ namespace DHLS {
   }
 
   std::vector<Port> getPorts(const STG& stg) {
-    vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst")};
+    vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
     int numReadPorts = 0;
     int numWritePorts = 0;
 
@@ -113,13 +114,17 @@ namespace DHLS {
     ofstream out(fn + ".v");
     out << "module " << fn << "(" + commaListString(portStrings) + ");" << endl;
 
+    out << "\treg [0:0] valid_reg;" << endl;
     out << "\treg [31:0] global_state;" << endl;
-      
+
+    out << "\tassign valid = valid_reg;" << endl;
     out << "\talways @(posedge clk) begin" << endl;
     out << "\t\t$display(\"global_state = %d\", global_state);" << endl;
+    out << "\t\t$display(\"valid        = %d\", valid);" << endl;    
     // Insert state transition logic
     out << "\t\tif (rst) begin" << endl;
     out << "\t\t\tglobal_state <= 0;" << endl;
+    out << "\t\t\tvalid_reg <= 0;" << endl;
     out << "\t\tend else begin" << endl;
       
     for (auto state : stg.opTransitions) {
@@ -135,17 +140,31 @@ namespace DHLS {
 
     out << endl << endl;
 
-    out << "\talways @(posedge clk) begin" << endl;
+    out << "\talways @(*) begin" << endl;
 
     for (auto state : stg.opStates) {
       out << "\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
       for (auto instrG : state.second) {
-        //Instruction* instr = instrG.instruction;
+        Instruction* instr = instrG.instruction;
 
         std::string str;
         llvm::raw_string_ostream ss(str);
-        ss << *(instrG.instruction);
-        out << "\t\t\t// Schedule instruction " << ss.str() << std::endl;
+        ss << *(instr);
+
+        auto schedVars = map_find(instr, stg.sched.instrTimes);
+        if (state.first == schedVars.front()) {
+          // Now the issue is how do I change each write port value?
+          // I guess conceptually we have a big mux with the state going in
+          // to the select and then a bunch of logic saying what to do?
+          // So maybe this block should be always @(*) ? Update any time a signal
+          // changes?
+
+          if (ReturnInst::classof(instr)) {
+            out << "\t\t\tvalid_reg <= 1;" << endl;
+          } else {
+            out << "\t\t\t// Schedule instruction " << ss.str() << std::endl;
+          }
+        }
         
       }
       //out << "\t\t\tglobal_state <= " + to_string(state.second.at(0).dest) + + ";" << endl;

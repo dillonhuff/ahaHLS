@@ -2,6 +2,8 @@ module test();
 
    reg clk;
    reg rst;
+   wire valid;
+   
 
    // Depth 16, width 32 RAM
    reg [4:0] raddr;
@@ -16,24 +18,35 @@ module test();
       #1 clk = 0;
       #1 rst = 1;
       #1 clk = 1;
+
+      $display("valid = %d", valid);
       
       #1 rst = 0;
 
       #1 clk = 0;
       #1 clk = 1;
 
-      #1 clk = 0;
-      #1 clk = 1;
+      $display("valid = %d", valid);      
 
       #1 clk = 0;
       #1 clk = 1;
 
-      #1 clk = 0;
-      #1 clk = 1;
+      $display("valid = %d", valid);            
 
       #1 clk = 0;
       #1 clk = 1;
+
+      $display("valid = %d", valid);      
       
+      #1 clk = 0;
+      #1 clk = 1;
+
+      $display("valid = %d", valid);
+      
+      #1 clk = 0;
+      #1 clk = 1;
+
+      $display("valid = %d", valid);      
    end
 
    RAM mem(.clk(clk),
@@ -44,6 +57,6 @@ module test();
            .wdata(wdata),
            .waddr(waddr));
    
-   single_store ss(.clk(clk), .rst(rst));
+   single_store ss(.clk(clk), .rst(rst), .valid(valid));
    
 endmodule

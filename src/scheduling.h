@@ -71,8 +71,11 @@ namespace DHLS {
   class StateTransitionGraph {
   public:
 
+    Schedule sched;
     std::map<StateId, std::vector<GuardedInstruction> > opStates;
     std::map<StateId, std::vector<StateTransition> > opTransitions;
+
+    StateTransitionGraph(Schedule& sched_) : sched(sched_) {}
 
     int numControlStates() const {
       return opStates.size();
@@ -102,5 +105,5 @@ namespace DHLS {
 
   typedef StateTransitionGraph STG;
 
-  STG buildSTG(const Schedule& sched, llvm::Function* const f);
+  STG buildSTG(Schedule& sched, llvm::Function* const f);
 }
