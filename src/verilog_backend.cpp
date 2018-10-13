@@ -133,6 +133,27 @@ namespace DHLS {
     out << "\tend" << endl;
     // Insert functional units
 
+    out << endl << endl;
+
+    out << "\talways @(posedge clk) begin" << endl;
+
+    for (auto state : stg.opStates) {
+      out << "\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
+      for (auto instrG : state.second) {
+        //Instruction* instr = instrG.instruction;
+
+        std::string str;
+        llvm::raw_string_ostream ss(str);
+        ss << *(instrG.instruction);
+        out << "\t\t\t// Schedule instruction " << ss.str() << std::endl;
+        
+      }
+      //out << "\t\t\tglobal_state <= " + to_string(state.second.at(0).dest) + + ";" << endl;
+      out << "\t\tend" << endl;
+    }
+
+    out << "\tend" << endl;
+
     // Insert unit control for each state
 
     out << "endmodule" << endl;
