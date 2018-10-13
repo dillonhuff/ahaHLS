@@ -18,35 +18,39 @@ module test();
       #1 clk = 0;
       #1 rst = 1;
       #1 clk = 1;
+      #1 raddr = 0;
 
-      $display("valid = %d", valid);
-      
+      $display("rdata = %d", rdata);
+      $display("wen   = %d", wen);
+      $display("waddr = %d", waddr);
+      $display("wdata = %d", wdata);            
       #1 rst = 0;
 
       #1 clk = 0;
       #1 clk = 1;
 
-      $display("valid = %d", valid);      
+      $display("rdata = %d", rdata);      
 
       #1 clk = 0;
       #1 clk = 1;
 
-      $display("valid = %d", valid);            
+      $display("rdata = %d", rdata);            
+      $display("raddr = %d", rdata);
 
       #1 clk = 0;
       #1 clk = 1;
 
-      $display("valid = %d", valid);      
+      $display("rdata = %d", rdata);      
       
       #1 clk = 0;
       #1 clk = 1;
 
-      $display("valid = %d", valid);
+      $display("rdata = %d", rdata);
       
       #1 clk = 0;
       #1 clk = 1;
 
-      $display("valid = %d", valid);      
+      $display("rdata = %d", rdata);      
    end
 
    RAM mem(.clk(clk),
@@ -57,6 +61,6 @@ module test();
            .wdata(wdata),
            .waddr(waddr));
    
-   single_store ss(.clk(clk), .rst(rst), .valid(valid));
+   single_store ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen));
    
 endmodule

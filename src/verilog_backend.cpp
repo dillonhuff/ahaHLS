@@ -114,7 +114,18 @@ namespace DHLS {
     ofstream out(fn + ".v");
     out << "module " << fn << "(" + commaListString(portStrings) + ");" << endl;
 
-    out << "\treg [0:0] valid_reg;" << endl;
+    for (auto pt : allPorts) {
+      if (!pt.isInput) {
+        out << "\treg [" << to_string(pt.width - 1) << ":0] " << pt.name << "_reg;" << endl;
+      }
+    }
+
+    for (auto pt : allPorts) {
+      if (!pt.isInput) {
+        out << "\tassign " << pt.name << " = " << pt.name << "_reg;" << endl;
+      }
+    }
+    
     out << "\treg [31:0] global_state;" << endl;
 
     out << "\tassign valid = valid_reg;" << endl;
@@ -147,10 +158,6 @@ namespace DHLS {
       for (auto instrG : state.second) {
         Instruction* instr = instrG.instruction;
 
-        std::string str;
-        llvm::raw_string_ostream ss(str);
-        ss << *(instr);
-
         auto schedVars = map_find(instr, stg.sched.instrTimes);
         if (state.first == schedVars.front()) {
           // Now the issue is how do I change each write port value?
@@ -161,8 +168,19 @@ namespace DHLS {
 
           if (ReturnInst::classof(instr)) {
             out << "\t\t\tvalid_reg <= 1;" << endl;
+          } else if (StoreInst::classof(instr)) {
+            out << "\t\t\tassign waddr_0_reg = 0;" << endl;
+            out << "\t\t\tassign wdata_0_reg = 5;" << endl;
+            out << "\t\t\tassign wen_0_reg = 1;" << endl;
           } else {
-            out << "\t\t\t// Schedule instruction " << ss.str() << std::endl;
+
+            std::string str;
+            llvm::raw_string_ostream ss(str);
+            ss << *(instr);
+
+            cout << "Error: Scheduling unknown instruction " << ss.str() << std::endl;            
+            assert(false);
+
           }
         }
         

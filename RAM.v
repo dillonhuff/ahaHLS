@@ -20,7 +20,7 @@ module RAM(input clk,
          data[waddr] <= wdata;
       end
 
-      rdata_reg <= data[wen];
+      rdata_reg <= data[raddr];
    end
 
    assign rdata = rdata_reg;
