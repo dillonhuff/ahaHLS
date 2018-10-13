@@ -47,12 +47,31 @@ namespace DHLS {
 
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc);
 
+  // Logical condition used in state transitions
+  class Condition {
+  public:
+    
+  };
+
+  class GuardedInstruction {
+  public:
+    llvm::Instruction* instruction;
+    Condition cond;
+  };
+
   typedef int StateId;
+
+  class StateTransition {
+  public:
+    StateId dest;
+    Condition cond;
+  };
   
   class StateTransitionGraph {
   public:
 
-    std::map<StateId, std::vector<llvm::Instruction*> > opStates;
+    std::map<StateId, std::vector<GuardedInstruction> > opStates;
+    std::map<StateId, std::vector<StateTransition> > opTransitions;
 
     int numControlStates() const {
       return opStates.size();
