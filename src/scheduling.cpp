@@ -133,11 +133,24 @@ namespace DHLS {
       }
     }
 
+    // Q: What is the difference between a control state and a state?
+    // I suppose you are supposed to just unify adjacent basic block states?
+    
     // To build edges:
-    // For each control state:
-    //   Find all possible next instructions
-    //   For each one find that instructions control state
-    //   Find edge transition variables and assemble them.
+    // For each state value in schedule
+    //   Find all instructions in that state
+    //   For each instruction find all subsequent instructions
+    //   Find the contaning states of those instructions
+    //   If no other states to transition to then transition to next numerical
+
+    for (int i = 0; i < sched.clockTicksToFinish() - 1; i++) {
+      map_insert(g.opTransitions, i, {i + 1, Condition()});
+    }
+
+    // Really should iterate over every state with a terminator and potentially stay
+    // there
+    map_insert(g.opTransitions, sched.clockTicksToFinish() - 1, {sched.clockTicksToFinish() - 1, Condition()});
+
     return g;
   }
 
