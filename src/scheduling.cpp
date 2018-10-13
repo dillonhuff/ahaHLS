@@ -133,7 +133,11 @@ namespace DHLS {
       }
     }
 
-    
+    // To build edges:
+    // For each control state:
+    //   Find all possible next instructions
+    //   For each one find that instructions control state
+    //   Find edge transition variables and assemble them.
     return g;
   }
 
