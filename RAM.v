@@ -1,3 +1,4 @@
+// TODO: Add delay by 3
 module RAM(input clk,
            input                  rst,
            input                  wen,
@@ -5,14 +6,23 @@ module RAM(input clk,
            input [ADDR_WIDTH : 0] raddr,
            input [ADDR_WIDTH : 0] waddr,
            output [WIDTH - 1 : 0] rdata);
+
    parameter WIDTH=32;
    parameter DEPTH=16;
    parameter ADDR_WIDTH = $clog2(DEPTH);
 
+   reg [WIDTH - 1 : 0]            rdata_reg;
+
+   reg [WIDTH - 1 : 0]            data [DEPTH - 1 : 0];
+   
+   always @(posedge clk) begin
+      if (wen) begin
+         data[waddr] <= wdata;
+      end
+
+      rdata_reg <= data[wen];
+   end
+
+   assign rdata = rdata_reg;
 
 endmodule
-           // .raddr(raddr),
-           // .rdata(rdata),
-           // .wen(wen),
-           // .wdata(wdata),
-           // .waddr(waddr));
