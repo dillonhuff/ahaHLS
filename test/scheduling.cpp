@@ -150,6 +150,10 @@ namespace DHLS {
     //cout << "Retinstr = " << retInstr << endl;
     REQUIRE(s.startTime(&retInstr) == 3);
 
+    STG graph = buildSTG(s, f);
+
+    REQUIRE(graph.numControlStates() == 4);
+
   }
 
   // TEST_CASE("Parse a tiny C program") {

@@ -121,4 +121,10 @@ namespace DHLS {
     
     return sched;
   }
+
+  STG buildSTG(const Schedule& sched, llvm::Function* const f) {
+    STG g;
+    return g;
+  }
+
 }

@@ -46,4 +46,16 @@ namespace DHLS {
   };
 
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc);
+
+  class StateTransitionGraph {
+  public:
+
+    int numControlStates() const {
+      return 0;
+    }
+  };
+
+  typedef StateTransitionGraph STG;
+
+  STG buildSTG(const Schedule& sched, llvm::Function* const f);
 }
