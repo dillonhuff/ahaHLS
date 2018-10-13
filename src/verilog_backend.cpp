@@ -83,7 +83,7 @@ namespace DHLS {
     for (int i = 0; i < numWritePorts; i++) {
       pts.push_back(outputPort(width, "wdata_" + to_string(i)));
       pts.push_back(outputPort(clog2(width), "waddr_" + to_string(i)));
-      pts.push_back(outputPort(width, "wen_" + to_string(i)));
+      pts.push_back(outputPort(1, "wen_" + to_string(i)));
     }
 
     return pts;
@@ -112,6 +112,28 @@ namespace DHLS {
 
     ofstream out(fn + ".v");
     out << "module " << fn << "(" + commaListString(portStrings) + ");" << endl;
+
+    out << "\treg global_state;" << endl;
+      
+    out << "\talways @(posedge clk) begin" << endl;
+    // Insert state transition logic
+    out << "\t\tif (rst) begin" << endl;
+    out << "\t\t\tglobal_state <= 0;" << endl;
+    out << "\t\tend else begin" << endl;
+      
+    for (auto state : stg.opTransitions) {
+      assert(state.second.size() == 1);
+      out << "\t\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
+      out << "\t\t\t\tglobal_state <= " + to_string(state.second.at(0).dest) + + ";" << endl;
+      out << "\t\t\tend" << endl;
+    }
+      
+    out << "\t\tend" << endl;
+    out << "\tend" << endl;
+    // Insert functional units
+
+    // Insert unit control for each state
+
     out << "endmodule" << endl;
 
     out.close();
