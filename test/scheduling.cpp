@@ -49,7 +49,7 @@ namespace DHLS {
     //runCmd("cat " + modFile);
     runCmd("iverilog -EV");
 
-    string genCmd = "iverilog -g2005-sv -o " + moduleName + " " + mainName + " " + modFile;
+    string genCmd = "iverilog -g2005-sv -o " + moduleName + " " + mainName + " " + modFile + " RAM.v";
     bool compiled = runCmd(genCmd);
 
     if (!compiled) {
