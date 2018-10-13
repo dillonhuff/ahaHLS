@@ -152,6 +152,9 @@ namespace DHLS {
 
     STG graph = buildSTG(s, f);
 
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
     REQUIRE(graph.numControlStates() == 4);
 
   }

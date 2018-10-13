@@ -3,6 +3,7 @@
 #include "algorithm.h"
 
 #include <llvm/IR/Module.h>
+#include <llvm/Support/raw_ostream.h>
 
 namespace DHLS {
 
@@ -76,6 +77,20 @@ namespace DHLS {
     int numControlStates() const {
       return opStates.size();
     }
+
+    void print(std::ostream& out) {
+      out << "--- States" << std::endl;
+      for (auto st : opStates) {
+        out << "\t" << st.first << std::endl;
+        for (auto instr : st.second) {
+          std::string str;
+          llvm::raw_string_ostream ss(str);
+          ss << *(instr.instruction);
+          out << "\t\t" << ss.str() << std::endl;
+        }
+      }
+    }
+
   };
 
   typedef StateTransitionGraph STG;
