@@ -143,13 +143,13 @@ namespace DHLS {
     //   Find the contaning states of those instructions
     //   If no other states to transition to then transition to next numerical
 
-    for (int i = 0; i < sched.clockTicksToFinish() - 1; i++) {
+    for (int i = 0; i < sched.clockTicksToFinish(); i++) {
       map_insert(g.opTransitions, i, {i + 1, Condition()});
     }
 
     // Really should iterate over every state with a terminator and potentially stay
     // there
-    map_insert(g.opTransitions, sched.clockTicksToFinish() - 1, {sched.clockTicksToFinish() - 1, Condition()});
+    map_insert(g.opTransitions, sched.clockTicksToFinish(), {sched.clockTicksToFinish(), Condition()});
 
     return g;
   }

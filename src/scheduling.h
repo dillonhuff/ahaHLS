@@ -92,8 +92,8 @@ namespace DHLS {
 
       for (auto tr : opTransitions) {
         out << "\t" << tr.first << std::endl;
-        for (auto out : tr.second) {
-          out << "\t\t" << out << std::endl;
+        for (auto nextState : tr.second) {
+          out << "\t\t -> " << nextState.dest << std::endl;
         }
       }
     }
