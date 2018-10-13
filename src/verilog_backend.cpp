@@ -113,9 +113,10 @@ namespace DHLS {
     ofstream out(fn + ".v");
     out << "module " << fn << "(" + commaListString(portStrings) + ");" << endl;
 
-    out << "\treg global_state;" << endl;
+    out << "\treg [31:0] global_state;" << endl;
       
     out << "\talways @(posedge clk) begin" << endl;
+    out << "\t\t$display(\"global_state = %d\", global_state);" << endl;
     // Insert state transition logic
     out << "\t\tif (rst) begin" << endl;
     out << "\t\t\tglobal_state <= 0;" << endl;

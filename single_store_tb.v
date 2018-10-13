@@ -14,11 +14,22 @@ module test();
    initial begin
 
       #1 clk = 0;
+      #1 rst = 1;
+      #1 clk = 1;
+      
+      #1 rst = 0;
 
-      #1 rst = 0;
-      #1 rst = 1;
-      #1 rst = 0;
-      #1 rst = 1;
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
 
       #1 clk = 0;
       #1 clk = 1;
