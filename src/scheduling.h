@@ -89,6 +89,13 @@ namespace DHLS {
           out << "\t\t" << ss.str() << std::endl;
         }
       }
+
+      for (auto tr : opTransitions) {
+        out << "\t" << tr.first << std::endl;
+        for (auto out : tr.second) {
+          out << "\t\t" << out << std::endl;
+        }
+      }
     }
 
   };
