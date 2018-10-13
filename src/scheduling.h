@@ -47,11 +47,15 @@ namespace DHLS {
 
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc);
 
+  typedef int StateId;
+  
   class StateTransitionGraph {
   public:
 
+    std::map<StateId, std::vector<llvm::Instruction*> > opStates;
+
     int numControlStates() const {
-      return 0;
+      return opStates.size();
     }
   };
 

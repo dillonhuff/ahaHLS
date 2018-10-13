@@ -124,6 +124,11 @@ namespace DHLS {
 
   STG buildSTG(const Schedule& sched, llvm::Function* const f) {
     STG g;
+    for (auto var : sched.instrTimes) {
+      for (auto state : var.second) {
+        map_insert(g.opStates, state, var.first);
+      }
+    }
     return g;
   }
 

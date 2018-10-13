@@ -5,3 +5,4 @@ cmake_install.cmake
 CMakeCache.txt
 CMakeFiles/
 Makefile
+test/ll_files/single_store.ll
