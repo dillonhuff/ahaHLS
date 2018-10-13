@@ -6,3 +6,5 @@ CMakeCache.txt
 CMakeFiles/
 Makefile
 test/ll_files/single_store.ll
+single_store
+single_store.v
