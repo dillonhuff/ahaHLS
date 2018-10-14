@@ -47,7 +47,7 @@ namespace DHLS {
     string modFile = moduleName + ".v";
 
     //runCmd("cat " + modFile);
-    runCmd("iverilog -EV");
+    //runCmd("iverilog -EV");
 
     string genCmd = "iverilog -g2005-sv -o " + moduleName + " " + mainName + " " + modFile + " RAM.v delay.v";
     bool compiled = runCmd(genCmd);
@@ -76,92 +76,6 @@ namespace DHLS {
   void createLLFile(const std::string& moduleName) {
     system(("clang -O1 -c -S -emit-llvm " + moduleName + ".c -o " + moduleName + ".ll").c_str());
   }
-
-  class FSMState {
-  };
-
-  class FSMCondition {
-  };
-
-  typedef int NodeId;
-  
-  class FSMEdge {
-  public:
-    NodeId dst;
-    FSMCondition cond;
-  };
-
-
-  class LowFSM {
-
-    NodeId nextNode;
-    NodeId startState;
-    std::map<NodeId, FSMState> states;
-    std::map<NodeId, std::vector<FSMEdge> > receivers;
-
-  public:
-
-    LowFSM() : nextNode(1) {}
-
-    NodeId addState(const FSMState& st) {
-      NodeId id = nextNode;
-      nextNode++;
-      states.insert({id, st});
-
-      receivers[id] = {};
-      return id;
-    }
-
-    void setStartState(const NodeId id) {
-      assert(contains_key(id, states));
-      startState = id;
-    }
-
-    void addEdge(const NodeId src, const NodeId dst, const FSMCondition cond) {
-      map_insert(receivers, src, {dst, cond});
-    }
-
-    std::set<NodeId> getNodeIds() const {
-      std::set<NodeId> ids;
-      for (auto s : states) {
-        ids.insert(s.first);
-      }
-      return ids;
-    }
-
-    NodeId startStateId() const {
-      return startState;
-    }
-
-    std::vector<FSMEdge> getReceivers(const NodeId id) const {
-      return map_find(id, receivers);
-    }
-  };
-
-  // void emitVerilog(const std::string& moduleName, const LowFSM& fsm) {
-  //   ofstream out(moduleName + ".v");
-  //   out << "module " << moduleName << "(input clk, input rst)" << endl;
-
-  //   out << "\treg [31:0] current_state;" << endl;
-  //   out << "\talways @(negedge rst) begin" << endl;
-  //   out << "\t\tcurrent_state <= " << fsm.startStateId() << ";" << endl;
-  //   out << "\tend" << endl;
-
-  //   out << "\talways @(posedge clk) begin" << endl;
-  //   for (auto nodeId : fsm.getNodeIds()) {
-  //     out << "\t\t// Code for state " << nodeId << endl;
-  //     out << "\t\tif (current_state == " << nodeId << ") begin" << endl;
-  //     for (auto rc : fsm.getReceivers(nodeId)) {
-  //       out << "\t\t\t" << "current_state <= " << rc.dst << ";" << endl;
-  //     }
-  //     out << "\t\tend" << endl;
-  //   }
-  //   out << "\tend" << endl;
-
-  //   out << "endmodule" << endl;
-    
-  //   out.close();
-  // }
 
   TEST_CASE("Schedule a single store operation") {
     createLLFile("./test/ll_files/single_store");    
