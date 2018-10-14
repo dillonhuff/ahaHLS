@@ -127,6 +127,44 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("single_store"));
   }
 
+  TEST_CASE("Adding two numbers and storing them back") {
+    createLLFile("./test/ll_files/plus");    
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+
+    string modFile = "./test/ll_files/plus.ll";
+    std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
+    if (!Mod) {
+      outs() << "Error: No mod\n";
+      assert(false);
+    }
+
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(ADD_OP, 1);
+
+    Function* f = Mod->getFunction("plus");
+    Schedule s = scheduleFunction(f, hcs);
+
+    REQUIRE(s.clockTicksToFinish() == 3);
+
+    auto& retInstr = f->getBasicBlockList().back().back();
+    //REQUIRE(s.startTime(&retInstr) == 3);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    REQUIRE(graph.numControlStates() == 4);
+
+    emitVerilog(f, graph);
+
+    REQUIRE(runIVerilogTB("plus"));
+    
+  }
+
   // TEST_CASE("Parse a tiny C program") {
   //   createLLFile("./test/ll_files/tiny_test");
 
