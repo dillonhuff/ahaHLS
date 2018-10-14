@@ -142,6 +142,7 @@ namespace DHLS {
 
     HardwareConstraints hcs;
     hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(LOAD_OP, 1);    
     hcs.setLatency(ADD_OP, 1);
 
     Function* f = Mod->getFunction("plus");

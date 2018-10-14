@@ -18,9 +18,17 @@ namespace DHLS {
   };
 
   class HardwareConstraints {
-  public:
+
+    std::map<OperationType, int> latencies;
     
+  public:
+
+    int getLatency(const OperationType op) const {
+      return dbhc::map_find(op, latencies);
+    }
+
     void setLatency(const OperationType op, const int latency) {
+      latencies[op] = latency;
     }
     
   };

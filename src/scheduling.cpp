@@ -52,6 +52,25 @@ namespace DHLS {
         int latency = 3;
         if (ReturnInst::classof(iptr)) {
           latency = 0;
+        } else if (StoreInst::classof(iptr)) {
+          latency = hdc.getLatency(STORE_OP);
+        } else if (LoadInst::classof(iptr)) {
+          latency = hdc.getLatency(LOAD_OP);
+        } else if (BinaryOperator::classof(iptr)) {
+          auto opCode = iptr->getOpcode();
+          if (opCode == Instruction::Add) {
+            latency = hdc.getLatency(ADD_OP);
+          } else {
+            assert(false);
+          }
+        } else {
+
+          std::string str;
+          llvm::raw_string_ostream ss(str);
+          ss << *iptr;
+          cout << "Error: Unsupported instruction type " << ss.str() << std::endl;
+
+          assert(false);
         }
 
         schedVars[iptr] = {};
