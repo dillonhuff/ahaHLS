@@ -5,6 +5,8 @@ cmake_install.cmake
 CMakeCache.txt
 CMakeFiles/
 Makefile
-test/ll_files/single_store.ll
+test/ll_files/*.ll
 single_store
 single_store.v
+plus
+plus.v
