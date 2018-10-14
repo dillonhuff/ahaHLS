@@ -136,6 +136,7 @@ namespace DHLS {
     out << "\talways @(posedge clk) begin" << endl;
     //out << "\t\t$display(\"global_state = %d\", global_state);" << endl;
     //out << "\t\t$display(\"valid        = %d\", valid);" << endl;    
+
     // Insert state transition logic
     out << "\t\tif (rst) begin" << endl;
     out << "\t\t\tglobal_state <= 0;" << endl;
@@ -176,6 +177,21 @@ namespace DHLS {
             out << "\t\t\twaddr_0_reg <= 0;" << endl;
             out << "\t\t\twdata_0_reg <= 5;" << endl;
             out << "\t\t\twen_0_reg <= 1;" << endl;
+          } else if (LoadInst::classof(instr)) {
+
+            out << "\t\t\traddr_0_reg <= 0;" << endl;
+            //out << "\t\t\twdata_0_reg <= 5;" << endl;
+            
+          } else if (BinaryOperator::classof(instr)) {
+            auto opcode = instr->getOpcode();
+            
+            if (opcode == Instruction::Add) {
+              auto name = instr->getName();
+              cout << "Result of plus = " << name.str() << endl;
+              assert(false);
+            } else {
+              assert(false);
+            }
           } else {
 
             std::string str;

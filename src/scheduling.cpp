@@ -20,6 +20,34 @@ namespace DHLS {
                  const map<BasicBlock*, vector<expr> >& vars) {
     return map_find(bb, vars).back();
   }
+
+  int getLatency(Instruction* iptr, HardwareConstraints& hdc) {
+    int latency;
+    if (ReturnInst::classof(iptr)) {
+      latency = 0;
+    } else if (StoreInst::classof(iptr)) {
+      latency = hdc.getLatency(STORE_OP);
+    } else if (LoadInst::classof(iptr)) {
+      latency = hdc.getLatency(LOAD_OP);
+    } else if (BinaryOperator::classof(iptr)) {
+      auto opCode = iptr->getOpcode();
+      if (opCode == Instruction::Add) {
+        latency = hdc.getLatency(ADD_OP);
+      } else {
+        assert(false);
+      }
+    } else {
+
+      std::string str;
+      llvm::raw_string_ostream ss(str);
+      ss << *iptr;
+      cout << "Error: Unsupported instruction type " << ss.str() << std::endl;
+
+      assert(false);
+    }
+
+    return latency;
+  }
   
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc) {
     // Now need to: Create a Z3 context that can take in scheduling variables
@@ -49,32 +77,10 @@ namespace DHLS {
         Instruction* iptr = &instr;
 
         // TODO: Add latency lookup instead of assuming it here
-        int latency;
-        if (ReturnInst::classof(iptr)) {
-          latency = 0;
-        } else if (StoreInst::classof(iptr)) {
-          latency = hdc.getLatency(STORE_OP);
-        } else if (LoadInst::classof(iptr)) {
-          latency = hdc.getLatency(LOAD_OP);
-        } else if (BinaryOperator::classof(iptr)) {
-          auto opCode = iptr->getOpcode();
-          if (opCode == Instruction::Add) {
-            latency = hdc.getLatency(ADD_OP);
-          } else {
-            assert(false);
-          }
-        } else {
-
-          std::string str;
-          llvm::raw_string_ostream ss(str);
-          ss << *iptr;
-          cout << "Error: Unsupported instruction type " << ss.str() << std::endl;
-
-          assert(false);
-        }
+        int latency = getLatency(iptr, hdc);
 
         schedVars[iptr] = {};
-        string instrPre = "instr_" + to_string(blockNo) + "_" + to_string(instrNo);
+        string instrPre = string(iptr->getOpcodeName()) + "_" + to_string(blockNo) + "_" + to_string(instrNo);
         for (int i = 0; i <= latency; i++) {
           map_insert(schedVars, iptr, c.int_const((instrPre + "_" + to_string(i)).c_str()));
         }
