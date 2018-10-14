@@ -49,7 +49,7 @@ namespace DHLS {
         Instruction* iptr = &instr;
 
         // TODO: Add latency lookup instead of assuming it here
-        int latency = 3;
+        int latency;
         if (ReturnInst::classof(iptr)) {
           latency = 0;
         } else if (StoreInst::classof(iptr)) {
