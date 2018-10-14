@@ -46,9 +46,6 @@ namespace DHLS {
     string mainName = moduleName + "_tb.v";
     string modFile = moduleName + ".v";
 
-    //runCmd("cat " + modFile);
-    //runCmd("iverilog -EV");
-
     string genCmd = "iverilog -g2005-sv -o " + moduleName + " " + mainName + " " + modFile + " RAM.v delay.v";
     bool compiled = runCmd(genCmd);
 
@@ -124,15 +121,6 @@ namespace DHLS {
     // description of what happened in the past. When you reach state 3 from
     // state 2 that means that a store instruction that started in state 0 is
     // just now finishing. When you reach state 3 from state 3
-
-    // Actually there maybe is nothing to do for store on state 3, because
-    // stores do not produce a value that needs to be saved. If it did produce
-    // a value I guess there would be a need to store the produced value if
-    // the previous state was state 2
-
-    // Also what does it mean for "middle" states of the store operation to be
-    // "executed"? The functional unit is just working at that time, so I guess
-    // just don't do anything?
 
     emitVerilog(f, graph);
 
