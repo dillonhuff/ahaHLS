@@ -114,24 +114,28 @@ namespace DHLS {
     ofstream out(fn + ".v");
     out << "module " << fn << "(" + commaListString(portStrings) + ");" << endl;
 
+    out << endl;
+
     for (auto pt : allPorts) {
       if (!pt.isInput) {
         out << "\treg [" << to_string(pt.width - 1) << ":0] " << pt.name << "_reg;" << endl;
       }
     }
 
+    out << endl;
+
     for (auto pt : allPorts) {
       if (!pt.isInput) {
         out << "\tassign " << pt.name << " = " << pt.name << "_reg;" << endl;
       }
     }
-    
-    out << "\treg [31:0] global_state;" << endl;
 
-    out << "\tassign valid = valid_reg;" << endl;
+    out << endl;
+    out << "\treg [31:0] global_state;" << endl << endl;
+
     out << "\talways @(posedge clk) begin" << endl;
-    out << "\t\t$display(\"global_state = %d\", global_state);" << endl;
-    out << "\t\t$display(\"valid        = %d\", valid);" << endl;    
+    //out << "\t\t$display(\"global_state = %d\", global_state);" << endl;
+    //out << "\t\t$display(\"valid        = %d\", valid);" << endl;    
     // Insert state transition logic
     out << "\t\tif (rst) begin" << endl;
     out << "\t\t\tglobal_state <= 0;" << endl;
@@ -169,9 +173,9 @@ namespace DHLS {
           if (ReturnInst::classof(instr)) {
             out << "\t\t\tvalid_reg <= 1;" << endl;
           } else if (StoreInst::classof(instr)) {
-            out << "\t\t\tassign waddr_0_reg = 0;" << endl;
-            out << "\t\t\tassign wdata_0_reg = 5;" << endl;
-            out << "\t\t\tassign wen_0_reg = 1;" << endl;
+            out << "\t\t\twaddr_0_reg <= 0;" << endl;
+            out << "\t\t\twdata_0_reg <= 5;" << endl;
+            out << "\t\t\twen_0_reg <= 1;" << endl;
           } else {
 
             std::string str;

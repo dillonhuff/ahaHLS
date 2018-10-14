@@ -1,3 +1,5 @@
+`define assert(signal, value) if ((signal) !== (value)) begin $display("ASSERTION FAILED in %m: signal != value"); $finish(1); end
+
 module test();
 
    reg clk;
@@ -20,37 +22,43 @@ module test();
       #1 clk = 1;
       #1 raddr = 0;
 
-      $display("rdata = %d", rdata);
-      $display("wen   = %d", wen);
-      $display("waddr = %d", waddr);
-      $display("wdata = %d", wdata);            
+      //$display("rdata = %d", rdata);
+      // $display("wen   = %d", wen);
+      // $display("waddr = %d", waddr);
+      // $display("wdata = %d", wdata);            
       #1 rst = 0;
 
       #1 clk = 0;
       #1 clk = 1;
 
-      $display("rdata = %d", rdata);      
+//      $display("rdata = %d", rdata);      
 
       #1 clk = 0;
       #1 clk = 1;
 
-      $display("rdata = %d", rdata);            
-      $display("raddr = %d", rdata);
+//      $display("rdata = %d", rdata);            
+//      $display("raddr = %d", rdata);
+
+      #1 `assert(rdata, 32'hxxxxxxxx);
 
       #1 clk = 0;
       #1 clk = 1;
 
-      $display("rdata = %d", rdata);      
+//      $display("rdata = %d", rdata);      
       
       #1 clk = 0;
       #1 clk = 1;
 
-      $display("rdata = %d", rdata);
+      #1 `assert(rdata, 32'd5);
+
+      $display("Passed");
+
+//      $display("rdata = %d", rdata);
       
       #1 clk = 0;
       #1 clk = 1;
 
-      $display("rdata = %d", rdata);      
+//      $display("rdata = %d", rdata);      
    end
 
    RAM mem(.clk(clk),
