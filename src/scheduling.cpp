@@ -53,10 +53,20 @@ namespace DHLS {
     return latency;
   }
 
-  Schedule buildFromModel(model& m,
+  Schedule buildFromModel(solver& s,
                           map<Instruction*, vector<expr> >& schedVars,
                           map<BasicBlock*, vector<expr> >& blockVars) {
 
+
+    auto satRes = s.check();
+
+    if (satRes == unsat) {
+      cout << "NO VIABLE SCHEDULE" << endl;
+      assert(false);
+    }
+
+    model m = s.get_model();
+    
     cout << "Final schedule" << endl;
     Schedule sched;
     
@@ -109,7 +119,6 @@ namespace DHLS {
       for (auto& instr : bb) {
         Instruction* iptr = &instr;
 
-        // TODO: Add latency lookup instead of assuming it here
         int latency = getLatency(iptr, hdc);
 
         schedVars[iptr] = {};
@@ -148,16 +157,7 @@ namespace DHLS {
       }
     }
 
-    auto satRes = s.check();
-
-    if (satRes == unsat) {
-      cout << "NO VIABLE SCHEDULE" << endl;
-      assert(false);
-    }
-
-    model m = s.get_model();
-
-    return buildFromModel(m, schedVars, blockVars);
+    return buildFromModel(s, schedVars, blockVars);
   }
 
   // What is left after creating the instruction bindings?
