@@ -241,7 +241,7 @@ namespace DHLS {
     out << "\t// End Functional Units" << endl;
 
     // Note: Result names also need widths if we are going to use them
-                                                                                                       map<Instruction*, std::string> names = createInstrNames(stg);
+    map<Instruction*, std::string> names = createInstrNames(stg);
 
     out << endl;
     out << "\treg [31:0] global_state;" << endl << endl;
@@ -298,15 +298,22 @@ namespace DHLS {
             auto opcode = instr->getOpcode();
 
             auto arg0 = instr->getOperand(0);
-            cout << "arg0 constant = " << ConstantInt::classof(arg0) << endl;
+            assert(Instruction::classof(arg0));
+
             auto arg1 = instr->getOperand(1);
-            cout << "arg1 constant = " << ConstantInt::classof(arg1) << endl;
+            assert(Instruction::classof(arg0));
 
             if (opcode == Instruction::Add) {
-              //auto name = instr->getName();
+              auto unit0Src =
+                map_find(dyn_cast<Instruction>(arg0), unitAssignment);
+              assert(unit0Src.outWires.size() == 1);
+
+              auto unit1Src =
+                map_find(dyn_cast<Instruction>(arg1), unitAssignment);
+              assert(unit1Src.outWires.size() == 1);
+              
               out << "\t\t\t// Scheduling plus" << endl;
-              //cout << "Result of plus = " << name.str() << endl;
-              //assert(false);
+              out << "\t\t\t" << unit0Src.outWires[0][0] << " = " << unit0Src.outWires[0][1] << ";" << endl;
             } else {
               assert(false);
             }
