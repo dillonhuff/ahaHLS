@@ -331,11 +331,9 @@ namespace DHLS {
             out << "\t\t\tvalid_reg = 1;" << endl;
           } else if (StoreInst::classof(instr)) {
 
-            
-            out << "\t\t\twaddr_0_reg = 0;" << endl;
+            //out << "\t\t\twaddr_0_reg = 0;" << endl;
 
             auto arg0 = instr->getOperand(0);
-
             string wdataName;
             if (Instruction::classof(arg0)) {
               auto unit0Src =
@@ -347,12 +345,32 @@ namespace DHLS {
               // Handle constants
               wdataName = "5";
             }
+
+            Value* location = instr->getOperand(1);
+            assert(Argument::classof(location));
+
+            auto name = location->getName().str();
+            string locString = name; //ss.str();
+            cout << "locString = " << locString << endl;
+            int locValue = map_find(locString, memoryMap);
+            cout << "locValue = " << locValue << endl;
+
+            out << "\t\t\t" << addUnit.portWires["waddr"] << " = " << locValue << ";" << endl;
             out << "\t\t\t" << addUnit.portWires["wdata"] << " = " << wdataName << ";" << endl;
             out << "\t\t\t" << addUnit.portWires["wen"] << " = 1;" << endl;
 
           } else if (LoadInst::classof(instr)) {
 
-            out << "\t\t\t" << addUnit.portWires["raddr"] << " = " << 0 << ";" << endl;            
+            Value* location = instr->getOperand(0);
+            assert(Argument::classof(location));
+            
+            auto name = location->getName().str();
+            string locString = name;
+            cout << "locString = " << locString << endl;
+            int locValue = map_find(locString, memoryMap);
+            cout << "locValue = " << locValue << endl;
+
+            out << "\t\t\t" << addUnit.portWires["raddr"] << " = " << locValue << ";" << endl;
             //out << "\t\t\traddr_0_reg = 0;" << endl;
             
           } else if (BinaryOperator::classof(instr)) {
