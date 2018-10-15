@@ -191,7 +191,7 @@ namespace DHLS {
     out << endl << "\t// Start Functional Units" << endl;
     for (auto iUnit : unitAssignment) {
       auto unit = iUnit.second;
-      out << "\t" << unit.modName << "()" << endl << endl;
+      out << "\t" << unit.modName << " " << unit.instName << "()" << endl << endl;
     }
     out << "\t// End Functional Units" << endl;
 
