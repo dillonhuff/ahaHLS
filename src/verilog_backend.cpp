@@ -371,8 +371,6 @@ namespace DHLS {
             cout << "locValue = " << locValue << endl;
 
             out << "\t\t\t" << addUnit.portWires["raddr"] << " = " << locValue << ";" << endl;
-            //out << "\t\t\traddr_0_reg = 0;" << endl;
-            
           } else if (BinaryOperator::classof(instr)) {
 
             auto arg0 = instr->getOperand(0);
