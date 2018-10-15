@@ -8,6 +8,7 @@ using namespace dbhc;
 using namespace llvm;
 using namespace std;
 
+// Convolution as Toeplitz Matrix multiplication
 namespace DHLS {
 
   std::string commaListString(const std::vector<std::string>& strings) {
@@ -252,6 +253,14 @@ namespace DHLS {
     out << endl << "\t// Start Functional Units" << endl;
     for (auto iUnit : unitAssignment) {
       auto unit = iUnit.second;
+
+      // These are external functional units
+      if ((unit.modName == "load") ||
+          (unit.modName == "store") ||
+          (unit.modName == "ret")) {
+        continue;
+      }
+
       vector<string> wireDecls;
       for (auto w : unit.portWires) {
         out << "\treg [31:0] " << w.second << ";" << endl;
@@ -345,8 +354,9 @@ namespace DHLS {
 
               cout << "Found unit 1 = " << unit1Src << endl;
               
-              out << "\t\t\t// Scheduling plus" << endl;
-              out << "\t\t\t" << addUnit.onlyOutputVar() << " = " << unit0Src.onlyOutputVar() << " + " << unit1Src.onlyOutputVar() << ";" << endl;
+              out << "\t\t\t" << addUnit.portWires["in0"] << " = " << unit0Src.onlyOutputVar() << ";" << endl;
+              out << "\t\t\t" << addUnit.portWires["in1"] << " = " << unit1Src.onlyOutputVar() << ";" << endl;
+
             } else {
               assert(false);
             }
