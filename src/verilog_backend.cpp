@@ -1,6 +1,7 @@
 #include "verilog_backend.h"
 
 #include <fstream>
+#include <llvm/IR/Constants.h>
 #include <llvm/IR/Instructions.h>
 
 using namespace dbhc;
@@ -12,6 +13,12 @@ namespace DHLS {
   int clog2(const int val) {
     return ceil(log2(val));
   }
+
+  class FunctionalUnit {
+  public:
+    std::string name;
+    std::map<std::string, std::string> portWires;
+  };
 
   class Port {
   public:
@@ -90,6 +97,26 @@ namespace DHLS {
     return pts;
   }
 
+  std::map<Instruction*, FunctionalUnit> assignFunctionalUnits(const STG& stg) {
+    std::map<Instruction*, FunctionalUnit> units;
+
+    // For now create a different unit for every single operation
+    int resSuffix = 0;
+    for (auto state : stg.opStates) {
+      for (auto instrG : state.second) {
+        Instruction* instr = instrG.instruction;
+
+        auto schedVars = map_find(instr, stg.sched.instrTimes);
+        if (state.first == schedVars.front()) {
+          
+          resSuffix++;
+        }
+      }
+    }
+    
+    return units;
+  }
+  
   // What are the components of this verilog?
   // module declaration
   // numbers of read and write ports,
@@ -127,6 +154,28 @@ namespace DHLS {
     for (auto pt : allPorts) {
       if (!pt.isInput) {
         out << "\tassign " << pt.name << " = " << pt.name << "_reg;" << endl;
+      }
+    }
+
+    map<Instruction*, FunctionalUnit> unitAssignment =
+      assignFunctionalUnits(stg);
+
+    // Note: Result names also need widths if we are going to use them
+    map<Instruction*, std::string> resultNames;
+    int resSuffix = 0;
+    for (auto state : stg.opStates) {
+      for (auto instrG : state.second) {
+        Instruction* instr = instrG.instruction;
+
+        if (StoreInst::classof(instr) || ReturnInst::classof(instr)) {
+          continue;
+        }
+
+        auto schedVars = map_find(instr, stg.sched.instrTimes);
+        if (state.first == schedVars.front()) {
+          resultNames[instr] = string(instr->getOpcodeName()) + "_" + to_string(resSuffix);
+          resSuffix++;
+        }
       }
     }
 
@@ -184,11 +233,17 @@ namespace DHLS {
             
           } else if (BinaryOperator::classof(instr)) {
             auto opcode = instr->getOpcode();
-            
+
+            auto arg0 = instr->getOperand(0);
+            cout << "arg0 constant = " << ConstantInt::classof(arg0) << endl;
+            auto arg1 = instr->getOperand(1);
+            cout << "arg1 constant = " << ConstantInt::classof(arg1) << endl;
+
             if (opcode == Instruction::Add) {
-              auto name = instr->getName();
-              cout << "Result of plus = " << name.str() << endl;
-              assert(false);
+              //auto name = instr->getName();
+              out << "\t\t\t// Scheduling plus" << endl;
+              //cout << "Result of plus = " << name.str() << endl;
+              //assert(false);
             } else {
               assert(false);
             }
