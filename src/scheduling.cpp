@@ -32,7 +32,11 @@ namespace DHLS {
     } else if (BinaryOperator::classof(iptr)) {
       auto opCode = iptr->getOpcode();
       if (opCode == Instruction::Add) {
+        // auto op0 = iptr->getOperand(0);
+        // assert(Instruction::classof(op0));
+
         latency = hdc.getLatency(ADD_OP);
+
       } else {
         assert(false);
       }
@@ -48,7 +52,36 @@ namespace DHLS {
 
     return latency;
   }
-  
+
+  Schedule buildFromModel(model& m,
+                          map<Instruction*, vector<expr> >& schedVars,
+                          map<BasicBlock*, vector<expr> >& blockVars) {
+
+    cout << "Final schedule" << endl;
+    Schedule sched;
+    
+    for (auto blk : blockVars) {
+      auto srcExpr = blk.second.front();
+      auto snkExpr = blk.second.back();
+
+      map_insert(sched.blockTimes, blk.first, (int) m.eval(srcExpr).get_numeral_int64());
+      map_insert(sched.blockTimes, blk.first, (int) m.eval(snkExpr).get_numeral_int64());
+      cout << srcExpr << " = " << m.eval(srcExpr) << endl;
+      cout << snkExpr << " = " << m.eval(snkExpr) << endl;
+    }
+
+    for (auto v : schedVars) {
+      for (auto ex : v.second) {
+        map_insert(sched.instrTimes, v.first, (int) m.eval(ex).get_numeral_int64());
+        cout << ex << " = " << m.eval(ex) << endl;
+      }
+    }
+    
+    return sched;
+
+    return sched;
+  }
+
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc) {
     // Now need to: Create a Z3 context that can take in scheduling variables
     // and compute values for them
@@ -124,27 +157,7 @@ namespace DHLS {
 
     model m = s.get_model();
 
-    cout << "Final schedule" << endl;
-    Schedule sched;
-    
-    for (auto blk : blockVars) {
-      auto srcExpr = blk.second.front();
-      auto snkExpr = blk.second.back();
-
-      map_insert(sched.blockTimes, blk.first, (int) m.eval(srcExpr).get_numeral_int64());
-      map_insert(sched.blockTimes, blk.first, (int) m.eval(snkExpr).get_numeral_int64());
-      cout << srcExpr << " = " << m.eval(srcExpr) << endl;
-      cout << snkExpr << " = " << m.eval(snkExpr) << endl;
-    }
-
-    for (auto v : schedVars) {
-      for (auto ex : v.second) {
-        map_insert(sched.instrTimes, v.first, (int) m.eval(ex).get_numeral_int64());
-        cout << ex << " = " << m.eval(ex) << endl;
-      }
-    }
-    
-    return sched;
+    return buildFromModel(m, schedVars, blockVars);
   }
 
   // What is left after creating the instruction bindings?
