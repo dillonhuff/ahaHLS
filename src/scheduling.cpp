@@ -11,6 +11,14 @@ using namespace z3;
 
 namespace DHLS {
 
+  std::string instructionString(Instruction* const iptr) {
+    std::string str;
+    llvm::raw_string_ostream ss(str);
+    ss << *iptr;
+
+    return ss.str();
+  }
+
   expr blockSource(BasicBlock* const bb,
                    const map<BasicBlock*, vector<expr> >& vars) {
     return map_find(bb, vars).front();
@@ -21,6 +29,16 @@ namespace DHLS {
     return map_find(bb, vars).back();
   }
 
+  expr instrStart(Instruction* const bb,
+                  const map<Instruction*, vector<expr> >& vars) {
+    return map_find(bb, vars).front();
+  }
+
+  expr instrEnd(Instruction* const bb,
+                const map<Instruction*, vector<expr> >& vars) {
+    return map_find(bb, vars).back();
+  }
+  
   int getLatency(Instruction* iptr, HardwareConstraints& hdc) {
     int latency;
     if (ReturnInst::classof(iptr)) {
@@ -42,10 +60,10 @@ namespace DHLS {
       }
     } else {
 
-      std::string str;
-      llvm::raw_string_ostream ss(str);
-      ss << *iptr;
-      cout << "Error: Unsupported instruction type " << ss.str() << std::endl;
+      // std::string str;
+      // llvm::raw_string_ostream ss(str);
+      // ss << *iptr;
+      cout << "Error: Unsupported instruction type " << instructionString(iptr) << std::endl;
 
       assert(false);
     }
@@ -153,6 +171,17 @@ namespace DHLS {
           if (iptr != termInstr) {
             s.add(map_find(iptr, schedVars).back() <= map_find((Instruction*) termInstr, schedVars).front());
           }
+        }
+      }
+    }
+
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instr : bb) {
+        Instruction* iptr = &instr;
+        for (auto& user : iptr->uses()) {
+          assert(Instruction::classof(user));
+          auto userInstr = dyn_cast<Instruction>(user.getUser());
+          s.add(instrEnd(iptr, schedVars) <= instrStart(userInstr, schedVars));
         }
       }
     }

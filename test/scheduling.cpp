@@ -148,7 +148,7 @@ namespace DHLS {
     Function* f = Mod->getFunction("plus");
     Schedule s = scheduleFunction(f, hcs);
 
-    REQUIRE(s.clockTicksToFinish() == 3);
+    REQUIRE(s.clockTicksToFinish() == 4);
 
     auto& retInstr = f->getBasicBlockList().back().back();
     //REQUIRE(s.startTime(&retInstr) == 3);
