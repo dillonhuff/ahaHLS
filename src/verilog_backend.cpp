@@ -19,6 +19,7 @@ namespace DHLS {
     std::string modName;
     std::string instName;
     std::map<std::string, std::string> portWires;
+    std::map<std::string, std::string> outWires;    
   };
 
   class Port {
@@ -113,6 +114,10 @@ namespace DHLS {
             to_string(resSuffix);
 
           string modName = "add";
+
+          map<string, string> wiring;
+          map<string, string> outWires;
+          
           if (StoreInst::classof(instr)) {
             modName = "store";
           } else if (LoadInst::classof(instr)) {
@@ -120,6 +125,8 @@ namespace DHLS {
           } else if (BinaryOperator::classof(instr)) {
             assert(instr->getOpcode() == Instruction::Add);
             modName = "add";
+            wiring = {{"in0", "add_in0"}, {"in1", "add_in1"}};
+            outWires = {{"out", "add_out"}};
           } else if (ReturnInst::classof(instr)) {
             modName = "ret";
           } else {
@@ -127,7 +134,7 @@ namespace DHLS {
           }
 
 
-          units[instr] = {modName, unitName, {}};
+          units[instr] = {modName, unitName, wiring, outWires};
 
           resSuffix++;
         }
@@ -135,6 +142,29 @@ namespace DHLS {
     }
     
     return units;
+  }
+
+  map<Instruction*, string> createInstrNames(const STG& stg) {
+    map<Instruction*, string> resultNames;    
+
+    int resSuffix = 0;
+    for (auto state : stg.opStates) {
+      for (auto instrG : state.second) {
+        Instruction* instr = instrG.instruction;
+
+        if (StoreInst::classof(instr) || ReturnInst::classof(instr)) {
+          continue;
+        }
+
+        auto schedVars = map_find(instr, stg.sched.instrTimes);
+        if (state.first == schedVars.front()) {
+          resultNames[instr] = string(instr->getOpcodeName()) + "_" + to_string(resSuffix);
+          resSuffix++;
+        }
+      }
+    }
+
+    return resultNames;
   }
 
   // Im a little confused on what the next steps in getting this generated
@@ -195,28 +225,23 @@ namespace DHLS {
     out << endl << "\t// Start Functional Units" << endl;
     for (auto iUnit : unitAssignment) {
       auto unit = iUnit.second;
-      out << "\t" << unit.modName << " " << unit.instName << "();" << endl << endl;
+      vector<string> wireDecls;
+      for (auto w : unit.portWires) {
+        out << "\treg [31:0] " << w.second << ";" << endl;
+        wireDecls.push_back("." + w.first + "(" + w.second + ")");
+      }
+
+      for (auto w : unit.outWires) {
+        out << "\twire [31:0] " << w.second << ";" << endl;
+        wireDecls.push_back("." + w.first + "(" + w.second + ")");
+      }
+      
+      out << "\t" << unit.modName << " " << unit.instName << "(" << commaListString(wireDecls) << ");" << endl << endl;
     }
     out << "\t// End Functional Units" << endl;
 
     // Note: Result names also need widths if we are going to use them
-    map<Instruction*, std::string> resultNames;
-    int resSuffix = 0;
-    for (auto state : stg.opStates) {
-      for (auto instrG : state.second) {
-        Instruction* instr = instrG.instruction;
-
-        if (StoreInst::classof(instr) || ReturnInst::classof(instr)) {
-          continue;
-        }
-
-        auto schedVars = map_find(instr, stg.sched.instrTimes);
-        if (state.first == schedVars.front()) {
-          resultNames[instr] = string(instr->getOpcodeName()) + "_" + to_string(resSuffix);
-          resSuffix++;
-        }
-      }
-    }
+                                                                                                       map<Instruction*, std::string> names = createInstrNames(stg);
 
     out << endl;
     out << "\treg [31:0] global_state;" << endl << endl;
@@ -260,15 +285,14 @@ namespace DHLS {
           // changes?
 
           if (ReturnInst::classof(instr)) {
-            out << "\t\t\tvalid_reg <= 1;" << endl;
+            out << "\t\t\tvalid_reg = 1;" << endl;
           } else if (StoreInst::classof(instr)) {
-            out << "\t\t\twaddr_0_reg <= 0;" << endl;
-            out << "\t\t\twdata_0_reg <= 5;" << endl;
-            out << "\t\t\twen_0_reg <= 1;" << endl;
+            out << "\t\t\twaddr_0_reg = 0;" << endl;
+            out << "\t\t\twdata_0_reg = 5;" << endl;
+            out << "\t\t\twen_0_reg = 1;" << endl;
           } else if (LoadInst::classof(instr)) {
 
-            out << "\t\t\traddr_0_reg <= 0;" << endl;
-            //out << "\t\t\twdata_0_reg <= 5;" << endl;
+            out << "\t\t\traddr_0_reg = 0;" << endl;
             
           } else if (BinaryOperator::classof(instr)) {
             auto opcode = instr->getOpcode();

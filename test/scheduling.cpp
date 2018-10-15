@@ -46,7 +46,7 @@ namespace DHLS {
     string mainName = moduleName + "_tb.v";
     string modFile = moduleName + ".v";
 
-    string genCmd = "iverilog -g2005-sv -o " + moduleName + " " + mainName + " " + modFile + " RAM.v delay.v";
+    string genCmd = "iverilog -g2005-sv -o " + moduleName + " " + mainName + " " + modFile + " RAM.v delay.v builtins.v";
     bool compiled = runCmd(genCmd);
 
     if (!compiled) {
