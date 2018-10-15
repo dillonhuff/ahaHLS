@@ -336,13 +336,19 @@ namespace DHLS {
             //out << "\t\t\twdata_0_reg = 5;" << endl;
 
             auto arg0 = instr->getOperand(0);
-            assert(Instruction::classof(arg0));
 
-            auto unit0Src =
-              map_find(dyn_cast<Instruction>(arg0), unitAssignment);
-            assert(unit0Src.outWires.size() == 1);
+            string wdataName;
+            if (Instruction::classof(arg0)) {
+              auto unit0Src =
+                map_find(dyn_cast<Instruction>(arg0), unitAssignment);
+              assert(unit0Src.outWires.size() == 1);
 
-            out << "\t\t\t" << addUnit.portWires["wen"] << " = " << unit0Src.onlyOutputVar() << ";" << endl;
+              wdataName = unit0Src.onlyOutputVar();
+            } else {
+              // Handle constants
+              wdataName = "5";
+            }
+            out << "\t\t\t" << addUnit.portWires["wdata"] << " = " << wdataName << ";" << endl;
             out << "\t\t\t" << addUnit.portWires["wen"] << " = 1;" << endl;
 
           } else if (LoadInst::classof(instr)) {
