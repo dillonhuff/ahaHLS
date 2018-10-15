@@ -188,6 +188,10 @@ namespace DHLS {
     map<Instruction*, FunctionalUnit> unitAssignment =
       assignFunctionalUnits(stg);
 
+    // The issue of how to create builtins also comes up here. Should I have
+    // parametric modules I can use for each one?
+    // A: I dont need parameters yet, so lets delay that. For now just output
+    //    32 bit functional units
     out << endl << "\t// Start Functional Units" << endl;
     for (auto iUnit : unitAssignment) {
       auto unit = iUnit.second;
