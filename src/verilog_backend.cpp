@@ -331,7 +331,7 @@ namespace DHLS {
             out << "\t\t\traddr_0_reg = 0;" << endl;
             
           } else if (BinaryOperator::classof(instr)) {
-            auto opcode = instr->getOpcode();
+            //auto opcode = instr->getOpcode();
 
             auto arg0 = instr->getOperand(0);
             assert(Instruction::classof(arg0));
@@ -339,27 +339,27 @@ namespace DHLS {
             auto arg1 = instr->getOperand(1);
             assert(Instruction::classof(arg0));
 
-            if (opcode == Instruction::Add) {
-              cout << "Scheduling add" << endl;
+            // if (opcode == Instruction::Add) {
+            //   cout << "Scheduling add" << endl;
 
-              auto addUnit = map_find(instr, unitAssignment);
-              auto unit0Src =
-                map_find(dyn_cast<Instruction>(arg0), unitAssignment);
-              assert(unit0Src.outWires.size() == 1);
+            auto addUnit = map_find(instr, unitAssignment);
+            auto unit0Src =
+              map_find(dyn_cast<Instruction>(arg0), unitAssignment);
+            assert(unit0Src.outWires.size() == 1);
 
-              cout << "Found unit 0 = " << unit0Src << endl;
-              auto unit1Src =
-                map_find(dyn_cast<Instruction>(arg1), unitAssignment);
-              assert(unit1Src.outWires.size() == 1);
+            //cout << "Found unit 0 = " << unit0Src << endl;
+            auto unit1Src =
+              map_find(dyn_cast<Instruction>(arg1), unitAssignment);
+            assert(unit1Src.outWires.size() == 1);
 
-              cout << "Found unit 1 = " << unit1Src << endl;
+            //cout << "Found unit 1 = " << unit1Src << endl;
               
-              out << "\t\t\t" << addUnit.portWires["in0"] << " = " << unit0Src.onlyOutputVar() << ";" << endl;
-              out << "\t\t\t" << addUnit.portWires["in1"] << " = " << unit1Src.onlyOutputVar() << ";" << endl;
+            out << "\t\t\t" << addUnit.portWires["in0"] << " = " << unit0Src.onlyOutputVar() << ";" << endl;
+            out << "\t\t\t" << addUnit.portWires["in1"] << " = " << unit1Src.onlyOutputVar() << ";" << endl;
 
-            } else {
-              assert(false);
-            }
+            // } else {
+            //   assert(false);
+            // }
           } else {
 
             std::string str;
