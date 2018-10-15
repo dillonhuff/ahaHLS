@@ -10,6 +10,17 @@ using namespace std;
 
 namespace DHLS {
 
+  std::string commaListString(const std::vector<std::string>& strings) {
+    string res = "";
+    for (int i = 0; i < (int) strings.size(); i++) {
+      res += strings[i];
+      if (i < strings.size() - 1) {
+        res += ", ";
+      }
+    }
+    return res;
+  }
+
   int clog2(const int val) {
     return ceil(log2(val));
   }
@@ -19,8 +30,31 @@ namespace DHLS {
     std::string modName;
     std::string instName;
     std::map<std::string, std::string> portWires;
-    std::map<std::string, std::string> outWires;    
+    std::map<std::string, std::string> outWires;
+
+    std::string onlyOutputVar() const {
+      assert(outWires.size() == 1);
+
+      return (*begin(outWires)).second;
+    }
   };
+
+  std::ostream& operator<<(std::ostream& out, const FunctionalUnit& unit) {
+    out << unit.modName;
+    out << " " << unit.instName << "(";
+    vector<string> portStrs;
+    for (auto pt : unit.portWires) {
+      portStrs.push_back("." + pt.first + "(" + pt.second + ")");
+    }
+
+    for (auto pt : unit.outWires) {
+      portStrs.push_back("." + pt.first + "(" + pt.second + ")");
+    }
+
+    out << commaListString(portStrs) << ")";
+
+    return out;
+  }
 
   class Port {
   public:
@@ -41,17 +75,6 @@ namespace DHLS {
     return {false, width, name};
   }
   
-  std::string commaListString(const std::vector<std::string>& strings) {
-    string res = "";
-    for (int i = 0; i < (int) strings.size(); i++) {
-      res += strings[i];
-      if (i < strings.size() - 1) {
-        res += ", ";
-      }
-    }
-    return res;
-  }
-
   std::vector<Port> getPorts(const STG& stg) {
     vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
     int numReadPorts = 0;
@@ -122,6 +145,10 @@ namespace DHLS {
             modName = "store";
           } else if (LoadInst::classof(instr)) {
             modName = "load";
+
+            wiring = {{"raddr", "raddr_0"}};
+            outWires = {{"out", "rdata_0"}};
+
           } else if (BinaryOperator::classof(instr)) {
             assert(instr->getOpcode() == Instruction::Add);
             modName = "add";
@@ -304,16 +331,22 @@ namespace DHLS {
             assert(Instruction::classof(arg0));
 
             if (opcode == Instruction::Add) {
+              cout << "Scheduling add" << endl;
+
+              auto addUnit = map_find(instr, unitAssignment);
               auto unit0Src =
                 map_find(dyn_cast<Instruction>(arg0), unitAssignment);
               assert(unit0Src.outWires.size() == 1);
 
+              cout << "Found unit 0 = " << unit0Src << endl;
               auto unit1Src =
                 map_find(dyn_cast<Instruction>(arg1), unitAssignment);
               assert(unit1Src.outWires.size() == 1);
+
+              cout << "Found unit 1 = " << unit1Src << endl;
               
               out << "\t\t\t// Scheduling plus" << endl;
-              out << "\t\t\t" << unit0Src.outWires[0][0] << " = " << unit0Src.outWires[0][1] << ";" << endl;
+              out << "\t\t\t" << addUnit.onlyOutputVar() << " = " << unit0Src.onlyOutputVar() << " + " << unit1Src.onlyOutputVar() << ";" << endl;
             } else {
               assert(false);
             }
