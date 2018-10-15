@@ -16,7 +16,8 @@ namespace DHLS {
 
   class FunctionalUnit {
   public:
-    std::string name;
+    std::string modName;
+    std::string instName;
     std::map<std::string, std::string> portWires;
   };
 
@@ -108,7 +109,26 @@ namespace DHLS {
 
         auto schedVars = map_find(instr, stg.sched.instrTimes);
         if (state.first == schedVars.front()) {
-          
+          string unitName = string(instr->getOpcodeName()) + "_" +
+            to_string(resSuffix);
+
+          string modName = "add";
+          if (StoreInst::classof(instr)) {
+            modName = "store";
+          } else if (LoadInst::classof(instr)) {
+            modName = "load";
+          } else if (BinaryOperator::classof(instr)) {
+            assert(instr->getOpcode() == Instruction::Add);
+            modName = "add";
+          } else if (ReturnInst::classof(instr)) {
+            modName = "ret";
+          } else {
+            assert(false);
+          }
+
+
+          units[instr] = {modName, unitName, {}};
+
           resSuffix++;
         }
       }
@@ -116,6 +136,14 @@ namespace DHLS {
     
     return units;
   }
+
+  // Im a little confused on what the next steps in getting this generated
+  // verilog right are.
+
+  // Q: What are the smallest concrete steps I could take?
+  // A: Actually print out assignments to an addition for the add functional unit
+  //    Print out storage to temporaries, but that is not actually needed for
+  //    any of my applications since the stores are being done in the same state
   
   // What are the components of this verilog?
   // module declaration
@@ -159,6 +187,13 @@ namespace DHLS {
 
     map<Instruction*, FunctionalUnit> unitAssignment =
       assignFunctionalUnits(stg);
+
+    out << endl << "\t// Start Functional Units" << endl;
+    for (auto iUnit : unitAssignment) {
+      auto unit = iUnit.second;
+      out << "\t" << unit.modName << "()" << endl << endl;
+    }
+    out << "\t// End Functional Units" << endl;
 
     // Note: Result names also need widths if we are going to use them
     map<Instruction*, std::string> resultNames;

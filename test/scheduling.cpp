@@ -117,11 +117,6 @@ namespace DHLS {
     // by a condition that guarantees that it only executes when you reached
     // state 3 from state 2
 
-    // Note: The condition that you got to state 3 from state 2 is really a
-    // description of what happened in the past. When you reach state 3 from
-    // state 2 that means that a store instruction that started in state 0 is
-    // just now finishing. When you reach state 3 from state 3
-
     emitVerilog(f, graph);
 
     REQUIRE(runIVerilogTB("single_store"));
@@ -142,7 +137,7 @@ namespace DHLS {
 
     HardwareConstraints hcs;
     hcs.setLatency(STORE_OP, 3);
-    hcs.setLatency(LOAD_OP, 1);    
+    hcs.setLatency(LOAD_OP, 1);
     hcs.setLatency(ADD_OP, 0);
 
     Function* f = Mod->getFunction("plus");
@@ -151,14 +146,13 @@ namespace DHLS {
     REQUIRE(s.clockTicksToFinish() == 4);
 
     auto& retInstr = f->getBasicBlockList().back().back();
-    //REQUIRE(s.startTime(&retInstr) == 3);
 
     STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    REQUIRE(graph.numControlStates() == 4);
+    REQUIRE(graph.numControlStates() == 5);
 
     emitVerilog(f, graph);
 
