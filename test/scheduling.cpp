@@ -106,18 +106,8 @@ namespace DHLS {
 
     REQUIRE(graph.numControlStates() == 4);
 
-    // Now we should emit verilog.
-    // I don't really understand the interaction between edge transitions in CDFG,
-    // edge transitions in the STG, registers and wires in final verilog. Also
-    // I dont really understand the meaning of repeatedly going to the same state if
-    // there is more than one instruction there. What does staying in state 3 mean
-    // if the end of the store instruction is there and the return instruction
-    // is there? I guess the completion of the store would not be executed.
-    // Maybe that is where guard conditions come in to play. The store is guarded
-    // by a condition that guarantees that it only executes when you reached
-    // state 3 from state 2
-
-    emitVerilog(f, graph);
+    map<string, int> layout = {{"a", 0}};
+    emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("single_store"));
   }
@@ -154,7 +144,8 @@ namespace DHLS {
 
     REQUIRE(graph.numControlStates() == 5);
 
-    emitVerilog(f, graph);
+    map<string, int> layout = {{"a", 0}, {"b", 3}, {"c", 4}};
+    emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("plus"));
     

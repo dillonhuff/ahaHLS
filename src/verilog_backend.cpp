@@ -223,7 +223,7 @@ namespace DHLS {
   // input trigger logic
   // storage trigger logic
   // functional units (including memories)
-  void emitVerilog(llvm::Function* f, const STG& stg) {
+  void emitVerilog(llvm::Function* f, const STG& stg, std::map<std::string, int>& memoryMap) {
 
     // For each state ID:
     //   set functional unit inputs
