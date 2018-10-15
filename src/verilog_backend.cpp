@@ -126,6 +126,9 @@ namespace DHLS {
   std::map<Instruction*, FunctionalUnit> assignFunctionalUnits(const STG& stg) {
     std::map<Instruction*, FunctionalUnit> units;
 
+    int readNum = 0;
+    int writeNum = 0;
+
     // For now create a different unit for every single operation
     int resSuffix = 0;
     for (auto state : stg.opStates) {
@@ -145,13 +148,20 @@ namespace DHLS {
           if (StoreInst::classof(instr)) {
             modName = "store";
 
+            // These names need to match names created in the portlist. So
+            // maybe this should be used to create the port list? Generate the
+            // names here and then write ports for them?
             wiring = {{"wen", "wen_0_reg"}, {"waddr", "waddr_0_reg"}, {"wdata", "wdata_0_reg"}};
+
+            writeNum++;
 
           } else if (LoadInst::classof(instr)) {
             modName = "load";
 
-            wiring = {{"raddr", "raddr_0"}};
-            outWires = {{"out", "rdata_0"}};
+            wiring = {{"raddr", "raddr_" + to_string(readNum) + "_reg"}};
+            outWires = {{"out", "rdata_" + to_string(readNum)}};
+
+            readNum++;            
 
           } else if (BinaryOperator::classof(instr)) {
             assert(instr->getOpcode() == Instruction::Add);
@@ -286,8 +296,6 @@ namespace DHLS {
     out << "\treg [31:0] global_state;" << endl << endl;
 
     out << "\talways @(posedge clk) begin" << endl;
-    //out << "\t\t$display(\"global_state = %d\", global_state);" << endl;
-    //out << "\t\t$display(\"valid        = %d\", valid);" << endl;    
 
     // Insert state transition logic
     out << "\t\tif (rst) begin" << endl;
@@ -304,7 +312,6 @@ namespace DHLS {
       
     out << "\t\tend" << endl;
     out << "\tend" << endl;
-    // Insert functional units
 
     out << endl << endl;
 
@@ -319,21 +326,13 @@ namespace DHLS {
         
         auto schedVars = map_find(instr, stg.sched.instrTimes);
         if (state.first == schedVars.front()) {
-          // Now the issue is how do I change each write port value?
-          // I guess conceptually we have a big mux with the state going in
-          // to the select and then a bunch of logic saying what to do?
-          // So maybe this block should be always @(*) ? Update any time a signal
-          // changes?
 
           if (ReturnInst::classof(instr)) {
             out << "\t\t\tvalid_reg = 1;" << endl;
           } else if (StoreInst::classof(instr)) {
 
-            // This is the next thing I need to attack. How do I deal with
-            // outputing a store?
             
             out << "\t\t\twaddr_0_reg = 0;" << endl;
-            //out << "\t\t\twdata_0_reg = 5;" << endl;
 
             auto arg0 = instr->getOperand(0);
 
@@ -353,7 +352,8 @@ namespace DHLS {
 
           } else if (LoadInst::classof(instr)) {
 
-            out << "\t\t\traddr_0_reg = 0;" << endl;
+            out << "\t\t\t" << addUnit.portWires["raddr"] << " = " << 0 << ";" << endl;            
+            //out << "\t\t\traddr_0_reg = 0;" << endl;
             
           } else if (BinaryOperator::classof(instr)) {
 
