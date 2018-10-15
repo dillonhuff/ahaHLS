@@ -8,20 +8,18 @@ module test();
    
 
    // Depth 16, width 32 RAM
-   reg [4:0] raddr;
+   reg [4:0] raddr0;
    reg [4:0] waddr;
    reg [31:0] wdata;
    reg [0:0] wen;
    
-   wire [31:0] rdata;
+   wire [31:0] rdata0;
    
    initial begin
 
       #1 clk = 0;
       #1 rst = 1;
       #1 clk = 1;
-
-      #1 raddr = 0;
 
       //$display("rdata = %d", rdata);
       // $display("wen   = %d", wen);
@@ -32,15 +30,10 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
-//      $display("rdata = %d", rdata);      
-
       #1 clk = 0;
       #1 clk = 1;
 
-//      $display("rdata = %d", rdata);            
-//      $display("raddr = %d", rdata);
-
-      #1 `assert(rdata, 32'hxxxxxxxx);
+      #1 `assert(rdata0, 32'hxxxxxxxx);
 
       #1 clk = 0;
       #1 clk = 1;
@@ -50,7 +43,7 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
-      #1 `assert(rdata, 32'd5);
+      #1 `assert(rdata0, 32'd5);
 
       $display("Passed");
 
@@ -62,14 +55,14 @@ module test();
 //      $display("rdata = %d", rdata);      
    end
 
-   RAM mem(.clk(clk),
-           .rst(rst),
-           .raddr(raddr),
-           .rdata(rdata),
-           .wen(wen),
-           .wdata(wdata),
-           .waddr(waddr));
+   RAM2 mem(.clk(clk),
+            .rst(rst),
+            .raddr0(raddr0),
+            .rdata0(rdata0),
+            .wen(wen),
+            .wdata(wdata),
+            .waddr(waddr));
    
-   plus ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen));
+   plus ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .raddr_0(raddr0), .rdata_0(rdata0));
    
 endmodule

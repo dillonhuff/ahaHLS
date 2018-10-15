@@ -1,16 +1,22 @@
-module RAM(input clk,
+module RAM2(input clk,
            input                  rst,
            input                  wen,
            input [WIDTH - 1 : 0]  wdata,
-           input [ADDR_WIDTH : 0] raddr,
            input [ADDR_WIDTH : 0] waddr,
-           output [WIDTH - 1 : 0] rdata);
+
+           input [ADDR_WIDTH : 0] raddr0,
+           input [ADDR_WIDTH : 0] raddr1,
+
+           output [WIDTH - 1 : 0] rdata0,
+           output [WIDTH - 1 : 0] rdata1);
 
    parameter WIDTH=32;
    parameter DEPTH=16;
    parameter ADDR_WIDTH = $clog2(DEPTH);
 
-   reg [WIDTH - 1 : 0]            rdata_reg;
+   reg [WIDTH - 1 : 0]            rdata0_reg;
+   reg [WIDTH - 1 : 0]            rdata1_reg;   
+
    wire [WIDTH - 1 : 0]            rdata_reg_del;
 
    reg [WIDTH - 1 : 0]            data [DEPTH - 1 : 0];
@@ -28,17 +34,14 @@ module RAM(input clk,
          data[waddr_del] <= wdata_del;
       end
 
-      rdata_reg <= data[raddr];
+      rdata0_reg <= data[raddr0];
+      rdata1_reg <= data[raddr1];      
    end
-
-   //delay #(.WIDTH(32)) rdata_delay(.clk(clk), .in(rdata_reg), .out(rdata_reg_del));
-
-   //delay #(.WIDTH(5)) raddr_delay(.clk(clk), .in(raddr), .out(raddr_del));   
 
    delay #(.WIDTH(1)) wen_delay(.clk(clk), .in(wen), .out(wen_del));   
    delay #(.WIDTH(32)) wdata_delay(.clk(clk), .in(wdata), .out(wdata_del));   
    delay #(.WIDTH(5)) waddr_delay(.clk(clk), .in(waddr), .out(waddr_del));   
 
-   assign rdata = rdata_reg;
-
+   assign rdata0 = rdata0_reg;
+   assign rdata1 = rdata1_reg;
 endmodule
