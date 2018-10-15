@@ -8,7 +8,14 @@ module RAM2(input clk,
            input [ADDR_WIDTH : 0] raddr1,
 
            output [WIDTH - 1 : 0] rdata0,
-           output [WIDTH - 1 : 0] rdata1);
+           output [WIDTH - 1 : 0] rdata1,
+
+           input [ADDR_WIDTH : 0] debug_write_addr,
+           input [WIDTH - 1 : 0]  debug_write_data,
+           input                  debug_write_en,
+            
+           input [ADDR_WIDTH : 0] debug_addr,
+           output [WIDTH - 1 : 0] debug_data);
 
    parameter WIDTH=32;
    parameter DEPTH=16;
@@ -23,7 +30,9 @@ module RAM2(input clk,
 
    wire                            wen_del;
    wire [ADDR_WIDTH : 0]            waddr_del;
-   wire [WIDTH - 1 : 0]            wdata_del;   
+   wire [WIDTH - 1 : 0]            wdata_del;
+
+   assign debug_data = data[debug_addr];
 
    always @(posedge clk) begin
       // $display("--- wen_del    = %d", wen_del);
@@ -34,6 +43,10 @@ module RAM2(input clk,
          data[waddr_del] <= wdata_del;
       end
 
+      if (debug_write_en) begin
+         data[debug_write_addr] <= debug_write_data;
+      end
+      
       rdata0_reg <= data[raddr0];
       rdata1_reg <= data[raddr1];      
    end
