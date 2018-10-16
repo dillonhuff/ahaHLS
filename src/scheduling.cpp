@@ -105,8 +105,6 @@ namespace DHLS {
         cout << ex << " = " << m.eval(ex) << endl;
       }
     }
-    
-    return sched;
 
     return sched;
   }
@@ -192,6 +190,11 @@ namespace DHLS {
         }
       } else {
         assert(BranchInst::classof(term));
+
+        // By definition the completion of a branch is the completion of
+        // the basic block that contains it.
+        s.add(blockSink(&bb, blockVars) == map_find(term, schedVars).back());
+
         for (auto* nextBB : dyn_cast<TerminatorInst>(term)->successors()) {
           s.add(blockSink(&bb, blockVars) <= blockSource(nextBB, blockVars));
         }
@@ -234,13 +237,30 @@ namespace DHLS {
     //   Find the contaning states of those instructions
     //   If no other states to transition to then transition to next numerical
 
-    for (int i = 0; i < sched.clockTicksToFinish(); i++) {
-      map_insert(g.opTransitions, i, {i + 1, Condition()});
-    }
+    for (auto st : g.opStates) {
+      for (auto instrG : st.second) {
+        Instruction* instr = instrG.instruction;
 
-    // Really should iterate over every state with a terminator and potentially stay
-    // there
-    map_insert(g.opTransitions, sched.clockTicksToFinish(), {sched.clockTicksToFinish(), Condition()});
+        // If the instruction is finished in this state
+        if (st.first == map_find(instr, sched.instrTimes).back()) {
+          if (TerminatorInst::classof(instr)) {
+            if (ReturnInst::classof(instr)) {
+              map_insert(g.opTransitions, st.first, {st.first, Condition()});
+            } else {
+              assert(false);
+            }
+          } else {
+            Instruction* next = instr->getNextNode();
+            StateId nextState = map_find(next, sched.instrTimes).front();
+            map_insert(g.opTransitions, st.first, {nextState, Condition()});
+          }
+        } else {
+          // If the instruction is not finished then we must go to the numerically
+          // next state
+          map_insert(g.opTransitions, st.first, {st.first + 1, Condition()});
+        }
+      }
+    }
 
     return g;
   }
