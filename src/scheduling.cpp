@@ -47,6 +47,10 @@ namespace DHLS {
       latency = hdc.getLatency(STORE_OP);
     } else if (LoadInst::classof(iptr)) {
       latency = hdc.getLatency(LOAD_OP);
+    } else if (CmpInst::classof(iptr)) {
+      latency = hdc.getLatency(CMP_OP);
+    } else if (BranchInst::classof(iptr)) {
+      latency = hdc.getLatency(BR_OP);
     } else if (BinaryOperator::classof(iptr)) {
       auto opCode = iptr->getOpcode();
       if (opCode == Instruction::Add) {

@@ -14,7 +14,9 @@ namespace DHLS {
     SUB_OP,
     MUL_OP,
     DIV_OP,
-    SDIV_OP
+    SDIV_OP,
+    CMP_OP,
+    BR_OP
   };
 
   class HardwareConstraints {
