@@ -149,6 +149,7 @@ namespace DHLS {
         }
       }
 
+      out << "--- State Transistions" << std::endl;      
       for (auto tr : opTransitions) {
         out << "\t" << tr.first << std::endl;
         for (auto nextState : tr.second) {
