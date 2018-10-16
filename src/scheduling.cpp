@@ -54,9 +54,6 @@ namespace DHLS {
     } else if (BinaryOperator::classof(iptr)) {
       auto opCode = iptr->getOpcode();
       if (opCode == Instruction::Add) {
-        // auto op0 = iptr->getOperand(0);
-        // assert(Instruction::classof(op0));
-
         latency = hdc.getLatency(ADD_OP);
 
       } else {
@@ -114,6 +111,10 @@ namespace DHLS {
     return sched;
   }
 
+  // A few new things to add:
+  // 1. Control edges between basic blocks need to induce dependencies
+  //    unless they are "back edges", which I suppose will be determined by
+  //    linearization
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc) {
     // Now need to: Create a Z3 context that can take in scheduling variables
     // and compute values for them
