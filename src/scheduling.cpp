@@ -270,7 +270,7 @@ namespace DHLS {
                 }
 
                 if ((falseState > st.first) && !g.hasTransition(st.first, falseState)) {
-                  map_insert(g.opTransitions, st.first, {falseState, Condition(cond, false)});
+                  map_insert(g.opTransitions, st.first, {falseState, Condition(cond, true)});
                 }
                 
               } else {

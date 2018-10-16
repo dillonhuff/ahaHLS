@@ -76,9 +76,14 @@ namespace DHLS {
     if (c.cond != nullptr) {
       assert(llvm::Instruction::classof(c.cond));
       if (c.negated) {
-        out << "!";
+        out << "!(";
       }
       out << instructionString(static_cast<llvm::Instruction* const>(c.cond));
+
+      if (c.negated) {
+        out << ")";
+      }
+
     } else {
       out << "True";
     }
