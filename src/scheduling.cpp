@@ -249,7 +249,16 @@ namespace DHLS {
                 map_insert(g.opTransitions, st.first, {st.first, Condition()});
               }
             } else {
-              assert(false);
+
+              for (auto* bb : dyn_cast<TerminatorInst>(instr)->successors()) {
+                StateId nextState = map_find(bb, sched.blockTimes).front();
+
+                // TODO: Add conditions
+                if ((nextState > st.first) && !g.hasTransition(st.first, nextState)) {
+                  map_insert(g.opTransitions, st.first, {nextState, Condition()});
+                }
+                
+              }
             }
           } else {
             Instruction* next = instr->getNextNode();
