@@ -61,7 +61,13 @@ namespace DHLS {
   // Logical condition used in state transitions
   class Condition {
   public:
-    
+
+    llvm::Value* cond;
+    bool negated;
+    Condition() : cond(nullptr), negated(false) {}
+    Condition(llvm::Value* const cond_) : cond(cond_), negated(false) {}
+    Condition(llvm::Value* const cond_, const bool negated_) :
+      cond(cond_), negated(negated_) {}    
   };
 
   class GuardedInstruction {

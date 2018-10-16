@@ -250,10 +250,35 @@ namespace DHLS {
               }
             } else {
 
-              for (auto* bb : dyn_cast<TerminatorInst>(instr)->successors()) {
-                StateId nextState = map_find(bb, sched.blockTimes).front();
+              auto* branch = dyn_cast<BranchInst>(instr);
+              if (branch->isConditional()) {
+                assert(branch->getNumSuccessors() == 2);
+                Value* cond = branch->getCondition();
 
-                // TODO: Add conditions
+                BasicBlock* trueB = branch->getSuccessor(0);
+                BasicBlock* falseB = branch->getSuccessor(1);
+
+                StateId trueState =
+                  map_find(trueB, sched.blockTimes).front();
+
+                StateId falseState =
+                  map_find(falseB, sched.blockTimes).front();
+
+                
+                if ((trueState > st.first) && !g.hasTransition(st.first, trueState)) {
+                  map_insert(g.opTransitions, st.first, {trueState, Condition(cond)});
+                }
+
+                if ((falseState > st.first) && !g.hasTransition(st.first, falseState)) {
+                  map_insert(g.opTransitions, st.first, {falseState, Condition(cond, false)});
+                }
+                
+              } else {
+                assert(branch->getNumSuccessors() == 1);
+
+                StateId nextState =
+                  map_find(branch->getSuccessor(0), sched.blockTimes).front();
+
                 if ((nextState > st.first) && !g.hasTransition(st.first, nextState)) {
                   map_insert(g.opTransitions, st.first, {nextState, Condition()});
                 }
