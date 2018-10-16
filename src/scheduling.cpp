@@ -163,19 +163,19 @@ namespace DHLS {
         instrNo += 1;
       }
 
-      auto termInstr = bb.getTerminator();
-      if (!BranchInst::classof(termInstr)) {
-        // This is a return instr?
-        assert(ReturnInst::classof(termInstr));
+      // auto termInstr = bb.getTerminator();
+      // if (!BranchInst::classof(termInstr)) {
+      //   // This is a return instr?
+      //   assert(ReturnInst::classof(termInstr));
 
-        // // Return instructions must finish after every instruction
-        // for (auto& instr : bb) {
-        //   Instruction* iptr = &instr;
-        //   if (iptr != termInstr) {
-        //     s.add(map_find(iptr, schedVars).back() <= map_find((Instruction*) termInstr, schedVars).front());
-        //   }
-        // }
-      }
+      //   // // Return instructions must finish after every instruction
+      //   // for (auto& instr : bb) {
+      //   //   Instruction* iptr = &instr;
+      //   //   if (iptr != termInstr) {
+      //   //     s.add(map_find(iptr, schedVars).back() <= map_find((Instruction*) termInstr, schedVars).front());
+      //   //   }
+      //   // }
+      // }
     }
 
     // Connect the control edges
@@ -192,7 +192,9 @@ namespace DHLS {
         }
       } else {
         assert(BranchInst::classof(term));
-        
+        for (auto* nextBB : dyn_cast<TerminatorInst>(term)->successors()) {
+          s.add(blockSink(&bb, blockVars) <= blockSource(nextBB, blockVars));
+        }
       }
     }
 
