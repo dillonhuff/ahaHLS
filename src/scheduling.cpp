@@ -227,16 +227,6 @@ namespace DHLS {
       }
     }
 
-    // Q: What is the difference between a control state and a state?
-    // I suppose you are supposed to just unify adjacent basic block states?
-    
-    // To build edges:
-    // For each state value in schedule
-    //   Find all instructions in that state
-    //   For each instruction find all subsequent instructions
-    //   Find the contaning states of those instructions
-    //   If no other states to transition to then transition to next numerical
-
     for (auto st : g.opStates) {
       for (auto instrG : st.second) {
         Instruction* instr = instrG.instruction;
@@ -286,14 +276,14 @@ namespace DHLS {
               }
             }
           } else {
-            Instruction* next = instr->getNextNode();
-            StateId nextState = map_find(next, sched.instrTimes).front();
+            // Instruction* next = instr->getNextNode();
+            // StateId nextState = map_find(next, sched.instrTimes).front();
 
-            // Do not jump to the start state of an instruction that has already
-            // started and do not duplicate paths
-            if ((nextState > st.first) && !g.hasTransition(st.first, nextState)) {
-              map_insert(g.opTransitions, st.first, {nextState, Condition()});
-            }
+            // // Do not jump to the start state of an instruction that has already
+            // // started and do not duplicate paths
+            // if ((nextState > st.first) && !g.hasTransition(st.first, nextState)) {
+            //   map_insert(g.opTransitions, st.first, {nextState, Condition()});
+            // }
           }
         } else {
           // If the instruction is not finished then we must go to the numerically
