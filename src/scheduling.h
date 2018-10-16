@@ -91,6 +91,20 @@ namespace DHLS {
       return opStates.size();
     }
 
+    bool hasTransition(const StateId a, const StateId b) const {
+      if (!dbhc::contains_key(a, opTransitions)) {
+        return false;
+      }
+
+      auto nextStates = dbhc::map_find(a, opTransitions);
+      for (auto t : nextStates) {
+        if (t.dest == b) {
+          return true;
+        }
+      }
+
+      return false;
+    }
     void print(std::ostream& out) {
       out << "--- States" << std::endl;
       for (auto st : opStates) {

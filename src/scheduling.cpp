@@ -245,19 +245,25 @@ namespace DHLS {
         if (st.first == map_find(instr, sched.instrTimes).back()) {
           if (TerminatorInst::classof(instr)) {
             if (ReturnInst::classof(instr)) {
-              map_insert(g.opTransitions, st.first, {st.first, Condition()});
+              if (!g.hasTransition(st.first, st.first)) {
+                map_insert(g.opTransitions, st.first, {st.first, Condition()});
+              }
             } else {
               assert(false);
             }
           } else {
             Instruction* next = instr->getNextNode();
             StateId nextState = map_find(next, sched.instrTimes).front();
-            map_insert(g.opTransitions, st.first, {nextState, Condition()});
+            if (!g.hasTransition(st.first, nextState)) {
+              map_insert(g.opTransitions, st.first, {nextState, Condition()});
+            }
           }
         } else {
           // If the instruction is not finished then we must go to the numerically
           // next state
-          map_insert(g.opTransitions, st.first, {st.first + 1, Condition()});
+          if (!g.hasTransition(st.first, st.first + 1)) {
+            map_insert(g.opTransitions, st.first, {st.first + 1, Condition()});
+          }
         }
       }
     }
