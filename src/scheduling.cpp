@@ -254,7 +254,10 @@ namespace DHLS {
           } else {
             Instruction* next = instr->getNextNode();
             StateId nextState = map_find(next, sched.instrTimes).front();
-            if (!g.hasTransition(st.first, nextState)) {
+
+            // Do not jump to the start state of an instruction that has already
+            // started and do not duplicate paths
+            if ((nextState > st.first) && !g.hasTransition(st.first, nextState)) {
               map_insert(g.opTransitions, st.first, {nextState, Condition()});
             }
           }
