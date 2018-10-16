@@ -62,7 +62,8 @@ module test();
 //      $display("dbg data = %d", dbg_data);
 
       `assert(dbg_data, 32'hxxxxxxxx);
-
+      `assert(valid, 1'd0);
+      
       //$display("rdata = %d", rdata);
       // $display("wen   = %d", wen);
       // $display("waddr = %d", waddr);
@@ -75,6 +76,7 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
+      `assert(valid, 1'd0);                  
 //      #1 `assert(rdata0, 32'hxxxxxxxx);
 
       #1 clk = 0;
@@ -82,7 +84,8 @@ module test();
 
 //      $display("dbg data = %d", dbg_data);            
 //      $display("rdata = %d", rdata);      
-      
+      `assert(valid, 1'd0);            
+
       #1 clk = 0;
       #1 clk = 1;
 
@@ -98,6 +101,7 @@ module test();
 
 //      $display("dbg data = %d", dbg_data);
       `assert(dbg_data, 32'd24);
+      `assert(valid, 1'd1);      
       
       #1 clk = 0;
       #1 clk = 1;

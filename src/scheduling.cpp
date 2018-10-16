@@ -116,8 +116,6 @@ namespace DHLS {
   //    unless they are "back edges", which I suppose will be determined by
   //    linearization
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc) {
-    // Now need to: Create a Z3 context that can take in scheduling variables
-    // and compute values for them
 
     map<Instruction*, vector<expr> > schedVars;
     map<BasicBlock*, vector<expr> > blockVars;
@@ -170,16 +168,35 @@ namespace DHLS {
         // This is a return instr?
         assert(ReturnInst::classof(termInstr));
 
-        // Return instructions must finish after every instruction
-        for (auto& instr : bb) {
-          Instruction* iptr = &instr;
-          if (iptr != termInstr) {
-            s.add(map_find(iptr, schedVars).back() <= map_find((Instruction*) termInstr, schedVars).front());
-          }
-        }
+        // // Return instructions must finish after every instruction
+        // for (auto& instr : bb) {
+        //   Instruction* iptr = &instr;
+        //   if (iptr != termInstr) {
+        //     s.add(map_find(iptr, schedVars).back() <= map_find((Instruction*) termInstr, schedVars).front());
+        //   }
+        // }
       }
     }
 
+    // Connect the control edges
+    // TODO: Prune backedges
+    for (auto& bb : f->getBasicBlockList()) {
+      Instruction* term = bb.getTerminator();
+      if (ReturnInst::classof(term)) {
+        // Return instructions must finish after every instruction in their block
+        for (auto& instr : bb) {
+          Instruction* iptr = &instr;
+          if (iptr != term) {
+            s.add(map_find(iptr, schedVars).back() <= map_find((Instruction*) term, schedVars).front());
+          }
+        }
+      } else {
+        assert(BranchInst::classof(term));
+        
+      }
+    }
+
+    // Instructions must finish before their dependencies
     for (auto& bb : f->getBasicBlockList()) {
       for (auto& instr : bb) {
         Instruction* iptr = &instr;
