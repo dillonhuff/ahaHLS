@@ -25,9 +25,7 @@ module test();
    wire [31:0] rdata0;
    wire [31:0] rdata1;   
 
-   // TODO: Set inputs 
    initial begin
-
 
       #1 dbg_wr_addr = 0;
       #1 dbg_wr_data = 1;
