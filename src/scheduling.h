@@ -7,6 +7,8 @@
 
 namespace DHLS {
 
+  std::string instructionString(llvm::Instruction* const iptr);
+  
   enum OperationType {
     STORE_OP,
     LOAD_OP,
@@ -70,6 +72,20 @@ namespace DHLS {
       cond(cond_), negated(negated_) {}    
   };
 
+  static inline std::ostream& operator<<(std::ostream& out, const Condition& c) {
+    if (c.cond != nullptr) {
+      assert(llvm::Instruction::classof(c.cond));
+      if (c.negated) {
+        out << "!";
+      }
+      out << instructionString(static_cast<llvm::Instruction* const>(c.cond));
+    } else {
+      out << "True";
+    }
+    return out;
+  }
+  
+  
   class GuardedInstruction {
   public:
     llvm::Instruction* instruction;
@@ -83,6 +99,11 @@ namespace DHLS {
     StateId dest;
     Condition cond;
   };
+
+  static inline std::ostream& operator<<(std::ostream& out, const StateTransition& t) {
+    out << t.dest << " if " << t.cond << std::endl;
+    return out;
+  }
   
   class StateTransitionGraph {
   public:
@@ -126,7 +147,7 @@ namespace DHLS {
       for (auto tr : opTransitions) {
         out << "\t" << tr.first << std::endl;
         for (auto nextState : tr.second) {
-          out << "\t\t -> " << nextState.dest << std::endl;
+          out << "\t\t -> " << nextState << std::endl;
         }
       }
     }
