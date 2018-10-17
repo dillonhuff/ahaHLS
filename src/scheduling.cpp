@@ -210,14 +210,68 @@ namespace DHLS {
     return;
   }
 
-  vector<vector<Condition> > allPathConditions(BasicBlock* const src,
-                                               BasicBlock* const target) {
+  vector<vector<Condition> > allPathConditions(BasicBlock* src,
+                                               BasicBlock* target,
+                                               std::set<BasicBlock*>& considered) {
     if (src == target) {
-      return {};
+      return {{}};
     }
 
-    vector<vector<Condition> > paths;
-    return paths;
+    considered.insert(src);
+
+    auto termInst = src->getTerminator();
+
+    if (ReturnInst::classof(termInst)) {
+      return {};
+    } else if (BranchInst::classof(termInst)) {
+      BranchInst* br = dyn_cast<BranchInst>(termInst);
+      if (!br->isConditional()) {
+        assert(br->getNumSuccessors() == 1);
+
+        BasicBlock* nextB = br->getSuccessor(0);
+
+        // True values are not represented
+        return allPathConditions(nextB, target, considered);
+      } else {
+        assert(br->getNumSuccessors() == 2);
+
+        cout << "Found cond branch" << endl;
+
+        BasicBlock* trueB = br->getSuccessor(0);
+        BasicBlock* falseB = br->getSuccessor(1);
+
+        Value* cond = br->getCondition();
+
+        Condition trueCond(cond);
+        Condition falseCond(cond, true);
+        
+        vector<vector<Condition> > truePaths =
+          allPathConditions(trueB, target, considered);
+
+        vector<vector<Condition> > falsePaths =
+          allPathConditions(falseB, target, considered);
+
+        vector<vector<Condition> > allPaths;
+        for (auto p : truePaths) {
+          auto pCpy = p;
+          pCpy.push_back(trueCond);
+          allPaths.push_back(pCpy);
+        }
+
+        for (auto p : falsePaths) {
+          auto pCpy = p;
+          pCpy.push_back(falseCond);
+          allPaths.push_back(pCpy);
+        }
+
+        return allPaths;
+        
+      }
+      
+    }
+
+    assert(false);
+
   }
 
   // What is left after creating the instruction bindings?
@@ -231,8 +285,17 @@ namespace DHLS {
     BasicBlock* entryBlock = &(f->getEntryBlock());
     for (auto& bbR : f->getBasicBlockList()) {
       BasicBlock* target = &bbR;
+      set<BasicBlock*> considered;
       vector<vector<Condition> > allPaths =
-        allPathConditions(entryBlock, target);
+        allPathConditions(entryBlock, target, considered);
+
+      cout << "-- all paths" << endl;
+      for (auto path : allPaths) {
+        cout << "\tPath" << endl;
+        for (auto c : path) {
+          cout << "\t\t" << c << " ^ " << endl; // Output like comma list
+        }
+      }
     }
 
     // Add instruction mapping to schedule
