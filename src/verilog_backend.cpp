@@ -410,10 +410,10 @@ namespace DHLS {
 
 
             auto arg0 = instr->getOperand(0);
-            auto arg0Name = outputName(arg0, unitAssignment);            
+            auto arg0Name = outputName(arg0, unitAssignment);
 
             auto arg1 = instr->getOperand(1);
-            auto arg1Name = outputName(arg1, unitAssignment);            
+            auto arg1Name = outputName(arg1, unitAssignment);     
             out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0 << ";" << endl;
             out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1 << ";" << endl;
 
