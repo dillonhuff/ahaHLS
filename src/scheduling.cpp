@@ -210,6 +210,16 @@ namespace DHLS {
     return;
   }
 
+  vector<vector<Condition> > allPathConditions(BasicBlock* const src,
+                                               BasicBlock* const target) {
+    if (src == target) {
+      return {};
+    }
+
+    vector<vector<Condition> > paths;
+    return paths;
+  }
+
   // What is left after creating the instruction bindings?
   //   1. Creating state transitions
   //   2. Add operation guards
@@ -220,7 +230,7 @@ namespace DHLS {
     // Compute basic block activation conditions (instruction guards)
     BasicBlock* entryBlock = &(f->getEntryBlock());
     for (auto& bbR : f->getBasicBlockList()) {
-      BasicBlock* target = &bb;
+      BasicBlock* target = &bbR;
       vector<vector<Condition> > allPaths =
         allPathConditions(entryBlock, target);
     }
