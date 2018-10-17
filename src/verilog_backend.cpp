@@ -216,6 +216,28 @@ namespace DHLS {
     return resultNames;
   }
 
+  std::string outputName(Value* arg0,
+                         map<Instruction*, FunctionalUnit> unitAssignment) {
+    if (Instruction::classof(arg0)) {
+
+      auto unit0Src =
+        map_find(dyn_cast<Instruction>(arg0), unitAssignment);
+      assert(unit0Src.outWires.size() == 1);
+
+      string arg0Name = unit0Src.onlyOutputVar();
+
+      return arg0Name;
+    } else {
+      assert(ConstantInt::classof(arg0));
+      auto arg0C = dyn_cast<ConstantInt>(arg0);
+      auto apInt = arg0C->getValue();
+
+      assert(!apInt.isNegative());
+
+      return to_string(dyn_cast<ConstantInt>(arg0)->getSExtValue());
+    }
+  }
+
   // Im a little confused on what the next steps in getting this generated
   // verilog right are.
 
@@ -386,42 +408,40 @@ namespace DHLS {
             out << "\t\t\t" << addUnit.portWires["raddr"] << " = " << locValue << ";" << endl;
           } else if (CmpInst::classof(instr)) {
 
+
             auto arg0 = instr->getOperand(0);
-            assert(Instruction::classof(arg0));
+            auto arg0Name = outputName(arg0, unitAssignment);            
 
             auto arg1 = instr->getOperand(1);
-            assert(Instruction::classof(arg1));
-
-            auto unit0Src =
-              map_find(dyn_cast<Instruction>(arg0), unitAssignment);
-            assert(unit0Src.outWires.size() == 1);
-
-            auto unit1Src =
-              map_find(dyn_cast<Instruction>(arg1), unitAssignment);
-            assert(unit1Src.outWires.size() == 1);
-              
-            out << "\t\t\t" << addUnit.portWires["in0"] << " = " << unit0Src.onlyOutputVar() << ";" << endl;
-            out << "\t\t\t" << addUnit.portWires["in1"] << " = " << unit1Src.onlyOutputVar() << ";" << endl;
+            auto arg1Name = outputName(arg1, unitAssignment);            
+            out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0 << ";" << endl;
+            out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1 << ";" << endl;
 
           } else if (BinaryOperator::classof(instr)) {
 
             auto arg0 = instr->getOperand(0);
             assert(Instruction::classof(arg0));
 
-            auto arg1 = instr->getOperand(1);
-            assert(Instruction::classof(arg1));
-
             auto unit0Src =
               map_find(dyn_cast<Instruction>(arg0), unitAssignment);
             assert(unit0Src.outWires.size() == 1);
 
+            string arg0Name = unit0Src.onlyOutputVar();
+
+            auto arg1 = instr->getOperand(1);
+            assert(Instruction::classof(arg1));
+
             auto unit1Src =
               map_find(dyn_cast<Instruction>(arg1), unitAssignment);
             assert(unit1Src.outWires.size() == 1);
-              
-            out << "\t\t\t" << addUnit.portWires["in0"] << " = " << unit0Src.onlyOutputVar() << ";" << endl;
-            out << "\t\t\t" << addUnit.portWires["in1"] << " = " << unit1Src.onlyOutputVar() << ";" << endl;
 
+            string arg1Name = unit1Src.onlyOutputVar();            
+
+            out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
+            out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
+            
+          } else if (BranchInst::classof(instr)) {
+            // Branch instructions dont map to functional units
           } else {
 
             std::string str;
