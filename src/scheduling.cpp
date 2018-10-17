@@ -215,6 +215,16 @@ namespace DHLS {
   //   2. Add operation guards
   STG buildSTG(Schedule& sched, llvm::Function* const f) {
     STG g(sched);
+
+    
+    // Compute basic block activation conditions (instruction guards)
+    BasicBlock* entryBlock = &(f->getEntryBlock());
+    for (auto& bbR : f->getBasicBlockList()) {
+      BasicBlock* target = &bb;
+      vector<vector<Condition> > allPaths =
+        allPathConditions(entryBlock, target);
+    }
+
     // Add instruction mapping to schedule
     for (auto var : sched.instrTimes) {
       for (auto state : var.second) {
@@ -223,10 +233,10 @@ namespace DHLS {
     }
 
     // Walk basic blocks finding transitions
-    BasicBlock* entryBlock = &(f->getEntryBlock());
-    std::vector<Condition> conditions;
-    std::map<BasicBlock*, vector<pair<BasicBlock*, vector<Condition> > > > transitions;
-    computeTransitions(entryBlock, conditions, transitions);
+    // BasicBlock* entryBlock = &(f->getEntryBlock());
+    // std::vector<Condition> conditions;
+    // std::map<BasicBlock*, vector<pair<BasicBlock*, vector<Condition> > > > transitions;
+    // computeTransitions(entryBlock, conditions, transitions);
 
     // Compute transitions
     for (auto st : g.opStates) {
