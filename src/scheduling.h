@@ -109,6 +109,11 @@ namespace DHLS {
   };
 
   static inline std::ostream& operator<<(std::ostream& out, const Condition& c) {
+    if ((c.clauses.size() == 1) && (c.clauses[0].size() == 0)) {
+      out << "True" << std::endl;
+      return out;
+    }
+
     for (auto cl : c.clauses) {
       out << "(";
       for (auto atom : cl) {
@@ -126,6 +131,15 @@ namespace DHLS {
     Condition cond;
   };
 
+  static inline
+  std::ostream& operator<<(std::ostream& out, const GuardedInstruction& t) {
+    std::string str;
+    llvm::raw_string_ostream ss(str);
+    ss << *(t.instruction);
+    out << "\t\t" << ss.str() << " if " << t.cond << std::endl;
+    return out;
+  }
+  
   typedef int StateId;
 
   class StateTransition {
@@ -171,10 +185,11 @@ namespace DHLS {
       for (auto st : opStates) {
         out << "\t" << st.first << std::endl;
         for (auto instr : st.second) {
-          std::string str;
-          llvm::raw_string_ostream ss(str);
-          ss << *(instr.instruction);
-          out << "\t\t" << ss.str() << std::endl;
+          out << instr << std::endl;
+          // std::string str;
+          // llvm::raw_string_ostream ss(str);
+          // ss << *(instr.instruction);
+          // out << "\t\t" << ss.str() << std::endl;
         }
       }
 
