@@ -61,18 +61,19 @@ namespace DHLS {
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc);
 
   // Logical condition used in state transitions
-  class Condition {
+
+  class Atom {
   public:
 
     llvm::Value* cond;
     bool negated;
-    Condition() : cond(nullptr), negated(false) {}
-    Condition(llvm::Value* const cond_) : cond(cond_), negated(false) {}
-    Condition(llvm::Value* const cond_, const bool negated_) :
+    Atom() : cond(nullptr), negated(false) {}
+    Atom(llvm::Value* const cond_) : cond(cond_), negated(false) {}
+    Atom(llvm::Value* const cond_, const bool negated_) :
       cond(cond_), negated(negated_) {}    
   };
 
-  static inline std::ostream& operator<<(std::ostream& out, const Condition& c) {
+  static inline std::ostream& operator<<(std::ostream& out, const Atom& c) {
     if (c.cond != nullptr) {
       assert(llvm::Instruction::classof(c.cond));
       if (c.negated) {
@@ -90,7 +91,35 @@ namespace DHLS {
     return out;
   }
   
-  
+  class Condition {
+  public:
+
+    std::vector<std::vector<Atom> > clauses;
+    // llvm::Value* cond;
+    // bool negated;
+    Condition() : clauses() {}
+
+    Condition(llvm::Value* const cond_) : clauses({{{cond_, false}}}) {}
+    Condition(llvm::Value* const cond_, const bool negated_) :
+      clauses({{{cond_, negated_}}}) {}      
+
+    Condition(std::vector<std::vector<Atom > > cl) :
+      clauses(cl) {}
+
+  };
+
+  static inline std::ostream& operator<<(std::ostream& out, const Condition& c) {
+    for (auto cl : c.clauses) {
+      out << "(";
+      for (auto atom : cl) {
+        out << atom << " ^ ";
+      }
+      out << ") v ";
+    }
+
+    return out;
+  }
+
   class GuardedInstruction {
   public:
     llvm::Instruction* instruction;
