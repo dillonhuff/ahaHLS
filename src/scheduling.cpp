@@ -203,17 +203,32 @@ namespace DHLS {
     return buildFromModel(s, schedVars, blockVars);
   }
 
+  void computeTransitions(BasicBlock* bb,
+                          vector<Condition>& conditions,
+                          map<BasicBlock*, vector<pair<BasicBlock*, vector<Condition> > > >& transitions) {
+    assert(!contains_key(bb, transitions));
+    return;
+  }
+
   // What is left after creating the instruction bindings?
   //   1. Creating state transitions
   //   2. Add operation guards
   STG buildSTG(Schedule& sched, llvm::Function* const f) {
     STG g(sched);
+    // Add instruction mapping to schedule
     for (auto var : sched.instrTimes) {
       for (auto state : var.second) {
         map_insert(g.opStates, state, {var.first, Condition()});
       }
     }
 
+    // Walk basic blocks finding transitions
+    BasicBlock* entryBlock = &(f->getEntryBlock());
+    std::vector<Condition> conditions;
+    std::map<BasicBlock*, vector<pair<BasicBlock*, vector<Condition> > > > transitions;
+    computeTransitions(entryBlock, conditions, transitions);
+
+    // Compute transitions
     for (auto st : g.opStates) {
       for (auto instrG : st.second) {
         Instruction* instr = instrG.instruction;
