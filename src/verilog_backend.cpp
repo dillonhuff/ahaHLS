@@ -161,7 +161,7 @@ namespace DHLS {
             wiring = {{"raddr", "raddr_" + to_string(readNum) + "_reg"}};
             outWires = {{"out", "rdata_" + to_string(readNum)}};
 
-            readNum++;            
+            readNum++;
 
           } else if (BinaryOperator::classof(instr)) {
             assert(instr->getOpcode() == Instruction::Add);
@@ -312,10 +312,15 @@ namespace DHLS {
     out << "\t\tend else begin" << endl;
       
     for (auto state : stg.opTransitions) {
-      assert(state.second.size() == 1);
-      out << "\t\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
-      out << "\t\t\t\tglobal_state <= " + to_string(state.second.at(0).dest) + + ";" << endl;
-      out << "\t\t\tend" << endl;
+      //assert(state.second.size() == 1);
+
+      for (auto transitionDest : state.second) {
+        out << "\t\t\t// Condition = " << transitionDest.cond << endl;
+        out << "\t\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
+        //out << "\t\t\t\tglobal_state <= " + to_string(state.second.at(0).dest) + + ";" << endl;
+        out << "\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
+        out << "\t\t\tend" << endl;
+      }
     }
       
     out << "\t\tend" << endl;
@@ -379,13 +384,32 @@ namespace DHLS {
             cout << "locValue = " << locValue << endl;
 
             out << "\t\t\t" << addUnit.portWires["raddr"] << " = " << locValue << ";" << endl;
+          } else if (CmpInst::classof(instr)) {
+
+            auto arg0 = instr->getOperand(0);
+            assert(Instruction::classof(arg0));
+
+            auto arg1 = instr->getOperand(1);
+            assert(Instruction::classof(arg1));
+
+            auto unit0Src =
+              map_find(dyn_cast<Instruction>(arg0), unitAssignment);
+            assert(unit0Src.outWires.size() == 1);
+
+            auto unit1Src =
+              map_find(dyn_cast<Instruction>(arg1), unitAssignment);
+            assert(unit1Src.outWires.size() == 1);
+              
+            out << "\t\t\t" << addUnit.portWires["in0"] << " = " << unit0Src.onlyOutputVar() << ";" << endl;
+            out << "\t\t\t" << addUnit.portWires["in1"] << " = " << unit1Src.onlyOutputVar() << ";" << endl;
+
           } else if (BinaryOperator::classof(instr)) {
 
             auto arg0 = instr->getOperand(0);
             assert(Instruction::classof(arg0));
 
             auto arg1 = instr->getOperand(1);
-            assert(Instruction::classof(arg0));
+            assert(Instruction::classof(arg1));
 
             auto unit0Src =
               map_find(dyn_cast<Instruction>(arg0), unitAssignment);
