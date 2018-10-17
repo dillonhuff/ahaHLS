@@ -170,7 +170,15 @@ namespace DHLS {
             outWires = {{"out", "add_out"}};
           } else if (ReturnInst::classof(instr)) {
             modName = "ret";
+          } else if (CmpInst::classof(instr)) {
+            modName = "eq";
+            wiring = {{"in0", "eq_in0"}, {"in1", "eq_in1"}};
+            outWires = {{"out", "eq_out"}};
+          } else if (BranchInst::classof(instr)) {
+            // Branches are not scheduled, they are encoded in the
+            // STG transitions
           } else {
+            cout << "Unsupported instruction = " << instructionString(instr) << endl;
             assert(false);
           }
 
