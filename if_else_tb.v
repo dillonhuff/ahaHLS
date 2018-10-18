@@ -27,8 +27,8 @@ module test();
 
    initial begin
 
-      #1 dbg_wr_addr = 0;
-      #1 dbg_wr_data = 1;
+      #1 dbg_wr_addr = 4;
+      #1 dbg_wr_data = 3;
       #1 dbg_wr_en = 1;
       
       #1 clk = 0;
@@ -100,30 +100,30 @@ module test();
       #1 clk = 1;
 
 //      $display("dbg data = %d", dbg_data);
-      `assert(dbg_data, 32'd24);
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      `assert(dbg_data, 32'd23);
       `assert(valid, 1'd1);      
       
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
 //      $display("dbg data = %d", dbg_data);
 
       $display("Passed");
