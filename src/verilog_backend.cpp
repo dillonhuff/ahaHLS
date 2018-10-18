@@ -351,7 +351,6 @@ namespace DHLS {
     out << "\t\tend else begin" << endl;
       
     for (auto state : stg.opTransitions) {
-      //assert(state.second.size() == 1);
 
       out << "\t\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
 
@@ -369,9 +368,9 @@ namespace DHLS {
         }
       }
       
-      out << "\t\t\t// Next state transition logic" << endl;
+      out << "\t\t\t\t// Next state transition logic" << endl;
       for (auto transitionDest : state.second) {
-        out << "\t\t\t// Condition = " << transitionDest.cond << endl;
+        out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
         out << "\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
       }
 
