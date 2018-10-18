@@ -97,7 +97,7 @@ namespace DHLS {
     std::vector<std::vector<Atom> > clauses;
     // llvm::Value* cond;
     // bool negated;
-    Condition() : clauses() {}
+    Condition() : clauses({{}}) {}
 
     Condition(llvm::Value* const cond_) : clauses({{{cond_, false}}}) {}
     Condition(llvm::Value* const cond_, const bool negated_) :
