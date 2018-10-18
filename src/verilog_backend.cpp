@@ -57,6 +57,16 @@ namespace DHLS {
     return out;
   }
 
+  bool hasOutput(Instruction* instr) {
+    if (StoreInst::classof(instr) ||
+        ReturnInst::classof(instr) ||
+        BranchInst::classof(instr)) {
+      return false;
+    }
+
+    return true;
+  }
+
   class Port {
   public:
     bool isInput;
@@ -207,7 +217,7 @@ namespace DHLS {
 
         auto schedVars = map_find(instr, stg.sched.instrTimes);
         if (state.first == schedVars.front()) {
-          resultNames[instr] = string(instr->getOpcodeName()) + "_" + to_string(resSuffix);
+          resultNames[instr] = string(instr->getOpcodeName()) + "_tmp_" + to_string(resSuffix);
           resSuffix++;
         }
       }
@@ -318,11 +328,18 @@ namespace DHLS {
       out << "\t" << unit.modName << " " << unit.instName << "(" << commaListString(wireDecls) << ");" << endl << endl;
     }
     out << "\t// End Functional Units" << endl;
+    out << endl;
 
     // Note: Result names also need widths if we are going to use them
     map<Instruction*, std::string> names = createInstrNames(stg);
 
+    out << "\t// Start instruction result storage" << endl;
+    for (auto n : names) {
+      out << "\treg [31:0] " << n.second << ";" << endl;
+    }
+    out << "\t// End instruction result storage" << endl;
     out << endl;
+
     out << "\treg [31:0] global_state;" << endl << endl;
 
     out << "\talways @(posedge clk) begin" << endl;
@@ -336,9 +353,22 @@ namespace DHLS {
     for (auto state : stg.opTransitions) {
       //assert(state.second.size() == 1);
 
+      out << "\t\t\t// Next state transition logic" << endl;
       for (auto transitionDest : state.second) {
         out << "\t\t\t// Condition = " << transitionDest.cond << endl;
         out << "\t\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
+
+        out << "\t\t\t\t// Store data computed at the stage" << endl;
+        
+        for (auto instrG : map_find(state.first, stg.opStates)) {
+          Instruction* instr = instrG.instruction;
+          auto schedVars = map_find(instr, stg.sched.instrTimes);          
+
+          if (hasOutput(instr) && (state.first == schedVars.back())) {
+            out << "\t\t\t\t// Storing " << instructionString(instr) << endl;
+          }
+        }
+        
         //out << "\t\t\t\tglobal_state <= " + to_string(state.second.at(0).dest) + + ";" << endl;
         out << "\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
         out << "\t\t\tend" << endl;
