@@ -414,8 +414,8 @@ namespace DHLS {
 
             auto arg1 = instr->getOperand(1);
             auto arg1Name = outputName(arg1, unitAssignment);     
-            out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0 << ";" << endl;
-            out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1 << ";" << endl;
+            out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
+            out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
 
           } else if (BinaryOperator::classof(instr)) {
 
