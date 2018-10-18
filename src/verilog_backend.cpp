@@ -353,30 +353,32 @@ namespace DHLS {
     for (auto state : stg.opTransitions) {
       //assert(state.second.size() == 1);
 
+      out << "\t\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
+
+      out << "\t\t\t\t// Store data computed at the stage" << endl;
+        
+      for (auto instrG : map_find(state.first, stg.opStates)) {
+        Instruction* instr = instrG.instruction;
+        auto schedVars = map_find(instr, stg.sched.instrTimes);          
+
+        if (hasOutput(instr) && (state.first == schedVars.back())) {
+
+          string instrName = map_find(instr, names);
+          auto unit = map_find(instr, unitAssignment);
+          out << "\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
+        }
+      }
+      
       out << "\t\t\t// Next state transition logic" << endl;
       for (auto transitionDest : state.second) {
         out << "\t\t\t// Condition = " << transitionDest.cond << endl;
-        out << "\t\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
-
-        out << "\t\t\t\t// Store data computed at the stage" << endl;
-        
-        for (auto instrG : map_find(state.first, stg.opStates)) {
-          Instruction* instr = instrG.instruction;
-          auto schedVars = map_find(instr, stg.sched.instrTimes);          
-
-          if (hasOutput(instr) && (state.first == schedVars.back())) {
-
-            string instrName = map_find(instr, names);
-            auto unit = map_find(instr, unitAssignment);
-            out << "\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
-          }
-        }
-        
         out << "\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
-        out << "\t\t\tend" << endl;
       }
+
+      out << "\t\t\tend" << endl;            
     }
-      
+
+
     out << "\t\tend" << endl;
     out << "\tend" << endl;
 
