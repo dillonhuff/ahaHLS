@@ -67,6 +67,14 @@ namespace DHLS {
     return true;
   }
 
+  class Wire {
+  public:
+    bool registered;
+    int width;
+    std::string name;
+
+  };
+
   class Port {
   public:
     bool isInput;
