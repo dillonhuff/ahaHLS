@@ -26,47 +26,6 @@ namespace DHLS {
     return ceil(log2(val));
   }
 
-  class FunctionalUnit {
-  public:
-    std::string modName;
-    std::string instName;
-    std::map<std::string, std::string> portWires;
-    std::map<std::string, std::string> outWires;
-
-    std::string onlyOutputVar() const {
-      assert(outWires.size() == 1);
-
-      return (*begin(outWires)).second;
-    }
-  };
-
-  std::ostream& operator<<(std::ostream& out, const FunctionalUnit& unit) {
-    out << unit.modName;
-    out << " " << unit.instName << "(";
-    vector<string> portStrs;
-    for (auto pt : unit.portWires) {
-      portStrs.push_back("." + pt.first + "(" + pt.second + ")");
-    }
-
-    for (auto pt : unit.outWires) {
-      portStrs.push_back("." + pt.first + "(" + pt.second + ")");
-    }
-
-    out << commaListString(portStrs) << ")";
-
-    return out;
-  }
-
-  bool hasOutput(Instruction* instr) {
-    if (StoreInst::classof(instr) ||
-        ReturnInst::classof(instr) ||
-        BranchInst::classof(instr)) {
-      return false;
-    }
-
-    return true;
-  }
-
   class Wire {
   public:
     bool registered;
@@ -94,6 +53,47 @@ namespace DHLS {
     return {false, width, name};
   }
   
+  class FunctionalUnit {
+  public:
+    std::string modName;
+    std::string instName;
+    std::map<std::string, std::string> portWires;
+    std::map<std::string, Wire> outWires;
+
+    std::string onlyOutputVar() const {
+      assert(outWires.size() == 1);
+
+      return (*begin(outWires)).second.name;
+    }
+  };
+
+  std::ostream& operator<<(std::ostream& out, const FunctionalUnit& unit) {
+    out << unit.modName;
+    out << " " << unit.instName << "(";
+    vector<string> portStrs;
+    for (auto pt : unit.portWires) {
+      portStrs.push_back("." + pt.first + "(" + pt.second + ")");
+    }
+
+    for (auto pt : unit.outWires) {
+      portStrs.push_back("." + pt.first + "(" + pt.second.name + ")");
+    }
+
+    out << commaListString(portStrs) << ")";
+
+    return out;
+  }
+
+  bool hasOutput(Instruction* instr) {
+    if (StoreInst::classof(instr) ||
+        ReturnInst::classof(instr) ||
+        BranchInst::classof(instr)) {
+      return false;
+    }
+
+    return true;
+  }
+
   std::vector<Port> getPorts(const STG& stg) {
     vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
     int numReadPorts = 0;
@@ -161,7 +161,7 @@ namespace DHLS {
           string modName = "add";
 
           map<string, string> wiring;
-          map<string, string> outWires;
+          map<string, Wire> outWires;
           
           if (StoreInst::classof(instr)) {
             modName = "store";
@@ -177,7 +177,7 @@ namespace DHLS {
             modName = "load";
 
             wiring = {{"raddr", "raddr_" + to_string(readNum) + "_reg"}};
-            outWires = {{"out", "rdata_" + to_string(readNum)}};
+            outWires = {{"out", {false, 32, "rdata_" + to_string(readNum)}}};
 
             readNum++;
 
@@ -185,13 +185,13 @@ namespace DHLS {
             assert(instr->getOpcode() == Instruction::Add);
             modName = "add";
             wiring = {{"in0", "add_in0"}, {"in1", "add_in1"}};
-            outWires = {{"out", "add_out"}};
+            outWires = {{"out", {false, 32, "add_out"}}};
           } else if (ReturnInst::classof(instr)) {
             modName = "ret";
           } else if (CmpInst::classof(instr)) {
             modName = "eq";
             wiring = {{"in0", "eq_in0"}, {"in1", "eq_in1"}};
-            outWires = {{"out", "eq_out"}};
+            outWires = {{"out", {false, 1, "eq_out"}}};
           } else if (BranchInst::classof(instr)) {
             // Branches are not scheduled, they are encoded in the
             // STG transitions
@@ -364,8 +364,8 @@ namespace DHLS {
       }
 
       for (auto w : unit.outWires) {
-        out << "\twire [31:0] " << w.second << ";" << endl;
-        wireDecls.push_back("." + w.first + "(" + w.second + ")");
+        out << "\twire [" << w.second.width - 1 << ":0] " << w.second.name << ";" << endl;
+        wireDecls.push_back("." + w.first + "(" + w.second.name + ")");
       }
       
       out << "\t" << unit.modName << " " << unit.instName << "(" << commaListString(wireDecls) << ");" << endl << endl;
