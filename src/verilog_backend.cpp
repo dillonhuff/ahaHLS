@@ -365,11 +365,13 @@ namespace DHLS {
           auto schedVars = map_find(instr, stg.sched.instrTimes);          
 
           if (hasOutput(instr) && (state.first == schedVars.back())) {
-            out << "\t\t\t\t// Storing " << instructionString(instr) << endl;
+
+            string instrName = map_find(instr, names);
+            auto unit = map_find(instr, unitAssignment);
+            out << "\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
           }
         }
         
-        //out << "\t\t\t\tglobal_state <= " + to_string(state.second.at(0).dest) + + ";" << endl;
         out << "\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
         out << "\t\t\tend" << endl;
       }
