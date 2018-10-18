@@ -106,6 +106,10 @@ namespace DHLS {
     Condition(std::vector<std::vector<Atom > > cl) :
       clauses(cl) {}
 
+    bool isTrue() const {
+      return (clauses.size() == 1) && (clauses[0].size() == 0);
+    }
+
   };
 
   static inline std::ostream& operator<<(std::ostream& out, const Condition& c) {

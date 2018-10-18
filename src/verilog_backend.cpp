@@ -248,6 +248,41 @@ namespace DHLS {
     }
   }
 
+  std::string verilogForCondition(Condition& cond,
+                                  const StateId currentState,
+                                  const STG& stg,
+                                  const map<Instruction*, FunctionalUnit>& unitAssignment,
+                                  const map<Instruction*, string>& names) {
+    string condStr = "";
+
+    if (cond.isTrue()) {
+      return "1";
+    }
+
+    for (auto cl : cond.clauses) {
+      for (auto a : cl) {
+        bool isNeg = a.negated;
+        assert(Instruction::classof(a.cond));
+        Instruction* iValue = dyn_cast<Instruction>(a.cond);
+        StateId atomCompletionTime = map_find(iValue, stg.sched.instrTimes).back();
+
+        if (isNeg) {
+          condStr += "!";
+        }
+
+        condStr += "(";
+        if (atomCompletionTime == currentState) {
+          condStr += map_find(iValue, unitAssignment).onlyOutputVar();
+        } else {
+          condStr += map_find(iValue, names);
+        }
+        condStr += ")";
+      }
+    }
+    
+    return condStr;
+  }
+
   // Im a little confused on what the next steps in getting this generated
   // verilog right are.
 
@@ -371,7 +406,9 @@ namespace DHLS {
       out << "\t\t\t\t// Next state transition logic" << endl;
       for (auto transitionDest : state.second) {
         out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-        out << "\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
+        out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
+        out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
+        out << "\t\t\t\tend" << endl;
       }
 
       out << "\t\t\tend" << endl;            
