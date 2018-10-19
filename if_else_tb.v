@@ -88,6 +88,8 @@ module test();
 
       #1 clk = 0;
       #1 clk = 1;
+
+      #1 $display("Should overwrite value");
       
       `assert(dbg_data, 32'd23);
       `assert(valid, 1'd1);      
@@ -142,7 +144,8 @@ module test();
 
       #1 clk = 0;
       #1 clk = 1;
-      
+
+      #1 $display("Should not overwrite value");      
       `assert(dbg_data, 32'd23);
       `assert(valid, 1'd1);      
       
