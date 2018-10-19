@@ -485,14 +485,6 @@ namespace DHLS {
             Value* location = instr->getOperand(0);            
             auto locValue = outputName(location, unitAssignment, memoryMap);
 
-            // assert(Argument::classof(location));
-            
-            // auto name = location->getName().str();
-            // string locString = name;
-            // cout << "locString = " << locString << endl;
-            // int locValue = map_find(locString, memoryMap);
-            // cout << "locValue = " << locValue << endl;
-
             out << "\t\t\t" << addUnit.portWires["raddr"] << " = " << locValue << ";" << endl;
           } else if (CmpInst::classof(instr)) {
 
