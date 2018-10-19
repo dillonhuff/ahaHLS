@@ -82,9 +82,9 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
       
-//      `assert(dbg_data, 32'd17);
       `assert(valid, 1'd0);
-
+      `assert(dbg_data, 32'd17);
+      
       $display("Passed");
 
    end

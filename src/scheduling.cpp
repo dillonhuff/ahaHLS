@@ -392,6 +392,9 @@ namespace DHLS {
               }
             }
           } else {
+
+            // TODO: Re-insert this code?
+            
             // Instruction* next = instr->getNextNode();
             // StateId nextState = map_find(next, sched.instrTimes).front();
 

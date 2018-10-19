@@ -284,7 +284,10 @@ namespace DHLS {
       return "1";
     }
 
+    int clNum = 0;
     for (auto cl : cond.clauses) {
+
+      int aNum = 0;
       for (auto a : cl) {
         bool isNeg = a.negated;
         assert(Instruction::classof(a.cond));
@@ -302,7 +305,19 @@ namespace DHLS {
           condStr += map_find(iValue, names);
         }
         condStr += ")";
+
+        if (aNum < cl.size() - 1) {
+          condStr += " && ";
+        }
+        
+        aNum++;
       }
+
+      if (clNum < cond.clauses.size() - 1) {
+        condStr += " || ";
+      }
+
+      clNum++;
     }
     
     return condStr;
@@ -467,6 +482,7 @@ namespace DHLS {
         auto schedVars = map_find(instr, stg.sched.instrTimes);
         if (state.first == schedVars.front()) {
 
+          out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
           if (ReturnInst::classof(instr)) {
             out << "\t\t\tvalid_reg = 1;" << endl;
           } else if (StoreInst::classof(instr)) {
@@ -572,8 +588,10 @@ namespace DHLS {
             assert(false);
 
           }
+
+          out << "\t\t\tend" << endl;
         }
-        
+
       }
       //out << "\t\t\tglobal_state <= " + to_string(state.second.at(0).dest) + + ";" << endl;
       out << "\t\tend" << endl;
