@@ -195,6 +195,10 @@ namespace DHLS {
           } else if (BranchInst::classof(instr)) {
             // Branches are not scheduled, they are encoded in the
             // STG transitions
+          } else if (GetElementPtrInst::classof(instr)) {
+            modName = "add";
+            wiring = {{"in0", "add_in0_" + to_string(resSuffix)}, {"in1", "add_in1" + to_string(resSuffix)}};
+            outWires = {{"out", {false, 32, "add_out"}}};
           } else {
             cout << "Unsupported instruction = " << instructionString(instr) << endl;
             assert(false);
@@ -235,7 +239,8 @@ namespace DHLS {
   }
 
   std::string outputName(Value* arg0,
-                         map<Instruction*, FunctionalUnit> unitAssignment) {
+                         map<Instruction*, FunctionalUnit> unitAssignment,
+                         std::map<std::string, int>& memoryMap) {
     if (Instruction::classof(arg0)) {
 
       auto unit0Src =
@@ -245,6 +250,9 @@ namespace DHLS {
       string arg0Name = unit0Src.onlyOutputVar();
 
       return arg0Name;
+    } else if (Argument::classof(arg0)) {
+      string name = arg0->getName();
+      return to_string(map_find(name, memoryMap));
     } else {
       assert(ConstantInt::classof(arg0));
       auto arg0C = dyn_cast<ConstantInt>(arg0);
@@ -474,24 +482,26 @@ namespace DHLS {
 
           } else if (LoadInst::classof(instr)) {
 
-            Value* location = instr->getOperand(0);
-            assert(Argument::classof(location));
+            Value* location = instr->getOperand(0);            
+            auto locValue = outputName(location, unitAssignment, memoryMap);
+
+            // assert(Argument::classof(location));
             
-            auto name = location->getName().str();
-            string locString = name;
-            cout << "locString = " << locString << endl;
-            int locValue = map_find(locString, memoryMap);
-            cout << "locValue = " << locValue << endl;
+            // auto name = location->getName().str();
+            // string locString = name;
+            // cout << "locString = " << locString << endl;
+            // int locValue = map_find(locString, memoryMap);
+            // cout << "locValue = " << locValue << endl;
 
             out << "\t\t\t" << addUnit.portWires["raddr"] << " = " << locValue << ";" << endl;
           } else if (CmpInst::classof(instr)) {
 
 
             auto arg0 = instr->getOperand(0);
-            auto arg0Name = outputName(arg0, unitAssignment);
+            auto arg0Name = outputName(arg0, unitAssignment, memoryMap);
 
             auto arg1 = instr->getOperand(1);
-            auto arg1Name = outputName(arg1, unitAssignment);     
+            auto arg1Name = outputName(arg1, unitAssignment, memoryMap);     
             out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
             out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
 
@@ -520,6 +530,16 @@ namespace DHLS {
             
           } else if (BranchInst::classof(instr)) {
             // Branch instructions dont map to functional units
+          } else if (GetElementPtrInst::classof(instr)) {
+
+            auto arg0 = instr->getOperand(0);
+            auto arg0Name = outputName(arg0, unitAssignment, memoryMap);
+
+            auto arg1 = instr->getOperand(1);
+            auto arg1Name = outputName(arg1, unitAssignment, memoryMap);
+            out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
+            out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
+            
           } else {
 
             std::string str;

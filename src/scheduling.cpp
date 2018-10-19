@@ -59,7 +59,9 @@ namespace DHLS {
       } else {
         assert(false);
       }
-    } else {
+    } else if (GetElementPtrInst::classof(iptr)) {
+      latency = hdc.getLatency(ADD_OP);
+    }else {
 
       // std::string str;
       // llvm::raw_string_ostream ss(str);
