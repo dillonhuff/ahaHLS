@@ -291,13 +291,6 @@ namespace DHLS {
         allPathConditions(entryBlock, target, considered);
       blockGuards[target] = allPaths;
 
-      // cout << "-- all paths" << endl;
-      // for (auto path : allPaths) {
-      //   cout << "\tPath" << endl;
-      //   for (auto c : path) {
-      //     cout << "\t\t" << c << " ^ " << endl; // Output like comma list
-      //   }
-      // }
     }
 
     // Add instruction mapping to schedule
@@ -308,12 +301,6 @@ namespace DHLS {
               Condition(map_find(containerBB, blockGuards))});
       }
     }
-
-    // Walk basic blocks finding transitions
-    // BasicBlock* entryBlock = &(f->getEntryBlock());
-    // std::vector<Condition> conditions;
-    // std::map<BasicBlock*, vector<pair<BasicBlock*, vector<Condition> > > > transitions;
-    // computeTransitions(entryBlock, conditions, transitions);
 
     // Compute transitions
     for (auto st : g.opStates) {
@@ -378,7 +365,9 @@ namespace DHLS {
           // If the instruction is not finished then we must go to the numerically
           // next state
           if (!g.hasTransition(st.first, st.first + 1)) {
-            map_insert(g.opTransitions, st.first, {st.first + 1, Condition()});
+            BasicBlock* parent = instr->getParent();
+            Condition parentCond(map_find(parent, blockGuards));
+            map_insert(g.opTransitions, st.first, {st.first + 1, parentCond});
           }
         }
       }
