@@ -19,6 +19,14 @@ namespace DHLS {
     return ss.str();
   }
 
+  std::string typeString(Type* const tptr) {
+    std::string str;
+    llvm::raw_string_ostream ss(str);
+    ss << *tptr;
+
+    return ss.str();
+  }
+  
   expr blockSource(BasicBlock* const bb,
                    const map<BasicBlock*, vector<expr> >& vars) {
     return map_find(bb, vars).front();

@@ -233,12 +233,29 @@ namespace DHLS {
       for (auto instrG : state.second) {
         Instruction* instr = instrG.instruction;
 
-        if (StoreInst::classof(instr) || ReturnInst::classof(instr)) {
+        if (StoreInst::classof(instr) || ReturnInst::classof(instr) || BranchInst::classof(instr)) {
           continue;
         }
 
         auto schedVars = map_find(instr, stg.sched.instrTimes);
-        int width = 32;
+        auto* tp = instr->getType();
+
+        cout << "type = " << typeString(tp) << endl;
+        int width;
+        if (IntegerType::classof(tp)) {
+          IntegerType* iTp = dyn_cast<IntegerType>(tp);
+          width = iTp->getBitWidth();
+        } else {
+          assert(PointerType::classof(tp));
+          PointerType* pTp = dyn_cast<PointerType>(tp);
+
+          assert(IntegerType::classof(pTp->getElementType()));
+
+          IntegerType* iTp = dyn_cast<IntegerType>(pTp->getElementType());
+          width = iTp->getBitWidth();
+
+        }
+        
         if (state.first == schedVars.front()) {
           resultNames[instr] = {true, width, string(instr->getOpcodeName()) + "_tmp_" + to_string(resSuffix)};
           resSuffix++;
@@ -417,7 +434,7 @@ namespace DHLS {
 
     out << "\t// Start instruction result storage" << endl;
     for (auto n : names) {
-      out << "\treg [31:0] " << n.second.name << ";" << endl;
+      out << "\treg [" << n.second.width - 1 << ":0] " << n.second.name << ";" << endl;
     }
     out << "\t// End instruction result storage" << endl;
     out << endl;

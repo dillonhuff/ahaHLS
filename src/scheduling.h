@@ -7,6 +7,7 @@
 
 namespace DHLS {
 
+  std::string typeString(llvm::Type* const tptr);
   std::string instructionString(llvm::Instruction* const iptr);
   
   enum OperationType {
