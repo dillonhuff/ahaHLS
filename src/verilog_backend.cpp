@@ -470,20 +470,18 @@ namespace DHLS {
             out << "\t\t\tvalid_reg = 1;" << endl;
           } else if (StoreInst::classof(instr)) {
 
-            //out << "\t\t\twaddr_0_reg = 0;" << endl;
-
             auto arg0 = instr->getOperand(0);
-            string wdataName;
-            if (Instruction::classof(arg0)) {
-              auto unit0Src =
-                map_find(dyn_cast<Instruction>(arg0), unitAssignment);
-              assert(unit0Src.outWires.size() == 1);
+            string wdataName = outputName(arg0, unitAssignment, memoryMap);
+            // if (Instruction::classof(arg0)) {
+            //   auto unit0Src =
+            //     map_find(dyn_cast<Instruction>(arg0), unitAssignment);
+            //   assert(unit0Src.outWires.size() == 1);
 
-              wdataName = unit0Src.onlyOutputVar();
-            } else {
-              // Handle constants
-              wdataName = "5";
-            }
+            //   wdataName = unit0Src.onlyOutputVar();
+            // } else {
+            //   // Handle constants
+            //   wdataName = "5";
+            // }
 
             Value* location = instr->getOperand(1);            
             auto locValue = outputName(location, unitAssignment, memoryMap);
