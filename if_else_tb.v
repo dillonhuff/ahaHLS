@@ -123,23 +123,11 @@ module test();
       #1 rst = 1;
       #1 clk = 1;
 
-//      `assert(valid, 1'd0);
-      
       #1 rst = 0;
 
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-//      `assert(valid, 1'd0);                  
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-//      `assert(valid, 1'd0);            
-
+      `assert(dbg_data, 32'd23);
+      `assert(valid, 1'd0);      
+      
       #1 clk = 0;
       #1 clk = 1;
 
