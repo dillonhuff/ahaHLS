@@ -225,8 +225,8 @@ namespace DHLS {
     return units;
   }
 
-  map<Instruction*, string> createInstrNames(const STG& stg) {
-    map<Instruction*, string> resultNames;    
+  map<Instruction*, Wire> createInstrNames(const STG& stg) {
+    map<Instruction*, Wire> resultNames;    
 
     int resSuffix = 0;
     for (auto state : stg.opStates) {
@@ -238,8 +238,9 @@ namespace DHLS {
         }
 
         auto schedVars = map_find(instr, stg.sched.instrTimes);
+        int width = 32;
         if (state.first == schedVars.front()) {
-          resultNames[instr] = string(instr->getOpcodeName()) + "_tmp_" + to_string(resSuffix);
+          resultNames[instr] = {true, width, string(instr->getOpcodeName()) + "_tmp_" + to_string(resSuffix)};
           resSuffix++;
         }
       }
@@ -278,7 +279,7 @@ namespace DHLS {
                                   const StateId currentState,
                                   const STG& stg,
                                   const map<Instruction*, FunctionalUnit>& unitAssignment,
-                                  const map<Instruction*, string>& names) {
+                                  const map<Instruction*, Wire>& names) {
     string condStr = "";
 
     if (cond.isTrue()) {
@@ -303,7 +304,7 @@ namespace DHLS {
         if (atomCompletionTime == currentState) {
           condStr += map_find(iValue, unitAssignment).onlyOutputVar();
         } else {
-          condStr += map_find(iValue, names);
+          condStr += map_find(iValue, names).name;
         }
         condStr += ")";
 
@@ -412,11 +413,11 @@ namespace DHLS {
     out << endl;
 
     // Note: Result names also need widths if we are going to use them
-    map<Instruction*, std::string> names = createInstrNames(stg);
+    map<Instruction*, Wire> names = createInstrNames(stg);
 
     out << "\t// Start instruction result storage" << endl;
     for (auto n : names) {
-      out << "\treg [31:0] " << n.second << ";" << endl;
+      out << "\treg [31:0] " << n.second.name << ";" << endl;
     }
     out << "\t// End instruction result storage" << endl;
     out << endl;
@@ -448,7 +449,7 @@ namespace DHLS {
 
         if (hasOutput(instr) && (state.first == schedVars.back())) {
 
-          string instrName = map_find(instr, names);
+          string instrName = map_find(instr, names).name;
           auto unit = map_find(instr, unitAssignment);
           out << "\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
         }
