@@ -422,7 +422,7 @@ namespace DHLS {
 
     out << "\treg [31:0] global_state;" << endl << endl;
     out << "\treg [31:0] last_BB_reg;" << endl << endl;
-    out << "\twire [31:0] last_BB;" << endl << endl;    
+    out << "\treg [31:0] last_BB;" << endl << endl;    
 
     out << "\talways @(posedge clk) begin" << endl;
 
@@ -525,6 +525,7 @@ namespace DHLS {
             out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
             
           } else if (BranchInst::classof(instr)) {
+            out << "\t\t\t\t" << "last_BB = " << map_find(instr->getParent(), basicBlockNos) << ";" << endl;;
             // Branch instructions dont map to functional units
           } else if (GetElementPtrInst::classof(instr)) {
 
