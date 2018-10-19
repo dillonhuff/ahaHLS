@@ -154,6 +154,8 @@ namespace DHLS {
         Instruction* instr = instrG.instruction;
 
         auto schedVars = map_find(instr, stg.sched.instrTimes);
+        auto rStr = to_string(resSuffix);
+
         if (state.first == schedVars.front()) {
           string unitName = string(instr->getOpcodeName()) + "_" +
             to_string(resSuffix);
@@ -184,27 +186,26 @@ namespace DHLS {
           } else if (BinaryOperator::classof(instr)) {
             assert(instr->getOpcode() == Instruction::Add);
             modName = "add";
-            wiring = {{"in0", "add_in0"}, {"in1", "add_in1"}};
-            outWires = {{"out", {false, 32, "add_out"}}};
+            wiring = {{"in0", "add_in0_" + rStr}, {"in1", "add_in1_" + rStr}};
+            outWires = {{"out", {false, 32, "add_out_" + rStr}}};
           } else if (ReturnInst::classof(instr)) {
             modName = "ret";
           } else if (CmpInst::classof(instr)) {
             modName = "eq";
-            wiring = {{"in0", "eq_in0"}, {"in1", "eq_in1"}};
-            outWires = {{"out", {false, 1, "eq_out"}}};
+            wiring = {{"in0", "eq_in0_" + rStr}, {"in1", "eq_in1_" + rStr}};
+            outWires = {{"out", {false, 1, "eq_out_" + rStr}}};
           } else if (BranchInst::classof(instr)) {
             // Branches are not scheduled, they are encoded in the
             // STG transitions
           } else if (GetElementPtrInst::classof(instr)) {
             modName = "add";
             wiring = {{"in0", "add_in0_" + to_string(resSuffix)}, {"in1", "add_in1_" + to_string(resSuffix)}};
-            outWires = {{"out", {false, 32, "add_out"}}};
+            outWires = {{"out", {false, 32, "add_out_" + rStr}}};
           } else if (PHINode::classof(instr)) {
             PHINode* phi = dyn_cast<PHINode>(instr);
             assert(phi->getNumIncomingValues() == 2);
 
             modName = "phi_2";
-            auto rStr = to_string(resSuffix);
             wiring = {{"s0", "phi_s0_" + rStr}, {"s1", "phi_s1_" + rStr}, {"in0", "phi_in0_" + rStr}, {"in1", "phi_in1_" + rStr}, {"last_block", "phi_last_block_" + rStr}};
             outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
 
@@ -554,11 +555,11 @@ namespace DHLS {
             Value* v1 = phi->getIncomingValue(1);
             string val1Name = outputName(v1, unitAssignment, memoryMap);
             
-            out << "\t\t\t" << addUnit.portWires["in0"] << " = " << val0Name << endl;
-            out << "\t\t\t" << addUnit.portWires["in1"] << " = " << val1Name << endl;
+            out << "\t\t\t" << addUnit.portWires["in0"] << " = " << val0Name << ";" << endl;
+            out << "\t\t\t" << addUnit.portWires["in1"] << " = " << val1Name << ";" << endl;
 
-            out << "\t\t\t" << addUnit.portWires["s0"] << " = " << b0Val << endl;
-            out << "\t\t\t" << addUnit.portWires["s1"] << " = " << b1Val << endl;
+            out << "\t\t\t" << addUnit.portWires["s0"] << " = " << b0Val << ";" << endl;
+            out << "\t\t\t" << addUnit.portWires["s1"] << " = " << b1Val << ";" << endl;
 
             out << "\t\t\t" << addUnit.portWires["last_block"] << " = last_BB_reg;" << endl;
           } else {

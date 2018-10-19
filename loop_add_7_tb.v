@@ -27,8 +27,8 @@ module test();
 
    initial begin
 
-      #1 dbg_wr_addr = 2; // a + 2
-      #1 dbg_wr_data = 34;
+      #1 dbg_wr_addr = 3; // a + 2
+      #1 dbg_wr_data = 10;
       #1 dbg_wr_en = 1;
       
       #1 clk = 0;
@@ -41,7 +41,7 @@ module test();
       #1 clk = 1;
       #1 rst = 1;
       
-      #1 dbg_addr = 3;
+      #1 dbg_addr = 0;
       
       // `assert(dbg_data, 32'hxxxxxxxx);
       // `assert(valid, 1'd0);
@@ -69,9 +69,21 @@ module test();
 
       #1 clk = 0;
       #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
       
-      `assert(dbg_data, 32'd34);
-      `assert(valid, 1'd1);      
+//      `assert(dbg_data, 32'd17);
+      `assert(valid, 1'd0);
 
       $display("Passed");
 
@@ -97,6 +109,6 @@ module test();
             .wdata(wdata),
             .waddr(waddr));
    
-   loop_add ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .raddr_0(raddr0), .rdata_0(rdata0));
+   loop_add_7 ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .raddr_0(raddr0), .rdata_0(rdata0));
    
 endmodule
