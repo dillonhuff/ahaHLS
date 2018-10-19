@@ -351,7 +351,7 @@ namespace DHLS {
     auto addUnit = map_find(instr, unitAssignment);
 
     if (ReturnInst::classof(instr)) {
-      out << "\t\t\tvalid_reg = 1;" << endl;
+      //out << "\t\t\tvalid_reg = 1;" << endl;
     } else if (StoreInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
@@ -557,6 +557,14 @@ namespace DHLS {
       for (auto instrG : map_find(state.first, stg.opStates)) {
         Instruction* instr = instrG.instruction;
         auto schedVars = map_find(instr, stg.sched.instrTimes);          
+
+        if (ReturnInst::classof(instr) && (state.first == schedVars.back())) {
+
+          out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
+
+          out << "\t\t\t\t\tvalid_reg <= 1;" << endl;
+          out << "\t\t\t\tend" << endl;
+        }
 
         if (hasOutput(instr) && (state.first == schedVars.back())) {
 
