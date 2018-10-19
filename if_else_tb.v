@@ -59,15 +59,9 @@ module test();
       #1 rst = 1;
       #1 clk = 1;
 
-//      $display("dbg data = %d", dbg_data);
-
       `assert(dbg_data, 32'hxxxxxxxx);
       `assert(valid, 1'd0);
       
-      //$display("rdata = %d", rdata);
-      // $display("wen   = %d", wen);
-      // $display("waddr = %d", waddr);
-      // $display("wdata = %d", wdata);            
       #1 rst = 0;
 
       #1 clk = 0;
@@ -77,58 +71,26 @@ module test();
       #1 clk = 1;
 
       `assert(valid, 1'd0);                  
-//      #1 `assert(rdata0, 32'hxxxxxxxx);
 
       #1 clk = 0;
       #1 clk = 1;
 
-//      $display("dbg data = %d", dbg_data);            
-//      $display("rdata = %d", rdata);      
       `assert(valid, 1'd0);            
 
       #1 clk = 0;
       #1 clk = 1;
 
-//      $display("dbg data = %d", dbg_data);      
-//      #1 `assert(rdata0, 32'd5);
+      #1 clk = 0;
+      #1 clk = 1;
 
-//      $display("Passed");
-
-//      $display("rdata = %d", rdata);
+      #1 clk = 0;
+      #1 clk = 1;
       
-      #1 clk = 0;
-      #1 clk = 1;
-
-//      $display("dbg data = %d", dbg_data);
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
       `assert(dbg_data, 32'd23);
       `assert(valid, 1'd1);      
-      
-//      $display("dbg data = %d", dbg_data);
 
       $display("Passed");
-      
-//      $display("rdata = %d", rdata);
+
    end
 
    RAM2 mem(.clk(clk),
