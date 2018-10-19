@@ -51,11 +51,13 @@ namespace DHLS {
       latency = hdc.getLatency(CMP_OP);
     } else if (BranchInst::classof(iptr)) {
       latency = hdc.getLatency(BR_OP);
+    } else if (PHINode::classof(iptr)) {
+      // Phi instructions are just wiring
+      latency = 0;
     } else if (BinaryOperator::classof(iptr)) {
       auto opCode = iptr->getOpcode();
       if (opCode == Instruction::Add) {
         latency = hdc.getLatency(ADD_OP);
-
       } else {
         assert(false);
       }
