@@ -39,3 +39,6 @@ module phi_2(input [31:0] last_block,
    
    
 endmodule
+
+module br_dummy();
+endmodule

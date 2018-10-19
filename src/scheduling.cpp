@@ -204,30 +204,6 @@ namespace DHLS {
       
     }
 
-    // for (auto& bb : f->getBasicBlockList()) {
-    //   Instruction* term = bb.getTerminator();
-      
-    //   if (ReturnInst::classof(term)) {
-    //     // Return instructions must finish after every instruction in their block
-    //     for (auto& instr : bb) {
-    //       Instruction* iptr = &instr;
-    //       if (iptr != term) {
-    //         s.add(map_find(iptr, schedVars).back() <= map_find((Instruction*) term, schedVars).front());
-    //       }
-    //     }
-    //   } else {
-    //     assert(BranchInst::classof(term));
-
-    //     // By definition the completion of a branch is the completion of
-    //     // the basic block that contains it.
-    //     s.add(blockSink(&bb, blockVars) == map_find(term, schedVars).back());
-
-    //     for (auto* nextBB : dyn_cast<TerminatorInst>(term)->successors()) {
-    //       s.add(blockSink(&bb, blockVars) <= blockSource(nextBB, blockVars));
-    //     }
-    //   }
-    // }
-
     // Instructions must finish before their dependencies
     for (auto& bb : f->getBasicBlockList()) {
       for (auto& instr : bb) {
@@ -359,7 +335,8 @@ namespace DHLS {
           if (TerminatorInst::classof(instr)) {
             if (ReturnInst::classof(instr)) {
               if (!g.hasTransition(st.first, st.first)) {
-                map_insert(g.opTransitions, st.first, {st.first, Condition()});
+                map_insert(g.opTransitions, st.first, {st.first, instrG.cond});
+                //map_insert(g.opTransitions, st.first, {st.first, Condition()});
               }
             } else {
 

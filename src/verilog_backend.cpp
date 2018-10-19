@@ -195,6 +195,7 @@ namespace DHLS {
             wiring = {{"in0", "eq_in0_" + rStr}, {"in1", "eq_in1_" + rStr}};
             outWires = {{"out", {false, 1, "eq_out_" + rStr}}};
           } else if (BranchInst::classof(instr)) {
+            modName = "br_dummy";
             // Branches are not scheduled, they are encoded in the
             // STG transitions
           } else if (GetElementPtrInst::classof(instr)) {
