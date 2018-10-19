@@ -197,7 +197,7 @@ namespace DHLS {
             // STG transitions
           } else if (GetElementPtrInst::classof(instr)) {
             modName = "add";
-            wiring = {{"in0", "add_in0_" + to_string(resSuffix)}, {"in1", "add_in1" + to_string(resSuffix)}};
+            wiring = {{"in0", "add_in0_" + to_string(resSuffix)}, {"in1", "add_in1_" + to_string(resSuffix)}};
             outWires = {{"out", {false, 32, "add_out"}}};
           } else if (PHINode::classof(instr)) {
             PHINode* phi = dyn_cast<PHINode>(instr);
@@ -416,6 +416,8 @@ namespace DHLS {
     out << "\t\t\tvalid_reg <= 0;" << endl;
     out << "\t\t\tlast_BB_reg <= " << map_find(&(f->getEntryBlock()), basicBlockNos) << ";" << endl;    
     out << "\t\tend else begin" << endl;
+
+    out << "\t\t\tlast_BB_reg <= last_BB;" << endl;
       
     for (auto state : stg.opTransitions) {
 
@@ -483,14 +485,17 @@ namespace DHLS {
               wdataName = "5";
             }
 
-            Value* location = instr->getOperand(1);
-            assert(Argument::classof(location));
+            Value* location = instr->getOperand(1);            
+            auto locValue = outputName(location, unitAssignment, memoryMap);
+            
+            // Value* location = instr->getOperand(1);
+            // assert(Argument::classof(location));
 
-            auto name = location->getName().str();
-            string locString = name; //ss.str();
-            cout << "locString = " << locString << endl;
-            int locValue = map_find(locString, memoryMap);
-            cout << "locValue = " << locValue << endl;
+            // auto name = location->getName().str();
+            // string locString = name; //ss.str();
+            // cout << "locString = " << locString << endl;
+            // int locValue = map_find(locString, memoryMap);
+            // cout << "locValue = " << locValue << endl;
 
             out << "\t\t\t" << addUnit.portWires["waddr"] << " = " << locValue << ";" << endl;
             out << "\t\t\t" << addUnit.portWires["wdata"] << " = " << wdataName << ";" << endl;
@@ -535,6 +540,29 @@ namespace DHLS {
             out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
             out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
             
+          } else if (PHINode::classof(instr)) {
+            PHINode* phi = dyn_cast<PHINode>(instr);
+            assert(phi->getNumIncomingValues() == 2);
+
+            BasicBlock* b0 = phi->getIncomingBlock(0);
+            int b0Val = map_find(b0, basicBlockNos);
+
+            BasicBlock* b1 = phi->getIncomingBlock(1);
+            int b1Val = map_find(b1, basicBlockNos);
+
+            Value* v0 = phi->getIncomingValue(0);
+            string val0Name = outputName(v0, unitAssignment, memoryMap);
+
+            Value* v1 = phi->getIncomingValue(1);
+            string val1Name = outputName(v1, unitAssignment, memoryMap);
+            
+            out << "\t\t\t" << addUnit.portWires["in0"] << " = " << val0Name << endl;
+            out << "\t\t\t" << addUnit.portWires["in1"] << " = " << val1Name << endl;
+
+            out << "\t\t\t" << addUnit.portWires["s0"] << " = " << b0Val << endl;
+            out << "\t\t\t" << addUnit.portWires["s1"] << " = " << b1Val << endl;
+
+            out << "\t\t\t" << addUnit.portWires["last_block"] << " = last_BB_reg;" << endl;
           } else {
 
             std::string str;
