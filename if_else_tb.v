@@ -89,6 +89,69 @@ module test();
       `assert(dbg_data, 32'd23);
       `assert(valid, 1'd1);      
 
+
+      // Now reset and write new value with c[0] ]!= 3
+      #1 dbg_wr_addr = 4;
+      #1 dbg_wr_data = 2;
+      #1 dbg_wr_en = 1;
+      
+      #1 clk = 0;
+      #1 clk = 1;
+      #1 rst = 1;
+      
+      #1 dbg_wr_addr = 3;
+      #1 dbg_wr_data = 18;
+      #1 dbg_wr_en = 1;
+      
+      #1 clk = 0;
+      #1 clk = 1;
+      #1 rst = 1;
+      
+      #1 dbg_wr_en = 0;
+      
+      #1 clk = 0;
+      #1 clk = 1;
+      #1 rst = 1;
+      
+      #1 clk = 0;
+      #1 clk = 1;
+      #1 rst = 1;
+      
+      #1 dbg_addr = 0;
+      
+      #1 clk = 0;
+      #1 rst = 1;
+      #1 clk = 1;
+
+      `assert(valid, 1'd0);
+      
+      #1 rst = 0;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      `assert(valid, 1'd0);                  
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      `assert(valid, 1'd0);            
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      `assert(dbg_data, 32'd23);
+      `assert(valid, 1'd1);      
+      
       $display("Passed");
 
    end
