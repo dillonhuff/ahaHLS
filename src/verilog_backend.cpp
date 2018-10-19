@@ -439,13 +439,18 @@ namespace DHLS {
     }
   }
 
-  // Im a little confused on what the next steps in getting this generated
-  // verilog right are.
+  map<BasicBlock*, int> numberBasicBlocks(Function* const f) {
+    map<BasicBlock*, int> basicBlockNos;
 
-  // Q: What are the smallest concrete steps I could take?
-  // A: Actually print out assignments to an addition for the add functional unit
-  //    Print out storage to temporaries, but that is not actually needed for
-  //    any of my applications since the stores are being done in the same state
+    int blockNo = 0;
+    for (auto& bb : f->getBasicBlockList()) {
+      basicBlockNos[&bb] = blockNo;
+      blockNo += 1;
+    }
+
+    return basicBlockNos;
+
+  }
   
   // What are the components of this verilog?
   // module declaration
@@ -456,18 +461,10 @@ namespace DHLS {
   // functional units (including memories)
   void emitVerilog(llvm::Function* f, const STG& stg, std::map<std::string, int>& memoryMap) {
 
-    map<BasicBlock*, int> basicBlockNos;
-
-    int blockNo = 0;
-    for (auto& bb : f->getBasicBlockList()) {
-      basicBlockNos[&bb] = blockNo;
-      blockNo += 1;
-    }
+    map<BasicBlock*, int> basicBlockNos = numberBasicBlocks(f);
 
     string fn = f->getName();
-
     vector<Port> allPorts = getPorts(stg);
-
     vector<string> portStrings;
     for (auto pt : allPorts) {
       portStrings.push_back(pt.toString());
@@ -605,13 +602,11 @@ namespace DHLS {
         }
 
       }
-      //out << "\t\t\tglobal_state <= " + to_string(state.second.at(0).dest) + + ";" << endl;
+
       out << "\t\tend" << endl;
     }
 
     out << "\tend" << endl;
-
-    // Insert unit control for each state
 
     out << "endmodule" << endl;
 
