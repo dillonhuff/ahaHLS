@@ -169,8 +169,10 @@ namespace DHLS {
 
     // Connect the control edges
     // TODO: Prune backedges
+    
     for (auto& bb : f->getBasicBlockList()) {
       Instruction* term = bb.getTerminator();
+      
       if (ReturnInst::classof(term)) {
         // Return instructions must finish after every instruction in their block
         for (auto& instr : bb) {
