@@ -373,18 +373,11 @@ namespace DHLS {
 
                 StateId trueState =
                   map_find(trueB, sched.blockTimes).front();
-
                 StateId falseState =
                   map_find(falseB, sched.blockTimes).front();
 
-                
-                if ((trueState > st.first) && !g.hasTransition(st.first, trueState)) {
-                  map_insert(g.opTransitions, st.first, {trueState, Condition(cond)});
-                }
-
-                if ((falseState > st.first) && !g.hasTransition(st.first, falseState)) {
-                  map_insert(g.opTransitions, st.first, {falseState, Condition(cond, true)});
-                }
+                map_insert(g.opTransitions, st.first, {trueState, Condition(cond)});
+                map_insert(g.opTransitions, st.first, {falseState, Condition(cond, true)});
                 
               } else {
                 assert(branch->getNumSuccessors() == 1);
