@@ -153,11 +153,10 @@ namespace DHLS {
 
   // Q: What test cases do I need?
   // A: Test case with a variable used in states after it is produced.
-  //    Test case with branch instructions  
   //    Test case that uses phi nodes
   //    Test case that writes to a non-zero memory offset
   //    Test case with a loop (backedge in the CDFG)
-  TEST_CASE("A simple if then else") {
+  TEST_CASE("A simple if") {
     createLLFile("./test/ll_files/if_else");    
 
     SMDiagnostic Err;
@@ -180,7 +179,42 @@ namespace DHLS {
     Function* f = Mod->getFunction("if_else");
     Schedule s = scheduleFunction(f, hcs);
 
-    //REQUIRE(s.clockTicksToFinish() == 4);
+    auto& retInstr = f->getBasicBlockList().back().back();
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<string, int> layout = {{"a", 0}, {"b", 3}, {"c", 4}};
+    emitVerilog(f, graph, layout);
+
+    REQUIRE(runIVerilogTB("if_else"));
+    
+  }
+
+  TEST_CASE("Accessing a memory address that requires address calculation") {
+    createLLFile("./test/ll_files/read_2");
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+
+    string modFile = "./test/ll_files/read_2.ll";
+    std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
+    if (!Mod) {
+      outs() << "Error: No mod\n";
+      assert(false);
+    }
+
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(LOAD_OP, 1);
+    hcs.setLatency(CMP_OP, 0);
+    hcs.setLatency(BR_OP, 0);
+    hcs.setLatency(ADD_OP, 0);
+
+    Function* f = Mod->getFunction("read_2");
+    Schedule s = scheduleFunction(f, hcs);
 
     auto& retInstr = f->getBasicBlockList().back().back();
 
@@ -189,12 +223,10 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    //REQUIRE(graph.numControlStates() == 5);
-
-    map<string, int> layout = {{"a", 0}, {"b", 3}, {"c", 4}};
+    map<string, int> layout = {{"a", 0}, {"b", 3}};
     emitVerilog(f, graph, layout);
 
-    REQUIRE(runIVerilogTB("if_else"));
+    REQUIRE(runIVerilogTB("read_2"));
     
   }
   
