@@ -562,7 +562,12 @@ namespace DHLS {
 
           string instrName = map_find(instr, names).name;
           auto unit = map_find(instr, unitAssignment);
-          out << "\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
+
+          out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
+
+          out << "\t\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
+          out << "\t\t\t\tend" << endl;
+          
         }
       }
       
