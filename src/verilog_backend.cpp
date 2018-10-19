@@ -599,7 +599,9 @@ namespace DHLS {
 
     out << "\talways @(*) begin" << endl;
 
+    // TODO: Experiment with adding defaults to all functional unit inputs
     for (auto state : stg.opStates) {
+      std::set<string> usedFUs;
       out << "\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
       for (auto instrG : state.second) {
         Instruction* instr = instrG.instruction;
@@ -610,12 +612,24 @@ namespace DHLS {
           out << "\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
 
           instructionVerilog(out, instr, unitAssignment, memoryMap, basicBlockNos);
+          usedFUs.insert(map_find(instr, unitAssignment).instName);
 
 
           out << "\t\t\tend" << endl;
         }
 
       }
+
+      out << "\t\t\t// Start functional unit default inputs" << endl;
+      for (auto u : unitAssignment) {
+        FunctionalUnit fu = u.second;
+        if (!elem(fu.instName, usedFUs)) {
+          for (auto w : fu.portWires) {
+            out << "\t\t\t\t" << w.second << " = 0;" << endl;
+          }
+        }
+      }
+      out << "\t\t\t// End functional unit default inputs" << endl;
 
       out << "\t\tend" << endl;
     }
