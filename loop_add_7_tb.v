@@ -27,7 +27,7 @@ module test();
 
    initial begin
 
-      #1 dbg_wr_addr = 3; // a + 2
+      #1 dbg_wr_addr = 10; // b[0]
       #1 dbg_wr_data = 10;
       #1 dbg_wr_en = 1;
       
@@ -35,7 +35,7 @@ module test();
       #1 clk = 1;
       #1 rst = 1;
       
-       #1 dbg_wr_en = 0;
+       #1 dbg_wr_en = 0; // a[0]
       
       #1 clk = 0;
       #1 clk = 1;
