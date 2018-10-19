@@ -482,36 +482,17 @@ namespace DHLS {
         auto schedVars = map_find(instr, stg.sched.instrTimes);
         if (state.first == schedVars.front()) {
 
-          out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
+          out << "\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
           if (ReturnInst::classof(instr)) {
             out << "\t\t\tvalid_reg = 1;" << endl;
           } else if (StoreInst::classof(instr)) {
 
             auto arg0 = instr->getOperand(0);
             string wdataName = outputName(arg0, unitAssignment, memoryMap);
-            // if (Instruction::classof(arg0)) {
-            //   auto unit0Src =
-            //     map_find(dyn_cast<Instruction>(arg0), unitAssignment);
-            //   assert(unit0Src.outWires.size() == 1);
-
-            //   wdataName = unit0Src.onlyOutputVar();
-            // } else {
-            //   // Handle constants
-            //   wdataName = "5";
-            // }
 
             Value* location = instr->getOperand(1);            
             auto locValue = outputName(location, unitAssignment, memoryMap);
             
-            // Value* location = instr->getOperand(1);
-            // assert(Argument::classof(location));
-
-            // auto name = location->getName().str();
-            // string locString = name; //ss.str();
-            // cout << "locString = " << locString << endl;
-            // int locValue = map_find(locString, memoryMap);
-            // cout << "locValue = " << locValue << endl;
-
             out << "\t\t\t" << addUnit.portWires["waddr"] << " = " << locValue << ";" << endl;
             out << "\t\t\t" << addUnit.portWires["wdata"] << " = " << wdataName << ";" << endl;
             out << "\t\t\t" << addUnit.portWires["wen"] << " = 1;" << endl;
