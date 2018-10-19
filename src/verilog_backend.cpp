@@ -204,7 +204,6 @@ namespace DHLS {
             assert(false);
           }
 
-
           units[instr] = {modName, unitName, wiring, outWires};
 
           resSuffix++;

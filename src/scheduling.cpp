@@ -63,7 +63,7 @@ namespace DHLS {
       }
     } else if (GetElementPtrInst::classof(iptr)) {
       latency = hdc.getLatency(ADD_OP);
-    }else {
+    } else {
 
       // std::string str;
       // llvm::raw_string_ostream ss(str);
@@ -169,16 +169,21 @@ namespace DHLS {
 
     // Connect the control edges
     // TODO: Prune backedges
-    
-    for (auto& bb : f->getBasicBlockList()) {
-      Instruction* term = bb.getTerminator();
-      
+    std::deque<BasicBlock*> toVisit{&(f->getEntryBlock())};
+    std::set<BasicBlock*> alreadyVisited;
+    while (toVisit.size() > 0) {
+      BasicBlock* next = toVisit.front();
+      toVisit.pop_front();
+      alreadyVisited.insert(next);
+
+      Instruction* term = next->getTerminator();
       if (ReturnInst::classof(term)) {
         // Return instructions must finish after every instruction in their block
-        for (auto& instr : bb) {
+        for (auto& instr : *next) {
           Instruction* iptr = &instr;
           if (iptr != term) {
-            s.add(map_find(iptr, schedVars).back() <= map_find((Instruction*) term, schedVars).front());
+            s.add(map_find(iptr, schedVars).back() <=
+                  map_find((Instruction*) term, schedVars).front());
           }
         }
       } else {
@@ -186,13 +191,42 @@ namespace DHLS {
 
         // By definition the completion of a branch is the completion of
         // the basic block that contains it.
-        s.add(blockSink(&bb, blockVars) == map_find(term, schedVars).back());
+        s.add(blockSink(next, blockVars) == map_find(term, schedVars).back());
 
         for (auto* nextBB : dyn_cast<TerminatorInst>(term)->successors()) {
-          s.add(blockSink(&bb, blockVars) <= blockSource(nextBB, blockVars));
+          if (!elem(nextBB, alreadyVisited)) {
+            s.add(blockSink(next, blockVars) <= blockSource(nextBB, blockVars));
+            //if (!elem(nextBB, alreadyVisited)) {
+            toVisit.push_back(nextBB);
+          }
         }
       }
+      
     }
+
+    // for (auto& bb : f->getBasicBlockList()) {
+    //   Instruction* term = bb.getTerminator();
+      
+    //   if (ReturnInst::classof(term)) {
+    //     // Return instructions must finish after every instruction in their block
+    //     for (auto& instr : bb) {
+    //       Instruction* iptr = &instr;
+    //       if (iptr != term) {
+    //         s.add(map_find(iptr, schedVars).back() <= map_find((Instruction*) term, schedVars).front());
+    //       }
+    //     }
+    //   } else {
+    //     assert(BranchInst::classof(term));
+
+    //     // By definition the completion of a branch is the completion of
+    //     // the basic block that contains it.
+    //     s.add(blockSink(&bb, blockVars) == map_find(term, schedVars).back());
+
+    //     for (auto* nextBB : dyn_cast<TerminatorInst>(term)->successors()) {
+    //       s.add(blockSink(&bb, blockVars) <= blockSource(nextBB, blockVars));
+    //     }
+    //   }
+    // }
 
     // Instructions must finish before their dependencies
     for (auto& bb : f->getBasicBlockList()) {
@@ -200,8 +234,10 @@ namespace DHLS {
         Instruction* iptr = &instr;
         for (auto& user : iptr->uses()) {
           assert(Instruction::classof(user));
-          auto userInstr = dyn_cast<Instruction>(user.getUser());
-          s.add(instrEnd(iptr, schedVars) <= instrStart(userInstr, schedVars));
+          if (!PHINode::classof(user)) {
+            auto userInstr = dyn_cast<Instruction>(user.getUser());
+            s.add(instrEnd(iptr, schedVars) <= instrStart(userInstr, schedVars));
+          }
         }
       }
     }
@@ -219,6 +255,11 @@ namespace DHLS {
   vector<vector<Atom> > allPathConditions(BasicBlock* src,
                                           BasicBlock* target,
                                           std::set<BasicBlock*>& considered) {
+
+    if (elem(src, considered)) {
+      return {};
+    }
+
     if (src == target) {
       return {{}};
     }
