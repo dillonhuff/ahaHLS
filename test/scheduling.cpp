@@ -154,8 +154,9 @@ namespace DHLS {
   // Q: What test cases do I need?
   // A: Test case with a variable used in states after it is produced.
   //    Test case that uses phi nodes
-  //    Test case that writes to a non-zero memory offset
   //    Test case with a loop (backedge in the CDFG)
+  //    Test case that uses multiple, different comparator operations
+  //    Test case that uses 16 (or other not 32 bit) width
   TEST_CASE("A simple if") {
     createLLFile("./test/ll_files/if_else");    
 
@@ -228,6 +229,42 @@ namespace DHLS {
 
     REQUIRE(runIVerilogTB("read_2"));
     
+  }
+
+  TEST_CASE("Looping over an array doing a[i] + 7") {
+    createLLFile("./test/ll_files/loop_add_7");
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+
+    string modFile = "./test/ll_files/loop_add_7.ll";
+    std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
+    if (!Mod) {
+      outs() << "Error: No mod\n";
+      assert(false);
+    }
+
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(LOAD_OP, 1);
+    hcs.setLatency(CMP_OP, 0);
+    hcs.setLatency(BR_OP, 0);
+    hcs.setLatency(ADD_OP, 0);
+
+    Function* f = Mod->getFunction("loop_add_7");
+    Schedule s = scheduleFunction(f, hcs);
+
+    auto& retInstr = f->getBasicBlockList().back().back();
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<string, int> layout = {{"a", 0}, {"b", 10}};
+    emitVerilog(f, graph, layout);
+
+    REQUIRE(runIVerilogTB("loop_add_7"));
   }
   
   // TEST_CASE("Parse a tiny C program") {
