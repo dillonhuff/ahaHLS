@@ -132,7 +132,7 @@ module test();
 
 //      $display("dbg data = %d", dbg_data);
 
-      $display("Passed");
+      #1 $display("Passed");
       
 //      $display("rdata = %d", rdata);
    end

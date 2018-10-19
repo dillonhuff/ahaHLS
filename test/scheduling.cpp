@@ -67,7 +67,22 @@ namespace DHLS {
     
     runCmd("rm -f " + resFile);
 
-    return str == "Passed\n";
+    reverse(begin(str), end(str));
+    string lastLine;
+
+    bool secondLine = false;
+    for (int i = 1; i < str.size(); i++) {
+      if (str[i] == '\n') {
+        break;
+      }
+
+      lastLine += str[i];
+    }
+
+    reverse(begin(lastLine), end(lastLine));
+
+    cout << "Lastline = " << lastLine << endl;
+    return lastLine == "Passed";
   }
   
   void createLLFile(const std::string& moduleName) {

@@ -51,14 +51,8 @@ module test();
 
       #1 `assert(rdata, 32'd5);
 
-      $display("Passed");
+      #1 $display("Passed");
 
-//      $display("rdata = %d", rdata);
-      
-      #1 clk = 0;
-      #1 clk = 1;
-
-//      $display("rdata = %d", rdata);      
    end
 
    RAM mem(.clk(clk),

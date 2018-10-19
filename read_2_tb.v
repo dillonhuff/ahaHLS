@@ -73,7 +73,7 @@ module test();
       `assert(dbg_data, 32'd34);
       `assert(valid, 1'd1);      
 
-      $display("Passed");
+      #1 $display("Passed");
 
    end
 
