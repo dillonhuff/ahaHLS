@@ -199,6 +199,15 @@ namespace DHLS {
             modName = "add";
             wiring = {{"in0", "add_in0_" + to_string(resSuffix)}, {"in1", "add_in1" + to_string(resSuffix)}};
             outWires = {{"out", {false, 32, "add_out"}}};
+          } else if (PHINode::classof(instr)) {
+            PHINode* phi = dyn_cast<PHINode>(instr);
+            assert(phi->getNumIncomingValues() == 2);
+
+            modName = "phi_2";
+            auto rStr = to_string(resSuffix);
+            wiring = {{"s0", "phi_s0_" + rStr}, {"s1", "phi_s1_" + rStr}, {"in0", "phi_in0_" + rStr}, {"in1", "phi_in1_" + rStr}, {"last_block", "phi_last_block_" + rStr}};
+            outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
+
           } else {
             cout << "Unsupported instruction = " << instructionString(instr) << endl;
             assert(false);
@@ -315,8 +324,13 @@ namespace DHLS {
   // functional units (including memories)
   void emitVerilog(llvm::Function* f, const STG& stg, std::map<std::string, int>& memoryMap) {
 
-    // For each state ID:
-    //   set functional unit inputs
+    map<BasicBlock*, int> basicBlockNos;
+
+    int blockNo = 0;
+    for (auto& bb : f->getBasicBlockList()) {
+      basicBlockNos[&bb] = blockNo;
+      blockNo += 1;
+    }
 
     string fn = f->getName();
 
@@ -391,6 +405,8 @@ namespace DHLS {
     out << endl;
 
     out << "\treg [31:0] global_state;" << endl << endl;
+    out << "\treg [31:0] last_BB_reg;" << endl << endl;
+    out << "\twire [31:0] last_BB;" << endl << endl;    
 
     out << "\talways @(posedge clk) begin" << endl;
 
@@ -398,6 +414,7 @@ namespace DHLS {
     out << "\t\tif (rst) begin" << endl;
     out << "\t\t\tglobal_state <= 0;" << endl;
     out << "\t\t\tvalid_reg <= 0;" << endl;
+    out << "\t\t\tlast_BB_reg <= " << map_find(&(f->getEntryBlock()), basicBlockNos) << ";" << endl;    
     out << "\t\tend else begin" << endl;
       
     for (auto state : stg.opTransitions) {
@@ -499,23 +516,10 @@ namespace DHLS {
           } else if (BinaryOperator::classof(instr)) {
 
             auto arg0 = instr->getOperand(0);
-            assert(Instruction::classof(arg0));
-
-            auto unit0Src =
-              map_find(dyn_cast<Instruction>(arg0), unitAssignment);
-            assert(unit0Src.outWires.size() == 1);
-
-            string arg0Name = unit0Src.onlyOutputVar();
+            auto arg0Name = outputName(arg0, unitAssignment, memoryMap);
 
             auto arg1 = instr->getOperand(1);
-            assert(Instruction::classof(arg1));
-
-            auto unit1Src =
-              map_find(dyn_cast<Instruction>(arg1), unitAssignment);
-            assert(unit1Src.outWires.size() == 1);
-
-            string arg1Name = unit1Src.onlyOutputVar();            
-
+            auto arg1Name = outputName(arg1, unitAssignment, memoryMap);
             out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
             out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
             
@@ -537,7 +541,7 @@ namespace DHLS {
             llvm::raw_string_ostream ss(str);
             ss << *(instr);
 
-            cout << "Error: Scheduling unknown instruction " << ss.str() << std::endl;            
+            cout << "Error: Emitting code for unknown instruction " << ss.str() << std::endl;
             assert(false);
 
           }
