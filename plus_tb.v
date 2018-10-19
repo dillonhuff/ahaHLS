@@ -99,6 +99,12 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+      
 //      $display("dbg data = %d", dbg_data);
       `assert(dbg_data, 32'd24);
       `assert(valid, 1'd1);      
