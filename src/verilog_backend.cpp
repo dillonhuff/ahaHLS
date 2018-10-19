@@ -342,6 +342,103 @@ namespace DHLS {
     return condStr;
   }
 
+  void instructionVerilog(std::ostream& out,
+                          Instruction* instr,
+                          map<Instruction*, FunctionalUnit>& unitAssignment,
+                          map<string, int>& memoryMap,
+                          map<BasicBlock*, int>& basicBlockNos) {
+
+    auto addUnit = map_find(instr, unitAssignment);
+
+    if (ReturnInst::classof(instr)) {
+      out << "\t\t\tvalid_reg = 1;" << endl;
+    } else if (StoreInst::classof(instr)) {
+
+      auto arg0 = instr->getOperand(0);
+      string wdataName = outputName(arg0, unitAssignment, memoryMap);
+
+      Value* location = instr->getOperand(1);            
+      auto locValue = outputName(location, unitAssignment, memoryMap);
+            
+      out << "\t\t\t" << addUnit.portWires["waddr"] << " = " << locValue << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["wdata"] << " = " << wdataName << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["wen"] << " = 1;" << endl;
+
+    } else if (LoadInst::classof(instr)) {
+
+      Value* location = instr->getOperand(0);            
+      auto locValue = outputName(location, unitAssignment, memoryMap);
+
+      out << "\t\t\t" << addUnit.portWires["raddr"] << " = " << locValue << ";" << endl;
+    } else if (CmpInst::classof(instr)) {
+
+
+      auto arg0 = instr->getOperand(0);
+      auto arg0Name = outputName(arg0, unitAssignment, memoryMap);
+
+      auto arg1 = instr->getOperand(1);
+      auto arg1Name = outputName(arg1, unitAssignment, memoryMap);     
+      out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
+
+    } else if (BinaryOperator::classof(instr)) {
+
+      auto arg0 = instr->getOperand(0);
+      auto arg0Name = outputName(arg0, unitAssignment, memoryMap);
+
+      auto arg1 = instr->getOperand(1);
+      auto arg1Name = outputName(arg1, unitAssignment, memoryMap);
+      out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
+            
+    } else if (BranchInst::classof(instr)) {
+      out << "\t\t\t\t" << "last_BB = " << map_find(instr->getParent(), basicBlockNos) << ";" << endl;;
+      // Branch instructions dont map to functional units
+    } else if (GetElementPtrInst::classof(instr)) {
+
+      auto arg0 = instr->getOperand(0);
+      auto arg0Name = outputName(arg0, unitAssignment, memoryMap);
+
+      auto arg1 = instr->getOperand(1);
+      auto arg1Name = outputName(arg1, unitAssignment, memoryMap);
+      out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
+            
+    } else if (PHINode::classof(instr)) {
+      PHINode* phi = dyn_cast<PHINode>(instr);
+      assert(phi->getNumIncomingValues() == 2);
+
+      BasicBlock* b0 = phi->getIncomingBlock(0);
+      int b0Val = map_find(b0, basicBlockNos);
+
+      BasicBlock* b1 = phi->getIncomingBlock(1);
+      int b1Val = map_find(b1, basicBlockNos);
+
+      Value* v0 = phi->getIncomingValue(0);
+      string val0Name = outputName(v0, unitAssignment, memoryMap);
+
+      Value* v1 = phi->getIncomingValue(1);
+      string val1Name = outputName(v1, unitAssignment, memoryMap);
+            
+      out << "\t\t\t" << addUnit.portWires["in0"] << " = " << val0Name << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["in1"] << " = " << val1Name << ";" << endl;
+
+      out << "\t\t\t" << addUnit.portWires["s0"] << " = " << b0Val << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["s1"] << " = " << b1Val << ";" << endl;
+
+      out << "\t\t\t" << addUnit.portWires["last_block"] << " = last_BB_reg;" << endl;
+    } else {
+
+      std::string str;
+      llvm::raw_string_ostream ss(str);
+      ss << *(instr);
+
+      cout << "Error: Emitting code for unknown instruction " << ss.str() << std::endl;
+      assert(false);
+
+    }
+  }
+
   // Im a little confused on what the next steps in getting this generated
   // verilog right are.
 
@@ -496,99 +593,13 @@ namespace DHLS {
       for (auto instrG : state.second) {
         Instruction* instr = instrG.instruction;
 
-        auto addUnit = map_find(instr, unitAssignment);
-        
         auto schedVars = map_find(instr, stg.sched.instrTimes);
         if (state.first == schedVars.front()) {
 
           out << "\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
-          if (ReturnInst::classof(instr)) {
-            out << "\t\t\tvalid_reg = 1;" << endl;
-          } else if (StoreInst::classof(instr)) {
 
-            auto arg0 = instr->getOperand(0);
-            string wdataName = outputName(arg0, unitAssignment, memoryMap);
+          instructionVerilog(out, instr, unitAssignment, memoryMap, basicBlockNos);
 
-            Value* location = instr->getOperand(1);            
-            auto locValue = outputName(location, unitAssignment, memoryMap);
-            
-            out << "\t\t\t" << addUnit.portWires["waddr"] << " = " << locValue << ";" << endl;
-            out << "\t\t\t" << addUnit.portWires["wdata"] << " = " << wdataName << ";" << endl;
-            out << "\t\t\t" << addUnit.portWires["wen"] << " = 1;" << endl;
-
-          } else if (LoadInst::classof(instr)) {
-
-            Value* location = instr->getOperand(0);            
-            auto locValue = outputName(location, unitAssignment, memoryMap);
-
-            out << "\t\t\t" << addUnit.portWires["raddr"] << " = " << locValue << ";" << endl;
-          } else if (CmpInst::classof(instr)) {
-
-
-            auto arg0 = instr->getOperand(0);
-            auto arg0Name = outputName(arg0, unitAssignment, memoryMap);
-
-            auto arg1 = instr->getOperand(1);
-            auto arg1Name = outputName(arg1, unitAssignment, memoryMap);     
-            out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
-            out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
-
-          } else if (BinaryOperator::classof(instr)) {
-
-            auto arg0 = instr->getOperand(0);
-            auto arg0Name = outputName(arg0, unitAssignment, memoryMap);
-
-            auto arg1 = instr->getOperand(1);
-            auto arg1Name = outputName(arg1, unitAssignment, memoryMap);
-            out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
-            out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
-            
-          } else if (BranchInst::classof(instr)) {
-            out << "\t\t\t\t" << "last_BB = " << map_find(instr->getParent(), basicBlockNos) << ";" << endl;;
-            // Branch instructions dont map to functional units
-          } else if (GetElementPtrInst::classof(instr)) {
-
-            auto arg0 = instr->getOperand(0);
-            auto arg0Name = outputName(arg0, unitAssignment, memoryMap);
-
-            auto arg1 = instr->getOperand(1);
-            auto arg1Name = outputName(arg1, unitAssignment, memoryMap);
-            out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
-            out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
-            
-          } else if (PHINode::classof(instr)) {
-            PHINode* phi = dyn_cast<PHINode>(instr);
-            assert(phi->getNumIncomingValues() == 2);
-
-            BasicBlock* b0 = phi->getIncomingBlock(0);
-            int b0Val = map_find(b0, basicBlockNos);
-
-            BasicBlock* b1 = phi->getIncomingBlock(1);
-            int b1Val = map_find(b1, basicBlockNos);
-
-            Value* v0 = phi->getIncomingValue(0);
-            string val0Name = outputName(v0, unitAssignment, memoryMap);
-
-            Value* v1 = phi->getIncomingValue(1);
-            string val1Name = outputName(v1, unitAssignment, memoryMap);
-            
-            out << "\t\t\t" << addUnit.portWires["in0"] << " = " << val0Name << ";" << endl;
-            out << "\t\t\t" << addUnit.portWires["in1"] << " = " << val1Name << ";" << endl;
-
-            out << "\t\t\t" << addUnit.portWires["s0"] << " = " << b0Val << ";" << endl;
-            out << "\t\t\t" << addUnit.portWires["s1"] << " = " << b1Val << ";" << endl;
-
-            out << "\t\t\t" << addUnit.portWires["last_block"] << " = last_BB_reg;" << endl;
-          } else {
-
-            std::string str;
-            llvm::raw_string_ostream ss(str);
-            ss << *(instr);
-
-            cout << "Error: Emitting code for unknown instruction " << ss.str() << std::endl;
-            assert(false);
-
-          }
 
           out << "\t\t\tend" << endl;
         }
