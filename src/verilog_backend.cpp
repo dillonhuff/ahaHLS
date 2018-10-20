@@ -600,11 +600,15 @@ namespace DHLS {
 
     // TODO: Experiment with adding defaults to all functional unit inputs
     for (auto state : stg.opStates) {
-      out << "\talways @(*) begin" << endl;
-      
-      std::set<string> usedFUs;
-      out << "\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
+      // out << "\talways @(*) begin" << endl;
+      // //std::set<string> usedFUs;
+      // out << "\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
+
       for (auto instrG : state.second) {
+
+        out << "\talways @(*) begin" << endl;
+        out << "\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
+
         Instruction* instr = instrG.instruction;
 
         auto schedVars = map_find(instr, stg.sched.instrTimes);
@@ -613,27 +617,28 @@ namespace DHLS {
           out << "\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
 
           instructionVerilog(out, instr, unitAssignment, memoryMap, basicBlockNos);
-          usedFUs.insert(map_find(instr, unitAssignment).instName);
+          //usedFUs.insert(map_find(instr, unitAssignment).instName);
 
 
           out << "\t\t\tend" << endl;
         }
 
+        out << "\t\tend" << endl;
+        out << "\tend" << endl;      
+        
       }
 
-      out << "\t\t\t// Start functional unit default inputs" << endl;
-      for (auto u : unitAssignment) {
-        FunctionalUnit fu = u.second;
-        if (!elem(fu.instName, usedFUs)) {
-          for (auto w : fu.portWires) {
-            out << "\t\t\t" << w.second << " = 0;" << endl;
-          }
-        }
-      }
-      out << "\t\t\t// End functional unit default inputs" << endl;
+      // out << "\t\t\t// Start functional unit default inputs" << endl;
+      // for (auto u : unitAssignment) {
+      //   FunctionalUnit fu = u.second;
+      //   if (!elem(fu.instName, usedFUs)) {
+      //     for (auto w : fu.portWires) {
+      //       out << "\t\t\t" << w.second << " = 0;" << endl;
+      //     }
+      //   }
+      // }
+      // out << "\t\t\t// End functional unit default inputs" << endl;
 
-      out << "\t\tend" << endl;
-      out << "\tend" << endl;      
     }
 
 
