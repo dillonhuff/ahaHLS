@@ -169,6 +169,8 @@ namespace DHLS {
   // A: Test case with a variable used in states after it is produced.
   //    Test case that uses multiple, different comparator operations
   //    Test case that uses 16 (or other not 32 bit) width
+  //    Test case with resource limits that force a huge basic block
+  //    to be split over several states
   TEST_CASE("A simple if") {
     createLLFile("./test/ll_files/if_else");    
 

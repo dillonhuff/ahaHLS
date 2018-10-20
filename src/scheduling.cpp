@@ -375,8 +375,9 @@ namespace DHLS {
 
                 StateId nextState =
                   map_find(branch->getSuccessor(0), sched.blockTimes).front();
-
-                if ((nextState > st.first) && !g.hasTransition(st.first, nextState)) {
+                if ((branch->getSuccessor(0) == instr->getParent()) ||
+                    (nextState != st.first)) {
+                  //if ((nextState > st.first) && !g.hasTransition(st.first, nextState)) {
                   map_insert(g.opTransitions, st.first, {nextState, Condition()});
                 }
                 
