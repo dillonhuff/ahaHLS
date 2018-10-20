@@ -361,8 +361,14 @@ namespace DHLS {
                 StateId falseState =
                   map_find(falseB, sched.blockTimes).front();
 
-                map_insert(g.opTransitions, st.first, {trueState, Condition(cond)});
-                map_insert(g.opTransitions, st.first, {falseState, Condition(cond, true)});
+                // Only add a state transition if this branch takes
+                // the control flow into a different state
+                if ((trueB == instr->getParent()) || (trueState != st.first)) {
+                  map_insert(g.opTransitions, st.first, {trueState, Condition(cond)});
+                }
+                if ((falseB == instr->getParent()) || (falseState != st.first)) {
+                  map_insert(g.opTransitions, st.first, {falseState, Condition(cond, true)});
+                }
                 
               } else {
                 assert(branch->getNumSuccessors() == 1);
