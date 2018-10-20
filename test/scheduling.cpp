@@ -199,6 +199,8 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
+    REQUIRE(!graph.hasTransition(1, 1));
+
     map<string, int> layout = {{"a", 0}, {"b", 3}, {"c", 4}};
     emitVerilog(f, graph, layout);
 
