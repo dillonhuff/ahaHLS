@@ -597,10 +597,11 @@ namespace DHLS {
 
     out << endl << endl;
 
-    out << "\talways @(*) begin" << endl;
 
     // TODO: Experiment with adding defaults to all functional unit inputs
     for (auto state : stg.opStates) {
+      out << "\talways @(*) begin" << endl;
+      
       std::set<string> usedFUs;
       out << "\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
       for (auto instrG : state.second) {
@@ -625,16 +626,17 @@ namespace DHLS {
         FunctionalUnit fu = u.second;
         if (!elem(fu.instName, usedFUs)) {
           for (auto w : fu.portWires) {
-            out << "\t\t\t\t" << w.second << " = 0;" << endl;
+            out << "\t\t\t" << w.second << " = 0;" << endl;
           }
         }
       }
       out << "\t\t\t// End functional unit default inputs" << endl;
 
       out << "\t\tend" << endl;
+      out << "\tend" << endl;      
     }
 
-    out << "\tend" << endl;
+
 
     out << "endmodule" << endl;
 

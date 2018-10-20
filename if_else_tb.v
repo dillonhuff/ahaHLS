@@ -113,39 +113,40 @@ module test();
       #1 rst = 1;
       
       #1 dbg_wr_en = 0;
-      
+      $display("dbg_data = %d", dbg_data);            
       #1 clk = 0;
       #1 clk = 1;
       #1 rst = 1;
-      
+      $display("dbg_data = %d", dbg_data);            
       #1 clk = 0;
       #1 clk = 1;
       #1 rst = 1;
       
       #1 dbg_addr = 0;
-      
+      $display("dbg_data = %d", dbg_data);            
       #1 clk = 0;
       #1 rst = 1;
       #1 clk = 1;
-
+      $display("dbg_data = %d", dbg_data);      
       #1 rst = 0;
 
       `assert(dbg_data, 32'd23);
       `assert(valid, 1'd0);      
-      
+      $display("dbg_data = %d", dbg_data);            
       #1 clk = 0;
       #1 clk = 1;
 
       #1 clk = 0;
       #1 clk = 1;
-
+      $display("dbg_data = %d", dbg_data);      
+      #1 clk = 0;
+      #1 clk = 1;
+      $display("dbg_data = %d", dbg_data);      
       #1 clk = 0;
       #1 clk = 1;
 
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 $display("Should not overwrite value");      
+      #1 $display("Should not overwrite value");
+      $display("dbg_data = %d", dbg_data);      
       `assert(dbg_data, 32'd23);
       `assert(valid, 1'd1);      
       
