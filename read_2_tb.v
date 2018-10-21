@@ -52,9 +52,8 @@ module test();
       #1 rst = 1;
       
       #1 dbg_addr = 3;
-      
-      // `assert(dbg_data, 32'hxxxxxxxx);
-      // `assert(valid, 1'd0);
+
+      //`assert(32'd1, 32'd0);
       
       #1 rst = 0;
 

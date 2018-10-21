@@ -32,8 +32,6 @@ using namespace dbhc;
 using namespace llvm;
 using namespace std;
 
-//LLVMContext context;
-
 namespace DHLS {
 
   void createLLFile(const std::string& moduleName) {
