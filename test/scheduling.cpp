@@ -166,9 +166,9 @@ namespace DHLS {
   }
 
   // Q: What test cases do I need?
-  // A: Test case that uses multiple, different comparator operations
-  //    Test case that uses 16 (or other not 32 bit) width
+  // A: Test case that uses 16 (or other not 32 bit) width (parametric builtins)
   //    Test case that uses inner and outer loops
+  //    Test case that can use caching (or some other memory architecture)
   TEST_CASE("A simple if") {
     createLLFile("./test/ll_files/if_else");    
 
