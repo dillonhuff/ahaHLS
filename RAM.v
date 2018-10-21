@@ -21,7 +21,7 @@ module RAM(input clk,
 
    always @(posedge clk) begin
       // $display("--- wen_del    = %d", wen_del);
-      // $display("--- waddr_del  = %d", waddr_del);      
+      // $display("--- waddr_del  = %d", waddr_del);
       // $display("--- wdata_del  = %d", wdata_del);
       
       if (wen_del) begin
