@@ -586,9 +586,10 @@ namespace DHLS {
               // a default
               cout << "Zero in progress instructions in basic block " << st.first << endl;
 
-              assert(endingInstructions.size() > 0);
+              auto endingInBlock = map_find(bb, endingInstructions);              
+              assert(endingInBlock.size() > 0);
 
-              GuardedInstruction instrG = endingInstructions.back();
+              GuardedInstruction instrG = endingInBlock.back();
               map_insert(g.opTransitions, st.first, {st.first + 1, instrG.cond});
 
             } else {
