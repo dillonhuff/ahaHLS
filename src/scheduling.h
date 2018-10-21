@@ -24,6 +24,23 @@ namespace DHLS {
     BR_OP
   };
 
+  static inline std::vector<OperationType> allOps() {
+    return {
+      RETURN_OP,
+        PHI_OP,
+        STORE_OP,
+        LOAD_OP,
+        ADD_OP,
+        SUB_OP,
+        MUL_OP,
+        DIV_OP,
+        SDIV_OP,
+        CMP_OP,
+        BR_OP
+        };
+
+  }
+
   OperationType opType(llvm::Instruction* const iptr);
   
   class HardwareConstraints {
@@ -209,10 +226,6 @@ namespace DHLS {
         out << "\t" << st.first << std::endl;
         for (auto instr : st.second) {
           out << instr << std::endl;
-          // std::string str;
-          // llvm::raw_string_ostream ss(str);
-          // ss << *(instr.instruction);
-          // out << "\t\t" << ss.str() << std::endl;
         }
       }
 

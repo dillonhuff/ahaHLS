@@ -155,6 +155,16 @@ namespace DHLS {
     return sched;
   }
 
+  int countOperations(const OperationType tp, BasicBlock* bb) {
+    int count = 0;
+    for (auto& instr : *bb) {
+      if (opType(&instr) == tp) {
+        count++;
+      }
+    }
+    return count;
+  }
+
   // A few new things to add:
   // 1. Control edges between basic blocks need to induce dependencies
   //    unless they are "back edges", which I suppose will be determined by
@@ -255,6 +265,52 @@ namespace DHLS {
           if (!PHINode::classof(user)) {
             auto userInstr = dyn_cast<Instruction>(user.getUser());
             s.add(instrEnd(iptr, schedVars) <= instrStart(userInstr, schedVars));
+          }
+        }
+      }
+    }
+
+    // Add partial order constraints to respect resource constraints
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& op : allOps()) {
+        int opCount = countOperations(op, &bb);
+        if (opCount >= hdc.getCount(op)) {
+          vector<vector<Instruction*> > iGroups;
+          vector<Instruction*> instrs;
+
+          int ind = 0;
+          for (auto& instr : bb) {
+            if (opType(&instr) == op) {
+              ind++;
+              instrs.push_back(&instr);
+            }
+
+            if ((ind != 0) && (ind % hdc.getCount(op) == 0)) {
+              ind = 0;
+              iGroups.push_back(instrs);
+              instrs = {};
+            }
+          }
+
+          iGroups.push_back(instrs);
+
+          cout << "iGroups = " << iGroups.size() << endl;
+          for (auto gp : iGroups) {
+            cout << "\tGroup" << endl;
+            for (auto i : gp) {
+              cout << "\t\t" << instructionString(i) << endl;
+            }
+          }
+          
+          iGroups.push_back(instrs);
+          for (int i = 0; i < iGroups.size() - 1; i++) {
+            auto gp = iGroups[i];
+            auto next = iGroups[i + 1];
+            for (auto preI : gp) {
+              for (auto nextI : next) {
+                s.add(instrEnd(preI, schedVars) < instrStart(nextI, schedVars));
+              }
+            }
           }
         }
       }
