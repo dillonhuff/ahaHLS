@@ -292,6 +292,30 @@ namespace DHLS {
     }
   }
 
+  std::string outputNameLast(Value* arg0,
+                             map<Instruction*, FunctionalUnit> unitAssignment,
+                             map<Instruction*, Wire>& names,
+                             std::map<std::string, int>& memoryMap) {
+    if (Instruction::classof(arg0)) {
+
+      auto resWire =
+        map_find(dyn_cast<Instruction>(arg0), names);
+      return resWire.name;
+
+    } else if (Argument::classof(arg0)) {
+      string name = arg0->getName();
+      return to_string(map_find(name, memoryMap));
+    } else {
+      assert(ConstantInt::classof(arg0));
+      auto arg0C = dyn_cast<ConstantInt>(arg0);
+      auto apInt = arg0C->getValue();
+
+      assert(!apInt.isNegative());
+
+      return to_string(dyn_cast<ConstantInt>(arg0)->getSExtValue());
+    }
+  }
+  
   std::string verilogForCondition(Condition& cond,
                                   const StateId currentState,
                                   const STG& stg,
@@ -346,6 +370,7 @@ namespace DHLS {
                           Instruction* instr,
                           map<Instruction*, FunctionalUnit>& unitAssignment,
                           map<string, int>& memoryMap,
+                          map<Instruction*, Wire>& names,
                           map<BasicBlock*, int>& basicBlockNos) {
 
     auto addUnit = map_find(instr, unitAssignment);
@@ -415,10 +440,10 @@ namespace DHLS {
       int b1Val = map_find(b1, basicBlockNos);
 
       Value* v0 = phi->getIncomingValue(0);
-      string val0Name = outputName(v0, unitAssignment, memoryMap);
+      string val0Name = outputNameLast(v0, unitAssignment, names, memoryMap);
 
       Value* v1 = phi->getIncomingValue(1);
-      string val1Name = outputName(v1, unitAssignment, memoryMap);
+      string val1Name = outputNameLast(v1, unitAssignment, names, memoryMap);
             
       out << "\t\t\t" << addUnit.portWires["in0"] << " = " << val0Name << ";" << endl;
       out << "\t\t\t" << addUnit.portWires["in1"] << " = " << val1Name << ";" << endl;
@@ -462,6 +487,7 @@ namespace DHLS {
   void emitVerilog(llvm::Function* f, const STG& stg, std::map<std::string, int>& memoryMap) {
 
     map<BasicBlock*, int> basicBlockNos = numberBasicBlocks(f);
+    map<Instruction*, Wire> names = createInstrNames(stg);
 
     string fn = f->getName();
     vector<Port> allPorts = getPorts(stg);
@@ -522,9 +548,6 @@ namespace DHLS {
     }
     out << "\t// End Functional Units" << endl;
     out << endl;
-
-    // Note: Result names also need widths if we are going to use them
-    map<Instruction*, Wire> names = createInstrNames(stg);
 
     out << "\t// Start instruction result storage" << endl;
     for (auto n : names) {
@@ -616,8 +639,7 @@ namespace DHLS {
 
           out << "\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
 
-          instructionVerilog(out, instr, unitAssignment, memoryMap, basicBlockNos);
-          //usedFUs.insert(map_find(instr, unitAssignment).instName);
+          instructionVerilog(out, instr, unitAssignment, memoryMap, names, basicBlockNos);
 
 
           out << "\t\t\tend" << endl;
@@ -627,17 +649,6 @@ namespace DHLS {
         out << "\tend" << endl;      
         
       }
-
-      // out << "\t\t\t// Start functional unit default inputs" << endl;
-      // for (auto u : unitAssignment) {
-      //   FunctionalUnit fu = u.second;
-      //   if (!elem(fu.instName, usedFUs)) {
-      //     for (auto w : fu.portWires) {
-      //       out << "\t\t\t" << w.second << " = 0;" << endl;
-      //     }
-      //   }
-      // }
-      // out << "\t\t\t// End functional unit default inputs" << endl;
 
     }
 
