@@ -15,3 +15,8 @@ if_else
 read_2
 read_2.v
 loop_add_7.v
+loop_add_7
+obj_dir/
+many_adds
+many_adds.v
+read_2_failing.v
