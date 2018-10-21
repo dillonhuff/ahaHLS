@@ -21,9 +21,11 @@ module test();
 
    reg [4:0] raddr0;
    reg [4:0] raddr1;
-   
+   reg [4:0] raddr2;   
+
    wire [31:0] rdata0;
    wire [31:0] rdata1;   
+   wire [31:0] rdata2;   
 
    initial begin
 
@@ -61,7 +63,7 @@ module test();
       #1 clk = 1;
       #1 rst = 1;
       
-      #1 dbg_addr = 2;
+      #1 dbg_addr = 3;
       
       #1 clk = 0;
       #1 rst = 1;
@@ -69,7 +71,7 @@ module test();
 
 //      $display("dbg data = %d", dbg_data);
 
-      `assert(dbg_data, 32'hxxxxxxxx);
+//      `assert(dbg_data, 32'hxxxxxxxx);
       `assert(valid, 1'd0);
       
       //$display("rdata = %d", rdata);
@@ -122,7 +124,7 @@ module test();
 
    end
 
-   RAM2 mem(.clk(clk),
+   RAM3 mem(.clk(clk),
             .rst(rst),
 
             .raddr0(raddr0),
@@ -131,6 +133,9 @@ module test();
             .raddr1(raddr1),
             .rdata1(rdata1),
 
+            .raddr2(raddr2),
+            .rdata2(rdata2),
+            
             .debug_write_addr(dbg_wr_addr),
             .debug_write_data(dbg_wr_data),
             .debug_write_en(dbg_wr_en),
@@ -142,6 +147,11 @@ module test();
             .wdata(wdata),
             .waddr(waddr));
    
-   many_adds ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .raddr_0(raddr0), .rdata_0(rdata0), .raddr_1(raddr1), .rdata_1(rdata1));
+   many_adds ss(.clk(clk), .rst(rst),
+                .valid(valid),
+                .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen),
+                .raddr_0(raddr0), .rdata_0(rdata0),
+                .raddr_1(raddr1), .rdata_1(rdata1),
+                .raddr_2(raddr2), .rdata_2(rdata2));
    
 endmodule
