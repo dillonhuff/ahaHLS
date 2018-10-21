@@ -35,9 +35,6 @@ namespace DHLS {
       return ADD_OP;
     } else {
 
-      // std::string str;
-      // llvm::raw_string_ostream ss(str);
-      // ss << *iptr;
       cout << "Error: Unsupported instruction type " << instructionString(iptr) << std::endl;
 
       assert(false);
@@ -107,9 +104,6 @@ namespace DHLS {
       latency = hdc.getLatency(ADD_OP);
     } else {
 
-      // std::string str;
-      // llvm::raw_string_ostream ss(str);
-      // ss << *iptr;
       cout << "Error: Unsupported instruction type " << instructionString(iptr) << std::endl;
 
       assert(false);
