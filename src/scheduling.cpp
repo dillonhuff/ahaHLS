@@ -449,71 +449,8 @@ namespace DHLS {
         // If the instruction is finished in this state
         if (st.first == map_find(instr, sched.instrTimes).back()) {
           map_insert(endingInstructions, parent, instrG);
-
-          // if (TerminatorInst::classof(instr)) {
-          //   if (ReturnInst::classof(instr)) {
-          //     if (!g.hasTransition(st.first, st.first)) {
-          //       map_insert(g.opTransitions, st.first, {st.first, instrG.cond});
-          //     }
-          //   } else {
-
-          //     auto* branch = dyn_cast<BranchInst>(instr);
-          //     if (branch->isConditional()) {
-          //       assert(branch->getNumSuccessors() == 2);
-          //       Value* cond = branch->getCondition();
-
-          //       BasicBlock* trueB = branch->getSuccessor(0);
-          //       BasicBlock* falseB = branch->getSuccessor(1);
-
-          //       StateId trueState =
-          //         map_find(trueB, sched.blockTimes).front();
-          //       StateId falseState =
-          //         map_find(falseB, sched.blockTimes).front();
-
-          //       // Only add a state transition if this branch takes
-          //       // the control flow into a different state
-          //       if ((trueB == instr->getParent()) || (trueState != st.first)) {
-          //         map_insert(g.opTransitions, st.first, {trueState, Condition(cond)});
-          //       }
-          //       if ((falseB == instr->getParent()) || (falseState != st.first)) {
-          //         map_insert(g.opTransitions, st.first, {falseState, Condition(cond, true)});
-          //       }
-                
-          //     } else {
-          //       assert(branch->getNumSuccessors() == 1);
-
-          //       StateId nextState =
-          //         map_find(branch->getSuccessor(0), sched.blockTimes).front();
-          //       if ((branch->getSuccessor(0) == instr->getParent()) ||
-          //           (nextState != st.first)) {
-          //         //if ((nextState > st.first) && !g.hasTransition(st.first, nextState)) {
-          //         map_insert(g.opTransitions, st.first, {nextState, Condition()});
-          //       }
-                
-          //     }
-          //   }
-          // } else {
-
-          //   Instruction* next = instr->getNextNode();
-          //   StateId nextState = map_find(next, sched.instrTimes).front();
-          //   Condition parentCond(map_find(instr->getParent(), blockGuards));
-            
-          //   // Do not jump to the start state of an instruction that has already
-          //   // started and do not duplicate paths
-          //   if ((nextState > st.first) && !g.hasTransition(st.first, nextState)) {
-          //     map_insert(g.opTransitions, st.first, {nextState, parentCond});
-          //   }
-          // }
         } else {
           map_insert(inProgressInstructions, parent, instrG);
-          
-          // If the instruction is not finished then we must go to the numerically
-          // next state
-          // if (!g.hasTransition(st.first, st.first + 1)) {
-          //   BasicBlock* parent = instr->getParent();
-          //   Condition parentCond(map_find(parent, blockGuards));
-          //   map_insert(g.opTransitions, st.first, {st.first + 1, parentCond});
-          // }
         }
 
       }
@@ -532,7 +469,6 @@ namespace DHLS {
             }
           }
         }
-
 
         // If terminator is finishing no instructions are still in progress
         if (terminatorFinishing) {
