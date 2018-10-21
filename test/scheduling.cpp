@@ -102,17 +102,18 @@ namespace DHLS {
   }
   
   TEST_CASE("Schedule a single store operation") {
-    createLLFile("./test/ll_files/single_store");    
+    //    createLLFile("./test/ll_files/single_store");    
 
     SMDiagnostic Err;
     LLVMContext Context;
+    std::unique_ptr<Module> Mod = loadModule(Context, Err, "single_store");
 
-    string modFile = "./test/ll_files/single_store.ll";
-    std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
-    if (!Mod) {
-      outs() << "Error: No mod\n";
-      assert(false);
-    }
+    // string modFile = "./test/ll_files/single_store.ll";
+    // std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
+    // if (!Mod) {
+    //   outs() << "Error: No mod\n";
+    //   assert(false);
+    // }
 
     HardwareConstraints hcs;
     hcs.setLatency(STORE_OP, 3);
@@ -140,17 +141,10 @@ namespace DHLS {
   }
 
   TEST_CASE("Adding two numbers and storing them back") {
-    createLLFile("./test/ll_files/plus");    
 
     SMDiagnostic Err;
     LLVMContext Context;
-
-    string modFile = "./test/ll_files/plus.ll";
-    std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
-    if (!Mod) {
-      outs() << "Error: No mod\n";
-      assert(false);
-    }
+    std::unique_ptr<Module> Mod = loadModule(Context, Err, "plus");
 
     HardwareConstraints hcs;
     hcs.setLatency(STORE_OP, 3);
