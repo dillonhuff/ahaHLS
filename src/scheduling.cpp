@@ -33,6 +33,8 @@ namespace DHLS {
       }
     } else if (GetElementPtrInst::classof(iptr)) {
       return ADD_OP;
+    } else if (ZExtInst::classof(iptr)) {
+      return ZEXT_OP;
     } else {
 
       cout << "Error: Unsupported instruction type " << instructionString(iptr) << std::endl;
@@ -102,6 +104,8 @@ namespace DHLS {
       }
     } else if (GetElementPtrInst::classof(iptr)) {
       latency = hdc.getLatency(ADD_OP);
+    } else if (ZExtInst::classof(iptr)) {
+      latency = hdc.getLatency(ZEXT_OP);
     } else {
 
       cout << "Error: Unsupported instruction type " << instructionString(iptr) << std::endl;

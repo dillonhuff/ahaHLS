@@ -210,6 +210,14 @@ namespace DHLS {
             wiring = {{"s0", "phi_s0_" + rStr}, {"s1", "phi_s1_" + rStr}, {"in0", "phi_in0_" + rStr}, {"in1", "phi_in1_" + rStr}, {"last_block", "phi_last_block_" + rStr}};
             outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
 
+          } else if (ZExtInst::classof(instr)) {
+            PHINode* phi = dyn_cast<PHINode>(instr);
+            assert(phi->getNumIncomingValues() == 2);
+
+            modName = "phi_2";
+            wiring = {{"s0", "phi_s0_" + rStr}, {"s1", "phi_s1_" + rStr}, {"in0", "phi_in0_" + rStr}, {"in1", "phi_in1_" + rStr}, {"last_block", "phi_last_block_" + rStr}};
+            outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
+            
           } else {
             cout << "Unsupported instruction = " << instructionString(instr) << endl;
             assert(false);
