@@ -33,6 +33,14 @@ module test();
       
       #1 clk = 0;
       #1 clk = 1;
+
+      #1 dbg_wr_addr = 11; // b[1]
+      #1 dbg_wr_data = 5;
+      #1 dbg_wr_en = 1;
+      
+      #1 clk = 0;
+      #1 clk = 1;
+
       #1 rst = 1;
       
        #1 dbg_wr_en = 0; // a[0]
@@ -84,7 +92,24 @@ module test();
       
       `assert(valid, 1'd0);
       `assert(dbg_data, 32'd17);
-      
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 dbg_addr = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      `assert(valid, 1'd0);      
+      `assert(dbg_data, 32'd12);
+
       #1 $display("Passed");
 
    end
