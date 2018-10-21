@@ -228,17 +228,10 @@ namespace DHLS {
   }
 
   TEST_CASE("Looping over an array doing a[i] + 7") {
-    // createLLFile("./test/ll_files/loop_add_7");
 
     SMDiagnostic Err;
     LLVMContext Context;
     std::unique_ptr<Module> Mod = loadModule(Context, Err, "loop_add_7");    
-    // string modFile = "./test/ll_files/loop_add_7.ll";
-    // std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
-    // if (!Mod) {
-    //   outs() << "Error: No mod\n";
-    //   assert(false);
-    // }
 
     HardwareConstraints hcs;
     hcs.setLatency(STORE_OP, 3);
