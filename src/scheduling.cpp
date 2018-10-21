@@ -11,6 +11,40 @@ using namespace z3;
 
 namespace DHLS {
 
+  OperationType opType(Instruction* const iptr) {
+    if (ReturnInst::classof(iptr)) {
+      return RETURN_OP;
+    } else if (StoreInst::classof(iptr)) {
+      return STORE_OP;
+    } else if (LoadInst::classof(iptr)) {
+      return LOAD_OP;
+    } else if (CmpInst::classof(iptr)) {
+      return CMP_OP;
+    } else if (BranchInst::classof(iptr)) {
+      return BR_OP;
+    } else if (PHINode::classof(iptr)) {
+      return PHI_OP;
+    } else if (BinaryOperator::classof(iptr)) {
+      auto opCode = iptr->getOpcode();
+      if (opCode == Instruction::Add) {
+        return ADD_OP;
+      } else {
+        assert(false);
+      }
+    } else if (GetElementPtrInst::classof(iptr)) {
+      return ADD_OP;
+    } else {
+
+      // std::string str;
+      // llvm::raw_string_ostream ss(str);
+      // ss << *iptr;
+      cout << "Error: Unsupported instruction type " << instructionString(iptr) << std::endl;
+
+      assert(false);
+    }
+
+  }
+
   std::string instructionString(Instruction* const iptr) {
     std::string str;
     llvm::raw_string_ostream ss(str);

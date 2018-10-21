@@ -11,6 +11,8 @@ namespace DHLS {
   std::string instructionString(llvm::Instruction* const iptr);
   
   enum OperationType {
+    RETURN_OP,
+    PHI_OP,
     STORE_OP,
     LOAD_OP,
     ADD_OP,
@@ -22,9 +24,12 @@ namespace DHLS {
     BR_OP
   };
 
+  OperationType opType(llvm::Instruction* const iptr);
+  
   class HardwareConstraints {
 
     std::map<OperationType, int> latencies;
+    std::map<OperationType, int> counts;
     
   public:
 
@@ -32,8 +37,21 @@ namespace DHLS {
       return dbhc::map_find(op, latencies);
     }
 
+    int getCount(const OperationType op) const {
+      // If not explicitly constrained we have an infinite number
+      if (!dbhc::contains_key(op, counts)) {
+        return 100000000;
+      }
+
+      return dbhc::map_find(op, counts);
+    }
+    
     void setLatency(const OperationType op, const int latency) {
       latencies[op] = latency;
+    }
+
+    void setCount(const OperationType op, const int count) {
+      counts[op] = count;
     }
     
   };

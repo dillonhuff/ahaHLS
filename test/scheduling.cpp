@@ -301,6 +301,7 @@ namespace DHLS {
     hcs.setLatency(CMP_OP, 0);
     hcs.setLatency(BR_OP, 0);
     hcs.setLatency(ADD_OP, 0);
+    hcs.setCount(ADD_OP, 1);
 
     Function* f = Mod->getFunction("many_adds");
     Schedule s = scheduleFunction(f, hcs);
@@ -312,26 +313,28 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    REQUIRE(!graph.hasTransition(1, 1));
+    for (auto st : graph.opStates) {
+      map<OperationType, int> opCounts;
+      for (auto instrG : st.second) {
+        Instruction* instr = instrG.instruction;
+        OperationType tp = opType(instr);
+        if (contains_key(tp, opCounts)) {
+          opCounts[tp] = opCounts[tp] + 1;
+        } else {
+          opCounts[tp] = 1;
+        }
+      }
+
+      for (auto op : opCounts) {
+        REQUIRE(op.second <= hcs.getCount(op.first));
+      }
+    }
 
     map<string, int> layout = {{"a", 0}, {"b", 1}, {"c", 2}, {"d", 3}};
     emitVerilog(f, graph, layout);
     REQUIRE(runIVerilogTB("many_adds"));
     
   }
-
-  // TEST_CASE("Parse a tiny C program") {
-  //   createLLFile("./test/ll_files/tiny_test");
-
-  //   SMDiagnostic Err;
-  //   LLVMContext Context;
-
-  //   string modFile = "./test/ll_files/tiny_test.ll";
-  //   std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
-  //   if (!Mod) {
-  //     outs() << "Error: No mod\n";
-  //     assert(false);
-  //   }
 
   //   outs() << "--All functions\n";
   //   for (auto& f : Mod->functions()) {
