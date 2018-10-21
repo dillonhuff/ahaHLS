@@ -166,11 +166,9 @@ namespace DHLS {
   }
 
   // Q: What test cases do I need?
-  // A: Test case with a variable used in states after it is produced.
-  //    Test case that uses multiple, different comparator operations
+  // A: Test case that uses multiple, different comparator operations
   //    Test case that uses 16 (or other not 32 bit) width
-  //    Test case with resource limits that force a huge basic block
-  //      to be split over several states
+  //    Test case that uses inner and outer loops
   TEST_CASE("A simple if") {
     createLLFile("./test/ll_files/if_else");    
 
@@ -336,6 +334,44 @@ namespace DHLS {
     
   }
 
+  TEST_CASE("Greater than") {
+    createLLFile("./test/ll_files/cmp_gt");
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+
+    string modFile = "./test/ll_files/cmp_gt.ll";
+    std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
+    if (!Mod) {
+      outs() << "Error: No mod\n";
+      assert(false);
+    }
+
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(LOAD_OP, 1);
+    hcs.setLatency(CMP_OP, 0);
+    hcs.setLatency(BR_OP, 0);
+    hcs.setLatency(ADD_OP, 0);
+
+    Function* f = Mod->getFunction("cmp_gt");
+    Schedule s = scheduleFunction(f, hcs);
+
+    auto& retInstr = f->getBasicBlockList().back().back();
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    REQUIRE(!graph.hasTransition(1, 1));
+
+    map<string, int> layout = {{"a", 0}, {"b", 1}, {"c", 2}};
+    emitVerilog(f, graph, layout);
+
+    REQUIRE(runIVerilogTB("cmp_gt"));
+  }
+  
   //   outs() << "--All functions\n";
   //   for (auto& f : Mod->functions()) {
   //     outs() << "\t" << f.getName() << "\n";
