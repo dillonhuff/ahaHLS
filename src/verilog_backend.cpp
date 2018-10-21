@@ -211,12 +211,20 @@ namespace DHLS {
             outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
 
           } else if (ZExtInst::classof(instr)) {
-            PHINode* phi = dyn_cast<PHINode>(instr);
-            assert(phi->getNumIncomingValues() == 2);
+            cout << "Error: zext not yet supported" << endl;
+            assert(false);
 
-            modName = "phi_2";
-            wiring = {{"s0", "phi_s0_" + rStr}, {"s1", "phi_s1_" + rStr}, {"in0", "phi_in0_" + rStr}, {"in1", "phi_in1_" + rStr}, {"last_block", "phi_last_block_" + rStr}};
-            outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
+            // PHINode* phi = dyn_cast<PHINode>(instr);
+            // assert(phi->getNumIncomingValues() == 2);
+
+            // modName = "phi_2";
+            // wiring = {{"s0", "phi_s0_" + rStr}, {"s1", "phi_s1_" + rStr}, {"in0", "phi_in0_" + rStr}, {"in1", "phi_in1_" + rStr}, {"last_block", "phi_last_block_" + rStr}};
+            // outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
+            
+          } else if (SelectInst::classof(instr)) {
+            modName = "select";
+            wiring = {{"in0", "sel_in0_" + rStr}, {"in1", "sel_in1_" + rStr}, {"sel", "sel_sel_" + rStr}};
+            outWires = {{"out", {false, 32, "sel_out_" + rStr}}};
             
           } else {
             cout << "Unsupported instruction = " << instructionString(instr) << endl;
@@ -460,6 +468,23 @@ namespace DHLS {
       out << "\t\t\t" << addUnit.portWires["s1"] << " = " << b1Val << ";" << endl;
 
       out << "\t\t\t" << addUnit.portWires["last_block"] << " = last_BB_reg;" << endl;
+    } else if (SelectInst::classof(instr)) {
+      SelectInst* sel = dyn_cast<SelectInst>(instr);
+
+      Value* cond = sel->getCondition();
+      string condName = outputName(cond, unitAssignment, memoryMap);
+
+      Value* trueVal = sel->getTrueValue();
+      string trueName = outputName(trueVal, unitAssignment, memoryMap);
+
+      Value* falseVal = sel->getFalseValue();
+      string falseName = outputName(falseVal, unitAssignment, memoryMap);
+      
+      out << "\t\t\t" << addUnit.portWires["in0"] << " = " << falseName << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["in1"] << " = " << trueName << ";" << endl;
+
+      out << "\t\t\t" << addUnit.portWires["sel"] << " = " << condName << ";" << endl;
+
     } else {
 
       std::string str;

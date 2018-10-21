@@ -354,6 +354,7 @@ namespace DHLS {
     hcs.setLatency(BR_OP, 0);
     hcs.setLatency(ADD_OP, 0);
     hcs.setLatency(ZEXT_OP, 1);
+    hcs.setLatency(SELECT_OP, 0);
 
     Function* f = Mod->getFunction("cmp_gt");
     Schedule s = scheduleFunction(f, hcs);
