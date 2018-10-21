@@ -191,9 +191,19 @@ namespace DHLS {
           } else if (ReturnInst::classof(instr)) {
             modName = "ret";
           } else if (CmpInst::classof(instr)) {
-            modName = "eq";
-            wiring = {{"in0", "eq_in0_" + rStr}, {"in1", "eq_in1_" + rStr}};
-            outWires = {{"out", {false, 1, "eq_out_" + rStr}}};
+            CmpInst::Predicate pred = dyn_cast<CmpInst>(instr)->getPredicate();
+            if (pred == CmpInst::ICMP_EQ) {
+              modName = "eq";
+              wiring = {{"in0", "eq_in0_" + rStr}, {"in1", "eq_in1_" + rStr}};
+              outWires = {{"out", {false, 1, "eq_out_" + rStr}}};
+            } else if (pred == CmpInst::ICMP_SGT) {
+              modName = "sgt";
+              wiring = {{"in0", "sgt_in0_" + rStr}, {"in1", "sgt_in1_" + rStr}};
+              outWires = {{"out", {false, 1, "sgt_out_" + rStr}}};
+            } else {
+              cout << "Error: Unsupported predicate in cmp: " << pred << endl;
+              assert(false);
+            }
           } else if (BranchInst::classof(instr)) {
             modName = "br_dummy";
             // Branches are not scheduled, they are encoded in the
@@ -211,16 +221,10 @@ namespace DHLS {
             outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
 
           } else if (ZExtInst::classof(instr)) {
+
             cout << "Error: zext not yet supported" << endl;
             assert(false);
 
-            // PHINode* phi = dyn_cast<PHINode>(instr);
-            // assert(phi->getNumIncomingValues() == 2);
-
-            // modName = "phi_2";
-            // wiring = {{"s0", "phi_s0_" + rStr}, {"s1", "phi_s1_" + rStr}, {"in0", "phi_in0_" + rStr}, {"in1", "phi_in1_" + rStr}, {"last_block", "phi_last_block_" + rStr}};
-            // outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
-            
           } else if (SelectInst::classof(instr)) {
             modName = "select";
             wiring = {{"in0", "sel_in0_" + rStr}, {"in1", "sel_in1_" + rStr}, {"sel", "sel_sel_" + rStr}};
