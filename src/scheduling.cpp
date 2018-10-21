@@ -477,14 +477,15 @@ namespace DHLS {
 
             // TODO: Re-insert this code?
             
-            // Instruction* next = instr->getNextNode();
-            // StateId nextState = map_find(next, sched.instrTimes).front();
-
-            // // Do not jump to the start state of an instruction that has already
-            // // started and do not duplicate paths
-            // if ((nextState > st.first) && !g.hasTransition(st.first, nextState)) {
-            //   map_insert(g.opTransitions, st.first, {nextState, Condition()});
-            // }
+            Instruction* next = instr->getNextNode();
+            StateId nextState = map_find(next, sched.instrTimes).front();
+            Condition parentCond(map_find(instr->getParent(), blockGuards));
+            
+            // Do not jump to the start state of an instruction that has already
+            // started and do not duplicate paths
+            if ((nextState > st.first) && !g.hasTransition(st.first, nextState)) {
+              map_insert(g.opTransitions, st.first, {nextState, parentCond});
+            }
           }
         } else {
           // If the instruction is not finished then we must go to the numerically
