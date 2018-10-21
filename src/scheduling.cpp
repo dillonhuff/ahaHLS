@@ -509,21 +509,21 @@ namespace DHLS {
           
           // If the instruction is not finished then we must go to the numerically
           // next state
-          if (!g.hasTransition(st.first, st.first + 1)) {
-            BasicBlock* parent = instr->getParent();
-            Condition parentCond(map_find(parent, blockGuards));
-            map_insert(g.opTransitions, st.first, {st.first + 1, parentCond});
-          }
+          // if (!g.hasTransition(st.first, st.first + 1)) {
+          //   BasicBlock* parent = instr->getParent();
+          //   Condition parentCond(map_find(parent, blockGuards));
+          //   map_insert(g.opTransitions, st.first, {st.first + 1, parentCond});
+          // }
         }
 
       }
 
       for (auto bb : blocksInState) {
-
+        
+        bool terminatorFinishing = false;
+        Instruction* instr = nullptr;
+        Condition cond;
         if (contains_key(bb, endingInstructions)) {
-          bool terminatorFinishing = false;
-          Instruction* instr = nullptr;
-          Condition cond;
           for (auto ist : map_find(bb, endingInstructions)) {
             if (TerminatorInst::classof(ist.instruction)) {
               terminatorFinishing = true;
@@ -531,77 +531,86 @@ namespace DHLS {
               cond = ist.cond;
             }
           }
+        }
 
 
-          // If terminator is finishing no instructions are still in progress
-          if (terminatorFinishing) {
-            assert(!contains_key(bb, inProgressInstructions));
+        // If terminator is finishing no instructions are still in progress
+        if (terminatorFinishing) {
+          assert(!contains_key(bb, inProgressInstructions));
 
-            if (ReturnInst::classof(instr)) {
-              if (!g.hasTransition(st.first, st.first)) {
-                map_insert(g.opTransitions, st.first, {st.first, cond});
-              }
-            } else {
-
-              auto* branch = dyn_cast<BranchInst>(instr);
-              if (branch->isConditional()) {
-                assert(branch->getNumSuccessors() == 2);
-                Value* cond = branch->getCondition();
-
-                BasicBlock* trueB = branch->getSuccessor(0);
-                BasicBlock* falseB = branch->getSuccessor(1);
-
-                StateId trueState =
-                  map_find(trueB, sched.blockTimes).front();
-                StateId falseState =
-                  map_find(falseB, sched.blockTimes).front();
-
-                // Only add a state transition if this branch takes
-                // the control flow into a different state
-                if ((trueB == instr->getParent()) || (trueState != st.first)) {
-                  map_insert(g.opTransitions, st.first, {trueState, Condition(cond)});
-                }
-                if ((falseB == instr->getParent()) || (falseState != st.first)) {
-                  map_insert(g.opTransitions, st.first, {falseState, Condition(cond, true)});
-                }
-                
-              } else {
-                assert(branch->getNumSuccessors() == 1);
-
-                StateId nextState =
-                  map_find(branch->getSuccessor(0), sched.blockTimes).front();
-                if ((branch->getSuccessor(0) == instr->getParent()) ||
-                    (nextState != st.first)) {
-                  //if ((nextState > st.first) && !g.hasTransition(st.first, nextState)) {
-                  map_insert(g.opTransitions, st.first, {nextState, Condition()});
-                }
-                
-              }
+          if (ReturnInst::classof(instr)) {
+            if (!g.hasTransition(st.first, st.first)) {
+              map_insert(g.opTransitions, st.first, {st.first, cond});
             }
-
           } else {
 
-            if (inProgressInstructions.size() == 0) {
-              // No terminator and no in progress instructions, need to look for
-              // a default
-              cout << "Zero in progress instructions in basic block " << st.first << endl;
+            auto* branch = dyn_cast<BranchInst>(instr);
+            if (branch->isConditional()) {
+              assert(branch->getNumSuccessors() == 2);
+              Value* cond = branch->getCondition();
 
-              auto endingInBlock = map_find(bb, endingInstructions);              
-              assert(endingInBlock.size() > 0);
+              BasicBlock* trueB = branch->getSuccessor(0);
+              BasicBlock* falseB = branch->getSuccessor(1);
 
-              GuardedInstruction instrG = endingInBlock.back();
-              map_insert(g.opTransitions, st.first, {st.first + 1, instrG.cond});
+              StateId trueState =
+                map_find(trueB, sched.blockTimes).front();
+              StateId falseState =
+                map_find(falseB, sched.blockTimes).front();
 
+              // Only add a state transition if this branch takes
+              // the control flow into a different state
+              if ((trueB == instr->getParent()) || (trueState != st.first)) {
+                map_insert(g.opTransitions, st.first, {trueState, Condition(cond)});
+              }
+              if ((falseB == instr->getParent()) || (falseState != st.first)) {
+                map_insert(g.opTransitions, st.first, {falseState, Condition(cond, true)});
+              }
+                
             } else {
-              // No terminator, but some instructions are in progress, need to
-              // go to the numerically next state
-              cout << "Some instructions " << endl;
+              assert(branch->getNumSuccessors() == 1);
+
+              StateId nextState =
+                map_find(branch->getSuccessor(0), sched.blockTimes).front();
+              if ((branch->getSuccessor(0) == instr->getParent()) ||
+                  (nextState != st.first)) {
+                //if ((nextState > st.first) && !g.hasTransition(st.first, nextState)) {
+                map_insert(g.opTransitions, st.first, {nextState, Condition()});
+              }
+                
             }
+          }
+
+        } else {
+
+          if (inProgressInstructions.size() == 0) {
+            // No terminator and no in progress instructions, need to look for
+            // a default
+            cout << "Zero in progress instructions in basic block " << st.first << endl;
+
+            auto endingInBlock = map_find(bb, endingInstructions);              
+            assert(endingInBlock.size() > 0);
+
+            GuardedInstruction instrG = endingInBlock.back();
+            map_insert(g.opTransitions, st.first, {st.first + 1, instrG.cond});
+
+          } else {
+            // No terminator, but some instructions are in progress, need to
+            // go to the numerically next state
+            cout << "Some instructions are not finished " << endl;
+            cout << "inserting transition from " << st.first << " to " << st.first + 1 << endl;
+
+            //assert(false);
+
+            auto inProgressInBlock = map_find(bb, inProgressInstructions);    
+            assert(inProgressInBlock.size() > 0);
+
+            GuardedInstruction instrG = inProgressInBlock.back();
+            map_insert(g.opTransitions, st.first, {st.first + 1, instrG.cond});
+              
+          }
 
             
-          }
         }
-        
       }
       
     }
