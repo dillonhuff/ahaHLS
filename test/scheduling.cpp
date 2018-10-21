@@ -32,9 +32,27 @@ using namespace dbhc;
 using namespace llvm;
 using namespace std;
 
-LLVMContext context;
+//LLVMContext context;
 
 namespace DHLS {
+
+  void createLLFile(const std::string& moduleName) {
+    system(("clang -O1 -c -S -emit-llvm " + moduleName + ".c -o " + moduleName + ".ll").c_str());
+  }
+
+  std::unique_ptr<Module> loadModule(LLVMContext& Context,
+                                     SMDiagnostic& Err,
+                                     const std::string& name) {
+    createLLFile("./test/ll_files/" + name);    
+    string modFile = "./test/ll_files/" + name + ".ll";
+    std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
+    if (!Mod) {
+      outs() << "Error: No mod\n";
+      assert(false);
+    }
+
+    return Mod;
+  }
 
   bool runCmd(const std::string& cmd) {
     cout << "Running command: " << cmd << endl;
@@ -85,10 +103,6 @@ namespace DHLS {
     return lastLine == "Passed";
   }
   
-  void createLLFile(const std::string& moduleName) {
-    system(("clang -O1 -c -S -emit-llvm " + moduleName + ".c -o " + moduleName + ".ll").c_str());
-  }
-
   TEST_CASE("Schedule a single store operation") {
     createLLFile("./test/ll_files/single_store");    
 
@@ -170,18 +184,11 @@ namespace DHLS {
   //    Test case that uses inner and outer loops
   //    Test case that can use caching (or some other memory architecture)
   TEST_CASE("A simple if") {
-    createLLFile("./test/ll_files/if_else");    
-
     SMDiagnostic Err;
     LLVMContext Context;
 
-    string modFile = "./test/ll_files/if_else.ll";
-    std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
-    if (!Mod) {
-      outs() << "Error: No mod\n";
-      assert(false);
-    }
-
+    std::unique_ptr<Module> Mod = loadModule(Context, Err, "if_else");
+    
     HardwareConstraints hcs;
     hcs.setLatency(STORE_OP, 3);
     hcs.setLatency(LOAD_OP, 1);
@@ -208,17 +215,18 @@ namespace DHLS {
   }
 
   TEST_CASE("Accessing a memory address that requires address calculation") {
-    createLLFile("./test/ll_files/read_2");
+    //    createLLFile("./test/ll_files/read_2");
 
     SMDiagnostic Err;
     LLVMContext Context;
 
-    string modFile = "./test/ll_files/read_2.ll";
-    std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
-    if (!Mod) {
-      outs() << "Error: No mod\n";
-      assert(false);
-    }
+    std::unique_ptr<Module> Mod = loadModule(Context, Err, "read_2");    
+    // string modFile = "./test/ll_files/read_2.ll";
+    // std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
+    // if (!Mod) {
+    //   outs() << "Error: No mod\n";
+    //   assert(false);
+    // }
 
     HardwareConstraints hcs;
     hcs.setLatency(STORE_OP, 3);
