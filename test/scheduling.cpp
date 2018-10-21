@@ -170,7 +170,7 @@ namespace DHLS {
   //    Test case that uses multiple, different comparator operations
   //    Test case that uses 16 (or other not 32 bit) width
   //    Test case with resource limits that force a huge basic block
-  //    to be split over several states
+  //      to be split over several states
   TEST_CASE("A simple if") {
     createLLFile("./test/ll_files/if_else");    
 
@@ -281,7 +281,45 @@ namespace DHLS {
 
     REQUIRE(runIVerilogTB("loop_add_7"));
   }
-  
+
+  TEST_CASE("Adding numbers with resource limits") {
+    createLLFile("./test/ll_files/many_adds");    
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+
+    string modFile = "./test/ll_files/many_adds.ll";
+    std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
+    if (!Mod) {
+      outs() << "Error: No mod\n";
+      assert(false);
+    }
+
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(LOAD_OP, 1);
+    hcs.setLatency(CMP_OP, 0);
+    hcs.setLatency(BR_OP, 0);
+    hcs.setLatency(ADD_OP, 0);
+
+    Function* f = Mod->getFunction("many_adds");
+    Schedule s = scheduleFunction(f, hcs);
+
+    auto& retInstr = f->getBasicBlockList().back().back();
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    REQUIRE(!graph.hasTransition(1, 1));
+
+    map<string, int> layout = {{"a", 0}, {"b", 1}, {"c", 2}, {"d", 3}};
+    emitVerilog(f, graph, layout);
+    REQUIRE(runIVerilogTB("many_adds"));
+    
+  }
+
   // TEST_CASE("Parse a tiny C program") {
   //   createLLFile("./test/ll_files/tiny_test");
 
