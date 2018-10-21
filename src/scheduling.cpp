@@ -417,6 +417,23 @@ namespace DHLS {
       }
     }
 
+    // Q: What are the transition possibilities?
+    // A: Each state contains instructions from many
+    //    different basic blocks, b0, b1, ..., bn
+    //    for each basic block a few things could be true:
+    //    1. The terminator for that block finishes in S
+    //    2. The terminator does not finish but:
+    //       2.1 All non-terminator instructions finish
+    //       2.2 At least one non-terminator instruction does not finish
+    //
+    // If 2.2 is true then if bi is executing we must transition to
+    // (S + 1) to complete the in progress instructions
+    //
+    // Otherwise 2.1 is true and we are done with all instructions
+    // from bi in S, but we have nowhere obvious to go. In that case
+    // I suppose the legal choice is to find the next instruction in the
+    // basic block that has not started transition to its state?
+
     // Compute transitions
     for (auto st : g.opStates) {
       for (auto instrG : st.second) {
