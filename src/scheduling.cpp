@@ -436,16 +436,24 @@ namespace DHLS {
 
     // Compute transitions
     for (auto st : g.opStates) {
+      map<BasicBlock*, vector<Instruction*> > endingInstructions;
+      map<BasicBlock*, vector<Instruction*> > inProgressInstructions;
+      std::set<BasicBlock*> blocksInState;
+      
       for (auto instrG : st.second) {
-        Instruction* instr = instrG.instruction;
 
+        Instruction* instr = instrG.instruction;
+        BasicBlock* parent = instr->getParent();
+        blocksInState.insert(parent);
+        
         // If the instruction is finished in this state
         if (st.first == map_find(instr, sched.instrTimes).back()) {
+          map_insert(endingInstructions, parent, instr);
+
           if (TerminatorInst::classof(instr)) {
             if (ReturnInst::classof(instr)) {
               if (!g.hasTransition(st.first, st.first)) {
                 map_insert(g.opTransitions, st.first, {st.first, instrG.cond});
-                //map_insert(g.opTransitions, st.first, {st.first, Condition()});
               }
             } else {
 
@@ -486,8 +494,6 @@ namespace DHLS {
             }
           } else {
 
-            // TODO: Re-insert this code?
-            
             Instruction* next = instr->getNextNode();
             StateId nextState = map_find(next, sched.instrTimes).front();
             Condition parentCond(map_find(instr->getParent(), blockGuards));
@@ -499,6 +505,8 @@ namespace DHLS {
             }
           }
         } else {
+          map_insert(inProgressInstructions, parent, instr);
+          
           // If the instruction is not finished then we must go to the numerically
           // next state
           if (!g.hasTransition(st.first, st.first + 1)) {
@@ -507,7 +515,31 @@ namespace DHLS {
             map_insert(g.opTransitions, st.first, {st.first + 1, parentCond});
           }
         }
+
       }
+
+      for (auto bb : blocksInState) {
+
+        if (contains_key(bb, endingInstructions)) {
+          bool terminatorFinishing = false;
+          for (auto instr : map_find(bb, endingInstructions)) {
+            if (TerminatorInst::classof(instr)) {
+              terminatorFinishing = true;
+            }
+          }
+          if (inProgressInstructions.size() == 0) {
+            cout << "Zero in progress instructions in basic block " << st.first << endl;
+          } else {
+          }
+
+          // If no terminator is finishing no instructions are going to finish
+          if (terminatorFinishing) {
+            assert(!contains_key(bb, inProgressInstructions));
+          }
+        }
+        
+      }
+      
     }
 
     return g;
