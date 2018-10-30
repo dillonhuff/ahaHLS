@@ -112,7 +112,7 @@ namespace DHLS {
     Function* f = Mod->getFunction("single_store");
     Schedule s = scheduleFunction(f, hcs);
 
-    REQUIRE(s.clockTicksToFinish() == 3);
+    REQUIRE(s.numStates() == 4);
 
     auto& retInstr = f->getBasicBlockList().back().back();
     //cout << "Retinstr = " << retInstr << endl;
@@ -145,7 +145,7 @@ namespace DHLS {
     Function* f = Mod->getFunction("plus");
     Schedule s = scheduleFunction(f, hcs);
 
-    REQUIRE(s.clockTicksToFinish() == 4);
+    REQUIRE(s.numStates() == 5);
 
     auto& retInstr = f->getBasicBlockList().back().back();
 
@@ -231,7 +231,7 @@ namespace DHLS {
 
     SMDiagnostic Err;
     LLVMContext Context;
-    std::unique_ptr<Module> Mod = loadModule(Context, Err, "loop_add_7");    
+    std::unique_ptr<Module> Mod = loadModule(Context, Err, "loop_add_7");
 
     HardwareConstraints hcs;
     hcs.setLatency(STORE_OP, 3);

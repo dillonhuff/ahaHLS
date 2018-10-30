@@ -96,6 +96,11 @@ namespace DHLS {
       }
       return maxFinishTime;
     }
+
+    int numStates() const {
+      return clockTicksToFinish() + 1;
+    }
+
   };
 
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc);
