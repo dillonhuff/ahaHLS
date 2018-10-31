@@ -222,7 +222,6 @@ namespace DHLS {
     }
 
     // Connect the control edges
-    // TODO: Prune backedges
     std::deque<BasicBlock*> toVisit{&(f->getEntryBlock())};
     std::set<BasicBlock*> alreadyVisited;
     while (toVisit.size() > 0) {
@@ -231,26 +230,18 @@ namespace DHLS {
       alreadyVisited.insert(next);
 
       Instruction* term = next->getTerminator();
+
+      // By definition the completion of a branch is the completion of
+      // the basic block that contains it.
+      s.add(blockSink(next, blockVars) == map_find(term, schedVars).back());
+
       if (ReturnInst::classof(term)) {
-        // Return instructions must finish after every instruction in their block
-        for (auto& instr : *next) {
-          Instruction* iptr = &instr;
-          if (iptr != term) {
-            s.add(map_find(iptr, schedVars).back() <=
-                  map_find((Instruction*) term, schedVars).front());
-          }
-        }
       } else {
         assert(BranchInst::classof(term));
-
-        // By definition the completion of a branch is the completion of
-        // the basic block that contains it.
-        s.add(blockSink(next, blockVars) == map_find(term, schedVars).back());
 
         for (auto* nextBB : dyn_cast<TerminatorInst>(term)->successors()) {
           if (!elem(nextBB, alreadyVisited)) {
             s.add(blockSink(next, blockVars) <= blockSource(nextBB, blockVars));
-            //if (!elem(nextBB, alreadyVisited)) {
             toVisit.push_back(nextBB);
           }
         }
