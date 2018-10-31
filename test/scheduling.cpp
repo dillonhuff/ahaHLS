@@ -162,6 +162,11 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("plus"));
   }
 
+  // Q: Kayvon wants to emit a dag of linebuffers / stencils, but isnt
+  // that basically what Jeff is doing?
+
+  // Box touched algorithm?
+
   // Q: What test cases do I need?
   // A: Test case that uses 16 (or other not 32 bit) width (parametric builtins)
   //    Test case that uses inner and outer loops
@@ -201,7 +206,7 @@ namespace DHLS {
     SMDiagnostic Err;
     LLVMContext Context;
 
-    std::unique_ptr<Module> Mod = loadModule(Context, Err, "read_2");    
+    std::unique_ptr<Module> Mod = loadModule(Context, Err, "read_2");
 
     HardwareConstraints hcs;
     hcs.setLatency(STORE_OP, 3);
