@@ -51,6 +51,14 @@ module test();
 
       #1 `assert(rdata, 32'd5);
 
+      
+      #1 clk = 0;
+      #1 clk = 1;
+
+      
+      #1 clk = 0;
+      #1 clk = 1;
+      
       #1 $display("Passed");
 
    end

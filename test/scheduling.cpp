@@ -106,16 +106,17 @@ namespace DHLS {
     LLVMContext Context;
     std::unique_ptr<Module> Mod = loadModule(Context, Err, "single_store");
 
+    Function* f = Mod->getFunction("single_store");
+
     HardwareConstraints hcs;
     hcs.setLatency(STORE_OP, 3);
+    map<string, int> layout = {{"a", 0}};
 
-    Function* f = Mod->getFunction("single_store");
     Schedule s = scheduleFunction(f, hcs);
 
     REQUIRE(s.numStates() == 4);
 
     auto& retInstr = f->getBasicBlockList().back().back();
-    //cout << "Retinstr = " << retInstr << endl;
     REQUIRE(s.startTime(&retInstr) == 3);
 
     STG graph = buildSTG(s, f);
@@ -125,7 +126,6 @@ namespace DHLS {
 
     REQUIRE(graph.numControlStates() == 4);
 
-    map<string, int> layout = {{"a", 0}};
     emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("single_store"));
