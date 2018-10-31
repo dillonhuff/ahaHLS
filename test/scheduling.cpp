@@ -162,6 +162,24 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("plus"));
   }
 
+  // Q: What is the logical tension between software representations
+  // and hardware memory architectures?
+  // A: 1. Conventional software is designed around the assumption
+  //       that cache already exists and is operating silently in
+  //       the background
+  //    2. Software assumes unlimited resources (ports, memory)
+  //    3. Software uses a simple, imperative timing model
+  //    4. When people write software they only really write the
+  //       "steady state" behavior of a loop
+
+  // You can encapsulate the logic of a memory like a linebuffer inside
+  // a class and then write things like they are software, but the structure
+  // of the loop where you use the linebuffer may force the creation of additional
+  // control logic that is not encapsulated in the linebufer black-box class.
+
+  // I guess you have to add stalls?
+  
+
   // Q: Kayvon wants to emit a dag of linebuffers / stencils, but isnt
   // that basically what Jeff is doing?
 
