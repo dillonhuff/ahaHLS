@@ -422,6 +422,19 @@ namespace DHLS {
       }
     }
 
+    // Q: How should I incorporate this into standard scheduling?
+    // A: 1. Isolate the looped block during constraint creation
+    //    2. During scheduling do not consider its constraints directly
+    //    3. Need to check somewhere that the loop condition happens
+    //       in the first cycle of the pipeline, otherwise speculative
+    //       execution will be needed
+    //    4. During RTL synthesis I'll need to add sub-states for the
+    //       pipeline schedule including:
+    //         4.1 Initiation interval counter
+    //         4.2 Valid signal for each stage of the pipeline
+    //         4.3 ?? A completed signal? Or can I infer that from valid
+    //             signals?
+
     //Schedule s = scheduleFunction(f, hcs);
 
     // auto& retInstr = f->getBasicBlockList().back().back();
