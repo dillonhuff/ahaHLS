@@ -167,6 +167,35 @@ namespace DHLS {
     return count;
   }
 
+  void addScheduleVars(llvm::BasicBlock& bb,
+                       context& c,
+                       std::map<Instruction*, std::vector<expr> >& schedVars,
+                       std::map<BasicBlock*, std::vector<expr> >& blockVars,
+                       HardwareConstraints& hdc,
+                       int& blockNo) {
+
+    string snkPre = "ssnk_";
+    string srcPre = "ssrc_";
+
+    blockVars[&bb] = {c.int_const((srcPre + to_string(blockNo)).c_str()), c.int_const((snkPre + to_string(blockNo)).c_str())};
+    blockNo += 1;
+
+    int instrNo = 0;
+    for (auto& instr : bb) {
+      Instruction* iptr = &instr;
+
+      int latency = getLatency(iptr, hdc);
+
+      schedVars[iptr] = {};
+      string instrPre = string(iptr->getOpcodeName()) + "_" + to_string(blockNo) + "_" + to_string(instrNo);
+      for (int i = 0; i <= latency; i++) {
+        map_insert(schedVars, iptr, c.int_const((instrPre + "_" + to_string(i)).c_str()));
+      }
+
+      instrNo += 1;
+    }
+  }
+
   // A few new things to add:
   // 1. Control edges between basic blocks need to induce dependencies
   //    unless they are "back edges", which I suppose will be determined by
@@ -180,30 +209,22 @@ namespace DHLS {
     solver s(c);
     
     int blockNo = 0;
-    string snkPre = "ssnk_";
-    string srcPre = "ssrc_";
-
     for (auto& bb : f->getBasicBlockList()) {
-      blockVars[&bb] = {c.int_const((srcPre + to_string(blockNo)).c_str()), c.int_const((snkPre + to_string(blockNo)).c_str())};
-      blockNo += 1;
+      addScheduleVars(bb,
+                      c,
+                      schedVars,
+                      blockVars,
+                      hdc,
+                      blockNo);
 
       // Basic blocks cannot start before the beginning of time
       s.add(blockSource(&bb, blockVars) >= 0);
       // Basic blocks must start before they finish
       s.add(blockSource(&bb, blockVars) <= blockSink(&bb, blockVars));
 
-      int instrNo = 0;
-      for (auto& instr : bb) {
-        Instruction* iptr = &instr;
-
-        int latency = getLatency(iptr, hdc);
-
-        schedVars[iptr] = {};
-        string instrPre = string(iptr->getOpcodeName()) + "_" + to_string(blockNo) + "_" + to_string(instrNo);
-        for (int i = 0; i <= latency; i++) {
-          map_insert(schedVars, iptr, c.int_const((instrPre + "_" + to_string(i)).c_str()));
-        }
-
+      
+      for (auto& instruction : bb) {
+        auto iptr = &instruction;
         auto svs = map_find(iptr, schedVars);
         assert(svs.size() > 0);
 
@@ -215,10 +236,9 @@ namespace DHLS {
         for (int i = 1; i < svs.size(); i++) {
           s.add(svs[i - 1] + 1 == svs[i]);
         }
-
-        instrNo += 1;
       }
 
+      
     }
 
     // Connect the control edges
@@ -557,6 +577,8 @@ namespace DHLS {
     solver s(c);
     map<Instruction*, vector<expr> > schedVars;
     map<BasicBlock*, vector<expr> > blockVars;
+
+    
     auto sched = buildFromModel(s, schedVars, blockVars);
 
     sched.II = 10;
