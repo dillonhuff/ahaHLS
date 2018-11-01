@@ -177,8 +177,17 @@ namespace DHLS {
   // of the loop where you use the linebuffer may force the creation of additional
   // control logic that is not encapsulated in the linebufer black-box class.
 
-  // I guess you have to add stalls?
-  
+  // Q: I guess you have to add stalls between accesses?
+  // Q: What if the user accesses multiple times?
+  // Q: What if the data structure is instantiated inside a loop,
+  //    and has to be cleared or reset many times?
+  // Q: How do you do the warmup for a customized memory?
+  // Q: How do you express what the source port of the linebuffer is?
+
+  // I think you would have explicit load and store to buffer instructions?
+  // but then the user has to prime the buffer by pre-loading? That is a big
+  // question. I guess the ideal is that the user just says when he wants to
+  // read and the compiler infers where write locations have to happen?
 
   // Q: Kayvon wants to emit a dag of linebuffers / stencils, but isnt
   // that basically what Jeff is doing?
@@ -372,61 +381,49 @@ namespace DHLS {
 
     REQUIRE(runIVerilogTB("cmp_gt"));
   }
+
+  TEST_CASE("Pipelining an array doing a[i] + 7") {
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+    std::unique_ptr<Module> Mod = loadModule(Context, Err, "loop_add_7");
+
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(LOAD_OP, 1);
+    hcs.setLatency(CMP_OP, 0);
+    hcs.setLatency(BR_OP, 0);
+    hcs.setLatency(ADD_OP, 0);
+
+    Function* f = Mod->getFunction("loop_add_7");
+    for (auto& bb : f->getBasicBlockList()) {
+      auto term = bb.getTerminator();
+      if (BranchInst::classof(term)) {
+        BranchInst* branch = dyn_cast<BranchInst>(term);
+        if (branch->isConditional()) {
+          for (auto succ : branch->successors()) {
+            if (succ == &bb) {
+              cout << "Found looped basic block" << endl;
+              
+            }
+          }
+        }
+      }
+    }
+
+    //Schedule s = scheduleFunction(f, hcs);
+
+    // auto& retInstr = f->getBasicBlockList().back().back();
+
+    // STG graph = buildSTG(s, f);
+
+    // cout << "STG Is" << endl;
+    // graph.print(cout);
+
+    // map<string, int> layout = {{"a", 0}, {"b", 10}};
+    // emitVerilog(f, graph, layout);
+
+    // REQUIRE(runIVerilogTB("loop_add_7"));
+  }
   
-  //   outs() << "--All functions\n";
-  //   for (auto& f : Mod->functions()) {
-  //     outs() << "\t" << f.getName() << "\n";
-  //   }
-
-  //   Function* f = Mod->getFunction("foo");
-  //   assert(f != nullptr);
-
-  //   LowFSM programState;
-
-  //   map<BasicBlock*, NodeId> bbIds;
-
-  //   cout << "Basic blocks in main" << endl;
-  //   for (auto& bb : f->getBasicBlockList()) {
-  //     NodeId id = programState.addState({});
-
-  //     bbIds.insert({&bb, id});
-
-  //     outs() << "----- BASIC BLOCK" << "\n";
-  //     outs() << bb << "\n";
-  //     outs() << "Terminator for this block" << "\n";
-  //   }
-
-  //   for (auto& bb : f->getBasicBlockList()) {
-  //     assert(contains_key(&bb, bbIds));
-      
-  //     auto termInst = bb.getTerminator();
-  //     outs() << bb.getTerminator()->getOpcode() << "\n";
-  //     if (BranchInst::classof(termInst)) {
-  //       outs() << "\t\tIs a branch" << "\n";
-  //     } else {
-  //       outs() << "\t\tNOT branch" << "\n";
-  //     }
-
-  //     if (termInst->getNumSuccessors() == 1) {
-  //       for (auto* nextBB : termInst->successors()) {
-  //         assert(contains_key(nextBB, bbIds));
-
-  //         programState.addEdge(map_find(&bb, bbIds),
-  //                              map_find(nextBB, bbIds), {});
-  //       }
-  //     } else if (termInst->getNumSuccessors() == 0) {
-  //       programState.addEdge(map_find(&bb, bbIds),
-  //                            map_find(&bb, bbIds), {});
-  //     }
-
-  //   }
-
-  //   auto& bb = f->getEntryBlock();
-  //   assert(contains_key(&bb, bbIds));
-
-  //   programState.setStartState(map_find(&bb, bbIds));
-
-  //   emitVerilog("tiny_test", programState);
-  // }
-
 }
