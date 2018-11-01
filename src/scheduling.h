@@ -104,6 +104,7 @@ namespace DHLS {
   };
 
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc);
+  int computeInitiationInterval(llvm::BasicBlock* const bb, HardwareConstraints& hdc);
 
   // Logical condition used in state transitions
 

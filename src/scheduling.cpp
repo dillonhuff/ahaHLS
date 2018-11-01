@@ -511,7 +511,6 @@ namespace DHLS {
                 map_find(branch->getSuccessor(0), sched.blockTimes).front();
               if ((branch->getSuccessor(0) == instr->getParent()) ||
                   (nextState != st.first)) {
-                //if ((nextState > st.first) && !g.hasTransition(st.first, nextState)) {
                 map_insert(g.opTransitions, st.first, {nextState, Condition()});
               }
                 
@@ -537,8 +536,6 @@ namespace DHLS {
             cout << "Some instructions are not finished " << endl;
             cout << "inserting transition from " << st.first << " to " << st.first + 1 << endl;
 
-            //assert(false);
-
             auto inProgressInBlock = map_find(bb, inProgressInstructions);    
             assert(inProgressInBlock.size() > 0);
 
@@ -546,14 +543,17 @@ namespace DHLS {
             map_insert(g.opTransitions, st.first, {st.first + 1, instrG.cond});
               
           }
-
-            
         }
       }
       
     }
 
     return g;
+  }
+
+  int computeInitiationInterval(llvm::BasicBlock* const bb,
+                                HardwareConstraints& hdc) {
+    return 10;
   }
 
 }

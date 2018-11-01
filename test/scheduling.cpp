@@ -404,7 +404,18 @@ namespace DHLS {
           for (auto succ : branch->successors()) {
             if (succ == &bb) {
               cout << "Found looped basic block" << endl;
-              
+              // Now need to compute two things:
+              //   1. The internal schedule that will be used within iterations
+              //      of the loop
+              //   2. The initiation interval
+
+              // To incorporate this into real code we will also need
+              // a way to express which blocks are pipelined to the whole
+              // system scheduler. This scheduler will then have to isolate
+              // those blocks from the rest of the system
+
+              int II = computeInitiationInterval(&bb, hcs);
+              REQUIRE(II == 1);
             }
           }
         }
