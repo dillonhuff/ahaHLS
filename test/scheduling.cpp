@@ -414,8 +414,8 @@ namespace DHLS {
               // system scheduler. This scheduler will then have to isolate
               // those blocks from the rest of the system
 
-              int II = computeInitiationInterval(&bb, hcs);
-              REQUIRE(II == 1);
+              Schedule s = schedulePipeline(&bb, hcs);
+              REQUIRE(s.II == 1);
             }
           }
         }

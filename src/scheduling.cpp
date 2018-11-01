@@ -551,9 +551,17 @@ namespace DHLS {
     return g;
   }
 
-  int computeInitiationInterval(llvm::BasicBlock* const bb,
-                                HardwareConstraints& hdc) {
-    return 10;
+  Schedule schedulePipeline(llvm::BasicBlock* const bb,
+                            HardwareConstraints& hdc) {
+    context c;
+    solver s(c);
+    map<Instruction*, vector<expr> > schedVars;
+    map<BasicBlock*, vector<expr> > blockVars;
+    auto sched = buildFromModel(s, schedVars, blockVars);
+
+    sched.II = 10;
+
+    return sched;
   }
 
-}
+  }
