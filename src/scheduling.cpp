@@ -133,6 +133,9 @@ namespace DHLS {
     }
 
     model m = s.get_model();
+
+    cout << "Final model" << endl;
+    cout << m << endl;
     
     cout << "Final schedule" << endl;
     Schedule sched;
@@ -196,10 +199,33 @@ namespace DHLS {
     }
   }
 
-  // A few new things to add:
-  // 1. Control edges between basic blocks need to induce dependencies
-  //    unless they are "back edges", which I suppose will be determined by
-  //    linearization
+  void addLatencyConstraints(llvm::BasicBlock& bb,
+                             solver& s,
+                             std::map<Instruction*, std::vector<expr> >& schedVars,
+                             std::map<BasicBlock*, std::vector<expr> >& blockVars) {
+
+    // Basic blocks cannot start before the beginning of time
+    s.add(blockSource(&bb, blockVars) >= 0);
+    // Basic blocks must start before they finish
+    s.add(blockSource(&bb, blockVars) <= blockSink(&bb, blockVars));
+
+    for (auto& instruction : bb) {
+      auto iptr = &instruction;
+      auto svs = map_find(iptr, schedVars);
+      assert(svs.size() > 0);
+
+      // Operations must be processed within the basic block that contains them
+      s.add(svs.front() >= blockSource(&bb, blockVars));
+      s.add(svs.back() <= blockSink(&bb, blockVars));
+
+      // Operations with latency N take N clock ticks to finish
+      for (int i = 1; i < svs.size(); i++) {
+        s.add(svs[i - 1] + 1 == svs[i]);
+      }
+    }
+
+  }
+  
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc) {
 
     map<Instruction*, vector<expr> > schedVars;
@@ -217,28 +243,7 @@ namespace DHLS {
                       hdc,
                       blockNo);
 
-      // Basic blocks cannot start before the beginning of time
-      s.add(blockSource(&bb, blockVars) >= 0);
-      // Basic blocks must start before they finish
-      s.add(blockSource(&bb, blockVars) <= blockSink(&bb, blockVars));
-
-      
-      for (auto& instruction : bb) {
-        auto iptr = &instruction;
-        auto svs = map_find(iptr, schedVars);
-        assert(svs.size() > 0);
-
-        // Operations must be processed within the basic block that contains them
-        s.add(svs.front() >= blockSource(&bb, blockVars));
-        s.add(svs.back() <= blockSink(&bb, blockVars));
-
-        // Operations with latency N take N clock ticks to finish
-        for (int i = 1; i < svs.size(); i++) {
-          s.add(svs[i - 1] + 1 == svs[i]);
-        }
-      }
-
-      
+      addLatencyConstraints(bb, s, schedVars, blockVars);
     }
 
     // Connect the control edges
@@ -571,17 +576,44 @@ namespace DHLS {
     return g;
   }
 
+  int dependenceDistance(Instruction* const iptr,
+                         Instruction* const jptr) {
+    return 0;
+  }
+
   Schedule schedulePipeline(llvm::BasicBlock* const bb,
                             HardwareConstraints& hdc) {
     context c;
     solver s(c);
     map<Instruction*, vector<expr> > schedVars;
     map<BasicBlock*, vector<expr> > blockVars;
+    int blockNo = 0;
 
+    addScheduleVars(*bb, c, schedVars, blockVars, hdc, blockNo);
+    addLatencyConstraints(*bb, s, schedVars, blockVars);
+
+    expr II = c.int_const("II");
+    s.add(II >= 1);
+
+    for (auto& i : *bb) {
+      Instruction* iptr = &i;
+      for (auto& j : *bb) {
+        Instruction* jptr = &j;
+
+        int d = dependenceDistance(iptr, jptr);
+        if (d > 0) {
+          s.add(II*d + instrEnd(iptr, schedVars) <= instrStart(jptr, schedVars));
+        }
+      }
+      
+    }
+
+    cout << "Pipeline solver constraints" << endl;
+    cout << s << endl;
     
     auto sched = buildFromModel(s, schedVars, blockVars);
 
-    sched.II = 10;
+    sched.II = 1;
 
     return sched;
   }
