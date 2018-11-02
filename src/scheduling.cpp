@@ -183,8 +183,8 @@ namespace DHLS {
                        HardwareConstraints& hdc,
                        int& blockNo) {
 
-    string snkPre = "ssnk_";
-    string srcPre = "ssrc_";
+    string snkPre = "basic_block_end_state_";
+    string srcPre = "basic_block_start_state_";
 
     blockVars[&bb] = {c.int_const((srcPre + to_string(blockNo)).c_str()), c.int_const((snkPre + to_string(blockNo)).c_str())};
     blockNo += 1;
@@ -450,18 +450,13 @@ namespace DHLS {
 
   }
 
-  // What is left after creating the instruction bindings?
-  //   1. Creating state transitions
-  //   2. Add operation guards
-  STG buildSTG(Schedule& sched, llvm::Function* const f) {
+  STG buildSTG(Schedule& sched, BasicBlock* entryBlock, std::set<BasicBlock*>& blockList) {
     STG g(sched);
 
-    
-    // Compute basic block activation conditions (instruction guards)
-    BasicBlock* entryBlock = &(f->getEntryBlock());
     map<BasicBlock*, vector<vector<Atom> > > blockGuards;
-    for (auto& bbR : f->getBasicBlockList()) {
-      BasicBlock* target = &bbR;
+    //for (auto& bbR : f->getBasicBlockList()) {
+    for (auto bbR : blockList) {
+      BasicBlock* target = bbR;
       set<BasicBlock*> considered;
       vector<vector<Atom> > allPaths =
         allPathConditions(entryBlock, target, considered);
@@ -621,9 +616,33 @@ namespace DHLS {
       
     }
 
+    for (auto pipelinedBB : sched.pipelineSchedules) {
+      auto bbTimes = map_find(pipelinedBB.first, sched.blockTimes);
+      assert(bbTimes.size() == 2);
+      assert(bbTimes[0] == bbTimes[1]);
+
+      StateId blockTime = bbTimes[0];
+
+      std::set<BasicBlock*> bbSet{pipelinedBB.first};
+      g.pipelineSuperStates[blockTime] =
+        buildSTG(pipelinedBB.second, pipelinedBB.first, bbSet);
+    }
+
     return g;
   }
 
+  STG buildSTG(Schedule& sched, llvm::Function* const f) {
+    BasicBlock* entryBlock = &(f->getEntryBlock());
+    SymbolTableList<BasicBlock>& blockList = f->getBasicBlockList();
+    std::set<BasicBlock*> blockSet;
+    for (auto& bb : blockList) {
+      blockSet.insert(&bb);
+    }
+
+    return buildSTG(sched, entryBlock, blockSet);
+  }
+
+  // TODO: Add real compiler analysis to compute this
   int dependenceDistance(Instruction* const iptr,
                          Instruction* const jptr) {
     return 0;

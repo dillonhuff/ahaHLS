@@ -205,7 +205,9 @@ namespace DHLS {
     Condition cond;
   };
 
-  static inline std::ostream& operator<<(std::ostream& out, const StateTransition& t) {
+  static inline
+  std::ostream&
+  operator<<(std::ostream& out, const StateTransition& t) {
     out << t.dest << " if " << t.cond << std::endl;
     return out;
   }
@@ -216,6 +218,13 @@ namespace DHLS {
     Schedule sched;
     std::map<StateId, std::vector<GuardedInstruction> > opStates;
     std::map<StateId, std::vector<StateTransition> > opTransitions;
+    std::map<StateId, StateTransitionGraph> pipelineSuperStates;
+
+    StateTransitionGraph() {}
+    
+    StateTransitionGraph(const StateTransitionGraph& other) {
+      assert(false);
+    }
 
     StateTransitionGraph(Schedule& sched_) : sched(sched_) {}
 
