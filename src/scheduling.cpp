@@ -268,7 +268,12 @@ namespace DHLS {
 
         for (auto* nextBB : dyn_cast<TerminatorInst>(term)->successors()) {
           if (!elem(nextBB, alreadyVisited)) {
-            s.add(blockSink(next, blockVars) <= blockSource(nextBB, blockVars));
+
+            if (elem(nextBB, toPipeline) || elem(next, toPipeline)) {
+              s.add(blockSink(next, blockVars) < blockSource(nextBB, blockVars));
+            } else {
+              s.add(blockSink(next, blockVars) <= blockSource(nextBB, blockVars));
+            }
             toVisit.push_back(nextBB);
           }
         }

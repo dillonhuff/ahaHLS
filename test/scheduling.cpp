@@ -442,8 +442,8 @@ namespace DHLS {
     Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
     STG graph = buildSTG(s, f);
 
-    // cout << "STG Is" << endl;
-    // graph.print(cout);
+    cout << "STG Is" << endl;
+    graph.print(cout);
 
     map<string, int> layout = {{"a", 0}, {"b", 10}};
     emitVerilog(f, graph, layout);
