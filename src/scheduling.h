@@ -82,6 +82,7 @@ namespace DHLS {
   public:
     std::map<llvm::Instruction*, std::vector<int> > instrTimes;
     std::map<llvm::BasicBlock*, std::vector<int> > blockTimes;
+    std::map<llvm::BasicBlock*, Schedule> pipelineSchedules;
 
     int II;
     

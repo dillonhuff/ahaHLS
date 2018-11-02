@@ -122,7 +122,8 @@ namespace DHLS {
 
   Schedule buildFromModel(solver& s,
                           map<Instruction*, vector<expr> >& schedVars,
-                          map<BasicBlock*, vector<expr> >& blockVars) {
+                          map<BasicBlock*, vector<expr> >& blockVars,
+                          map<BasicBlock*, Schedule>& pipelineSchedules) {
 
 
     auto satRes = s.check();
@@ -156,6 +157,8 @@ namespace DHLS {
         cout << ex << " = " << m.eval(ex) << endl;
       }
     }
+
+    sched.pipelineSchedules = pipelineSchedules;
 
     return sched;
   }
@@ -344,7 +347,11 @@ namespace DHLS {
     cout << "Solver constraints" << endl;
     cout << s << endl;
 
-    return buildFromModel(s, schedVars, blockVars);
+    map<BasicBlock*, Schedule> subSchedules;
+    for (auto bb : toPipeline) {
+      subSchedules[bb] = schedulePipeline(bb, hdc);
+    }
+    return buildFromModel(s, schedVars, blockVars, subSchedules);
   }
   
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc) {
@@ -622,8 +629,9 @@ namespace DHLS {
 
     cout << "Pipeline solver constraints" << endl;
     cout << s << endl;
-    
-    auto sched = buildFromModel(s, schedVars, blockVars);
+
+    map<BasicBlock*, Schedule> subPipelines;
+    auto sched = buildFromModel(s, schedVars, blockVars, subPipelines);
 
     sched.II = 1;
 
