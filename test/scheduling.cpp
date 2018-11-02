@@ -396,6 +396,8 @@ namespace DHLS {
     hcs.setLatency(ADD_OP, 0);
 
     Function* f = Mod->getFunction("loop_add_7");
+
+    std::set<BasicBlock*> blocksToPipeline;
     for (auto& bb : f->getBasicBlockList()) {
       auto term = bb.getTerminator();
       if (BranchInst::classof(term)) {
@@ -413,6 +415,8 @@ namespace DHLS {
               // a way to express which blocks are pipelined to the whole
               // system scheduler. This scheduler will then have to isolate
               // those blocks from the rest of the system
+
+              blocksToPipeline.insert(&bb);
 
               Schedule s = schedulePipeline(&bb, hcs);
               REQUIRE(s.II == 1);
@@ -435,19 +439,16 @@ namespace DHLS {
     //         4.3 ?? A completed signal? Or can I infer that from valid
     //             signals?
 
-    //Schedule s = scheduleFunction(f, hcs);
-
-    // auto& retInstr = f->getBasicBlockList().back().back();
-
-    // STG graph = buildSTG(s, f);
+    Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
+    STG graph = buildSTG(s, f);
 
     // cout << "STG Is" << endl;
     // graph.print(cout);
 
-    // map<string, int> layout = {{"a", 0}, {"b", 10}};
-    // emitVerilog(f, graph, layout);
+    map<string, int> layout = {{"a", 0}, {"b", 10}};
+    emitVerilog(f, graph, layout);
 
-    // REQUIRE(runIVerilogTB("loop_add_7"));
+    REQUIRE(runIVerilogTB("loop_add_7"));
   }
   
 }

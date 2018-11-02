@@ -225,8 +225,10 @@ namespace DHLS {
     }
 
   }
-  
-  Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc) {
+
+  Schedule scheduleFunction(llvm::Function* f,
+                            HardwareConstraints& hdc,
+                            std::set<BasicBlock*>& toPipeline) {
 
     map<Instruction*, vector<expr> > schedVars;
     map<BasicBlock*, vector<expr> > blockVars;
@@ -338,6 +340,11 @@ namespace DHLS {
     cout << s << endl;
 
     return buildFromModel(s, schedVars, blockVars);
+  }
+  
+  Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc) {
+    set<BasicBlock*> toPipeline;
+    return scheduleFunction(f, hdc, toPipeline);
   }
 
   void computeTransitions(BasicBlock* bb,

@@ -106,6 +106,10 @@ namespace DHLS {
   };
 
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc);
+  Schedule scheduleFunction(llvm::Function* f,
+                            HardwareConstraints& hdc,
+                            std::set<llvm::BasicBlock*>& toPipeline);
+  
   Schedule schedulePipeline(llvm::BasicBlock* const bb, HardwareConstraints& hdc);
 
   // Logical condition used in state transitions
