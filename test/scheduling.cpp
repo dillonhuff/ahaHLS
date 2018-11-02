@@ -445,6 +445,8 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
+    REQUIRE(s.numStates() == 3);
+    
     map<string, int> layout = {{"a", 0}, {"b", 10}};
     emitVerilog(f, graph, layout);
 
