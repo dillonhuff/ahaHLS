@@ -469,6 +469,20 @@ namespace DHLS {
 
     }
 
+    // Make sure pipeline states are included in STG
+    for (auto blk : sched.pipelineSchedules) {
+      for (auto var : map_find(blk.first, sched.blockTimes)) {
+        if (!contains_key(var, g.opStates)) {
+          g.opStates[var] = {};
+        }
+
+        if (!contains_key(var, g.opTransitions)) {
+          g.opTransitions[var] = {};
+        }
+
+      }
+    }
+
     // Add instruction mapping to schedule
     for (auto var : sched.instrTimes) {
       for (auto state : var.second) {
