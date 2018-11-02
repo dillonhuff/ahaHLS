@@ -152,9 +152,12 @@ namespace DHLS {
     }
 
     for (auto v : schedVars) {
-      for (auto ex : v.second) {
-        map_insert(sched.instrTimes, v.first, (int) m.eval(ex).get_numeral_int64());
-        cout << ex << " = " << m.eval(ex) << endl;
+
+      if (!contains_key(v.first->getParent(), pipelineSchedules)) {
+        for (auto ex : v.second) {
+          map_insert(sched.instrTimes, v.first, (int) m.eval(ex).get_numeral_int64());
+          cout << ex << " = " << m.eval(ex) << endl;
+        }
       }
     }
 
@@ -202,15 +205,21 @@ namespace DHLS {
     }
   }
 
-  void addLatencyConstraints(llvm::BasicBlock& bb,
-                             solver& s,
-                             std::map<Instruction*, std::vector<expr> >& schedVars,
-                             std::map<BasicBlock*, std::vector<expr> >& blockVars) {
+  void addBlockConstraints(llvm::BasicBlock& bb,
+                           solver& s,
+                           std::map<BasicBlock*, std::vector<expr> >& blockVars) {
 
     // Basic blocks cannot start before the beginning of time
     s.add(blockSource(&bb, blockVars) >= 0);
     // Basic blocks must start before they finish
     s.add(blockSource(&bb, blockVars) <= blockSink(&bb, blockVars));
+    
+  }
+
+  void addLatencyConstraints(llvm::BasicBlock& bb,
+                             solver& s,
+                             std::map<Instruction*, std::vector<expr> >& schedVars,
+                             std::map<BasicBlock*, std::vector<expr> >& blockVars) {
 
     for (auto& instruction : bb) {
       auto iptr = &instruction;
@@ -248,7 +257,13 @@ namespace DHLS {
                       hdc,
                       blockNo);
 
-      addLatencyConstraints(bb, s, schedVars, blockVars);
+      addBlockConstraints(bb, s, blockVars);
+
+      // Instructions in pipelined blocks are scheduled inside the pipeline
+      // super-state
+      if (!elem(&bb, toPipeline)) {
+          addLatencyConstraints(bb, s, schedVars, blockVars);
+      }
     }
 
     // Connect the control edges
@@ -609,6 +624,8 @@ namespace DHLS {
     int blockNo = 0;
 
     addScheduleVars(*bb, c, schedVars, blockVars, hdc, blockNo);
+
+    addBlockConstraints(*bb, s, blockVars);
     addLatencyConstraints(*bb, s, schedVars, blockVars);
 
     expr II = c.int_const("II");
