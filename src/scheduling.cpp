@@ -452,7 +452,10 @@ namespace DHLS {
 
   }
 
-  STG buildSTG(Schedule& sched, BasicBlock* entryBlock, std::set<BasicBlock*>& blockList) {
+  STG buildSTG(Schedule& sched,
+               BasicBlock* entryBlock,
+               std::set<BasicBlock*>& blockList) {
+
     STG g(sched);
 
     map<BasicBlock*, vector<vector<Atom> > > blockGuards;
