@@ -123,7 +123,7 @@ namespace DHLS {
   Schedule buildFromModel(solver& s,
                           map<Instruction*, vector<expr> >& schedVars,
                           map<BasicBlock*, vector<expr> >& blockVars,
-                          map<BasicBlock*, Schedule>& pipelineSchedules) {
+                          map<BasicBlock*, int>& pipelineSchedules) {
 
 
     auto satRes = s.check();
@@ -153,12 +153,12 @@ namespace DHLS {
 
     for (auto v : schedVars) {
 
-      if (!contains_key(v.first->getParent(), pipelineSchedules)) {
+      //if (!contains_key(v.first->getParent(), pipelineSchedules)) {
         for (auto ex : v.second) {
           map_insert(sched.instrTimes, v.first, (int) m.eval(ex).get_numeral_int64());
           cout << ex << " = " << m.eval(ex) << endl;
         }
-      }
+        //}
     }
 
     sched.pipelineSchedules = pipelineSchedules;
@@ -363,13 +363,11 @@ namespace DHLS {
     cout << "Solver constraints" << endl;
     cout << s << endl;
 
-    // TODO: Remove this
-    map<BasicBlock*, Schedule> subSchedules;
-    // for (auto bb : toPipeline) {
-    //   subSchedules[bb] = schedulePipeline(bb, hdc);
-    //   cout << "Pipeline schedule" << endl;
-    //   cout << map_find(bb, subSchedules) << endl;
-    // }
+    // TODO: Add real initiation interval analysis
+    map<BasicBlock*, int> subSchedules;
+    for (auto bb : toPipeline) {
+      subSchedules[bb] = 1; 
+    }
     
     return buildFromModel(s, schedVars, blockVars, subSchedules);
   }
@@ -688,10 +686,10 @@ namespace DHLS {
     cout << "Pipeline solver constraints" << endl;
     cout << s << endl;
 
-    map<BasicBlock*, Schedule> subPipelines;
+    map<BasicBlock*, int> subPipelines;
     auto sched = buildFromModel(s, schedVars, blockVars, subPipelines);
 
-    sched.II = 1;
+    //sched.II = 1;
 
     return sched;
   }

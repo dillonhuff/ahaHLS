@@ -418,8 +418,8 @@ namespace DHLS {
 
               blocksToPipeline.insert(&bb);
 
-              Schedule s = schedulePipeline(&bb, hcs);
-              REQUIRE(s.II == 1);
+              //Schedule s = schedulePipeline(&bb, hcs);
+
             }
           }
         }
@@ -440,6 +440,9 @@ namespace DHLS {
     //             signals?
 
     Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
+
+    REQUIRE(map_find(*begin(blocksToPipeline), s.pipelineSchedules) == 1);
+
     STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
