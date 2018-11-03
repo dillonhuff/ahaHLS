@@ -634,6 +634,19 @@ namespace DHLS {
     //     buildSTG(pipelinedBB.second, pipelinedBB.first, bbSet);
     // }
 
+    for (auto p : sched.pipelineSchedules) {
+      // int II = p.second;
+      // BasicBlock* bb = p.first;
+      // vector<int> states = map_find(bb, sched.blockTimes);
+
+      // TODO: Check that:
+      //   1. The transition condition is checked less than II cycles into the pipeline
+      //   2. The sequence of states only have transitions from one to another and
+      //      then back to the start of the pipeline or out of it
+
+      g.pipelines.push_back(Pipeline());
+    }
+
     return g;
   }
 
