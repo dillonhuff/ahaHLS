@@ -441,6 +441,7 @@ namespace DHLS {
 
     Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
 
+    REQUIRE(s.numStates() == 7);
     REQUIRE(map_find(*begin(blocksToPipeline), s.pipelineSchedules) == 1);
 
     STG graph = buildSTG(s, f);
@@ -448,7 +449,7 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    REQUIRE(s.numStates() == 7);
+    REQUIRE(graph.pipelines.size() == 1);
     
     map<string, int> layout = {{"a", 0}, {"b", 10}};
     emitVerilog(f, graph, layout);

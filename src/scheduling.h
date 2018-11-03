@@ -234,6 +234,11 @@ namespace DHLS {
     out << t.dest << " if " << t.cond << std::endl;
     return out;
   }
+
+  class Pipeline {
+  public:
+    Pipeline() {}
+  };
   
   class StateTransitionGraph {
   public:
@@ -241,7 +246,7 @@ namespace DHLS {
     Schedule sched;
     std::map<StateId, std::vector<GuardedInstruction> > opStates;
     std::map<StateId, std::vector<StateTransition> > opTransitions;
-    std::map<StateId, StateTransitionGraph> pipelineSuperStates;
+    std::vector<Pipeline> pipelines;
 
     StateTransitionGraph() {}
     

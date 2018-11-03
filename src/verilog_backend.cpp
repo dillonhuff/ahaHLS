@@ -508,7 +508,9 @@ namespace DHLS {
   // input trigger logic
   // storage trigger logic
   // functional units (including memories)
-  void emitVerilog(llvm::Function* f, const STG& stg, std::map<std::string, int>& memoryMap) {
+  void emitVerilog(llvm::Function* f,
+                   const STG& stg,
+                   std::map<std::string, int>& memoryMap) {
 
     map<BasicBlock*, int> basicBlockNos = numberBasicBlocks(f);
     map<Instruction*, Wire> names = createInstrNames(stg);
@@ -647,9 +649,6 @@ namespace DHLS {
 
     // TODO: Experiment with adding defaults to all functional unit inputs
     for (auto state : stg.opStates) {
-      // out << "\talways @(*) begin" << endl;
-      // //std::set<string> usedFUs;
-      // out << "\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
 
       for (auto instrG : state.second) {
 
