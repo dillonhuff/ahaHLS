@@ -21,7 +21,8 @@ SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${CXX_OCL_LINK_FLAGS}")
 INCLUDE_DIRECTORIES(./src/)
 
 SET(CPP_FILES ./src/scheduling.cpp
-              ./src/verilog_backend.cpp)
+              ./src/verilog_backend.cpp
+              ./src/utils.cpp)
 
 llvm_map_components_to_libnames(llvm_libs support core irreader)
 

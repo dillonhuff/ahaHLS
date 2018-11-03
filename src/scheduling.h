@@ -1,6 +1,7 @@
 #pragma once
 
 #include "algorithm.h"
+#include "utils.h"
 
 #include <llvm/IR/Module.h>
 #include <llvm/Support/raw_ostream.h>
@@ -104,8 +105,31 @@ namespace DHLS {
       return clockTicksToFinish() + 1;
     }
 
+    void print(std::ostream& out) const {
+      out << "Block times" << std::endl;
+      for (auto i : blockTimes) {
+        out << "\t" << i.first << " -> [";
+        out << commaListString(i.second);
+        out << "]" << std::endl;
+      }
+
+      out << "Instruction times" << std::endl;
+      for (auto i : instrTimes) {
+        out << "\t" << instructionString(i.first) << " -> [";
+        out << commaListString(i.second);
+        out << "]" << std::endl;
+      }
+
+
+    }
+
   };
 
+  static inline std::ostream& operator<<(std::ostream& out, const Schedule& s) {
+    s.print(out);
+    return out;
+  }
+  
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc);
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,

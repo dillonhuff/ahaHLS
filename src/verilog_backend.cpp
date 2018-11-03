@@ -1,5 +1,7 @@
 #include "verilog_backend.h"
 
+#include "utils.h"
+
 #include <fstream>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/Instructions.h>
@@ -10,21 +12,6 @@ using namespace std;
 
 // Convolution as Toeplitz Matrix multiplication
 namespace DHLS {
-
-  std::string commaListString(const std::vector<std::string>& strings) {
-    string res = "";
-    for (int i = 0; i < (int) strings.size(); i++) {
-      res += strings[i];
-      if (i < strings.size() - 1) {
-        res += ", ";
-      }
-    }
-    return res;
-  }
-
-  int clog2(const int val) {
-    return ceil(log2(val));
-  }
 
   class Wire {
   public:

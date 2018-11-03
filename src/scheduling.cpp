@@ -207,13 +207,18 @@ namespace DHLS {
 
   void addBlockConstraints(llvm::BasicBlock& bb,
                            solver& s,
-                           std::map<BasicBlock*, std::vector<expr> >& blockVars) {
+                           std::map<BasicBlock*, std::vector<expr> >& blockVars,
+                           std::map<Instruction*, std::vector<expr> >& schedVars) {
 
     // Basic blocks cannot start before the beginning of time
     s.add(blockSource(&bb, blockVars) >= 0);
     // Basic blocks must start before they finish
     s.add(blockSource(&bb, blockVars) <= blockSink(&bb, blockVars));
-    
+
+    Instruction* term = bb.getTerminator();
+    // By definition the completion of a branch is the completion of
+    // the basic block that contains it.
+    s.add(blockSink(&bb, blockVars) == map_find(term, schedVars).back());
   }
 
   void addLatencyConstraints(llvm::BasicBlock& bb,
@@ -257,7 +262,7 @@ namespace DHLS {
                       hdc,
                       blockNo);
 
-      addBlockConstraints(bb, s, blockVars);
+      addBlockConstraints(bb, s, blockVars, schedVars);
 
       // Instructions in pipelined blocks are scheduled inside the pipeline
       // super-state
@@ -275,11 +280,6 @@ namespace DHLS {
       alreadyVisited.insert(next);
 
       Instruction* term = next->getTerminator();
-
-      // By definition the completion of a branch is the completion of
-      // the basic block that contains it.
-      s.add(blockSink(next, blockVars) == map_find(term, schedVars).back());
-
       if (ReturnInst::classof(term)) {
       } else {
         assert(BranchInst::classof(term));
@@ -365,6 +365,8 @@ namespace DHLS {
     map<BasicBlock*, Schedule> subSchedules;
     for (auto bb : toPipeline) {
       subSchedules[bb] = schedulePipeline(bb, hdc);
+      cout << "Pipeline schedule" << endl;
+      cout << map_find(bb, subSchedules) << endl;
     }
     return buildFromModel(s, schedVars, blockVars, subSchedules);
   }
@@ -658,7 +660,7 @@ namespace DHLS {
 
     addScheduleVars(*bb, c, schedVars, blockVars, hdc, blockNo);
 
-    addBlockConstraints(*bb, s, blockVars);
+    addBlockConstraints(*bb, s, blockVars, schedVars);
     addLatencyConstraints(*bb, s, schedVars, blockVars);
 
     expr II = c.int_const("II");
@@ -688,4 +690,4 @@ namespace DHLS {
     return sched;
   }
 
-  }
+}
