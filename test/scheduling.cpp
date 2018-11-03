@@ -450,6 +450,7 @@ namespace DHLS {
     graph.print(cout);
 
     REQUIRE(graph.pipelines.size() == 1);
+    REQUIRE(graph.pipelines[0].depth() == 5);
     
     map<string, int> layout = {{"a", 0}, {"b", 10}};
     emitVerilog(f, graph, layout);

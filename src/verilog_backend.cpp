@@ -32,6 +32,10 @@ namespace DHLS {
     }
   };
 
+  std::string declareReg(const std::string name, const int width) {
+    return "reg [" + to_string(width - 1) + ":0] " + name;
+  }
+
   Port inputPort(const int width, const std::string& name) {
     return {true, width, name};
   }
@@ -581,6 +585,19 @@ namespace DHLS {
     }
     out << "\t// End instruction result storage" << endl;
     out << endl;
+
+    out << "\t// Start pipeline variables" << endl;
+    int i = 0;
+    for (auto p : stg.pipelines) {
+      string iStr = to_string(i);
+      out << "\t// -- Pipeline " << i << ", II = " << p.II() << endl;
+      out << "\t" << declareReg("in_pipeline_" + iStr, 1) << ";" << endl;
+      for (int j = 0; j < p.depth(); j++) {
+        string jStr = to_string(j);
+        out << "\t" << declareReg("pipeline_stage_" + jStr + "_valid", 1) << ";" << endl;
+      }
+    }
+    out << "\t// End pipeline variables" << endl;
 
     out << "\treg [31:0] global_state;" << endl << endl;
     out << "\treg [31:0] last_BB_reg;" << endl << endl;

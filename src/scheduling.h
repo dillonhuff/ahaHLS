@@ -83,7 +83,7 @@ namespace DHLS {
   public:
     std::map<llvm::Instruction*, std::vector<int> > instrTimes;
     std::map<llvm::BasicBlock*, std::vector<int> > blockTimes;
-    std::map<llvm::BasicBlock*, int> pipelineSchedules;    
+    std::map<llvm::BasicBlock*, int> pipelineSchedules;
 
     int startTime(llvm::Instruction* const instr) const {
       return dbhc::map_find(instr, instrTimes).front();
@@ -235,8 +235,18 @@ namespace DHLS {
   }
 
   class Pipeline {
+    int ii;
+    int stateDepth;
+    
   public:
-    Pipeline() {}
+    Pipeline(const int ii_, const int stateDepth_) :
+      ii(ii_), stateDepth(stateDepth_) {
+      assert(II() >= 1);
+      assert(depth() >= 1);
+    }
+
+    int II() const { return ii; }
+    int depth() const { return stateDepth; }
   };
   
   class StateTransitionGraph {
