@@ -264,11 +264,12 @@ namespace DHLS {
 
       addBlockConstraints(bb, s, blockVars, schedVars);
 
+      // TODO: Just flag pipelined states in the normal schedule
       // Instructions in pipelined blocks are scheduled inside the pipeline
       // super-state
-      if (!elem(&bb, toPipeline)) {
+      //      if (!elem(&bb, toPipeline)) {
           addLatencyConstraints(bb, s, schedVars, blockVars);
-      }
+          //      }
     }
 
     // Connect the control edges
@@ -362,12 +363,14 @@ namespace DHLS {
     cout << "Solver constraints" << endl;
     cout << s << endl;
 
+    // TODO: Remove this
     map<BasicBlock*, Schedule> subSchedules;
-    for (auto bb : toPipeline) {
-      subSchedules[bb] = schedulePipeline(bb, hdc);
-      cout << "Pipeline schedule" << endl;
-      cout << map_find(bb, subSchedules) << endl;
-    }
+    // for (auto bb : toPipeline) {
+    //   subSchedules[bb] = schedulePipeline(bb, hdc);
+    //   cout << "Pipeline schedule" << endl;
+    //   cout << map_find(bb, subSchedules) << endl;
+    // }
+    
     return buildFromModel(s, schedVars, blockVars, subSchedules);
   }
   
@@ -621,17 +624,17 @@ namespace DHLS {
       
     }
 
-    for (auto pipelinedBB : sched.pipelineSchedules) {
-      auto bbTimes = map_find(pipelinedBB.first, sched.blockTimes);
-      assert(bbTimes.size() == 2);
-      assert(bbTimes[0] == bbTimes[1]);
+    // for (auto pipelinedBB : sched.pipelineSchedules) {
+    //   auto bbTimes = map_find(pipelinedBB.first, sched.blockTimes);
+    //   assert(bbTimes.size() == 2);
+    //   assert(bbTimes[0] == bbTimes[1]);
 
-      StateId blockTime = bbTimes[0];
+    //   StateId blockTime = bbTimes[0];
 
-      std::set<BasicBlock*> bbSet{pipelinedBB.first};
-      g.pipelineSuperStates[blockTime] =
-        buildSTG(pipelinedBB.second, pipelinedBB.first, bbSet);
-    }
+    //   std::set<BasicBlock*> bbSet{pipelinedBB.first};
+    //   g.pipelineSuperStates[blockTime] =
+    //     buildSTG(pipelinedBB.second, pipelinedBB.first, bbSet);
+    // }
 
     return g;
   }
