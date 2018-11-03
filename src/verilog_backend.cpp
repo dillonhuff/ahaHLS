@@ -504,6 +504,41 @@ namespace DHLS {
     return basicBlockNos;
 
   }
+
+  void emitFunctionalUnits(std::ostream& out,
+                           map<Instruction*, FunctionalUnit>& unitAssignment) {
+
+    // The issue of how to create builtins also comes up here. Should I have
+    // parametric modules I can use for each one?
+    // A: I dont need parameters yet, so lets delay that. For now just output
+    //    32 bit functional units
+    out << endl << "\t// Start Functional Units" << endl;
+    for (auto iUnit : unitAssignment) {
+      auto unit = iUnit.second;
+
+      // These are external functional units
+      if ((unit.modName == "load") ||
+          (unit.modName == "store") ||
+          (unit.modName == "ret")) {
+        continue;
+      }
+
+      vector<string> wireDecls;
+      for (auto w : unit.portWires) {
+        out << "\treg [31:0] " << w.second << ";" << endl;
+        wireDecls.push_back("." + w.first + "(" + w.second + ")");
+      }
+
+      for (auto w : unit.outWires) {
+        out << "\twire [" << w.second.width - 1 << ":0] " << w.second.name << ";" << endl;
+        wireDecls.push_back("." + w.first + "(" + w.second.name + ")");
+      }
+      
+      out << "\t" << unit.modName << " " << unit.instName << "(" << commaListString(wireDecls) << ");" << endl << endl;
+    }
+    out << "\t// End Functional Units" << endl;
+    out << endl;
+  }
   
   // What are the components of this verilog?
   // module declaration
@@ -548,37 +583,8 @@ namespace DHLS {
     map<Instruction*, FunctionalUnit> unitAssignment =
       assignFunctionalUnits(stg);
 
-    // The issue of how to create builtins also comes up here. Should I have
-    // parametric modules I can use for each one?
-    // A: I dont need parameters yet, so lets delay that. For now just output
-    //    32 bit functional units
-    out << endl << "\t// Start Functional Units" << endl;
-    for (auto iUnit : unitAssignment) {
-      auto unit = iUnit.second;
-
-      // These are external functional units
-      if ((unit.modName == "load") ||
-          (unit.modName == "store") ||
-          (unit.modName == "ret")) {
-        continue;
-      }
-
-      vector<string> wireDecls;
-      for (auto w : unit.portWires) {
-        out << "\treg [31:0] " << w.second << ";" << endl;
-        wireDecls.push_back("." + w.first + "(" + w.second + ")");
-      }
-
-      for (auto w : unit.outWires) {
-        out << "\twire [" << w.second.width - 1 << ":0] " << w.second.name << ";" << endl;
-        wireDecls.push_back("." + w.first + "(" + w.second.name + ")");
-      }
-      
-      out << "\t" << unit.modName << " " << unit.instName << "(" << commaListString(wireDecls) << ");" << endl << endl;
-    }
-    out << "\t// End Functional Units" << endl;
-    out << endl;
-
+    emitFunctionalUnits(out, unitAssignment);
+    
     out << "\t// Start instruction result storage" << endl;
     for (auto n : names) {
       out << "\treg [" << n.second.width - 1 << ":0] " << n.second.name << ";" << endl;
