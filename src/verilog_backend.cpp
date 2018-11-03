@@ -505,6 +505,25 @@ namespace DHLS {
 
   }
 
+  void emitPorts(std::ostream& out,
+                 const vector<Port>& allPorts) {
+
+    for (auto pt : allPorts) {
+      if (!pt.isInput) {
+        out << "\treg [" << to_string(pt.width - 1) << ":0] " << pt.name << "_reg;" << endl;
+      }
+    }
+
+    out << endl;
+
+    for (auto pt : allPorts) {
+      if (!pt.isInput) {
+        out << "\tassign " << pt.name << " = " << pt.name << "_reg;" << endl;
+      }
+    }
+
+  }
+  
   void emitFunctionalUnits(std::ostream& out,
                            map<Instruction*, FunctionalUnit>& unitAssignment) {
 
@@ -566,19 +585,7 @@ namespace DHLS {
 
     out << endl;
 
-    for (auto pt : allPorts) {
-      if (!pt.isInput) {
-        out << "\treg [" << to_string(pt.width - 1) << ":0] " << pt.name << "_reg;" << endl;
-      }
-    }
-
-    out << endl;
-
-    for (auto pt : allPorts) {
-      if (!pt.isInput) {
-        out << "\tassign " << pt.name << " = " << pt.name << "_reg;" << endl;
-      }
-    }
+    emitPorts(out, allPorts);
 
     map<Instruction*, FunctionalUnit> unitAssignment =
       assignFunctionalUnits(stg);
