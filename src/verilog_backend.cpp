@@ -90,6 +90,15 @@ namespace DHLS {
     return out;
   }
 
+  class ElaboratedPipeline {
+  public:
+    Pipeline p;
+    std::vector<Wire> valids;
+    Wire inPipe;
+
+    ElaboratedPipeline(const Pipeline& p_) : p(p_) {}
+  };
+
   bool hasOutput(Instruction* instr) {
     if (StoreInst::classof(instr) ||
         ReturnInst::classof(instr) ||
@@ -571,6 +580,45 @@ namespace DHLS {
 
   }  
 
+  void emitPipelineInstructionCode(std::ostream& out,
+                                   const std::vector<ElaboratedPipeline>& pipelines,
+                                   const STG& stg,
+                                   map<Instruction*, FunctionalUnit>& unitAssignment,
+                                   map<string, int>& memoryMap,
+                                   map<Instruction*, Wire>& names,
+                                   map<BasicBlock*, int>& basicBlockNos) {
+    out << "\t// Start pipeline instruction code" << endl;
+
+    out << "\t// Start pipeline stages" << endl;
+    for (auto p : pipelines) {
+      for (int i = 0; i < p.valids.size(); i++) {
+        Wire valid = p.valids[i];
+        StateId state = p.p.getStates().at(i);
+        for (auto instrG : map_find(state, stg.opStates)) {
+          out << "\talways @(*) begin" << endl;
+          out << "\t\tif (" << p.inPipe.name << " && " << valid.name << ") begin" << endl;
+
+          Instruction* instr = instrG.instruction;
+
+          auto schedVars = map_find(instr, stg.sched.instrTimes);
+          if (state == schedVars.front()) {
+
+            out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+
+            instructionVerilog(out, instr, unitAssignment, memoryMap, names, basicBlockNos);
+
+
+            out << "\t\t\tend" << endl;
+          }
+          
+          out << "\t\tend" << endl;
+          out << "\tend" << endl;
+        }
+      }
+    }
+    out << "\t// End pipeline instruction code" << endl << endl;
+  }
+  
   // TODO: Experiment with adding defaults to all functional unit inputs
   void emitInstructionCode(std::ostream& out,
                            const STG& stg,
@@ -671,15 +719,6 @@ namespace DHLS {
     out << endl;
   }
 
-  class ElaboratedPipeline {
-  public:
-    Pipeline p;
-    std::vector<Wire> valids;
-    Wire inPipe;
-
-    ElaboratedPipeline(const Pipeline& p_) : p(p_) {}
-  };
-
   void emitPipelineResetBlock(std::ostream& out,
                               const std::vector<ElaboratedPipeline>& pipelines) {
     
@@ -695,11 +734,9 @@ namespace DHLS {
       }
     }
     out << "\t\tend" << endl;
-    out << "\tend" << endl << endl;
+    out << "\tend" << endl;
     out << "\t// End pipeline reset block" << endl << endl;
-
   }
-
   
   void emitPipelineVariables(std::ostream& out,
                              const std::vector<ElaboratedPipeline>& pipelines) {
@@ -797,7 +834,8 @@ namespace DHLS {
 
     out << "\tend" << endl;
     out << endl << endl;
-    
+
+    emitPipelineInstructionCode(out, pipelines, stg, unitAssignment, memoryMap, names, basicBlockNos);
     emitInstructionCode(out, stg, unitAssignment, memoryMap, names, basicBlockNos);
 
     out << "endmodule" << endl;

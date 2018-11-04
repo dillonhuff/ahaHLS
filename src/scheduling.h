@@ -251,6 +251,7 @@ namespace DHLS {
 
     int II() const { return ii; }
     int depth() const { return stateDepth; }
+    const std::vector<StateId>& getStates() const { return states; }
   };
   
   class StateTransitionGraph {
