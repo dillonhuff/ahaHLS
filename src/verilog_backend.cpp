@@ -505,6 +505,95 @@ namespace DHLS {
 
   }
 
+  void emitControlCode(std::ostream& out,
+                       const STG& stg,
+                       map<Instruction*, FunctionalUnit>& unitAssignment,
+                       map<Instruction*, Wire>& names) {
+    for (auto state : stg.opTransitions) {
+
+      out << "\t\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
+
+      out << "\t\t\t\t// Store data computed at the stage" << endl;
+        
+      for (auto instrG : map_find(state.first, stg.opStates)) {
+        Instruction* instr = instrG.instruction;
+        auto schedVars = map_find(instr, stg.sched.instrTimes);          
+
+        if (ReturnInst::classof(instr) && (state.first == schedVars.back())) {
+
+          out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
+
+          out << "\t\t\t\t\tvalid_reg <= 1;" << endl;
+          out << "\t\t\t\tend" << endl;
+        }
+
+        if (hasOutput(instr) && (state.first == schedVars.back())) {
+
+          string instrName = map_find(instr, names).name;
+          auto unit = map_find(instr, unitAssignment);
+
+          out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
+
+          out << "\t\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
+          out << "\t\t\t\tend" << endl;
+          
+        }
+      }
+      
+      out << "\t\t\t\t// Next state transition logic" << endl;
+      for (auto transitionDest : state.second) {
+        out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
+        out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
+        out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
+        out << "\t\t\t\tend" << endl;
+      }
+
+      out << "\t\t\tend" << endl;
+    }
+
+
+    out << "\t\tend" << endl;
+
+  }  
+
+  // TODO: Experiment with adding defaults to all functional unit inputs
+  void emitInstructionCode(std::ostream& out,
+                           const STG& stg,
+                           map<Instruction*, FunctionalUnit>& unitAssignment,
+                           map<string, int>& memoryMap,
+                           map<Instruction*, Wire>& names,
+                           map<BasicBlock*, int>& basicBlockNos) {
+
+    for (auto state : stg.opStates) {
+
+      for (auto instrG : state.second) {
+
+        out << "\talways @(*) begin" << endl;
+        out << "\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
+
+        Instruction* instr = instrG.instruction;
+
+        auto schedVars = map_find(instr, stg.sched.instrTimes);
+        if (state.first == schedVars.front()) {
+
+          out << "\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
+
+          instructionVerilog(out, instr, unitAssignment, memoryMap, names, basicBlockNos);
+
+
+          out << "\t\t\tend" << endl;
+        }
+
+        out << "\t\tend" << endl;
+        out << "\tend" << endl;      
+        
+      }
+
+    }
+
+
+  }
+  
   void emitPorts(std::ostream& out,
                  const vector<Port>& allPorts) {
 
@@ -619,6 +708,7 @@ namespace DHLS {
     out << "\talways @(posedge clk) begin" << endl;
 
     out << "\t\t$display(\"global_state = %d\", global_state);" << endl;
+
     // Insert state transition logic
     out << "\t\tif (rst) begin" << endl;
     out << "\t\t\tglobal_state <= 0;" << endl;
@@ -629,83 +719,13 @@ namespace DHLS {
 
     out << "\t\t\tlast_BB_reg <= last_BB;" << endl;
       
-    for (auto state : stg.opTransitions) {
 
-      out << "\t\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
+    emitControlCode(out, stg, unitAssignment, names);
 
-      out << "\t\t\t\t// Store data computed at the stage" << endl;
-        
-      for (auto instrG : map_find(state.first, stg.opStates)) {
-        Instruction* instr = instrG.instruction;
-        auto schedVars = map_find(instr, stg.sched.instrTimes);          
-
-        if (ReturnInst::classof(instr) && (state.first == schedVars.back())) {
-
-          out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
-
-          out << "\t\t\t\t\tvalid_reg <= 1;" << endl;
-          out << "\t\t\t\tend" << endl;
-        }
-
-        if (hasOutput(instr) && (state.first == schedVars.back())) {
-
-          string instrName = map_find(instr, names).name;
-          auto unit = map_find(instr, unitAssignment);
-
-          out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
-
-          out << "\t\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
-          out << "\t\t\t\tend" << endl;
-          
-        }
-      }
-      
-      out << "\t\t\t\t// Next state transition logic" << endl;
-      for (auto transitionDest : state.second) {
-        out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-        out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
-        out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
-        out << "\t\t\t\tend" << endl;
-      }
-
-      out << "\t\t\tend" << endl;
-    }
-
-
-    out << "\t\tend" << endl;
     out << "\tend" << endl;
-
     out << endl << endl;
-
-    // TODO: Experiment with adding defaults to all functional unit inputs
-    for (auto state : stg.opStates) {
-
-      for (auto instrG : state.second) {
-
-        out << "\talways @(*) begin" << endl;
-        out << "\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
-
-        Instruction* instr = instrG.instruction;
-
-        auto schedVars = map_find(instr, stg.sched.instrTimes);
-        if (state.first == schedVars.front()) {
-
-          out << "\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
-
-          instructionVerilog(out, instr, unitAssignment, memoryMap, names, basicBlockNos);
-
-
-          out << "\t\t\tend" << endl;
-        }
-
-        out << "\t\tend" << endl;
-        out << "\tend" << endl;      
-        
-      }
-
-    }
-
-
+    
+    emitInstructionCode(out, stg, unitAssignment, memoryMap, names, basicBlockNos);
 
     out << "endmodule" << endl;
 
