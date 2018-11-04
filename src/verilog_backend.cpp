@@ -737,6 +737,24 @@ namespace DHLS {
     out << "\tend" << endl;
     out << "\t// End pipeline reset block" << endl << endl;
   }
+
+  void emitPipelineValidChainBlock(std::ostream& out,
+                                   const std::vector<ElaboratedPipeline>& pipelines) {
+    
+    out << "\t// Start pipeline valid chain block" << endl;
+    out << "\talways @(posedge clk) begin" << endl;
+    out << "\t\tif (!rst) begin" << endl;
+    for (auto p : pipelines) {
+
+      //      for (auto validVar : p.valids) {
+      for (int i = 0; i < p.valids.size() - 1; i++) {
+        out << "\t\t\t" << p.valids[i + 1].name << " <= " << p.valids[i].name << ";" << endl;
+      }
+    }
+    out << "\t\tend" << endl;
+    out << "\tend" << endl;
+    out << "\t// End pipeline valid chain block" << endl << endl;
+  }
   
   void emitPipelineVariables(std::ostream& out,
                              const std::vector<ElaboratedPipeline>& pipelines) {
@@ -814,6 +832,7 @@ namespace DHLS {
     emitGlobalStateVariables(out);
 
     emitPipelineResetBlock(out, pipelines);    
+    emitPipelineValidChainBlock(out, pipelines);
 
     out << "\talways @(posedge clk) begin" << endl;
 
