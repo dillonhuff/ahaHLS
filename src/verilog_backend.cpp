@@ -573,7 +573,12 @@ namespace DHLS {
                        const std::vector<ElaboratedPipeline>& pipelines) {
     for (auto state : stg.opTransitions) {
 
-      out << "\t\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
+      if (isPipelineState(state.first, pipelines)) {
+        auto p = getPipeline(state.first, pipelines);
+        out << "\t\t\tif (" << p.inPipe.name << " && " << p.valids.at(p.stateIndex(state.first)).name << ") begin" << endl;
+      } else {
+        out << "\t\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
+      }
 
       out << "\t\t\t\t// Store data computed at the stage" << endl;
         
@@ -610,8 +615,6 @@ namespace DHLS {
           auto p = getPipeline(transitionDest.dest, pipelines);
 
           out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-          //          out << "\t\t\t\tif (" << p.inPipe.name << " && " << p.valids.at(p.stateIndex(transitionDest.dest)).name << " && (" << verilogForCondition(transitionDest.cond, state.first, stg, unitAssignment, names) << ")) begin" << endl;
-
           out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
           out << "\t\t\t\t\tglobal_state <= " << p.stateId << ";" << endl;
           out << "\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;
