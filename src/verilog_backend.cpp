@@ -97,6 +97,8 @@ namespace DHLS {
     Wire inPipe;
     StateId stateId;
 
+    std::vector<std::map<Instruction*, Wire> > pipelineRegisters;
+
     ElaboratedPipeline(const Pipeline& p_) : p(p_) {}
 
     int stateIndex(const StateId id) {
@@ -837,6 +839,16 @@ namespace DHLS {
       for (auto validVar : p.valids) {
         out << "\t" << validVar << ";" << endl;
       }
+
+      out << "\t// Start stage registers" << endl;
+      for (auto stage : p.pipelineRegisters) {
+        out << "\t// Start stage" << endl;
+        for (auto is : stage) {
+          out << "\t" << is.second << ";" << endl;
+        }
+        out << "\t// End stage" << endl;
+      }
+      out << "\t// End stage registers" << endl;      
     }
     out << "\t// End pipeline variables" << endl << endl;
 
@@ -853,7 +865,7 @@ namespace DHLS {
     std::vector<ElaboratedPipeline> pipelines;
 
     int i = 0;
-    // TODO: Add real next state computation
+    // TODO: Add real next state number check
     int pipeState = 200000;
     for (auto p : stg.pipelines) {
       string iStr = to_string(i);
@@ -861,12 +873,34 @@ namespace DHLS {
       ElaboratedPipeline ep(p);
       ep.stateId = pipeState + i;
       ep.inPipe = Wire(1, "in_pipeline_" + iStr);
-      
+
+      vector<map<Instruction*, Wire> > pipelineRegisters;
+      std::set<Instruction*> pastValues;
+      int regNum = 0;
       for (int j = 0; j < p.depth(); j++) {
         string jStr = to_string(j);
         ep.valids.push_back(Wire(true, 1, "pipeline_stage_" + jStr + "_valid"));
+
+        StateId st = ep.p.getStates().at(j);
+        assert(st >= 0);
+
+        map<Instruction*, Wire> regs;
+        for (auto val : pastValues) {
+          regs[val] = Wire(true, 32, "pipeline_reg_" + iStr + "_" + jStr + "_" + to_string(regNum));
+          regNum++;
+        }
+
+        for (auto instrG : map_find(st, stg.opStates)) {
+          Instruction* i = instrG.instruction;
+          regs[i] = Wire(true, 32, "pipeline_reg_" + iStr + "_" + jStr + "_" + to_string(regNum));
+          pastValues.insert(i);
+          regNum++;
+        }
+
+        pipelineRegisters.push_back(regs);
       }
 
+      ep.pipelineRegisters = pipelineRegisters;
       pipelines.push_back(ep);
     }
 
