@@ -237,12 +237,16 @@ namespace DHLS {
   class Pipeline {
     int ii;
     int stateDepth;
-    
+    std::vector<StateId> states;    
+
   public:
-    Pipeline(const int ii_, const int stateDepth_) :
-      ii(ii_), stateDepth(stateDepth_) {
+    Pipeline(const int ii_,
+             const int stateDepth_,
+             const std::vector<StateId>& states_) :
+      ii(ii_), stateDepth(stateDepth_), states(states_) {
       assert(II() >= 1);
       assert(depth() >= 1);
+      assert(depth() == states.size());
     }
 
     int II() const { return ii; }

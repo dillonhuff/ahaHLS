@@ -33,5 +33,14 @@ namespace DHLS {
     return ceil(log2(val));
   }
 
+  static inline
+  std::string indent(int tabs) {
+    std::string ind = "";
+    for (int i = 0; i < tabs; i++) {
+      ind += "\t";
+    }
+    return ind;
+  }
+
 
 }

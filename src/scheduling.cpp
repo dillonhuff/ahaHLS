@@ -622,18 +622,6 @@ namespace DHLS {
       
     }
 
-    // for (auto pipelinedBB : sched.pipelineSchedules) {
-    //   auto bbTimes = map_find(pipelinedBB.first, sched.blockTimes);
-    //   assert(bbTimes.size() == 2);
-    //   assert(bbTimes[0] == bbTimes[1]);
-
-    //   StateId blockTime = bbTimes[0];
-
-    //   std::set<BasicBlock*> bbSet{pipelinedBB.first};
-    //   g.pipelineSuperStates[blockTime] =
-    //     buildSTG(pipelinedBB.second, pipelinedBB.first, bbSet);
-    // }
-
     for (auto p : sched.pipelineSchedules) {
       int II = p.second;
       BasicBlock* bb = p.first;
@@ -644,7 +632,12 @@ namespace DHLS {
       //   2. The sequence of states only have transitions from one to another and
       //      then back to the start of the pipeline or out of it
 
-      g.pipelines.push_back(Pipeline(II, states[1] - states[0] + 1));
+      vector<StateId> stateIds;
+      for (StateId id = states[0]; id <= states[1]; id++) {
+        stateIds.push_back(id);
+      }
+
+      g.pipelines.push_back(Pipeline(II, states[1] - states[0] + 1, stateIds));
     }
 
     return g;
@@ -701,8 +694,6 @@ namespace DHLS {
 
     map<BasicBlock*, int> subPipelines;
     auto sched = buildFromModel(s, schedVars, blockVars, subPipelines);
-
-    //sched.II = 1;
 
     return sched;
   }

@@ -623,7 +623,8 @@ namespace DHLS {
     out << "\t\tif (rst) begin" << endl;
     out << "\t\t\tglobal_state <= 0;" << endl;
     out << "\t\t\tvalid_reg <= 0;" << endl;
-    out << "\t\t\tlast_BB_reg <= " << map_find(&(f->getEntryBlock()), basicBlockNos) << ";" << endl;    
+    out << "\t\t\tlast_BB_reg <= " << map_find(&(f->getEntryBlock()), basicBlockNos) << ";" << endl;
+
     out << "\t\tend else begin" << endl;
 
     out << "\t\t\tlast_BB_reg <= last_BB;" << endl;
@@ -667,7 +668,7 @@ namespace DHLS {
         out << "\t\t\t\tend" << endl;
       }
 
-      out << "\t\t\tend" << endl;            
+      out << "\t\t\tend" << endl;
     }
 
 
@@ -675,7 +676,6 @@ namespace DHLS {
     out << "\tend" << endl;
 
     out << endl << endl;
-
 
     // TODO: Experiment with adding defaults to all functional unit inputs
     for (auto state : stg.opStates) {
