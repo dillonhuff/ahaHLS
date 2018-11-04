@@ -19,6 +19,13 @@ namespace DHLS {
     int width;
     std::string name;
 
+    Wire() {}
+    Wire(const int width_, const std::string& name_) : 
+      registered(false), width(width_), name(name_) {}
+
+    Wire(const bool registered_, const int width_, const std::string& name_) : 
+      registered(registered_), width(width_), name(name_) {}
+
   };
 
   class Port {
@@ -678,12 +685,41 @@ namespace DHLS {
     out << "\treg [31:0] last_BB;" << endl << endl;    
   }
 
+  class ElaboratedPipeline {
+  public:
+    Pipeline p;
+    std::vector<Wire> valids;
+    Wire in_pipe;
+
+    ElaboratedPipeline(const Pipeline& p_) : p(p_) {}
+  };
+
+  std::vector<ElaboratedPipeline>
+  buildPipelines(llvm::Function* f, const STG& stg) {
+    std::vector<ElaboratedPipeline> pipelines;
+
+    int i = 0;
+    for (auto p : stg.pipelines) {
+      ElaboratedPipeline ep(p);
+      
+      string iStr = to_string(i);
+      for (int j = 0; j < p.depth(); j++) {
+        string jStr = to_string(j);
+        ep.valids.push_back(Wire(1, "pipeline_stage_" + jStr + "_valid"));
+      }
+    }
+
+    return pipelines;
+  }
+
   void emitVerilog(llvm::Function* f,
                    const STG& stg,
                    std::map<std::string, int>& memoryMap) {
 
     map<BasicBlock*, int> basicBlockNos = numberBasicBlocks(f);
     map<Instruction*, Wire> names = createInstrNames(stg);
+    vector<ElaboratedPipeline> pipelines =
+      buildPipelines(f, stg);
 
     string fn = f->getName();
     vector<Port> allPorts = getPorts(stg);
