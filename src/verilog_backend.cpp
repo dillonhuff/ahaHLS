@@ -26,7 +26,15 @@ namespace DHLS {
     Wire(const bool registered_, const int width_, const std::string& name_) : 
       registered(registered_), width(width_), name(name_) {}
 
+    std::string toString() const {
+      return string(registered ? "reg" : "wire") + " [" + to_string(width - 1) + ":0] " + name;
+    }
   };
+
+  std::ostream& operator<<(std::ostream& out, const Wire w) {
+    out << w.toString();
+    return out;
+  }
 
   class Port {
   public:
@@ -663,19 +671,48 @@ namespace DHLS {
     out << endl;
   }
 
-  void emitPipelineVariables(std::ostream& out, const STG& stg) {
-    out << "\t// Start pipeline variables" << endl;
-    int i = 0;
-    for (auto p : stg.pipelines) {
-      string iStr = to_string(i);
-      out << "\t// -- Pipeline " << i << ", II = " << p.II() << endl;
-      out << "\t" << declareReg("in_pipeline_" + iStr, 1) << ";" << endl;
-      for (int j = 0; j < p.depth(); j++) {
-        string jStr = to_string(j);
-        out << "\t" << declareReg("pipeline_stage_" + jStr + "_valid", 1) << ";" << endl;
+  class ElaboratedPipeline {
+  public:
+    Pipeline p;
+    std::vector<Wire> valids;
+    Wire inPipe;
+
+    ElaboratedPipeline(const Pipeline& p_) : p(p_) {}
+  };
+
+  void emitPipelineResetBlock(std::ostream& out,
+                              const std::vector<ElaboratedPipeline>& pipelines) {
+    
+    out << "\t// Start pipeline reset block" << endl;
+    out << "\talways @(posedge clk) begin" << endl;
+    out << "\t\tif (rst) begin" << endl;
+    for (auto p : pipelines) {
+
+      out << "\t\t\t" << p.inPipe.name << " <= 0;" << endl;
+
+      for (auto validVar : p.valids) {
+        out << "\t\t\t" << validVar.name << " <= 0;" << endl;
       }
     }
-    out << "\t// End pipeline variables" << endl;
+    out << "\t\tend" << endl;
+    out << "\tend" << endl << endl;
+    out << "\t// End pipeline reset block" << endl << endl;
+
+  }
+
+  
+  void emitPipelineVariables(std::ostream& out,
+                             const std::vector<ElaboratedPipeline>& pipelines) {
+    out << "\t// Start pipeline variables" << endl;
+    for (auto p : pipelines) {
+      out << "\t// -- Pipeline, II = " << p.p.II() << endl;
+      out << "\t" << p.inPipe << ";" << endl;
+
+      for (auto validVar : p.valids) {
+        out << "\t" << validVar << ";" << endl;
+      }
+    }
+    out << "\t// End pipeline variables" << endl << endl;
 
   }
 
@@ -685,28 +722,24 @@ namespace DHLS {
     out << "\treg [31:0] last_BB;" << endl << endl;    
   }
 
-  class ElaboratedPipeline {
-  public:
-    Pipeline p;
-    std::vector<Wire> valids;
-    Wire in_pipe;
-
-    ElaboratedPipeline(const Pipeline& p_) : p(p_) {}
-  };
-
   std::vector<ElaboratedPipeline>
   buildPipelines(llvm::Function* f, const STG& stg) {
     std::vector<ElaboratedPipeline> pipelines;
 
     int i = 0;
     for (auto p : stg.pipelines) {
-      ElaboratedPipeline ep(p);
-      
       string iStr = to_string(i);
+      
+      ElaboratedPipeline ep(p);
+
+      ep.inPipe = Wire(true, 1, "in_pipeline_" + iStr);
+      
       for (int j = 0; j < p.depth(); j++) {
         string jStr = to_string(j);
-        ep.valids.push_back(Wire(1, "pipeline_stage_" + jStr + "_valid"));
+        ep.valids.push_back(Wire(true, 1, "pipeline_stage_" + jStr + "_valid"));
       }
+
+      pipelines.push_back(ep);
     }
 
     return pipelines;
@@ -740,8 +773,10 @@ namespace DHLS {
 
     emitFunctionalUnits(out, unitAssignment);
     emitRegisterStorage(out, names);
-    emitPipelineVariables(out, stg);
+    emitPipelineVariables(out, pipelines);
     emitGlobalStateVariables(out);
+
+    emitPipelineResetBlock(out, pipelines);    
 
     out << "\talways @(posedge clk) begin" << endl;
 
