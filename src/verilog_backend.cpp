@@ -590,8 +590,6 @@ namespace DHLS {
       }
 
     }
-
-
   }
   
   void emitPorts(std::ostream& out,
@@ -647,14 +645,33 @@ namespace DHLS {
     out << "\t// End Functional Units" << endl;
     out << endl;
   }
+
+  void emitRegisterStorage(std::ostream& out,
+                           std::map<Instruction*, Wire>& names) {
+    out << "\t// Start instruction result storage" << endl;
+    for (auto n : names) {
+      out << "\treg [" << n.second.width - 1 << ":0] " << n.second.name << ";" << endl;
+    }
+    out << "\t// End instruction result storage" << endl;
+    out << endl;
+  }
+
+  void emitPipelineVariables(std::ostream& out, const STG& stg) {
+    out << "\t// Start pipeline variables" << endl;
+    int i = 0;
+    for (auto p : stg.pipelines) {
+      string iStr = to_string(i);
+      out << "\t// -- Pipeline " << i << ", II = " << p.II() << endl;
+      out << "\t" << declareReg("in_pipeline_" + iStr, 1) << ";" << endl;
+      for (int j = 0; j < p.depth(); j++) {
+        string jStr = to_string(j);
+        out << "\t" << declareReg("pipeline_stage_" + jStr + "_valid", 1) << ";" << endl;
+      }
+    }
+    out << "\t// End pipeline variables" << endl;
+
+  }
   
-  // What are the components of this verilog?
-  // module declaration
-  // numbers of read and write ports,
-  // state transition logic
-  // input trigger logic
-  // storage trigger logic
-  // functional units (including memories)
   void emitVerilog(llvm::Function* f,
                    const STG& stg,
                    std::map<std::string, int>& memoryMap) {
@@ -680,26 +697,8 @@ namespace DHLS {
       assignFunctionalUnits(stg);
 
     emitFunctionalUnits(out, unitAssignment);
-    
-    out << "\t// Start instruction result storage" << endl;
-    for (auto n : names) {
-      out << "\treg [" << n.second.width - 1 << ":0] " << n.second.name << ";" << endl;
-    }
-    out << "\t// End instruction result storage" << endl;
-    out << endl;
-
-    out << "\t// Start pipeline variables" << endl;
-    int i = 0;
-    for (auto p : stg.pipelines) {
-      string iStr = to_string(i);
-      out << "\t// -- Pipeline " << i << ", II = " << p.II() << endl;
-      out << "\t" << declareReg("in_pipeline_" + iStr, 1) << ";" << endl;
-      for (int j = 0; j < p.depth(); j++) {
-        string jStr = to_string(j);
-        out << "\t" << declareReg("pipeline_stage_" + jStr + "_valid", 1) << ";" << endl;
-      }
-    }
-    out << "\t// End pipeline variables" << endl;
+    emitRegisterStorage(out, names);
+    emitPipelineVariables(out, stg);
 
     out << "\treg [31:0] global_state;" << endl << endl;
     out << "\treg [31:0] last_BB_reg;" << endl << endl;
