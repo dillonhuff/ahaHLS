@@ -95,6 +95,7 @@ namespace DHLS {
     Pipeline p;
     std::vector<Wire> valids;
     Wire inPipe;
+    StateId stateId;
 
     ElaboratedPipeline(const Pipeline& p_) : p(p_) {}
   };
@@ -782,11 +783,13 @@ namespace DHLS {
     std::vector<ElaboratedPipeline> pipelines;
 
     int i = 0;
+    // TODO: Add real next state computation
+    int pipeState = 200000;
     for (auto p : stg.pipelines) {
       string iStr = to_string(i);
       
       ElaboratedPipeline ep(p);
-
+      ep.stateId = pipeState + i;
       ep.inPipe = Wire(true, 1, "in_pipeline_" + iStr);
       
       for (int j = 0; j < p.depth(); j++) {
