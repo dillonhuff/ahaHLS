@@ -542,7 +542,7 @@ namespace DHLS {
         
       for (auto instrG : map_find(state.first, stg.opStates)) {
         Instruction* instr = instrG.instruction;
-        auto schedVars = map_find(instr, stg.sched.instrTimes);          
+        auto schedVars = map_find(instr, stg.sched.instrTimes);
 
         if (ReturnInst::classof(instr) && (state.first == schedVars.back())) {
 
@@ -728,7 +728,7 @@ namespace DHLS {
     out << "\t\tif (rst) begin" << endl;
     for (auto p : pipelines) {
 
-      out << "\t\t\t" << p.inPipe.name << " <= 0;" << endl;
+      //out << "\t\t\t" << p.inPipe.name << " <= 0;" << endl;
 
       for (auto validVar : p.valids) {
         out << "\t\t\t" << validVar.name << " <= 0;" << endl;
@@ -790,7 +790,7 @@ namespace DHLS {
       
       ElaboratedPipeline ep(p);
       ep.stateId = pipeState + i;
-      ep.inPipe = Wire(true, 1, "in_pipeline_" + iStr);
+      ep.inPipe = Wire(1, "in_pipeline_" + iStr);
       
       for (int j = 0; j < p.depth(); j++) {
         string jStr = to_string(j);
@@ -836,6 +836,9 @@ namespace DHLS {
 
     emitPipelineResetBlock(out, pipelines);    
     emitPipelineValidChainBlock(out, pipelines);
+    for (auto p : pipelines) {
+      out << "\tassign " << p.inPipe.name << " = global_state == " << p.stateId << ";"<< endl;
+    }
 
     out << "\talways @(posedge clk) begin" << endl;
 
