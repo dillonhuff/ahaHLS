@@ -109,6 +109,12 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+      
       $display("dbg_data = %d", dbg_data);
       
       `assert(valid, 1'd0);      
@@ -120,7 +126,9 @@ module test();
 
    always @(posedge clk) begin
       $display("-- In tb, waddr_0 = %d", waddr);
-      $display("-- In tb, raddr_0 = %d", raddr0);      
+      $display("-- In tb, raddr_0 = %d", raddr0);
+      $display("-- dbg_data       = %d", dbg_data);
+      $display("-- dbg_addr       = %d", dbg_addr);      
    end
 
    RAM2 mem(.clk(clk),
