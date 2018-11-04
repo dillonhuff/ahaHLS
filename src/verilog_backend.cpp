@@ -671,7 +671,13 @@ namespace DHLS {
     out << "\t// End pipeline variables" << endl;
 
   }
-  
+
+  void emitGlobalStateVariables(std::ostream& out) {
+    out << "\treg [31:0] global_state;" << endl << endl;
+    out << "\treg [31:0] last_BB_reg;" << endl << endl;
+    out << "\treg [31:0] last_BB;" << endl << endl;    
+  }
+
   void emitVerilog(llvm::Function* f,
                    const STG& stg,
                    std::map<std::string, int>& memoryMap) {
@@ -699,10 +705,7 @@ namespace DHLS {
     emitFunctionalUnits(out, unitAssignment);
     emitRegisterStorage(out, names);
     emitPipelineVariables(out, stg);
-
-    out << "\treg [31:0] global_state;" << endl << endl;
-    out << "\treg [31:0] last_BB_reg;" << endl << endl;
-    out << "\treg [31:0] last_BB;" << endl << endl;    
+    emitGlobalStateVariables(out);
 
     out << "\talways @(posedge clk) begin" << endl;
 
