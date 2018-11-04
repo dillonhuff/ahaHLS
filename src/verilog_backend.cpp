@@ -98,6 +98,16 @@ namespace DHLS {
     StateId stateId;
 
     ElaboratedPipeline(const Pipeline& p_) : p(p_) {}
+
+    int stateIndex(const StateId id) {
+      for (int i = 0; i < p.getStates().size(); i++) {
+        if (p.getStates().at(i) == id) {
+          return i;
+        }
+      }
+
+      return -1;
+    }
   };
 
   bool hasOutput(Instruction* instr) {
@@ -530,10 +540,37 @@ namespace DHLS {
 
   }
 
+  ElaboratedPipeline getPipeline(const StateId id,
+                                 const std::vector<ElaboratedPipeline>& pipelines) {
+    for (auto p : pipelines) {
+      for (auto st : p.p.getStates()) {
+        if (id == st) {
+          return p;
+        }
+      }
+    }
+
+    assert(false);
+  }
+
+  bool isPipelineState(const StateId id,
+                       const std::vector<ElaboratedPipeline>& pipelines) {
+    for (auto p : pipelines) {
+      for (auto st : p.p.getStates()) {
+        if (id == st) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+  
   void emitControlCode(std::ostream& out,
                        const STG& stg,
                        map<Instruction*, FunctionalUnit>& unitAssignment,
-                       map<Instruction*, Wire>& names) {
+                       map<Instruction*, Wire>& names,
+                       const std::vector<ElaboratedPipeline>& pipelines) {
     for (auto state : stg.opTransitions) {
 
       out << "\t\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
@@ -567,10 +604,25 @@ namespace DHLS {
       
       out << "\t\t\t\t// Next state transition logic" << endl;
       for (auto transitionDest : state.second) {
-        out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-        out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
-        out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
-        out << "\t\t\t\tend" << endl;
+
+        if (isPipelineState(transitionDest.dest, pipelines)) {
+
+          auto p = getPipeline(transitionDest.dest, pipelines);
+
+          out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
+          //          out << "\t\t\t\tif (" << p.inPipe.name << " && " << p.valids.at(p.stateIndex(transitionDest.dest)).name << " && (" << verilogForCondition(transitionDest.cond, state.first, stg, unitAssignment, names) << ")) begin" << endl;
+
+          out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
+          out << "\t\t\t\t\tglobal_state <= " << p.stateId << ";" << endl;
+          out << "\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;
+          out << "\t\t\t\tend" << endl;
+          
+        } else {
+          out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
+          out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
+          out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
+          out << "\t\t\t\tend" << endl;
+        }
       }
 
       out << "\t\t\tend" << endl;
@@ -626,31 +678,34 @@ namespace DHLS {
                            map<Instruction*, FunctionalUnit>& unitAssignment,
                            map<string, int>& memoryMap,
                            map<Instruction*, Wire>& names,
-                           map<BasicBlock*, int>& basicBlockNos) {
+                           map<BasicBlock*, int>& basicBlockNos,
+                           const std::vector<ElaboratedPipeline>& pipelines) {
 
     for (auto state : stg.opStates) {
 
-      for (auto instrG : state.second) {
+      if (!isPipelineState(state.first, pipelines)) {
+        for (auto instrG : state.second) {
 
-        out << "\talways @(*) begin" << endl;
-        out << "\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
+          out << "\talways @(*) begin" << endl;
+          out << "\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
 
-        Instruction* instr = instrG.instruction;
+          Instruction* instr = instrG.instruction;
 
-        auto schedVars = map_find(instr, stg.sched.instrTimes);
-        if (state.first == schedVars.front()) {
+          auto schedVars = map_find(instr, stg.sched.instrTimes);
+          if (state.first == schedVars.front()) {
 
-          out << "\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
+            out << "\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
 
-          instructionVerilog(out, instr, unitAssignment, memoryMap, names, basicBlockNos);
+            instructionVerilog(out, instr, unitAssignment, memoryMap, names, basicBlockNos);
 
 
-          out << "\t\t\tend" << endl;
-        }
+            out << "\t\t\tend" << endl;
+          }
 
-        out << "\t\tend" << endl;
-        out << "\tend" << endl;      
+          out << "\t\tend" << endl;
+          out << "\tend" << endl;      
         
+        }
       }
 
     }
@@ -744,6 +799,18 @@ namespace DHLS {
     
     out << "\t// Start pipeline valid chain block" << endl;
     out << "\talways @(posedge clk) begin" << endl;
+
+    for (auto p : pipelines) {
+
+      out << "\t\t$display(\"// CLK Cycle\");" << endl;
+      out << "\t\t$display(\"" << p.inPipe.name << " = %d\", " << p.inPipe.name << ");" << endl;
+      for (int i = 0; i < p.valids.size(); i++) {
+        out << "\t\t$display(\"" << p.valids[i].name << " = %d\", " << p.valids[i].name << ");" << endl;
+      }
+    }
+
+    out << endl;
+
     out << "\t\tif (!rst) begin" << endl;
     for (auto p : pipelines) {
 
@@ -834,8 +901,10 @@ namespace DHLS {
     emitPipelineVariables(out, pipelines);
     emitGlobalStateVariables(out);
 
-    emitPipelineResetBlock(out, pipelines);    
+    emitPipelineResetBlock(out, pipelines);
     emitPipelineValidChainBlock(out, pipelines);
+
+    out << endl;
     for (auto p : pipelines) {
       out << "\tassign " << p.inPipe.name << " = global_state == " << p.stateId << ";"<< endl;
     }
@@ -855,13 +924,13 @@ namespace DHLS {
     out << "\t\t\tlast_BB_reg <= last_BB;" << endl;
       
 
-    emitControlCode(out, stg, unitAssignment, names);
+    emitControlCode(out, stg, unitAssignment, names, pipelines);
 
     out << "\tend" << endl;
     out << endl << endl;
 
     emitPipelineInstructionCode(out, pipelines, stg, unitAssignment, memoryMap, names, basicBlockNos);
-    emitInstructionCode(out, stg, unitAssignment, memoryMap, names, basicBlockNos);
+    emitInstructionCode(out, stg, unitAssignment, memoryMap, names, basicBlockNos, pipelines);
 
     out << "endmodule" << endl;
 
