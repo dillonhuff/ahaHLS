@@ -178,13 +178,14 @@ namespace DHLS {
     // For now create a different unit for every single operation
     int resSuffix = 0;
     for (auto state : stg.opStates) {
-      for (auto instrG : state.second) {
+      for (auto instrG : stg.instructionsStartingAt(state.first)) {
+      //for (auto instrG : state.second) {
         Instruction* instr = instrG.instruction;
 
-        auto schedVars = map_find(instr, stg.sched.instrTimes);
+        //auto schedVars = map_find(instr, stg.sched.instrTimes);
         auto rStr = to_string(resSuffix);
 
-        if (state.first == schedVars.front()) {
+        //        if (state.first == schedVars.front()) {
           string unitName = string(instr->getOpcodeName()) + "_" +
             to_string(resSuffix);
 
@@ -267,7 +268,7 @@ namespace DHLS {
 
           resSuffix++;
         }
-      }
+      //      }
     }
     
     return units;
@@ -651,23 +652,18 @@ namespace DHLS {
       for (int i = 0; i < p.valids.size(); i++) {
         Wire valid = p.valids[i];
         StateId state = p.p.getStates().at(i);
-        for (auto instrG : map_find(state, stg.opStates)) {
+
+        for (auto instrG : stg.instructionsStartingAt(state)) {
           out << "\talways @(*) begin" << endl;
           out << "\t\tif (" << p.inPipe.name << " && " << valid.name << ") begin" << endl;
 
           Instruction* instr = instrG.instruction;
 
-          auto schedVars = map_find(instr, stg.sched.instrTimes);
-          if (state == schedVars.front()) {
+          out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
 
-            out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+          instructionVerilog(out, instr, unitAssignment, memoryMap, names, basicBlockNos);
 
-            instructionVerilog(out, instr, unitAssignment, memoryMap, names, basicBlockNos);
-
-
-            out << "\t\t\tend" << endl;
-          }
-          
+          out << "\t\t\tend" << endl;
           out << "\t\tend" << endl;
           out << "\tend" << endl;
         }
@@ -688,24 +684,17 @@ namespace DHLS {
     for (auto state : stg.opStates) {
 
       if (!isPipelineState(state.first, pipelines)) {
-        for (auto instrG : state.second) {
-
+        for (auto instrG : stg.instructionsStartingAt(state.first)) {
           out << "\talways @(*) begin" << endl;
           out << "\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
 
           Instruction* instr = instrG.instruction;
 
-          auto schedVars = map_find(instr, stg.sched.instrTimes);
-          if (state.first == schedVars.front()) {
+          out << "\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
 
-            out << "\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
+          instructionVerilog(out, instr, unitAssignment, memoryMap, names, basicBlockNos);
 
-            instructionVerilog(out, instr, unitAssignment, memoryMap, names, basicBlockNos);
-
-
-            out << "\t\t\tend" << endl;
-          }
-
+          out << "\t\t\tend" << endl;
           out << "\t\tend" << endl;
           out << "\tend" << endl;      
         
