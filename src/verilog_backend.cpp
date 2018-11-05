@@ -873,11 +873,13 @@ namespace DHLS {
           regNum++;
         }
 
-        for (auto instrG : stg.instructionsFinishingAt(st)) { //map_find(st, stg.opStates)) {
+        for (auto instrG : stg.instructionsFinishingAt(st)) {
           Instruction* i = instrG.instruction;
-          regs[i] = Wire(true, 32, "pipeline_reg_" + iStr + "_" + jStr + "_" + to_string(regNum));
-          pastValues.insert(i);
-          regNum++;
+          if (hasOutput(i)) {          
+            regs[i] = Wire(true, 32, "pipeline_reg_" + iStr + "_" + jStr + "_" + to_string(regNum));
+            pastValues.insert(i);
+            regNum++;
+          }
         }
 
         pipelineRegisters.push_back(regs);
