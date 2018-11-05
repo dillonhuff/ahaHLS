@@ -179,96 +179,91 @@ namespace DHLS {
     int resSuffix = 0;
     for (auto state : stg.opStates) {
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
-      //for (auto instrG : state.second) {
-        Instruction* instr = instrG.instruction;
 
-        //auto schedVars = map_find(instr, stg.sched.instrTimes);
+        Instruction* instr = instrG.instruction;
         auto rStr = to_string(resSuffix);
 
-        //        if (state.first == schedVars.front()) {
-          string unitName = string(instr->getOpcodeName()) + "_" +
-            to_string(resSuffix);
+        string unitName = string(instr->getOpcodeName()) + "_" +
+          to_string(resSuffix);
+        string modName = "add";
 
-          string modName = "add";
-
-          map<string, string> wiring;
-          map<string, Wire> outWires;
+        map<string, string> wiring;
+        map<string, Wire> outWires;
           
-          if (StoreInst::classof(instr)) {
-            modName = "store";
+        if (StoreInst::classof(instr)) {
+          modName = "store";
 
-            // These names need to match names created in the portlist. So
-            // maybe this should be used to create the port list? Generate the
-            // names here and then write ports for them?
-            wiring = {{"wen", "wen_0_reg"}, {"waddr", "waddr_0_reg"}, {"wdata", "wdata_0_reg"}};
+          // These names need to match names created in the portlist. So
+          // maybe this should be used to create the port list? Generate the
+          // names here and then write ports for them?
+          wiring = {{"wen", "wen_0_reg"}, {"waddr", "waddr_0_reg"}, {"wdata", "wdata_0_reg"}};
 
-            writeNum++;
+          writeNum++;
 
-          } else if (LoadInst::classof(instr)) {
-            modName = "load";
+        } else if (LoadInst::classof(instr)) {
+          modName = "load";
 
-            wiring = {{"raddr", "raddr_" + to_string(readNum) + "_reg"}};
-            outWires = {{"out", {false, 32, "rdata_" + to_string(readNum)}}};
+          wiring = {{"raddr", "raddr_" + to_string(readNum) + "_reg"}};
+          outWires = {{"out", {false, 32, "rdata_" + to_string(readNum)}}};
 
-            readNum++;
+          readNum++;
 
-          } else if (BinaryOperator::classof(instr)) {
-            assert(instr->getOpcode() == Instruction::Add);
-            modName = "add";
-            wiring = {{"in0", "add_in0_" + rStr}, {"in1", "add_in1_" + rStr}};
-            outWires = {{"out", {false, 32, "add_out_" + rStr}}};
-          } else if (ReturnInst::classof(instr)) {
-            modName = "ret";
-          } else if (CmpInst::classof(instr)) {
-            CmpInst::Predicate pred = dyn_cast<CmpInst>(instr)->getPredicate();
-            if (pred == CmpInst::ICMP_EQ) {
-              modName = "eq";
-              wiring = {{"in0", "eq_in0_" + rStr}, {"in1", "eq_in1_" + rStr}};
-              outWires = {{"out", {false, 1, "eq_out_" + rStr}}};
-            } else if (pred == CmpInst::ICMP_SGT) {
-              modName = "sgt";
-              wiring = {{"in0", "sgt_in0_" + rStr}, {"in1", "sgt_in1_" + rStr}};
-              outWires = {{"out", {false, 1, "sgt_out_" + rStr}}};
-            } else {
-              cout << "Error: Unsupported predicate in cmp: " << pred << endl;
-              assert(false);
-            }
-          } else if (BranchInst::classof(instr)) {
-            modName = "br_dummy";
-            // Branches are not scheduled, they are encoded in the
-            // STG transitions
-          } else if (GetElementPtrInst::classof(instr)) {
-            modName = "add";
-            wiring = {{"in0", "add_in0_" + to_string(resSuffix)}, {"in1", "add_in1_" + to_string(resSuffix)}};
-            outWires = {{"out", {false, 32, "add_out_" + rStr}}};
-          } else if (PHINode::classof(instr)) {
-            PHINode* phi = dyn_cast<PHINode>(instr);
-            assert(phi->getNumIncomingValues() == 2);
-
-            modName = "phi_2";
-            wiring = {{"s0", "phi_s0_" + rStr}, {"s1", "phi_s1_" + rStr}, {"in0", "phi_in0_" + rStr}, {"in1", "phi_in1_" + rStr}, {"last_block", "phi_last_block_" + rStr}};
-            outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
-
-          } else if (ZExtInst::classof(instr)) {
-
-            cout << "Error: zext not yet supported" << endl;
-            assert(false);
-
-          } else if (SelectInst::classof(instr)) {
-            modName = "select";
-            wiring = {{"in0", "sel_in0_" + rStr}, {"in1", "sel_in1_" + rStr}, {"sel", "sel_sel_" + rStr}};
-            outWires = {{"out", {false, 32, "sel_out_" + rStr}}};
-            
+        } else if (BinaryOperator::classof(instr)) {
+          assert(instr->getOpcode() == Instruction::Add);
+          modName = "add";
+          wiring = {{"in0", "add_in0_" + rStr}, {"in1", "add_in1_" + rStr}};
+          outWires = {{"out", {false, 32, "add_out_" + rStr}}};
+        } else if (ReturnInst::classof(instr)) {
+          modName = "ret";
+        } else if (CmpInst::classof(instr)) {
+          CmpInst::Predicate pred = dyn_cast<CmpInst>(instr)->getPredicate();
+          if (pred == CmpInst::ICMP_EQ) {
+            modName = "eq";
+            wiring = {{"in0", "eq_in0_" + rStr}, {"in1", "eq_in1_" + rStr}};
+            outWires = {{"out", {false, 1, "eq_out_" + rStr}}};
+          } else if (pred == CmpInst::ICMP_SGT) {
+            modName = "sgt";
+            wiring = {{"in0", "sgt_in0_" + rStr}, {"in1", "sgt_in1_" + rStr}};
+            outWires = {{"out", {false, 1, "sgt_out_" + rStr}}};
           } else {
-            cout << "Unsupported instruction = " << instructionString(instr) << endl;
+            cout << "Error: Unsupported predicate in cmp: " << pred << endl;
             assert(false);
           }
+        } else if (BranchInst::classof(instr)) {
+          modName = "br_dummy";
+          // Branches are not scheduled, they are encoded in the
+          // STG transitions
+        } else if (GetElementPtrInst::classof(instr)) {
+          modName = "add";
+          wiring = {{"in0", "add_in0_" + to_string(resSuffix)}, {"in1", "add_in1_" + to_string(resSuffix)}};
+          outWires = {{"out", {false, 32, "add_out_" + rStr}}};
+        } else if (PHINode::classof(instr)) {
+          PHINode* phi = dyn_cast<PHINode>(instr);
+          assert(phi->getNumIncomingValues() == 2);
 
-          units[instr] = {modName, unitName, wiring, outWires};
+          modName = "phi_2";
+          wiring = {{"s0", "phi_s0_" + rStr}, {"s1", "phi_s1_" + rStr}, {"in0", "phi_in0_" + rStr}, {"in1", "phi_in1_" + rStr}, {"last_block", "phi_last_block_" + rStr}};
+          outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
 
-          resSuffix++;
+        } else if (ZExtInst::classof(instr)) {
+
+          cout << "Error: zext not yet supported" << endl;
+          assert(false);
+
+        } else if (SelectInst::classof(instr)) {
+          modName = "select";
+          wiring = {{"in0", "sel_in0_" + rStr}, {"in1", "sel_in1_" + rStr}, {"sel", "sel_sel_" + rStr}};
+          outWires = {{"out", {false, 32, "sel_out_" + rStr}}};
+            
+        } else {
+          cout << "Unsupported instruction = " << instructionString(instr) << endl;
+          assert(false);
         }
-      //      }
+
+        units[instr] = {modName, unitName, wiring, outWires};
+
+        resSuffix++;
+      }
     }
     
     return units;
