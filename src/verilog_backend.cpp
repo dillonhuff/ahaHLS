@@ -583,12 +583,11 @@ namespace DHLS {
       }
 
       out << "\t\t\t\t// Store data computed at the stage" << endl;
-        
-      for (auto instrG : map_find(state.first, stg.opStates)) {
-        Instruction* instr = instrG.instruction;
-        auto schedVars = map_find(instr, stg.sched.instrTimes);
 
-        if (ReturnInst::classof(instr) && (state.first == schedVars.back())) {
+      for (auto instrG : stg.instructionsFinishingAt(state.first)) {
+        Instruction* instr = instrG.instruction;
+
+        if (ReturnInst::classof(instr)) {
 
           out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
 
@@ -596,7 +595,7 @@ namespace DHLS {
           out << "\t\t\t\tend" << endl;
         }
 
-        if (hasOutput(instr) && (state.first == schedVars.back())) {
+        if (hasOutput(instr)) {
 
           string instrName = map_find(instr, names).name;
           auto unit = map_find(instr, unitAssignment);
@@ -890,7 +889,7 @@ namespace DHLS {
           regNum++;
         }
 
-        for (auto instrG : map_find(st, stg.opStates)) {
+        for (auto instrG : stg.instructionsFinishingAt(st)) { //map_find(st, stg.opStates)) {
           Instruction* i = instrG.instruction;
           regs[i] = Wire(true, 32, "pipeline_reg_" + iStr + "_" + jStr + "_" + to_string(regNum));
           pastValues.insert(i);

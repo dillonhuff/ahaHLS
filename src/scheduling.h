@@ -270,6 +270,30 @@ namespace DHLS {
 
     StateTransitionGraph(Schedule& sched_) : sched(sched_) {}
 
+    std::vector<GuardedInstruction>
+    instructionsFinishingAt(const StateId id) const {
+      std::vector<GuardedInstruction> instrs;
+      for (auto st : dbhc::map_find(id, opStates)) {
+        llvm::Instruction* instr = st.instruction;
+        if (id == dbhc::map_find(instr, sched.instrTimes).back()) {
+          instrs.push_back(st);
+        }
+      }
+      return instrs;
+    }
+
+    std::vector<GuardedInstruction>
+    instructionsStartingAt(const StateId id) const {
+      std::vector<GuardedInstruction> instrs;
+      for (auto st : dbhc::map_find(id, opStates)) {
+        llvm::Instruction* instr = st.instruction;
+        if (id == dbhc::map_find(instr, sched.instrTimes).front()) {
+          instrs.push_back(st);
+        }
+      }
+      return instrs;
+    }
+    
     int numControlStates() const {
       return opStates.size();
     }
