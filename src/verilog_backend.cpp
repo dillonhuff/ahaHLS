@@ -652,7 +652,19 @@ namespace DHLS {
           // 1 only if the repeat condition for the pipeline was true. If
           // it is false then we should exit the pipeline once the last
           // active stage is finished
-          out << "\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;
+
+          Instruction* repeat = p.repeatCondition.instruction;
+          assert(BranchInst::classof(repeat));
+          BranchInst* pipelineB = dyn_cast<BranchInst>(repeat);
+
+          assert(pipelineB->isConditional());
+
+          std::map<std::string, int> memMap;
+          out << "\t\t\t\t\tif(" << outputName(pipelineB->getCondition(), unitAssignment, memMap) << ") begin" << endl;
+          out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 0;" << endl;
+          out << "\t\t\t\t\tend else begin" << endl;
+          out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;          
+          out << "\t\t\t\t\tend" << endl;
           out << "\t\t\t\tend" << endl;
           
         } else {
