@@ -723,9 +723,10 @@ namespace DHLS {
         StateId state = stInstrG.first;
         GuardedInstruction instrG = stInstrG.second;
 
+        out << "\talways @(*) begin" << endl;        
         if (!isPipelineState(state, pipelines)) {
 
-          out << "\talways @(*) begin" << endl;
+
           out << "\t\tif (global_state == " + to_string(state) + ") begin" << endl;
 
           Instruction* instr = instrG.instruction;
@@ -735,9 +736,17 @@ namespace DHLS {
           instructionVerilog(out, instr, unitAssignment, memoryMap, names, basicBlockNos);
 
           out << "\t\t\tend" << endl;
-          out << "\t\tend" << endl;
-          out << "\tend" << endl;          
+          out << "\t\tend else begin " << endl;
+
         }
+
+        out << "\t\t\t// Default values" << endl;
+        for (auto w : unit.portWires) {
+          out << "\t\t\t" << w.second << " = 0;" << endl;
+        }
+        out << "\t\tend" << endl;
+
+        out << "\tend" << endl;        
       }
     }
 
