@@ -689,7 +689,6 @@ namespace DHLS {
       if (!isPipelineState(state.first, pipelines)) {
         for (auto instrG : stg.instructionsStartingAt(state.first)) {
 
-
           out << "\talways @(*) begin" << endl;
           out << "\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
 
@@ -710,7 +709,7 @@ namespace DHLS {
             instrs[state.first] = instrG;
             assignment.push_back({unit, instrs});
           }
-          
+
           out << "\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
 
           instructionVerilog(out, instr, unitAssignment, memoryMap, names, basicBlockNos);
