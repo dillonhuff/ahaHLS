@@ -689,9 +689,6 @@ namespace DHLS {
       if (!isPipelineState(state.first, pipelines)) {
         for (auto instrG : stg.instructionsStartingAt(state.first)) {
 
-          out << "\talways @(*) begin" << endl;
-          out << "\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
-
           Instruction* instr = instrG.instruction;
 
           FunctionalUnit unit = map_find(instr, unitAssignment);
@@ -710,18 +707,36 @@ namespace DHLS {
             assignment.push_back({unit, instrs});
           }
 
-          out << "\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
+        }
+      }
+
+    }
+
+    for (auto controller : assignment) {
+
+      FunctionalUnit unit = controller.unit;
+      for (auto stInstrG : controller.instructions) {
+        StateId state = stInstrG.first;
+        GuardedInstruction instrG = stInstrG.second;
+
+        if (!isPipelineState(state, pipelines)) {
+
+          out << "\talways @(*) begin" << endl;
+          out << "\t\tif (global_state == " + to_string(state) + ") begin" << endl;
+
+          Instruction* instr = instrG.instruction;
+
+          out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
 
           instructionVerilog(out, instr, unitAssignment, memoryMap, names, basicBlockNos);
 
           out << "\t\t\tend" << endl;
           out << "\t\tend" << endl;
-          out << "\tend" << endl;      
-        
+          out << "\tend" << endl;          
         }
       }
-
     }
+
   }
   
   void emitPorts(std::ostream& out,
