@@ -980,6 +980,20 @@ namespace DHLS {
         pipelineRegisters.push_back(regs);
       }
 
+      bool foundTerm = false;
+      for (auto instrG : stg.instructionsFinishingAt(p.getStates().back())) {
+        if (BranchInst::classof(instrG.instruction)) {
+          foundTerm = true;
+          ep.repeatCondition = instrG;
+          break;
+        }
+      }
+
+      assert(foundTerm);
+
+      // TODO: Check that the terminator condition is evaluated in the first
+      // state of the basic block
+
       ep.pipelineRegisters = pipelineRegisters;
       pipelines.push_back(ep);
     }
