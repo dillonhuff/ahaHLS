@@ -176,11 +176,11 @@ namespace DHLS {
     int writeNum = 0;
 
     // // For now create a different unit for every single operation
-    // int resSuffix = 0;
+    int resSuffix = 0;
     for (auto state : stg.opStates) {
 
       // For now create a different unit for every single operation
-      int resSuffix = 0;
+      //int resSuffix = 0;
 
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
 
