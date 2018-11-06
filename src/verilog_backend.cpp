@@ -480,10 +480,12 @@ namespace DHLS {
     } else if (StoreInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
-      string wdataName = outputName(arg0, unitAssignment, memoryMap);
+      auto wdataName = outputName(arg0, instr, stg, unitAssignment, names, memoryMap);            
+      //string wdataName = outputName(arg0, unitAssignment, memoryMap);
 
-      Value* location = instr->getOperand(1);            
-      auto locValue = outputName(location, unitAssignment, memoryMap);
+      Value* location = instr->getOperand(1);
+      auto locValue = outputName(location, instr, stg, unitAssignment, names, memoryMap);      
+      //auto locValue = outputName(location, unitAssignment, memoryMap);
             
       out << "\t\t\t" << addUnit.portWires["waddr"] << " = " << locValue << ";" << endl;
       out << "\t\t\t" << addUnit.portWires["wdata"] << " = " << wdataName << ";" << endl;
@@ -491,22 +493,13 @@ namespace DHLS {
 
     } else if (LoadInst::classof(instr)) {
 
-      Value* location = instr->getOperand(0);            
-      auto locValue = outputName(location, unitAssignment, memoryMap);
+      Value* location = instr->getOperand(0);
+      auto locValue = outputName(location, instr, stg, unitAssignment, names, memoryMap);
 
       out << "\t\t\t" << addUnit.portWires["raddr"] << " = " << locValue << ";" << endl;
-    } else if (CmpInst::classof(instr)) {
-
-
-      auto arg0 = instr->getOperand(0);
-      auto arg0Name = outputName(arg0, unitAssignment, memoryMap);
-
-      auto arg1 = instr->getOperand(1);
-      auto arg1Name = outputName(arg1, unitAssignment, memoryMap);     
-      out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
-      out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
-
-    } else if (BinaryOperator::classof(instr)) {
+    } else if (BinaryOperator::classof(instr) ||
+               CmpInst::classof(instr) ||
+               GetElementPtrInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
       auto arg0Name = outputName(arg0, instr, stg, unitAssignment, names, memoryMap);
@@ -519,16 +512,6 @@ namespace DHLS {
             
     } else if (BranchInst::classof(instr)) {
       out << "\t\t\t\t" << "last_BB = " << map_find(instr->getParent(), basicBlockNos) << ";" << endl;
-      // Branch instructions dont map to functional units
-    } else if (GetElementPtrInst::classof(instr)) {
-
-      auto arg0 = instr->getOperand(0);
-      auto arg0Name = outputName(arg0, unitAssignment, memoryMap);
-
-      auto arg1 = instr->getOperand(1);
-      auto arg1Name = outputName(arg1, unitAssignment, memoryMap);
-      out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
-      out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
             
     } else if (PHINode::classof(instr)) {
       PHINode* phi = dyn_cast<PHINode>(instr);
