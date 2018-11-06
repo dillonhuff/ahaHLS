@@ -175,9 +175,13 @@ namespace DHLS {
     int readNum = 0;
     int writeNum = 0;
 
-    // For now create a different unit for every single operation
-    int resSuffix = 0;
+    // // For now create a different unit for every single operation
+    // int resSuffix = 0;
     for (auto state : stg.opStates) {
+
+      // For now create a different unit for every single operation
+      int resSuffix = 0;
+
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
 
         Instruction* instr = instrG.instruction;
@@ -766,8 +770,16 @@ namespace DHLS {
     // A: I dont need parameters yet, so lets delay that. For now just output
     //    32 bit functional units
     out << endl << "\t// Start Functional Units" << endl;
+    std::set<std::string> alreadyEmitted;
+    
     for (auto iUnit : unitAssignment) {
       auto unit = iUnit.second;
+
+      if (elem(unit.instName, alreadyEmitted)) {
+        continue;
+      }
+
+      alreadyEmitted.insert(unit.instName);
 
       // These are external functional units
       if ((unit.modName == "load") ||
