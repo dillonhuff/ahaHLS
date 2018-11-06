@@ -598,10 +598,8 @@ namespace DHLS {
 
         if (ReturnInst::classof(instr)) {
 
-          // out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
+          // No data to store on return
 
-          // out << "\t\t\t\t\tvalid_reg <= 1;" << endl;
-          // out << "\t\t\t\tend" << endl;
         } else if (hasOutput(instr)) {
 
           string instrName = map_find(instr, names).name;
