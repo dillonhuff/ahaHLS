@@ -457,5 +457,55 @@ namespace DHLS {
 
     REQUIRE(runIVerilogTB("loop_add_7"));
   }
+
+  TEST_CASE("Pipelining an array doing a[i] + 4, and exiting the pipeline in the TB") {
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+    std::unique_ptr<Module> Mod = loadModule(Context, Err, "loop_add_4");
+
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(LOAD_OP, 1);
+    hcs.setLatency(CMP_OP, 0);
+    hcs.setLatency(BR_OP, 0);
+    hcs.setLatency(ADD_OP, 0);
+
+    Function* f = Mod->getFunction("loop_add_4");
+
+    std::set<BasicBlock*> blocksToPipeline;
+    for (auto& bb : f->getBasicBlockList()) {
+      auto term = bb.getTerminator();
+      if (BranchInst::classof(term)) {
+        BranchInst* branch = dyn_cast<BranchInst>(term);
+        if (branch->isConditional()) {
+          for (auto succ : branch->successors()) {
+            if (succ == &bb) {
+              cout << "Found looped basic block" << endl;
+              blocksToPipeline.insert(&bb);
+            }
+          }
+        }
+      }
+    }
+
+    Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
+
+    REQUIRE(s.numStates() == 7);
+    REQUIRE(map_find(*begin(blocksToPipeline), s.pipelineSchedules) == 1);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    REQUIRE(graph.pipelines.size() == 1);
+    REQUIRE(graph.pipelines[0].depth() == 5);
+    
+    map<string, int> layout = {{"a", 0}, {"b", 10}};
+    emitVerilog(f, graph, layout);
+
+    REQUIRE(runIVerilogTB("loop_add_4"));
+  }
   
 }

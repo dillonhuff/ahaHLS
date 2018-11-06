@@ -22,3 +22,4 @@ many_adds.v
 read_2_failing.v
 cmp_gt
 cmp_gt.v
+loop_add_4.v
