@@ -4,7 +4,10 @@ module RAM(input clk,
            input [WIDTH - 1 : 0]  wdata,
            input [ADDR_WIDTH : 0] raddr,
            input [ADDR_WIDTH : 0] waddr,
-           output [WIDTH - 1 : 0] rdata);
+           output [WIDTH - 1 : 0] rdata,
+           input [ADDR_WIDTH : 0] debug_addr,
+           output [WIDTH - 1 : 0] debug_data);
+           
 
    parameter WIDTH=32;
    parameter DEPTH=16;
@@ -19,6 +22,8 @@ module RAM(input clk,
    wire [ADDR_WIDTH : 0]            waddr_del;
    wire [WIDTH - 1 : 0]            wdata_del;   
 
+   assign debug_data = data[debug_addr];
+   
    always @(posedge clk) begin
       // $display("--- wen_del    = %d", wen_del);
       // $display("--- waddr_del  = %d", waddr_del);

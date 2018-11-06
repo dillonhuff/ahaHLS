@@ -12,10 +12,15 @@ module test();
    reg [4:0] waddr;
    reg [31:0] wdata;
    reg [0:0] wen;
+
+   reg [4:0] debug_addr;
+   wire [31:0] debug_data;
    
    wire [31:0] rdata;
    
    initial begin
+
+      #1 debug_addr = 0;
 
       #1 clk = 0;
       #1 rst = 1;
@@ -24,10 +29,8 @@ module test();
 
       // In global state 0
 
-      //$display("rdata = %d", rdata);
-      // $display("wen   = %d", wen);
-      // $display("waddr = %d", waddr);
-      // $display("wdata = %d", wdata);            
+      #1 `assert(debug_addr, 32'hxxxxxxxx);      
+
       #1 rst = 0;
 
       #1 clk = 0;
@@ -35,24 +38,17 @@ module test();
 
       // In global state 1
 
-//      $display("rdata = %d", rdata);
-
       #1 clk = 0;
       #1 clk = 1;
 
       // In global state 2
-
-//      $display("rdata = %d", rdata);            
-//      $display("raddr = %d", rdata);
 
       #1 `assert(rdata, 32'hxxxxxxxx);
 
       #1 clk = 0;
       #1 clk = 1;
 
-      // In global state 3, should be done
-
-//      $display("rdata = %d", rdata);      
+      // In global state 3, we should be done, but reads have a delay of one
 
       #1 `assert(rdata, 32'd5);
       
@@ -78,6 +74,6 @@ module test();
            .wdata(wdata),
            .waddr(waddr));
    
-   single_store ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen));
+   single_store ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .debug_addr(debug_addr), .debug_data(debug_data));
    
 endmodule
