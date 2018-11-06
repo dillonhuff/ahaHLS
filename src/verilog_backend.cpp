@@ -666,7 +666,13 @@ namespace DHLS {
     }
     out << "\t// End pipeline instruction code" << endl << endl;
   }
-  
+
+  class UnitController {
+  public:
+    FunctionalUnit unit;
+    std::map<StateId, GuardedInstruction> instructions;
+  };
+
   // TODO: Experiment with adding defaults to all functional unit inputs
   void emitInstructionCode(std::ostream& out,
                            const STG& stg,
@@ -676,16 +682,35 @@ namespace DHLS {
                            map<BasicBlock*, int>& basicBlockNos,
                            const std::vector<ElaboratedPipeline>& pipelines) {
 
+    vector<UnitController> assignment;
     // Add output check
     for (auto state : stg.opStates) {
 
       if (!isPipelineState(state.first, pipelines)) {
         for (auto instrG : stg.instructionsStartingAt(state.first)) {
+
+
           out << "\talways @(*) begin" << endl;
           out << "\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
 
           Instruction* instr = instrG.instruction;
 
+          FunctionalUnit unit = map_find(instr, unitAssignment);
+          bool alreadyIn = false;
+          for (auto& u : assignment) {
+            if (u.unit.instName == unit.instName) {
+              alreadyIn = true;
+              u.instructions[state.first] = instrG;
+              break;
+            }
+          }
+
+          if (!alreadyIn) {
+            map<StateId, GuardedInstruction> instrs;
+            instrs[state.first] = instrG;
+            assignment.push_back({unit, instrs});
+          }
+          
           out << "\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
 
           instructionVerilog(out, instr, unitAssignment, memoryMap, names, basicBlockNos);
@@ -921,6 +946,7 @@ namespace DHLS {
 
     emitFunctionalUnits(out, unitAssignment);
     emitRegisterStorage(out, names);
+
     emitPipelineVariables(out, pipelines);
     emitGlobalStateVariables(out);
 
