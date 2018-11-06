@@ -349,6 +349,48 @@ namespace DHLS {
     }
   }
 
+  std::string outputName(Value* arg0,
+                         Instruction* instr,
+                         const STG& stg,
+                         map<Instruction*, FunctionalUnit> unitAssignment,
+                         map<Instruction*, Wire>& names,                         
+                         std::map<std::string, int>& memoryMap) {
+    if (Instruction::classof(arg0)) {
+
+      auto instr0 = dyn_cast<Instruction>(arg0);
+      StateId argState = map_find(instr0, stg.sched.instrTimes).back();
+      StateId thisState = map_find(instr, stg.sched.instrTimes).front();
+
+      if (argState == thisState) {
+
+        auto unit0Src =
+          map_find(instr0, unitAssignment);
+        assert(unit0Src.outWires.size() == 1);
+        string arg0Name = unit0Src.onlyOutputVar();
+        return arg0Name;
+        
+      } else {
+
+        Wire tmpRes = map_find(instr0, names);
+        return tmpRes.name;
+
+      }
+
+
+    } else if (Argument::classof(arg0)) {
+      string name = arg0->getName();
+      return to_string(map_find(name, memoryMap));
+    } else {
+      assert(ConstantInt::classof(arg0));
+      auto arg0C = dyn_cast<ConstantInt>(arg0);
+      auto apInt = arg0C->getValue();
+
+      assert(!apInt.isNegative());
+
+      return to_string(dyn_cast<ConstantInt>(arg0)->getSExtValue());
+    }
+  }
+  
   std::string outputNameLast(Value* arg0,
                              map<Instruction*, FunctionalUnit> unitAssignment,
                              map<Instruction*, Wire>& names,
@@ -425,6 +467,7 @@ namespace DHLS {
 
   void instructionVerilog(std::ostream& out,
                           Instruction* instr,
+                          const STG& stg,
                           map<Instruction*, FunctionalUnit>& unitAssignment,
                           map<string, int>& memoryMap,
                           map<Instruction*, Wire>& names,
@@ -466,15 +509,16 @@ namespace DHLS {
     } else if (BinaryOperator::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
-      auto arg0Name = outputName(arg0, unitAssignment, memoryMap);
+      auto arg0Name = outputName(arg0, instr, stg, unitAssignment, names, memoryMap);
 
       auto arg1 = instr->getOperand(1);
-      auto arg1Name = outputName(arg1, unitAssignment, memoryMap);
+      auto arg1Name = outputName(arg1, instr, stg, unitAssignment, names, memoryMap);
+
       out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
       out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
             
     } else if (BranchInst::classof(instr)) {
-      out << "\t\t\t\t" << "last_BB = " << map_find(instr->getParent(), basicBlockNos) << ";" << endl;;
+      out << "\t\t\t\t" << "last_BB = " << map_find(instr->getParent(), basicBlockNos) << ";" << endl;
       // Branch instructions dont map to functional units
     } else if (GetElementPtrInst::classof(instr)) {
 
@@ -665,7 +709,7 @@ namespace DHLS {
 
           out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
 
-          instructionVerilog(out, instr, unitAssignment, memoryMap, names, basicBlockNos);
+          instructionVerilog(out, instr, stg, unitAssignment, memoryMap, names, basicBlockNos);
 
           out << "\t\t\tend" << endl;
           out << "\t\tend" << endl;
@@ -738,7 +782,7 @@ namespace DHLS {
 
           out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
 
-          instructionVerilog(out, instr, unitAssignment, memoryMap, names, basicBlockNos);
+          instructionVerilog(out, instr, stg, unitAssignment, memoryMap, names, basicBlockNos);
 
           out << "\t\t\tend" << endl;
           out << "\t\tend else begin " << endl;
