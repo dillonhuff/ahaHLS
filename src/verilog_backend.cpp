@@ -114,7 +114,6 @@ namespace DHLS {
 
   bool hasOutput(Instruction* instr) {
     if (StoreInst::classof(instr) ||
-        ReturnInst::classof(instr) ||
         BranchInst::classof(instr)) {
       return false;
     }
@@ -219,6 +218,10 @@ namespace DHLS {
           outWires = {{"out", {false, 32, "add_out_" + rStr}}};
         } else if (ReturnInst::classof(instr)) {
           modName = "ret";
+
+          wiring = {{"valid", "valid_reg"}};
+          outWires = {};
+          
         } else if (CmpInst::classof(instr)) {
           CmpInst::Predicate pred = dyn_cast<CmpInst>(instr)->getPredicate();
           if (pred == CmpInst::ICMP_EQ) {
@@ -281,7 +284,13 @@ namespace DHLS {
       for (auto instrG : state.second) {
         Instruction* instr = instrG.instruction;
 
-        if (StoreInst::classof(instr) || ReturnInst::classof(instr) || BranchInst::classof(instr)) {
+        if (StoreInst::classof(instr) || BranchInst::classof(instr)) {
+          continue;
+        }
+
+        if (ReturnInst::classof(instr)) {
+          resultNames[instr] = {true, 1, string(instr->getOpcodeName()) + "_tmp_" + to_string(resSuffix)};
+          resSuffix++;
           continue;
         }
 
@@ -424,7 +433,7 @@ namespace DHLS {
     auto addUnit = map_find(instr, unitAssignment);
 
     if (ReturnInst::classof(instr)) {
-      //out << "\t\t\tvalid_reg = 1;" << endl;
+      out << "\t\t\tvalid_reg = 1;" << endl;
     } else if (StoreInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
@@ -589,13 +598,11 @@ namespace DHLS {
 
         if (ReturnInst::classof(instr)) {
 
-          out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
+          // out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
 
-          out << "\t\t\t\t\tvalid_reg <= 1;" << endl;
-          out << "\t\t\t\tend" << endl;
-        }
-
-        if (hasOutput(instr)) {
+          // out << "\t\t\t\t\tvalid_reg <= 1;" << endl;
+          // out << "\t\t\t\tend" << endl;
+        } else if (hasOutput(instr)) {
 
           string instrName = map_find(instr, names).name;
           auto unit = map_find(instr, unitAssignment);
@@ -1003,7 +1010,7 @@ namespace DHLS {
     // TODO: Change this from 0 to the global state that contains the entry block
     out << "\t\t\tglobal_state <= 0;" << endl;
 
-    out << "\t\t\tvalid_reg <= 0;" << endl;
+    //out << "\t\t\tvalid_reg <= 0;" << endl;
     out << "\t\t\tlast_BB_reg <= " << map_find(&(f->getEntryBlock()), basicBlockNos) << ";" << endl;
 
     out << "\t\tend else begin" << endl;
