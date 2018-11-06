@@ -28,8 +28,7 @@ module test();
       #1 raddr = 0;
 
       // In global state 0
-
-      #1 `assert(debug_addr, 32'hxxxxxxxx);      
+      #1 `assert(debug_data, 32'hxxxxxxxx);      
 
       #1 rst = 0;
 
@@ -37,30 +36,27 @@ module test();
       #1 clk = 1;
 
       // In global state 1
+      #1 `assert(debug_data, 32'hxxxxxxxx);
 
       #1 clk = 0;
       #1 clk = 1;
 
       // In global state 2
-
-      #1 `assert(rdata, 32'hxxxxxxxx);
+      #1 `assert(debug_data, 32'hxxxxxxxx);
 
       #1 clk = 0;
       #1 clk = 1;
 
       // In global state 3, we should be done, but reads have a delay of one
+      #1 `assert(debug_data, 32'd5);
+      #1 `assert(valid, 1'd1);      
 
-      #1 `assert(rdata, 32'd5);
-      
-      #1 clk = 0;
-      #1 clk = 1;
-      
       #1 clk = 0;
       #1 clk = 1;
 
-      
-      #1 clk = 0;
-      #1 clk = 1;
+      // In global state 3, we should be done, but reads have a delay of one
+      #1 `assert(debug_data, 32'd5);
+      #1 `assert(valid, 1'd1);      
       
       #1 $display("Passed");
 
@@ -72,8 +68,10 @@ module test();
            .rdata(rdata),
            .wen(wen),
            .wdata(wdata),
-           .waddr(waddr));
+           .waddr(waddr),
+           .debug_addr(debug_addr),
+           .debug_data(debug_data));
    
-   single_store ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .debug_addr(debug_addr), .debug_data(debug_data));
+   single_store ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen));
    
 endmodule
