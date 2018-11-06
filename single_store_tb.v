@@ -22,6 +22,8 @@ module test();
       #1 clk = 1;
       #1 raddr = 0;
 
+      // In global state 0
+
       //$display("rdata = %d", rdata);
       // $display("wen   = %d", wen);
       // $display("waddr = %d", waddr);
@@ -31,10 +33,14 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
-//      $display("rdata = %d", rdata);      
+      // In global state 1
+
+//      $display("rdata = %d", rdata);
 
       #1 clk = 0;
       #1 clk = 1;
+
+      // In global state 2
 
 //      $display("rdata = %d", rdata);            
 //      $display("raddr = %d", rdata);
@@ -44,13 +50,14 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
+      // In global state 3, should be done
+
 //      $display("rdata = %d", rdata);      
+
+      #1 `assert(rdata, 32'd5);
       
       #1 clk = 0;
       #1 clk = 1;
-
-      #1 `assert(rdata, 32'd5);
-
       
       #1 clk = 0;
       #1 clk = 1;

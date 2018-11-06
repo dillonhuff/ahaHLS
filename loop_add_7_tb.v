@@ -59,22 +59,31 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
+      #2 $display("------ cycle bound");
+      
+
       #1 clk = 0;
       #1 clk = 1;
 
+      #2 $display("------ cycle bound");      
       // `assert(valid, 1'd0);                  
 
       #1 clk = 0;
       #1 clk = 1;
 
+      #2 $display("------ cycle bound");            
       // `assert(valid, 1'd0);            
 
       #1 clk = 0;
       #1 clk = 1;
 
+      #2 $display("------ cycle bound");                  
+
       #1 clk = 0;
       #1 clk = 1;
 
+      #2 $display("------ cycle bound");                  
+      
       #1 clk = 0;
       #1 clk = 1;
 

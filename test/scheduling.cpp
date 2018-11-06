@@ -455,7 +455,7 @@ namespace DHLS {
     map<string, int> layout = {{"a", 0}, {"b", 10}};
     emitVerilog(f, graph, layout);
 
-    //REQUIRE(runIVerilogTB("loop_add_7"));
+    REQUIRE(runIVerilogTB("loop_add_7"));
   }
   
 }
