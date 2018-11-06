@@ -481,11 +481,8 @@ namespace DHLS {
 
       auto arg0 = instr->getOperand(0);
       auto wdataName = outputName(arg0, instr, stg, unitAssignment, names, memoryMap);            
-      //string wdataName = outputName(arg0, unitAssignment, memoryMap);
-
       Value* location = instr->getOperand(1);
       auto locValue = outputName(location, instr, stg, unitAssignment, names, memoryMap);      
-      //auto locValue = outputName(location, unitAssignment, memoryMap);
             
       out << "\t\t\t" << addUnit.portWires["waddr"] << " = " << locValue << ";" << endl;
       out << "\t\t\t" << addUnit.portWires["wdata"] << " = " << wdataName << ";" << endl;

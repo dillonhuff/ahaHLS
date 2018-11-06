@@ -452,10 +452,10 @@ namespace DHLS {
     REQUIRE(graph.pipelines.size() == 1);
     REQUIRE(graph.pipelines[0].depth() == 5);
     
-    // map<string, int> layout = {{"a", 0}, {"b", 10}};
-    // emitVerilog(f, graph, layout);
+    map<string, int> layout = {{"a", 0}, {"b", 10}};
+    emitVerilog(f, graph, layout);
 
-    //REQUIRE(runIVerilogTB("loop_add_7"));
+    REQUIRE(runIVerilogTB("loop_add_7"));
   }
   
 }
