@@ -243,17 +243,8 @@ namespace DHLS {
     hcs.setLatency(ADD_OP, 0);
 
     Function* f = Mod->getFunction("read_2");
-    Schedule s = scheduleFunction(f, hcs);
-
-    auto& retInstr = f->getBasicBlockList().back().back();
-
-    STG graph = buildSTG(s, f);
-
-    cout << "STG Is" << endl;
-    graph.print(cout);
-
     map<string, int> layout = {{"a", 0}, {"b", 3}};
-    emitVerilog(f, graph, layout);
+    synthesizeVerilog(f, hcs, layout);
 
     REQUIRE(runIVerilogTB("read_2"));
     

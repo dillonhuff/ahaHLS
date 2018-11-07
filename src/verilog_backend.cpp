@@ -1084,4 +1084,16 @@ namespace DHLS {
     out.close();
   }
 
+  void synthesizeVerilog(llvm::Function* f,
+                         HardwareConstraints& hdc,
+                         std::map<std::string, int>& memoryMap) {
+    Schedule s = scheduleFunction(f, hdc);
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    emitVerilog(f, graph, memoryMap);
+  }
+
 }
