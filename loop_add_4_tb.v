@@ -61,15 +61,17 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
-      // gs == 1, in pipeline, iter 0 -> s1
+      // gs == 1, in pipeline,
+      // iter 0 -> s1
 
       #2 $display("------ cycle bound");
       
-
       #1 clk = 0;
       #1 clk = 1;
 
-      // gs == 1, in pipeline, iter 0 -> s2, iter 1 -> s1
+      // gs == 1, in pipeline,
+      // iter 0 -> s2
+      // iter 1 -> s1
 
       #2 $display("------ cycle bound");      
       // `assert(valid, 1'd0);                  
@@ -77,29 +79,46 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
-      // gs == 1, in pipeline, iter 0 -> s3, iter 1 -> s2, iter 2 -> s1      
+      // gs == 1, in pipeline
+      // iter 0 -> s3
+      // iter 1 -> s2
+      // iter 2 -> s1      
 
       #2 $display("------ cycle bound");            
-      // `assert(valid, 1'd0);            
 
       #1 clk = 0;
       #1 clk = 1;
 
-      // gs == 1, in pipeline, iter 0 -> s4, iter 1 -> s3, iter 2 -> s2, iter 3 -> s1      
+      // gs == 1, in pipeline
+      // iter 0 -> s4
+      // iter 1 -> s3
+      // iter 2 -> s2
+      // iter 3 -> s1      
 
       #2 $display("------ cycle bound");                  
 
       #1 clk = 0;
       #1 clk = 1;
 
-      // gs == 1, in pipeline, iter 0 -> s5, iter 1 -> s4, iter 2 -> s3, iter 3 -> s2, iter 4 -> s1            
+      // gs == 1, in pipeline
+      // iter 0 -> s5
+      // iter 1 -> s4
+      // iter 2 -> s3
+      // iter 3 -> s2
+      // iter 4 -> s1
 
-      #2 $display("------ cycle bound");                  
+      #2 $display("------ cycle bound");
       
       #1 clk = 0;
       #1 clk = 1;
 
-      // gs == 1, in pipeline, iter 0 -> finished, iter 1 -> s5, iter 2 -> s4, iter 3 -> s3, iter 4 -> s2, iter 5 -> s1                  
+      // gs == 1, in pipeline
+      // iter 0 -> finished
+      // iter 1 -> s5
+      // iter 2 -> s4
+      // iter 3 -> s3
+      // iter 4 -> s2
+      // iter 5 -> s1
 
       #1 clk = 0;
       #1 clk = 1;
