@@ -198,6 +198,7 @@ namespace DHLS {
   // A: Test case that uses 16 (or other not 32 bit) width (parametric builtins)
   //    Test case that uses inner and outer loops
   //    Test case that can use caching (or some other memory architecture)
+  //    Test that uses a loop with II != 1
   TEST_CASE("A simple if") {
     SMDiagnostic Err;
     LLVMContext Context;

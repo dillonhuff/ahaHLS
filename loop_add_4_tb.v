@@ -36,6 +36,8 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
+      // gs == 0
+
       #1 dbg_wr_addr = 11; // b[1]
       #1 dbg_wr_data = 5;
       #1 dbg_wr_en = 1;
@@ -43,21 +45,23 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
+      // gs == 0
+
        #1 dbg_wr_en = 0; // a[0]
       
       #1 clk = 0;
       #1 clk = 1;
-      #1 rst = 1;
-      
+
+      // gs == 0
+
       #1 dbg_addr = 0;
-      
-      // `assert(dbg_data, 32'hxxxxxxxx);
-      // `assert(valid, 1'd0);
       
       #1 rst = 0;
 
       #1 clk = 0;
       #1 clk = 1;
+
+      // gs == 1, in pipeline, iter 0 -> s1
 
       #2 $display("------ cycle bound");
       
@@ -65,11 +69,15 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
+      // gs == 1, in pipeline, iter 0 -> s2, iter 1 -> s1
+
       #2 $display("------ cycle bound");      
       // `assert(valid, 1'd0);                  
 
       #1 clk = 0;
       #1 clk = 1;
+
+      // gs == 1, in pipeline, iter 0 -> s3, iter 1 -> s2, iter 2 -> s1      
 
       #2 $display("------ cycle bound");            
       // `assert(valid, 1'd0);            
@@ -77,28 +85,41 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
+      // gs == 1, in pipeline, iter 0 -> s4, iter 1 -> s3, iter 2 -> s2, iter 3 -> s1      
+
       #2 $display("------ cycle bound");                  
 
       #1 clk = 0;
       #1 clk = 1;
+
+      // gs == 1, in pipeline, iter 0 -> s5, iter 1 -> s4, iter 2 -> s3, iter 3 -> s2, iter 4 -> s1            
 
       #2 $display("------ cycle bound");                  
       
       #1 clk = 0;
       #1 clk = 1;
 
-      #1 clk = 0;
-      #1 clk = 1;
+      // gs == 1, in pipeline, iter 0 -> finished, iter 1 -> s5, iter 2 -> s4, iter 3 -> s3, iter 4 -> s2, iter 5 -> s1                  
 
       #1 clk = 0;
       #1 clk = 1;
 
-      #1 clk = 0;
-      #1 clk = 1;
+      // gs == 1, in pipeline, iter 0 -> finished, iter 1 -> finished, iter 2 -> s5, iter 3 -> s4, iter 4 -> s3, iter 5 -> s2                        
 
       #1 clk = 0;
       #1 clk = 1;
 
+      // gs == 1, in pipeline, iter 0 -> finished, iter 1 -> finished, iter 2 -> finished, iter 3 -> s5, iter 4 -> s4, iter 5 -> s3                              
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      // gs == 1, in pipeline, iter 0 -> finished, iter 1 -> finished, iter 2 -> finished, iter 3 -> finished, iter 4 -> s5, iter 5 -> s4                                    
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      // gs == 1, in pipeline, iter 0 -> finished, iter 1 -> finished, iter 2 -> finished, iter 3 -> finished, iter 4 -> finished, iter 5 -> s5                                          
       $display("dbg_data = %d", dbg_data);
       
       `assert(valid, 1'd0);
@@ -107,11 +128,21 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
+      `assert(valid, 1'd1);      
+      `assert(dbg_data, 32'd9);
+      
+      // gs == 1, in pipeline, iter 0 -> finished, iter 1 -> finished, iter 2 -> finished, iter 3 -> finished, iter 4 -> finished, iter 5 -> finished
+
       #1 clk = 0;
       #1 clk = 1;
 
       #1 dbg_addr = 1;
 
+      $display("dbg_data = %d", dbg_data);
+      
+      `assert(valid, 1'd1);      
+      `assert(dbg_data, 32'd9);
+      
       #1 clk = 0;
       #1 clk = 1;
 
