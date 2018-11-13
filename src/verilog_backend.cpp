@@ -10,7 +10,31 @@ using namespace dbhc;
 using namespace llvm;
 using namespace std;
 
-// Convolution as Toeplitz Matrix multiplication
+// TODO: Update exit conditions and basic block conditions for pipeline
+// For now we assume:
+//   1. A single basic block is being pipelined
+//   2. The transition condition for the basic block is evaluated in the first
+//      state of the pipeline
+// So: Every time the first stage of the pipeline executes we need to set the
+//     last basic block variable (or some variable that represents the basic
+//     block that we got to this stage of the pipeline from) to be the entry
+//     block that is being pipelined, and really this variable needs to be
+//     per-stage, since the zeroth and oneth stages can be running at the same
+//     time, but the oneth stage was preceded by the zeroth stage and the zeroth
+//     stage was preceded by some other basic block that was an entry point to
+//     the loop.
+
+
+// Stage 0: Iter4 (in bb2) (last bb is bb 3 right?)
+// Stage 1: Iter3 (in bb3)
+// Stage 2: Iter2 (in bb7)
+// Stage 3: Iter1 (in bb9)
+// Stage 4: Iter0 (in bb12)
+// The execution trace went from bb 12 -> 9 -> 7 -> 3 -> 2
+
+// But even that is not enough to fix whatever is wrong with the current
+// implementation of pipelining, because either the unit test is wrong, or the
+// pipeline stops too soon (one or two cycles too soon)
 namespace DHLS {
 
   class Wire {

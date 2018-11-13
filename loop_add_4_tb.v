@@ -74,7 +74,7 @@ module test();
       // iter 1 -> s1
 
       #2 $display("------ cycle bound");      
-      // `assert(valid, 1'd0);                  
+      `assert(valid, 1'd0);                  
 
       #1 clk = 0;
       #1 clk = 1;
@@ -123,22 +123,46 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
-      // gs == 1, in pipeline, iter 0 -> finished, iter 1 -> finished, iter 2 -> s5, iter 3 -> s4, iter 4 -> s3, iter 5 -> s2                        
+      // gs == 1, in pipeline
+      // iter 0 -> finished
+      // iter 1 -> finished
+      // iter 2 -> s5
+      // iter 3 -> s4
+      // iter 4 -> s3
+      // iter 5 -> s2                        
 
       #1 clk = 0;
       #1 clk = 1;
 
-      // gs == 1, in pipeline, iter 0 -> finished, iter 1 -> finished, iter 2 -> finished, iter 3 -> s5, iter 4 -> s4, iter 5 -> s3                              
+      // gs == 1, in pipeline
+      // iter 0 -> finished
+      // iter 1 -> finished
+      // iter 2 -> finished
+      // iter 3 -> s5
+      // iter 4 -> s4
+      // iter 5 -> s3                              
 
       #1 clk = 0;
       #1 clk = 1;
 
-      // gs == 1, in pipeline, iter 0 -> finished, iter 1 -> finished, iter 2 -> finished, iter 3 -> finished, iter 4 -> s5, iter 5 -> s4                                    
+      // gs == 1, in pipeline
+      // iter 0 -> finished
+      // iter 1 -> finished
+      // iter 2 -> finished
+      // iter 3 -> finished
+      // iter 4 -> s5
+      // iter 5 -> s4
 
       #1 clk = 0;
       #1 clk = 1;
 
-      // gs == 1, in pipeline, iter 0 -> finished, iter 1 -> finished, iter 2 -> finished, iter 3 -> finished, iter 4 -> finished, iter 5 -> s5                                          
+      // gs == 1, in pipeline
+      // iter 0 -> finished
+      // iter 1 -> finished
+      // iter 2 -> finished
+      // iter 3 -> finished
+      // iter 4 -> finished
+      // iter 5 -> s5                                          
       $display("dbg_data = %d", dbg_data);
       
       `assert(valid, 1'd0);
