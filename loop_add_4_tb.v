@@ -173,7 +173,7 @@ module test();
 
       // gs == 1, in pipeline, iter 0 -> finished, iter 1 -> finished, iter 2 -> finished, iter 3 -> finished, iter 4 -> finished, iter 5 -> finished
 
-      `assert(valid, 1'd1);      
+      `assert(valid, 1'd1);
       
       #1 clk = 0;
       #1 clk = 1;

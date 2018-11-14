@@ -122,9 +122,19 @@ namespace DHLS {
     StateId stateId;
 
     std::vector<std::map<Instruction*, Wire> > pipelineRegisters;
-    GuardedInstruction repeatCondition;
+    GuardedInstruction exitBranch;
 
     ElaboratedPipeline(const Pipeline& p_) : p(p_) {}
+
+    llvm::Value* getExitCondition() const {
+      Instruction* repeat = exitBranch.instruction;
+      assert(BranchInst::classof(repeat));
+      BranchInst* pipelineB = dyn_cast<BranchInst>(repeat);
+
+      assert(pipelineB->isConditional());
+
+      return pipelineB->getCondition();
+    }
 
     int stateIndex(const StateId id) {
       for (int i = 0; i < p.getStates().size(); i++) {
@@ -672,19 +682,14 @@ namespace DHLS {
           out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
           out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
           out << "\t\t\t\t\tglobal_state <= " << p.stateId << ";" << endl;
+
           // TODO: I need to change this to transition to set valid_0 to
           // 1 only if the repeat condition for the pipeline was true. If
           // it is false then we should exit the pipeline once the last
           // active stage is finished
 
-          Instruction* repeat = p.repeatCondition.instruction;
-          assert(BranchInst::classof(repeat));
-          BranchInst* pipelineB = dyn_cast<BranchInst>(repeat);
-
-          assert(pipelineB->isConditional());
-
           std::map<std::string, int> memMap;
-          out << "\t\t\t\t\tif(" << outputName(pipelineB->getCondition(), unitAssignment, memMap) << ") begin" << endl;
+          out << "\t\t\t\t\tif(" << outputName(p.getExitCondition(), unitAssignment, memMap) << ") begin" << endl;
           out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 0;" << endl;
           out << "\t\t\t\t\tend else begin" << endl;
           out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;          
@@ -1020,7 +1025,7 @@ namespace DHLS {
       for (auto instrG : stg.instructionsFinishingAt(p.getStates().back())) {
         if (BranchInst::classof(instrG.instruction)) {
           foundTerm = true;
-          ep.repeatCondition = instrG;
+          ep.exitBranch = instrG;
           break;
         }
       }
