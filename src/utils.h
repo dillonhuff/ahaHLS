@@ -42,5 +42,14 @@ namespace DHLS {
     return ind;
   }
 
+  static inline
+  std::string tab(int nTabs) {
+    std::string s = "";
+    for (int i = 0; i < nTabs; i++) {
+      s += '\t';
+    }
+    return s;
+  }
+
 
 }
