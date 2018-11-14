@@ -1017,14 +1017,23 @@ namespace DHLS {
 
   void
   emitPipelineInitiationBlock(std::ostream& out,
-                                  const std::vector<ElaboratedPipeline>& pipelines) {
+                              map<Instruction*, FunctionalUnit>& unitAssignment,
+                              const std::vector<ElaboratedPipeline>& pipelines) {
     out << "\t// Start pipeline initiation block" << endl;
     out << "\talways @(posedge clk) begin" << endl;
-    out << "\t\tif (rst) begin" << endl;
+
     for (auto p : pipelines) {
+      out << "\t\t\t\tif (" << p.valids.at(0).name << " && " << p.inPipe.name << ") begin" << endl;
+      std::map<std::string, int> memMap;
+      out << "\t\t\t\t\tif(" << outputName(p.getExitCondition(), unitAssignment, memMap) << ") begin" << endl;
+      out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 0;" << endl;
+      out << "\t\t\t\t\tend else begin" << endl;
+      out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;
+      out << "\t\t\t\t\tend" << endl;
+      out << "\t\t\t\tend" << endl;
 
     }
-    out << "\t\tend" << endl;
+
     out << "\tend" << endl;
     out << "\t// End pipeline initiation block" << endl << endl;
     
@@ -1188,7 +1197,7 @@ namespace DHLS {
 
     emitPipelineResetBlock(out, pipelines);
     emitPipelineValidChainBlock(out, pipelines);
-    emitPipelineInitiationBlock(out, pipelines);
+    emitPipelineInitiationBlock(out, unitAssignment, pipelines);
 
     out << endl;
     for (auto p : pipelines) {
