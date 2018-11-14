@@ -676,6 +676,20 @@ namespace DHLS {
     }
       
 
+
+  }
+
+  std::string pipelineClearOnNextCycleCondition(const ElaboratedPipeline& p) {
+    string s = "";
+
+    for (int i = 0; i < (p.numStages() - 1); i++) {
+      s += "!" + p.valids.at(i).name;
+      if (i < (p.numStages() - 2)) {
+        s += " && ";
+      }
+    }
+
+    return parens(s);
   }
 
   void emitPipelineStateCode(std::ostream& out,
@@ -694,11 +708,11 @@ namespace DHLS {
 
         if (isPipelineState(transitionDest.dest, pipelines)) {
 
-          auto p = getPipeline(transitionDest.dest, pipelines);
+          auto destP = getPipeline(transitionDest.dest, pipelines);
 
           out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
           out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << ") begin" << endl;
-          out << "\t\t\t\t\tglobal_state <= " << p.stateId << ";" << endl;
+          out << "\t\t\t\t\tglobal_state <= " << destP.stateId << ";" << endl;
 
           out << "\t\t\t\tend" << endl;
           
@@ -707,7 +721,9 @@ namespace DHLS {
           assert(ind == (p.numStages() - 1));
 
           out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-          out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+          // TODO: Check whether true or false on transitionDest.cond
+          // causes an exit from the block
+          out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << " && " << pipelineClearOnNextCycleCondition(p) << ") begin" << endl;
           out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
           out << "\t\t\t\tend" << endl;
         }

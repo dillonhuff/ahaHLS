@@ -51,5 +51,10 @@ namespace DHLS {
     return s;
   }
 
+  static inline
+  std::string parens(const std::string& s) {
+    return "(" + s + ")";
+  }
+
 
 }
