@@ -651,28 +651,6 @@ namespace DHLS {
       out << "\t\t\tif (global_state == " + to_string(state) + ") begin" << endl;
     }
 
-    out << "\t\t\t\t// Store data computed at the stage" << endl;
-
-    for (auto instrG : stg.instructionsFinishingAt(state)) {
-      Instruction* instr = instrG.instruction;
-
-      if (ReturnInst::classof(instr)) {
-
-        // No data to store on return
-
-      } else if (hasOutput(instr)) {
-
-        string instrName = map_find(instr, names).name;
-        auto unit = map_find(instr, unitAssignment);
-
-        out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
-
-        out << "\t\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
-        out << "\t\t\t\tend" << endl;
-          
-      }
-    }
-      
     out << "\t\t\t\t// Next state transition logic" << endl;
     for (auto transitionDest : destinations) {
 
@@ -705,6 +683,28 @@ namespace DHLS {
       }
     }
 
+    out << "\t\t\t\t// Store data computed at the stage" << endl;
+
+    for (auto instrG : stg.instructionsFinishingAt(state)) {
+      Instruction* instr = instrG.instruction;
+
+      if (ReturnInst::classof(instr)) {
+
+        // No data to store on return
+
+      } else if (hasOutput(instr)) {
+
+        string instrName = map_find(instr, names).name;
+        auto unit = map_find(instr, unitAssignment);
+
+        out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+
+        out << "\t\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
+        out << "\t\t\t\tend" << endl;
+          
+      }
+    }
+      
     out << "\t\t\tend" << endl;
     
   }
@@ -717,68 +717,7 @@ namespace DHLS {
     for (auto state : stg.opTransitions) {
 
       emitPipelineStateCode(out, state.first, state.second, stg, unitAssignment, names, pipelines);
-    //   if (isPipelineState(state.first, pipelines)) {
-    //     auto p = getPipeline(state.first, pipelines);
-    //     out << "\t\t\tif (" << p.inPipe.name << " && " << p.valids.at(p.stateIndex(state.first)).name << ") begin" << endl;
-    //   } else {
-    //     out << "\t\t\tif (global_state == " + to_string(state.first) + ") begin" << endl;
-    //   }
 
-    //   out << "\t\t\t\t// Store data computed at the stage" << endl;
-
-    //   for (auto instrG : stg.instructionsFinishingAt(state.first)) {
-    //     Instruction* instr = instrG.instruction;
-
-    //     if (ReturnInst::classof(instr)) {
-
-    //       // No data to store on return
-
-    //     } else if (hasOutput(instr)) {
-
-    //       string instrName = map_find(instr, names).name;
-    //       auto unit = map_find(instr, unitAssignment);
-
-    //       out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
-
-    //       out << "\t\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
-    //       out << "\t\t\t\tend" << endl;
-          
-    //     }
-    //   }
-      
-    //   out << "\t\t\t\t// Next state transition logic" << endl;
-    //   for (auto transitionDest : state.second) {
-
-    //     if (isPipelineState(transitionDest.dest, pipelines)) {
-
-    //       auto p = getPipeline(transitionDest.dest, pipelines);
-
-    //       out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-    //       out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
-    //       out << "\t\t\t\t\tglobal_state <= " << p.stateId << ";" << endl;
-
-    //       // TODO: I need to change this to transition to set valid_0 to
-    //       // 1 only if the repeat condition for the pipeline was true. If
-    //       // it is false then we should exit the pipeline once the last
-    //       // active stage is finished
-
-    //       std::map<std::string, int> memMap;
-    //       out << "\t\t\t\t\tif(" << outputName(p.getExitCondition(), unitAssignment, memMap) << ") begin" << endl;
-    //       out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 0;" << endl;
-    //       out << "\t\t\t\t\tend else begin" << endl;
-    //       out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;          
-    //       out << "\t\t\t\t\tend" << endl;
-    //       out << "\t\t\t\tend" << endl;
-          
-    //     } else {
-    //       out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-    //       out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state.first, stg, unitAssignment, names) << ") begin" << endl;
-    //       out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
-    //       out << "\t\t\t\tend" << endl;
-    //     }
-    //   }
-
-    //   out << "\t\t\tend" << endl;
     }
 
 
