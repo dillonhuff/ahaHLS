@@ -135,8 +135,8 @@ namespace DHLS {
 
     model m = s.get_model();
 
-    cout << "Final model" << endl;
-    cout << m << endl;
+    // cout << "Final model" << endl;
+    // cout << m << endl;
     
     cout << "Final schedule" << endl;
     Schedule sched;
@@ -360,8 +360,8 @@ namespace DHLS {
       }
     }
 
-    cout << "Solver constraints" << endl;
-    cout << s << endl;
+    // cout << "Solver constraints" << endl;
+    // cout << s << endl;
 
     // TODO: Add real initiation interval analysis
     map<BasicBlock*, int> subSchedules;

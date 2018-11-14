@@ -553,6 +553,16 @@ namespace DHLS {
             
     } else if (BranchInst::classof(instr)) {
       out << "\t\t\t\t" << "last_BB = " << map_find(instr->getParent(), basicBlockNos) << ";" << endl;
+      // auto* bInst = dyn_cast<BranchInst>(instr);
+      // if (!bInst->isConditional()) {
+
+      // } else {
+      //   auto cond = bInst->getCondition();
+      //   auto arg1Name = outputName(cond, instr, stg, unitAssignment, names, memoryMap);
+      //   out << tab(3) << "if (" << arg1Name << ") begin" << endl;
+      //   out << tab(4) << "last_BB = " << map_find(instr->getParent(), basicBlockNos) << ";" << endl;
+      //   out << tab(3) << "end" << endl;
+      // }
             
     } else if (PHINode::classof(instr)) {
       PHINode* phi = dyn_cast<PHINode>(instr);
