@@ -636,6 +636,39 @@ namespace DHLS {
     return false;
   }
 
+  void emitTempStorage(std::ostream& out,
+                       const StateId state,
+                       const std::vector<StateTransition>& destinations,
+                       const STG& stg,
+                       map<Instruction*, FunctionalUnit>& unitAssignment,
+                       map<Instruction*, Wire>& names,
+                       const std::vector<ElaboratedPipeline>& pipelines) {
+
+    out << "\t\t\t\t// Store data computed at the stage" << endl;
+
+    for (auto instrG : stg.instructionsFinishingAt(state)) {
+      Instruction* instr = instrG.instruction;
+
+      if (ReturnInst::classof(instr)) {
+
+        // No data to store on return
+
+      } else if (hasOutput(instr)) {
+
+        string instrName = map_find(instr, names).name;
+        auto unit = map_find(instr, unitAssignment);
+
+        out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+
+        out << "\t\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
+        out << "\t\t\t\tend" << endl;
+          
+      }
+    }
+      
+
+  }
+
   void emitPipelineStateCode(std::ostream& out,
                              const StateId state,
                              const std::vector<StateTransition>& destinations,
@@ -683,28 +716,14 @@ namespace DHLS {
       }
     }
 
-    out << "\t\t\t\t// Store data computed at the stage" << endl;
-
-    for (auto instrG : stg.instructionsFinishingAt(state)) {
-      Instruction* instr = instrG.instruction;
-
-      if (ReturnInst::classof(instr)) {
-
-        // No data to store on return
-
-      } else if (hasOutput(instr)) {
-
-        string instrName = map_find(instr, names).name;
-        auto unit = map_find(instr, unitAssignment);
-
-        out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
-
-        out << "\t\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
-        out << "\t\t\t\tend" << endl;
-          
-      }
-    }
-      
+    emitTempStorage(out,
+                    state,
+                    destinations,
+                    stg,
+                    unitAssignment,
+                    names,
+                    pipelines);
+    
     out << "\t\t\tend" << endl;
     
   }
