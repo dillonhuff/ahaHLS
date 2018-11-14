@@ -136,7 +136,11 @@ namespace DHLS {
       return pipelineB->getCondition();
     }
 
-    int stateIndex(const StateId id) {
+    int numStages() const {
+      return p.getStates().size();
+    }
+
+    int stateIndex(const StateId id) const {
       for (int i = 0; i < p.getStates().size(); i++) {
         if (p.getStates().at(i) == id) {
           return i;
@@ -145,6 +149,11 @@ namespace DHLS {
 
       return -1;
     }
+
+    int stageForState(const StateId id) const {
+      return stateIndex(id);
+    }
+
   };
 
   bool hasOutput(Instruction* instr) {
@@ -691,15 +700,12 @@ namespace DHLS {
           out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << ") begin" << endl;
           out << "\t\t\t\t\tglobal_state <= " << p.stateId << ";" << endl;
 
-          // std::map<std::string, int> memMap;
-          // out << "\t\t\t\t\tif(" << outputName(p.getExitCondition(), unitAssignment, memMap) << ") begin" << endl;
-          // out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 0;" << endl;
-          // out << "\t\t\t\t\tend else begin" << endl;
-          // out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;          
-          // out << "\t\t\t\t\tend" << endl;
           out << "\t\t\t\tend" << endl;
           
         } else {
+          int ind = p.stageForState(state);
+          assert(ind == (p.numStages() - 1));
+
           out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
           out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << ") begin" << endl;
           out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
