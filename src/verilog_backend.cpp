@@ -744,12 +744,12 @@ namespace DHLS {
           out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << ") begin" << endl;
           out << "\t\t\t\t\tglobal_state <= " << p.stateId << ";" << endl;
 
-          std::map<std::string, int> memMap;
-          out << "\t\t\t\t\tif(" << outputName(p.getExitCondition(), unitAssignment, memMap) << ") begin" << endl;
-          out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 0;" << endl;
-          out << "\t\t\t\t\tend else begin" << endl;
-          out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;          
-          out << "\t\t\t\t\tend" << endl;
+          // std::map<std::string, int> memMap;
+          // out << "\t\t\t\t\tif(" << outputName(p.getExitCondition(), unitAssignment, memMap) << ") begin" << endl;
+          // out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 0;" << endl;
+          // out << "\t\t\t\t\tend else begin" << endl;
+          out << "\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;
+          //out << "\t\t\t\t\tend" << endl;
           out << "\t\t\t\tend" << endl;
           
         } else {

@@ -64,7 +64,9 @@ module test();
       // gs == 1, in pipeline,
       // iter 0 -> s1
 
-      #2 $display("------ cycle bound");
+      #2 $display("-------");
+      #2 $display("Now we are in the pipeline");
+      #2 $display("-------");      
       
       #1 clk = 0;
       #1 clk = 1;
@@ -73,7 +75,6 @@ module test();
       // iter 0 -> s2
       // iter 1 -> s1
 
-      #2 $display("------ cycle bound");      
       `assert(valid, 1'd0);                  
 
       #1 clk = 0;
@@ -84,8 +85,6 @@ module test();
       // iter 1 -> s2
       // iter 2 -> s1      
 
-      #2 $display("------ cycle bound");            
-
       #1 clk = 0;
       #1 clk = 1;
 
@@ -94,8 +93,6 @@ module test();
       // iter 1 -> s3
       // iter 2 -> s2
       // iter 3 -> s1      
-
-      #2 $display("------ cycle bound");                  
 
       #1 clk = 0;
       #1 clk = 1;
@@ -107,8 +104,10 @@ module test();
       // iter 3 -> s2
       // iter 4 -> s1
 
-      #2 $display("------ cycle bound");
-      
+      #2 $display("-------");
+      #2 $display("First time all stages are occupied according to TB");
+      #2 $display("-------");      
+
       #1 clk = 0;
       #1 clk = 1;
 
@@ -173,7 +172,7 @@ module test();
 
       // gs == 1, in pipeline, iter 0 -> finished, iter 1 -> finished, iter 2 -> finished, iter 3 -> finished, iter 4 -> finished, iter 5 -> finished
 
-      `assert(valid, 1'd1);
+//      `assert(valid, 1'd1);
       
       #1 clk = 0;
       #1 clk = 1;
