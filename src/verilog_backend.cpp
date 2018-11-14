@@ -680,9 +680,41 @@ namespace DHLS {
     if (isPipelineState(state, pipelines)) {
       auto p = getPipeline(state, pipelines);
       out << "\t\t\tif (" << p.inPipe.name << " && " << p.valids.at(p.stateIndex(state)).name << ") begin" << endl;
+    out << "\t\t\t\t// Next state transition logic" << endl;
+    for (auto transitionDest : destinations) {
+
+      if (isPipelineState(transitionDest.dest, pipelines)) {
+
+        auto p = getPipeline(transitionDest.dest, pipelines);
+
+        out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
+        out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+        out << "\t\t\t\t\tglobal_state <= " << p.stateId << ";" << endl;
+
+        // TODO: I need to change this to transition to set valid_0 to
+        // 1 only if the repeat condition for the pipeline was true. If
+        // it is false then we should exit the pipeline once the last
+        // active stage is finished
+
+        std::map<std::string, int> memMap;
+        out << "\t\t\t\t\tif(" << outputName(p.getExitCondition(), unitAssignment, memMap) << ") begin" << endl;
+        out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 0;" << endl;
+        out << "\t\t\t\t\tend else begin" << endl;
+        out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;          
+        out << "\t\t\t\t\tend" << endl;
+        out << "\t\t\t\tend" << endl;
+          
+      } else {
+        out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
+        out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+        out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
+        out << "\t\t\t\tend" << endl;
+      }
+    }
+
+
     } else {
       out << "\t\t\tif (global_state == " + to_string(state) + ") begin" << endl;
-    }
 
     out << "\t\t\t\t// Next state transition logic" << endl;
     for (auto transitionDest : destinations) {
@@ -715,6 +747,10 @@ namespace DHLS {
         out << "\t\t\t\tend" << endl;
       }
     }
+
+
+    }
+
 
     emitTempStorage(out,
                     state,
