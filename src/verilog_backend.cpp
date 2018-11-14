@@ -807,6 +807,23 @@ namespace DHLS {
         Wire valid = p.valids[i];
         StateId state = p.p.getStates().at(i);
 
+        if (i == 0) {
+          out << "\talways @(*) begin" << endl;
+          out << "\t\tif (" << p.inPipe.name << " && " << valid.name << ") begin" << endl;
+
+          auto instrG = p.exitBranch;
+          Instruction* instr = instrG.instruction;
+
+          out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+
+          instructionVerilog(out, instr, stg, unitAssignment, memoryMap, names, basicBlockNos);
+
+          out << "\t\t\tend" << endl;
+          out << "\t\tend" << endl;
+          out << "\tend" << endl;
+        }
+
+        // Omit branch code on last stage
         for (auto instrG : stg.instructionsStartingAt(state)) {
           out << "\talways @(*) begin" << endl;
           out << "\t\tif (" << p.inPipe.name << " && " << valid.name << ") begin" << endl;
