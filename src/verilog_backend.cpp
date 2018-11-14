@@ -553,16 +553,6 @@ namespace DHLS {
             
     } else if (BranchInst::classof(instr)) {
       out << "\t\t\t\t" << "last_BB = " << map_find(instr->getParent(), basicBlockNos) << ";" << endl;
-      // auto* bInst = dyn_cast<BranchInst>(instr);
-      // if (!bInst->isConditional()) {
-
-      // } else {
-      //   auto cond = bInst->getCondition();
-      //   auto arg1Name = outputName(cond, instr, stg, unitAssignment, names, memoryMap);
-      //   out << tab(3) << "if (" << arg1Name << ") begin" << endl;
-      //   out << tab(4) << "last_BB = " << map_find(instr->getParent(), basicBlockNos) << ";" << endl;
-      //   out << tab(3) << "end" << endl;
-      // }
             
     } else if (PHINode::classof(instr)) {
       PHINode* phi = dyn_cast<PHINode>(instr);
@@ -1025,6 +1015,21 @@ namespace DHLS {
     out << "\t// End pipeline reset block" << endl << endl;
   }
 
+  void
+  emitPipelineInitiationBlock(std::ostream& out,
+                                  const std::vector<ElaboratedPipeline>& pipelines) {
+    out << "\t// Start pipeline initiation block" << endl;
+    out << "\talways @(posedge clk) begin" << endl;
+    out << "\t\tif (rst) begin" << endl;
+    for (auto p : pipelines) {
+
+    }
+    out << "\t\tend" << endl;
+    out << "\tend" << endl;
+    out << "\t// End pipeline initiation block" << endl << endl;
+    
+  }
+  
   void emitPipelineValidChainBlock(std::ostream& out,
                                    const std::vector<ElaboratedPipeline>& pipelines) {
     
@@ -1183,6 +1188,7 @@ namespace DHLS {
 
     emitPipelineResetBlock(out, pipelines);
     emitPipelineValidChainBlock(out, pipelines);
+    emitPipelineInitiationBlock(out, pipelines);
 
     out << endl;
     for (auto p : pipelines) {
