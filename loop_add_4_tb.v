@@ -74,10 +74,13 @@ module test();
       // gs == 1, in pipeline,
       // iter 0 -> s1
 
+      #1 $display("global state after first non-rst clk = %d", global_state_dbg);
       #2 $display("-------");
       #2 $display("Now we are in the pipeline");
       #2 $display("-------");      
-      
+
+      #1 `assert(global_state_dbg, 200000);      
+
       #1 clk = 0;
       #1 clk = 1;
 
