@@ -65,6 +65,7 @@ namespace DHLS {
     bool isInput;
     int width;
     std::string name;
+    bool isDebug;
 
     std::string toString() {
       return string(isInput ? "input" : "output") + " [" + to_string(width - 1) + ":0] " + name;
@@ -76,11 +77,11 @@ namespace DHLS {
   }
 
   Port inputPort(const int width, const std::string& name) {
-    return {true, width, name};
+    return {true, width, name, false};
   }
 
   Port outputPort(const int width, const std::string& name) {
-    return {false, width, name};
+    return {false, width, name, false};
   }
   
   class FunctionalUnit {
@@ -936,7 +937,7 @@ namespace DHLS {
     out << endl;
 
     for (auto pt : allPorts) {
-      if (!pt.isInput) {
+      if (!pt.isInput && !pt.isDebug) {
         out << "\tassign " << pt.name << " = " << pt.name << "_reg;" << endl;
       }
     }
@@ -1174,6 +1175,8 @@ namespace DHLS {
 
     string fn = f->getName();
     vector<Port> allPorts = getPorts(stg);
+    allPorts.push_back({false, 32, "global_state_dbg", true});    
+
     vector<string> portStrings;
     for (auto pt : allPorts) {
       portStrings.push_back(pt.toString());
@@ -1185,6 +1188,8 @@ namespace DHLS {
     out << endl;
 
     emitPorts(out, allPorts);
+
+    out << tab(1) << "assign " << "global_state_dbg = global_state;" << endl;
 
     map<Instruction*, FunctionalUnit> unitAssignment =
       assignFunctionalUnits(stg);

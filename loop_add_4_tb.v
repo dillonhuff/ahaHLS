@@ -5,6 +5,9 @@ module test();
    reg clk;
    reg rst;
    wire valid;
+
+   wire [31:0] global_state_dbg;
+   
    
 
    // Depth 16, width 32 RAM
@@ -36,6 +39,10 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
+      #1 clk = 0;
+      #1 $display("global state after first clk = %d", global_state_dbg);
+      #1 `assert(global_state_dbg, 0);
+      
       // gs == 0
 
       #1 dbg_wr_addr = 11; // b[1]
@@ -60,6 +67,9 @@ module test();
 
       #1 clk = 0;
       #1 clk = 1;
+
+      // I cant actually tell if we are in the pipeline here, need to add
+      // an assertion about internal state
 
       // gs == 1, in pipeline,
       // iter 0 -> s1
@@ -172,7 +182,7 @@ module test();
 
       // gs == 1, in pipeline, iter 0 -> finished, iter 1 -> finished, iter 2 -> finished, iter 3 -> finished, iter 4 -> finished, iter 5 -> finished
 
-//      `assert(valid, 1'd1);
+      `assert(valid, 1'd1);
       
       #1 clk = 0;
       #1 clk = 1;
@@ -276,6 +286,6 @@ module test();
             .wdata(wdata),
             .waddr(waddr));
    
-   loop_add_4 ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .raddr_0(raddr0), .rdata_0(rdata0));
+   loop_add_4 ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .raddr_0(raddr0), .rdata_0(rdata0), .global_state_dbg(global_state_dbg));
    
 endmodule
