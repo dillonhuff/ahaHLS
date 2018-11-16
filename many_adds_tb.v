@@ -77,7 +77,7 @@ module test();
       //$display("rdata = %d", rdata);
       // $display("wen   = %d", wen);
       // $display("waddr = %d", waddr);
-      // $display("wdata = %d", wdata);         
+      // $display("wdata = %d", wdata);
       #1 rst = 0;
 
       #1 clk = 0;

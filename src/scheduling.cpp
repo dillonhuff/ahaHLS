@@ -263,13 +263,7 @@ namespace DHLS {
                       blockNo);
 
       addBlockConstraints(bb, s, blockVars, schedVars);
-
-      // TODO: Just flag pipelined states in the normal schedule
-      // Instructions in pipelined blocks are scheduled inside the pipeline
-      // super-state
-      //      if (!elem(&bb, toPipeline)) {
-          addLatencyConstraints(bb, s, schedVars, blockVars);
-          //      }
+      addLatencyConstraints(bb, s, schedVars, blockVars);
     }
 
     // Connect the control edges

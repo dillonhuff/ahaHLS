@@ -549,5 +549,32 @@ namespace DHLS {
 
     REQUIRE(runIVerilogTB("loop_add_4_6_iters"));
   }
+
+  TEST_CASE("Using temporary memory") {
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+    std::unique_ptr<Module> Mod = loadModule(Context, Err, "loop_add_4_copy");
+
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(LOAD_OP, 1);
+    hcs.setLatency(CMP_OP, 0);
+    hcs.setLatency(BR_OP, 0);
+    hcs.setLatency(ADD_OP, 0);
+
+    Function* f = Mod->getFunction("loop_add_4_copy");
+    Schedule s = scheduleFunction(f, hcs);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<string, int> layout = {{"a", 0}, {"b", 10}};
+    emitVerilog(f, graph, layout);
+
+    REQUIRE(runIVerilogTB("loop_add_4_copy"));
+  }
   
 }
