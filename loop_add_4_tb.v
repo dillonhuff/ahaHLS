@@ -54,7 +54,7 @@ module test();
 
       // gs == 0
 
-      #1 $display("global state after first clk = %d", global_state_dbg);
+      #1 $display("global state after clk = %d", global_state_dbg);
       #1 `assert(global_state_dbg, 0);
       
        #1 dbg_wr_en = 0; // a[0]
@@ -64,7 +64,7 @@ module test();
 
       // gs == 0
 
-      #1 $display("global state after first clk = %d", global_state_dbg);
+      #1 $display("global state after clk = %d", global_state_dbg);
       #1 `assert(global_state_dbg, 0);
       
       #1 dbg_addr = 0;
@@ -85,7 +85,7 @@ module test();
       #2 $display("Now we are in the pipeline");
       #2 $display("-------");      
 
-      #1 `assert(global_state_dbg, 200000);
+      #1 `assert(global_state_dbg, 200000); 
 
       #1 clk = 0;
       #1 clk = 1;
@@ -102,7 +102,6 @@ module test();
       // gs == 1, in pipeline
       // iter 0 -> s3
       // iter 1 -> s2
-      // iter 2 -> s1      
 
       #1 clk = 0;
       #1 clk = 1;
@@ -110,8 +109,6 @@ module test();
       // gs == 1, in pipeline
       // iter 0 -> s4
       // iter 1 -> s3
-      // iter 2 -> s2
-      // iter 3 -> s1      
 
       #1 clk = 0;
       #1 clk = 1;
@@ -119,148 +116,155 @@ module test();
       // gs == 1, in pipeline
       // iter 0 -> s5
       // iter 1 -> s4
-      // iter 2 -> s3
-      // iter 3 -> s2
-      // iter 4 -> s1
 
-      #2 $display("-------");
-      #2 $display("First time all stages are occupied according to TB");
-      #2 $display("-------");      
+      // #2 $display("-------");
+      // #2 $display("First time all stages are occupied according to TB");
+      // #2 $display("-------");
+
+      `assert(valid, 1'd0);
+      
 
       #1 clk = 0;
       #1 clk = 1;
+
+      `assert(valid, 1'd0);      
 
       // gs == 1, in pipeline
       // iter 0 -> finished
       // iter 1 -> s5
-      // iter 2 -> s4
-      // iter 3 -> s3
-      // iter 4 -> s2
-      // iter 5 -> s1
 
       #1 clk = 0;
       #1 clk = 1;
 
-      // gs == 1, in pipeline
-      // iter 0 -> finished
-      // iter 1 -> finished
-      // iter 2 -> s5
-      // iter 3 -> s4
-      // iter 4 -> s3
-      // iter 5 -> s2                        
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      // gs == 1, in pipeline
-      // iter 0 -> finished
-      // iter 1 -> finished
-      // iter 2 -> finished
-      // iter 3 -> s5
-      // iter 4 -> s4
-      // iter 5 -> s3                              
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      // gs == 1, in pipeline
-      // iter 0 -> finished
-      // iter 1 -> finished
-      // iter 2 -> finished
-      // iter 3 -> finished
-      // iter 4 -> s5
-      // iter 5 -> s4
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      // gs == 1, in pipeline
-      // iter 0 -> finished
-      // iter 1 -> finished
-      // iter 2 -> finished
-      // iter 3 -> finished
-      // iter 4 -> finished
-      // iter 5 -> s5                                          
-      $display("dbg_data = %d", dbg_data);
+      `assert(valid, 1'd0);      
       
-      `assert(valid, 1'd0);
-      `assert(dbg_data, 32'd14);
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      // gs == 1, in pipeline, iter 0 -> finished, iter 1 -> finished, iter 2 -> finished, iter 3 -> finished, iter 4 -> finished, iter 5 -> finished
-
-      `assert(valid, 1'd1);
-      
-      #1 clk = 0;
-      #1 clk = 1;
+      // gs == 1, in pipeline
+      // iter 0 -> finished
+      // iter 1 -> finished
 
       #1 dbg_addr = 1;
 
       $display("dbg_data = %d", dbg_data);
-      
+      #1 `assert(global_state_dbg, 6);       
+
       `assert(valid, 1'd1);      
       `assert(dbg_data, 32'd9);
       
       #1 clk = 0;
       #1 clk = 1;
 
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-      
-      $display("dbg_data = %d", dbg_data);
-      
       `assert(valid, 1'd1);      
       `assert(dbg_data, 32'd9);
+      
+      // // gs == 1, in pipeline
+      // // iter 0 -> finished
+      // // iter 1 -> finished
+      // // iter 2 -> finished
+      // // iter 3 -> s5
+      // // iter 4 -> s4
+      // // iter 5 -> s3                              
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // // gs == 1, in pipeline
+      // // iter 0 -> finished
+      // // iter 1 -> finished
+      // // iter 2 -> finished
+      // // iter 3 -> finished
+      // // iter 4 -> s5
+      // // iter 5 -> s4
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // // gs == 1, in pipeline
+      // // iter 0 -> finished
+      // // iter 1 -> finished
+      // // iter 2 -> finished
+      // // iter 3 -> finished
+      // // iter 4 -> finished
+      // // iter 5 -> s5                                          
+      // $display("dbg_data = %d", dbg_data);
+      
+      // `assert(valid, 1'd0);
+      // `assert(dbg_data, 32'd14);
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // // gs == 1, in pipeline, iter 0 -> finished, iter 1 -> finished, iter 2 -> finished, iter 3 -> finished, iter 4 -> finished, iter 5 -> finished
+
+      // `assert(valid, 1'd1);
+      
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // #1 dbg_addr = 1;
+
+      // $display("dbg_data = %d", dbg_data);
+      
+      // `assert(valid, 1'd1);      
+      // `assert(dbg_data, 32'd9);
+      
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+
+      // #1 clk = 0;
+      // #1 clk = 1;
+      
+      // $display("dbg_data = %d", dbg_data);
+      
+      // `assert(valid, 1'd1);      
+      // `assert(dbg_data, 32'd9);
 
       #1 $display("Passed");
 
