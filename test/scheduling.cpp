@@ -564,6 +564,8 @@ namespace DHLS {
     hcs.setLatency(ADD_OP, 0);
 
     Function* f = Mod->getFunction("loop_add_4_copy");
+    assert(f != nullptr);
+    
     Schedule s = scheduleFunction(f, hcs);
 
     STG graph = buildSTG(s, f);

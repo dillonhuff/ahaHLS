@@ -4,6 +4,9 @@
 
 #include <llvm/IR/Instructions.h>
 
+// Header locations
+// /usr/local/opt/llvm/include/llvm/IR/Instructions.h
+
 using namespace dbhc;
 using namespace llvm;
 using namespace std;
@@ -37,6 +40,12 @@ namespace DHLS {
       return ZEXT_OP;
     } else if (SelectInst::classof(iptr)) {
       return SELECT_OP;
+
+    } else if (AllocaInst::classof(iptr) ||
+               BitCastInst::classof(iptr) ||
+               CallInst::classof(iptr)) {
+      // NOTE: When full calls are supported they will need an operator
+      return NO_OP;
     } else {
 
       cout << "Error: Unsupported instruction type " << instructionString(iptr) << std::endl;
@@ -110,6 +119,16 @@ namespace DHLS {
       latency = hdc.getLatency(ZEXT_OP);
     } else if (SelectInst::classof(iptr)) {
       latency = hdc.getLatency(SELECT_OP);
+    } else if (AllocaInst::classof(iptr)) {
+      // Alloca represents the instantiation of a memory
+      latency = 0;
+    } else if (BitCastInst::classof(iptr)) {
+      // Casts are just-reinterpretations
+      latency = 0;
+    } else if (CallInst::classof(iptr)) {
+      // NOTE: For now the only call instructions are calls to lifetime start
+      // and end calls that have no meaning in hardware
+      latency = 0;
     } else {
 
       cout << "Error: Unsupported instruction type " << instructionString(iptr) << std::endl;
@@ -186,6 +205,8 @@ namespace DHLS {
     string snkPre = "basic_block_end_state_";
     string srcPre = "basic_block_start_state_";
 
+    cout << "Creating basic blocks" << endl;
+    
     blockVars[&bb] = {c.int_const((srcPre + to_string(blockNo)).c_str()), c.int_const((snkPre + to_string(blockNo)).c_str())};
     blockNo += 1;
 
@@ -196,6 +217,7 @@ namespace DHLS {
       int latency = getLatency(iptr, hdc);
 
       schedVars[iptr] = {};
+      cout << "Instruction = " << instructionString(&instr) << endl;
       string instrPre = string(iptr->getOpcodeName()) + "_" + to_string(blockNo) + "_" + to_string(instrNo);
       for (int i = 0; i <= latency; i++) {
         map_insert(schedVars, iptr, c.int_const((instrPre + "_" + to_string(i)).c_str()));
@@ -257,6 +279,7 @@ namespace DHLS {
 
     int blockNo = 0;
     for (auto& bb : f->getBasicBlockList()) {
+      
       addScheduleVars(bb,
                       c,
                       schedVars,

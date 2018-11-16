@@ -24,7 +24,8 @@ namespace DHLS {
     CMP_OP,
     BR_OP,
     ZEXT_OP,
-    SELECT_OP
+    SELECT_OP,
+    NO_OP,
   };
 
   static inline std::vector<OperationType> allOps() {
@@ -41,7 +42,8 @@ namespace DHLS {
         CMP_OP,
         BR_OP,
         ZEXT_OP,
-        SELECT_OP
+        SELECT_OP,
+        NO_OP
         };
 
   }
