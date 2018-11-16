@@ -143,17 +143,60 @@ module test();
       #1 dbg_addr = 1;
 
       $display("dbg_data = %d", dbg_data);
-      #1 `assert(global_state_dbg, 6);       
+      #1 `assert(global_state_dbg, 200000);       
 
-      #1 `assert(valid, 1'd1);      
+      #1 `assert(valid, 1'd0);      
       #1 `assert(dbg_data, 32'd9);
       
       #1 clk = 0;
       #1 clk = 1;
 
-      #1 `assert(valid, 1'd1);      
+      // gs == 1, in pipeline
+      // iter 0 -> finished
+      // iter 1 -> finished
+      // iter 2 -> finished      
+      #1 `assert(valid, 1'd0);      
       #1 `assert(dbg_data, 32'd9);
 
+      #1 clk = 0;
+      #1 clk = 1;
+
+      // gs == 1, in pipeline
+      // iter 0 -> finished
+      // iter 1 -> finished
+      // iter 2 -> finished      
+      // iter 3 -> finished            
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      // gs == 1, in pipeline
+      // iter 0 -> finished
+      // iter 1 -> finished
+      // iter 2 -> finished      
+      // iter 3 -> finished            
+      // iter 4 -> finished                  
+
+      #1 `assert(valid, 1'd0);                        
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      // gs == 1, in pipeline
+      // iter 0 -> finished
+      // iter 1 -> finished
+      // iter 2 -> finished      
+      // iter 3 -> finished            
+      // iter 4 -> finished                  
+      // iter 5 -> finished                        
+
+      #1 `assert(valid, 1'd1);                  
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 `assert(valid, 1'd1);            
+      
       #1 $display("Passed");
 
    end // initial begin
