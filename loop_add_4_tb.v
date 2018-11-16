@@ -54,6 +54,9 @@ module test();
 
       // gs == 0
 
+      #1 $display("global state after first clk = %d", global_state_dbg);
+      #1 `assert(global_state_dbg, 0);
+      
        #1 dbg_wr_en = 0; // a[0]
       
       #1 clk = 0;
@@ -61,6 +64,9 @@ module test();
 
       // gs == 0
 
+      #1 $display("global state after first clk = %d", global_state_dbg);
+      #1 `assert(global_state_dbg, 0);
+      
       #1 dbg_addr = 0;
       
       #1 rst = 0;
@@ -79,7 +85,7 @@ module test();
       #2 $display("Now we are in the pipeline");
       #2 $display("-------");      
 
-      #1 `assert(global_state_dbg, 200000);      
+      #1 `assert(global_state_dbg, 200000);
 
       #1 clk = 0;
       #1 clk = 1;
@@ -262,11 +268,11 @@ module test();
 
    always @(posedge clk) begin
       $display("-- In tb, waddr_0 = %d", waddr);
-      $display("-- In tb, wdata_0 = %d", wdata);      
+      $display("-- In tb, wdata_0 = %d", wdata);
       $display("-- In tb, raddr_0 = %d", raddr0);
       $display("-- In tb, rdata_0 = %d", rdata0);
       $display("-- dbg_data       = %d", dbg_data);
-      $display("-- dbg_addr       = %d", dbg_addr);      
+      $display("-- dbg_addr       = %d", dbg_addr);
    end
 
    RAM2 mem(.clk(clk),
