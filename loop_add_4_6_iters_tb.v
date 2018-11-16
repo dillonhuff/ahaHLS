@@ -187,11 +187,11 @@ module test();
             .wdata(wdata),
             .waddr(waddr));
    
-   loop_add_4 ss(.clk(clk),
-                 .rst(rst),
-                 .valid(valid),
-                 .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen),
-                 .raddr_0(raddr0), .rdata_0(rdata0),
-                 .global_state_dbg(global_state_dbg));
+   loop_add_4_6_iters ss(.clk(clk),
+                         .rst(rst),
+                         .valid(valid),
+                         .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen),
+                         .raddr_0(raddr0), .rdata_0(rdata0),
+                         .global_state_dbg(global_state_dbg));
    
 endmodule
