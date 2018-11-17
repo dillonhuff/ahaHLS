@@ -289,9 +289,12 @@ namespace DHLS {
           // Branches are not scheduled, they are encoded in the
           // STG transitions
         } else if (GetElementPtrInst::classof(instr)) {
-          modName = "add";
-          wiring = {{"in0", "add_in0_" + to_string(resSuffix)}, {"in1", "add_in1_" + to_string(resSuffix)}};
-          outWires = {{"out", {false, 32, "add_out_" + rStr}}};
+          modName = "getelementptr_" + to_string(instr->getNumOperands() - 1);
+          wiring = {{"base_addr", "base_addr_" + to_string(resSuffix)}};
+          for (int i = 1; i < instr->getNumOperands(); i++) {
+            wiring.insert({"in" + to_string(i), "add_in" + to_string(i) + "_" + to_string(resSuffix)});
+          }
+          outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
         } else if (PHINode::classof(instr)) {
           PHINode* phi = dyn_cast<PHINode>(instr);
           assert(phi->getNumIncomingValues() == 2);
@@ -596,7 +599,7 @@ namespace DHLS {
         auto arg1Name =
           outputName(arg1, instr, stg, unitAssignment, names, memoryMap);
 
-        out << "\t\t\t" << addUnit.portWires["in" + to_string(i)] << " = " << arg0Name << ";" << endl;
+        out << "\t\t\t" << addUnit.portWires["in" + to_string(i)] << " = " << arg1Name << ";" << endl;
       }
 
       // auto arg1 = instr->getOperand(1);
