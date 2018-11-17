@@ -44,7 +44,8 @@ namespace DHLS {
     } else if (AllocaInst::classof(iptr) ||
                BitCastInst::classof(iptr) ||
                CallInst::classof(iptr)) {
-      // NOTE: When full calls are supported they will need an operator
+      // NOTE: When call instructions other than default llvm lifetime calls
+      // are supported they will need an the operator.
       return NO_OP;
     } else {
 

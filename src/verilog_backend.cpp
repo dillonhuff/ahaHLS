@@ -347,15 +347,24 @@ namespace DHLS {
         if (IntegerType::classof(tp)) {
           IntegerType* iTp = dyn_cast<IntegerType>(tp);
           width = iTp->getBitWidth();
-        } else {
-          assert(PointerType::classof(tp));
+        } else if (PointerType::classof(tp)) {
           PointerType* pTp = dyn_cast<PointerType>(tp);
+
+          cout << "Element type = " << typeString(pTp->getElementType()) << endl;
 
           assert(IntegerType::classof(pTp->getElementType()));
 
           IntegerType* iTp = dyn_cast<IntegerType>(pTp->getElementType());
           width = iTp->getBitWidth();
 
+        } else {
+          assert(ArrayType::classof(tp));
+          Type* iTp = dyn_cast<ArrayType>(tp)->getElementType();
+          assert(IntegerType::classof(iTp));
+          width = dyn_cast<IntegerType>(iTp)->getBitWidth();
+          
+          //cout << "Array width = " << dyn_cast<ArrayType>(tp)->getElementType() << endl;
+          //assert(false);
         }
         
         if (state.first == schedVars.front()) {
