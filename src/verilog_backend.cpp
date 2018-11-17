@@ -947,23 +947,24 @@ namespace DHLS {
 
   // TODO: Experiment with adding defaults to all functional unit inputs
   void emitInstructionCode(std::ostream& out,
-                           const STG& stg,
-                           map<Instruction*, FunctionalUnit>& unitAssignment,
-                           map<string, int>& memoryMap,
-                           map<Instruction*, Wire>& names,
-                           map<BasicBlock*, int>& basicBlockNos,
+                           MicroArchitecture& arch,
+                           // const STG& stg,
+                           // map<Instruction*, FunctionalUnit>& unitAssignment,
+                           // map<string, int>& memoryMap,
+                           // map<Instruction*, Wire>& names,
+                           // map<BasicBlock*, int>& basicBlockNos,
                            const std::vector<ElaboratedPipeline>& pipelines) {
 
     vector<UnitController> assignment;
     // Add output check
-    for (auto state : stg.opStates) {
+    for (auto state : arch.stg.opStates) {
 
       if (!isPipelineState(state.first, pipelines)) {
-        for (auto instrG : stg.instructionsStartingAt(state.first)) {
+        for (auto instrG : arch.stg.instructionsStartingAt(state.first)) {
 
           Instruction* instr = instrG.instruction;
 
-          FunctionalUnit unit = map_find(instr, unitAssignment);
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment);
           bool alreadyIn = false;
           for (auto& u : assignment) {
             if (u.unit.instName == unit.instName) {
@@ -999,10 +1000,10 @@ namespace DHLS {
 
           Instruction* instr = instrG.instruction;
 
-          out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+          out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
 
           vector<RAM> rams;
-          MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, rams);
+          //MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, rams);
           instructionVerilog(out, instr, arch); //stg, unitAssignment, memoryMap, names, basicBlockNos);
 
           out << "\t\t\tend" << endl;
@@ -1333,7 +1334,7 @@ namespace DHLS {
     out << endl << endl;
 
     emitPipelineInstructionCode(out, pipelines, stg, unitAssignment, memoryMap, names, basicBlockNos);
-    emitInstructionCode(out, stg, unitAssignment, memoryMap, names, basicBlockNos, pipelines);
+    emitInstructionCode(out, arch, pipelines); //stg, unitAssignment, memoryMap, names, basicBlockNos, pipelines);
 
     out << "endmodule" << endl;
 
