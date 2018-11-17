@@ -546,6 +546,8 @@ namespace DHLS {
 
     auto addUnit = map_find(instr, unitAssignment);
 
+    cout << "Instruction verilog for " << instructionString(instr) << endl;
+    
     if (ReturnInst::classof(instr)) {
       out << "\t\t\tvalid_reg = 1;" << endl;
     } else if (StoreInst::classof(instr)) {
@@ -621,6 +623,10 @@ namespace DHLS {
 
       out << "\t\t\t" << addUnit.portWires["sel"] << " = " << condName << ";" << endl;
 
+    } else if (AllocaInst::classof(instr) ||
+               CallInst::classof(instr) ||
+               BitCastInst::classof(instr)) {
+      // No-ops
     } else {
 
       std::string str;
