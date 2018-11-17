@@ -170,9 +170,9 @@ namespace DHLS {
     MicroArchitecture(
                       const STG& stg_,
                       const map<Instruction*, FunctionalUnit>& unitAssignment_,
-                      map<string, int> memoryMap_,
-                      map<Instruction*, Wire> names_,
-                      map<BasicBlock*, int> basicBlockNos_) :
+                      const map<string, int>& memoryMap_,
+                      const map<Instruction*, Wire>& names_,
+                      const map<BasicBlock*, int>& basicBlockNos_) :
       stg(stg_),
       unitAssignment(unitAssignment_),
       memoryMap(memoryMap_),
@@ -564,13 +564,14 @@ namespace DHLS {
 
   void instructionVerilog(std::ostream& out,
                           Instruction* instr,
-                          const STG& stg,
-                          map<Instruction*, FunctionalUnit>& unitAssignment,
-                          map<string, int>& memoryMap,
-                          map<Instruction*, Wire>& names,
-                          map<BasicBlock*, int>& basicBlockNos) {
+                          MicroArchitecture& arch) {
+                          // const STG& stg,
+                          // map<Instruction*, FunctionalUnit>& unitAssignment,
+                          // map<string, int>& memoryMap,
+                          // map<Instruction*, Wire>& names,
+                          // map<BasicBlock*, int>& basicBlockNos) {
 
-    auto addUnit = map_find(instr, unitAssignment);
+    auto addUnit = map_find(instr, arch.unitAssignment);
 
     cout << "Instruction verilog for " << instructionString(instr) << endl;
     
@@ -579,9 +580,9 @@ namespace DHLS {
     } else if (StoreInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
-      auto wdataName = outputName(arg0, instr, stg, unitAssignment, names, memoryMap);            
+      auto wdataName = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);            
       Value* location = instr->getOperand(1);
-      auto locValue = outputName(location, instr, stg, unitAssignment, names, memoryMap);      
+      auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);      
             
       out << "\t\t\t" << addUnit.portWires["waddr"] << " = " << locValue << ";" << endl;
       out << "\t\t\t" << addUnit.portWires["wdata"] << " = " << wdataName << ";" << endl;
@@ -590,7 +591,7 @@ namespace DHLS {
     } else if (LoadInst::classof(instr)) {
 
       Value* location = instr->getOperand(0);
-      auto locValue = outputName(location, instr, stg, unitAssignment, names, memoryMap);
+      auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
 
       out << "\t\t\t" << addUnit.portWires["raddr"] << " = " << locValue << ";" << endl;
     } else if (BinaryOperator::classof(instr) ||
@@ -598,10 +599,10 @@ namespace DHLS {
                //               GetElementPtrInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
-      auto arg0Name = outputName(arg0, instr, stg, unitAssignment, names, memoryMap);
+      auto arg0Name = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
 
       auto arg1 = instr->getOperand(1);
-      auto arg1Name = outputName(arg1, instr, stg, unitAssignment, names, memoryMap);
+      auto arg1Name = outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
 
       out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
       out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
@@ -613,36 +614,36 @@ namespace DHLS {
       assert((numOperands == 2) || (numOperands == 3));
 
       auto arg0 = instr->getOperand(0);
-      auto arg0Name = outputName(arg0, instr, stg, unitAssignment, names, memoryMap);
+      auto arg0Name = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
 
       out << tab(3) << addUnit.portWires["base_addr"] << " = " << arg0Name << ";" << endl;
 
       for (int i = 1; i < numOperands; i++) {
         auto arg1 = instr->getOperand(i);
         auto arg1Name =
-          outputName(arg1, instr, stg, unitAssignment, names, memoryMap);
+          outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
 
         out << "\t\t\t" << addUnit.portWires["in" + to_string(i)] << " = " << arg1Name << ";" << endl;
       }
 
     } else if (BranchInst::classof(instr)) {
-      out << "\t\t\t\t" << "last_BB = " << map_find(instr->getParent(), basicBlockNos) << ";" << endl;
+      out << "\t\t\t\t" << "last_BB = " << map_find(instr->getParent(), arch.basicBlockNos) << ";" << endl;
             
     } else if (PHINode::classof(instr)) {
       PHINode* phi = dyn_cast<PHINode>(instr);
       assert(phi->getNumIncomingValues() == 2);
 
       BasicBlock* b0 = phi->getIncomingBlock(0);
-      int b0Val = map_find(b0, basicBlockNos);
+      int b0Val = map_find(b0, arch.basicBlockNos);
 
       BasicBlock* b1 = phi->getIncomingBlock(1);
-      int b1Val = map_find(b1, basicBlockNos);
+      int b1Val = map_find(b1, arch.basicBlockNos);
 
       Value* v0 = phi->getIncomingValue(0);
-      string val0Name = outputNameLast(v0, unitAssignment, names, memoryMap);
+      string val0Name = outputNameLast(v0, arch.unitAssignment, arch.names, arch.memoryMap);
 
       Value* v1 = phi->getIncomingValue(1);
-      string val1Name = outputNameLast(v1, unitAssignment, names, memoryMap);
+      string val1Name = outputNameLast(v1, arch.unitAssignment, arch.names, arch.memoryMap);
             
       out << "\t\t\t" << addUnit.portWires["in0"] << " = " << val0Name << ";" << endl;
       out << "\t\t\t" << addUnit.portWires["in1"] << " = " << val1Name << ";" << endl;
@@ -655,13 +656,13 @@ namespace DHLS {
       SelectInst* sel = dyn_cast<SelectInst>(instr);
 
       Value* cond = sel->getCondition();
-      string condName = outputName(cond, unitAssignment, memoryMap);
+      string condName = outputName(cond, arch.unitAssignment, arch.memoryMap);
 
       Value* trueVal = sel->getTrueValue();
-      string trueName = outputName(trueVal, unitAssignment, memoryMap);
+      string trueName = outputName(trueVal, arch.unitAssignment, arch.memoryMap);
 
       Value* falseVal = sel->getFalseValue();
-      string falseName = outputName(falseVal, unitAssignment, memoryMap);
+      string falseName = outputName(falseVal, arch.unitAssignment, arch.memoryMap);
       
       out << "\t\t\t" << addUnit.portWires["in0"] << " = " << falseName << ";" << endl;
       out << "\t\t\t" << addUnit.portWires["in1"] << " = " << trueName << ";" << endl;
@@ -879,6 +880,9 @@ namespace DHLS {
                                    map<string, int>& memoryMap,
                                    map<Instruction*, Wire>& names,
                                    map<BasicBlock*, int>& basicBlockNos) {
+
+    MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos);
+
     out << "\t// Start pipeline instruction code" << endl;
 
     out << "\t// Start pipeline stages" << endl;
@@ -896,7 +900,7 @@ namespace DHLS {
 
           out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
 
-          instructionVerilog(out, instr, stg, unitAssignment, memoryMap, names, basicBlockNos);
+          instructionVerilog(out, instr, arch); //stg, unitAssignment, memoryMap, names, basicBlockNos);
 
           out << "\t\t\tend" << endl;
           out << "\t\tend" << endl;
@@ -912,7 +916,8 @@ namespace DHLS {
 
           out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
 
-          instructionVerilog(out, instr, stg, unitAssignment, memoryMap, names, basicBlockNos);
+          
+          instructionVerilog(out, instr, arch); //, stg, unitAssignment, memoryMap, names, basicBlockNos);
 
           out << "\t\t\tend" << endl;
           out << "\t\tend" << endl;
@@ -985,7 +990,8 @@ namespace DHLS {
 
           out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
 
-          instructionVerilog(out, instr, stg, unitAssignment, memoryMap, names, basicBlockNos);
+          MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos);
+          instructionVerilog(out, instr, arch); //stg, unitAssignment, memoryMap, names, basicBlockNos);
 
           out << "\t\t\tend" << endl;
           out << "\t\tend else begin " << endl;

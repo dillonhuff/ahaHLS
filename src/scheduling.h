@@ -267,7 +267,10 @@ namespace DHLS {
     StateTransitionGraph() {}
     
     StateTransitionGraph(const StateTransitionGraph& other) {
-      assert(false);
+      sched = other.sched;
+      opStates = other.opStates;
+      opTransitions = opTransitions;
+      pipelines = pipelines;
     }
 
     StateTransitionGraph(Schedule& sched_) : sched(sched_) {}
