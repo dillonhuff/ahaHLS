@@ -465,11 +465,62 @@ namespace DHLS {
   std::string outputName(Value* arg0,
                          Instruction* instr,
                          const STG& stg,
-                         map<Instruction*, FunctionalUnit> unitAssignment,
+                         map<Instruction*, FunctionalUnit>& unitAssignment,
                          map<Instruction*, Wire>& names,                         
                          std::map<std::string, int>& memoryMap) {
     if (Instruction::classof(arg0)) {
 
+      auto instr0 = dyn_cast<Instruction>(arg0);
+      StateId argState = map_find(instr0, stg.sched.instrTimes).back();
+      StateId thisState = map_find(instr, stg.sched.instrTimes).front();
+
+      if (argState == thisState) {
+
+        auto unit0Src =
+          map_find(instr0, unitAssignment);
+        assert(unit0Src.outWires.size() == 1);
+        string arg0Name = unit0Src.onlyOutputVar();
+        return arg0Name;
+        
+      } else {
+
+        Wire tmpRes = map_find(instr0, names);
+        return tmpRes.name;
+
+      }
+
+
+    } else if (Argument::classof(arg0)) {
+      string name = arg0->getName();
+      return to_string(map_find(name, memoryMap));
+    } else {
+      assert(ConstantInt::classof(arg0));
+      auto arg0C = dyn_cast<ConstantInt>(arg0);
+      auto apInt = arg0C->getValue();
+
+      assert(!apInt.isNegative());
+
+      return to_string(dyn_cast<ConstantInt>(arg0)->getSExtValue());
+    }
+  }
+
+  std::string outputName(Value* arg0,
+                         Instruction* instr,
+                         const STG& stg,
+                         map<Instruction*, FunctionalUnit>& unitAssignment,
+                         map<Instruction*, Wire>& names,                         
+                         std::map<std::string, int>& memoryMap,
+                         const std::vector<RAM>& rams) {
+    if (Instruction::classof(arg0)) {
+
+      // Pointers to allocations (RAMs) always have a base
+      // address of zero
+      if (AllocaInst::classof(arg0)) {
+        return "0";
+      }
+
+      assert(!AllocaInst::classof(arg0));
+      
       auto instr0 = dyn_cast<Instruction>(arg0);
       StateId argState = map_find(instr0, stg.sched.instrTimes).back();
       StateId thisState = map_find(instr, stg.sched.instrTimes).front();
@@ -624,7 +675,7 @@ namespace DHLS {
       assert((numOperands == 2) || (numOperands == 3));
 
       auto arg0 = instr->getOperand(0);
-      auto arg0Name = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      auto arg0Name = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       out << tab(3) << addUnit.portWires["base_addr"] << " = " << arg0Name << ";" << endl;
 
@@ -666,13 +717,13 @@ namespace DHLS {
       SelectInst* sel = dyn_cast<SelectInst>(instr);
 
       Value* cond = sel->getCondition();
-      string condName = outputName(cond, arch.unitAssignment, arch.memoryMap);
+      string condName = outputName(cond, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
 
       Value* trueVal = sel->getTrueValue();
-      string trueName = outputName(trueVal, arch.unitAssignment, arch.memoryMap);
+      string trueName = outputName(trueVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
 
       Value* falseVal = sel->getFalseValue();
-      string falseName = outputName(falseVal, arch.unitAssignment, arch.memoryMap);
+      string falseName = outputName(falseVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
       
       out << "\t\t\t" << addUnit.portWires["in0"] << " = " << falseName << ";" << endl;
       out << "\t\t\t" << addUnit.portWires["in1"] << " = " << trueName << ";" << endl;
@@ -835,10 +886,6 @@ namespace DHLS {
           out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << ") begin" << endl;
           out << "\t\t\t\t\tglobal_state <= " << p.stateId << ";" << endl;
 
-          // std::map<std::string, int> memMap;
-          // out << "\t\t\t\t\tif(" << outputName(p.getExitCondition(), unitAssignment, memMap) << ") begin" << endl;
-          // out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 0;" << endl;
-          // out << "\t\t\t\t\tend else begin" << endl;
           out << "\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;
           //out << "\t\t\t\t\tend" << endl;
           out << "\t\t\t\tend" << endl;
@@ -948,11 +995,6 @@ namespace DHLS {
   // TODO: Experiment with adding defaults to all functional unit inputs
   void emitInstructionCode(std::ostream& out,
                            MicroArchitecture& arch,
-                           // const STG& stg,
-                           // map<Instruction*, FunctionalUnit>& unitAssignment,
-                           // map<string, int>& memoryMap,
-                           // map<Instruction*, Wire>& names,
-                           // map<BasicBlock*, int>& basicBlockNos,
                            const std::vector<ElaboratedPipeline>& pipelines) {
 
     vector<UnitController> assignment;
@@ -1002,9 +1044,7 @@ namespace DHLS {
 
           out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
 
-          vector<RAM> rams;
-          //MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, rams);
-          instructionVerilog(out, instr, arch); //stg, unitAssignment, memoryMap, names, basicBlockNos);
+          instructionVerilog(out, instr, arch);
 
           out << "\t\t\tend" << endl;
           out << "\t\tend else begin " << endl;
