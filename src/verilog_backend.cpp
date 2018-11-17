@@ -157,6 +157,29 @@ namespace DHLS {
 
   };
 
+  class MicroArchitecture {
+  public:
+
+
+    STG stg;
+    map<Instruction*, FunctionalUnit> unitAssignment;
+    map<string, int> memoryMap;
+    map<Instruction*, Wire> names;
+    map<BasicBlock*, int> basicBlockNos;
+
+    MicroArchitecture(
+                      const STG& stg_,
+                      const map<Instruction*, FunctionalUnit>& unitAssignment_,
+                      map<string, int> memoryMap_,
+                      map<Instruction*, Wire> names_,
+                      map<BasicBlock*, int> basicBlockNos_) :
+      stg(stg_),
+      unitAssignment(unitAssignment_),
+      memoryMap(memoryMap_),
+      names(names_),
+      basicBlockNos(basicBlockNos_) {}
+  };
+  
   bool hasOutput(Instruction* instr) {
     if (StoreInst::classof(instr) ||
         BranchInst::classof(instr) ||
@@ -602,12 +625,6 @@ namespace DHLS {
         out << "\t\t\t" << addUnit.portWires["in" + to_string(i)] << " = " << arg1Name << ";" << endl;
       }
 
-      // auto arg1 = instr->getOperand(1);
-      // auto arg1Name = outputName(arg1, instr, stg, unitAssignment, names, memoryMap);
-
-      // out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
-      // out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
-      
     } else if (BranchInst::classof(instr)) {
       out << "\t\t\t\t" << "last_BB = " << map_find(instr->getParent(), basicBlockNos) << ";" << endl;
             
