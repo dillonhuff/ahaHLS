@@ -582,14 +582,28 @@ namespace DHLS {
             
     } else if(GetElementPtrInst::classof(instr)) {
 
+      auto numOperands = instr->getNumOperands();
+
+      assert((numOperands == 2) || (numOperands == 3));
+
       auto arg0 = instr->getOperand(0);
       auto arg0Name = outputName(arg0, instr, stg, unitAssignment, names, memoryMap);
 
-      auto arg1 = instr->getOperand(1);
-      auto arg1Name = outputName(arg1, instr, stg, unitAssignment, names, memoryMap);
+      out << tab(3) << addUnit.portWires["base_addr"] << " = " << arg0Name << ";" << endl;
 
-      out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
-      out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
+      for (int i = 1; i < numOperands; i++) {
+        auto arg1 = instr->getOperand(i);
+        auto arg1Name =
+          outputName(arg1, instr, stg, unitAssignment, names, memoryMap);
+
+        out << "\t\t\t" << addUnit.portWires["in" + to_string(i)] << " = " << arg0Name << ";" << endl;
+      }
+
+      // auto arg1 = instr->getOperand(1);
+      // auto arg1Name = outputName(arg1, instr, stg, unitAssignment, names, memoryMap);
+
+      // out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
+      // out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
       
     } else if (BranchInst::classof(instr)) {
       out << "\t\t\t\t" << "last_BB = " << map_find(instr->getParent(), basicBlockNos) << ";" << endl;
