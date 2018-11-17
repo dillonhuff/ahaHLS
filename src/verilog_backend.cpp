@@ -157,6 +157,19 @@ namespace DHLS {
 
   };
 
+  class RAM {
+    
+  public:
+
+    std::string name;
+    int width;
+    int depth;
+
+    RAM(const std::string& name_,
+        const int width_,
+        const int depth_) : name(name_), width(width_), depth(depth_) {}
+  };
+
   class MicroArchitecture {
   public:
 
@@ -166,18 +179,21 @@ namespace DHLS {
     map<string, int> memoryMap;
     map<Instruction*, Wire> names;
     map<BasicBlock*, int> basicBlockNos;
+    std::vector<RAM> rams;
 
     MicroArchitecture(
                       const STG& stg_,
                       const map<Instruction*, FunctionalUnit>& unitAssignment_,
                       const map<string, int>& memoryMap_,
                       const map<Instruction*, Wire>& names_,
-                      const map<BasicBlock*, int>& basicBlockNos_) :
+                      const map<BasicBlock*, int>& basicBlockNos_,
+                      const std::vector<RAM>& rams_) :
       stg(stg_),
       unitAssignment(unitAssignment_),
       memoryMap(memoryMap_),
       names(names_),
-      basicBlockNos(basicBlockNos_) {}
+      basicBlockNos(basicBlockNos_),
+      rams(rams_) {}
   };
   
   bool hasOutput(Instruction* instr) {
@@ -565,11 +581,6 @@ namespace DHLS {
   void instructionVerilog(std::ostream& out,
                           Instruction* instr,
                           MicroArchitecture& arch) {
-                          // const STG& stg,
-                          // map<Instruction*, FunctionalUnit>& unitAssignment,
-                          // map<string, int>& memoryMap,
-                          // map<Instruction*, Wire>& names,
-                          // map<BasicBlock*, int>& basicBlockNos) {
 
     auto addUnit = map_find(instr, arch.unitAssignment);
 
@@ -596,7 +607,6 @@ namespace DHLS {
       out << "\t\t\t" << addUnit.portWires["raddr"] << " = " << locValue << ";" << endl;
     } else if (BinaryOperator::classof(instr) ||
                CmpInst::classof(instr)) {
-               //               GetElementPtrInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
       auto arg0Name = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
@@ -881,7 +891,8 @@ namespace DHLS {
                                    map<Instruction*, Wire>& names,
                                    map<BasicBlock*, int>& basicBlockNos) {
 
-    MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos);
+    vector<RAM> rams;
+    MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, rams);
 
     out << "\t// Start pipeline instruction code" << endl;
 
@@ -990,7 +1001,8 @@ namespace DHLS {
 
           out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
 
-          MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos);
+          vector<RAM> rams;
+          MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, rams);
           instructionVerilog(out, instr, arch); //stg, unitAssignment, memoryMap, names, basicBlockNos);
 
           out << "\t\t\tend" << endl;
@@ -1257,6 +1269,8 @@ namespace DHLS {
     map<Instruction*, Wire> names = createInstrNames(stg);
     vector<ElaboratedPipeline> pipelines =
       buildPipelines(f, stg);
+    map<Instruction*, FunctionalUnit> unitAssignment =
+      assignFunctionalUnits(stg);
 
     string fn = f->getName();
     vector<Port> allPorts = getPorts(stg);
@@ -1275,9 +1289,6 @@ namespace DHLS {
     emitPorts(out, allPorts);
 
     out << tab(1) << "assign " << "global_state_dbg = global_state;" << endl;
-
-    map<Instruction*, FunctionalUnit> unitAssignment =
-      assignFunctionalUnits(stg);
 
     emitFunctionalUnits(out, unitAssignment);
     emitRegisterStorage(out, names);
