@@ -329,10 +329,15 @@ namespace DHLS {
       for (auto instrG : state.second) {
         Instruction* instr = instrG.instruction;
 
-        if (StoreInst::classof(instr) || BranchInst::classof(instr)) {
+        if (StoreInst::classof(instr) ||
+            BranchInst::classof(instr) ||
+            AllocaInst::classof(instr) ||
+            CallInst::classof(instr) ||
+            BitCastInst::classof(instr)) {
           continue;
         }
-
+        cout << "Getting type of " << instructionString(instr) << endl;
+        
         if (ReturnInst::classof(instr)) {
           resultNames[instr] = {true, 1, string(instr->getOpcodeName()) + "_tmp_" + to_string(resSuffix)};
           resSuffix++;
@@ -349,6 +354,7 @@ namespace DHLS {
           width = iTp->getBitWidth();
         } else if (PointerType::classof(tp)) {
           PointerType* pTp = dyn_cast<PointerType>(tp);
+
 
           cout << "Element type = " << typeString(pTp->getElementType()) << endl;
 
