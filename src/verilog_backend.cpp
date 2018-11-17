@@ -159,7 +159,10 @@ namespace DHLS {
 
   bool hasOutput(Instruction* instr) {
     if (StoreInst::classof(instr) ||
-        BranchInst::classof(instr)) {
+        BranchInst::classof(instr) ||
+        AllocaInst::classof(instr) ||
+        BitCastInst::classof(instr) ||
+        CallInst::classof(instr)) {
       return false;
     }
 
@@ -307,6 +310,14 @@ namespace DHLS {
           wiring = {{"in0", "sel_in0_" + rStr}, {"in1", "sel_in1_" + rStr}, {"sel", "sel_sel_" + rStr}};
           outWires = {{"out", {false, 32, "sel_out_" + rStr}}};
             
+        } else if (AllocaInst::classof(instr)) {
+          // Create a memory module?
+          modName = "RAM";
+          wiring = {{"wen", "wen_" + rStr}};
+          outWires = {{"rdata", {false, 32, "rdata_" + rStr}}};
+        } else if (BitCastInst::classof(instr) ||
+                   CallInst::classof(instr)) {
+          // No action for these instruction types
         } else {
           cout << "Unsupported instruction = " << instructionString(instr) << endl;
           assert(false);
@@ -679,6 +690,8 @@ namespace DHLS {
         // No data to store on return
 
       } else if (hasOutput(instr)) {
+
+        cout << "Getting output " << instructionString(instr) << endl;
 
         string instrName = map_find(instr, names).name;
         auto unit = map_find(instr, unitAssignment);
