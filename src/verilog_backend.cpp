@@ -256,6 +256,10 @@ namespace DHLS {
         Instruction* instr = instrG.instruction;
         auto rStr = to_string(resSuffix);
 
+        // For loads and stores the name of the assigned functional unit
+        // needs to be determined by looking at the argument to the load
+        // or store and checking if it is an argument to the function
+        // or an internally declared RAM
         string unitName = string(instr->getOpcodeName()) + "_" +
           to_string(resSuffix);
         string modName = "add";
@@ -922,6 +926,10 @@ namespace DHLS {
                                    map<BasicBlock*, int>& basicBlockNos) {
 
     vector<RAM> rams;
+    // TODO: Add loop over instructions searching for alloca instructions.
+    // Then I will need to add RAM assignments to the appropriate
+    // load and store operations (via adding them to the functional
+    // unit assignment?)
     MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, rams);
 
     out << "\t// Start pipeline instruction code" << endl;
