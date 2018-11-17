@@ -568,8 +568,8 @@ namespace DHLS {
 
       out << "\t\t\t" << addUnit.portWires["raddr"] << " = " << locValue << ";" << endl;
     } else if (BinaryOperator::classof(instr) ||
-               CmpInst::classof(instr) ||
-               GetElementPtrInst::classof(instr)) {
+               CmpInst::classof(instr)) {
+               //               GetElementPtrInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
       auto arg0Name = outputName(arg0, instr, stg, unitAssignment, names, memoryMap);
@@ -580,6 +580,17 @@ namespace DHLS {
       out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
       out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
             
+    } else if(GetElementPtrInst::classof(instr)) {
+
+      auto arg0 = instr->getOperand(0);
+      auto arg0Name = outputName(arg0, instr, stg, unitAssignment, names, memoryMap);
+
+      auto arg1 = instr->getOperand(1);
+      auto arg1Name = outputName(arg1, instr, stg, unitAssignment, names, memoryMap);
+
+      out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
+      
     } else if (BranchInst::classof(instr)) {
       out << "\t\t\t\t" << "last_BB = " << map_find(instr->getParent(), basicBlockNos) << ";" << endl;
             
