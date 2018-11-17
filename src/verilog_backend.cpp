@@ -1272,6 +1272,10 @@ namespace DHLS {
     map<Instruction*, FunctionalUnit> unitAssignment =
       assignFunctionalUnits(stg);
 
+    // TODO: Add rams
+    vector<RAM> rams;
+
+    MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, rams);
     string fn = f->getName();
     vector<Port> allPorts = getPorts(stg);
     allPorts.push_back({false, 32, "global_state_dbg", true});    
