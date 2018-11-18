@@ -238,6 +238,30 @@ namespace DHLS {
     return pts;
   }
 
+  std::string getRAMName(Value* location,
+                         std::map<llvm::Instruction*, std::string>& ramNames) {
+
+    if (Instruction::classof(location)) {
+      Instruction* locInstr = dyn_cast<Instruction>(location);
+
+      if (!AllocaInst::classof(locInstr)) {
+        string src = map_find(locInstr, ramNames);
+        return src;
+      } else {
+        return locInstr->getName();
+      }
+      
+    } else if (Argument::classof(location)) {
+
+      string src = location->getName();
+
+      return src;
+    } else {
+      assert(false);
+    }
+
+  }
+
   std::map<llvm::Instruction*, std::string>
   memoryOpLocations(const STG& stg) {
     map<Instruction*, string> mems;
@@ -246,22 +270,17 @@ namespace DHLS {
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
         auto instr = instrG.instruction;
 
+
         cout << "Getting source for " << instructionString(instr) << endl;
         if (LoadInst::classof(instr)) {
           Value* location = instr->getOperand(0);
+          mems[instr] = getRAMName(location, mems);
 
-          if (Instruction::classof(location)) {
-            Instruction* locInstr = dyn_cast<Instruction>(location);
-            string src = map_find(locInstr, mems);
-            mems[instr] = src;
-          } else if (Argument::classof(location)) {
-
-            string src = location->getName();
-
-            mems[instr] = src;
-          } else {
-            assert(false);
-          }
+        } else if (StoreInst::classof(instr)) {
+          Value* location = instr->getOperand(1);
+          mems[instr] = getRAMName(location, mems);
+        } else if (GetElementPtrInst::classof(instr)) {
+          mems[instr] = getRAMName(instr->getOperand(0), mems);
         }
       }
     }
@@ -269,13 +288,17 @@ namespace DHLS {
     return mems;
   }
 
-  std::map<Instruction*, FunctionalUnit> assignFunctionalUnits(const STG& stg) {
+  std::map<Instruction*, FunctionalUnit>
+  assignFunctionalUnits(const STG& stg,
+                        std::map<std::string, int>& memoryMap) {
+
     std::map<Instruction*, FunctionalUnit> units;
 
     int readNum = 0;
     int writeNum = 0;
 
     auto memSrcs = memoryOpLocations(stg);
+
     cout << "-- Memory sources" << endl;
     for (auto src : memSrcs) {
       cout << tab(1) << instructionString(src.first) << " -> " << src.second << endl;
@@ -300,6 +323,14 @@ namespace DHLS {
         string unitName = string(instr->getOpcodeName()) + "_" +
           to_string(resSuffix);
 
+        if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
+          string memSrc = map_find(instr, memSrcs);
+
+          // If we are loading from an internal RAM, not an argument
+          if (!contains_key(memSrc, memoryMap)) {
+            unitName = memSrc;
+          }
+        }
         string modName = "add";
 
         map<string, string> wiring;
@@ -324,6 +355,7 @@ namespace DHLS {
           // Problem: You cannot just track back the memory that we are loading
           // from by looking at the load instruction itself. Address calculation
           // and memory selection are mixed together in getelementptr instructions
+          
 
           readNum++;
 
@@ -1344,7 +1376,7 @@ namespace DHLS {
     vector<ElaboratedPipeline> pipelines =
       buildPipelines(f, stg);
     map<Instruction*, FunctionalUnit> unitAssignment =
-      assignFunctionalUnits(stg);
+      assignFunctionalUnits(stg, memoryMap);
 
     // TODO: Add rams
     vector<RAM> rams;
