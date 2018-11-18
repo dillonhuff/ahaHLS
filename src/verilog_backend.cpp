@@ -238,13 +238,50 @@ namespace DHLS {
     return pts;
   }
 
+  std::map<llvm::Instruction*, std::string>
+  memoryOpLocations(const STG& stg) {
+    map<Instruction*, string> mems;
+
+    for (auto state : stg.opStates) {
+      for (auto instrG : stg.instructionsStartingAt(state.first)) {
+        auto instr = instrG.instruction;
+
+        cout << "Getting source for " << instructionString(instr) << endl;
+        if (LoadInst::classof(instr)) {
+          Value* location = instr->getOperand(0);
+
+          if (Instruction::classof(location)) {
+            Instruction* locInstr = dyn_cast<Instruction>(location);
+            string src = map_find(locInstr, mems);
+            mems[instr] = src;
+          } else if (Argument::classof(location)) {
+
+            string src = location->getName();
+
+            mems[instr] = src;
+          } else {
+            assert(false);
+          }
+        }
+      }
+    }
+
+    return mems;
+  }
+
   std::map<Instruction*, FunctionalUnit> assignFunctionalUnits(const STG& stg) {
     std::map<Instruction*, FunctionalUnit> units;
 
     int readNum = 0;
     int writeNum = 0;
 
-    // // For now create a different unit for every single operation
+    auto memSrcs = memoryOpLocations(stg);
+    cout << "-- Memory sources" << endl;
+    for (auto src : memSrcs) {
+      cout << tab(1) << instructionString(src.first) << " -> " << src.second << endl;
+    }
+
+    // For now create a different unit for every single operation
     int resSuffix = 0;
     for (auto state : stg.opStates) {
 
@@ -262,6 +299,7 @@ namespace DHLS {
         // or an internally declared RAM
         string unitName = string(instr->getOpcodeName()) + "_" +
           to_string(resSuffix);
+
         string modName = "add";
 
         map<string, string> wiring;
@@ -282,6 +320,10 @@ namespace DHLS {
 
           wiring = {{"raddr", "raddr_" + to_string(readNum) + "_reg"}};
           outWires = {{"out", {false, 32, "rdata_" + to_string(readNum)}}};
+
+          // Problem: You cannot just track back the memory that we are loading
+          // from by looking at the load instruction itself. Address calculation
+          // and memory selection are mixed together in getelementptr instructions
 
           readNum++;
 
