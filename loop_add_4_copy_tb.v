@@ -60,7 +60,7 @@ module test();
          dbg_wr_en <= 0;
       end
 
-      if (clocks == 4) begin
+      if (clocks == 10) begin
          mem_val <= mem_val + 1;
          rst <= 0;
          dbg_addr <= 10;
