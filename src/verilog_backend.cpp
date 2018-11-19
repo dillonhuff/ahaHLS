@@ -380,14 +380,14 @@ namespace DHLS {
             modName = "RAM";
             unitName = memSrc;
 
-            wiring = {{"raddr", "raddr_" + unitName + "_reg"}, {"wen", "wen_" + unitName + "_reg"}, {"waddr", "waddr_" + unitName + "_reg"}, {"wdata", "wdata_" + unitName + "_reg"}};
+            wiring = {{"raddr", {true, 32, "raddr_" + unitName + "_reg"}}, {"wen", {true, 1, "wen_" + unitName + "_reg"}}, {"waddr", {true, 32, "waddr_" + unitName + "_reg"}}, {"wdata", {true, 32, "wdata_" + unitName + "_reg"}}};
             outWires = {{"rdata", {false, 32, "rdata_" + unitName}}};
             
           } else {
 
             modName = "load";
 
-            wiring = {{"raddr", "raddr_" + to_string(readNum) + "_reg"}};
+            wiring = {{"raddr", {true, 32, "raddr_" + to_string(readNum) + "_reg"}}};
             outWires = {{"rdata", {false, 32, "rdata_" + to_string(readNum)}}};
 
             readNum++;
@@ -396,23 +396,24 @@ namespace DHLS {
         } else if (BinaryOperator::classof(instr)) {
           assert(instr->getOpcode() == Instruction::Add);
           modName = "add";
-          wiring = {{"in0", "add_in0_" + rStr}, {"in1", "add_in1_" + rStr}};
+          wiring = {{"in0", {true, 32, "add_in0_" + rStr}},
+                    {"in1", {true, 32, "add_in1_" + rStr}}};
           outWires = {{"out", {false, 32, "add_out_" + rStr}}};
         } else if (ReturnInst::classof(instr)) {
           modName = "ret";
 
-          wiring = {{"valid", "valid_reg"}};
+          wiring = {{"valid", {true, 1, "valid_reg"}}};
           outWires = {};
           
         } else if (CmpInst::classof(instr)) {
           CmpInst::Predicate pred = dyn_cast<CmpInst>(instr)->getPredicate();
           if (pred == CmpInst::ICMP_EQ) {
             modName = "eq";
-            wiring = {{"in0", "eq_in0_" + rStr}, {"in1", "eq_in1_" + rStr}};
+            wiring = {{"in0", {true, 32, "eq_in0_" + rStr}}, {"in1", {true, 32, "eq_in1_" + rStr}}};
             outWires = {{"out", {false, 1, "eq_out_" + rStr}}};
           } else if (pred == CmpInst::ICMP_SGT) {
             modName = "sgt";
-            wiring = {{"in0", "sgt_in0_" + rStr}, {"in1", "sgt_in1_" + rStr}};
+            wiring = {{"in0", {true, 32, "sgt_in0_" + rStr}}, {"in1", {true, 32, "sgt_in1_" + rStr}}};
             outWires = {{"out", {false, 1, "sgt_out_" + rStr}}};
           } else {
             cout << "Error: Unsupported predicate in cmp: " << pred << endl;
@@ -747,16 +748,16 @@ namespace DHLS {
       Value* location = instr->getOperand(1);
       auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);      
             
-      out << "\t\t\t" << addUnit.portWires["waddr"] << " = " << locValue << ";" << endl;
-      out << "\t\t\t" << addUnit.portWires["wdata"] << " = " << wdataName << ";" << endl;
-      out << "\t\t\t" << addUnit.portWires["wen"] << " = 1;" << endl;
+      out << "\t\t\t" << addUnit.portWires["waddr"].name << " = " << locValue << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["wdata"].name << " = " << wdataName << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["wen"].name << " = 1;" << endl;
 
     } else if (LoadInst::classof(instr)) {
 
       Value* location = instr->getOperand(0);
       auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
 
-      out << "\t\t\t" << addUnit.portWires["raddr"] << " = " << locValue << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["raddr"].name << " = " << locValue << ";" << endl;
     } else if (BinaryOperator::classof(instr) ||
                CmpInst::classof(instr)) {
 
@@ -766,8 +767,8 @@ namespace DHLS {
       auto arg1 = instr->getOperand(1);
       auto arg1Name = outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
 
-      out << "\t\t\t" << addUnit.portWires["in0"] << " = " << arg0Name << ";" << endl;
-      out << "\t\t\t" << addUnit.portWires["in1"] << " = " << arg1Name << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["in0"].name << " = " << arg0Name << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["in1"].name << " = " << arg1Name << ";" << endl;
             
     } else if(GetElementPtrInst::classof(instr)) {
 
@@ -778,14 +779,14 @@ namespace DHLS {
       auto arg0 = instr->getOperand(0);
       auto arg0Name = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
-      out << tab(3) << addUnit.portWires["base_addr"] << " = " << arg0Name << ";" << endl;
+      out << tab(3) << addUnit.portWires["base_addr"].name << " = " << arg0Name << ";" << endl;
 
       for (int i = 1; i < numOperands; i++) {
         auto arg1 = instr->getOperand(i);
         auto arg1Name =
           outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
 
-        out << "\t\t\t" << addUnit.portWires["in" + to_string(i)] << " = " << arg1Name << ";" << endl;
+        out << "\t\t\t" << addUnit.portWires["in" + to_string(i)].name << " = " << arg1Name << ";" << endl;
       }
 
     } else if (BranchInst::classof(instr)) {
@@ -807,13 +808,13 @@ namespace DHLS {
       Value* v1 = phi->getIncomingValue(1);
       string val1Name = outputNameLast(v1, arch.unitAssignment, arch.names, arch.memoryMap);
             
-      out << "\t\t\t" << addUnit.portWires["in0"] << " = " << val0Name << ";" << endl;
-      out << "\t\t\t" << addUnit.portWires["in1"] << " = " << val1Name << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["in0"].name << " = " << val0Name << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["in1"].name << " = " << val1Name << ";" << endl;
 
-      out << "\t\t\t" << addUnit.portWires["s0"] << " = " << b0Val << ";" << endl;
-      out << "\t\t\t" << addUnit.portWires["s1"] << " = " << b1Val << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["s0"].name << " = " << b0Val << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["s1"].name << " = " << b1Val << ";" << endl;
 
-      out << "\t\t\t" << addUnit.portWires["last_block"] << " = last_BB_reg;" << endl;
+      out << "\t\t\t" << addUnit.portWires["last_block"].name << " = last_BB_reg;" << endl;
     } else if (SelectInst::classof(instr)) {
       SelectInst* sel = dyn_cast<SelectInst>(instr);
 
@@ -826,10 +827,10 @@ namespace DHLS {
       Value* falseVal = sel->getFalseValue();
       string falseName = outputName(falseVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
       
-      out << "\t\t\t" << addUnit.portWires["in0"] << " = " << falseName << ";" << endl;
-      out << "\t\t\t" << addUnit.portWires["in1"] << " = " << trueName << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["in0"].name << " = " << falseName << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["in1"].name << " = " << trueName << ";" << endl;
 
-      out << "\t\t\t" << addUnit.portWires["sel"] << " = " << condName << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["sel"].name << " = " << condName << ";" << endl;
 
     } else if (AllocaInst::classof(instr) ||
                CallInst::classof(instr) ||
@@ -1158,7 +1159,7 @@ namespace DHLS {
 
         out << "\t\t\t// Default values" << endl;
         for (auto w : unit.portWires) {
-          out << "\t\t\t" << w.second << " = 0;" << endl;
+          out << "\t\t\t" << w.second.name << " = 0;" << endl;
         }
         out << "\t\tend" << endl;
 
@@ -1215,7 +1216,7 @@ namespace DHLS {
 
       vector<string> wireDecls;
       for (auto w : unit.portWires) {
-        out << "\treg [31:0] " << w.second << ";" << endl;
+        out << "\t" << w.second << ";" << endl;
         wireDecls.push_back("." + w.first + "(" + w.second.name + ")");
       }
 
