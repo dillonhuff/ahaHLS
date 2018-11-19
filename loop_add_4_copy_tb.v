@@ -24,138 +24,17 @@ module test();
    reg [4:0] raddr1;
    
    wire [31:0] rdata0;
-   wire [31:0] rdata1;   
+   wire [31:0] rdata1;
+
+   reg [31:0] clocks;
+   reg [31:0] max_clocks;
 
    initial begin
-
-      // #1 rst = 1;
+      #1 clk = 0;
+      clocks = 0;
+      max_clocks = 10;
+      rst = 1;
       
-      // #1 dbg_wr_addr = 10; // b[0]
-      // #1 dbg_wr_data = 10;
-      // #1 dbg_wr_en = 1;
-      
-      // #1 clk = 0;
-      // #1 clk = 1;
-
-      // #1 clk = 0;
-      // #1 $display("global state after first clk = %d", global_state_dbg);
-      // #1 `assert(global_state_dbg, 0);
-      
-      // // gs == 0
-
-      // #1 dbg_wr_addr = 11; // b[1]
-      // #1 dbg_wr_data = 5;
-      // #1 dbg_wr_en = 1;
-      
-      // #1 clk = 0;
-      // #1 clk = 1;
-
-      // // gs == 0
-
-      // #1 $display("global state after clk = %d", global_state_dbg);
-      // #1 `assert(global_state_dbg, 0);
-      
-      //  #1 dbg_wr_en = 0; // a[0]
-      
-      // #1 clk = 0;
-      // #1 clk = 1;
-
-      // // gs == 0
-
-      // #1 $display("global state after clk = %d", global_state_dbg);
-      // #1 `assert(global_state_dbg, 0);
-      
-      // #1 dbg_addr = 0;
-      
-      // #1 rst = 0;
-
-      // #1 clk = 0;
-      // #1 clk = 1;
-
-      // // I cant actually tell if we are in the pipeline here, need to add
-      // // an assertion about internal state
-
-      // // gs == 1, in pipeline,
-      // // iter 0 -> s1
-
-      // #1 $display("global state after first non-rst clk = %d", global_state_dbg);
-      // #2 $display("-------");
-      // #2 $display("Now we are in the pipeline");
-      // #2 $display("-------");      
-
-      // #1 `assert(global_state_dbg, 200000); 
-
-      // #1 clk = 0;
-      // #1 clk = 1;
-
-      // // gs == 1, in pipeline,
-      // // iter 0 -> s2
-      // // iter 1 -> s1
-
-      // `assert(valid, 1'd0);                  
-
-      // #1 clk = 0;
-      // #1 clk = 1;
-
-      // // gs == 1, in pipeline
-      // // iter 0 -> s3
-      // // iter 1 -> s2
-
-      // #1 clk = 0;
-      // #1 clk = 1;
-
-      // // gs == 1, in pipeline
-      // // iter 0 -> s4
-      // // iter 1 -> s3
-
-      // #1 clk = 0;
-      // #1 clk = 1;
-
-      // // gs == 1, in pipeline
-      // // iter 0 -> s5
-      // // iter 1 -> s4
-
-      // // #2 $display("-------");
-      // // #2 $display("First time all stages are occupied according to TB");
-      // // #2 $display("-------");
-
-      // `assert(valid, 1'd0);
-      
-
-      // #1 clk = 0;
-      // #1 clk = 1;
-
-      // `assert(valid, 1'd0);      
-
-      // // gs == 1, in pipeline
-      // // iter 0 -> finished
-      // // iter 1 -> s5
-
-      // #1 clk = 0;
-      // #1 clk = 1;
-
-      // `assert(valid, 1'd0);      
-      
-      // // gs == 1, in pipeline
-      // // iter 0 -> finished
-      // // iter 1 -> finished
-
-      // #1 dbg_addr = 1;
-
-      // $display("dbg_data = %d", dbg_data);
-      // #1 `assert(global_state_dbg, 6);       
-
-      // #1 `assert(valid, 1'd1);      
-      // #1 `assert(dbg_data, 32'd9);
-      
-      // #1 clk = 0;
-      // #1 clk = 1;
-
-      // #1 `assert(valid, 1'd1);      
-      // #1 `assert(dbg_data, 32'd9);
-
-      // #1 $display("Passed");
-
    end // initial begin
 
    always @(posedge clk) begin
@@ -165,7 +44,21 @@ module test();
       $display("-- In tb, rdata_0 = %d", rdata0);
       $display("-- dbg_data       = %d", dbg_data);
       $display("-- dbg_addr       = %d", dbg_addr);
+
+      clocks <= clocks + 1;
+
+      if (clocks == 0) begin
+         rst = 0;
+      end
+
+      if (clocks >= max_clocks) begin
+         $display("FAILED!");
+         $finish();
+      end
+      
    end
+
+   always #3 clk = !clk;
 
    RAM2 mem(.clk(clk),
             .rst(rst),
