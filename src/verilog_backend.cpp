@@ -328,6 +328,7 @@ namespace DHLS {
 
           // If we are loading from an internal RAM, not an argument
           if (!contains_key(memSrc, memoryMap)) {
+            cout << "Using unit " << memSrc << endl;
             unitName = memSrc;
           }
         }
