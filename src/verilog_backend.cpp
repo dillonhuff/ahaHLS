@@ -258,9 +258,20 @@ namespace DHLS {
 
       return src;
     } else {
-      assert(false);
+      return "";
     }
 
+  }
+
+  int numMemOps(const std::vector<GuardedInstruction>& instrs) {
+    int ind = 0;
+    for (auto instr : instrs) {
+      if (StoreInst::classof(instr.instruction) ||
+          LoadInst::classof(instr.instruction)) {
+        ind++;
+      }
+    }
+    return ind;
   }
 
   std::map<llvm::Instruction*, std::string>
@@ -271,20 +282,45 @@ namespace DHLS {
       // BUG: instrG in a state are not orderd inside the STG by dependencies since
       // they will all execute combinationally inside a state. To avoid this
       // we should get dependencies in data dependence order.
-      for (auto instrG : stg.instructionsStartingAt(state.first)) {
-        auto instr = instrG.instruction;
+      int foundInstrs = 0;
 
+      while (foundInstrs < numMemOps(stg.instructionsStartingAt(state.first))) {
+        cout << "FoundInstrs =  "<< foundInstrs << endl;
+        
+        for (auto instrG : stg.instructionsStartingAt(state.first)) {
+          auto instr = instrG.instruction;
 
-        cout << "Getting source for " << instructionString(instr) << endl;
-        if (LoadInst::classof(instr)) {
-          Value* location = instr->getOperand(0);
-          mems[instr] = getRAMName(location, mems);
+          cout << "Getting source for " << instructionString(instr) << endl;
+          if (LoadInst::classof(instr)) {
+            Value* location = instr->getOperand(0);
+            string name = getRAMName(location, mems);
+            if (name != "") {
+              mems[instr] = getRAMName(location, mems);
+              foundInstrs++;
+            } else {
+              cout << "No source for " << instructionString(instr) << endl;
+            }
+          } else if (StoreInst::classof(instr)) {
+            Value* location = instr->getOperand(1);
 
-        } else if (StoreInst::classof(instr)) {
-          Value* location = instr->getOperand(1);
-          mems[instr] = getRAMName(location, mems);
-        } else if (GetElementPtrInst::classof(instr)) {
-          mems[instr] = getRAMName(instr->getOperand(0), mems);
+            string name = getRAMName(location, mems);
+            if (name != "") {
+              mems[instr] = getRAMName(location, mems);
+              foundInstrs++;
+            } else {
+              cout << "No source for " << instructionString(instr) << endl;
+            }
+
+          } else if (GetElementPtrInst::classof(instr)) {
+            Value* location = instr->getOperand(0);
+            string name = getRAMName(location, mems);
+            if (name != "") {
+              mems[instr] = getRAMName(location, mems);
+              foundInstrs++;            
+            } else {
+              cout << "No source for " << instructionString(instr) << endl;
+            }
+          }
         }
       }
     }
