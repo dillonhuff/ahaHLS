@@ -28,12 +28,17 @@ module test();
 
    reg [31:0] clocks;
    reg [31:0] max_clocks;
+   reg        in_start;
+   reg [31:0] mem_val;
 
    initial begin
       #1 clk = 0;
       clocks = 0;
       max_clocks = 50;
       rst = 1;
+      in_start = 1;
+      mem_val = 1;
+      
       
    end // initial begin
 
@@ -47,11 +52,24 @@ module test();
       $display("-- clocks         = %d", clocks);
       clocks <= clocks + 1;
 
-      if (clocks == 0) begin
+      if (in_start) begin
+         debug_wr_addr <= mem_val - 1;
+         debug_wr_data <= mem_val;
+         debug_wr_en <= 1;
+      end else begin
+         debug_wr_en <= 0;
+      end
+
+      if (clocks == 4) begin
+         mem_val <= mem_val + 1;
          rst <= 0;
+         debug_addr <= 1;
       end
 
       if (clocks >= max_clocks) begin
+         $display("debug data at end = %d", debug_data);
+         $assert(debug_data, 2);
+         
          $display("FAILED!");
          $finish();
       end
