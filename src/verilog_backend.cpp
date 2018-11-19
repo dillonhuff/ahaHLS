@@ -340,14 +340,27 @@ namespace DHLS {
         map<string, Wire> outWires;
           
         if (StoreInst::classof(instr)) {
-          modName = "store";
 
-          // These names need to match names created in the portlist. So
-          // maybe this should be used to create the port list? Generate the
-          // names here and then write ports for them?
-          wiring = {{"wen", "wen_0_reg"}, {"waddr", "waddr_0_reg"}, {"wdata", "wdata_0_reg"}};
+          string memSrc = map_find(instr, memSrcs);
+          if (!contains_key(memSrc, memoryMap)) {
+            cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
+            modName = "RAM";
+            unitName = memSrc;
+            // These names need to match names created in the portlist. So
+            // maybe this should be used to create the port list? Generate the
+            // names here and then write ports for them?
+            wiring = {{"wen", "wen_" + unitName + "_reg"}, {"waddr", "waddr_" + unitName + "_reg"}, {"wdata", "wdata_" + unitName + "_reg"}};
 
-          writeNum++;
+          } else {
+            modName = "store";
+            
+            // These names need to match names created in the portlist. So
+            // maybe this should be used to create the port list? Generate the
+            // names here and then write ports for them?
+            wiring = {{"wen", "wen_0_reg"}, {"waddr", "waddr_0_reg"}, {"wdata", "wdata_0_reg"}};
+
+            writeNum++;
+          }
 
         } else if (LoadInst::classof(instr)) {
           string memSrc = map_find(instr, memSrcs);
