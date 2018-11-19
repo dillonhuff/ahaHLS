@@ -246,6 +246,10 @@ namespace DHLS {
       Instruction* locInstr = dyn_cast<Instruction>(location);
 
       if (!AllocaInst::classof(locInstr)) {
+        if (!contains_key(locInstr, ramNames)) {
+          return "";
+        }
+
         string src = map_find(locInstr, ramNames);
         return src;
       } else {
