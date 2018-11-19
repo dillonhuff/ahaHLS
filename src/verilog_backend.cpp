@@ -350,6 +350,7 @@ namespace DHLS {
             // maybe this should be used to create the port list? Generate the
             // names here and then write ports for them?
             wiring = {{"wen", "wen_" + unitName + "_reg"}, {"waddr", "waddr_" + unitName + "_reg"}, {"wdata", "wdata_" + unitName + "_reg"}};
+            outWires = {{"out", {false, 32, "rdata_" + unitName}}};
 
           } else {
             modName = "store";
@@ -358,7 +359,8 @@ namespace DHLS {
             // maybe this should be used to create the port list? Generate the
             // names here and then write ports for them?
             wiring = {{"wen", "wen_0_reg"}, {"waddr", "waddr_0_reg"}, {"wdata", "wdata_0_reg"}};
-
+            outWires = {{"out", {false, 32, "rdata_" + unitName}}};
+            
             writeNum++;
           }
 
@@ -371,7 +373,7 @@ namespace DHLS {
             modName = "RAM";
             unitName = memSrc;
 
-            wiring = {{"raddr", "raddr_" + unitName + "_reg"}};
+            wiring = {{"raddr", "raddr_" + unitName + "_reg"}, {"wen", "wen_" + unitName + "_reg"}, {"waddr", "waddr_" + unitName + "_reg"}, {"wdata", "wdata_" + unitName + "_reg"}};
             outWires = {{"out", {false, 32, "rdata_" + unitName}}};
             
             // Now also need to set wiring and outwires
@@ -446,9 +448,7 @@ namespace DHLS {
             
         } else if (AllocaInst::classof(instr)) {
           // Create a memory module?
-          // modName = "RAM";
-          // wiring = {{"wen", "wen_" + rStr}};
-          // outWires = {{"rdata", {false, 32, "rdata_" + rStr}}};
+
         } else if (BitCastInst::classof(instr) ||
                    CallInst::classof(instr)) {
           // No action for these instruction types
