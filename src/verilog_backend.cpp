@@ -71,7 +71,8 @@ namespace DHLS {
   public:
     std::string modName;
     std::string instName;
-    std::map<std::string, std::string> portWires;
+    //std::map<std::string, std::string> portWires;
+    std::map<std::string, Wire> portWires;
     std::map<std::string, Wire> outWires;
 
     std::string onlyOutputVar() const {
@@ -86,7 +87,7 @@ namespace DHLS {
     out << " " << unit.instName << "(";
     vector<string> portStrs;
     for (auto pt : unit.portWires) {
-      portStrs.push_back("." + pt.first + "(" + pt.second + ")");
+      portStrs.push_back("." + pt.first + "(" + pt.second.name + ")");
     }
 
     for (auto pt : unit.outWires) {
@@ -267,6 +268,9 @@ namespace DHLS {
     map<Instruction*, string> mems;
 
     for (auto state : stg.opStates) {
+      // BUG: instrG in a state are not orderd inside the STG by dependencies since
+      // they will all execute combinationally inside a state. To avoid this
+      // we should get dependencies in data dependence order.
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
         auto instr = instrG.instruction;
 
@@ -336,7 +340,8 @@ namespace DHLS {
         }
         string modName = "add";
 
-        map<string, string> wiring;
+        //map<string, string> wiring;
+        map<string, Wire> wiring;
         map<string, Wire> outWires;
           
         if (StoreInst::classof(instr)) {
@@ -349,7 +354,9 @@ namespace DHLS {
             // These names need to match names created in the portlist. So
             // maybe this should be used to create the port list? Generate the
             // names here and then write ports for them?
-            wiring = {{"wen", "wen_" + unitName + "_reg"}, {"waddr", "waddr_" + unitName + "_reg"}, {"wdata", "wdata_" + unitName + "_reg"}};
+            wiring = {{"wen", {true, 1, "wen_" + unitName + "_reg"}},
+                      {"waddr", {true, 32, "waddr_" + unitName + "_reg"}},
+                      {"wdata", {true, 32, "wdata_" + unitName + "_reg"}}};
             outWires = {{"rdata", {false, 32, "rdata_" + unitName}}};
 
           } else {
@@ -358,7 +365,7 @@ namespace DHLS {
             // These names need to match names created in the portlist. So
             // maybe this should be used to create the port list? Generate the
             // names here and then write ports for them?
-            wiring = {{"wen", "wen_0_reg"}, {"waddr", "waddr_0_reg"}, {"wdata", "wdata_0_reg"}};
+            wiring = {{"wen", {true, 1, "wen_0_reg"}}, {"waddr", {true, 32, "waddr_0_reg"}}, {"wdata", {true, 32, "wdata_0_reg"}}};
             outWires = {{"rdata", {false, 32, "rdata_" + unitName}}};
             
             writeNum++;
@@ -417,9 +424,11 @@ namespace DHLS {
           // STG transitions
         } else if (GetElementPtrInst::classof(instr)) {
           modName = "getelementptr_" + to_string(instr->getNumOperands() - 1);
-          wiring = {{"base_addr", "base_addr_" + to_string(resSuffix)}};
+          wiring = {{"base_addr", {true, 32, "base_addr_" + to_string(resSuffix)}}};
+
           for (int i = 1; i < instr->getNumOperands(); i++) {
-            wiring.insert({"in" + to_string(i), "add_in" + to_string(i) + "_" + to_string(resSuffix)});
+            wiring.insert({"in" + to_string(i),
+                  {true, 32, "add_in" + to_string(i) + "_" + to_string(resSuffix)}});
           }
           outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
         } else if (PHINode::classof(instr)) {
@@ -427,7 +436,11 @@ namespace DHLS {
           assert(phi->getNumIncomingValues() == 2);
 
           modName = "phi_2";
-          wiring = {{"s0", "phi_s0_" + rStr}, {"s1", "phi_s1_" + rStr}, {"in0", "phi_in0_" + rStr}, {"in1", "phi_in1_" + rStr}, {"last_block", "phi_last_block_" + rStr}};
+          wiring = {{"s0", {true, 32, "phi_s0_" + rStr}},
+                    {"s1", {true, 32, "phi_s1_" + rStr}},
+                    {"in0", {true, 32, "phi_in0_" + rStr}},
+                    {"in1", {true, 32, "phi_in1_" + rStr}},
+                    {"last_block", {true, 32, "phi_last_block_" + rStr}}};
           outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
 
         } else if (ZExtInst::classof(instr)) {
@@ -437,7 +450,9 @@ namespace DHLS {
 
         } else if (SelectInst::classof(instr)) {
           modName = "select";
-          wiring = {{"in0", "sel_in0_" + rStr}, {"in1", "sel_in1_" + rStr}, {"sel", "sel_sel_" + rStr}};
+          wiring = {{"in0", {true, 32, "sel_in0_" + rStr}},
+                    {"in1", {true, 32, "sel_in1_" + rStr}},
+                    {"sel", {true, 32, "sel_sel_" + rStr}}};
           outWires = {{"out", {false, 32, "sel_out_" + rStr}}};
             
         } else if (AllocaInst::classof(instr)) {
@@ -1201,7 +1216,7 @@ namespace DHLS {
       vector<string> wireDecls;
       for (auto w : unit.portWires) {
         out << "\treg [31:0] " << w.second << ";" << endl;
-        wireDecls.push_back("." + w.first + "(" + w.second + ")");
+        wireDecls.push_back("." + w.first + "(" + w.second.name + ")");
       }
 
       for (auto w : unit.outWires) {
