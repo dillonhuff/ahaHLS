@@ -26,3 +26,5 @@ loop_add_4.v
 loop_add_4
 loop_add_4_6_iters
 loop_add_4_6_iters.v
+loop_add_4_copy
+loop_add_4_copy.v
