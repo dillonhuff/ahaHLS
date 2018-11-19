@@ -328,8 +328,10 @@ namespace DHLS {
 
           // If we are loading from an internal RAM, not an argument
           if (!contains_key(memSrc, memoryMap)) {
-            cout << "Using unit " << memSrc << endl;
+            cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
             unitName = memSrc;
+
+            // Now also need to set wiring and outwires
           }
         }
         string modName = "add";
@@ -348,17 +350,32 @@ namespace DHLS {
           writeNum++;
 
         } else if (LoadInst::classof(instr)) {
-          modName = "load";
+          string memSrc = map_find(instr, memSrcs);
 
-          wiring = {{"raddr", "raddr_" + to_string(readNum) + "_reg"}};
-          outWires = {{"out", {false, 32, "rdata_" + to_string(readNum)}}};
+          // If we are loading from an internal RAM, not an argument
+          if (!contains_key(memSrc, memoryMap)) {
+            cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
+            modName = "RAM";
+            unitName = memSrc;
 
-          // Problem: You cannot just track back the memory that we are loading
-          // from by looking at the load instruction itself. Address calculation
-          // and memory selection are mixed together in getelementptr instructions
+            wiring = {{"raddr", "raddr_" + unitName + "_reg"}};
+            outWires = {{"out", {false, 32, "rdata_" + unitName}}};
+            
+            // Now also need to set wiring and outwires
+          } else {
+
+            modName = "load";
+
+            wiring = {{"raddr", "raddr_" + to_string(readNum) + "_reg"}};
+            outWires = {{"out", {false, 32, "rdata_" + to_string(readNum)}}};
+
+            // Problem: You cannot just track back the memory that we are loading
+            // from by looking at the load instruction itself. Address calculation
+            // and memory selection are mixed together in getelementptr instructions
           
 
-          readNum++;
+            readNum++;
+          }
 
         } else if (BinaryOperator::classof(instr)) {
           assert(instr->getOpcode() == Instruction::Add);
@@ -416,9 +433,9 @@ namespace DHLS {
             
         } else if (AllocaInst::classof(instr)) {
           // Create a memory module?
-          modName = "RAM";
-          wiring = {{"wen", "wen_" + rStr}};
-          outWires = {{"rdata", {false, 32, "rdata_" + rStr}}};
+          // modName = "RAM";
+          // wiring = {{"wen", "wen_" + rStr}};
+          // outWires = {{"rdata", {false, 32, "rdata_" + rStr}}};
         } else if (BitCastInst::classof(instr) ||
                    CallInst::classof(instr)) {
           // No action for these instruction types
