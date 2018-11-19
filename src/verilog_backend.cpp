@@ -285,7 +285,10 @@ namespace DHLS {
     for (auto state : stg.opStates) {
       // BUG: instrG in a state are not orderd inside the STG by dependencies since
       // they will all execute combinationally inside a state. To avoid this
-      // we should get dependencies in data dependence order.
+      // we should get dependencies in data dependence order. Now we do this, but
+      // we have a new problem: counting the number of instructions can double
+      // count some instructions
+
       int foundInstrs = 0;
 
       while (foundInstrs < numMemOps(stg.instructionsStartingAt(state.first))) {

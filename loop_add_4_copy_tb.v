@@ -53,24 +53,24 @@ module test();
       clocks <= clocks + 1;
 
       if (in_start) begin
-         debug_wr_addr <= mem_val - 1;
-         debug_wr_data <= mem_val;
-         debug_wr_en <= 1;
+         dbg_wr_addr <= mem_val - 1;
+         dbg_wr_data <= mem_val;
+         dbg_wr_en <= 1;
       end else begin
-         debug_wr_en <= 0;
+         dbg_wr_en <= 0;
       end
 
       if (clocks == 4) begin
          mem_val <= mem_val + 1;
          rst <= 0;
-         debug_addr <= 1;
+         dbg_addr <= 1;
       end
 
       if (clocks >= max_clocks) begin
-         $display("debug data at end = %d", debug_data);
-         $assert(debug_data, 2);
+         $display("debug data at end = %d", dbg_data);
+         `assert(dbg_data, 2);
          
-         $display("FAILED!");
+         $display("Passed");
          $finish();
       end
       
