@@ -32,7 +32,7 @@ module test();
    initial begin
       #1 clk = 0;
       clocks = 0;
-      max_clocks = 10;
+      max_clocks = 50;
       rst = 1;
       
    end // initial begin
@@ -44,11 +44,11 @@ module test();
       $display("-- In tb, rdata_0 = %d", rdata0);
       $display("-- dbg_data       = %d", dbg_data);
       $display("-- dbg_addr       = %d", dbg_addr);
-
+      $display("-- clocks         = %d", clocks);
       clocks <= clocks + 1;
 
       if (clocks == 0) begin
-         rst = 0;
+         rst <= 0;
       end
 
       if (clocks >= max_clocks) begin

@@ -356,7 +356,8 @@ namespace DHLS {
             // names here and then write ports for them?
             wiring = {{"wen", {true, 1, "wen_" + unitName + "_reg"}},
                       {"waddr", {true, 32, "waddr_" + unitName + "_reg"}},
-                      {"wdata", {true, 32, "wdata_" + unitName + "_reg"}}};
+                      {"wdata", {true, 32, "wdata_" + unitName + "_reg"}},
+                      {"raddr", {true, 32, "raddr_" + unitName + "_reg"}}};
             outWires = {{"rdata", {false, 32, "rdata_" + unitName}}};
 
           } else {
