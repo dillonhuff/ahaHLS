@@ -63,7 +63,7 @@ module test();
       if (clocks == 4) begin
          mem_val <= mem_val + 1;
          rst <= 0;
-         dbg_addr <= 1;
+         dbg_addr <= 10;
       end
 
       if (clocks >= max_clocks) begin
