@@ -9,7 +9,7 @@ void loop_add_4_copy(int* __restrict a, int* __restrict b) {
   }
 
   // Prevent loop fusion
-  temp[N - 1] = temp[0] + temp[1];
+  temp[N - 1] = temp[0] + 12;
 
   // Copy from temp to b
   for (int i = 0; i < N; i++) {
