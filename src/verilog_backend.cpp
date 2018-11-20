@@ -1211,7 +1211,13 @@ namespace DHLS {
 
           instructionVerilog(out, instr, arch);
 
+          out << "\t\t\tend else begin " << endl;
+          out << "\t\t\t// Default values" << endl;
+          for (auto w : unit.portWires) {
+            out << tab(4) << w.second.name << " = 0;" << endl;
+          }
           out << "\t\t\tend" << endl;
+          
           out << "\t\tend else ";
           if (i == (numInstrs - 1)) {
             out << "begin " << endl;
