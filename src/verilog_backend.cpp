@@ -1180,11 +1180,26 @@ namespace DHLS {
     for (auto controller : assignment) {
 
       FunctionalUnit unit = controller.unit;
+
+      out << "\talways @(*) begin" << endl;        
+
+      int i = 0;
+      int numInstrs = 0;
       for (auto stInstrG : controller.instructions) {
         StateId state = stInstrG.first;
         GuardedInstruction instrG = stInstrG.second;
 
-        out << "\talways @(*) begin" << endl;        
+
+        if (!isPipelineState(state, pipelines)) {
+          numInstrs++;
+        }
+      }
+
+      for (auto stInstrG : controller.instructions) {
+        StateId state = stInstrG.first;
+        GuardedInstruction instrG = stInstrG.second;
+
+
         if (!isPipelineState(state, pipelines)) {
 
 
@@ -1197,18 +1212,24 @@ namespace DHLS {
           instructionVerilog(out, instr, arch);
 
           out << "\t\t\tend" << endl;
-          out << "\t\tend else begin " << endl;
+          out << "\t\tend else ";
+          if (i == (numInstrs - 1)) {
+            out << "begin " << endl;
+          }
 
+          i++;
         }
 
-        out << "\t\t\t// Default values" << endl;
-        for (auto w : unit.portWires) {
-          out << "\t\t\t" << w.second.name << " = 0;" << endl;
-        }
-        out << "\t\tend" << endl;
-
-        out << "\tend" << endl;        
       }
+
+      out << "\t\t\t// Default values" << endl;
+      for (auto w : unit.portWires) {
+        out << "\t\t\t" << w.second.name << " = 0;" << endl;
+      }
+      out << "\t\tend" << endl;
+
+      out << "\tend" << endl;
+      
     }
 
   }
