@@ -24,7 +24,7 @@ SET(CPP_FILES ./src/scheduling.cpp
               ./src/verilog_backend.cpp
               ./src/utils.cpp)
 
-llvm_map_components_to_libnames(llvm_libs support core irreader)
+llvm_map_components_to_libnames(llvm_libs support core irreader passes)
 
 add_library(dhls ${CPP_FILES})
 target_link_libraries(dhls ${llvm_libs} z3)
