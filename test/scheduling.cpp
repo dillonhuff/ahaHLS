@@ -20,6 +20,10 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/Support/SourceMgr.h>
 
+#include <llvm/IR/PassManager.h>
+#include <llvm/Passes/PassBuilder.h>
+#include <llvm/Transforms/InstCombine/InstCombine.h>
+
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/Option/OptTable.h"
 #include "llvm/Support/Path.h"
@@ -577,6 +581,25 @@ namespace DHLS {
     emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("loop_add_4_copy"));
+  }
+
+  TEST_CASE("LLVM running pass on single store") {
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+    std::unique_ptr<Module> Mod = loadModule(Context, Err, "single_store");
+
+    Function* f = Mod->getFunction("single_store");
+
+    FunctionAnalysisManager FAM;
+
+    FunctionPassManager FPM;
+    FPM.addPass(InstCombinePass());
+
+    PassBuilder PB;
+    PB.registerFunctionAnalyses(FAM);
+
+    FPM.run(*f, FAM);
   }
   
 }
