@@ -20,7 +20,11 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/Support/SourceMgr.h>
 
+#include <llvm/Pass.h>
+#include <llvm/IR/Function.h>
 #include <llvm/IR/PassManager.h>
+#include <llvm/IR/LegacyPassManager.h>
+
 #include <llvm/Passes/PassBuilder.h>
 #include <llvm/Transforms/InstCombine/InstCombine.h>
 
@@ -583,20 +587,22 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("loop_add_4_copy"));
   }
 
-  class HLSPass : public PassInfoMixin<HLSPass> {
-  public:
+  struct Hello : public FunctionPass {
+    static char ID;
+    Hello() : FunctionPass(ID) {}
 
-    static StringRef name() { return "HLSPass"; }    
-
-    explicit HLSPass() {}
-
-    PreservedAnalyses run(Function &F, FunctionAnalysisManager &AM) {
-      cout << "RAN HLS PASS" << endl;
-      return {};
+    bool runOnFunction(Function &F) override {
+      errs() << "Hello: ";
+      errs().write_escaped(F.getName()) << '\n';
+      return false;
     }
+  }; // end of struct Hello  
 
-  };
-
+  char Hello::ID = 123;
+  static RegisterPass<Hello> X("hello", "Hello World Pass",
+                               false /* Only looks at CFG */,
+                               false /* Analysis Pass */);
+  
   TEST_CASE("LLVM running pass on single store") {
 
     SMDiagnostic Err;
@@ -605,18 +611,24 @@ namespace DHLS {
 
     Function* f = Mod->getFunction("single_store");
 
-    FunctionAnalysisManager FAM;
+    llvm::legacy::PassManager pm;
+    auto nh = new Hello();
+    pm.add(nh);
 
-    HLSPass* pass = new HLSPass();
+    pm.run(*Mod);
 
-    FunctionPassManager FPM;
-    FPM.addPass(InstCombinePass());
-    FPM.addPass(HLSPass());
+    //delete nh;
 
-    PassBuilder PB;
-    PB.registerFunctionAnalyses(FAM);
+    // FunctionAnalysisManager FAM;
 
-    FPM.run(*f, FAM);
+    // FunctionPassManager FPM;
+    // FPM.addPass(InstCombinePass());
+    // FPM.addPass(Hello());
+
+    // PassBuilder PB;
+    // PB.registerFunctionAnalyses(FAM);
+
+    // FPM.run(*f, FAM);
   }
   
 }
