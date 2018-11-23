@@ -583,6 +583,20 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("loop_add_4_copy"));
   }
 
+  class HLSPass : public PassInfoMixin<HLSPass> {
+  public:
+
+    static StringRef name() { return "HLSPass"; }    
+
+    explicit HLSPass() {}
+
+    PreservedAnalyses run(Function &F, FunctionAnalysisManager &AM) {
+      cout << "RAN HLS PASS" << endl;
+      return {};
+    }
+
+  };
+
   TEST_CASE("LLVM running pass on single store") {
 
     SMDiagnostic Err;
@@ -593,8 +607,11 @@ namespace DHLS {
 
     FunctionAnalysisManager FAM;
 
+    HLSPass* pass = new HLSPass();
+
     FunctionPassManager FPM;
     FPM.addPass(InstCombinePass());
+    FPM.addPass(HLSPass());
 
     PassBuilder PB;
     PB.registerFunctionAnalyses(FAM);
