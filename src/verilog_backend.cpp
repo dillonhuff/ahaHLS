@@ -1623,6 +1623,13 @@ namespace DHLS {
     comps.debugWires.push_back({true, 1, "rst"});
     comps.debugWires.push_back({true, 1, "clk"});
     comps.debugWires.push_back({true, 1, "in_set_mem_phase"});
+    comps.debugWires.push_back({true, 1, "in_run_phase"});
+    comps.debugWires.push_back({true, 1, "in_check_mem_phase"});    
+
+    comps.debugWires.push_back({true, 32, "clocks_in_set_mem_phase"});
+    comps.debugWires.push_back({true, 32, "clocks_in_run_phase"});
+    comps.debugWires.push_back({true, 32, "clocks_in_check_mem_phase"});    
+
     comps.debugWires.push_back({true, 32, "num_clocks_after_reset"});
     comps.debugWires.push_back({true, 32, "total_cycles"});
     comps.debugWires.push_back({true, 32, "max_cycles"});
@@ -1630,6 +1637,10 @@ namespace DHLS {
     comps.debugWires.push_back({true, 5, "raddr_0"});    
     comps.debugWires.push_back({false, 32, "rdata_0"});    
 
+    comps.debugWires.push_back({true, 5, "dbg_wr_addr"});    
+    comps.debugWires.push_back({true, 32, "dbg_wr_data"});
+    comps.debugWires.push_back({true, 1, "dbg_wr_en"});
+    
     comps.debugWires.push_back({true, 5, "waddr_0"});
     comps.debugWires.push_back({true, 32, "wdata_0"});        
     comps.debugWires.push_back({true, 1, "wen_0"});
@@ -1643,18 +1654,27 @@ namespace DHLS {
     addAlwaysBlock({"clk"}, "if (total_cycles >= max_cycles) begin if (valid == 1) begin $display(\"Passed\"); $finish(); end else begin $display(\"valid == %d. Ran out of cycles, finishing.\", valid); $finish(); end end", comps);
 
 
-    addAlwaysBlock({"clk"}, "if (total_cycles >= 10) begin in_set_mem_phase <= 0; rst <= 0; num_clocks_after_reset <= 0; end", comps);
+    addAlwaysBlock({"clk"}, "if (total_cycles >= 10) begin in_set_mem_phase <= 0; in_run_phase <= 1; clocks_in_run_phase <= 0; rst <= 0; num_clocks_after_reset <= 0; end", comps);
 
     addAlwaysBlock({"clk"}, "if (!in_set_mem_phase) begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", comps);
+
+    addAlwaysBlock({"clk"}, "if (in_set_mem_phase) begin clocks_in_set_mem_phase <= clocks_in_set_mem_phase + 1; dbg_wr_addr <= clocks_in_set_mem_phase; dbg_wr_data <= 1; dbg_wr_en <= 1; end else begin dbg_wr_en <= 0; end", comps);
     
     comps.initStmts.push_back("#1 clk = 0;");
     comps.initStmts.push_back("#1 rst = 1;");
+    comps.initStmts.push_back("#1 in_set_mem_phase = 1;");    
     comps.initStmts.push_back("#1 total_cycles = 0;");
     comps.initStmts.push_back("#1 max_cycles = 100;");
     comps.initStmts.push_back("#1 num_clocks_after_reset = 0;");
+    comps.initStmts.push_back("#1 clocks_in_set_mem_phase = 0;");
+    comps.initStmts.push_back("#1 clocks_in_run_phase = 0;");        
+    comps.initStmts.push_back("#1 clocks_in_check_mem_phase = 0;");    
 
+    // TODO: Replace with auto-generated RAM
     comps.instances.push_back({"RAM", "ram", {{"clk", "clk"}, {"rst", "rst"}, {"raddr", "raddr_0"}, {"rdata", "rdata_0"}, {"wen", "wen_0"}, {"waddr", "waddr_0"}, {"wdata", "wdata_0"}}});
-    comps.instances.push_back({tb.name, "dut", {{"clk", "clk"}, {"rst", "rst"}, {"valid", "valid"}}});
+
+    // TODO: Move this to be generic code passed in to this function
+    comps.instances.push_back({tb.name, "dut", {{"clk", "clk"}, {"rst", "rst"}, {"valid", "valid"}, {"raddr_0", "raddr_0"}, {"rdata_0", "rdata_0"}, {"waddr_0", "waddr_0"}, {"wdata_0", "wdata_0"}, {"wen_0", "wen_0"}}});
 
     emitComponents(out, comps);
 
