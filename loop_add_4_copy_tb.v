@@ -74,7 +74,12 @@ module test();
       if (clocks >= max_clocks) begin
          $display("debug data at end = %d", dbg_data);
          `assert(dbg_data, 1 + 4 + 6);
-         
+
+         // 0 -> 1 + 4 + 6
+         // 1 -> 2 + 4 + 6
+         // 2 -> 3 + 4 + 6
+         // 3 -> 1 + 4 + 12 + 6
+
          $display("Passed");
          $finish();
       end
