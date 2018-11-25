@@ -1472,6 +1472,7 @@ namespace DHLS {
                    std::map<std::string, int>& memoryMap) {
     VerilogDebugInfo info;
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
     emitVerilog(f, stg, memoryMap, info);
   }
   
@@ -1509,7 +1510,9 @@ namespace DHLS {
 
     emitPorts(out, allPorts);
 
-    out << tab(1) << "assign " << "global_state_dbg = global_state;" << endl;
+    for (auto asg : debugInfo.debugAssigns) {
+      out << tab(1) << "assign " << asg.first << " = " << asg.second << ";" << endl;
+    }
 
     emitFunctionalUnits(out, unitAssignment);
     emitRegisterStorage(out, names);
