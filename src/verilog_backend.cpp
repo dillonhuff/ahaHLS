@@ -48,12 +48,16 @@ namespace DHLS {
   Port outputPort(const int width, const std::string& name) {
     return {false, width, name, false};
   }
+
+  Port outputDebugPort(const int width, const std::string& name) {
+    return {true, width, name, false};
+  }
   
   class FunctionalUnit {
   public:
     std::string modName;
     std::string instName;
-    //std::map<std::string, std::string> portWires;
+
     std::map<std::string, Wire> portWires;
     std::map<std::string, Wire> outWires;
 
@@ -1467,13 +1471,14 @@ namespace DHLS {
                    const STG& stg,
                    std::map<std::string, int>& memoryMap) {
     VerilogDebugInfo info;
+    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
     emitVerilog(f, stg, memoryMap, info);
   }
   
   void emitVerilog(llvm::Function* f,
                    const STG& stg,
                    std::map<std::string, int>& memoryMap,
-                   const VerilogDebugInfo& debufInfo) {
+                   const VerilogDebugInfo& debugInfo) {
 
     map<BasicBlock*, int> basicBlockNos = numberBasicBlocks(f);
     map<Instruction*, Wire> names = createInstrNames(stg);
@@ -1488,7 +1493,9 @@ namespace DHLS {
     MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, rams);
     string fn = f->getName();
     vector<Port> allPorts = getPorts(stg);
-    allPorts.push_back({false, 32, "global_state_dbg", true});
+    for (auto w : debugInfo.wiresToWatch) {
+      allPorts.push_back(outputDebugPort(w.width, w.name));
+    }
 
     vector<string> portStrings;
     for (auto pt : allPorts) {
