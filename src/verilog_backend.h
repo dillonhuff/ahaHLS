@@ -48,13 +48,15 @@ namespace DHLS {
 
   void emitVerilogTestBench(const TestBenchSpec& tb);
   
-  class VerilogDebugInfo {
+  class VerilogComponents {
   public:
     std::vector<Wire> wiresToWatch;
     std::vector<Wire> debugWires;
     std::vector<std::pair<std::string, std::string> > debugAssigns;
     std::vector<AlwaysBlock> blocks;
   };
+
+  typedef VerilogComponents VerilogDebugInfo;
 
   static inline void
   addAlwaysBlock(const std::vector<std::string>& triggers,

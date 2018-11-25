@@ -1474,6 +1474,25 @@ namespace DHLS {
     return pipelines;
   }
 
+  void emitComponents(std::ostream& out,
+                      const VerilogComponents& debugInfo) {
+
+    out << endl << tab(1) << "// Start debug wires and ports" << endl;
+    for (auto w : debugInfo.debugWires) {
+      out << tab(1) << w << ";" << endl;
+    }
+
+    for (auto asg : debugInfo.debugAssigns) {
+      out << tab(1) << "assign " << asg.first << " = " << asg.second << ";" << endl;
+    }
+
+    for (auto blk : debugInfo.blocks) {
+      print(out, 1, blk);
+    }
+    out << tab(1) << "// End debug wires and ports" << endl;
+
+  }
+
   void emitVerilog(llvm::Function* f,
                    const STG& stg,
                    std::map<std::string, int>& memoryMap) {
@@ -1517,19 +1536,7 @@ namespace DHLS {
 
     emitPorts(out, allPorts);
 
-    out << endl << tab(1) << "// Start debug wires and ports" << endl;
-    for (auto w : debugInfo.debugWires) {
-      out << tab(1) << w << ";" << endl;
-    }
-
-    for (auto asg : debugInfo.debugAssigns) {
-      out << tab(1) << "assign " << asg.first << " = " << asg.second << ";" << endl;
-    }
-
-    for (auto blk : debugInfo.blocks) {
-      print(out, 1, blk);
-    }
-    out << tab(1) << "// End debug wires and ports" << endl;
+    emitComponents(out, debugInfo);
     
     emitFunctionalUnits(out, unitAssignment);
     emitRegisterStorage(out, names);
@@ -1593,6 +1600,8 @@ namespace DHLS {
     vector<string> portStrings;    
     out << "module " << modName << "(" + commaListString(portStrings) + ");" << endl;
     out << endl;
+
+    
 
     out << "endmodule" << endl;
 
