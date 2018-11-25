@@ -38,6 +38,19 @@ namespace DHLS {
     out << tab(level) << "end" << std::endl;
   }
 
+  class AlwaysDelayBlock {
+  public:
+    int delay;
+    std::string body;
+  };
+
+  static inline
+  void print(std::ostream& out, int level, const AlwaysDelayBlock& b) {
+    out << tab(level) << "always #" << b.delay << " begin" << std::endl;
+    out << tab(level + 1) << b.body << std::endl;
+    out << tab(level) << "end" << std::endl;
+  }
+  
   class TestBenchSpec {
   public:
     std::map<std::string, std::vector<int> > memoryInit;
@@ -54,6 +67,8 @@ namespace DHLS {
     std::vector<Wire> debugWires;
     std::vector<std::pair<std::string, std::string> > debugAssigns;
     std::vector<AlwaysBlock> blocks;
+    std::vector<AlwaysDelayBlock> delayBlocks;
+    std::vector<std::string> initStmts;
   };
 
   typedef VerilogComponents VerilogDebugInfo;

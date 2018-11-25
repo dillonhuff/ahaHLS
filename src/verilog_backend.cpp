@@ -1478,10 +1478,17 @@ namespace DHLS {
                       const VerilogComponents& debugInfo) {
 
     out << endl << tab(1) << "// Start debug wires and ports" << endl;
+
     for (auto w : debugInfo.debugWires) {
       out << tab(1) << w << ";" << endl;
     }
 
+    out << tab(1) << "initial begin" << endl;
+    for (auto stmt : debugInfo.initStmts) {
+      out << tab(2) << stmt << endl;
+    }
+    out << tab(1) << "end" << endl;
+    
     for (auto asg : debugInfo.debugAssigns) {
       out << tab(1) << "assign " << asg.first << " = " << asg.second << ";" << endl;
     }
@@ -1489,6 +1496,11 @@ namespace DHLS {
     for (auto blk : debugInfo.blocks) {
       print(out, 1, blk);
     }
+
+    for (auto blk : debugInfo.delayBlocks) {
+      print(out, 1, blk);
+    }
+
     out << tab(1) << "// End debug wires and ports" << endl;
 
   }
@@ -1601,7 +1613,24 @@ namespace DHLS {
     out << "module " << modName << "(" + commaListString(portStrings) + ");" << endl;
     out << endl;
 
-    
+    VerilogComponents comps;
+    comps.debugWires.push_back({true, 1, "rst"});
+    comps.debugWires.push_back({true, 1, "clk"});
+    comps.debugWires.push_back({true, 1, "in_set_mem_phase"});
+    comps.debugWires.push_back({true, 32, "num_clocks_after_reset"});
+    comps.debugWires.push_back({true, 32, "total_cycles"});
+    comps.debugWires.push_back({true, 32, "max_cycles"});
+
+    comps.delayBlocks.push_back({3, "clk = !clk;"});
+    addAlwaysBlock({"clk"}, "total_cycles <= total_cycles + 1;", comps);
+    addAlwaysBlock({"clk"}, "if (total_cycles >= max_cycles) begin $display(\"Ran out of cycles, finishing.\"); $finish(); end", comps);
+
+    comps.initStmts.push_back("#1 clk = 0;");
+    comps.initStmts.push_back("#1 rst = 0;");
+    comps.initStmts.push_back("#1 total_cycles = 0;");    
+    comps.initStmts.push_back("#1 max_cycles = 100;");    
+
+    emitComponents(out, comps);
 
     out << "endmodule" << endl;
 
