@@ -23,13 +23,35 @@ namespace DHLS {
   };
 
   std::ostream& operator<<(std::ostream& out, const Wire w);
+
+  class AlwaysBlock {
+  public:
+    std::vector<std::string> triggers;
+    std::string body;
+  };
+
+  static inline
+  void print(std::ostream& out, int level, const AlwaysBlock& b) {
+    assert(b.triggers.size() == 1);
+    out << tab(level) << "always @(posedge " << b.triggers[0] << ") begin" << std::endl;
+    out << tab(level + 1) << b.body << std::endl;
+    out << tab(level) << "end" << std::endl;
+  }
   
   class VerilogDebugInfo {
   public:
     std::vector<Wire> wiresToWatch;
     std::vector<Wire> debugWires;
     std::vector<std::pair<std::string, std::string> > debugAssigns;
+    std::vector<AlwaysBlock> blocks;
   };
+
+  static inline void
+  addAlwaysBlock(const std::vector<std::string>& triggers,
+                 const std::string& body,
+                 VerilogDebugInfo& info) {
+    info.blocks.push_back({triggers, body});
+  }
 
   void emitVerilog(llvm::Function* f,
                    const STG& stg,

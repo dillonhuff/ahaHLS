@@ -1518,6 +1518,10 @@ namespace DHLS {
     for (auto asg : debugInfo.debugAssigns) {
       out << tab(1) << "assign " << asg.first << " = " << asg.second << ";" << endl;
     }
+
+    for (auto blk : debugInfo.blocks) {
+      print(out, 1, blk);
+    }
     out << tab(1) << "// End debug wires and ports" << endl;
     
     emitFunctionalUnits(out, unitAssignment);

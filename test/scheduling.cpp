@@ -594,7 +594,9 @@ namespace DHLS {
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
     info.debugAssigns.push_back({"wdata_temp_reg_dbg", "wdata_temp_reg"});
 
-    info.debugWires.push_back({true, 32, "num_clocks"});
+    info.debugWires.push_back({true, 32, "num_clocks_after_reset"});
+
+    addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
 
     emitVerilog(f, graph, layout, info);
 
