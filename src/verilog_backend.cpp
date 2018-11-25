@@ -1510,10 +1510,16 @@ namespace DHLS {
 
     emitPorts(out, allPorts);
 
+    out << endl << tab(1) << "// Start debug wires and ports" << endl;
+    for (auto w : debugInfo.debugWires) {
+      out << tab(1) << w << ";" << endl;
+    }
+
     for (auto asg : debugInfo.debugAssigns) {
       out << tab(1) << "assign " << asg.first << " = " << asg.second << ";" << endl;
     }
-
+    out << tab(1) << "// End debug wires and ports" << endl;
+    
     emitFunctionalUnits(out, unitAssignment);
     emitRegisterStorage(out, names);
 

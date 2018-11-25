@@ -590,8 +590,12 @@ namespace DHLS {
     VerilogDebugInfo info;
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
     info.wiresToWatch.push_back({false, 32, "wdata_temp_reg_dbg"});    
+
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
-    info.debugAssigns.push_back({"wdata_temp_reg_dbg", "wdata_temp_reg"});    
+    info.debugAssigns.push_back({"wdata_temp_reg_dbg", "wdata_temp_reg"});
+
+    info.debugWires.push_back({true, 32, "num_clocks"});
+
     emitVerilog(f, graph, layout, info);
 
     REQUIRE(runIVerilogTB("loop_add_4_copy"));
