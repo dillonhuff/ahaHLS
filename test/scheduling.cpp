@@ -201,16 +201,25 @@ namespace DHLS {
   // question. I guess the ideal is that the user just says when he wants to
   // read and the compiler infers where write locations have to happen?
 
-  // Q: Kayvon wants to emit a dag of linebuffers / stencils, but isnt
-  // that basically what Jeff is doing?
-
   // Box touched algorithm?
+
+  // NOTE: The small addition of verilog injection tools really helped with
+  // debugging that failing memory test case. I really ought to devise a better
+  // memory checking testbench. What would the components of that test bench be?
+  //   1. RAM generator that can emit verilog modules for the desired RAM type
+  //   2. Testbench generator that can set initial RAM values, run the HLS verilog
+  //      and then write out the results
+  //   3. Output stage of testbench that can read through the entire output
+  //      memory and check its contents
 
   // Q: What test cases do I need?
   // A: Test case that uses 16 (or other not 32 bit) width (parametric builtins)
   //    Test case that uses inner and outer loops
-  //    Test case that can use caching (or some other memory architecture)
   //    Test that uses a loop with II != 1
+  //    Test that mixes memory accesses and loop pipelining
+  //    Test that uses multiple different RAM types
+  //    Later: Test case that can use AXI and variable arrival time inputs
+  //    Test that uses limited numbers of memory read/write ports
   TEST_CASE("A simple if") {
     SMDiagnostic Err;
     LLVMContext Context;
