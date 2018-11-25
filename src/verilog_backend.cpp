@@ -1127,7 +1127,7 @@ namespace DHLS {
   class UnitController {
   public:
     FunctionalUnit unit;
-    std::map<StateId, GuardedInstruction> instructions;
+    std::map<StateId, std::vector<GuardedInstruction> > instructions;
   };
 
   // TODO: Experiment with adding defaults to all functional unit inputs
@@ -1149,14 +1149,14 @@ namespace DHLS {
           for (auto& u : assignment) {
             if (u.unit.instName == unit.instName) {
               alreadyIn = true;
-              u.instructions[state.first] = instrG;
+              map_insert(u.instructions, state.first, instrG); //[state.first] = instrG;
               break;
             }
           }
 
           if (!alreadyIn) {
-            map<StateId, GuardedInstruction> instrs;
-            instrs[state.first] = instrG;
+            map<StateId, vector<GuardedInstruction> > instrs;
+            instrs[state.first] = {instrG};
             assignment.push_back({unit, instrs});
           }
 
@@ -1175,8 +1175,8 @@ namespace DHLS {
       int numInstrs = 0;
       for (auto stInstrG : controller.instructions) {
         StateId state = stInstrG.first;
-        GuardedInstruction instrG = stInstrG.second;
-
+        //auto instrsAtState = stInstrG.second;
+        //GuardedInstruction instrG = stInstrG.second;
 
         if (!isPipelineState(state, pipelines)) {
           numInstrs++;
@@ -1185,27 +1185,29 @@ namespace DHLS {
 
       for (auto stInstrG : controller.instructions) {
         StateId state = stInstrG.first;
-        GuardedInstruction instrG = stInstrG.second;
-
+        //GuardedInstruction instrG = stInstrG.second;
+        auto instrsAtState = stInstrG.second;
 
         if (!isPipelineState(state, pipelines)) {
 
 
           out << "\t\tif (global_state == " + to_string(state) + ") begin" << endl;
 
-          Instruction* instr = instrG.instruction;
+          for (auto instrG : instrsAtState) {
+            Instruction* instr = instrG.instruction;
 
-          out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
+            out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
 
-          instructionVerilog(out, instr, arch);
+            instructionVerilog(out, instr, arch);
 
-          out << "\t\t\tend else begin " << endl;
-          out << "\t\t\t// Default values" << endl;
-          for (auto w : unit.portWires) {
-            out << tab(4) << w.second.name << " = 0;" << endl;
+            out << "\t\t\tend else begin " << endl;
+            out << "\t\t\t// Default values" << endl;
+            for (auto w : unit.portWires) {
+              out << tab(4) << w.second.name << " = 0;" << endl;
+            }
+            out << "\t\t\tend" << endl;
           }
-          out << "\t\t\tend" << endl;
-          
+
           out << "\t\tend else ";
           if (i == (numInstrs - 1)) {
             out << "begin " << endl;
