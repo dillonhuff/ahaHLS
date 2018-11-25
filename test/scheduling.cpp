@@ -598,7 +598,10 @@ namespace DHLS {
 
     addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
 
-    addAlwaysBlock({"clk"}, "if (num_clocks_after_reset === 1) begin $display(\"DONE\"); $finish(); end", info);
+    // Change this to check instruction input values
+    addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 1 || waddr_temp_reg == 0)) begin $display(\"assertion FAILED\"); $finish(); end", info);
+    addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 1 || add_out_10 == rdata_0 + 4)) begin $display(\"assertion FAILED\"); $finish(); end", info);
+    addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 1 || add_in0_10 == 1)) begin $display(\"assertion FAILED\"); $finish(); end", info);
     emitVerilog(f, graph, layout, info);
 
     REQUIRE(runIVerilogTB("loop_add_4_copy"));
