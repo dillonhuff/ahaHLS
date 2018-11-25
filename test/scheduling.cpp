@@ -9,6 +9,8 @@
 
 #include <fstream>
 
+//#include <polly/ScopDetection.h>
+
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/InstrTypes.h"
 #include <llvm/Support/TargetSelect.h>
@@ -20,6 +22,7 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/Support/SourceMgr.h>
 
+#include <llvm/Analysis/AliasAnalysis.h>
 #include <llvm/Pass.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/PassManager.h>
@@ -37,6 +40,7 @@
 #include <iostream>
 
 using namespace dbhc;
+//using namespace polly;
 using namespace llvm;
 using namespace std;
 
@@ -584,51 +588,64 @@ namespace DHLS {
     map<string, int> layout = {{"a", 0}, {"b", 10}};
     emitVerilog(f, graph, layout);
 
-    REQUIRE(runIVerilogTB("loop_add_4_copy"));
+    //REQUIRE(runIVerilogTB("loop_add_4_copy"));
   }
 
-  struct Hello : public FunctionPass {
-    static char ID;
-    Hello() : FunctionPass(ID) {}
+  // struct Hello : public FunctionPass {
+  //   static char ID;
+  //   Hello() : FunctionPass(ID) {}
 
-    bool runOnFunction(Function &F) override {
-      errs() << "Hello: ";
-      errs().write_escaped(F.getName()) << '\n';
-      return false;
-    }
-  }; // end of struct Hello  
+  //   bool runOnFunction(Function &F) override {
+  //     errs() << "Hello: ";
+  //     errs().write_escaped(F.getName()) << '\n';
+  //     return true;
+  //   }
+  // }; // end of struct Hello  
 
-  char Hello::ID = 123;
-  static RegisterPass<Hello> X("hello", "Hello World Pass",
-                               false /* Only looks at CFG */,
-                               false /* Analysis Pass */);
+  // char Hello::ID = 0;
+  // static RegisterPass<Hello> X("hello", "Hello World Pass",
+  //                              false /* Only looks at CFG */,
+  //                              false /* Analysis Pass */);
   
-  TEST_CASE("LLVM running pass on single store") {
+  // struct PipelineSched : public FunctionPass {
+  //   static char ID;
+  //   PipelineSched() : FunctionPass(ID) {}
 
-    SMDiagnostic Err;
-    LLVMContext Context;
-    std::unique_ptr<Module> Mod = loadModule(Context, Err, "single_store");
+  //   void getAnalysisUsage(AnalysisUsage& AU) const override {
+  //     AU.addRequired<ScalarEvolutionWrapperPass>();
+  //     AU.addRequired<AAResultsWrapperPass>();
+  //     //AU.addRequired<ScopDetectionWrapperPass>();
+  //   }
 
-    Function* f = Mod->getFunction("single_store");
+  //   bool runOnFunction(Function &F) override {
+  //     errs() << "PipelineSched: ";
+  //     errs().write_escaped(F.getName()) << '\n';
+  //     return true;
+  //   }
+  // }; // end of struct PipelineSched  
+  
+  // char PipelineSched::ID = 0;
+  // static RegisterPass<PipelineSched>
+  // PipeSched("pipelinesched", "PipelineSched World Pass",
+  //           false /* Only looks at CFG */,
+  //           false /* Analysis Pass */);
+  
+  // TEST_CASE("LLVM running pass on single store") {
 
-    llvm::legacy::PassManager pm;
-    auto nh = new Hello();
-    pm.add(nh);
+  //   SMDiagnostic Err;
+  //   LLVMContext Context;
+  //   std::unique_ptr<Module> Mod = loadModule(Context, Err, "single_store");
 
-    pm.run(*Mod);
+  //   Function* f = Mod->getFunction("single_store");
 
-    //delete nh;
+  //   llvm::legacy::PassManager pm;
+  //   auto nh = new Hello();
+  //   auto ps = new PipelineSched();    
+  //   pm.add(nh);
+  //   pm.add(ps);
 
-    // FunctionAnalysisManager FAM;
+  //   pm.run(*Mod);
 
-    // FunctionPassManager FPM;
-    // FPM.addPass(InstCombinePass());
-    // FPM.addPass(Hello());
-
-    // PassBuilder PB;
-    // PB.registerFunctionAnalyses(FAM);
-
-    // FPM.run(*f, FAM);
-  }
+  // }
   
 }

@@ -289,13 +289,18 @@ namespace DHLS {
       // we have a new problem: counting the number of instructions can double
       // count some instructions
 
-      int foundInstrs = 0;
+      std::set<Instruction*> foundOps;
+      while (foundOps.size() < numMemOps(stg.instructionsStartingAt(state.first))) {
+        cout << "FoundInstrs =  "<< foundOps.size() << endl;
 
-      while (foundInstrs < numMemOps(stg.instructionsStartingAt(state.first))) {
-        cout << "FoundInstrs =  "<< foundInstrs << endl;
-        
         for (auto instrG : stg.instructionsStartingAt(state.first)) {
           auto instr = instrG.instruction;
+
+          if (elem(instr, foundOps)) {
+            continue;
+          }
+
+
 
           cout << "Getting source for " << instructionString(instr) << endl;
           if (LoadInst::classof(instr)) {
@@ -303,7 +308,7 @@ namespace DHLS {
             string name = getRAMName(location, mems);
             if (name != "") {
               mems[instr] = getRAMName(location, mems);
-              foundInstrs++;
+              foundOps.insert(instr);
             } else {
               cout << "No source for " << instructionString(instr) << endl;
             }
@@ -313,7 +318,7 @@ namespace DHLS {
             string name = getRAMName(location, mems);
             if (name != "") {
               mems[instr] = getRAMName(location, mems);
-              foundInstrs++;
+              foundOps.insert(instr);              
             } else {
               cout << "No source for " << instructionString(instr) << endl;
             }
@@ -323,7 +328,7 @@ namespace DHLS {
             string name = getRAMName(location, mems);
             if (name != "") {
               mems[instr] = getRAMName(location, mems);
-              foundInstrs++;            
+              foundOps.insert(instr);                            
             } else {
               cout << "No source for " << instructionString(instr) << endl;
             }
@@ -371,6 +376,8 @@ namespace DHLS {
           to_string(resSuffix);
 
         if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
+          assert(contains_key(instr, memSrcs));
+
           string memSrc = map_find(instr, memSrcs);
 
           // If we are loading from an internal RAM, not an argument
