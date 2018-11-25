@@ -50,6 +50,26 @@ namespace DHLS {
     out << tab(level + 1) << b.body << std::endl;
     out << tab(level) << "end" << std::endl;
   }
+
+  class ModuleInstance {
+  public:
+    std::string modName;
+    std::string instName;
+    std::map<std::string, std::string> portConnections;
+  };
+
+  static inline
+  void print(std::ostream& out, int level, const ModuleInstance& b) {
+
+    std::vector<std::string> portStrings;
+    for (auto pt : b.portConnections) {
+      portStrings.push_back("." + pt.first + "(" + pt.second + ")");
+    }
+
+    out << tab(level) << b.modName << " " << b.instName << "(";
+    out << commaListString(portStrings);
+    out << ");" << std::endl;
+  }
   
   class TestBenchSpec {
   public:
@@ -69,6 +89,7 @@ namespace DHLS {
     std::vector<AlwaysBlock> blocks;
     std::vector<AlwaysDelayBlock> delayBlocks;
     std::vector<std::string> initStmts;
+    std::vector<ModuleInstance> instances;    
   };
 
   typedef VerilogComponents VerilogDebugInfo;
