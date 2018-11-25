@@ -598,6 +598,7 @@ namespace DHLS {
 
     addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
 
+    addAlwaysBlock({"clk"}, "if (num_clocks_after_reset === 1) begin $display(\"DONE\"); $finish(); end", info);
     emitVerilog(f, graph, layout, info);
 
     REQUIRE(runIVerilogTB("loop_add_4_copy"));
