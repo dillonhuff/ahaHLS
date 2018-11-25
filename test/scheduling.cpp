@@ -600,6 +600,7 @@ namespace DHLS {
 
     // Change this to check instruction input values
     addAssert("num_clocks_after_reset !== 1 || waddr_temp_reg === 0", info);
+    addAssert("num_clocks_after_reset !== 1 || wdata_temp_reg === 5", info);    
     addAssert("num_clocks_after_reset !== 1 || add_out_10 === rdata_0 + 4", info);
     addAssert("num_clocks_after_reset !== 1 || add_in0_10 === 1", info);
 
@@ -611,10 +612,15 @@ namespace DHLS {
     addAssert("num_clocks_after_reset !== 11 || add_out_10 === rdata_0 + 4", info);
     addAssert("num_clocks_after_reset !== 11 || add_in0_10 === 3", info);
 
+    addAssert("num_clocks_after_reset !== 11 || raddr_temp_reg === 0", info);
+
+    addAssert("global_state !== 5 || rdata_temp === 5", info);    
+    addAssert("global_state !== 5 || add_out_16 === 17", info);
+
     addAlwaysBlock({"clk"}, "if (num_clocks_after_reset == 11) begin $display(\"add_in0_10 == %d\", add_in0_10); end", info);
 
     // Assert that the value stored to temp[N - 1] is 17
-    addAlwaysBlock({"clk"}, "if (!(global_state !== 5 || add_out_16 === 17)) begin $display(\"assertion FAILED\"); $finish(); end", info);
+    //addAlwaysBlock({"clk"}, "if (!(global_state !== 5 || add_out_16 === 17)) begin $display(\"assertion FAILED\"); $finish(); end", info);
 
     addAlwaysBlock({"clk"}, "if (global_state == 5) begin $display(\"add_out_16 == %d\", add_out_16); end", info);
 
