@@ -1483,19 +1483,27 @@ namespace DHLS {
       out << tab(1) << w << ";" << endl;
     }
 
+    out << endl;
+
     out << tab(1) << "initial begin" << endl;
     for (auto stmt : debugInfo.initStmts) {
       out << tab(2) << stmt << endl;
     }
     out << tab(1) << "end" << endl;
+
+    out << endl;
     
     for (auto asg : debugInfo.debugAssigns) {
       out << tab(1) << "assign " << asg.first << " = " << asg.second << ";" << endl;
     }
 
+    out << endl;
+
     for (auto blk : debugInfo.blocks) {
       print(out, 1, blk);
     }
+
+    out << endl;
 
     for (auto blk : debugInfo.delayBlocks) {
       print(out, 1, blk);
@@ -1653,7 +1661,6 @@ namespace DHLS {
     addAlwaysBlock({"clk"}, "total_cycles <= total_cycles + 1;", comps);
     addAlwaysBlock({"clk"}, "if (total_cycles >= max_cycles) begin if (valid == 1) begin $display(\"Passed\"); $finish(); end else begin $display(\"valid == %d. Ran out of cycles, finishing.\", valid); $finish(); end end", comps);
 
-
     addAlwaysBlock({"clk"}, "if (total_cycles >= 10) begin in_set_mem_phase <= 0; in_run_phase <= 1; clocks_in_run_phase <= 0; rst <= 0; num_clocks_after_reset <= 0; end", comps);
 
     addAlwaysBlock({"clk"}, "if (!in_set_mem_phase) begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", comps);
@@ -1662,7 +1669,11 @@ namespace DHLS {
     
     comps.initStmts.push_back("#1 clk = 0;");
     comps.initStmts.push_back("#1 rst = 1;");
-    comps.initStmts.push_back("#1 in_set_mem_phase = 1;");    
+
+    comps.initStmts.push_back("#1 in_set_mem_phase = 1;");
+    comps.initStmts.push_back("#1 in_check_mem_phase = 1;");
+    comps.initStmts.push_back("#1 in_run_phase = 1;");        
+
     comps.initStmts.push_back("#1 total_cycles = 0;");
     comps.initStmts.push_back("#1 max_cycles = 100;");
     comps.initStmts.push_back("#1 num_clocks_after_reset = 0;");
