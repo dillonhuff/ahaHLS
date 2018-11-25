@@ -53,6 +53,12 @@ namespace DHLS {
     info.blocks.push_back({triggers, body});
   }
 
+  static inline void
+  addAssert(const std::string& condition,
+            VerilogDebugInfo& info) {
+    addAlwaysBlock({"clk"}, "if (!(" + condition + ")) begin $display(\"assertion(" + condition + ")\"); $finish(); end", info);
+  }
+  
   void emitVerilog(llvm::Function* f,
                    const STG& stg,
                    std::map<std::string, int>& memoryMap);

@@ -599,21 +599,35 @@ namespace DHLS {
     addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
 
     // Change this to check instruction input values
-    addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 1 || waddr_temp_reg == 0)) begin $display(\"assertion FAILED\"); $finish(); end", info);
-    addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 1 || add_out_10 == rdata_0 + 4)) begin $display(\"assertion FAILED\"); $finish(); end", info);
-    addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 1 || add_in0_10 == 1)) begin $display(\"assertion FAILED\"); $finish(); end", info);
+    addAssert("num_clocks_after_reset !== 1 || waddr_temp_reg === 0", info);
+    addAssert("num_clocks_after_reset !== 1 || add_out_10 === rdata_0 + 4", info);
+    addAssert("num_clocks_after_reset !== 1 || add_in0_10 === 1", info);
 
-    addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 6 || waddr_temp_reg == 1)) begin $display(\"assertion FAILED\"); $finish(); end", info);
-    addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 6 || add_out_10 == rdata_0 + 4)) begin $display(\"assertion FAILED\"); $finish(); end", info);
-    addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 6 || add_in0_10 == 2)) begin $display(\"assertion FAILED\"); $finish(); end", info);
+    addAssert("num_clocks_after_reset !== 6 || waddr_temp_reg === 1", info);
+    addAssert("num_clocks_after_reset !== 6 || add_out_10 === rdata_0 + 4", info);
+    addAssert("num_clocks_after_reset !== 6 || add_in0_10 === 2", info);
 
-    addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 11 || waddr_temp_reg == 2)) begin $display(\"assertion FAILED\"); $finish(); end", info);
-    addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 11 || add_out_10 == rdata_0 + 4)) begin $display(\"assertion FAILED\"); $finish(); end", info);
-    addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 11 || add_in0_10 == 3)) begin $display(\"assertion FAILED\"); $finish(); end", info);
+    addAssert("num_clocks_after_reset !== 11 || waddr_temp_reg === 2", info);
+    addAssert("num_clocks_after_reset !== 11 || add_out_10 === rdata_0 + 4", info);
+    addAssert("num_clocks_after_reset !== 11 || add_in0_10 === 3", info);
+    
+    //addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 1 || waddr_temp_reg === 0)) begin $display(\"assertion FAILED\"); $finish(); end", info);
+    //addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 1 || add_out_10 === rdata_0 + 4)) begin $display(\"assertion FAILED\"); $finish(); end", info);
+    //addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 1 || add_in0_10 === 1)) begin $display(\"assertion FAILED\"); $finish(); end", info);
+
+    // addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 6 || waddr_temp_reg === 1)) begin $display(\"assertion FAILED\"); $finish(); end", info);
+    // addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 6 || add_out_10 === rdata_0 + 4)) begin $display(\"assertion FAILED\"); $finish(); end", info);
+    // addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 6 || add_in0_10 === 2)) begin $display(\"assertion FAILED\"); $finish(); end", info);
+
+    // addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 11 || waddr_temp_reg === 2)) begin $display(\"assertion FAILED\"); $finish(); end", info);
+    // addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 11 || add_out_10 === rdata_0 + 4)) begin $display(\"assertion FAILED\"); $finish(); end", info);
+    // addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 11 || add_in0_10 === 3)) begin $display(\"assertion FAILED\"); $finish(); end", info);
 
     // Assert that the value stored to temp[N - 1] is 17
-    addAlwaysBlock({"clk"}, "if (!(global_state !== 5 || add_in0_16 == 1)) begin $display(\"assertion FAILED\"); $finish(); end", info);
-    
+    addAlwaysBlock({"clk"}, "if (!(global_state !== 5 || add_out_16 === 17)) begin $display(\"assertion FAILED\"); $finish(); end", info);
+
+    addAlwaysBlock({"clk"}, "if (global_state == 5) begin $display(\"add_out_16 == %d\", add_out_16); end", info);
+
     emitVerilog(f, graph, layout, info);
 
     REQUIRE(runIVerilogTB("loop_add_4_copy"));
