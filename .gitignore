@@ -29,3 +29,6 @@ loop_add_4_6_iters.v
 loop_add_4_copy
 loop_add_4_copy.v
 a.out
+blur_no_lb_tb.v
+blur_no_lb
+blur_no_lb.v

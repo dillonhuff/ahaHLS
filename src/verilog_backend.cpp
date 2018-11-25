@@ -632,7 +632,7 @@ namespace DHLS {
       auto arg0C = dyn_cast<ConstantInt>(arg0);
       auto apInt = arg0C->getValue();
 
-      assert(!apInt.isNegative());
+      //assert(!apInt.isNegative());
 
       return to_string(dyn_cast<ConstantInt>(arg0)->getSExtValue());
     }
@@ -1584,6 +1584,21 @@ namespace DHLS {
     graph.print(cout);
 
     emitVerilog(f, graph, memoryMap);
+  }
+
+  void emitVerilogTestBench(const TestBenchSpec& tb) {
+    string modName = tb.name + "_tb";
+    ofstream out(modName + ".v");
+
+    vector<string> portStrings;    
+    out << "module " << modName << "(" + commaListString(portStrings) + ");" << endl;
+    out << endl;
+
+    out << "endmodule" << endl;
+
+    out.close();
+    
+
   }
 
 }

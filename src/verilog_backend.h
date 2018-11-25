@@ -37,6 +37,16 @@ namespace DHLS {
     out << tab(level + 1) << b.body << std::endl;
     out << tab(level) << "end" << std::endl;
   }
+
+  class TestBenchSpec {
+  public:
+    std::map<std::string, std::vector<int> > memoryInit;
+    std::map<std::string, std::vector<int> > memoryExpected;
+    int runCycles;
+    std::string name;
+  };
+
+  void emitVerilogTestBench(const TestBenchSpec& tb);
   
   class VerilogDebugInfo {
   public:

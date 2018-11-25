@@ -218,6 +218,7 @@ namespace DHLS {
   //    Test that uses a loop with II != 1
   //    Test that mixes memory accesses and loop pipelining
   //    Test that uses multiple different RAM types
+  //    Test that uses stack allocated variables as registers
   //    Later: Test case that can use AXI and variable arrival time inputs
   //    Test that uses limited numbers of memory read/write ports
   TEST_CASE("A simple if") {
@@ -630,8 +631,6 @@ namespace DHLS {
     addAlwaysBlock({"clk"}, "if (num_clocks_after_reset == 11) begin $display(\"add_in0_10 == %d\", add_in0_10); end", info);
 
     // Assert that the value stored to temp[N - 1] is 17
-    //addAlwaysBlock({"clk"}, "if (!(global_state !== 5 || add_out_16 === 17)) begin $display(\"assertion FAILED\"); $finish(); end", info);
-
     addAlwaysBlock({"clk"}, "if (global_state == 5) begin $display(\"add_out_16 == %d\", add_out_16); end", info);
 
     emitVerilog(f, graph, layout, info);
@@ -639,6 +638,52 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("loop_add_4_copy"));
   }
 
+  TEST_CASE("Blur without linebuffering") {
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+    std::unique_ptr<Module> Mod = loadModule(Context, Err, "blur_no_lb");
+
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(LOAD_OP, 1);
+    hcs.setLatency(CMP_OP, 0);
+    hcs.setLatency(BR_OP, 0);
+    hcs.setLatency(ADD_OP, 0);
+
+    Function* f = Mod->getFunction("blur_no_lb");
+    assert(f != nullptr);
+    
+    Schedule s = scheduleFunction(f, hcs);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<string, int> layout = {{"a", 0}, {"b", 8}};
+    VerilogDebugInfo info;
+    emitVerilog(f, graph, layout, info);
+
+    map<string, vector<int> > memoryInit{{"a", {0, 1, 2, 3, 7, 5, 5, 2}}};
+    map<string, vector<int> > memoryExpected{{"b", {}}};
+
+    auto ma = map_find(string("a"), memoryInit);
+    for (int i = 1; i < 8 - 1; i++) {
+      map_insert(memoryExpected, string("b"), (ma[i - 1] + ma[i] + ma[i + 1]) / 3);
+    }
+
+    TestBenchSpec tb;
+    tb.memoryInit = memoryInit;
+    tb.memoryExpected = memoryExpected;
+    tb.runCycles = 30;
+    tb.name = "blur_no_lb";
+    emitVerilogTestBench(tb);
+
+    REQUIRE(runIVerilogTB("blur_no_lb"));
+    
+  }
+  
   // struct Hello : public FunctionPass {
   //   static char ID;
   //   Hello() : FunctionPass(ID) {}
