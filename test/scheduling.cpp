@@ -612,7 +612,7 @@ namespace DHLS {
     addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 11 || add_in0_10 == 3)) begin $display(\"assertion FAILED\"); $finish(); end", info);
 
     // Assert that the value stored to temp[N - 1] is 17
-    addAlwaysBlock({"clk"}, "if (!(global_state !== 5 || add_in0_16 == 17)) begin $display(\"assertion FAILED\"); $finish(); end", info);
+    addAlwaysBlock({"clk"}, "if (!(global_state !== 5 || add_in0_16 == 1)) begin $display(\"assertion FAILED\"); $finish(); end", info);
     
     emitVerilog(f, graph, layout, info);
 
