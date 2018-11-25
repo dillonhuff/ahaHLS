@@ -59,6 +59,7 @@ module test();
          dbg_wr_addr <= mem_val - 1;
          dbg_wr_data <= mem_val;
          dbg_wr_en <= 1;
+         mem_val <= mem_val + 1;         
       end else begin
          dbg_wr_en <= 0;
       end
@@ -66,6 +67,7 @@ module test();
       if (clocks == 10) begin
          mem_val <= mem_val + 1;
          rst <= 0;
+         in_start <= 0;
          dbg_addr <= 10;
       end
 

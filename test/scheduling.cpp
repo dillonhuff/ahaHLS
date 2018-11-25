@@ -610,18 +610,8 @@ namespace DHLS {
     addAssert("num_clocks_after_reset !== 11 || waddr_temp_reg === 2", info);
     addAssert("num_clocks_after_reset !== 11 || add_out_10 === rdata_0 + 4", info);
     addAssert("num_clocks_after_reset !== 11 || add_in0_10 === 3", info);
-    
-    //addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 1 || waddr_temp_reg === 0)) begin $display(\"assertion FAILED\"); $finish(); end", info);
-    //addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 1 || add_out_10 === rdata_0 + 4)) begin $display(\"assertion FAILED\"); $finish(); end", info);
-    //addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 1 || add_in0_10 === 1)) begin $display(\"assertion FAILED\"); $finish(); end", info);
 
-    // addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 6 || waddr_temp_reg === 1)) begin $display(\"assertion FAILED\"); $finish(); end", info);
-    // addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 6 || add_out_10 === rdata_0 + 4)) begin $display(\"assertion FAILED\"); $finish(); end", info);
-    // addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 6 || add_in0_10 === 2)) begin $display(\"assertion FAILED\"); $finish(); end", info);
-
-    // addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 11 || waddr_temp_reg === 2)) begin $display(\"assertion FAILED\"); $finish(); end", info);
-    // addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 11 || add_out_10 === rdata_0 + 4)) begin $display(\"assertion FAILED\"); $finish(); end", info);
-    // addAlwaysBlock({"clk"}, "if (!(num_clocks_after_reset !== 11 || add_in0_10 === 3)) begin $display(\"assertion FAILED\"); $finish(); end", info);
+    addAlwaysBlock({"clk"}, "if (num_clocks_after_reset == 11) begin $display(\"add_in0_10 == %d\", add_in0_10); end", info);
 
     // Assert that the value stored to temp[N - 1] is 17
     addAlwaysBlock({"clk"}, "if (!(global_state !== 5 || add_out_16 === 17)) begin $display(\"assertion FAILED\"); $finish(); end", info);
