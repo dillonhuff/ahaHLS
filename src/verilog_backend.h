@@ -27,6 +27,7 @@ namespace DHLS {
   class VerilogDebugInfo {
   public:
     std::vector<Wire> wiresToWatch;
+    std::vector<Wire> debugWires;
     std::vector<std::pair<std::string, std::string> > debugAssigns;
   };
 
