@@ -20,24 +20,6 @@ using namespace std;
 
 namespace DHLS {
 
-  class Wire {
-  public:
-    bool registered;
-    int width;
-    std::string name;
-
-    Wire() {}
-    Wire(const int width_, const std::string& name_) : 
-      registered(false), width(width_), name(name_) {}
-
-    Wire(const bool registered_, const int width_, const std::string& name_) : 
-      registered(registered_), width(width_), name(name_) {}
-
-    std::string toString() const {
-      return string(registered ? "reg" : "wire") + " [" + to_string(width - 1) + ":0] " + name;
-    }
-  };
-
   std::ostream& operator<<(std::ostream& out, const Wire w) {
     out << w.toString();
     return out;
@@ -283,11 +265,6 @@ namespace DHLS {
     map<Instruction*, string> mems;
 
     for (auto state : stg.opStates) {
-      // BUG: instrG in a state are not orderd inside the STG by dependencies since
-      // they will all execute combinationally inside a state. To avoid this
-      // we should get dependencies in data dependence order. Now we do this, but
-      // we have a new problem: counting the number of instructions can double
-      // count some instructions
 
       std::set<Instruction*> foundOps;
       while (foundOps.size() < numMemOps(stg.instructionsStartingAt(state.first))) {
@@ -1489,6 +1466,14 @@ namespace DHLS {
   void emitVerilog(llvm::Function* f,
                    const STG& stg,
                    std::map<std::string, int>& memoryMap) {
+    VerilogDebugInfo info;
+    emitVerilog(f, stg, memoryMap, info);
+  }
+  
+  void emitVerilog(llvm::Function* f,
+                   const STG& stg,
+                   std::map<std::string, int>& memoryMap,
+                   const VerilogDebugInfo& debufInfo) {
 
     map<BasicBlock*, int> basicBlockNos = numberBasicBlocks(f);
     map<Instruction*, Wire> names = createInstrNames(stg);
@@ -1503,7 +1488,7 @@ namespace DHLS {
     MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, rams);
     string fn = f->getName();
     vector<Port> allPorts = getPorts(stg);
-    allPorts.push_back({false, 32, "global_state_dbg", true});    
+    allPorts.push_back({false, 32, "global_state_dbg", true});
 
     vector<string> portStrings;
     for (auto pt : allPorts) {
@@ -1544,7 +1529,6 @@ namespace DHLS {
     // TODO: Change this from 0 to the global state that contains the entry block
     out << "\t\t\tglobal_state <= 0;" << endl;
 
-    //out << "\t\t\tvalid_reg <= 0;" << endl;
     out << "\t\t\tlast_BB_reg <= " << map_find(&(f->getEntryBlock()), basicBlockNos) << ";" << endl;
 
     out << "\t\tend else begin" << endl;
@@ -1558,7 +1542,7 @@ namespace DHLS {
     out << endl << endl;
 
     emitPipelineInstructionCode(out, pipelines, stg, unitAssignment, memoryMap, names, basicBlockNos);
-    emitInstructionCode(out, arch, pipelines); //stg, unitAssignment, memoryMap, names, basicBlockNos, pipelines);
+    emitInstructionCode(out, arch, pipelines);
 
     out << "endmodule" << endl;
 
