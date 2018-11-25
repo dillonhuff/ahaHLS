@@ -600,7 +600,8 @@ namespace DHLS {
 
     // Change this to check instruction input values
     addAssert("num_clocks_after_reset !== 1 || waddr_temp_reg === 0", info);
-    addAssert("num_clocks_after_reset !== 1 || wdata_temp_reg === 5", info);    
+    addAssert("num_clocks_after_reset !== 1 || wdata_temp_reg === 5", info);
+    addAssert("num_clocks_after_reset !== 1 || wen_temp_reg === 1", info);        
     addAssert("num_clocks_after_reset !== 1 || add_out_10 === rdata_0 + 4", info);
     addAssert("num_clocks_after_reset !== 1 || add_in0_10 === 1", info);
 
