@@ -1501,12 +1501,14 @@ namespace DHLS {
 
     for (auto blk : debugInfo.blocks) {
       print(out, 1, blk);
+      out << endl;
     }
 
     out << endl;
 
     for (auto blk : debugInfo.delayBlocks) {
       print(out, 1, blk);
+      out << endl;
     }
 
     out << endl;
