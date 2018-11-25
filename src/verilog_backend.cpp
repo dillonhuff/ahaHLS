@@ -1281,6 +1281,11 @@ namespace DHLS {
         wireDecls.push_back("." + w.first + "(" + w.second.name + ")");
       }
 
+      if (unit.modName == "RAM") {
+        wireDecls.push_back(".clk(clk)");
+        wireDecls.push_back(".rst(rst)");        
+      }
+
       for (auto w : unit.outWires) {
         out << "\twire [" << w.second.width - 1 << ":0] " << w.second.name << ";" << endl;
         wireDecls.push_back("." + w.first + "(" + w.second.name + ")");
