@@ -7,7 +7,8 @@ module test();
    wire valid;
 
    wire [31:0] global_state_dbg;
-
+   wire [31:0] wdata_temp_reg_dbg;
+   
    // Depth 16, width 32 RAM
    reg [4:0] dbg_addr;
    wire [31:0] dbg_data;
@@ -50,6 +51,8 @@ module test();
       $display("-- dbg_data       = %d", dbg_data);
       $display("-- dbg_addr       = %d", dbg_addr);
       $display("-- clocks         = %d", clocks);
+      $display("-- wdata_temp_reg_dbg = %d", wdata_temp_reg_dbg);
+      
       clocks <= clocks + 1;
 
       if (in_start) begin
@@ -103,6 +106,7 @@ module test();
                       .valid(valid),
                       .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen),
                       .raddr_0(raddr0), .rdata_0(rdata0),
-                      .global_state_dbg(global_state_dbg));
+                      .global_state_dbg(global_state_dbg),
+                      .wdata_temp_reg_dbg(wdata_temp_reg_dbg));
    
 endmodule

@@ -586,9 +586,15 @@ namespace DHLS {
     graph.print(cout);
 
     map<string, int> layout = {{"a", 0}, {"b", 10}};
-    emitVerilog(f, graph, layout);
 
-    //REQUIRE(runIVerilogTB("loop_add_4_copy"));
+    VerilogDebugInfo info;
+    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    info.wiresToWatch.push_back({false, 32, "wdata_temp_reg_dbg"});    
+    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+    info.debugAssigns.push_back({"wdata_temp_reg_dbg", "wdata_temp_reg"});    
+    emitVerilog(f, graph, layout, info);
+
+    REQUIRE(runIVerilogTB("loop_add_4_copy"));
   }
 
   // struct Hello : public FunctionPass {

@@ -50,7 +50,7 @@ namespace DHLS {
   }
 
   Port outputDebugPort(const int width, const std::string& name) {
-    return {true, width, name, false};
+    return {false, width, name, true};
   }
   
   class FunctionalUnit {
