@@ -1632,19 +1632,24 @@ namespace DHLS {
 
     comps.debugWires.push_back({true, 5, "waddr_0"});
     comps.debugWires.push_back({true, 32, "wdata_0"});        
-    comps.debugWires.push_back({true, 1, "wen_0"});        
+    comps.debugWires.push_back({true, 1, "wen_0"});
+
+    comps.debugWires.push_back({false, 1, "valid"});        
+
+
     comps.delayBlocks.push_back({3, "clk = !clk;"});
 
     addAlwaysBlock({"clk"}, "total_cycles <= total_cycles + 1;", comps);
-    addAlwaysBlock({"clk"}, "if (total_cycles >= max_cycles) begin $display(\"Ran out of cycles, finishing.\"); $finish(); end", comps);
+    addAlwaysBlock({"clk"}, "if (total_cycles >= max_cycles) begin if (valid == 1) begin $display(\"Passed\"); end else begin $display(\"valid == %d. Ran out of cycles, finishing.\", valid); $finish(); end end", comps);
 
     comps.initStmts.push_back("#1 clk = 0;");
     comps.initStmts.push_back("#1 rst = 1;");
-    comps.initStmts.push_back("#1 total_cycles = 0;");    
-    comps.initStmts.push_back("#1 max_cycles = 100;");    
+    comps.initStmts.push_back("#1 total_cycles = 0;");
+    comps.initStmts.push_back("#1 max_cycles = 100;");
     comps.initStmts.push_back("#1 num_clocks_after_reset = 0;");
 
-    comps.instances.push_back({tb.name, "dut", {{"clk", "clk"}, {"rst", "rst"}}});
+    comps.instances.push_back({"RAM", "ram", {{"clk", "clk"}, {"rst", "rst"}, {"raddr", "raddr_0"}, {"rdata", "rdata_0"}, {"wen", "wen_0"}, {"waddr", "waddr_0"}, {"wdata", "wdata_0"}}});
+    comps.instances.push_back({tb.name, "dut", {{"clk", "clk"}, {"rst", "rst"}, {"valid", "valid"}}});
 
     emitComponents(out, comps);
 
