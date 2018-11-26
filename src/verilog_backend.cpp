@@ -1650,6 +1650,9 @@ namespace DHLS {
     comps.debugWires.push_back({true, 5, "dbg_wr_addr"});    
     comps.debugWires.push_back({true, 32, "dbg_wr_data"});
     comps.debugWires.push_back({true, 1, "dbg_wr_en"});
+
+    comps.debugWires.push_back({true, 5, "dbg_addr"});    
+    comps.debugWires.push_back({false, 32, "dbg_data"});
     
     comps.debugWires.push_back({true, 5, "waddr_0"});
     comps.debugWires.push_back({true, 32, "wdata_0"});        
@@ -1684,7 +1687,7 @@ namespace DHLS {
     comps.initStmts.push_back("#1 clocks_in_check_mem_phase = 0;");    
 
     // TODO: Replace with auto-generated RAM
-    comps.instances.push_back({"RAM", "ram", {{"clk", "clk"}, {"rst", "rst"}, {"raddr", "raddr_0"}, {"rdata", "rdata_0"}, {"wen", "wen_0"}, {"waddr", "waddr_0"}, {"wdata", "wdata_0"}}});
+    comps.instances.push_back({"RAM", "ram", {{"clk", "clk"}, {"rst", "rst"}, {"raddr", "raddr_0"}, {"rdata", "rdata_0"}, {"wen", "wen_0"}, {"waddr", "waddr_0"}, {"wdata", "wdata_0"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}}});
 
     // TODO: Move this to be generic code passed in to this function
     comps.instances.push_back({tb.name, "dut", {{"clk", "clk"}, {"rst", "rst"}, {"valid", "valid"}, {"raddr_0", "raddr_0"}, {"rdata_0", "rdata_0"}, {"waddr_0", "waddr_0"}, {"wdata_0", "wdata_0"}, {"wen_0", "wen_0"}}});
@@ -1693,11 +1696,13 @@ namespace DHLS {
     int cyclesInRun = tb.runCycles;
     //int cyclesInCheck = 10;
 
-    addAlwaysBlock({"clk"}, "if (clocks_in_set_mem_phase == (" + to_string(cyclesInSetMem - 1) + ")) begin in_run_phase <= 1; rst <= 0; in_set_mem_phase <= 0; end", comps);
+    addAlwaysBlock({"clk"}, "if (clocks_in_set_mem_phase == (" + to_string(cyclesInSetMem - 1) + ")) begin in_run_phase <= 1; rst <= 0; dbg_wr_en <= 0; in_set_mem_phase <= 0; end", comps);
 
     addAlwaysBlock({"clk"}, "if (clocks_in_run_phase == (" + to_string(cyclesInRun - 1) + ")) begin in_check_mem_phase <= 1; in_run_phase <= 0; end", comps);
 
     addAlwaysBlock({"clk"}, "if (in_run_phase) begin clocks_in_run_phase <= clocks_in_run_phase + 1; end", comps);
+
+    addAlwaysBlock({"clk"}, "if (in_check_mem_phase) begin clocks_in_check_mem_phase <= clocks_in_check_mem_phase + 1; end", comps);    
 
     int setNum = 0;
     for (auto memName : tb.memoryInit) {
@@ -1708,6 +1713,15 @@ namespace DHLS {
       }
     }
 
+    int checkNum = 0;
+    for (auto memName : tb.memoryInit) {
+      for (int i = 0; i < memName.second.size(); i++) {
+        // TODO: Add memory layout info
+        addAlwaysBlock({"clk"}, "if (in_check_mem_phase && clocks_in_check_mem_phase == " + to_string(checkNum) + ") begin dbg_addr <= " + to_string(i) + "; dbg_wr_data <= " + to_string(memName.second[i]) + "; end", comps);
+        checkNum++;
+      }
+    }
+    
     emitComponents(out, comps);
 
     out << "endmodule" << endl;
