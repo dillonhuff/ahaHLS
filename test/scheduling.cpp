@@ -667,7 +667,6 @@ namespace DHLS {
     info.wiresToWatch.push_back({false, 32, "wdata_temp_reg_dbg"});    
 
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
-    //info.debugAssigns.push_back({"wdata_temp_reg_dbg", "wdata_temp_reg"});
 
     info.debugWires.push_back({true, 32, "num_clocks_after_reset"});
 
@@ -699,6 +698,69 @@ namespace DHLS {
     emitVerilogTestBench(tb, layout);
 
     REQUIRE(runIVerilogTB("blur_no_lb"));
+    
+  }
+
+  TEST_CASE("Blur with linebuffering") {
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+    std::unique_ptr<Module> Mod = loadModule(Context, Err, "blur_lb");
+
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(LOAD_OP, 1);
+    hcs.setLatency(CMP_OP, 0);
+    hcs.setLatency(BR_OP, 0);
+    hcs.setLatency(ADD_OP, 0);
+
+    Function* f = Mod->getFunction("blur_lb");
+    assert(f != nullptr);
+    
+    Schedule s = scheduleFunction(f, hcs);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<string, int> layout = {{"a", 0}, {"b", 8}};
+    VerilogDebugInfo info;
+    // info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    // info.wiresToWatch.push_back({false, 32, "wdata_temp_reg_dbg"});    
+
+    // info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+
+    // info.debugWires.push_back({true, 32, "num_clocks_after_reset"});
+
+    // addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
+
+    // addAssert("num_clocks_after_reset !== 1 || waddr_0_reg === 8", info);
+    // addAssert("num_clocks_after_reset !== 1 || wen_0_reg === 1", info);        
+
+    emitVerilog(f, graph, layout, info);
+
+    map<string, vector<int> > memoryInit{{"a", {0, 1, 2, 3, 7, 5, 5, 2}}};
+    map<string, vector<int> > memoryExpected{{"b", {}}};
+
+    auto ma = map_find(string("a"), memoryInit);
+    for (int i = 1; i < 8 - 1; i++) {
+      map_insert(memoryExpected, string("b"), (ma[i - 1] + ma[i] + ma[i + 1]));
+    }
+
+    cout << "Expected values" << endl;
+    for (auto val : map_find(string("b"), memoryExpected)) {
+      cout << "\t" << val << endl;
+    }
+
+    TestBenchSpec tb;
+    tb.memoryInit = memoryInit;
+    tb.memoryExpected = memoryExpected;
+    tb.runCycles = 100;
+    tb.name = "blur_lb";
+    emitVerilogTestBench(tb, layout);
+
+    REQUIRE(runIVerilogTB("blur_lb"));
     
   }
   
