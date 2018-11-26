@@ -484,6 +484,19 @@ namespace DHLS {
   // and add control logic to update each one each cycle, and add control
   // logic to set the last_BB variable used in the rest of the generated code
   // so that the state of the system is correct when the pipeline completes.
+
+  // Psychologically Im a bit blocked on how to do this. Problems:
+  //  1. Im exhausted and on an airplane after two days of traveling
+  //  2. The code to emit pipelines is a mess with lots of hacked
+  //     together code that spits out text
+  //  3. The code that emits the non-pipelined code is also messy, and is
+  //     partially separate from the code for the pipelined portions of
+  //     the design
+
+  // One way of phrasing the problem is that the data structure that represents
+  // how the last basic block is checked in each instruction is hidden in the
+  // mass of text-generating code.
+
   TEST_CASE("Pipelining an array doing a[i] + 4, and exiting the pipeline in the TB, with a number of iterations small enough to never fill the pipeline") {
 
     SMDiagnostic Err;
