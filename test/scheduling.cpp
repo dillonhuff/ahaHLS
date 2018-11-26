@@ -472,6 +472,18 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("loop_add_7"));
   }
 
+  // Problem: With updated value of last_BB this test fails with incorrect data on
+  // output.
+  // HYP: The problem is that each stage of the pipeline needs its own last_BB state
+  // in order to get the next action (fill stage 0 or not) and next index variable
+  // value correct. The default basic block is overriding the normal pipeline
+  // basic block structure and setting the last basic block to always be 0
+
+  // Q: If this really is the problem, what is the fix for it?
+  // A: Add pipeline variables that store the last basic block for each stage
+  // and add control logic to update each one each cycle, and add control
+  // logic to set the last_BB variable used in the rest of the generated code
+  // so that the state of the system is correct when the pipeline completes.
   TEST_CASE("Pipelining an array doing a[i] + 4, and exiting the pipeline in the TB, with a number of iterations small enough to never fill the pipeline") {
 
     SMDiagnostic Err;
@@ -664,7 +676,7 @@ namespace DHLS {
     map<string, int> layout = {{"a", 0}, {"b", 8}};
     VerilogDebugInfo info;
     // info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
-    // info.wiresToWatch.push_back({false, 32, "wdata_temp_reg_dbg"});    
+    // info.wiresToWatch.push_back({false, 32, "wdata_temp_reg_dbg"});
 
     // info.debugAssigns.push_back({"global_state_dbg", "global_state"});
 
