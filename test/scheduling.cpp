@@ -497,6 +497,18 @@ namespace DHLS {
   // how the last basic block is checked in each instruction is hidden in the
   // mass of text-generating code.
 
+  // Need a few things:
+  //  1. Mapping from instruction instance
+  //     to the basic block variable tracking register
+  //     that they should use.
+  //  2. Chaining code to update pipeline basic block tracking registers
+  //  3. Code to set the stage_0 basic block TR depending on whether we are
+  //     entering the pipeline or already in it
+  //  4. Code to set the last basic block TR for non-pipelined code correctly on
+  //     exit from the pipeline
+
+  // Note: Maybe there should be a current_BB and last_BB variable?
+
   TEST_CASE("Pipelining an array doing a[i] + 4, and exiting the pipeline in the TB, with a number of iterations small enough to never fill the pipeline") {
 
     SMDiagnostic Err;
