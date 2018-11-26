@@ -725,18 +725,23 @@ namespace DHLS {
     graph.print(cout);
 
     map<string, int> layout = {{"a", 0}, {"b", 8}};
+
+    // Idea: Check in assertions that write data never has an x when write
+    // enable is high
     VerilogDebugInfo info;
     // info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
-    // info.wiresToWatch.push_back({false, 32, "wdata_temp_reg_dbg"});    
+    // info.wiresToWatch.push_back({false, 32, "wdata_temp_reg_dbg"});
 
     // info.debugAssigns.push_back({"global_state_dbg", "global_state"});
 
-    // info.debugWires.push_back({true, 32, "num_clocks_after_reset"});
+    info.debugWires.push_back({true, 32, "num_clocks_after_reset"});
 
-    // addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
+    addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
 
-    // addAssert("num_clocks_after_reset !== 1 || waddr_0_reg === 8", info);
-    // addAssert("num_clocks_after_reset !== 1 || wen_0_reg === 1", info);        
+    addAlwaysBlock({"clk"}, "if (num_clocks_after_reset == 2) begin $display(\"waddr_0_reg == %d\", waddr_0_reg); end", info);
+    addAlwaysBlock({"clk"}, "if (num_clocks_after_reset == 2) begin $display(\"wdata_0_reg == %d\", wdata_0_reg); end", info);    
+    addAssert("num_clocks_after_reset !== 2 || waddr_0_reg === 8", info);
+    addAssert("num_clocks_after_reset !== 2 || wen_0_reg === 1", info);
 
     emitVerilog(f, graph, layout, info);
 
