@@ -3,6 +3,6 @@
 
 void blur_no_lb(int* __restrict a, int* __restrict b) {
   for (int i = 1; i < A_LEN - 1; i++) {
-    b[i] = (a[i - 1] + a[i] + a[i + 1]);
+    b[i - 1] = (a[i - 1] + a[i] + a[i + 1]);
   }
 }

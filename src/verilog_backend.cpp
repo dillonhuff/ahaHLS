@@ -1648,6 +1648,12 @@ namespace DHLS {
     comps.debugWires.push_back({true, 5, "raddr_0"});    
     comps.debugWires.push_back({false, 32, "rdata_0"});    
 
+    comps.debugWires.push_back({true, 5, "raddr_1"});    
+    comps.debugWires.push_back({false, 32, "rdata_1"});    
+
+    comps.debugWires.push_back({true, 5, "raddr_2"});    
+    comps.debugWires.push_back({false, 32, "rdata_2"});
+    
     comps.debugWires.push_back({true, 5, "dbg_wr_addr"});    
     comps.debugWires.push_back({true, 32, "dbg_wr_data"});
     comps.debugWires.push_back({true, 1, "dbg_wr_en"});
@@ -1679,21 +1685,23 @@ namespace DHLS {
     comps.initStmts.push_back("#1 in_run_phase = 0;");        
 
     comps.initStmts.push_back("#1 total_cycles = 0;");
-    comps.initStmts.push_back("#1 max_cycles = 100;");
+    comps.initStmts.push_back("#1 max_cycles = 1000;");
     comps.initStmts.push_back("#1 num_clocks_after_reset = 0;");
     comps.initStmts.push_back("#1 clocks_in_set_mem_phase = 0;");
     comps.initStmts.push_back("#1 clocks_in_run_phase = 0;");        
-    comps.initStmts.push_back("#1 clocks_in_check_mem_phase = 0;");    
+    comps.initStmts.push_back("#1 clocks_in_check_mem_phase = 0;");
 
     // TODO: Replace with auto-generated RAM
-    comps.instances.push_back({"RAM", "ram", {{"clk", "clk"}, {"rst", "rst"}, {"raddr", "raddr_0"}, {"rdata", "rdata_0"}, {"wen", "wen_0"}, {"waddr", "waddr_0"}, {"wdata", "wdata_0"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}, {"debug_write_addr", "dbg_wr_addr"}, {"debug_write_data", "dbg_wr_data"}, {"debug_write_en", "dbg_wr_en"}}});
+    comps.instances.push_back({"RAM3", "ram", {{"clk", "clk"}, {"rst", "rst"}, {"raddr0", "raddr_0"}, {"rdata0", "rdata_0"}, {"raddr1", "raddr_1"}, {"rdata1", "rdata_1"}, {"raddr2", "raddr_2"}, {"rdata2", "rdata_2"}, {"wen", "wen_0"}, {"waddr", "waddr_0"}, {"wdata", "wdata_0"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}, {"debug_write_addr", "dbg_wr_addr"}, {"debug_write_data", "dbg_wr_data"}, {"debug_write_en", "dbg_wr_en"}}});
 
     // TODO: Move this to be generic code passed in to this function
-    comps.instances.push_back({tb.name, "dut", {{"clk", "clk"}, {"rst", "rst"}, {"valid", "valid"}, {"raddr_0", "raddr_0"}, {"rdata_0", "rdata_0"}, {"waddr_0", "waddr_0"}, {"wdata_0", "wdata_0"}, {"wen_0", "wen_0"}}});
+    comps.instances.push_back({tb.name, "dut", {{"clk", "clk"}, {"rst", "rst"}, {"valid", "valid"}, {"raddr_0", "raddr_0"}, {"rdata_0", "rdata_0"}, {"raddr_1", "raddr_1"}, {"rdata_1", "rdata_1"}, {"raddr_2", "raddr_2"}, {"rdata_2", "rdata_2"}, {"waddr_0", "waddr_0"}, {"wdata_0", "wdata_0"}, {"wen_0", "wen_0"}}});
 
     int cyclesInSetMem = 10;
     int cyclesInRun = tb.runCycles;
 
+    addAlwaysBlock({"clk"}, "if (in_check_mem_phase) begin if (!valid) begin $display(\"Failed: Checking memory, but the module is not done running\"); $display(); end end", comps);
+    
     addAlwaysBlock({"clk"}, "if (clocks_in_set_mem_phase == (" + to_string(cyclesInSetMem - 1) + ")) begin in_run_phase <= 1; rst <= 0; dbg_wr_en <= 0; in_set_mem_phase <= 0; end", comps);
 
     addAlwaysBlock({"clk"}, "if (clocks_in_run_phase == (" + to_string(cyclesInRun - 1) + ")) begin in_check_mem_phase <= 1; in_run_phase <= 0; end", comps);
@@ -1725,7 +1733,7 @@ namespace DHLS {
         if (lastNum >= 0) {
           str += "$display(\"mem[%d] == %d\", dbg_addr, dbg_data);";
 
-          str += "  if (dbg_data == " + to_string(lastNum) + ") begin $display(\"Correct.\"); end else begin $display(\"Assert failed\"); $finish(); end "; //$finish(); end ";
+          str += "  if (dbg_data == " + to_string(lastNum) + ") begin $display(\"Correct.\"); end else begin $display(\"Assert failed\"); $finish(); end ";
         }
         str += "end";
         addAlwaysBlock({"clk"}, str, comps);

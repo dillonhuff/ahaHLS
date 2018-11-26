@@ -663,6 +663,24 @@ namespace DHLS {
 
     map<string, int> layout = {{"a", 0}, {"b", 8}};
     VerilogDebugInfo info;
+    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    info.wiresToWatch.push_back({false, 32, "wdata_temp_reg_dbg"});    
+
+    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+    //info.debugAssigns.push_back({"wdata_temp_reg_dbg", "wdata_temp_reg"});
+
+    info.debugWires.push_back({true, 32, "num_clocks_after_reset"});
+
+    addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
+
+    // Change this to check instruction input values
+    addAssert("num_clocks_after_reset !== 1 || waddr_0_reg === 8", info);
+    //addAssert("num_clocks_after_reset !== 1 || wdata_temp_reg === ", info);
+    addAssert("num_clocks_after_reset !== 1 || wen_0_reg === 1", info);        
+    //addAssert("num_clocks_after_reset !== 1 || add_out_10 === rdata_0 + 4", info);
+    //addAssert("num_clocks_after_reset !== 1 || add_in0_10 === 1", info);
+
+
     emitVerilog(f, graph, layout, info);
 
     map<string, vector<int> > memoryInit{{"a", {0, 1, 2, 3, 7, 5, 5, 2}}};
@@ -676,7 +694,7 @@ namespace DHLS {
     TestBenchSpec tb;
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
-    tb.runCycles = 30;
+    tb.runCycles = 100;
     tb.name = "blur_no_lb";
     emitVerilogTestBench(tb, layout);
 
