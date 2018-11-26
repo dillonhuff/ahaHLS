@@ -453,6 +453,7 @@ namespace DHLS {
           }
         } else if (BranchInst::classof(instr)) {
           modName = "br_dummy";
+          unitName = "br_unit";
           // Branches are not scheduled, they are encoded in the
           // STG transitions
         } else if (GetElementPtrInst::classof(instr)) {
