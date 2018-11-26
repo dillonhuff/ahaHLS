@@ -5,6 +5,11 @@ module RAM(input clk,
            input [ADDR_WIDTH : 0] raddr,
            input [ADDR_WIDTH : 0] waddr,
            output [WIDTH - 1 : 0] rdata,
+
+           input [ADDR_WIDTH : 0] debug_write_addr,
+           input [WIDTH - 1 : 0]  debug_write_data,
+           input                  debug_write_en,
+           
            input [ADDR_WIDTH : 0] debug_addr,
            output [WIDTH - 1 : 0] debug_data);
            
@@ -33,6 +38,10 @@ module RAM(input clk,
          data[waddr_del] <= wdata_del;
       end
 
+      if (debug_write_en) begin
+         data[debug_write_addr] <= debug_write_data;
+      end
+      
       rdata_reg <= data[raddr];
    end
 

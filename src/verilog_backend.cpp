@@ -1687,7 +1687,7 @@ namespace DHLS {
     comps.initStmts.push_back("#1 clocks_in_check_mem_phase = 0;");    
 
     // TODO: Replace with auto-generated RAM
-    comps.instances.push_back({"RAM", "ram", {{"clk", "clk"}, {"rst", "rst"}, {"raddr", "raddr_0"}, {"rdata", "rdata_0"}, {"wen", "wen_0"}, {"waddr", "waddr_0"}, {"wdata", "wdata_0"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}}});
+    comps.instances.push_back({"RAM", "ram", {{"clk", "clk"}, {"rst", "rst"}, {"raddr", "raddr_0"}, {"rdata", "rdata_0"}, {"wen", "wen_0"}, {"waddr", "waddr_0"}, {"wdata", "wdata_0"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}, {"debug_write_addr", "dbg_wr_addr"}, {"debug_write_data", "dbg_wr_data"}, {"debug_write_en", "dbg_wr_en"}}});
 
     // TODO: Move this to be generic code passed in to this function
     comps.instances.push_back({tb.name, "dut", {{"clk", "clk"}, {"rst", "rst"}, {"valid", "valid"}, {"raddr_0", "raddr_0"}, {"rdata_0", "rdata_0"}, {"waddr_0", "waddr_0"}, {"wdata_0", "wdata_0"}, {"wen_0", "wen_0"}}});
@@ -1727,12 +1727,10 @@ namespace DHLS {
         if (lastNum >= 0) {
           str += "$display(\"mem[%d] == %d\", dbg_addr, dbg_data);";
 
-          str += "  if (dbg_data == " + to_string(lastNum) + ") begin $display(\"mem[%d] == %d\", dbg_addr, dbg_data); end else begin $display(\"Assert failed\"); $finish(); end ";
+          str += "  if (dbg_data == " + to_string(lastNum) + ") begin $display(\"Correct.\"); end else begin $display(\"Assert failed\"); end "; //$finish(); end ";
         }
         str += "end";
         addAlwaysBlock({"clk"}, str, comps);
-
-        //"if dbg_wr_data <= " + to_string(memName.second[i]) + "; end", comps);
 
         lastNum = checkNum;
         checkNum++;
