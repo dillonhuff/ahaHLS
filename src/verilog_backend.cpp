@@ -1663,7 +1663,7 @@ namespace DHLS {
     addAlwaysBlock({"clk"}, "total_cycles <= total_cycles + 1;", comps);
     addAlwaysBlock({"clk"}, "if (total_cycles >= max_cycles) begin if (valid == 1 && in_check_mem_phase) begin $display(\"Passed\"); $finish(); end else begin $display(\"valid == %d. Ran out of cycles, finishing.\", valid); $finish(); end end", comps);
 
-    addAlwaysBlock({"clk"}, "if (total_cycles >= 10) begin in_set_mem_phase <= 0; in_run_phase <= 1; clocks_in_run_phase <= 0; rst <= 0; num_clocks_after_reset <= 0; end", comps);
+    // addAlwaysBlock({"clk"}, "if (total_cycles >= 10) begin in_set_mem_phase <= 0; in_run_phase <= 1; clocks_in_run_phase <= 0; rst <= 0; num_clocks_after_reset <= 0; end", comps);
 
     addAlwaysBlock({"clk"}, "if (!in_set_mem_phase) begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", comps);
 
@@ -1688,6 +1688,23 @@ namespace DHLS {
 
     // TODO: Move this to be generic code passed in to this function
     comps.instances.push_back({tb.name, "dut", {{"clk", "clk"}, {"rst", "rst"}, {"valid", "valid"}, {"raddr_0", "raddr_0"}, {"rdata_0", "rdata_0"}, {"waddr_0", "waddr_0"}, {"wdata_0", "wdata_0"}, {"wen_0", "wen_0"}}});
+
+    int cyclesInSetMem = 10;
+    int cyclesInRun = tb.runCycles;
+    //int cyclesInCheck = 10;
+
+    addAlwaysBlock({"clk"}, "if (clocks_in_set_mem_phase == (" + to_string(cyclesInSetMem - 1) + ")) begin in_run_phase <= 1; rst <= 0; in_set_mem_phase <= 0; end", comps);
+
+    addAlwaysBlock({"clk"}, "if (clocks_in_run_phase == (" + to_string(cyclesInRun - 1) + ")) begin in_check_mem_phase <= 1; in_run_phase <= 0; end", comps);
+
+    addAlwaysBlock({"clk"}, "if (in_run_phase) begin clocks_in_run_phase <= clocks_in_run_phase + 1; end", comps);
+
+    // int setNum = 0;
+    // for (auto memName : tb.memoryInit) {
+    //   for (int i = 0; i < memName.second.size(); i++) {
+    //     addAlwaysBlock({"clk"}, "if (in_", comps);
+    //   }
+    // }
 
     emitComponents(out, comps);
 
