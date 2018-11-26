@@ -1733,7 +1733,7 @@ namespace DHLS {
         if (lastNum >= 0) {
           str += "$display(\"mem[%d] == %d\", dbg_addr, dbg_data);";
 
-          str += "  if (dbg_data == " + to_string(lastNum) + ") begin $display(\"Correct.\"); end else begin $display(\"Assert failed\"); $finish(); end ";
+          str += "  if (dbg_data == " + to_string(memName.second[lastNum]) + ") begin $display(\"Correct.\"); end else begin $display(\"Assert failed\"); $finish(); end ";
         }
         str += "end";
         addAlwaysBlock({"clk"}, str, comps);
@@ -1746,7 +1746,7 @@ namespace DHLS {
       string str = "if (in_check_mem_phase && clocks_in_check_mem_phase == " + to_string(checkNum) + ") begin ";
       str += "$display(\"mem[%d] == %d\", dbg_addr, dbg_data);";
 
-      str += "  if (dbg_data == " + to_string(lastNum) + ") begin $display(\"Correct.\"); end else begin $display(\"Assert failed\"); $finish(); end "; //$finish(); end ";
+      str += "  if (dbg_data == " + to_string(memName.second[lastNum]) + ") begin $display(\"Correct.\"); end else begin $display(\"Assert failed\"); $finish(); end ";
       str += "end";
       addAlwaysBlock({"clk"}, str, comps);
       

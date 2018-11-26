@@ -673,13 +673,8 @@ namespace DHLS {
 
     addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
 
-    // Change this to check instruction input values
     addAssert("num_clocks_after_reset !== 1 || waddr_0_reg === 8", info);
-    //addAssert("num_clocks_after_reset !== 1 || wdata_temp_reg === ", info);
     addAssert("num_clocks_after_reset !== 1 || wen_0_reg === 1", info);        
-    //addAssert("num_clocks_after_reset !== 1 || add_out_10 === rdata_0 + 4", info);
-    //addAssert("num_clocks_after_reset !== 1 || add_in0_10 === 1", info);
-
 
     emitVerilog(f, graph, layout, info);
 
@@ -688,7 +683,12 @@ namespace DHLS {
 
     auto ma = map_find(string("a"), memoryInit);
     for (int i = 1; i < 8 - 1; i++) {
-      map_insert(memoryExpected, string("b"), (ma[i - 1] + ma[i] + ma[i + 1]) / 3);
+      map_insert(memoryExpected, string("b"), (ma[i - 1] + ma[i] + ma[i + 1]));
+    }
+
+    cout << "Expected values" << endl;
+    for (auto val : map_find(string("b"), memoryExpected)) {
+      cout << "\t" << val << endl;
     }
 
     TestBenchSpec tb;
