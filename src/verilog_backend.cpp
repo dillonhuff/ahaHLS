@@ -1205,6 +1205,10 @@ namespace DHLS {
             for (auto w : unit.portWires) {
               out << tab(4) << w.second.name << " = 0;" << endl;
             }
+
+            if (BranchInst::classof(instr)) {
+              out << tab(4) << "last_BB = last_BB_reg;" << endl;
+            }
             out << "\t\t\tend" << endl;
           }
 
@@ -1222,6 +1226,11 @@ namespace DHLS {
       for (auto w : unit.portWires) {
         out << "\t\t\t" << w.second.name << " = 0;" << endl;
       }
+
+      if (unit.modName == "br_dummy") {
+        out << tab(4) << "last_BB = last_BB_reg;" << endl;
+      }
+
       out << "\t\tend" << endl;
 
       out << "\tend" << endl;
