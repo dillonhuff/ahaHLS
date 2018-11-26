@@ -103,6 +103,13 @@ namespace DHLS {
   }
 
   static inline void
+  addWirePrintoutIf(const std::string& condition,
+                    const std::string& wireName,
+                    VerilogDebugInfo& info) {
+    addAlwaysBlock({"clk"}, "if (" + condition + ") begin $display(\"" + wireName + " == %d\", " + wireName + "); end", info);
+  }
+  
+  static inline void
   addAssert(const std::string& condition,
             VerilogDebugInfo& info) {
     addAlwaysBlock({"clk"}, "if (!(" + condition + ")) begin $display(\"assertion(" + condition + ")\"); $finish(); end", info);

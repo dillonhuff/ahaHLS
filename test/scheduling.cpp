@@ -739,7 +739,16 @@ namespace DHLS {
     addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
 
     addAlwaysBlock({"clk"}, "if (num_clocks_after_reset == 2) begin $display(\"waddr_0_reg == %d\", waddr_0_reg); end", info);
-    addAlwaysBlock({"clk"}, "if (num_clocks_after_reset == 2) begin $display(\"wdata_0_reg == %d\", wdata_0_reg); end", info);    
+    addAlwaysBlock({"clk"}, "if (num_clocks_after_reset == 2) begin $display(\"wdata_0_reg == %d\", wdata_0_reg); end", info);
+    addWirePrintoutIf("num_clocks_after_reset == 2", "wen_0_reg", info);
+    addWirePrintoutIf("num_clocks_after_reset == 2", "getelementptr_tmp_10", info);
+
+    addWirePrintoutIf("num_clocks_after_reset == 1", "base_addr_11", info);
+    addWirePrintoutIf("num_clocks_after_reset == 1", "add_in1_11", info);
+    addWirePrintoutIf("num_clocks_after_reset == 1", "phi_out_5", info);
+    addWirePrintoutIf("num_clocks_after_reset == 1", "add_tmp_7", info);
+    addWirePrintoutIf("num_clocks_after_reset == 1", "last_BB_reg", info);
+
     addAssert("num_clocks_after_reset !== 2 || waddr_0_reg === 8", info);
     addAssert("num_clocks_after_reset !== 2 || wen_0_reg === 1", info);
 
