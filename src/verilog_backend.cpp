@@ -1709,15 +1709,32 @@ namespace DHLS {
       for (int i = 0; i < memName.second.size(); i++) {
         // TODO: Add memory layout info
         addAlwaysBlock({"clk"}, "if (in_set_mem_phase && clocks_in_set_mem_phase == " + to_string(setNum) + ") begin dbg_wr_en <= 1; dbg_wr_addr <= " + to_string(i) + "; dbg_wr_data <= " + to_string(memName.second[i]) + "; end", comps);
+
         setNum++;
+        
       }
     }
 
     int checkNum = 0;
+    int lastNum = -1;
+    
     for (auto memName : tb.memoryInit) {
       for (int i = 0; i < memName.second.size(); i++) {
         // TODO: Add memory layout info
-        addAlwaysBlock({"clk"}, "if (in_check_mem_phase && clocks_in_check_mem_phase == " + to_string(checkNum) + ") begin dbg_addr <= " + to_string(i) + "; dbg_wr_data <= " + to_string(memName.second[i]) + "; end", comps);
+        addAlwaysBlock({"clk"}, "if (in_check_mem_phase && clocks_in_check_mem_phase == " + to_string(checkNum) + ") begin dbg_addr <= " + to_string(i) + "; end", comps);
+
+        string str = "if (in_check_mem_phase && clocks_in_check_mem_phase == " + to_string(checkNum) + ") begin ";
+        if (lastNum >= 0) {
+          str += "$display(\"mem[%d] == %d\", dbg_addr, dbg_data);";
+
+          str += "  if (dbg_data == " + to_string(lastNum) + ") begin $display(\"mem[%d] == %d\", dbg_addr, dbg_data); end else begin $display(\"Assert failed\"); $finish(); end ";
+        }
+        str += "end";
+        addAlwaysBlock({"clk"}, str, comps);
+
+        //"if dbg_wr_data <= " + to_string(memName.second[i]) + "; end", comps);
+
+        lastNum = checkNum;
         checkNum++;
       }
     }
