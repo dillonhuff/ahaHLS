@@ -1670,7 +1670,8 @@ namespace DHLS {
 
     addAlwaysBlock({"clk"}, "if (!in_set_mem_phase) begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", comps);
 
-    addAlwaysBlock({"clk"}, "if (in_set_mem_phase) begin clocks_in_set_mem_phase <= clocks_in_set_mem_phase + 1; dbg_wr_addr <= clocks_in_set_mem_phase; dbg_wr_data <= 1; dbg_wr_en <= 1; end else begin dbg_wr_en <= 0; end", comps);
+    //addAlwaysBlock({"clk"}, "if (in_set_mem_phase) begin clocks_in_set_mem_phase <= clocks_in_set_mem_phase + 1; dbg_wr_addr <= clocks_in_set_mem_phase; dbg_wr_data <= 1; dbg_wr_en <= 1; end else begin dbg_wr_en <= 0; end", comps);
+    addAlwaysBlock({"clk"}, "if (in_set_mem_phase) begin clocks_in_set_mem_phase <= clocks_in_set_mem_phase + 1; end ", comps); //dbg_wr_addr <= clocks_in_set_mem_phase; dbg_wr_data <= 1; dbg_wr_en <= 1; end else begin dbg_wr_en <= 0; end", comps);
     
     comps.initStmts.push_back("#1 clk = 0;");
     comps.initStmts.push_back("#1 rst = 1;");
@@ -1735,7 +1736,20 @@ namespace DHLS {
         lastNum = checkNum;
         checkNum++;
       }
+
+      // Final code to check last value
+      //addAlwaysBlock({"clk"}, "if (in_check_mem_phase && clocks_in_check_mem_phase == " + to_string(checkNum) + ") begin dbg_addr <= " + to_string(memName.second.size() - 1) + "; end", comps);
+
+      string str = "if (in_check_mem_phase && clocks_in_check_mem_phase == " + to_string(checkNum) + ") begin ";
+      str += "$display(\"mem[%d] == %d\", dbg_addr, dbg_data);";
+
+      str += "  if (dbg_data == " + to_string(lastNum) + ") begin $display(\"Correct.\"); end else begin $display(\"Assert failed\"); end "; //$finish(); end ";
+      str += "end";
+      addAlwaysBlock({"clk"}, str, comps);
+      
     }
+
+    
     
     emitComponents(out, comps);
 
