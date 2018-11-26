@@ -1699,12 +1699,14 @@ namespace DHLS {
 
     addAlwaysBlock({"clk"}, "if (in_run_phase) begin clocks_in_run_phase <= clocks_in_run_phase + 1; end", comps);
 
-    // int setNum = 0;
-    // for (auto memName : tb.memoryInit) {
-    //   for (int i = 0; i < memName.second.size(); i++) {
-    //     addAlwaysBlock({"clk"}, "if (in_", comps);
-    //   }
-    // }
+    int setNum = 0;
+    for (auto memName : tb.memoryInit) {
+      for (int i = 0; i < memName.second.size(); i++) {
+        // TODO: Add memory layout info
+        addAlwaysBlock({"clk"}, "if (in_set_mem_phase && clocks_in_set_mem_phase == " + to_string(setNum) + ") begin dbg_wr_en <= 1; dbg_wr_addr <= " + to_string(i) + "; dbg_wr_data <= " + to_string(memName.second[i]) + "; end", comps);
+        setNum++;
+      }
+    }
 
     emitComponents(out, comps);
 
