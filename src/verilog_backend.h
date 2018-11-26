@@ -79,7 +79,8 @@ namespace DHLS {
     std::string name;
   };
 
-  void emitVerilogTestBench(const TestBenchSpec& tb);
+  void emitVerilogTestBench(const TestBenchSpec& tb,
+                            const std::map<std::string, int>& layout);
   
   class VerilogComponents {
   public:

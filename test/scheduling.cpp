@@ -678,7 +678,7 @@ namespace DHLS {
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 30;
     tb.name = "blur_no_lb";
-    emitVerilogTestBench(tb);
+    emitVerilogTestBench(tb, layout);
 
     REQUIRE(runIVerilogTB("blur_no_lb"));
     
