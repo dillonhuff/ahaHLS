@@ -1399,6 +1399,11 @@ namespace DHLS {
     out << "\t// End pipeline valid chain block" << endl << endl;
   }
 
+  // Q: What should the relationship be between the global state, last basic block
+  //    counter for non-pipelined code, the last basic block counter for pipelined
+  //    code and the last basic block counter for each pipeline?
+  // A: Maybe the last basic block counters should get their own always block
+  //    with the branch functional unit being ignored?
   void
   emitPipelineLastBBChainBlock(std::ostream& out,
                                const std::vector<ElaboratedPipeline>& pipelines) {
