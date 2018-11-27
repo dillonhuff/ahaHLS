@@ -1595,8 +1595,28 @@ namespace DHLS {
   }
 
   void emitLastBBCode(std::ostream& out,
+                      llvm::Function* f,
                       const MicroArchitecture& arch) {
-    out << "\t\t\tlast_BB_reg <= global_state;" << endl;
+    out << "\talways @(posedge clk) begin" << endl;
+    out << "\t\tif (rst) begin" << endl;
+    out << "\t\t\tlast_BB_reg <= " << map_find(&(f->getEntryBlock()), arch.basicBlockNos) << ";" << endl;
+    out << "\t\tend else begin" << endl;
+
+    for (auto st : arch.stg.opStates) {
+      assert(st.second.size() > 0);
+      // TODO: Actually check for multiple basic blocks in one state and
+      // set the current basic block by exclusion conditions
+      Instruction* instr = st.second[0].instruction;
+      BasicBlock* bb = instr->getParent();
+      auto bbNo = map_find(bb, arch.basicBlockNos);
+      out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
+      out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
+      out << tab(3) << "end" << endl;
+    }
+    //out << "\t\t\tlast_BB_reg <= global_state;" << endl;
+
+    out << "\t\tend" << endl;
+    out << "\tend" << endl;
   }
   
   void emitVerilog(llvm::Function* f,
@@ -1646,6 +1666,7 @@ namespace DHLS {
     emitPipelineLastBBChainBlock(out, pipelines);
 
     emitPipelineInitiationBlock(out, unitAssignment, pipelines);
+    emitLastBBCode(out, f, arch);
 
     out << endl;
     for (auto p : pipelines) {
@@ -1660,11 +1681,10 @@ namespace DHLS {
     // TODO: Change this from 0 to the global state that contains the entry block
     out << "\t\t\tglobal_state <= 0;" << endl;
 
-    out << "\t\t\tlast_BB_reg <= " << map_find(&(f->getEntryBlock()), basicBlockNos) << ";" << endl;
+    //out << "\t\t\tlast_BB_reg <= " << map_find(&(f->getEntryBlock()), basicBlockNos) << ";" << endl;
 
     out << "\t\tend else begin" << endl;
 
-    emitLastBBCode(out, arch);
     //out << "\t\t\tlast_BB_reg <= last_BB;" << endl;
       
 
