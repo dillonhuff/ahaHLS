@@ -828,7 +828,7 @@ namespace DHLS {
       }
 
     } else if (BranchInst::classof(instr)) {
-      out << "\t\t\t\t" << "last_BB = " << map_find(instr->getParent(), arch.basicBlockNos) << ";" << endl;
+      //out << "\t\t\t\t" << "last_BB = " << map_find(instr->getParent(), arch.basicBlockNos) << ";" << endl;
             
     } else if (PHINode::classof(instr)) {
       PHINode* phi = dyn_cast<PHINode>(instr);
@@ -1175,6 +1175,10 @@ namespace DHLS {
 
       FunctionalUnit unit = controller.unit;
 
+      if (unit.modName == "br_dummy") {
+        continue;
+      }
+
       out << "\talways @(*) begin" << endl;        
 
       int i = 0;
@@ -1195,7 +1199,6 @@ namespace DHLS {
         auto instrsAtState = stInstrG.second;
 
         if (!isPipelineState(state, pipelines)) {
-
 
           out << "\t\tif (global_state == " + to_string(state) + ") begin" << endl;
 
