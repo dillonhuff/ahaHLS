@@ -1619,9 +1619,10 @@ namespace DHLS {
       if (isPipelineState(st.first, pipelines)) {
         assert(instructionsForBlocks.size() == 1);
 
+        ElaboratedPipeline p = getPipeline(st.first, pipelines);
         auto bbI = *begin(instructionsForBlocks);
 
-        out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
+        out << tab(3) << "if (global_state == " << p.stateId << ") begin" << endl;
         //out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, st.first, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
         auto bbNo = map_find(bbI.first, arch.basicBlockNos);
         out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
