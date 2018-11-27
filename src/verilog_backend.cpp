@@ -1596,6 +1596,7 @@ namespace DHLS {
 
   void emitLastBBCode(std::ostream& out,
                       llvm::Function* f,
+                      const std::vector<ElaboratedPipeline>& pipelines,
                       const MicroArchitecture& arch) {
     out << "\talways @(posedge clk) begin" << endl;
     out << "\t\tif (rst) begin" << endl;
@@ -1604,8 +1605,6 @@ namespace DHLS {
 
     for (auto st : arch.stg.opStates) {
       assert(st.second.size() > 0);
-      // TODO: Actually check for multiple basic blocks in one state and
-      // set the current basic block by exclusion conditions
 
       map<BasicBlock*, GuardedInstruction> instructionsForBlocks;
       for (auto instrG : st.second) {
@@ -1616,14 +1615,19 @@ namespace DHLS {
         }
 
       }
-      out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
-      for (auto bbI : instructionsForBlocks) {
-        out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, st.first, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
-        auto bbNo = map_find(bbI.first, arch.basicBlockNos);
-        out << tab(5) << "last_BB_reg <= " << bbNo << ";" << endl;
-        out << tab(4) << "end" << endl;
+
+      if (isPipelineState(st.first, pipelines)) {
+        assert(false);
+      } else {
+        out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
+        for (auto bbI : instructionsForBlocks) {
+          out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, st.first, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
+          auto bbNo = map_find(bbI.first, arch.basicBlockNos);
+          out << tab(5) << "last_BB_reg <= " << bbNo << ";" << endl;
+          out << tab(4) << "end" << endl;
+        }
+        out << tab(3) << "end" << endl;
       }
-      out << tab(3) << "end" << endl;
     }
     //out << "\t\t\tlast_BB_reg <= global_state;" << endl;
 
@@ -1678,7 +1682,7 @@ namespace DHLS {
     emitPipelineLastBBChainBlock(out, pipelines);
 
     emitPipelineInitiationBlock(out, unitAssignment, pipelines);
-    emitLastBBCode(out, f, arch);
+    emitLastBBCode(out, f, pipelines, arch);
 
     out << endl;
     for (auto p : pipelines) {
