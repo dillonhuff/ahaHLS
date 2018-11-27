@@ -1399,6 +1399,25 @@ namespace DHLS {
     out << "\tend" << endl;
     out << "\t// End pipeline valid chain block" << endl << endl;
   }
+
+  void
+  emitPipelineLastBBChainBlock(std::ostream& out,
+                               const std::vector<ElaboratedPipeline>& pipelines) {
+    
+    out << "\t// Start pipeline last BB chain block" << endl;
+    out << "\talways @(posedge clk) begin" << endl;
+
+    out << "\t\tif (!rst) begin" << endl;
+    for (auto p : pipelines) {
+
+      for (int i = 0; i < p.lastBBs.size() - 1; i++) {
+        out << "\t\t\t" << p.lastBBs[i + 1].name << " <= " << p.lastBBs[i].name << ";" << endl;
+      }
+    }
+    out << "\t\tend" << endl;
+    out << "\tend" << endl;
+    out << "\t// End pipeline last BB chain block" << endl << endl;
+  }
   
   void emitPipelineVariables(std::ostream& out,
                              const std::vector<ElaboratedPipeline>& pipelines) {
@@ -1411,6 +1430,10 @@ namespace DHLS {
         out << "\t" << validVar << ";" << endl;
       }
 
+      for (auto lastBBVar : p.lastBBs) {
+        out << "\t" << lastBBVar << ";" << endl;
+      }
+      
       out << "\t// Start stage registers" << endl;
       for (auto stage : p.pipelineRegisters) {
         out << "\t// Start stage" << endl;
@@ -1595,6 +1618,8 @@ namespace DHLS {
 
     emitPipelineResetBlock(out, pipelines);
     emitPipelineValidChainBlock(out, pipelines);
+    emitPipelineLastBBChainBlock(out, pipelines);
+
     emitPipelineInitiationBlock(out, unitAssignment, pipelines);
 
     out << endl;
