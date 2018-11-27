@@ -1357,9 +1357,8 @@ namespace DHLS {
 
       out << "\t\t\t\t\tend else begin" << endl;
 
-      // TODO: Set last basic block?
       out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;
-
+      out << "\t\t\t\t\t\t" << p.lastBBs.at(0).name << " <= " << p.stateId << ";" << endl;
       out << "\t\t\t\t\tend" << endl;
       out << "\t\t\t\tend" << endl;
 
@@ -1407,6 +1406,15 @@ namespace DHLS {
     out << "\t// Start pipeline last BB chain block" << endl;
     out << "\talways @(posedge clk) begin" << endl;
 
+    for (auto p : pipelines) {
+
+      out << "\t\t$display(\"// CLK Cycle\");" << endl;
+      out << "\t\t$display(\"" << p.inPipe.name << " = %d\", " << p.inPipe.name << ");" << endl;
+      for (int i = 0; i < p.lastBBs.size(); i++) {
+        out << "\t\t$display(\"" << p.lastBBs[i].name << " = %d\", " << p.lastBBs[i].name << ");" << endl;
+      }
+    }
+    
     out << "\t\tif (!rst) begin" << endl;
     for (auto p : pipelines) {
 
