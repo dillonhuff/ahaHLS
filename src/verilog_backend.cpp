@@ -94,7 +94,8 @@ namespace DHLS {
 
     std::vector<std::map<Instruction*, Wire> > pipelineRegisters;
     GuardedInstruction exitBranch;
-
+    std::vector<Wire> lastBBs;
+    
     ElaboratedPipeline(const Pipeline& p_) : p(p_) {}
 
     llvm::Value* getExitCondition() const {
@@ -1351,9 +1352,14 @@ namespace DHLS {
       out << "\t\t\t\tif (" << p.valids.at(0).name << " && " << p.inPipe.name << ") begin" << endl;
       std::map<std::string, int> memMap;
       out << "\t\t\t\t\tif(" << outputName(p.getExitCondition(), unitAssignment, memMap) << ") begin" << endl;
+
       out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 0;" << endl;
+
       out << "\t\t\t\t\tend else begin" << endl;
+
+      // TODO: Set last basic block?
       out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;
+
       out << "\t\t\t\t\tend" << endl;
       out << "\t\t\t\tend" << endl;
 
@@ -1445,6 +1451,7 @@ namespace DHLS {
       for (int j = 0; j < p.depth(); j++) {
         string jStr = to_string(j);
         ep.valids.push_back(Wire(true, 1, "pipeline_stage_" + jStr + "_valid"));
+        ep.lastBBs.push_back(Wire(true, 32, "pipeline_stage_" + jStr + "_lastBB"));
 
         StateId st = ep.p.getStates().at(j);
         assert(st >= 0);

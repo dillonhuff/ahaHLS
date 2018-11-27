@@ -556,7 +556,19 @@ namespace DHLS {
     REQUIRE(graph.pipelines[0].depth() == 5);
     
     map<string, int> layout = {{"a", 0}, {"b", 10}};
-    emitVerilog(f, graph, layout);
+
+    VerilogDebugInfo info;
+
+    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+
+    info.debugWires.push_back({true, 32, "num_clocks_after_reset"});
+    addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
+
+    addWirePrintoutIf("num_clocks_after_reset == 10", "last_BB", info);
+    addAssert("num_clocks_after_reset !== 2 || last_BB === 2", info);
+
+    emitVerilog(f, graph, layout, info);
 
     REQUIRE(runIVerilogTB("loop_add_4"));
   }
