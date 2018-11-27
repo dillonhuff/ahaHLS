@@ -1656,7 +1656,7 @@ namespace DHLS {
 
     out << "\t\tend else begin" << endl;
 
-    out << "\t\t\tlast_BB_reg <= last_BB;" << endl;
+    //out << "\t\t\tlast_BB_reg <= last_BB;" << endl;
       
 
     emitControlCode(out, stg, unitAssignment, names, pipelines);
