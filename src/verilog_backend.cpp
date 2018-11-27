@@ -1590,6 +1590,11 @@ namespace DHLS {
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
     emitVerilog(f, stg, memoryMap, info);
   }
+
+  void emitLastBBCode(std::ostream& out,
+                      const MicroArchitecture& arch) {
+    out << "\t\t\tlast_BB_reg <= global_state;" << endl;
+  }
   
   void emitVerilog(llvm::Function* f,
                    const STG& stg,
@@ -1656,6 +1661,7 @@ namespace DHLS {
 
     out << "\t\tend else begin" << endl;
 
+    emitLastBBCode(out, arch);
     //out << "\t\t\tlast_BB_reg <= last_BB;" << endl;
       
 
