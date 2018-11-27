@@ -94,7 +94,7 @@ namespace DHLS {
 
     std::vector<std::map<Instruction*, Wire> > pipelineRegisters;
     GuardedInstruction exitBranch;
-    std::vector<Wire> lastBBs;
+    //std::vector<Wire> lastBBs;
     
     ElaboratedPipeline(const Pipeline& p_) : p(p_) {}
 
@@ -1361,7 +1361,7 @@ namespace DHLS {
       out << "\t\t\t\t\tend else begin" << endl;
 
       out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;
-      out << "\t\t\t\t\t\t" << p.lastBBs.at(0).name << " <= " << p.stateId << ";" << endl;
+      //out << "\t\t\t\t\t\t" << p.lastBBs.at(0).name << " <= " << p.stateId << ";" << endl;
       out << "\t\t\t\t\tend" << endl;
       out << "\t\t\t\tend" << endl;
 
@@ -1411,33 +1411,33 @@ namespace DHLS {
   //    current global state is
   //    If we are in a pipeline the last basic block is the basic block
   //    whose pipeline we are in?
-  void
-  emitPipelineLastBBChainBlock(std::ostream& out,
-                               const std::vector<ElaboratedPipeline>& pipelines) {
+  // void
+  // emitPipelineLastBBChainBlock(std::ostream& out,
+  //                              const std::vector<ElaboratedPipeline>& pipelines) {
     
-    out << "\t// Start pipeline last BB chain block" << endl;
-    out << "\talways @(posedge clk) begin" << endl;
+  //   out << "\t// Start pipeline last BB chain block" << endl;
+  //   out << "\talways @(posedge clk) begin" << endl;
 
-    for (auto p : pipelines) {
+  //   for (auto p : pipelines) {
 
-      out << "\t\t$display(\"// CLK Cycle\");" << endl;
-      out << "\t\t$display(\"" << p.inPipe.name << " = %d\", " << p.inPipe.name << ");" << endl;
-      for (int i = 0; i < p.lastBBs.size(); i++) {
-        out << "\t\t$display(\"" << p.lastBBs[i].name << " = %d\", " << p.lastBBs[i].name << ");" << endl;
-      }
-    }
+  //     out << "\t\t$display(\"// CLK Cycle\");" << endl;
+  //     out << "\t\t$display(\"" << p.inPipe.name << " = %d\", " << p.inPipe.name << ");" << endl;
+  //     for (int i = 0; i < p.lastBBs.size(); i++) {
+  //       out << "\t\t$display(\"" << p.lastBBs[i].name << " = %d\", " << p.lastBBs[i].name << ");" << endl;
+  //     }
+  //   }
     
-    out << "\t\tif (!rst) begin" << endl;
-    for (auto p : pipelines) {
+  //   out << "\t\tif (!rst) begin" << endl;
+  //   for (auto p : pipelines) {
 
-      for (int i = 0; i < p.lastBBs.size() - 1; i++) {
-        out << "\t\t\t" << p.lastBBs[i + 1].name << " <= " << p.lastBBs[i].name << ";" << endl;
-      }
-    }
-    out << "\t\tend" << endl;
-    out << "\tend" << endl;
-    out << "\t// End pipeline last BB chain block" << endl << endl;
-  }
+  //     for (int i = 0; i < p.lastBBs.size() - 1; i++) {
+  //       out << "\t\t\t" << p.lastBBs[i + 1].name << " <= " << p.lastBBs[i].name << ";" << endl;
+  //     }
+  //   }
+  //   out << "\t\tend" << endl;
+  //   out << "\tend" << endl;
+  //   out << "\t// End pipeline last BB chain block" << endl << endl;
+  // }
   
   void emitPipelineVariables(std::ostream& out,
                              const std::vector<ElaboratedPipeline>& pipelines) {
@@ -1450,9 +1450,9 @@ namespace DHLS {
         out << "\t" << validVar << ";" << endl;
       }
 
-      for (auto lastBBVar : p.lastBBs) {
-        out << "\t" << lastBBVar << ";" << endl;
-      }
+      // for (auto lastBBVar : p.lastBBs) {
+      //   out << "\t" << lastBBVar << ";" << endl;
+      // }
       
       out << "\t// Start stage registers" << endl;
       for (auto stage : p.pipelineRegisters) {
@@ -1494,7 +1494,7 @@ namespace DHLS {
       for (int j = 0; j < p.depth(); j++) {
         string jStr = to_string(j);
         ep.valids.push_back(Wire(true, 1, "pipeline_stage_" + jStr + "_valid"));
-        ep.lastBBs.push_back(Wire(true, 32, "pipeline_stage_" + jStr + "_lastBB"));
+        //ep.lastBBs.push_back(Wire(true, 32, "pipeline_stage_" + jStr + "_lastBB"));
 
         StateId st = ep.p.getStates().at(j);
         assert(st >= 0);
@@ -1617,7 +1617,17 @@ namespace DHLS {
       }
 
       if (isPipelineState(st.first, pipelines)) {
-        assert(false);
+        assert(instructionsForBlocks.size() == 1);
+
+        auto bbI = *begin(instructionsForBlocks);
+
+        out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
+        //out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, st.first, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
+        auto bbNo = map_find(bbI.first, arch.basicBlockNos);
+        out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
+        //out << tab(4) << "end" << endl;
+        out << tab(3) << "end" << endl;
+
       } else {
         out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
         for (auto bbI : instructionsForBlocks) {
@@ -1679,7 +1689,7 @@ namespace DHLS {
 
     emitPipelineResetBlock(out, pipelines);
     emitPipelineValidChainBlock(out, pipelines);
-    emitPipelineLastBBChainBlock(out, pipelines);
+    //emitPipelineLastBBChainBlock(out, pipelines);
 
     emitPipelineInitiationBlock(out, unitAssignment, pipelines);
     emitLastBBCode(out, f, pipelines, arch);
@@ -1691,7 +1701,6 @@ namespace DHLS {
 
     out << "\talways @(posedge clk) begin" << endl;
 
-    // Insert state transition logic
     out << "\t\tif (rst) begin" << endl;
 
     // TODO: Change this from 0 to the global state that contains the entry block

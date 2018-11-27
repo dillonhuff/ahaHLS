@@ -93,7 +93,7 @@ namespace DHLS {
 
     cout << "str = " << str << endl;
     
-    runCmd("rm -f " + resFile);
+    //runCmd("rm -f " + resFile);
 
     reverse(begin(str), end(str));
     string lastLine;
@@ -562,11 +562,11 @@ namespace DHLS {
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
 
-    info.debugWires.push_back({true, 32, "num_clocks_after_reset"});
-    addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
+    // info.debugWires.push_back({true, 32, "num_clocks_after_reset"});
+    // addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
 
-    addWirePrintoutIf("num_clocks_after_reset == 10", "last_BB", info);
-    addAssert("num_clocks_after_reset !== 2 || last_BB === 2", info);
+    // addWirePrintoutIf("num_clocks_after_reset == 10", "last_BB", info);
+    // addAssert("num_clocks_after_reset !== 2 || last_BB === 2", info);
 
     emitVerilog(f, graph, layout, info);
 
