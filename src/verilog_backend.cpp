@@ -1606,11 +1606,23 @@ namespace DHLS {
       assert(st.second.size() > 0);
       // TODO: Actually check for multiple basic blocks in one state and
       // set the current basic block by exclusion conditions
-      Instruction* instr = st.second[0].instruction;
-      BasicBlock* bb = instr->getParent();
-      auto bbNo = map_find(bb, arch.basicBlockNos);
+
+      map<BasicBlock*, GuardedInstruction> instructionsForBlocks;
+      for (auto instrG : st.second) {
+        Instruction* instr = instrG.instruction;
+        BasicBlock* bb = instr->getParent();
+        if (!contains_key(bb, instructionsForBlocks)) {
+          instructionsForBlocks.insert({bb, instrG});
+        }
+
+      }
       out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
-      out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
+      for (auto bbI : instructionsForBlocks) {
+        out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, st.first, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
+        auto bbNo = map_find(bbI.first, arch.basicBlockNos);
+        out << tab(5) << "last_BB_reg <= " << bbNo << ";" << endl;
+        out << tab(4) << "end" << endl;
+      }
       out << tab(3) << "end" << endl;
     }
     //out << "\t\t\tlast_BB_reg <= global_state;" << endl;
