@@ -1404,6 +1404,10 @@ namespace DHLS {
   //    code and the last basic block counter for each pipeline?
   // A: Maybe the last basic block counters should get their own always block
   //    with the branch functional unit being ignored?
+  //    If we are not in a pipeline the last basic block is whatever the
+  //    current global state is
+  //    If we are in a pipeline the last basic block is the basic block
+  //    whose pipeline we are in?
   void
   emitPipelineLastBBChainBlock(std::ostream& out,
                                const std::vector<ElaboratedPipeline>& pipelines) {
