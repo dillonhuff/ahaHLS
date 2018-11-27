@@ -508,6 +508,8 @@ namespace DHLS {
   //     exit from the pipeline
 
   // Note: Maybe there should be a current_BB and last_BB variable?
+  // Also: I may be able to fix this problem just by merging the pipelined code
+  // generation with non-pipelined instruction code generation.
 
   TEST_CASE("Pipelining an array doing a[i] + 4, and exiting the pipeline in the TB, with a number of iterations small enough to never fill the pipeline") {
 

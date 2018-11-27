@@ -257,7 +257,8 @@ namespace DHLS {
     int ind = 0;
     for (auto instr : instrs) {
       if (StoreInst::classof(instr.instruction) ||
-          LoadInst::classof(instr.instruction)) {
+          LoadInst::classof(instr.instruction) ||
+          GetElementPtrInst::classof(instr.instruction)) {
         ind++;
       }
     }
@@ -357,7 +358,10 @@ namespace DHLS {
           to_string(resSuffix);
 
         if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
-          assert(contains_key(instr, memSrcs));
+          if (!contains_key(instr, memSrcs)) {
+            cout << "memSrcs does not contain memory operation " << instructionString(instr) << endl;
+            assert(contains_key(instr, memSrcs));
+          }
 
           string memSrc = map_find(instr, memSrcs);
 
