@@ -796,6 +796,8 @@ namespace DHLS {
     addWirePrintout("last_BB_reg", info);
     addWirePrintout("wdata_0_reg", info);
 
+    // Still wrong after correcting transitions?
+
     addAssert("num_clocks_after_reset !== 2 || waddr_0_reg === 8", info);
     addAssert("num_clocks_after_reset !== 2 || wen_0_reg === 1", info);
     //addAssert("num_clocks_after_reset !== 2 || wdata_0_reg === 3", info);
