@@ -1610,24 +1610,26 @@ namespace DHLS {
       for (auto instrG : st.second) {
         Instruction* instr = instrG.instruction;
         BasicBlock* bb = instr->getParent();
-        if (!contains_key(bb, instructionsForBlocks)) {
+        if (!contains_key(bb, instructionsForBlocks) && TerminatorInst::classof(instr)) {
           instructionsForBlocks.insert({bb, instrG});
         }
 
       }
 
       if (isPipelineState(st.first, pipelines)) {
-        assert(instructionsForBlocks.size() == 1);
+        if (instructionsForBlocks.size() > 0) {
+          assert(instructionsForBlocks.size() == 1);
 
-        ElaboratedPipeline p = getPipeline(st.first, pipelines);
-        auto bbI = *begin(instructionsForBlocks);
+          ElaboratedPipeline p = getPipeline(st.first, pipelines);
+          auto bbI = *begin(instructionsForBlocks);
 
-        out << tab(3) << "if (global_state == " << p.stateId << ") begin" << endl;
-        //out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, st.first, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
-        auto bbNo = map_find(bbI.first, arch.basicBlockNos);
-        out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
-        //out << tab(4) << "end" << endl;
-        out << tab(3) << "end" << endl;
+          out << tab(3) << "if (global_state == " << p.stateId << ") begin" << endl;
+          //out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, st.first, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
+          auto bbNo = map_find(bbI.first, arch.basicBlockNos);
+          out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
+          //out << tab(4) << "end" << endl;
+          out << tab(3) << "end" << endl;
+        }
 
       } else {
         out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;

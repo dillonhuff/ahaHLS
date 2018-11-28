@@ -790,13 +790,11 @@ namespace DHLS {
     addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
 
     addWirePrintoutIf("num_clocks_after_reset == 2", "wdata_0_reg", info);
-    //addWirePrintout("phi_out_4", info);
-    //addWirePrintout("phi_out_12", info);
-    addWirePrintout("phi_in0_13", info);
-    addWirePrintout("phi_in1_13", info);    
-    addWirePrintout("phi_out_13", info);
+    // addWirePrintout("phi_in0_13", info);
+    // addWirePrintout("phi_in1_13", info);    
+    // addWirePrintout("phi_out_13", info);
     addWirePrintout("last_BB_reg", info);
-    // Aasdf
+    addWirePrintout("wdata_0_reg", info);
 
     addAssert("num_clocks_after_reset !== 2 || waddr_0_reg === 8", info);
     addAssert("num_clocks_after_reset !== 2 || wen_0_reg === 1", info);
