@@ -108,6 +108,12 @@ namespace DHLS {
                     VerilogDebugInfo& info) {
     addAlwaysBlock({"clk"}, "if (" + condition + ") begin $display(\"" + wireName + " == %d\", " + wireName + "); end", info);
   }
+
+  static inline void
+  addWirePrintout(const std::string& wireName,
+                  VerilogDebugInfo& info) {
+    addAlwaysBlock({"clk"}, "$display(\"" + wireName + " == %d\", " + wireName + ");", info);
+  }
   
   static inline void
   addAssert(const std::string& condition,
