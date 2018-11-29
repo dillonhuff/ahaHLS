@@ -791,7 +791,7 @@ namespace DHLS {
 
     addWirePrintoutIf("num_clocks_after_reset == 2", "wdata_0_reg", info);
     // addWirePrintout("phi_in0_13", info);
-    // addWirePrintout("phi_in1_13", info);    
+    // addWirePrintout("phi_in1_13", info);
     // addWirePrintout("phi_out_13", info);
     addWirePrintout("last_BB_reg", info);
     addWirePrintout("wdata_0_reg", info);
