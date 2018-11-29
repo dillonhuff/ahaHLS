@@ -340,11 +340,11 @@ namespace DHLS {
     }
 
     // For now create a different unit for every single operation
-    int resSuffix = 0;
+    //int resSuffix = 0;
     for (auto state : stg.opStates) {
 
       // For now create a different unit for every single operation
-      //int resSuffix = 0;
+      int resSuffix = 0;
 
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
 
@@ -467,7 +467,7 @@ namespace DHLS {
 
           for (int i = 1; i < instr->getNumOperands(); i++) {
             wiring.insert({"in" + to_string(i),
-                  {true, 32, "add_in" + to_string(i) + "_" + to_string(resSuffix)}});
+                  {true, 32, "gep_add_in" + to_string(i) + "_" + to_string(resSuffix)}});
           }
           outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
         } else if (PHINode::classof(instr)) {
