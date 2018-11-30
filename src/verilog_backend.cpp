@@ -180,7 +180,12 @@ namespace DHLS {
   }
 
   std::vector<Port>
-  getPorts(std::map<Instruction*, FunctionalUnit>& unitAssignment) {
+  getPorts(MicroArchitecture& arch, std::map<std::string, int>& memLayout) {
+    //std::map<Instruction*, FunctionalUnit>& unitAssignment) {
+
+    auto& unitAssignment = arch.unitAssignment;
+    //auto& memLayout = arch.memoryLayout;
+
     vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
     int numReadPorts = 0;
     int numWritePorts = 0;
@@ -190,7 +195,7 @@ namespace DHLS {
       Instruction* i = instr.first;
       auto unit = instr.second;
 
-      if (!elem(unit.instName, alreadyChecked)) {
+      if (!elem(unit.instName, alreadyChecked) && !contains_key(unit.instName, memLayout)) {
         alreadyChecked.insert(unit.instName);
 
         if (StoreInst::classof(i)) {
@@ -1710,7 +1715,7 @@ namespace DHLS {
     MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, rams);
     string fn = f->getName();
     //vector<Port> allPorts = getPorts(stg);
-    vector<Port> allPorts = getPorts(unitAssignment);
+    vector<Port> allPorts = getPorts(arch, memoryMap);
     for (auto w : debugInfo.wiresToWatch) {
       allPorts.push_back(outputDebugPort(w.width, w.name));
     }
