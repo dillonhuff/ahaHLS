@@ -31,6 +31,8 @@ namespace DHLS {
       auto opCode = iptr->getOpcode();
       if (opCode == Instruction::Add) {
         return ADD_OP;
+      } else if (opCode == Instruction::Mul) {
+        return MUL_OP;
       } else {
         assert(false);
       }
@@ -111,6 +113,8 @@ namespace DHLS {
       auto opCode = iptr->getOpcode();
       if (opCode == Instruction::Add) {
         latency = hdc.getLatency(ADD_OP);
+      } else if (opCode == Instruction::Mul) {
+        latency = hdc.getLatency(MUL_OP);
       } else {
         assert(false);
       }

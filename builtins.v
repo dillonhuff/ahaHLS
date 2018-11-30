@@ -8,6 +8,10 @@ module add(input [31:0]  in0, input [31:0] in1, output [31:0] out);
    assign out = in0 + in1;
 endmodule
 
+module mul(input [31:0]  in0, input [31:0] in1, output [31:0] out);
+   assign out = in0 * in1;
+endmodule
+
 module getelementptr_1(input [31:0]  base_addr, input [31:0] in1, output [31:0] out);
    assign out = base_addr + in1;
 endmodule

@@ -4,7 +4,7 @@ void mvmul(int* __restrict a,
   for (int i = 0; i < 3; i++) {
     c[i] = 0;
     for (int j = 0; j < 3; j++) {
-      c[i] += a[i*3 +j] * c[j];
+      c[i] += a[i*3 +j] * b[j];
     }
   }
 }

@@ -383,8 +383,13 @@ namespace DHLS {
           }
 
         } else if (BinaryOperator::classof(instr)) {
-          assert(instr->getOpcode() == Instruction::Add);
-          modName = "add";
+          if (instr->getOpcode() == Instruction::Add) {
+            modName = "add";
+          } else if (instr->getOpcode() == Instruction::Mul) {
+            modName = "mul";
+          } else {
+            assert(false);
+          }
           wiring = {{"in0", {true, 32, "add_in0_" + rStr}},
                     {"in1", {true, 32, "add_in1_" + rStr}}};
           outWires = {{"out", {false, 32, "add_out_" + rStr}}};

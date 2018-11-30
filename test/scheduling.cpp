@@ -862,6 +862,7 @@ namespace DHLS {
     hcs.setLatency(CMP_OP, 0);
     hcs.setLatency(BR_OP, 0);
     hcs.setLatency(ADD_OP, 0);
+    hcs.setLatency(MUL_OP, 0);
 
     Function* f = Mod->getFunction("mvmul");
     assert(f != nullptr);
@@ -900,7 +901,7 @@ namespace DHLS {
     }
 
     cout << "Expected values" << endl;
-    for (auto val : map_find(string("b"), memoryExpected)) {
+    for (auto val : map_find(string("c"), memoryExpected)) {
       cout << "\t" << val << endl;
     }
 
