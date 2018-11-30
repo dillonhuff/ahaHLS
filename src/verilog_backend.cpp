@@ -179,6 +179,49 @@ namespace DHLS {
     return true;
   }
 
+  std::vector<Port>
+  getPorts(std::map<Instruction*, FunctionalUnit>& unitAssignment) {
+    vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
+    int numReadPorts = 0;
+    int numWritePorts = 0;
+
+    std::set<std::string> alreadyChecked;
+    for (auto instr : unitAssignment) {
+      Instruction* i = instr.first;
+      auto unit = instr.second;
+
+      if (!elem(unit.instName, alreadyChecked)) {
+        alreadyChecked.insert(unit.instName);
+
+        if (StoreInst::classof(i)) {
+          numWritePorts++;
+        }
+
+        if (LoadInst::classof(i)) {
+          numReadPorts++;
+        }
+      }
+
+
+    }
+
+    // TODO: Accomodate different width reads / writes
+    int width = 32;    
+    for (int i = 0; i < numReadPorts; i++) {
+      pts.push_back(inputPort(width, "rdata_" + to_string(i)));
+      pts.push_back(outputPort(clog2(width), "raddr_" + to_string(i)));
+    }
+
+    for (int i = 0; i < numWritePorts; i++) {
+      pts.push_back(outputPort(width, "wdata_" + to_string(i)));
+      pts.push_back(outputPort(clog2(width), "waddr_" + to_string(i)));
+      pts.push_back(outputPort(1, "wen_" + to_string(i)));
+    }
+
+    return pts;
+
+  }
+
   std::vector<Port> getPorts(const STG& stg) {
     vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
     int numReadPorts = 0;
@@ -323,6 +366,7 @@ namespace DHLS {
     return mems;
   }
 
+
   std::map<Instruction*, FunctionalUnit>
   assignFunctionalUnits(const STG& stg,
                         std::map<std::string, int>& memoryMap) {
@@ -340,11 +384,11 @@ namespace DHLS {
     }
 
     // For now create a different unit for every single operation
-    //int resSuffix = 0;
+    int resSuffix = 0;
     for (auto state : stg.opStates) {
 
       // For now create a different unit for every single operation
-      int resSuffix = 0;
+      //int resSuffix = 0;
 
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
 
@@ -1657,15 +1701,16 @@ namespace DHLS {
     map<Instruction*, Wire> names = createInstrNames(stg);
     vector<ElaboratedPipeline> pipelines =
       buildPipelines(f, stg);
+
     map<Instruction*, FunctionalUnit> unitAssignment =
       assignFunctionalUnits(stg, memoryMap);
 
     // TODO: Add rams
     vector<RAM> rams;
-
     MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, rams);
     string fn = f->getName();
-    vector<Port> allPorts = getPorts(stg);
+    //vector<Port> allPorts = getPorts(stg);
+    vector<Port> allPorts = getPorts(unitAssignment);
     for (auto w : debugInfo.wiresToWatch) {
       allPorts.push_back(outputDebugPort(w.width, w.name));
     }
