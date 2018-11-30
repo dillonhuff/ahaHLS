@@ -3,8 +3,6 @@
 #include "utils.h"
 
 #include <fstream>
-#include <llvm/IR/Constants.h>
-#include <llvm/IR/Instructions.h>
 
 using namespace dbhc;
 using namespace llvm;
@@ -53,21 +51,6 @@ namespace DHLS {
     return {false, width, name, true};
   }
   
-  class FunctionalUnit {
-  public:
-    std::string modName;
-    std::string instName;
-
-    std::map<std::string, Wire> portWires;
-    std::map<std::string, Wire> outWires;
-
-    std::string onlyOutputVar() const {
-      assert(outWires.size() == 1);
-
-      return (*begin(outWires)).second.name;
-    }
-  };
-
   std::ostream& operator<<(std::ostream& out, const FunctionalUnit& unit) {
     out << unit.modName;
     out << " " << unit.instName << "(";
@@ -85,91 +68,6 @@ namespace DHLS {
     return out;
   }
 
-  class ElaboratedPipeline {
-  public:
-    Pipeline p;
-    std::vector<Wire> valids;
-    Wire inPipe;
-    StateId stateId;
-
-    std::vector<std::map<Instruction*, Wire> > pipelineRegisters;
-    GuardedInstruction exitBranch;
-    //std::vector<Wire> lastBBs;
-    
-    ElaboratedPipeline(const Pipeline& p_) : p(p_) {}
-
-    llvm::Value* getExitCondition() const {
-      Instruction* repeat = exitBranch.instruction;
-      assert(BranchInst::classof(repeat));
-      BranchInst* pipelineB = dyn_cast<BranchInst>(repeat);
-
-      assert(pipelineB->isConditional());
-
-      return pipelineB->getCondition();
-    }
-
-    int numStages() const {
-      return p.getStates().size();
-    }
-
-    int stateIndex(const StateId id) const {
-      for (int i = 0; i < p.getStates().size(); i++) {
-        if (p.getStates().at(i) == id) {
-          return i;
-        }
-      }
-
-      return -1;
-    }
-
-    int stageForState(const StateId id) const {
-      return stateIndex(id);
-    }
-
-  };
-
-  class RAM {
-    
-  public:
-
-    std::string name;
-    int width;
-    int depth;
-
-    RAM(const std::string& name_,
-        const int width_,
-        const int depth_) : name(name_), width(width_), depth(depth_) {}
-  };
-
-  class MicroArchitecture {
-  public:
-
-
-    STG stg;
-    map<Instruction*, FunctionalUnit> unitAssignment;
-    map<string, int> memoryMap;
-    map<Instruction*, Wire> names;
-    map<BasicBlock*, int> basicBlockNos;
-    std::vector<ElaboratedPipeline> pipelines;
-    std::vector<RAM> rams;
-
-    MicroArchitecture(
-                      const STG& stg_,
-                      const map<Instruction*, FunctionalUnit>& unitAssignment_,
-                      const map<string, int>& memoryMap_,
-                      const map<Instruction*, Wire>& names_,
-                      const map<BasicBlock*, int>& basicBlockNos_,
-                      const std::vector<ElaboratedPipeline>& pipelines_,
-                      const std::vector<RAM>& rams_) :
-      stg(stg_),
-      unitAssignment(unitAssignment_),
-      memoryMap(memoryMap_),
-      names(names_),
-      basicBlockNos(basicBlockNos_),
-      pipelines(pipelines_),
-      rams(rams_) {}
-  };
-  
   bool hasOutput(Instruction* instr) {
     if (StoreInst::classof(instr) ||
         BranchInst::classof(instr) ||
@@ -1717,27 +1615,19 @@ namespace DHLS {
                    const STG& stg,
                    std::map<std::string, int>& memoryMap,
                    const VerilogDebugInfo& debugInfo) {
-
-    // map<BasicBlock*, int> basicBlockNos = numberBasicBlocks(f);
-    // map<Instruction*, Wire> names = createInstrNames(stg);
-    // vector<ElaboratedPipeline> pipelines =
-    //   buildPipelines(f, stg);
-
-    // map<Instruction*, FunctionalUnit> unitAssignment =
-    //   assignFunctionalUnits(stg, memoryMap);
-
-    // // TODO: Add rams
-    // vector<RAM> rams;
-    // MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, pipelines, rams);
-
-    // assert(arch.stg.opStates.size() == stg.opStates.size());
-    // assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
-    
     auto arch = buildMicroArchitecture(f, stg, memoryMap);
+    emitVerilog(f, arch, debugInfo);
+  }
+  
+  void emitVerilog(llvm::Function* f,
+                   MicroArchitecture& arch,
+                   const VerilogDebugInfo& debugInfo) {
+
+    //auto arch = buildMicroArchitecture(f, stg, memoryMap);
 
     string fn = f->getName();
 
-    vector<Port> allPorts = getPorts(arch, memoryMap);
+    vector<Port> allPorts = getPorts(arch, arch.memoryMap);
     for (auto w : debugInfo.wiresToWatch) {
       allPorts.push_back(outputDebugPort(w.width, w.name));
     }
@@ -1781,8 +1671,7 @@ namespace DHLS {
     out << "\t\t\tglobal_state <= 0;" << endl;
     out << "\t\tend else begin" << endl;
 
-    //emitControlCode(out, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
-    emitControlCode(out, stg, arch.unitAssignment, arch.names, arch.pipelines);
+    emitControlCode(out, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
 
     out << "\tend" << endl;
     out << endl << endl;
