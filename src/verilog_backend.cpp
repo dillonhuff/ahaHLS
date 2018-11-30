@@ -1708,6 +1708,8 @@ namespace DHLS {
     vector<RAM> rams;
     MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, pipelines, rams);
 
+    assert(arch.stg.opStates.size() == stg.opStates.size());
+    assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
     return arch;
   }
 
@@ -1727,6 +1729,9 @@ namespace DHLS {
     // TODO: Add rams
     vector<RAM> rams;
     MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, pipelines, rams);
+
+    assert(arch.stg.opStates.size() == stg.opStates.size());
+    assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
     
     //auto arch = buildMicroArchitecture(f, stg, memoryMap);
 
