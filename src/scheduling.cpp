@@ -317,8 +317,8 @@ namespace DHLS {
             if (elem(nextBB, toPipeline) || elem(next, toPipeline)) {
               s.add(blockSink(next, blockVars) < blockSource(nextBB, blockVars));
             } else {
-              //s.add(blockSink(next, blockVars) < blockSource(nextBB, blockVars));
-              s.add(blockSink(next, blockVars) <= blockSource(nextBB, blockVars));
+              s.add(blockSink(next, blockVars) < blockSource(nextBB, blockVars));
+              //s.add(blockSink(next, blockVars) <= blockSource(nextBB, blockVars));
             }
             toVisit.push_back(nextBB);
           }
