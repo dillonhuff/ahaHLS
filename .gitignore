@@ -33,3 +33,9 @@ blur_no_lb_tb.v
 blur_no_lb
 blur_no_lb.v
 *.txt
+blur_lb
+blur_lb.ll
+blur_lb.v
+blur_lb_tb.v
+/#*
+
