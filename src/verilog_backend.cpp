@@ -1905,11 +1905,21 @@ namespace DHLS {
 
   }
 
+  std::string sanitizeFormatForVerilog(const std::string& str) {
+    string san = "";
+    for (auto c : str) {
+      if (c != '%') {
+        san += c;
+      }
+    }
+    return san;
+  }
+  
   void printInstrAtState(Instruction* instr,
                          StateId st,
                          const MicroArchitecture& arch,
                          VerilogDebugInfo& debugInfo) {
-    auto iStr = instructionString(instr);
+    auto iStr = sanitizeFormatForVerilog(instructionString(instr));
     FunctionalUnit unit = map_find(instr, arch.unitAssignment);
     auto unitOutput = unit.onlyOutputVar();
     
