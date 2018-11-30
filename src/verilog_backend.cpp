@@ -1838,6 +1838,25 @@ namespace DHLS {
 
   }
 
+  void noStoredValuesXWhenUsed(const MicroArchitecture& arch,
+                               VerilogDebugInfo& debugInfo) {
+    for (auto st : arch.stg.opStates) {
+      for (auto instrG : arch.stg.instructionsStartingAt(st.first)) {
+        auto instr = instrG.instruction;
+        if (StoreInst::classof(instr)) {
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+          StateId activeState = st.first;
+
+          string wireName = map_find(string("wdata"), unit.portWires).name;
+          addAssert("global_state !== " + to_string(activeState) + " || " +
+                    wireName + " !== 'dx",
+                    debugInfo);
+        }
+      }
+    }
+
+  }
+  
   void noPhiOutputsXWhenUsed(const MicroArchitecture& arch,
                              VerilogDebugInfo& debugInfo) {
     for (auto st : arch.stg.opStates) {

@@ -783,6 +783,7 @@ namespace DHLS {
     // the test case, tracking wires that return Xs each time?
     VerilogDebugInfo info;
     noPhiOutputsXWhenUsed(arch, info);
+    noStoredValuesXWhenUsed(arch, info);
 
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
     info.wiresToWatch.push_back({false, 32, "wdata_temp_reg_dbg"});

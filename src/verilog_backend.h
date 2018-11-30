@@ -254,5 +254,8 @@ namespace DHLS {
 
   void noPhiOutputsXWhenUsed(const MicroArchitecture& arch,
                              VerilogDebugInfo& debugInfo);
+
+  void noStoredValuesXWhenUsed(const MicroArchitecture& arch,
+                               VerilogDebugInfo& debugInfo);
   
 }
