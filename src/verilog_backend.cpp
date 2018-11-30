@@ -1119,20 +1119,25 @@ namespace DHLS {
 
   }  
 
+  // void emitPipelineInstructionCode(std::ostream& out,
+  //                                  const std::vector<ElaboratedPipeline>& pipelines,
+  //                                  const STG& stg,
+  //                                  map<Instruction*, FunctionalUnit>& unitAssignment,
+  //                                  map<string, int>& memoryMap,
+  //                                  map<Instruction*, Wire>& names,
+  //                                  map<BasicBlock*, int>& basicBlockNos) {
+
   void emitPipelineInstructionCode(std::ostream& out,
                                    const std::vector<ElaboratedPipeline>& pipelines,
-                                   const STG& stg,
-                                   map<Instruction*, FunctionalUnit>& unitAssignment,
-                                   map<string, int>& memoryMap,
-                                   map<Instruction*, Wire>& names,
-                                   map<BasicBlock*, int>& basicBlockNos) {
-
-    vector<RAM> rams;
-    // TODO: Add loop over instructions searching for alloca instructions.
-    // Then I will need to add RAM assignments to the appropriate
-    // load and store operations (via adding them to the functional
-    // unit assignment?)
-    MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, rams);
+                                   MicroArchitecture& arch,
+                                   map<string, int>& memoryMap) {
+    
+    // vector<RAM> rams;
+    // // TODO: Add loop over instructions searching for alloca instructions.
+    // // Then I will need to add RAM assignments to the appropriate
+    // // load and store operations (via adding them to the functional
+    // // unit assignment?)
+    // MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, rams);
 
     out << "\t// Start pipeline instruction code" << endl;
 
@@ -1149,7 +1154,7 @@ namespace DHLS {
           auto instrG = p.exitBranch;
           Instruction* instr = instrG.instruction;
 
-          out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+          out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
 
           instructionVerilog(out, instr, arch); //stg, unitAssignment, memoryMap, names, basicBlockNos);
 
@@ -1159,13 +1164,13 @@ namespace DHLS {
         }
 
         // Omit branch code on last stage
-        for (auto instrG : stg.instructionsStartingAt(state)) {
+        for (auto instrG : arch.stg.instructionsStartingAt(state)) {
           out << "\talways @(*) begin" << endl;
           out << "\t\tif (" << p.inPipe.name << " && " << valid.name << ") begin" << endl;
 
           Instruction* instr = instrG.instruction;
 
-          out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+          out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
 
           
           instructionVerilog(out, instr, arch); //, stg, unitAssignment, memoryMap, names, basicBlockNos);
@@ -1772,7 +1777,8 @@ namespace DHLS {
     out << "\tend" << endl;
     out << endl << endl;
 
-    emitPipelineInstructionCode(out, pipelines, stg, unitAssignment, memoryMap, names, basicBlockNos);
+    emitPipelineInstructionCode(out, pipelines, arch, memoryMap);
+    //emitPipelineInstructionCode(out, pipelines, stg, unitAssignment, memoryMap, names, basicBlockNos);
     emitInstructionCode(out, arch, pipelines);
 
     out << "endmodule" << endl;
