@@ -1904,6 +1904,17 @@ namespace DHLS {
     }
 
   }
+
+  void printInstrAtState(Instruction* instr,
+                         StateId st,
+                         const MicroArchitecture& arch,
+                         VerilogDebugInfo& debugInfo) {
+    auto iStr = instructionString(instr);
+    FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+    auto unitOutput = unit.onlyOutputVar();
+    
+    addAlwaysBlock({"clk"}, "if(global_state == " + to_string(st) + ") begin $display(\"" + iStr + " == %d\", " + unitOutput + "); end", debugInfo);
+  }
   
   void noPhiOutputsXWhenUsed(const MicroArchitecture& arch,
                              VerilogDebugInfo& debugInfo) {
@@ -1914,6 +1925,9 @@ namespace DHLS {
           FunctionalUnit unit = map_find(instr, arch.unitAssignment);
           StateId activeState = st.first;
 
+          string iStr = instructionString(instr);
+          printInstrAtState(instr, activeState, arch, debugInfo);
+          
           string wireName = unit.onlyOutputVar();
           addAssert("global_state !== " + to_string(activeState) + " || " +
                     wireName + " !== 'dx",

@@ -788,8 +788,8 @@ namespace DHLS {
     // memory is x. Now I need to figure out where the x came from. What is
     // the best way to do this x tracking?
 
-    // I guess one way is through conditional printouts, but they often need
-    // to happen before we get to 
+    // Next: Need to set what I expect the value of the failing store to be?
+    // How to do this through the current API?
     noStoredValuesXWhenUsed(arch, info);
 
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
