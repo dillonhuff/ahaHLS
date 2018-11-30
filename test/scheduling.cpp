@@ -789,6 +789,9 @@ namespace DHLS {
 
     addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
 
+    // Another nice tool to have: Any output of a functional
+    // unit should not be x when it is active?
+
     //addWirePrintoutIf("num_clocks_after_reset == 3", "wdata_0_reg", info);
     // addWirePrintout("phi_in0_13", info);
     // addWirePrintout("phi_in1_13", info);
