@@ -1264,6 +1264,16 @@ namespace DHLS {
     }
     out << "\t// End instruction result storage" << endl;
     out << endl;
+
+    out << "\t// Start instruction result reset" << endl;
+    out << tab(1) << "always @(posedge clk) begin " << endl;
+    for (auto n : names) {
+      out << tab(2) << n.second.name << " <= 0;" << endl;
+    }
+    out << tab(1) << "end" << endl;
+    out << "\t// End instruction result reset" << endl;
+    out << endl;
+
   }
 
   void emitPipelineResetBlock(std::ostream& out,
@@ -1668,6 +1678,7 @@ namespace DHLS {
 
     out << "\t\tif (rst) begin" << endl;
     // TODO: Change this from 0 to the global state that contains the entry block
+    
     out << "\t\t\tglobal_state <= 0;" << endl;
     out << "\t\tend else begin" << endl;
 
