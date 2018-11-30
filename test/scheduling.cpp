@@ -777,9 +777,11 @@ namespace DHLS {
 
     map<string, int> layout = {{"a", 0}, {"b", 8}};
 
-    // Idea: Check in assertions that write data never has an x when write
-    // enable is high
+    auto arch = buildMicroArchitecture(f, graph, layout);
+
     VerilogDebugInfo info;
+    noPhiOutputsXWhenUsed(arch, info);
+
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
     info.wiresToWatch.push_back({false, 32, "wdata_temp_reg_dbg"});
 
@@ -792,7 +794,7 @@ namespace DHLS {
     // Another nice tool to have: Any output of a functional
     // unit should not be x when it is active?
 
-    //addWirePrintoutIf("num_clocks_after_reset == 3", "wdata_0_reg", info);
+    // addWirePrintoutIf("num_clocks_after_reset == 3", "wdata_0_reg", info);
     // addWirePrintout("phi_in0_13", info);
     // addWirePrintout("phi_in1_13", info);
     // addWirePrintout("phi_out_13", info);
@@ -811,7 +813,8 @@ namespace DHLS {
     // addAssert("num_clocks_after_reset !== 3 || wen_0_reg === 1", info);
     // addAssert("num_clocks_after_reset !== 3 || wdata_0_reg === 3", info);
 
-    emitVerilog(f, graph, layout, info);
+    //emitVerilog(f, graph, layout, info);
+    emitVerilog(f, arch, info);
 
     map<string, vector<int> > memoryInit{{"a", {0, 1, 2, 3, 7, 5, 5, 2}}};
     map<string, vector<int> > memoryExpected{{"b", {}}};
@@ -833,7 +836,7 @@ namespace DHLS {
     tb.name = "blur_lb";
     emitVerilogTestBench(tb, layout);
 
-    //REQUIRE(runIVerilogTB("blur_lb"));
+    REQUIRE(runIVerilogTB("blur_lb"));
     
   }
   

@@ -1838,4 +1838,22 @@ namespace DHLS {
 
   }
 
+  void noPhiOutputsXWhenUsed(const MicroArchitecture& arch,
+                             VerilogDebugInfo& debugInfo) {
+    for (auto st : arch.stg.opStates) {
+      for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
+        auto instr = instrG.instruction;
+        if (PHINode::classof(instr)) {
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+          StateId activeState = st.first;
+
+          string wireName = unit.onlyOutputVar();
+          addAssert("global_state !== " + to_string(activeState) + " || " +
+                    wireName + " !== 'dx",
+                    debugInfo);
+        }
+      }
+    }
+  }
+
 }

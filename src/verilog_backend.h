@@ -247,4 +247,12 @@ namespace DHLS {
                          HardwareConstraints& hdc,
                          std::map<std::string, int>& memoryMap);
 
+  MicroArchitecture
+  buildMicroArchitecture(llvm::Function* f,
+                         const STG& stg,
+                         std::map<std::string, int>& memoryMap);
+
+  void noPhiOutputsXWhenUsed(const MicroArchitecture& arch,
+                             VerilogDebugInfo& debugInfo);
+  
 }
