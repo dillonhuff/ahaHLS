@@ -212,15 +212,19 @@ namespace DHLS {
   //   3. Output stage of testbench that can read through the entire output
   //      memory and check its contents
 
+  // This issue of where address generation is done seems very important.
+  // Can you think of stream programming vs. bulk array processing as divided
+  // by where and when address computation happens?
+
   // Q: What test cases do I need?
   // A: Test case that uses 16 (or other not 32 bit) width (parametric builtins)
   //    Test case that uses inner and outer loops
   //    Test that uses a loop with II != 1
   //    Test that mixes memory accesses and loop pipelining
   //    Test that uses multiple different RAM types
-  //    Test that uses stack allocated variables as registers
   //    Later: Test case that can use AXI and variable arrival time inputs
   //    Test that uses limited numbers of memory read/write ports
+  //    Test case that merges basic blocks that execute different numbers of times
   TEST_CASE("A simple if") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -845,7 +849,69 @@ namespace DHLS {
     emitVerilogTestBench(tb, layout);
 
     REQUIRE(runIVerilogTB("blur_lb"));
+  }
+
+  TEST_CASE("Matrix vector multiply") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    std::unique_ptr<Module> Mod = loadModule(Context, Err, "mvmul");
+
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(LOAD_OP, 1);
+    hcs.setLatency(CMP_OP, 0);
+    hcs.setLatency(BR_OP, 0);
+    hcs.setLatency(ADD_OP, 0);
+
+    Function* f = Mod->getFunction("mvmul");
+    assert(f != nullptr);
     
+    Schedule s = scheduleFunction(f, hcs);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    // 3 x 3
+    map<string, int> layout = {{"a", 0}, {"b", 9}, {"c", 12}};
+
+    auto arch = buildMicroArchitecture(f, graph, layout);
+
+    VerilogDebugInfo info;
+    noAddsTakeXInputs(arch, info);
+    noPhiOutputsXWhenUsed(arch, info);
+    noStoredValuesXWhenUsed(arch, info);
+
+    emitVerilog(f, arch, info);
+
+    map<string, vector<int> > memoryInit{{"a", {0, 1, 2, 3, 7, 5, 5, 2}},
+        {"b", {9, 3, 7}}};
+    map<string, vector<int> > memoryExpected{{"c", {}}};
+
+    auto ma = map_find(string("a"), memoryInit);
+    auto mb = map_find(string("b"), memoryInit);
+    for (int i = 0; i < 3; i++) {
+      int val = 0;
+      for (int j = 0; j < 3; j++) {
+        val += ma[i*3 + j] * mb[j];
+      }
+      map_insert(memoryExpected, string("c"), val);
+    }
+
+    cout << "Expected values" << endl;
+    for (auto val : map_find(string("b"), memoryExpected)) {
+      cout << "\t" << val << endl;
+    }
+
+    TestBenchSpec tb;
+    tb.memoryInit = memoryInit;
+    tb.memoryExpected = memoryExpected;
+    tb.runCycles = 40;
+    tb.name = "mvmul";
+    emitVerilogTestBench(tb, layout);
+
+    REQUIRE(runIVerilogTB("mvmul"));
   }
   
   // struct Hello : public FunctionPass {
