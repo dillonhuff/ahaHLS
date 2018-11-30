@@ -150,6 +150,7 @@ namespace DHLS {
     map<string, int> memoryMap;
     map<Instruction*, Wire> names;
     map<BasicBlock*, int> basicBlockNos;
+    std::vector<ElaboratedPipeline> pipelines;
     std::vector<RAM> rams;
 
     MicroArchitecture(
@@ -158,12 +159,14 @@ namespace DHLS {
                       const map<string, int>& memoryMap_,
                       const map<Instruction*, Wire>& names_,
                       const map<BasicBlock*, int>& basicBlockNos_,
+                      const std::vector<ElaboratedPipeline>& pipelines_,
                       const std::vector<RAM>& rams_) :
       stg(stg_),
       unitAssignment(unitAssignment_),
       memoryMap(memoryMap_),
       names(names_),
       basicBlockNos(basicBlockNos_),
+      pipelines(pipelines_),
       rams(rams_) {}
   };
   
@@ -1119,26 +1122,11 @@ namespace DHLS {
 
   }  
 
-  // void emitPipelineInstructionCode(std::ostream& out,
-  //                                  const std::vector<ElaboratedPipeline>& pipelines,
-  //                                  const STG& stg,
-  //                                  map<Instruction*, FunctionalUnit>& unitAssignment,
-  //                                  map<string, int>& memoryMap,
-  //                                  map<Instruction*, Wire>& names,
-  //                                  map<BasicBlock*, int>& basicBlockNos) {
-
   void emitPipelineInstructionCode(std::ostream& out,
                                    const std::vector<ElaboratedPipeline>& pipelines,
                                    MicroArchitecture& arch,
                                    map<string, int>& memoryMap) {
     
-    // vector<RAM> rams;
-    // // TODO: Add loop over instructions searching for alloca instructions.
-    // // Then I will need to add RAM assignments to the appropriate
-    // // load and store operations (via adding them to the functional
-    // // unit assignment?)
-    // MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, rams);
-
     out << "\t// Start pipeline instruction code" << endl;
 
     out << "\t// Start pipeline stages" << endl;
@@ -1156,7 +1144,7 @@ namespace DHLS {
 
           out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
 
-          instructionVerilog(out, instr, arch); //stg, unitAssignment, memoryMap, names, basicBlockNos);
+          instructionVerilog(out, instr, arch);
 
           out << "\t\t\tend" << endl;
           out << "\t\tend" << endl;
@@ -1173,7 +1161,7 @@ namespace DHLS {
           out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
 
           
-          instructionVerilog(out, instr, arch); //, stg, unitAssignment, memoryMap, names, basicBlockNos);
+          instructionVerilog(out, instr, arch);
 
           out << "\t\t\tend" << endl;
           out << "\t\tend" << endl;
@@ -1702,7 +1690,27 @@ namespace DHLS {
     out << "\t\tend" << endl;
     out << "\tend" << endl;
   }
-  
+
+  MicroArchitecture
+  buildMicroArchitecture(llvm::Function* f,
+                         const STG& stg,
+                         std::map<std::string, int>& memoryMap) {
+    
+    map<BasicBlock*, int> basicBlockNos = numberBasicBlocks(f);
+    map<Instruction*, Wire> names = createInstrNames(stg);
+    vector<ElaboratedPipeline> pipelines =
+      buildPipelines(f, stg);
+
+    map<Instruction*, FunctionalUnit> unitAssignment =
+      assignFunctionalUnits(stg, memoryMap);
+
+    // TODO: Add rams
+    vector<RAM> rams;
+    MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, pipelines, rams);
+
+    return arch;
+  }
+
   void emitVerilog(llvm::Function* f,
                    const STG& stg,
                    std::map<std::string, int>& memoryMap,
@@ -1718,9 +1726,12 @@ namespace DHLS {
 
     // TODO: Add rams
     vector<RAM> rams;
-    MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, rams);
+    MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, pipelines, rams);
+    
+    //auto arch = buildMicroArchitecture(f, stg, memoryMap);
+
     string fn = f->getName();
-    //vector<Port> allPorts = getPorts(stg);
+
     vector<Port> allPorts = getPorts(arch, memoryMap);
     for (auto w : debugInfo.wiresToWatch) {
       allPorts.push_back(outputDebugPort(w.width, w.name));
@@ -1740,46 +1751,38 @@ namespace DHLS {
 
     emitComponents(out, debugInfo);
     
-    emitFunctionalUnits(out, unitAssignment);
-    emitRegisterStorage(out, names);
+    emitFunctionalUnits(out, arch.unitAssignment);
+    emitRegisterStorage(out, arch.names);
 
-    emitPipelineVariables(out, pipelines);
+    emitPipelineVariables(out, arch.pipelines);
     emitGlobalStateVariables(out);
 
-    emitPipelineResetBlock(out, pipelines);
-    emitPipelineValidChainBlock(out, pipelines);
-    //emitPipelineLastBBChainBlock(out, pipelines);
+    emitPipelineResetBlock(out, arch.pipelines);
+    emitPipelineValidChainBlock(out, arch.pipelines);
 
-    emitPipelineInitiationBlock(out, unitAssignment, pipelines);
-    emitLastBBCode(out, f, pipelines, arch);
+    emitPipelineInitiationBlock(out, arch.unitAssignment, arch.pipelines);
+    // TODO: Remove pipelines arch, it is now a field of arch
+    emitLastBBCode(out, f, arch.pipelines, arch);
 
     out << endl;
-    for (auto p : pipelines) {
+    for (auto p : arch.pipelines) {
       out << "\tassign " << p.inPipe.name << " = global_state == " << p.stateId << ";"<< endl;
     }
 
     out << "\talways @(posedge clk) begin" << endl;
 
     out << "\t\tif (rst) begin" << endl;
-
     // TODO: Change this from 0 to the global state that contains the entry block
     out << "\t\t\tglobal_state <= 0;" << endl;
-
-    //out << "\t\t\tlast_BB_reg <= " << map_find(&(f->getEntryBlock()), basicBlockNos) << ";" << endl;
-
     out << "\t\tend else begin" << endl;
 
-    //out << "\t\t\tlast_BB_reg <= last_BB;" << endl;
-      
-
-    emitControlCode(out, stg, unitAssignment, names, pipelines);
+    emitControlCode(out, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
 
     out << "\tend" << endl;
     out << endl << endl;
 
-    emitPipelineInstructionCode(out, pipelines, arch, memoryMap);
-    //emitPipelineInstructionCode(out, pipelines, stg, unitAssignment, memoryMap, names, basicBlockNos);
-    emitInstructionCode(out, arch, pipelines);
+    emitPipelineInstructionCode(out, arch.pipelines, arch, arch.memoryMap);
+    emitInstructionCode(out, arch, arch.pipelines);
 
     out << "endmodule" << endl;
 
