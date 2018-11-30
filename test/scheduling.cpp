@@ -789,18 +789,24 @@ namespace DHLS {
 
     addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
 
-    addWirePrintoutIf("num_clocks_after_reset == 2", "wdata_0_reg", info);
+    //addWirePrintoutIf("num_clocks_after_reset == 3", "wdata_0_reg", info);
     // addWirePrintout("phi_in0_13", info);
     // addWirePrintout("phi_in1_13", info);
     // addWirePrintout("phi_out_13", info);
     // addWirePrintout("last_BB_reg", info);
-    // addWirePrintout("wdata_0_reg", info);
+    addGlobalStateWirePrintout("wdata_0_reg", info);
+    addGlobalStateWirePrintout("add_in0_14", info);
+    addGlobalStateWirePrintout("add_in1_14", info);    
+    addGlobalStateWirePrintout("add_in0_4", info);
+    addGlobalStateWirePrintout("add_in1_4", info);    
+    addGlobalStateWirePrintout("phi_in0_13", info);
+    addGlobalStateWirePrintout("phi_in1_13", info);
 
     // Still wrong after correcting transitions?
 
-    addAssert("num_clocks_after_reset !== 2 || waddr_0_reg === 8", info);
-    addAssert("num_clocks_after_reset !== 2 || wen_0_reg === 1", info);
-    //addAssert("num_clocks_after_reset !== 2 || wdata_0_reg === 3", info);
+    // addAssert("num_clocks_after_reset !== 3 || waddr_0_reg === 8", info);
+    // addAssert("num_clocks_after_reset !== 3 || wen_0_reg === 1", info);
+    // addAssert("num_clocks_after_reset !== 3 || wdata_0_reg === 3", info);
 
     emitVerilog(f, graph, layout, info);
 
@@ -820,11 +826,11 @@ namespace DHLS {
     TestBenchSpec tb;
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
-    tb.runCycles = 100;
+    tb.runCycles = 40;
     tb.name = "blur_lb";
     emitVerilogTestBench(tb, layout);
 
-    //REQUIRE(runIVerilogTB("blur_lb"));
+    REQUIRE(runIVerilogTB("blur_lb"));
     
   }
   
