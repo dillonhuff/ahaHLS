@@ -807,13 +807,13 @@ namespace DHLS {
     // Another nice tool to have: Any output of a functional
     // unit should not be x when it is active?
 
-    addGlobalStateWirePrintout("wdata_0_reg", info);
-    addGlobalStateWirePrintout("add_in0_14", info);
-    addGlobalStateWirePrintout("add_in1_14", info);    
-    addGlobalStateWirePrintout("add_in0_4", info);
-    addGlobalStateWirePrintout("add_in1_4", info);    
-    addGlobalStateWirePrintout("phi_in0_13", info);
-    addGlobalStateWirePrintout("phi_in1_13", info);
+    // addGlobalStateWirePrintout("wdata_0_reg", info);
+    // addGlobalStateWirePrintout("add_in0_14", info);
+    // addGlobalStateWirePrintout("add_in1_14", info);    
+    // addGlobalStateWirePrintout("add_in0_4", info);
+    // addGlobalStateWirePrintout("add_in1_4", info);    
+    // addGlobalStateWirePrintout("phi_in0_13", info);
+    // addGlobalStateWirePrintout("phi_in1_13", info);
 
     // Still wrong after correcting transitions?
 

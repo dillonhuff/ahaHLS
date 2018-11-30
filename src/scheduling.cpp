@@ -329,6 +329,7 @@ namespace DHLS {
 
     cout << "Added control edges" << endl;    
 
+    cout << "Adding memory control" << endl;
     // Instructions must finish before their dependencies
     for (auto& bb : f->getBasicBlockList()) {
       for (auto& instr : bb) {
@@ -336,9 +337,12 @@ namespace DHLS {
         
         for (auto& user : iptr->uses()) {
           assert(Instruction::classof(user));
-          if (!PHINode::classof(user)) {
-            auto userInstr = dyn_cast<Instruction>(user.getUser());
+          auto userInstr = dyn_cast<Instruction>(user.getUser());          
+
+          if (!PHINode::classof(userInstr)) {
+
             s.add(instrEnd(iptr, schedVars) <= instrStart(userInstr, schedVars));
+            cout << instructionString(iptr) << " must finish before " << instructionString(userInstr) << endl;
           }
         }
       }
