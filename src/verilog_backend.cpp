@@ -1263,6 +1263,17 @@ namespace DHLS {
       out << "\treg [" << n.second.width - 1 << ":0] " << n.second.name << ";" << endl;
     }
     out << "\t// End instruction result storage" << endl;
+
+    out << "\t// Start instruction result resets" << endl;
+    out << tab(1) << "always @(posedge clk) begin" << endl;
+    out << tab(2) << "if (rst) begin" << endl;
+    for (auto n : names) {
+      out << tab(3) << n.second.name << " <= 0;" << endl;
+    }
+    out << tab(2) << "end" << endl;
+    out << tab(1) << "end" << endl;
+    out << "\t// End instruction result resets" << endl;
+
     out << endl;
   }
 
