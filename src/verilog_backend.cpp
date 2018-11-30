@@ -2,6 +2,8 @@
 
 #include "utils.h"
 
+#include <llvm/Analysis/OrderedBasicBlock.h>
+
 #include <fstream>
 
 using namespace dbhc;
@@ -646,14 +648,47 @@ namespace DHLS {
   }
   
   std::string outputNameLast(Value* arg0,
+                             Instruction* curInstr,
+                             const STG& stg,
                              map<Instruction*, FunctionalUnit> unitAssignment,
                              map<Instruction*, Wire>& names,
                              std::map<std::string, int>& memoryMap) {
     if (Instruction::classof(arg0)) {
 
-      auto resWire =
-        map_find(dyn_cast<Instruction>(arg0), names);
-      return resWire.name;
+      auto instr0 = dyn_cast<Instruction>(arg0);
+      StateId argState = map_find(instr0, stg.sched.instrTimes).back();
+      StateId thisState = map_find(curInstr, stg.sched.instrTimes).front();
+
+      if (argState == thisState) {
+
+        BasicBlock* argBB = instr0->getParent();
+        BasicBlock* userBB = curInstr->getParent();
+
+        assert(argBB == userBB);
+
+        OrderedBasicBlock obb(argBB);
+
+        if (obb.dominates(instr0, curInstr)) {
+          auto unit0Src =
+            map_find(instr0, unitAssignment);
+          assert(unit0Src.outWires.size() == 1);
+          string arg0Name = unit0Src.onlyOutputVar();
+          return arg0Name;
+        } else {
+          Wire tmpRes = map_find(instr0, names);
+          return tmpRes.name;
+        }
+        
+      } else {
+
+        Wire tmpRes = map_find(instr0, names);
+        return tmpRes.name;
+
+      }
+      
+      // auto resWire =
+      //   map_find(dyn_cast<Instruction>(arg0), names);
+      // return resWire.name;
 
     } else if (Argument::classof(arg0)) {
       string name = arg0->getName();
@@ -791,10 +826,10 @@ namespace DHLS {
       int b1Val = map_find(b1, arch.basicBlockNos);
 
       Value* v0 = phi->getIncomingValue(0);
-      string val0Name = outputNameLast(v0, arch.unitAssignment, arch.names, arch.memoryMap);
+      string val0Name = outputNameLast(v0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
 
       Value* v1 = phi->getIncomingValue(1);
-      string val1Name = outputNameLast(v1, arch.unitAssignment, arch.names, arch.memoryMap);
+      string val1Name = outputNameLast(v1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
             
       out << "\t\t\t" << addUnit.portWires["in0"].name << " = " << val0Name << ";" << endl;
       out << "\t\t\t" << addUnit.portWires["in1"].name << " = " << val1Name << ";" << endl;
@@ -1264,15 +1299,15 @@ namespace DHLS {
     }
     out << "\t// End instruction result storage" << endl;
 
-    out << "\t// Start instruction result resets" << endl;
-    out << tab(1) << "always @(posedge clk) begin" << endl;
-    out << tab(2) << "if (rst) begin" << endl;
-    for (auto n : names) {
-      out << tab(3) << n.second.name << " <= 0;" << endl;
-    }
-    out << tab(2) << "end" << endl;
-    out << tab(1) << "end" << endl;
-    out << "\t// End instruction result resets" << endl;
+    // out << "\t// Start instruction result resets" << endl;
+    // out << tab(1) << "always @(posedge clk) begin" << endl;
+    // out << tab(2) << "if (rst) begin" << endl;
+    // for (auto n : names) {
+    //   out << tab(3) << n.second.name << " <= 0;" << endl;
+    // }
+    // out << tab(2) << "end" << endl;
+    // out << tab(1) << "end" << endl;
+    // out << "\t// End instruction result resets" << endl;
 
     out << endl;
 
