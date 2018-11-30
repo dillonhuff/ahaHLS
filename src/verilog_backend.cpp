@@ -1776,7 +1776,8 @@ namespace DHLS {
     out << "\t\t\tglobal_state <= 0;" << endl;
     out << "\t\tend else begin" << endl;
 
-    emitControlCode(out, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
+    //emitControlCode(out, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
+    emitControlCode(out, stg, arch.unitAssignment, arch.names, arch.pipelines);
 
     out << "\tend" << endl;
     out << endl << endl;
