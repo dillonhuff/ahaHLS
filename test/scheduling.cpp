@@ -779,6 +779,8 @@ namespace DHLS {
 
     auto arch = buildMicroArchitecture(f, graph, layout);
 
+    // Out there idea: Maybe I should write an auto-debugger that repeatedly runs
+    // the test case, tracking wires that return Xs each time?
     VerilogDebugInfo info;
     noPhiOutputsXWhenUsed(arch, info);
 
@@ -794,11 +796,6 @@ namespace DHLS {
     // Another nice tool to have: Any output of a functional
     // unit should not be x when it is active?
 
-    // addWirePrintoutIf("num_clocks_after_reset == 3", "wdata_0_reg", info);
-    // addWirePrintout("phi_in0_13", info);
-    // addWirePrintout("phi_in1_13", info);
-    // addWirePrintout("phi_out_13", info);
-    // addWirePrintout("last_BB_reg", info);
     addGlobalStateWirePrintout("wdata_0_reg", info);
     addGlobalStateWirePrintout("add_in0_14", info);
     addGlobalStateWirePrintout("add_in1_14", info);    
