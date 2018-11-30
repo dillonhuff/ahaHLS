@@ -1718,22 +1718,22 @@ namespace DHLS {
                    std::map<std::string, int>& memoryMap,
                    const VerilogDebugInfo& debugInfo) {
 
-    map<BasicBlock*, int> basicBlockNos = numberBasicBlocks(f);
-    map<Instruction*, Wire> names = createInstrNames(stg);
-    vector<ElaboratedPipeline> pipelines =
-      buildPipelines(f, stg);
+    // map<BasicBlock*, int> basicBlockNos = numberBasicBlocks(f);
+    // map<Instruction*, Wire> names = createInstrNames(stg);
+    // vector<ElaboratedPipeline> pipelines =
+    //   buildPipelines(f, stg);
 
-    map<Instruction*, FunctionalUnit> unitAssignment =
-      assignFunctionalUnits(stg, memoryMap);
+    // map<Instruction*, FunctionalUnit> unitAssignment =
+    //   assignFunctionalUnits(stg, memoryMap);
 
-    // TODO: Add rams
-    vector<RAM> rams;
-    MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, pipelines, rams);
+    // // TODO: Add rams
+    // vector<RAM> rams;
+    // MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, pipelines, rams);
 
-    assert(arch.stg.opStates.size() == stg.opStates.size());
-    assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
+    // assert(arch.stg.opStates.size() == stg.opStates.size());
+    // assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
     
-    //auto arch = buildMicroArchitecture(f, stg, memoryMap);
+    auto arch = buildMicroArchitecture(f, stg, memoryMap);
 
     string fn = f->getName();
 

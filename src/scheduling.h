@@ -268,10 +268,16 @@ namespace DHLS {
     StateTransitionGraph() {}
     
     StateTransitionGraph(const StateTransitionGraph& other) {
+      std::cout << "Calling stg const ref constructor" << std::endl;
       sched = other.sched;
       opStates = other.opStates;
-      opTransitions = opTransitions;
-      pipelines = pipelines;
+      opTransitions = other.opTransitions;
+      pipelines = other.pipelines;
+
+      assert(sched.numStates() == other.sched.numStates());
+      assert(opStates.size() == other.opStates.size());
+      assert(opTransitions.size() == other.opTransitions.size());
+      assert(pipelines.size() == other.pipelines.size());      
     }
 
     StateTransitionGraph(Schedule& sched_) : sched(sched_) {}
