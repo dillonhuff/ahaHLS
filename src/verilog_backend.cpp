@@ -1256,6 +1256,7 @@ namespace DHLS {
 
             out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
 
+            out << tab(4) << "// " << instructionString(instr) << endl;
             instructionVerilog(out, instr, arch);
 
             out << "\t\t\tend else begin " << endl;
