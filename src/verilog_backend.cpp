@@ -596,11 +596,14 @@ namespace DHLS {
     }
   }
 
+  // Random thought: Infinite streams + address generation?
+  // Is that another way to think about what halide is doing?
+  
   std::string outputName(Value* arg0,
                          Instruction* instr,
                          const STG& stg,
                          map<Instruction*, FunctionalUnit>& unitAssignment,
-                         map<Instruction*, Wire>& names,                         
+                         map<Instruction*, Wire>& names,      
                          std::map<std::string, int>& memoryMap,
                          const std::vector<RAM>& rams) {
     if (Instruction::classof(arg0)) {
@@ -619,11 +622,29 @@ namespace DHLS {
 
       if (argState == thisState) {
 
-        auto unit0Src =
-          map_find(instr0, unitAssignment);
-        assert(unit0Src.outWires.size() == 1);
-        string arg0Name = unit0Src.onlyOutputVar();
-        return arg0Name;
+        BasicBlock* argBB = instr0->getParent();
+        BasicBlock* userBB = instr->getParent();
+
+        assert(argBB == userBB);
+
+        OrderedBasicBlock obb(argBB);
+
+        if (obb.dominates(instr0, instr)) {
+          auto unit0Src =
+            map_find(instr0, unitAssignment);
+          assert(unit0Src.outWires.size() == 1);
+          string arg0Name = unit0Src.onlyOutputVar();
+          return arg0Name;
+        } else {
+          Wire tmpRes = map_find(instr0, names);
+          return tmpRes.name;
+        }
+        
+        // auto unit0Src =
+        //   map_find(instr0, unitAssignment);
+        // assert(unit0Src.outWires.size() == 1);
+        // string arg0Name = unit0Src.onlyOutputVar();
+        // return arg0Name;
         
       } else {
 
@@ -1947,4 +1968,33 @@ namespace DHLS {
     }
   }
 
+  void noAddsTakeXInputs(const MicroArchitecture& arch,
+                         VerilogDebugInfo& debugInfo) {
+    for (auto st : arch.stg.opStates) {
+      for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
+        auto instr = instrG.instruction;
+        if (BinaryOperator::classof(instr)) {
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+          if (unit.modName == "add") {
+            StateId activeState = st.first;
+
+            string iStr = instructionString(instr);
+            printInstrAtState(instr, activeState, arch, debugInfo);
+          
+            string in0Name = map_find(string("in0"), unit.portWires).name;
+            string in1Name = map_find(string("in1"), unit.portWires).name;
+            addAssert("global_state !== " + to_string(activeState) + " || " +
+                      in0Name + " !== 'dx",
+                      debugInfo);
+
+            addAssert("global_state !== " + to_string(activeState) + " || " +
+                      in1Name + " !== 'dx",
+                      debugInfo);
+
+          }
+        }
+      }
+    }
+  }
+  
 }

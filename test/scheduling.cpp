@@ -782,7 +782,10 @@ namespace DHLS {
     // Out there idea: Maybe I should write an auto-debugger that repeatedly runs
     // the test case, tracking wires that return Xs each time?
     VerilogDebugInfo info;
+    noAddsTakeXInputs(arch, info);
     noPhiOutputsXWhenUsed(arch, info);
+
+    // Apparently a_mid.01 is used before it is defined?
 
     // I can automatically check that one of the values being sent to main
     // memory is x. Now I need to figure out where the x came from. What is

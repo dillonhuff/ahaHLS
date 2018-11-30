@@ -333,6 +333,7 @@ namespace DHLS {
     for (auto& bb : f->getBasicBlockList()) {
       for (auto& instr : bb) {
         Instruction* iptr = &instr;
+        
         for (auto& user : iptr->uses()) {
           assert(Instruction::classof(user));
           if (!PHINode::classof(user)) {
