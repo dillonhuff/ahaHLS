@@ -783,6 +783,13 @@ namespace DHLS {
     // the test case, tracking wires that return Xs each time?
     VerilogDebugInfo info;
     noPhiOutputsXWhenUsed(arch, info);
+
+    // I can automatically check that one of the values being sent to main
+    // memory is x. Now I need to figure out where the x came from. What is
+    // the best way to do this x tracking?
+
+    // I guess one way is through conditional printouts, but they often need
+    // to happen before we get to 
     noStoredValuesXWhenUsed(arch, info);
 
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
