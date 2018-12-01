@@ -218,13 +218,13 @@ namespace DHLS {
 
   // Q: What test cases do I need?
   // A: Test case that uses 16 (or other not 32 bit) width (parametric builtins)
-  //    Test case that uses inner and outer loops
   //    Test that uses a loop with II != 1
   //    Test that mixes memory accesses and loop pipelining
   //    Test that uses multiple different RAM types
   //    Later: Test case that can use AXI and variable arrival time inputs
   //    Test that uses limited numbers of memory read/write ports
   //    Test case that merges basic blocks that execute different numbers of times
+  //    Test case that uses a struct as an argument
   TEST_CASE("A simple if") {
     SMDiagnostic Err;
     LLVMContext Context;
