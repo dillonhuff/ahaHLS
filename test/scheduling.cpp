@@ -873,12 +873,13 @@ namespace DHLS {
 
     VerilogDebugInfo info;
     noAddsTakeXInputs(arch, info);
+    noMulsTakeXInputs(arch, info);
     noPhiOutputsXWhenUsed(arch, info);
     noStoredValuesXWhenUsed(arch, info);
 
     emitVerilog(f, arch, info);
 
-    map<string, vector<int> > memoryInit{{"a", {0, 1, 2, 3, 7, 5, 5, 2}},
+    map<string, vector<int> > memoryInit{{"a", {6, 1, 2, 3, 7, 5, 5, 2, 9}},
         {"b", {9, 3, 7}}};
     map<string, vector<int> > memoryExpected{{"c", {}}};
 
@@ -900,7 +901,7 @@ namespace DHLS {
     TestBenchSpec tb;
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
-    tb.runCycles = 40;
+    tb.runCycles = 100;
     tb.name = "mvmul";
     emitVerilogTestBench(tb, arch, layout);
 

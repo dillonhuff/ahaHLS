@@ -42,7 +42,7 @@ module phi_2(input [31:0] last_block,
    
 
     always @(*) begin
-       $display("In phi: last_block == %d, but s0 == %d, and s1 == %d", last_block, s0, s1);
+       //$display("In phi: last_block == %d, but s0 == %d, and s1 == %d", last_block, s0, s1);
       if (last_block == s0) begin
          out_reg = in0;
       end else if (last_block == s1) begin

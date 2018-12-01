@@ -275,6 +275,9 @@ namespace DHLS {
 
   void noAddsTakeXInputs(const MicroArchitecture& arch,
                          VerilogDebugInfo& debugInfo);
+
+  void noMulsTakeXInputs(const MicroArchitecture& arch,
+                         VerilogDebugInfo& debugInfo);
   
   void noStoredValuesXWhenUsed(const MicroArchitecture& arch,
                                VerilogDebugInfo& debugInfo);

@@ -1858,12 +1858,10 @@ namespace DHLS {
     
     comps.instances.push_back(dut);
 
-    int cyclesInSetMem = 10;
+
     int cyclesInRun = tb.runCycles;
 
-    addAlwaysBlock({"clk"}, "if (in_check_mem_phase) begin if (!valid) begin $display(\"Failed: Checking memory, but the module is not done running\"); $display(); end end", comps);
-    
-    addAlwaysBlock({"clk"}, "if (clocks_in_set_mem_phase == (" + to_string(cyclesInSetMem - 1) + ")) begin in_run_phase <= 1; rst <= 0; dbg_wr_en <= 0; in_set_mem_phase <= 0; end", comps);
+    addAlwaysBlock({"clk"}, "if (in_check_mem_phase) begin if (!valid) begin $display(\"Failed: Checking memory, but the module is not done running\"); $finish(); end end", comps);
 
     addAlwaysBlock({"clk"}, "if (clocks_in_run_phase == (" + to_string(cyclesInRun - 1) + ")) begin in_check_mem_phase <= 1; in_run_phase <= 0; end", comps);
 
@@ -1881,6 +1879,9 @@ namespace DHLS {
         
       }
     }
+
+    int cyclesInSetMem = setNum;
+    addAlwaysBlock({"clk"}, "if (clocks_in_set_mem_phase == (" + to_string(cyclesInSetMem - 1) + ")) begin in_run_phase <= 1; rst <= 0; dbg_wr_en <= 0; in_set_mem_phase <= 0; end", comps);
 
     int checkNum = 0;
     int lastNum = -1;
@@ -1948,7 +1949,10 @@ namespace DHLS {
     for (auto c : str) {
       if (c != '%') {
         san += c;
+      } else {
+        san += '$';
       }
+        
     }
     return san;
   }
@@ -1993,6 +1997,35 @@ namespace DHLS {
         if (BinaryOperator::classof(instr)) {
           FunctionalUnit unit = map_find(instr, arch.unitAssignment);
           if (unit.modName == "add") {
+            StateId activeState = st.first;
+
+            string iStr = instructionString(instr);
+            printInstrAtState(instr, activeState, arch, debugInfo);
+          
+            string in0Name = map_find(string("in0"), unit.portWires).name;
+            string in1Name = map_find(string("in1"), unit.portWires).name;
+            addAssert("global_state !== " + to_string(activeState) + " || " +
+                      in0Name + " !== 'dx",
+                      debugInfo);
+
+            addAssert("global_state !== " + to_string(activeState) + " || " +
+                      in1Name + " !== 'dx",
+                      debugInfo);
+
+          }
+        }
+      }
+    }
+  }
+
+  void noMulsTakeXInputs(const MicroArchitecture& arch,
+                         VerilogDebugInfo& debugInfo) {
+    for (auto st : arch.stg.opStates) {
+      for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
+        auto instr = instrG.instruction;
+        if (BinaryOperator::classof(instr)) {
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+          if (unit.modName == "mul") {
             StateId activeState = st.first;
 
             string iStr = instructionString(instr);
