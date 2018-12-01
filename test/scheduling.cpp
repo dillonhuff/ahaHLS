@@ -716,21 +716,13 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
+    
     map<string, int> layout = {{"a", 0}, {"b", 8}};
+
+    auto arch = buildMicroArchitecture(f, graph, layout);
+
     VerilogDebugInfo info;
-    // info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
-    // info.wiresToWatch.push_back({false, 32, "wdata_temp_reg_dbg"});
-
-    // info.debugAssigns.push_back({"global_state_dbg", "global_state"});
-
-    // info.debugWires.push_back({true, 32, "num_clocks_after_reset"});
-
-    // addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
-
-    // addAssert("num_clocks_after_reset !== 1 || waddr_0_reg === 8", info);
-    // addAssert("num_clocks_after_reset !== 1 || wen_0_reg === 1", info);        
-
-    emitVerilog(f, graph, layout, info);
+    emitVerilog(f, arch, info);
 
     map<string, vector<int> > memoryInit{{"a", {0, 1, 2, 3, 7, 5, 5, 2}}};
     map<string, vector<int> > memoryExpected{{"b", {}}};
@@ -750,7 +742,7 @@ namespace DHLS {
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 100;
     tb.name = "blur_no_lb";
-    emitVerilogTestBench(tb, layout);
+    emitVerilogTestBench(tb, arch, layout);
 
     REQUIRE(runIVerilogTB("blur_no_lb"));
     
@@ -846,7 +838,7 @@ namespace DHLS {
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 40;
     tb.name = "blur_lb";
-    emitVerilogTestBench(tb, layout);
+    emitVerilogTestBench(tb, arch, layout);
 
     REQUIRE(runIVerilogTB("blur_lb"));
   }
@@ -910,7 +902,7 @@ namespace DHLS {
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 40;
     tb.name = "mvmul";
-    emitVerilogTestBench(tb, layout);
+    emitVerilogTestBench(tb, arch, layout);
 
     REQUIRE(runIVerilogTB("mvmul"));
   }

@@ -73,62 +73,6 @@ namespace DHLS {
     out << commaListString(portStrings);
     out << ");" << std::endl;
   }
-  
-  class TestBenchSpec {
-  public:
-    std::map<std::string, std::vector<int> > memoryInit;
-    std::map<std::string, std::vector<int> > memoryExpected;
-    int runCycles;
-    std::string name;
-  };
-
-  void emitVerilogTestBench(const TestBenchSpec& tb,
-                            const std::map<std::string, int>& layout);
-  
-  class VerilogComponents {
-  public:
-    std::vector<Wire> wiresToWatch;
-    std::vector<Wire> debugWires;
-    std::vector<std::pair<std::string, std::string> > debugAssigns;
-    std::vector<AlwaysBlock> blocks;
-    std::vector<AlwaysDelayBlock> delayBlocks;
-    std::vector<std::string> initStmts;
-    std::vector<ModuleInstance> instances;    
-  };
-
-  typedef VerilogComponents VerilogDebugInfo;
-
-  static inline void
-  addAlwaysBlock(const std::vector<std::string>& triggers,
-                 const std::string& body,
-                 VerilogDebugInfo& info) {
-    info.blocks.push_back({triggers, body});
-  }
-
-  static inline void
-  addWirePrintoutIf(const std::string& condition,
-                    const std::string& wireName,
-                    VerilogDebugInfo& info) {
-    addAlwaysBlock({"clk"}, "if (" + condition + ") begin $display(\"" + wireName + " == %d\", " + wireName + "); end", info);
-  }
-
-  static inline void
-  addWirePrintout(const std::string& wireName,
-                  VerilogDebugInfo& info) {
-    addAlwaysBlock({"clk"}, "$display(\"" + wireName + " == %d\", " + wireName + ");", info);
-  }
-
-  static inline void
-  addGlobalStateWirePrintout(const std::string& wireName,
-                             VerilogDebugInfo& info) {
-    addAlwaysBlock({"clk"}, "$display(\"global_state == %d, " + wireName + " == %d\", global_state, " + wireName + ");", info);
-  }
-  
-  static inline void
-  addAssert(const std::string& condition,
-            VerilogDebugInfo& info) {
-    addAlwaysBlock({"clk"}, "if (!(" + condition + ")) begin $display(\"assertion(" + condition + ")\"); $finish(); end", info);
-  }
 
   class FunctionalUnit {
   public:
@@ -228,7 +172,81 @@ namespace DHLS {
       basicBlockNos(basicBlockNos_),
       pipelines(pipelines_),
       rams(rams_) {}
+
+    int numFUsWithName(const std::string& name) const {
+      int n = 0;
+      std::set<std::string> alreadyAdded;
+      for (auto ua : unitAssignment) {
+        if (!dbhc::elem(ua.second.instName, alreadyAdded) && (ua.second.modName == name)) {
+          n++;
+        }
+        alreadyAdded.insert(ua.second.instName);
+      }
+      return n;
+    }
+
+    int numReadPorts() const {
+      return numFUsWithName("load");
+    }
   };
+  
+  class TestBenchSpec {
+  public:
+    std::map<std::string, std::vector<int> > memoryInit;
+    std::map<std::string, std::vector<int> > memoryExpected;
+    int runCycles;
+    std::string name;
+  };
+
+  void emitVerilogTestBench(const TestBenchSpec& tb,
+                            MicroArchitecture& arch,
+                            const std::map<std::string, int>& layout);
+  
+  class VerilogComponents {
+  public:
+    std::vector<Wire> wiresToWatch;
+    std::vector<Wire> debugWires;
+    std::vector<std::pair<std::string, std::string> > debugAssigns;
+    std::vector<AlwaysBlock> blocks;
+    std::vector<AlwaysDelayBlock> delayBlocks;
+    std::vector<std::string> initStmts;
+    std::vector<ModuleInstance> instances;    
+  };
+
+  typedef VerilogComponents VerilogDebugInfo;
+
+  static inline void
+  addAlwaysBlock(const std::vector<std::string>& triggers,
+                 const std::string& body,
+                 VerilogDebugInfo& info) {
+    info.blocks.push_back({triggers, body});
+  }
+
+  static inline void
+  addWirePrintoutIf(const std::string& condition,
+                    const std::string& wireName,
+                    VerilogDebugInfo& info) {
+    addAlwaysBlock({"clk"}, "if (" + condition + ") begin $display(\"" + wireName + " == %d\", " + wireName + "); end", info);
+  }
+
+  static inline void
+  addWirePrintout(const std::string& wireName,
+                  VerilogDebugInfo& info) {
+    addAlwaysBlock({"clk"}, "$display(\"" + wireName + " == %d\", " + wireName + ");", info);
+  }
+
+  static inline void
+  addGlobalStateWirePrintout(const std::string& wireName,
+                             VerilogDebugInfo& info) {
+    addAlwaysBlock({"clk"}, "$display(\"global_state == %d, " + wireName + " == %d\", global_state, " + wireName + ");", info);
+  }
+  
+  static inline void
+  addAssert(const std::string& condition,
+            VerilogDebugInfo& info) {
+    addAlwaysBlock({"clk"}, "if (!(" + condition + ")) begin $display(\"assertion(" + condition + ")\"); $finish(); end", info);
+  }
+
   
   void emitVerilog(llvm::Function* f,
                    MicroArchitecture& arch,

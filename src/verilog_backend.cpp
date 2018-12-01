@@ -1771,6 +1771,7 @@ namespace DHLS {
   }
 
   void emitVerilogTestBench(const TestBenchSpec& tb,
+                            MicroArchitecture& arch,
                             const std::map<std::string, int>& layout) {
     string modName = tb.name + "_tb";
     ofstream out(modName + ".v");
@@ -1794,14 +1795,16 @@ namespace DHLS {
     comps.debugWires.push_back({true, 32, "total_cycles"});
     comps.debugWires.push_back({true, 32, "max_cycles"});
 
-    comps.debugWires.push_back({true, 5, "raddr_0"});    
-    comps.debugWires.push_back({false, 32, "rdata_0"});    
+    for (int i = 0; i < arch.numReadPorts(); i++) {
+      comps.debugWires.push_back({true, 5, "raddr_" + to_string(i)});    
+      comps.debugWires.push_back({false, 32, "rdata_" + to_string(i)});
+    }
 
-    comps.debugWires.push_back({true, 5, "raddr_1"});    
-    comps.debugWires.push_back({false, 32, "rdata_1"});    
+    // comps.debugWires.push_back({true, 5, "raddr_1"});    
+    // comps.debugWires.push_back({false, 32, "rdata_1"});    
 
-    comps.debugWires.push_back({true, 5, "raddr_2"});    
-    comps.debugWires.push_back({false, 32, "rdata_2"});
+    // comps.debugWires.push_back({true, 5, "raddr_2"});    
+    // comps.debugWires.push_back({false, 32, "rdata_2"});
     
     comps.debugWires.push_back({true, 5, "dbg_wr_addr"});    
     comps.debugWires.push_back({true, 32, "dbg_wr_data"});
@@ -1844,7 +1847,16 @@ namespace DHLS {
     comps.instances.push_back({"RAM3", "ram", {{"clk", "clk"}, {"rst", "rst"}, {"raddr0", "raddr_0"}, {"rdata0", "rdata_0"}, {"raddr1", "raddr_1"}, {"rdata1", "rdata_1"}, {"raddr2", "raddr_2"}, {"rdata2", "rdata_2"}, {"wen", "wen_0"}, {"waddr", "waddr_0"}, {"wdata", "wdata_0"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}, {"debug_write_addr", "dbg_wr_addr"}, {"debug_write_data", "dbg_wr_data"}, {"debug_write_en", "dbg_wr_en"}}});
 
     // TODO: Move this to be generic code passed in to this function
-    comps.instances.push_back({tb.name, "dut", {{"clk", "clk"}, {"rst", "rst"}, {"valid", "valid"}, {"raddr_0", "raddr_0"}, {"rdata_0", "rdata_0"}, {"raddr_1", "raddr_1"}, {"rdata_1", "rdata_1"}, {"raddr_2", "raddr_2"}, {"rdata_2", "rdata_2"}, {"waddr_0", "waddr_0"}, {"wdata_0", "wdata_0"}, {"wen_0", "wen_0"}}});
+
+    ModuleInstance dut{tb.name, "dut", {{"clk", "clk"}, {"rst", "rst"}, {"valid", "valid"}, {"waddr_0", "waddr_0"}, {"wdata_0", "wdata_0"}, {"wen_0", "wen_0"}}};
+
+    for (int i = 0; i < arch.numReadPorts(); i++) {
+      auto iStr = to_string(i);
+      dut.portConnections.insert({"raddr_" + iStr, "raddr_" + to_string(i)});    
+      dut.portConnections.insert({"rdata_" + iStr, "rdata_" + to_string(i)});
+    }
+    
+    comps.instances.push_back(dut);
 
     int cyclesInSetMem = 10;
     int cyclesInRun = tb.runCycles;
