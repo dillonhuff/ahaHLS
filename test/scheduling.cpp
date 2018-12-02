@@ -225,7 +225,6 @@ namespace DHLS {
   //    Test that uses limited numbers of memory read/write ports
   //    Test case that merges basic blocks that execute different numbers of times
   //    Test case that uses a struct as an argument
-  //    Test case that creates a global stall
   TEST_CASE("A simple if") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -776,20 +775,10 @@ namespace DHLS {
 
     auto arch = buildMicroArchitecture(f, graph, layout);
 
-    // Out there idea: Maybe I should write an auto-debugger that repeatedly runs
-    // the test case, tracking wires that return Xs each time?
     VerilogDebugInfo info;
     noAddsTakeXInputs(arch, info);
     noPhiOutputsXWhenUsed(arch, info);
 
-    // Apparently a_mid.01 is used before it is defined?
-
-    // I can automatically check that one of the values being sent to main
-    // memory is x. Now I need to figure out where the x came from. What is
-    // the best way to do this x tracking?
-
-    // Next: Need to set what I expect the value of the failing store to be?
-    // How to do this through the current API?
     noStoredValuesXWhenUsed(arch, info);
 
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
@@ -801,24 +790,6 @@ namespace DHLS {
 
     addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
 
-    // Another nice tool to have: Any output of a functional
-    // unit should not be x when it is active?
-
-    // addGlobalStateWirePrintout("wdata_0_reg", info);
-    // addGlobalStateWirePrintout("add_in0_14", info);
-    // addGlobalStateWirePrintout("add_in1_14", info);    
-    // addGlobalStateWirePrintout("add_in0_4", info);
-    // addGlobalStateWirePrintout("add_in1_4", info);    
-    // addGlobalStateWirePrintout("phi_in0_13", info);
-    // addGlobalStateWirePrintout("phi_in1_13", info);
-
-    // Still wrong after correcting transitions?
-
-    // addAssert("num_clocks_after_reset !== 3 || waddr_0_reg === 8", info);
-    // addAssert("num_clocks_after_reset !== 3 || wen_0_reg === 1", info);
-    // addAssert("num_clocks_after_reset !== 3 || wdata_0_reg === 3", info);
-
-    //emitVerilog(f, graph, layout, info);
     emitVerilog(f, arch, info);
 
     map<string, vector<int> > memoryInit{{"a", {0, 1, 2, 3, 7, 5, 5, 2}}};
@@ -947,6 +918,45 @@ namespace DHLS {
     emitVerilog(f, arch, info);
 
     REQUIRE(runIVerilogTB("stalled_single_store"));
+  }
+
+  TEST_CASE("AXI based memory transfer") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    std::unique_ptr<Module> Mod = loadModule(Context, Err, "stalled_single_store_axi");
+
+    Function* f = Mod->getFunction("stalled_single_store_axi");
+
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(LOAD_OP, 1);
+    hcs.setLatency(CMP_OP, 0);
+    hcs.setLatency(BR_OP, 0);
+    hcs.setLatency(ADD_OP, 0);
+
+    hcs.setCount(ADD_OP, 1);
+    
+    map<string, int> layout = {{"a", 0}, {"b", 1}};
+
+    Schedule s = scheduleFunction(f, hcs);
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    ArchOptions options;
+    options.globalStall = true;
+    auto arch = buildMicroArchitecture(f, graph, layout, options);
+
+    VerilogDebugInfo info;
+    noAddsTakeXInputs(arch, info);
+    noMulsTakeXInputs(arch, info);
+    noPhiOutputsXWhenUsed(arch, info);
+    noStoredValuesXWhenUsed(arch, info);
+
+    emitVerilog(f, arch, info);
+
+    REQUIRE(runIVerilogTB("stalled_single_store_axi"));
   }
   
   // struct Hello : public FunctionPass {
