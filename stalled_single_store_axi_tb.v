@@ -171,6 +171,36 @@ module test();
        .s_axil_rvalid(s_axil_rvalid),
        .s_axil_rready(s_axil_rready));
    
-   stalled_single_store_axi ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .raddr_0(raddr), .rdata_0(rdata), .global_stall(global_stall));
+   stalled_single_store_axi ss(.clk(clk),
+                               .rst(rst),
+                               .valid(valid),
+                               .s_axil_awprot(s_axil_awprot),
+                               .s_axil_arprot(s_axil_arprot),
+
+                               .s_axil_awaddr(s_axil_awaddr),       
+                               .s_axil_awvalid(s_axil_awvalid),
+
+                               .s_axil_awready(s_axil_awready),
+                               .s_axil_wdata(s_axil_wdata),
+
+                               .s_axil_wstrb(s_axil_wstrb),
+                               .s_axil_wvalid(s_axil_wvalid),
+
+                               .s_axil_wready(s_axil_wready),
+                               .s_axil_bresp(s_axil_bresp),
+
+                               .s_axil_bvalid(s_axil_bvalid),
+
+                               .s_axil_bready(s_axil_bready),
+                               .s_axil_araddr(s_axil_araddr),
+
+                               .s_axil_arvalid(s_axil_arvalid),
+                               .s_axil_arready(s_axil_arready),
+
+                               .s_axil_rdata(s_axil_rdata),
+                               .s_axil_rresp(s_axil_rresp),
+
+                               .s_axil_rvalid(s_axil_rvalid),
+                               .s_axil_rready(s_axil_rready));
 
 endmodule
