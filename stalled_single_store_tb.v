@@ -63,6 +63,8 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
+      #1 `assert(valid, 1'd0);
+      
       #1 clk = 0;
       #1 clk = 1;
 
@@ -72,6 +74,8 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
+      #1 `assert(valid, 1'd0);
+      
       #1 clk = 0;
       #1 clk = 1;
       
@@ -101,5 +105,5 @@ module test();
            .debug_write_en(debug_write_en));
    
    stalled_single_store ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .raddr_0(raddr), .rdata_0(rdata));
-   
+
 endmodule
