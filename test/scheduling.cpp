@@ -934,7 +934,15 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    emitVerilog(f, graph, layout);
+    auto arch = buildMicroArchitecture(f, graph, layout);
+
+    VerilogDebugInfo info;
+    noAddsTakeXInputs(arch, info);
+    noMulsTakeXInputs(arch, info);
+    noPhiOutputsXWhenUsed(arch, info);
+    noStoredValuesXWhenUsed(arch, info);
+
+    emitVerilog(f, arch, info);
 
     REQUIRE(runIVerilogTB("stalled_single_store"));
   }
