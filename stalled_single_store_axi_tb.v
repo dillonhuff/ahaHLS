@@ -105,20 +105,7 @@ module test();
 
    end
 
-   RAM mem(.clk(clk),
-           .rst(rst),
-           .raddr(raddr),
-           .rdata(rdata),
-           .wen(wen),
-           .wdata(wdata),
-           .waddr(waddr),
-
-           .debug_addr(debug_addr),
-           .debug_data(debug_data),
-
-           .debug_write_addr(debug_write_addr),
-           .debug_write_data(debug_write_data),
-           .debug_write_en(debug_write_en));
+   axil_ram axiram(.clk(clk), .rst(rst));
    
    stalled_single_store_axi ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .raddr_0(raddr), .rdata_0(rdata), .global_stall(global_stall));
 
