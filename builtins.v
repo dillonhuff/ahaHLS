@@ -28,6 +28,10 @@ module sgt(input [31:0]  in0, input [31:0] in1, output [0:0] out);
    assign out = $signed(in0) > $signed(in1);
 endmodule
 
+module slt(input [31:0]  in0, input [31:0] in1, output [0:0] out);
+   assign out = $signed(in0) < $signed(in1);
+endmodule
+
 module ret();
 endmodule
 

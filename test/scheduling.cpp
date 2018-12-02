@@ -920,6 +920,12 @@ namespace DHLS {
     HardwareConstraints hcs;
     hcs.setLatency(STORE_OP, 3);
     hcs.setLatency(LOAD_OP, 1);
+    hcs.setLatency(CMP_OP, 0);
+    hcs.setLatency(BR_OP, 0);
+    hcs.setLatency(ADD_OP, 0);
+
+    hcs.setCount(ADD_OP, 1);
+    
     map<string, int> layout = {{"a", 0}, {"b", 1}};
 
     Schedule s = scheduleFunction(f, hcs);

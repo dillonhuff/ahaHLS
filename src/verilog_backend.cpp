@@ -409,6 +409,11 @@ namespace DHLS {
             modName = "sgt";
             wiring = {{"in0", {true, 32, "sgt_in0_" + rStr}}, {"in1", {true, 32, "sgt_in1_" + rStr}}};
             outWires = {{"out", {false, 1, "sgt_out_" + rStr}}};
+          } else if (pred == CmpInst::ICMP_SLT) {
+            modName = "slt";
+            wiring = {{"in0", {true, 32, "sgt_in0_" + rStr}}, {"in1", {true, 32, "sgt_in1_" + rStr}}};
+            outWires = {{"out", {false, 1, "sgt_out_" + rStr}}};
+            
           } else {
             cout << "Error: Unsupported predicate in cmp: " << pred << endl;
             assert(false);
