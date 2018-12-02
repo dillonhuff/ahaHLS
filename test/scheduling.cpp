@@ -927,7 +927,8 @@ namespace DHLS {
   TEST_CASE("AXI based memory transfer") {
     SMDiagnostic Err;
     LLVMContext Context;
-    std::unique_ptr<Module> Mod = loadModule(Context, Err, "stalled_single_store_axi");
+    std::unique_ptr<Module> Mod =
+      loadModule(Context, Err, "stalled_single_store_axi");
 
     Function* f = Mod->getFunction("stalled_single_store_axi");
 
@@ -950,6 +951,8 @@ namespace DHLS {
 
     ArchOptions options;
     options.globalStall = true;
+    options.setMemInterface(MEM_INTERFACE_AXI4_LITE);
+
     auto arch = buildMicroArchitecture(f, graph, layout, options);
 
     VerilogDebugInfo info;

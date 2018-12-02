@@ -174,6 +174,7 @@ module test();
    stalled_single_store_axi ss(.clk(clk),
                                .rst(rst),
                                .valid(valid),
+
                                .s_axil_awprot(s_axil_awprot),
                                .s_axil_arprot(s_axil_arprot),
 

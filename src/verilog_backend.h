@@ -59,6 +59,12 @@ namespace DHLS {
     std::string modName;
     std::string instName;
     std::map<std::string, std::string> portConnections;
+
+    ModuleInstance(const std::string modName_,
+                   const std::string instName_,
+                   const std::map<std::string, std::string> portConnections_) :
+      modName(modName_), instName(instName_), portConnections(portConnections_) {}
+    
   };
 
   static inline
@@ -145,15 +151,29 @@ namespace DHLS {
         const int depth_) : name(name_), width(width_), depth(depth_) {}
   };
 
+  enum MemInterface {
+    MEM_INTERFACE_DIRECT,
+    MEM_INTERFACE_AXI4_LITE,
+  };
+
   class ArchOptions {
   public:
     bool globalStall;
+    MemInterface memInterface;
 
-    ArchOptions() : globalStall(false) {}
+    ArchOptions() : globalStall(false), memInterface(MEM_INTERFACE_DIRECT) {}
+
+    void setMemInterface(const MemInterface fresh) {
+      memInterface = fresh;
+      if (memInterface != MEM_INTERFACE_DIRECT) {
+        globalStall = true;
+      }
+    }
   };
   
   class MicroArchitecture {
   public:
+    ArchOptions archOptions;
     STG stg;
     std::map<llvm::Instruction*, FunctionalUnit> unitAssignment;
     std::map<std::string, int> memoryMap;
@@ -163,7 +183,7 @@ namespace DHLS {
     std::vector<RAM> rams;
     std::vector<Wire> globalStall;
 
-    MicroArchitecture(
+    MicroArchitecture(const ArchOptions& archOptions,
                       const STG& stg_,
                       const std::map<llvm::Instruction*, FunctionalUnit>& unitAssignment_,
                       const std::map<std::string, int>& memoryMap_,

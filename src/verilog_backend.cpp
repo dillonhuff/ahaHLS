@@ -1701,7 +1701,7 @@ namespace DHLS {
 
     // TODO: Add rams
     vector<RAM> rams;
-    MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, pipelines, rams);
+    MicroArchitecture arch(options, stg, unitAssignment, memoryMap, names, basicBlockNos, pipelines, rams);
 
     if (options.globalStall) {
       arch.globalStall.push_back({false, 1, "global_stall"});
@@ -1753,7 +1753,11 @@ namespace DHLS {
     }
 
     ofstream out(fn + ".v");
-    out << "module " << fn << "(" + commaListString(portStrings) + ");" << endl;
+
+    string fnInner = fn + "_inner";
+
+    // Emit inner module
+    out << "module " << fnInner << "(" + commaListString(portStrings) + ");" << endl;
 
     out << endl;
 
@@ -1796,6 +1800,17 @@ namespace DHLS {
     emitInstructionCode(out, arch, arch.pipelines);
 
     out << "endmodule" << endl;
+
+    // Emit outer module
+    out << "module " << fn << "(" + commaListString(portStrings) + ");" << endl;
+
+    out << endl;
+
+    ModuleInstance mi(fnInner, "inner", {});
+
+    print(out, 1, mi);
+    
+    out << "endmodule" << endl;    
 
     out.close();
   }
