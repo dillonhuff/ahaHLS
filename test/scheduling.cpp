@@ -1,5 +1,9 @@
 #define CATCH_CONFIG_MAIN
 
+// NOTE: Maybe I should actually do a uart based memory controller that I can test
+// on the icestick first? Or do both AXI and UART in parallel to help ensure
+// that the memory API is general enough?
+
 #include "catch.hpp"
 
 #include "algorithm.h"

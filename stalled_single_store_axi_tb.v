@@ -30,12 +30,10 @@ module test();
    
    wire [31:0] rdata;
 
-   reg         global_stall;
-   
    initial begin
 
       #1 debug_addr = 0;
-      #1 global_stall = 0;
+
       #1 debug_write_addr = 1;
       #1 debug_write_data = 10;
       #1 debug_write_en = 1;
@@ -64,8 +62,6 @@ module test();
 
       // GS == 2
 
-      #1 global_stall = 1;
-
       #1 clk = 0;
       #1 clk = 1;
 
@@ -77,8 +73,6 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
-      #1 global_stall = 0;
-      
       #1 clk = 0;
       #1 clk = 1;
 
