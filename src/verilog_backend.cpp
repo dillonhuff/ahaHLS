@@ -1806,7 +1806,11 @@ namespace DHLS {
 
     out << endl;
 
-    ModuleInstance mi(fnInner, "inner", {});
+    map<string, string> portConns;
+    for (auto pt : allPorts) {
+      portConns.insert({pt.name, pt.name});
+    }
+    ModuleInstance mi(fnInner, "inner", portConns);
 
     print(out, 1, mi);
     
