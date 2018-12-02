@@ -1801,16 +1801,22 @@ namespace DHLS {
 
     out << "endmodule" << endl;
 
-    // Emit outer module
-    out << "module " << fn << "(" + commaListString(portStrings) + ");" << endl;
+    // Emit outer module with memory controller
+    map<string, string> portConns;    
+    if (arch.archOptions.memInterface == MEM_INTERFACE_DIRECT) {
 
-    out << endl;
-
-    map<string, string> portConns;
-    for (auto pt : allPorts) {
-      portConns.insert({pt.name, pt.name});
+      for (auto pt : allPorts) {
+        portConns.insert({pt.name, pt.name});
+      }
+    } else if (arch.archOptions.memInterface == MEM_INTERFACE_AXI4_LITE) {
+      assert(false);
+    } else {
+      assert(false);
     }
     ModuleInstance mi(fnInner, "inner", portConns);
+
+    out << "module " << fn << "(" + commaListString(portStrings) + ");" << endl;
+    out << endl;
 
     print(out, 1, mi);
     
