@@ -179,6 +179,11 @@ namespace DHLS {
       pipelines(pipelines_),
       rams(rams_) {}
 
+    bool hasGlobalStall() const {
+      assert(globalStall.size() <= 1);
+      return globalStall.size() == 1;
+    }
+
     int numFUsWithName(const std::string& name) const {
       int n = 0;
       std::set<std::string> alreadyAdded;

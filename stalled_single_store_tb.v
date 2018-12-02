@@ -32,7 +32,6 @@ module test();
 
    reg         global_stall;
    
-   
    initial begin
 
       #1 debug_addr = 0;
@@ -105,7 +104,8 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
-      #1 `assert(valid, 1'd20);            
+      #1 `assert(valid, 1'd1);            
+      #1 `assert(debug_data, 20);            
 
       #1 $display("Passed");
 
@@ -126,6 +126,6 @@ module test();
            .debug_write_data(debug_write_data),
            .debug_write_en(debug_write_en));
    
-   stalled_single_store ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .raddr_0(raddr), .rdata_0(rdata));
+   stalled_single_store ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .raddr_0(raddr), .rdata_0(rdata), .global_stall(global_stall));
 
 endmodule

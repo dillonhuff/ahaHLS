@@ -1071,17 +1071,26 @@ namespace DHLS {
   }
   
   void emitControlCode(std::ostream& out,
+                       const MicroArchitecture& arch,
                        const STG& stg,
                        map<Instruction*, FunctionalUnit>& unitAssignment,
                        map<Instruction*, Wire>& names,
                        const std::vector<ElaboratedPipeline>& pipelines) {
+
+    if (arch.hasGlobalStall()) {
+      out << tab(2) << "if (!global_stall) begin" << endl;
+    }
+
     for (auto state : stg.opTransitions) {
 
       emitPipelineStateCode(out, state.first, state.second, stg, unitAssignment, names, pipelines);
 
     }
 
-
+    if (arch.hasGlobalStall()) {
+      out << tab(2) << "end" << endl;
+    }
+    
     out << "\t\tend" << endl;
 
   }  
@@ -1618,6 +1627,11 @@ namespace DHLS {
                       const std::vector<ElaboratedPipeline>& pipelines,
                       const MicroArchitecture& arch) {
     out << "\talways @(posedge clk) begin" << endl;
+
+    if (arch.hasGlobalStall()) {
+      out << tab(2) << "if (!global_stall) begin" << endl;
+    }
+
     out << "\t\tif (rst) begin" << endl;
     out << "\t\t\tlast_BB_reg <= " << map_find(&(f->getEntryBlock()), arch.basicBlockNos) << ";" << endl;
     out << "\t\tend else begin" << endl;
@@ -1661,9 +1675,13 @@ namespace DHLS {
         out << tab(3) << "end" << endl;
       }
     }
-    //out << "\t\t\tlast_BB_reg <= global_state;" << endl;
 
     out << "\t\tend" << endl;
+
+    if (arch.hasGlobalStall()) {
+      out << tab(2) << "end" << endl;
+    }
+
     out << "\tend" << endl;
   }
 
@@ -1769,7 +1787,7 @@ namespace DHLS {
     out << "\t\t\tglobal_state <= 0;" << endl;
     out << "\t\tend else begin" << endl;
 
-    emitControlCode(out, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
+    emitControlCode(out, arch, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
 
     out << "\tend" << endl;
     out << endl << endl;
