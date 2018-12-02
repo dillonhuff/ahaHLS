@@ -908,6 +908,30 @@ namespace DHLS {
 
     REQUIRE(runIVerilogTB("mvmul"));
   }
+
+  TEST_CASE("Single store with stall") {
+    
+    SMDiagnostic Err;
+    LLVMContext Context;
+    std::unique_ptr<Module> Mod = loadModule(Context, Err, "stalled_single_store");
+
+    Function* f = Mod->getFunction("stalled_single_store");
+
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(LOAD_OP, 1);
+    map<string, int> layout = {{"a", 0}, {"b", 1}};
+
+    Schedule s = scheduleFunction(f, hcs);
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    emitVerilog(f, graph, layout);
+
+    REQUIRE(runIVerilogTB("stalled_single_store"));
+  }
   
   // struct Hello : public FunctionPass {
   //   static char ID;
