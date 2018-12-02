@@ -1,5 +1,11 @@
 `define assert(signal, value) if ((signal) !== (value)) begin $display("ASSERTION FAILED in %m: signal != value"); $finish(1); end
 
+
+// Significant problem in indenpendent testing of stalls: If the module issues
+// a memory operation to the external mem that takes 3 cycles and then stalls
+// for 5 cycles the memory operation will complete, passing data back to the
+// module, but the module itself will not save the result of the completed operation
+// because it is stalled
 module test();
 
    reg clk;
@@ -120,6 +126,6 @@ module test();
            .debug_write_data(debug_write_data),
            .debug_write_en(debug_write_en));
    
-   stalled_single_store ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .raddr_0(raddr), .rdata_0(rdata), .global_stall(global_stall));
+   stalled_single_store_axi ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .raddr_0(raddr), .rdata_0(rdata), .global_stall(global_stall));
 
 endmodule
