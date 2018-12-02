@@ -183,7 +183,7 @@ namespace DHLS {
     std::vector<RAM> rams;
     std::vector<Wire> globalStall;
 
-    MicroArchitecture(const ArchOptions& archOptions,
+    MicroArchitecture(const ArchOptions& archOptions_,
                       const STG& stg_,
                       const std::map<llvm::Instruction*, FunctionalUnit>& unitAssignment_,
                       const std::map<std::string, int>& memoryMap_,
@@ -191,6 +191,7 @@ namespace DHLS {
                       const std::map<llvm::BasicBlock*, int>& basicBlockNos_,
                       const std::vector<ElaboratedPipeline>& pipelines_,
                       const std::vector<RAM>& rams_) :
+      archOptions(archOptions_),
       stg(stg_),
       unitAssignment(unitAssignment_),
       memoryMap(memoryMap_),
