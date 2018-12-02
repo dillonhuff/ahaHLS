@@ -934,7 +934,9 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    auto arch = buildMicroArchitecture(f, graph, layout);
+    ArchOptions options;
+    options.globalStall = true;
+    auto arch = buildMicroArchitecture(f, graph, layout, options);
 
     VerilogDebugInfo info;
     noAddsTakeXInputs(arch, info);

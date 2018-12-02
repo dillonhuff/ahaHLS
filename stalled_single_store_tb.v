@@ -29,24 +29,28 @@ module test();
    reg        debug_write_en;
    
    wire [31:0] rdata;
+
+   reg         global_stall;
+   
    
    initial begin
 
       #1 debug_addr = 0;
-      
+      #1 global_stall = 0;
       #1 debug_write_addr = 1;
       #1 debug_write_data = 10;
       #1 debug_write_en = 1;
 
+      #1 rst = 1;      
+
       #1 clk = 0;
-      #1 rst = 1;
       #1 clk = 1;
 
+      // GS == 0
 
       #1 debug_write_en = 0;
 
-      // In global state 0
-      #1 `assert(debug_data, 32'hxxxxxxxx);      
+      #1 `assert(debug_data, 32'hxxxxxxxx);
       #1 `assert(valid, 1'd0);
       
       #1 rst = 0;
@@ -54,8 +58,14 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
+      // GS == 1      
+
       #1 clk = 0;
       #1 clk = 1;
+
+      // GS == 2
+
+      #1 global_stall = 1;
 
       #1 clk = 0;
       #1 clk = 1;
@@ -68,6 +78,8 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
+      #1 global_stall = 0;
+      
       #1 clk = 0;
       #1 clk = 1;
 
@@ -82,9 +94,19 @@ module test();
       $display("debug_data = %d", debug_data);
       
       // In global state 3, we should be done, but reads have a delay of one
-      #1 `assert(debug_data, 32'd20);
-      #1 `assert(valid, 1'd1);      
-      
+      #1 `assert(valid, 1'd0);      
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 `assert(valid, 1'd20);            
+
       #1 $display("Passed");
 
    end

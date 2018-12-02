@@ -144,11 +144,16 @@ namespace DHLS {
         const int width_,
         const int depth_) : name(name_), width(width_), depth(depth_) {}
   };
+
+  class ArchOptions {
+  public:
+    bool globalStall;
+
+    ArchOptions() : globalStall(false) {}
+  };
   
   class MicroArchitecture {
   public:
-
-
     STG stg;
     std::map<llvm::Instruction*, FunctionalUnit> unitAssignment;
     std::map<std::string, int> memoryMap;
@@ -156,6 +161,7 @@ namespace DHLS {
     std::map<llvm::BasicBlock*, int> basicBlockNos;
     std::vector<ElaboratedPipeline> pipelines;
     std::vector<RAM> rams;
+    std::vector<Wire> globalStall;
 
     MicroArchitecture(
                       const STG& stg_,
@@ -270,6 +276,12 @@ namespace DHLS {
                          const STG& stg,
                          std::map<std::string, int>& memoryMap);
 
+  MicroArchitecture
+  buildMicroArchitecture(llvm::Function* f,
+                         const STG& stg,
+                         std::map<std::string, int>& memoryMap,
+                         const ArchOptions& options);
+  
   void noPhiOutputsXWhenUsed(const MicroArchitecture& arch,
                              VerilogDebugInfo& debugInfo);
 

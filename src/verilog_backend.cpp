@@ -1670,8 +1670,9 @@ namespace DHLS {
   MicroArchitecture
   buildMicroArchitecture(llvm::Function* f,
                          const STG& stg,
-                         std::map<std::string, int>& memoryMap) {
-    
+                         std::map<std::string, int>& memoryMap,
+                         const ArchOptions& options) {
+
     map<BasicBlock*, int> basicBlockNos = numberBasicBlocks(f);
     map<Instruction*, Wire> names = createInstrNames(stg);
     vector<ElaboratedPipeline> pipelines =
@@ -1684,9 +1685,21 @@ namespace DHLS {
     vector<RAM> rams;
     MicroArchitecture arch(stg, unitAssignment, memoryMap, names, basicBlockNos, pipelines, rams);
 
+    if (options.globalStall) {
+      arch.globalStall.push_back({false, 1, "global_stall"});
+    }
+
     assert(arch.stg.opStates.size() == stg.opStates.size());
     assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
     return arch;
+  }
+  
+  MicroArchitecture
+  buildMicroArchitecture(llvm::Function* f,
+                         const STG& stg,
+                         std::map<std::string, int>& memoryMap) {
+    ArchOptions options;
+    return buildMicroArchitecture(f, stg, memoryMap, options);
   }
 
   void emitVerilog(llvm::Function* f,
@@ -1710,6 +1723,12 @@ namespace DHLS {
       allPorts.push_back(outputDebugPort(w.width, w.name));
     }
 
+    if (arch.globalStall.size() > 0) {
+      assert(arch.globalStall.size() == 1);
+      Wire stallVar = arch.globalStall[0];
+      allPorts.push_back(inputPort(stallVar.width, stallVar.name));
+    }
+    
     vector<string> portStrings;
     for (auto pt : allPorts) {
       portStrings.push_back(pt.toString());
