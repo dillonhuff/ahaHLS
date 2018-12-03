@@ -118,6 +118,7 @@ namespace DHLS {
     for (int i = 0; i < numReadPorts; i++) {
       pts.push_back(inputPort(width, "rdata_" + to_string(i)));
       pts.push_back(outputPort(clog2(width), "raddr_" + to_string(i)));
+      pts.push_back(outputPort(1, "ren_" + to_string(i)));
     }
 
     for (int i = 0; i < numWritePorts; i++) {
@@ -129,53 +130,6 @@ namespace DHLS {
     return pts;
 
   }
-
-  // std::vector<Port> getPorts(const STG& stg) {
-  //   vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
-  //   int numReadPorts = 0;
-  //   int numWritePorts = 0;
-
-  //   for (auto state : stg.opStates) {
-  //     int numReadsInState = 0;
-  //     int numWritesInState = 0;
-  //     for (auto gInstr : state.second) {
-  //       Instruction* i = gInstr.instruction;
-
-  //       if (StoreInst::classof(i)) {
-  //         numWritesInState++;
-  //       }
-
-  //       if (LoadInst::classof(i)) {
-  //         numReadsInState++;
-  //       }
-
-  //     }
-
-  //     if (numReadsInState > numReadPorts) {
-  //       numReadPorts = numReadsInState;
-  //     }
-
-  //     if (numWritesInState > numWritePorts) {
-  //       numWritePorts = numWritesInState;
-  //     }
-  //   }
-
-
-  //   // TODO: Accomodate different width reads / writes
-  //   int width = 32;    
-  //   for (int i = 0; i < numReadPorts; i++) {
-  //     pts.push_back(inputPort(width, "rdata_" + to_string(i)));
-  //     pts.push_back(outputPort(clog2(width), "raddr_" + to_string(i)));
-  //   }
-
-  //   for (int i = 0; i < numWritePorts; i++) {
-  //     pts.push_back(outputPort(width, "wdata_" + to_string(i)));
-  //     pts.push_back(outputPort(clog2(width), "waddr_" + to_string(i)));
-  //     pts.push_back(outputPort(1, "wen_" + to_string(i)));
-  //   }
-
-  //   return pts;
-  // }
 
   std::string getRAMName(Value* location,
                          std::map<llvm::Instruction*, std::string>& ramNames) {
@@ -1972,12 +1926,6 @@ namespace DHLS {
       comps.debugWires.push_back({false, 32, "rdata_" + to_string(i)});
     }
 
-    // comps.debugWires.push_back({true, 5, "raddr_1"});    
-    // comps.debugWires.push_back({false, 32, "rdata_1"});    
-
-    // comps.debugWires.push_back({true, 5, "raddr_2"});    
-    // comps.debugWires.push_back({false, 32, "rdata_2"});
-    
     comps.debugWires.push_back({true, 5, "dbg_wr_addr"});    
     comps.debugWires.push_back({true, 32, "dbg_wr_data"});
     comps.debugWires.push_back({true, 1, "dbg_wr_en"});
