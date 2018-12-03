@@ -196,3 +196,46 @@ module axi_read_handler(input clk,
    end
 
 endmodule // axi_read_handler
+
+module axi_stall_manager(input clk,
+                         input  rst,
+                         
+                         input  start_read,
+                         input  start_write,
+
+                         input  read_finished,
+                         input  write_finished,
+
+                         output should_stall);
+
+   reg                          reading;
+   reg                          writing;
+
+   always @(posedge clk) begin
+      if (rst) begin
+         reading <= 0;
+         writing <= 0;
+      end else begin
+
+         if (start_read) begin
+            reading <= 1;
+         end
+
+         if (start_write) begin
+            writing <= 1;
+         end
+
+         if (read_finished) begin
+            reading <= 0;
+         end
+         
+         if (write_finished) begin
+            writing <= 0;
+         end
+
+      end
+   end // always @ (posedge clk)
+
+   assign should_stall = reading | writing;
+   
+endmodule

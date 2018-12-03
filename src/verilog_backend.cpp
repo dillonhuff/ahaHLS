@@ -766,7 +766,10 @@ namespace DHLS {
       auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
 
       out << "\t\t\t" << addUnit.portWires["raddr"].name << " = " << locValue << ";" << endl;
-      out << "\t\t\t" << addUnit.portWires["ren"].name << " = 1;" << endl;
+
+      if (contains_key(string("ren"), addUnit.portWires)) {
+        out << "\t\t\t" << addUnit.portWires["ren"].name << " = 1;" << endl;
+      }
     } else if (BinaryOperator::classof(instr) ||
                CmpInst::classof(instr)) {
 
@@ -1815,6 +1818,8 @@ namespace DHLS {
       portConns.insert({"waddr_0", "waddr_0"});
       portConns.insert({"wdata_0", "wdata_0"});
       portConns.insert({"wen_0", "wen_0"});
+      portConns.insert({"ren_0", "ren_0"});      
+
       portConns.insert({"global_stall", "global_stall"});
 
       std::map<string, string> rhConns;
@@ -1823,6 +1828,7 @@ namespace DHLS {
 
       rhConns.insert({"read_data", "rdata_0"});
       rhConns.insert({"read_addr", "raddr_0"});
+      rhConns.insert({"start_read", "ren_0"});
 
       rhConns.insert({"s_axil_rready", "s_axil_rready"});
       rhConns.insert({"s_axil_arvalid", "s_axil_arvalid"});
@@ -1850,17 +1856,21 @@ namespace DHLS {
 
       whConns.insert({"s_axil_wstrb", "s_axil_wstrb"});
       whConns.insert({"s_axil_bready", "s_axil_bready"});
+
+      whConns.insert({"start_write", "wen_0"});
+
       ModuleInstance writeHandler("axi_write_handler", "write_handler", whConns);
       comps.instances.push_back(readHandler);
       comps.instances.push_back(writeHandler);
 
+      comps.debugWires.push_back({false, 1, "ren_0"});
       comps.debugWires.push_back({false, 5, "raddr_0"});
       comps.debugWires.push_back({false, 5, "waddr_0"});
       comps.debugWires.push_back({false, 1, "wen_0"});      
       comps.debugWires.push_back({false, 32, "rdata_0"});
       comps.debugWires.push_back({false, 32, "wdata_0"});
       comps.debugWires.push_back({false, 1, "global_stall"});
-      
+
       
     } else {
       assert(false);
