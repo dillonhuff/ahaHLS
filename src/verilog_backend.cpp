@@ -1802,6 +1802,7 @@ namespace DHLS {
     out << "endmodule" << endl;
 
     // Emit outer module with memory controller
+    VerilogComponents comps;    
     map<string, string> portConns;
     vector<Port> outerPorts;
     if (arch.archOptions.memInterface == MEM_INTERFACE_DIRECT) {
@@ -1844,7 +1845,49 @@ namespace DHLS {
 
       portConns.insert({"valid", "valid"});
       portConns.insert({"clk", "clk"});
-      portConns.insert({"rst", "rst"});            
+      portConns.insert({"rst", "rst"});
+      portConns.insert({"raddr_0", "raddr_0"});
+      portConns.insert({"rdata_0", "rdata_0"});
+      portConns.insert({"waddr_0", "waddr_0"});
+      portConns.insert({"wdata_0", "wdata_0"});
+
+      std::map<string, string> rhConns;
+      rhConns.insert({"clk", "clk"});
+      rhConns.insert({"rst", "rst"});
+
+      rhConns.insert({"read_data", "rdata_0"});
+      rhConns.insert({"read_addr", "raddr_0"});
+
+      rhConns.insert({"s_axil_rready", "s_axil_rready"});
+      rhConns.insert({"s_axil_arvalid", "s_axil_arvalid"});
+      rhConns.insert({"s_axil_araddr", "s_axil_araddr"});
+
+      rhConns.insert({"s_axil_rvalid", "s_axil_rvalid"});
+      rhConns.insert({"s_axil_rresp", "s_axil_rresp"});
+      rhConns.insert({"s_axil_rready", "s_axil_rready"});
+      rhConns.insert({"s_axil_rdata", "s_axil_rdata"});                    
+
+      ModuleInstance readHandler("axi_read_handler", "read_handler", rhConns);
+
+      std::map<string, string> whConns;
+      whConns.insert({"clk", "clk"});
+      whConns.insert({"rst", "rst"});
+
+      whConns.insert({"s_axil_awvalid", "s_axil_awvalid"});
+      whConns.insert({"s_axil_wvalid", "s_axil_wvalid"});
+
+      whConns.insert({"s_axil_wdata", "s_axil_wdata"});
+      whConns.insert({"s_axil_awaddr", "s_axil_awaddr"});
+
+      whConns.insert({"s_axil_bvalid", "s_axil_bvalid"});
+      whConns.insert({"s_axil_bresp", "s_axil_bresp"});
+
+      whConns.insert({"s_axil_wstrb", "s_axil_wstrb"});
+      whConns.insert({"s_axil_bready", "s_axil_bready"});
+      ModuleInstance writeHandler("axi_write_handler", "write_handler", whConns);
+      comps.instances.push_back(readHandler);
+      comps.instances.push_back(writeHandler);        
+
     } else {
       assert(false);
     }
@@ -1855,15 +1898,14 @@ namespace DHLS {
     }
     
     ModuleInstance mi(fnInner, "inner", portConns);
-    ModuleInstance readHandler("axi_read_handler", "read_handler", {});
-    ModuleInstance writeHandler("axi_write_handler", "write_handler", {});
+
+
+    comps.instances.push_back(mi);
 
     out << "module " << fn << "(" + commaListString(outerPortStrings) + ");" << endl;
     out << endl;
 
-    print(out, 1, mi);
-    print(out, 1, readHandler);
-    print(out, 1, writeHandler);        
+    emitComponents(out, comps);
 
     out << "endmodule" << endl;    
 
