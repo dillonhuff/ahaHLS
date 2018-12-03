@@ -161,6 +161,8 @@ module mvmul_tb();
 
 
 	RAM3 ram(.clk(clk), .debug_addr(dbg_addr), .debug_data(dbg_data), .debug_write_addr(dbg_wr_addr), .debug_write_data(dbg_wr_data), .debug_write_en(dbg_wr_en), .raddr0(raddr_0), .raddr1(raddr_1), .raddr2(raddr_2), .rdata0(rdata_0), .rdata1(rdata_1), .rdata2(rdata_2), .rst(rst), .waddr(waddr_0), .wdata(wdata_0), .wen(wen_0));
+
 	mvmul dut(.clk(clk), .raddr_0(raddr_0), .raddr_1(raddr_1), .rdata_0(rdata_0), .rdata_1(rdata_1), .rst(rst), .valid(valid), .waddr_0(waddr_0), .wdata_0(wdata_0), .wen_0(wen_0));
+
 	// End debug wires and ports
 endmodule

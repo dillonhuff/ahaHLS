@@ -130,52 +130,52 @@ namespace DHLS {
 
   }
 
-  std::vector<Port> getPorts(const STG& stg) {
-    vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
-    int numReadPorts = 0;
-    int numWritePorts = 0;
+  // std::vector<Port> getPorts(const STG& stg) {
+  //   vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
+  //   int numReadPorts = 0;
+  //   int numWritePorts = 0;
 
-    for (auto state : stg.opStates) {
-      int numReadsInState = 0;
-      int numWritesInState = 0;
-      for (auto gInstr : state.second) {
-        Instruction* i = gInstr.instruction;
+  //   for (auto state : stg.opStates) {
+  //     int numReadsInState = 0;
+  //     int numWritesInState = 0;
+  //     for (auto gInstr : state.second) {
+  //       Instruction* i = gInstr.instruction;
 
-        if (StoreInst::classof(i)) {
-          numWritesInState++;
-        }
+  //       if (StoreInst::classof(i)) {
+  //         numWritesInState++;
+  //       }
 
-        if (LoadInst::classof(i)) {
-          numReadsInState++;
-        }
+  //       if (LoadInst::classof(i)) {
+  //         numReadsInState++;
+  //       }
 
-      }
+  //     }
 
-      if (numReadsInState > numReadPorts) {
-        numReadPorts = numReadsInState;
-      }
+  //     if (numReadsInState > numReadPorts) {
+  //       numReadPorts = numReadsInState;
+  //     }
 
-      if (numWritesInState > numWritePorts) {
-        numWritePorts = numWritesInState;
-      }
-    }
+  //     if (numWritesInState > numWritePorts) {
+  //       numWritePorts = numWritesInState;
+  //     }
+  //   }
 
 
-    // TODO: Accomodate different width reads / writes
-    int width = 32;    
-    for (int i = 0; i < numReadPorts; i++) {
-      pts.push_back(inputPort(width, "rdata_" + to_string(i)));
-      pts.push_back(outputPort(clog2(width), "raddr_" + to_string(i)));
-    }
+  //   // TODO: Accomodate different width reads / writes
+  //   int width = 32;    
+  //   for (int i = 0; i < numReadPorts; i++) {
+  //     pts.push_back(inputPort(width, "rdata_" + to_string(i)));
+  //     pts.push_back(outputPort(clog2(width), "raddr_" + to_string(i)));
+  //   }
 
-    for (int i = 0; i < numWritePorts; i++) {
-      pts.push_back(outputPort(width, "wdata_" + to_string(i)));
-      pts.push_back(outputPort(clog2(width), "waddr_" + to_string(i)));
-      pts.push_back(outputPort(1, "wen_" + to_string(i)));
-    }
+  //   for (int i = 0; i < numWritePorts; i++) {
+  //     pts.push_back(outputPort(width, "wdata_" + to_string(i)));
+  //     pts.push_back(outputPort(clog2(width), "waddr_" + to_string(i)));
+  //     pts.push_back(outputPort(1, "wen_" + to_string(i)));
+  //   }
 
-    return pts;
-  }
+  //   return pts;
+  // }
 
   std::string getRAMName(Value* location,
                          std::map<llvm::Instruction*, std::string>& ramNames) {
@@ -1607,6 +1607,7 @@ namespace DHLS {
 
     for (auto mod : debugInfo.instances) {
       print(out, 1, mod);
+      out << endl;
     }
     
     out << tab(1) << "// End debug wires and ports" << endl;
@@ -1799,7 +1800,7 @@ namespace DHLS {
     emitPipelineInstructionCode(out, arch.pipelines, arch, arch.memoryMap);
     emitInstructionCode(out, arch, arch.pipelines);
 
-    out << "endmodule" << endl;
+    out << "endmodule" << endl << endl;
 
     // Emit outer module with memory controller
     VerilogComponents comps;    
@@ -1858,6 +1859,8 @@ namespace DHLS {
       portConns.insert({"rdata_0", "rdata_0"});
       portConns.insert({"waddr_0", "waddr_0"});
       portConns.insert({"wdata_0", "wdata_0"});
+      portConns.insert({"wen_0", "wen_0"});
+      portConns.insert({"global_stall", "global_stall"});
 
       std::map<string, string> rhConns;
       rhConns.insert({"clk", "clk"});
@@ -1896,11 +1899,14 @@ namespace DHLS {
       comps.instances.push_back(readHandler);
       comps.instances.push_back(writeHandler);
 
-      comps.debugWires.push_back({true, 5, "raddr_0"});
-      comps.debugWires.push_back({true, 5, "waddr_0"});
-      comps.debugWires.push_back({true, 32, "rdata_0"});
-      comps.debugWires.push_back({true, 32, "wdata_0"});
-
+      comps.debugWires.push_back({false, 5, "raddr_0"});
+      comps.debugWires.push_back({false, 5, "waddr_0"});
+      comps.debugWires.push_back({false, 1, "wen_0"});      
+      comps.debugWires.push_back({false, 32, "rdata_0"});
+      comps.debugWires.push_back({false, 32, "wdata_0"});
+      comps.debugWires.push_back({false, 1, "global_stall"});
+      
+      
     } else {
       assert(false);
     }
