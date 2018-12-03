@@ -766,6 +766,7 @@ namespace DHLS {
       auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
 
       out << "\t\t\t" << addUnit.portWires["raddr"].name << " = " << locValue << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["ren"].name << " = 1;" << endl;
     } else if (BinaryOperator::classof(instr) ||
                CmpInst::classof(instr)) {
 
