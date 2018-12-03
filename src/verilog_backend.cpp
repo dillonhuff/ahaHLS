@@ -1886,7 +1886,12 @@ namespace DHLS {
       whConns.insert({"s_axil_bready", "s_axil_bready"});
       ModuleInstance writeHandler("axi_write_handler", "write_handler", whConns);
       comps.instances.push_back(readHandler);
-      comps.instances.push_back(writeHandler);        
+      comps.instances.push_back(writeHandler);
+
+      comps.debugWires.push_back({true, 32, "raddr_0"});
+      comps.debugWires.push_back({true, 32, "waddr_0"});
+      comps.debugWires.push_back({true, 32, "rdata_0"});
+      comps.debugWires.push_back({true, 32, "wdata_0"});
 
     } else {
       assert(false);
