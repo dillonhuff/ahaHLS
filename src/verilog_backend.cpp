@@ -330,7 +330,7 @@ namespace DHLS {
 
             modName = "load";
 
-            wiring = {{"raddr", {true, 32, "raddr_" + to_string(readNum) + "_reg"}}};
+            wiring = {{"raddr", {true, 32, "raddr_" + to_string(readNum) + "_reg"}}, {"ren", {true, 1, "ren_" + to_string(readNum) + "_reg"}}};
             outWires = {{"rdata", {false, 32, "rdata_" + to_string(readNum)}}};
 
             readNum++;
