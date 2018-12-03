@@ -1805,10 +1805,18 @@ namespace DHLS {
     VerilogComponents comps;    
     map<string, string> portConns;
     vector<Port> outerPorts;
+
+    vector<std::string> outerPortStrings;
     if (arch.archOptions.memInterface == MEM_INTERFACE_DIRECT) {
 
       outerPorts = allPorts;
 
+      for (auto pt : outerPorts) {
+        //        outerPortStrings.push_back(pt.toString());
+        portConns.insert({pt.name, pt.name});
+      }
+      
+      
     } else if (arch.archOptions.memInterface == MEM_INTERFACE_AXI4_LITE) {
       outerPorts.push_back(inputPort(1, "clk"));
       outerPorts.push_back(inputPort(1, "rst"));
@@ -1888,8 +1896,8 @@ namespace DHLS {
       comps.instances.push_back(readHandler);
       comps.instances.push_back(writeHandler);
 
-      comps.debugWires.push_back({true, 32, "raddr_0"});
-      comps.debugWires.push_back({true, 32, "waddr_0"});
+      comps.debugWires.push_back({true, 5, "raddr_0"});
+      comps.debugWires.push_back({true, 5, "waddr_0"});
       comps.debugWires.push_back({true, 32, "rdata_0"});
       comps.debugWires.push_back({true, 32, "wdata_0"});
 
@@ -1897,10 +1905,8 @@ namespace DHLS {
       assert(false);
     }
 
-    vector<std::string> outerPortStrings;
     for (auto pt : outerPorts) {
       outerPortStrings.push_back(pt.toString());
-      portConns.insert({pt.name, pt.name});
     }
     
     ModuleInstance mi(fnInner, "inner", portConns);
