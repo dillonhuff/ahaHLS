@@ -1802,24 +1802,69 @@ namespace DHLS {
     out << "endmodule" << endl;
 
     // Emit outer module with memory controller
-    map<string, string> portConns;    
+    map<string, string> portConns;
+    vector<Port> outerPorts;
     if (arch.archOptions.memInterface == MEM_INTERFACE_DIRECT) {
 
-      for (auto pt : allPorts) {
-        portConns.insert({pt.name, pt.name});
-      }
+      outerPorts = allPorts;
+
     } else if (arch.archOptions.memInterface == MEM_INTERFACE_AXI4_LITE) {
-      assert(false);
+      outerPorts.push_back(inputPort(1, "clk"));
+      outerPorts.push_back(inputPort(1, "rst"));
+      outerPorts.push_back(outputPort(1, "valid"));
+
+      outerPorts.push_back(outputPort(3, "s_axil_awprot"));
+      outerPorts.push_back(outputPort(3, "s_axil_arprot"));
+
+      outerPorts.push_back(inputPort(1, "s_axil_arready"));
+      outerPorts.push_back(inputPort(1, "s_axil_rvalid"));
+      outerPorts.push_back(inputPort(2, "s_axil_rresp"));
+      outerPorts.push_back(inputPort(32, "s_axil_rdata"));
+
+      outerPorts.push_back(outputPort(32, "s_axil_araddr"));
+      outerPorts.push_back(outputPort(1, "s_axil_arvalid"));
+
+      outerPorts.push_back(outputPort(32, "s_axil_awaddr"));
+      outerPorts.push_back(outputPort(1, "s_axil_awvalid"));
+      outerPorts.push_back(inputPort(1, "s_axil_awready"));            
+
+      outerPorts.push_back(outputPort(5, "s_axil_wstrb"));
+      outerPorts.push_back(outputPort(32, "s_axil_wdata"));            
+      outerPorts.push_back(outputPort(1, "s_axil_wvalid"));            
+
+      outerPorts.push_back(inputPort(1, "s_axil_wready"));
+      outerPorts.push_back(inputPort(1, "s_axil_wresp"));                        
+      outerPorts.push_back(inputPort(1, "s_axil_vvalid"));                        
+
+      outerPorts.push_back(outputPort(1, "s_axil_bready"));
+      outerPorts.push_back(inputPort(1, "s_axil_bresp"));
+
+      outerPorts.push_back(inputPort(1, "s_axil_bvalid"));
+      outerPorts.push_back(outputPort(1, "s_axil_rready"));
+
+      portConns.insert({"valid", "valid"});
+      portConns.insert({"clk", "clk"});
+      portConns.insert({"rst", "rst"});            
     } else {
       assert(false);
     }
-    ModuleInstance mi(fnInner, "inner", portConns);
 
-    out << "module " << fn << "(" + commaListString(portStrings) + ");" << endl;
+    vector<std::string> outerPortStrings;
+    for (auto pt : outerPorts) {
+      outerPortStrings.push_back(pt.toString());
+    }
+    
+    ModuleInstance mi(fnInner, "inner", portConns);
+    ModuleInstance readHandler("axi_read_handler", "read_handler", {});
+    ModuleInstance writeHandler("axi_write_handler", "write_handler", {});
+
+    out << "module " << fn << "(" + commaListString(outerPortStrings) + ");" << endl;
     out << endl;
 
     print(out, 1, mi);
-    
+    print(out, 1, readHandler);
+    print(out, 1, writeHandler);        
+
     out << "endmodule" << endl;    
 
     out.close();
