@@ -1895,6 +1895,7 @@ namespace DHLS {
     vector<std::string> outerPortStrings;
     for (auto pt : outerPorts) {
       outerPortStrings.push_back(pt.toString());
+      portConns.insert({pt.name, pt.name});
     }
     
     ModuleInstance mi(fnInner, "inner", portConns);
