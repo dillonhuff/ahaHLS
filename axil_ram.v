@@ -126,14 +126,14 @@ assign s_axil_rvalid = s_axil_rvalid_reg;
 integer i, j;
 
 initial begin
-   mem[0] = 20;
+   //mem[0] = 20;
     // two nested loops for smaller number of iterations per loop
     // workaround for synthesizer complaints about large loop counts
-    for (i = 0; i < 2**ADDR_WIDTH; i = i + 2**(ADDR_WIDTH/2)) begin
-        for (j = i; j < i + 2**(ADDR_WIDTH/2); j = j + 1) begin
-            //mem[j] = 20;
-        end
-    end
+    // for (i = 0; i < 2**ADDR_WIDTH; i = i + 2**(ADDR_WIDTH/2)) begin
+    //     for (j = i; j < i + 2**(ADDR_WIDTH/2); j = j + 1) begin
+    //         mem[j] = 20;
+    //     end
+    // end
 end
 
 always @* begin
@@ -210,8 +210,12 @@ always @(posedge clk) begin
         s_axil_rresp_reg <= s_axil_rresp_next;
         s_axil_rvalid_reg <= s_axil_rvalid_next;
     end
-
+   $display("raddr address %d", s_axil_araddr);
+   $display("s_axil_araddr_valid %d", s_axil_araddr_valid);   
     if (mem_rd_en) begin
+       
+       $display("setting rdata with address %d", s_axil_araddr_valid);
+       
         s_axil_rdata_reg <= mem[s_axil_araddr_valid];
     end
 end
