@@ -219,11 +219,15 @@ module axi_stall_manager(input clk,
          writing <= 0;
       end else begin
 
+         $display("start write  = %d", start_write);
+         $display("writing      = %d", writing);         
+         $display("should stall = %d", should_stall);         
          if (start_read) begin
             reading <= 1;
          end
 
          if (start_write) begin
+            $display("writing...");
             writing <= 1;
          end
 
@@ -232,6 +236,8 @@ module axi_stall_manager(input clk,
          end
          
          if (write_finished) begin
+            $display("write finished");
+
             writing <= 0;
          end
 

@@ -1867,9 +1867,9 @@ namespace DHLS {
       smConns.insert({"rst", "rst"});
       smConns.insert({"start_read", "ren_0"});
       smConns.insert({"start_write", "wen_0"});
-      smConns.insert({"read_finished", "read_valid"});      
-      smConns.insert({"write_finished", "write_ready"});            
-      smConns.insert({"should_stall", "global_stall"});            
+      smConns.insert({"read_finished", "read_valid"});
+      smConns.insert({"write_finished", "write_ready"});
+      smConns.insert({"should_stall", "global_stall"});
       ModuleInstance stallManager("axi_stall_manager", "stall_manager", smConns);
 
       comps.instances.push_back(readHandler);
@@ -1893,11 +1893,6 @@ namespace DHLS {
       addWirePrintout("wen_0", comps);                
       addWirePrintout("read_valid", comps);    
 
-      // addWirePrintout("raddr_0", comps);
-      // addWirePrintout("rdata_0", comps);
-      // addWirePrintout("s_axil_arready", comps);
-      // addWirePrintout("s_axil_rvalid", comps);
-      // addWirePrintout("s_axil_rresp", comps);
     } else {
       assert(false);
     }
