@@ -158,7 +158,7 @@ module axi_read_handler(input clk,
 
                         input                           s_axil_rvalid,
                         input [1:0]                     s_axil_rresp,
-                        input                           s_axil_arready, 
+                        input                           s_axil_arready,
                         input [DATA_WIDTH - 1 : 0]      s_axil_rdata);
    
    parameter DATA_WIDTH = 32;
@@ -187,7 +187,7 @@ module axi_read_handler(input clk,
          s_axil_araddr <= read_addr;
          
       end else if (s_axil_arready && s_axil_rvalid && (s_axil_rresp == 0)) begin
-         $display("Setting read output valid");
+         $display("Setting read output valid, data = %d", s_axil_rdata);
          
          read_data <= s_axil_rdata;
          valid <= 1;

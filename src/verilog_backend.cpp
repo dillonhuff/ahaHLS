@@ -1887,9 +1887,12 @@ namespace DHLS {
       comps.debugWires.push_back({false, 1, "global_stall"});
 
       addWirePrintout("global_stall", comps);
-      addWirePrintout("ren_0", comps);          
+      addWirePrintout("ren_0", comps);
+      addWirePrintout("raddr_0", comps);
+      addWirePrintout("rdata_0", comps);      
+      addWirePrintout("wen_0", comps);                
       addWirePrintout("read_valid", comps);    
-      // addWirePrintout("wen_0", comps);
+
       // addWirePrintout("raddr_0", comps);
       // addWirePrintout("rdata_0", comps);
       // addWirePrintout("s_axil_arready", comps);

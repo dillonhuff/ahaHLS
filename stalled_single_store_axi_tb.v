@@ -55,9 +55,7 @@ module test();
    wire [31:0] debug_data;
 
    reg [4:0]  debug_write_addr;
-   
    reg [31:0] debug_write_data;
-   
    reg        debug_write_en;
    
    wire [31:0] rdata;
@@ -133,6 +131,21 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+      
       #1 `assert(valid, 1'd1);            
       #1 `assert(debug_data, 20);            
 
@@ -144,6 +157,13 @@ module test();
    ram(.clk(clk),
        .rst(rst),
 
+       // Debug ports
+       .debug_addr(debug_addr),
+       .debug_data(debug_data),
+       .debug_wr_addr(debug_write_addr),
+       .debug_wr_data(debug_write_data),
+       .debug_wr_en(debug_write_en),
+       // End debug ports
 
        .s_axil_awprot(s_axil_awprot),
        .s_axil_arprot(s_axil_arprot),
