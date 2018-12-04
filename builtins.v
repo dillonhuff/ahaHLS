@@ -166,11 +166,11 @@ module axi_read_handler(input clk,
    parameter STRB_WIDTH = (DATA_WIDTH/8);
 
    always @(posedge clk) begin
-      // $display("&&&&&&");
-      // $display("s_axil_rvalid   === %d", s_axil_rvalid);
-      // $display("s_axil_rresp    === %d", s_axil_rresp);
-      // $display("s_axil_arready  === %d", s_axil_arready);      
-      // $display("======");
+      $display("&&&&&&");
+      $display("s_axil_rvalid   === %d", s_axil_rvalid);
+      $display("s_axil_rresp    === %d", s_axil_rresp);
+      $display("s_axil_arready  === %d", s_axil_arready);      
+      $display("======");
 
       if (rst) begin
          ready <= 1;
@@ -187,6 +187,8 @@ module axi_read_handler(input clk,
          s_axil_araddr <= read_addr;
          
       end else if (s_axil_arready && s_axil_rvalid && (s_axil_rresp == 0)) begin
+         $display("Setting read output valid");
+         
          read_data <= s_axil_rdata;
          valid <= 1;
       end else begin

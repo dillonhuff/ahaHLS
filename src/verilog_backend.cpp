@@ -1833,12 +1833,12 @@ namespace DHLS {
       rhConns.insert({"s_axil_rready", "s_axil_rready"});
       rhConns.insert({"s_axil_arvalid", "s_axil_arvalid"});
       rhConns.insert({"s_axil_araddr", "s_axil_araddr"});
-
+      rhConns.insert({"s_axil_arready", "s_axil_arready"});
       rhConns.insert({"s_axil_rvalid", "s_axil_rvalid"});
       rhConns.insert({"s_axil_rresp", "s_axil_rresp"});
       rhConns.insert({"s_axil_rready", "s_axil_rready"});
       rhConns.insert({"s_axil_rdata", "s_axil_rdata"});                    
-
+      rhConns.insert({"valid", "read_valid"});
       ModuleInstance readHandler("axi_read_handler", "read_handler", rhConns);
 
       std::map<string, string> whConns;
@@ -1858,11 +1858,26 @@ namespace DHLS {
       whConns.insert({"s_axil_bready", "s_axil_bready"});
 
       whConns.insert({"start_write", "wen_0"});
+      whConns.insert({"ready", "write_ready"});
 
       ModuleInstance writeHandler("axi_write_handler", "write_handler", whConns);
+
+      std::map<string, string> smConns;
+      smConns.insert({"clk", "clk"});
+      smConns.insert({"rst", "rst"});
+      smConns.insert({"start_read", "ren_0"});
+      smConns.insert({"start_write", "wen_0"});
+      smConns.insert({"read_finished", "read_valid"});      
+      smConns.insert({"write_finished", "write_ready"});            
+      smConns.insert({"should_stall", "global_stall"});            
+      ModuleInstance stallManager("axi_stall_manager", "stall_manager", smConns);
+
       comps.instances.push_back(readHandler);
       comps.instances.push_back(writeHandler);
+      comps.instances.push_back(stallManager);
 
+      comps.debugWires.push_back({false, 1, "read_valid"});
+      comps.debugWires.push_back({false, 1, "write_ready"});      
       comps.debugWires.push_back({false, 1, "ren_0"});
       comps.debugWires.push_back({false, 5, "raddr_0"});
       comps.debugWires.push_back({false, 5, "waddr_0"});
@@ -1871,7 +1886,15 @@ namespace DHLS {
       comps.debugWires.push_back({false, 32, "wdata_0"});
       comps.debugWires.push_back({false, 1, "global_stall"});
 
-      
+      addWirePrintout("global_stall", comps);
+      addWirePrintout("ren_0", comps);          
+      addWirePrintout("read_valid", comps);    
+      // addWirePrintout("wen_0", comps);
+      // addWirePrintout("raddr_0", comps);
+      // addWirePrintout("rdata_0", comps);
+      // addWirePrintout("s_axil_arready", comps);
+      // addWirePrintout("s_axil_rvalid", comps);
+      // addWirePrintout("s_axil_rresp", comps);
     } else {
       assert(false);
     }
