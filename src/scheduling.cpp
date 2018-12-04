@@ -222,7 +222,7 @@ namespace DHLS {
       int latency = getLatency(iptr, hdc);
 
       schedVars[iptr] = {};
-      cout << "Instruction = " << instructionString(&instr) << endl;
+
       string instrPre = string(iptr->getOpcodeName()) + "_" + to_string(blockNo) + "_" + to_string(instrNo);
       for (int i = 0; i <= latency; i++) {
         map_insert(schedVars, iptr, c.int_const((instrPre + "_" + to_string(i)).c_str()));

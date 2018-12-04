@@ -445,7 +445,6 @@ namespace DHLS {
             BitCastInst::classof(instr)) {
           continue;
         }
-        cout << "Getting type of " << instructionString(instr) << endl;
         
         if (ReturnInst::classof(instr)) {
           resultNames[instr] = {true, 1, string(instr->getOpcodeName()) + "_tmp_" + to_string(resSuffix)};
@@ -745,8 +744,6 @@ namespace DHLS {
 
     auto addUnit = map_find(instr, arch.unitAssignment);
 
-    cout << "Instruction verilog for " << instructionString(instr) << endl;
-    
     if (ReturnInst::classof(instr)) {
       out << "\t\t\tvalid_reg = 1;" << endl;
     } else if (StoreInst::classof(instr)) {
@@ -1388,43 +1385,6 @@ namespace DHLS {
     out << "\t// End pipeline valid chain block" << endl << endl;
   }
 
-  // Q: What should the relationship be between the global state, last basic block
-  //    counter for non-pipelined code, the last basic block counter for pipelined
-  //    code and the last basic block counter for each pipeline?
-  // A: Maybe the last basic block counters should get their own always block
-  //    with the branch functional unit being ignored?
-  //    If we are not in a pipeline the last basic block is whatever the
-  //    current global state is
-  //    If we are in a pipeline the last basic block is the basic block
-  //    whose pipeline we are in?
-  // void
-  // emitPipelineLastBBChainBlock(std::ostream& out,
-  //                              const std::vector<ElaboratedPipeline>& pipelines) {
-    
-  //   out << "\t// Start pipeline last BB chain block" << endl;
-  //   out << "\talways @(posedge clk) begin" << endl;
-
-  //   for (auto p : pipelines) {
-
-  //     out << "\t\t$display(\"// CLK Cycle\");" << endl;
-  //     out << "\t\t$display(\"" << p.inPipe.name << " = %d\", " << p.inPipe.name << ");" << endl;
-  //     for (int i = 0; i < p.lastBBs.size(); i++) {
-  //       out << "\t\t$display(\"" << p.lastBBs[i].name << " = %d\", " << p.lastBBs[i].name << ");" << endl;
-  //     }
-  //   }
-    
-  //   out << "\t\tif (!rst) begin" << endl;
-  //   for (auto p : pipelines) {
-
-  //     for (int i = 0; i < p.lastBBs.size() - 1; i++) {
-  //       out << "\t\t\t" << p.lastBBs[i + 1].name << " <= " << p.lastBBs[i].name << ";" << endl;
-  //     }
-  //   }
-  //   out << "\t\tend" << endl;
-  //   out << "\tend" << endl;
-  //   out << "\t// End pipeline last BB chain block" << endl << endl;
-  // }
-  
   void emitPipelineVariables(std::ostream& out,
                              const std::vector<ElaboratedPipeline>& pipelines) {
     out << "\t// Start pipeline variables" << endl;
