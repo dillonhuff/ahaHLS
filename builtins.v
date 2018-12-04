@@ -126,7 +126,7 @@ module axi_write_handler(input clk,
          s_axil_awvalid <= 1;
 
          s_axil_wdata <= write_data;
-         s_axil_awaddr <= write_addr;
+         s_axil_awaddr <= {write_addr, 2'b0};
 
          ready_reg <= 0;
 
@@ -184,7 +184,7 @@ module axi_read_handler(input clk,
 
          s_axil_rready <= 1;
          s_axil_arvalid <= 1;
-         s_axil_araddr <= read_addr;
+         s_axil_araddr <= {read_addr, 2'b0};
          
       end else if (s_axil_arready && s_axil_rvalid && (s_axil_rresp == 0)) begin
          $display("Setting read output valid, data = %d", s_axil_rdata);
