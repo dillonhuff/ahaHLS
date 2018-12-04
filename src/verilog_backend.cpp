@@ -1857,8 +1857,11 @@ namespace DHLS {
       whConns.insert({"s_axil_wstrb", "s_axil_wstrb"});
       whConns.insert({"s_axil_bready", "s_axil_bready"});
 
+      whConns.insert({"write_addr", "waddr_0"});
+      whConns.insert({"write_data", "wdata_0"});      
       whConns.insert({"start_write", "wen_0"});
       whConns.insert({"ready", "write_ready"});
+      whConns.insert({"valid", "write_valid"});
 
       ModuleInstance writeHandler("axi_write_handler", "write_handler", whConns);
 
@@ -1868,7 +1871,7 @@ namespace DHLS {
       smConns.insert({"start_read", "ren_0"});
       smConns.insert({"start_write", "wen_0"});
       smConns.insert({"read_finished", "read_valid"});
-      smConns.insert({"write_finished", "write_ready"});
+      smConns.insert({"write_finished", "write_valid"});
       smConns.insert({"should_stall", "global_stall"});
       ModuleInstance stallManager("axi_stall_manager", "stall_manager", smConns);
 
@@ -1877,7 +1880,8 @@ namespace DHLS {
       comps.instances.push_back(stallManager);
 
       comps.debugWires.push_back({false, 1, "read_valid"});
-      comps.debugWires.push_back({false, 1, "write_ready"});      
+      comps.debugWires.push_back({false, 1, "write_ready"});
+      comps.debugWires.push_back({false, 1, "write_valid"});            
       comps.debugWires.push_back({false, 1, "ren_0"});
       comps.debugWires.push_back({false, 5, "raddr_0"});
       comps.debugWires.push_back({false, 5, "waddr_0"});
@@ -1886,12 +1890,13 @@ namespace DHLS {
       comps.debugWires.push_back({false, 32, "wdata_0"});
       comps.debugWires.push_back({false, 1, "global_stall"});
 
+      addWirePrintout("write_ready", comps);
       addWirePrintout("global_stall", comps);
-      addWirePrintout("ren_0", comps);
-      addWirePrintout("raddr_0", comps);
-      addWirePrintout("rdata_0", comps);      
+      //addWirePrintout("ren_0", comps);
+      //addWirePrintout("raddr_0", comps);
+      //addWirePrintout("rdata_0", comps);      
       addWirePrintout("wen_0", comps);                
-      addWirePrintout("read_valid", comps);    
+      //addWirePrintout("read_valid", comps);    
 
     } else {
       assert(false);

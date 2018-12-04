@@ -85,6 +85,7 @@ module axi_write_handler(input clk,
                          input                           start_write,
 
                          output                          ready,
+                         output                          valid,
 
                          // AXI module API
                          output reg                      s_axil_awvalid,
@@ -105,15 +106,18 @@ module axi_write_handler(input clk,
    parameter STRB_WIDTH = (DATA_WIDTH/8);
 
    reg                         ready_reg;
-
+   reg                         valid_reg;
+   
    assign ready = ready_reg;
-
+   assign valid = valid_reg;
+   
    assign s_axil_bready = 1'b1;
    assign s_axil_wstrb = 5'b11111;
    
    always @(posedge clk) begin
       if (rst) begin
          ready_reg <= 1;
+         valid_reg <= 0;
 
          s_axil_wvalid <= 0;
          s_axil_awvalid <= 0;
@@ -129,9 +133,13 @@ module axi_write_handler(input clk,
          s_axil_awaddr <= {write_addr, 2'b0};
 
          ready_reg <= 0;
+         valid_reg <= 0;
 
       end else if (s_axil_bvalid && (!s_axil_bresp)) begin
+         $display("s_axil_bvalid = %d", s_axil_bvalid);
+         
          ready_reg <= 1;
+         valid_reg <= 1;
 
          s_axil_wvalid <= 0;
          s_axil_awvalid <= 0;
