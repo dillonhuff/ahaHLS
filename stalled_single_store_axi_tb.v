@@ -64,11 +64,16 @@ module test();
 
       #1 debug_addr = 0;
 
+      #1 rst = 1;
+
+      #1 clk = 0;
+      #1 clk = 1;
+
+      // Still in reset      
       #1 debug_write_addr = 1;
       #1 debug_write_data = 10;
       #1 debug_write_en = 1;
 
-      #1 rst = 1;      
 
       #1 clk = 0;
       #1 clk = 1;

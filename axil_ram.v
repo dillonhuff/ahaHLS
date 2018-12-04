@@ -101,6 +101,8 @@ reg [DATA_WIDTH-1:0] mem[(2**VALID_ADDR_WIDTH)-1:0];
    // Start debug
    always @(posedge clk) begin
       if (debug_wr_en) begin
+         $display("Writing %d to %d", debug_wr_data, debug_wr_addr);
+         
          mem[debug_wr_addr] <= debug_wr_data;
       end
    end
@@ -124,11 +126,12 @@ assign s_axil_rvalid = s_axil_rvalid_reg;
 integer i, j;
 
 initial begin
+   mem[0] = 20;
     // two nested loops for smaller number of iterations per loop
     // workaround for synthesizer complaints about large loop counts
     for (i = 0; i < 2**ADDR_WIDTH; i = i + 2**(ADDR_WIDTH/2)) begin
         for (j = i; j < i + 2**(ADDR_WIDTH/2); j = j + 1) begin
-            mem[j] = 20;
+            //mem[j] = 20;
         end
     end
 end
