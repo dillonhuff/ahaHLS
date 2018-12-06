@@ -587,7 +587,7 @@ namespace DHLS {
                          map<Instruction*, Wire>& names,                         
                          std::map<std::string, int>& memoryMap) {
 
-    StateId thisState = map_find(instr, stg.sched.instrTimes).back();    
+    StateId thisState = map_find(instr, stg.sched.instrTimes).front();    
 
     return outputName(arg0,
                       thisState,
