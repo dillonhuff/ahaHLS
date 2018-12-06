@@ -465,6 +465,10 @@ namespace DHLS {
 
         BasicBlock* nextB = br->getSuccessor(0);
 
+        // Does the true or false condition on this block executing in
+        // the given state need to be considered when making this pathing
+        // decision?
+
         // True values are not represented
         return allPathConditions(nextB, target, considered);
       } else {
@@ -517,11 +521,17 @@ namespace DHLS {
 
     map<BasicBlock*, vector<vector<Atom> > > blockGuards;
     //for (auto& bbR : f->getBasicBlockList()) {
+
+    // NOTE: One possible problem is that I only compute
+    // path conditions from the entry and not pairwise between
+    // blocks, but that should include all possible (non-looped)
+    // paths
     for (auto bbR : blockList) {
       BasicBlock* target = bbR;
       set<BasicBlock*> considered;
       vector<vector<Atom> > allPaths =
         allPathConditions(entryBlock, target, considered);
+      cout << "# of paths = " << allPaths.size() << endl;
       blockGuards[target] = allPaths;
 
     }

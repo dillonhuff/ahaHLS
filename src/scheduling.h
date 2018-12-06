@@ -204,12 +204,25 @@ namespace DHLS {
       return out;
     }
 
+    int nCl = 0;
     for (auto cl : c.clauses) {
+
+      int nAt = 0;
+
       out << "(";
       for (auto atom : cl) {
-        out << atom << " ^ ";
+        out << atom;
+        if (nAt < (cl.size() - 1)) {
+          out << " ^ ";
+        }
+        nAt++;
       }
-      out << ") v ";
+      out << ")";
+
+      if (nCl < (c.clauses.size() - 1)) {
+        out << " v ";
+      }
+      nCl++;
     }
 
     return out;
@@ -226,7 +239,7 @@ namespace DHLS {
     std::string str;
     llvm::raw_string_ostream ss(str);
     ss << *(t.instruction);
-    out << "\t\t" << ss.str() << " if " << t.cond << std::endl;
+    out << "\t\t" << ss.str() << " if " << t.cond << " in " << (t.instruction)->getParent()->getName().str() << std::endl;
     return out;
   }
   
