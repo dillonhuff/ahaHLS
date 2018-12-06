@@ -539,7 +539,7 @@ namespace DHLS {
   }
 
   std::string outputName(Value* arg0,
-                         Instruction* instr,
+                         StateId thisState,
                          const STG& stg,
                          map<Instruction*, FunctionalUnit>& unitAssignment,
                          map<Instruction*, Wire>& names,                         
@@ -548,7 +548,6 @@ namespace DHLS {
 
       auto instr0 = dyn_cast<Instruction>(arg0);
       StateId argState = map_find(instr0, stg.sched.instrTimes).back();
-      StateId thisState = map_find(instr, stg.sched.instrTimes).front();
 
       if (argState == thisState) {
 
@@ -578,6 +577,25 @@ namespace DHLS {
 
       return to_string(dyn_cast<ConstantInt>(arg0)->getSExtValue());
     }
+
+  }
+
+  std::string outputName(Value* arg0,
+                         Instruction* instr,
+                         const STG& stg,
+                         map<Instruction*, FunctionalUnit>& unitAssignment,
+                         map<Instruction*, Wire>& names,                         
+                         std::map<std::string, int>& memoryMap) {
+
+    StateId thisState = map_find(instr, stg.sched.instrTimes).back();    
+
+    return outputName(arg0,
+                      thisState,
+                      stg,
+                      unitAssignment,
+                      names,                         
+                      memoryMap);
+
   }
 
   // Random thought: Infinite streams + address generation?
@@ -712,8 +730,8 @@ namespace DHLS {
   std::string verilogForCondition(Condition& cond,
                                   const StateId currentState,
                                   const STG& stg,
-                                  const map<Instruction*, FunctionalUnit>& unitAssignment,
-                                  const map<Instruction*, Wire>& names) {
+                                  map<Instruction*, FunctionalUnit>& unitAssignment,
+                                  map<Instruction*, Wire>& names) {
     string condStr = "";
 
     if (cond.isTrue()) {
@@ -732,8 +750,10 @@ namespace DHLS {
         // TODO: Maybe this should use outputName?
         map<string, int> memoryMap;
         string valueStr = outputName(a.cond,
+                                     currentState,
                                      stg,
                                      unitAssignment,
+                                     names,
                                      memoryMap);
         
         // string valueStr = "";
@@ -1574,7 +1594,7 @@ namespace DHLS {
   void emitLastBBCode(std::ostream& out,
                       llvm::Function* f,
                       const std::vector<ElaboratedPipeline>& pipelines,
-                      const MicroArchitecture& arch) {
+                      MicroArchitecture& arch) {
     out << "\talways @(posedge clk) begin" << endl;
 
     if (arch.hasGlobalStall()) {
