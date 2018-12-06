@@ -587,7 +587,7 @@ namespace DHLS {
                          map<Instruction*, Wire>& names,                         
                          std::map<std::string, int>& memoryMap) {
 
-    StateId thisState = map_find(instr, stg.sched.instrTimes).front();    
+    StateId thisState = map_find(instr, stg.sched.instrTimes).front();
 
     return outputName(arg0,
                       thisState,
@@ -895,6 +895,13 @@ namespace DHLS {
                CallInst::classof(instr) ||
                BitCastInst::classof(instr)) {
       // No-ops
+    } else if(SExtInst::classof(instr)) {
+
+      Value* trueVal = instr->getOperand(0);
+      string trueName = outputName(trueVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+
+      out << "\t\t\t" << addUnit.portWires["in"].name << " = " << trueName << ";" << endl;
+
     } else {
 
       std::string str;
