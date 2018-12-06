@@ -54,11 +54,11 @@ namespace DHLS {
     system(("clang -O1 -c -S -emit-llvm " + moduleName + ".c -o " + moduleName + ".ll").c_str());
   }
 
-  std::unique_ptr<Module> loadModule(LLVMContext& Context,
+  std::unique_ptr<Module> loadLLFile(LLVMContext& Context,
                                      SMDiagnostic& Err,
                                      const std::string& name) {
-    createLLFile("./test/ll_files/" + name);    
     string modFile = "./test/ll_files/" + name + ".ll";
+    cout << "Parsing ir file " << modFile << endl;
     std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
     if (!Mod) {
       outs() << "Error: No mod\n";
@@ -66,6 +66,21 @@ namespace DHLS {
     }
 
     return Mod;
+  }
+  
+  std::unique_ptr<Module> loadModule(LLVMContext& Context,
+                                     SMDiagnostic& Err,
+                                     const std::string& name) {
+    createLLFile("./test/ll_files/" + name);
+    return loadLLFile(Context, Err, name);
+    // string modFile = "./test/ll_files/" + name + ".ll";
+    // std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
+    // if (!Mod) {
+    //   outs() << "Error: No mod\n";
+    //   assert(false);
+    // }
+
+    // return Mod;
   }
 
   bool runCmd(const std::string& cmd) {
@@ -971,7 +986,8 @@ namespace DHLS {
   TEST_CASE("Schedule 1D Halide App (Brighter)") {
     SMDiagnostic Err;
     LLVMContext Context;
-    std::unique_ptr<Module> Mod = loadModule(Context, Err, "brighter");
+    //std::unique_ptr<Module> Mod = loadModule(Context, Err, "brighter");
+    std::unique_ptr<Module> Mod = loadLLFile(Context, Err, "brighter");
 
     HardwareConstraints hcs;
     hcs.setLatency(STORE_OP, 3);

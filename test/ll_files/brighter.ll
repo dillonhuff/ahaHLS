@@ -1,4 +1,4 @@
-; ModuleID = 'brighter'
+; ModuleID = './test/ll_files/brighter.c'
 source_filename = "/Users/dillon/CppWorkspace/Halide/src/runtime/posix_allocator.cpp"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx"
@@ -14271,7 +14271,7 @@ after_bb6:                                        ; preds = %false_bb5, %"end fo
   br label %after_bb6
 
 destructor_block:                                 ; preds = %after_bb6
-  %9 = phi i32 [ 0, %after_bb6 ]
+  %9 = 0
   ret i32 %9
 }
 
