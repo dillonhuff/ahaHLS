@@ -726,16 +726,22 @@ namespace DHLS {
       int aNum = 0;
       for (auto a : cl) {
         bool isNeg = a.negated;
-        assert(Instruction::classof(a.cond));
-        Instruction* iValue = dyn_cast<Instruction>(a.cond);
-        StateId atomCompletionTime = map_find(iValue, stg.sched.instrTimes).back();
+        //assert(Instruction::classof(a.cond));
+        //Instruction* iValue = dyn_cast<Instruction>(a.cond);
+        //StateId atomCompletionTime = map_find(iValue, stg.sched.instrTimes).back();
         // TODO: Maybe this should use outputName?
-        string valueStr = "";
-        if (atomCompletionTime == currentState) {
-          valueStr += map_find(iValue, unitAssignment).onlyOutputVar();
-        } else {
-          valueStr += map_find(iValue, names).name;
-        }
+        map<string, int> memoryMap;
+        string valueStr = outputName(a.cond,
+                                     stg,
+                                     unitAssignment,
+                                     memoryMap);
+        
+        // string valueStr = "";
+        // if (atomCompletionTime == currentState) {
+        //   valueStr += map_find(iValue, unitAssignment).onlyOutputVar();
+        // } else {
+        //   valueStr += map_find(iValue, names).name;
+        // }
 
         if (isNeg) {
           condStr += "!";
@@ -743,11 +749,6 @@ namespace DHLS {
 
         condStr += "(";
         condStr += valueStr;
-        // if (atomCompletionTime == currentState) {
-        //   condStr += map_find(iValue, unitAssignment).onlyOutputVar();
-        // } else {
-        //   condStr += map_find(iValue, names).name;
-        // }
         condStr += ")";
 
         if (aNum < cl.size() - 1) {
