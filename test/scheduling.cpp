@@ -965,6 +965,9 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("stalled_single_store_axi"));
   }
 
+  // Random Thought: Test if an access pattern maps onto a cache type
+  // by checking whether the recurrence that describes the loop pattern
+  // is equivalent to the recurrence that describes the cache access pattern
   TEST_CASE("Schedule 1D Halide App (Brighter)") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -989,6 +992,23 @@ namespace DHLS {
 
     cout << "STG Is" << endl;
     graph.print(cout);
+
+    bool noDuplicates = true;
+    for (auto st : graph.opStates) {
+      std::set<Instruction*> alreadyDone;
+      for (auto instrG : st.second) {
+        auto instr = instrG.instruction;
+        if (elem(instr, alreadyDone)) {
+          cout << "Duplicate instruction " << instructionString(instr)
+               << " in state " << st.first << endl;
+          noDuplicates = false;
+        } else {
+          alreadyDone.insert(instr);
+        }
+      }
+    }
+
+    REQUIRE(noDuplicates);
 
     // 3 x 3
     map<string, int> layout = {{"a", 0}, {"b", 9}, {"c", 12}};
