@@ -431,7 +431,7 @@ namespace DHLS {
   }
 
   map<Instruction*, Wire> createInstrNames(const STG& stg) {
-    map<Instruction*, Wire> resultNames;    
+    map<Instruction*, Wire> resultNames;
 
     int resSuffix = 0;
     for (auto state : stg.opStates) {
