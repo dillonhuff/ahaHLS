@@ -407,9 +407,9 @@ namespace DHLS {
           } else {
             modName = "phi_2";
             wiring = {{"s0", {true, 32, "phi_s0_" + rStr}},
-                      //                      {"s1", {true, 32, "phi_s1_" + rStr}},
+                      {"s1", {true, 32, "phi_s0_" + rStr}},
                       {"in0", {true, 32, "phi_in0_" + rStr}},
-                      //                      {"in1", {true, 32, "phi_in1_" + rStr}},
+                      {"in1", {true, 32, "phi_in0_" + rStr}},
                       {"last_block", {true, 32, "phi_last_block_" + rStr}}};
             outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
           }
