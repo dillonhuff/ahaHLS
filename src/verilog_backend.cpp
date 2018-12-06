@@ -341,6 +341,8 @@ namespace DHLS {
             modName = "add";
           } else if (instr->getOpcode() == Instruction::Mul) {
             modName = "mul";
+          } else if (instr->getOpcode() == Instruction::Sub) {
+            modName = "sub";            
           } else {
             assert(false);
           }
@@ -368,6 +370,11 @@ namespace DHLS {
             wiring = {{"in0", {true, 32, "sgt_in0_" + rStr}}, {"in1", {true, 32, "sgt_in1_" + rStr}}};
             outWires = {{"out", {false, 1, "sgt_out_" + rStr}}};
             
+          } else if (pred == CmpInst::ICMP_NE) {
+            modName = "ne";
+            wiring = {{"in0", {true, 32, "ne_in0_" + rStr}}, {"in1", {true, 32, "ne_in1_" + rStr}}};
+            outWires = {{"out", {false, 1, "ne_out_" + rStr}}};
+
           } else {
             cout << "Error: Unsupported predicate in cmp: " << pred << endl;
             assert(false);
@@ -388,15 +395,24 @@ namespace DHLS {
           outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
         } else if (PHINode::classof(instr)) {
           PHINode* phi = dyn_cast<PHINode>(instr);
-          assert(phi->getNumIncomingValues() == 2);
+          if (phi->getNumIncomingValues() == 2) {
 
-          modName = "phi_2";
-          wiring = {{"s0", {true, 32, "phi_s0_" + rStr}},
-                    {"s1", {true, 32, "phi_s1_" + rStr}},
-                    {"in0", {true, 32, "phi_in0_" + rStr}},
-                    {"in1", {true, 32, "phi_in1_" + rStr}},
-                    {"last_block", {true, 32, "phi_last_block_" + rStr}}};
-          outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
+            modName = "phi_2";
+            wiring = {{"s0", {true, 32, "phi_s0_" + rStr}},
+                      {"s1", {true, 32, "phi_s1_" + rStr}},
+                      {"in0", {true, 32, "phi_in0_" + rStr}},
+                      {"in1", {true, 32, "phi_in1_" + rStr}},
+                      {"last_block", {true, 32, "phi_last_block_" + rStr}}};
+            outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
+          } else {
+            modName = "phi_2";
+            wiring = {{"s0", {true, 32, "phi_s0_" + rStr}},
+                      //                      {"s1", {true, 32, "phi_s1_" + rStr}},
+                      {"in0", {true, 32, "phi_in0_" + rStr}},
+                      //                      {"in1", {true, 32, "phi_in1_" + rStr}},
+                      {"last_block", {true, 32, "phi_last_block_" + rStr}}};
+            outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
+          }
 
         } else if (ZExtInst::classof(instr)) {
 
@@ -416,6 +432,11 @@ namespace DHLS {
         } else if (BitCastInst::classof(instr) ||
                    CallInst::classof(instr)) {
           // No action for these instruction types
+        } else if (SExtInst::classof(instr)) {
+            modName = "sext";
+            wiring = {{"in0", {true, 32, "sgt_in0_" + rStr}}};
+            outWires = {{"out", {false, 64, "sgt_out_" + rStr}}};
+          
         } else {
           cout << "Unsupported instruction = " << instructionString(instr) << endl;
           assert(false);
@@ -708,17 +729,25 @@ namespace DHLS {
         assert(Instruction::classof(a.cond));
         Instruction* iValue = dyn_cast<Instruction>(a.cond);
         StateId atomCompletionTime = map_find(iValue, stg.sched.instrTimes).back();
+        // TODO: Maybe this should use outputName?
+        string valueStr = "";
+        if (atomCompletionTime == currentState) {
+          valueStr += map_find(iValue, unitAssignment).onlyOutputVar();
+        } else {
+          valueStr += map_find(iValue, names).name;
+        }
 
         if (isNeg) {
           condStr += "!";
         }
 
         condStr += "(";
-        if (atomCompletionTime == currentState) {
-          condStr += map_find(iValue, unitAssignment).onlyOutputVar();
-        } else {
-          condStr += map_find(iValue, names).name;
-        }
+        condStr += valueStr;
+        // if (atomCompletionTime == currentState) {
+        //   condStr += map_find(iValue, unitAssignment).onlyOutputVar();
+        // } else {
+        //   condStr += map_find(iValue, names).name;
+        // }
         condStr += ")";
 
         if (aNum < cl.size() - 1) {

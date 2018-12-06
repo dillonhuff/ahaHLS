@@ -513,6 +513,20 @@ namespace DHLS {
 
   }
 
+  // Q: How to generate transition conditions?
+  // A: I think the way to do it is to track basic block activation conditions
+  //    and to do this by looking at formulas that decide what the last active
+  //    basic block was, or put another way, what the last edge in the CDFG
+  //    that we traversed was.
+  //    I still dont see how the Zhang STG construction algorithm avoids the
+  //    problem of re-executing instructions from the initial basic block
+  //    if instructions from it are scheduled in the same state as a basic
+  //    block inside a loop. Without any paths to it in the dominator tree it
+  //    either never executes or always executes depending on how an empty
+  //    path is interpreted.
+
+  // Q: Can I represent activation conditions for basic blocks without adding
+  //    in an extra variable to represent the last executed block?
   STG buildSTG(Schedule& sched,
                BasicBlock* entryBlock,
                std::set<BasicBlock*>& blockList) {
