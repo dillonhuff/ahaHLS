@@ -11,6 +11,7 @@ namespace DHLS {
 
   std::string typeString(llvm::Type* const tptr);
   std::string instructionString(llvm::Instruction* const iptr);
+  std::string valueString(llvm::Value* const iptr);
   
   enum OperationType {
     RETURN_OP,
@@ -27,6 +28,7 @@ namespace DHLS {
     ZEXT_OP,
     SELECT_OP,
     NO_OP,
+    SEXT_OP,
   };
 
   static inline std::vector<OperationType> allOps() {
@@ -44,7 +46,8 @@ namespace DHLS {
         BR_OP,
         ZEXT_OP,
         SELECT_OP,
-        NO_OP
+        NO_OP,
+        SEXT_OP
         };
 
   }
@@ -153,11 +156,16 @@ namespace DHLS {
 
   static inline std::ostream& operator<<(std::ostream& out, const Atom& c) {
     if (c.cond != nullptr) {
-      assert(llvm::Instruction::classof(c.cond));
+
       if (c.negated) {
         out << "!(";
       }
-      out << instructionString(static_cast<llvm::Instruction* const>(c.cond));
+
+      if (llvm::Instruction::classof(c.cond)) {
+        out << instructionString(static_cast<llvm::Instruction* const>(c.cond));
+      } else {
+        out << valueString(c.cond);
+      }
 
       if (c.negated) {
         out << ")";

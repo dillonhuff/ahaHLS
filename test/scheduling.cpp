@@ -964,6 +964,74 @@ namespace DHLS {
 
     REQUIRE(runIVerilogTB("stalled_single_store_axi"));
   }
+
+  TEST_CASE("Schedule 1D Halide App (Brighter)") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    std::unique_ptr<Module> Mod = loadModule(Context, Err, "brighter");
+
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(LOAD_OP, 1);
+    hcs.setLatency(CMP_OP, 0);
+    hcs.setLatency(BR_OP, 0);
+    hcs.setLatency(ADD_OP, 0);
+    hcs.setLatency(SUB_OP, 0);    
+    hcs.setLatency(MUL_OP, 0);
+    hcs.setLatency(SEXT_OP, 0);
+
+    Function* f = Mod->getFunction("brighter");
+    assert(f != nullptr);
+    
+    Schedule s = scheduleFunction(f, hcs);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    // 3 x 3
+    map<string, int> layout = {{"a", 0}, {"b", 9}, {"c", 12}};
+
+    auto arch = buildMicroArchitecture(f, graph, layout);
+
+    VerilogDebugInfo info;
+    noAddsTakeXInputs(arch, info);
+    noMulsTakeXInputs(arch, info);
+    noPhiOutputsXWhenUsed(arch, info);
+    noStoredValuesXWhenUsed(arch, info);
+
+    emitVerilog(f, arch, info);
+
+    map<string, vector<int> > memoryInit{{"a", {6, 1, 2, 3, 7, 5, 5, 2, 9}},
+        {"b", {9, 3, 7}}};
+    map<string, vector<int> > memoryExpected{{"c", {}}};
+
+    auto ma = map_find(string("a"), memoryInit);
+    auto mb = map_find(string("b"), memoryInit);
+    for (int i = 0; i < 3; i++) {
+      int val = 0;
+      for (int j = 0; j < 3; j++) {
+        val += ma[i*3 + j] * mb[j];
+      }
+      map_insert(memoryExpected, string("c"), val);
+    }
+
+    cout << "Expected values" << endl;
+    for (auto val : map_find(string("c"), memoryExpected)) {
+      cout << "\t" << val << endl;
+    }
+
+    TestBenchSpec tb;
+    tb.memoryInit = memoryInit;
+    tb.memoryExpected = memoryExpected;
+    tb.runCycles = 100;
+    tb.name = "brighter";
+    emitVerilogTestBench(tb, arch, layout);
+
+    REQUIRE(runIVerilogTB("brighter"));
+    
+  }
   
   // struct Hello : public FunctionPass {
   //   static char ID;

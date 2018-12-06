@@ -33,6 +33,8 @@ namespace DHLS {
         return ADD_OP;
       } else if (opCode == Instruction::Mul) {
         return MUL_OP;
+      } else if (opCode == Instruction::Sub) {
+        return SUB_OP;
       } else {
         assert(false);
       }
@@ -49,6 +51,8 @@ namespace DHLS {
       // NOTE: When call instructions other than default llvm lifetime calls
       // are supported they will need an the operator.
       return NO_OP;
+    } else if (SExtInst::classof(iptr)) {
+      return SEXT_OP;
     } else {
 
       cout << "Error: Unsupported instruction type " << instructionString(iptr) << std::endl;
@@ -66,6 +70,14 @@ namespace DHLS {
     return ss.str();
   }
 
+  std::string valueString(Value* const iptr) {
+    std::string str;
+    llvm::raw_string_ostream ss(str);
+    ss << *iptr;
+
+    return ss.str();
+  }
+  
   std::string typeString(Type* const tptr) {
     std::string str;
     llvm::raw_string_ostream ss(str);
@@ -115,6 +127,8 @@ namespace DHLS {
         latency = hdc.getLatency(ADD_OP);
       } else if (opCode == Instruction::Mul) {
         latency = hdc.getLatency(MUL_OP);
+      } else if (opCode == Instruction::Sub) {
+        latency = hdc.getLatency(SUB_OP);
       } else {
         assert(false);
       }
@@ -134,6 +148,8 @@ namespace DHLS {
       // NOTE: For now the only call instructions are calls to lifetime start
       // and end calls that have no meaning in hardware
       latency = 0;
+    } else if (SExtInst::classof(iptr)) {
+      latency = hdc.getLatency(SEXT_OP);
     } else {
 
       cout << "Error: Unsupported instruction type " << instructionString(iptr) << std::endl;
