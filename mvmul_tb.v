@@ -6,6 +6,10 @@ module RAM_1_3_32_32(input [0:0] clk, input [0:0] rst, output [31:0] rdata0, inp
 	end
 
 
+	always @(posedge clk) begin
+		if (wen_del) begin data[waddr_del] <= wdata_del; end if (debug_write_en) begin data[debug_write_addr] <= debug_write_data; end rdata0_reg <= data[raddr0]; rdata1_reg <= data[raddr1]; rdata2_reg <= data[raddr2];
+	end
+
 
 
 	// End debug wires and ports
