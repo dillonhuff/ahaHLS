@@ -3,13 +3,21 @@ module RAM_1_3_32_32(input [0:0] clk, input [0:0] rst, output [31:0] rdata0, inp
 	// Start debug wires and ports
 	reg [31:0] rdata0_reg;
 	reg [31:0] rdata1_reg;
+	wire [4:0] waddr_del;
+	wire [31:0] wdata_del;
+	wire [0:0] wen_del;
 
 	initial begin
 	end
 
+	reg [31 : 0] data[31: 0];
+
+	assign debug_data = data[debug_addr];
+	assign rdata0 = rdata0_reg;
+	assign rdata1 = rdata1_reg;
 
 	always @(posedge clk) begin
-		if (wen_del) begin data[waddr_del] <= wdata_del; end if (debug_write_en) begin data[debug_write_addr] <= debug_write_data; end rdata0_reg <= data[raddr0]; rdata1_reg <= data[raddr1]; rdata2_reg <= data[raddr2];
+		if (wen_del) begin data[waddr_del] <= wdata_del; end if (debug_write_en) begin data[debug_write_addr] <= debug_write_data; end rdata0_reg <= data[raddr0];rdata1_reg <= data[raddr1];
 	end
 
 
@@ -81,7 +89,7 @@ module mvmul_tb();
 	end
 
 	always @(posedge clk) begin
-		if (clocks_in_run_phase == (99)) begin in_check_mem_phase <= 1; in_run_phase <= 0; end
+		if (clocks_in_run_phase == (99)) begin in_check_mem_phase <= 1; in_run_phase <= 0; end 
 	end
 
 	always @(posedge clk) begin

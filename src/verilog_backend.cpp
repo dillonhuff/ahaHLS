@@ -1557,6 +1557,11 @@ namespace DHLS {
     out << tab(1) << "end" << endl;
 
     out << endl;
+
+    for (auto mem : debugInfo.memories) {
+      print(out, 1, mem);
+      out << endl;
+    }
     
     for (auto asg : debugInfo.debugAssigns) {
       out << tab(1) << "assign " << asg.first << " = " << asg.second << ";" << endl;
@@ -2012,7 +2017,13 @@ namespace DHLS {
 
     VerilogComponents ramComps;
 
-    addAlwaysBlock({"clk"}, "if (wen_del) begin data[waddr_del] <= wdata_del; end if (debug_write_en) begin data[debug_write_addr] <= debug_write_data; end rdata0_reg <= data[raddr0]; rdata1_reg <= data[raddr1]; rdata2_reg <= data[raddr2];", ramComps);
+    string memUpdate = "if (wen_del) begin data[waddr_del] <= wdata_del; end if (debug_write_en) begin data[debug_write_addr] <= debug_write_data; end ";
+    for (int i = 0; i < arch.numReadPorts(); i++) {
+      string iStr = to_string(i);
+      memUpdate += "rdata" + iStr + "_reg <= data[raddr" + iStr + "];";
+    }
+
+    addAlwaysBlock({"clk"}, memUpdate, ramComps);
 
     string ramName = "RAM_" + to_string(readDelay) + "_" + to_string(writeDelay) + "_" + to_string(depth) + "_" + to_string(width);
 
@@ -2020,6 +2031,8 @@ namespace DHLS {
     ports.push_back(inputPort(1, "clk"));
     ports.push_back(inputPort(1, "rst"));
 
+    ramComps.memories.push_back({width, "data", depth});
+    ramComps.debugAssigns.push_back({"debug_data", "data[debug_addr]"});
     
     for (int i = 0; i < arch.numReadPorts(); i++) {
       auto iStr = to_string(i);
@@ -2027,7 +2040,9 @@ namespace DHLS {
       
       ports.push_back(outputPort(width, "rdata" + iStr));
       ports.push_back(inputPort(addrWidth, "raddr" + iStr));
-      ports.push_back(inputPort(1, "ren" + iStr));            
+      ports.push_back(inputPort(1, "ren" + iStr));
+
+      ramComps.debugAssigns.push_back({"rdata" + iStr, "rdata" + iStr + "_reg"});
     }
 
     ports.push_back(inputPort(width, "wdata"));
@@ -2041,6 +2056,10 @@ namespace DHLS {
     ports.push_back(inputPort(width, "debug_write_data"));
     ports.push_back(inputPort(1, "debug_write_en"));        
 
+    ramComps.debugWires.push_back({false, addrWidth, "waddr_del"});
+    ramComps.debugWires.push_back({false, width, "wdata_del"});    
+    ramComps.debugWires.push_back({false, 1, "wen_del"});
+    
     emitModule(out, ramName, ports, ramComps);
 
     map<string, string> ramConnections{{"clk", "clk"}, {"rst", "rst"}, {"wen", "wen_0"}, {"waddr", "waddr_0"}, {"wdata", "wdata_0"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}, {"debug_write_addr", "dbg_wr_addr"}, {"debug_write_data", "dbg_wr_data"}, {"debug_write_en", "dbg_wr_en"}};
@@ -2061,7 +2080,7 @@ namespace DHLS {
       dut.portConnections.insert({"raddr_" + iStr, "raddr_" + to_string(i)});    
       dut.portConnections.insert({"rdata_" + iStr, "rdata_" + to_string(i)});
     }
-    
+
     comps.instances.push_back(dut);
 
 
@@ -2069,7 +2088,7 @@ namespace DHLS {
 
     addAlwaysBlock({"clk"}, "if (in_check_mem_phase) begin if (!valid) begin $display(\"Failed: Checking memory, but the module is not done running\"); $finish(); end end", comps);
 
-    addAlwaysBlock({"clk"}, "if (clocks_in_run_phase == (" + to_string(cyclesInRun - 1) + ")) begin in_check_mem_phase <= 1; in_run_phase <= 0; end", comps);
+    addAlwaysBlock({"clk"}, "if (clocks_in_run_phase == (" + to_string(cyclesInRun - 1) + ")) begin in_check_mem_phase <= 1; in_run_phase <= 0; end ", comps);
 
     addAlwaysBlock({"clk"}, "if (in_run_phase) begin clocks_in_run_phase <= clocks_in_run_phase + 1; end", comps);
 

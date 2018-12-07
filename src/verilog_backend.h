@@ -7,6 +7,13 @@
 
 namespace DHLS {
 
+  class Memory {
+  public:
+    int width;
+    std::string name;
+    int depth;
+  };
+
   class Port {
   public:
     bool isInput;
@@ -45,6 +52,12 @@ namespace DHLS {
     std::string body;
   };
 
+  static inline
+  void print(std::ostream& out, int level, const Memory& b) {
+    out << tab(level) << "reg [" + std::to_string(b.width - 1) << " : 0] "
+        << b.name << "[" << std::to_string(b.depth - 1) << ": 0];" << std::endl;
+  }
+  
   static inline
   void print(std::ostream& out, int level, const AlwaysBlock& b) {
     assert(b.triggers.size() == 1);
@@ -245,10 +258,11 @@ namespace DHLS {
   void emitVerilogTestBench(const TestBenchSpec& tb,
                             MicroArchitecture& arch,
                             const std::map<std::string, int>& layout);
-  
+
   class VerilogComponents {
   public:
     std::vector<Wire> wiresToWatch;
+    std::vector<Memory> memories;
     std::vector<Wire> debugWires;
     std::vector<std::pair<std::string, std::string> > debugAssigns;
     std::vector<AlwaysBlock> blocks;
