@@ -22,11 +22,11 @@ module RAM_1_3_32_32(input [0:0] clk, input [0:0] rst, output [31:0] rdata0, inp
 
 
 
-	delay #(.WIDTH(1)) wen_delay(.clk(clk), .out(wen_del));
+	delay #(.WIDTH(1)) wen_delay(.clk(clk), .in(wen), .out(wen_del));
 
-	delay #(.WIDTH(32)) wdata_delay(.clk(clk), .out(wdata_del));
+	delay #(.WIDTH(32)) wdata_delay(.clk(clk), .in(wdata), .out(wdata_del));
 
-	delay #(.WIDTH(5)) waddr_delay(.clk(clk), .out(waddr_del));
+	delay #(.WIDTH(5)) waddr_delay(.clk(clk), .in(waddr), .out(waddr_del));
 
 	// End debug wires and ports
 endmodule
