@@ -1059,7 +1059,7 @@ namespace DHLS {
     TestBenchSpec tb;
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
-    tb.runCycles = 300;
+    tb.runCycles = 100;
     tb.name = "brighter";
     emitVerilogTestBench(tb, arch, layout);
 
