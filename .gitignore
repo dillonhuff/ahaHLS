@@ -44,3 +44,6 @@ stalled_single_store
 stalled_single_store.v
 stalled_single_store_axi
 stalled_single_store_axi.v
+brighter
+brighter.v
+brighter_tb.v
