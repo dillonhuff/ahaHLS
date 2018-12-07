@@ -2059,6 +2059,19 @@ namespace DHLS {
     ramComps.debugWires.push_back({false, addrWidth, "waddr_del"});
     ramComps.debugWires.push_back({false, width, "wdata_del"});    
     ramComps.debugWires.push_back({false, 1, "wen_del"});
+
+
+    map<string, string> wenConns{{"clk", "clk"}, {"in", "wen"}, {"out", "wen_del"}};
+    map<string, string> wenParams{{"WIDTH", "1"}};
+    ramComps.instances.push_back({"delay", wenParams, "wen_delay", wenConns});
+
+    map<string, string> wdataConns{{"clk", "clk"}, {"in", "wdata"}, {"out", "wdata_del"}};
+    map<string, string> wdataParams{{"WIDTH", "32"}};
+    ramComps.instances.push_back({"delay", wdataParams, "wdata_delay", wdataConns});
+
+    map<string, string> waddrConns{{"clk", "clk"}, {"in", "waddr"}, {"out", "waddr_del"}};
+    map<string, string> waddrParams{{"WIDTH", "5"}};
+    ramComps.instances.push_back({"delay", waddrParams, "waddr_delay", waddrConns});
     
     emitModule(out, ramName, ports, ramComps);
 
@@ -2071,7 +2084,7 @@ namespace DHLS {
     }
     
     comps.instances.push_back({ramName, "ram", ramConnections});
-
+    
     // TODO: Move this to be generic code passed in to this function
     ModuleInstance dut{tb.name, "dut", {{"clk", "clk"}, {"rst", "rst"}, {"valid", "valid"}, {"waddr_0", "waddr_0"}, {"wdata_0", "wdata_0"}, {"wen_0", "wen_0"}}};
 

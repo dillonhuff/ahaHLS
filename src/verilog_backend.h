@@ -82,13 +82,20 @@ namespace DHLS {
   class ModuleInstance {
   public:
     std::string modName;
+    std::map<std::string, std::string> params;
     std::string instName;
     std::map<std::string, std::string> portConnections;
 
     ModuleInstance(const std::string modName_,
                    const std::string instName_,
                    const std::map<std::string, std::string> portConnections_) :
-      modName(modName_), instName(instName_), portConnections(portConnections_) {}
+      modName(modName_), params({}), instName(instName_), portConnections(portConnections_) {}
+
+    ModuleInstance(const std::string modName_,
+                   const std::map<std::string, std::string> params_,
+                   const std::string instName_,
+                   const std::map<std::string, std::string> portConnections_) :
+      modName(modName_), params(params_), instName(instName_), portConnections(portConnections_) {}
     
   };
 
@@ -100,7 +107,12 @@ namespace DHLS {
       portStrings.push_back("." + pt.first + "(" + pt.second + ")");
     }
 
-    out << tab(level) << b.modName << " " << b.instName << "(";
+    std::vector<std::string> paramStrs;
+    for (auto pt : b.params) {
+      paramStrs.push_back("." + pt.first + "(" + pt.second + ")");
+    }
+    
+    out << tab(level) << b.modName << " #(" << commaListString(paramStrs) << ") " << b.instName << "(";
     out << commaListString(portStrings);
     out << ");" << std::endl;
   }

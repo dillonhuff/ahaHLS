@@ -22,6 +22,12 @@ module RAM_1_3_32_32(input [0:0] clk, input [0:0] rst, output [31:0] rdata0, inp
 
 
 
+	delay #(.WIDTH(1)) wen_delay(.clk(clk), .out(wen_del));
+
+	delay #(.WIDTH(32)) wdata_delay(.clk(clk), .out(wdata_del));
+
+	delay #(.WIDTH(5)) waddr_delay(.clk(clk), .out(waddr_del));
+
 	// End debug wires and ports
 endmodule
 module mvmul_tb();
@@ -190,9 +196,9 @@ module mvmul_tb();
 	end
 
 
-	RAM_1_3_32_32 ram(.clk(clk), .debug_addr(dbg_addr), .debug_data(dbg_data), .debug_write_addr(dbg_wr_addr), .debug_write_data(dbg_wr_data), .debug_write_en(dbg_wr_en), .raddr0(raddr_0), .raddr1(raddr_1), .rdata0(rdata_0), .rdata1(rdata_1), .rst(rst), .waddr(waddr_0), .wdata(wdata_0), .wen(wen_0));
+	RAM_1_3_32_32 #() ram(.clk(clk), .debug_addr(dbg_addr), .debug_data(dbg_data), .debug_write_addr(dbg_wr_addr), .debug_write_data(dbg_wr_data), .debug_write_en(dbg_wr_en), .raddr0(raddr_0), .raddr1(raddr_1), .rdata0(rdata_0), .rdata1(rdata_1), .rst(rst), .waddr(waddr_0), .wdata(wdata_0), .wen(wen_0));
 
-	mvmul dut(.clk(clk), .raddr_0(raddr_0), .raddr_1(raddr_1), .rdata_0(rdata_0), .rdata_1(rdata_1), .rst(rst), .valid(valid), .waddr_0(waddr_0), .wdata_0(wdata_0), .wen_0(wen_0));
+	mvmul #() dut(.clk(clk), .raddr_0(raddr_0), .raddr_1(raddr_1), .rdata_0(rdata_0), .rdata_1(rdata_1), .rst(rst), .valid(valid), .waddr_0(waddr_0), .wdata_0(wdata_0), .wen_0(wen_0));
 
 	// End debug wires and ports
 endmodule

@@ -1038,10 +1038,10 @@ namespace DHLS {
     noLoadedValuesXWhenUsed(arch, info);
     noLoadAddressesXWhenUsed(arch, info);    
     noStoredValuesXWhenUsed(arch, info);
-    addGlobalStateWirePrintout("raddr_0_reg", info);
-    addGlobalStateWirePrintout("rdata_0", info);
-    addGlobalStateWirePrintout("raddr_1_reg", info);
-    addGlobalStateWirePrintout("rdata_1", info);
+    // addGlobalStateWirePrintout("raddr_0_reg", info);
+    // addGlobalStateWirePrintout("rdata_0", info);
+    // addGlobalStateWirePrintout("raddr_1_reg", info);
+    // addGlobalStateWirePrintout("rdata_1", info);
 
     emitVerilog(f, arch, info);
 
@@ -1065,7 +1065,7 @@ namespace DHLS {
     TestBenchSpec tb;
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
-    tb.runCycles = 100;
+    tb.runCycles = 60;
     tb.name = "brighter";
     emitVerilogTestBench(tb, arch, layout);
 
