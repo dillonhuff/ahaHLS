@@ -1,4 +1,4 @@
-; ModuleID = './test/ll_files/brighter.c'
+; ModuleID = 'brighter'
 source_filename = "/Users/dillon/CppWorkspace/Halide/src/runtime/posix_allocator.cpp"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx"
@@ -14243,34 +14243,70 @@ define linkonce void @_ZN6Halide7Runtime8Internal25halide_release_jit_moduleEv()
   ret void
 }
 
-define i32 @brighter(i8* noalias %input, i8 %offset, i8* noalias %brighter) {
+define i32 @brighter(i8* noalias %input, i8* noalias %input1, i8* noalias %brighter) {
 entry:
+  br i1 false, label %true_bb, label %false_bb
+
+true_bb:                                          ; preds = %entry
+  br label %after_bb
+
+false_bb:                                         ; preds = %entry
+  br label %after_bb
+
+after_bb:                                         ; preds = %false_bb, %true_bb
+  br i1 false, label %true_bb1, label %false_bb2
+
+true_bb1:                                         ; preds = %after_bb
+  br label %after_bb3
+
+false_bb2:                                        ; preds = %after_bb
+  br label %after_bb3
+
+after_bb3:                                        ; preds = %false_bb2, %true_bb1
+  br i1 false, label %true_bb4, label %false_bb5
+
+true_bb4:                                         ; preds = %after_bb3
+  br label %after_bb6
+
+false_bb5:                                        ; preds = %after_bb3
+  br label %after_bb6
+
+after_bb6:                                        ; preds = %false_bb5, %true_bb4
+  br i1 true, label %true_bb7, label %false_bb8
+
+true_bb7:                                         ; preds = %after_bb6
   br label %"produce brighter"
 
-after_bb6:                                        ; preds = %false_bb5, %"end for brighter.s0.x"
+false_bb8:                                        ; preds = %after_bb6
+  br label %after_bb9
+
+after_bb9:                                        ; preds = %false_bb8, %"end for brighter.s0.x"
   br label %destructor_block
 
-"produce brighter":                               ; preds = %true_bb4
+"produce brighter":                               ; preds = %true_bb7
   br i1 true, label %"for brighter.s0.x", label %"end for brighter.s0.x", !prof !231
 
 "for brighter.s0.x":                              ; preds = %"for brighter.s0.x", %"produce brighter"
-  %brighter.s0.x = phi i32 [ 0, %"produce brighter" ], [ %7, %"for brighter.s0.x" ]
+  %brighter.s0.x = phi i32 [ 0, %"produce brighter" ], [ %10, %"for brighter.s0.x" ]
   %0 = sext i32 %brighter.s0.x to i64
   %1 = getelementptr inbounds i8, i8* %input, i64 %0
   %2 = load i8, i8* %1, align 1, !tbaa !232
-  %3 = add i8 %offset, %2
-  %4 = sext i32 %brighter.s0.x to i64
-  %5 = sub nsw i64 %4, 0
-  %6 = getelementptr inbounds i8, i8* %brighter, i64 %5
-  store i8 %3, i8* %6, align 1, !tbaa !235
-  %7 = add nsw i32 %brighter.s0.x, 1
-  %8 = icmp ne i32 %7, 10
-  br i1 %8, label %"for brighter.s0.x", label %"end for brighter.s0.x"
+  %3 = sext i32 %brighter.s0.x to i64
+  %4 = getelementptr inbounds i8, i8* %input1, i64 %3
+  %5 = load i8, i8* %4, align 1, !tbaa !235
+  %6 = add i8 %2, %5
+  %7 = sext i32 %brighter.s0.x to i64
+  %8 = sub nsw i64 %7, 0
+  %9 = getelementptr inbounds i8, i8* %brighter, i64 %8
+  store i8 %6, i8* %9, align 1, !tbaa !237
+  %10 = add nsw i32 %brighter.s0.x, 1
+  %11 = icmp ne i32 %10, 10
+  br i1 %11, label %"for brighter.s0.x", label %"end for brighter.s0.x"
 
 "end for brighter.s0.x":                          ; preds = %"for brighter.s0.x", %"produce brighter"
-  br label %after_bb6
+  br label %after_bb9
 
-destructor_block:                                 ; preds = %after_bb6
+destructor_block:                                 ; preds = %after_bb9
   ret i32 0
 }
 
@@ -14530,4 +14566,6 @@ attributes #15 = { nobuiltin }
 !233 = !{!"input", !234, i64 0}
 !234 = !{!"Halide buffer"}
 !235 = !{!236, !236, i64 0}
-!236 = !{!"brighter", !234, i64 0}
+!236 = !{!"input1", !234, i64 0}
+!237 = !{!238, !238, i64 0}
+!238 = !{!"brighter", !234, i64 0}

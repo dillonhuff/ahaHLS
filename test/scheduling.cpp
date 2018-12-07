@@ -1027,7 +1027,7 @@ namespace DHLS {
     REQUIRE(noDuplicates);
 
     // 3 x 3
-    map<string, int> layout = {{"input", 0}, {"offset", 10}, {"brighter", 11}};
+    map<string, int> layout = {{"input", 0}, {"input1", 10}, {"brighter", 11}};
 
     auto arch = buildMicroArchitecture(f, graph, layout);
 
@@ -1040,13 +1040,13 @@ namespace DHLS {
     emitVerilog(f, arch, info);
 
     map<string, vector<int> > memoryInit{{"input", {6, 1, 2, 3, 7, 5, 5, 2, 9, 3}},
-        {"offset", {129}}};
+        {"input1", {129, 34, 13, 5, 5, 9, 51, 49, 46, 95}}};
     map<string, vector<int> > memoryExpected{{"brighter", {}}};
 
     auto input = map_find(string("input"), memoryInit);
-    auto offset = map_find(string("offset"), memoryInit);
+    auto input0 = map_find(string("input1"), memoryInit);
     for (int i = 0; i < 10; i++) {
-      int res = input[i] + offset[0];
+      int res = input[i] + input0[i];
       map_insert(memoryExpected, string("brighter"), res);
     }
 
