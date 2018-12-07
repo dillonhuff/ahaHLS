@@ -1946,10 +1946,6 @@ namespace DHLS {
     string modName = tb.name + "_tb";
     ofstream out(modName + ".v");
 
-    vector<string> portStrings;    
-    out << "module " << modName << "(" + commaListString(portStrings) + ");" << endl;
-    out << endl;
-
     VerilogComponents comps;
     comps.debugWires.push_back({true, 1, "rst"});
     comps.debugWires.push_back({true, 1, "clk"});
@@ -2007,6 +2003,11 @@ namespace DHLS {
     comps.initStmts.push_back("#1 clocks_in_run_phase = 0;");        
     comps.initStmts.push_back("#1 clocks_in_check_mem_phase = 0;");
 
+    // TODO: Do not hardcode these values, read them from hardware constraints
+    // int readDelay = 1;
+    // int writeDelay = 3;
+    
+    
     // TODO: Replace with auto-generated RAM
     comps.instances.push_back({"RAM3", "ram", {{"clk", "clk"}, {"rst", "rst"}, {"raddr0", "raddr_0"}, {"rdata0", "rdata_0"}, {"raddr1", "raddr_1"}, {"rdata1", "rdata_1"}, {"raddr2", "raddr_2"}, {"rdata2", "rdata_2"}, {"wen", "wen_0"}, {"waddr", "waddr_0"}, {"wdata", "wdata_0"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}, {"debug_write_addr", "dbg_wr_addr"}, {"debug_write_data", "dbg_wr_data"}, {"debug_write_en", "dbg_wr_en"}}});
 
@@ -2079,9 +2080,12 @@ namespace DHLS {
       addAlwaysBlock({"clk"}, str, comps);
       
     }
+    
+    vector<string> portStrings;    
+    out << "module " << modName << "(" + commaListString(portStrings) + ");" << endl;
+    out << endl;
 
-    
-    
+
     emitComponents(out, comps);
 
     out << "endmodule" << endl;
@@ -2258,6 +2262,9 @@ namespace DHLS {
                   const std::string& name,
                   std::vector<Port> ports,
                   VerilogComponents& comps) {
+    out << "module " << name << "();" << endl;
+    emitComponents(out, comps);
+    out << "endmodule" << endl;
   }
   
 }

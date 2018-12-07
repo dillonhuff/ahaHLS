@@ -127,6 +127,10 @@ module mvmul_tb();
 	end
 
 	always @(posedge clk) begin
+		if (!in_set_mem_phase) begin dbg_wr_en <= 0; end
+	end
+
+	always @(posedge clk) begin
 		if (in_check_mem_phase && clocks_in_check_mem_phase == 0) begin dbg_addr <= 12; end
 	end
 

@@ -43,20 +43,20 @@ module RAM3(input clk,
       // $display("--- wdata_del  = %d", wdata_del);
       
       if (wen_del) begin
-         $display("Writing data %d to %d", wdata_del, waddr_del);
+         // $display("Writing data %d to %d", wdata_del, waddr_del);
          
          data[waddr_del] <= wdata_del;
       end
 
       if (debug_write_en) begin
-         $display("writing %d to %d", debug_write_data, debug_write_addr);
+         // $display("writing %d to %d", debug_write_data, debug_write_addr);
          data[debug_write_addr] <= debug_write_data;
       end
 
 
-      $display("reading %d at %d on port 0", data[raddr0], raddr0);
-      $display("reading %d at %d on port 1", data[raddr1], raddr1);      
-      $display("reading %d at %d on port 2", data[raddr2], raddr2);            
+      // $display("reading %d at %d on port 0", data[raddr0], raddr0);
+      // $display("reading %d at %d on port 1", data[raddr1], raddr1);      
+      // $display("reading %d at %d on port 2", data[raddr2], raddr2);            
 
       rdata0_reg <= data[raddr0];
       rdata1_reg <= data[raddr1];
