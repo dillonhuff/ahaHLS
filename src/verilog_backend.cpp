@@ -2004,15 +2004,52 @@ namespace DHLS {
     comps.initStmts.push_back("#1 clocks_in_check_mem_phase = 0;");
 
     // TODO: Do not hardcode these values, read them from hardware constraints
-    // int readDelay = 1;
-    // int writeDelay = 3;
+    int readDelay = 1;
+    int writeDelay = 3;
+    int depth = 32;
+    int width = 32;
+    int addrWidth = 5;
+
+    VerilogComponents ramComps;
+
+
+    string ramName = "RAM_" + to_string(readDelay) + "_" + to_string(writeDelay) + "_" + to_string(depth) + "_" + to_string(width);
+
+
+    vector<Port> ports;
+    ports.push_back(inputPort(1, "clk"));
+    ports.push_back(inputPort(1, "rst"));
+    for (int i = 0; i < arch.numReadPorts(); i++) {
+      auto iStr = to_string(i);
+      ports.push_back(outputPort(width, "rdata" + iStr));
+      ports.push_back(inputPort(addrWidth, "raddr" + iStr));
+      ports.push_back(inputPort(1, "ren" + iStr));            
+    }
+
+    ports.push_back(inputPort(width, "wdata"));
+    ports.push_back(inputPort(addrWidth, "waddr"));
+    ports.push_back(inputPort(1, "wen"));    
+
+    ports.push_back(inputPort(addrWidth, "debug_addr"));
+    ports.push_back(outputPort(width, "debug_data"));
+
+    ports.push_back(inputPort(addrWidth, "debug_write_addr"));    
+    ports.push_back(inputPort(width, "debug_write_data"));
+    ports.push_back(inputPort(1, "debug_write_en"));        
+
+    emitModule(out, ramName, ports, ramComps);
+
+    map<string, string> ramConnections{{"clk", "clk"}, {"rst", "rst"}, {"wen", "wen_0"}, {"waddr", "waddr_0"}, {"wdata", "wdata_0"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}, {"debug_write_addr", "dbg_wr_addr"}, {"debug_write_data", "dbg_wr_data"}, {"debug_write_en", "dbg_wr_en"}};
+
+    for (int i = 0; i < arch.numReadPorts(); i++) {
+      auto iStr = to_string(i);
+      ramConnections.insert({"raddr" + iStr, "raddr_" + to_string(i)});
+      ramConnections.insert({"rdata" + iStr, "rdata_" + to_string(i)});
+    }
     
-    
-    // TODO: Replace with auto-generated RAM
-    comps.instances.push_back({"RAM3", "ram", {{"clk", "clk"}, {"rst", "rst"}, {"raddr0", "raddr_0"}, {"rdata0", "rdata_0"}, {"raddr1", "raddr_1"}, {"rdata1", "rdata_1"}, {"raddr2", "raddr_2"}, {"rdata2", "rdata_2"}, {"wen", "wen_0"}, {"waddr", "waddr_0"}, {"wdata", "wdata_0"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}, {"debug_write_addr", "dbg_wr_addr"}, {"debug_write_data", "dbg_wr_data"}, {"debug_write_en", "dbg_wr_en"}}});
+    comps.instances.push_back({ramName, "ram", ramConnections});
 
     // TODO: Move this to be generic code passed in to this function
-
     ModuleInstance dut{tb.name, "dut", {{"clk", "clk"}, {"rst", "rst"}, {"valid", "valid"}, {"waddr_0", "waddr_0"}, {"wdata_0", "wdata_0"}, {"wen_0", "wen_0"}}};
 
     for (int i = 0; i < arch.numReadPorts(); i++) {
@@ -2260,9 +2297,13 @@ namespace DHLS {
 
   void emitModule(std::ostream& out,
                   const std::string& name,
-                  std::vector<Port> ports,
+                  std::vector<Port>& ports,
                   VerilogComponents& comps) {
-    out << "module " << name << "();" << endl;
+    vector<string> portStrings;
+    for (auto pt : ports) {
+      portStrings.push_back(pt.toString());
+    }
+    out << "module " << name << "(" << commaListString(portStrings) << ");" << endl;
     emitComponents(out, comps);
     out << "endmodule" << endl;
   }

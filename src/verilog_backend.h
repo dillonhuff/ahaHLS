@@ -259,8 +259,9 @@ namespace DHLS {
 
   typedef VerilogComponents VerilogDebugInfo;
 
-  void emitModule(const std::string& name,
-                  std::vector<Port> ports,
+  void emitModule(std::ostream& out,
+                  const std::string& name,
+                  std::vector<Port>& ports,
                   VerilogComponents& comps);
   
   static inline void
@@ -341,7 +342,5 @@ namespace DHLS {
   
   void noStoredValuesXWhenUsed(const MicroArchitecture& arch,
                                VerilogDebugInfo& debugInfo);
-
-  
   
 }
