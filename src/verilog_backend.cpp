@@ -25,18 +25,6 @@ namespace DHLS {
     return out;
   }
 
-  class Port {
-  public:
-    bool isInput;
-    int width;
-    std::string name;
-    bool isDebug;
-
-    std::string toString() {
-      return string(isInput ? "input" : "output") + " [" + to_string(width - 1) + ":0] " + name;
-    }
-  };
-
   std::string declareReg(const std::string name, const int width) {
     return "reg [" + to_string(width - 1) + ":0] " + name;
   }
@@ -2264,6 +2252,12 @@ namespace DHLS {
         }
       }
     }
+  }
+
+  void emitModule(std::ostream& out,
+                  const std::string& name,
+                  std::vector<Port> ports,
+                  VerilogComponents& comps) {
   }
   
 }

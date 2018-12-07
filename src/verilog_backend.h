@@ -7,6 +7,18 @@
 
 namespace DHLS {
 
+  class Port {
+  public:
+    bool isInput;
+    int width;
+    std::string name;
+    bool isDebug;
+
+    std::string toString() {
+      return std::string(isInput ? "input" : "output") + " [" + std::to_string(width - 1) + ":0] " + name;
+    }
+  };
+
   class Wire {
   public:
     bool registered;
@@ -247,6 +259,10 @@ namespace DHLS {
 
   typedef VerilogComponents VerilogDebugInfo;
 
+  void emitModule(const std::string& name,
+                  std::vector<Port> ports,
+                  VerilogComponents& comps);
+  
   static inline void
   addAlwaysBlock(const std::vector<std::string>& triggers,
                  const std::string& body,
@@ -325,5 +341,7 @@ namespace DHLS {
   
   void noStoredValuesXWhenUsed(const MicroArchitecture& arch,
                                VerilogDebugInfo& debugInfo);
+
+  
   
 }
