@@ -319,6 +319,9 @@ namespace DHLS {
 
   void noLoadedValuesXWhenUsed(const MicroArchitecture& arch,
                                VerilogDebugInfo& debugInfo);
+
+  void noLoadAddressesXWhenUsed(const MicroArchitecture& arch,
+                                VerilogDebugInfo& debugInfo);
   
   void noStoredValuesXWhenUsed(const MicroArchitecture& arch,
                                VerilogDebugInfo& debugInfo);

@@ -2059,6 +2059,8 @@ namespace DHLS {
     int cyclesInSetMem = setNum;
     addAlwaysBlock({"clk"}, "if (clocks_in_set_mem_phase == (" + to_string(cyclesInSetMem - 1) + ")) begin in_run_phase <= 1; rst <= 0; dbg_wr_en <= 0; in_set_mem_phase <= 0; end", comps);
 
+    addAlwaysBlock({"clk"}, "if (!in_set_mem_phase) begin dbg_wr_en <= 0; end", comps);
+    
     int checkNum = 0;
     int lastNum = -1;
     
@@ -2130,6 +2132,25 @@ namespace DHLS {
           StateId activeState = st.first;
 
           string wireName = map_find(string("rdata"), unit.outWires).name;
+          addAssert("global_state !== " + to_string(activeState) + " || " +
+                    wireName + " !== 'dx",
+                    debugInfo);
+        }
+      }
+    }
+
+  }
+
+  void noLoadAddressesXWhenUsed(const MicroArchitecture& arch,
+                                VerilogDebugInfo& debugInfo) {
+    for (auto st : arch.stg.opStates) {
+      for (auto instrG : arch.stg.instructionsStartingAt(st.first)) {
+        auto instr = instrG.instruction;
+        if (LoadInst::classof(instr)) {
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+          StateId activeState = st.first;
+
+          string wireName = map_find(string("raddr"), unit.portWires).name;
           addAssert("global_state !== " + to_string(activeState) + " || " +
                     wireName + " !== 'dx",
                     debugInfo);

@@ -1036,7 +1036,12 @@ namespace DHLS {
     noMulsTakeXInputs(arch, info);
     noPhiOutputsXWhenUsed(arch, info);
     noLoadedValuesXWhenUsed(arch, info);
+    noLoadAddressesXWhenUsed(arch, info);    
     noStoredValuesXWhenUsed(arch, info);
+    addGlobalStateWirePrintout("raddr_0_reg", info);
+    addGlobalStateWirePrintout("rdata_0", info);
+    addGlobalStateWirePrintout("raddr_1_reg", info);
+    addGlobalStateWirePrintout("rdata_1", info);
 
     emitVerilog(f, arch, info);
 
