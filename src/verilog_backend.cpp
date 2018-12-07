@@ -434,7 +434,7 @@ namespace DHLS {
           // No action for these instruction types
         } else if (SExtInst::classof(instr)) {
             modName = "sext";
-            wiring = {{"in0", {true, 32, "sgt_in0_" + rStr}}};
+            wiring = {{"in", {true, 32, "sgt_in0_" + rStr}}};
             outWires = {{"out", {false, 64, "sgt_out_" + rStr}}};
           
         } else {
