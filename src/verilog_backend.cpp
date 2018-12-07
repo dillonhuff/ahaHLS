@@ -2011,16 +2011,20 @@ namespace DHLS {
     int addrWidth = 5;
 
     VerilogComponents ramComps;
+
     addAlwaysBlock({"clk"}, "if (wen_del) begin data[waddr_del] <= wdata_del; end if (debug_write_en) begin data[debug_write_addr] <= debug_write_data; end rdata0_reg <= data[raddr0]; rdata1_reg <= data[raddr1]; rdata2_reg <= data[raddr2];", ramComps);
 
     string ramName = "RAM_" + to_string(readDelay) + "_" + to_string(writeDelay) + "_" + to_string(depth) + "_" + to_string(width);
 
-
     vector<Port> ports;
     ports.push_back(inputPort(1, "clk"));
     ports.push_back(inputPort(1, "rst"));
+
+    
     for (int i = 0; i < arch.numReadPorts(); i++) {
       auto iStr = to_string(i);
+      ramComps.debugWires.push_back({true, width, "rdata" + iStr + "_reg"});
+      
       ports.push_back(outputPort(width, "rdata" + iStr));
       ports.push_back(inputPort(addrWidth, "raddr" + iStr));
       ports.push_back(inputPort(1, "ren" + iStr));            

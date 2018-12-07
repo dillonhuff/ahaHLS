@@ -1,6 +1,8 @@
 module RAM_1_3_32_32(input [0:0] clk, input [0:0] rst, output [31:0] rdata0, input [4:0] raddr0, input [0:0] ren0, output [31:0] rdata1, input [4:0] raddr1, input [0:0] ren1, input [31:0] wdata, input [4:0] waddr, input [0:0] wen, input [4:0] debug_addr, output [31:0] debug_data, input [4:0] debug_write_addr, input [31:0] debug_write_data, input [0:0] debug_write_en);
 
 	// Start debug wires and ports
+	reg [31:0] rdata0_reg;
+	reg [31:0] rdata1_reg;
 
 	initial begin
 	end
