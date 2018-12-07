@@ -14245,7 +14245,7 @@ define linkonce void @_ZN6Halide7Runtime8Internal25halide_release_jit_moduleEv()
 
 define i32 @brighter(i8* noalias %input, i8* noalias %input1, i8* noalias %brighter) {
 entry:
-  br label %"for brighter.s0.x"
+  br label %"produce brighter"
 
 after_bb9:                                        ; preds = %false_bb8, %"end for brighter.s0.x"
   br label %destructor_block

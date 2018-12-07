@@ -1027,7 +1027,7 @@ namespace DHLS {
     REQUIRE(noDuplicates);
 
     // 3 x 3
-    map<string, int> layout = {{"input", 0}, {"input1", 10}, {"brighter", 11}};
+    map<string, int> layout = {{"input", 0}, {"input1", 10}, {"brighter", 20}};
 
     auto arch = buildMicroArchitecture(f, graph, layout);
 
