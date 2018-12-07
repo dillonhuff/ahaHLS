@@ -2120,6 +2120,25 @@ namespace DHLS {
 
   }
 
+  void noLoadedValuesXWhenUsed(const MicroArchitecture& arch,
+                               VerilogDebugInfo& debugInfo) {
+    for (auto st : arch.stg.opStates) {
+      for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
+        auto instr = instrG.instruction;
+        if (LoadInst::classof(instr)) {
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+          StateId activeState = st.first;
+
+          string wireName = map_find(string("rdata"), unit.outWires).name;
+          addAssert("global_state !== " + to_string(activeState) + " || " +
+                    wireName + " !== 'dx",
+                    debugInfo);
+        }
+      }
+    }
+
+  }
+  
   std::string sanitizeFormatForVerilog(const std::string& str) {
     string san = "";
     for (auto c : str) {
