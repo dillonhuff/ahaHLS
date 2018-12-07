@@ -1027,7 +1027,7 @@ namespace DHLS {
     REQUIRE(noDuplicates);
 
     // 3 x 3
-    map<string, int> layout = {{"a", 0}, {"b", 9}, {"c", 12}};
+    map<string, int> layout = {{"input", 0}, {"offset", 10}, {"brighter", 11}};
 
     auto arch = buildMicroArchitecture(f, graph, layout);
 
@@ -1039,22 +1039,20 @@ namespace DHLS {
 
     emitVerilog(f, arch, info);
 
-    map<string, vector<int> > memoryInit{{"a", {6, 1, 2, 3, 7, 5, 5, 2, 9}},
-        {"b", {9, 3, 7}}};
-    map<string, vector<int> > memoryExpected{{"c", {}}};
+    map<string, vector<int> > memoryInit{{"input", {6, 1, 2, 3, 7, 5, 5, 2, 9, 3}},
+        {"offset", {129}}};
+    map<string, vector<int> > memoryExpected{{"brighter", {}}};
 
-    auto ma = map_find(string("a"), memoryInit);
-    auto mb = map_find(string("b"), memoryInit);
-    for (int i = 0; i < 3; i++) {
-      int val = 0;
-      for (int j = 0; j < 3; j++) {
-        val += ma[i*3 + j] * mb[j];
-      }
-      map_insert(memoryExpected, string("c"), val);
+    auto input = map_find(string("input"), memoryInit);
+    auto offset = map_find(string("offset"), memoryInit);
+    for (int i = 0; i < 10; i++) {
+      int res = input[i] + offset[0];
+      map_insert(memoryExpected, string("brighter"), res);
     }
 
+
     cout << "Expected values" << endl;
-    for (auto val : map_find(string("c"), memoryExpected)) {
+    for (auto val : map_find(string("brighter"), memoryExpected)) {
       cout << "\t" << val << endl;
     }
 

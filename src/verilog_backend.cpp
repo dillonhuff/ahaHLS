@@ -608,6 +608,8 @@ namespace DHLS {
                          map<Instruction*, Wire>& names,      
                          std::map<std::string, int>& memoryMap,
                          const std::vector<RAM>& rams) {
+    cout << "Getting output" << endl;
+    
     if (Instruction::classof(arg0)) {
 
       // Pointers to allocations (RAMs) always have a base
@@ -657,7 +659,9 @@ namespace DHLS {
 
 
     } else if (Argument::classof(arg0)) {
+      cout << "Argument " << valueString(arg0) << endl;
       string name = arg0->getName();
+      assert(contains_key(name, memoryMap));
       return to_string(map_find(name, memoryMap));
     } else {
       assert(ConstantInt::classof(arg0));
@@ -794,6 +798,7 @@ namespace DHLS {
 
     auto addUnit = map_find(instr, arch.unitAssignment);
 
+    cout << "Getting verilog for " << instructionString(instr) << endl;
     if (ReturnInst::classof(instr)) {
       out << "\t\t\tvalid_reg = 1;" << endl;
     } else if (StoreInst::classof(instr)) {
@@ -836,12 +841,17 @@ namespace DHLS {
       assert((numOperands == 2) || (numOperands == 3));
 
       auto arg0 = instr->getOperand(0);
+
+      cout << "arg0 = " << valueString(arg0) << endl;      
+
       auto arg0Name = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       out << tab(3) << addUnit.portWires["base_addr"].name << " = " << arg0Name << ";" << endl;
 
+
       for (int i = 1; i < numOperands; i++) {
         auto arg1 = instr->getOperand(i);
+        cout << "Getting operand " << valueString(arg1) << endl;
         auto arg1Name =
           outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
 
@@ -2113,10 +2123,13 @@ namespace DHLS {
   std::string sanitizeFormatForVerilog(const std::string& str) {
     string san = "";
     for (auto c : str) {
-      if (c != '%') {
-        san += c;
-      } else {
+
+      if (c == '"') {
+        san += "\\\"";
+      } else if (c == '%') {
         san += '$';
+      } else {
+        san += c;
       }
         
     }
