@@ -1035,7 +1035,7 @@ namespace DHLS {
     noAddsTakeXInputs(arch, info);
     noMulsTakeXInputs(arch, info);
     noPhiOutputsXWhenUsed(arch, info);
-    noLoadedValuesXWhenUsed(arch, info);    
+    noLoadedValuesXWhenUsed(arch, info);
     noStoredValuesXWhenUsed(arch, info);
 
     emitVerilog(f, arch, info);
