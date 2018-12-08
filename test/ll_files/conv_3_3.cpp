@@ -36,16 +36,16 @@ void conv_3_3(const int* __restrict in,
 
 int main() {
   int* in = (int*) malloc(sizeof(int)*IN_DIM*IN_DIM);
+  for (int i = 0; i < IN_DIM; i++) {
+    for (int j = 0; j < IN_DIM; j++) {
+      GET_A(in, i, j) = 1;
+    }
+  }
+
   int* kernel = (int*) malloc(sizeof(int)*(KERNEL_DIM*KERNEL_DIM));
   for (int i = 0; i < KERNEL_DIM; i++) {
     for (int j = 0; j < KERNEL_DIM; j++) {
       GET_K(kernel, i, j) = 1;
-    }
-  }
-
-  for (int i = 0; i < IN_DIM; i++) {
-    for (int j = 0; j < IN_DIM; j++) {
-      GET_A(in, i, j) = 1;
     }
   }
   
