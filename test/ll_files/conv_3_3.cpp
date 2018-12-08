@@ -2,8 +2,8 @@
 
 #define ARR(a, i, j) (a)[(i)*IN_DIM + (j)]
 
-void conv_3_3(int* __restrict in,
-              int* __restrict kernel,
+void conv_3_3(const int* __restrict in,
+              const int* __restrict kernel,
               int* __restrict out) {
 
   for (int i = 1; i < IN_DIM - 1; i++) {
