@@ -1,30 +1,30 @@
 #define A_LEN 8
 #define B_LEN (A_LEN - 2);
 
-class LineBuffer {
-  int near;
-  int mid;
-  int far;
+/* class LineBuffer { */
+/*   int near; */
+/*   int mid; */
+/*   int far; */
 
-  void push(const int new_near) {
-    far = mid;
-    mid = near;
-    near = new_near;
-  }
+/*   void push(const int new_near) { */
+/*     far = mid; */
+/*     mid = near; */
+/*     near = new_near; */
+/*   } */
 
-  int read_near() {
-    return near;
-  }
+/*   int read_near() { */
+/*     return near; */
+/*   } */
 
-  int read_mid() {
-    return mid;
-  }
+/*   int read_mid() { */
+/*     return mid; */
+/*   } */
 
-  int read_far() {
-    return far;
-  }
+/*   int read_far() { */
+/*     return far; */
+/*   } */
   
-};
+/* }; */
 
 void blur_lb(int* __restrict a, int* __restrict b) {
   int a_near = a[0];
