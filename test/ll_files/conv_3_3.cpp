@@ -52,7 +52,7 @@ public:
   }
 
   void write(OutType val) {
-    auto next = tp.push_back(val);
+    tp.push_back(val);
   }
 
 };
