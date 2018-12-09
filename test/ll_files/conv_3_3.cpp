@@ -103,8 +103,12 @@ template<typename T, int r, int c>
 class RAMShape {
 public:
 
+  vector<T> data;
+
   T operator()(int ri, int ci) {
+    return data[0];
   }
+
 };
 
 // So: Is this supposed to run inside something else?
