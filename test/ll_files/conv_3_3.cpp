@@ -105,6 +105,8 @@ public:
 
   vector<T> data;
 
+
+  // TODO: Update this operator
   T operator()(int ri, int ci) {
     return data[0];
   }
@@ -140,7 +142,12 @@ void conv_3_3_lb(Stream<int>& in, Stream<int>& kernel, Stream<int>& out) {
     lb.write(in.read());
   }
 
-  // Drain, linebuffer is 
+  // Drain Phase: linebuffer still has data in it, but is not receiving data
+  // anymore. Does this phase really exist or is it the case that the linebuffer
+  // once the last piece of data has come in the value is over?
+  // I suppose there must be one because lb gets written to at the end of each loop
+  // iteration.
+  // Maybe the last write is a null token and that is really the signal to stop?
   while (!lb.empty()) {
   }
 

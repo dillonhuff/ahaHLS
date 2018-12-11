@@ -1542,8 +1542,6 @@ namespace DHLS {
   void emitComponents(std::ostream& out,
                       const VerilogComponents& debugInfo) {
 
-    out << endl << tab(1) << "// Start debug wires and ports" << endl;
-
     for (auto w : debugInfo.debugWires) {
       out << tab(1) << w << ";" << endl;
     }
@@ -1588,8 +1586,6 @@ namespace DHLS {
       out << endl;
     }
     
-    out << tab(1) << "// End debug wires and ports" << endl;
-
   }
 
   void emitVerilog(llvm::Function* f,
@@ -1742,7 +1738,9 @@ namespace DHLS {
 
     emitPorts(out, allPorts);
 
+    out << endl << tab(1) << "// Start debug wires and ports" << endl;
     emitComponents(out, debugInfo);
+    out << endl << tab(1) << "// End debug wires and ports" << endl;
     
     emitFunctionalUnits(out, arch.unitAssignment);
     emitRegisterStorage(out, arch.names);
