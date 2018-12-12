@@ -12,7 +12,9 @@ addons:
     - llvm
 
 before_install:
-  - dpkg -L libz3
+  - ls /usr/local/lib
+  - ls /usr/local/include/  
+  - dpkg -L z3
   - cmake .
   - make -j
 
