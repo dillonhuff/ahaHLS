@@ -9,6 +9,7 @@ addons:
     packages:
     - g++-4.9
     - iverilog
+    - z3
 
 before_install:
   - cmake .
