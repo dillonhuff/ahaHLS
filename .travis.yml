@@ -12,11 +12,11 @@ addons:
     - llvm
 
 before_install:
+  - dpkg -L libz3
   - cmake .
   - make -j
 
 script:
-  - dpkg -L libz3
   - ./all-tests
 
 compiler:
