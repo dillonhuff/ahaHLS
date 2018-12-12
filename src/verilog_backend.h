@@ -160,7 +160,7 @@ namespace DHLS {
     }
 
     int stateIndex(const StateId id) const {
-      for (int i = 0; i < p.getStates().size(); i++) {
+      for (int i = 0; i < (int) p.getStates().size(); i++) {
         if (p.getStates().at(i) == id) {
           return i;
         }
