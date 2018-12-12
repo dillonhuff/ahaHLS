@@ -10,6 +10,7 @@ addons:
     - g++-4.9
     - iverilog
     - z3
+    - llvm
 
 before_install:
   - cmake .
