@@ -50,7 +50,7 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
-      // In global state 3, we should be done, but reads have a delay of one
+      // In global state 3, we should be done
       #1 `assert(debug_data, 32'd5);
       #1 `assert(valid, 1'd1);
 
