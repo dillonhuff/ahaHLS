@@ -1114,7 +1114,7 @@ namespace DHLS {
 
     out << "\t// Start pipeline stages" << endl;
     for (auto p : pipelines) {
-      for (int i = 0; i < p.valids.size(); i++) {
+      for (int i = 0; i < (int) p.valids.size(); i++) {
         Wire valid = p.valids[i];
         StateId state = p.p.getStates().at(i);
 
@@ -1420,7 +1420,7 @@ namespace DHLS {
 
       out << "\t\t$display(\"// CLK Cycle\");" << endl;
       out << "\t\t$display(\"" << p.inPipe.name << " = %d\", " << p.inPipe.name << ");" << endl;
-      for (int i = 0; i < p.valids.size(); i++) {
+      for (int i = 0; i < (int) p.valids.size(); i++) {
         out << "\t\t$display(\"" << p.valids[i].name << " = %d\", " << p.valids[i].name << ");" << endl;
       }
     }
@@ -1431,7 +1431,7 @@ namespace DHLS {
     for (auto p : pipelines) {
 
       //      for (auto validVar : p.valids) {
-      for (int i = 0; i < p.valids.size() - 1; i++) {
+      for (int i = 0; i < ((int) p.valids.size()) - 1; i++) {
         out << "\t\t\t" << p.valids[i + 1].name << " <= " << p.valids[i].name << ";" << endl;
       }
     }
@@ -2107,7 +2107,7 @@ namespace DHLS {
 
     int setNum = 0;
     for (auto memName : tb.memoryInit) {
-      for (int i = 0; i < memName.second.size(); i++) {
+      for (int i = 0; i < (int) memName.second.size(); i++) {
         // TODO: Add memory layout info
         addAlwaysBlock({"clk"}, "if (in_set_mem_phase && clocks_in_set_mem_phase == " + to_string(setNum) + ") begin dbg_wr_en <= 1; dbg_wr_addr <= " + to_string(map_find(memName.first, layout) + i) + "; dbg_wr_data <= " + to_string(memName.second[i]) + "; end", comps);
 
@@ -2125,7 +2125,7 @@ namespace DHLS {
     int lastNum = -1;
     
     for (auto memName : tb.memoryExpected) {
-      for (int i = 0; i < memName.second.size(); i++) {
+      for (int i = 0; i < (int) memName.second.size(); i++) {
         // TODO: Add memory layout info
         addAlwaysBlock({"clk"}, "if (in_check_mem_phase && clocks_in_check_mem_phase == " + to_string(checkNum) + ") begin dbg_addr <= " + to_string(map_find(memName.first, layout) + i) + "; end", comps);
 

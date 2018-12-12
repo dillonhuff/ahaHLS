@@ -11,7 +11,7 @@ namespace DHLS {
     std::string res = "";
     for (int i = 0; i < (int) strings.size(); i++) {
       res += strings[i];
-      if (i < strings.size() - 1) {
+      if (i < (((int) strings.size()) - 1)) {
         res += ", ";
       }
     }
