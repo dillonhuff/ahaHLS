@@ -212,14 +212,14 @@ namespace DHLS {
       out << "(";
       for (auto atom : cl) {
         out << atom;
-        if (nAt < (cl.size() - 1)) {
+        if (nAt < (int) (cl.size() - 1)) {
           out << " ^ ";
         }
         nAt++;
       }
       out << ")";
 
-      if (nCl < (c.clauses.size() - 1)) {
+      if (nCl < (int) (c.clauses.size() - 1)) {
         out << " v ";
       }
       nCl++;
@@ -270,7 +270,7 @@ namespace DHLS {
       ii(ii_), stateDepth(stateDepth_), states(states_) {
       assert(II() >= 1);
       assert(depth() >= 1);
-      assert(depth() == states.size());
+      assert(depth() == (int) states.size());
     }
 
     int II() const { return ii; }

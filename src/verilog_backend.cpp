@@ -166,7 +166,7 @@ namespace DHLS {
     for (auto state : stg.opStates) {
 
       std::set<Instruction*> foundOps;
-      while (foundOps.size() < numMemOps(stg.instructionsStartingAt(state.first))) {
+      while (((int) foundOps.size()) < numMemOps(stg.instructionsStartingAt(state.first))) {
         cout << "FoundInstrs =  "<< foundOps.size() << endl;
 
         for (auto instrG : stg.instructionsStartingAt(state.first)) {
@@ -376,7 +376,7 @@ namespace DHLS {
           modName = "getelementptr_" + to_string(instr->getNumOperands() - 1);
           wiring = {{"base_addr", {true, 32, "base_addr_" + to_string(resSuffix)}}};
 
-          for (int i = 1; i < instr->getNumOperands(); i++) {
+          for (int i = 1; i < (int) instr->getNumOperands(); i++) {
             wiring.insert({"in" + to_string(i),
                   {true, 32, "gep_add_in" + to_string(i) + "_" + to_string(resSuffix)}});
           }
@@ -748,13 +748,6 @@ namespace DHLS {
                                      names,
                                      memoryMap);
         
-        // string valueStr = "";
-        // if (atomCompletionTime == currentState) {
-        //   valueStr += map_find(iValue, unitAssignment).onlyOutputVar();
-        // } else {
-        //   valueStr += map_find(iValue, names).name;
-        // }
-
         if (isNeg) {
           condStr += "!";
         }
@@ -763,14 +756,14 @@ namespace DHLS {
         condStr += valueStr;
         condStr += ")";
 
-        if (aNum < cl.size() - 1) {
+        if (aNum < ((int) cl.size()) - 1) {
           condStr += " && ";
         }
         
         aNum++;
       }
 
-      if (clNum < cond.clauses.size() - 1) {
+      if (clNum < ((int) cond.clauses.size()) - 1) {
         condStr += " || ";
       }
 
@@ -837,7 +830,7 @@ namespace DHLS {
       out << tab(3) << addUnit.portWires["base_addr"].name << " = " << arg0Name << ";" << endl;
 
 
-      for (int i = 1; i < numOperands; i++) {
+      for (int i = 1; i < (int) numOperands; i++) {
         auto arg1 = instr->getOperand(i);
         cout << "Getting operand " << valueString(arg1) << endl;
         auto arg1Name =
