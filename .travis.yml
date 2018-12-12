@@ -10,6 +10,7 @@ addons:
     - g++-4.9
     - iverilog
     - llvm
+    - z3
 
 before_install:
   - ls /usr/local/lib
