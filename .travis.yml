@@ -1,0 +1,24 @@
+dist: trusty
+language: c++
+sudo: false
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.9
+    - iverilog
+
+before_install:
+  - cmake .
+  - make -j
+
+script:
+  - ./all-tests
+
+compiler:
+  - gcc
+
+os:
+- linux
