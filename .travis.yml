@@ -16,6 +16,7 @@ before_install:
   - make -j
 
 script:
+  - dpkg -L libz3
   - ./all-tests
 
 compiler:
