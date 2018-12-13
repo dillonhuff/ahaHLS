@@ -222,15 +222,6 @@ namespace DHLS {
 
   // Box touched algorithm?
 
-  // NOTE: The small addition of verilog injection tools really helped with
-  // debugging that failing memory test case. I really ought to devise a better
-  // memory checking testbench. What would the components of that test bench be?
-  //   1. RAM generator that can emit verilog modules for the desired RAM type
-  //   2. Testbench generator that can set initial RAM values, run the HLS verilog
-  //      and then write out the results
-  //   3. Output stage of testbench that can read through the entire output
-  //      memory and check its contents
-
   // This issue of where address generation is done seems very important.
   // Can you think of stream programming vs. bulk array processing as divided
   // by where and when address computation happens?
