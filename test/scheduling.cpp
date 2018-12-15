@@ -1065,7 +1065,13 @@ namespace DHLS {
   TEST_CASE("Building a shift register in LLVM") {
     LLVMContext context;
     auto mod = llvm::make_unique<Module>("shift register test", context);
-    
+
+    std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo(),
+        Type::getInt32Ty(context)->getPointerTo()};
+    FunctionType *FT =
+      FunctionType::get(Type::getVoidTy(context), inputs, false);
+    Function *srUser =
+      Function::Create(FT, Function::ExternalLinkage, "using_shift_register", mod.get());
   }
   
   // struct Hello : public FunctionPass {
