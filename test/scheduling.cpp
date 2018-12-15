@@ -1031,10 +1031,6 @@ namespace DHLS {
     noLoadedValuesXWhenUsed(arch, info);
     noLoadAddressesXWhenUsed(arch, info);    
     noStoredValuesXWhenUsed(arch, info);
-    // addGlobalStateWirePrintout("raddr_0_reg", info);
-    // addGlobalStateWirePrintout("rdata_0", info);
-    // addGlobalStateWirePrintout("raddr_1_reg", info);
-    // addGlobalStateWirePrintout("rdata_1", info);
 
     emitVerilog(f, arch, info);
 
@@ -1063,6 +1059,12 @@ namespace DHLS {
     emitVerilogTestBench(tb, arch, layout);
 
     REQUIRE(runIVerilogTB("brighter"));
+    
+  }
+
+  TEST_CASE("Building a shift register in LLVM") {
+    LLVMContext context;
+    auto mod = llvm::make_unique<Module>("shift register test", context);
     
   }
   
