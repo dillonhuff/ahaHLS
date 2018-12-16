@@ -10,16 +10,15 @@
 
 #include "scheduling.h"
 #include "verilog_backend.h"
+#include "llvm_codegen.h"
 
 #include <fstream>
-
-//#include <polly/ScopDetection.h>
 
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/InstrTypes.h"
 #include <llvm/Support/TargetSelect.h>
-#include <llvm/IR/LLVMContext.h>
+//#include <llvm/IR/LLVMContext.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
@@ -1137,6 +1136,8 @@ namespace DHLS {
 
   TEST_CASE("Building a simple loop in LLVM") {
     LLVMContext context;
+    setGlobalLLVMContext(&context);
+
     auto mod = llvm::make_unique<Module>("simple LLVM accumulate loop", context);
 
     std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo(),

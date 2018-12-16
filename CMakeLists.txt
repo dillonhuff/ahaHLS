@@ -21,6 +21,7 @@ INCLUDE_DIRECTORIES(./src/)
 
 SET(CPP_FILES ./src/scheduling.cpp
               ./src/verilog_backend.cpp
+              ./src/llvm_codegen.cpp
               ./src/utils.cpp)
 
 llvm_map_components_to_libnames(llvm_libs support core irreader passes)
