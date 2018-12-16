@@ -1296,11 +1296,28 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("one_d_stencil"));
   }
 
+  class ShiftRegister {
+  public:
+    int width;
+    int depth;
+
+    std::vector<llvm::Value*> registers;
+
+    ShiftRegister(const int w, const int d) : width(w), depth(d) {}
+
+    void init(IRBuilder<>& builder) {
+      for (int i = 0; i < depth; i++) {
+        builder.CreateAlloca(intType(width));
+      }
+    }
+  };
+
   TEST_CASE("1D stencil with shift register in LLVM") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
 
-    auto mod = llvm::make_unique<Module>("shift registered LLVM 1D stencil", context);
+    auto mod =
+      llvm::make_unique<Module>("shift registered LLVM 1D stencil", context);
 
     std::vector<Type *> inputs{intType(32)->getPointerTo(),
         intType(32)->getPointerTo()};
@@ -1310,13 +1327,20 @@ namespace DHLS {
     auto loopBlock = mkBB("loop_block", srUser);
     auto exitBlock = mkBB("exit_block", srUser);        
 
+
     ConstantInt* loopBound = mkInt("6", 32);
     ConstantInt* zero = mkInt("0", 32);    
     ConstantInt* one = mkInt("1", 32);    
 
     IRBuilder<> builder(entryBlock);
+
+    ShiftRegister sr(32, 3);
+    sr.init(builder);
+    
     builder.CreateBr(loopBlock);
 
+
+    
     IRBuilder<> loopBuilder(loopBlock);
     auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
 
