@@ -1074,9 +1074,14 @@ namespace DHLS {
     Function *srUser =
       Function::Create(tp, Function::ExternalLinkage, "using_shift_register", mod.get());
 
+    int argId = 0;
+    for (auto &Arg : srUser->args()) {
+      Arg.setName("arg_" + to_string(argId));
+      argId++;
+    }
+
     auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
     IRBuilder<> builder(entryBlock);
-    //ConstantInt* ind0 = ConstantInt::get(context, APInt(32, StringRef("0"), 10));
     ConstantInt* five = ConstantInt::get(context, APInt(32, StringRef("5"), 10));
 
     auto ldA = builder.CreateLoad(dyn_cast<Value>(srUser->arg_begin()));
@@ -1100,6 +1105,33 @@ namespace DHLS {
 
     cout << "STG Is" << endl;
     graph.print(cout);
+
+    // 3 x 3
+    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 1}};
+
+    auto arch = buildMicroArchitecture(srUser, graph, layout);
+
+    VerilogDebugInfo info;
+    noAddsTakeXInputs(arch, info);
+    noMulsTakeXInputs(arch, info);
+    noPhiOutputsXWhenUsed(arch, info);
+    noLoadedValuesXWhenUsed(arch, info);
+    noLoadAddressesXWhenUsed(arch, info);
+    noStoredValuesXWhenUsed(arch, info);
+
+    emitVerilog(srUser, arch, info);
+
+    map<string, vector<int> > memoryInit{{"arg_0", {6}}};
+    map<string, vector<int> > memoryExpected{{"arg_1", {11}}};
+
+    TestBenchSpec tb;
+    tb.memoryInit = memoryInit;
+    tb.memoryExpected = memoryExpected;
+    tb.runCycles = 10;
+    tb.name = "using_shift_register";
+    emitVerilogTestBench(tb, arch, layout);
+
+    REQUIRE(runIVerilogTB("using_shift_register"));
     
   }
   

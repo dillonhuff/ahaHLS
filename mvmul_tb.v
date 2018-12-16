@@ -150,7 +150,7 @@ module mvmul_tb();
 	end
 
 	always @(posedge clk) begin
-		if (clocks_in_set_mem_phase == (11)) begin in_run_phase <= 1; rst <= 0; dbg_wr_en <= 0; in_set_mem_phase <= 0; end
+		if (clocks_in_set_mem_phase == (12)) begin in_run_phase <= 1; rst <= 0; dbg_wr_en <= 0; in_set_mem_phase <= 0; end
 	end
 
 	always @(posedge clk) begin
