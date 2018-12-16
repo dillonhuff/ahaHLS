@@ -1307,9 +1307,21 @@ namespace DHLS {
 
     void init(IRBuilder<>& builder) {
       for (int i = 0; i < depth; i++) {
-        builder.CreateAlloca(intType(width));
+        auto reg = builder.CreateAlloca(intType(width));
+        registers.push_back(reg);
       }
+
+      assert(registers.size() == depth);
     }
+
+    void shift(IRBuilder<>& builder) {
+      for (int i = 0; i < depth - 1; i++) {
+        auto ldVal = loadVal(builder,registers[i + 1], mkInt("0", 32));
+        storeVal(builder, registers[i], mkInt("0", 32), ldVal);
+      }
+      // TODO: Create new allocation value
+    }
+
   };
 
   TEST_CASE("1D stencil with shift register in LLVM") {
@@ -1336,6 +1348,10 @@ namespace DHLS {
 
     ShiftRegister sr(32, 3);
     sr.init(builder);
+
+    for (int i = 0; i < sr.depth; i++) {
+      sr.shift(builder);
+    }
     
     builder.CreateBr(loopBlock);
 
