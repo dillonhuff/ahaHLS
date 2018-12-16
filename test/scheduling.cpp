@@ -1264,15 +1264,12 @@ namespace DHLS {
     auto aip1 = loopBuilder.CreateLoad(aip1Ind);
     auto aim1 = loopBuilder.CreateLoad(aim1Ind);
 
-    auto biInd =
-      loopBuilder.CreateGEP(dyn_cast<Value>(srUser->arg_begin() + 1), indPhi);
-    
     auto inputSum = loopBuilder.CreateAdd(aim1, loopBuilder.CreateAdd(ai, aip1), "stencil_accum");
-    
-    loopBuilder.CreateStore(inputSum, biInd);
-    
-    loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
 
+    auto biInd =
+      loopBuilder.CreateGEP(dyn_cast<Value>(srUser->arg_begin() + 1), loopBuilder.CreateSub(indPhi, one));
+    loopBuilder.CreateStore(inputSum, biInd);
+    loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
 
     IRBuilder<> exitBuilder(exitBlock);
     exitBuilder.CreateRet(nullptr);
