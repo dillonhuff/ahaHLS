@@ -1288,7 +1288,7 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 15}};
+    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
 
     auto arch = buildMicroArchitecture(srUser, graph, layout);
 
