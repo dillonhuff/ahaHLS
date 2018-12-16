@@ -1231,8 +1231,6 @@ namespace DHLS {
     ConstantInt* one = mkInt("1", 32);    
 
     IRBuilder<> builder(entryBlock);
-    auto ldA = builder.CreateLoad(dyn_cast<Value>(srUser->arg_begin()));
-
     builder.CreateBr(loopBlock);
 
     IRBuilder<> loopBuilder(loopBlock);
@@ -1241,33 +1239,32 @@ namespace DHLS {
     auto indPhiP1 = loopBuilder.CreateAdd(indPhi, one);
     auto indPhiM1 = loopBuilder.CreateSub(indPhi, one);
 
-    auto sumPhi = loopBuilder.CreatePHI(intType(32), 2);
     auto nextInd = loopBuilder.CreateAdd(indPhi, one);
-    auto nextSum = loopBuilder.CreateAdd(sumPhi, ldA);
 
     auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
 
     indPhi->addIncoming(one, entryBlock);
     indPhi->addIncoming(nextInd, loopBlock);
 
-    sumPhi->addIncoming(zero, entryBlock);
-    sumPhi->addIncoming(nextSum, loopBlock);
+    // auto aiInd =
+    //   loopBuilder.CreateGEP(getArg(srUser, 0), indPhi);
+    // auto aip1Ind =
+    //   loopBuilder.CreateGEP(getArg(srUser, 0), indPhiP1);
+    // auto aim1Ind =
+    //   loopBuilder.CreateGEP(getArg(srUser, 0), indPhiM1);
 
-    auto aiInd =
-      loopBuilder.CreateGEP(getArg(srUser, 0), indPhi);
-    auto aip1Ind =
-      loopBuilder.CreateGEP(getArg(srUser, 0), indPhiP1);
-    auto aim1Ind =
-      loopBuilder.CreateGEP(getArg(srUser, 0), indPhiM1);
+    // auto ai = loopBuilder.CreateLoad(aiInd);
+    // auto aip1 = loopBuilder.CreateLoad(aip1Ind);
+    // auto aim1 = loopBuilder.CreateLoad(aim1Ind);
 
-    auto ai = loopBuilder.CreateLoad(aiInd);
-    auto aip1 = loopBuilder.CreateLoad(aip1Ind);
-    auto aim1 = loopBuilder.CreateLoad(aim1Ind);
-
+    auto ai = loadVal(loopBuilder, getArg(srUser, 0), indPhi);
+    auto aip1 = loadVal(loopBuilder, getArg(srUser, 0), indPhiP1);
+    auto aim1 = loadVal(loopBuilder, getArg(srUser, 0), indPhiM1);
+    
     auto inputSum = loopBuilder.CreateAdd(aim1, loopBuilder.CreateAdd(ai, aip1), "stencil_accum");
 
     auto biInd =
-      loopBuilder.CreateGEP(dyn_cast<Value>(srUser->arg_begin() + 1), loopBuilder.CreateSub(indPhi, one));
+      loopBuilder.CreateGEP(getArg(srUser, 1), loopBuilder.CreateSub(indPhi, one));
     loopBuilder.CreateStore(inputSum, biInd);
     loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
 
