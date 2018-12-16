@@ -1063,6 +1063,21 @@ namespace DHLS {
     
   }
 
+  HardwareConstraints standardConstraints() {
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(LOAD_OP, 1);
+    hcs.setLatency(CMP_OP, 0);
+    hcs.setLatency(BR_OP, 0);
+    hcs.setLatency(ADD_OP, 0);
+    hcs.setLatency(SUB_OP, 0);    
+    hcs.setLatency(MUL_OP, 0);
+    hcs.setLatency(SEXT_OP, 0);
+    
+
+    return hcs;
+  }
+  
   TEST_CASE("Building a simple function directly in LLVM") {
     LLVMContext context;
     auto mod = llvm::make_unique<Module>("shift register test", context);
@@ -1089,16 +1104,7 @@ namespace DHLS {
     auto stA = builder.CreateStore(sum, dyn_cast<Value>(srUser->arg_begin() + 1));
     builder.CreateRet(nullptr);
 
-    HardwareConstraints hcs;
-    hcs.setLatency(STORE_OP, 3);
-    hcs.setLatency(LOAD_OP, 1);
-    hcs.setLatency(CMP_OP, 0);
-    hcs.setLatency(BR_OP, 0);
-    hcs.setLatency(ADD_OP, 0);
-    hcs.setLatency(SUB_OP, 0);    
-    hcs.setLatency(MUL_OP, 0);
-    hcs.setLatency(SEXT_OP, 0);
-    
+    HardwareConstraints hcs = standardConstraints();
     Schedule s = scheduleFunction(srUser, hcs);
 
     STG graph = buildSTG(s, srUser);
