@@ -1133,7 +1133,69 @@ namespace DHLS {
     emitVerilogTestBench(tb, arch, layout);
 
     REQUIRE(runIVerilogTB("using_shift_register"));
-    
+  }
+
+  TEST_CASE("Building a simple loop in LLVM") {
+    LLVMContext context;
+    auto mod = llvm::make_unique<Module>("simple LLVM accumulate loop", context);
+
+    std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo(),
+        Type::getInt32Ty(context)->getPointerTo()};
+    FunctionType *tp =
+      FunctionType::get(Type::getVoidTy(context), inputs, false);
+    Function *srUser =
+      Function::Create(tp, Function::ExternalLinkage, "accum_loop", mod.get());
+
+    int argId = 0;
+    for (auto &Arg : srUser->args()) {
+      Arg.setName("arg_" + to_string(argId));
+      argId++;
+    }
+
+    auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
+    IRBuilder<> builder(entryBlock);
+    ConstantInt* five = ConstantInt::get(context, APInt(32, StringRef("5"), 10));
+
+    auto ldA = builder.CreateLoad(dyn_cast<Value>(srUser->arg_begin()));
+    auto sum = builder.CreateAdd(ldA, five);
+    auto stA = builder.CreateStore(sum, dyn_cast<Value>(srUser->arg_begin() + 1));
+    builder.CreateRet(nullptr);
+
+    HardwareConstraints hcs = standardConstraints();
+    Schedule s = scheduleFunction(srUser, hcs);
+
+    STG graph = buildSTG(s, srUser);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 15}};
+
+    auto arch = buildMicroArchitecture(srUser, graph, layout);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(srUser, arch, info);
+
+    // Create testing infrastructure
+    map<string, vector<int> > memoryInit{{"arg_0", {6, 1, 2, 4, 2, 4, 5, 3}}};
+    map<string, vector<int> > memoryExpected{{"arg_1", {}}};
+
+    auto input = map_find(string("arg_0"), memoryInit);
+    for (int i = 1; i < input.size() - 1; i++) {
+      int res = input[i - 1] + input[i] + input[i + 1];
+      map_insert(memoryExpected, string("arg_1"), res);
+    }
+
+    TestBenchSpec tb;
+    tb.memoryInit = memoryInit;
+    tb.memoryExpected = memoryExpected;
+    tb.runCycles = 10;
+    tb.name = "accum_loop";
+    emitVerilogTestBench(tb, arch, layout);
+
+    REQUIRE(runIVerilogTB("accum_loop"));
   }
   
   // struct Hello : public FunctionPass {
