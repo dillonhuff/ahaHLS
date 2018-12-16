@@ -14,6 +14,16 @@ namespace DHLS {
 
   static inline
   llvm::ConstantInt* mkInt(const std::string& decimalValueString, int bitWidth) {
-    return llvm::ConstantInt::get(getGlobalLLVMContext(), llvm::APInt(bitWidth, llvm::StringRef("5"), 10));
+    return llvm::ConstantInt::get(getGlobalLLVMContext(), llvm::APInt(bitWidth, llvm::StringRef(decimalValueString), 10));
+  }
+
+  static inline
+  llvm::BasicBlock* mkBB(const std::string& name, llvm::Function* func) {
+    return llvm::BasicBlock::Create(getGlobalLLVMContext(), name, func);
+  }
+
+  static inline
+  llvm::Type* intType(const int width) {
+    return llvm::Type::getIntNTy(getGlobalLLVMContext(), width);
   }
 }

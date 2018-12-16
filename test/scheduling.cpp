@@ -1153,15 +1153,48 @@ namespace DHLS {
       argId++;
     }
 
-    auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
-    IRBuilder<> builder(entryBlock);
-    //ConstantInt* five = ConstantInt::get(context, APInt(32, StringRef("5"), 10));
-    ConstantInt* five = mkInt("5", 32);
+    // What is the structure of this function?
+    //   1. Enter the function
+    //   2. Load the 0th argument value
+    //   3. Enter a while loop block
+    //   4. In the loop body BB: Increment (or initialize) loop counter,
+    //      Update (or initialize) increment variable, and then check
+    //      the loop exit condition
+    //   5. In exit loop: Store result variable to second argument
+    auto entryBlock = mkBB("entry_block", srUser);
+    auto loopBlock = mkBB("loop_block", srUser);
+    auto exitBlock = mkBB("exit_block", srUser);        
 
+    ConstantInt* loopBound = mkInt("5", 32);
+    ConstantInt* zero = mkInt("0", 32);    
+    ConstantInt* one = mkInt("1", 32);    
+
+    IRBuilder<> builder(entryBlock);
     auto ldA = builder.CreateLoad(dyn_cast<Value>(srUser->arg_begin()));
-    auto sum = builder.CreateAdd(ldA, five);
-    auto stA = builder.CreateStore(sum, dyn_cast<Value>(srUser->arg_begin() + 1));
-    builder.CreateRet(nullptr);
+
+    builder.CreateBr(loopBlock);
+
+    IRBuilder<> loopBuilder(loopBlock);
+    auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
+    auto sumPhi = loopBuilder.CreatePHI(intType(32), 2);
+    auto nextInd = loopBuilder.CreateAdd(indPhi, one);
+    auto nextSum = loopBuilder.CreateAdd(sumPhi, ldA);
+
+    auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
+
+    indPhi->addIncoming(zero, entryBlock);
+    indPhi->addIncoming(nextInd, loopBlock);
+
+    sumPhi->addIncoming(zero, entryBlock);
+    sumPhi->addIncoming(nextSum, loopBlock);
+    
+    loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
+
+    IRBuilder<> exitBuilder(exitBlock);
+    exitBuilder.CreateStore(nextSum, dyn_cast<Value>(srUser->arg_begin() + 1));
+    exitBuilder.CreateRet(nullptr);
+
+    cout << valueString(srUser) << endl;
 
     HardwareConstraints hcs = standardConstraints();
     Schedule s = scheduleFunction(srUser, hcs);
@@ -1181,14 +1214,8 @@ namespace DHLS {
     emitVerilog(srUser, arch, info);
 
     // Create testing infrastructure
-    map<string, vector<int> > memoryInit{{"arg_0", {6, 1, 2, 4, 2, 4, 5, 3}}};
-    map<string, vector<int> > memoryExpected{{"arg_1", {}}};
-
-    auto input = map_find(string("arg_0"), memoryInit);
-    for (int i = 1; i < input.size() - 1; i++) {
-      int res = input[i - 1] + input[i] + input[i + 1];
-      map_insert(memoryExpected, string("arg_1"), res);
-    }
+    map<string, vector<int> > memoryInit{{"arg_0", {6}}};
+    map<string, vector<int> > memoryExpected{{"arg_1", {6*5}}};
 
     TestBenchSpec tb;
     tb.memoryInit = memoryInit;
