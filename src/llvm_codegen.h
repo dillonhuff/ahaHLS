@@ -26,4 +26,23 @@ namespace DHLS {
   llvm::Type* intType(const int width) {
     return llvm::Type::getIntNTy(getGlobalLLVMContext(), width);
   }
+
+  static inline
+  llvm::Function* mkFunc(std::vector<llvm::Type*>& inputs,
+                         const std::string& funcName,
+                         llvm::Module* mod) {
+    llvm::FunctionType *tp =
+      llvm::FunctionType::get(llvm::Type::getVoidTy(getGlobalLLVMContext()), inputs, false);
+    
+    llvm::Function *srUser =
+      llvm::Function::Create(tp, llvm::Function::ExternalLinkage, "accum_loop", mod);
+
+    int argId = 0;
+    for (auto &Arg : srUser->args()) {
+      Arg.setName("arg_" + std::to_string(argId));
+      argId++;
+    }
+
+    return srUser;
+  }
 }

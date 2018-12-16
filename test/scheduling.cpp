@@ -1142,25 +1142,8 @@ namespace DHLS {
 
     std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo(),
         Type::getInt32Ty(context)->getPointerTo()};
-    FunctionType *tp =
-      FunctionType::get(Type::getVoidTy(context), inputs, false);
-    Function *srUser =
-      Function::Create(tp, Function::ExternalLinkage, "accum_loop", mod.get());
+    Function* srUser = mkFunc(inputs, "accum_loop", mod.get());
 
-    int argId = 0;
-    for (auto &Arg : srUser->args()) {
-      Arg.setName("arg_" + to_string(argId));
-      argId++;
-    }
-
-    // What is the structure of this function?
-    //   1. Enter the function
-    //   2. Load the 0th argument value
-    //   3. Enter a while loop block
-    //   4. In the loop body BB: Increment (or initialize) loop counter,
-    //      Update (or initialize) increment variable, and then check
-    //      the loop exit condition
-    //   5. In exit loop: Store result variable to second argument
     auto entryBlock = mkBB("entry_block", srUser);
     auto loopBlock = mkBB("loop_block", srUser);
     auto exitBlock = mkBB("exit_block", srUser);        
@@ -1226,7 +1209,7 @@ namespace DHLS {
 
     REQUIRE(runIVerilogTB("accum_loop"));
   }
-  
+
   // struct Hello : public FunctionPass {
   //   static char ID;
   //   Hello() : FunctionPass(ID) {}
