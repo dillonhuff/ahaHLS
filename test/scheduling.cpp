@@ -1254,11 +1254,11 @@ namespace DHLS {
     sumPhi->addIncoming(nextSum, loopBlock);
 
     auto aiInd =
-      loopBuilder.CreateGEP(dyn_cast<Value>(srUser->arg_begin() ), indPhi);
+      loopBuilder.CreateGEP(getArg(srUser, 0), indPhi);
     auto aip1Ind =
-      loopBuilder.CreateGEP(dyn_cast<Value>(srUser->arg_begin()), indPhiP1);
+      loopBuilder.CreateGEP(getArg(srUser, 0), indPhiP1);
     auto aim1Ind =
-      loopBuilder.CreateGEP(dyn_cast<Value>(srUser->arg_begin()), indPhiM1);
+      loopBuilder.CreateGEP(getArg(srUser, 0), indPhiM1);
 
     auto ai = loopBuilder.CreateLoad(aiInd);
     auto aip1 = loopBuilder.CreateLoad(aip1Ind);
