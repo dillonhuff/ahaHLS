@@ -15,6 +15,7 @@
 
 //#include <polly/ScopDetection.h>
 
+#include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/InstrTypes.h"
 #include <llvm/Support/TargetSelect.h>
@@ -1062,16 +1063,44 @@ namespace DHLS {
     
   }
 
-  TEST_CASE("Building a shift register in LLVM") {
+  TEST_CASE("Building a simple function directly in LLVM") {
     LLVMContext context;
     auto mod = llvm::make_unique<Module>("shift register test", context);
 
     std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo(),
         Type::getInt32Ty(context)->getPointerTo()};
-    FunctionType *FT =
+    FunctionType *tp =
       FunctionType::get(Type::getVoidTy(context), inputs, false);
     Function *srUser =
-      Function::Create(FT, Function::ExternalLinkage, "using_shift_register", mod.get());
+      Function::Create(tp, Function::ExternalLinkage, "using_shift_register", mod.get());
+
+    auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
+    IRBuilder<> builder(entryBlock);
+    //ConstantInt* ind0 = ConstantInt::get(context, APInt(32, StringRef("0"), 10));
+    ConstantInt* five = ConstantInt::get(context, APInt(32, StringRef("5"), 10));
+
+    auto ldA = builder.CreateLoad(dyn_cast<Value>(srUser->arg_begin()));
+    auto sum = builder.CreateAdd(ldA, five);
+    auto stA = builder.CreateStore(sum, dyn_cast<Value>(srUser->arg_begin() + 1));
+    builder.CreateRet(nullptr);
+
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(LOAD_OP, 1);
+    hcs.setLatency(CMP_OP, 0);
+    hcs.setLatency(BR_OP, 0);
+    hcs.setLatency(ADD_OP, 0);
+    hcs.setLatency(SUB_OP, 0);    
+    hcs.setLatency(MUL_OP, 0);
+    hcs.setLatency(SEXT_OP, 0);
+    
+    Schedule s = scheduleFunction(srUser, hcs);
+
+    STG graph = buildSTG(s, srUser);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+    
   }
   
   // struct Hello : public FunctionPass {
