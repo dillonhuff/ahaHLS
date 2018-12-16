@@ -1140,8 +1140,8 @@ namespace DHLS {
 
     auto mod = llvm::make_unique<Module>("simple LLVM accumulate loop", context);
 
-    std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo(),
-        Type::getInt32Ty(context)->getPointerTo()};
+    std::vector<Type *> inputs{intType(32)->getPointerTo(),
+        intType(32)->getPointerTo()};
     Function* srUser = mkFunc(inputs, "accum_loop", mod.get());
 
     auto entryBlock = mkBB("entry_block", srUser);
