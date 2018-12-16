@@ -60,4 +60,15 @@ namespace DHLS {
       builder.CreateGEP(buffer, offset);
     return builder.CreateLoad(ind);
   }
+
+  static inline
+  llvm::Value* storeVal(llvm::IRBuilder<>& builder,
+                        llvm::Value* buffer,
+                        llvm::Value* offset,
+                        llvm::Value* value) {
+    auto ind =
+      builder.CreateGEP(buffer, offset);
+    return builder.CreateStore(value, ind);
+  }
+
 }

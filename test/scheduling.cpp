@@ -1246,26 +1246,17 @@ namespace DHLS {
     indPhi->addIncoming(one, entryBlock);
     indPhi->addIncoming(nextInd, loopBlock);
 
-    // auto aiInd =
-    //   loopBuilder.CreateGEP(getArg(srUser, 0), indPhi);
-    // auto aip1Ind =
-    //   loopBuilder.CreateGEP(getArg(srUser, 0), indPhiP1);
-    // auto aim1Ind =
-    //   loopBuilder.CreateGEP(getArg(srUser, 0), indPhiM1);
-
-    // auto ai = loopBuilder.CreateLoad(aiInd);
-    // auto aip1 = loopBuilder.CreateLoad(aip1Ind);
-    // auto aim1 = loopBuilder.CreateLoad(aim1Ind);
-
     auto ai = loadVal(loopBuilder, getArg(srUser, 0), indPhi);
     auto aip1 = loadVal(loopBuilder, getArg(srUser, 0), indPhiP1);
     auto aim1 = loadVal(loopBuilder, getArg(srUser, 0), indPhiM1);
     
     auto inputSum = loopBuilder.CreateAdd(aim1, loopBuilder.CreateAdd(ai, aip1), "stencil_accum");
 
-    auto biInd =
-      loopBuilder.CreateGEP(getArg(srUser, 1), loopBuilder.CreateSub(indPhi, one));
-    loopBuilder.CreateStore(inputSum, biInd);
+    storeVal(loopBuilder,
+             getArg(srUser, 1),
+             loopBuilder.CreateSub(indPhi, one),
+             inputSum);
+
     loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
 
     IRBuilder<> exitBuilder(exitBlock);
