@@ -11,6 +11,8 @@ namespace DHLS {
   }
 
   llvm::LLVMContext& getGlobalLLVMContext() {
+    assert(context != nullptr);
+    
     return *context;
   }
 }

@@ -1155,7 +1155,8 @@ namespace DHLS {
 
     auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
     IRBuilder<> builder(entryBlock);
-    ConstantInt* five = ConstantInt::get(context, APInt(32, StringRef("5"), 10));
+    //ConstantInt* five = ConstantInt::get(context, APInt(32, StringRef("5"), 10));
+    ConstantInt* five = mkInt("5", 32);
 
     auto ldA = builder.CreateLoad(dyn_cast<Value>(srUser->arg_begin()));
     auto sum = builder.CreateAdd(ldA, five);
