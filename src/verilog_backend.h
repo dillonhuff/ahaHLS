@@ -368,5 +368,8 @@ namespace DHLS {
   
   void noStoredValuesXWhenUsed(const MicroArchitecture& arch,
                                VerilogDebugInfo& debugInfo);
+
+  void addNoXChecks(const MicroArchitecture& arch,
+                    VerilogDebugInfo& debugInfo);
   
 }

@@ -1118,12 +1118,7 @@ namespace DHLS {
     auto arch = buildMicroArchitecture(srUser, graph, layout);
 
     VerilogDebugInfo info;
-    noAddsTakeXInputs(arch, info);
-    noMulsTakeXInputs(arch, info);
-    noPhiOutputsXWhenUsed(arch, info);
-    noLoadedValuesXWhenUsed(arch, info);
-    noLoadAddressesXWhenUsed(arch, info);
-    noStoredValuesXWhenUsed(arch, info);
+    addNoXChecks(arch, info);
 
     emitVerilog(srUser, arch, info);
 

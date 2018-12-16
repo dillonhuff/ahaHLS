@@ -178,7 +178,7 @@ namespace DHLS {
 
 
 
-          cout << "Getting source for " << instructionString(instr) << endl;
+          //cout << "Getting source for " << instructionString(instr) << endl;
           if (LoadInst::classof(instr)) {
             Value* location = instr->getOperand(0);
             string name = getRAMName(location, mems);
@@ -779,7 +779,7 @@ namespace DHLS {
 
     auto addUnit = map_find(instr, arch.unitAssignment);
 
-    cout << "Getting verilog for " << instructionString(instr) << endl;
+    //cout << "Getting verilog for " << instructionString(instr) << endl;
     if (ReturnInst::classof(instr)) {
       out << "\t\t\tvalid_reg = 1;" << endl;
     } else if (StoreInst::classof(instr)) {
@@ -963,7 +963,7 @@ namespace DHLS {
 
       } else if (hasOutput(instr)) {
 
-        cout << "Getting output " << instructionString(instr) << endl;
+        //cout << "Getting output " << instructionString(instr) << endl;
 
         string instrName = map_find(instr, names).name;
         auto unit = map_find(instr, unitAssignment);
@@ -2333,6 +2333,17 @@ namespace DHLS {
     out << "module " << name << "(" << commaListString(portStrings) << ");" << endl;
     emitComponents(out, comps);
     out << "endmodule" << endl;
+  }
+
+  void addNoXChecks(const MicroArchitecture& arch,
+                    VerilogDebugInfo& info) {
+
+    noAddsTakeXInputs(arch, info);
+    noMulsTakeXInputs(arch, info);
+    noPhiOutputsXWhenUsed(arch, info);
+    noLoadedValuesXWhenUsed(arch, info);
+    noLoadAddressesXWhenUsed(arch, info);
+    noStoredValuesXWhenUsed(arch, info);
   }
   
 }
