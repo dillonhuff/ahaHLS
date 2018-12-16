@@ -1134,6 +1134,8 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("using_shift_register"));
   }
 
+  // Next test case: Need to do a stenciled loop where I fill
+  // and then use a shift register for the loop computation
   TEST_CASE("Building a simple loop in LLVM") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
@@ -1210,6 +1212,105 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("accum_loop"));
   }
 
+  TEST_CASE("1D stencil without shift register in LLVM") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    auto mod = llvm::make_unique<Module>("simple LLVM 1D stencil", context);
+
+    std::vector<Type *> inputs{intType(32)->getPointerTo(),
+        intType(32)->getPointerTo()};
+    Function* srUser = mkFunc(inputs, "one_d_stencil", mod.get());
+
+    auto entryBlock = mkBB("entry_block", srUser);
+    auto loopBlock = mkBB("loop_block", srUser);
+    auto exitBlock = mkBB("exit_block", srUser);        
+
+    ConstantInt* loopBound = mkInt("6", 32);
+    ConstantInt* zero = mkInt("0", 32);    
+    ConstantInt* one = mkInt("1", 32);    
+
+    IRBuilder<> builder(entryBlock);
+    auto ldA = builder.CreateLoad(dyn_cast<Value>(srUser->arg_begin()));
+
+    builder.CreateBr(loopBlock);
+
+    IRBuilder<> loopBuilder(loopBlock);
+    auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
+
+    auto indPhiP1 = loopBuilder.CreateAdd(indPhi, one);
+    auto indPhiM1 = loopBuilder.CreateSub(indPhi, one);
+
+    auto sumPhi = loopBuilder.CreatePHI(intType(32), 2);
+    auto nextInd = loopBuilder.CreateAdd(indPhi, one);
+    auto nextSum = loopBuilder.CreateAdd(sumPhi, ldA);
+
+    auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
+
+    indPhi->addIncoming(one, entryBlock);
+    indPhi->addIncoming(nextInd, loopBlock);
+
+    sumPhi->addIncoming(zero, entryBlock);
+    sumPhi->addIncoming(nextSum, loopBlock);
+
+    auto aiInd =
+      loopBuilder.CreateGEP(dyn_cast<Value>(srUser->arg_begin() ), indPhi);
+    auto aip1Ind =
+      loopBuilder.CreateGEP(dyn_cast<Value>(srUser->arg_begin()), indPhiP1);
+    auto aim1Ind =
+      loopBuilder.CreateGEP(dyn_cast<Value>(srUser->arg_begin()), indPhiM1);
+
+    auto ai = loopBuilder.CreateLoad(aiInd);
+    auto aip1 = loopBuilder.CreateLoad(aip1Ind);
+    auto aim1 = loopBuilder.CreateLoad(aim1Ind);
+
+    auto biInd =
+      loopBuilder.CreateGEP(dyn_cast<Value>(srUser->arg_begin() + 1), indPhi);
+    
+    auto inputSum = loopBuilder.CreateAdd(aim1, loopBuilder.CreateAdd(ai, aip1), "stencil_accum");
+    
+    loopBuilder.CreateStore(inputSum, biInd);
+    
+    loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
+
+
+    IRBuilder<> exitBuilder(exitBlock);
+    exitBuilder.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(srUser) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    Schedule s = scheduleFunction(srUser, hcs);
+
+    STG graph = buildSTG(s, srUser);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 15}};
+
+    auto arch = buildMicroArchitecture(srUser, graph, layout);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(srUser, arch, info);
+
+    // Create testing infrastructure
+    map<string, vector<int> > memoryInit{{"arg_0", {6, 5, 1, 2, 9, 8, 4}}};
+    map<string, vector<int> > memoryExpected{{"arg_1", {6 + 5 + 1, 5 + 1 + 2, 1 + 2 + 9, 2 + 9 + 8, 9 + 8 + 4}}};
+
+    TestBenchSpec tb;
+    tb.memoryInit = memoryInit;
+    tb.memoryExpected = memoryExpected;
+    tb.runCycles = 30;
+    tb.name = "one_d_stencil";
+    emitVerilogTestBench(tb, arch, layout);
+
+    REQUIRE(runIVerilogTB("one_d_stencil"));
+  }
+  
   // struct Hello : public FunctionPass {
   //   static char ID;
   //   Hello() : FunctionPass(ID) {}

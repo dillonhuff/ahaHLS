@@ -35,7 +35,7 @@ namespace DHLS {
       llvm::FunctionType::get(llvm::Type::getVoidTy(getGlobalLLVMContext()), inputs, false);
     
     llvm::Function *srUser =
-      llvm::Function::Create(tp, llvm::Function::ExternalLinkage, "accum_loop", mod);
+      llvm::Function::Create(tp, llvm::Function::ExternalLinkage, funcName, mod);
 
     int argId = 0;
     for (auto &Arg : srUser->args()) {
