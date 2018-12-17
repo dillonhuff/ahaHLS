@@ -10,3 +10,13 @@
 
 * LLVM and clang
 * Z3 SMT solver
+
+# Build and Test Instructions
+
+Once the dependencies are installed do:
+
+```bash
+cmake .
+make -j
+./all-tests 
+```
