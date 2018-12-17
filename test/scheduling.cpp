@@ -1296,6 +1296,64 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("one_d_stencil"));
   }
 
+  TEST_CASE("LLVM program that uses a register") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    auto mod = llvm::make_unique<Module>("program that uses a register", context);
+
+    std::vector<Type *> inputs{intType(32)->getPointerTo(),
+        intType(32)->getPointerTo()};
+    Function* srUser = mkFunc(inputs, "one_register", mod.get());
+
+    auto entryBlock = mkBB("entry_block", srUser);
+
+    ConstantInt* loopBound = mkInt("6", 32);
+    ConstantInt* zero = mkInt("0", 32);    
+    ConstantInt* one = mkInt("1", 32);    
+
+    IRBuilder<> builder(entryBlock);
+    auto reg = builder.CreateAlloca(intType(32));    
+    auto ldA = loadVal(builder, getArg(srUser, 0), zero);
+    storeVal(builder, reg, zero, ldA);
+    auto v = loadVal(builder, reg, zero);
+    storeVal(builder, getArg(srUser, 0), zero, v);
+    builder.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(srUser) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    Schedule s = scheduleFunction(srUser, hcs);
+
+    STG graph = buildSTG(s, srUser);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
+
+    auto arch = buildMicroArchitecture(srUser, graph, layout);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(srUser, arch, info);
+
+    // Create testing infrastructure
+    map<string, vector<int> > memoryInit{{"arg_0", {6}}};
+    map<string, vector<int> > memoryExpected{{"arg_1", {6}}};
+
+    TestBenchSpec tb;
+    tb.memoryInit = memoryInit;
+    tb.memoryExpected = memoryExpected;
+    tb.runCycles = 30;
+    tb.name = "one_register";
+    emitVerilogTestBench(tb, arch, layout);
+
+    REQUIRE(runIVerilogTB("one_register"));
+  }
+  
   class ShiftRegister {
   public:
     int width;
@@ -1324,101 +1382,99 @@ namespace DHLS {
 
   };
 
-  TEST_CASE("1D stencil with shift register in LLVM") {
-    LLVMContext context;
-    setGlobalLLVMContext(&context);
+  // TEST_CASE("1D stencil with shift register in LLVM") {
+  //   LLVMContext context;
+  //   setGlobalLLVMContext(&context);
 
-    auto mod =
-      llvm::make_unique<Module>("shift registered LLVM 1D stencil", context);
+  //   auto mod =
+  //     llvm::make_unique<Module>("shift registered LLVM 1D stencil", context);
 
-    std::vector<Type *> inputs{intType(32)->getPointerTo(),
-        intType(32)->getPointerTo()};
-    Function* srUser = mkFunc(inputs, "one_d_stencil_sr", mod.get());
+  //   std::vector<Type *> inputs{intType(32)->getPointerTo(),
+  //       intType(32)->getPointerTo()};
+  //   Function* srUser = mkFunc(inputs, "one_d_stencil_sr", mod.get());
 
-    auto entryBlock = mkBB("entry_block", srUser);
-    auto loopBlock = mkBB("loop_block", srUser);
-    auto exitBlock = mkBB("exit_block", srUser);        
+  //   auto entryBlock = mkBB("entry_block", srUser);
+  //   auto loopBlock = mkBB("loop_block", srUser);
+  //   auto exitBlock = mkBB("exit_block", srUser);        
 
 
-    ConstantInt* loopBound = mkInt("6", 32);
-    ConstantInt* zero = mkInt("0", 32);    
-    ConstantInt* one = mkInt("1", 32);    
+  //   ConstantInt* loopBound = mkInt("6", 32);
+  //   ConstantInt* zero = mkInt("0", 32);    
+  //   ConstantInt* one = mkInt("1", 32);    
 
-    IRBuilder<> builder(entryBlock);
+  //   IRBuilder<> builder(entryBlock);
 
-    ShiftRegister sr(32, 3);
-    sr.init(builder);
+  //   ShiftRegister sr(32, 3);
+  //   sr.init(builder);
 
-    for (int i = 0; i < sr.depth; i++) {
-      sr.shift(builder);
-    }
+  //   for (int i = 0; i < sr.depth; i++) {
+  //     sr.shift(builder);
+  //   }
     
-    builder.CreateBr(loopBlock);
+  //   builder.CreateBr(loopBlock);
 
+  //   IRBuilder<> loopBuilder(loopBlock);
+  //   auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
 
+  //   auto indPhiP1 = loopBuilder.CreateAdd(indPhi, one);
+  //   auto indPhiM1 = loopBuilder.CreateSub(indPhi, one);
+
+  //   auto nextInd = loopBuilder.CreateAdd(indPhi, one);
+
+  //   auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
+
+  //   indPhi->addIncoming(one, entryBlock);
+  //   indPhi->addIncoming(nextInd, loopBlock);
+
+  //   auto ai = loadVal(loopBuilder, getArg(srUser, 0), indPhi);
+  //   auto aip1 = loadVal(loopBuilder, getArg(srUser, 0), indPhiP1);
+  //   auto aim1 = loadVal(loopBuilder, getArg(srUser, 0), indPhiM1);
     
-    IRBuilder<> loopBuilder(loopBlock);
-    auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
+  //   auto inputSum = loopBuilder.CreateAdd(aim1, loopBuilder.CreateAdd(ai, aip1), "stencil_accum");
 
-    auto indPhiP1 = loopBuilder.CreateAdd(indPhi, one);
-    auto indPhiM1 = loopBuilder.CreateSub(indPhi, one);
+  //   storeVal(loopBuilder,
+  //            getArg(srUser, 1),
+  //            loopBuilder.CreateSub(indPhi, one),
+  //            inputSum);
 
-    auto nextInd = loopBuilder.CreateAdd(indPhi, one);
+  //   loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
 
-    auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
+  //   IRBuilder<> exitBuilder(exitBlock);
+  //   exitBuilder.CreateRet(nullptr);
 
-    indPhi->addIncoming(one, entryBlock);
-    indPhi->addIncoming(nextInd, loopBlock);
+  //   cout << "LLVM Function" << endl;
+  //   cout << valueString(srUser) << endl;
 
-    auto ai = loadVal(loopBuilder, getArg(srUser, 0), indPhi);
-    auto aip1 = loadVal(loopBuilder, getArg(srUser, 0), indPhiP1);
-    auto aim1 = loadVal(loopBuilder, getArg(srUser, 0), indPhiM1);
-    
-    auto inputSum = loopBuilder.CreateAdd(aim1, loopBuilder.CreateAdd(ai, aip1), "stencil_accum");
+  //   HardwareConstraints hcs = standardConstraints();
+  //   Schedule s = scheduleFunction(srUser, hcs);
 
-    storeVal(loopBuilder,
-             getArg(srUser, 1),
-             loopBuilder.CreateSub(indPhi, one),
-             inputSum);
+  //   STG graph = buildSTG(s, srUser);
 
-    loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
+  //   cout << "STG Is" << endl;
+  //   graph.print(cout);
 
-    IRBuilder<> exitBuilder(exitBlock);
-    exitBuilder.CreateRet(nullptr);
+  //   map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
 
-    cout << "LLVM Function" << endl;
-    cout << valueString(srUser) << endl;
+  //   auto arch = buildMicroArchitecture(srUser, graph, layout);
 
-    HardwareConstraints hcs = standardConstraints();
-    Schedule s = scheduleFunction(srUser, hcs);
+  //   VerilogDebugInfo info;
+  //   addNoXChecks(arch, info);
 
-    STG graph = buildSTG(s, srUser);
+  //   emitVerilog(srUser, arch, info);
 
-    cout << "STG Is" << endl;
-    graph.print(cout);
+  //   // Create testing infrastructure
+  //   map<string, vector<int> > memoryInit{{"arg_0", {6, 5, 1, 2, 9, 8, 4}}};
+  //   map<string, vector<int> > memoryExpected{{"arg_1", {6 + 5 + 1, 5 + 1 + 2, 1 + 2 + 9, 2 + 9 + 8, 9 + 8 + 4}}};
 
-    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
+  //   TestBenchSpec tb;
+  //   tb.memoryInit = memoryInit;
+  //   tb.memoryExpected = memoryExpected;
+  //   tb.runCycles = 30;
+  //   tb.name = "one_d_stencil_sr";
+  //   emitVerilogTestBench(tb, arch, layout);
 
-    auto arch = buildMicroArchitecture(srUser, graph, layout);
-
-    VerilogDebugInfo info;
-    addNoXChecks(arch, info);
-
-    emitVerilog(srUser, arch, info);
-
-    // Create testing infrastructure
-    map<string, vector<int> > memoryInit{{"arg_0", {6, 5, 1, 2, 9, 8, 4}}};
-    map<string, vector<int> > memoryExpected{{"arg_1", {6 + 5 + 1, 5 + 1 + 2, 1 + 2 + 9, 2 + 9 + 8, 9 + 8 + 4}}};
-
-    TestBenchSpec tb;
-    tb.memoryInit = memoryInit;
-    tb.memoryExpected = memoryExpected;
-    tb.runCycles = 30;
-    tb.name = "one_d_stencil_sr";
-    emitVerilogTestBench(tb, arch, layout);
-
-    REQUIRE(runIVerilogTB("one_d_stencil_sr"));
-  }
+  //   REQUIRE(runIVerilogTB("one_d_stencil_sr"));
+  // }
   
   
   // struct Hello : public FunctionPass {
