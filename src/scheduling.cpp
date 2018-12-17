@@ -8,9 +8,6 @@
 #include <llvm/Analysis/AliasAnalysis.h>
 #include <llvm/Analysis/LoopInfo.h>
 
-// Header locations
-// /usr/local/opt/llvm/include/llvm/IR/Instructions.h
-
 using namespace dbhc;
 using namespace llvm;
 using namespace std;
@@ -18,9 +15,27 @@ using namespace z3;
 
 namespace DHLS {
 
+  Schedule scheduleFunction(llvm::Function* f,
+                            HardwareConstraints& hdc,
+                            std::set<BasicBlock*>& toPipeline,
+                            AAResults& aliasAnalysis);
+  
   struct SkeletonPass : public FunctionPass {
     static char ID;
-    SkeletonPass() : FunctionPass(ID) {}
+    Function* target;
+    HardwareConstraints& hdc;
+    std::set<BasicBlock*>& toPipeline;
+
+    Schedule schedule;
+    
+    SkeletonPass(Function* target_,
+                 HardwareConstraints& hdc_,
+                 std::set<BasicBlock*>& toPipeline_) :
+      FunctionPass(ID),      
+      target(target_),
+      hdc(hdc_),
+      toPipeline(toPipeline_) {}
+
 
     std::string aliasString;
     
@@ -37,8 +52,17 @@ namespace DHLS {
     virtual bool runOnFunction(Function &F) override {
       errs() << "I saw a function called " << F.getName() << "!\n";
 
+      if (&F != target) {
+        return false;
+      }
+
       AAResults& a = getAnalysis<AAResultsWrapperPass>().getAAResults();
 
+      schedule = scheduleFunction(&F,
+                                  hdc,
+                                  toPipeline,
+                                  a);
+      
       for (auto& bbA : F.getBasicBlockList()) {
         for (auto& instrA : bbA) {
 
@@ -64,16 +88,16 @@ namespace DHLS {
 
   // Automatically enable the pass.
   // http://adriansampson.net/blog/clangpass.html
-  static void registerSkeletonPass(const PassManagerBuilder &,
-                                   legacy::PassManagerBase &PM) {
-    cout << "Calling register skeleton" << endl;
-    PM.add(new LoopInfoWrapperPass());    
-    PM.add(new SkeletonPass());
-  }
+  // static void registerSkeletonPass(const PassManagerBuilder &,
+  //                                  legacy::PassManagerBase &PM) {
+  //   cout << "Calling register skeleton" << endl;
+  //   PM.add(new LoopInfoWrapperPass());    
+  //   PM.add(new SkeletonPass());
+  // }
 
-  static RegisterStandardPasses
-  RegisterMyPass(PassManagerBuilder::EP_EarlyAsPossible,
-                 registerSkeletonPass);  
+  // static RegisterStandardPasses
+  // RegisterMyPass(PassManagerBuilder::EP_EarlyAsPossible,
+  //                registerSkeletonPass);  
   
   OperationType opType(Instruction* const iptr) {
     if (ReturnInst::classof(iptr)) {
@@ -350,6 +374,24 @@ namespace DHLS {
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
                             std::set<BasicBlock*>& toPipeline) {
+
+    llvm::legacy::PassManager pm;
+    auto skeleton = new SkeletonPass(f, hdc, toPipeline);
+    pm.add(new LoopInfoWrapperPass());
+    pm.add(new AAResultsWrapperPass());    
+    pm.add(skeleton);
+
+    pm.run(*(f->getParent()));
+
+    Schedule s = skeleton->schedule;
+
+    return s;
+  }
+  
+  Schedule scheduleFunction(llvm::Function* f,
+                            HardwareConstraints& hdc,
+                            std::set<BasicBlock*>& toPipeline,
+                            AAResults& aliasAnalysis) {
 
     map<Instruction*, vector<expr> > schedVars;
     map<BasicBlock*, vector<expr> > blockVars;

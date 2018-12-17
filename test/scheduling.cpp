@@ -18,21 +18,13 @@
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/InstrTypes.h"
 #include <llvm/Support/TargetSelect.h>
-//#include <llvm/IR/LLVMContext.h>
+
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Bitcode/BitcodeReader.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/Support/SourceMgr.h>
-
-#include <llvm/Pass.h>
-#include <llvm/IR/Function.h>
-#include <llvm/IR/PassManager.h>
-#include <llvm/IR/LegacyPassManager.h>
-
-#include <llvm/Passes/PassBuilder.h>
-#include <llvm/Transforms/InstCombine/InstCombine.h>
 
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/Option/OptTable.h"
