@@ -57,3 +57,12 @@ sr_stencil_loop.v
 sr_stencil_loop_tb.v
 *.ll
 *.o
+accum_loop
+accum_loop.v
+accum_loop_tb.v
+one_d_stencil
+one_d_stencil.v
+one_d_stencil_sr
+one_d_stencil_sr.v
+one_d_stencil_sr_tb.v
+one_d_stencil_tb.v
