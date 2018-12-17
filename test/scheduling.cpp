@@ -1315,8 +1315,14 @@ namespace DHLS {
     IRBuilder<> builder(entryBlock);
     auto reg = builder.CreateAlloca(intType(32), nullptr, "dhsreg");
     auto ldA = loadVal(builder, getArg(srUser, 0), zero);
-    storeVal(builder, reg, zero, ldA);
-    auto v = loadVal(builder, reg, zero);
+
+    auto gpr = builder.CreateGEP(reg, zero);
+
+    builder.CreateStore(ldA, gpr);
+    
+    auto v = builder.CreateLoad(gpr); //loadVal(builder, reg, zero);
+    //storeVal(builder, reg, zero, ldA);
+    //auto v = loadVal(builder, reg, zero);
     storeVal(builder, getArg(srUser, 0), zero, v);
     builder.CreateRet(nullptr);
 
