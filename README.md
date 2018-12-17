@@ -4,7 +4,7 @@
 
 * [src/](src/) - The source code for scheduling and verilog generation
 * [test/scheduling.cpp](test/scheduling.cpp) - Unit tests of the HLS tool
-* [test/ll_files/](test/ll_files/) - Example programs used in unit testing
+* [test/ll_files/](test/ll_files/) - Example programs that are synthesized in unit tests
 
 # Dependencies:
 
