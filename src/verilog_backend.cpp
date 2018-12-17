@@ -159,6 +159,19 @@ namespace DHLS {
     return ind;
   }
 
+  void findLocation(Value* location,
+                    Instruction* instr,
+                    std::map<Instruction*, string>& mems,
+                    std::set<Instruction*>& foundOps) {
+    string name = getRAMName(location, mems);
+    if (name != "") {
+      mems[instr] = getRAMName(location, mems);
+      foundOps.insert(instr);
+    } else {
+      cout << "No source for " << instructionString(instr) << endl;
+    }
+  }
+
   std::map<llvm::Instruction*, std::string>
   memoryOpLocations(const STG& stg) {
     map<Instruction*, string> mems;
@@ -176,36 +189,21 @@ namespace DHLS {
             continue;
           }
 
-          //cout << "Getting source for " << instructionString(instr) << endl;
           if (LoadInst::classof(instr)) {
-            Value* location = instr->getOperand(0);
-            string name = getRAMName(location, mems);
-            if (name != "") {
-              mems[instr] = getRAMName(location, mems);
-              foundOps.insert(instr);
-            } else {
-              cout << "No source for " << instructionString(instr) << endl;
-            }
-          } else if (StoreInst::classof(instr)) {
-            Value* location = instr->getOperand(1);
 
-            string name = getRAMName(location, mems);
-            if (name != "") {
-              mems[instr] = getRAMName(location, mems);
-              foundOps.insert(instr);              
-            } else {
-              cout << "No source for " << instructionString(instr) << endl;
-            }
+            Value* location = instr->getOperand(0);
+            findLocation(location, instr, mems, foundOps);
+
+          } else if (StoreInst::classof(instr)) {
+
+            Value* location = instr->getOperand(1);
+            findLocation(location, instr, mems, foundOps);
 
           } else if (GetElementPtrInst::classof(instr)) {
+
             Value* location = instr->getOperand(0);
-            string name = getRAMName(location, mems);
-            if (name != "") {
-              mems[instr] = getRAMName(location, mems);
-              foundOps.insert(instr);                            
-            } else {
-              cout << "No source for " << instructionString(instr) << endl;
-            }
+            findLocation(location, instr, mems, foundOps);
+
           }
         }
       }

@@ -30,9 +30,6 @@ module RAM(input clk,
    assign debug_data = data[debug_addr];
    
    always @(posedge clk) begin
-      // $display("--- wen_del    = %d", wen_del);
-      // $display("--- waddr_del  = %d", waddr_del);
-      // $display("--- wdata_del  = %d", wdata_del);
       
       if (wen_del) begin
          data[waddr_del] <= wdata_del;
@@ -44,10 +41,6 @@ module RAM(input clk,
       
       rdata_reg <= data[raddr];
    end
-
-   //delay #(.WIDTH(32)) rdata_delay(.clk(clk), .in(rdata_reg), .out(rdata_reg_del));
-
-   //delay #(.WIDTH(5)) raddr_delay(.clk(clk), .in(raddr), .out(raddr_del));   
 
    delay #(.WIDTH(1)) wen_delay(.clk(clk), .in(wen), .out(wen_del));   
    delay #(.WIDTH(32)) wdata_delay(.clk(clk), .in(wdata), .out(wdata_del));   

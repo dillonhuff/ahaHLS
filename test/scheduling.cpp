@@ -1296,63 +1296,63 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("one_d_stencil"));
   }
 
-  TEST_CASE("LLVM program that uses a register") {
-    LLVMContext context;
-    setGlobalLLVMContext(&context);
+  // TEST_CASE("LLVM program that uses a register") {
+  //   LLVMContext context;
+  //   setGlobalLLVMContext(&context);
 
-    auto mod = llvm::make_unique<Module>("program that uses a register", context);
+  //   auto mod = llvm::make_unique<Module>("program that uses a register", context);
 
-    std::vector<Type *> inputs{intType(32)->getPointerTo(),
-        intType(32)->getPointerTo()};
-    Function* srUser = mkFunc(inputs, "one_register", mod.get());
+  //   std::vector<Type *> inputs{intType(32)->getPointerTo(),
+  //       intType(32)->getPointerTo()};
+  //   Function* srUser = mkFunc(inputs, "one_register", mod.get());
 
-    auto entryBlock = mkBB("entry_block", srUser);
+  //   auto entryBlock = mkBB("entry_block", srUser);
 
-    ConstantInt* loopBound = mkInt("6", 32);
-    ConstantInt* zero = mkInt("0", 32);    
-    ConstantInt* one = mkInt("1", 32);    
+  //   ConstantInt* loopBound = mkInt("6", 32);
+  //   ConstantInt* zero = mkInt("0", 32);    
+  //   ConstantInt* one = mkInt("1", 32);    
 
-    IRBuilder<> builder(entryBlock);
-    auto reg = builder.CreateAlloca(intType(32));    
-    auto ldA = loadVal(builder, getArg(srUser, 0), zero);
-    storeVal(builder, reg, zero, ldA);
-    auto v = loadVal(builder, reg, zero);
-    storeVal(builder, getArg(srUser, 0), zero, v);
-    builder.CreateRet(nullptr);
+  //   IRBuilder<> builder(entryBlock);
+  //   auto reg = builder.CreateAlloca(intType(32));    
+  //   auto ldA = loadVal(builder, getArg(srUser, 0), zero);
+  //   storeVal(builder, reg, zero, ldA);
+  //   auto v = loadVal(builder, reg, zero);
+  //   storeVal(builder, getArg(srUser, 0), zero, v);
+  //   builder.CreateRet(nullptr);
 
-    cout << "LLVM Function" << endl;
-    cout << valueString(srUser) << endl;
+  //   cout << "LLVM Function" << endl;
+  //   cout << valueString(srUser) << endl;
 
-    HardwareConstraints hcs = standardConstraints();
-    Schedule s = scheduleFunction(srUser, hcs);
+  //   HardwareConstraints hcs = standardConstraints();
+  //   Schedule s = scheduleFunction(srUser, hcs);
 
-    STG graph = buildSTG(s, srUser);
+  //   STG graph = buildSTG(s, srUser);
 
-    cout << "STG Is" << endl;
-    graph.print(cout);
+  //   cout << "STG Is" << endl;
+  //   graph.print(cout);
 
-    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
+  //   map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
 
-    auto arch = buildMicroArchitecture(srUser, graph, layout);
+  //   auto arch = buildMicroArchitecture(srUser, graph, layout);
 
-    VerilogDebugInfo info;
-    addNoXChecks(arch, info);
+  //   VerilogDebugInfo info;
+  //   addNoXChecks(arch, info);
 
-    emitVerilog(srUser, arch, info);
+  //   emitVerilog(srUser, arch, info);
 
-    // Create testing infrastructure
-    map<string, vector<int> > memoryInit{{"arg_0", {6}}};
-    map<string, vector<int> > memoryExpected{{"arg_1", {6}}};
+  //   // Create testing infrastructure
+  //   map<string, vector<int> > memoryInit{{"arg_0", {6}}};
+  //   map<string, vector<int> > memoryExpected{{"arg_1", {6}}};
 
-    TestBenchSpec tb;
-    tb.memoryInit = memoryInit;
-    tb.memoryExpected = memoryExpected;
-    tb.runCycles = 30;
-    tb.name = "one_register";
-    emitVerilogTestBench(tb, arch, layout);
+  //   TestBenchSpec tb;
+  //   tb.memoryInit = memoryInit;
+  //   tb.memoryExpected = memoryExpected;
+  //   tb.runCycles = 30;
+  //   tb.name = "one_register";
+  //   emitVerilogTestBench(tb, arch, layout);
 
-    REQUIRE(runIVerilogTB("one_register"));
-  }
+  //   REQUIRE(runIVerilogTB("one_register"));
+  // }
   
   class ShiftRegister {
   public:
