@@ -119,9 +119,12 @@ namespace DHLS {
 
   }
 
+  // Issue: what is the name of each register?
   std::string getRAMName(Value* location,
                          std::map<llvm::Instruction*, std::string>& ramNames) {
 
+    cout << "Finding location of " << valueString(location) << endl;
+    
     if (Instruction::classof(location)) {
       Instruction* locInstr = dyn_cast<Instruction>(location);
 
@@ -133,7 +136,9 @@ namespace DHLS {
         string src = map_find(locInstr, ramNames);
         return src;
       } else {
-        return locInstr->getName();
+        string retName = locInstr->getName();
+        assert(retName != "");
+        return retName;
       }
       
     } else if (Argument::classof(location)) {
@@ -163,6 +168,7 @@ namespace DHLS {
                     Instruction* instr,
                     std::map<Instruction*, string>& mems,
                     std::set<Instruction*>& foundOps) {
+
     string name = getRAMName(location, mems);
     if (name != "") {
       mems[instr] = getRAMName(location, mems);
