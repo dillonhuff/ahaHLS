@@ -1536,7 +1536,7 @@ namespace DHLS {
 
     virtual void getAnalysisUsage(AnalysisUsage& AU) const override {
       // AU.addRequired<ScalarEvolutionWrapperPass>();
-      // AU.addRequired<AAResultsWrapperPass>();
+      AU.addRequired<AAResultsWrapperPass>();
       AU.addRequired<LoopInfoWrapperPass>();
       AU.setPreservesAll();
     }
@@ -1576,6 +1576,7 @@ namespace DHLS {
 
     llvm::legacy::PassManager pm;
     pm.add(new LoopInfoWrapperPass());
+    pm.add(new AAResultsWrapperPass());    
     pm.add(new SkeletonPass());
 
     pm.run(*Mod);
