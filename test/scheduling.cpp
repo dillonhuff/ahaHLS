@@ -29,6 +29,7 @@
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
 
 #include <llvm/Analysis/AliasAnalysis.h>
+#include <llvm/Analysis/LoopInfo.h>
 #include <llvm/Pass.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/PassManager.h>
@@ -1533,7 +1534,18 @@ namespace DHLS {
     static char ID;
     SkeletonPass() : FunctionPass(ID) {}
 
-    virtual bool runOnFunction(Function &F) {
+    virtual void getAnalysisUsage(AnalysisUsage& AU) const override {
+      // AU.addRequired<ScalarEvolutionWrapperPass>();
+      // AU.addRequired<AAResultsWrapperPass>();
+      AU.addRequired<LoopInfoWrapperPass>();
+      AU.setPreservesAll();
+    }
+
+    virtual StringRef getPassName() const override {
+      return StringRef("DillonHuffSkeletonPass");
+    }
+    
+    virtual bool runOnFunction(Function &F) override {
       errs() << "I saw a function called " << F.getName() << "!\n";
       return false;
     }
@@ -1545,8 +1557,11 @@ namespace DHLS {
   // http://adriansampson.net/blog/clangpass.html
   static void registerSkeletonPass(const PassManagerBuilder &,
                                    legacy::PassManagerBase &PM) {
+    cout << "Calling register skeleton" << endl;
+    PM.add(new LoopInfoWrapperPass());    
     PM.add(new SkeletonPass());
   }
+
   static RegisterStandardPasses
   RegisterMyPass(PassManagerBuilder::EP_EarlyAsPossible,
                  registerSkeletonPass);  
@@ -1560,6 +1575,7 @@ namespace DHLS {
     Function* f = Mod->getFunction("single_store");
 
     llvm::legacy::PassManager pm;
+    pm.add(new LoopInfoWrapperPass());
     pm.add(new SkeletonPass());
 
     pm.run(*Mod);
