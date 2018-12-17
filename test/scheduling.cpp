@@ -1534,6 +1534,8 @@ namespace DHLS {
     static char ID;
     SkeletonPass() : FunctionPass(ID) {}
 
+    std::string aliasString;
+    
     virtual void getAnalysisUsage(AnalysisUsage& AU) const override {
       // AU.addRequired<ScalarEvolutionWrapperPass>();
       AU.addRequired<AAResultsWrapperPass>();
@@ -1556,7 +1558,12 @@ namespace DHLS {
           cout << "Possible aliases for " << valueString(&instrA) << endl;
           for (auto& bbB : F.getBasicBlockList()) {
             for (auto& instrB : bbB) {
-              cout << a.alias(&instrA, &instrB) << endl;
+              AliasResult r = a.alias(&instrA, &instrB);
+              cout << r << endl;
+
+              if (r == NoAlias) {
+                aliasString += "No alias " + valueString(&instrA) + " " + valueString(&instrB) + "\n";
+              }
             }
           }
           
@@ -1590,11 +1597,14 @@ namespace DHLS {
     Function* f = Mod->getFunction("single_store");
 
     llvm::legacy::PassManager pm;
+    auto skeleton = new SkeletonPass();
     pm.add(new LoopInfoWrapperPass());
     pm.add(new AAResultsWrapperPass());    
-    pm.add(new SkeletonPass());
+    pm.add(skeleton);
 
     pm.run(*Mod);
+
+    cout << skeleton->aliasString << endl;
   }
   
 }
