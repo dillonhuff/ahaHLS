@@ -47,3 +47,13 @@ stalled_single_store_axi.v
 brighter
 brighter.v
 brighter_tb.v
+using_shift_register
+using_shift_register.v
+using_shift_register_tb.v
+one_register.v
+one_register_tb.v
+sr_stencil_loop
+sr_stencil_loop.v
+sr_stencil_loop_tb.v
+*.ll
+*.o

@@ -176,8 +176,6 @@ namespace DHLS {
             continue;
           }
 
-
-
           //cout << "Getting source for " << instructionString(instr) << endl;
           if (LoadInst::classof(instr)) {
             Value* location = instr->getOperand(0);
