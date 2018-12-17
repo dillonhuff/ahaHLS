@@ -1,6 +1,12 @@
 # A Basic High Level Synthesis System Using LLVM
 
+## Project Structure
+
+* [src/](src/) - The source code for scheduling and verilog generation
+* [test/scheduling.cpp](test/scheduling.cpp) - Unit tests of the HLS tool
+* [test/ll_files/](test/ll_files/) - Example programs used in unit testing
+
 # Dependencies:
 
-* LLVM
+* LLVM and clang
 * Z3 SMT solver
