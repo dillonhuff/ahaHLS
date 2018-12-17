@@ -1547,6 +1547,21 @@ namespace DHLS {
     
     virtual bool runOnFunction(Function &F) override {
       errs() << "I saw a function called " << F.getName() << "!\n";
+
+      AAResults& a = getAnalysis<AAResultsWrapperPass>().getAAResults();
+
+      for (auto& bbA : F.getBasicBlockList()) {
+        for (auto& instrA : bbA) {
+
+          cout << "Possible aliases for " << valueString(&instrA) << endl;
+          for (auto& bbB : F.getBasicBlockList()) {
+            for (auto& instrB : bbB) {
+              cout << a.alias(&instrA, &instrB) << endl;
+            }
+          }
+          
+        }
+      }
       return false;
     }
   };
