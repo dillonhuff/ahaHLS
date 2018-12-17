@@ -10,6 +10,7 @@
 
 * LLVM and clang
 * Z3 SMT solver
+* Icarus Verilog (to run the unit tests of generated verilog)
 
 # Build and Test Instructions
 
