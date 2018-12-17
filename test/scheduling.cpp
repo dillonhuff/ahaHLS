@@ -26,6 +26,8 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/Support/SourceMgr.h>
 
+#include "llvm/Transforms/IPO/PassManagerBuilder.h"
+
 #include <llvm/Analysis/AliasAnalysis.h>
 #include <llvm/Pass.h>
 #include <llvm/IR/Function.h>
@@ -1517,27 +1519,50 @@ namespace DHLS {
   // }; // end of struct PipelineSched  
   
   // char PipelineSched::ID = 0;
+
+  // static RegisterStandardPasses
+  // RegisterMyPass(PassManagerBuilder::EP_EarlyAsPossible,
+  //                registerSkeletonPass);
+
   // static RegisterPass<PipelineSched>
   // PipeSched("pipelinesched", "PipelineSched World Pass",
   //           false /* Only looks at CFG */,
-  //           false /* Analysis Pass */);
-  
-  // TEST_CASE("LLVM running pass on single store") {
+  //           true /* Analysis Pass */);
 
-  //   SMDiagnostic Err;
-  //   LLVMContext Context;
-  //   std::unique_ptr<Module> Mod = loadModule(Context, Err, "single_store");
+  struct SkeletonPass : public FunctionPass {
+    static char ID;
+    SkeletonPass() : FunctionPass(ID) {}
 
-  //   Function* f = Mod->getFunction("single_store");
+    virtual bool runOnFunction(Function &F) {
+      errs() << "I saw a function called " << F.getName() << "!\n";
+      return false;
+    }
+  };
 
-  //   llvm::legacy::PassManager pm;
-  //   auto nh = new Hello();
-  //   auto ps = new PipelineSched();    
-  //   pm.add(nh);
-  //   pm.add(ps);
+  char SkeletonPass::ID = 0;
 
-  //   pm.run(*Mod);
+  // Automatically enable the pass.
+  // http://adriansampson.net/blog/clangpass.html
+  static void registerSkeletonPass(const PassManagerBuilder &,
+                                   legacy::PassManagerBase &PM) {
+    PM.add(new SkeletonPass());
+  }
+  static RegisterStandardPasses
+  RegisterMyPass(PassManagerBuilder::EP_EarlyAsPossible,
+                 registerSkeletonPass);  
 
-  // }
+  TEST_CASE("LLVM running pass on single store") {
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+    std::unique_ptr<Module> Mod = loadModule(Context, Err, "single_store");
+
+    Function* f = Mod->getFunction("single_store");
+
+    llvm::legacy::PassManager pm;
+    pm.add(new SkeletonPass());
+
+    pm.run(*Mod);
+  }
   
 }
