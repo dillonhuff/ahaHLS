@@ -26,10 +26,6 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/Support/SourceMgr.h>
 
-#include "llvm/Transforms/IPO/PassManagerBuilder.h"
-
-#include <llvm/Analysis/AliasAnalysis.h>
-#include <llvm/Analysis/LoopInfo.h>
 #include <llvm/Pass.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/PassManager.h>
@@ -1484,127 +1480,24 @@ namespace DHLS {
 
   //   REQUIRE(runIVerilogTB("one_d_stencil_sr"));
   // }
-  
-  
-  // struct Hello : public FunctionPass {
-  //   static char ID;
-  //   Hello() : FunctionPass(ID) {}
 
-  //   bool runOnFunction(Function &F) override {
-  //     errs() << "Hello: ";
-  //     errs().write_escaped(F.getName()) << '\n';
-  //     return true;
-  //   }
-  // }; // end of struct Hello  
+  // TEST_CASE("LLVM running pass on single store") {
 
-  // char Hello::ID = 0;
-  // static RegisterPass<Hello> X("hello", "Hello World Pass",
-  //                              false /* Only looks at CFG */,
-  //                              false /* Analysis Pass */);
-  
-  // struct PipelineSched : public FunctionPass {
-  //   static char ID;
-  //   PipelineSched() : FunctionPass(ID) {}
+  //   SMDiagnostic Err;
+  //   LLVMContext Context;
+  //   std::unique_ptr<Module> Mod = loadModule(Context, Err, "single_store");
 
-  //   void getAnalysisUsage(AnalysisUsage& AU) const override {
-  //     AU.addRequired<ScalarEvolutionWrapperPass>();
-  //     AU.addRequired<AAResultsWrapperPass>();
-  //     //AU.addRequired<ScopDetectionWrapperPass>();
-  //   }
+  //   Function* f = Mod->getFunction("single_store");
 
-  //   bool runOnFunction(Function &F) override {
-  //     errs() << "PipelineSched: ";
-  //     errs().write_escaped(F.getName()) << '\n';
-  //     return true;
-  //   }
-  // }; // end of struct PipelineSched  
-  
-  // char PipelineSched::ID = 0;
+  //   llvm::legacy::PassManager pm;
+  //   auto skeleton = new SkeletonPass();
+  //   pm.add(new LoopInfoWrapperPass());
+  //   pm.add(new AAResultsWrapperPass());    
+  //   pm.add(skeleton);
 
-  // static RegisterStandardPasses
-  // RegisterMyPass(PassManagerBuilder::EP_EarlyAsPossible,
-  //                registerSkeletonPass);
+  //   pm.run(*Mod);
 
-  // static RegisterPass<PipelineSched>
-  // PipeSched("pipelinesched", "PipelineSched World Pass",
-  //           false /* Only looks at CFG */,
-  //           true /* Analysis Pass */);
-
-  struct SkeletonPass : public FunctionPass {
-    static char ID;
-    SkeletonPass() : FunctionPass(ID) {}
-
-    std::string aliasString;
-    
-    virtual void getAnalysisUsage(AnalysisUsage& AU) const override {
-      // AU.addRequired<ScalarEvolutionWrapperPass>();
-      AU.addRequired<AAResultsWrapperPass>();
-      AU.addRequired<LoopInfoWrapperPass>();
-      AU.setPreservesAll();
-    }
-
-    virtual StringRef getPassName() const override {
-      return StringRef("DillonHuffSkeletonPass");
-    }
-    
-    virtual bool runOnFunction(Function &F) override {
-      errs() << "I saw a function called " << F.getName() << "!\n";
-
-      AAResults& a = getAnalysis<AAResultsWrapperPass>().getAAResults();
-
-      for (auto& bbA : F.getBasicBlockList()) {
-        for (auto& instrA : bbA) {
-
-          cout << "Possible aliases for " << valueString(&instrA) << endl;
-          for (auto& bbB : F.getBasicBlockList()) {
-            for (auto& instrB : bbB) {
-              AliasResult r = a.alias(&instrA, &instrB);
-              cout << r << endl;
-
-              if (r == NoAlias) {
-                aliasString += "No alias " + valueString(&instrA) + " " + valueString(&instrB) + "\n";
-              }
-            }
-          }
-          
-        }
-      }
-      return false;
-    }
-  };
-
-  char SkeletonPass::ID = 0;
-
-  // Automatically enable the pass.
-  // http://adriansampson.net/blog/clangpass.html
-  static void registerSkeletonPass(const PassManagerBuilder &,
-                                   legacy::PassManagerBase &PM) {
-    cout << "Calling register skeleton" << endl;
-    PM.add(new LoopInfoWrapperPass());    
-    PM.add(new SkeletonPass());
-  }
-
-  static RegisterStandardPasses
-  RegisterMyPass(PassManagerBuilder::EP_EarlyAsPossible,
-                 registerSkeletonPass);  
-
-  TEST_CASE("LLVM running pass on single store") {
-
-    SMDiagnostic Err;
-    LLVMContext Context;
-    std::unique_ptr<Module> Mod = loadModule(Context, Err, "single_store");
-
-    Function* f = Mod->getFunction("single_store");
-
-    llvm::legacy::PassManager pm;
-    auto skeleton = new SkeletonPass();
-    pm.add(new LoopInfoWrapperPass());
-    pm.add(new AAResultsWrapperPass());    
-    pm.add(skeleton);
-
-    pm.run(*Mod);
-
-    cout << skeleton->aliasString << endl;
-  }
+  //   cout << skeleton->aliasString << endl;
+  // }
   
 }

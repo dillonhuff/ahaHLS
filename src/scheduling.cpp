@@ -4,6 +4,10 @@
 
 #include <llvm/IR/Instructions.h>
 
+#include "llvm/Transforms/IPO/PassManagerBuilder.h"
+#include <llvm/Analysis/AliasAnalysis.h>
+#include <llvm/Analysis/LoopInfo.h>
+
 // Header locations
 // /usr/local/opt/llvm/include/llvm/IR/Instructions.h
 
@@ -14,6 +18,63 @@ using namespace z3;
 
 namespace DHLS {
 
+  struct SkeletonPass : public FunctionPass {
+    static char ID;
+    SkeletonPass() : FunctionPass(ID) {}
+
+    std::string aliasString;
+    
+    virtual void getAnalysisUsage(AnalysisUsage& AU) const override {
+      AU.addRequired<AAResultsWrapperPass>();
+      AU.addRequired<LoopInfoWrapperPass>();
+      AU.setPreservesAll();
+    }
+
+    virtual StringRef getPassName() const override {
+      return StringRef("DillonHuffSkeletonPass");
+    }
+    
+    virtual bool runOnFunction(Function &F) override {
+      errs() << "I saw a function called " << F.getName() << "!\n";
+
+      AAResults& a = getAnalysis<AAResultsWrapperPass>().getAAResults();
+
+      for (auto& bbA : F.getBasicBlockList()) {
+        for (auto& instrA : bbA) {
+
+          cout << "Possible aliases for " << valueString(&instrA) << endl;
+          for (auto& bbB : F.getBasicBlockList()) {
+            for (auto& instrB : bbB) {
+              AliasResult r = a.alias(&instrA, &instrB);
+              cout << r << endl;
+
+              if (r == NoAlias) {
+                aliasString += "No alias " + valueString(&instrA) + " " + valueString(&instrB) + "\n";
+              }
+            }
+          }
+          
+        }
+      }
+      return false;
+    }
+  };
+
+  char SkeletonPass::ID = 0;
+
+  // Automatically enable the pass.
+  // http://adriansampson.net/blog/clangpass.html
+  static void registerSkeletonPass(const PassManagerBuilder &,
+                                   legacy::PassManagerBase &PM) {
+    cout << "Calling register skeleton" << endl;
+    PM.add(new LoopInfoWrapperPass());    
+    PM.add(new SkeletonPass());
+  }
+
+  static RegisterStandardPasses
+  RegisterMyPass(PassManagerBuilder::EP_EarlyAsPossible,
+                 registerSkeletonPass);  
+  
   OperationType opType(Instruction* const iptr) {
     if (ReturnInst::classof(iptr)) {
       return RETURN_OP;
