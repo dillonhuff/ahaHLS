@@ -1420,6 +1420,7 @@ namespace DHLS {
     cout << valueString(srUser) << endl;
 
     HardwareConstraints hcs = standardConstraints();
+    addMemInfo(hcs, sr.regTypes);
     Schedule s = scheduleFunction(srUser, hcs);
 
     STG graph = buildSTG(s, srUser);

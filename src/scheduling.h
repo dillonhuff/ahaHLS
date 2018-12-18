@@ -79,6 +79,8 @@ namespace DHLS {
     
   public:
 
+    std::map<llvm::Value*, MemorySpec> memSpecs;
+    
     int getLatency(const OperationType op) const {
       return dbhc::map_find(op, latencies);
     }
@@ -101,6 +103,15 @@ namespace DHLS {
     }
     
   };
+
+  static inline
+  void addMemInfo(HardwareConstraints& hcs,
+                  const std::map<llvm::Value*, MemorySpec>& mems) {
+    for (auto m : mems) {
+      assert(!dbhc::contains_key(m.first, hcs.memSpecs));
+      hcs.memSpecs[m.first] = m.second;
+    }
+  }
 
   class Schedule {
 
