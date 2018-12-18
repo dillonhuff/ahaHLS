@@ -85,6 +85,8 @@ namespace DHLS {
       return dbhc::map_find(op, latencies);
     }
 
+    int getLatency(llvm::Instruction* iptr) const;
+
     int getCount(const OperationType op) const {
       // If not explicitly constrained we have an infinite number
       if (!dbhc::contains_key(op, counts)) {

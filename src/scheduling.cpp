@@ -173,39 +173,39 @@ namespace DHLS {
                 const map<Instruction*, vector<expr> >& vars) {
     return map_find(bb, vars).back();
   }
-  
-  int getLatency(Instruction* iptr, HardwareConstraints& hdc) {
+
+  int HardwareConstraints::getLatency(Instruction* iptr) const {
     int latency;
     if (ReturnInst::classof(iptr)) {
       latency = 0;
     } else if (StoreInst::classof(iptr)) {
-      latency = hdc.getLatency(STORE_OP);
+      latency = getLatency(STORE_OP);
     } else if (LoadInst::classof(iptr)) {
-      latency = hdc.getLatency(LOAD_OP);
+      latency = getLatency(LOAD_OP);
     } else if (CmpInst::classof(iptr)) {
-      latency = hdc.getLatency(CMP_OP);
+      latency = getLatency(CMP_OP);
     } else if (BranchInst::classof(iptr)) {
-      latency = hdc.getLatency(BR_OP);
+      latency = getLatency(BR_OP);
     } else if (PHINode::classof(iptr)) {
       // Phi instructions are just wiring
       latency = 0;
     } else if (BinaryOperator::classof(iptr)) {
       auto opCode = iptr->getOpcode();
       if (opCode == Instruction::Add) {
-        latency = hdc.getLatency(ADD_OP);
+        latency = getLatency(ADD_OP);
       } else if (opCode == Instruction::Mul) {
-        latency = hdc.getLatency(MUL_OP);
+        latency = getLatency(MUL_OP);
       } else if (opCode == Instruction::Sub) {
-        latency = hdc.getLatency(SUB_OP);
+        latency = getLatency(SUB_OP);
       } else {
         assert(false);
       }
     } else if (GetElementPtrInst::classof(iptr)) {
-      latency = hdc.getLatency(ADD_OP);
+      latency = getLatency(ADD_OP);
     } else if (ZExtInst::classof(iptr)) {
-      latency = hdc.getLatency(ZEXT_OP);
+      latency = getLatency(ZEXT_OP);
     } else if (SelectInst::classof(iptr)) {
-      latency = hdc.getLatency(SELECT_OP);
+      latency = getLatency(SELECT_OP);
     } else if (AllocaInst::classof(iptr)) {
       // Alloca represents the instantiation of a memory
       latency = 0;
@@ -217,7 +217,7 @@ namespace DHLS {
       // and end calls that have no meaning in hardware
       latency = 0;
     } else if (SExtInst::classof(iptr)) {
-      latency = hdc.getLatency(SEXT_OP);
+      latency = getLatency(SEXT_OP);
     } else {
 
       cout << "Error: Unsupported instruction type " << instructionString(iptr) << std::endl;
@@ -226,6 +226,10 @@ namespace DHLS {
     }
 
     return latency;
+  }
+  
+  int getLatency(Instruction* iptr, HardwareConstraints& hdc) {
+    return hdc.getLatency(iptr);
   }
 
   Schedule buildFromModel(solver& s,
