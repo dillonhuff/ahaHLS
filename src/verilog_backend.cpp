@@ -795,7 +795,6 @@ namespace DHLS {
 
       auto arg0 = instr->getOperand(0);
       //auto wdataName = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
-
       auto wdataName = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);      
       
       Value* location = instr->getOperand(1);
@@ -849,9 +848,11 @@ namespace DHLS {
       for (int i = 1; i < (int) numOperands; i++) {
         auto arg1 = instr->getOperand(i);
         cout << "Getting operand " << valueString(arg1) << endl;
+        // auto arg1Name =
+        //   outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
         auto arg1Name =
-          outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
-
+          outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+        
         out << "\t\t\t" << addUnit.portWires["in" + to_string(i)].name << " = " << arg1Name << ";" << endl;
       }
 
@@ -885,13 +886,16 @@ namespace DHLS {
       SelectInst* sel = dyn_cast<SelectInst>(instr);
 
       Value* cond = sel->getCondition();
-      string condName = outputName(cond, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      //string condName = outputName(cond, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      string condName = outputName(cond, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       Value* trueVal = sel->getTrueValue();
-      string trueName = outputName(trueVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      //string trueName = outputName(trueVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      string trueName = outputName(trueVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       Value* falseVal = sel->getFalseValue();
-      string falseName = outputName(falseVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      //string falseName = outputName(falseVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      string falseName = outputName(falseVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);      
       
       out << "\t\t\t" << addUnit.portWires["in0"].name << " = " << falseName << ";" << endl;
       out << "\t\t\t" << addUnit.portWires["in1"].name << " = " << trueName << ";" << endl;
@@ -905,7 +909,8 @@ namespace DHLS {
     } else if(SExtInst::classof(instr)) {
 
       Value* trueVal = instr->getOperand(0);
-      string trueName = outputName(trueVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      //string trueName = outputName(trueVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      string trueName = outputName(trueVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       out << "\t\t\t" << addUnit.portWires["in"].name << " = " << trueName << ";" << endl;
 
