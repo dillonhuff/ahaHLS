@@ -1573,7 +1573,7 @@ namespace DHLS {
           auto bbI = *begin(instructionsForBlocks);
 
           out << tab(3) << "if (global_state == " << p.stateId << ") begin" << endl;
-          //out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, st.first, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
+
           auto bbNo = map_find(bbI.first, arch.basicBlockNos);
           out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
           //out << tab(4) << "end" << endl;

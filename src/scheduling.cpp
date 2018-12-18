@@ -63,23 +63,24 @@ namespace DHLS {
                                   toPipeline,
                                   a);
       
-      for (auto& bbA : F.getBasicBlockList()) {
-        for (auto& instrA : bbA) {
+      // for (auto& bbA : F.getBasicBlockList()) {
+      //   for (auto& instrA : bbA) {
 
-          cout << "Possible aliases for " << valueString(&instrA) << endl;
-          for (auto& bbB : F.getBasicBlockList()) {
-            for (auto& instrB : bbB) {
-              AliasResult r = a.alias(&instrA, &instrB);
-              cout << r << endl;
+      //     //cout << "Possible aliases for " << valueString(&instrA) << endl;
+      //     for (auto& bbB : F.getBasicBlockList()) {
+      //       for (auto& instrB : bbB) {
+      //         AliasResult r = a.alias(&instrA, &instrB);
+      //         //cout << r << endl;
 
-              if (r == NoAlias) {
-                aliasString += "No alias " + valueString(&instrA) + " " + valueString(&instrB) + "\n";
-              }
-            }
-          }
+      //         // if (r == NoAlias) {
+      //         //   aliasString += "No alias " + valueString(&instrA) + " " + valueString(&instrB) + "\n";
+      //         // }
+      //       }
+      //     }
           
-        }
-      }
+      //   }
+      // }
+
       return false;
     }
   };
