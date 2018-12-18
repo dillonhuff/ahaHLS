@@ -266,5 +266,22 @@ module axi_stall_manager(input clk,
 
    assign should_stall = reading | writing;
    
+endmodule // axi_stall_manager
+
+module register(input clk, input rst, input [31:0] raddr, input [31:0] waddr, input wen, input ren, input [31:0] wdata, output [31:0] rdata);
+
+   reg [31:0] data;
+
+   always @(posedge clk) begin
+      if (wen) begin
+         data <= wdata;
+         $display("writing %d to register", wdata);
+      end
+
+      $display("on clock data = %d", data);      
+   end
+   
+   assign rdata = data;
+   
 endmodule
 

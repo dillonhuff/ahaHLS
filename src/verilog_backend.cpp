@@ -251,9 +251,15 @@ namespace DHLS {
   }
 
 
+  std::string memName(llvm::Instruction* instr,
+                      const std::map<Instruction*, llvm::Value*>& memSrcs){
+    return map_find(instr, memSrcs)->getName();
+  }
+
   std::map<Instruction*, FunctionalUnit>
   assignFunctionalUnits(const STG& stg,
-                        std::map<std::string, int>& memoryMap) {
+                        std::map<std::string, int>& memoryMap,
+                        HardwareConstraints& hcs) {
 
     std::map<Instruction*, FunctionalUnit> units;
 
@@ -293,7 +299,7 @@ namespace DHLS {
             assert(contains_key(instr, memSrcs));
           }
 
-          string memSrc = map_find(instr, memSrcs)->getName();
+          string memSrc = memName(instr, memSrcs); //map_find(instr, memSrcs)->getName();
 
           // If we are loading from an internal RAM, not an argument
           if (!contains_key(memSrc, memoryMap)) {
@@ -311,10 +317,18 @@ namespace DHLS {
           
         if (StoreInst::classof(instr)) {
 
-          string memSrc = map_find(instr, memSrcs)->getName();
+          string memSrc = memName(instr, memSrcs); //map_find(instr, memSrcs)->getName();
           if (!contains_key(memSrc, memoryMap)) {
             cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
             modName = "RAM";
+
+
+            Value* op = map_find(instr, hcs.memoryMapping);
+            if (contains_key(op, hcs.memSpecs)) {
+              MemorySpec spec = map_find(op, hcs.memSpecs);
+              modName = spec.modSpec.name;
+            }
+
             unitName = memSrc;
             // These names need to match names created in the portlist. So
             // maybe this should be used to create the port list? Generate the
@@ -338,12 +352,19 @@ namespace DHLS {
           }
 
         } else if (LoadInst::classof(instr)) {
-          string memSrc = map_find(instr, memSrcs)->getName();
+          string memSrc = memName(instr, memSrcs); //map_find(instr, memSrcs)->getName();
 
           // If we are loading from an internal RAM, not an argument
           if (!contains_key(memSrc, memoryMap)) {
             cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
             modName = "RAM";
+
+            Value* op = map_find(instr, hcs.memoryMapping);
+            if (contains_key(op, hcs.memSpecs)) {
+              MemorySpec spec = map_find(op, hcs.memSpecs);
+              modName = spec.modSpec.name;
+            }
+
             unitName = memSrc;
 
             wiring = {{"raddr", {true, 32, "raddr_" + unitName + "_reg"}}, {"wen", {true, 1, "wen_" + unitName + "_reg"}}, {"waddr", {true, 32, "waddr_" + unitName + "_reg"}}, {"wdata", {true, 32, "wdata_" + unitName + "_reg"}}};
@@ -1313,7 +1334,8 @@ namespace DHLS {
         wireDecls.push_back("." + w.first + "(" + w.second.name + ")");
       }
 
-      if (unit.modName == "RAM") {
+      // TODO: Hardcode in module description
+      if ((unit.modName == "RAM") || (unit.modName == "register")) {
         wireDecls.push_back(".clk(clk)");
         wireDecls.push_back(".rst(rst)");        
       }
@@ -1666,7 +1688,7 @@ namespace DHLS {
       buildPipelines(f, stg);
 
     map<Instruction*, FunctionalUnit> unitAssignment =
-      assignFunctionalUnits(stg, memoryMap);
+      assignFunctionalUnits(stg, memoryMap, hcs);
 
     // TODO: Add rams
     vector<RAM> rams;
