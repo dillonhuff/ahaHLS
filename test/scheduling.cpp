@@ -1314,7 +1314,7 @@ namespace DHLS {
     auto v = builder.CreateLoad(gpr); //loadVal(builder, reg, zero);
     //storeVal(builder, reg, zero, ldA);
     //auto v = loadVal(builder, reg, zero);
-    storeVal(builder, getArg(srUser, 0), zero, v);
+    storeVal(builder, getArg(srUser, 1), zero, v);
     builder.CreateRet(nullptr);
 
     cout << "LLVM Function" << endl;
