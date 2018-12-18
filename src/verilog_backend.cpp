@@ -164,6 +164,19 @@ namespace DHLS {
     return ind;
   }
 
+  int numMemOps(BasicBlock& bb) {
+    int ind = 0;
+    //for (auto instr : instrs) {
+    for (auto& instr : bb) {
+      if (StoreInst::classof(&instr) ||
+          LoadInst::classof(&instr) ||
+          GetElementPtrInst::classof(&instr)) {
+        ind++;
+      }
+    }
+    return ind;
+  }
+  
   void findLocation(Value* location,
                     Instruction* instr,
                     std::map<Instruction*, string>& mems,
@@ -178,18 +191,25 @@ namespace DHLS {
     }
   }
 
+  // TODO: Turn this in to a proper dataflow analysis using LLVM dataflow builtins
   std::map<llvm::Instruction*, std::string>
-  memoryOpLocations(const STG& stg) {
+  //memoryOpLocations(const STG& stg) {
+  memoryOpLocations(Function* f) {
     map<Instruction*, string> mems;
 
-    for (auto state : stg.opStates) {
+    //for (auto state : stg.opStates) {
+
+    for (auto& bb : f->getBasicBlockList()) {
 
       std::set<Instruction*> foundOps;
-      while (((int) foundOps.size()) < numMemOps(stg.instructionsStartingAt(state.first))) {
+      //while (((int) foundOps.size()) < numMemOps(stg.instructionsStartingAt(state.first))) {
+      while (((int) foundOps.size()) < numMemOps(bb)) {
         cout << "FoundInstrs =  "<< foundOps.size() << endl;
 
-        for (auto instrG : stg.instructionsStartingAt(state.first)) {
-          auto instr = instrG.instruction;
+        //for (auto instrG : stg.instructionsStartingAt(state.first)) {
+        for (auto& instrPtr : bb) {
+          //auto instr = instrG.instruction;
+          auto instr = &instrPtr; //instrG.instruction;
 
           if (elem(instr, foundOps)) {
             continue;
@@ -228,7 +248,8 @@ namespace DHLS {
     int readNum = 0;
     int writeNum = 0;
 
-    auto memSrcs = memoryOpLocations(stg);
+    //auto memSrcs = memoryOpLocations(stg);
+    auto memSrcs = memoryOpLocations(stg.getFunction());
 
     cout << "-- Memory sources" << endl;
     for (auto src : memSrcs) {

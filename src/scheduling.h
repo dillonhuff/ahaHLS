@@ -320,7 +320,7 @@ namespace DHLS {
 
     StateTransitionGraph() {}
 
-    llvm::Function* getFunction() {
+    llvm::Function* getFunction() const {
       auto& opSt = *(std::begin(opStates));
       return (opSt.second)[0].instruction->getParent()->getParent();
     }
