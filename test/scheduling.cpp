@@ -1363,7 +1363,7 @@ namespace DHLS {
       for (int i = 0; i < depth; i++) {
         auto reg = builder.CreateAlloca(intType(width), nullptr, "sr_" + to_string(i));
         registers.push_back(reg);
-        regTypes[reg] = registerSpec();
+        regTypes[reg] = registerSpec(width);
       }
 
       assert(registers.size() == depth);
@@ -1431,7 +1431,7 @@ namespace DHLS {
 
     map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
 
-    auto arch = buildMicroArchitecture(srUser, graph, layout);
+    auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
 
     VerilogDebugInfo info;
     //addNoXChecks(arch, info);

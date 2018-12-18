@@ -349,6 +349,19 @@ namespace DHLS {
   buildMicroArchitecture(llvm::Function* f,
                          const STG& stg,
                          std::map<std::string, int>& memoryMap,
+                         HardwareConstraints& hcs);
+  
+  MicroArchitecture
+  buildMicroArchitecture(llvm::Function* f,
+                         const STG& stg,
+                         std::map<std::string, int>& memoryMap,
+                         const ArchOptions& options,
+                         HardwareConstraints& hcs);
+
+  MicroArchitecture
+  buildMicroArchitecture(llvm::Function* f,
+                         const STG& stg,
+                         std::map<std::string, int>& memoryMap,
                          const ArchOptions& options);
   
   void noPhiOutputsXWhenUsed(const MicroArchitecture& arch,

@@ -1657,7 +1657,8 @@ namespace DHLS {
   buildMicroArchitecture(llvm::Function* f,
                          const STG& stg,
                          std::map<std::string, int>& memoryMap,
-                         const ArchOptions& options) {
+                         const ArchOptions& options,
+                         HardwareConstraints& hcs) {
 
     map<BasicBlock*, int> basicBlockNos = numberBasicBlocks(f);
     map<Instruction*, Wire> names = createInstrNames(stg);
@@ -1679,13 +1680,32 @@ namespace DHLS {
     assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
     return arch;
   }
+
+  MicroArchitecture
+  buildMicroArchitecture(llvm::Function* f,
+                         const STG& stg,
+                         std::map<std::string, int>& memoryMap,
+                         HardwareConstraints& hcs) {
+    ArchOptions options;
+    return buildMicroArchitecture(f, stg, memoryMap, options, hcs);
+  }  
+
+  MicroArchitecture
+  buildMicroArchitecture(llvm::Function* f,
+                         const STG& stg,
+                         std::map<std::string, int>& memoryMap,
+                         const ArchOptions& options) {
+    HardwareConstraints hcs;
+    return buildMicroArchitecture(f, stg, memoryMap, options, hcs);
+  }
   
   MicroArchitecture
   buildMicroArchitecture(llvm::Function* f,
                          const STG& stg,
                          std::map<std::string, int>& memoryMap) {
     ArchOptions options;
-    return buildMicroArchitecture(f, stg, memoryMap, options);
+    HardwareConstraints hcs;
+    return buildMicroArchitecture(f, stg, memoryMap, options, hcs);
   }
 
   void emitVerilog(llvm::Function* f,

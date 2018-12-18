@@ -18,6 +18,12 @@ namespace DHLS {
     return valueString(&iptr);
   }
 
+  class ModuleSpec {
+  public:
+    std::map<std::string, std::string> params;
+    std::string name;
+  };
+
   class MemorySpec {
   public:
     int readLatency;
@@ -25,10 +31,11 @@ namespace DHLS {
     int numReadPorts;
     int numWritePorts;
     bool addressable;
+    ModuleSpec modSpec;
   };
 
-  static inline MemorySpec registerSpec() {
-    return {0, 1, 1, 1, false};
+  static inline MemorySpec registerSpec(const int width) {
+    return {0, 1, 1, 1, false, {{{"width", std::to_string(width)}}, "register"}};
   }
 
   enum OperationType {
