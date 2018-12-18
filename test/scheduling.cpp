@@ -1377,74 +1377,77 @@ namespace DHLS {
 
   };
 
-  // TEST_CASE("Shifting a value through a shift register") {
-  //   LLVMContext context;
-  //   setGlobalLLVMContext(&context);
+  TEST_CASE("Shifting a value through a shift register") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
 
-  //   cout << "1d stencil via shift register" << endl;
+    cout << "1d stencil via shift register" << endl;
     
-  //   auto mod =
-  //     llvm::make_unique<Module>("shift registered LLVM 1D stencil", context);
+    auto mod =
+      llvm::make_unique<Module>("shift registered LLVM 1D stencil", context);
 
-  //   std::vector<Type *> inputs{intType(32)->getPointerTo(),
-  //       intType(32)->getPointerTo()};
-  //   Function* srUser = mkFunc(inputs, "shift_register_1", mod.get());
+    std::vector<Type *> inputs{intType(32)->getPointerTo(),
+        intType(32)->getPointerTo()};
+    Function* srUser = mkFunc(inputs, "shift_register_1", mod.get());
 
-  //   auto entryBlock = mkBB("entry_block", srUser);
+    auto entryBlock = mkBB("entry_block", srUser);
 
-  //   ConstantInt* loopBound = mkInt("6", 32);
-  //   ConstantInt* zero = mkInt("0", 32);    
-  //   ConstantInt* one = mkInt("1", 32);    
+    ConstantInt* loopBound = mkInt("6", 32);
+    ConstantInt* zero = mkInt("0", 32);    
+    ConstantInt* one = mkInt("1", 32);    
 
-  //   IRBuilder<> builder(entryBlock);
+    IRBuilder<> builder(entryBlock);
 
-  //   ShiftRegister sr(32, 3);
-  //   sr.init(builder);
+    ShiftRegister sr(32, 3);
+    auto inVal = loadVal(builder, getArg(srUser, 0), zero);
+    sr.init(builder);
 
-  //   for (int i = 0; i < sr.depth; i++) {
-  //     sr.shift(builder);
-  //   }
+    for (int i = 0; i < sr.depth; i++) {
+      sr.shift(builder);
+      storeVal(builder, sr.registers[sr.depth - 1], zero, inVal);
+    }
 
-  //   storeVal(builder,
-  //            getArg(srUser, 1),
-  //            zero,
-  //            sr.registers[sr.depth - 1]);
+    auto lastVal = loadVal(builder, sr.registers[0], zero);
+    storeVal(builder,
+             getArg(srUser, 1),
+             zero,
+             lastVal);
 
-  //   builder.CreateRet(nullptr);
+    builder.CreateRet(nullptr);
     
-  //   cout << "LLVM Function" << endl;
-  //   cout << valueString(srUser) << endl;
+    cout << "LLVM Function" << endl;
+    cout << valueString(srUser) << endl;
 
-  //   HardwareConstraints hcs = standardConstraints();
-  //   Schedule s = scheduleFunction(srUser, hcs);
+    HardwareConstraints hcs = standardConstraints();
+    Schedule s = scheduleFunction(srUser, hcs);
 
-  //   STG graph = buildSTG(s, srUser);
+    STG graph = buildSTG(s, srUser);
 
-  //   cout << "STG Is" << endl;
-  //   graph.print(cout);
+    cout << "STG Is" << endl;
+    graph.print(cout);
 
-  //   map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
+    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
 
-  //   auto arch = buildMicroArchitecture(srUser, graph, layout);
+    auto arch = buildMicroArchitecture(srUser, graph, layout);
 
-  //   VerilogDebugInfo info;
-  //   //addNoXChecks(arch, info);
+    VerilogDebugInfo info;
+    //addNoXChecks(arch, info);
 
-  //   emitVerilog(srUser, arch, info);
+    emitVerilog(srUser, arch, info);
 
-  //   // Create testing infrastructure
-  //   map<string, vector<int> > memoryInit{{"arg_0", {19}}};
-  //   map<string, vector<int> > memoryExpected{{"arg_1", {6}}};
+    // Create testing infrastructure
+    map<string, vector<int> > memoryInit{{"arg_0", {19}}};
+    map<string, vector<int> > memoryExpected{{"arg_1", {19}}};
 
-  //   TestBenchSpec tb;
-  //   tb.memoryInit = memoryInit;
-  //   tb.memoryExpected = memoryExpected;
-  //   tb.runCycles = 10;
-  //   tb.name = "shift_register_1";
-  //   emitVerilogTestBench(tb, arch, layout);
+    TestBenchSpec tb;
+    tb.memoryInit = memoryInit;
+    tb.memoryExpected = memoryExpected;
+    tb.runCycles = 100;
+    tb.name = "shift_register_1";
+    emitVerilogTestBench(tb, arch, layout);
 
-  //   REQUIRE(runIVerilogTB("shift_register_1"));
-  // }
+    REQUIRE(runIVerilogTB("shift_register_1"));
+  }
   
   // TEST_CASE("1D stencil with shift register in LLVM") {
   //   LLVMContext context;

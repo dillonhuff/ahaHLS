@@ -584,8 +584,8 @@ namespace DHLS {
                          const STG& stg,
                          map<Instruction*, FunctionalUnit>& unitAssignment,
                          map<Instruction*, Wire>& names,      
-                         std::map<std::string, int>& memoryMap,
-                         const std::vector<RAM>& rams) {
+                         std::map<std::string, int>& memoryMap) {
+                         //const std::vector<RAM>& rams) {
     cout << "Getting output" << endl;
     
     if (Instruction::classof(arg0)) {
@@ -651,6 +651,22 @@ namespace DHLS {
       return to_string(dyn_cast<ConstantInt>(arg0)->getSExtValue());
     }
   }
+
+  std::string outputName(Value* arg0,
+                         Instruction* instr,
+                         const STG& stg,
+                         map<Instruction*, FunctionalUnit>& unitAssignment,
+                         map<Instruction*, Wire>& names,      
+                         std::map<std::string, int>& memoryMap,
+                         const std::vector<RAM>& rams) {
+    return outputName(arg0,
+                      instr,
+                      stg,
+                      unitAssignment,
+                      names,      
+                      memoryMap);
+    
+  }
   
   std::string verilogForCondition(Condition& cond,
                                   const StateId currentState,
@@ -669,10 +685,7 @@ namespace DHLS {
       int aNum = 0;
       for (auto a : cl) {
         bool isNeg = a.negated;
-        //assert(Instruction::classof(a.cond));
-        //Instruction* iValue = dyn_cast<Instruction>(a.cond);
-        //StateId atomCompletionTime = map_find(iValue, stg.sched.instrTimes).back();
-        // TODO: Maybe this should use outputName?
+
         map<string, int> memoryMap;
         std::vector<RAM> rams;     
         string valueStr = outputName(a.cond,
@@ -917,6 +930,7 @@ namespace DHLS {
         auto unit = map_find(instr, unitAssignment);
 
         out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+        //out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, instr, stg, unitAssignment, names) << ") begin" << endl;
 
         out << "\t\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
         out << "\t\t\t\tend" << endl;
