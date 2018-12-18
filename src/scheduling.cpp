@@ -62,24 +62,6 @@ namespace DHLS {
                                   hdc,
                                   toPipeline,
                                   a);
-      
-      // for (auto& bbA : F.getBasicBlockList()) {
-      //   for (auto& instrA : bbA) {
-
-      //     //cout << "Possible aliases for " << valueString(&instrA) << endl;
-      //     for (auto& bbB : F.getBasicBlockList()) {
-      //       for (auto& instrB : bbB) {
-      //         AliasResult r = a.alias(&instrA, &instrB);
-      //         //cout << r << endl;
-
-      //         // if (r == NoAlias) {
-      //         //   aliasString += "No alias " + valueString(&instrA) + " " + valueString(&instrB) + "\n";
-      //         // }
-      //       }
-      //     }
-          
-      //   }
-      // }
 
       return false;
     }
@@ -667,7 +649,6 @@ namespace DHLS {
     STG g(sched);
 
     map<BasicBlock*, vector<vector<Atom> > > blockGuards;
-    //for (auto& bbR : f->getBasicBlockList()) {
 
     // NOTE: One possible problem is that I only compute
     // path conditions from the entry and not pairwise between

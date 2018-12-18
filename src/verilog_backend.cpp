@@ -1325,8 +1325,11 @@ namespace DHLS {
 
   void
   emitPipelineInitiationBlock(std::ostream& out,
+                              STG& stg,
                               map<Instruction*, FunctionalUnit>& unitAssignment,
+                              std::map<Instruction*, Wire>& names,
                               const std::vector<ElaboratedPipeline>& pipelines) {
+
     out << "\t// Start pipeline initiation block" << endl;
     out << "\talways @(posedge clk) begin" << endl;
 
@@ -1334,6 +1337,8 @@ namespace DHLS {
       out << "\t\t\t\tif (" << p.valids.at(0).name << " && " << p.inPipe.name << ") begin" << endl;
       std::map<std::string, int> memMap;
       out << "\t\t\t\t\tif(" << outputName(p.getExitCondition(), unitAssignment, memMap) << ") begin" << endl;
+      vector<RAM> rams;
+      //out << "\t\t\t\t\tif(" << outputName(p.getExitCondition(), p.stateId*2, stg, unitAssignment, names, memMap) << ") begin" << endl;
 
       out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 0;" << endl;
 
@@ -1692,7 +1697,7 @@ namespace DHLS {
     emitPipelineResetBlock(out, arch.pipelines);
     emitPipelineValidChainBlock(out, arch.pipelines);
 
-    emitPipelineInitiationBlock(out, arch.unitAssignment, arch.pipelines);
+    emitPipelineInitiationBlock(out, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
     // TODO: Remove pipelines arch, it is now a field of arch
     emitLastBBCode(out, f, arch.pipelines, arch);
 
