@@ -652,63 +652,6 @@ namespace DHLS {
     }
   }
   
-  std::string outputNameLast(Value* arg0,
-                             Instruction* curInstr,
-                             const STG& stg,
-                             map<Instruction*, FunctionalUnit> unitAssignment,
-                             map<Instruction*, Wire>& names,
-                             std::map<std::string, int>& memoryMap) {
-    if (Instruction::classof(arg0)) {
-
-      auto instr0 = dyn_cast<Instruction>(arg0);
-      StateId argState = map_find(instr0, stg.sched.instrTimes).back();
-      StateId thisState = map_find(curInstr, stg.sched.instrTimes).front();
-
-      if (argState == thisState) {
-
-        BasicBlock* argBB = instr0->getParent();
-        BasicBlock* userBB = curInstr->getParent();
-
-        assert(argBB == userBB);
-
-        OrderedBasicBlock obb(argBB);
-
-        if (obb.dominates(instr0, curInstr)) {
-          auto unit0Src =
-            map_find(instr0, unitAssignment);
-          assert(unit0Src.outWires.size() == 1);
-          string arg0Name = unit0Src.onlyOutputVar();
-          return arg0Name;
-        } else {
-          Wire tmpRes = map_find(instr0, names);
-          return tmpRes.name;
-        }
-        
-      } else {
-
-        Wire tmpRes = map_find(instr0, names);
-        return tmpRes.name;
-
-      }
-      
-      // auto resWire =
-      //   map_find(dyn_cast<Instruction>(arg0), names);
-      // return resWire.name;
-
-    } else if (Argument::classof(arg0)) {
-      string name = arg0->getName();
-      return to_string(map_find(name, memoryMap));
-    } else {
-      assert(ConstantInt::classof(arg0));
-      auto arg0C = dyn_cast<ConstantInt>(arg0);
-      auto apInt = arg0C->getValue();
-
-      //assert(!apInt.isNegative());
-
-      return to_string(dyn_cast<ConstantInt>(arg0)->getSExtValue());
-    }
-  }
-  
   std::string verilogForCondition(Condition& cond,
                                   const StateId currentState,
                                   const STG& stg,
