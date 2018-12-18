@@ -852,10 +852,12 @@ namespace DHLS {
       int b1Val = map_find(b1, arch.basicBlockNos);
 
       Value* v0 = phi->getIncomingValue(0);
-      string val0Name = outputNameLast(v0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      //string val0Name = outputNameLast(v0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      string val0Name = outputName(v0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       Value* v1 = phi->getIncomingValue(1);
-      string val1Name = outputNameLast(v1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      //string val1Name = outputNameLast(v1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      string val1Name = outputName(v1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
             
       out << "\t\t\t" << addUnit.portWires["in0"].name << " = " << val0Name << ";" << endl;
       out << "\t\t\t" << addUnit.portWires["in1"].name << " = " << val1Name << ";" << endl;
