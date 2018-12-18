@@ -275,10 +275,10 @@ module register(input clk, input rst, input [31:0] raddr, input [31:0] waddr, in
    always @(posedge clk) begin
       if (wen) begin
          data <= wdata;
-         $display("writing %d to register", wdata);
+         //$display("writing %d to register", wdata);
       end
 
-      $display("on clock data = %d", data);      
+      //$display("on clock data = %d", data);      
    end
    
    assign rdata = data;
