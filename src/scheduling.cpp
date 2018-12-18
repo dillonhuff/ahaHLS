@@ -453,8 +453,12 @@ namespace DHLS {
     cout << "Added control edges" << endl;    
 
     cout << "Adding memory control" << endl;
+
     // Instructions must finish before their dependencies
     for (auto& bb : f->getBasicBlockList()) {
+
+      int instrInd = 0;
+      
       for (auto& instr : bb) {
         Instruction* iptr = &instr;
         
@@ -468,6 +472,31 @@ namespace DHLS {
             cout << instructionString(iptr) << " must finish before " << instructionString(userInstr) << endl;
           }
         }
+
+        int otherInd = 0;
+        for (auto& otherInstr : bb) {
+          if (otherInd > instrInd && (&otherInstr != &instr)) {
+
+            if (StoreInst::classof(&instr) && LoadInst::classof(&otherInstr)) {
+              cout << "Checking aliasing for " << valueString(instr) << " and " << valueString(otherInstr) << endl;
+
+              Value* storeLoc = instr.getOperand(1);
+              Value* loadLoc = otherInstr.getOperand(0);
+              
+              //AliasResult aliasRes = aliasAnalysis.alias(&instr, &otherInstr);
+              AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
+              if (aliasRes != NoAlias) {
+                cout << valueString(&instr) << " and " << valueString(&otherInstr) << " can alias" << endl;
+
+                s.add(instrEnd(&instr, schedVars) <= instrStart(&otherInstr, schedVars));
+              }
+            }
+          }
+
+          otherInd++;
+        }
+
+        instrInd++;
       }
     }
 

@@ -12,7 +12,12 @@ namespace DHLS {
   std::string typeString(llvm::Type* const tptr);
   std::string instructionString(llvm::Instruction* const iptr);
   std::string valueString(llvm::Value* const iptr);
-  
+
+  static inline
+  std::string valueString(llvm::Value& iptr) {
+    return valueString(&iptr);
+  }
+
   enum OperationType {
     RETURN_OP,
     PHI_OP,
