@@ -576,24 +576,6 @@ namespace DHLS {
 
   }
 
-  std::string outputName(Value* arg0,
-                         Instruction* instr,
-                         const STG& stg,
-                         map<Instruction*, FunctionalUnit>& unitAssignment,
-                         map<Instruction*, Wire>& names,                         
-                         std::map<std::string, int>& memoryMap) {
-
-    StateId thisState = map_find(instr, stg.sched.instrTimes).front();
-
-    return outputName(arg0,
-                      thisState,
-                      stg,
-                      unitAssignment,
-                      names,                         
-                      memoryMap);
-
-  }
-
   // Random thought: Infinite streams + address generation?
   // Is that another way to think about what halide is doing?
   
