@@ -1388,12 +1388,9 @@ namespace DHLS {
 
   //   std::vector<Type *> inputs{intType(32)->getPointerTo(),
   //       intType(32)->getPointerTo()};
-  //   Function* srUser = mkFunc(inputs, "one_d_stencil_sr", mod.get());
+  //   Function* srUser = mkFunc(inputs, "shift_register_1", mod.get());
 
   //   auto entryBlock = mkBB("entry_block", srUser);
-  //   auto loopBlock = mkBB("loop_block", srUser);
-  //   auto exitBlock = mkBB("exit_block", srUser);        
-
 
   //   ConstantInt* loopBound = mkInt("6", 32);
   //   ConstantInt* zero = mkInt("0", 32);    
@@ -1407,38 +1404,14 @@ namespace DHLS {
   //   for (int i = 0; i < sr.depth; i++) {
   //     sr.shift(builder);
   //   }
-    
-  //   builder.CreateBr(loopBlock);
 
-  //   IRBuilder<> loopBuilder(loopBlock);
-  //   auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
-
-  //   auto indPhiP1 = loopBuilder.CreateAdd(indPhi, one);
-  //   auto indPhiM1 = loopBuilder.CreateSub(indPhi, one);
-
-  //   auto nextInd = loopBuilder.CreateAdd(indPhi, one);
-
-  //   auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
-
-  //   indPhi->addIncoming(one, entryBlock);
-  //   indPhi->addIncoming(nextInd, loopBlock);
-
-  //   auto ai = loadVal(loopBuilder, getArg(srUser, 0), indPhi);
-  //   auto aip1 = loadVal(loopBuilder, getArg(srUser, 0), indPhiP1);
-  //   auto aim1 = loadVal(loopBuilder, getArg(srUser, 0), indPhiM1);
-    
-  //   auto inputSum = loopBuilder.CreateAdd(aim1, loopBuilder.CreateAdd(ai, aip1), "stencil_accum");
-
-  //   storeVal(loopBuilder,
+  //   storeVal(builder,
   //            getArg(srUser, 1),
-  //            loopBuilder.CreateSub(indPhi, one),
-  //            inputSum);
+  //            zero,
+  //            sr.registers[sr.depth - 1]);
 
-  //   loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
-
-  //   IRBuilder<> exitBuilder(exitBlock);
-  //   exitBuilder.CreateRet(nullptr);
-
+  //   builder.CreateRet(nullptr);
+    
   //   cout << "LLVM Function" << endl;
   //   cout << valueString(srUser) << endl;
 
@@ -1460,17 +1433,17 @@ namespace DHLS {
   //   emitVerilog(srUser, arch, info);
 
   //   // Create testing infrastructure
-  //   map<string, vector<int> > memoryInit{{"arg_0", {6, 5, 1, 2, 9, 8, 4}}};
-  //   map<string, vector<int> > memoryExpected{{"arg_1", {6 + 5 + 1, 5 + 1 + 2, 1 + 2 + 9, 2 + 9 + 8, 9 + 8 + 4}}};
+  //   map<string, vector<int> > memoryInit{{"arg_0", {19}}};
+  //   map<string, vector<int> > memoryExpected{{"arg_1", {6}}};
 
   //   TestBenchSpec tb;
   //   tb.memoryInit = memoryInit;
   //   tb.memoryExpected = memoryExpected;
-  //   tb.runCycles = 100;
-  //   tb.name = "one_d_stencil_sr";
+  //   tb.runCycles = 10;
+  //   tb.name = "shift_register_1";
   //   emitVerilogTestBench(tb, arch, layout);
 
-  //   REQUIRE(runIVerilogTB("one_d_stencil_sr"));
+  //   REQUIRE(runIVerilogTB("shift_register_1"));
   // }
   
   // TEST_CASE("1D stencil with shift register in LLVM") {

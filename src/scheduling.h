@@ -373,4 +373,6 @@ namespace DHLS {
   typedef StateTransitionGraph STG;
 
   STG buildSTG(Schedule& sched, llvm::Function* const f);
+
+  
 }

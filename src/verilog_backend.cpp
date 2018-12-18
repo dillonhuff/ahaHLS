@@ -541,8 +541,14 @@ namespace DHLS {
 
       if (argState == thisState) {
 
+        assert(contains_key(instr0, unitAssignment));
+
         auto unit0Src =
           map_find(instr0, unitAssignment);
+
+        if (unit0Src.outWires.size() != 1) {
+          cout << "Error: Getting name of " << valueString(arg0) << endl;
+        }
         assert(unit0Src.outWires.size() == 1);
         string arg0Name = unit0Src.onlyOutputVar();
         return arg0Name;
@@ -787,9 +793,14 @@ namespace DHLS {
     } else if (StoreInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
-      auto wdataName = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);            
+      //auto wdataName = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+
+      auto wdataName = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);      
+      
       Value* location = instr->getOperand(1);
-      auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);      
+      //auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+
+      auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
             
       out << "\t\t\t" << addUnit.portWires["waddr"].name << " = " << locValue << ";" << endl;
       out << "\t\t\t" << addUnit.portWires["wdata"].name << " = " << wdataName << ";" << endl;
