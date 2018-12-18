@@ -1311,9 +1311,7 @@ namespace DHLS {
 
     builder.CreateStore(ldA, gpr);
     
-    auto v = builder.CreateLoad(gpr); //loadVal(builder, reg, zero);
-    //storeVal(builder, reg, zero, ldA);
-    //auto v = loadVal(builder, reg, zero);
+    auto v = builder.CreateLoad(gpr);
     storeVal(builder, getArg(srUser, 1), zero, v);
     builder.CreateRet(nullptr);
 
@@ -1362,7 +1360,7 @@ namespace DHLS {
 
     void init(IRBuilder<>& builder) {
       for (int i = 0; i < depth; i++) {
-        auto reg = builder.CreateAlloca(intType(width));
+        auto reg = builder.CreateAlloca(intType(width), nullptr, "sr_" + to_string(i));
         registers.push_back(reg);
       }
 
@@ -1379,10 +1377,12 @@ namespace DHLS {
 
   };
 
-  // TEST_CASE("1D stencil with shift register in LLVM") {
+  // TEST_CASE("Shifting a value through a shift register") {
   //   LLVMContext context;
   //   setGlobalLLVMContext(&context);
 
+  //   cout << "1d stencil via shift register" << endl;
+    
   //   auto mod =
   //     llvm::make_unique<Module>("shift registered LLVM 1D stencil", context);
 
@@ -1455,7 +1455,7 @@ namespace DHLS {
   //   auto arch = buildMicroArchitecture(srUser, graph, layout);
 
   //   VerilogDebugInfo info;
-  //   addNoXChecks(arch, info);
+  //   //addNoXChecks(arch, info);
 
   //   emitVerilog(srUser, arch, info);
 
@@ -1466,7 +1466,103 @@ namespace DHLS {
   //   TestBenchSpec tb;
   //   tb.memoryInit = memoryInit;
   //   tb.memoryExpected = memoryExpected;
-  //   tb.runCycles = 30;
+  //   tb.runCycles = 100;
+  //   tb.name = "one_d_stencil_sr";
+  //   emitVerilogTestBench(tb, arch, layout);
+
+  //   REQUIRE(runIVerilogTB("one_d_stencil_sr"));
+  // }
+  
+  // TEST_CASE("1D stencil with shift register in LLVM") {
+  //   LLVMContext context;
+  //   setGlobalLLVMContext(&context);
+
+  //   cout << "1d stencil via shift register" << endl;
+    
+  //   auto mod =
+  //     llvm::make_unique<Module>("shift registered LLVM 1D stencil", context);
+
+  //   std::vector<Type *> inputs{intType(32)->getPointerTo(),
+  //       intType(32)->getPointerTo()};
+  //   Function* srUser = mkFunc(inputs, "one_d_stencil_sr", mod.get());
+
+  //   auto entryBlock = mkBB("entry_block", srUser);
+  //   auto loopBlock = mkBB("loop_block", srUser);
+  //   auto exitBlock = mkBB("exit_block", srUser);        
+
+
+  //   ConstantInt* loopBound = mkInt("6", 32);
+  //   ConstantInt* zero = mkInt("0", 32);    
+  //   ConstantInt* one = mkInt("1", 32);    
+
+  //   IRBuilder<> builder(entryBlock);
+
+  //   ShiftRegister sr(32, 3);
+  //   sr.init(builder);
+
+  //   for (int i = 0; i < sr.depth; i++) {
+  //     sr.shift(builder);
+  //   }
+    
+  //   builder.CreateBr(loopBlock);
+
+  //   IRBuilder<> loopBuilder(loopBlock);
+  //   auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
+
+  //   auto indPhiP1 = loopBuilder.CreateAdd(indPhi, one);
+  //   auto indPhiM1 = loopBuilder.CreateSub(indPhi, one);
+
+  //   auto nextInd = loopBuilder.CreateAdd(indPhi, one);
+
+  //   auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
+
+  //   indPhi->addIncoming(one, entryBlock);
+  //   indPhi->addIncoming(nextInd, loopBlock);
+
+  //   auto ai = loadVal(loopBuilder, getArg(srUser, 0), indPhi);
+  //   auto aip1 = loadVal(loopBuilder, getArg(srUser, 0), indPhiP1);
+  //   auto aim1 = loadVal(loopBuilder, getArg(srUser, 0), indPhiM1);
+    
+  //   auto inputSum = loopBuilder.CreateAdd(aim1, loopBuilder.CreateAdd(ai, aip1), "stencil_accum");
+
+  //   storeVal(loopBuilder,
+  //            getArg(srUser, 1),
+  //            loopBuilder.CreateSub(indPhi, one),
+  //            inputSum);
+
+  //   loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
+
+  //   IRBuilder<> exitBuilder(exitBlock);
+  //   exitBuilder.CreateRet(nullptr);
+
+  //   cout << "LLVM Function" << endl;
+  //   cout << valueString(srUser) << endl;
+
+  //   HardwareConstraints hcs = standardConstraints();
+  //   Schedule s = scheduleFunction(srUser, hcs);
+
+  //   STG graph = buildSTG(s, srUser);
+
+  //   cout << "STG Is" << endl;
+  //   graph.print(cout);
+
+  //   map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
+
+  //   auto arch = buildMicroArchitecture(srUser, graph, layout);
+
+  //   VerilogDebugInfo info;
+  //   //addNoXChecks(arch, info);
+
+  //   emitVerilog(srUser, arch, info);
+
+  //   // Create testing infrastructure
+  //   map<string, vector<int> > memoryInit{{"arg_0", {6, 5, 1, 2, 9, 8, 4}}};
+  //   map<string, vector<int> > memoryExpected{{"arg_1", {6 + 5 + 1, 5 + 1 + 2, 1 + 2 + 9, 2 + 9 + 8, 9 + 8 + 4}}};
+
+  //   TestBenchSpec tb;
+  //   tb.memoryInit = memoryInit;
+  //   tb.memoryExpected = memoryExpected;
+  //   tb.runCycles = 100;
   //   tb.name = "one_d_stencil_sr";
   //   emitVerilogTestBench(tb, arch, layout);
 
