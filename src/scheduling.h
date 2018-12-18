@@ -18,6 +18,19 @@ namespace DHLS {
     return valueString(&iptr);
   }
 
+  class MemorySpec {
+  public:
+    int readLatency;
+    int writeLatency;
+    int numReadPorts;
+    int numWritePorts;
+    bool addressable;
+  };
+
+  static inline MemorySpec registerSpec() {
+    return {0, 1, 1, 1, false};
+  }
+
   enum OperationType {
     RETURN_OP,
     PHI_OP,

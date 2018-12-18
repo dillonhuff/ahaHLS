@@ -1355,6 +1355,7 @@ namespace DHLS {
     int depth;
 
     std::vector<llvm::Value*> registers;
+    std::map<llvm::Value*, MemorySpec> regTypes;
 
     ShiftRegister(const int w, const int d) : width(w), depth(d) {}
 
@@ -1362,6 +1363,7 @@ namespace DHLS {
       for (int i = 0; i < depth; i++) {
         auto reg = builder.CreateAlloca(intType(width), nullptr, "sr_" + to_string(i));
         registers.push_back(reg);
+        regTypes[reg] = registerSpec();
       }
 
       assert(registers.size() == depth);
@@ -1372,7 +1374,6 @@ namespace DHLS {
         auto ldVal = loadVal(builder,registers[i + 1], mkInt("0", 32));
         storeVal(builder, registers[i], mkInt("0", 32), ldVal);
       }
-      // TODO: Create new allocation value
     }
 
   };
