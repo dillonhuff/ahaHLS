@@ -1334,7 +1334,7 @@ namespace DHLS {
         wireDecls.push_back("." + w.first + "(" + w.second.name + ")");
       }
 
-      // TODO: Hardcode in module description
+      // TODO: Put sequential vs combinational distincion in module description
       if ((unit.modName == "RAM") || (unit.modName == "register")) {
         wireDecls.push_back(".clk(clk)");
         wireDecls.push_back(".rst(rst)");        
