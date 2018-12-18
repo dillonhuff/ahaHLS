@@ -293,42 +293,51 @@ namespace DHLS {
         string unitName = string(instr->getOpcodeName()) + "_" +
           to_string(resSuffix);
 
-        if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
-          if (!contains_key(instr, memSrcs)) {
-            cout << "memSrcs does not contain memory operation " << instructionString(instr) << endl;
-            assert(contains_key(instr, memSrcs));
-          }
+        // if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
+        //   if (!contains_key(instr, memSrcs)) {
+        //     cout << "memSrcs does not contain memory operation " << instructionString(instr) << endl;
+        //     assert(contains_key(instr, memSrcs));
+        //   }
 
-          string memSrc = memName(instr, memSrcs); //map_find(instr, memSrcs)->getName();
+        //   string memSrc = memName(instr, memSrcs); //map_find(instr, memSrcs)->getName();
 
-          // If we are loading from an internal RAM, not an argument
-          if (!contains_key(memSrc, memoryMap)) {
-            cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
-            unitName = memSrc;
+        //   // If we are loading from an internal RAM, not an argument
+        //   if (!contains_key(memSrc, memoryMap)) {
+        //     cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
+        //     unitName = memSrc;
 
-            // Now also need to set wiring and outwires
-          }
-        }
+        //     // Now also need to set wiring and outwires
+        //   }
+        // }
+
         string modName = "add";
 
         //map<string, string> wiring;
         map<string, Wire> wiring;
         map<string, Wire> outWires;
-          
+
+        cout << "FU for Instruction " << valueString(instr) << endl;
         if (StoreInst::classof(instr)) {
 
+          Value* memVal = map_find(instr, memSrcs);
           string memSrc = memName(instr, memSrcs); //map_find(instr, memSrcs)->getName();
-          if (!contains_key(memSrc, memoryMap)) {
+          //if (!contains_key(memSrc, memoryMap)) {
+          if (!Argument::classof(memVal)) {
             cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
             modName = "RAM";
 
-
+            cout << "Getting underlying value" << endl;
+            
             Value* op = map_find(instr, hcs.memoryMapping);
+
+            cout << "Got underlying value" << endl;
+            
             if (contains_key(op, hcs.memSpecs)) {
               MemorySpec spec = map_find(op, hcs.memSpecs);
               modName = spec.modSpec.name;
-            }
+            } // TODO: else assert(false)?
 
+            cout << "Got name forop" << endl;
             unitName = memSrc;
             // These names need to match names created in the portlist. So
             // maybe this should be used to create the port list? Generate the
