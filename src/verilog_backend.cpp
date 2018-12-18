@@ -120,9 +120,12 @@ namespace DHLS {
   }
 
   // Issue: what is the name of each register?
-  std::string getRAMName(Value* location,
-                         std::map<llvm::Instruction*, std::string>& ramNames) {
+  // std::string getRAMName(Value* location,
+  //                        std::map<llvm::Instruction*, std::string>& ramNames) {
 
+  llvm::Value* getRAMName(Value* location,
+                          std::map<llvm::Instruction*, llvm::Value*>& ramNames) {
+    
     cout << "Finding location of " << valueString(location) << endl;
     
     if (Instruction::classof(location)) {
@@ -130,24 +133,29 @@ namespace DHLS {
 
       if (!AllocaInst::classof(locInstr)) {
         if (!contains_key(locInstr, ramNames)) {
-          return "";
+          //return "";
+          return nullptr;
         }
 
-        string src = map_find(locInstr, ramNames);
+        //string src = map_find(locInstr, ramNames);
+        Value* src = map_find(locInstr, ramNames);
         return src;
       } else {
-        string retName = locInstr->getName();
-        assert(retName != "");
-        return retName;
+        //string retName = locInstr->getName();
+        //assert(retName != "");
+        //return retName;
+        return locInstr;
       }
       
     } else if (Argument::classof(location)) {
 
-      string src = location->getName();
+      //string src = location->getName();
 
-      return src;
+      //return src;
+      return location;
     } else {
-      return "";
+      //return "";
+      return nullptr;
     }
 
   }
@@ -179,12 +187,14 @@ namespace DHLS {
   
   void findLocation(Value* location,
                     Instruction* instr,
-                    std::map<Instruction*, string>& mems,
+                    //std::map<Instruction*, string>& mems,
+                    std::map<Instruction*, llvm::Value*>& mems,
                     std::set<Instruction*>& foundOps) {
 
-    string name = getRAMName(location, mems);
-    if (name != "") {
-      mems[instr] = getRAMName(location, mems);
+    //string name = getRAMName(location, mems);
+    Value* val = getRAMName(location, mems);
+    if (val != nullptr) {
+      mems[instr] = val; //getRAMName(location, mems);
       foundOps.insert(instr);
     } else {
       cout << "No source for " << instructionString(instr) << endl;
@@ -192,10 +202,12 @@ namespace DHLS {
   }
 
   // TODO: Turn this in to a proper dataflow analysis using LLVM dataflow builtins
-  std::map<llvm::Instruction*, std::string>
+  //std::map<llvm::Instruction*, std::string>
   //memoryOpLocations(const STG& stg) {
+  std::map<llvm::Instruction*, llvm::Value*>
   memoryOpLocations(Function* f) {
-    map<Instruction*, string> mems;
+    //map<Instruction*, string> mems;
+    map<Instruction*, llvm::Value*> mems;
 
     //for (auto state : stg.opStates) {
 
@@ -281,7 +293,7 @@ namespace DHLS {
             assert(contains_key(instr, memSrcs));
           }
 
-          string memSrc = map_find(instr, memSrcs);
+          string memSrc = map_find(instr, memSrcs)->getName();
 
           // If we are loading from an internal RAM, not an argument
           if (!contains_key(memSrc, memoryMap)) {
@@ -299,7 +311,7 @@ namespace DHLS {
           
         if (StoreInst::classof(instr)) {
 
-          string memSrc = map_find(instr, memSrcs);
+          string memSrc = map_find(instr, memSrcs)->getName();
           if (!contains_key(memSrc, memoryMap)) {
             cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
             modName = "RAM";
@@ -326,7 +338,7 @@ namespace DHLS {
           }
 
         } else if (LoadInst::classof(instr)) {
-          string memSrc = map_find(instr, memSrcs);
+          string memSrc = map_find(instr, memSrcs)->getName();
 
           // If we are loading from an internal RAM, not an argument
           if (!contains_key(memSrc, memoryMap)) {
