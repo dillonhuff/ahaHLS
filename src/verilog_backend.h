@@ -371,5 +371,10 @@ namespace DHLS {
 
   void addNoXChecks(const MicroArchitecture& arch,
                     VerilogDebugInfo& debugInfo);
+
+  // TODO: Move to separate memory analysis file, and eventually
+  // to an LLVM dataflow pass
+  std::map<llvm::Instruction*, llvm::Value*>
+  memoryOpLocations(llvm::Function* f);
   
 }

@@ -1421,6 +1421,7 @@ namespace DHLS {
 
     HardwareConstraints hcs = standardConstraints();
     addMemInfo(hcs, sr.regTypes);
+    hcs.memoryMapping = memoryOpLocations(srUser);
     Schedule s = scheduleFunction(srUser, hcs);
 
     STG graph = buildSTG(s, srUser);

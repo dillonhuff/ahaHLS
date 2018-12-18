@@ -80,6 +80,7 @@ namespace DHLS {
   public:
 
     std::map<llvm::Value*, MemorySpec> memSpecs;
+    std::map<llvm::Instruction*, llvm::Value*> memoryMapping;
     
     int getLatency(const OperationType op) const {
       return dbhc::map_find(op, latencies);
