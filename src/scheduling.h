@@ -112,6 +112,7 @@ namespace DHLS {
     for (auto m : mems) {
       assert(!dbhc::contains_key(m.first, hcs.memSpecs));
       hcs.memSpecs[m.first] = m.second;
+      assert(dbhc::contains_key(m.first, hcs.memSpecs));
     }
   }
 
@@ -318,6 +319,11 @@ namespace DHLS {
     std::vector<Pipeline> pipelines;
 
     StateTransitionGraph() {}
+
+    llvm::Function* getFunction() {
+      auto& opSt = *(std::begin(opStates));
+      return (opSt.second)[0].instruction->getParent()->getParent();
+    }
     
     StateTransitionGraph(const StateTransitionGraph& other) {
       std::cout << "Calling stg const ref constructor" << std::endl;

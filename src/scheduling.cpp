@@ -179,8 +179,20 @@ namespace DHLS {
     if (ReturnInst::classof(iptr)) {
       latency = 0;
     } else if (StoreInst::classof(iptr)) {
+      Value* dest = iptr->getOperand(1);
+      cout << "store value is " << valueString(dest) << endl;
+      if (contains_key(dest, memSpecs)) {
+        assert(false);
+      }
+
       latency = getLatency(STORE_OP);
     } else if (LoadInst::classof(iptr)) {
+
+      Value* src = iptr->getOperand(0);
+      if (contains_key(src, memSpecs)) {
+        assert(false);
+      }
+      
       latency = getLatency(LOAD_OP);
     } else if (CmpInst::classof(iptr)) {
       latency = getLatency(CMP_OP);
