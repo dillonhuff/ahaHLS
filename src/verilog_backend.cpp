@@ -664,7 +664,7 @@ namespace DHLS {
       auto arg0C = dyn_cast<ConstantInt>(arg0);
       auto apInt = arg0C->getValue();
 
-      assert(!apInt.isNegative());
+      //assert(!apInt.isNegative());
 
       return to_string(dyn_cast<ConstantInt>(arg0)->getSExtValue());
     }
@@ -721,7 +721,7 @@ namespace DHLS {
       auto arg0C = dyn_cast<ConstantInt>(arg0);
       auto apInt = arg0C->getValue();
 
-      assert(!apInt.isNegative());
+      //assert(!apInt.isNegative());
 
       return to_string(dyn_cast<ConstantInt>(arg0)->getSExtValue());
     }
@@ -749,6 +749,7 @@ namespace DHLS {
         //StateId atomCompletionTime = map_find(iValue, stg.sched.instrTimes).back();
         // TODO: Maybe this should use outputName?
         map<string, int> memoryMap;
+        std::vector<RAM> rams;     
         string valueStr = outputName(a.cond,
                                      currentState,
                                      stg,
@@ -799,7 +800,6 @@ namespace DHLS {
       
       Value* location = instr->getOperand(1);
       //auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
-
       auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
             
       out << "\t\t\t" << addUnit.portWires["waddr"].name << " = " << locValue << ";" << endl;
@@ -809,7 +809,8 @@ namespace DHLS {
     } else if (LoadInst::classof(instr)) {
 
       Value* location = instr->getOperand(0);
-      auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      //auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       out << "\t\t\t" << addUnit.portWires["raddr"].name << " = " << locValue << ";" << endl;
 
@@ -820,10 +821,12 @@ namespace DHLS {
                CmpInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
-      auto arg0Name = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      //auto arg0Name = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      auto arg0Name = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       auto arg1 = instr->getOperand(1);
-      auto arg1Name = outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      //auto arg1Name = outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+      auto arg1Name = outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       out << "\t\t\t" << addUnit.portWires["in0"].name << " = " << arg0Name << ";" << endl;
       out << "\t\t\t" << addUnit.portWires["in1"].name << " = " << arg1Name << ";" << endl;
