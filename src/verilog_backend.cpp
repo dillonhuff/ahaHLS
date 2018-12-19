@@ -372,7 +372,8 @@ namespace DHLS {
             // These names need to match names created in the portlist. So
             // maybe this should be used to create the port list? Generate the
             // names here and then write ports for them?
-            wiring = {{"wen", {true, 1, "wen_0_reg"}}, {"waddr", {true, 32, "waddr_0_reg"}}, {"wdata", {true, 32, "wdata_0_reg"}}};
+            string wStr = "0"; //to_string(writeNum);
+            wiring = {{"wen", {true, 1, "wen_" + wStr + "_reg"}}, {"waddr", {true, 32, "waddr_" + wStr + "_reg"}}, {"wdata", {true, 32, "wdata_" + wStr + "_reg"}}};
             outWires = {{"rdata", {false, 32, "rdata_" + unitName}}};
             
             writeNum++;
@@ -414,15 +415,6 @@ namespace DHLS {
 
         } else if (BinaryOperator::classof(instr)) {
           modName = binopName(instr);
-          // if (instr->getOpcode() == Instruction::Add) {
-          //   modName = "add";
-          // } else if (instr->getOpcode() == Instruction::Mul) {
-          //   modName = "mul";
-          // } else if (instr->getOpcode() == Instruction::Sub) {
-          //   modName = "sub";            
-          // } else {
-          //   assert(false);
-          // }
           wiring = {{"in0", {true, 32, "add_in0_" + rStr}},
                     {"in1", {true, 32, "add_in1_" + rStr}}};
           outWires = {{"out", {false, 32, "add_out_" + rStr}}};
