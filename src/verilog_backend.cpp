@@ -307,7 +307,7 @@ namespace DHLS {
           //if (!contains_key(memSrc, memoryMap)) {
           if (!Argument::classof(memVal)) {
             cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
-            modName = "RAM";
+            //modName = "RAM";
 
             cout << "Getting underlying value" << endl;
             for (auto v : hcs.memoryMapping) {
@@ -348,17 +348,22 @@ namespace DHLS {
           }
 
         } else if (LoadInst::classof(instr)) {
+
+          Value* memVal = map_find(instr, memSrcs);          
           string memSrc = memName(instr, memSrcs); //map_find(instr, memSrcs)->getName();
 
           // If we are loading from an internal RAM, not an argument
-          if (!contains_key(memSrc, memoryMap)) {
+          //if (!contains_key(memSrc, memoryMap)) {
+          if (!Argument::classof(memVal)) {          
             cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
-            modName = "RAM";
+            //modName = "RAM";
 
             Value* op = map_find(instr, hcs.memoryMapping);
             if (contains_key(op, hcs.memSpecs)) {
               MemorySpec spec = map_find(op, hcs.memSpecs);
               modName = spec.modSpec.name;
+            } else {
+              assert(false);
             }
 
             unitName = memSrc;
