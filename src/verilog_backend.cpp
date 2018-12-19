@@ -293,23 +293,6 @@ namespace DHLS {
         string unitName = string(instr->getOpcodeName()) + "_" +
           to_string(resSuffix);
 
-        // if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
-        //   if (!contains_key(instr, memSrcs)) {
-        //     cout << "memSrcs does not contain memory operation " << instructionString(instr) << endl;
-        //     assert(contains_key(instr, memSrcs));
-        //   }
-
-        //   string memSrc = memName(instr, memSrcs); //map_find(instr, memSrcs)->getName();
-
-        //   // If we are loading from an internal RAM, not an argument
-        //   if (!contains_key(memSrc, memoryMap)) {
-        //     cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
-        //     unitName = memSrc;
-
-        //     // Now also need to set wiring and outwires
-        //   }
-        // }
-
         string modName = "add";
 
         //map<string, string> wiring;
@@ -337,7 +320,9 @@ namespace DHLS {
             if (contains_key(op, hcs.memSpecs)) {
               MemorySpec spec = map_find(op, hcs.memSpecs);
               modName = spec.modSpec.name;
-            } // TODO: else assert(false)?
+            } else {
+              assert(false);
+            }
 
             cout << "Got name forop" << endl;
             unitName = memSrc;
