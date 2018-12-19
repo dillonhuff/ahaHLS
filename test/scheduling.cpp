@@ -184,39 +184,6 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("plus"));
   }
 
-  // Q: What is the logical tension between software representations
-  // and hardware memory architectures?
-  // A: 1. Conventional software is designed around the assumption
-  //       that cache already exists and is operating silently in
-  //       the background
-  //    2. Software assumes unlimited resources (ports, memory)
-  //    3. Software uses a simple, imperative timing model
-  //    4. When people write software they only really write the
-  //       "steady state" behavior of a loop
-
-  // You can encapsulate the logic of a memory like a linebuffer inside
-  // a class and then write things like they are software, but the structure
-  // of the loop where you use the linebuffer may force the creation of additional
-  // control logic that is not encapsulated in the linebufer black-box class.
-
-  // Q: I guess you have to add stalls between accesses?
-  // Q: What if the user accesses multiple times?
-  // Q: What if the data structure is instantiated inside a loop,
-  //    and has to be cleared or reset many times?
-  // Q: How do you do the warmup for a customized memory?
-  // Q: How do you express what the source port of the linebuffer is?
-
-  // I think you would have explicit load and store to buffer instructions?
-  // but then the user has to prime the buffer by pre-loading? That is a big
-  // question. I guess the ideal is that the user just says when he wants to
-  // read and the compiler infers where write locations have to happen?
-
-  // Box touched algorithm?
-
-  // This issue of where address generation is done seems very important.
-  // Can you think of stream programming vs. bulk array processing as divided
-  // by where and when address computation happens?
-
   // Q: What test cases do I need?
   // A: Test case that uses 16 (or other not 32 bit) width (parametric builtins)
   //    Test that uses a loop with II != 1
