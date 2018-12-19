@@ -251,6 +251,20 @@ namespace DHLS {
   }
 
 
+  std::string binopName(Instruction* instr) {
+    string modName;
+    if (instr->getOpcode() == Instruction::Add) {
+      modName = "add";
+    } else if (instr->getOpcode() == Instruction::Mul) {
+      modName = "mul";
+    } else if (instr->getOpcode() == Instruction::Sub) {
+      modName = "sub";            
+    } else {
+      assert(false);
+    }
+    return modName;
+  }
+  
   std::string memName(llvm::Instruction* instr,
                       const std::map<Instruction*, llvm::Value*>& memSrcs){
     return map_find(instr, memSrcs)->getName();
@@ -399,15 +413,16 @@ namespace DHLS {
           }
 
         } else if (BinaryOperator::classof(instr)) {
-          if (instr->getOpcode() == Instruction::Add) {
-            modName = "add";
-          } else if (instr->getOpcode() == Instruction::Mul) {
-            modName = "mul";
-          } else if (instr->getOpcode() == Instruction::Sub) {
-            modName = "sub";            
-          } else {
-            assert(false);
-          }
+          modName = binopName(instr);
+          // if (instr->getOpcode() == Instruction::Add) {
+          //   modName = "add";
+          // } else if (instr->getOpcode() == Instruction::Mul) {
+          //   modName = "mul";
+          // } else if (instr->getOpcode() == Instruction::Sub) {
+          //   modName = "sub";            
+          // } else {
+          //   assert(false);
+          // }
           wiring = {{"in0", {true, 32, "add_in0_" + rStr}},
                     {"in1", {true, 32, "add_in1_" + rStr}}};
           outWires = {{"out", {false, 32, "add_out_" + rStr}}};
@@ -420,18 +435,6 @@ namespace DHLS {
         } else if (CmpInst::classof(instr)) {
           CmpInst::Predicate pred = dyn_cast<CmpInst>(instr)->getPredicate();
           modName = cmpName(pred);
-          // if (pred == CmpInst::ICMP_EQ) {
-          //   modName = "eq";
-          // } else if (pred == CmpInst::ICMP_SGT) {
-          //   modName = "sgt";
-          // } else if (pred == CmpInst::ICMP_SLT) {
-          //   modName = "slt";
-          // } else if (pred == CmpInst::ICMP_NE) {
-          //   modName = "ne";
-          // } else {
-          //   cout << "Error: Unsupported predicate in cmp: " << pred << endl;
-          //   assert(false);
-          // }
 
           wiring = {{"in0", {true, 32, "cmp_in0_" + rStr}}, {"in1", {true, 32, "cmp_in1_" + rStr}}};
           outWires = {{"out", {false, 1, "cmp_out_" + rStr}}};
