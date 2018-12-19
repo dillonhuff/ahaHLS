@@ -4,6 +4,7 @@
 
 #include <llvm/IR/Instructions.h>
 
+#include <llvm/IR/LegacyPassManager.h>
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
 #include <llvm/Analysis/AliasAnalysis.h>
 #include <llvm/Analysis/LoopInfo.h>
