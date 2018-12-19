@@ -404,26 +404,30 @@ namespace DHLS {
           CmpInst::Predicate pred = dyn_cast<CmpInst>(instr)->getPredicate();
           if (pred == CmpInst::ICMP_EQ) {
             modName = "eq";
-            wiring = {{"in0", {true, 32, "eq_in0_" + rStr}}, {"in1", {true, 32, "eq_in1_" + rStr}}};
-            outWires = {{"out", {false, 1, "eq_out_" + rStr}}};
+            // wiring = {{"in0", {true, 32, "eq_in0_" + rStr}}, {"in1", {true, 32, "eq_in1_" + rStr}}};
+            // outWires = {{"out", {false, 1, "eq_out_" + rStr}}};
           } else if (pred == CmpInst::ICMP_SGT) {
             modName = "sgt";
-            wiring = {{"in0", {true, 32, "sgt_in0_" + rStr}}, {"in1", {true, 32, "sgt_in1_" + rStr}}};
-            outWires = {{"out", {false, 1, "sgt_out_" + rStr}}};
+            // wiring = {{"in0", {true, 32, "sgt_in0_" + rStr}}, {"in1", {true, 32, "sgt_in1_" + rStr}}};
+            // outWires = {{"out", {false, 1, "sgt_out_" + rStr}}};
           } else if (pred == CmpInst::ICMP_SLT) {
             modName = "slt";
-            wiring = {{"in0", {true, 32, "sgt_in0_" + rStr}}, {"in1", {true, 32, "sgt_in1_" + rStr}}};
-            outWires = {{"out", {false, 1, "sgt_out_" + rStr}}};
+            // wiring = {{"in0", {true, 32, "sgt_in0_" + rStr}}, {"in1", {true, 32, "sgt_in1_" + rStr}}};
+            // outWires = {{"out", {false, 1, "sgt_out_" + rStr}}};
             
           } else if (pred == CmpInst::ICMP_NE) {
             modName = "ne";
-            wiring = {{"in0", {true, 32, "ne_in0_" + rStr}}, {"in1", {true, 32, "ne_in1_" + rStr}}};
-            outWires = {{"out", {false, 1, "ne_out_" + rStr}}};
+            // wiring = {{"in0", {true, 32, "ne_in0_" + rStr}}, {"in1", {true, 32, "ne_in1_" + rStr}}};
+            // outWires = {{"out", {false, 1, "ne_out_" + rStr}}};
 
           } else {
             cout << "Error: Unsupported predicate in cmp: " << pred << endl;
             assert(false);
           }
+
+          wiring = {{"in0", {true, 32, "cmp_in0_" + rStr}}, {"in1", {true, 32, "cmp_in1_" + rStr}}};
+          outWires = {{"out", {false, 1, "cmp_out_" + rStr}}};
+          
         } else if (BranchInst::classof(instr)) {
           modName = "br_dummy";
           unitName = "br_unit";
