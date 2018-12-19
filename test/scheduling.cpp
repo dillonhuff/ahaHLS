@@ -1300,6 +1300,9 @@ namespace DHLS {
     cout << valueString(srUser) << endl;
 
     HardwareConstraints hcs = standardConstraints();
+    hcs.memoryMapping = memoryOpLocations(srUser);
+    setMemSpec("dhsreg", hcs, srUser, registerSpec(32));
+
     Schedule s = scheduleFunction(srUser, hcs);
 
     STG graph = buildSTG(s, srUser);
@@ -1309,7 +1312,7 @@ namespace DHLS {
 
     map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
 
-    auto arch = buildMicroArchitecture(srUser, graph, layout);
+    auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
