@@ -327,7 +327,9 @@ namespace DHLS {
             modName = "RAM";
 
             cout << "Getting underlying value" << endl;
-            
+            for (auto v : hcs.memoryMapping) {
+              cout << "\t" << valueString(v.first) << " -> " << valueString(v.second) << endl;
+            }
             Value* op = map_find(instr, hcs.memoryMapping);
 
             cout << "Got underlying value" << endl;

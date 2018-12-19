@@ -5,6 +5,7 @@
 
 #include <polly/Canonicalization.h>
 #include <llvm/IR/Module.h>
+#include <llvm/IR/Instructions.h>
 #include <llvm/Support/raw_ostream.h>
 
 namespace DHLS {
@@ -38,6 +39,13 @@ namespace DHLS {
     return {0, 1, 1, 1, false, {{{"width", std::to_string(width)}}, "register"}};
   }
 
+  static inline MemorySpec ramSpec(const int readLat,
+                                   const int writeLat,
+                                   const int nReadPorts,
+                                   const int nWritePorts) {
+    return {readLat, writeLat, nReadPorts, nWritePorts, true, {{{"width", std::to_string(32)}}, "RAM"}};
+  }
+  
   enum OperationType {
     RETURN_OP,
     PHI_OP,
@@ -113,6 +121,26 @@ namespace DHLS {
     }
     
   };
+
+  static inline
+  void setMemSpec(const std::string& ramName,
+                  HardwareConstraints& hcs,
+                  llvm::Function* f,
+                  MemorySpec spec) {
+    bool found = false;
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instr : bb) {
+        if (llvm::AllocaInst::classof(&instr)) {
+          if (instr.getName() == ramName) {
+            hcs.memSpecs[llvm::dyn_cast<llvm::Value>(&instr)] = spec;
+            found = true;
+          }
+        }
+      }
+    }
+
+    assert(found);
+  }
 
   static inline
   void addMemInfo(HardwareConstraints& hcs,
