@@ -853,26 +853,25 @@ namespace DHLS {
             
     } else if (PHINode::classof(instr)) {
       PHINode* phi = dyn_cast<PHINode>(instr);
-      assert(phi->getNumIncomingValues() == 2);
+      //assert(phi->getNumIncomingValues() == 2);
 
       BasicBlock* b0 = phi->getIncomingBlock(0);
       int b0Val = map_find(b0, arch.basicBlockNos);
 
+      Value* v0 = phi->getIncomingValue(0);
+      string val0Name = outputName(v0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+
+      out << "\t\t\t" << addUnit.portWires["in0"].name << " = " << val0Name << ";" << endl;
+      out << "\t\t\t" << addUnit.portWires["s0"].name << " = " << b0Val << ";" << endl;
+
       BasicBlock* b1 = phi->getIncomingBlock(1);
       int b1Val = map_find(b1, arch.basicBlockNos);
 
-      Value* v0 = phi->getIncomingValue(0);
-      //string val0Name = outputNameLast(v0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
-      string val0Name = outputName(v0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
-
       Value* v1 = phi->getIncomingValue(1);
-      //string val1Name = outputNameLast(v1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
       string val1Name = outputName(v1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
-      out << "\t\t\t" << addUnit.portWires["in0"].name << " = " << val0Name << ";" << endl;
       out << "\t\t\t" << addUnit.portWires["in1"].name << " = " << val1Name << ";" << endl;
 
-      out << "\t\t\t" << addUnit.portWires["s0"].name << " = " << b0Val << ";" << endl;
       out << "\t\t\t" << addUnit.portWires["s1"].name << " = " << b1Val << ";" << endl;
 
       out << "\t\t\t" << addUnit.portWires["last_block"].name << " = last_BB_reg;" << endl;
