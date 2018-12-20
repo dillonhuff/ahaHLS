@@ -89,7 +89,19 @@ namespace DHLS {
         cout << "Info for loop" << endl;
         LoopAccessInfo lai(loop, &sc, TLI, &a, &domTree, &li);
         cout << "# loads  = " << lai.getNumLoads() << endl;
-        cout << "# stores = " << lai.getNumStores() << endl;      
+        cout << "# stores = " << lai.getNumStores() << endl;
+
+        auto& depChecker = lai.getDepChecker();
+        cout << "Dependence Analysis" << endl;
+        for (auto dep : *(depChecker.getDependences())) {
+          std::string str;
+          llvm::raw_string_ostream ss(str);
+          dep.print(ss, 1, depChecker.getMemoryInstructions());
+          auto depStr = ss.str();
+          cout << depStr << endl;
+        }
+
+        cout << "Safe vectorization distance = " << lai.getMaxSafeDepDistBytes() << endl;
       }
 
 
