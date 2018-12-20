@@ -868,7 +868,7 @@ namespace DHLS {
       Value* v1 = phi->getIncomingValue(1);
       //string val1Name = outputNameLast(v1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
       string val1Name = outputName(v1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
-            
+
       out << "\t\t\t" << addUnit.portWires["in0"].name << " = " << val0Name << ";" << endl;
       out << "\t\t\t" << addUnit.portWires["in1"].name << " = " << val1Name << ";" << endl;
 
