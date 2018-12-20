@@ -447,24 +447,16 @@ namespace DHLS {
           outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
         } else if (PHINode::classof(instr)) {
           PHINode* phi = dyn_cast<PHINode>(instr);
-          if (phi->getNumIncomingValues() == 2) {
 
-            modName = "phi_2";
-            wiring = {{"s0", {true, 32, "phi_s0_" + rStr}},
-                      {"s1", {true, 32, "phi_s1_" + rStr}},
-                      {"in0", {true, 32, "phi_in0_" + rStr}},
-                      {"in1", {true, 32, "phi_in1_" + rStr}},
-                      {"last_block", {true, 32, "phi_last_block_" + rStr}}};
-            outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
-          } else {
-            modName = "phi_2";
-            wiring = {{"s0", {true, 32, "phi_s0_" + rStr}},
-                      {"s1", {true, 32, "phi_s0_" + rStr}},
-                      {"in0", {true, 32, "phi_in0_" + rStr}},
-                      {"in1", {true, 32, "phi_in0_" + rStr}},
-                      {"last_block", {true, 32, "phi_last_block_" + rStr}}};
-            outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
+          modName = "phi_" + to_string(phi->getNumIncomingValues());
+
+          wiring = {{"last_block", {true, 32, "phi_last_block_" + rStr}}};
+          for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
+            auto iStr = to_string(i);
+            wiring.insert({"s" + iStr, {true, 32, "phi_s" + iStr + "_" + rStr}});
+            wiring.insert({"in" + iStr, {true, 32, "phi_in" + iStr + "_" + rStr}});
           }
+          outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
 
         } else if (ZExtInst::classof(instr)) {
 

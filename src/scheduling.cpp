@@ -420,6 +420,9 @@ namespace DHLS {
     s.add(blockSource(&bb, blockVars) <= blockSink(&bb, blockVars));
 
     Instruction* term = bb.getTerminator();
+
+    assert(term != nullptr);
+    
     // By definition the completion of a branch is the completion of
     // the basic block that contains it.
     s.add(blockSink(&bb, blockVars) == map_find(term, schedVars).back());

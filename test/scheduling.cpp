@@ -1416,29 +1416,6 @@ namespace DHLS {
              valPhi);
     
     exitBuilder.CreateRet(nullptr);
-    
-    // auto indPhiP1 = loopBuilder.CreateAdd(indPhi, one);
-    // auto indPhiM1 = loopBuilder.CreateSub(indPhi, one);
-
-    // auto nextInd = loopBuilder.CreateAdd(indPhi, one);
-
-    // auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
-
-    // indPhi->addIncoming(one, entryBlock);
-    // indPhi->addIncoming(nextInd, loopBlock);
-
-    // auto ai = loadVal(loopBuilder, getArg(f, 0), indPhi);
-    // auto aip1 = loadVal(loopBuilder, getArg(f, 0), indPhiP1);
-    // auto aim1 = loadVal(loopBuilder, getArg(f, 0), indPhiM1);
-    
-    // auto inputSum = loopBuilder.CreateAdd(aim1, loopBuilder.CreateAdd(ai, aip1), "stencil_accum");
-
-    // storeVal(loopBuilder,
-    //          getArg(f, 1),
-    //          loopBuilder.CreateSub(indPhi, one),
-    //          inputSum);
-
-    // loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
 
     cout << "LLVM Function" << endl;
     cout << valueString(f) << endl;
@@ -1488,6 +1465,111 @@ namespace DHLS {
 
       REQUIRE(runIVerilogTB("bb_diamond"));
     }
+
+  }
+
+  TEST_CASE("Scheduling a basic block diamond with sub-diamond") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    auto mod = llvm::make_unique<Module>("BB diamond 2", context);
+
+    std::vector<Type *> inputs{intType(32)->getPointerTo(),
+        intType(32)->getPointerTo(),
+        intType(32)->getPointerTo()};
+    Function* f = mkFunc(inputs, "bb_diamond_2", mod.get());
+
+    auto entryBlock = mkBB("entry_block", f);
+    auto fBlock = mkBB("false_block", f);
+
+    auto ffBlock = mkBB("false_false_block", f);
+    auto ftBlock = mkBB("false_true_block", f);        
+    auto tBlock = mkBB("true_block", f);    
+    auto exitBlock = mkBB("exit_block", f);
+
+    ConstantInt* zero = mkInt("0", 32);    
+    ConstantInt* one = mkInt("1", 32);    
+    ConstantInt* two = mkInt("2", 32);    
+
+    IRBuilder<> builder(entryBlock);
+    auto condVal = loadVal(builder, getArg(f, 0), zero);
+    builder.CreateCondBr(condVal, tBlock, fBlock);
+
+    IRBuilder<> fBuilder(fBlock);
+    auto cond1Val = loadVal(fBuilder, getArg(f, 1), zero);
+    fBuilder.CreateCondBr(cond1Val, ftBlock, ffBlock);
+
+    IRBuilder<> ffBuilder(ffBlock);
+    ffBuilder.CreateBr(exitBlock);
+
+    IRBuilder<> ftBuilder(ftBlock);
+    ftBuilder.CreateBr(exitBlock);
+    
+    IRBuilder<> tBuilder(tBlock);
+    tBuilder.CreateBr(exitBlock);
+
+
+    IRBuilder<> exitBuilder(exitBlock);
+    auto valPhi = exitBuilder.CreatePHI(intType(32), 3);
+    valPhi->addIncoming(one, tBlock);
+    valPhi->addIncoming(zero, ffBlock);
+    valPhi->addIncoming(two, ftBlock);
+    
+    storeVal(exitBuilder,
+             getArg(f, 1),
+             zero,
+             valPhi);
+    
+    exitBuilder.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    Schedule s = scheduleFunction(f, hcs);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}, {"arg_2", 11}};
+
+    auto arch = buildMicroArchitecture(f, graph, layout);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(f, arch, info);
+
+    // Create testing infrastructure
+    SECTION("Taking false, true path") {
+      map<string, vector<int> > memoryInit{{"arg_0", {1}}, {"arg_1", {1}}};
+      map<string, vector<int> > memoryExpected{{"arg_2", {2}}};
+
+      TestBenchSpec tb;
+      tb.memoryInit = memoryInit;
+      tb.memoryExpected = memoryExpected;
+      tb.runCycles = 30;
+      tb.name = "bb_diamond_2";
+      emitVerilogTestBench(tb, arch, layout);
+
+      REQUIRE(runIVerilogTB("bb_diamond_2"));
+    }
+
+    // SECTION("Taking false path") {
+    //   map<string, vector<int> > memoryInit{{"arg_0", {0}}};
+    //   map<string, vector<int> > memoryExpected{{"arg_1", {0}}};
+
+    //   TestBenchSpec tb;
+    //   tb.memoryInit = memoryInit;
+    //   tb.memoryExpected = memoryExpected;
+    //   tb.runCycles = 30;
+    //   tb.name = "bb_diamond_2";
+    //   emitVerilogTestBench(tb, arch, layout);
+
+    //   REQUIRE(runIVerilogTB("bb_diamond_2"));
+    // }
 
   }
   
