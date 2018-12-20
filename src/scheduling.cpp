@@ -754,10 +754,10 @@ namespace DHLS {
     // paths
     for (auto bbR : blockList) {
       BasicBlock* target = bbR;
-      set<BasicBlock*> considered;
-      vector<vector<Atom> > allPaths =
-        allPathConditions(entryBlock, target, considered);
-      cout << "# of paths = " << allPaths.size() << endl;
+      // set<BasicBlock*> considered;
+      // vector<vector<Atom> > allPaths =
+      //   allPathConditions(entryBlock, target, considered);
+      // cout << "# of paths = " << allPaths.size() << endl;
 
       blockGuards[target] = {{}}; //allPaths;
 
