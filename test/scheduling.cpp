@@ -109,7 +109,7 @@ namespace DHLS {
     cout << "Lastline = " << lastLine << endl;
     return lastLine == "Passed";
   }
-  
+
   TEST_CASE("Schedule a single store operation") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -1374,6 +1374,123 @@ namespace DHLS {
 
     REQUIRE(runIVerilogTB("shift_register_1"));
   }
+
+  TEST_CASE("Scheduling a basic block diamond") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    auto mod = llvm::make_unique<Module>("BB diamond", context);
+
+    std::vector<Type *> inputs{intType(32)->getPointerTo(),
+        intType(32)->getPointerTo()};
+    Function* f = mkFunc(inputs, "bb_diamond", mod.get());
+
+    auto entryBlock = mkBB("entry_block", f);
+    auto fBlock = mkBB("false_block", f);
+    auto tBlock = mkBB("true_block", f);    
+    auto exitBlock = mkBB("exit_block", f);
+
+    ConstantInt* loopBound = mkInt("6", 32);
+    ConstantInt* zero = mkInt("0", 32);    
+    ConstantInt* one = mkInt("1", 32);    
+
+    IRBuilder<> builder(entryBlock);
+    auto condVal = loadVal(builder, getArg(f, 0), zero);
+    builder.CreateCondBr(condVal, tBlock, fBlock);
+
+    IRBuilder<> fBuilder(fBlock);
+    fBuilder.CreateBr(exitBlock);
+
+    IRBuilder<> tBuilder(tBlock);
+    tBuilder.CreateBr(exitBlock);
+
+
+    IRBuilder<> exitBuilder(exitBlock);
+    auto valPhi = exitBuilder.CreatePHI(intType(32), 2);
+    valPhi->addIncoming(one, tBlock);
+    valPhi->addIncoming(zero, fBlock);
+
+    storeVal(exitBuilder,
+             getArg(f, 1),
+             zero,
+             valPhi);
+    
+    exitBuilder.CreateRet(nullptr);
+    
+    // auto indPhiP1 = loopBuilder.CreateAdd(indPhi, one);
+    // auto indPhiM1 = loopBuilder.CreateSub(indPhi, one);
+
+    // auto nextInd = loopBuilder.CreateAdd(indPhi, one);
+
+    // auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
+
+    // indPhi->addIncoming(one, entryBlock);
+    // indPhi->addIncoming(nextInd, loopBlock);
+
+    // auto ai = loadVal(loopBuilder, getArg(f, 0), indPhi);
+    // auto aip1 = loadVal(loopBuilder, getArg(f, 0), indPhiP1);
+    // auto aim1 = loadVal(loopBuilder, getArg(f, 0), indPhiM1);
+    
+    // auto inputSum = loopBuilder.CreateAdd(aim1, loopBuilder.CreateAdd(ai, aip1), "stencil_accum");
+
+    // storeVal(loopBuilder,
+    //          getArg(f, 1),
+    //          loopBuilder.CreateSub(indPhi, one),
+    //          inputSum);
+
+    // loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    Schedule s = scheduleFunction(f, hcs);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
+
+    auto arch = buildMicroArchitecture(f, graph, layout);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(f, arch, info);
+
+    // Create testing infrastructure
+    SECTION("Taking true path") {
+      map<string, vector<int> > memoryInit{{"arg_0", {1}}};
+      map<string, vector<int> > memoryExpected{{"arg_1", {1}}};
+
+      TestBenchSpec tb;
+      tb.memoryInit = memoryInit;
+      tb.memoryExpected = memoryExpected;
+      tb.runCycles = 30;
+      tb.name = "bb_diamond";
+      emitVerilogTestBench(tb, arch, layout);
+
+      REQUIRE(runIVerilogTB("bb_diamond"));
+    }
+
+    SECTION("Taking false path") {
+      map<string, vector<int> > memoryInit{{"arg_0", {0}}};
+      map<string, vector<int> > memoryExpected{{"arg_1", {0}}};
+
+      TestBenchSpec tb;
+      tb.memoryInit = memoryInit;
+      tb.memoryExpected = memoryExpected;
+      tb.runCycles = 30;
+      tb.name = "bb_diamond";
+      emitVerilogTestBench(tb, arch, layout);
+
+      REQUIRE(runIVerilogTB("bb_diamond"));
+    }
+
+  }
+  
   
   // TEST_CASE("1D stencil with shift register in LLVM") {
   //   LLVMContext context;

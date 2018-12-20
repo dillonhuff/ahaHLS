@@ -102,6 +102,26 @@ namespace DHLS {
         }
 
         cout << "Safe vectorization distance = " << lai.getMaxSafeDepDistBytes() << endl;
+
+        for (auto sl : loop->getSubLoops()) {
+          cout << "Info for this subloop" << endl;
+          LoopAccessInfo lai(sl, &sc, TLI, &a, &domTree, &li);
+          cout << "# loads  = " << lai.getNumLoads() << endl;
+          cout << "# stores = " << lai.getNumStores() << endl;
+
+          auto& depChecker = lai.getDepChecker();
+          cout << "Dependence Analysis" << endl;
+          for (auto dep : *(depChecker.getDependences())) {
+            std::string str;
+            llvm::raw_string_ostream ss(str);
+            dep.print(ss, 1, depChecker.getMemoryInstructions());
+            auto depStr = ss.str();
+            cout << depStr << endl;
+          }
+
+          cout << "Safe vectorization distance = " << lai.getMaxSafeDepDistBytes() << endl;
+
+        }
       }
 
 
