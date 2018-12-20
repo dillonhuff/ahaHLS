@@ -27,7 +27,8 @@ add_library(dhls ${CPP_FILES})
 target_link_libraries(dhls ${llvm_libs} z3)
 
 # Test executables
-SET(ALL_TEST_FILES ./test/scheduling.cpp)
+SET(ALL_TEST_FILES ./test/scheduling.cpp
+                   ./test/dependence.cpp)
 
 add_executable(all-tests ${ALL_TEST_FILES})
 

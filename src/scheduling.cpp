@@ -5,9 +5,11 @@
 #include <llvm/IR/Instructions.h>
 
 #include <llvm/IR/LegacyPassManager.h>
-#include "llvm/Transforms/IPO/PassManagerBuilder.h"
+#include <llvm/Transforms/IPO/PassManagerBuilder.h>
 #include <llvm/Analysis/AliasAnalysis.h>
 #include <llvm/Analysis/LoopInfo.h>
+#include <llvm/Analysis/LoopAccessAnalysis.h>
+#include <llvm/Analysis/ScalarEvolution.h>
 
 using namespace dbhc;
 using namespace llvm;
@@ -16,6 +18,21 @@ using namespace z3;
 
 namespace DHLS {
 
+  HardwareConstraints standardConstraints() {
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(LOAD_OP, 1);
+    hcs.setLatency(CMP_OP, 0);
+    hcs.setLatency(BR_OP, 0);
+    hcs.setLatency(ADD_OP, 0);
+    hcs.setLatency(SUB_OP, 0);    
+    hcs.setLatency(MUL_OP, 0);
+    hcs.setLatency(SEXT_OP, 0);
+    
+
+    return hcs;
+  }
+  
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
                             std::set<BasicBlock*>& toPipeline,
@@ -43,6 +60,8 @@ namespace DHLS {
     virtual void getAnalysisUsage(AnalysisUsage& AU) const override {
       AU.addRequired<AAResultsWrapperPass>();
       AU.addRequired<LoopInfoWrapperPass>();
+      AU.addRequired<ScalarEvolutionWrapperPass>();
+      AU.addRequired<TargetLibraryInfoWrapperPass>();
       AU.setPreservesAll();
     }
 
@@ -58,7 +77,25 @@ namespace DHLS {
       }
 
       AAResults& a = getAnalysis<AAResultsWrapperPass>().getAAResults();
+      ScalarEvolution& sc = getAnalysis<ScalarEvolutionWrapperPass>().getSE();
 
+      for (auto& bb : F.getBasicBlockList()) {
+        for (auto& instr : bb) {
+          auto scev = sc.getSCEV(&instr);
+
+          if (scev != nullptr) {
+            std::string str;
+            llvm::raw_string_ostream ss(str);
+            ss << *scev;
+            auto scevStr = ss.str();
+
+            ss << scev;
+            cout << valueString(&instr) << endl;
+            cout << " --> " << scevStr << endl;
+          }
+        }
+      }
+        
       schedule = scheduleFunction(&F,
                                   hdc,
                                   toPipeline,
@@ -70,19 +107,6 @@ namespace DHLS {
 
   char SkeletonPass::ID = 0;
 
-  // Automatically enable the pass.
-  // http://adriansampson.net/blog/clangpass.html
-  // static void registerSkeletonPass(const PassManagerBuilder &,
-  //                                  legacy::PassManagerBase &PM) {
-  //   cout << "Calling register skeleton" << endl;
-  //   PM.add(new LoopInfoWrapperPass());    
-  //   PM.add(new SkeletonPass());
-  // }
-
-  // static RegisterStandardPasses
-  // RegisterMyPass(PassManagerBuilder::EP_EarlyAsPossible,
-  //                registerSkeletonPass);  
-  
   OperationType opType(Instruction* const iptr) {
     if (ReturnInst::classof(iptr)) {
       return RETURN_OP;
@@ -113,7 +137,6 @@ namespace DHLS {
       return ZEXT_OP;
     } else if (SelectInst::classof(iptr)) {
       return SELECT_OP;
-
     } else if (AllocaInst::classof(iptr) ||
                BitCastInst::classof(iptr) ||
                CallInst::classof(iptr)) {
@@ -383,7 +406,8 @@ namespace DHLS {
     llvm::legacy::PassManager pm;
     auto skeleton = new SkeletonPass(f, hdc, toPipeline);
     pm.add(new LoopInfoWrapperPass());
-    pm.add(new AAResultsWrapperPass());    
+    pm.add(new AAResultsWrapperPass());
+    pm.add(new TargetLibraryInfoWrapperPass());
     pm.add(skeleton);
 
     pm.run(*(f->getParent()));

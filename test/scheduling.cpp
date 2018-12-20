@@ -1,9 +1,5 @@
 #define CATCH_CONFIG_MAIN
 
-// NOTE: Maybe I should actually do a uart based memory controller that I can test
-// on the icestick first? Or do both AXI and UART in parallel to help ensure
-// that the memory API is general enough?
-
 #include "catch.hpp"
 
 #include "algorithm.h"
@@ -35,7 +31,6 @@
 #include <iostream>
 
 using namespace dbhc;
-//using namespace polly;
 using namespace llvm;
 using namespace std;
 
@@ -64,14 +59,6 @@ namespace DHLS {
                                      const std::string& name) {
     createLLFile("./test/ll_files/" + name);
     return loadLLFile(Context, Err, name);
-    // string modFile = "./test/ll_files/" + name + ".ll";
-    // std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
-    // if (!Mod) {
-    //   outs() << "Error: No mod\n";
-    //   assert(false);
-    // }
-
-    // return Mod;
   }
 
   bool runCmd(const std::string& cmd) {
@@ -1001,21 +988,6 @@ namespace DHLS {
     
   }
 
-  HardwareConstraints standardConstraints() {
-    HardwareConstraints hcs;
-    hcs.setLatency(STORE_OP, 3);
-    hcs.setLatency(LOAD_OP, 1);
-    hcs.setLatency(CMP_OP, 0);
-    hcs.setLatency(BR_OP, 0);
-    hcs.setLatency(ADD_OP, 0);
-    hcs.setLatency(SUB_OP, 0);    
-    hcs.setLatency(MUL_OP, 0);
-    hcs.setLatency(SEXT_OP, 0);
-    
-
-    return hcs;
-  }
-  
   TEST_CASE("Building a simple function directly in LLVM") {
     LLVMContext context;
     auto mod = llvm::make_unique<Module>("shift register test", context);

@@ -3,7 +3,6 @@
 #include "algorithm.h"
 #include "utils.h"
 
-//#include <polly/Canonicalization.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/Support/raw_ostream.h>
@@ -442,5 +441,5 @@ namespace DHLS {
 
   STG buildSTG(Schedule& sched, llvm::Function* const f);
 
-  
+  HardwareConstraints standardConstraints();
 }
