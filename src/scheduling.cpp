@@ -78,7 +78,23 @@ namespace DHLS {
 
       AAResults& a = getAnalysis<AAResultsWrapperPass>().getAAResults();
       ScalarEvolution& sc = getAnalysis<ScalarEvolutionWrapperPass>().getSE();
+      LoopInfo& li = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
+      auto* TLIP = getAnalysisIfAvailable<TargetLibraryInfoWrapperPass>();
+      auto TLI = TLIP ? &TLIP->getTLI() : nullptr;
 
+      DominatorTree domTree(F);
+      
+      cout << "Loop access info" << endl;
+      for (Loop* loop : li) {
+        cout << "Info for loop" << endl;
+        LoopAccessInfo lai(loop, &sc, TLI, &a, &domTree, &li);
+        cout << "# loads  = " << lai.getNumLoads() << endl;
+        cout << "# stores = " << lai.getNumStores() << endl;      
+      }
+
+
+      cout << "SCEV Results " << endl;
+      
       for (auto& bb : F.getBasicBlockList()) {
         for (auto& instr : bb) {
           auto scev = sc.getSCEV(&instr);
