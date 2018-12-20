@@ -1516,7 +1516,7 @@ namespace DHLS {
     valPhi->addIncoming(two, ftBlock);
     
     storeVal(exitBuilder,
-             getArg(f, 1),
+             getArg(f, 2),
              zero,
              valPhi);
     
@@ -1533,7 +1533,7 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}, {"arg_2", 11}};
+    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}, {"arg_2", 15}};
 
     auto arch = buildMicroArchitecture(f, graph, layout);
 
