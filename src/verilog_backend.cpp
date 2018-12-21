@@ -568,7 +568,8 @@ namespace DHLS {
 
   std::string outputName(Value* arg0,
                          map<Instruction*, FunctionalUnit> unitAssignment,
-                         std::map<std::string, int>& memoryMap) {
+                         std::map<llvm::Value*, int>& memoryMap) {
+                         //std::map<std::string, int>& memoryMap) {
     if (Instruction::classof(arg0)) {
 
       auto unit0Src =
@@ -579,8 +580,11 @@ namespace DHLS {
 
       return arg0Name;
     } else if (Argument::classof(arg0)) {
-      string name = arg0->getName();
-      return to_string(map_find(name, memoryMap));
+      // The "name" of an argument is the string representation of its
+      // address in memory
+      return to_string(map_find(arg0, memoryMap));
+      // string name = arg0->getName();
+      // return to_string(map_find(name, memoryMap));
     } else {
       assert(ConstantInt::classof(arg0));
       auto arg0C = dyn_cast<ConstantInt>(arg0);
@@ -596,8 +600,9 @@ namespace DHLS {
                          StateId thisState,
                          const STG& stg,
                          map<Instruction*, FunctionalUnit>& unitAssignment,
-                         map<Instruction*, Wire>& names,                         
-                         std::map<std::string, int>& memoryMap) {
+                         map<Instruction*, Wire>& names,
+                         std::map<llvm::Value*, int>& memoryMap) {
+                         //std::map<std::string, int>& memoryMap) {
     if (Instruction::classof(arg0)) {
 
       auto instr0 = dyn_cast<Instruction>(arg0);
@@ -626,8 +631,9 @@ namespace DHLS {
 
 
     } else if (Argument::classof(arg0)) {
-      string name = arg0->getName();
-      return to_string(map_find(name, memoryMap));
+      return to_string(map_find(arg0, memoryMap));
+      // string name = arg0->getName();
+      // return to_string(map_find(name, memoryMap));
     } else {
       assert(ConstantInt::classof(arg0));
       auto arg0C = dyn_cast<ConstantInt>(arg0);
@@ -647,8 +653,9 @@ namespace DHLS {
                          Instruction* instr,
                          const STG& stg,
                          map<Instruction*, FunctionalUnit>& unitAssignment,
-                         map<Instruction*, Wire>& names,      
-                         std::map<std::string, int>& memoryMap) {
+                         map<Instruction*, Wire>& names,
+                         std::map<llvm::Value*, int>& memoryMap) {
+                         //std::map<std::string, int>& memoryMap) {
                          //const std::vector<RAM>& rams) {
     cout << "Getting output" << endl;
     
@@ -701,10 +708,11 @@ namespace DHLS {
 
 
     } else if (Argument::classof(arg0)) {
-      cout << "Argument " << valueString(arg0) << endl;
-      string name = arg0->getName();
-      assert(contains_key(name, memoryMap));
-      return to_string(map_find(name, memoryMap));
+      return to_string(map_find(arg0, memoryMap));
+      // cout << "Argument " << valueString(arg0) << endl;
+      // string name = arg0->getName();
+      // assert(contains_key(name, memoryMap));
+      // return to_string(map_find(name, memoryMap));
     } else {
       assert(ConstantInt::classof(arg0));
       auto arg0C = dyn_cast<ConstantInt>(arg0);
@@ -721,7 +729,8 @@ namespace DHLS {
                          const STG& stg,
                          map<Instruction*, FunctionalUnit>& unitAssignment,
                          map<Instruction*, Wire>& names,      
-                         std::map<std::string, int>& memoryMap,
+                         //std::map<std::string, int>& memoryMap,
+                         std::map<llvm::Value*, int>& memoryMap,
                          const std::vector<RAM>& rams) {
     return outputName(arg0,
                       instr,
@@ -750,7 +759,7 @@ namespace DHLS {
       for (auto a : cl) {
         bool isNeg = a.negated;
 
-        map<string, int> memoryMap;
+        map<llvm::Value*, int> memoryMap;
         std::vector<RAM> rams;     
         string valueStr = outputName(a.cond,
                                      currentState,
@@ -1414,7 +1423,7 @@ namespace DHLS {
 
     for (auto p : pipelines) {
       out << "\t\t\t\tif (" << p.valids.at(0).name << " && " << p.inPipe.name << ") begin" << endl;
-      std::map<std::string, int> memMap;
+      std::map<llvm::Value*, int> memMap;
       out << "\t\t\t\t\tif(" << outputName(p.getExitCondition(), unitAssignment, memMap) << ") begin" << endl;
       vector<RAM> rams;
       //out << "\t\t\t\t\tif(" << outputName(p.getExitCondition(), p.stateId*2, stg, unitAssignment, names, memMap) << ") begin" << endl;
@@ -1693,7 +1702,6 @@ namespace DHLS {
                          HardwareConstraints& hcs) {
 
     map<llvm::Value*, int> memMap;
-      //for (auto arg : f->getArgs()) {
     for (int i = 0; i < (int) f->arg_size(); i++) {
       auto& arg = *(f->arg_begin() + i);
       string name = arg.getName();
@@ -1712,7 +1720,7 @@ namespace DHLS {
 
     // TODO: Add rams
     vector<RAM> rams;
-    MicroArchitecture arch(options, stg, unitAssignment, memoryMap, names, basicBlockNos, pipelines, rams);
+    MicroArchitecture arch(options, stg, unitAssignment, memMap, names, basicBlockNos, pipelines, rams);
 
     if (options.globalStall) {
       arch.globalStall.push_back({false, 1, "global_stall"});

@@ -213,7 +213,8 @@ namespace DHLS {
     ArchOptions archOptions;
     STG stg;
     std::map<llvm::Instruction*, FunctionalUnit> unitAssignment;
-    std::map<std::string, int> memoryMap;
+    //std::map<std::string, int> memoryMap;
+    std::map<llvm::Value*, int> memoryMap;
     std::map<llvm::Instruction*, Wire> names;
     std::map<llvm::BasicBlock*, int> basicBlockNos;
     std::vector<ElaboratedPipeline> pipelines;
@@ -223,7 +224,8 @@ namespace DHLS {
     MicroArchitecture(const ArchOptions& archOptions_,
                       const STG& stg_,
                       const std::map<llvm::Instruction*, FunctionalUnit>& unitAssignment_,
-                      const std::map<std::string, int>& memoryMap_,
+                      //const std::map<std::string, int>& memoryMap_,
+                      const std::map<llvm::Value*, int>& memoryMap_,
                       const std::map<llvm::Instruction*, Wire>& names_,
                       const std::map<llvm::BasicBlock*, int>& basicBlockNos_,
                       const std::vector<ElaboratedPipeline>& pipelines_,
