@@ -254,7 +254,7 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<string, int> layout = {{"a", 0}, {"b", 10}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
     emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("loop_add_7"));
@@ -308,7 +308,8 @@ namespace DHLS {
       }
     }
 
-    map<string, int> layout = {{"a", 0}, {"b", 1}, {"c", 2}, {"d", 3}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 1}, {getArg(f, 2), 2}, {getArg(f, 3), 3}};    
+    //map<string, int> layout = {{"a", 0}, {"b", 1}, {"c", 2}, {"d", 3}};
     emitVerilog(f, graph, layout);
     REQUIRE(runIVerilogTB("many_adds"));
     
@@ -346,7 +347,8 @@ namespace DHLS {
 
     REQUIRE(!graph.hasTransition(1, 1));
 
-    map<string, int> layout = {{"a", 0}, {"b", 1}, {"c", 2}};
+    //map<string, int> layout = {{"a", 0}, {"b", 1}, {"c", 2}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 1}, {getArg(f, 2), 2}};
     emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("cmp_gt"));
@@ -422,7 +424,8 @@ namespace DHLS {
     REQUIRE(graph.pipelines.size() == 1);
     REQUIRE(graph.pipelines[0].depth() == 5);
     
-    map<string, int> layout = {{"a", 0}, {"b", 10}};
+    //map<string, int> layout = {{"a", 0}, {"b", 10}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
     emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("loop_add_7"));
@@ -511,8 +514,8 @@ namespace DHLS {
     REQUIRE(graph.pipelines.size() == 1);
     REQUIRE(graph.pipelines[0].depth() == 5);
     
-    map<string, int> layout = {{"a", 0}, {"b", 10}};
-
+    //map<string, int> layout = {{"a", 0}, {"b", 10}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
     VerilogDebugInfo info;
 
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
