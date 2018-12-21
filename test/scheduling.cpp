@@ -610,7 +610,8 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<string, int> layout = {{"a", 0}, {"b", 10}};
+    //map<string, int> testLayout = {{"a", 0}, {"b", 10}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
 
     VerilogDebugInfo info;
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
@@ -623,7 +624,8 @@ namespace DHLS {
 
     addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
 
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
 
     emitVerilog(f, arch, info);
     
@@ -654,7 +656,8 @@ namespace DHLS {
     graph.print(cout);
 
     
-    map<string, int> layout = {{"a", 0}, {"b", 8}};
+    map<string, int> testLayout = {{"a", 0}, {"b", 8}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 8}};
 
     auto arch = buildMicroArchitecture(f, graph, layout);
 
@@ -679,7 +682,7 @@ namespace DHLS {
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 100;
     tb.name = "blur_no_lb";
-    emitVerilogTestBench(tb, arch, layout);
+    emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("blur_no_lb"));
     
@@ -708,8 +711,8 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<string, int> layout = {{"a", 0}, {"b", 8}};
-
+    map<string, int> testLayout = {{"a", 0}, {"b", 8}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 8}};
     auto arch = buildMicroArchitecture(f, graph, layout);
 
     VerilogDebugInfo info;
@@ -747,7 +750,7 @@ namespace DHLS {
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 40;
     tb.name = "blur_lb";
-    emitVerilogTestBench(tb, arch, layout);
+    emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("blur_lb"));
   }
@@ -776,8 +779,8 @@ namespace DHLS {
     graph.print(cout);
 
     // 3 x 3
-    map<string, int> layout = {{"a", 0}, {"b", 9}, {"c", 12}};
-
+    map<string, int> testLayout = {{"a", 0}, {"b", 9}, {"c", 12}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 9}, {getArg(f, 2), 12}};
     auto arch = buildMicroArchitecture(f, graph, layout);
 
     VerilogDebugInfo info;
@@ -812,7 +815,7 @@ namespace DHLS {
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 100;
     tb.name = "mvmul";
-    emitVerilogTestBench(tb, arch, layout);
+    emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("mvmul"));
   }
