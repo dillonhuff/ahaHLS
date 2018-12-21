@@ -369,7 +369,7 @@ namespace DHLS {
       s.add(svs.back() <= blockSink(&bb, blockVars));
 
       // Operations with latency N take N clock ticks to finish
-      for (int i = 1; i < svs.size(); i++) {
+      for (int i = 1; i < (int) svs.size(); i++) {
         s.add(svs[i - 1] + 1 == svs[i]);
       }
     }
@@ -540,7 +540,7 @@ namespace DHLS {
           }
           
           iGroups.push_back(instrs);
-          for (int i = 0; i < iGroups.size() - 1; i++) {
+          for (int i = 0; i < (int) iGroups.size() - 1; i++) {
             auto gp = iGroups[i];
             auto next = iGroups[i + 1];
             for (auto preI : gp) {
