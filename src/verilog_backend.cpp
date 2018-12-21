@@ -294,7 +294,6 @@ namespace DHLS {
   
   std::map<Instruction*, FunctionalUnit>
   assignFunctionalUnits(const STG& stg,
-                        std::map<std::string, int>& memoryMap,
                         HardwareConstraints& hcs) {
 
     std::map<Instruction*, FunctionalUnit> units;
@@ -1699,18 +1698,9 @@ namespace DHLS {
   MicroArchitecture
   buildMicroArchitecture(llvm::Function* f,
                          const STG& stg,
-                         std::map<std::string, int>& memoryMap,
+                         std::map<llvm::Value*, int>& memMap,
                          const ArchOptions& options,
                          HardwareConstraints& hcs) {
-
-    map<llvm::Value*, int> memMap;
-    for (int i = 0; i < (int) f->arg_size(); i++) {
-      auto& arg = *(f->arg_begin() + i);
-      string name = arg.getName();
-      assert(contains_key(name, memoryMap));
-
-      memMap[dyn_cast<Value>(&arg)] = map_find(name, memoryMap);
-    }
     
     map<BasicBlock*, int> basicBlockNos = numberBasicBlocks(f);
     map<Instruction*, Wire> names = createInstrNames(stg);
@@ -1718,7 +1708,7 @@ namespace DHLS {
       buildPipelines(f, stg);
 
     map<Instruction*, FunctionalUnit> unitAssignment =
-      assignFunctionalUnits(stg, memoryMap, hcs);
+      assignFunctionalUnits(stg, hcs);
 
     // TODO: Add rams
     vector<RAM> rams;
@@ -1731,6 +1721,25 @@ namespace DHLS {
     assert(arch.stg.opStates.size() == stg.opStates.size());
     assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
     return arch;
+  }  
+
+  MicroArchitecture
+  buildMicroArchitecture(llvm::Function* f,
+                         const STG& stg,
+                         std::map<std::string, int>& memoryMap,
+                         const ArchOptions& options,
+                         HardwareConstraints& hcs) {
+
+    map<llvm::Value*, int> memMap;
+    for (int i = 0; i < (int) f->arg_size(); i++) {
+      auto& arg = *(f->arg_begin() + i);
+      string name = arg.getName();
+      assert(contains_key(name, memoryMap));
+
+      memMap[dyn_cast<Value>(&arg)] = map_find(name, memoryMap);
+    }
+
+    return buildMicroArchitecture(f, stg, memMap, options, hcs);
   }
 
   MicroArchitecture
