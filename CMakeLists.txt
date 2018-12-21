@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 project(DHLS)
 
 SET(LLVM_DIR /usr/local/opt/llvm/lib/cmake/llvm)
+
 find_package(LLVM REQUIRED CONFIG)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")

@@ -1246,7 +1246,6 @@ namespace DHLS {
     HardwareConstraints hcs = standardConstraints();
     hcs.memoryMapping = memoryOpLocations(srUser);
     setAllAllocaMemTypes(hcs, srUser, registerSpec(32));
-    //setMemSpec("dhsreg", hcs, srUser, registerSpec(32));
 
     Schedule s = scheduleFunction(srUser, hcs);
 
