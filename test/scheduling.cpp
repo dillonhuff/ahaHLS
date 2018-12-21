@@ -837,8 +837,7 @@ namespace DHLS {
 
     hcs.setCount(ADD_OP, 1);
     
-    map<string, int> layout = {{"a", 0}, {"b", 1}};
-
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 1}};
     Schedule s = scheduleFunction(f, hcs);
     STG graph = buildSTG(s, f);
 
@@ -847,7 +846,7 @@ namespace DHLS {
 
     ArchOptions options;
     options.globalStall = true;
-    auto arch = buildMicroArchitecture(f, graph, layout, options);
+    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
 
     VerilogDebugInfo info;
     noAddsTakeXInputs(arch, info);
@@ -877,7 +876,8 @@ namespace DHLS {
 
     hcs.setCount(ADD_OP, 1);
     
-    map<string, int> layout = {{"a", 0}, {"b", 1}};
+    //map<string, int> layout = {{"a", 0}, {"b", 1}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 1}};
 
     Schedule s = scheduleFunction(f, hcs);
     STG graph = buildSTG(s, f);
@@ -889,7 +889,7 @@ namespace DHLS {
     options.globalStall = true;
     options.setMemInterface(MEM_INTERFACE_AXI4_LITE);
 
-    auto arch = buildMicroArchitecture(f, graph, layout, options);
+    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
 
     VerilogDebugInfo info;
     noAddsTakeXInputs(arch, info);
@@ -949,7 +949,8 @@ namespace DHLS {
     REQUIRE(noDuplicates);
 
     // 3 x 3
-    map<string, int> layout = {{"input", 0}, {"input1", 10}, {"brighter", 20}};
+    map<string, int> testLayout = {{"input", 0}, {"input1", 10}, {"brighter", 20}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}, {getArg(f, 2), 20}};    
 
     auto arch = buildMicroArchitecture(f, graph, layout);
 
@@ -985,7 +986,7 @@ namespace DHLS {
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 60;
     tb.name = "brighter";
-    emitVerilogTestBench(tb, arch, layout);
+    emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("brighter"));
     
@@ -1028,8 +1029,8 @@ namespace DHLS {
     graph.print(cout);
 
     // 3 x 3
-    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 1}};
-
+    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 1}};
+    map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 1}};
     auto arch = buildMicroArchitecture(srUser, graph, layout);
 
     VerilogDebugInfo info;
@@ -1045,7 +1046,7 @@ namespace DHLS {
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 10;
     tb.name = "using_shift_register";
-    emitVerilogTestBench(tb, arch, layout);
+    emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("using_shift_register"));
   }
