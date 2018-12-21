@@ -10,6 +10,8 @@ using namespace dbhc;
 using namespace llvm;
 using namespace std;
 
+// Pull zip file for z3 via travis? https://github.com/Z3Prover/z3/releases/download/z3-4.8.4/z3-4.8.4.d6df51951f4c-x64-ubuntu-14.04.zip
+
 // Now: I have a new problem because of memories:
 // I need to be able to describe latencies of different memories. and
 // I need to be able to give the layout of inputs with multiple
