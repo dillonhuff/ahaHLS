@@ -111,7 +111,7 @@ namespace DHLS {
     string lastLine;
 
     bool secondLine = false;
-    for (int i = 1; i < str.size(); i++) {
+    for (int i = 1; i < (int) str.size(); i++) {
       if (str[i] == '\n') {
         break;
       }
