@@ -97,7 +97,6 @@ namespace DHLS {
     reverse(begin(str), end(str));
     string lastLine;
 
-    bool secondLine = false;
     for (int i = 1; i < (int) str.size(); i++) {
       if (str[i] == '\n') {
         break;
@@ -161,8 +160,6 @@ namespace DHLS {
 
     REQUIRE(s.numStates() == 5);
 
-    auto& retInstr = f->getBasicBlockList().back().back();
-
     STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
@@ -199,8 +196,6 @@ namespace DHLS {
 
     Function* f = Mod->getFunction("if_else");
     Schedule s = scheduleFunction(f, hcs);
-
-    auto& retInstr = f->getBasicBlockList().back().back();
 
     STG graph = buildSTG(s, f);
 
@@ -252,8 +247,6 @@ namespace DHLS {
     Function* f = Mod->getFunction("loop_add_7");
     Schedule s = scheduleFunction(f, hcs);
 
-    auto& retInstr = f->getBasicBlockList().back().back();
-
     STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
@@ -290,8 +283,6 @@ namespace DHLS {
 
     Function* f = Mod->getFunction("many_adds");
     Schedule s = scheduleFunction(f, hcs);
-
-    auto& retInstr = f->getBasicBlockList().back().back();
 
     STG graph = buildSTG(s, f);
 
@@ -345,8 +336,6 @@ namespace DHLS {
 
     Function* f = Mod->getFunction("cmp_gt");
     Schedule s = scheduleFunction(f, hcs);
-
-    auto& retInstr = f->getBasicBlockList().back().back();
 
     STG graph = buildSTG(s, f);
 
@@ -1012,11 +1001,7 @@ namespace DHLS {
 
     auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
     IRBuilder<> builder(entryBlock);
-    ConstantInt* five = ConstantInt::get(context, APInt(32, StringRef("5"), 10));
 
-    auto ldA = builder.CreateLoad(dyn_cast<Value>(srUser->arg_begin()));
-    auto sum = builder.CreateAdd(ldA, five);
-    auto stA = builder.CreateStore(sum, dyn_cast<Value>(srUser->arg_begin() + 1));
     builder.CreateRet(nullptr);
 
     HardwareConstraints hcs = standardConstraints();
@@ -1143,7 +1128,6 @@ namespace DHLS {
     auto exitBlock = mkBB("exit_block", srUser);        
 
     ConstantInt* loopBound = mkInt("6", 32);
-    ConstantInt* zero = mkInt("0", 32);    
     ConstantInt* one = mkInt("1", 32);    
 
     IRBuilder<> builder(entryBlock);
@@ -1224,9 +1208,7 @@ namespace DHLS {
 
     auto entryBlock = mkBB("entry_block", srUser);
 
-    ConstantInt* loopBound = mkInt("6", 32);
     ConstantInt* zero = mkInt("0", 32);    
-    ConstantInt* one = mkInt("1", 32);    
 
     IRBuilder<> builder(entryBlock);
     auto reg = builder.CreateAlloca(intType(32), nullptr, "dhsreg");
@@ -1321,9 +1303,7 @@ namespace DHLS {
 
     auto entryBlock = mkBB("entry_block", srUser);
 
-    ConstantInt* loopBound = mkInt("6", 32);
     ConstantInt* zero = mkInt("0", 32);    
-    ConstantInt* one = mkInt("1", 32);    
 
     IRBuilder<> builder(entryBlock);
 
@@ -1395,7 +1375,6 @@ namespace DHLS {
     auto tBlock = mkBB("true_block", f);    
     auto exitBlock = mkBB("exit_block", f);
 
-    ConstantInt* loopBound = mkInt("6", 32);
     ConstantInt* zero = mkInt("0", 32);    
     ConstantInt* one = mkInt("1", 32);    
 
