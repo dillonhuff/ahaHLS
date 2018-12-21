@@ -11,7 +11,7 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
-SET(EXTRA_CXX_COMPILE_FLAGS "-std=c++11 -I./src -I./test -I./benchmarks -I/opt/local/include -I/usr/include -I/usr/local/include/ -I/usr/lib -O2 -Werror -Wall -fPIC -I./z3-4.8.4.d6df51951f4c-x64-ubuntu-16.04/include -L./z3-4.8.4.d6df51951f4c-x64-ubuntu-16.04/bin")
+SET(EXTRA_CXX_COMPILE_FLAGS "-std=c++11 -I./src -I./test -I./benchmarks -I/opt/local/include -I/usr/include -I/usr/local/include/ -I/usr/lib -O2 -Werror -Wall -fPIC -I./z3-4.8.4.d6df51951f4c-x64-ubuntu-16.04/include -L./z3-4.8.4.d6df51951f4c-x64-ubuntu-16.04/bin -fno-rtti")
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${EXTRA_CXX_COMPILE_FLAGS}")
 
 INCLUDE_DIRECTORIES(./src/)
