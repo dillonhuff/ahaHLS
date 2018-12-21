@@ -132,6 +132,9 @@ namespace DHLS {
 
     Function* f = Mod->getFunction("single_store");
 
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
     HardwareConstraints hcs;
     hcs.setLatency(STORE_OP, 3);
     map<string, int> layout = {{"a", 0}};
