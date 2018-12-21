@@ -471,8 +471,9 @@ namespace DHLS {
   // TODO: Re-name, this is not really a topological sort, since
   // it ignores back-edges, it is really just a linearization that tries
   // to respect forward control dependences
-  std::vector<BasicBlock*> topologicalSortOfBlocks(llvm::Function* f) {
-    //std::set<BasicBlock*> toVisit{&(f->getEntryBlock())};
+  std::vector<BasicBlock*>
+  topologicalSortOfBlocks(llvm::Function* f,
+                          std::map<BasicBlock*, std::vector<BasicBlock*> >& controlPredecessors) {
 
     std::set<BasicBlock*> alreadyVisited;
     vector<BasicBlock*> sortedOrder;
@@ -489,13 +490,18 @@ namespace DHLS {
         // Iterate over all blocks picking any whose predecessors are all
         bool allPredsAdded = true;
 
-        for (auto predBB : predecessors(next)) {
+        //for (auto predBB : predecessors(next)) {
 
-          // TODO: Change this check to respect the partial order computed
-          // in STG dependency construction
-          if (!elem(predBB, alreadyVisited) && (predBB != next)) {
-            allPredsAdded = false;
-            break;
+        if (contains_key(next, controlPredecessors)) {
+          for (auto predBB : map_find(next, controlPredecessors)) {
+
+            // // TODO: Change this check to respect the partial order computed
+            // // in STG dependency construction
+
+            if (!elem(predBB, alreadyVisited)) { // && (predBB != next)) {
+              allPredsAdded = false;
+              break;
+            }
           }
         }
 
@@ -546,7 +552,8 @@ namespace DHLS {
     // Connect the control edges
     std::deque<BasicBlock*> toVisit{&(f->getEntryBlock())};
     std::set<BasicBlock*> alreadyVisited;
-    
+
+    std::map<BasicBlock*, vector<BasicBlock*> > controlPredecessors;
     while (toVisit.size() > 0) {
       BasicBlock* next = toVisit.front();
       toVisit.pop_front();
@@ -568,13 +575,18 @@ namespace DHLS {
             } else {
               s.add(blockSink(next, blockVars) < blockSource(nextBB, blockVars));
             }
+
+
+            // next is a predecessor of nextBB
+            map_insert(controlPredecessors, nextBB, next);
             toVisit.push_back(nextBB);
           }
         }
       }
       
     }
-    std::vector<BasicBlock*> sortedBlocks = topologicalSortOfBlocks(f);
+    std::vector<BasicBlock*> sortedBlocks =
+      topologicalSortOfBlocks(f, controlPredecessors);
     cout << "Basic block order " << endl;
     
     for (int i = 0; i < (int) sortedBlocks.size() - 1; i++) {
