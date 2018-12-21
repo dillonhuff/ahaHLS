@@ -1632,6 +1632,15 @@ namespace DHLS {
     emitVerilog(f, stg, memoryMap, info);
   }
 
+  void emitVerilog(llvm::Function* f,
+                   const STG& stg,
+                   std::map<llvm::Value*, int>& memoryMap) {
+    VerilogDebugInfo info;
+    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+    emitVerilog(f, stg, memoryMap, info);
+  }
+  
   void emitLastBBCode(std::ostream& out,
                       llvm::Function* f,
                       const std::vector<ElaboratedPipeline>& pipelines,
@@ -1769,9 +1778,26 @@ namespace DHLS {
     return buildMicroArchitecture(f, stg, memoryMap, options, hcs);
   }
 
+  MicroArchitecture
+  buildMicroArchitecture(llvm::Function* f,
+                         const STG& stg,
+                         std::map<llvm::Value*, int>& memoryMap) {
+    ArchOptions options;
+    HardwareConstraints hcs;
+    return buildMicroArchitecture(f, stg, memoryMap, options, hcs);
+  }
+  
   void emitVerilog(llvm::Function* f,
                    const STG& stg,
                    std::map<std::string, int>& memoryMap,
+                   const VerilogDebugInfo& debugInfo) {
+    auto arch = buildMicroArchitecture(f, stg, memoryMap);
+    emitVerilog(f, arch, debugInfo);
+  }
+
+  void emitVerilog(llvm::Function* f,
+                   const STG& stg,
+                   std::map<llvm::Value*, int>& memoryMap,
                    const VerilogDebugInfo& debugInfo) {
     auto arch = buildMicroArchitecture(f, stg, memoryMap);
     emitVerilog(f, arch, debugInfo);

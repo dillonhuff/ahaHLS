@@ -335,6 +335,15 @@ namespace DHLS {
 
   void emitVerilog(llvm::Function* f,
                    const STG& stg,
+                   std::map<llvm::Value*, int>& memoryMap);
+
+  void emitVerilog(llvm::Function* f,
+                   const STG& stg,
+                   std::map<llvm::Value*, int>& memoryMap,
+                   const VerilogDebugInfo& debugInfo);
+  
+  void emitVerilog(llvm::Function* f,
+                   const STG& stg,
                    std::map<std::string, int>& memoryMap,
                    const VerilogDebugInfo& debufInfo);
   

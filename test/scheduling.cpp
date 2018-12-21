@@ -137,7 +137,7 @@ namespace DHLS {
 
     HardwareConstraints hcs;
     hcs.setLatency(STORE_OP, 3);
-    map<string, int> layout = {{"a", 0}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}};
 
     Schedule s = scheduleFunction(f, hcs);
 
