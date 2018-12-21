@@ -41,8 +41,8 @@ using namespace std;
 
 namespace DHLS {
 
-  void createLLFile(const std::string& moduleName) {
-    system(("clang -O1 -c -S -emit-llvm " + moduleName + ".c -o " + moduleName + ".ll").c_str());
+  int createLLFile(const std::string& moduleName) {
+    return system(("clang -O1 -c -S -emit-llvm " + moduleName + ".c -o " + moduleName + ".ll").c_str());
   }
 
   std::unique_ptr<Module> loadLLFile(LLVMContext& Context,
@@ -62,7 +62,9 @@ namespace DHLS {
   std::unique_ptr<Module> loadModule(LLVMContext& Context,
                                      SMDiagnostic& Err,
                                      const std::string& name) {
-    createLLFile("./test/ll_files/" + name);
+    int res = createLLFile("./test/ll_files/" + name);
+    assert(res == 0);
+    
     return loadLLFile(Context, Err, name);
     // string modFile = "./test/ll_files/" + name + ".ll";
     // std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
@@ -1350,7 +1352,7 @@ namespace DHLS {
         regTypes[reg] = registerSpec(width);
       }
 
-      assert(registers.size() == depth);
+      assert(((int) registers.size()) == depth);
     }
 
     void shift(IRBuilder<>& builder) {
