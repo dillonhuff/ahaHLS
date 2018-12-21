@@ -451,24 +451,16 @@ namespace DHLS {
           outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
         } else if (PHINode::classof(instr)) {
           PHINode* phi = dyn_cast<PHINode>(instr);
-          if (phi->getNumIncomingValues() == 2) {
 
-            modName = "phi_2";
-            wiring = {{"s0", {true, 32, "phi_s0_" + rStr}},
-                      {"s1", {true, 32, "phi_s1_" + rStr}},
-                      {"in0", {true, 32, "phi_in0_" + rStr}},
-                      {"in1", {true, 32, "phi_in1_" + rStr}},
-                      {"last_block", {true, 32, "phi_last_block_" + rStr}}};
-            outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
-          } else {
-            modName = "phi_2";
-            wiring = {{"s0", {true, 32, "phi_s0_" + rStr}},
-                      {"s1", {true, 32, "phi_s0_" + rStr}},
-                      {"in0", {true, 32, "phi_in0_" + rStr}},
-                      {"in1", {true, 32, "phi_in0_" + rStr}},
-                      {"last_block", {true, 32, "phi_last_block_" + rStr}}};
-            outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
+          modName = "phi_" + to_string(phi->getNumIncomingValues());
+
+          wiring = {{"last_block", {true, 32, "phi_last_block_" + rStr}}};
+          for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
+            auto iStr = to_string(i);
+            wiring.insert({"s" + iStr, {true, 32, "phi_s" + iStr + "_" + rStr}});
+            wiring.insert({"in" + iStr, {true, 32, "phi_in" + iStr + "_" + rStr}});
           }
+          outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
 
         } else if (ZExtInst::classof(instr)) {
 
@@ -874,27 +866,18 @@ namespace DHLS {
             
     } else if (PHINode::classof(instr)) {
       PHINode* phi = dyn_cast<PHINode>(instr);
-      assert(phi->getNumIncomingValues() == 2);
+      //assert(phi->getNumIncomingValues() == 2);
 
-      BasicBlock* b0 = phi->getIncomingBlock(0);
-      int b0Val = map_find(b0, arch.basicBlockNos);
+      for (int i = 0; i < phi->getNumIncomingValues(); i++) {
+        BasicBlock* b0 = phi->getIncomingBlock(i);
+        int b0Val = map_find(b0, arch.basicBlockNos);
 
-      BasicBlock* b1 = phi->getIncomingBlock(1);
-      int b1Val = map_find(b1, arch.basicBlockNos);
+        Value* v0 = phi->getIncomingValue(i);
+        string val0Name = outputName(v0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
-      Value* v0 = phi->getIncomingValue(0);
-      //string val0Name = outputNameLast(v0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
-      string val0Name = outputName(v0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
-
-      Value* v1 = phi->getIncomingValue(1);
-      //string val1Name = outputNameLast(v1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
-      string val1Name = outputName(v1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
-            
-      out << "\t\t\t" << addUnit.portWires["in0"].name << " = " << val0Name << ";" << endl;
-      out << "\t\t\t" << addUnit.portWires["in1"].name << " = " << val1Name << ";" << endl;
-
-      out << "\t\t\t" << addUnit.portWires["s0"].name << " = " << b0Val << ";" << endl;
-      out << "\t\t\t" << addUnit.portWires["s1"].name << " = " << b1Val << ";" << endl;
+        out << "\t\t\t" << addUnit.portWires["in" + to_string(i)].name << " = " << val0Name << ";" << endl;
+        out << "\t\t\t" << addUnit.portWires["s" + to_string(i)].name << " = " << b0Val << ";" << endl;
+      }
 
       out << "\t\t\t" << addUnit.portWires["last_block"].name << " = last_BB_reg;" << endl;
     } else if (SelectInst::classof(instr)) {

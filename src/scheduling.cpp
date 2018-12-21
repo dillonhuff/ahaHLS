@@ -5,9 +5,11 @@
 #include <llvm/IR/Instructions.h>
 
 #include <llvm/IR/LegacyPassManager.h>
-#include "llvm/Transforms/IPO/PassManagerBuilder.h"
+#include <llvm/Transforms/IPO/PassManagerBuilder.h>
 #include <llvm/Analysis/AliasAnalysis.h>
 #include <llvm/Analysis/LoopInfo.h>
+#include <llvm/Analysis/LoopAccessAnalysis.h>
+#include <llvm/Analysis/ScalarEvolution.h>
 
 using namespace dbhc;
 using namespace llvm;
@@ -16,6 +18,21 @@ using namespace z3;
 
 namespace DHLS {
 
+  HardwareConstraints standardConstraints() {
+    HardwareConstraints hcs;
+    hcs.setLatency(STORE_OP, 3);
+    hcs.setLatency(LOAD_OP, 1);
+    hcs.setLatency(CMP_OP, 0);
+    hcs.setLatency(BR_OP, 0);
+    hcs.setLatency(ADD_OP, 0);
+    hcs.setLatency(SUB_OP, 0);    
+    hcs.setLatency(MUL_OP, 0);
+    hcs.setLatency(SEXT_OP, 0);
+    
+
+    return hcs;
+  }
+  
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
                             std::set<BasicBlock*>& toPipeline,
@@ -43,6 +60,8 @@ namespace DHLS {
     virtual void getAnalysisUsage(AnalysisUsage& AU) const override {
       AU.addRequired<AAResultsWrapperPass>();
       AU.addRequired<LoopInfoWrapperPass>();
+      AU.addRequired<ScalarEvolutionWrapperPass>();
+      AU.addRequired<TargetLibraryInfoWrapperPass>();
       AU.setPreservesAll();
     }
 
@@ -58,7 +77,73 @@ namespace DHLS {
       }
 
       AAResults& a = getAnalysis<AAResultsWrapperPass>().getAAResults();
+      ScalarEvolution& sc = getAnalysis<ScalarEvolutionWrapperPass>().getSE();
+      LoopInfo& li = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
+      auto* TLIP = getAnalysisIfAvailable<TargetLibraryInfoWrapperPass>();
+      auto TLI = TLIP ? &TLIP->getTLI() : nullptr;
 
+      DominatorTree domTree(F);
+      
+      cout << "Loop access info" << endl;
+      for (Loop* loop : li) {
+        cout << "Info for loop" << endl;
+        LoopAccessInfo lai(loop, &sc, TLI, &a, &domTree, &li);
+        cout << "# loads  = " << lai.getNumLoads() << endl;
+        cout << "# stores = " << lai.getNumStores() << endl;
+
+        auto& depChecker = lai.getDepChecker();
+        cout << "Dependence Analysis" << endl;
+        for (auto dep : *(depChecker.getDependences())) {
+          std::string str;
+          llvm::raw_string_ostream ss(str);
+          dep.print(ss, 1, depChecker.getMemoryInstructions());
+          auto depStr = ss.str();
+          cout << depStr << endl;
+        }
+
+        cout << "Safe vectorization distance = " << lai.getMaxSafeDepDistBytes() << endl;
+
+        for (auto sl : loop->getSubLoops()) {
+          cout << "Info for this subloop" << endl;
+          LoopAccessInfo lai(sl, &sc, TLI, &a, &domTree, &li);
+          cout << "# loads  = " << lai.getNumLoads() << endl;
+          cout << "# stores = " << lai.getNumStores() << endl;
+
+          auto& depChecker = lai.getDepChecker();
+          cout << "Dependence Analysis" << endl;
+          for (auto dep : *(depChecker.getDependences())) {
+            std::string str;
+            llvm::raw_string_ostream ss(str);
+            dep.print(ss, 1, depChecker.getMemoryInstructions());
+            auto depStr = ss.str();
+            cout << depStr << endl;
+          }
+
+          cout << "Safe vectorization distance = " << lai.getMaxSafeDepDistBytes() << endl;
+
+        }
+      }
+
+
+      cout << "SCEV Results " << endl;
+      
+      for (auto& bb : F.getBasicBlockList()) {
+        for (auto& instr : bb) {
+          auto scev = sc.getSCEV(&instr);
+
+          if (scev != nullptr) {
+            std::string str;
+            llvm::raw_string_ostream ss(str);
+            ss << *scev;
+            auto scevStr = ss.str();
+
+            ss << scev;
+            cout << valueString(&instr) << endl;
+            cout << " --> " << scevStr << endl;
+          }
+        }
+      }
+        
       schedule = scheduleFunction(&F,
                                   hdc,
                                   toPipeline,
@@ -70,19 +155,6 @@ namespace DHLS {
 
   char SkeletonPass::ID = 0;
 
-  // Automatically enable the pass.
-  // http://adriansampson.net/blog/clangpass.html
-  // static void registerSkeletonPass(const PassManagerBuilder &,
-  //                                  legacy::PassManagerBase &PM) {
-  //   cout << "Calling register skeleton" << endl;
-  //   PM.add(new LoopInfoWrapperPass());    
-  //   PM.add(new SkeletonPass());
-  // }
-
-  // static RegisterStandardPasses
-  // RegisterMyPass(PassManagerBuilder::EP_EarlyAsPossible,
-  //                registerSkeletonPass);  
-  
   OperationType opType(Instruction* const iptr) {
     if (ReturnInst::classof(iptr)) {
       return RETURN_OP;
@@ -113,7 +185,6 @@ namespace DHLS {
       return ZEXT_OP;
     } else if (SelectInst::classof(iptr)) {
       return SELECT_OP;
-
     } else if (AllocaInst::classof(iptr) ||
                BitCastInst::classof(iptr) ||
                CallInst::classof(iptr)) {
@@ -349,6 +420,9 @@ namespace DHLS {
     s.add(blockSource(&bb, blockVars) <= blockSink(&bb, blockVars));
 
     Instruction* term = bb.getTerminator();
+
+    assert(term != nullptr);
+    
     // By definition the completion of a branch is the completion of
     // the basic block that contains it.
     s.add(blockSink(&bb, blockVars) == map_find(term, schedVars).back());
@@ -383,7 +457,8 @@ namespace DHLS {
     llvm::legacy::PassManager pm;
     auto skeleton = new SkeletonPass(f, hdc, toPipeline);
     pm.add(new LoopInfoWrapperPass());
-    pm.add(new AAResultsWrapperPass());    
+    pm.add(new AAResultsWrapperPass());
+    pm.add(new TargetLibraryInfoWrapperPass());
     pm.add(skeleton);
 
     pm.run(*(f->getParent()));
@@ -650,20 +725,21 @@ namespace DHLS {
 
   }
 
-  // Q: How to generate transition conditions?
-  // A: I think the way to do it is to track basic block activation conditions
-  //    and to do this by looking at formulas that decide what the last active
-  //    basic block was, or put another way, what the last edge in the CDFG
-  //    that we traversed was.
+  // Maybe I should re-write this entire thing assuming that each state
+  // contains exactly one basic block? That is the working assumption, and
+  // it delegates the work of converting control edges to select instructions
+  // and conditional loads / stores to the IR optimizations
+
+  // Q: How would that algorithm work? I suppose it would work by finding the
+  // transition conditions on the sole block in an STG and just adding those
+  // conditions to the output of the block?
+
   //    I still dont see how the Zhang STG construction algorithm avoids the
   //    problem of re-executing instructions from the initial basic block
   //    if instructions from it are scheduled in the same state as a basic
   //    block inside a loop. Without any paths to it in the dominator tree it
   //    either never executes or always executes depending on how an empty
   //    path is interpreted.
-
-  // Q: Can I represent activation conditions for basic blocks without adding
-  //    in an extra variable to represent the last executed block?
   STG buildSTG(Schedule& sched,
                BasicBlock* entryBlock,
                std::set<BasicBlock*>& blockList) {
@@ -678,11 +754,12 @@ namespace DHLS {
     // paths
     for (auto bbR : blockList) {
       BasicBlock* target = bbR;
-      set<BasicBlock*> considered;
-      vector<vector<Atom> > allPaths =
-        allPathConditions(entryBlock, target, considered);
-      cout << "# of paths = " << allPaths.size() << endl;
-      blockGuards[target] = allPaths;
+      // set<BasicBlock*> considered;
+      // vector<vector<Atom> > allPaths =
+      //   allPathConditions(entryBlock, target, considered);
+      // cout << "# of paths = " << allPaths.size() << endl;
+
+      blockGuards[target] = {{}}; //allPaths;
 
     }
 

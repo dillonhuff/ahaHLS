@@ -1,9 +1,5 @@
 #define CATCH_CONFIG_MAIN
 
-// NOTE: Maybe I should actually do a uart based memory controller that I can test
-// on the icestick first? Or do both AXI and UART in parallel to help ensure
-// that the memory API is general enough?
-
 #include "catch.hpp"
 
 #include "algorithm.h"
@@ -35,7 +31,6 @@
 #include <iostream>
 
 using namespace dbhc;
-//using namespace polly;
 using namespace llvm;
 using namespace std;
 
@@ -66,14 +61,6 @@ namespace DHLS {
     assert(res == 0);
     
     return loadLLFile(Context, Err, name);
-    // string modFile = "./test/ll_files/" + name + ".ll";
-    // std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
-    // if (!Mod) {
-    //   outs() << "Error: No mod\n";
-    //   assert(false);
-    // }
-
-    // return Mod;
   }
 
   bool runCmd(const std::string& cmd) {
@@ -124,7 +111,7 @@ namespace DHLS {
     cout << "Lastline = " << lastLine << endl;
     return lastLine == "Passed";
   }
-  
+
   TEST_CASE("Schedule a single store operation") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -188,39 +175,6 @@ namespace DHLS {
 
     REQUIRE(runIVerilogTB("plus"));
   }
-
-  // Q: What is the logical tension between software representations
-  // and hardware memory architectures?
-  // A: 1. Conventional software is designed around the assumption
-  //       that cache already exists and is operating silently in
-  //       the background
-  //    2. Software assumes unlimited resources (ports, memory)
-  //    3. Software uses a simple, imperative timing model
-  //    4. When people write software they only really write the
-  //       "steady state" behavior of a loop
-
-  // You can encapsulate the logic of a memory like a linebuffer inside
-  // a class and then write things like they are software, but the structure
-  // of the loop where you use the linebuffer may force the creation of additional
-  // control logic that is not encapsulated in the linebufer black-box class.
-
-  // Q: I guess you have to add stalls between accesses?
-  // Q: What if the user accesses multiple times?
-  // Q: What if the data structure is instantiated inside a loop,
-  //    and has to be cleared or reset many times?
-  // Q: How do you do the warmup for a customized memory?
-  // Q: How do you express what the source port of the linebuffer is?
-
-  // I think you would have explicit load and store to buffer instructions?
-  // but then the user has to prime the buffer by pre-loading? That is a big
-  // question. I guess the ideal is that the user just says when he wants to
-  // read and the compiler infers where write locations have to happen?
-
-  // Box touched algorithm?
-
-  // This issue of where address generation is done seems very important.
-  // Can you think of stream programming vs. bulk array processing as divided
-  // by where and when address computation happens?
 
   // Q: What test cases do I need?
   // A: Test case that uses 16 (or other not 32 bit) width (parametric builtins)
@@ -1039,21 +993,6 @@ namespace DHLS {
     
   }
 
-  HardwareConstraints standardConstraints() {
-    HardwareConstraints hcs;
-    hcs.setLatency(STORE_OP, 3);
-    hcs.setLatency(LOAD_OP, 1);
-    hcs.setLatency(CMP_OP, 0);
-    hcs.setLatency(BR_OP, 0);
-    hcs.setLatency(ADD_OP, 0);
-    hcs.setLatency(SUB_OP, 0);    
-    hcs.setLatency(MUL_OP, 0);
-    hcs.setLatency(SEXT_OP, 0);
-    
-
-    return hcs;
-  }
-  
   TEST_CASE("Building a simple function directly in LLVM") {
     LLVMContext context;
     auto mod = llvm::make_unique<Module>("shift register test", context);
@@ -1440,6 +1379,205 @@ namespace DHLS {
 
     REQUIRE(runIVerilogTB("shift_register_1"));
   }
+
+  TEST_CASE("Scheduling a basic block diamond") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    auto mod = llvm::make_unique<Module>("BB diamond", context);
+
+    std::vector<Type *> inputs{intType(32)->getPointerTo(),
+        intType(32)->getPointerTo()};
+    Function* f = mkFunc(inputs, "bb_diamond", mod.get());
+
+    auto entryBlock = mkBB("entry_block", f);
+    auto fBlock = mkBB("false_block", f);
+    auto tBlock = mkBB("true_block", f);    
+    auto exitBlock = mkBB("exit_block", f);
+
+    ConstantInt* loopBound = mkInt("6", 32);
+    ConstantInt* zero = mkInt("0", 32);    
+    ConstantInt* one = mkInt("1", 32);    
+
+    IRBuilder<> builder(entryBlock);
+    auto condVal = loadVal(builder, getArg(f, 0), zero);
+    builder.CreateCondBr(condVal, tBlock, fBlock);
+
+    IRBuilder<> fBuilder(fBlock);
+    fBuilder.CreateBr(exitBlock);
+
+    IRBuilder<> tBuilder(tBlock);
+    tBuilder.CreateBr(exitBlock);
+
+
+    IRBuilder<> exitBuilder(exitBlock);
+    auto valPhi = exitBuilder.CreatePHI(intType(32), 2);
+    valPhi->addIncoming(one, tBlock);
+    valPhi->addIncoming(zero, fBlock);
+
+    storeVal(exitBuilder,
+             getArg(f, 1),
+             zero,
+             valPhi);
+    
+    exitBuilder.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    Schedule s = scheduleFunction(f, hcs);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
+
+    auto arch = buildMicroArchitecture(f, graph, layout);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(f, arch, info);
+
+    // Create testing infrastructure
+    SECTION("Taking true path") {
+      map<string, vector<int> > memoryInit{{"arg_0", {1}}};
+      map<string, vector<int> > memoryExpected{{"arg_1", {1}}};
+
+      TestBenchSpec tb;
+      tb.memoryInit = memoryInit;
+      tb.memoryExpected = memoryExpected;
+      tb.runCycles = 30;
+      tb.name = "bb_diamond";
+      emitVerilogTestBench(tb, arch, layout);
+
+      REQUIRE(runIVerilogTB("bb_diamond"));
+    }
+
+    SECTION("Taking false path") {
+      map<string, vector<int> > memoryInit{{"arg_0", {0}}};
+      map<string, vector<int> > memoryExpected{{"arg_1", {0}}};
+
+      TestBenchSpec tb;
+      tb.memoryInit = memoryInit;
+      tb.memoryExpected = memoryExpected;
+      tb.runCycles = 30;
+      tb.name = "bb_diamond";
+      emitVerilogTestBench(tb, arch, layout);
+
+      REQUIRE(runIVerilogTB("bb_diamond"));
+    }
+
+  }
+
+  TEST_CASE("Scheduling a basic block diamond with sub-diamond") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    auto mod = llvm::make_unique<Module>("BB diamond 2", context);
+
+    std::vector<Type *> inputs{intType(32)->getPointerTo(),
+        intType(32)->getPointerTo(),
+        intType(32)->getPointerTo()};
+    Function* f = mkFunc(inputs, "bb_diamond_2", mod.get());
+
+    auto entryBlock = mkBB("entry_block", f);
+    auto fBlock = mkBB("false_block", f);
+
+    auto ffBlock = mkBB("false_false_block", f);
+    auto ftBlock = mkBB("false_true_block", f);        
+    auto tBlock = mkBB("true_block", f);    
+    auto exitBlock = mkBB("exit_block", f);
+
+    ConstantInt* zero = mkInt("0", 32);    
+    ConstantInt* one = mkInt("1", 32);    
+    ConstantInt* two = mkInt("2", 32);    
+
+    IRBuilder<> builder(entryBlock);
+    auto condVal = loadVal(builder, getArg(f, 0), zero);
+    builder.CreateCondBr(condVal, tBlock, fBlock);
+
+    IRBuilder<> fBuilder(fBlock);
+    auto cond1Val = loadVal(fBuilder, getArg(f, 1), zero);
+    fBuilder.CreateCondBr(cond1Val, ftBlock, ffBlock);
+
+    IRBuilder<> ffBuilder(ffBlock);
+    ffBuilder.CreateBr(exitBlock);
+
+    IRBuilder<> ftBuilder(ftBlock);
+    ftBuilder.CreateBr(exitBlock);
+    
+    IRBuilder<> tBuilder(tBlock);
+    tBuilder.CreateBr(exitBlock);
+
+
+    IRBuilder<> exitBuilder(exitBlock);
+    auto valPhi = exitBuilder.CreatePHI(intType(32), 3);
+    valPhi->addIncoming(one, tBlock);
+    valPhi->addIncoming(zero, ffBlock);
+    valPhi->addIncoming(two, ftBlock);
+    
+    storeVal(exitBuilder,
+             getArg(f, 2),
+             zero,
+             valPhi);
+    
+    exitBuilder.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    Schedule s = scheduleFunction(f, hcs);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}, {"arg_2", 15}};
+
+    auto arch = buildMicroArchitecture(f, graph, layout);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(f, arch, info);
+
+    // Create testing infrastructure
+    SECTION("Taking false, true path") {
+      map<string, vector<int> > memoryInit{{"arg_0", {1}}, {"arg_1", {1}}};
+      map<string, vector<int> > memoryExpected{{"arg_2", {2}}};
+
+      TestBenchSpec tb;
+      tb.memoryInit = memoryInit;
+      tb.memoryExpected = memoryExpected;
+      tb.runCycles = 30;
+      tb.name = "bb_diamond_2";
+      emitVerilogTestBench(tb, arch, layout);
+
+      REQUIRE(runIVerilogTB("bb_diamond_2"));
+    }
+
+    // SECTION("Taking false path") {
+    //   map<string, vector<int> > memoryInit{{"arg_0", {0}}};
+    //   map<string, vector<int> > memoryExpected{{"arg_1", {0}}};
+
+    //   TestBenchSpec tb;
+    //   tb.memoryInit = memoryInit;
+    //   tb.memoryExpected = memoryExpected;
+    //   tb.runCycles = 30;
+    //   tb.name = "bb_diamond_2";
+    //   emitVerilogTestBench(tb, arch, layout);
+
+    //   REQUIRE(runIVerilogTB("bb_diamond_2"));
+    // }
+
+  }
+  
   
   // TEST_CASE("1D stencil with shift register in LLVM") {
   //   LLVMContext context;
