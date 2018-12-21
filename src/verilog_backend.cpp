@@ -1138,9 +1138,7 @@ namespace DHLS {
 
   void emitPipelineInstructionCode(std::ostream& out,
                                    const std::vector<ElaboratedPipeline>& pipelines,
-                                   MicroArchitecture& arch,
-                                   map<llvm::Value*, int>& memoryMap) {
-                                   //map<string, int>& memoryMap) {
+                                   MicroArchitecture& arch) {
     
     out << "\t// Start pipeline instruction code" << endl;
 
@@ -1840,7 +1838,7 @@ namespace DHLS {
     out << "\tend" << endl;
     out << endl << endl;
 
-    emitPipelineInstructionCode(out, arch.pipelines, arch, arch.memoryMap);
+    emitPipelineInstructionCode(out, arch.pipelines, arch); //, arch.memoryMap);
     emitInstructionCode(out, arch, arch.pipelines);
 
     out << "endmodule" << endl << endl;
