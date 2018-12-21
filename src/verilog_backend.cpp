@@ -73,7 +73,9 @@ namespace DHLS {
   }
 
   std::vector<Port>
-  getPorts(MicroArchitecture& arch, std::map<std::string, int>& memLayout) {
+  getPorts(MicroArchitecture& arch,
+           std::map<llvm::Value*, int>& memLayout) {
+           //std::map<std::string, int>& memLayout) {
     //std::map<Instruction*, FunctionalUnit>& unitAssignment) {
 
     auto& unitAssignment = arch.unitAssignment;
@@ -88,7 +90,8 @@ namespace DHLS {
       Instruction* i = instr.first;
       auto unit = instr.second;
 
-      if (!elem(unit.instName, alreadyChecked) && !contains_key(unit.instName, memLayout)) {
+      //if (!elem(unit.instName, alreadyChecked) && !contains_key(unit.instName, memLayout)) {
+      if (!elem(unit.instName, alreadyChecked) && ((unit.modName == "load") || (unit.modName == "store"))) {
         alreadyChecked.insert(unit.instName);
 
         if (StoreInst::classof(i)) {
@@ -1136,7 +1139,8 @@ namespace DHLS {
   void emitPipelineInstructionCode(std::ostream& out,
                                    const std::vector<ElaboratedPipeline>& pipelines,
                                    MicroArchitecture& arch,
-                                   map<string, int>& memoryMap) {
+                                   map<llvm::Value*, int>& memoryMap) {
+                                   //map<string, int>& memoryMap) {
     
     out << "\t// Start pipeline instruction code" << endl;
 
