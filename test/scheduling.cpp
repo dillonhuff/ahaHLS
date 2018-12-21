@@ -984,6 +984,8 @@ namespace DHLS {
 
   TEST_CASE("Building a simple function directly in LLVM") {
     LLVMContext context;
+    setGlobalLLVMContext(&context);
+    
     auto mod = llvm::make_unique<Module>("shift register test", context);
 
     std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo(),
@@ -1000,8 +1002,12 @@ namespace DHLS {
     }
 
     auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
+    ConstantInt* zero = mkInt("0", 32);
+    ConstantInt* five = mkInt("5", 32);        
     IRBuilder<> builder(entryBlock);
-
+    auto ldA = loadVal(builder, getArg(srUser, 0), zero);
+    auto plus = builder.CreateAdd(ldA, five);
+    storeVal(builder, getArg(srUser, 1), zero, plus);
     builder.CreateRet(nullptr);
 
     HardwareConstraints hcs = standardConstraints();
