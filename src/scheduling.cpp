@@ -493,7 +493,7 @@ namespace DHLS {
 
           // TODO: Change this check to respect the partial order computed
           // in STG dependency construction
-          if (!elem(predBB, alreadyVisited)) { // && (predBB != next)) {
+          if (!elem(predBB, alreadyVisited) && (predBB != next)) {
             allPredsAdded = false;
             break;
           }
