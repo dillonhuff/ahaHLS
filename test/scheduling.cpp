@@ -1550,7 +1550,7 @@ namespace DHLS {
 
     // Create testing infrastructure
     SECTION("Taking false, true path") {
-      map<string, vector<int> > memoryInit{{"arg_0", {1}}, {"arg_1", {1}}};
+      map<string, vector<int> > memoryInit{{"arg_0", {0}}, {"arg_1", {1}}};
       map<string, vector<int> > memoryExpected{{"arg_2", {2}}};
 
       TestBenchSpec tb;
