@@ -1105,8 +1105,8 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 15}};
-
+    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 15}};
+    map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 15}};
     auto arch = buildMicroArchitecture(srUser, graph, layout);
 
     VerilogDebugInfo info;
@@ -1123,7 +1123,7 @@ namespace DHLS {
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 10;
     tb.name = "accum_loop";
-    emitVerilogTestBench(tb, arch, layout);
+    emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("accum_loop"));
   }
@@ -1188,8 +1188,8 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
-
+    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 10}};
+    map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 10}};
     auto arch = buildMicroArchitecture(srUser, graph, layout);
 
     VerilogDebugInfo info;
@@ -1206,7 +1206,7 @@ namespace DHLS {
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 30;
     tb.name = "one_d_stencil";
-    emitVerilogTestBench(tb, arch, layout);
+    emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("one_d_stencil"));
   }
