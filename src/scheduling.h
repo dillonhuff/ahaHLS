@@ -142,6 +142,23 @@ namespace DHLS {
   }
 
   static inline
+  void setAllAllocaMemTypes(HardwareConstraints& hcs,
+                            llvm::Function* f,
+                            MemorySpec spec) {
+    bool found = false;
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instr : bb) {
+        if (llvm::AllocaInst::classof(&instr)) {
+          hcs.memSpecs[llvm::dyn_cast<llvm::Value>(&instr)] = spec;
+          found = true;
+        }
+      }
+    }
+
+    assert(found);
+  }
+  
+  static inline
   void addMemInfo(HardwareConstraints& hcs,
                   const std::map<llvm::Value*, MemorySpec>& mems) {
     for (auto m : mems) {

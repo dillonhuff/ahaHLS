@@ -602,7 +602,8 @@ namespace DHLS {
     assert(f != nullptr);
 
     hcs.memoryMapping = memoryOpLocations(f);
-    setMemSpec("temp", hcs, f, ramSpec(1, 3, 1, 1));
+    //setMemSpec("temp", hcs, f, ramSpec(1, 3, 1, 1));
+    setAllAllocaMemTypes(hcs, f, ramSpec(1, 3, 1, 1));
     
     Schedule s = scheduleFunction(f, hcs);
 
@@ -1244,7 +1245,8 @@ namespace DHLS {
 
     HardwareConstraints hcs = standardConstraints();
     hcs.memoryMapping = memoryOpLocations(srUser);
-    setMemSpec("dhsreg", hcs, srUser, registerSpec(32));
+    setAllAllocaMemTypes(hcs, srUser, registerSpec(32));
+    //setMemSpec("dhsreg", hcs, srUser, registerSpec(32));
 
     Schedule s = scheduleFunction(srUser, hcs);
 
