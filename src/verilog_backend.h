@@ -351,6 +351,10 @@ namespace DHLS {
                          HardwareConstraints& hdc,
                          std::map<std::string, int>& memoryMap);
 
+  void synthesizeVerilog(llvm::Function* f,
+                         HardwareConstraints& hdc,
+                         std::map<llvm::Value*, int>& memoryMap);
+  
   MicroArchitecture
   buildMicroArchitecture(llvm::Function* f,
                          const STG& stg,

@@ -868,7 +868,7 @@ namespace DHLS {
       PHINode* phi = dyn_cast<PHINode>(instr);
       //assert(phi->getNumIncomingValues() == 2);
 
-      for (int i = 0; i < phi->getNumIncomingValues(); i++) {
+      for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
         BasicBlock* b0 = phi->getIncomingBlock(i);
         int b0Val = map_find(b0, arch.basicBlockNos);
 
@@ -2026,6 +2026,18 @@ namespace DHLS {
     emitVerilog(f, graph, memoryMap);
   }
 
+  void synthesizeVerilog(llvm::Function* f,
+                         HardwareConstraints& hdc,
+                         std::map<llvm::Value*, int>& memoryMap) {
+    Schedule s = scheduleFunction(f, hdc);
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    emitVerilog(f, graph, memoryMap);
+  }
+  
   void emitVerilogTestBench(const TestBenchSpec& tb,
                             MicroArchitecture& arch,
                             const std::map<std::string, int>& layout) {

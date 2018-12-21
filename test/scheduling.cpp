@@ -226,7 +226,8 @@ namespace DHLS {
     hcs.setLatency(ADD_OP, 0);
 
     Function* f = Mod->getFunction("read_2");
-    map<string, int> layout = {{"a", 0}, {"b", 3}};
+    //map<string, int> layout = {{"a", 0}, {"b", 3}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 3}};
     synthesizeVerilog(f, hcs, layout);
 
     REQUIRE(runIVerilogTB("read_2"));
