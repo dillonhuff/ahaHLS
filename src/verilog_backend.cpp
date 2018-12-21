@@ -1692,6 +1692,16 @@ namespace DHLS {
                          const ArchOptions& options,
                          HardwareConstraints& hcs) {
 
+    map<llvm::Value*, int> memMap;
+      //for (auto arg : f->getArgs()) {
+    for (int i = 0; i < (int) f->arg_size(); i++) {
+      auto& arg = *(f->arg_begin() + i);
+      string name = arg.getName();
+      assert(contains_key(name, memoryMap));
+
+      memMap[dyn_cast<Value>(&arg)] = map_find(name, memoryMap);
+    }
+    
     map<BasicBlock*, int> basicBlockNos = numberBasicBlocks(f);
     map<Instruction*, Wire> names = createInstrNames(stg);
     vector<ElaboratedPipeline> pipelines =
