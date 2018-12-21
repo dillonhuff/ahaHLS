@@ -576,7 +576,8 @@ namespace DHLS {
     REQUIRE(graph.pipelines.size() == 1);
     REQUIRE(graph.pipelines[0].depth() == 5);
     
-    map<string, int> layout = {{"a", 0}, {"b", 10}};
+    //map<string, int> layout = {{"a", 0}, {"b", 10}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
     emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("loop_add_4_6_iters"));
@@ -1247,9 +1248,10 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
-
-    auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
+    //map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
+    map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 10}};
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(srUser, graph, layout, options, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -1261,11 +1263,12 @@ namespace DHLS {
     map<string, vector<int> > memoryExpected{{"arg_1", {6}}};
 
     TestBenchSpec tb;
+    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 10}};    
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 30;
     tb.name = "one_register";
-    emitVerilogTestBench(tb, arch, layout);
+    emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("one_register"));
   }
