@@ -12,15 +12,21 @@ module sext(input [31:0]  in, output [63:0] out);
    assign out = {32'b0, in};
 endmodule
 
-module add(input [31:0]  in0, input [31:0] in1, output [31:0] out);
+module add(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [WIDTH - 1:0] out);
+   parameter WIDTH = 1;
+   
    assign out = in0 + in1;
 endmodule
 
-module sub(input [31:0]  in0, input [31:0] in1, output [31:0] out);
+module sub(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [WIDTH - 1:0] out);
+   parameter WIDTH = 1;
+   
    assign out = in0 - in1;
 endmodule
 
-module mul(input [31:0]  in0, input [31:0] in1, output [31:0] out);
+module mul(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [WIDTH - 1:0] out);
+   parameter WIDTH = 1;
+   
    assign out = in0 * in1;
 endmodule
 
