@@ -15,12 +15,12 @@ module test();
    reg [31:0] dbg_wr_data;
    reg dbg_wr_en;   
 
-   reg [4:0] waddr;
-   reg [31:0] wdata;
-   reg [0:0] wen;
+   wire[4:0] waddr;
+   wire[31:0] wdata;
+   wire[0:0] wen;
 
-   reg [4:0] raddr0;
-   reg [4:0] raddr1;
+   wire[4:0] raddr0;
+   wire[4:0] raddr1;
    
    wire [31:0] rdata0;
    wire [31:0] rdata1;   

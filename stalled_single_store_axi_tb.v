@@ -18,9 +18,9 @@ module test();
 
    // --- AXI Vars   
    // Not used   
-   reg [2:0]            s_axil_awprot;
+   wire[2:0]            s_axil_awprot;
    // Not used
-   reg [2:0]            s_axil_arprot;
+   wire[2:0]            s_axil_arprot;
 
    wire [ADDR_WIDTH-1:0] s_axil_awaddr;
 
