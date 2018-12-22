@@ -102,7 +102,7 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
-      #1 `assert(valid, 1'd0);
+      #1 `assert(valid, 1'd0)
       
       #1 clk = 0;
       #1 clk = 1;
@@ -113,7 +113,7 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
-      #1 `assert(valid, 1'd0);
+      #1 `assert(valid, 1'd0)
       
       #1 clk = 0;
       #1 clk = 1;
@@ -121,7 +121,7 @@ module test();
       $display("debug_data = %d", debug_data);
       
       // In global state 3, we should be done, but reads have a delay of one
-      #1 `assert(valid, 1'd0);      
+      #1 `assert(valid, 1'd0)
 
       #1 clk = 0;
       #1 clk = 1;
@@ -158,8 +158,8 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
       
-      #1 `assert(valid, 1'd1);            
-      #1 `assert(debug_data, 20);            
+      #1 `assert(valid, 1'd1)
+      #1 `assert(debug_data, 20)
 
       #1 $display("Passed");
 
