@@ -475,10 +475,16 @@ namespace DHLS {
 
         } else if (SelectInst::classof(instr)) {
           modName = "select";
-          wiring = {{"in0", {true, 32, "sel_in0_" + rStr}},
-                    {"in1", {true, 32, "sel_in1_" + rStr}},
+          int w0 = getValueBitWidth(instr->getOperand(1));
+          int w1 = getValueBitWidth(instr->getOperand(2));
+
+          assert(w0 == w1);
+
+          modParams = {{"WIDTH", to_string(w0)}};
+          wiring = {{"in0", {true, w0, "sel_in0_" + rStr}},
+                    {"in1", {true, w0, "sel_in1_" + rStr}},
                     {"sel", {true, 1, "sel_sel_" + rStr}}};
-          outWires = {{"out", {false, 32, "sel_out_" + rStr}}};
+          outWires = {{"out", {false, w0, "sel_out_" + rStr}}};
             
         } else if (AllocaInst::classof(instr)) {
           // Create a memory module?

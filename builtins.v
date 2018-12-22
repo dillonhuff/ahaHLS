@@ -120,7 +120,9 @@ endmodule
 module br_dummy();
 endmodule
 
-module select(input sel, input [31:0] in0, input [31:0] in1, output [31:0] out);
+module select(input sel, input [WIDTH - 1:0] in0, input [WIDTH - 1:0] in1, output [WIDTH - 1:0] out);
+   parameter WIDTH = 1;
+   
    assign out = sel ? in1 : in0;
 endmodule
 
