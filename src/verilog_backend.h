@@ -121,7 +121,6 @@ namespace DHLS {
   public:
 
     ModuleSpec module;
-    //std::string modName;
     std::string instName;
 
     std::map<std::string, Wire> portWires;
@@ -147,7 +146,6 @@ namespace DHLS {
 
     std::vector<std::map<llvm::Instruction*, Wire> > pipelineRegisters;
     GuardedInstruction exitBranch;
-    //std::vector<Wire> lastBBs;
     
     ElaboratedPipeline(const Pipeline& p_) : p(p_) {}
 
@@ -219,7 +217,6 @@ namespace DHLS {
     ArchOptions archOptions;
     STG stg;
     std::map<llvm::Instruction*, FunctionalUnit> unitAssignment;
-    //std::map<std::string, int> memoryMap;
     std::map<llvm::Value*, int> memoryMap;
     std::map<llvm::Instruction*, Wire> names;
     std::map<llvm::BasicBlock*, int> basicBlockNos;
@@ -230,7 +227,6 @@ namespace DHLS {
     MicroArchitecture(const ArchOptions& archOptions_,
                       const STG& stg_,
                       const std::map<llvm::Instruction*, FunctionalUnit>& unitAssignment_,
-                      //const std::map<std::string, int>& memoryMap_,
                       const std::map<llvm::Value*, int>& memoryMap_,
                       const std::map<llvm::Instruction*, Wire>& names_,
                       const std::map<llvm::BasicBlock*, int>& basicBlockNos_,
