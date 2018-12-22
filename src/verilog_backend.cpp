@@ -482,7 +482,7 @@ namespace DHLS {
           modName = "select";
           wiring = {{"in0", {true, 32, "sel_in0_" + rStr}},
                     {"in1", {true, 32, "sel_in1_" + rStr}},
-                    {"sel", {true, 32, "sel_sel_" + rStr}}};
+                    {"sel", {true, 1, "sel_sel_" + rStr}}};
           outWires = {{"out", {false, 32, "sel_out_" + rStr}}};
             
         } else if (AllocaInst::classof(instr)) {
