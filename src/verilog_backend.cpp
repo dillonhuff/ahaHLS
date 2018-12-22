@@ -60,6 +60,13 @@ namespace DHLS {
     return out;
   }
 
+  int getValueBitWidth(Value* const instr) {
+    Type* tp = instr->getType();
+    assert(IntegerType::classof(tp));
+
+    return dyn_cast<IntegerType>(tp)->getBitWidth();
+  }
+
   bool hasOutput(Instruction* instr) {
     if (StoreInst::classof(instr) ||
         BranchInst::classof(instr) ||
@@ -315,6 +322,8 @@ namespace DHLS {
       cout << tab(1) << instructionString(src.first) << " -> " << src.second << endl;
     }
 
+    map<string, string> modParams;
+    
     // For now create a different unit for every single operation
     int resSuffix = 0;
     for (auto state : stg.opStates) {
@@ -419,6 +428,8 @@ namespace DHLS {
 
         } else if (BinaryOperator::classof(instr)) {
           modName = binopName(instr);
+          int width = getValueBitWidth(instr);
+          modParams = {{"WIDTH", to_string(width)}};
           wiring = {{"in0", {true, 32, "add_in0_" + rStr}},
                     {"in1", {true, 32, "add_in1_" + rStr}}};
           outWires = {{"out", {false, 32, "add_out_" + rStr}}};
@@ -490,7 +501,7 @@ namespace DHLS {
           assert(false);
         }
 
-        units[instr] = {{{}, modName}, unitName, wiring, outWires};
+        units[instr] = {{modParams, modName}, unitName, wiring, outWires};
 
         resSuffix++;
       }
