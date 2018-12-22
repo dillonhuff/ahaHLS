@@ -266,8 +266,9 @@ namespace DHLS {
   }
   
   std::string memName(llvm::Instruction* instr,
-                      const std::map<Instruction*, llvm::Value*>& memSrcs){
-    return map_find(instr, memSrcs)->getName();
+                      const std::map<Instruction*, llvm::Value*>& memSrcs,
+                      const std::map<llvm::Value*, std::string>& memNames) {
+    return map_find(map_find(instr, memSrcs), memNames);
   }
 
   std::string cmpName(CmpInst::Predicate pred) {
@@ -298,6 +299,16 @@ namespace DHLS {
 
     //auto memSrcs = memoryOpLocations(stg);
     auto memSrcs = memoryOpLocations(stg.getFunction());
+    map<Value*, std::string> memNames;
+    int i = 0;
+    for (auto src : memSrcs) {
+      if ((src.first)->getName() != "") {
+        memNames.insert({src.second, (src.second)->getName()});
+      } else {
+        memNames.insert({src.second, "ram_" + to_string(i)});
+        i++;
+      }
+    }
 
     cout << "-- Memory sources" << endl;
     for (auto src : memSrcs) {
@@ -333,8 +344,8 @@ namespace DHLS {
         if (StoreInst::classof(instr)) {
 
           Value* memVal = map_find(instr, memSrcs);
-          string memSrc = memName(instr, memSrcs); //map_find(instr, memSrcs)->getName();
-          //if (!contains_key(memSrc, memoryMap)) {
+          string memSrc = memName(instr, memSrcs, memNames);
+
           if (!Argument::classof(memVal)) {
             cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
             cout << "Getting underlying value" << endl;
@@ -379,10 +390,9 @@ namespace DHLS {
         } else if (LoadInst::classof(instr)) {
 
           Value* memVal = map_find(instr, memSrcs);          
-          string memSrc = memName(instr, memSrcs); //map_find(instr, memSrcs)->getName();
+          string memSrc = memName(instr, memSrcs, memNames);
 
           // If we are loading from an internal RAM, not an argument
-          //if (!contains_key(memSrc, memoryMap)) {
           if (!Argument::classof(memVal)) {          
             cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
             Value* op = map_find(instr, hcs.memoryMapping);
