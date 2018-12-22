@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/dillonhuff/DHLS.svg?branch=master)](https://travis-ci.org/dillonhuff/DHLS)
+
 # A Basic High Level Synthesis System Using LLVM
 
 ## Project Structure
