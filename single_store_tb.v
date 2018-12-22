@@ -9,9 +9,9 @@ module test();
 
    // Depth 16, width 32 RAM
    reg [4:0] raddr;
-   reg [4:0] waddr;
-   reg [31:0] wdata;
-   reg [0:0] wen;
+   wire [4:0] waddr;
+   wire [31:0] wdata;
+   wire [0:0] wen;
 
    reg [4:0] debug_addr;
    wire [31:0] debug_data;
