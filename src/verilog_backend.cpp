@@ -430,9 +430,9 @@ namespace DHLS {
           modName = binopName(instr);
           int width = getValueBitWidth(instr);
           modParams = {{"WIDTH", to_string(width)}};
-          wiring = {{"in0", {true, 32, "add_in0_" + rStr}},
-                    {"in1", {true, 32, "add_in1_" + rStr}}};
-          outWires = {{"out", {false, 32, "add_out_" + rStr}}};
+          wiring = {{"in0", {true, width, "add_in0_" + rStr}},
+                    {"in1", {true, width, "add_in1_" + rStr}}};
+          outWires = {{"out", {false, width, "add_out_" + rStr}}};
         } else if (ReturnInst::classof(instr)) {
           modName = "ret";
 
@@ -472,11 +472,6 @@ namespace DHLS {
             wiring.insert({"in" + iStr, {true, 32, "phi_in" + iStr + "_" + rStr}});
           }
           outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
-
-        } else if (ZExtInst::classof(instr)) {
-
-          cout << "Error: zext not yet supported" << endl;
-          assert(false);
 
         } else if (SelectInst::classof(instr)) {
           modName = "select";
