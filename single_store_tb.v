@@ -28,8 +28,8 @@ module test();
       #1 raddr = 0;
 
       // In global state 0
-      #1 `assert(debug_data, 32'hxxxxxxxx);      
-      #1 `assert(valid, 1'd0);
+      #1 `assert(debug_data, 32'hxxxxxxxx)
+      #1 `assert(valid, 1'd0)
       
       #1 rst = 0;
 
@@ -37,29 +37,29 @@ module test();
       #1 clk = 1;
 
       // In global state 1
-      #1 `assert(debug_data, 32'hxxxxxxxx);
-      #1 `assert(valid, 1'd0);
+      #1 `assert(debug_data, 32'hxxxxxxxx)
+      #1 `assert(valid, 1'd0)
       
       #1 clk = 0;
       #1 clk = 1;
 
       // In global state 2
-      #1 `assert(debug_data, 32'hxxxxxxxx);
-      #1 `assert(valid, 1'd0);
+      #1 `assert(debug_data, 32'hxxxxxxxx)
+      #1 `assert(valid, 1'd0)
 
       #1 clk = 0;
       #1 clk = 1;
 
       // In global state 3, we should be done
-      #1 `assert(debug_data, 32'd5);
-      #1 `assert(valid, 1'd1);
+      #1 `assert(debug_data, 32'd5)
+      #1 `assert(valid, 1'd1)
 
       #1 clk = 0;
       #1 clk = 1;
 
       // In global state 3, we should be done, but reads have a delay of one
-      #1 `assert(debug_data, 32'd5);
-      #1 `assert(valid, 1'd1);      
+      #1 `assert(debug_data, 32'd5)
+      #1 `assert(valid, 1'd1) 
       
       #1 $display("Passed");
 
