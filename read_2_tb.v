@@ -53,7 +53,7 @@ module test();
       
       #1 dbg_addr = 3;
 
-      //`assert(32'd1, 32'd0);
+      //`assert(32'd1, 32'd0)
       
       #1 rst = 0;
 
@@ -89,8 +89,8 @@ module test();
       // $display("dbg_data = %d", dbg_data);
       // $display("raddr0   = %d", raddr0);
 
-      `assert(dbg_data, 32'd34);
-      `assert(valid, 1'd1);      
+      `assert(dbg_data, 32'd34)
+      `assert(valid, 1'd1)      
 
       #1 $display("Passed");
 

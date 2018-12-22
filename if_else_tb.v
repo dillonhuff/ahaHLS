@@ -59,8 +59,8 @@ module test();
       #1 rst = 1;
       #1 clk = 1;
 
-      `assert(dbg_data, 32'hxxxxxxxx);
-      `assert(valid, 1'd0);
+      `assert(dbg_data, 32'hxxxxxxxx)
+      `assert(valid, 1'd0)
       
       #1 rst = 0;
 
@@ -70,12 +70,12 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
-      `assert(valid, 1'd0);                  
+      `assert(valid, 1'd0)
 
       #1 clk = 0;
       #1 clk = 1;
 
-      `assert(valid, 1'd0);            
+      `assert(valid, 1'd0)
 
       #1 clk = 0;
       #1 clk = 1;
@@ -91,8 +91,8 @@ module test();
 
       #1 $display("Should overwrite value");
       
-      `assert(dbg_data, 32'd23);
-      `assert(valid, 1'd1);      
+      `assert(dbg_data, 32'd23)
+      `assert(valid, 1'd1)
 
 
       // Now reset and write new value with c[0] ]!= 3
@@ -130,8 +130,8 @@ module test();
       $display("dbg_data = %d", dbg_data);      
       #1 rst = 0;
 
-      `assert(dbg_data, 32'd23);
-      `assert(valid, 1'd0);      
+      `assert(dbg_data, 32'd23)
+      `assert(valid, 1'd0)
       $display("dbg_data = %d", dbg_data);            
       #1 clk = 0;
       #1 clk = 1;
@@ -147,8 +147,8 @@ module test();
 
       #1 $display("Should not overwrite value");
       $display("dbg_data = %d", dbg_data);      
-      `assert(dbg_data, 32'd23);
-      `assert(valid, 1'd1);      
+      `assert(dbg_data, 32'd23)
+      `assert(valid, 1'd1)
       
       #1 $display("Passed");
 
