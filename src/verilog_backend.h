@@ -111,8 +111,14 @@ namespace DHLS {
     for (auto pt : b.params) {
       paramStrs.push_back("." + pt.first + "(" + pt.second + ")");
     }
-    
-    out << tab(level) << b.modName << " #(" << commaListString(paramStrs) << ") " << b.instName << "(";
+
+    out << tab(level) << b.modName;
+    if (paramStrs.size() > 0) {
+      out << " #(" << commaListString(paramStrs) << ")";
+    }
+
+    out << " ";
+    out << b.instName << "(";
     out << commaListString(portStrings);
     out << ");" << std::endl;
   }
@@ -128,6 +134,10 @@ namespace DHLS {
 
     std::string getModName() const {
       return module.name;
+    }
+
+    std::map<std::string, std::string> getParams() const {
+      return module.params;
     }
 
     std::string onlyOutputVar() const {

@@ -1329,24 +1329,36 @@ namespace DHLS {
         continue;
       }
 
-      vector<string> wireDecls;
+      map<string, string> wireConns;
+      //vector<string> wireDecls;
       for (auto w : unit.portWires) {
         out << "\t" << w.second << ";" << endl;
-        wireDecls.push_back("." + w.first + "(" + w.second.name + ")");
+        wireConns.insert({w.first, w.second.name});        
+        //wireDecls.push_back("." + w.first + "(" + w.second.name + ")");
       }
 
       // TODO: Put sequential vs combinational distincion in module description
       if ((unit.getModName() == "RAM") || (unit.getModName() == "register")) {
-        wireDecls.push_back(".clk(clk)");
-        wireDecls.push_back(".rst(rst)");        
+        // wireDecls.push_back(".clk(clk)");
+        // wireDecls.push_back(".rst(rst)");        
+
+        wireConns.insert({"clk", "clk"});
+        wireConns.insert({"rst", "rst"});
       }
+
+      string modName = unit.getModName();
+      auto params = unit.getParams();
+      string instName = unit.instName;
+
 
       for (auto w : unit.outWires) {
         out << "\twire [" << w.second.width - 1 << ":0] " << w.second.name << ";" << endl;
-        wireDecls.push_back("." + w.first + "(" + w.second.name + ")");
+        //wireDecls.push_back("." + w.first + "(" + w.second.name + ")");
+        wireConns.insert({w.first, w.second.name});
       }
-      
-      out << "\t" << unit.getModName() << " " << unit.instName << "(" << commaListString(wireDecls) << ");" << endl << endl;
+
+      print(out, 1, {modName, params, instName, wireConns});
+      //out << "\t" << unit.getModName() << " " << unit.instName << "(" << commaListString(wireDecls) << ");" << endl << endl;
     }
     out << "\t// End Functional Units" << endl;
     out << endl;
