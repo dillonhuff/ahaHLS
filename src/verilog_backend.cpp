@@ -453,10 +453,10 @@ namespace DHLS {
           outWires = {{"out", {false, 1, "cmp_out_" + rStr}}};
           
         } else if (BranchInst::classof(instr)) {
-          modName = "br_dummy";
-          unitName = "br_unit";
           // Branches are not scheduled, they are encoded in the
           // STG transitions
+          modName = "br_dummy";
+          unitName = "br_unit";
         } else if (GetElementPtrInst::classof(instr)) {
           modName = "getelementptr_" + to_string(instr->getNumOperands() - 1);
           wiring = {{"base_addr", {true, 32, "base_addr_" + to_string(resSuffix)}}};
@@ -497,7 +497,8 @@ namespace DHLS {
 
         } else if (BitCastInst::classof(instr) ||
                    CallInst::classof(instr)) {
-          // No action for these instruction types
+          // TODO: Add test case that uses real function calls and casts
+          // No action for these instruction types (YET)
         } else if (SExtInst::classof(instr)) {
             modName = "sext";
             wiring = {{"in", {true, 32, "sgt_in0_" + rStr}}};
