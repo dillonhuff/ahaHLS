@@ -2082,7 +2082,7 @@ namespace DHLS {
     comps.debugWires.push_back({true, 32, "max_cycles"});
 
     for (int i = 0; i < arch.numReadPorts(); i++) {
-      comps.debugWires.push_back({true, 5, "raddr_" + to_string(i)});    
+      comps.debugWires.push_back({false, 5, "raddr_" + to_string(i)});    
       comps.debugWires.push_back({false, 32, "rdata_" + to_string(i)});
     }
 
@@ -2093,9 +2093,9 @@ namespace DHLS {
     comps.debugWires.push_back({true, 5, "dbg_addr"});    
     comps.debugWires.push_back({false, 32, "dbg_data"});
     
-    comps.debugWires.push_back({true, 5, "waddr_0"});
-    comps.debugWires.push_back({true, 32, "wdata_0"});        
-    comps.debugWires.push_back({true, 1, "wen_0"});
+    comps.debugWires.push_back({false, 5, "waddr_0"});
+    comps.debugWires.push_back({false, 32, "wdata_0"});        
+    comps.debugWires.push_back({false, 1, "wen_0"});
 
     comps.debugWires.push_back({false, 1, "valid"});        
 

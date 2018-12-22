@@ -40,18 +40,18 @@ module mvmul_tb();
 	reg [31:0] num_clocks_after_reset;
 	reg [31:0] total_cycles;
 	reg [31:0] max_cycles;
-	reg [4:0] raddr_0;
+	wire [4:0] raddr_0;
 	wire [31:0] rdata_0;
-	reg [4:0] raddr_1;
+	wire [4:0] raddr_1;
 	wire [31:0] rdata_1;
 	reg [4:0] dbg_wr_addr;
 	reg [31:0] dbg_wr_data;
 	reg [0:0] dbg_wr_en;
 	reg [4:0] dbg_addr;
 	wire [31:0] dbg_data;
-	reg [4:0] waddr_0;
-	reg [31:0] wdata_0;
-	reg [0:0] wen_0;
+	wire [4:0] waddr_0;
+	wire [31:0] wdata_0;
+	wire [0:0] wen_0;
 	wire [0:0] valid;
 
 	initial begin
