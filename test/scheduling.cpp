@@ -399,19 +399,6 @@ namespace DHLS {
       }
     }
 
-    // Q: How should I incorporate this into standard scheduling?
-    // A: 1. Isolate the looped block during constraint creation
-    //    2. During scheduling do not consider its constraints directly
-    //    3. Need to check somewhere that the loop condition happens
-    //       in the first cycle of the pipeline, otherwise speculative
-    //       execution will be needed
-    //    4. During RTL synthesis I'll need to add sub-states for the
-    //       pipeline schedule including:
-    //         4.1 Initiation interval counter
-    //         4.2 Valid signal for each stage of the pipeline
-    //         4.3 ?? A completed signal? Or can I infer that from valid
-    //             signals?
-
     Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
 
     REQUIRE(s.numStates() == 7);
@@ -615,19 +602,19 @@ namespace DHLS {
     //map<string, int> testLayout = {{"a", 0}, {"b", 10}};
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
 
-    VerilogDebugInfo info;
-    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
-    info.wiresToWatch.push_back({false, 32, "wdata_temp_reg_dbg"});    
-
-    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
-    info.debugAssigns.push_back({"wdata_temp_reg_dbg", "wdata_temp_reg"});
-
-    info.debugWires.push_back({true, 32, "num_clocks_after_reset"});
-
-    addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
+    //info.wiresToWatch.push_back({false, 32, "wdata_temp_reg_dbg"});    
+    //info.debugAssigns.push_back({"wdata_temp_reg_dbg", "wdata_temp_reg"});
+    //info.debugWires.push_back({true, 32, "num_clocks_after_reset"});
+    //addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
 
     ArchOptions options;
     auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+
+    VerilogDebugInfo info;
+    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    
+    addNoXChecks(arch, info);    
 
     emitVerilog(f, arch, info);
     

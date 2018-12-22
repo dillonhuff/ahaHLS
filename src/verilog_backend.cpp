@@ -146,17 +146,12 @@ namespace DHLS {
         Value* src = map_find(locInstr, ramNames);
         return src;
       } else {
-        //string retName = locInstr->getName();
-        //assert(retName != "");
-        //return retName;
+
         return locInstr;
       }
       
     } else if (Argument::classof(location)) {
 
-      //string src = location->getName();
-
-      //return src;
       return location;
     } else {
       //return "";
@@ -342,8 +337,6 @@ namespace DHLS {
           //if (!contains_key(memSrc, memoryMap)) {
           if (!Argument::classof(memVal)) {
             cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
-            //modName = "RAM";
-
             cout << "Getting underlying value" << endl;
             for (auto v : hcs.memoryMapping) {
               cout << "\t" << valueString(v.first) << " -> " << valueString(v.second) << endl;
@@ -392,8 +385,6 @@ namespace DHLS {
           //if (!contains_key(memSrc, memoryMap)) {
           if (!Argument::classof(memVal)) {          
             cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
-            //modName = "RAM";
-
             Value* op = map_find(instr, hcs.memoryMapping);
             if (contains_key(op, hcs.memSpecs)) {
               MemorySpec spec = map_find(op, hcs.memSpecs);
@@ -799,11 +790,10 @@ namespace DHLS {
     } else if (StoreInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
-      //auto wdataName = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
       auto wdataName = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);      
       
       Value* location = instr->getOperand(1);
-      //auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
+
       auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
             
       out << "\t\t\t" << addUnit.portWires["waddr"].name << " = " << locValue << ";" << endl;
@@ -813,7 +803,6 @@ namespace DHLS {
     } else if (LoadInst::classof(instr)) {
 
       Value* location = instr->getOperand(0);
-      //auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
       auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       out << "\t\t\t" << addUnit.portWires["raddr"].name << " = " << locValue << ";" << endl;
