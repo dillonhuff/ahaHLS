@@ -443,7 +443,13 @@ namespace DHLS {
           CmpInst::Predicate pred = dyn_cast<CmpInst>(instr)->getPredicate();
           modName = cmpName(pred);
 
-          wiring = {{"in0", {true, 32, "cmp_in0_" + rStr}}, {"in1", {true, 32, "cmp_in1_" + rStr}}};
+          int w0 = getValueBitWidth(instr->getOperand(0));
+          int w1 = getValueBitWidth(instr->getOperand(1));
+
+          assert(w0 == w1);
+
+          modParams = {{"WIDTH", to_string(w0)}};
+          wiring = {{"in0", {true, w0, "cmp_in0_" + rStr}}, {"in1", {true, w0, "cmp_in1_" + rStr}}};
           outWires = {{"out", {false, 1, "cmp_out_" + rStr}}};
           
         } else if (BranchInst::classof(instr)) {

@@ -4,11 +4,14 @@ endmodule // load
 module store();
 endmodule // store
 
-module ne(input [31:0]  in0, input [31:0] in1, output [0:0] out);
+module ne(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [0:0] out);
+   parameter WIDTH = 1;
+   
    assign out = in0 != in1;
 endmodule
 
 module sext(input [31:0]  in, output [63:0] out);
+   
    assign out = {32'b0, in};
 endmodule
 
@@ -38,15 +41,20 @@ module getelementptr_2(input [31:0]  base_addr, input [31:0] in1, input [31:0] i
    assign out = base_addr + in1 + in2;
 endmodule
 
-module eq(input [31:0]  in0, input [31:0] in1, output [0:0] out);
+module eq(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [0:0] out);
+   parameter WIDTH = 1;
+   
    assign out = in0 == in1;
 endmodule
 
-module sgt(input [31:0]  in0, input [31:0] in1, output [0:0] out);
+module sgt(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [0:0] out);
+   parameter WIDTH = 1;
    assign out = $signed(in0) > $signed(in1);
 endmodule
 
-module slt(input [31:0]  in0, input [31:0] in1, output [0:0] out);
+module slt(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [0:0] out);
+   parameter WIDTH = 1;
+   
    assign out = $signed(in0) < $signed(in1);
 endmodule
 
