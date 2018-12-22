@@ -44,7 +44,7 @@ namespace DHLS {
   }
   
   std::ostream& operator<<(std::ostream& out, const FunctionalUnit& unit) {
-    out << unit.modName;
+    out << unit.getModName();
     out << " " << unit.instName << "(";
     vector<string> portStrs;
     for (auto pt : unit.portWires) {
@@ -91,7 +91,7 @@ namespace DHLS {
       auto unit = instr.second;
 
       //if (!elem(unit.instName, alreadyChecked) && !contains_key(unit.instName, memLayout)) {
-      if (!elem(unit.instName, alreadyChecked) && ((unit.modName == "load") || (unit.modName == "store"))) {
+      if (!elem(unit.instName, alreadyChecked) && ((unit.getModName() == "load") || (unit.getModName() == "store"))) {
         alreadyChecked.insert(unit.instName);
 
         if (StoreInst::classof(i)) {
@@ -336,7 +336,6 @@ namespace DHLS {
 
         string modName = "add";
 
-        //map<string, string> wiring;
         map<string, Wire> wiring;
         map<string, Wire> outWires;
 
@@ -491,7 +490,7 @@ namespace DHLS {
           assert(false);
         }
 
-        units[instr] = {modName, unitName, wiring, outWires};
+        units[instr] = {{{}, modName}, unitName, wiring, outWires};
 
         resSuffix++;
       }
@@ -1211,7 +1210,7 @@ namespace DHLS {
 
       FunctionalUnit unit = controller.unit;
 
-      if (unit.modName == "br_dummy") {
+      if (unit.getModName() == "br_dummy") {
         continue;
       }
 
@@ -1273,7 +1272,7 @@ namespace DHLS {
         out << "\t\t\t" << w.second.name << " = 0;" << endl;
       }
 
-      if (unit.modName == "br_dummy") {
+      if (unit.getModName() == "br_dummy") {
         out << tab(4) << "last_BB = last_BB_reg;" << endl;
       }
 
@@ -1324,9 +1323,9 @@ namespace DHLS {
       alreadyEmitted.insert(unit.instName);
 
       // These are external functional units
-      if ((unit.modName == "load") ||
-          (unit.modName == "store") ||
-          (unit.modName == "ret")) {
+      if ((unit.getModName() == "load") ||
+          (unit.getModName() == "store") ||
+          (unit.getModName() == "ret")) {
         continue;
       }
 
@@ -1337,7 +1336,7 @@ namespace DHLS {
       }
 
       // TODO: Put sequential vs combinational distincion in module description
-      if ((unit.modName == "RAM") || (unit.modName == "register")) {
+      if ((unit.getModName() == "RAM") || (unit.getModName() == "register")) {
         wireDecls.push_back(".clk(clk)");
         wireDecls.push_back(".rst(rst)");        
       }
@@ -1347,7 +1346,7 @@ namespace DHLS {
         wireDecls.push_back("." + w.first + "(" + w.second.name + ")");
       }
       
-      out << "\t" << unit.modName << " " << unit.instName << "(" << commaListString(wireDecls) << ");" << endl << endl;
+      out << "\t" << unit.getModName() << " " << unit.instName << "(" << commaListString(wireDecls) << ");" << endl << endl;
     }
     out << "\t// End Functional Units" << endl;
     out << endl;
@@ -2372,7 +2371,7 @@ namespace DHLS {
         auto instr = instrG.instruction;
         if (BinaryOperator::classof(instr)) {
           FunctionalUnit unit = map_find(instr, arch.unitAssignment);
-          if (unit.modName == "add") {
+          if (unit.getModName() == "add") {
             StateId activeState = st.first;
 
             string iStr = instructionString(instr);
@@ -2401,7 +2400,7 @@ namespace DHLS {
         auto instr = instrG.instruction;
         if (BinaryOperator::classof(instr)) {
           FunctionalUnit unit = map_find(instr, arch.unitAssignment);
-          if (unit.modName == "mul") {
+          if (unit.getModName() == "mul") {
             StateId activeState = st.first;
 
             string iStr = instructionString(instr);

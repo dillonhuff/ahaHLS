@@ -119,11 +119,17 @@ namespace DHLS {
 
   class FunctionalUnit {
   public:
-    std::string modName;
+
+    ModuleSpec module;
+    //std::string modName;
     std::string instName;
 
     std::map<std::string, Wire> portWires;
     std::map<std::string, Wire> outWires;
+
+    std::string getModName() const {
+      return module.name;
+    }
 
     std::string onlyOutputVar() const {
       assert(outWires.size() == 1);
@@ -248,7 +254,7 @@ namespace DHLS {
       int n = 0;
       std::set<std::string> alreadyAdded;
       for (auto ua : unitAssignment) {
-        if (!dbhc::elem(ua.second.instName, alreadyAdded) && (ua.second.modName == name)) {
+        if (!dbhc::elem(ua.second.instName, alreadyAdded) && (ua.second.getModName() == name)) {
           n++;
         }
         alreadyAdded.insert(ua.second.instName);

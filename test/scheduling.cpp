@@ -419,45 +419,6 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("loop_add_7"));
   }
 
-  // Problem: With updated value of last_BB this test fails with incorrect data on
-  // output.
-  // HYP: The problem is that each stage of the pipeline needs its own last_BB state
-  // in order to get the next action (fill stage 0 or not) and next index variable
-  // value correct. The default basic block is overriding the normal pipeline
-  // basic block structure and setting the last basic block to always be 0
-
-  // Q: If this really is the problem, what is the fix for it?
-  // A: Add pipeline variables that store the last basic block for each stage
-  // and add control logic to update each one each cycle, and add control
-  // logic to set the last_BB variable used in the rest of the generated code
-  // so that the state of the system is correct when the pipeline completes.
-
-  // Psychologically Im a bit blocked on how to do this. Problems:
-  //  1. Im exhausted and on an airplane after two days of traveling
-  //  2. The code to emit pipelines is a mess with lots of hacked
-  //     together code that spits out text
-  //  3. The code that emits the non-pipelined code is also messy, and is
-  //     partially separate from the code for the pipelined portions of
-  //     the design
-
-  // One way of phrasing the problem is that the data structure that represents
-  // how the last basic block is checked in each instruction is hidden in the
-  // mass of text-generating code.
-
-  // Need a few things:
-  //  1. Mapping from instruction instance
-  //     to the basic block variable tracking register
-  //     that they should use.
-  //  2. Chaining code to update pipeline basic block tracking registers
-  //  3. Code to set the stage_0 basic block TR depending on whether we are
-  //     entering the pipeline or already in it
-  //  4. Code to set the last basic block TR for non-pipelined code correctly on
-  //     exit from the pipeline
-
-  // Note: Maybe there should be a current_BB and last_BB variable?
-  // Also: I may be able to fix this problem just by merging the pipelined code
-  // generation with non-pipelined instruction code generation.
-
   TEST_CASE("Pipelining an array doing a[i] + 4, and exiting the pipeline in the TB, with a number of iterations small enough to never fill the pipeline") {
 
     SMDiagnostic Err;
