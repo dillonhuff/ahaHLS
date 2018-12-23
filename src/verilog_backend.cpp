@@ -138,7 +138,7 @@ namespace DHLS {
   llvm::Value* getRAMName(Value* location,
                           std::map<llvm::Instruction*, llvm::Value*>& ramNames) {
     
-    cout << "Finding location of " << valueString(location) << endl;
+    //cout << "Finding location of " << valueString(location) << endl;
     
     if (Instruction::classof(location)) {
       Instruction* locInstr = dyn_cast<Instruction>(location);
@@ -1535,7 +1535,6 @@ namespace DHLS {
       for (int j = 0; j < p.depth(); j++) {
         string jStr = to_string(j);
         ep.valids.push_back(Wire(true, 1, "pipeline_stage_" + jStr + "_valid"));
-        //ep.lastBBs.push_back(Wire(true, 32, "pipeline_stage_" + jStr + "_lastBB"));
 
         StateId st = ep.p.getStates().at(j);
         assert(st >= 0);

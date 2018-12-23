@@ -177,7 +177,6 @@ namespace DHLS {
   // Q: What test cases do I need?
   // A: Test case that uses 16 (or other not 32 bit) width (parametric builtins)
   //    Test that uses a loop with II != 1
-  //    Test that mixes memory accesses and loop pipelining
   //    Test that uses multiple different RAM types
   //    Test that uses limited numbers of memory read/write ports
   //    Test case that merges basic blocks that execute different numbers of times
@@ -389,8 +388,6 @@ namespace DHLS {
               // those blocks from the rest of the system
 
               blocksToPipeline.insert(&bb);
-
-              //Schedule s = schedulePipeline(&bb, hcs);
 
             }
           }
