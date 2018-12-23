@@ -194,14 +194,12 @@ namespace DHLS {
   
   void findLocation(Value* location,
                     Instruction* instr,
-                    //std::map<Instruction*, string>& mems,
                     std::map<Instruction*, llvm::Value*>& mems,
                     std::set<Instruction*>& foundOps) {
 
-    //string name = getRAMName(location, mems);
     Value* val = getRAMName(location, mems);
     if (val != nullptr) {
-      mems[instr] = val; //getRAMName(location, mems);
+      mems[instr] = val;
       foundOps.insert(instr);
     } else {
       cout << "No source for " << instructionString(instr) << endl;
@@ -209,8 +207,6 @@ namespace DHLS {
   }
 
   // TODO: Turn this in to a proper dataflow analysis using LLVM dataflow builtins
-  //std::map<llvm::Instruction*, std::string>
-  //memoryOpLocations(const STG& stg) {
   std::map<llvm::Instruction*, llvm::Value*>
   memoryOpLocations(Function* f) {
     //map<Instruction*, string> mems;
@@ -221,7 +217,7 @@ namespace DHLS {
     for (auto& bb : f->getBasicBlockList()) {
 
       std::set<Instruction*> foundOps;
-      //while (((int) foundOps.size()) < numMemOps(stg.instructionsStartingAt(state.first))) {
+
       while (((int) foundOps.size()) < numMemOps(bb)) {
         cout << "FoundInstrs =  "<< foundOps.size() << endl;
 
