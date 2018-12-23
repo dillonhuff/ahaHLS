@@ -217,14 +217,12 @@ namespace DHLS {
     for (auto& bb : f->getBasicBlockList()) {
 
       std::set<Instruction*> foundOps;
-
       while (((int) foundOps.size()) < numMemOps(bb)) {
         cout << "FoundInstrs =  "<< foundOps.size() << endl;
 
-        //for (auto instrG : stg.instructionsStartingAt(state.first)) {
         for (auto& instrPtr : bb) {
-          //auto instr = instrG.instruction;
-          auto instr = &instrPtr; //instrG.instruction;
+
+          auto instr = &instrPtr;
 
           if (elem(instr, foundOps)) {
             continue;
