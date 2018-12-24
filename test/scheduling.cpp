@@ -1598,60 +1598,46 @@ namespace DHLS {
 
     std::vector<Type *> inputs{intType(32)->getPointerTo(),
         intType(32)->getPointerTo()};
-    Function* srUser = mkFunc(inputs, "constrained_pipe", mod.get());
+    Function* f = mkFunc(inputs, "constrained_pipe", mod.get());
 
-    auto entryBlock = mkBB("entry_block", srUser);
-    auto loopBlock = mkBB("loop_block", srUser);
-    auto exitBlock = mkBB("exit_block", srUser);        
+    auto entryBlock = mkBB("entry_block", f);
+    auto exitBlock = mkBB("exit_block", f);        
 
     ConstantInt* loopBound = mkInt("5", 32);
-    ConstantInt* zero = mkInt("0", 32);    
-    ConstantInt* one = mkInt("1", 32);    
+    ConstantInt* zero = mkInt("0", 32);
 
-    IRBuilder<> builder(entryBlock);
-    auto ldA = builder.CreateLoad(dyn_cast<Value>(srUser->arg_begin()));
+    auto bodyF = [](IRBuilder<>& builder, Value* i) {
+      
+    };
+    auto loopBlock = sivLoop(f, entryBlock, exitBlock, zero, loopBound, bodyF);
 
-    builder.CreateBr(loopBlock);
-
-    IRBuilder<> loopBuilder(loopBlock);
-    auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
-    auto sumPhi = loopBuilder.CreatePHI(intType(32), 2);
-    auto nextInd = loopBuilder.CreateAdd(indPhi, one);
-    auto nextSum = loopBuilder.CreateAdd(sumPhi, ldA);
-
-    auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
-
-    indPhi->addIncoming(zero, entryBlock);
-    indPhi->addIncoming(nextInd, loopBlock);
-
-    sumPhi->addIncoming(zero, entryBlock);
-    sumPhi->addIncoming(nextSum, loopBlock);
+    IRBuilder<> entryBuilder(entryBlock);
+    entryBuilder.CreateBr(loopBlock);
     
-    loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
 
     IRBuilder<> exitBuilder(exitBlock);
-    exitBuilder.CreateStore(nextSum, dyn_cast<Value>(srUser->arg_begin() + 1));
     exitBuilder.CreateRet(nullptr);
 
-    cout << valueString(srUser) << endl;
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
 
     HardwareConstraints hcs = standardConstraints();
     hcs.setCount(MUL_OP, 1);
-    Schedule s = scheduleFunction(srUser, hcs);
+    Schedule s = scheduleFunction(f, hcs);
 
-    STG graph = buildSTG(s, srUser);
+    STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
     graph.print(cout);
 
     map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 15}};
-    map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 15}};
-    auto arch = buildMicroArchitecture(srUser, graph, layout);
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 15}};
+    auto arch = buildMicroArchitecture(f, graph, layout);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog(srUser, arch, info);
+    emitVerilog(f, arch, info);
 
     // Create testing infrastructure
     map<string, vector<int> > memoryInit{{"arg_0", {6}}};

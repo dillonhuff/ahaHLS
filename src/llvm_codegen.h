@@ -97,7 +97,8 @@ namespace DHLS {
     indPhi->addIncoming(nextInd, loopBlock);
     
     loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
-    
+
+    return loopBlock;
   }
 
 }
