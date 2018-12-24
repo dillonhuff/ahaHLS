@@ -82,11 +82,8 @@ namespace DHLS {
   std::vector<Port>
   getPorts(MicroArchitecture& arch,
            std::map<llvm::Value*, int>& memLayout) {
-           //std::map<std::string, int>& memLayout) {
-    //std::map<Instruction*, FunctionalUnit>& unitAssignment) {
 
     auto& unitAssignment = arch.unitAssignment;
-    //auto& memLayout = arch.memoryLayout;
 
     vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
     int numReadPorts = 0;
@@ -97,7 +94,6 @@ namespace DHLS {
       Instruction* i = instr.first;
       auto unit = instr.second;
 
-      //if (!elem(unit.instName, alreadyChecked) && !contains_key(unit.instName, memLayout)) {
       if (!elem(unit.instName, alreadyChecked) && ((unit.getModName() == "load") || (unit.getModName() == "store"))) {
         alreadyChecked.insert(unit.instName);
 
@@ -1816,8 +1812,6 @@ namespace DHLS {
   void emitVerilog(llvm::Function* f,
                    MicroArchitecture& arch,
                    const VerilogDebugInfo& debugInfo) {
-
-    //auto arch = buildMicroArchitecture(f, stg, memoryMap);
 
     string fn = f->getName();
 
