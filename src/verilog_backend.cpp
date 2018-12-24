@@ -402,24 +402,27 @@ namespace DHLS {
           if (!Argument::classof(memVal)) {          
             cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
             Value* op = map_find(instr, hcs.memoryMapping);
-            if (contains_key(op, hcs.memSpecs)) {
-              MemorySpec spec = map_find(op, hcs.memSpecs);
-              modName = spec.modSpec.name;
-            } else {
-              assert(false);
-            }
+            assert(contains_key(op, hcs.memSpecs));
+            MemorySpec spec = map_find(op, hcs.memSpecs);
+            modName = spec.modSpec.name;
 
+            int dataWidth = spec.width;
+            int inputWidth = getValueBitWidth(instr);
+
+            assert(dataWidth == inputWidth);
+            
             unitName = memSrc;
 
-            wiring = {{"raddr", {true, 32, "raddr_" + unitName + "_reg"}}, {"wen", {true, 1, "wen_" + unitName + "_reg"}}, {"waddr", {true, 32, "waddr_" + unitName + "_reg"}}, {"wdata", {true, 32, "wdata_" + unitName + "_reg"}}};
-            outWires = {{"rdata", {false, 32, "rdata_" + unitName}}};
+            wiring = {{"raddr", {true, 32, "raddr_" + unitName + "_reg"}}, {"wen", {true, 1, "wen_" + unitName + "_reg"}}, {"waddr", {true, 32, "waddr_" + unitName + "_reg"}}, {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}}};
+            outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
             
           } else {
 
             modName = "load";
 
+            int inputWidth = getValueBitWidth(instr);
             wiring = {{"raddr", {true, 32, "raddr_" + to_string(readNum) + "_reg"}}, {"ren", {true, 1, "ren_" + to_string(readNum) + "_reg"}}};
-            outWires = {{"rdata", {false, 32, "rdata_" + to_string(readNum)}}};
+            outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(readNum)}}};
 
             readNum++;
           }
