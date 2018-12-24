@@ -1631,6 +1631,9 @@ namespace DHLS {
     blocksToPipeline.insert(loopBlock);    
     Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
 
+    REQUIRE(s.pipelineSchedules.size() == 1);
+    REQUIRE(begin(s.pipelineSchedules)->second == 2);
+    
     STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
