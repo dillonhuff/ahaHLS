@@ -251,7 +251,6 @@ namespace DHLS {
     return mems;
   }
 
-
   std::string binopName(Instruction* instr) {
     string modName;
     if (instr->getOpcode() == Instruction::Add) {
