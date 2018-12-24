@@ -305,7 +305,8 @@ namespace DHLS {
     }
 
     map<string, string> modParams;
-    
+
+    int readNum = 0;
     // For now create a different unit for every single operation
     int resSuffix = 0;
     for (auto state : stg.opStates) {
@@ -313,7 +314,7 @@ namespace DHLS {
       // For now create a different unit for every single operation
       //int resSuffix = 0;
 
-      int readNum = 0;
+
       int writeNum = 0;
       
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
