@@ -1606,8 +1606,11 @@ namespace DHLS {
     ConstantInt* loopBound = mkInt("5", 32);
     ConstantInt* zero = mkInt("0", 32);
 
-    auto bodyF = [](IRBuilder<>& builder, Value* i) {
-      
+    auto bodyF = [f](IRBuilder<>& builder, Value* i) {
+      auto v = loadVal(builder, getArg(f, 0), i);
+      auto z = builder.CreateMul(v, v);
+      auto r = builder.CreateMul(z, v);
+      storeVal(builder, getArg(f, 1), i, r);
     };
     auto loopBlock = sivLoop(f, entryBlock, exitBlock, zero, loopBound, bodyF);
 
@@ -1640,13 +1643,13 @@ namespace DHLS {
     emitVerilog(f, arch, info);
 
     // Create testing infrastructure
-    map<string, vector<int> > memoryInit{{"arg_0", {6}}};
-    map<string, vector<int> > memoryExpected{{"arg_1", {6*5}}};
+    map<string, vector<int> > memoryInit{{"arg_0", {6, 4, 5, 2, 1}}};
+    map<string, vector<int> > memoryExpected{{"arg_1", {6*6*6, 4*4*4, 5*5*5, 2*2*2, 1*1*1}}};
 
     TestBenchSpec tb;
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
-    tb.runCycles = 10;
+    tb.runCycles = 50;
     tb.name = "constrained_pipe";
     emitVerilogTestBench(tb, arch, testLayout);
 

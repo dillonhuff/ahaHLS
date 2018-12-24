@@ -1033,42 +1033,4 @@ namespace DHLS {
     return 0;
   }
 
-  // Schedule schedulePipeline(llvm::BasicBlock* const bb,
-  //                           HardwareConstraints& hdc) {
-  //   context c;
-  //   solver s(c);
-  //   map<Instruction*, vector<expr> > schedVars;
-  //   map<BasicBlock*, vector<expr> > blockVars;
-  //   int blockNo = 0;
-
-  //   addScheduleVars(*bb, c, schedVars, blockVars, hdc, blockNo);
-
-  //   addBlockConstraints(*bb, s, blockVars, schedVars);
-  //   addLatencyConstraints(*bb, s, schedVars, blockVars);
-
-  //   expr II = c.int_const("II");
-  //   s.add(II >= 1);
-
-  //   for (auto& i : *bb) {
-  //     Instruction* iptr = &i;
-  //     for (auto& j : *bb) {
-  //       Instruction* jptr = &j;
-
-  //       int d = dependenceDistance(iptr, jptr);
-  //       if (d > 0) {
-  //         s.add(II*d + instrEnd(iptr, schedVars) <= instrStart(jptr, schedVars));
-  //       }
-  //     }
-      
-  //   }
-
-  //   cout << "Pipeline solver constraints" << endl;
-  //   cout << s << endl;
-
-  //   map<BasicBlock*, vector<expr> > subPipelines;
-  //   auto sched = buildFromModel(s, schedVars, blockVars, subPipelines);
-
-  //   return sched;
-  // }
-
 }
