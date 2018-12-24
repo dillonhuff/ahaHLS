@@ -128,9 +128,6 @@ namespace DHLS {
   }
 
   // Issue: what is the name of each register?
-  // std::string getRAMName(Value* location,
-  //                        std::map<llvm::Instruction*, std::string>& ramNames) {
-
   llvm::Value* getRAMName(Value* location,
                           std::map<llvm::Instruction*, llvm::Value*>& ramNames) {
     
@@ -145,7 +142,6 @@ namespace DHLS {
           return nullptr;
         }
 
-        //string src = map_find(locInstr, ramNames);
         Value* src = map_find(locInstr, ramNames);
         return src;
       } else {
@@ -290,9 +286,6 @@ namespace DHLS {
 
     std::map<Instruction*, FunctionalUnit> units;
 
-    int readNum = 0;
-    int writeNum = 0;
-
     //auto memSrcs = memoryOpLocations(stg);
     auto memSrcs = memoryOpLocations(stg.getFunction());
     map<Value*, std::string> memNames;
@@ -320,6 +313,9 @@ namespace DHLS {
       // For now create a different unit for every single operation
       //int resSuffix = 0;
 
+      int readNum = 0;
+      int writeNum = 0;
+      
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
 
         Instruction* instr = instrG.instruction;
@@ -382,7 +378,8 @@ namespace DHLS {
             // These names need to match names created in the portlist. So
             // maybe this should be used to create the port list? Generate the
             // names here and then write ports for them?
-            string wStr = "0"; //to_string(writeNum);
+            //string wStr = "0";
+            string wStr = to_string(writeNum);
             wiring = {{"wen", {true, 1, "wen_" + wStr + "_reg"}}, {"waddr", {true, 32, "waddr_" + wStr + "_reg"}}, {"wdata", {true, inputWidth, "wdata_" + wStr + "_reg"}}};
             outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
             
@@ -1815,6 +1812,9 @@ namespace DHLS {
 
     string fn = f->getName();
 
+    // This is a very flawed way to handle memory ports. For a few reasons
+    //   1. It does not know anything about read / write port widths
+    //   2. It does not know anything about read / write port resource limits
     vector<Port> allPorts = getPorts(arch, arch.memoryMap);
     for (auto w : debugInfo.wiresToWatch) {
       allPorts.push_back(outputDebugPort(w.width, w.name));
