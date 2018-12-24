@@ -552,13 +552,7 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    //map<string, int> testLayout = {{"a", 0}, {"b", 10}};
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
-
-    //info.wiresToWatch.push_back({false, 32, "wdata_temp_reg_dbg"});    
-    //info.debugAssigns.push_back({"wdata_temp_reg_dbg", "wdata_temp_reg"});
-    //info.debugWires.push_back({true, 32, "num_clocks_after_reset"});
-    //addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
 
     ArchOptions options;
     auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
@@ -1591,6 +1585,86 @@ namespace DHLS {
     emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("mem_16_test"));
+  }
+
+  // Do resource constraints force the pipeline initiation interval to change?
+  // I guess it forces initiation intervals to change if the same value is
+  // being accumulated in the loop?
+  TEST_CASE("Pipeline with resource constraints") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    auto mod = llvm::make_unique<Module>("pipeline with resource constraints", context);
+
+    std::vector<Type *> inputs{intType(32)->getPointerTo(),
+        intType(32)->getPointerTo()};
+    Function* srUser = mkFunc(inputs, "constrained_pipe", mod.get());
+
+    auto entryBlock = mkBB("entry_block", srUser);
+    auto loopBlock = mkBB("loop_block", srUser);
+    auto exitBlock = mkBB("exit_block", srUser);        
+
+    ConstantInt* loopBound = mkInt("5", 32);
+    ConstantInt* zero = mkInt("0", 32);    
+    ConstantInt* one = mkInt("1", 32);    
+
+    IRBuilder<> builder(entryBlock);
+    auto ldA = builder.CreateLoad(dyn_cast<Value>(srUser->arg_begin()));
+
+    builder.CreateBr(loopBlock);
+
+    IRBuilder<> loopBuilder(loopBlock);
+    auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
+    auto sumPhi = loopBuilder.CreatePHI(intType(32), 2);
+    auto nextInd = loopBuilder.CreateAdd(indPhi, one);
+    auto nextSum = loopBuilder.CreateAdd(sumPhi, ldA);
+
+    auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
+
+    indPhi->addIncoming(zero, entryBlock);
+    indPhi->addIncoming(nextInd, loopBlock);
+
+    sumPhi->addIncoming(zero, entryBlock);
+    sumPhi->addIncoming(nextSum, loopBlock);
+    
+    loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
+
+    IRBuilder<> exitBuilder(exitBlock);
+    exitBuilder.CreateStore(nextSum, dyn_cast<Value>(srUser->arg_begin() + 1));
+    exitBuilder.CreateRet(nullptr);
+
+    cout << valueString(srUser) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.setCount(MUL_OP, 1);
+    Schedule s = scheduleFunction(srUser, hcs);
+
+    STG graph = buildSTG(s, srUser);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 15}};
+    map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 15}};
+    auto arch = buildMicroArchitecture(srUser, graph, layout);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(srUser, arch, info);
+
+    // Create testing infrastructure
+    map<string, vector<int> > memoryInit{{"arg_0", {6}}};
+    map<string, vector<int> > memoryExpected{{"arg_1", {6*5}}};
+
+    TestBenchSpec tb;
+    tb.memoryInit = memoryInit;
+    tb.memoryExpected = memoryExpected;
+    tb.runCycles = 10;
+    tb.name = "constrained_pipe";
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    REQUIRE(runIVerilogTB("constrained_pipe"));
   }
 
   // TEST_CASE("1D stencil with shift register in LLVM") {

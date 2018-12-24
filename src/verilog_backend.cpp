@@ -60,13 +60,6 @@ namespace DHLS {
     return out;
   }
 
-  int getValueBitWidth(Value* const instr) {
-    Type* tp = instr->getType();
-    assert(IntegerType::classof(tp));
-
-    return dyn_cast<IntegerType>(tp)->getBitWidth();
-  }
-
   bool hasOutput(Instruction* instr) {
     if (StoreInst::classof(instr) ||
         BranchInst::classof(instr) ||

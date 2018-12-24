@@ -2,9 +2,10 @@
 
 #include <llvm/IR/LLVMContext.h>
 #include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/Instructions.h"
 #include "llvm/IR/InstrTypes.h"
 #include <llvm/Support/TargetSelect.h>
+
+#include "utils.h"
 
 namespace DHLS {
 
@@ -69,6 +70,34 @@ namespace DHLS {
     auto ind =
       builder.CreateGEP(buffer, offset);
     return builder.CreateStore(value, ind);
+  }
+
+  template<typename F>
+  llvm::BasicBlock* sivLoop(llvm::Function* f,
+                            llvm::BasicBlock* entryBlock,
+                            llvm::BasicBlock* exitBlock,
+                            llvm::Value* startInd,
+                            llvm::Value* endInd,
+                            F builderFunc) {
+
+    assert(getValueBitWidth(startInd) == getValueBitWidth(endInd));
+
+    llvm::ConstantInt* one = mkInt("1", getValueBitWidth(startInd));
+    
+    auto loopBlock = mkBB("", f);
+    llvm::IRBuilder<> loopBuilder(loopBlock);
+    auto indPhi = loopBuilder.CreatePHI(startInd->getType(), 2);
+    auto nextInd = loopBuilder.CreateAdd(indPhi, one);
+
+    builderFunc(loopBuilder, indPhi);
+
+    auto exitCond = loopBuilder.CreateICmpNE(nextInd, endInd);
+
+    indPhi->addIncoming(startInd, entryBlock);
+    indPhi->addIncoming(nextInd, loopBlock);
+    
+    loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
+    
   }
 
 }

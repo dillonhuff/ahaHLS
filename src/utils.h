@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include <llvm/IR/Instructions.h>
+
 namespace DHLS {
 
   static inline
@@ -56,5 +58,6 @@ namespace DHLS {
     return "(" + s + ")";
   }
 
+  int getValueBitWidth(llvm::Value* const instr);
 
 }

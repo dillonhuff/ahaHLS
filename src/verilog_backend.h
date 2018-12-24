@@ -429,5 +429,4 @@ namespace DHLS {
   std::map<llvm::Instruction*, llvm::Value*>
   memoryOpLocations(llvm::Function* f);
 
-  int getValueBitWidth(llvm::Value* const instr);
 }
