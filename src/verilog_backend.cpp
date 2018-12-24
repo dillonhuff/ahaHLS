@@ -444,12 +444,16 @@ namespace DHLS {
           int w1 = getValueBitWidth(instr->getOperand(1));
 
           assert(w0 == w1);
-          
+
+          unitName = string(instr->getOpcodeName()) + "_" +
+            to_string(resSuffix);
+
+          string opCodeName = instr->getOpcodeName();
           int width = getValueBitWidth(instr);
           modParams = {{"WIDTH", to_string(width)}};
-          wiring = {{"in0", {true, width, "add_in0_" + rStr}},
-                    {"in1", {true, width, "add_in1_" + rStr}}};
-          outWires = {{"out", {false, width, "add_out_" + rStr}}};
+          wiring = {{"in0", {true, width, opCodeName + "_in0_" + rStr}},
+                    {"in1", {true, width, opCodeName + "_in1_" + rStr}}};
+          outWires = {{"out", {false, width, opCodeName + "_out_" + rStr}}};
         } else if (ReturnInst::classof(instr)) {
           modName = "ret";
 
