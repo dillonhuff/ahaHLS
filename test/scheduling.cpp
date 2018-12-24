@@ -1626,7 +1626,10 @@ namespace DHLS {
 
     HardwareConstraints hcs = standardConstraints();
     hcs.setCount(MUL_OP, 1);
-    Schedule s = scheduleFunction(f, hcs);
+
+    set<BasicBlock*> blocksToPipeline;
+    blocksToPipeline.insert(loopBlock);    
+    Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
 
     STG graph = buildSTG(s, f);
 
