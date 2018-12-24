@@ -98,10 +98,22 @@ namespace DHLS {
         alreadyChecked.insert(unit.instName);
 
         if (StoreInst::classof(i)) {
+          int addrWidth = getValueBitWidth(i->getOperand(0));
+          int width = 32;
+          pts.push_back(outputPort(addrWidth, "wdata_" + to_string(numWritePorts)));
+          pts.push_back(outputPort(clog2(width), "waddr_" + to_string(numWritePorts)));
+          pts.push_back(outputPort(1, "wen_" + to_string(numWritePorts)));
+
           numWritePorts++;
         }
 
         if (LoadInst::classof(i)) {
+          int addrWidth = getValueBitWidth(i);
+          int width = 32;          
+          pts.push_back(inputPort(addrWidth, "rdata_" + to_string(numReadPorts)));
+          pts.push_back(outputPort(clog2(width), "raddr_" + to_string(numReadPorts)));
+          pts.push_back(outputPort(1, "ren_" + to_string(numReadPorts)));
+
           numReadPorts++;
         }
       }
@@ -110,18 +122,18 @@ namespace DHLS {
     }
 
     // TODO: Accomodate different width reads / writes
-    int width = 32;    
-    for (int i = 0; i < numReadPorts; i++) {
-      pts.push_back(inputPort(width, "rdata_" + to_string(i)));
-      pts.push_back(outputPort(clog2(width), "raddr_" + to_string(i)));
-      pts.push_back(outputPort(1, "ren_" + to_string(i)));
-    }
+    // int width = 32;    
+    // for (int i = 0; i < numReadPorts; i++) {
+    //   pts.push_back(inputPort(width, "rdata_" + to_string(i)));
+    //   pts.push_back(outputPort(clog2(width), "raddr_" + to_string(i)));
+    //   pts.push_back(outputPort(1, "ren_" + to_string(i)));
+    // }
 
-    for (int i = 0; i < numWritePorts; i++) {
-      pts.push_back(outputPort(width, "wdata_" + to_string(i)));
-      pts.push_back(outputPort(clog2(width), "waddr_" + to_string(i)));
-      pts.push_back(outputPort(1, "wen_" + to_string(i)));
-    }
+    // for (int i = 0; i < numWritePorts; i++) {
+    //   pts.push_back(outputPort(width, "wdata_" + to_string(i)));
+    //   pts.push_back(outputPort(clog2(width), "waddr_" + to_string(i)));
+    //   pts.push_back(outputPort(1, "wen_" + to_string(i)));
+    // }
 
     return pts;
 
