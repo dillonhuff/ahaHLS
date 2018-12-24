@@ -66,3 +66,7 @@ one_d_stencil_sr
 one_d_stencil_sr.v
 one_d_stencil_sr_tb.v
 one_d_stencil_tb.v
+bb_diamond*
+mem_16_test*
+tf
+shift_register*

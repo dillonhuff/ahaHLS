@@ -1542,11 +1542,16 @@ namespace DHLS {
       argId++;
     }
 
+    int ramWidth = 16;
+    int ramDepth = 8;
+    
     auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
-    ConstantInt* zero = mkInt("0", 16);
-    ConstantInt* five = mkInt("5", 16);
+    ConstantInt* zero = mkInt("0", ramWidth);
+    ConstantInt* five = mkInt("5", ramWidth);
 
     cout << "five bit width = " << getValueBitWidth(five) << endl;
+
+    REQUIRE(getValueBitWidth(five) == ramWidth);
     
     IRBuilder<> builder(entryBlock);
     auto ldA = loadVal(builder, getArg(srUser, 0), zero);
@@ -1565,7 +1570,8 @@ namespace DHLS {
     // 3 x 3
     map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 1}};
     map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 1}};
-    auto arch = buildMicroArchitecture(srUser, graph, layout);
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(srUser, graph, layout, options, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);

@@ -142,6 +142,13 @@ namespace DHLS {
   }
 
   static inline
+  void setMemSpec(llvm::Value* const val,
+                  HardwareConstraints& hcs,
+                  MemorySpec spec) {
+    hcs.memSpecs[val] = spec;
+  }
+  
+  static inline
   void setAllAllocaMemTypes(HardwareConstraints& hcs,
                             llvm::Function* f,
                             MemorySpec spec) {
