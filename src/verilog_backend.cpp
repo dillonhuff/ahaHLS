@@ -318,13 +318,8 @@ namespace DHLS {
 
     map<string, string> modParams;
 
-    // For now create a different unit for every single operation
-
-
     for (auto state : stg.opStates) {
 
-      // For now create a different unit for every single operation
-      //int resSuffix = 0;
       int resSuffix = 0;
       int readNum = 0;
       int writeNum = 0;
