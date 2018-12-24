@@ -1583,7 +1583,7 @@ namespace DHLS {
 
     emitVerilog(srUser, arch, info);
 
-    map<string, vector<int> > memoryInit{{"arg_0", {1 << 15}}};
+    map<string, vector<int> > memoryInit{{"arg_0", {(1 << 16) - 1}}};
     map<string, vector<int> > memoryExpected{{"arg_1", {4}}};
 
     TestBenchSpec tb;
