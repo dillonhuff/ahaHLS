@@ -375,11 +375,15 @@ namespace DHLS {
 
             int inputWidth = getValueBitWidth(instr->getOperand(0));
 
+            
             // These names need to match names created in the portlist. So
             // maybe this should be used to create the port list? Generate the
             // names here and then write ports for them?
             //string wStr = "0";
             string wStr = to_string(writeNum);
+
+            unitName = string(instr->getOpcodeName()) + "_" + wStr;
+                                                                        
             wiring = {{"wen", {true, 1, "wen_" + wStr + "_reg"}}, {"waddr", {true, 32, "waddr_" + wStr + "_reg"}}, {"wdata", {true, inputWidth, "wdata_" + wStr + "_reg"}}};
             outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
             
@@ -413,6 +417,7 @@ namespace DHLS {
 
             modName = "load";
 
+            unitName = string(instr->getOpcodeName()) + "_" + to_string(readNum);            
             int inputWidth = getValueBitWidth(instr);
             wiring = {{"raddr", {true, 32, "raddr_" + to_string(readNum) + "_reg"}}, {"ren", {true, 1, "ren_" + to_string(readNum) + "_reg"}}};
             outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(readNum)}}};

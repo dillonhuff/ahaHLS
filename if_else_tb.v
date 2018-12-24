@@ -174,6 +174,6 @@ module test();
             .wdata(wdata),
             .waddr(waddr));
    
-   if_else ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .raddr_0(raddr0), .rdata_0(rdata0), .raddr_1(raddr1), .rdata_1(rdata1));
+   if_else ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .raddr_0(raddr0), .rdata_0(rdata0));
    
 endmodule
