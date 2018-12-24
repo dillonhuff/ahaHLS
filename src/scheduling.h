@@ -30,19 +30,23 @@ namespace DHLS {
     int writeLatency;
     int numReadPorts;
     int numWritePorts;
+    int width;
+    int depth;
     bool addressable;
     ModuleSpec modSpec;
   };
 
   static inline MemorySpec registerSpec(const int width) {
-    return {0, 1, 1, 1, false, {{{"width", std::to_string(width)}}, "register"}};
+    return {0, 1, 1, 1, width, 1, false, {{{"width", std::to_string(width)}}, "register"}};
   }
 
   static inline MemorySpec ramSpec(const int readLat,
                                    const int writeLat,
                                    const int nReadPorts,
-                                   const int nWritePorts) {
-    return {readLat, writeLat, nReadPorts, nWritePorts, true, {{{"width", std::to_string(32)}}, "RAM"}};
+                                   const int nWritePorts,
+                                   const int width,
+                                   const int depth) {
+    return {readLat, writeLat, nReadPorts, nWritePorts, width, depth, true, {{{"width", std::to_string(32)}}, "RAM"}};
   }
   
   enum OperationType {

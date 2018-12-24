@@ -546,8 +546,7 @@ namespace DHLS {
     assert(f != nullptr);
 
     hcs.memoryMapping = memoryOpLocations(f);
-    //setMemSpec("temp", hcs, f, ramSpec(1, 3, 1, 1));
-    setAllAllocaMemTypes(hcs, f, ramSpec(1, 3, 1, 1));
+    setAllAllocaMemTypes(hcs, f, ramSpec(1, 3, 1, 1, 32, 32));
     
     Schedule s = scheduleFunction(f, hcs);
 
@@ -1560,6 +1559,9 @@ namespace DHLS {
     builder.CreateRet(nullptr);
 
     HardwareConstraints hcs = standardConstraints();
+    setMemSpec(getArg(srUser, 0), hcs, ramSpec(1, 3, 2, 1, ramWidth, ramDepth));
+    setMemSpec(getArg(srUser, 1), hcs, ramSpec(1, 3, 2, 1, ramWidth, ramDepth));
+
     Schedule s = scheduleFunction(srUser, hcs);
 
     STG graph = buildSTG(s, srUser);
