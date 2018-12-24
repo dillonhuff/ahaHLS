@@ -1507,19 +1507,19 @@ namespace DHLS {
       REQUIRE(runIVerilogTB("bb_diamond_2"));
     }
 
-    // SECTION("Taking false path") {
-    //   map<string, vector<int> > memoryInit{{"arg_0", {0}}};
-    //   map<string, vector<int> > memoryExpected{{"arg_1", {0}}};
+    SECTION("Taking false path") {
+      map<string, vector<int> > memoryInit{{"arg_0", {1}}, {"arg_1", {1}}};
+      map<string, vector<int> > memoryExpected{{"arg_2", {1}}};
 
-    //   TestBenchSpec tb;
-    //   tb.memoryInit = memoryInit;
-    //   tb.memoryExpected = memoryExpected;
-    //   tb.runCycles = 30;
-    //   tb.name = "bb_diamond_2";
-    //   emitVerilogTestBench(tb, arch, layout);
+      TestBenchSpec tb;
+      tb.memoryInit = memoryInit;
+      tb.memoryExpected = memoryExpected;
+      tb.runCycles = 30;
+      tb.name = "bb_diamond_2";
+      emitVerilogTestBench(tb, arch, layout);
 
-    //   REQUIRE(runIVerilogTB("bb_diamond_2"));
-    // }
+      REQUIRE(runIVerilogTB("bb_diamond_2"));
+    }
 
   }
   
@@ -1620,23 +1620,4 @@ namespace DHLS {
   //   REQUIRE(runIVerilogTB("one_d_stencil_sr"));
   // }
 
-  // TEST_CASE("LLVM running pass on single store") {
-
-  //   SMDiagnostic Err;
-  //   LLVMContext Context;
-  //   std::unique_ptr<Module> Mod = loadModule(Context, Err, "single_store");
-
-  //   Function* f = Mod->getFunction("single_store");
-
-  //   llvm::legacy::PassManager pm;
-  //   auto skeleton = new SkeletonPass();
-  //   pm.add(new LoopInfoWrapperPass());
-  //   pm.add(new AAResultsWrapperPass());    
-  //   pm.add(skeleton);
-
-  //   pm.run(*Mod);
-
-  //   cout << skeleton->aliasString << endl;
-  // }
-  
 }
