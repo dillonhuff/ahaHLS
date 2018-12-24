@@ -1528,8 +1528,8 @@ namespace DHLS {
     
     auto mod = llvm::make_unique<Module>("16 bit mem test", context);
 
-    std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo(),
-        Type::getInt32Ty(context)->getPointerTo()};
+    std::vector<Type *> inputs{Type::getInt16Ty(context)->getPointerTo(),
+        Type::getInt16Ty(context)->getPointerTo()};
     FunctionType *tp =
       FunctionType::get(Type::getVoidTy(context), inputs, false);
     Function *srUser =
@@ -1561,6 +1561,9 @@ namespace DHLS {
     HardwareConstraints hcs = standardConstraints();
     setMemSpec(getArg(srUser, 0), hcs, ramSpec(1, 3, 2, 1, ramWidth, ramDepth));
     setMemSpec(getArg(srUser, 1), hcs, ramSpec(1, 3, 2, 1, ramWidth, ramDepth));
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(srUser) << endl;
 
     Schedule s = scheduleFunction(srUser, hcs);
 

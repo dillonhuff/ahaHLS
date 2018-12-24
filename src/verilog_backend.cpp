@@ -356,13 +356,16 @@ namespace DHLS {
             Value* op = map_find(instr, hcs.memoryMapping);
 
             cout << "Got underlying value" << endl;
-            
-            if (contains_key(op, hcs.memSpecs)) {
-              MemorySpec spec = map_find(op, hcs.memSpecs);
-              modName = spec.modSpec.name;
-            } else {
-              assert(false);
-            }
+
+            assert(contains_key(op, hcs.memSpecs));
+            //if (contains_key(op, hcs.memSpecs)) {
+            MemorySpec spec = map_find(op, hcs.memSpecs);
+            modName = spec.modSpec.name;
+            int dataWidth = spec.width;
+
+            int inputWidth = getValueBitWidth(instr->getOperand(0));
+
+            assert(inputWidth == dataWidth);
 
             cout << "Got name forop" << endl;
             unitName = memSrc;
@@ -371,19 +374,21 @@ namespace DHLS {
             // names here and then write ports for them?
             wiring = {{"wen", {true, 1, "wen_" + unitName + "_reg"}},
                       {"waddr", {true, 32, "waddr_" + unitName + "_reg"}},
-                      {"wdata", {true, 32, "wdata_" + unitName + "_reg"}},
+                      {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}},
                       {"raddr", {true, 32, "raddr_" + unitName + "_reg"}}};
-            outWires = {{"rdata", {false, 32, "rdata_" + unitName}}};
+            outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
 
           } else {
             modName = "store";
-            
+
+            int inputWidth = getValueBitWidth(instr->getOperand(0));
+
             // These names need to match names created in the portlist. So
             // maybe this should be used to create the port list? Generate the
             // names here and then write ports for them?
             string wStr = "0"; //to_string(writeNum);
-            wiring = {{"wen", {true, 1, "wen_" + wStr + "_reg"}}, {"waddr", {true, 32, "waddr_" + wStr + "_reg"}}, {"wdata", {true, 32, "wdata_" + wStr + "_reg"}}};
-            outWires = {{"rdata", {false, 32, "rdata_" + unitName}}};
+            wiring = {{"wen", {true, 1, "wen_" + wStr + "_reg"}}, {"waddr", {true, 32, "waddr_" + wStr + "_reg"}}, {"wdata", {true, inputWidth, "wdata_" + wStr + "_reg"}}};
+            outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
             
             writeNum++;
           }
