@@ -167,7 +167,6 @@ namespace DHLS {
 
     REQUIRE(graph.numControlStates() == 5);
 
-    //map<string, int> layout = {{"a", 0}, {"b", 3}, {"c", 4}};
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 3}, {getArg(f, 2), 4}};
     emitVerilog(f, graph, layout);
 
@@ -175,8 +174,7 @@ namespace DHLS {
   }
 
   // Q: What test cases do I need?
-  // A: Test case that uses 16 (or other not 32 bit) width (parametric builtins)
-  //    Test that uses a loop with II != 1
+  // A: Test that uses a loop with II != 1
   //    Test that uses multiple different RAM types
   //    Test that uses limited numbers of memory read/write ports
   //    Test case that merges basic blocks that execute different numbers of times
@@ -204,7 +202,6 @@ namespace DHLS {
 
     REQUIRE(!graph.hasTransition(1, 1));
 
-    //map<string, int> layout = {{"a", 0}, {"b", 3}, {"c", 4}};
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 3}, {getArg(f, 2), 4}};    
     emitVerilog(f, graph, layout);
 
