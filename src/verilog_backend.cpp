@@ -421,6 +421,11 @@ namespace DHLS {
 
         } else if (BinaryOperator::classof(instr)) {
           modName = binopName(instr);
+          int w0 = getValueBitWidth(instr->getOperand(0));
+          int w1 = getValueBitWidth(instr->getOperand(1));
+
+          assert(w0 == w1);
+          
           int width = getValueBitWidth(instr);
           modParams = {{"WIDTH", to_string(width)}};
           wiring = {{"in0", {true, width, "add_in0_" + rStr}},

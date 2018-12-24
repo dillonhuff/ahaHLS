@@ -1522,8 +1522,69 @@ namespace DHLS {
     }
 
   }
-  
-  
+
+  TEST_CASE("Using 16 bit external memory instead of 32 bit external memory") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+    
+    auto mod = llvm::make_unique<Module>("16 bit mem test", context);
+
+    std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo(),
+        Type::getInt32Ty(context)->getPointerTo()};
+    FunctionType *tp =
+      FunctionType::get(Type::getVoidTy(context), inputs, false);
+    Function *srUser =
+      Function::Create(tp, Function::ExternalLinkage, "mem_16_test", mod.get());
+
+    int argId = 0;
+    for (auto &Arg : srUser->args()) {
+      Arg.setName("arg_" + to_string(argId));
+      argId++;
+    }
+
+    auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
+    ConstantInt* zero = mkInt("0", 16);
+    ConstantInt* five = mkInt("5", 16);
+
+    cout << "five bit width = " << getValueBitWidth(five) << endl;
+    
+    IRBuilder<> builder(entryBlock);
+    auto ldA = loadVal(builder, getArg(srUser, 0), zero);
+    auto plus = builder.CreateAdd(ldA, five);
+    storeVal(builder, getArg(srUser, 1), zero, plus);
+    builder.CreateRet(nullptr);
+
+    HardwareConstraints hcs = standardConstraints();
+    Schedule s = scheduleFunction(srUser, hcs);
+
+    STG graph = buildSTG(s, srUser);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    // 3 x 3
+    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 1}};
+    map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 1}};
+    auto arch = buildMicroArchitecture(srUser, graph, layout);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(srUser, arch, info);
+
+    map<string, vector<int> > memoryInit{{"arg_0", {1 << 15}}};
+    map<string, vector<int> > memoryExpected{{"arg_1", {4}}};
+
+    TestBenchSpec tb;
+    tb.memoryInit = memoryInit;
+    tb.memoryExpected = memoryExpected;
+    tb.runCycles = 10;
+    tb.name = "mem_16_test";
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    REQUIRE(runIVerilogTB("mem_16_test"));
+  }
+
   // TEST_CASE("1D stencil with shift register in LLVM") {
   //   LLVMContext context;
   //   setGlobalLLVMContext(&context);
