@@ -324,7 +324,8 @@ namespace DHLS {
   Schedule buildFromModel(solver& s,
                           map<Instruction*, vector<expr> >& schedVars,
                           map<BasicBlock*, vector<expr> >& blockVars,
-                          map<BasicBlock*, int>& pipelineSchedules) {
+                          map<BasicBlock*, vector<expr> >& pipelineSchedules) {
+                          //map<BasicBlock*, int>& pipelineSchedules) {
 
 
     auto satRes = s.check();
@@ -362,7 +363,13 @@ namespace DHLS {
         //}
     }
 
-    sched.pipelineSchedules = pipelineSchedules;
+    for (auto s : pipelineSchedules) {
+      vector<expr>& iiVec = s.second;
+      int ii = m.eval(iiVec[0]).get_numeral_int64();
+      cout << iiVec[0] << " = " << ii << endl;
+      sched.pipelineSchedules[s.first] = ii;
+    }
+    //sched.pipelineSchedules = pipelineSchedules;
 
     return sched;
   }
@@ -523,8 +530,8 @@ namespace DHLS {
 
     map<Instruction*, vector<expr> > schedVars;
     map<BasicBlock*, vector<expr> > blockVars;
-
-    context c;
+ 
+   context c;
     solver s(c);
 
     cout << "Starting to make schedule" << endl;
@@ -695,13 +702,22 @@ namespace DHLS {
     // cout << "Solver constraints" << endl;
     // cout << s << endl;
 
-    // TODO: Add real initiation interval analysis
+    // TODO: 1. Add dependence distance analysis to II
+    //       2. Add resource limit constraint
+    
     map<BasicBlock*, int> subSchedules;
+    map<BasicBlock*, vector<expr> > IIs;
+    int i = 0;
     for (auto bb : toPipeline) {
-      subSchedules[bb] = 1; 
+      expr ii = c.int_const((string("II_") + to_string(i)).c_str());
+      s.add(0 < ii);      
+      map_insert(IIs, bb, ii); //c.int_const((string("II_") + to_string(i)).c_str());
+      i++;
+      //subSchedules[bb] = 1; 
     }
     
-    return buildFromModel(s, schedVars, blockVars, subSchedules);
+    //return buildFromModel(s, schedVars, blockVars, subSchedules);
+    return buildFromModel(s, schedVars, blockVars, IIs);
   }
   
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc) {
@@ -1017,42 +1033,42 @@ namespace DHLS {
     return 0;
   }
 
-  Schedule schedulePipeline(llvm::BasicBlock* const bb,
-                            HardwareConstraints& hdc) {
-    context c;
-    solver s(c);
-    map<Instruction*, vector<expr> > schedVars;
-    map<BasicBlock*, vector<expr> > blockVars;
-    int blockNo = 0;
+  // Schedule schedulePipeline(llvm::BasicBlock* const bb,
+  //                           HardwareConstraints& hdc) {
+  //   context c;
+  //   solver s(c);
+  //   map<Instruction*, vector<expr> > schedVars;
+  //   map<BasicBlock*, vector<expr> > blockVars;
+  //   int blockNo = 0;
 
-    addScheduleVars(*bb, c, schedVars, blockVars, hdc, blockNo);
+  //   addScheduleVars(*bb, c, schedVars, blockVars, hdc, blockNo);
 
-    addBlockConstraints(*bb, s, blockVars, schedVars);
-    addLatencyConstraints(*bb, s, schedVars, blockVars);
+  //   addBlockConstraints(*bb, s, blockVars, schedVars);
+  //   addLatencyConstraints(*bb, s, schedVars, blockVars);
 
-    expr II = c.int_const("II");
-    s.add(II >= 1);
+  //   expr II = c.int_const("II");
+  //   s.add(II >= 1);
 
-    for (auto& i : *bb) {
-      Instruction* iptr = &i;
-      for (auto& j : *bb) {
-        Instruction* jptr = &j;
+  //   for (auto& i : *bb) {
+  //     Instruction* iptr = &i;
+  //     for (auto& j : *bb) {
+  //       Instruction* jptr = &j;
 
-        int d = dependenceDistance(iptr, jptr);
-        if (d > 0) {
-          s.add(II*d + instrEnd(iptr, schedVars) <= instrStart(jptr, schedVars));
-        }
-      }
+  //       int d = dependenceDistance(iptr, jptr);
+  //       if (d > 0) {
+  //         s.add(II*d + instrEnd(iptr, schedVars) <= instrStart(jptr, schedVars));
+  //       }
+  //     }
       
-    }
+  //   }
 
-    cout << "Pipeline solver constraints" << endl;
-    cout << s << endl;
+  //   cout << "Pipeline solver constraints" << endl;
+  //   cout << s << endl;
 
-    map<BasicBlock*, int> subPipelines;
-    auto sched = buildFromModel(s, schedVars, blockVars, subPipelines);
+  //   map<BasicBlock*, vector<expr> > subPipelines;
+  //   auto sched = buildFromModel(s, schedVars, blockVars, subPipelines);
 
-    return sched;
-  }
+  //   return sched;
+  // }
 
 }
