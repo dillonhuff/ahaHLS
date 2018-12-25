@@ -1887,7 +1887,7 @@ namespace DHLS {
     out << "\tend" << endl;
     out << endl << endl;
 
-    emitPipelineInstructionCode(out, arch.pipelines, arch); //, arch.memoryMap);
+    emitPipelineInstructionCode(out, arch.pipelines, arch);
     emitInstructionCode(out, arch, arch.pipelines);
 
     out << "endmodule" << endl << endl;

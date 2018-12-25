@@ -1587,6 +1587,11 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("mem_16_test"));
   }
 
+  // NOTE: Maybe the right data structure for the scheduler to produce is a bunch
+  // of triggered actions? Would that fit pipelining more easily? And could I fit
+  // the kinds of triggers that are important for more advanced scheduling
+  // like pipelining and speculation in to this framework?
+  
   // Do resource constraints force the pipeline initiation interval to change?
   // I guess it forces initiation intervals to change if the same value is
   // being accumulated in the loop?
