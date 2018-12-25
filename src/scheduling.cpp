@@ -554,6 +554,19 @@ namespace DHLS {
       cout << "Added latency constraints" << endl;
     }
 
+
+    // TODO: 1. Add dependence distance analysis to II
+    //       2. Add resource limit constraint
+    
+    map<BasicBlock*, vector<expr> > IIs;
+    int i = 0;
+    for (auto bb : toPipeline) {
+      expr ii = c.int_const((string("II_") + to_string(i)).c_str());
+      s.add(0 < ii);      
+      map_insert(IIs, bb, ii);
+      i++;
+    }
+    
     cout << "Created schedule vars" << endl;
 
     // Connect the control edges
@@ -657,7 +670,7 @@ namespace DHLS {
     for (auto& bb : f->getBasicBlockList()) {
       for (auto& op : allOps()) {
         int opCount = countOperations(op, &bb);
-        if (opCount >= hdc.getCount(op)) {
+        if (opCount > hdc.getCount(op)) {
           vector<vector<Instruction*> > iGroups;
           vector<Instruction*> instrs;
 
@@ -675,7 +688,9 @@ namespace DHLS {
             }
           }
 
-          iGroups.push_back(instrs);
+          if (instrs.size() > 0) {
+            iGroups.push_back(instrs);
+          }
 
           cout << "iGroups = " << iGroups.size() << endl;
           for (auto gp : iGroups) {
@@ -683,9 +698,11 @@ namespace DHLS {
             for (auto i : gp) {
               cout << "\t\t" << instructionString(i) << endl;
             }
+
+            assert(gp.size() > 0);
           }
           
-          iGroups.push_back(instrs);
+          //iGroups.push_back(instrs);
           for (int i = 0; i < (int) iGroups.size() - 1; i++) {
             auto gp = iGroups[i];
             auto next = iGroups[i + 1];
@@ -695,28 +712,33 @@ namespace DHLS {
               }
             }
           }
+
+          // If all instructions fit in 1 group there is no resource conflict
+          assert(iGroups.size() > 1);
+
+          // Make sure subsequent pipelined loop iterations to obey
+          // the resource partial order
+          if (elem(&bb, toPipeline)) {
+            auto II = map_find(&bb, IIs).at(0);
+
+            assert(iGroups.front().size() > 0);
+            assert(iGroups.at(iGroups.size() - 1).size() > 0);
+
+            for (auto firstI : iGroups.front()) {
+              for (auto lastI : iGroups.back()) {
+                cout << "adding constraint on " << firstI << " and " << lastI << endl;
+                s.add(instrEnd(lastI, schedVars) < II + instrStart(firstI, schedVars));
+              }
+            }
+
+          }
+
         }
       }
     }
 
     // cout << "Solver constraints" << endl;
     // cout << s << endl;
-
-    // TODO: 1. Add dependence distance analysis to II
-    //       2. Add resource limit constraint
-    
-    map<BasicBlock*, int> subSchedules;
-    map<BasicBlock*, vector<expr> > IIs;
-    int i = 0;
-    for (auto bb : toPipeline) {
-      expr ii = c.int_const((string("II_") + to_string(i)).c_str());
-      s.add(0 < ii);      
-      map_insert(IIs, bb, ii); //c.int_const((string("II_") + to_string(i)).c_str());
-      i++;
-      //subSchedules[bb] = 1; 
-    }
-    
-    //return buildFromModel(s, schedVars, blockVars, subSchedules);
     return buildFromModel(s, schedVars, blockVars, IIs);
   }
   
