@@ -716,7 +716,7 @@ namespace DHLS {
           // If all instructions fit in 1 group there is no resource conflict
           assert(iGroups.size() > 1);
 
-          // Make sure subsequent pipelined loop iterations to obey
+          // Make sure subsequent pipelined loop iterations obey
           // the resource partial order
           if (elem(&bb, toPipeline)) {
             auto II = map_find(&bb, IIs).at(0);
@@ -726,7 +726,7 @@ namespace DHLS {
 
             for (auto firstI : iGroups.front()) {
               for (auto lastI : iGroups.back()) {
-                cout << "adding constraint on " << firstI << " and " << lastI << endl;
+                cout << "adding constraint on " << valueString(firstI) << " and " << valueString(lastI) << endl;
                 s.add(instrEnd(lastI, schedVars) < II + instrStart(firstI, schedVars));
               }
             }
