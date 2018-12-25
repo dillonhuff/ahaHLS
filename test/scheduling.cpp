@@ -1639,6 +1639,9 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
+    REQUIRE(graph.pipelines.size() == 1);
+    REQUIRE(graph.pipelines[0].II() == 2);
+
     map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 15}};
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 15}};
     auto arch = buildMicroArchitecture(f, graph, layout);

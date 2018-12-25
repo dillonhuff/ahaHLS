@@ -702,7 +702,6 @@ namespace DHLS {
             assert(gp.size() > 0);
           }
           
-          //iGroups.push_back(instrs);
           for (int i = 0; i < (int) iGroups.size() - 1; i++) {
             auto gp = iGroups[i];
             auto next = iGroups[i + 1];
