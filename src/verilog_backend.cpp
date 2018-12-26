@@ -309,8 +309,6 @@ namespace DHLS {
       cout << tab(1) << instructionString(src.first) << " -> " << src.second << endl;
     }
 
-    map<string, string> modParams;
-
     for (auto state : stg.opStates) {
 
       int resSuffix = 0;
@@ -330,6 +328,7 @@ namespace DHLS {
           to_string(resSuffix);
 
         string modName = "add";
+        map<string, string> modParams;
 
         map<string, Wire> wiring;
         map<string, Wire> outWires;
@@ -518,6 +517,10 @@ namespace DHLS {
           assert(false);
         }
 
+        cout << "Modparams for " << modName << endl;
+        for (auto p : modParams) {
+          cout << p.first << " -> " << p.second << endl;
+        }
         units[instr] = {{modParams, modName}, unitName, wiring, outWires};
 
         resSuffix++;
