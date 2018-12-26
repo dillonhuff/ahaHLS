@@ -1593,6 +1593,8 @@ namespace DHLS {
 
       ep.pipelineRegisters = pipelineRegisters;
       pipelines.push_back(ep);
+
+      pipeState++;
     }
 
     return pipelines;
