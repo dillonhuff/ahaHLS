@@ -337,8 +337,8 @@ namespace DHLS {
 
     model m = s.get_model();
 
-    // cout << "Final model" << endl;
-    // cout << m << endl;
+    cout << "Final model" << endl;
+    cout << m << endl;
     
     cout << "Final schedule" << endl;
     Schedule sched;
@@ -531,7 +531,7 @@ namespace DHLS {
     map<Instruction*, vector<expr> > schedVars;
     map<BasicBlock*, vector<expr> > blockVars;
  
-   context c;
+    context c;
     solver s(c);
 
     cout << "Starting to make schedule" << endl;
@@ -736,8 +736,8 @@ namespace DHLS {
       }
     }
 
-    // cout << "Solver constraints" << endl;
-    // cout << s << endl;
+    cout << "Solver constraints" << endl;
+    cout << s << endl;
     return buildFromModel(s, schedVars, blockVars, IIs);
   }
   
