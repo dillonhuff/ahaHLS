@@ -1460,9 +1460,8 @@ namespace DHLS {
       out << "\t\t\t\t\tend else begin" << endl;
 
       out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;
-      //out << "\t\t\t\t\t\t" << p.lastBBs.at(0).name << " <= " << p.stateId << ";" << endl;
       out << "\t\t\t\t\tend" << endl;
-      out << "\t\t\t\tend" << endl;
+      out << "\t\t\t\tend else begin " << p.valids.at(0).name << " <= 0; end" << endl;
 
     }
 
