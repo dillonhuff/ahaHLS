@@ -1440,7 +1440,7 @@ namespace DHLS {
     out << "\talways @(posedge clk) begin" << endl;
 
     for (auto p : pipelines) {
-      out << "\t\t\t\tif (" << p.valids.at(0).name << " && " << p.inPipe.name << ") begin" << endl;
+      out << "\t\t\t\tif (" << p.valids.at(p.II() - 1).name << " && " << p.inPipe.name << ") begin" << endl;
       std::map<llvm::Value*, int> memMap;
       string testCond = outputName(p.getExitCondition(), unitAssignment, memMap);
       auto br = p.getExitBranch();

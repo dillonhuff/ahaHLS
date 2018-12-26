@@ -169,6 +169,10 @@ namespace DHLS {
       return pipelineB;
     }
 
+    int II() const {
+      return p.II();
+    }
+
     llvm::BasicBlock* getEntryBlock() const {
       return (exitBranch.instruction)->getParent();
     }
