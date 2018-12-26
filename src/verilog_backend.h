@@ -296,7 +296,12 @@ namespace DHLS {
     std::map<std::string, std::vector<int> > memoryInit;
     std::map<std::string, std::vector<int> > memoryExpected;
     int runCycles;
+    int maxCycles;
     std::string name;
+
+    TestBenchSpec() {
+      maxCycles = 400;
+    }
   };
 
   void emitVerilogTestBench(const TestBenchSpec& tb,

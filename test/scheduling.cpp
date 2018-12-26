@@ -1660,6 +1660,7 @@ namespace DHLS {
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 30;
+    tb.maxCycles = 50;
     tb.name = "constrained_pipe";
     emitVerilogTestBench(tb, arch, testLayout);
 
