@@ -159,6 +159,20 @@ namespace DHLS {
     
     ElaboratedPipeline(const Pipeline& p_) : p(p_) {}
 
+    llvm::BranchInst* getExitBranch() const {
+      llvm::Instruction* repeat = exitBranch.instruction;
+      assert(llvm::BranchInst::classof(repeat));
+      llvm::BranchInst* pipelineB = llvm::dyn_cast<llvm::BranchInst>(repeat);
+
+      assert(pipelineB->isConditional());
+
+      return pipelineB;
+    }
+
+    llvm::BasicBlock* getEntryBlock() const {
+      return (exitBranch.instruction)->getParent();
+    }
+    
     llvm::Value* getExitCondition() const {
       llvm::Instruction* repeat = exitBranch.instruction;
       assert(llvm::BranchInst::classof(repeat));

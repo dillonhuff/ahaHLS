@@ -1442,9 +1442,19 @@ namespace DHLS {
     for (auto p : pipelines) {
       out << "\t\t\t\tif (" << p.valids.at(0).name << " && " << p.inPipe.name << ") begin" << endl;
       std::map<llvm::Value*, int> memMap;
-      out << "\t\t\t\t\tif(" << outputName(p.getExitCondition(), unitAssignment, memMap) << ") begin" << endl;
-      vector<RAM> rams;
+      string testCond = outputName(p.getExitCondition(), unitAssignment, memMap);
+      auto br = p.getExitBranch();
 
+      auto trueBlock = br->getSuccessor(0);
+      BasicBlock* pBlock = p.getEntryBlock();
+
+      // Does a true value in the branch conditional imply doing another iteration
+      // of the loop
+      if (trueBlock == pBlock) {
+        testCond = "!" + parens(testCond);
+      }
+      out << "\t\t\t\t\tif(" << testCond  << ") begin" << endl;
+      vector<RAM> rams;
       out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 0;" << endl;
 
       out << "\t\t\t\t\tend else begin" << endl;
