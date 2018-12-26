@@ -2137,7 +2137,7 @@ namespace DHLS {
     comps.initStmts.push_back("#1 in_run_phase = 0;");        
 
     comps.initStmts.push_back("#1 total_cycles = 0;");
-    comps.initStmts.push_back("#1 max_cycles = 1000;");
+    comps.initStmts.push_back("#1 max_cycles = 400;");
     comps.initStmts.push_back("#1 num_clocks_after_reset = 0;");
     comps.initStmts.push_back("#1 clocks_in_set_mem_phase = 0;");
     comps.initStmts.push_back("#1 clocks_in_run_phase = 0;");        

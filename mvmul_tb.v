@@ -61,7 +61,7 @@ module mvmul_tb();
 		#1 in_check_mem_phase = 0;
 		#1 in_run_phase = 0;
 		#1 total_cycles = 0;
-		#1 max_cycles = 1000;
+		#1 max_cycles = 400;
 		#1 num_clocks_after_reset = 0;
 		#1 clocks_in_set_mem_phase = 0;
 		#1 clocks_in_run_phase = 0;
