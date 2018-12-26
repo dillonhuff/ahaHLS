@@ -1444,7 +1444,6 @@ namespace DHLS {
       std::map<llvm::Value*, int> memMap;
       out << "\t\t\t\t\tif(" << outputName(p.getExitCondition(), unitAssignment, memMap) << ") begin" << endl;
       vector<RAM> rams;
-      //out << "\t\t\t\t\tif(" << outputName(p.getExitCondition(), p.stateId*2, stg, unitAssignment, names, memMap) << ") begin" << endl;
 
       out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 0;" << endl;
 
