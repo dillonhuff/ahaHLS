@@ -290,8 +290,8 @@ namespace DHLS {
                         HardwareConstraints& hcs) {
 
     std::map<Instruction*, FunctionalUnit> units;
+    std::map<string, FunctionalUnit> allUnits;
 
-    //auto memSrcs = memoryOpLocations(stg);
     auto memSrcs = memoryOpLocations(stg.getFunction());
     map<Value*, std::string> memNames;
     int i = 0;
@@ -347,10 +347,7 @@ namespace DHLS {
             }
             Value* op = map_find(instr, hcs.memoryMapping);
 
-            cout << "Got underlying value" << endl;
-
             assert(contains_key(op, hcs.memSpecs));
-            //if (contains_key(op, hcs.memSpecs)) {
             MemorySpec spec = map_find(op, hcs.memSpecs);
             modName = spec.modSpec.name;
             int dataWidth = spec.width;
@@ -517,11 +514,9 @@ namespace DHLS {
           assert(false);
         }
 
-        cout << "Modparams for " << modName << endl;
-        for (auto p : modParams) {
-          cout << p.first << " -> " << p.second << endl;
-        }
-        units[instr] = {{modParams, modName}, unitName, wiring, outWires};
+        FunctionalUnit unit = {{modParams, modName}, unitName, wiring, outWires};
+        allUnits.insert({unit.instName, unit});
+        units[instr] = unit;
 
         resSuffix++;
       }
@@ -1251,8 +1246,6 @@ namespace DHLS {
       int numInstrs = 0;
       for (auto stInstrG : controller.instructions) {
         StateId state = stInstrG.first;
-        //auto instrsAtState = stInstrG.second;
-        //GuardedInstruction instrG = stInstrG.second;
 
         if (!isPipelineState(state, pipelines)) {
           numInstrs++;
@@ -1261,7 +1254,6 @@ namespace DHLS {
 
       for (auto stInstrG : controller.instructions) {
         StateId state = stInstrG.first;
-        //GuardedInstruction instrG = stInstrG.second;
         auto instrsAtState = stInstrG.second;
 
         if (!isPipelineState(state, pipelines)) {
