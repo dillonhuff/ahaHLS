@@ -467,11 +467,11 @@ namespace DHLS {
           unitName = "br_unit";
         } else if (GetElementPtrInst::classof(instr)) {
           modName = "getelementptr_" + to_string(instr->getNumOperands() - 1);
-          wiring = {{"base_addr", {true, 32, "base_addr_" + to_string(resSuffix)}}};
+          wiring = {{"base_addr", {true, 32, "base_addr_" + rStr}}};
 
           for (int i = 1; i < (int) instr->getNumOperands(); i++) {
             wiring.insert({"in" + to_string(i),
-                  {true, 32, "gep_add_in" + to_string(i) + "_" + to_string(resSuffix)}});
+                  {true, 32, "gep_add_in" + to_string(i) + "_" + rStr}});
           }
           outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
         } else if (PHINode::classof(instr)) {
@@ -1221,7 +1221,7 @@ namespace DHLS {
           for (auto& u : assignment) {
             if (u.unit.instName == unit.instName) {
               alreadyIn = true;
-              map_insert(u.instructions, state.first, instrG); //[state.first] = instrG;
+              map_insert(u.instructions, state.first, instrG);
               break;
             }
           }
@@ -1375,7 +1375,6 @@ namespace DHLS {
       string modName = unit.getModName();
       auto params = unit.getParams();
       string instName = unit.instName;
-
 
       for (auto w : unit.outWires) {
         out << "\twire [" << w.second.width - 1 << ":0] " << w.second.name << ";" << endl;

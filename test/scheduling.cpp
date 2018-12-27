@@ -174,8 +174,7 @@ namespace DHLS {
   }
 
   // Q: What test cases do I need?
-  // A: Test that uses a loop with II != 1
-  //    Test that uses multiple different RAM types
+  // A: Test that uses multiple different RAM types
   //    Test that uses limited numbers of memory read/write ports
   //    Test case that merges basic blocks that execute different numbers of times
   //    Test case that uses a struct as an argument
