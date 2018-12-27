@@ -556,7 +556,6 @@ namespace DHLS {
 
 
     // TODO: 1. Add dependence distance analysis to II
-    //       2. Add resource limit constraint
     
     map<BasicBlock*, vector<expr> > IIs;
     int i = 0;

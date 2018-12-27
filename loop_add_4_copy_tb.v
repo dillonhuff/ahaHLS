@@ -44,14 +44,14 @@ module test();
    end // initial begin
 
    always @(posedge clk) begin
-      // $display("-- In tb, waddr_0 = %d", waddr);
-      // $display("-- In tb, wdata_0 = %d", wdata);
-      // $display("-- In tb, raddr_0 = %d", raddr0);
-      // $display("-- In tb, rdata_0 = %d", rdata0);
-      // $display("-- dbg_data       = %d", dbg_data);
-      // $display("-- dbg_addr       = %d", dbg_addr);
-      // $display("-- clocks         = %d", clocks);
-      // $display("-- wdata_temp_reg_dbg = %d", wdata_temp_reg_dbg);
+      $display("-- In tb, waddr_0 = %d", waddr);
+      $display("-- In tb, wdata_0 = %d", wdata);
+      $display("-- In tb, raddr_0 = %d", raddr0);
+      $display("-- In tb, rdata_0 = %d", rdata0);
+      $display("-- dbg_data       = %d", dbg_data);
+      $display("-- dbg_addr       = %d", dbg_addr);
+      $display("-- clocks         = %d", clocks);
+      $display("-- wdata_temp_reg_dbg = %d", wdata_temp_reg_dbg);
       
       clocks <= clocks + 1;
 
