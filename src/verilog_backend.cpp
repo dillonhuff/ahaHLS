@@ -284,6 +284,203 @@ namespace DHLS {
     }
     return modName;
   }
+
+  FunctionalUnit createUnit(std::string modName,
+                            std::string unitName,
+                            map<Value*, std::string>& memNames,
+                            map<Instruction*, Value*>& memSrcs,
+                            HardwareConstraints& hcs,
+                            llvm::Instruction* instr) {
+    map<string, string> modParams;
+
+    map<string, Wire> wiring;
+    map<string, Wire> outWires;
+
+    cout << "FU for Instruction " << valueString(instr) << endl;
+    if (StoreInst::classof(instr)) {
+
+      Value* memVal = map_find(instr, memSrcs);
+      string memSrc = memName(instr, memSrcs, memNames);
+
+      if (!Argument::classof(memVal)) {
+        cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
+        cout << "Getting underlying value" << endl;
+        for (auto v : hcs.memoryMapping) {
+          cout << "\t" << valueString(v.first) << " -> " << valueString(v.second) << endl;
+        }
+        Value* op = map_find(instr, hcs.memoryMapping);
+
+        assert(contains_key(op, hcs.memSpecs));
+        MemorySpec spec = map_find(op, hcs.memSpecs);
+        modName = spec.modSpec.name;
+        int dataWidth = spec.width;
+
+        int inputWidth = getValueBitWidth(instr->getOperand(0));
+
+        assert(inputWidth == dataWidth);
+
+        cout << "Got name forop" << endl;
+        unitName = memSrc;
+        // These names need to match names created in the portlist. So
+        // maybe this should be used to create the port list? Generate the
+        // names here and then write ports for them?
+        wiring = {{"wen", {true, 1, "wen_" + unitName + "_reg"}},
+                  {"waddr", {true, 32, "waddr_" + unitName + "_reg"}},
+                  {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}},
+                  {"raddr", {true, 32, "raddr_" + unitName + "_reg"}}};
+        outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
+
+      } else {
+        modName = "store";
+
+        int inputWidth = getValueBitWidth(instr->getOperand(0));
+
+            
+        // These names need to match names created in the portlist. So
+        // maybe this should be used to create the port list? Generate the
+        // names here and then write ports for them?
+        //string wStr = "0";
+        string wStr = to_string(writeNum);
+
+        unitName = string(instr->getOpcodeName()) + "_" + wStr;
+                                                                        
+        wiring = {{"wen", {true, 1, "wen_" + wStr + "_reg"}}, {"waddr", {true, 32, "waddr_" + wStr + "_reg"}}, {"wdata", {true, inputWidth, "wdata_" + wStr + "_reg"}}};
+        outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
+            
+        writeNum++;
+      }
+
+    } else if (LoadInst::classof(instr)) {
+
+      Value* memVal = map_find(instr, memSrcs);          
+      string memSrc = memName(instr, memSrcs, memNames);
+
+      // If we are loading from an internal RAM, not an argument
+      if (!Argument::classof(memVal)) {          
+        cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
+        Value* op = map_find(instr, hcs.memoryMapping);
+        assert(contains_key(op, hcs.memSpecs));
+        MemorySpec spec = map_find(op, hcs.memSpecs);
+        modName = spec.modSpec.name;
+
+        int dataWidth = spec.width;
+        int inputWidth = getValueBitWidth(instr);
+
+        assert(dataWidth == inputWidth);
+            
+        unitName = memSrc;
+
+        wiring = {{"raddr", {true, 32, "raddr_" + unitName + "_reg"}}, {"wen", {true, 1, "wen_" + unitName + "_reg"}}, {"waddr", {true, 32, "waddr_" + unitName + "_reg"}}, {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}}};
+        outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
+            
+      } else {
+
+        modName = "load";
+
+        unitName = string(instr->getOpcodeName()) + "_" + to_string(readNum);            
+        int inputWidth = getValueBitWidth(instr);
+        wiring = {{"raddr", {true, 32, "raddr_" + to_string(readNum) + "_reg"}}, {"ren", {true, 1, "ren_" + to_string(readNum) + "_reg"}}};
+        outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(readNum)}}};
+
+        readNum++;
+      }
+
+    } else if (BinaryOperator::classof(instr)) {
+      modName = binopName(instr);
+      int w0 = getValueBitWidth(instr->getOperand(0));
+      int w1 = getValueBitWidth(instr->getOperand(1));
+
+      assert(w0 == w1);
+
+      unitName = string(instr->getOpcodeName()) + "_" +
+        to_string(resSuffix);
+
+      string opCodeName = instr->getOpcodeName();
+      int width = getValueBitWidth(instr);
+      modParams = {{"WIDTH", to_string(width)}};
+      wiring = {{"in0", {true, width, opCodeName + "_in0_" + rStr}},
+                {"in1", {true, width, opCodeName + "_in1_" + rStr}}};
+      outWires = {{"out", {false, width, opCodeName + "_out_" + rStr}}};
+    } else if (ReturnInst::classof(instr)) {
+      modName = "ret";
+
+      wiring = {{"valid", {true, 1, "valid_reg"}}};
+      outWires = {};
+          
+    } else if (CmpInst::classof(instr)) {
+      CmpInst::Predicate pred = dyn_cast<CmpInst>(instr)->getPredicate();
+      modName = cmpName(pred);
+
+      int w0 = getValueBitWidth(instr->getOperand(0));
+      int w1 = getValueBitWidth(instr->getOperand(1));
+
+      assert(w0 == w1);
+
+      modParams = {{"WIDTH", to_string(w0)}};
+      wiring = {{"in0", {true, w0, "cmp_in0_" + rStr}}, {"in1", {true, w0, "cmp_in1_" + rStr}}};
+      outWires = {{"out", {false, 1, "cmp_out_" + rStr}}};
+          
+    } else if (BranchInst::classof(instr)) {
+      // Branches are not scheduled, they are encoded in the
+      // STG transitions
+      modName = "br_dummy";
+      unitName = "br_unit";
+    } else if (GetElementPtrInst::classof(instr)) {
+      modName = "getelementptr_" + to_string(instr->getNumOperands() - 1);
+      wiring = {{"base_addr", {true, 32, "base_addr_" + rStr}}};
+
+      for (int i = 1; i < (int) instr->getNumOperands(); i++) {
+        wiring.insert({"in" + to_string(i),
+              {true, 32, "gep_add_in" + to_string(i) + "_" + rStr}});
+      }
+      outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
+    } else if (PHINode::classof(instr)) {
+      PHINode* phi = dyn_cast<PHINode>(instr);
+
+      modName = "phi_" + to_string(phi->getNumIncomingValues());
+
+      wiring = {{"last_block", {true, 32, "phi_last_block_" + rStr}}};
+      for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
+        auto iStr = to_string(i);
+        wiring.insert({"s" + iStr, {true, 32, "phi_s" + iStr + "_" + rStr}});
+        wiring.insert({"in" + iStr, {true, 32, "phi_in" + iStr + "_" + rStr}});
+      }
+      outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
+
+    } else if (SelectInst::classof(instr)) {
+      modName = "select";
+      int w0 = getValueBitWidth(instr->getOperand(1));
+      int w1 = getValueBitWidth(instr->getOperand(2));
+
+      assert(w0 == w1);
+
+      modParams = {{"WIDTH", to_string(w0)}};
+      wiring = {{"in0", {true, w0, "sel_in0_" + rStr}},
+                {"in1", {true, w0, "sel_in1_" + rStr}},
+                {"sel", {true, 1, "sel_sel_" + rStr}}};
+      outWires = {{"out", {false, w0, "sel_out_" + rStr}}};
+            
+    } else if (AllocaInst::classof(instr)) {
+      // Create a memory module?
+
+    } else if (BitCastInst::classof(instr) ||
+               CallInst::classof(instr)) {
+      // TODO: Add test case that uses real function calls and casts
+      // No action for these instruction types (YET)
+    } else if (SExtInst::classof(instr)) {
+      modName = "sext";
+      wiring = {{"in", {true, 32, "sgt_in0_" + rStr}}};
+      outWires = {{"out", {false, 64, "sgt_out_" + rStr}}};
+          
+    } else {
+      cout << "Unsupported instruction = " << instructionString(instr) << endl;
+      assert(false);
+    }
+
+    FunctionalUnit unit = {{modParams, modName}, unitName, wiring, outWires};
+
+    return unit;
+  }
   
   std::map<Instruction*, FunctionalUnit>
   assignFunctionalUnits(const STG& stg,
@@ -328,193 +525,7 @@ namespace DHLS {
           to_string(resSuffix);
 
         string modName = "add";
-        map<string, string> modParams;
-
-        map<string, Wire> wiring;
-        map<string, Wire> outWires;
-
-        cout << "FU for Instruction " << valueString(instr) << endl;
-        if (StoreInst::classof(instr)) {
-
-          Value* memVal = map_find(instr, memSrcs);
-          string memSrc = memName(instr, memSrcs, memNames);
-
-          if (!Argument::classof(memVal)) {
-            cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
-            cout << "Getting underlying value" << endl;
-            for (auto v : hcs.memoryMapping) {
-              cout << "\t" << valueString(v.first) << " -> " << valueString(v.second) << endl;
-            }
-            Value* op = map_find(instr, hcs.memoryMapping);
-
-            assert(contains_key(op, hcs.memSpecs));
-            MemorySpec spec = map_find(op, hcs.memSpecs);
-            modName = spec.modSpec.name;
-            int dataWidth = spec.width;
-
-            int inputWidth = getValueBitWidth(instr->getOperand(0));
-
-            assert(inputWidth == dataWidth);
-
-            cout << "Got name forop" << endl;
-            unitName = memSrc;
-            // These names need to match names created in the portlist. So
-            // maybe this should be used to create the port list? Generate the
-            // names here and then write ports for them?
-            wiring = {{"wen", {true, 1, "wen_" + unitName + "_reg"}},
-                      {"waddr", {true, 32, "waddr_" + unitName + "_reg"}},
-                      {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}},
-                      {"raddr", {true, 32, "raddr_" + unitName + "_reg"}}};
-            outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
-
-          } else {
-            modName = "store";
-
-            int inputWidth = getValueBitWidth(instr->getOperand(0));
-
-            
-            // These names need to match names created in the portlist. So
-            // maybe this should be used to create the port list? Generate the
-            // names here and then write ports for them?
-            //string wStr = "0";
-            string wStr = to_string(writeNum);
-
-            unitName = string(instr->getOpcodeName()) + "_" + wStr;
-                                                                        
-            wiring = {{"wen", {true, 1, "wen_" + wStr + "_reg"}}, {"waddr", {true, 32, "waddr_" + wStr + "_reg"}}, {"wdata", {true, inputWidth, "wdata_" + wStr + "_reg"}}};
-            outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
-            
-            writeNum++;
-          }
-
-        } else if (LoadInst::classof(instr)) {
-
-          Value* memVal = map_find(instr, memSrcs);          
-          string memSrc = memName(instr, memSrcs, memNames);
-
-          // If we are loading from an internal RAM, not an argument
-          if (!Argument::classof(memVal)) {          
-            cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
-            Value* op = map_find(instr, hcs.memoryMapping);
-            assert(contains_key(op, hcs.memSpecs));
-            MemorySpec spec = map_find(op, hcs.memSpecs);
-            modName = spec.modSpec.name;
-
-            int dataWidth = spec.width;
-            int inputWidth = getValueBitWidth(instr);
-
-            assert(dataWidth == inputWidth);
-            
-            unitName = memSrc;
-
-            wiring = {{"raddr", {true, 32, "raddr_" + unitName + "_reg"}}, {"wen", {true, 1, "wen_" + unitName + "_reg"}}, {"waddr", {true, 32, "waddr_" + unitName + "_reg"}}, {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}}};
-            outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
-            
-          } else {
-
-            modName = "load";
-
-            unitName = string(instr->getOpcodeName()) + "_" + to_string(readNum);            
-            int inputWidth = getValueBitWidth(instr);
-            wiring = {{"raddr", {true, 32, "raddr_" + to_string(readNum) + "_reg"}}, {"ren", {true, 1, "ren_" + to_string(readNum) + "_reg"}}};
-            outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(readNum)}}};
-
-            readNum++;
-          }
-
-        } else if (BinaryOperator::classof(instr)) {
-          modName = binopName(instr);
-          int w0 = getValueBitWidth(instr->getOperand(0));
-          int w1 = getValueBitWidth(instr->getOperand(1));
-
-          assert(w0 == w1);
-
-          unitName = string(instr->getOpcodeName()) + "_" +
-            to_string(resSuffix);
-
-          string opCodeName = instr->getOpcodeName();
-          int width = getValueBitWidth(instr);
-          modParams = {{"WIDTH", to_string(width)}};
-          wiring = {{"in0", {true, width, opCodeName + "_in0_" + rStr}},
-                    {"in1", {true, width, opCodeName + "_in1_" + rStr}}};
-          outWires = {{"out", {false, width, opCodeName + "_out_" + rStr}}};
-        } else if (ReturnInst::classof(instr)) {
-          modName = "ret";
-
-          wiring = {{"valid", {true, 1, "valid_reg"}}};
-          outWires = {};
-          
-        } else if (CmpInst::classof(instr)) {
-          CmpInst::Predicate pred = dyn_cast<CmpInst>(instr)->getPredicate();
-          modName = cmpName(pred);
-
-          int w0 = getValueBitWidth(instr->getOperand(0));
-          int w1 = getValueBitWidth(instr->getOperand(1));
-
-          assert(w0 == w1);
-
-          modParams = {{"WIDTH", to_string(w0)}};
-          wiring = {{"in0", {true, w0, "cmp_in0_" + rStr}}, {"in1", {true, w0, "cmp_in1_" + rStr}}};
-          outWires = {{"out", {false, 1, "cmp_out_" + rStr}}};
-          
-        } else if (BranchInst::classof(instr)) {
-          // Branches are not scheduled, they are encoded in the
-          // STG transitions
-          modName = "br_dummy";
-          unitName = "br_unit";
-        } else if (GetElementPtrInst::classof(instr)) {
-          modName = "getelementptr_" + to_string(instr->getNumOperands() - 1);
-          wiring = {{"base_addr", {true, 32, "base_addr_" + rStr}}};
-
-          for (int i = 1; i < (int) instr->getNumOperands(); i++) {
-            wiring.insert({"in" + to_string(i),
-                  {true, 32, "gep_add_in" + to_string(i) + "_" + rStr}});
-          }
-          outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
-        } else if (PHINode::classof(instr)) {
-          PHINode* phi = dyn_cast<PHINode>(instr);
-
-          modName = "phi_" + to_string(phi->getNumIncomingValues());
-
-          wiring = {{"last_block", {true, 32, "phi_last_block_" + rStr}}};
-          for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
-            auto iStr = to_string(i);
-            wiring.insert({"s" + iStr, {true, 32, "phi_s" + iStr + "_" + rStr}});
-            wiring.insert({"in" + iStr, {true, 32, "phi_in" + iStr + "_" + rStr}});
-          }
-          outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
-
-        } else if (SelectInst::classof(instr)) {
-          modName = "select";
-          int w0 = getValueBitWidth(instr->getOperand(1));
-          int w1 = getValueBitWidth(instr->getOperand(2));
-
-          assert(w0 == w1);
-
-          modParams = {{"WIDTH", to_string(w0)}};
-          wiring = {{"in0", {true, w0, "sel_in0_" + rStr}},
-                    {"in1", {true, w0, "sel_in1_" + rStr}},
-                    {"sel", {true, 1, "sel_sel_" + rStr}}};
-          outWires = {{"out", {false, w0, "sel_out_" + rStr}}};
-            
-        } else if (AllocaInst::classof(instr)) {
-          // Create a memory module?
-
-        } else if (BitCastInst::classof(instr) ||
-                   CallInst::classof(instr)) {
-          // TODO: Add test case that uses real function calls and casts
-          // No action for these instruction types (YET)
-        } else if (SExtInst::classof(instr)) {
-            modName = "sext";
-            wiring = {{"in", {true, 32, "sgt_in0_" + rStr}}};
-            outWires = {{"out", {false, 64, "sgt_out_" + rStr}}};
-          
-        } else {
-          cout << "Unsupported instruction = " << instructionString(instr) << endl;
-          assert(false);
-        }
-
-        FunctionalUnit unit = {{modParams, modName}, unitName, wiring, outWires};
+        auto unit = createUnit(modName, unitName, memNames, memSrcs, hcs, instr);
         allUnits.insert({unit.instName, unit});
         units[instr] = unit;
 
