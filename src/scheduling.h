@@ -106,6 +106,10 @@ namespace DHLS {
 
     int getLatency(llvm::Instruction* iptr) const;
 
+    bool isLimitedResource(const OperationType op) const {
+      return dbhc::contains_key(op, counts);
+    }
+
     int getCount(const OperationType op) const {
       // If not explicitly constrained we have an infinite number
       if (!dbhc::contains_key(op, counts)) {
