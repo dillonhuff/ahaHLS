@@ -528,9 +528,10 @@ namespace DHLS {
       cout << tab(1) << instructionString(src.first) << " -> " << src.second << endl;
     }
 
+    int resSuffix = 0;    
     for (auto state : stg.opStates) {
 
-      int resSuffix = 0;
+
       int readNum = 0;
       int writeNum = 0;
 
