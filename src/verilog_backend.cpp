@@ -531,8 +531,7 @@ namespace DHLS {
     int resSuffix = 0;    
     for (auto state : stg.opStates) {
 
-
-      int readNum = 0;
+      int readNum = 0; // Keeping these state-unique
       int writeNum = 0;
 
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
