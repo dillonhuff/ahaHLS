@@ -285,6 +285,13 @@ namespace DHLS {
     return modName;
   }
 
+  bool canUseFor(const FunctionalUnit& unit, llvm::Instruction* const instr) {
+    if (GetElementPtrInst::classof(instr)) {
+      return false;
+    }
+    return true;
+  }
+  
   FunctionalUnit createUnit(std::string modName,
                             std::string unitName,
                             map<Value*, std::string>& memNames,
@@ -293,8 +300,18 @@ namespace DHLS {
                             int& resSuffix,
                             int& readNum,
                             int& writeNum,
-                            llvm::Instruction* instr) {
+                            llvm::Instruction* instr,
+                            std::map<string, FunctionalUnit>& allUnits) {
 
+    // TODO: Should really scan allUnits for any re-usable unit
+    if (contains_key(unitName, allUnits)) {
+      cout << "Trying to re-use functional unit" << endl;
+
+      if (canUseFor(map_find(unitName, allUnits), instr)) {
+        return map_find(unitName, allUnits);
+      }
+    }
+    
     auto rStr = to_string(resSuffix);
     map<string, string> modParams;
 
@@ -522,16 +539,15 @@ namespace DHLS {
         Instruction* instr = instrG.instruction;
         auto rStr = to_string(resSuffix);
 
-        // For loads and stores the name of the assigned functional unit
-        // needs to be determined by looking at the argument to the load
-        // or store and checking if it is an argument to the function
-        // or an internally declared RAM
         string unitName = string(instr->getOpcodeName()) + "_" +
           to_string(resSuffix);
 
         string modName = "add";
-        auto unit = createUnit(modName, unitName, memNames, memSrcs, hcs, resSuffix, readNum, writeNum, instr);
-        allUnits.insert({unit.instName, unit});
+        auto unit = createUnit(modName, unitName, memNames, memSrcs, hcs, resSuffix, readNum, writeNum, instr, allUnits);
+        // If we are using an old functional unit dont add it to allUnits again
+        if (!contains_key(unit.instName, allUnits)) {
+          allUnits.insert({unit.instName, unit});
+        }
         units[instr] = unit;
 
         resSuffix++;
