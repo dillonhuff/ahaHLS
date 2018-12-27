@@ -290,7 +290,12 @@ namespace DHLS {
                             map<Value*, std::string>& memNames,
                             map<Instruction*, Value*>& memSrcs,
                             HardwareConstraints& hcs,
+                            int& resSuffix,
+                            int& readNum,
+                            int& writeNum,
                             llvm::Instruction* instr) {
+
+    auto rStr = to_string(resSuffix);
     map<string, string> modParams;
 
     map<string, Wire> wiring;
@@ -525,7 +530,7 @@ namespace DHLS {
           to_string(resSuffix);
 
         string modName = "add";
-        auto unit = createUnit(modName, unitName, memNames, memSrcs, hcs, instr);
+        auto unit = createUnit(modName, unitName, memNames, memSrcs, hcs, resSuffix, readNum, writeNum, instr);
         allUnits.insert({unit.instName, unit});
         units[instr] = unit;
 
