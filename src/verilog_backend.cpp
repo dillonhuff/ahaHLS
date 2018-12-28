@@ -296,7 +296,6 @@ namespace DHLS {
                             map<Value*, std::string>& memNames,
                             map<Instruction*, Value*>& memSrcs,
                             HardwareConstraints& hcs,
-                            int resSuffix,
                             int& readNum,
                             int& writeNum,
                             llvm::Instruction* instr,
@@ -564,7 +563,7 @@ namespace DHLS {
         // }
 
         // Create new functional unit
-        auto unit = createUnit(unitName, memNames, memSrcs, hcs, resSuffix, readNum, writeNum, instr, allUnits);
+        auto unit = createUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr, allUnits);
         // If we are using an old functional unit dont add it to allUnits again
         if (!contains_key(unit.instName, allUnits)) {
           allUnits.insert({unit.instName, unit});
