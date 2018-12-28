@@ -298,8 +298,8 @@ namespace DHLS {
                                HardwareConstraints& hcs,
                                int& readNum,
                                int& writeNum,
-                               llvm::Instruction* instr,
-                               std::map<string, FunctionalUnit>& allUnits) {
+                               llvm::Instruction* instr) {
+                               //std::map<string, FunctionalUnit>& allUnits) {
     assert(LoadInst::classof(instr) || StoreInst::classof(instr));
     string modName = "add";
 
@@ -409,16 +409,16 @@ namespace DHLS {
                             HardwareConstraints& hcs,
                             int& readNum,
                             int& writeNum,
-                            llvm::Instruction* instr,
-                            std::map<string, FunctionalUnit>& allUnits) {
-    // TODO: Should really scan allUnits for any re-usable unit
-    if (contains_key(unitName, allUnits)) {
-      cout << "Trying to re-use functional unit" << endl;
+                            llvm::Instruction* instr) {
+                            //std::map<string, FunctionalUnit>& allUnits) {
+    // // TODO: Should really scan allUnits for any re-usable unit
+    // if (contains_key(unitName, allUnits)) {
+    //   cout << "Trying to re-use functional unit" << endl;
 
-      if (canUseFor(map_find(unitName, allUnits), instr)) {
-        return map_find(unitName, allUnits);
-      }
-    }
+    //   if (canUseFor(map_find(unitName, allUnits), instr)) {
+    //     return map_find(unitName, allUnits);
+    //   }
+    // }
 
     string modName = "add";
 
@@ -431,7 +431,7 @@ namespace DHLS {
     cout << "FU for Instruction " << valueString(instr) << endl;
 
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
-      return createMemUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr, allUnits);
+      return createMemUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
     } else if (BinaryOperator::classof(instr)) {
       modName = binopName(instr);
       int w0 = getValueBitWidth(instr->getOperand(0));
@@ -506,10 +506,8 @@ namespace DHLS {
                 {"sel", {true, 1, "sel_sel_" + rStr}}};
       outWires = {{"out", {false, w0, "sel_out_" + rStr}}};
             
-    } else if (AllocaInst::classof(instr)) {
-      // Create a memory module?
-
-    } else if (BitCastInst::classof(instr) ||
+    } else if (AllocaInst::classof(instr) ||
+               BitCastInst::classof(instr) ||
                CallInst::classof(instr)) {
       // TODO: Add test case that uses real function calls and casts
       // No action for these instruction types (YET)
@@ -588,7 +586,7 @@ namespace DHLS {
         // }
 
         // Create new functional unit
-        auto unit = createUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr, allUnits);
+        auto unit = createUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
         // If we are using an old functional unit dont add it to allUnits again
         if (!contains_key(unit.instName, allUnits)) {
           allUnits.insert({unit.instName, unit});
