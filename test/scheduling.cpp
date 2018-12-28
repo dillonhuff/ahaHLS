@@ -403,8 +403,8 @@ namespace DHLS {
 
     REQUIRE(graph.pipelines.size() == 1);
     REQUIRE(graph.pipelines[0].depth() == 5);
-    
-    //map<string, int> layout = {{"a", 0}, {"b", 10}};
+    REQUIRE(graph.pipelines[0].II() == 1);
+
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
     emitVerilog(f, graph, layout);
 
@@ -454,6 +454,7 @@ namespace DHLS {
 
     REQUIRE(graph.pipelines.size() == 1);
     REQUIRE(graph.pipelines[0].depth() == 5);
+    REQUIRE(graph.pipelines[0].II() == 1);
     
     //map<string, int> layout = {{"a", 0}, {"b", 10}};
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
@@ -516,8 +517,8 @@ namespace DHLS {
 
     REQUIRE(graph.pipelines.size() == 1);
     REQUIRE(graph.pipelines[0].depth() == 5);
-    
-    //map<string, int> layout = {{"a", 0}, {"b", 10}};
+    REQUIRE(graph.pipelines[0].II() == 1);
+
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
     emitVerilog(f, graph, layout);
 
