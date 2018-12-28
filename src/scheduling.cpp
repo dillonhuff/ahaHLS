@@ -762,17 +762,23 @@ namespace DHLS {
     DominatorTree domTree(*f);
     for (auto& bb : f->getBasicBlockList()) {
       if (elem(&bb, toPipeline)) {
+        auto II = map_find(&bb, IIs).at(0);
+
         for (Instruction& instrA : bb) {
           for (Instruction& instrB : bb) {
             int rawDD = rawOperandDD(&instrA, &instrB, domTree);
-            cout << "Raw operand DD between " << valueString(&instrA) << " and " << valueString(&instrB) << " = " << rawDD << endl;
+            if (rawDD > 0) {
+              s.add(instrEnd(&instrA, schedVars) < II*rawDD + instrStart(&instrB, schedVars));
+            }
+
+            //cout << "Raw operand DD between " << valueString(&instrA) << " and " << valueString(&instrB) << " = " << rawDD << endl;
           }
         }
       }
     }
 
-    // cout << "Solver constraints" << endl;
-    // cout << s << endl;
+    cout << "Solver constraints" << endl;
+    cout << s << endl;
     return buildFromModel(s, schedVars, blockVars, IIs);
   }
   
