@@ -316,10 +316,10 @@ namespace DHLS {
 
       if (!Argument::classof(memVal)) {
         cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
-        cout << "Getting underlying value" << endl;
-        for (auto v : hcs.memoryMapping) {
-          cout << "\t" << valueString(v.first) << " -> " << valueString(v.second) << endl;
-        }
+        // cout << "Getting underlying value" << endl;
+        // for (auto v : hcs.memoryMapping) {
+        //   cout << "\t" << valueString(v.first) << " -> " << valueString(v.second) << endl;
+        // }
         Value* op = map_find(instr, hcs.memoryMapping);
 
         assert(contains_key(op, hcs.memSpecs));
