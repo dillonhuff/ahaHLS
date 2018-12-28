@@ -410,19 +410,10 @@ namespace DHLS {
                             int& readNum,
                             int& writeNum,
                             llvm::Instruction* instr) {
-                            //std::map<string, FunctionalUnit>& allUnits) {
-    // // TODO: Should really scan allUnits for any re-usable unit
-    // if (contains_key(unitName, allUnits)) {
-    //   cout << "Trying to re-use functional unit" << endl;
-
-    //   if (canUseFor(map_find(unitName, allUnits), instr)) {
-    //     return map_find(unitName, allUnits);
-    //   }
-    // }
 
     string modName = "add";
 
-    auto rStr = unitName; //to_string(resSuffix);
+    auto rStr = unitName;
     map<string, string> modParams;
 
     map<string, Wire> wiring;
