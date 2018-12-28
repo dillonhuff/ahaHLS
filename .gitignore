@@ -70,3 +70,4 @@ bb_diamond*
 mem_16_test*
 tf
 shift_register*
+constrained_pipe*
