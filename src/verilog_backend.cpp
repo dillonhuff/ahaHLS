@@ -291,34 +291,24 @@ namespace DHLS {
     }
     return true;
   }
-  
-  FunctionalUnit createUnit(std::string unitName,
-                            map<Value*, std::string>& memNames,
-                            map<Instruction*, Value*>& memSrcs,
-                            HardwareConstraints& hcs,
-                            int& readNum,
-                            int& writeNum,
-                            llvm::Instruction* instr,
-                            std::map<string, FunctionalUnit>& allUnits) {
 
-    // TODO: Should really scan allUnits for any re-usable unit
-    if (contains_key(unitName, allUnits)) {
-      cout << "Trying to re-use functional unit" << endl;
-
-      if (canUseFor(map_find(unitName, allUnits), instr)) {
-        return map_find(unitName, allUnits);
-      }
-    }
-
+  FunctionalUnit createMemUnit(std::string unitName,
+                               map<Value*, std::string>& memNames,
+                               map<Instruction*, Value*>& memSrcs,
+                               HardwareConstraints& hcs,
+                               int& readNum,
+                               int& writeNum,
+                               llvm::Instruction* instr,
+                               std::map<string, FunctionalUnit>& allUnits) {
+    assert(LoadInst::classof(instr) || StoreInst::classof(instr));
     string modName = "add";
 
-    auto rStr = unitName; //to_string(resSuffix);
+    auto rStr = unitName;
     map<string, string> modParams;
 
     map<string, Wire> wiring;
     map<string, Wire> outWires;
 
-    cout << "FU for Instruction " << valueString(instr) << endl;
     if (StoreInst::classof(instr)) {
 
       Value* memVal = map_find(instr, memSrcs);
@@ -407,6 +397,41 @@ namespace DHLS {
         readNum++;
       }
 
+    }
+
+    FunctionalUnit unit = {{modParams, modName}, unitName, wiring, outWires};
+    return unit;
+  }
+  
+  FunctionalUnit createUnit(std::string unitName,
+                            map<Value*, std::string>& memNames,
+                            map<Instruction*, Value*>& memSrcs,
+                            HardwareConstraints& hcs,
+                            int& readNum,
+                            int& writeNum,
+                            llvm::Instruction* instr,
+                            std::map<string, FunctionalUnit>& allUnits) {
+    // TODO: Should really scan allUnits for any re-usable unit
+    if (contains_key(unitName, allUnits)) {
+      cout << "Trying to re-use functional unit" << endl;
+
+      if (canUseFor(map_find(unitName, allUnits), instr)) {
+        return map_find(unitName, allUnits);
+      }
+    }
+
+    string modName = "add";
+
+    auto rStr = unitName; //to_string(resSuffix);
+    map<string, string> modParams;
+
+    map<string, Wire> wiring;
+    map<string, Wire> outWires;
+
+    cout << "FU for Instruction " << valueString(instr) << endl;
+
+    if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
+      return createMemUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr, allUnits);
     } else if (BinaryOperator::classof(instr)) {
       modName = binopName(instr);
       int w0 = getValueBitWidth(instr->getOperand(0));
