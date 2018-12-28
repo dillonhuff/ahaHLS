@@ -70,7 +70,7 @@ namespace DHLS {
     }
     
     virtual bool runOnFunction(Function &F) override {
-      errs() << "I saw a function called " << F.getName() << "!\n";
+      //errs() << "I saw a function called " << F.getName() << "!\n";
 
       if (&F != target) {
         return false;
@@ -555,8 +555,7 @@ namespace DHLS {
     }
 
 
-    // TODO: 1. Add dependence distance analysis to II
-    
+    // TODO: 1. Add memory dependence distance analysis to II
     map<BasicBlock*, vector<expr> > IIs;
     int i = 0;
     for (auto bb : toPipeline) {
@@ -588,12 +587,12 @@ namespace DHLS {
         for (auto* nextBB : dyn_cast<TerminatorInst>(term)->successors()) {
           if (!elem(nextBB, alreadyVisited)) {
 
-            // TODO: Remove redundant if statement here?
-            if (elem(nextBB, toPipeline) || elem(next, toPipeline)) {
-              s.add(blockSink(next, blockVars) < blockSource(nextBB, blockVars));
-            } else {
-              s.add(blockSink(next, blockVars) < blockSource(nextBB, blockVars));
-            }
+            // // TODO: Remove redundant if statement here?
+            // if (elem(nextBB, toPipeline) || elem(next, toPipeline)) {
+            //   s.add(blockSink(next, blockVars) < blockSource(nextBB, blockVars));
+            // } else {
+            s.add(blockSink(next, blockVars) < blockSource(nextBB, blockVars));
+              //}
 
 
             // next is a predecessor of nextBB
