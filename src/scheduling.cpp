@@ -770,8 +770,6 @@ namespace DHLS {
             if (rawDD > 0) {
               s.add(instrEnd(&instrA, schedVars) < II*rawDD + instrStart(&instrB, schedVars));
             }
-
-            //cout << "Raw operand DD between " << valueString(&instrA) << " and " << valueString(&instrB) << " = " << rawDD << endl;
           }
         }
       }
