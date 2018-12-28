@@ -557,14 +557,14 @@ namespace DHLS {
 
         string modName = "add";
 
-        int resS = resSuffix;
-        // If the resource is not limited then use a global identifier
-        if (!hcs.isLimitedResource(opType(instr))) {
-          resS = globalSuffix;
-        }
+        // int resS = resSuffix;
+        // // If the resource is not limited then use a global identifier
+        // if (!hcs.isLimitedResource(opType(instr))) {
+        //   resS = globalSuffix;
+        // }
 
         // Create new functional unit
-        auto unit = createUnit(modName, unitName, memNames, memSrcs, hcs, resS, readNum, writeNum, instr, allUnits);
+        auto unit = createUnit(modName, unitName, memNames, memSrcs, hcs, resSuffix, readNum, writeNum, instr, allUnits);
         // If we are using an old functional unit dont add it to allUnits again
         if (!contains_key(unit.instName, allUnits)) {
           allUnits.insert({unit.instName, unit});
