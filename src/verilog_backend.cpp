@@ -544,10 +544,10 @@ namespace DHLS {
       }
     }
 
-    cout << "-- Memory sources" << endl;
-    for (auto src : memSrcs) {
-      cout << tab(1) << instructionString(src.first) << " -> " << src.second << endl;
-    }
+    // cout << "-- Memory sources" << endl;
+    // for (auto src : memSrcs) {
+    //   cout << tab(1) << instructionString(src.first) << " -> " << src.second << endl;
+    // }
 
     // This code is really a mess. What are the problems?
     //   1. Reads / writes are handled differently from other functional units
@@ -562,28 +562,28 @@ namespace DHLS {
     //  2. Internal (adders) vs external (memories)
     //  3. Creating predictable API for external resources
     //  4. Units that handle more than one operation per cycle on different ports
-    //int globalSuffix = 0;
 
-    int resSuffix = 0;
+    int globalSuffix = 0;
+
     for (auto state : stg.opStates) {
 
-      int readNum = 0; // Keeping these state-unique
+      int readNum = 0; // Keeping these state-unique, need global suffix as well
       int writeNum = 0;
-
-
+      int resSuffix = 0;
+    
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
 
         Instruction* instr = instrG.instruction;
+
+        // int resS = resSuffix;
         auto rStr = to_string(resSuffix);
+        if (!hcs.isLimitedResource(opType(instr))) {
+          rStr = to_string(globalSuffix);
+        }
+
 
         string unitName = string(instr->getOpcodeName()) + "_" +
           to_string(resSuffix);
-
-        // int resS = resSuffix;
-        // // If the resource is not limited then use a global identifier
-        // if (!hcs.isLimitedResource(opType(instr))) {
-        //   resS = globalSuffix;
-        // }
 
         // Create new functional unit
         auto unit = createUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
@@ -594,7 +594,7 @@ namespace DHLS {
         units[instr] = unit;
 
         resSuffix++;
-        //globalSuffix++;
+        globalSuffix++;
       }
     }
     
