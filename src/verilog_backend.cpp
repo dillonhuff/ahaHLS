@@ -299,7 +299,7 @@ namespace DHLS {
                                int& readNum,
                                int& writeNum,
                                llvm::Instruction* instr) {
-                               //std::map<string, FunctionalUnit>& allUnits) {
+
     assert(LoadInst::classof(instr) || StoreInst::classof(instr));
     string modName = "add";
 
@@ -521,7 +521,6 @@ namespace DHLS {
                         HardwareConstraints& hcs) {
 
     std::map<Instruction*, FunctionalUnit> units;
-    std::map<string, FunctionalUnit> allUnits;
 
     auto memSrcs = memoryOpLocations(stg.getFunction());
     map<Value*, std::string> memNames;
@@ -560,14 +559,8 @@ namespace DHLS {
         }
 
         string unitName = string(instr->getOpcodeName()) + "_" + rStr;
-        //to_string(resSuffix);
-
-        // Create new functional unit
-        auto unit = createUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
-        // If we are using an old functional unit dont add it to allUnits again
-        if (!contains_key(unit.instName, allUnits)) {
-          allUnits.insert({unit.instName, unit});
-        }
+        auto unit =
+          createUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
         units[instr] = unit;
 
         resSuffix++;
