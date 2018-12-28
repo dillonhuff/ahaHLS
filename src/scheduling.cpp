@@ -670,7 +670,6 @@ namespace DHLS {
               Value* storeLoc = instr.getOperand(1);
               Value* loadLoc = otherInstr.getOperand(0);
               
-              //AliasResult aliasRes = aliasAnalysis.alias(&instr, &otherInstr);
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
               if (aliasRes != NoAlias) {
                 cout << valueString(&instr) << " and " << valueString(&otherInstr) << " can alias" << endl;
