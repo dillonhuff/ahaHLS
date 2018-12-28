@@ -292,8 +292,7 @@ namespace DHLS {
     return true;
   }
   
-  FunctionalUnit createUnit(std::string modName,
-                            std::string unitName,
+  FunctionalUnit createUnit(std::string unitName,
                             map<Value*, std::string>& memNames,
                             map<Instruction*, Value*>& memSrcs,
                             HardwareConstraints& hcs,
@@ -311,8 +310,10 @@ namespace DHLS {
         return map_find(unitName, allUnits);
       }
     }
-    
-    auto rStr = to_string(resSuffix);
+
+    string modName = "add";
+
+    auto rStr = unitName; //to_string(resSuffix);
     map<string, string> modParams;
 
     map<string, Wire> wiring;
@@ -492,7 +493,6 @@ namespace DHLS {
       modName = "sext";
       wiring = {{"in", {true, 32, "sgt_in0_" + rStr}}};
       outWires = {{"out", {false, 64, "sgt_out_" + rStr}}};
-          
     } else {
       cout << "Unsupported instruction = " << instructionString(instr) << endl;
       assert(false);
@@ -540,12 +540,14 @@ namespace DHLS {
     //  2. Internal (adders) vs external (memories)
     //  3. Creating predictable API for external resources
     //  4. Units that handle more than one operation per cycle on different ports
-    int globalSuffix = 0;
+    //int globalSuffix = 0;
+
+    int resSuffix = 0;
     for (auto state : stg.opStates) {
 
       int readNum = 0; // Keeping these state-unique
       int writeNum = 0;
-      int resSuffix = 0;    
+
 
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
 
@@ -555,8 +557,6 @@ namespace DHLS {
         string unitName = string(instr->getOpcodeName()) + "_" +
           to_string(resSuffix);
 
-        string modName = "add";
-
         // int resS = resSuffix;
         // // If the resource is not limited then use a global identifier
         // if (!hcs.isLimitedResource(opType(instr))) {
@@ -564,7 +564,7 @@ namespace DHLS {
         // }
 
         // Create new functional unit
-        auto unit = createUnit(modName, unitName, memNames, memSrcs, hcs, resSuffix, readNum, writeNum, instr, allUnits);
+        auto unit = createUnit(unitName, memNames, memSrcs, hcs, resSuffix, readNum, writeNum, instr, allUnits);
         // If we are using an old functional unit dont add it to allUnits again
         if (!contains_key(unit.instName, allUnits)) {
           allUnits.insert({unit.instName, unit});
@@ -572,7 +572,7 @@ namespace DHLS {
         units[instr] = unit;
 
         resSuffix++;
-        globalSuffix++;
+        //globalSuffix++;
       }
     }
     
