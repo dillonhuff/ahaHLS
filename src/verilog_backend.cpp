@@ -544,23 +544,10 @@ namespace DHLS {
       }
     }
 
-    // cout << "-- Memory sources" << endl;
-    // for (auto src : memSrcs) {
-    //   cout << tab(1) << instructionString(src.first) << " -> " << src.second << endl;
-    // }
-
-    // This code is really a mess. What are the problems?
-    //   1. Reads / writes are handled differently from other functional units
-    //   2. createUnit has a huge number of arguments, many of which I dont think
-    //      are really needed
-    //   3. read and write number increments could probably be moved outside of createUnit
-    //   4. Names uniquely identify functional units, but name creation and functional
-    //      unit create are done in different functions
-
     // A few issues:
     //  1. Limited vs unlimited
-    //  2. Internal (adders) vs external (memories)
-    //  3. Creating predictable API for external resources
+    //  2. Internal (adders) vs external (some memories)
+    //  3. Creating predictable API for external resource ports
     //  4. Units that handle more than one operation per cycle on different ports
 
     int globalSuffix = 0;
@@ -581,9 +568,8 @@ namespace DHLS {
           rStr = to_string(globalSuffix);
         }
 
-
-        string unitName = string(instr->getOpcodeName()) + "_" +
-          to_string(resSuffix);
+        string unitName = string(instr->getOpcodeName()) + "_" + rStr;
+        //to_string(resSuffix);
 
         // Create new functional unit
         auto unit = createUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
