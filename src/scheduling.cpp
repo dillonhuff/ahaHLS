@@ -505,7 +505,7 @@ namespace DHLS {
             // // TODO: Change this check to respect the partial order computed
             // // in STG dependency construction
 
-            if (!elem(predBB, alreadyVisited)) { // && (predBB != next)) {
+            if (!elem(predBB, alreadyVisited)) {
               allPredsAdded = false;
               break;
             }
@@ -515,7 +515,6 @@ namespace DHLS {
         if (allPredsAdded) {
           sortedOrder.push_back(next);
           alreadyVisited.insert(next);
-          //toVisit.erase(next);
         }
       }
     }
@@ -523,6 +522,32 @@ namespace DHLS {
     return sortedOrder;
   }
 
+  int rawOperandDD(Instruction* const maybeWriter,
+                   Instruction* const maybeReader,
+                   DominatorTree& domTree) {
+    assert(maybeWriter->getParent() == maybeReader->getParent());
+
+    bool readerReadsWriter = false;
+    for (unsigned i = 0; i < maybeReader->getNumOperands(); i++) {
+      Value* op = maybeReader->getOperand(i);
+      if (op == maybeWriter) {
+        readerReadsWriter = true;
+        break;
+      }
+    }
+
+    if (!readerReadsWriter) {
+      return -1;
+    }
+
+    // Does instrA write a value instrB reads?
+    if (!domTree.dominates(maybeWriter, maybeReader)) {
+      return 1;
+    }
+
+    return 0;
+  }
+  
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
                             std::set<BasicBlock*>& toPipeline,
@@ -730,6 +755,18 @@ namespace DHLS {
 
           }
 
+        }
+      }
+    }
+
+    DominatorTree domTree(*f);
+    for (auto& bb : f->getBasicBlockList()) {
+      if (elem(&bb, toPipeline)) {
+        for (Instruction& instrA : bb) {
+          for (Instruction& instrB : bb) {
+            int rawDD = rawOperandDD(&instrA, &instrB, domTree);
+            cout << "Raw operand DD between " << valueString(&instrA) << " and " << valueString(&instrB) << " = " << rawDD << endl;
+          }
         }
       }
     }
