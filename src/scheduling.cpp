@@ -559,7 +559,7 @@ namespace DHLS {
     context c;
     solver s(c);
 
-    cout << "Starting to make schedule" << endl;
+    //cout << "Starting to make schedule" << endl;
 
     int blockNo = 0;
     for (auto& bb : f->getBasicBlockList()) {
@@ -571,12 +571,12 @@ namespace DHLS {
                       hdc,
                       blockNo);
 
-      cout << "Added schedule vars" << endl;
+      //cout << "Added schedule vars" << endl;
 
       addBlockConstraints(bb, s, blockVars, schedVars);
-      cout << "Added block constraints" << endl;
+      //cout << "Added block constraints" << endl;
       addLatencyConstraints(bb, s, schedVars, blockVars);
-      cout << "Added latency constraints" << endl;
+      //cout << "Added latency constraints" << endl;
     }
 
 
@@ -590,7 +590,7 @@ namespace DHLS {
       i++;
     }
     
-    cout << "Created schedule vars" << endl;
+    //cout << "Created schedule vars" << endl;
 
     // Connect the control edges
     std::deque<BasicBlock*> toVisit{&(f->getEntryBlock())};
@@ -630,16 +630,16 @@ namespace DHLS {
     }
     std::vector<BasicBlock*> sortedBlocks =
       topologicalSortOfBlocks(f, controlPredecessors);
-    cout << "Basic block order " << endl;
+    //cout << "Basic block order " << endl;
     
     for (int i = 0; i < (int) sortedBlocks.size() - 1; i++) {
       auto next = sortedBlocks[i];
       auto nextBB = sortedBlocks[i + 1];
       s.add(blockSink(next, blockVars) < blockSource(nextBB, blockVars));
     }
-    cout << "Added control edges" << endl;    
+    //cout << "Added control edges" << endl;    
 
-    cout << "Adding memory control" << endl;
+    //cout << "Adding memory control" << endl;
 
     // Instructions must finish before their dependencies
     for (auto& bb : f->getBasicBlockList()) {
@@ -686,7 +686,7 @@ namespace DHLS {
       }
     }
 
-    cout << "Added data dependencies" << endl;    
+    //cout << "Added data dependencies" << endl;    
 
     // Add partial order constraints to respect resource constraints
     for (auto& bb : f->getBasicBlockList()) {

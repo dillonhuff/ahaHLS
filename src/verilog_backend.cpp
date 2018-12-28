@@ -415,7 +415,7 @@ namespace DHLS {
     map<string, Wire> wiring;
     map<string, Wire> outWires;
 
-    cout << "FU for Instruction " << valueString(instr) << endl;
+    //cout << "FU for Instruction " << valueString(instr) << endl;
 
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
       return createMemUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
@@ -718,7 +718,7 @@ namespace DHLS {
                          std::map<llvm::Value*, int>& memoryMap) {
                          //std::map<std::string, int>& memoryMap) {
                          //const std::vector<RAM>& rams) {
-    cout << "Getting output" << endl;
+    //cout << "Getting output" << endl;
     
     if (Instruction::classof(arg0)) {
 
