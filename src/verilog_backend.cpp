@@ -552,7 +552,6 @@ namespace DHLS {
 
         Instruction* instr = instrG.instruction;
 
-        // int resS = resSuffix;
         auto rStr = to_string(resSuffix);
         if (!hcs.isLimitedResource(opType(instr))) {
           rStr = to_string(globalSuffix);
