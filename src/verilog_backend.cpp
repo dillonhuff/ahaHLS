@@ -1155,7 +1155,15 @@ namespace DHLS {
   void emitConditionalInstruction(std::ostream& out,
                                   GuardedInstruction& instrG,
                                   const StateId state,
+                                  ElaboratedPipeline& p,
+                                  const int i,
                                   MicroArchitecture& arch) {
+
+    Wire valid = p.valids[i];
+    
+    out << "\talways @(*) begin" << endl;
+    out << "\t\tif (" << p.inPipe.name << " && " << valid.name << ") begin" << endl;
+
     out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
 
     instructionVerilog(out, instrG.instruction, arch);
@@ -1174,44 +1182,13 @@ namespace DHLS {
     out << "\t// Start pipeline stages" << endl;
     for (auto p : pipelines) {
 
-      Wire valid = p.valids[0];
-      StateId state = p.p.getStates().at(0);
-      out << "\talways @(*) begin" << endl;
-      out << "\t\tif (" << p.inPipe.name << " && " << valid.name << ") begin" << endl;
-
-      auto instrG = p.exitBranch;
-      //Instruction* instr = instrG.instruction;
-
-      emitConditionalInstruction(out, instrG, state, arch);
-      // out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
-
-      // instructionVerilog(out, instr, arch);
-
-      // out << "\t\t\tend" << endl;
-      // out << "\t\tend" << endl;
-      // out << "\tend" << endl;
-
       for (int i = 0; i < (int) p.valids.size(); i++) {
         Wire valid = p.valids[i];
         StateId state = p.p.getStates().at(i);
 
         // Omit branch code on last stage
         for (auto instrG : arch.stg.instructionsStartingAt(state)) {
-          out << "\talways @(*) begin" << endl;
-          out << "\t\tif (" << p.inPipe.name << " && " << valid.name << ") begin" << endl;
-
-          emitConditionalInstruction(out, instrG, state, arch);
-
-          // Instruction* instr = instrG.instruction;
-
-          // out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
-
-          
-          // instructionVerilog(out, instr, arch);
-
-          // out << "\t\t\tend" << endl;
-          // out << "\t\tend" << endl;
-          // out << "\tend" << endl;
+          emitConditionalInstruction(out, instrG, state, p, i, arch);
         }
       }
     }
