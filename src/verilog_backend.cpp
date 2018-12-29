@@ -926,11 +926,10 @@ namespace DHLS {
 
       Value* falseVal = sel->getFalseValue();
       string falseName = outputName(falseVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);      
-      
-      out << "\t\t\t" << addUnit.portWires["in0"].name << " = " << falseName << ";" << endl;
-      out << "\t\t\t" << addUnit.portWires["in1"].name << " = " << trueName << ";" << endl;
 
-      out << "\t\t\t" << addUnit.portWires["sel"].name << " = " << condName << ";" << endl;
+      assignments.insert({addUnit.portWires["in0"].name, falseName});
+      assignments.insert({addUnit.portWires["in1"].name, trueName});
+      assignments.insert({addUnit.portWires["sel"].name, condName});            
 
     } else if (AllocaInst::classof(instr) ||
                CallInst::classof(instr) ||
@@ -942,7 +941,8 @@ namespace DHLS {
       Value* trueVal = instr->getOperand(0);
       string trueName = outputName(trueVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
-      out << "\t\t\t" << addUnit.portWires["in"].name << " = " << trueName << ";" << endl;
+      assignments.insert({addUnit.portWires["in"].name, trueName});
+      //out << "\t\t\t" << addUnit.portWires["in"].name << " = " << trueName << ";" << endl;
 
     } else {
 
