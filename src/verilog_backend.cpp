@@ -634,8 +634,6 @@ namespace DHLS {
       // The "name" of an argument is the string representation of its
       // address in memory
       return to_string(map_find(arg0, memoryMap));
-      // string name = arg0->getName();
-      // return to_string(map_find(name, memoryMap));
     } else {
       assert(ConstantInt::classof(arg0));
       auto arg0C = dyn_cast<ConstantInt>(arg0);
@@ -697,15 +695,13 @@ namespace DHLS {
 
   }
 
-  // Random thought: Infinite streams + address generation?
-  // Is that another way to think about what halide is doing?
-  
   std::string outputName(Value* arg0,
                          Instruction* instr,
                          const STG& stg,
                          map<Instruction*, FunctionalUnit>& unitAssignment,
                          map<Instruction*, Wire>& names,
                          std::map<llvm::Value*, int>& memoryMap) {
+
     
     if (Instruction::classof(arg0)) {
 
@@ -741,12 +737,6 @@ namespace DHLS {
           return tmpRes.name;
         }
         
-        // auto unit0Src =
-        //   map_find(instr0, unitAssignment);
-        // assert(unit0Src.outWires.size() == 1);
-        // string arg0Name = unit0Src.onlyOutputVar();
-        // return arg0Name;
-        
       } else {
 
         Wire tmpRes = map_find(instr0, names);
@@ -757,16 +747,10 @@ namespace DHLS {
 
     } else if (Argument::classof(arg0)) {
       return to_string(map_find(arg0, memoryMap));
-      // cout << "Argument " << valueString(arg0) << endl;
-      // string name = arg0->getName();
-      // assert(contains_key(name, memoryMap));
-      // return to_string(map_find(name, memoryMap));
     } else {
       assert(ConstantInt::classof(arg0));
       auto arg0C = dyn_cast<ConstantInt>(arg0);
       auto apInt = arg0C->getValue();
-
-      //assert(!apInt.isNegative());
 
       return to_string(dyn_cast<ConstantInt>(arg0)->getSExtValue());
     }
@@ -1039,7 +1023,6 @@ namespace DHLS {
         auto unit = map_find(instr, unitAssignment);
 
         out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
-        //out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, instr, stg, unitAssignment, names) << ") begin" << endl;
 
         out << "\t\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
         out << "\t\t\t\tend" << endl;
@@ -1177,25 +1160,30 @@ namespace DHLS {
 
     out << "\t// Start pipeline stages" << endl;
     for (auto p : pipelines) {
+
+      //        if (i == 0) {
+
+      Wire valid = p.valids[0];
+      StateId state = p.p.getStates().at(0);
+      out << "\talways @(*) begin" << endl;
+      out << "\t\tif (" << p.inPipe.name << " && " << valid.name << ") begin" << endl;
+
+      auto instrG = p.exitBranch;
+      Instruction* instr = instrG.instruction;
+
+      out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
+
+      instructionVerilog(out, instr, arch);
+
+      out << "\t\t\tend" << endl;
+      out << "\t\tend" << endl;
+      out << "\tend" << endl;
+      //}
+
+
       for (int i = 0; i < (int) p.valids.size(); i++) {
         Wire valid = p.valids[i];
         StateId state = p.p.getStates().at(i);
-
-        if (i == 0) {
-          out << "\talways @(*) begin" << endl;
-          out << "\t\tif (" << p.inPipe.name << " && " << valid.name << ") begin" << endl;
-
-          auto instrG = p.exitBranch;
-          Instruction* instr = instrG.instruction;
-
-          out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
-
-          instructionVerilog(out, instr, arch);
-
-          out << "\t\t\tend" << endl;
-          out << "\t\tend" << endl;
-          out << "\tend" << endl;
-        }
 
         // Omit branch code on last stage
         for (auto instrG : arch.stg.instructionsStartingAt(state)) {
