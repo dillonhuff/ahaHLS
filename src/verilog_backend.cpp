@@ -415,8 +415,6 @@ namespace DHLS {
     map<string, Wire> wiring;
     map<string, Wire> outWires;
 
-    //cout << "FU for Instruction " << valueString(instr) << endl;
-
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
       return createMemUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
     } else if (BinaryOperator::classof(instr)) {
