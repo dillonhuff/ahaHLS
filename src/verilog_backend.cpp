@@ -57,7 +57,8 @@ namespace DHLS {
         BranchInst::classof(instr) ||
         AllocaInst::classof(instr) ||
         BitCastInst::classof(instr) ||
-        CallInst::classof(instr)) {
+        CallInst::classof(instr) ||
+        ReturnInst::classof(instr)) {
       return false;
     }
 
@@ -830,6 +831,10 @@ namespace DHLS {
 
       // Should it be from the previous stage? What is the semantics of the
       // stage numbering?
+
+      // I think: if we are in a pipeline and result was computed in an earlier
+      // instruction in the same pipelined block then we should read result
+      // from the current stage pipeline registers
       Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
       return tmpRes.name;
     }
@@ -1125,18 +1130,21 @@ namespace DHLS {
 
     out << "\t\t\t\t// Store data computed at the stage" << endl;
 
+    if (isPipelineState(state, pipelines)) {
+      auto p = getPipeline(state, pipelines);
+      int stage = p.stageForState(state);
+    }
+
+
     for (auto instrG : stg.instructionsFinishingAt(state)) {
       Instruction* instr = instrG.instruction;
 
-      if (ReturnInst::classof(instr)) {
-
-        // No data to store on return
-
-      } else if (hasOutput(instr)) {
+      if (hasOutput(instr)) {
 
         //cout << "Getting output " << instructionString(instr) << endl;
 
         string instrName = map_find(instr, names).name;
+
         auto unit = map_find(instr, unitAssignment);
 
         out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
@@ -1673,14 +1681,14 @@ namespace DHLS {
 
         map<Instruction*, Wire> regs;
         for (auto val : pastValues) {
-          regs[val] = Wire(true, 32, "pipeline_reg_" + iStr + "_" + jStr + "_" + to_string(regNum));
+          regs[val] = Wire(true, 32, string("pipeline_") + val->getOpcodeName() + "_" + iStr + "_" + jStr + "_" + to_string(regNum));
           regNum++;
         }
 
         for (auto instrG : stg.instructionsFinishingAt(st)) {
           Instruction* i = instrG.instruction;
           if (hasOutput(i)) {          
-            regs[i] = Wire(true, 32, "pipeline_reg_" + iStr + "_" + jStr + "_" + to_string(regNum));
+            regs[i] = Wire(true, 32, string("pipeline_") + i->getOpcodeName() + iStr + "_" + jStr + "_" + to_string(regNum));
             pastValues.insert(i);
             regNum++;
           }
