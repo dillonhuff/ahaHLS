@@ -771,6 +771,94 @@ namespace DHLS {
                       memoryMap);
     
   }
+
+  // Idea: Make another outputname function, but have it use the other
+  // outputName functions? Then gradually replace the other outputname functions
+
+  // Also: Maybe create a control flow position struct to describe where
+  // in the program we are?
+
+  class ControlFlowPosition {
+  public:
+    llvm::Instruction* instr;
+    StateId state;
+    bool inPipe;
+    int pipelineStage;
+
+    bool inPipeline() const {
+      return inPipe;
+    }
+
+    BasicBlock* getBB() const {
+      return instr->getParent();
+    }
+  };
+
+  std::string outputName(Value* val,
+                         ControlFlowPosition& currentPosition,
+                         MicroArchitecture& arch) {
+
+    if (Instruction::classof(val)) {
+
+      // Pointers to allocations (RAMs) always have a base
+      // address of zero
+      if (AllocaInst::classof(val)) {
+        return "0";
+      }
+
+      assert(!AllocaInst::classof(val));
+
+
+      // First rule out the easy cases
+      if (currentPosition.inPipeline()) {
+        assert(false);
+      }
+
+      Instruction* instr = currentPosition.instr;
+      auto instr0 = dyn_cast<Instruction>(val);
+      StateId argState = map_find(instr0, arch.stg.sched.instrTimes).back();
+      StateId thisState = map_find(instr, arch.stg.sched.instrTimes).front();
+
+      if (argState == thisState) {
+
+        BasicBlock* argBB = instr0->getParent();
+        BasicBlock* userBB = instr->getParent();
+
+        assert(argBB == userBB);
+
+        OrderedBasicBlock obb(argBB);
+
+        if (obb.dominates(instr0, instr)) {
+          auto unit0Src =
+            map_find(instr0, arch.unitAssignment);
+          assert(unit0Src.outWires.size() == 1);
+          string valName = unit0Src.onlyOutputVar();
+          return valName;
+        } else {
+          Wire tmpRes = map_find(instr0, arch.names);
+          return tmpRes.name;
+        }
+        
+      } else {
+
+        Wire tmpRes = map_find(instr0, arch.names);
+        return tmpRes.name;
+
+      }
+
+
+    } else if (Argument::classof(val)) {
+      return to_string(map_find(val, arch.memoryMap));
+    } else {
+      assert(ConstantInt::classof(val));
+      auto valC = dyn_cast<ConstantInt>(val);
+      auto apInt = valC->getValue();
+
+      return to_string(dyn_cast<ConstantInt>(val)->getSExtValue());
+    }
+
+    
+  }
   
   std::string verilogForCondition(Condition& cond,
                                   const StateId currentState,
