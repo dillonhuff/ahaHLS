@@ -794,6 +794,13 @@ namespace DHLS {
     }
   };
 
+  std::string mostRecentStorageLocation(Instruction* result,
+                                        ControlFlowPosition& currentPosition,
+                                        MicroArchitecture& arch) {
+    Wire tmpRes = map_find(result, arch.names);
+    return tmpRes.name;
+  }
+
   std::string outputName(Value* val,
                          ControlFlowPosition& currentPosition,
                          MicroArchitecture& arch) {
@@ -808,11 +815,6 @@ namespace DHLS {
 
       assert(!AllocaInst::classof(val));
 
-
-      // First rule out the easy cases
-      if (currentPosition.inPipeline()) {
-        assert(false);
-      }
 
       Instruction* instr = currentPosition.instr;
       auto instr0 = dyn_cast<Instruction>(val);
@@ -835,15 +837,16 @@ namespace DHLS {
           string valName = unit0Src.onlyOutputVar();
           return valName;
         } else {
-          Wire tmpRes = map_find(instr0, arch.names);
-          return tmpRes.name;
+
+          return mostRecentStorageLocation(instr0, currentPosition, arch);
+          // Wire tmpRes = map_find(instr0, arch.names);
+          // return tmpRes.name;
         }
         
       } else {
-
-        Wire tmpRes = map_find(instr0, arch.names);
-        return tmpRes.name;
-
+        return mostRecentStorageLocation(instr0, currentPosition, arch);
+        // Wire tmpRes = map_find(instr0, arch.names);
+        // return tmpRes.name;
       }
 
 
