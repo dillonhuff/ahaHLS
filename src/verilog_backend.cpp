@@ -12,14 +12,6 @@ using namespace std;
 
 // Pull zip file for z3 via travis? https://github.com/Z3Prover/z3/releases/download/z3-4.8.4/z3-4.8.4.d6df51951f4c-x64-ubuntu-14.04.zip
 
-// Now: I have a new problem because of memories:
-// I need to be able to describe latencies of different memories. and
-// I need to be able to give the layout of inputs with multiple
-// pointers pointing to the same ram, and I need to be able
-// to give the latency to the in-module declared RAMs.
-// The other thing is that the correspondence between RAMs and LLVM names
-// is one to one inside the module, but many to one in the argument list.
-
 namespace DHLS {
 
   std::ostream& operator<<(std::ostream& out, const Wire w) {
@@ -628,7 +620,7 @@ namespace DHLS {
   std::string outputName(Value* arg0,
                          map<Instruction*, FunctionalUnit> unitAssignment,
                          std::map<llvm::Value*, int>& memoryMap) {
-                         //std::map<std::string, int>& memoryMap) {
+
     if (Instruction::classof(arg0)) {
 
       auto unit0Src =
@@ -661,7 +653,7 @@ namespace DHLS {
                          map<Instruction*, FunctionalUnit>& unitAssignment,
                          map<Instruction*, Wire>& names,
                          std::map<llvm::Value*, int>& memoryMap) {
-                         //std::map<std::string, int>& memoryMap) {
+
     if (Instruction::classof(arg0)) {
 
       auto instr0 = dyn_cast<Instruction>(arg0);
@@ -714,9 +706,6 @@ namespace DHLS {
                          map<Instruction*, FunctionalUnit>& unitAssignment,
                          map<Instruction*, Wire>& names,
                          std::map<llvm::Value*, int>& memoryMap) {
-                         //std::map<std::string, int>& memoryMap) {
-                         //const std::vector<RAM>& rams) {
-    //cout << "Getting output" << endl;
     
     if (Instruction::classof(arg0)) {
 
@@ -788,7 +777,6 @@ namespace DHLS {
                          const STG& stg,
                          map<Instruction*, FunctionalUnit>& unitAssignment,
                          map<Instruction*, Wire>& names,      
-                         //std::map<std::string, int>& memoryMap,
                          std::map<llvm::Value*, int>& memoryMap,
                          const std::vector<RAM>& rams) {
     return outputName(arg0,
