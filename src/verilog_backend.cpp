@@ -787,6 +787,13 @@ namespace DHLS {
   public:
     llvm::Instruction* instr;
 
+    ControlFlowPosition(const StateId state_,
+                        const bool inPipe_,
+                        const int pipeStage_,
+                        llvm::Instruction* const instr_) :
+      state(state_), inPipe(inPipe_), pipeStage(pipeStage_), instr(instr_) {
+    }
+
     bool inPipeline() const {
       return inPipe;
     }
@@ -803,6 +810,16 @@ namespace DHLS {
       return pipeStage;
     }
   };
+
+  ControlFlowPosition position(const StateId state, Instruction* const instr) {
+    return {state, false, -1, instr};
+  }
+
+  ControlFlowPosition pipelinePosition(Instruction* const instr,
+                                       const StateId state,
+                                       const int stage) {
+    return {state, true, stage, instr};
+  }
 
   std::string mostRecentStorageLocation(Instruction* result,
                                         ControlFlowPosition& currentPosition,
@@ -932,9 +949,11 @@ namespace DHLS {
   }
 
   void instructionVerilog(std::ostream& out,
-                          Instruction* instr,
+                          ControlFlowPosition pos,
+                          //Instruction* instr,
                           MicroArchitecture& arch) {
 
+    auto instr = pos.instr;
     auto addUnit = map_find(instr, arch.unitAssignment);
 
     map<string, string> assignments;
@@ -1265,7 +1284,7 @@ namespace DHLS {
 
     out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
 
-    instructionVerilog(out, instrG.instruction, arch);
+    instructionVerilog(out, pipelinePosition(instrG.instruction, state, i), arch);
 
     out << "\t\t\tend" << endl;
     out << "\t\tend" << endl;
@@ -1369,7 +1388,7 @@ namespace DHLS {
             out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
 
             out << tab(4) << "// " << instructionString(instr) << endl;
-            instructionVerilog(out, instr, arch);
+            instructionVerilog(out, position(state, instr), arch);
 
             out << "\t\t\tend else begin " << endl;
             out << "\t\t\t// Default values" << endl;
