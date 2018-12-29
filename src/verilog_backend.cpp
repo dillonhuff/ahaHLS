@@ -779,24 +779,45 @@ namespace DHLS {
   // in the program we are?
 
   class ControlFlowPosition {
-  public:
-    llvm::Instruction* instr;
+
     StateId state;
     bool inPipe;
-    int pipelineStage;
+    int pipeStage;
+
+  public:
+    llvm::Instruction* instr;
 
     bool inPipeline() const {
       return inPipe;
     }
 
+    StateId stateId() const {
+      return state;
+    }
+
     BasicBlock* getBB() const {
       return instr->getParent();
+    }
+
+    int pipelineStage() const {
+      return pipeStage;
     }
   };
 
   std::string mostRecentStorageLocation(Instruction* result,
                                         ControlFlowPosition& currentPosition,
                                         MicroArchitecture& arch) {
+    if (currentPosition.inPipeline()) {
+      int stage = currentPosition.pipelineStage();
+      auto p = arch.getPipeline(currentPosition.stateId());
+
+      // Should it be from the previous stage? What is the semantics of the
+      // stage numbering?
+      Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
+      assert(false);
+      return tmpRes.name;
+    }
+
     Wire tmpRes = map_find(result, arch.names);
     return tmpRes.name;
   }
@@ -837,16 +858,11 @@ namespace DHLS {
           string valName = unit0Src.onlyOutputVar();
           return valName;
         } else {
-
           return mostRecentStorageLocation(instr0, currentPosition, arch);
-          // Wire tmpRes = map_find(instr0, arch.names);
-          // return tmpRes.name;
         }
         
       } else {
         return mostRecentStorageLocation(instr0, currentPosition, arch);
-        // Wire tmpRes = map_find(instr0, arch.names);
-        // return tmpRes.name;
       }
 
 

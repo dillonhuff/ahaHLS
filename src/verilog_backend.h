@@ -207,6 +207,12 @@ namespace DHLS {
 
   };
 
+  bool isPipelineState(const StateId id,
+                       const std::vector<ElaboratedPipeline>& pipelines);
+
+  ElaboratedPipeline getPipeline(const StateId id,
+                                 const std::vector<ElaboratedPipeline>& pipelines);
+  
   class RAM {
     
   public:
@@ -272,6 +278,11 @@ namespace DHLS {
     bool hasGlobalStall() const {
       assert(globalStall.size() <= 1);
       return globalStall.size() == 1;
+    }
+
+    ElaboratedPipeline getPipeline(const StateId state) const {
+      assert(isPipelineState(state, pipelines));
+      return DHLS::getPipeline(state, pipelines);
     }
 
     int numFUsWithName(const std::string& name) const {
