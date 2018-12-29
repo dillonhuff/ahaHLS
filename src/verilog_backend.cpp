@@ -1152,6 +1152,19 @@ namespace DHLS {
 
   }  
 
+  void emitConditionalInstruction(std::ostream& out,
+                                  GuardedInstruction& instrG,
+                                  const StateId state,
+                                  MicroArchitecture& arch) {
+    out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
+
+    instructionVerilog(out, instrG.instruction, arch);
+
+    out << "\t\t\tend" << endl;
+    out << "\t\tend" << endl;
+    out << "\tend" << endl;
+  }
+
   void emitPipelineInstructionCode(std::ostream& out,
                                    const std::vector<ElaboratedPipeline>& pipelines,
                                    MicroArchitecture& arch) {
@@ -1161,25 +1174,22 @@ namespace DHLS {
     out << "\t// Start pipeline stages" << endl;
     for (auto p : pipelines) {
 
-      //        if (i == 0) {
-
       Wire valid = p.valids[0];
       StateId state = p.p.getStates().at(0);
       out << "\talways @(*) begin" << endl;
       out << "\t\tif (" << p.inPipe.name << " && " << valid.name << ") begin" << endl;
 
       auto instrG = p.exitBranch;
-      Instruction* instr = instrG.instruction;
+      //Instruction* instr = instrG.instruction;
 
-      out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
+      emitConditionalInstruction(out, instrG, state, arch);
+      // out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
 
-      instructionVerilog(out, instr, arch);
+      // instructionVerilog(out, instr, arch);
 
-      out << "\t\t\tend" << endl;
-      out << "\t\tend" << endl;
-      out << "\tend" << endl;
-      //}
-
+      // out << "\t\t\tend" << endl;
+      // out << "\t\tend" << endl;
+      // out << "\tend" << endl;
 
       for (int i = 0; i < (int) p.valids.size(); i++) {
         Wire valid = p.valids[i];
@@ -1190,16 +1200,18 @@ namespace DHLS {
           out << "\talways @(*) begin" << endl;
           out << "\t\tif (" << p.inPipe.name << " && " << valid.name << ") begin" << endl;
 
-          Instruction* instr = instrG.instruction;
+          emitConditionalInstruction(out, instrG, state, arch);
 
-          out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
+          // Instruction* instr = instrG.instruction;
+
+          // out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
 
           
-          instructionVerilog(out, instr, arch);
+          // instructionVerilog(out, instr, arch);
 
-          out << "\t\t\tend" << endl;
-          out << "\t\tend" << endl;
-          out << "\tend" << endl;
+          // out << "\t\t\tend" << endl;
+          // out << "\t\tend" << endl;
+          // out << "\tend" << endl;
         }
       }
     }
