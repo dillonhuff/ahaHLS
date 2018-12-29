@@ -834,7 +834,6 @@ namespace DHLS {
 
     if (ReturnInst::classof(instr)) {
       assignments.insert({"valid_reg", "1"});
-      //out << "\t\t\tvalid_reg = 1;" << endl;
     } else if (StoreInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
@@ -854,27 +853,21 @@ namespace DHLS {
       auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       assignments.insert({addUnit.portWires["raddr"].name, locValue});      
-      //out << "\t\t\t" << addUnit.portWires["raddr"].name << " = " << locValue << ";" << endl;
 
       if (contains_key(string("ren"), addUnit.portWires)) {
         assignments.insert({addUnit.portWires["ren"].name, "1"});      
-        //out << "\t\t\t" << addUnit.portWires["ren"].name << " = 1;" << endl;
       }
     } else if (BinaryOperator::classof(instr) ||
                CmpInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
-      //auto arg0Name = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
       auto arg0Name = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       auto arg1 = instr->getOperand(1);
-      //auto arg1Name = outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
       auto arg1Name = outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       assignments.insert({addUnit.portWires["in0"].name, arg0Name});
       assignments.insert({addUnit.portWires["in1"].name, arg1Name});      
-      //out << "\t\t\t" << addUnit.portWires["in0"].name << " = " << arg0Name << ";" << endl;
-      //out << "\t\t\t" << addUnit.portWires["in1"].name << " = " << arg1Name << ";" << endl;
             
     } else if(GetElementPtrInst::classof(instr)) {
 
@@ -942,8 +935,6 @@ namespace DHLS {
       string trueName = outputName(trueVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       assignments.insert({addUnit.portWires["in"].name, trueName});
-      //out << "\t\t\t" << addUnit.portWires["in"].name << " = " << trueName << ";" << endl;
-
     } else {
 
       std::string str;
