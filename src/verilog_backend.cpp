@@ -831,7 +831,6 @@ namespace DHLS {
       // Should it be from the previous stage? What is the semantics of the
       // stage numbering?
       Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
-      assert(false);
       return tmpRes.name;
     }
 
@@ -987,10 +986,10 @@ namespace DHLS {
                CmpInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
-      auto arg0Name = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+      auto arg0Name = outputName(arg0, pos, arch); //outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       auto arg1 = instr->getOperand(1);
-      auto arg1Name = outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+      auto arg1Name = outputName(arg1, pos, arch); //outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       assignments.insert({addUnit.portWires["in0"].name, arg0Name});
       assignments.insert({addUnit.portWires["in1"].name, arg1Name});      
