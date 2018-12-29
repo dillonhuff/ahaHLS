@@ -1130,20 +1130,21 @@ namespace DHLS {
 
     out << "\t\t\t\t// Store data computed at the stage" << endl;
 
-    if (isPipelineState(state, pipelines)) {
-      auto p = getPipeline(state, pipelines);
-      int stage = p.stageForState(state);
-    }
-
-
     for (auto instrG : stg.instructionsFinishingAt(state)) {
       Instruction* instr = instrG.instruction;
 
       if (hasOutput(instr)) {
 
-        //cout << "Getting output " << instructionString(instr) << endl;
-
         string instrName = map_find(instr, names).name;
+        
+        if (isPipelineState(state, pipelines)) {
+          auto p = getPipeline(state, pipelines);
+          int stage = p.stageForState(state);
+          if (stage < p.numStages() - 1) {
+            instrName = map_find(instr, p.pipelineRegisters[stage + 1]).name;
+            cout << "Now instrName = " << instrName << endl;
+          }
+        }
 
         auto unit = map_find(instr, unitAssignment);
 
