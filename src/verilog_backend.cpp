@@ -830,9 +830,11 @@ namespace DHLS {
 
     auto addUnit = map_find(instr, arch.unitAssignment);
 
-    //cout << "Getting verilog for " << instructionString(instr) << endl;
+    map<string, string> assignments;
+
     if (ReturnInst::classof(instr)) {
-      out << "\t\t\tvalid_reg = 1;" << endl;
+      assignments.insert({"valid_reg", "1"});
+      //out << "\t\t\tvalid_reg = 1;" << endl;
     } else if (StoreInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
@@ -841,20 +843,22 @@ namespace DHLS {
       Value* location = instr->getOperand(1);
 
       auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
-            
-      out << "\t\t\t" << addUnit.portWires["waddr"].name << " = " << locValue << ";" << endl;
-      out << "\t\t\t" << addUnit.portWires["wdata"].name << " = " << wdataName << ";" << endl;
-      out << "\t\t\t" << addUnit.portWires["wen"].name << " = 1;" << endl;
+
+      assignments.insert({addUnit.portWires["waddr"].name, locValue});
+      assignments.insert({addUnit.portWires["wdata"].name, wdataName});
+      assignments.insert({addUnit.portWires["wen"].name, "1"});      
 
     } else if (LoadInst::classof(instr)) {
 
       Value* location = instr->getOperand(0);
       auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
-      out << "\t\t\t" << addUnit.portWires["raddr"].name << " = " << locValue << ";" << endl;
+      assignments.insert({addUnit.portWires["raddr"].name, locValue});      
+      //out << "\t\t\t" << addUnit.portWires["raddr"].name << " = " << locValue << ";" << endl;
 
       if (contains_key(string("ren"), addUnit.portWires)) {
-        out << "\t\t\t" << addUnit.portWires["ren"].name << " = 1;" << endl;
+        assignments.insert({addUnit.portWires["ren"].name, "1"});      
+        //out << "\t\t\t" << addUnit.portWires["ren"].name << " = 1;" << endl;
       }
     } else if (BinaryOperator::classof(instr) ||
                CmpInst::classof(instr)) {
@@ -867,8 +871,10 @@ namespace DHLS {
       //auto arg1Name = outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap);
       auto arg1Name = outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
-      out << "\t\t\t" << addUnit.portWires["in0"].name << " = " << arg0Name << ";" << endl;
-      out << "\t\t\t" << addUnit.portWires["in1"].name << " = " << arg1Name << ";" << endl;
+      assignments.insert({addUnit.portWires["in0"].name, arg0Name});
+      assignments.insert({addUnit.portWires["in1"].name, arg1Name});      
+      //out << "\t\t\t" << addUnit.portWires["in0"].name << " = " << arg0Name << ";" << endl;
+      //out << "\t\t\t" << addUnit.portWires["in1"].name << " = " << arg1Name << ";" << endl;
             
     } else if(GetElementPtrInst::classof(instr)) {
 
@@ -896,12 +902,8 @@ namespace DHLS {
         out << "\t\t\t" << addUnit.portWires["in" + to_string(i)].name << " = " << arg1Name << ";" << endl;
       }
 
-    } else if (BranchInst::classof(instr)) {
-      //out << "\t\t\t\t" << "last_BB = " << map_find(instr->getParent(), arch.basicBlockNos) << ";" << endl;
-            
     } else if (PHINode::classof(instr)) {
       PHINode* phi = dyn_cast<PHINode>(instr);
-      //assert(phi->getNumIncomingValues() == 2);
 
       for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
         BasicBlock* b0 = phi->getIncomingBlock(i);
@@ -937,7 +939,8 @@ namespace DHLS {
 
     } else if (AllocaInst::classof(instr) ||
                CallInst::classof(instr) ||
-               BitCastInst::classof(instr)) {
+               BitCastInst::classof(instr) ||
+               BranchInst::classof(instr)) {
       // No-ops
     } else if(SExtInst::classof(instr)) {
 
@@ -955,8 +958,12 @@ namespace DHLS {
 
       cout << "Error: Emitting code for unknown instruction " << ss.str() << std::endl;
       assert(false);
-
     }
+
+    for (auto asg : assignments) {
+      out << tab(4) << asg.first << " = " << asg.second << ";" << endl;
+    }
+    
   }
 
   map<BasicBlock*, int> numberBasicBlocks(Function* const f) {
