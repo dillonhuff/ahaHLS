@@ -1007,9 +1007,9 @@ namespace DHLS {
 
       auto arg0 = instr->getOperand(0);
 
-      cout << "arg0 = " << valueString(arg0) << endl;      
+      cout << "arg0 = " << valueString(arg0) << endl;
 
-      auto arg0Name = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+      auto arg0Name = outputName(arg0, pos, arch); //outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       assignments.insert({addUnit.portWires["base_addr"].name, arg0Name});
 
@@ -1017,7 +1017,8 @@ namespace DHLS {
         auto arg1 = instr->getOperand(i);
         cout << "Getting operand " << valueString(arg1) << endl;
         auto arg1Name =
-          outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+          outputName(arg1, pos, arch);
+          //outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
         assignments.insert({addUnit.portWires["in" + to_string(i)].name, arg1Name});
       }
@@ -1030,7 +1031,7 @@ namespace DHLS {
         int b0Val = map_find(b0, arch.basicBlockNos);
 
         Value* v0 = phi->getIncomingValue(i);
-        string val0Name = outputName(v0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+        string val0Name = outputName(v0, pos, arch); //outputName(v0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
         assignments.insert({addUnit.portWires["in" + to_string(i)].name, val0Name});
         assignments.insert({addUnit.portWires["s" + to_string(i)].name, to_string(b0Val)});
