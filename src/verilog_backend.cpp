@@ -857,6 +857,56 @@ namespace DHLS {
     return condStr;
   }
 
+  std::string verilogForCondition(Condition& cond,
+                                  ControlFlowPosition pos,
+                                  MicroArchitecture& arch) {
+    string condStr = "";
+
+    if (cond.isTrue()) {
+      return "1";
+    }
+
+    int clNum = 0;
+    for (auto cl : cond.clauses) {
+
+      int aNum = 0;
+      for (auto a : cl) {
+        bool isNeg = a.negated;
+
+        map<llvm::Value*, int> memoryMap;
+        string valueStr = outputName(a.cond, pos, arch);
+        // string valueStr = outputName(a.cond,
+        //                              currentState,
+        //                              stg,
+        //                              unitAssignment,
+        //                              names,
+        //                              memoryMap);
+        
+        if (isNeg) {
+          condStr += "!";
+        }
+
+        condStr += "(";
+        condStr += valueStr;
+        condStr += ")";
+
+        if (aNum < ((int) cl.size()) - 1) {
+          condStr += " && ";
+        }
+        
+        aNum++;
+      }
+
+      if (clNum < ((int) cond.clauses.size()) - 1) {
+        condStr += " || ";
+      }
+
+      clNum++;
+    }
+    
+    return condStr;
+  }
+  
   void instructionVerilog(std::ostream& out,
                           ControlFlowPosition pos,
                           //Instruction* instr,
@@ -1082,10 +1132,16 @@ namespace DHLS {
   void emitPipelineStateCode(std::ostream& out,
                              const StateId state,
                              const std::vector<StateTransition>& destinations,
-                             const STG& stg,
-                             map<Instruction*, FunctionalUnit>& unitAssignment,
-                             map<Instruction*, Wire>& names,
-                             const std::vector<ElaboratedPipeline>& pipelines) {
+                             MicroArchitecture& arch) {
+                             // const STG& stg,
+                             // map<Instruction*, FunctionalUnit>& unitAssignment,
+                             // map<Instruction*, Wire>& names,
+                             // const std::vector<ElaboratedPipeline>& pipelines) {
+
+    auto& names = arch.names;
+    auto& pipelines = arch.pipelines;
+    auto& stg = arch.stg;
+    auto& unitAssignment = arch.unitAssignment;
 
     if (isPipelineState(state, pipelines)) {
       auto p = getPipeline(state, pipelines);
@@ -1110,7 +1166,7 @@ namespace DHLS {
           out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
           // TODO: Check whether true or false on transitionDest.cond
           // causes an exit from the block
-          out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << " && " << pipelineClearOnNextCycleCondition(p) << ") begin" << endl;
+          out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, pipelinePosition(p.getExitBranch(), state, p.numStages() - 1), arch) << " && " << pipelineClearOnNextCycleCondition(p) << ") begin" << endl;
           out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
           out << "\t\t\t\tend" << endl;
         }
@@ -1160,7 +1216,7 @@ namespace DHLS {
   }
   
   void emitControlCode(std::ostream& out,
-                       const MicroArchitecture& arch,
+                       MicroArchitecture& arch,
                        const STG& stg,
                        map<Instruction*, FunctionalUnit>& unitAssignment,
                        map<Instruction*, Wire>& names,
@@ -1172,7 +1228,8 @@ namespace DHLS {
 
     for (auto state : stg.opTransitions) {
 
-      emitPipelineStateCode(out, state.first, state.second, stg, unitAssignment, names, pipelines);
+      //emitPipelineStateCode(out, state.first, state.second, stg, unitAssignment, names, pipelines);
+      emitPipelineStateCode(out, state.first, state.second, arch);
 
     }
 
