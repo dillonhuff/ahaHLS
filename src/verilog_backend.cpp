@@ -2447,6 +2447,17 @@ namespace DHLS {
     
     addAlwaysBlock({"clk"}, "if(global_state == " + to_string(st) + ") begin $display(\"" + iStr + " == %d\", " + unitOutput + "); end", debugInfo);
   }
+
+  std::string atState(const StateId state, const MicroArchitecture& arch) {
+    string active = "global_state !== " + to_string(state);
+    if (arch.isPipelineState(state)) {
+      auto p = arch.getPipeline(state);
+      int stage = p.stageForState(state);
+      active = "!" +
+        parens(p.inPipe.name + " && " + p.valids.at(stage).name);
+    }
+    return active;
+  }
   
   void noPhiOutputsXWhenUsed(const MicroArchitecture& arch,
                              VerilogDebugInfo& debugInfo) {
@@ -2463,13 +2474,7 @@ namespace DHLS {
           string wireName = unit.onlyOutputVar();
 
           string valCheck = wireName + " !== 'dx";
-          string notActive = "global_state !== " + to_string(activeState);
-          if (arch.isPipelineState(st.first)) {
-            auto p = arch.getPipeline(st.first);
-            int stage = p.stageForState(st.first);
-            notActive = "!" +
-              parens(p.inPipe.name + " && " + p.valids.at(stage).name);
-          }
+          string notActive = "!" + parens(atState(st.first, arch));
           addAssert(notActive + " || " + valCheck, debugInfo);
         }
       }
