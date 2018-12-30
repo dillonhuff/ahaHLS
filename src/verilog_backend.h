@@ -205,6 +205,10 @@ namespace DHLS {
       return stateIndex(id);
     }
 
+    int stateForStage(const int stageNo) const {
+      return p.getStates().at(stageNo);
+    }
+    
   };
 
   bool isPipelineState(const StateId id,

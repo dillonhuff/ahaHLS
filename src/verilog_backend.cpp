@@ -1590,6 +1590,45 @@ namespace DHLS {
     out << "\t// End pipeline initiation block" << endl << endl;
     
   }
+
+  void emitPipelineRegisterChains(std::ostream& out,
+                                  MicroArchitecture& arch) {
+    out << tab(1) << "always @(posedge clk) begin" << endl;
+    for (auto p : arch.pipelines) {
+
+      out << tab(2) << "// Pipeline register chain" << endl;
+      for (int i = 0; i < ((int) p.pipelineRegisters.size()) - 1; i++) {
+
+        out << tab(2) << "// Register transfer from stage " << i << " to " << (i + 1) << endl;
+        map<Instruction*, Wire> nameMap =
+          p.pipelineRegisters[i];
+
+        map<Instruction*, Wire> nextNameMap =
+          p.pipelineRegisters[i + 1];
+
+        set<Instruction*> instructionsFinishing;
+        for (auto instrG : arch.stg.instructionsFinishingAt(p.stateForStage(i))) {
+          instructionsFinishing.insert(instrG.instruction);
+        }
+        
+        for (auto instrS : nameMap) {
+          Instruction* i = instrS.first;
+
+          // Instructions finishing in this stage have values stored in a separate
+          // block
+          if (!elem(i, instructionsFinishing)) {
+            Wire current = instrS.second;
+
+            assert(contains_key(i, nextNameMap));
+            Wire next = map_find(i, nextNameMap);
+            out << tab(2) << next.name << " <= " << current.name << ";" << endl;
+          }
+        }
+        
+      }
+    }
+    out << tab(1) << "end" << endl;
+  }
   
   void emitPipelineValidChainBlock(std::ostream& out,
                                    const std::vector<ElaboratedPipeline>& pipelines) {
@@ -1998,6 +2037,7 @@ namespace DHLS {
 
     emitPipelineResetBlock(out, arch.pipelines);
     emitPipelineValidChainBlock(out, arch.pipelines);
+    emitPipelineRegisterChains(out, arch);
 
     emitPipelineInitiationBlock(out, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
     // TODO: Remove pipelines arch, it is now a field of arch
