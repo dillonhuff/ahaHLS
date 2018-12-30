@@ -696,89 +696,6 @@ namespace DHLS {
 
   }
 
-  std::string outputName(Value* arg0,
-                         Instruction* instr,
-                         const STG& stg,
-                         map<Instruction*, FunctionalUnit>& unitAssignment,
-                         map<Instruction*, Wire>& names,
-                         std::map<llvm::Value*, int>& memoryMap) {
-
-    
-    if (Instruction::classof(arg0)) {
-
-      // Pointers to allocations (RAMs) always have a base
-      // address of zero
-      if (AllocaInst::classof(arg0)) {
-        return "0";
-      }
-
-      assert(!AllocaInst::classof(arg0));
-      
-      auto instr0 = dyn_cast<Instruction>(arg0);
-      StateId argState = map_find(instr0, stg.sched.instrTimes).back();
-      StateId thisState = map_find(instr, stg.sched.instrTimes).front();
-
-      if (argState == thisState) {
-
-        BasicBlock* argBB = instr0->getParent();
-        BasicBlock* userBB = instr->getParent();
-
-        assert(argBB == userBB);
-
-        OrderedBasicBlock obb(argBB);
-
-        if (obb.dominates(instr0, instr)) {
-          auto unit0Src =
-            map_find(instr0, unitAssignment);
-          assert(unit0Src.outWires.size() == 1);
-          string arg0Name = unit0Src.onlyOutputVar();
-          return arg0Name;
-        } else {
-          Wire tmpRes = map_find(instr0, names);
-          return tmpRes.name;
-        }
-        
-      } else {
-
-        Wire tmpRes = map_find(instr0, names);
-        return tmpRes.name;
-
-      }
-
-
-    } else if (Argument::classof(arg0)) {
-      return to_string(map_find(arg0, memoryMap));
-    } else {
-      assert(ConstantInt::classof(arg0));
-      auto arg0C = dyn_cast<ConstantInt>(arg0);
-      auto apInt = arg0C->getValue();
-
-      return to_string(dyn_cast<ConstantInt>(arg0)->getSExtValue());
-    }
-  }
-
-  std::string outputName(Value* arg0,
-                         Instruction* instr,
-                         const STG& stg,
-                         map<Instruction*, FunctionalUnit>& unitAssignment,
-                         map<Instruction*, Wire>& names,      
-                         std::map<llvm::Value*, int>& memoryMap,
-                         const std::vector<RAM>& rams) {
-    return outputName(arg0,
-                      instr,
-                      stg,
-                      unitAssignment,
-                      names,      
-                      memoryMap);
-    
-  }
-
-  // Idea: Make another outputname function, but have it use the other
-  // outputName functions? Then gradually replace the other outputname functions
-
-  // Also: Maybe create a control flow position struct to describe where
-  // in the program we are?
-
   class ControlFlowPosition {
 
     StateId state;
@@ -835,6 +752,9 @@ namespace DHLS {
       // I think: if we are in a pipeline and result was computed in an earlier
       // instruction in the same pipelined block then we should read result
       // from the current stage pipeline registers
+
+      // TODO: Need to handle case where stage 0 is reading from
+      // earlier values. Maybe need forwarding of values for phi nodes?
       Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
       return tmpRes.name;
     }
@@ -967,11 +887,11 @@ namespace DHLS {
     } else if (StoreInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
-      auto wdataName = outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);      
+      auto wdataName = outputName(arg0, pos, arch); //outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);      
       
       Value* location = instr->getOperand(1);
 
-      auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+      auto locValue = outputName(location, pos, arch); //outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       assignments.insert({addUnit.portWires["waddr"].name, locValue});
       assignments.insert({addUnit.portWires["wdata"].name, wdataName});
@@ -980,7 +900,7 @@ namespace DHLS {
     } else if (LoadInst::classof(instr)) {
 
       Value* location = instr->getOperand(0);
-      auto locValue = outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+      auto locValue = outputName(location, pos, arch); //outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       assignments.insert({addUnit.portWires["raddr"].name, locValue});      
 
@@ -1063,7 +983,7 @@ namespace DHLS {
     } else if(SExtInst::classof(instr)) {
 
       Value* trueVal = instr->getOperand(0);
-      string trueName = outputName(trueVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+      string trueName = outputName(trueVal, pos, arch); //outputName(trueVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       assignments.insert({addUnit.portWires["in"].name, trueName});
     } else {
