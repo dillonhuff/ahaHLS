@@ -2407,7 +2407,7 @@ namespace DHLS {
           StateId activeState = st.first;
 
           string wireName = map_find(string("rdata"), unit.outWires).name;
-          addAssert("global_state !== " + to_string(activeState) + " || " +
+          addAssert(notAtState(activeState, arch) + " || " +
                     wireName + " !== 'dx",
                     debugInfo);
         }
@@ -2426,7 +2426,7 @@ namespace DHLS {
           StateId activeState = st.first;
 
           string wireName = map_find(string("raddr"), unit.portWires).name;
-          addAssert("global_state !== " + to_string(activeState) + " || " +
+          addAssert(notAtState(activeState, arch) + " || " +
                     wireName + " !== 'dx",
                     debugInfo);
         }
@@ -2543,14 +2543,15 @@ namespace DHLS {
           
             string in0Name = map_find(string("in0"), unit.portWires).name;
             string in1Name = map_find(string("in1"), unit.portWires).name;
-            addAssert("global_state !== " + to_string(activeState) + " || " +
+
+            addAssert(notAtState(activeState, arch) + " || " +
                       in0Name + " !== 'dx",
                       debugInfo);
 
-            addAssert("global_state !== " + to_string(activeState) + " || " +
+            addAssert(notAtState(activeState, arch) + " || " +
                       in1Name + " !== 'dx",
                       debugInfo);
-
+            
           }
         }
       }
