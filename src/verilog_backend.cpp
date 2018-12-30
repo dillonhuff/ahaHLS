@@ -1043,13 +1043,13 @@ namespace DHLS {
       SelectInst* sel = dyn_cast<SelectInst>(instr);
 
       Value* cond = sel->getCondition();
-      string condName = outputName(cond, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+      string condName = outputName(cond, pos, arch); //outputName(cond, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       Value* trueVal = sel->getTrueValue();
-      string trueName = outputName(trueVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+      string trueName = outputName(trueVal, pos, arch); //outputName(trueVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
       Value* falseVal = sel->getFalseValue();
-      string falseName = outputName(falseVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);      
+      string falseName = outputName(falseVal, pos, arch); //outputName(falseVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);      
 
       assignments.insert({addUnit.portWires["in0"].name, falseName});
       assignments.insert({addUnit.portWires["in1"].name, trueName});
