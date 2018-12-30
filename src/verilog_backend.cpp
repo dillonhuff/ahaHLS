@@ -718,17 +718,31 @@ namespace DHLS {
       int stage = currentPosition.pipelineStage();
       auto p = arch.getPipeline(currentPosition.stateId());
 
-      // Should it be from the previous stage? What is the semantics of the
-      // stage numbering?
+      StateId argState = map_find(result, arch.stg.sched.instrTimes).back();
+      StateId thisState = map_find(currentPosition.instr, arch.stg.sched.instrTimes).front();
 
-      // I think: if we are in a pipeline and result was computed in an earlier
-      // instruction in the same pipelined block then we should read result
-      // from the current stage pipeline registers
+      if (argState == thisState) {
 
-      // TODO: Need to handle case where stage 0 is reading from
-      // earlier values. Maybe need forwarding of values for phi nodes?
-      Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
-      return tmpRes.name;
+        BasicBlock* argBB = result->getParent();
+        BasicBlock* userBB = currentPosition.instr->getParent();
+
+        assert(argBB == userBB);
+
+        OrderedBasicBlock obb(argBB);
+
+        if (obb.dominates(result, currentPosition.instr)) {
+          Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
+          return tmpRes.name;
+
+        } else {
+          Wire tmpRes = map_find(result, p.pipelineRegisters[stage + p.II()]);
+          return tmpRes.name;
+        }
+
+      } else {
+        Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
+        return tmpRes.name;
+      }
     }
 
     Wire tmpRes = map_find(result, arch.names);
@@ -2449,16 +2463,19 @@ namespace DHLS {
   }
 
   std::string atState(const StateId state, const MicroArchitecture& arch) {
-    string active = "global_state !== " + to_string(state);
+    string active = "global_state == " + to_string(state);
     if (arch.isPipelineState(state)) {
       auto p = arch.getPipeline(state);
       int stage = p.stageForState(state);
-      active = "!" +
-        parens(p.inPipe.name + " && " + p.valids.at(stage).name);
+      active = parens(p.inPipe.name + " && " + p.valids.at(stage).name);
     }
     return active;
   }
-  
+
+  std::string notAtState(const StateId state, const MicroArchitecture& arch) {
+    return "!" + parens(atState(state, arch));
+  }
+
   void noPhiOutputsXWhenUsed(const MicroArchitecture& arch,
                              VerilogDebugInfo& debugInfo) {
     for (auto st : arch.stg.opStates) {
@@ -2474,7 +2491,7 @@ namespace DHLS {
           string wireName = unit.onlyOutputVar();
 
           string valCheck = wireName + " !== 'dx";
-          string notActive = "!" + parens(atState(st.first, arch));
+          string notActive = notAtState(st.first, arch);
           addAssert(notActive + " || " + valCheck, debugInfo);
         }
       }
@@ -2496,14 +2513,15 @@ namespace DHLS {
           
             string in0Name = map_find(string("in0"), unit.portWires).name;
             string in1Name = map_find(string("in1"), unit.portWires).name;
-            addAssert("global_state !== " + to_string(activeState) + " || " +
+
+            addAssert(notAtState(activeState, arch) + " || " +
                       in0Name + " !== 'dx",
                       debugInfo);
 
-            addAssert("global_state !== " + to_string(activeState) + " || " +
+            addAssert(notAtState(activeState, arch) + " || " +
                       in1Name + " !== 'dx",
                       debugInfo);
-
+            
           }
         }
       }
