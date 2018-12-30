@@ -1473,10 +1473,10 @@ namespace DHLS {
 
   void
   emitPipelineInitiationBlock(std::ostream& out,
-                              STG& stg,
-                              map<Instruction*, FunctionalUnit>& unitAssignment,
-                              std::map<Instruction*, Wire>& names,
-                              const std::vector<ElaboratedPipeline>& pipelines) {
+                              MicroArchitecture& arch) {
+
+    auto& pipelines = arch.pipelines;
+    //auto& unitAssignment = arch.unitAssignment; // Not used
 
     out << "\t// Start pipeline initiation block" << endl;
     out << "\talways @(posedge clk) begin" << endl;
@@ -1484,7 +1484,12 @@ namespace DHLS {
     for (auto p : pipelines) {
       out << "\t\t\t\tif (" << p.valids.at(p.II() - 1).name << " && " << p.inPipe.name << ") begin" << endl;
       std::map<llvm::Value*, int> memMap;
-      string testCond = outputName(p.getExitCondition(), unitAssignment, memMap);
+
+      assert(Instruction::classof(p.getExitCondition()));
+      ControlFlowPosition pos =
+        pipelinePosition(dyn_cast<Instruction>(p.getExitCondition()), p.stateForStage(p.II() - 1), p.II() - 1);
+
+      string testCond = outputName(p.getExitCondition(), pos, arch); //outputName(p.getExitCondition(), unitAssignment, memMap);
       auto br = p.getExitBranch();
 
       auto trueBlock = br->getSuccessor(0);
@@ -1960,7 +1965,8 @@ namespace DHLS {
     emitPipelineValidChainBlock(out, arch.pipelines);
     emitPipelineRegisterChains(out, arch);
 
-    emitPipelineInitiationBlock(out, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
+    emitPipelineInitiationBlock(out, arch);
+    //emitPipelineInitiationBlock(out, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
     // TODO: Remove pipelines arch, it is now a field of arch
     emitLastBBCode(out, f, arch.pipelines, arch);
 
