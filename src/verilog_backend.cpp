@@ -618,34 +618,6 @@ namespace DHLS {
     return resultNames;
   }
 
-  // std::string outputName(Value* arg0,
-  //                        map<Instruction*, FunctionalUnit> unitAssignment,
-  //                        std::map<llvm::Value*, int>& memoryMap) {
-
-  //   if (Instruction::classof(arg0)) {
-
-  //     auto unit0Src =
-  //       map_find(dyn_cast<Instruction>(arg0), unitAssignment);
-  //     assert(unit0Src.outWires.size() == 1);
-
-  //     string arg0Name = unit0Src.onlyOutputVar();
-
-  //     return arg0Name;
-  //   } else if (Argument::classof(arg0)) {
-  //     // The "name" of an argument is the string representation of its
-  //     // address in memory
-  //     return to_string(map_find(arg0, memoryMap));
-  //   } else {
-  //     assert(ConstantInt::classof(arg0));
-  //     auto arg0C = dyn_cast<ConstantInt>(arg0);
-  //     auto apInt = arg0C->getValue();
-
-  //     assert(!apInt.isNegative());
-
-  //     return to_string(dyn_cast<ConstantInt>(arg0)->getSExtValue());
-  //   }
-  // }
-
   std::string outputName(Value* arg0,
                          StateId thisState,
                          const STG& stg,
@@ -839,7 +811,6 @@ namespace DHLS {
         bool isNeg = a.negated;
 
         map<llvm::Value*, int> memoryMap;
-        std::vector<RAM> rams;     
         string valueStr = outputName(a.cond,
                                      currentState,
                                      stg,
