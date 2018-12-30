@@ -2461,9 +2461,16 @@ namespace DHLS {
           printInstrAtState(instr, activeState, arch, debugInfo);
           
           string wireName = unit.onlyOutputVar();
-          addAssert("global_state !== " + to_string(activeState) + " || " +
-                    wireName + " !== 'dx",
-                    debugInfo);
+
+          string valCheck = wireName + " !== 'dx";
+          string notActive = "global_state !== " + to_string(activeState);
+          if (arch.isPipelineState(st.first)) {
+            auto p = arch.getPipeline(st.first);
+            int stage = p.stageForState(st.first);
+            notActive = "!" +
+              parens(p.inPipe.name + " && " + p.valids.at(stage).name);
+          }
+          addAssert(notActive + " || " + valCheck, debugInfo);
         }
       }
     }

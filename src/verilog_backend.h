@@ -285,7 +285,7 @@ namespace DHLS {
     }
 
     ElaboratedPipeline getPipeline(const StateId state) const {
-      assert(isPipelineState(state, pipelines));
+      assert(DHLS::isPipelineState(state, pipelines));
       return DHLS::getPipeline(state, pipelines);
     }
 
@@ -304,6 +304,11 @@ namespace DHLS {
     int numReadPorts() const {
       return numFUsWithName("load");
     }
+
+    bool isPipelineState(const StateId id) const {
+      return DHLS::isPipelineState(id, pipelines);
+    }
+
   };
   
   class TestBenchSpec {
