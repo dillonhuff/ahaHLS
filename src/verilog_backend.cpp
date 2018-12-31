@@ -1118,14 +1118,22 @@ namespace DHLS {
     return parens(s);
   }
 
+  Instruction* lastInstructionInState(const StateId state,
+                                      MicroArchitecture& arch) {
+    Instruction* last = nullptr;
+    for (auto instrG : map_find(state, arch.stg.opStates)) {
+      if (last == nullptr) {
+        last = instrG.instruction;
+      }
+    }
+
+    return last;
+  }
+
   void emitPipelineStateCode(std::ostream& out,
                              const StateId state,
                              const std::vector<StateTransition>& destinations,
                              MicroArchitecture& arch) {
-                             // const STG& stg,
-                             // map<Instruction*, FunctionalUnit>& unitAssignment,
-                             // map<Instruction*, Wire>& names,
-                             // const std::vector<ElaboratedPipeline>& pipelines) {
 
     auto& names = arch.names;
     auto& pipelines = arch.pipelines;
@@ -1133,14 +1141,13 @@ namespace DHLS {
     auto& unitAssignment = arch.unitAssignment;
 
     out << tab(3) << "if (" << atState(state, arch) << ") begin " << endl;    
+    out << "\t\t\t\t// Next state transition logic" << endl;
 
     if (isPipelineState(state, pipelines)) {
       auto p = getPipeline(state, pipelines);
 
       auto pos = pipelinePosition(p.getExitBranch(), state, p.numStages() - 1);
 
-      //out << tab(3) << "if (" << atState(state, arch) << ") begin " << endl;
-      out << "\t\t\t\t// Next state transition logic" << endl;
       for (auto transitionDest : destinations) {
 
         if (isPipelineState(transitionDest.dest, pipelines)) {
@@ -1148,7 +1155,6 @@ namespace DHLS {
           auto destP = getPipeline(transitionDest.dest, pipelines);
 
           out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-          //out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << ") begin" << endl;
           out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << ") begin" << endl;
           out << "\t\t\t\t\tglobal_state <= " << destP.stateId << ";" << endl;
 
@@ -1169,9 +1175,9 @@ namespace DHLS {
 
 
     } else {
-      //out << tab(3) << "if (" << atState(state, arch) << ") begin " << endl;
 
-      out << "\t\t\t\t// Next state transition logic" << endl;
+      auto pos = position(state, lastInstructionInState(state, arch));
+
       for (auto transitionDest : destinations) {
 
         if (isPipelineState(transitionDest.dest, pipelines)) {
@@ -1179,7 +1185,8 @@ namespace DHLS {
           auto p = getPipeline(transitionDest.dest, pipelines);
 
           out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-          out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+          //out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+          out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << ") begin" << endl;
           out << "\t\t\t\t\tglobal_state <= " << p.stateId << ";" << endl;
 
           out << "\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;
@@ -1187,7 +1194,8 @@ namespace DHLS {
           
         } else {
           out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-          out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+          //out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+          out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << ") begin" << endl;
           out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
           out << "\t\t\t\tend" << endl;
         }
