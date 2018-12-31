@@ -1655,7 +1655,7 @@ namespace DHLS {
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 30;
-    tb.maxCycles = 40;
+    tb.maxCycles = 42;
     tb.name = "constrained_pipe";
     emitVerilogTestBench(tb, arch, testLayout);
 
@@ -1684,7 +1684,7 @@ namespace DHLS {
       auto seven = mkInt("7", 32);      
 
       auto z = builder.CreateMul(v, three);
-      auto r = builder.CreateMul(z, seven);
+      auto r = builder.CreateMul(v, seven);
       auto c = builder.CreateAdd(z, r);
       storeVal(builder, getArg(f, 1), i, c);
     };
@@ -1734,7 +1734,7 @@ namespace DHLS {
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 30;
-    tb.maxCycles = 40;
+    tb.maxCycles = 42;
     tb.name = "temp_storage_pipe";
     emitVerilogTestBench(tb, arch, testLayout);
 

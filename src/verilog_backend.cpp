@@ -766,6 +766,15 @@ namespace DHLS {
 
       Instruction* instr = currentPosition.instr;
       auto instr0 = dyn_cast<Instruction>(val);
+
+      if (instr0 == instr) {
+        auto unit0Src =
+          map_find(instr0, arch.unitAssignment);
+        assert(unit0Src.outWires.size() == 1);
+        string valName = unit0Src.onlyOutputVar();
+        return valName;
+      }
+
       StateId argState = map_find(instr0, arch.stg.sched.instrTimes).back();
       StateId thisState = map_find(instr, arch.stg.sched.instrTimes).front();
 
@@ -2516,7 +2525,7 @@ namespace DHLS {
     FunctionalUnit unit = map_find(instr, arch.unitAssignment);
     auto unitOutput = unit.onlyOutputVar();
     
-    addAlwaysBlock({"clk"}, "if(global_state == " + to_string(st) + ") begin $display(\"" + iStr + " == %d\", " + unitOutput + "); end", debugInfo);
+    addAlwaysBlock({"clk"}, "if(" + atState(st, arch) + ") begin $display(\"" + iStr + " == %d\", " + unitOutput + "); end", debugInfo);
   }
 
   std::string atState(const StateId state, const MicroArchitecture& arch) {
@@ -2555,14 +2564,16 @@ namespace DHLS {
     }
   }
 
-  void noAddsTakeXInputs(const MicroArchitecture& arch,
-                         VerilogDebugInfo& debugInfo) {
+  void noBinopsTakeXInputs(const MicroArchitecture& arch,
+                           VerilogDebugInfo& debugInfo,
+                           const std::string& opName) {
+    
     for (auto st : arch.stg.opStates) {
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
         auto instr = instrG.instruction;
         if (BinaryOperator::classof(instr)) {
           FunctionalUnit unit = map_find(instr, arch.unitAssignment);
-          if (unit.getModName() == "add") {
+          if (unit.getModName() == opName) {
             StateId activeState = st.first;
 
             string iStr = instructionString(instr);
@@ -2583,36 +2594,50 @@ namespace DHLS {
         }
       }
     }
+
+  }  
+
+  void noCompareOpsTakeXInputs(const MicroArchitecture& arch,
+                               VerilogDebugInfo& debugInfo,
+                               const std::string& opName) {
+    
+    for (auto st : arch.stg.opStates) {
+      for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
+        auto instr = instrG.instruction;
+        if (CmpInst::classof(instr)) {
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+          if (unit.getModName() == opName) {
+            StateId activeState = st.first;
+
+            string iStr = instructionString(instr);
+            printInstrAtState(instr, activeState, arch, debugInfo);
+          
+            string in0Name = map_find(string("in0"), unit.portWires).name;
+            string in1Name = map_find(string("in1"), unit.portWires).name;
+
+            addAssert(notAtState(activeState, arch) + " || " +
+                      in0Name + " !== 'dx",
+                      debugInfo);
+
+            addAssert(notAtState(activeState, arch) + " || " +
+                      in1Name + " !== 'dx",
+                      debugInfo);
+            
+          }
+        }
+      }
+    }
+
+  }  
+  
+  void noAddsTakeXInputs(const MicroArchitecture& arch,
+                         VerilogDebugInfo& debugInfo) {
+    noBinopsTakeXInputs(arch, debugInfo, "add");
   }
 
   void noMulsTakeXInputs(const MicroArchitecture& arch,
                          VerilogDebugInfo& debugInfo) {
-    for (auto st : arch.stg.opStates) {
-      for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
-        auto instr = instrG.instruction;
-        if (BinaryOperator::classof(instr)) {
-          FunctionalUnit unit = map_find(instr, arch.unitAssignment);
-          if (unit.getModName() == "mul") {
-            StateId activeState = st.first;
-
-            string iStr = instructionString(instr);
-            printInstrAtState(instr, activeState, arch, debugInfo);
-          
-            string in0Name = map_find(string("in0"), unit.portWires).name;
-            string in1Name = map_find(string("in1"), unit.portWires).name;
-
-            addAssert(notAtState(activeState, arch) + " || " +
-                      in0Name + " !== 'dx",
-                      debugInfo);
-
-            addAssert(notAtState(activeState, arch) + " || " +
-                      in1Name + " !== 'dx",
-                      debugInfo);
-            
-          }
-        }
-      }
-    }
+    noBinopsTakeXInputs(arch, debugInfo, "mul");
   }
 
   void emitModule(std::ostream& out,
@@ -2630,7 +2655,7 @@ namespace DHLS {
 
   void addNoXChecks(const MicroArchitecture& arch,
                     VerilogDebugInfo& info) {
-
+    noCompareOpsTakeXInputs(arch, info, "ne");
     noAddsTakeXInputs(arch, info);
     noMulsTakeXInputs(arch, info);
     noPhiOutputsXWhenUsed(arch, info);
