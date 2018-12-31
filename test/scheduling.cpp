@@ -178,6 +178,9 @@ namespace DHLS {
   //    Test that uses limited numbers of memory read/write ports
   //    Test case that merges basic blocks that execute different numbers of times
   //    Test case that uses a struct as an argument
+  //    Test case that reads value from outside a loop inside a pipeline
+  //    Test case with outer loop pipelining
+  //    Test case with memory dependence that prevents pipelining
   TEST_CASE("A simple if") {
     SMDiagnostic Err;
     LLVMContext Context;
