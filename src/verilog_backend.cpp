@@ -1148,7 +1148,7 @@ namespace DHLS {
 
     if (isPipelineState(state, pipelines)) {
       auto p = getPipeline(state, pipelines);
-      //out << "\t\t\tif (" << p.inPipe.name << " && " << p.valids.at(p.stateIndex(state)).name << ") begin" << endl;
+
       out << tab(3) << "if (" << atState(state, arch) << ") begin " << endl;
       out << "\t\t\t\t// Next state transition logic" << endl;
       for (auto transitionDest : destinations) {
@@ -1255,11 +1255,12 @@ namespace DHLS {
     Wire valid = p.valids[i];
     
     out << "\talways @(*) begin" << endl;
-    out << "\t\tif (" << p.inPipe.name << " && " << valid.name << ") begin" << endl;
 
-    out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
+    out << tab(2) << "if (" << atState(state, arch) << ") begin" << endl;
+    auto pos = pipelinePosition(instrG.instruction, state, i);
+    out << "\t\t\tif (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
 
-    instructionVerilog(out, pipelinePosition(instrG.instruction, state, i), arch);
+    instructionVerilog(out, pos, arch);
 
     out << "\t\t\tend" << endl;
     out << "\t\tend" << endl;

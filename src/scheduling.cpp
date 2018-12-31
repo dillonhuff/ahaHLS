@@ -774,8 +774,8 @@ namespace DHLS {
       }
     }
 
-    cout << "Solver constraints" << endl;
-    cout << s << endl;
+    // cout << "Solver constraints" << endl;
+    // cout << s << endl;
     return buildFromModel(s, schedVars, blockVars, IIs);
   }
   
