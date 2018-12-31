@@ -211,6 +211,14 @@ namespace DHLS {
   //     data passing between stages where one is running ahead does not need to
   //     be stored in buffers between stages?
 
+  // Maybe edges in the STG should be labeled as stalling edges? How to represent
+  // buffering? How to indicate when stalls actually need to be respected and when
+  // you can ignore them? That issue shows up even in fixed time stores. You can
+  // just fire and forget stores that never interfere with other memory ops, you
+  // don't have to wait for them to finish. Or more precisely you only have to
+  // wait long enough between issues of the instruction to be sure that you can
+  // issue a new instance of the instruction without interfering with the last one
+
   // Q: What test cases do I need?
   // A: Test that uses multiple different RAM types
   //    Test that uses limited numbers of memory read/write ports
