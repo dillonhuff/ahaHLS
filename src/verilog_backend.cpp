@@ -1132,12 +1132,14 @@ namespace DHLS {
     auto& stg = arch.stg;
     auto& unitAssignment = arch.unitAssignment;
 
+    out << tab(3) << "if (" << atState(state, arch) << ") begin " << endl;    
+
     if (isPipelineState(state, pipelines)) {
       auto p = getPipeline(state, pipelines);
 
       auto pos = pipelinePosition(p.getExitBranch(), state, p.numStages() - 1);
 
-      out << tab(3) << "if (" << atState(state, arch) << ") begin " << endl;
+      //out << tab(3) << "if (" << atState(state, arch) << ") begin " << endl;
       out << "\t\t\t\t// Next state transition logic" << endl;
       for (auto transitionDest : destinations) {
 
@@ -1167,7 +1169,7 @@ namespace DHLS {
 
 
     } else {
-      out << "\t\t\tif (global_state == " + to_string(state) + ") begin" << endl;
+      //out << tab(3) << "if (" << atState(state, arch) << ") begin " << endl;
 
       out << "\t\t\t\t// Next state transition logic" << endl;
       for (auto transitionDest : destinations) {
@@ -1181,7 +1183,6 @@ namespace DHLS {
           out << "\t\t\t\t\tglobal_state <= " << p.stateId << ";" << endl;
 
           out << "\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;
-          //out << "\t\t\t\t\tend" << endl;
           out << "\t\t\t\tend" << endl;
           
         } else {
