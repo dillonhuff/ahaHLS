@@ -604,56 +604,6 @@ namespace DHLS {
     return resultNames;
   }
 
-  std::string outputName(Value* arg0,
-                         StateId thisState,
-                         const STG& stg,
-                         map<Instruction*, FunctionalUnit>& unitAssignment,
-                         map<Instruction*, Wire>& names,
-                         std::map<llvm::Value*, int>& memoryMap) {
-
-    if (Instruction::classof(arg0)) {
-
-      auto instr0 = dyn_cast<Instruction>(arg0);
-      StateId argState = map_find(instr0, stg.sched.instrTimes).back();
-
-      if (argState == thisState) {
-
-        assert(contains_key(instr0, unitAssignment));
-
-        auto unit0Src =
-          map_find(instr0, unitAssignment);
-
-        if (unit0Src.outWires.size() != 1) {
-          cout << "Error: Getting name of " << valueString(arg0) << endl;
-        }
-        assert(unit0Src.outWires.size() == 1);
-        string arg0Name = unit0Src.onlyOutputVar();
-        return arg0Name;
-        
-      } else {
-
-        Wire tmpRes = map_find(instr0, names);
-        return tmpRes.name;
-
-      }
-
-
-    } else if (Argument::classof(arg0)) {
-      return to_string(map_find(arg0, memoryMap));
-      // string name = arg0->getName();
-      // return to_string(map_find(name, memoryMap));
-    } else {
-      assert(ConstantInt::classof(arg0));
-      auto arg0C = dyn_cast<ConstantInt>(arg0);
-      auto apInt = arg0C->getValue();
-
-      //assert(!apInt.isNegative());
-
-      return to_string(dyn_cast<ConstantInt>(arg0)->getSExtValue());
-    }
-
-  }
-
   class ControlFlowPosition {
 
     StateId state;
