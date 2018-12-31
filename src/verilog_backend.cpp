@@ -1460,6 +1460,7 @@ namespace DHLS {
     for (auto p : pipelines) {
       int stage = p.II() - 1;
       StateId st = p.stateForStage(stage);
+
       out << tab(3) << "if (" << atState(st, arch) << ") begin" << endl;
       std::map<llvm::Value*, int> memMap;
 
@@ -1486,7 +1487,7 @@ namespace DHLS {
 
       out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;
       out << "\t\t\t\t\tend" << endl;
-      out << "\t\t\t\tend else begin " << p.valids.at(0).name << " <= 0; end" << endl;
+      out << "\t\t\t\tend else if (" << p.inPipe.name << ") begin " << p.valids.at(0).name << " <= 0; end" << endl;
 
     }
 
