@@ -1121,8 +1121,18 @@ namespace DHLS {
   Instruction* lastInstructionInState(const StateId state,
                                       MicroArchitecture& arch) {
     Instruction* last = nullptr;
+    BasicBlock* lastBB = nullptr;
+
     for (auto instrG : map_find(state, arch.stg.opStates)) {
       if (last == nullptr) {
+        last = instrG.instruction;
+        lastBB = last->getParent();
+      }
+
+      assert(instrG.instruction->getParent() == lastBB);
+
+      OrderedBasicBlock obb(lastBB);
+      if (obb.dominates(last, instrG.instruction)) {
         last = instrG.instruction;
       }
     }
