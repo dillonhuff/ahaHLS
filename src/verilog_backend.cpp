@@ -107,20 +107,6 @@ namespace DHLS {
 
     }
 
-    // TODO: Accomodate different width reads / writes
-    // int width = 32;    
-    // for (int i = 0; i < numReadPorts; i++) {
-    //   pts.push_back(inputPort(width, "rdata_" + to_string(i)));
-    //   pts.push_back(outputPort(clog2(width), "raddr_" + to_string(i)));
-    //   pts.push_back(outputPort(1, "ren_" + to_string(i)));
-    // }
-
-    // for (int i = 0; i < numWritePorts; i++) {
-    //   pts.push_back(outputPort(width, "wdata_" + to_string(i)));
-    //   pts.push_back(outputPort(clog2(width), "waddr_" + to_string(i)));
-    //   pts.push_back(outputPort(1, "wen_" + to_string(i)));
-    // }
-
     return pts;
 
   }
@@ -1844,7 +1830,10 @@ namespace DHLS {
       } else {
         out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
         for (auto bbI : instructionsForBlocks) {
-          out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, st.first, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
+
+          auto pos = position(st.first, bbI.second.instruction->getParent()->getTerminator());
+          //out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, st.first, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
+          out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, pos, arch) << ") begin" << endl;
           auto bbNo = map_find(bbI.first, arch.basicBlockNos);
           out << tab(5) << "last_BB_reg <= " << bbNo << ";" << endl;
           out << tab(4) << "end" << endl;
