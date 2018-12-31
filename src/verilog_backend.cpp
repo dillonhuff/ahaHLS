@@ -802,57 +802,6 @@ namespace DHLS {
   }
   
   std::string verilogForCondition(Condition& cond,
-                                  const StateId currentState,
-                                  const STG& stg,
-                                  map<Instruction*, FunctionalUnit>& unitAssignment,
-                                  map<Instruction*, Wire>& names) {
-    string condStr = "";
-
-    if (cond.isTrue()) {
-      return "1";
-    }
-
-    int clNum = 0;
-    for (auto cl : cond.clauses) {
-
-      int aNum = 0;
-      for (auto a : cl) {
-        bool isNeg = a.negated;
-
-        map<llvm::Value*, int> memoryMap;
-        string valueStr = outputName(a.cond,
-                                     currentState,
-                                     stg,
-                                     unitAssignment,
-                                     names,
-                                     memoryMap);
-        
-        if (isNeg) {
-          condStr += "!";
-        }
-
-        condStr += "(";
-        condStr += valueStr;
-        condStr += ")";
-
-        if (aNum < ((int) cl.size()) - 1) {
-          condStr += " && ";
-        }
-        
-        aNum++;
-      }
-
-      if (clNum < ((int) cond.clauses.size()) - 1) {
-        condStr += " || ";
-      }
-
-      clNum++;
-    }
-    
-    return condStr;
-  }
-
-  std::string verilogForCondition(Condition& cond,
                                   ControlFlowPosition pos,
                                   MicroArchitecture& arch) {
     string condStr = "";
