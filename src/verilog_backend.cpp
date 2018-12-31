@@ -1135,6 +1135,8 @@ namespace DHLS {
     if (isPipelineState(state, pipelines)) {
       auto p = getPipeline(state, pipelines);
 
+      auto pos = pipelinePosition(p.getExitBranch(), state, p.numStages() - 1);
+
       out << tab(3) << "if (" << atState(state, arch) << ") begin " << endl;
       out << "\t\t\t\t// Next state transition logic" << endl;
       for (auto transitionDest : destinations) {
@@ -1144,7 +1146,8 @@ namespace DHLS {
           auto destP = getPipeline(transitionDest.dest, pipelines);
 
           out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-          out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+          //out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+          out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << ") begin" << endl;
           out << "\t\t\t\t\tglobal_state <= " << destP.stateId << ";" << endl;
 
           out << "\t\t\t\tend" << endl;
@@ -1156,7 +1159,7 @@ namespace DHLS {
           out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
           // TODO: Check whether true or false on transitionDest.cond
           // causes an exit from the block
-          out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, pipelinePosition(p.getExitBranch(), state, p.numStages() - 1), arch) << " && " << pipelineClearOnNextCycleCondition(p) << ") begin" << endl;
+          out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << " && " << pipelineClearOnNextCycleCondition(p) << ") begin" << endl;
           out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
           out << "\t\t\t\tend" << endl;
         }
@@ -1347,7 +1350,8 @@ namespace DHLS {
           for (auto instrG : instrsAtState) {
             Instruction* instr = instrG.instruction;
 
-            out << "\t\t\tif (" << verilogForCondition(instrG.cond, state, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
+            ControlFlowPosition pos = position(state, instr);
+            out << tab(3) << "if (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
 
             out << tab(4) << "// " << instructionString(instr) << endl;
             instructionVerilog(out, position(state, instr), arch);
@@ -1832,7 +1836,6 @@ namespace DHLS {
         for (auto bbI : instructionsForBlocks) {
 
           auto pos = position(st.first, bbI.second.instruction->getParent()->getTerminator());
-          //out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, st.first, arch.stg, arch.unitAssignment, arch.names) << ") begin" << endl;
           out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, pos, arch) << ") begin" << endl;
           auto bbNo = map_find(bbI.first, arch.basicBlockNos);
           out << tab(5) << "last_BB_reg <= " << bbNo << ";" << endl;
