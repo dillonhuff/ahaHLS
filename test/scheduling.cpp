@@ -217,7 +217,17 @@ namespace DHLS {
   // just fire and forget stores that never interfere with other memory ops, you
   // don't have to wait for them to finish. Or more precisely you only have to
   // wait long enough between issues of the instruction to be sure that you can
-  // issue a new instance of the instruction without interfering with the last one
+  // issue a new instance of the instruction without interfering with the last one.
+  // I suppose in straight line code this problem is handled via data dependencies
+  // and in pipelining it is handled by the fact that dependence distances of
+  // infinity allow any number of subsequent iterations to start during the store
+  // operation. Q: What are the analogues (analogs?) of these concepts in variable
+  // completion time ops?
+  // A: For ordinary data dependences it is the dependence edge (same as before)
+  //    For pipelining I dont know. In a pipeline you could have a stall in the
+  //    pipeline or a buffer. Or: You could stall part of the pipeline and add
+  //    a buffer between the active portion and the stalled portion that stores
+  //    data that needs to be passed from one stage to the next
 
   // Q: What test cases do I need?
   // A: Test that uses multiple different RAM types
