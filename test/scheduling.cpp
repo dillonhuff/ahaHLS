@@ -227,7 +227,9 @@ namespace DHLS {
   //    For pipelining I dont know. In a pipeline you could have a stall in the
   //    pipeline or a buffer. Or: You could stall part of the pipeline and add
   //    a buffer between the active portion and the stalled portion that stores
-  //    data that needs to be passed from one stage to the next
+  //    data that needs to be passed from one stage to the next. Note: You might
+  //    need a buffer for the variable time data or the fixed time data (if the
+  //    variable time turns out to be less than the fixed time!)
 
   // Q: What test cases do I need?
   // A: Test that uses multiple different RAM types
