@@ -173,14 +173,31 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("plus"));
   }
 
+  // What dependences to handle first?
+  //   1. Affine c0 * x0 + c1 * x1 + ... + cn * xn + k (polyhedral model)
+
+  // What about modulos or FIFO accesses that wrap around after a given
+  // number of increments?
+
+  // Other thing is how efficient does AXI / external memory handling need to be
+  // in order for the generated code to beat normal code? Possible problems:
+  //   1. AXI burst mode may be mandatory for good performance
+  //   2. AXI transactions have variable completion times, but the generated
+  //      hardware needs to overlap transactions
+  //   3. AXI data bus is much wider than the widest load / store, so we need to
+  //      be able to pack accesses together to get the best data storage possible
+  //      (a form of vectorization)
+  //   4. Unlikely: We have to re-order memory requests we receive out of order
+
   // Q: What test cases do I need?
   // A: Test that uses multiple different RAM types
   //    Test that uses limited numbers of memory read/write ports
   //    Test case that merges basic blocks that execute different numbers of times
   //    Test case that uses a struct as an argument
-  //    Test case that reads value from outside a loop inside a pipeline
   //    Test case with outer loop pipelining
   //    Test case with memory dependence that prevents pipelining
+  //    Test case using unit with ready valid interface pipeline
+  //    Test case that builds a linebuffer from LLVM
   TEST_CASE("A simple if") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -1789,17 +1806,10 @@ namespace DHLS {
     set<BasicBlock*> blocksToPipeline;
     blocksToPipeline.insert(loopBlock);    
     Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
-
-    // REQUIRE(s.pipelineSchedules.size() == 1);
-    // REQUIRE(begin(s.pipelineSchedules)->second == 2);
-    
     STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
     graph.print(cout);
-
-    // REQUIRE(graph.pipelines.size() == 1);
-    // REQUIRE(graph.pipelines[0].II() == 2);
 
     map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 15}};
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 15}};
