@@ -647,12 +647,32 @@ namespace DHLS {
     return {state, true, stage, instr};
   }
 
+  bool producedInPipeline(llvm::Instruction* instr,
+                          ElaboratedPipeline& p,
+                          MicroArchitecture& arch) {
+    for (auto st : p.p.getStates()) {
+      for (auto instrG : arch.stg.instructionsFinishingAt(st)) {
+        if (instrG.instruction == instr) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   std::string mostRecentStorageLocation(Instruction* result,
                                         ControlFlowPosition& currentPosition,
                                         MicroArchitecture& arch) {
+
     if (currentPosition.inPipeline()) {
+
       int stage = currentPosition.pipelineStage();
       auto p = arch.getPipeline(currentPosition.stateId());
+
+      if (!producedInPipeline(result, p, arch)) {
+        Wire tmpRes = map_find(result, arch.names);
+        return tmpRes.name;
+      }
 
       StateId argState = map_find(result, arch.stg.sched.instrTimes).back();
       StateId thisState = map_find(currentPosition.instr, arch.stg.sched.instrTimes).front();

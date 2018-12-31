@@ -1743,6 +1743,87 @@ namespace DHLS {
 
     REQUIRE(runIVerilogTB("temp_storage_pipe"));
   }
+
+  TEST_CASE("Reading a stored value from outside a pipeline inside a pipeline") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    auto mod = llvm::make_unique<Module>("pipeline with external read", context);
+
+    std::vector<Type *> inputs{intType(32)->getPointerTo(),
+        intType(32)->getPointerTo()};
+    Function* f = mkFunc(inputs, "outer_read_pipe", mod.get());
+
+    auto entryBlock = mkBB("entry_block", f);
+    auto exitBlock = mkBB("exit_block", f);        
+
+    ConstantInt* loopBound = mkInt("5", 32);
+    ConstantInt* zero = mkInt("0", 32);
+
+    IRBuilder<> entryBuilder(entryBlock);    
+    auto q = loadVal(entryBuilder, getArg(f, 0), zero);
+    auto bodyF = [f, q](IRBuilder<>& builder, Value* i) {
+      auto v = loadVal(builder, getArg(f, 0), i);
+      auto three = mkInt("3", 32);
+      auto seven = mkInt("7", 32);      
+
+      auto z = builder.CreateMul(v, three);
+      auto r = builder.CreateMul(v, seven);
+      auto c = builder.CreateAdd(z, r);
+      //auto final = builder.CreateAdd(c, q);
+      storeVal(builder, getArg(f, 1), i, c);
+    };
+    auto loopBlock = sivLoop(f, entryBlock, exitBlock, zero, loopBound, bodyF);
+
+    entryBuilder.CreateBr(loopBlock);
+
+    IRBuilder<> exitBuilder(exitBlock);
+    exitBuilder.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.setCount(MUL_OP, 1);
+
+    set<BasicBlock*> blocksToPipeline;
+    blocksToPipeline.insert(loopBlock);    
+    Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
+
+    REQUIRE(s.pipelineSchedules.size() == 1);
+    REQUIRE(begin(s.pipelineSchedules)->second == 2);
+    
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    REQUIRE(graph.pipelines.size() == 1);
+    REQUIRE(graph.pipelines[0].II() == 2);
+
+    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 15}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 15}};
+    auto arch = buildMicroArchitecture(f, graph, layout);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(f, arch, info);
+
+    // Create testing infrastructure
+    map<string, vector<int> > memoryInit{{"arg_0", {6, 4, 5, 2, 1}}};
+    map<string, vector<int> > memoryExpected{{"arg_1", {6*3 + 6*7 + 6, 4*3 + 4*7 + 6, 5*3 + 5*7 + 6, 2*3 + 2*7 + 6, 1*3 + 1*7 + 6}}};
+
+    TestBenchSpec tb;
+    tb.memoryInit = memoryInit;
+    tb.memoryExpected = memoryExpected;
+    tb.runCycles = 30;
+    tb.maxCycles = 42;
+    tb.name = "outer_read_pipe";
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    REQUIRE(runIVerilogTB("outer_read_pipe"));
+  }
   
   // TEST_CASE("1D stencil with shift register in LLVM") {
   //   LLVMContext context;
