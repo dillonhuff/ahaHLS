@@ -884,12 +884,6 @@ namespace DHLS {
 
         map<llvm::Value*, int> memoryMap;
         string valueStr = outputName(a.cond, pos, arch);
-        // string valueStr = outputName(a.cond,
-        //                              currentState,
-        //                              stg,
-        //                              unitAssignment,
-        //                              names,
-        //                              memoryMap);
         
         if (isNeg) {
           condStr += "!";
