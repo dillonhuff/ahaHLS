@@ -189,6 +189,28 @@ namespace DHLS {
   //      (a form of vectorization)
   //   4. Unlikely: We have to re-order memory requests we receive out of order
 
+  // Possible categorization:
+  //   1. Fixed time, fixed order: All operations start at a given time and end
+  //      at a given time in the static schedule. Q: What about unknown bound loops?
+  //      They can have fixed time for each operation, but indefinite total time.
+  //      I guess you can write an expression for execution cycle start / end
+  //      times for all operations in terms of loop trip count and loop
+  //      entry or exit times
+  //      Also: Which branch in an if is taken effects times, so that will have
+  //      to be included in an expression for static time
+  //      Can write completion time expressions in terms of nearest statically
+  //      unknown values?
+
+  //  2. Variable time, unknown order: Now operations can depend on other operations
+  //     that take a variable amount of time, so their completion times depend on
+  //     the completion time of individual operations. How different is scheduling
+  //     for these ops, really? I guess the design has to have stalls on the
+  //     portions of the design that depend on the variable completion time value
+  //     Also: What to do about passing data between stages of a pipeline with
+  //     variable completion time ops? When is it possible to detect cases where
+  //     data passing between stages where one is running ahead does not need to
+  //     be stored in buffers between stages?
+
   // Q: What test cases do I need?
   // A: Test that uses multiple different RAM types
   //    Test that uses limited numbers of memory read/write ports
