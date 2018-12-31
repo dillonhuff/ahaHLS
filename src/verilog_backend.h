@@ -473,5 +473,9 @@ namespace DHLS {
   memoryOpLocations(llvm::Function* f);
 
   std::string atState(const StateId state, const MicroArchitecture& arch);  
-  std::string notAtState(const StateId state, const MicroArchitecture& arch);  
+  std::string notAtState(const StateId state, const MicroArchitecture& arch);
+
+  llvm::Instruction* lastInstructionInState(const StateId state,
+                                            MicroArchitecture& arch);
+  
 }

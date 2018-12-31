@@ -1068,14 +1068,22 @@ namespace DHLS {
   void emitTempStorage(std::ostream& out,
                        const StateId state,
                        const std::vector<StateTransition>& destinations,
-                       const STG& stg,
-                       map<Instruction*, FunctionalUnit>& unitAssignment,
-                       map<Instruction*, Wire>& names,
-                       const std::vector<ElaboratedPipeline>& pipelines) {
+                       MicroArchitecture& arch) {
 
+                       // const STG& stg,
+                       // map<Instruction*, FunctionalUnit>& unitAssignment,
+                       // map<Instruction*, Wire>& names,
+                       // const std::vector<ElaboratedPipeline>& pipelines) {
+
+    auto& names = arch.names;
+    auto& pipelines = arch.pipelines;
+    auto& unitAssignment = arch.unitAssignment;
+    
     out << "\t\t\t\t// Store data computed at the stage" << endl;
 
-    for (auto instrG : stg.instructionsFinishingAt(state)) {
+    auto lastI = lastInstructionInState(state, arch);
+    auto pos = position(state, lastI);
+    for (auto instrG : arch.stg.instructionsFinishingAt(state)) {
       Instruction* instr = instrG.instruction;
 
       if (hasOutput(instr)) {
@@ -1085,6 +1093,7 @@ namespace DHLS {
         if (isPipelineState(state, pipelines)) {
           auto p = getPipeline(state, pipelines);
           int stage = p.stageForState(state);
+          pos = pipelinePosition(lastI, state, stage);
           if (stage < p.numStages() - 1) {
             instrName = map_find(instr, p.pipelineRegisters[stage + 1]).name;
             cout << "Now instrName = " << instrName << endl;
@@ -1093,8 +1102,8 @@ namespace DHLS {
 
         auto unit = map_find(instr, unitAssignment);
 
-        out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
-
+        //out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
+        out << tab(4) << "if (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
         out << "\t\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
         out << "\t\t\t\tend" << endl;
           
@@ -1145,10 +1154,7 @@ namespace DHLS {
                              const std::vector<StateTransition>& destinations,
                              MicroArchitecture& arch) {
 
-    auto& names = arch.names;
     auto& pipelines = arch.pipelines;
-    auto& stg = arch.stg;
-    auto& unitAssignment = arch.unitAssignment;
 
     out << tab(3) << "if (" << atState(state, arch) << ") begin " << endl;    
     out << "\t\t\t\t// Next state transition logic" << endl;
@@ -1218,10 +1224,7 @@ namespace DHLS {
     emitTempStorage(out,
                     state,
                     destinations,
-                    stg,
-                    unitAssignment,
-                    names,
-                    pipelines);
+                    arch);
     
     out << "\t\t\tend" << endl;
     
