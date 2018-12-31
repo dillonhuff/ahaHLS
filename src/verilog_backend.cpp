@@ -1507,8 +1507,6 @@ namespace DHLS {
     out << "\t\tif (rst) begin" << endl;
     for (auto p : pipelines) {
 
-      //out << "\t\t\t" << p.inPipe.name << " <= 0;" << endl;
-
       for (auto validVar : p.valids) {
         out << "\t\t\t" << validVar.name << " <= 0;" << endl;
       }
@@ -1523,13 +1521,14 @@ namespace DHLS {
                               MicroArchitecture& arch) {
 
     auto& pipelines = arch.pipelines;
-    //auto& unitAssignment = arch.unitAssignment; // Not used
 
     out << "\t// Start pipeline initiation block" << endl;
     out << "\talways @(posedge clk) begin" << endl;
 
     for (auto p : pipelines) {
-      out << "\t\t\t\tif (" << p.valids.at(p.II() - 1).name << " && " << p.inPipe.name << ") begin" << endl;
+      int stage = p.II() - 1;
+      StateId st = p.stateForStage(stage);
+      out << tab(3) << "if (" << atState(st, arch) << ") begin" << endl;
       std::map<llvm::Value*, int> memMap;
 
       assert(Instruction::classof(p.getExitCondition()));
