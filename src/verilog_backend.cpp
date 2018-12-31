@@ -1108,10 +1108,15 @@ namespace DHLS {
     out << tab(3) << "if (" << atState(state, arch) << ") begin " << endl;    
     out << "\t\t\t\t// Next state transition logic" << endl;
 
+    ControlFlowPosition pos = position(state, lastInstructionInState(state, arch));
+    
     if (isPipelineState(state, pipelines)) {
       auto p = getPipeline(state, pipelines);
-
-      auto pos = pipelinePosition(p.getExitBranch(), state, p.numStages() - 1);
+      pos = pipelinePosition(p.getExitBranch(), state, p.numStages() - 1);
+    }
+    
+    if (isPipelineState(state, pipelines)) {
+      auto p = getPipeline(state, pipelines);
 
       for (auto transitionDest : destinations) {
 
@@ -1141,8 +1146,6 @@ namespace DHLS {
 
     } else {
 
-      auto pos = position(state, lastInstructionInState(state, arch));
-
       for (auto transitionDest : destinations) {
 
         if (isPipelineState(transitionDest.dest, pipelines)) {
@@ -1150,7 +1153,6 @@ namespace DHLS {
           auto p = getPipeline(transitionDest.dest, pipelines);
 
           out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-          //out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << ") begin" << endl;
           out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << ") begin" << endl;
           out << "\t\t\t\t\tglobal_state <= " << p.stateId << ";" << endl;
 
@@ -1159,7 +1161,6 @@ namespace DHLS {
           
         } else {
           out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-          //out << "\t\t\t\tif (" << verilogForCondition(transitionDest.cond, state, stg, unitAssignment, names) << ") begin" << endl;
           out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << ") begin" << endl;
           out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
           out << "\t\t\t\tend" << endl;
