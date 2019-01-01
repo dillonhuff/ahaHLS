@@ -231,6 +231,17 @@ namespace DHLS {
   //    need a buffer for the variable time data or the fixed time data (if the
   //    variable time turns out to be less than the fixed time!)
 
+  // Q: Can you think of a pipeline as a set of processes communicating via
+  //    FIFO buffers? Can you think of each stage as a separate thread of control?
+  //    What are the threads of control and how do pieces of data or instruction
+  //    traces move through them?
+  // A: I guess each stage executes snippets of a complete trace of a program, for
+  //    example stage 0 might be the snippet that executes each instance of a load
+  //    or a store
+  // Q: Where does pipeline forwarding fit in to this? Where does CSP fit in?
+  // A: Pipeline forwarding is a form of state sharing between processes. One stage
+  //    can read from the data of a different stage?
+
   // Q: What test cases do I need?
   // A: Test that uses multiple different RAM types
   //    Test that uses limited numbers of memory read/write ports
@@ -1875,6 +1886,75 @@ namespace DHLS {
     emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("outer_read_pipe"));
+  }
+
+  TEST_CASE("Loop pipeline II increased by memory dependence") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    auto mod = llvm::make_unique<Module>("pipeline with memory dependence", context);
+
+    std::vector<Type *> inputs{intType(32)->getPointerTo()};
+    Function* f = mkFunc(inputs, "mem_dep_pipe", mod.get());
+
+    auto entryBlock = mkBB("entry_block", f);
+    auto exitBlock = mkBB("exit_block", f);        
+
+    ConstantInt* loopBound = mkInt("5", 32);
+    ConstantInt* one = mkInt("1", 32);
+
+    IRBuilder<> entryBuilder(entryBlock);    
+    auto bodyF = [f, one](IRBuilder<>& builder, Value* i) {
+      auto ind = builder.CreateSub(i, one);
+      
+      auto v = loadVal(builder, getArg(f, 0), ind);
+      auto final = builder.CreateAdd(v, one);
+
+      storeVal(builder, getArg(f, 0), i, final);
+    };
+    auto loopBlock = sivLoop(f, entryBlock, exitBlock, one, loopBound, bodyF);
+
+    entryBuilder.CreateBr(loopBlock);
+
+    IRBuilder<> exitBuilder(exitBlock);
+    exitBuilder.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.setCount(MUL_OP, 1);
+
+    set<BasicBlock*> blocksToPipeline;
+    blocksToPipeline.insert(loopBlock);    
+    Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<string, int> testLayout = {{"arg_0", 0}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}};
+    auto arch = buildMicroArchitecture(f, graph, layout);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(f, arch, info);
+
+    // Create testing infrastructure
+    map<string, vector<int> > memoryInit{{"arg_0", {6, 4, 5, 2, 1}}};
+    map<string, vector<int> > memoryExpected{{"arg_0", {6, 6 + 1, 6 + 2, 6 + 3, 6 + 4}}};
+
+    TestBenchSpec tb;
+    tb.memoryInit = memoryInit;
+    tb.memoryExpected = memoryExpected;
+    tb.runCycles = 30;
+    tb.maxCycles = 42;
+    tb.name = "mem_dep_pipe";
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    REQUIRE(runIVerilogTB("mem_dep_pipe"));
   }
   
   // TEST_CASE("1D stencil with shift register in LLVM") {
