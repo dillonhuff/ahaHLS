@@ -664,6 +664,8 @@ namespace DHLS {
                                         ControlFlowPosition& currentPosition,
                                         MicroArchitecture& arch) {
 
+
+    cout << "Getting most recent location of " << valueString(result) << " for instruction " << valueString(currentPosition.instr) << endl;
     if (currentPosition.inPipeline()) {
 
       int stage = currentPosition.pipelineStage();
@@ -691,8 +693,15 @@ namespace DHLS {
           return tmpRes.name;
 
         } else {
-          Wire tmpRes = map_find(result, p.pipelineRegisters[stage + p.II()]);
-          return tmpRes.name;
+          cout << "Getting stage + 1" << endl;
+          int stagePlusII = stage + p.II();
+          if (stagePlusII < p.pipelineRegisters.size()) {
+            Wire tmpRes = map_find(result, arch.names);
+            return tmpRes.name;
+          } else {
+            Wire tmpRes = map_find(result, p.pipelineRegisters[stage + p.II()]);
+            return tmpRes.name;
+          }
         }
 
       } else {

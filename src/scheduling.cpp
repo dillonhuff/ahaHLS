@@ -528,7 +528,16 @@ namespace DHLS {
                   LoadInst* const maybeReader,
                   AliasAnalysis& aliasAnalysis,
                   ScalarEvolution& scalarEvolution) {
-    return -1;
+
+    Value* storeLoc = maybeWriter->getOperand(1);
+    Value* loadLoc = maybeReader->getOperand(0);
+              
+    AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
+    if (aliasRes == NoAlias) {
+      return -1;
+    }
+
+    return 1;
   }
   
   int rawOperandDD(Instruction* const maybeWriter,
@@ -787,7 +796,7 @@ namespace DHLS {
                                          aliasAnalysis,
                                          sc);
               if (memRawDD > 0) {
-                s.add(instrEnd(&instrA, schedVars) < II*rawDD + instrStart(&instrB, schedVars));
+                s.add(instrEnd(&instrA, schedVars) < II*memRawDD + instrStart(&instrB, schedVars));
               }
             }
           }
@@ -795,8 +804,8 @@ namespace DHLS {
       }
     }
 
-    // cout << "Solver constraints" << endl;
-    // cout << s << endl;
+    cout << "Solver constraints" << endl;
+    cout << s << endl;
     return buildFromModel(s, schedVars, blockVars, IIs);
   }
   
