@@ -537,6 +537,9 @@ namespace DHLS {
       return -1;
     }
 
+    // TODO: Get the scevs for store and load locations. If they are affine
+    // then compute the dependence distance between them and compute
+
     return 1;
   }
   
