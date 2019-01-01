@@ -570,6 +570,8 @@ namespace DHLS {
 
         cout << "type = " << typeString(tp) << endl;
         int width;
+
+        // TODO: Extract to its own function
         if (IntegerType::classof(tp)) {
           IntegerType* iTp = dyn_cast<IntegerType>(tp);
           width = iTp->getBitWidth();
@@ -691,12 +693,15 @@ namespace DHLS {
         if (obb.dominates(result, currentPosition.instr)) {
           Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
           return tmpRes.name;
-
         } else {
-          cout << "Getting stage + 1" << endl;
+          cout << "Getting data from previous stage" << endl;
           int stagePlusII = stage + p.II();
-          if (stagePlusII < p.pipelineRegisters.size()) {
+          if (stagePlusII >= p.pipelineRegisters.size()) {
+            assert(contains_key(result, arch.names));
+                   
             Wire tmpRes = map_find(result, arch.names);
+
+            cout << "Wire name = " << tmpRes.name << endl;
             return tmpRes.name;
           } else {
             Wire tmpRes = map_find(result, p.pipelineRegisters[stage + p.II()]);
@@ -1539,6 +1544,12 @@ namespace DHLS {
           }
         }
         
+      }
+
+      out << tab(2) << "// Register transfer from stage " << (p.pipelineRegisters.size() - 1) << " to regular storage" << endl;
+      for (auto instrS : p.pipelineRegisters.back()) {
+        Instruction* i = instrS.first;
+        out << tab(2) << map_find(i, arch.names).name << " <= " << instrS.second.name << ";" << endl;
       }
     }
     out << tab(1) << "end" << endl;
