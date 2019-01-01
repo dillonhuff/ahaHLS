@@ -36,7 +36,8 @@ namespace DHLS {
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
                             std::set<BasicBlock*>& toPipeline,
-                            AAResults& aliasAnalysis);
+                            AAResults& aliasAnalysis,
+                            ScalarEvolution& scalarEvolution);
   
   struct SkeletonPass : public FunctionPass {
     static char ID;
@@ -147,7 +148,8 @@ namespace DHLS {
       schedule = scheduleFunction(&F,
                                   hdc,
                                   toPipeline,
-                                  a);
+                                  a,
+                                  sc);
 
       return false;
     }
@@ -522,6 +524,13 @@ namespace DHLS {
     return sortedOrder;
   }
 
+  int rawMemoryDD(StoreInst* const maybeWriter,
+                  LoadInst* const maybeReader,
+                  AliasAnalysis& aliasAnalysis,
+                  ScalarEvolution& scalarEvolution) {
+    return -1;
+  }
+  
   int rawOperandDD(Instruction* const maybeWriter,
                    Instruction* const maybeReader,
                    DominatorTree& domTree) {
@@ -551,7 +560,8 @@ namespace DHLS {
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
                             std::set<BasicBlock*>& toPipeline,
-                            AAResults& aliasAnalysis) {
+                            AAResults& aliasAnalysis,
+                            ScalarEvolution& sc) {
 
     map<Instruction*, vector<expr> > schedVars;
     map<BasicBlock*, vector<expr> > blockVars;
@@ -768,6 +778,17 @@ namespace DHLS {
             int rawDD = rawOperandDD(&instrA, &instrB, domTree);
             if (rawDD > 0) {
               s.add(instrEnd(&instrA, schedVars) < II*rawDD + instrStart(&instrB, schedVars));
+            }
+
+            if (StoreInst::classof(&instrA) &&
+                LoadInst::classof(&instrB)) {
+              int memRawDD = rawMemoryDD(dyn_cast<StoreInst>(&instrA),
+                                         dyn_cast<LoadInst>(&instrB),
+                                         aliasAnalysis,
+                                         sc);
+              if (memRawDD > 0) {
+                s.add(instrEnd(&instrA, schedVars) < II*rawDD + instrStart(&instrB, schedVars));
+              }
             }
           }
         }
