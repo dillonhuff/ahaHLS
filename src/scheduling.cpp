@@ -4,6 +4,8 @@
 
 #include <llvm/IR/Instructions.h>
 
+#include <llvm/Analysis/OrderedBasicBlock.h>
+
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/Transforms/IPO/PassManagerBuilder.h>
 #include <llvm/Analysis/AliasAnalysis.h>
@@ -524,6 +526,19 @@ namespace DHLS {
     return sortedOrder;
   }
 
+
+  bool appearsBefore(Instruction* const maybeBefore,
+                     Instruction* const maybeAfter) {
+
+    BasicBlock* argBB = maybeBefore->getParent();
+    BasicBlock* userBB = maybeAfter->getParent();
+
+    assert(argBB == userBB);
+
+    OrderedBasicBlock obb(argBB);
+    return obb.dominates(maybeBefore, maybeAfter);
+  }
+
   int rawMemoryDD(StoreInst* const maybeWriter,
                   LoadInst* const maybeReader,
                   AliasAnalysis& aliasAnalysis,
@@ -538,9 +553,34 @@ namespace DHLS {
     }
 
     // TODO: Get the scevs for store and load locations. If they are affine
-    // then compute the dependence distance between them and compute
+    // then compute the dependence distance between them and compute the largest
+    // value for each scev
 
-    return 1;
+    // Create z3 solver and optimizer and build the constraints on trip count
+    context c;
+    optimize opt(c);
+    expr Iw = c.int_const("Iw");
+    expr Ir = c.int_const("Ir");
+    expr DD = c.int_const("DD");
+
+    opt.add(0 <= Iw);
+    bool lexicallyForward = appearsBefore(maybeWriter, maybeReader);
+    if (lexicallyForward) {
+      opt.add(Iw <= Ir);
+    } else {
+      opt.add(Iw < Ir);
+    }
+
+    opt.add(DD == (Ir - Iw));
+
+    optimize::handle h1 = opt.minimize(DD);
+
+    if (sat == opt.check()) {
+      return opt.lower(h1).get_numeral_int64();
+    } else {
+      cout << "No solution for dependence distance, set distance == -1" << endl;
+      return -1;
+    }
   }
   
   int rawOperandDD(Instruction* const maybeWriter,
