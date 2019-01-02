@@ -199,7 +199,8 @@ namespace DHLS {
   //      Also: Which branch in an if is taken effects times, so that will have
   //      to be included in an expression for static time
   //      Can write completion time expressions in terms of nearest statically
-  //      unknown values?
+  //      unknown values? Or: Write in terms of the nearest statically unknown
+  //      dominator of the current control flow point. Nearest or furthest?
 
   //  2. Variable time, unknown order: Now operations can depend on other operations
   //     that take a variable amount of time, so their completion times depend on
@@ -248,7 +249,6 @@ namespace DHLS {
   //    Test case that merges basic blocks that execute different numbers of times
   //    Test case that uses a struct as an argument
   //    Test case with outer loop pipelining
-  //    Test case with memory dependence that prevents pipelining
   //    Test case using unit with ready valid interface pipeline
   //    Test case that builds a linebuffer from LLVM
   TEST_CASE("A simple if") {
