@@ -5,7 +5,6 @@
 
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Instructions.h>
-#include <llvm/Support/raw_ostream.h>
 
 namespace DHLS {
 
@@ -333,15 +332,8 @@ namespace DHLS {
     Condition cond;
   };
 
-  static inline
-  std::ostream& operator<<(std::ostream& out, const GuardedInstruction& t) {
-    std::string str;
-    llvm::raw_string_ostream ss(str);
-    ss << *(t.instruction);
-    out << "\t\t" << ss.str() << " if " << t.cond << " in " << (t.instruction)->getParent()->getName().str() << std::endl;
-    return out;
-  }
-  
+  std::ostream& operator<<(std::ostream& out, const GuardedInstruction& t);
+
   typedef int StateId;
 
   class StateTransition {

@@ -12,6 +12,7 @@
 #include <llvm/Analysis/LoopInfo.h>
 #include <llvm/Analysis/LoopAccessAnalysis.h>
 #include <llvm/Analysis/ScalarEvolution.h>
+#include <llvm/Support/raw_ostream.h>
 
 using namespace dbhc;
 using namespace llvm;
@@ -20,6 +21,15 @@ using namespace z3;
 
 namespace DHLS {
 
+  std::ostream& operator<<(std::ostream& out, const GuardedInstruction& t) {
+    std::string str;
+    llvm::raw_string_ostream ss(str);
+    ss << *(t.instruction);
+    out << "\t\t" << ss.str() << " if " << t.cond << " in " << (t.instruction)->getParent()->getName().str() << std::endl;
+    return out;
+  }
+  
+  
   HardwareConstraints standardConstraints() {
     HardwareConstraints hcs;
     hcs.setLatency(STORE_OP, 3);

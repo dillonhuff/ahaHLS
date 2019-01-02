@@ -2,33 +2,11 @@
 
 #include "catch.hpp"
 
-#include "algorithm.h"
-
-#include "scheduling.h"
 #include "verilog_backend.h"
 #include "llvm_codegen.h"
 
-#include <fstream>
-
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/Instructions.h"
-#include "llvm/IR/InstrTypes.h"
-#include <llvm/Support/TargetSelect.h>
-
-#include <llvm/Support/raw_ostream.h>
-#include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
-#include <llvm/Bitcode/BitcodeReader.h>
-#include <llvm/IR/LLVMContext.h>
 #include <llvm/Support/SourceMgr.h>
-
-#include "llvm/ADT/STLExtras.h"
-#include "llvm/Option/OptTable.h"
-#include "llvm/Support/Path.h"
-#include "llvm/Support/Signals.h"
-#include "llvm/Support/TargetSelect.h"
-
-#include <iostream>
 
 using namespace dbhc;
 using namespace llvm;
@@ -349,7 +327,7 @@ namespace DHLS {
     hcs.setLatency(ADD_OP, 0);
 
     // Limits number of adders
-    //hcs.setCount(ADD_OP, 1);
+    hcs.setCount(ADD_OP, 1);
 
     Function* f = Mod->getFunction("many_adds");
     Schedule s = scheduleFunction(f, hcs);
@@ -377,7 +355,6 @@ namespace DHLS {
     }
 
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 1}, {getArg(f, 2), 2}, {getArg(f, 3), 3}};    
-    //map<string, int> layout = {{"a", 0}, {"b", 1}, {"c", 2}, {"d", 3}};
     emitVerilog(f, graph, layout);
     REQUIRE(runIVerilogTB("many_adds"));
     
