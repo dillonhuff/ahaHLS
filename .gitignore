@@ -71,3 +71,6 @@ mem_16_test*
 tf
 shift_register*
 constrained_pipe*
+mem_dep_pipe*
+temp_storage_pipe*
+outer_read_pipe*
