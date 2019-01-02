@@ -526,6 +526,12 @@ namespace DHLS {
     return sortedOrder;
   }
 
+  std::string scevStr(const SCEV* scev) {
+    std::string str;
+    llvm::raw_string_ostream ss(str);
+    ss << *scev;
+    return ss.str();    
+  }
 
   bool appearsBefore(Instruction* const maybeBefore,
                      Instruction* const maybeAfter) {
@@ -537,6 +543,40 @@ namespace DHLS {
 
     OrderedBasicBlock obb(argBB);
     return obb.dominates(maybeBefore, maybeAfter);
+  }
+
+  expr scevToExpr(const SCEV* scev, map<Value*, vector<expr > >& valueNames, context& c) {
+    if (SCEVConstant::classof(scev)) {
+      auto sConst = dyn_cast<SCEVConstant>(scev);
+      auto val = sConst->getValue()->getValue().getLimitedValue();
+      cout << "Value of " << scevStr(scev) << " is " << val << endl;
+      return c.int_val(val);
+    } else if (SCEVAddExpr::classof(scev)) {
+      auto sExpr = dyn_cast<SCEVAddExpr>(scev);
+      auto arg0 = scevToExpr(sExpr->getOperand(0), valueNames, c);
+      auto arg1 = scevToExpr(sExpr->getOperand(1), valueNames, c);
+      return arg0 + arg1;
+    } else if (SCEVUnknown::classof(scev)) {
+      auto uExpr = dyn_cast<SCEVUnknown>(scev);
+
+      Value* v = uExpr->getValue();
+      if (contains_key(v, valueNames)) {
+        return map_find(v, valueNames).at(0);
+      }
+
+      string name = "scev_val_";
+      if (v->getName() != "") {
+        name = v->getName().str() + "_";
+      }
+      name += to_string(valueNames.size());
+      expr e = c.int_const(name.c_str());
+      valueNames[v] = {e};
+
+      return e;
+    } else {
+      cout << "ERROR: Unsupported SCEV " << scevStr(scev) << " in scevToExpr" << endl;
+      assert(false);
+    }
   }
 
   int rawMemoryDD(StoreInst* const maybeWriter,
@@ -552,9 +592,34 @@ namespace DHLS {
       return -1;
     }
 
-    // TODO: Get the scevs for store and load locations. If they are affine
-    // then compute the dependence distance between them and compute the largest
-    // value for each scev
+    bool lexicallyForward = appearsBefore(maybeWriter, maybeReader);
+    int minDD = lexicallyForward ? 0 : 1;
+    
+    const SCEV* writeSCEV = scalarEvolution.getSCEV(storeLoc);
+    const SCEV* readSCEV = scalarEvolution.getSCEV(loadLoc);
+
+    cout << "Write location scev = " << scevStr(writeSCEV) << endl;
+    cout << "Read location scev  = " << scevStr(readSCEV) << endl;
+
+    if (!SCEVAddRecExpr::classof(writeSCEV)) {
+      return minDD;
+    }
+
+    auto wScev = dyn_cast<SCEVAddRecExpr>(writeSCEV);
+
+    if (!wScev->isAffine()) {
+      return minDD;
+    }
+
+    if (!SCEVAddRecExpr::classof(readSCEV)) {
+      return minDD;
+    }
+
+    auto rScev = dyn_cast<SCEVAddRecExpr>(readSCEV);
+
+    if (!rScev->isAffine()) {
+      return minDD;
+    }
 
     // Create z3 solver and optimizer and build the constraints on trip count
     context c;
@@ -564,7 +629,7 @@ namespace DHLS {
     expr DD = c.int_const("DD");
 
     opt.add(0 <= Iw);
-    bool lexicallyForward = appearsBefore(maybeWriter, maybeReader);
+
     if (lexicallyForward) {
       opt.add(Iw <= Ir);
     } else {
@@ -572,6 +637,15 @@ namespace DHLS {
     }
 
     opt.add(DD == (Ir - Iw));
+
+    map<Value*, vector<expr> > valueNames;
+    expr writeBase = scevToExpr(wScev->getStart(), valueNames, c);
+    expr writeInc = scevToExpr(wScev->getOperand(1), valueNames, c);
+
+    expr readBase = scevToExpr(rScev->getStart(), valueNames, c);
+    expr readInc = scevToExpr(rScev->getOperand(1), valueNames, c);
+    
+    opt.add(writeBase + Iw*writeInc == readBase + Ir*readInc);
 
     optimize::handle h1 = opt.minimize(DD);
 
