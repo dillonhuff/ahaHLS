@@ -1969,7 +1969,7 @@ namespace DHLS {
     auto entryBlock = mkBB("entry_block", f);
     auto exitBlock = mkBB("exit_block", f);
 
-    ConstantInt* loopBound = mkInt("5", 32);
+    ConstantInt* loopBound = mkInt("10", 32);
     ConstantInt* one = mkInt("1", 32);
     ConstantInt* three = mkInt("3", 32);
     IRBuilder<> entryBuilder(entryBlock);    
@@ -2003,7 +2003,7 @@ namespace DHLS {
     graph.print(cout);
 
     REQUIRE(graph.pipelines.size() == 1);
-    REQUIRE(graph.pipelines[0].II() == 1);
+    REQUIRE(graph.pipelines[0].II() == 2);
     
     map<string, int> testLayout = {{"arg_0", 0}};
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}};
@@ -2016,13 +2016,13 @@ namespace DHLS {
 
     // Create testing infrastructure
     map<string, vector<int> > memoryInit{{"arg_0", {6, 4, 5, 2, 1, 8, 0, 2, 9, 6}}};
-    map<string, vector<int> > memoryExpected{{"arg_0", {6, 4, 5, 6 + 1, 6 + 2}}};
+    map<string, vector<int> > memoryExpected{{"arg_0", {6, 4, 5, 6 + 1, 4 + 1, 5 + 1, 7 + 1, 5 + 1, 5 + 2, 7 + 2}}};
 
     TestBenchSpec tb;
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
-    tb.runCycles = 30;
-    tb.maxCycles = 42;
+    tb.runCycles = 20;
+    tb.maxCycles = 41;
     tb.name = "mem_dep_pipe_long";
     emitVerilogTestBench(tb, arch, testLayout);
 

@@ -1556,18 +1556,22 @@ namespace DHLS {
   }
   
   void emitPipelineValidChainBlock(std::ostream& out,
-                                   const std::vector<ElaboratedPipeline>& pipelines) {
+                                   MicroArchitecture& arch) {
+    auto pipelines = arch.pipelines;
     
     out << "\t// Start pipeline valid chain block" << endl;
     out << "\talways @(posedge clk) begin" << endl;
 
     for (auto p : pipelines) {
 
+      out << tab(1) << "if (" << p.inPipe.name << ") begin";
       out << "\t\t$display(\"// CLK Cycle\");" << endl;
       out << "\t\t$display(\"" << p.inPipe.name << " = %d\", " << p.inPipe.name << ");" << endl;
       for (int i = 0; i < (int) p.valids.size(); i++) {
         out << "\t\t$display(\"" << p.valids[i].name << " = %d\", " << p.valids[i].name << ");" << endl;
       }
+
+      out << tab(1) << "end" << endl;
     }
 
     out << endl;
@@ -1963,7 +1967,7 @@ namespace DHLS {
     emitGlobalStateVariables(out);
 
     emitPipelineResetBlock(out, arch.pipelines);
-    emitPipelineValidChainBlock(out, arch.pipelines);
+    emitPipelineValidChainBlock(out, arch);
     emitPipelineRegisterChains(out, arch);
 
     emitPipelineInitiationBlock(out, arch);
