@@ -349,7 +349,7 @@ namespace DHLS {
     hcs.setLatency(ADD_OP, 0);
 
     // Limits number of adders
-    hcs.setCount(ADD_OP, 1);
+    //hcs.setCount(ADD_OP, 1);
 
     Function* f = Mod->getFunction("many_adds");
     Schedule s = scheduleFunction(f, hcs);
