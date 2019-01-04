@@ -681,7 +681,10 @@ namespace DHLS {
 
 
     cout << "Getting most recent location of " << valueString(result) << " for instruction " << valueString(currentPosition.instr) << endl;
+
+    
     if (currentPosition.inPipeline()) {
+      cout << "We are in a pipeline" << endl;
 
       int stage = currentPosition.pipelineStage();
       auto p = arch.getPipeline(currentPosition.stateId());
@@ -728,7 +731,14 @@ namespace DHLS {
       }
     }
 
+    cout << "Getting the value of " << valueString(result) << " from arch.names" << endl;
+
+    assert(contains_key(result, arch.names));
+    
     Wire tmpRes = map_find(result, arch.names);
+
+    cout << "Name is " << tmpRes.name << endl;
+    
     return tmpRes.name;
   }
 
@@ -786,6 +796,8 @@ namespace DHLS {
 
 
     } else if (Argument::classof(val)) {
+      assert(contains_key(val, arch.memoryMap));
+      
       return to_string(map_find(val, arch.memoryMap));
     } else {
       assert(ConstantInt::classof(val));
