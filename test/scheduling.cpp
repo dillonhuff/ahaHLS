@@ -2018,7 +2018,7 @@ namespace DHLS {
     }
     setAllAllocaMemTypes(hcs, f, registerSpec(32));
 
-    hcs.setCount(MUL_OP, 1);
+    hcs.setCount(MUL_OP, 2);
 
     Schedule s = scheduleFunction(f, hcs);
     STG graph = buildSTG(s, f);
