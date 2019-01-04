@@ -2366,6 +2366,8 @@ namespace DHLS {
     for (auto memName : tb.memoryInit) {
       for (int i = 0; i < (int) memName.second.size(); i++) {
         // TODO: Add memory layout info
+        assert(contains_key(memName.first, layout));
+
         addAlwaysBlock({"clk"}, "if (in_set_mem_phase && clocks_in_set_mem_phase == " + to_string(setNum) + ") begin dbg_wr_en <= 1; dbg_wr_addr <= " + to_string(map_find(memName.first, layout) + i) + "; dbg_wr_data <= " + to_string(memName.second[i]) + "; end", comps);
 
         setNum++;
@@ -2384,6 +2386,7 @@ namespace DHLS {
     for (auto memName : tb.memoryExpected) {
       for (int i = 0; i < (int) memName.second.size(); i++) {
         // TODO: Add memory layout info
+        assert(contains_key(memName.first, layout));
         addAlwaysBlock({"clk"}, "if (in_check_mem_phase && clocks_in_check_mem_phase == " + to_string(checkNum) + ") begin dbg_addr <= " + to_string(map_find(memName.first, layout) + i) + "; end", comps);
 
         string str = "if (in_check_mem_phase && clocks_in_check_mem_phase == " + to_string(checkNum) + ") begin ";

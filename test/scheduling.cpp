@@ -1954,17 +1954,11 @@ namespace DHLS {
     auto cRow0 = getArg(f, 3);
     auto cRow1 = getArg(f, 4);
 
-    // vector<Value*> downRegisters;
-    // for (int i = 0; i < 2; i++) {
-    //   auto reg =
-    //     entryBuilder.CreateAlloca(intType(width), nullptr, "down_" + to_string(i));
-    //   downRegisters.push_back(reg);
-    // }
-
     vector<Value*> rightRegisters;
     for (int i = 0; i < 1; i++) {
       auto reg =
         entryBuilder.CreateAlloca(intType(width), nullptr, "right_" + to_string(i));
+      storeReg(entryBuilder, reg, mkInt(1, 32));
       rightRegisters.push_back(reg);
     }
 
@@ -1972,6 +1966,7 @@ namespace DHLS {
     for (int i = 0; i < 2; i++) {
       auto reg =
         entryBuilder.CreateAlloca(intType(width), nullptr, "accum_" + to_string(i));
+      storeReg(entryBuilder, reg, mkInt(0, 32));      
       accumRegisters.push_back(reg);
     }
 
@@ -2002,11 +1997,13 @@ namespace DHLS {
       storeReg(entryBuilder, accumRegisters[1], newAccum1);
 
       // Transfer left to right
-      storeReg(entryBuilder, rightRegisters[0], left0);
+      storeReg(entryBuilder, rightRegisters[0], aRow0V);
 
     }
 
-    
+    // Store out final results
+    storeVal(entryBuilder, cRow0, mkInt(0, 32), loadReg(entryBuilder, accumRegisters[0]));
+    storeVal(entryBuilder, cRow1, mkInt(0, 32), loadReg(entryBuilder, accumRegisters[1]));
 
     entryBuilder.CreateRet(nullptr);
 
@@ -2025,20 +2022,20 @@ namespace DHLS {
 
     hcs.setCount(MUL_OP, 1);
 
-    // set<BasicBlock*> blocksToPipeline;
-    // blocksToPipeline.insert(loopBlock);
-    Schedule s = scheduleFunction(f, hcs); //, blocksToPipeline);
+    Schedule s = scheduleFunction(f, hcs);
     STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<string, int> testLayout = {{"arg_0", 0}};
+    // TODO: Build layout and test layout from one data structure so they must
+    // match
+    // TODO: Pass hardware constraints through the whole flow
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0},
                                      {getArg(f, 1), 3},
                                      {getArg(f, 2), 6},
-                                     {getArg(f, 3), 9},
-                                     {getArg(f, 4), 12}};
+                                     {getArg(f, 3), 10},
+                                     {getArg(f, 4), 11}};
     ArchOptions options;
     auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
 
@@ -2048,9 +2045,11 @@ namespace DHLS {
     emitVerilog(f, arch, info);
 
     // Create testing infrastructure
-    map<string, vector<int> > memoryInit{{"arg_0", {6, 4, 5, 2, 1, 8, 0, 2, 9, 6}}};
-    map<string, vector<int> > memoryExpected{{"arg_0", {6, 4, 5, 6 + 1, 4 + 1, 5 + 1, 7 + 1, 5 + 1, 5 + 2, 7 + 2}}};
-
+    map<string, int> testLayout =
+      {{"aRow0", 0}, {"bCol0", 3}, {"bCol1", 6}, {"cRow0", 10}, {"cRow1", 11}};
+    map<string, vector<int> > memoryInit{{"aRow0", {1, 2, 0}}, {"bCol0", {4, 6, 0}}, {"bCol1", {4, 6, 7}}};
+    map<string, vector<int> > memoryExpected{{"cRow0", {16}}, {"cRow1", {19}}};
+    
     TestBenchSpec tb;
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
