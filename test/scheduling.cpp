@@ -1939,7 +1939,6 @@ namespace DHLS {
     std::vector<Type *> inputs{intType(32)->getPointerTo(),
         intType(32)->getPointerTo(),
         intType(32)->getPointerTo(),
-        intType(32)->getPointerTo(),
         intType(32)->getPointerTo()};
     Function* f = mkFunc(inputs, "sys_array_1_2", mod.get());
 
@@ -1952,13 +1951,12 @@ namespace DHLS {
     auto bCol1 = getArg(f, 2);
 
     auto cRow0 = getArg(f, 3);
-    auto cRow1 = getArg(f, 4);
 
     vector<Value*> rightRegisters;
     for (int i = 0; i < 1; i++) {
       auto reg =
         entryBuilder.CreateAlloca(intType(width), nullptr, "right_" + to_string(i));
-      storeReg(entryBuilder, reg, mkInt(1, 32));
+      storeReg(entryBuilder, reg, mkInt(0, 32));
       rightRegisters.push_back(reg);
     }
 
@@ -2003,7 +2001,7 @@ namespace DHLS {
 
     // Store out final results
     storeVal(entryBuilder, cRow0, mkInt(0, 32), loadReg(entryBuilder, accumRegisters[0]));
-    storeVal(entryBuilder, cRow1, mkInt(0, 32), loadReg(entryBuilder, accumRegisters[1]));
+    storeVal(entryBuilder, cRow0, mkInt(1, 32), loadReg(entryBuilder, accumRegisters[1]));
 
     entryBuilder.CreateRet(nullptr);
 
@@ -2034,8 +2032,7 @@ namespace DHLS {
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0},
                                      {getArg(f, 1), 3},
                                      {getArg(f, 2), 6},
-                                     {getArg(f, 3), 10},
-                                     {getArg(f, 4), 11}};
+                                     {getArg(f, 3), 10}};
     ArchOptions options;
     auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
 
@@ -2046,9 +2043,9 @@ namespace DHLS {
 
     // Create testing infrastructure
     map<string, int> testLayout =
-      {{"aRow0", 0}, {"bCol0", 3}, {"bCol1", 6}, {"cRow0", 10}, {"cRow1", 11}};
-    map<string, vector<int> > memoryInit{{"aRow0", {1, 2, 0}}, {"bCol0", {4, 6, 0}}, {"bCol1", {4, 6, 7}}};
-    map<string, vector<int> > memoryExpected{{"cRow0", {16}}, {"cRow1", {19}}};
+      {{"aRow0", 0}, {"bCol0", 3}, {"bCol1", 6}, {"cRow0", 10}};
+    map<string, vector<int> > memoryInit{{"aRow0", {1, 2, 0}}, {"bCol0", {4, 6, 0}}, {"bCol1", {0, 6, 7}}};
+    map<string, vector<int> > memoryExpected{{"cRow0", {16, 19}}};
     
     TestBenchSpec tb;
     tb.memoryInit = memoryInit;
