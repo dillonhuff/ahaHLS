@@ -26,4 +26,4 @@ make -j
 
 # Source Code Video Tour!
 
-[Click here and I'll give you a casual video walkthrough of the repository.](https://youtu.be/bFby20LWAYY)
+[Click here and I'll give you a casual video walkthrough of the repository.](https://youtu.be/2gURhKV4jJA)
