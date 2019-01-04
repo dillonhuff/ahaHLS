@@ -1964,7 +1964,7 @@ namespace DHLS {
     for (int i = 0; i < 2; i++) {
       auto reg =
         entryBuilder.CreateAlloca(intType(width), nullptr, "accum_" + to_string(i));
-      storeReg(entryBuilder, reg, mkInt(0, 32));      
+      storeReg(entryBuilder, reg, mkInt(0, 32));
       accumRegisters.push_back(reg);
     }
 
