@@ -2387,6 +2387,7 @@ namespace DHLS {
       for (int i = 0; i < (int) memName.second.size(); i++) {
         // TODO: Add memory layout info
         assert(contains_key(memName.first, layout));
+
         addAlwaysBlock({"clk"}, "if (in_check_mem_phase && clocks_in_check_mem_phase == " + to_string(checkNum) + ") begin dbg_addr <= " + to_string(map_find(memName.first, layout) + i) + "; end", comps);
 
         string str = "if (in_check_mem_phase && clocks_in_check_mem_phase == " + to_string(checkNum) + ") begin ";
@@ -2396,6 +2397,7 @@ namespace DHLS {
           str += "  if (dbg_data == " + to_string(memName.second[lastNum]) + ") begin $display(\"Correct.\"); end else begin $display(\"Assert failed\"); $finish(); end ";
         }
         str += "end";
+
         addAlwaysBlock({"clk"}, str, comps);
 
         lastNum = checkNum;
@@ -2409,7 +2411,8 @@ namespace DHLS {
       str += "  if (dbg_data == " + to_string(memName.second[lastNum]) + ") begin $display(\"Correct.\"); end else begin $display(\"Assert failed\"); $finish(); end ";
       str += "end";
       addAlwaysBlock({"clk"}, str, comps);
-      
+
+      //checkNum++;
     }
     
     vector<string> portStrings;    
