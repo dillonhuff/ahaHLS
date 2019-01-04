@@ -1935,42 +1935,93 @@ namespace DHLS {
 
     auto mod = llvm::make_unique<Module>("1 x 2 systolic array", context);
 
-    std::vector<Type *> inputs{intType(32)->getPointerTo()};
+    int width = 32;
+    std::vector<Type *> inputs{intType(32)->getPointerTo(),
+        intType(32)->getPointerTo(),
+        intType(32)->getPointerTo(),
+        intType(32)->getPointerTo(),
+        intType(32)->getPointerTo()};
     Function* f = mkFunc(inputs, "sys_array_1_2", mod.get());
 
     auto entryBlock = mkBB("entry_block", f);
     IRBuilder<> entryBuilder(entryBlock);
-    entryBuilder.CreateRet(nullptr);
-    
-    // auto exitBlock = mkBB("exit_block", f);
 
-    // ConstantInt* loopBound = mkInt("10", 32);
-    // ConstantInt* one = mkInt("1", 32);
-    // ConstantInt* three = mkInt("3", 32);
+    auto aRow0 = getArg(f, 0);
 
-    // auto bodyF = [f, one, three](IRBuilder<>& builder, Value* i) {
-    //   auto ind = builder.CreateSub(i, three);
+    auto bCol0 = getArg(f, 1);
+    auto bCol1 = getArg(f, 2);
+
+    auto cRow0 = getArg(f, 3);
+    auto cRow1 = getArg(f, 4);
+
+    // vector<Value*> downRegisters;
+    // for (int i = 0; i < 2; i++) {
+    //   auto reg =
+    //     entryBuilder.CreateAlloca(intType(width), nullptr, "down_" + to_string(i));
+    //   downRegisters.push_back(reg);
+    // }
+
+    vector<Value*> rightRegisters;
+    for (int i = 0; i < 1; i++) {
+      auto reg =
+        entryBuilder.CreateAlloca(intType(width), nullptr, "right_" + to_string(i));
+      rightRegisters.push_back(reg);
+    }
+
+    vector<Value*> accumRegisters;
+    for (int i = 0; i < 2; i++) {
+      auto reg =
+        entryBuilder.CreateAlloca(intType(width), nullptr, "accum_" + to_string(i));
+      accumRegisters.push_back(reg);
+    }
+
+    for (int i = 0; i < 3; i++) {
+      cout << "i = " << i << endl;
+
+      auto ind = mkInt(i, 32);
+
+      auto aRow0V = loadVal(entryBuilder, aRow0, ind);
+      auto left0 = loadVal(entryBuilder, rightRegisters[0], mkInt(0, 32));
+      auto bCol0V = loadVal(entryBuilder, bCol0, ind);
+      auto bCol1V = loadVal(entryBuilder, bCol1, ind);
+
+      cout << "Storing computed values" << endl;
       
-    //   auto v = loadVal(builder, getArg(f, 0), ind);
-    //   auto final = builder.CreateAdd(v, one);
+      // Store to new down / left registers
+      auto newAccum0 =
+        entryBuilder.CreateAdd(loadReg(entryBuilder, accumRegisters[0]),
+                               entryBuilder.CreateMul(aRow0V, bCol0V));
 
-    //   storeVal(builder, getArg(f, 0), i, final);
-    // };
-    // auto loopBlock = sivLoop(f, entryBlock, exitBlock, three, loopBound, bodyF);
+      auto newAccum1 =
+        entryBuilder.CreateAdd(loadReg(entryBuilder, accumRegisters[1]),
+                               entryBuilder.CreateMul(left0, bCol1V));
 
-    // entryBuilder.CreateBr(loopBlock);
+      cout << "Storing regs" << endl;
 
-    // IRBuilder<> exitBuilder(exitBlock);
-    // exitBuilder.CreateRet(nullptr);
+      storeReg(entryBuilder, accumRegisters[0], newAccum0);
+      storeReg(entryBuilder, accumRegisters[1], newAccum1);
+
+      // Transfer left to right
+      storeReg(entryBuilder, rightRegisters[0], left0);
+
+    }
+
+    
+
+    entryBuilder.CreateRet(nullptr);
 
     cout << "LLVM Function" << endl;
     cout << valueString(f) << endl;
 
     HardwareConstraints hcs = standardConstraints();
+    // TODO: Do this by default
+    hcs.memoryMapping = memoryOpLocations(f);
+    setAllAllocaMemTypes(hcs, f, registerSpec(32));
+
     hcs.setCount(MUL_OP, 1);
 
     // set<BasicBlock*> blocksToPipeline;
-    // blocksToPipeline.insert(loopBlock);    
+    // blocksToPipeline.insert(loopBlock);
     Schedule s = scheduleFunction(f, hcs); //, blocksToPipeline);
     STG graph = buildSTG(s, f);
 
@@ -2001,100 +2052,5 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("sys_array_1_2"));
   }
   
-  // TEST_CASE("1D stencil with shift register in LLVM") {
-  //   LLVMContext context;
-  //   setGlobalLLVMContext(&context);
-
-  //   cout << "1d stencil via shift register" << endl;
-    
-  //   auto mod =
-  //     llvm::make_unique<Module>("shift registered LLVM 1D stencil", context);
-
-  //   std::vector<Type *> inputs{intType(32)->getPointerTo(),
-  //       intType(32)->getPointerTo()};
-  //   Function* srUser = mkFunc(inputs, "one_d_stencil_sr", mod.get());
-
-  //   auto entryBlock = mkBB("entry_block", srUser);
-  //   auto loopBlock = mkBB("loop_block", srUser);
-  //   auto exitBlock = mkBB("exit_block", srUser);        
-
-
-  //   ConstantInt* loopBound = mkInt("6", 32);
-  //   ConstantInt* zero = mkInt("0", 32);    
-  //   ConstantInt* one = mkInt("1", 32);    
-
-  //   IRBuilder<> builder(entryBlock);
-
-  //   ShiftRegister sr(32, 3);
-  //   sr.init(builder);
-
-  //   for (int i = 0; i < sr.depth; i++) {
-  //     sr.shift(builder);
-  //   }
-    
-  //   builder.CreateBr(loopBlock);
-
-  //   IRBuilder<> loopBuilder(loopBlock);
-  //   auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
-
-  //   auto indPhiP1 = loopBuilder.CreateAdd(indPhi, one);
-  //   auto indPhiM1 = loopBuilder.CreateSub(indPhi, one);
-
-  //   auto nextInd = loopBuilder.CreateAdd(indPhi, one);
-
-  //   auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
-
-  //   indPhi->addIncoming(one, entryBlock);
-  //   indPhi->addIncoming(nextInd, loopBlock);
-
-  //   auto ai = loadVal(loopBuilder, getArg(srUser, 0), indPhi);
-  //   auto aip1 = loadVal(loopBuilder, getArg(srUser, 0), indPhiP1);
-  //   auto aim1 = loadVal(loopBuilder, getArg(srUser, 0), indPhiM1);
-    
-  //   auto inputSum = loopBuilder.CreateAdd(aim1, loopBuilder.CreateAdd(ai, aip1), "stencil_accum");
-
-  //   storeVal(loopBuilder,
-  //            getArg(srUser, 1),
-  //            loopBuilder.CreateSub(indPhi, one),
-  //            inputSum);
-
-  //   loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
-
-  //   IRBuilder<> exitBuilder(exitBlock);
-  //   exitBuilder.CreateRet(nullptr);
-
-  //   cout << "LLVM Function" << endl;
-  //   cout << valueString(srUser) << endl;
-
-  //   HardwareConstraints hcs = standardConstraints();
-  //   Schedule s = scheduleFunction(srUser, hcs);
-
-  //   STG graph = buildSTG(s, srUser);
-
-  //   cout << "STG Is" << endl;
-  //   graph.print(cout);
-
-  //   map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
-
-  //   auto arch = buildMicroArchitecture(srUser, graph, layout);
-
-  //   VerilogDebugInfo info;
-  //   //addNoXChecks(arch, info);
-
-  //   emitVerilog(srUser, arch, info);
-
-  //   // Create testing infrastructure
-  //   map<string, vector<int> > memoryInit{{"arg_0", {6, 5, 1, 2, 9, 8, 4}}};
-  //   map<string, vector<int> > memoryExpected{{"arg_1", {6 + 5 + 1, 5 + 1 + 2, 1 + 2 + 9, 2 + 9 + 8, 9 + 8 + 4}}};
-
-  //   TestBenchSpec tb;
-  //   tb.memoryInit = memoryInit;
-  //   tb.memoryExpected = memoryExpected;
-  //   tb.runCycles = 100;
-  //   tb.name = "one_d_stencil_sr";
-  //   emitVerilogTestBench(tb, arch, layout);
-
-  //   REQUIRE(runIVerilogTB("one_d_stencil_sr"));
-  // }
 
 }

@@ -19,6 +19,11 @@ namespace DHLS {
   }
 
   static inline
+  llvm::ConstantInt* mkInt(const int value, int bitWidth) {
+    return llvm::ConstantInt::get(getGlobalLLVMContext(), llvm::APInt(bitWidth, llvm::StringRef(std::to_string(value)), 10));
+  }
+
+  static inline
   llvm::BasicBlock* mkBB(const std::string& name, llvm::Function* func) {
     return llvm::BasicBlock::Create(getGlobalLLVMContext(), name, func);
   }
@@ -102,4 +107,14 @@ namespace DHLS {
     return loopBlock;
   }
 
+  static inline
+  llvm::Value* loadReg(llvm::IRBuilder<>& builder, llvm::Value* val) {
+    return loadVal(builder, val, mkInt(0, 32));
+  }
+
+  static inline
+  llvm::Value* storeReg(llvm::IRBuilder<>& builder, llvm::Value* reg, llvm::Value* val) {
+    return storeVal(builder, reg, mkInt(0, 32), val);
+  }
+  
 }
