@@ -2034,7 +2034,11 @@ namespace DHLS {
     graph.print(cout);
 
     map<string, int> testLayout = {{"arg_0", 0}};
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0},
+                                     {getArg(f, 1), 3},
+                                     {getArg(f, 2), 6},
+                                     {getArg(f, 3), 9},
+                                     {getArg(f, 4), 12}};
     ArchOptions options;
     auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
 
