@@ -348,6 +348,14 @@ namespace DHLS {
       if (!Argument::classof(memVal)) {          
         cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
 
+        if (!contains_key(instr, hcs.memoryMapping)) {
+          cout << "Memory mapping does not contain " << valueString(instr) << endl;
+          cout << "Mapping size = " << hcs.memoryMapping.size() << endl;
+          for (auto mm : hcs.memoryMapping) {
+            cout << "\t" << valueString(mm.first) << " -> " << valueString(mm.second) << endl;
+          }
+          
+        }
         assert(contains_key(instr, hcs.memoryMapping));
         Value* op = map_find(instr, hcs.memoryMapping);
 

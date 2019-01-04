@@ -2016,6 +2016,11 @@ namespace DHLS {
     HardwareConstraints hcs = standardConstraints();
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
+
+    cout << "Memory mapping" << endl;
+    for (auto mm : hcs.memoryMapping) {
+      cout << "\t" << valueString(mm.first) << " -> " << valueString(mm.second) << endl;
+    }
     setAllAllocaMemTypes(hcs, f, registerSpec(32));
 
     hcs.setCount(MUL_OP, 1);
@@ -2030,7 +2035,8 @@ namespace DHLS {
 
     map<string, int> testLayout = {{"arg_0", 0}};
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}};
-    auto arch = buildMicroArchitecture(f, graph, layout);
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
