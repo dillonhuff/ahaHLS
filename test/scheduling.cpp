@@ -1928,6 +1928,78 @@ namespace DHLS {
 
     REQUIRE(runIVerilogTB("mem_dep_pipe_long"));
   }
+
+  TEST_CASE("1 x 2 systolic array") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    auto mod = llvm::make_unique<Module>("1 x 2 systolic array", context);
+
+    std::vector<Type *> inputs{intType(32)->getPointerTo()};
+    Function* f = mkFunc(inputs, "sys_array_1_2", mod.get());
+
+    auto entryBlock = mkBB("entry_block", f);
+    IRBuilder<> entryBuilder(entryBlock);
+    entryBuilder.CreateRet(nullptr);
+    
+    // auto exitBlock = mkBB("exit_block", f);
+
+    // ConstantInt* loopBound = mkInt("10", 32);
+    // ConstantInt* one = mkInt("1", 32);
+    // ConstantInt* three = mkInt("3", 32);
+
+    // auto bodyF = [f, one, three](IRBuilder<>& builder, Value* i) {
+    //   auto ind = builder.CreateSub(i, three);
+      
+    //   auto v = loadVal(builder, getArg(f, 0), ind);
+    //   auto final = builder.CreateAdd(v, one);
+
+    //   storeVal(builder, getArg(f, 0), i, final);
+    // };
+    // auto loopBlock = sivLoop(f, entryBlock, exitBlock, three, loopBound, bodyF);
+
+    // entryBuilder.CreateBr(loopBlock);
+
+    // IRBuilder<> exitBuilder(exitBlock);
+    // exitBuilder.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.setCount(MUL_OP, 1);
+
+    // set<BasicBlock*> blocksToPipeline;
+    // blocksToPipeline.insert(loopBlock);    
+    Schedule s = scheduleFunction(f, hcs); //, blocksToPipeline);
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<string, int> testLayout = {{"arg_0", 0}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}};
+    auto arch = buildMicroArchitecture(f, graph, layout);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(f, arch, info);
+
+    // Create testing infrastructure
+    map<string, vector<int> > memoryInit{{"arg_0", {6, 4, 5, 2, 1, 8, 0, 2, 9, 6}}};
+    map<string, vector<int> > memoryExpected{{"arg_0", {6, 4, 5, 6 + 1, 4 + 1, 5 + 1, 7 + 1, 5 + 1, 5 + 2, 7 + 2}}};
+
+    TestBenchSpec tb;
+    tb.memoryInit = memoryInit;
+    tb.memoryExpected = memoryExpected;
+    tb.runCycles = 20;
+    tb.maxCycles = 41;
+    tb.name = "sys_array_1_2";
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    REQUIRE(runIVerilogTB("sys_array_1_2"));
+  }
   
   // TEST_CASE("1D stencil with shift register in LLVM") {
   //   LLVMContext context;
