@@ -60,4 +60,16 @@ namespace DHLS {
 
   int getValueBitWidth(llvm::Value* const instr);
 
+  static inline
+  bool hasPrefix(const std::string str, const std::string prefix) {
+    auto res = std::mismatch(prefix.begin(), prefix.end(), str.begin());
+
+    if (res.first == prefix.end()) {
+      // foo is a prefix of foobar.
+      return true;
+    }
+
+    return false;
+  }
+
 }

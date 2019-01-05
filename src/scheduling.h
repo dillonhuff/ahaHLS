@@ -64,6 +64,7 @@ namespace DHLS {
     SELECT_OP,
     NO_OP,
     SEXT_OP,
+    CALL_OP,
   };
 
   static inline std::vector<OperationType> allOps() {
@@ -82,7 +83,8 @@ namespace DHLS {
         ZEXT_OP,
         SELECT_OP,
         NO_OP,
-        SEXT_OP
+        SEXT_OP,
+        CALL_OP
         };
 
   }

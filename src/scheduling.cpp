@@ -199,9 +199,10 @@ namespace DHLS {
       return ZEXT_OP;
     } else if (SelectInst::classof(iptr)) {
       return SELECT_OP;
+    } else if (CallInst::classof(iptr)) {
+      return CALL_OP;
     } else if (AllocaInst::classof(iptr) ||
-               BitCastInst::classof(iptr) ||
-               CallInst::classof(iptr)) {
+               BitCastInst::classof(iptr)) {
       // NOTE: When call instructions other than default llvm lifetime calls
       // are supported they will need an the operator.
       return NO_OP;
@@ -316,9 +317,26 @@ namespace DHLS {
       // Casts are just-reinterpretations
       latency = 0;
     } else if (CallInst::classof(iptr)) {
-      // NOTE: For now the only call instructions are calls to lifetime start
-      // and end calls that have no meaning in hardware
-      latency = 0;
+      CallInst* call = dyn_cast<CallInst>(iptr);
+      Function* called = call->getCalledFunction();
+
+      cout << "Called function = " << valueString(called) << endl;
+      string name = called->getName();
+
+      cout << "Called name     = " << name << endl;
+
+      if (hasPrefix(name, "builtin_read_fifo_")) {
+        latency = 1;
+      } else if (hasPrefix(name, "builtin_write_fifo_")) {
+        latency = 1;
+      } else {
+        // Value* func = call->getOperand(0);
+        // cout << "Function name = " << valueString(func) << endl;
+      
+        // NOTE: For now the only call instructions are calls to lifetime start
+        // and end calls that have no meaning in hardware
+        latency = 0;
+      }
     } else if (SExtInst::classof(iptr)) {
       latency = getLatency(SEXT_OP);
     } else {
