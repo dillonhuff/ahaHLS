@@ -95,7 +95,8 @@ namespace DHLS {
   //    Test case that merges basic blocks that execute different numbers of times
   //    Test case that uses a struct as an argument
   //    Test case with outer loop pipelining
-  //    Test case using unit with ready valid interface pipeline
+  //    Test case using unit with ready valid interface
+  //    Test case using ready valid interface together with pipelining
   //    Test case that builds a linebuffer from LLVM
   TEST_CASE("A simple if") {
     SMDiagnostic Err;
@@ -2002,6 +2003,13 @@ namespace DHLS {
     emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("sys_array_1_2"));
+  }
+
+  TEST_CASE("Builtin FIFO as argument to function") {
+    LLVMContext context;
+    StructType* tp = StructType::create(context, "builtin_fifo_i32");
+
+    cout << "type name = " << typeString(tp) << endl;
   }
   
 
