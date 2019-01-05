@@ -35,10 +35,11 @@ namespace DHLS {
 
   static inline
   llvm::Function* mkFunc(std::vector<llvm::Type*>& inputs,
+                         llvm::Type* outputType,
                          const std::string& funcName,
                          llvm::Module* mod) {
     llvm::FunctionType *tp =
-      llvm::FunctionType::get(llvm::Type::getVoidTy(getGlobalLLVMContext()), inputs, false);
+      llvm::FunctionType::get(outputType, inputs, false);
     
     llvm::Function *srUser =
       llvm::Function::Create(tp, llvm::Function::ExternalLinkage, funcName, mod);
@@ -51,6 +52,13 @@ namespace DHLS {
     }
 
     return srUser;
+  }
+  
+  static inline
+  llvm::Function* mkFunc(std::vector<llvm::Type*>& inputs,
+                         const std::string& funcName,
+                         llvm::Module* mod) {
+    return mkFunc(inputs, llvm::Type::getVoidTy(getGlobalLLVMContext()), funcName, mod);
   }
 
   static inline
