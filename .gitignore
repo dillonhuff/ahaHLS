@@ -74,3 +74,4 @@ constrained_pipe*
 mem_dep_pipe*
 temp_storage_pipe*
 outer_read_pipe*
+experiments/
