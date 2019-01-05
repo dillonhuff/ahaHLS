@@ -62,10 +62,11 @@ namespace DHLS {
   static inline
   llvm::Value* loadVal(llvm::IRBuilder<>& builder,
                        llvm::Value* buffer,
-                       llvm::Value* offset) {
+                       llvm::Value* offset,
+                       const std::string name = "") {
     auto ind =
       builder.CreateGEP(buffer, offset);
-    return builder.CreateLoad(ind);
+    return builder.CreateLoad(ind, name);
   }
 
   static inline

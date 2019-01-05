@@ -476,5 +476,10 @@ namespace DHLS {
 
   llvm::Instruction* lastInstructionInState(const StateId state,
                                             MicroArchitecture& arch);
+
+  void printInstrAtState(llvm::Instruction* instr,
+                         StateId st,
+                         const MicroArchitecture& arch,
+                         VerilogDebugInfo& debugInfo);
   
 }

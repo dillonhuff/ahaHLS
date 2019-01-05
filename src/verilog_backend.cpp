@@ -2454,8 +2454,11 @@ namespace DHLS {
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
         auto instr = instrG.instruction;
         if (LoadInst::classof(instr)) {
+
           FunctionalUnit unit = map_find(instr, arch.unitAssignment);
           StateId activeState = st.first;
+
+          printInstrAtState(instr, activeState, arch, debugInfo); 
 
           string wireName = map_find(string("rdata"), unit.outWires).name;
           addAssert(notAtState(activeState, arch) + " || " +

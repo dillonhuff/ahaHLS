@@ -1973,10 +1973,11 @@ namespace DHLS {
 
       auto ind = mkInt(i, 32);
 
-      auto aRow0V = loadVal(entryBuilder, aRow0, ind);
-      auto left0 = loadVal(entryBuilder, rightRegisters[0], mkInt(0, 32));
-      auto bCol0V = loadVal(entryBuilder, bCol0, ind);
-      auto bCol1V = loadVal(entryBuilder, bCol1, ind);
+      auto iStr = to_string(i);
+      auto aRow0V = loadVal(entryBuilder, aRow0, ind, "aRow0_" + iStr);
+      auto left0 = loadVal(entryBuilder, rightRegisters[0], mkInt(0, 32), "left0_" + iStr);
+      auto bCol0V = loadVal(entryBuilder, bCol0, ind, "bCol0_" + iStr);
+      auto bCol1V = loadVal(entryBuilder, bCol1, ind, "bCol1_" + iStr);
 
       cout << "Storing computed values" << endl;
       
