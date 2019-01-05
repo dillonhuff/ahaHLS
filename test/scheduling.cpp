@@ -2045,7 +2045,7 @@ namespace DHLS {
     // Create testing infrastructure
     map<string, int> testLayout =
       {{"aRow0", 0}, {"bCol0", 3}, {"bCol1", 6}, {"cRow0", 10}};
-    map<string, vector<int> > memoryInit{{"aRow0", {1, 2, 0}}, {"bCol0", {4, 6, 0}}, {"bCol1", {0, 6, 7}}};
+    map<string, vector<int> > memoryInit{{"aRow0", {1, 2, 0}}, {"bCol0", {4, 6, 0}}, {"bCol1", {0, 5, 7}}};
     map<string, vector<int> > memoryExpected{{"cRow0", {16, 19}}};
     
     TestBenchSpec tb;
