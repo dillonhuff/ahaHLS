@@ -1,3 +1,5 @@
+`define assert(signal, value) if ((signal) !== (value)) begin $display("ASSERTION FAILED in %m: signal != value"); $finish(1); end
+
 module load();
 endmodule // load
 
@@ -336,10 +338,10 @@ module fifo(input clk,
             input                  rst,
 
             input                  read_valid,
-            output reg              read_ready,
+            output              read_ready,
 
             input                  write_valid,
-            output reg                 write_ready,
+            output                 write_ready,
             
             input [WIDTH - 1 : 0]  in_data,
             output [WIDTH - 1 : 0] out_data);
@@ -355,18 +357,44 @@ module fifo(input clk,
    reg [$clog2(DEPTH) - 1 : 0]                read_addr;
 
    always @(posedge clk) begin
+      if (!rst) begin
+         if (write_valid) begin
+            `assert(write_ready, 1'd1)
+
+            ram[write_addr] <= in_data;
+
+            // Wraparound
+            write_addr <= DEPTH == write_addr ? 0 : write_addr + 1;
+         end
+      end
+   end
+
+   always @(posedge clk) begin
+      if (!rst) begin
+         if (read_valid) begin
+            `assert(read_ready, 1'd1)
+
+            // Wraparound
+            read_addr <= DEPTH == read_addr ? 0 : read_addr + 1;
+         end
+      end
+   end
+
+   assign out_data = ram[read_addr];
+   
+   assign full = !empty && (write_addr == read_addr);
+   assign write_ready = !full;
+
+   assign read_ready = !empty;
+
+   always @(posedge clk) begin
       if (rst) begin
          empty <= 0;
+
          write_addr <= 0;
          read_addr <= 0;
 
-         write_ready <= 1;
-
-         read_ready <= 1;
-         
       end
    end
-   
-   
    
 endmodule
