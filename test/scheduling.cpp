@@ -2054,7 +2054,8 @@ namespace DHLS {
     addNoXChecks(arch, info);
 
     emitVerilog(f, arch, info);
+
+    REQUIRE(runIVerilogTB("fifo_user"));
   }
-  
 
 }
