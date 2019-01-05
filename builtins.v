@@ -332,3 +332,43 @@ module register(input clk, input rst, input [31:0] raddr, input [31:0] waddr, in
    
 endmodule
 
+module fifo(input clk,
+            input                  rst,
+
+            input                  read_valid,
+            output                 read_ready,
+
+            input                  write_valid,
+            output                 write_ready,
+            
+            input [WIDTH - 1 : 0]  in_data,
+            output [WIDTH - 1 : 0] out_data);
+   
+   parameter WIDTH = 32;
+   parameter DEPTH = 16;
+
+   reg [WIDTH - 1 : 0]               ram [DEPTH - 1 : 0];
+
+   reg                               empty;
+
+   reg [$clog2(DEPTH) - 1 : 0]                write_addr;
+   reg [$clog2(DEPTH) - 1 : 0]                read_addr;
+
+   always @(posedge clk) begin
+      if (rst) begin
+         empty <= 0;
+         write_addr <= 0;
+         read_addr <= 0;
+
+         write_valid <= 0;
+         write_ready <= 1;
+
+         read_valid <= 0;
+         read_ready <= 1;
+         
+      end
+   end
+   
+   
+   
+endmodule
