@@ -336,10 +336,10 @@ module fifo(input clk,
             input                  rst,
 
             input                  read_valid,
-            output                 read_ready,
+            output reg              read_ready,
 
             input                  write_valid,
-            output                 write_ready,
+            output reg                 write_ready,
             
             input [WIDTH - 1 : 0]  in_data,
             output [WIDTH - 1 : 0] out_data);
@@ -360,10 +360,8 @@ module fifo(input clk,
          write_addr <= 0;
          read_addr <= 0;
 
-         write_valid <= 0;
          write_ready <= 1;
 
-         read_valid <= 0;
          read_ready <= 1;
          
       end
