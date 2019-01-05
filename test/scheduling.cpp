@@ -74,12 +74,6 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("plus"));
   }
 
-  // What dependences to handle first?
-  //   1. Affine c0 * x0 + c1 * x1 + ... + cn * xn + k (polyhedral model)
-
-  // What about modulos or FIFO accesses that wrap around after a given
-  // number of increments?
-
   // Other thing is how efficient does AXI / external memory handling need to be
   // in order for the generated code to beat normal code? Possible problems:
   //   1. AXI burst mode may be mandatory for good performance
@@ -89,60 +83,6 @@ namespace DHLS {
   //      be able to pack accesses together to get the best data storage possible
   //      (a form of vectorization)
   //   4. Unlikely: We have to re-order memory requests we receive out of order
-
-  // Possible categorization:
-  //   1. Fixed time, fixed order: All operations start at a given time and end
-  //      at a given time in the static schedule. Q: What about unknown bound loops?
-  //      They can have fixed time for each operation, but indefinite total time.
-  //      I guess you can write an expression for execution cycle start / end
-  //      times for all operations in terms of loop trip count and loop
-  //      entry or exit times
-  //      Also: Which branch in an if is taken effects times, so that will have
-  //      to be included in an expression for static time
-  //      Can write completion time expressions in terms of nearest statically
-  //      unknown values? Or: Write in terms of the nearest statically unknown
-  //      dominator of the current control flow point. Nearest or furthest?
-
-  //  2. Variable time, unknown order: Now operations can depend on other operations
-  //     that take a variable amount of time, so their completion times depend on
-  //     the completion time of individual operations. How different is scheduling
-  //     for these ops, really? I guess the design has to have stalls on the
-  //     portions of the design that depend on the variable completion time value
-  //     Also: What to do about passing data between stages of a pipeline with
-  //     variable completion time ops? When is it possible to detect cases where
-  //     data passing between stages where one is running ahead does not need to
-  //     be stored in buffers between stages?
-
-  // Maybe edges in the STG should be labeled as stalling edges? How to represent
-  // buffering? How to indicate when stalls actually need to be respected and when
-  // you can ignore them? That issue shows up even in fixed time stores. You can
-  // just fire and forget stores that never interfere with other memory ops, you
-  // don't have to wait for them to finish. Or more precisely you only have to
-  // wait long enough between issues of the instruction to be sure that you can
-  // issue a new instance of the instruction without interfering with the last one.
-  // I suppose in straight line code this problem is handled via data dependencies
-  // and in pipelining it is handled by the fact that dependence distances of
-  // infinity allow any number of subsequent iterations to start during the store
-  // operation. Q: What are the analogues (analogs?) of these concepts in variable
-  // completion time ops?
-  // A: For ordinary data dependences it is the dependence edge (same as before)
-  //    For pipelining I dont know. In a pipeline you could have a stall in the
-  //    pipeline or a buffer. Or: You could stall part of the pipeline and add
-  //    a buffer between the active portion and the stalled portion that stores
-  //    data that needs to be passed from one stage to the next. Note: You might
-  //    need a buffer for the variable time data or the fixed time data (if the
-  //    variable time turns out to be less than the fixed time!)
-
-  // Q: Can you think of a pipeline as a set of processes communicating via
-  //    FIFO buffers? Can you think of each stage as a separate thread of control?
-  //    What are the threads of control and how do pieces of data or instruction
-  //    traces move through them?
-  // A: I guess each stage executes snippets of a complete trace of a program, for
-  //    example stage 0 might be the snippet that executes each instance of a load
-  //    or a store
-  // Q: Where does pipeline forwarding fit in to this? Where does CSP fit in?
-  // A: Pipeline forwarding is a form of state sharing between processes. One stage
-  //    can read from the data of a different stage?
 
   // Q: What test cases do I need?
   // A: Test that uses multiple different RAM types
