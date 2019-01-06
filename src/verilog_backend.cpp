@@ -485,9 +485,12 @@ namespace DHLS {
             
     } else if (CallInst::classof(instr)) {
       if (isBuiltinFifoWrite(instr)) {
+        modName = "fifo";
         
+        wiring = {{"read_valid", {true, 1, "this_fifo_valid"}},
+                  {"write_valid", {true, 1, "this_fifo_valid"}}};        
       } else if (isBuiltinFifoRead(instr)) {
-        
+        modName = "fifo";
       } else {
         // No action
       }
