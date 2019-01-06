@@ -72,4 +72,6 @@ namespace DHLS {
     return false;
   }
 
+  bool isBuiltinFifoWrite(llvm::Instruction* const instr);
+  bool isBuiltinFifoRead(llvm::Instruction* const instr);
 }

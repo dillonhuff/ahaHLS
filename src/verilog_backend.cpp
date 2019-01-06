@@ -483,9 +483,17 @@ namespace DHLS {
                 {"sel", {true, 1, "sel_sel_" + rStr}}};
       outWires = {{"out", {false, w0, "sel_out_" + rStr}}};
             
+    } else if (CallInst::classof(instr)) {
+      if (isBuiltinFifoWrite(instr)) {
+        
+      } else if (isBuiltinFifoRead(instr)) {
+        
+      } else {
+        // No action
+      }
     } else if (AllocaInst::classof(instr) ||
-               BitCastInst::classof(instr) ||
-               CallInst::classof(instr)) {
+               BitCastInst::classof(instr)) {
+
       // TODO: Add test case that uses real function calls and casts
       // No action for these instruction types (YET)
     } else if (SExtInst::classof(instr)) {
