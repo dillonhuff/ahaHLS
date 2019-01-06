@@ -60,7 +60,7 @@ namespace DHLS {
         BranchInst::classof(instr) ||
         AllocaInst::classof(instr) ||
         BitCastInst::classof(instr) ||
-        CallInst::classof(instr) ||
+        (CallInst::classof(instr) && !isBuiltinFifoCall(instr)) ||
         ReturnInst::classof(instr)) {
       return false;
     }
@@ -84,47 +84,23 @@ namespace DHLS {
     auto& unitAssignment = arch.unitAssignment;
 
     vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
-    // int numReadPorts = 0;
-    // int numWritePorts = 0;
 
     std::set<std::string> alreadyChecked;
     for (auto instr : unitAssignment) {
-      //Instruction* i = instr.first;
       auto unit = instr.second;
 
       if (!elem(unit.instName, alreadyChecked) && ((unit.getModName() == "load") || (unit.getModName() == "store") || (unit.getModName() == "fifo"))) {
+
         alreadyChecked.insert(unit.instName);
 
-        // if (StoreInst::classof(i)) {
-        //   int addrWidth = getValueBitWidth(i->getOperand(0));
-        //   int width = 32;
-        //   pts.push_back(outputPort(addrWidth, "wdata_" + to_string(numWritePorts)));
-        //   pts.push_back(outputPort(clog2(width), "waddr_" + to_string(numWritePorts)));
-        //   pts.push_back(outputPort(1, "wen_" + to_string(numWritePorts)));
+        for (auto w : unit.portWires) {
+          pts.push_back(wireToOutputPort(w.second));
+        }
 
-        //   numWritePorts++;
-        // }
+        for (auto w : unit.outWires) {
+          pts.push_back(wireToInputPort(w.second));
+        }
 
-        // if (LoadInst::classof(i)) {
-        //   int addrWidth = getValueBitWidth(i);
-        //   int width = 32;          
-        //   pts.push_back(inputPort(addrWidth, "rdata_" + to_string(numReadPorts)));
-        //   pts.push_back(outputPort(clog2(width), "raddr_" + to_string(numReadPorts)));
-        //   pts.push_back(outputPort(1, "ren_" + to_string(numReadPorts)));
-
-        //   numReadPorts++;
-        // }
-
-        //        if (isBuiltinFifoRead(i) || isBuiltinFifoWrite(i)) {
-          for (auto w : unit.portWires) {
-            pts.push_back(wireToOutputPort(w.second));
-          }
-
-          for (auto w : unit.outWires) {
-            pts.push_back(wireToInputPort(w.second));
-          }
-
-          //        }
       }
 
 
@@ -933,11 +909,11 @@ namespace DHLS {
     } else if (StoreInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
-      auto wdataName = outputName(arg0, pos, arch); //outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);      
+      auto wdataName = outputName(arg0, pos, arch);
       
       Value* location = instr->getOperand(1);
 
-      auto locValue = outputName(location, pos, arch); //outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+      auto locValue = outputName(location, pos, arch);
 
       if (map_find(instr, arch.unitAssignment).isExternal()) {
         assignments.insert({addUnit.portWires["waddr"].name + rS, locValue});
@@ -952,7 +928,7 @@ namespace DHLS {
     } else if (LoadInst::classof(instr)) {
 
       Value* location = instr->getOperand(0);
-      auto locValue = outputName(location, pos, arch); //outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+      auto locValue = outputName(location, pos, arch);
 
       if (map_find(instr, arch.unitAssignment).isExternal()) {
         assignments.insert({addUnit.portWires["raddr"].name + rS, locValue});      
@@ -1509,12 +1485,6 @@ namespace DHLS {
       if (unit.isExternal()) {
         continue;
       }
-      // if ((unit.getModName() == "load") ||
-      //     (unit.getModName() == "store") ||
-      //     (unit.getModName() == "ret") ||
-      //     (unit.getModName() == "fifo")) {
-      //   continue;
-      // }
 
       map<string, string> wireConns;
       for (auto w : unit.portWires) {
