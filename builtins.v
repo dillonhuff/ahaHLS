@@ -338,7 +338,7 @@ module fifo(input clk,
             input                  rst,
 
             input                  read_valid,
-            output              read_ready,
+            output                 read_ready,
 
             input                  write_valid,
             output                 write_ready,
@@ -389,7 +389,7 @@ module fifo(input clk,
 
    always @(posedge clk) begin
       if (rst) begin
-         empty <= 0;
+         empty <= 1;
 
          write_addr <= 0;
          read_addr <= 0;
