@@ -135,6 +135,12 @@ namespace DHLS {
     std::map<std::string, Wire> portWires;
     std::map<std::string, Wire> outWires;
 
+    bool external;
+
+    bool isExternal() const {
+      return external;
+    }
+
     std::string getModName() const {
       return module.name;
     }

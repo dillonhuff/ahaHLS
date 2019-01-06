@@ -12,6 +12,10 @@ using namespace std;
 
 // Pull zip file for z3 via travis? https://github.com/Z3Prover/z3/releases/download/z3-4.8.4/z3-4.8.4.d6df51951f4c-x64-ubuntu-14.04.zip
 
+// Plan for external functional units:
+//   1. Add "isExternal" field to functional unit
+//   2. Replace the if statement in emitFunctionalUnits with isExternal check
+//   3. Replace more code in the external unit statement
 namespace DHLS {
 
   std::ostream& operator<<(std::ostream& out, const Wire w) {
@@ -302,6 +306,7 @@ namespace DHLS {
     assert(LoadInst::classof(instr) || StoreInst::classof(instr));
     string modName = "add";
 
+    bool isExternal = false;
     auto rStr = unitName;
     map<string, string> modParams;
 
@@ -339,6 +344,7 @@ namespace DHLS {
 
       } else {
         modName = "store";
+        isExternal = true;
 
         int inputWidth = getValueBitWidth(instr->getOperand(0));
 
@@ -395,6 +401,8 @@ namespace DHLS {
             
       } else {
 
+        isExternal = true;
+        
         modName = "load";
 
         unitName = string(instr->getOpcodeName()) + "_" + to_string(readNum);            
@@ -407,7 +415,7 @@ namespace DHLS {
 
     }
 
-    FunctionalUnit unit = {{modParams, modName}, unitName, wiring, outWires};
+    FunctionalUnit unit = {{modParams, modName}, unitName, wiring, outWires, isExternal};
     return unit;
   }
   
@@ -424,6 +432,7 @@ namespace DHLS {
 
     auto rStr = unitName;
     map<string, string> modParams;
+    bool isExternal = false;
 
     map<string, Wire> wiring;
     map<string, Wire> outWires;
@@ -446,6 +455,7 @@ namespace DHLS {
                 {"in1", {true, width, opCodeName + "_in1_" + rStr}}};
       outWires = {{"out", {false, width, opCodeName + "_out_" + rStr}}};
     } else if (ReturnInst::classof(instr)) {
+      isExternal = true;
       modName = "ret";
 
       wiring = {{"valid", {true, 1, "valid_reg"}}};
@@ -506,6 +516,8 @@ namespace DHLS {
             
     } else if (CallInst::classof(instr)) {
       if (isBuiltinFifoWrite(instr)) {
+        isExternal = true;
+        
         modName = "fifo";
 
         unitName = map_find(instr->getOperand(1), fifoNames);
@@ -513,6 +525,7 @@ namespace DHLS {
         wiring = {{"read_valid", {true, 1, unitName + "_read_valid_reg"}},
                   {"write_valid", {true, 1, unitName + "_write_valid_reg"}}};
       } else if (isBuiltinFifoRead(instr)) {
+        isExternal = true;
         modName = "fifo";
 
         unitName = map_find(instr->getOperand(0), fifoNames);
@@ -1457,12 +1470,15 @@ namespace DHLS {
       alreadyEmitted.insert(unit.instName);
 
       // These are external functional units
-      if ((unit.getModName() == "load") ||
-          (unit.getModName() == "store") ||
-          (unit.getModName() == "ret") ||
-          (unit.getModName() == "fifo")) {
+      if (unit.isExternal()) {
         continue;
       }
+      // if ((unit.getModName() == "load") ||
+      //     (unit.getModName() == "store") ||
+      //     (unit.getModName() == "ret") ||
+      //     (unit.getModName() == "fifo")) {
+      //   continue;
+      // }
 
       map<string, string> wireConns;
       for (auto w : unit.portWires) {
