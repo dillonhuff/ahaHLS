@@ -85,12 +85,12 @@ namespace DHLS {
     auto& unitAssignment = arch.unitAssignment;
 
     vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
-    int numReadPorts = 0;
-    int numWritePorts = 0;
+    // int numReadPorts = 0;
+    // int numWritePorts = 0;
 
     std::set<std::string> alreadyChecked;
     for (auto instr : unitAssignment) {
-      Instruction* i = instr.first;
+      //Instruction* i = instr.first;
       auto unit = instr.second;
 
       if (!elem(unit.instName, alreadyChecked) && ((unit.getModName() == "load") || (unit.getModName() == "store") || (unit.getModName() == "fifo"))) {
@@ -340,6 +340,7 @@ namespace DHLS {
                   {"waddr", {true, 32, "waddr_" + unitName + "_reg"}},
                   {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}},
                   {"raddr", {true, 32, "raddr_" + unitName + "_reg"}}};
+
         outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
 
       } else {
@@ -357,7 +358,10 @@ namespace DHLS {
 
         unitName = string(instr->getOpcodeName()) + "_" + wStr;
                                                                         
-        wiring = {{"wen", {true, 1, "wen_" + wStr + "_reg"}}, {"waddr", {true, 32, "waddr_" + wStr + "_reg"}}, {"wdata", {true, inputWidth, "wdata_" + wStr + "_reg"}}};
+        // wiring = {{"wen", {true, 1, "wen_" + wStr + "_reg"}}, {"waddr", {true, 32, "waddr_" + wStr + "_reg"}}, {"wdata", {true, inputWidth, "wdata_" + wStr + "_reg"}}};
+
+        wiring = {{"wen", {true, 1, "wen_" + wStr}}, {"waddr", {true, 32, "waddr_" + wStr}}, {"wdata", {true, inputWidth, "wdata_" + wStr}}};
+
         outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
             
         writeNum++;
@@ -458,7 +462,7 @@ namespace DHLS {
       isExternal = true;
       modName = "ret";
 
-      wiring = {{"valid", {true, 1, "valid_reg"}}};
+      wiring = {{"valid", {true, 1, "valid"}}};
       outWires = {};
           
     } else if (CmpInst::classof(instr)) {
@@ -918,8 +922,12 @@ namespace DHLS {
 
     map<string, string> assignments;
 
+    string rS = "_reg";
+        
     if (ReturnInst::classof(instr)) {
-      assignments.insert({"valid_reg", "1"});
+      assert(addUnit.isExternal());
+      
+      assignments.insert({"valid" + rS, "1"});
     } else if (StoreInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
@@ -929,9 +937,15 @@ namespace DHLS {
 
       auto locValue = outputName(location, pos, arch); //outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
-      assignments.insert({addUnit.portWires["waddr"].name, locValue});
-      assignments.insert({addUnit.portWires["wdata"].name, wdataName});
-      assignments.insert({addUnit.portWires["wen"].name, "1"});      
+      if (map_find(instr, arch.unitAssignment).isExternal()) {
+        assignments.insert({addUnit.portWires["waddr"].name + rS, locValue});
+        assignments.insert({addUnit.portWires["wdata"].name + rS, wdataName});
+        assignments.insert({addUnit.portWires["wen"].name + rS, "1"});
+      } else {
+        assignments.insert({addUnit.portWires["waddr"].name, locValue});
+        assignments.insert({addUnit.portWires["wdata"].name, wdataName});
+        assignments.insert({addUnit.portWires["wen"].name, "1"});
+      }
 
     } else if (LoadInst::classof(instr)) {
 
@@ -1373,6 +1387,7 @@ namespace DHLS {
           numInstrs++;
         }
       }
+      bool isExternal = unit.isExternal();
 
       for (auto stInstrG : controller.instructions) {
         StateId state = stInstrG.first;
@@ -1385,6 +1400,8 @@ namespace DHLS {
           for (auto instrG : instrsAtState) {
             Instruction* instr = instrG.instruction;
 
+
+
             ControlFlowPosition pos = position(state, instr);
             out << tab(3) << "if (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
 
@@ -1394,7 +1411,11 @@ namespace DHLS {
             out << "\t\t\tend else begin " << endl;
             out << "\t\t\t// Default values" << endl;
             for (auto w : unit.portWires) {
-              out << tab(4) << w.second.name << " = 0;" << endl;
+              if (isExternal) {
+                out << tab(4) << w.second.name << "_reg = 0;" << endl;
+              } else {
+                out << tab(4) << w.second.name << " = 0;" << endl;                
+              }
             }
 
             if (BranchInst::classof(instr)) {
@@ -1415,7 +1436,13 @@ namespace DHLS {
 
       out << "\t\t\t// Default values" << endl;
       for (auto w : unit.portWires) {
-        out << "\t\t\t" << w.second.name << " = 0;" << endl;
+        if (isExternal) {
+          out << tab(4) << w.second.name << "_reg = 0;" << endl;
+        } else {
+          out << tab(4) << w.second.name << " = 0;" << endl;                
+        }
+        
+        //out << "\t\t\t" << w.second.name << " = 0;" << endl;
       }
 
       if (unit.getModName() == "br_dummy") {
