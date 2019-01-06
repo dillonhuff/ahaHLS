@@ -365,6 +365,8 @@ module fifo(input clk,
 
             // Wraparound
             write_addr <= DEPTH == write_addr ? 0 : write_addr + 1;
+
+            empty <= 0;
          end
       end
    end
@@ -384,6 +386,10 @@ module fifo(input clk,
    
    assign full = !empty && (write_addr == read_addr);
    assign write_ready = !full;
+
+   always @(posedge clk) begin
+      $display("empty = %d", empty);
+   end
 
    assign read_ready = !empty;
 
