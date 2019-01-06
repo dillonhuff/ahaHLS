@@ -96,27 +96,27 @@ namespace DHLS {
       if (!elem(unit.instName, alreadyChecked) && ((unit.getModName() == "load") || (unit.getModName() == "store") || (unit.getModName() == "fifo"))) {
         alreadyChecked.insert(unit.instName);
 
-        if (StoreInst::classof(i)) {
-          int addrWidth = getValueBitWidth(i->getOperand(0));
-          int width = 32;
-          pts.push_back(outputPort(addrWidth, "wdata_" + to_string(numWritePorts)));
-          pts.push_back(outputPort(clog2(width), "waddr_" + to_string(numWritePorts)));
-          pts.push_back(outputPort(1, "wen_" + to_string(numWritePorts)));
+        // if (StoreInst::classof(i)) {
+        //   int addrWidth = getValueBitWidth(i->getOperand(0));
+        //   int width = 32;
+        //   pts.push_back(outputPort(addrWidth, "wdata_" + to_string(numWritePorts)));
+        //   pts.push_back(outputPort(clog2(width), "waddr_" + to_string(numWritePorts)));
+        //   pts.push_back(outputPort(1, "wen_" + to_string(numWritePorts)));
 
-          numWritePorts++;
-        }
+        //   numWritePorts++;
+        // }
 
-        if (LoadInst::classof(i)) {
-          int addrWidth = getValueBitWidth(i);
-          int width = 32;          
-          pts.push_back(inputPort(addrWidth, "rdata_" + to_string(numReadPorts)));
-          pts.push_back(outputPort(clog2(width), "raddr_" + to_string(numReadPorts)));
-          pts.push_back(outputPort(1, "ren_" + to_string(numReadPorts)));
+        // if (LoadInst::classof(i)) {
+        //   int addrWidth = getValueBitWidth(i);
+        //   int width = 32;          
+        //   pts.push_back(inputPort(addrWidth, "rdata_" + to_string(numReadPorts)));
+        //   pts.push_back(outputPort(clog2(width), "raddr_" + to_string(numReadPorts)));
+        //   pts.push_back(outputPort(1, "ren_" + to_string(numReadPorts)));
 
-          numReadPorts++;
-        }
+        //   numReadPorts++;
+        // }
 
-        if (isBuiltinFifoRead(i) || isBuiltinFifoWrite(i)) {
+        //        if (isBuiltinFifoRead(i) || isBuiltinFifoWrite(i)) {
           for (auto w : unit.portWires) {
             pts.push_back(wireToOutputPort(w.second));
           }
@@ -125,7 +125,7 @@ namespace DHLS {
             pts.push_back(wireToInputPort(w.second));
           }
 
-        }
+          //        }
       }
 
 
@@ -522,8 +522,8 @@ namespace DHLS {
 
         unitName = map_find(instr->getOperand(1), fifoNames);
         
-        wiring = {{"read_valid", {true, 1, unitName + "_read_valid_reg"}},
-                  {"write_valid", {true, 1, unitName + "_write_valid_reg"}}};
+        wiring = {{"read_valid", {true, 1, unitName + "_read_valid"}},
+                  {"write_valid", {true, 1, unitName + "_write_valid"}}};
       } else if (isBuiltinFifoRead(instr)) {
         isExternal = true;
         modName = "fifo";
@@ -546,7 +546,7 @@ namespace DHLS {
       assert(false);
     }
 
-    FunctionalUnit unit = {{modParams, modName}, unitName, wiring, outWires};
+    FunctionalUnit unit = {{modParams, modName}, unitName, wiring, outWires, isExternal};
 
     return unit;
   }
@@ -911,7 +911,6 @@ namespace DHLS {
   
   void instructionVerilog(std::ostream& out,
                           ControlFlowPosition pos,
-                          //Instruction* instr,
                           MicroArchitecture& arch) {
 
     auto instr = pos.instr;
