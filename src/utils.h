@@ -9,6 +9,12 @@
 namespace DHLS {
 
   static inline
+  llvm::Value* getArg(llvm::Function* f, const int argNum) {
+    assert(argNum < (int) f->arg_size());
+    return llvm::dyn_cast<llvm::Value>(f->arg_begin() + argNum);
+  }
+
+  static inline
   std::string commaListString(const std::vector<std::string>& strings) {
     std::string res = "";
     for (int i = 0; i < (int) strings.size(); i++) {

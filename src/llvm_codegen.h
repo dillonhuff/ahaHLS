@@ -62,12 +62,6 @@ namespace DHLS {
   }
 
   static inline
-  llvm::Value* getArg(llvm::Function* f, const int argNum) {
-    assert(argNum < (int) f->arg_size());
-    return llvm::dyn_cast<llvm::Value>(f->arg_begin() + argNum);
-  }
-
-  static inline
   llvm::Value* loadVal(llvm::IRBuilder<>& builder,
                        llvm::Value* buffer,
                        llvm::Value* offset,

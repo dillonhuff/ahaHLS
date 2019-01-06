@@ -15,6 +15,10 @@ namespace DHLS {
 
   class Port {
   public:
+    // TODO: registered is currently ignored in code generation. Registered
+    // ports have separate companion reg variables inside generated verilog.
+    // maybe I should print out output reg and remove internal regs?
+    bool registered;    
     bool isInput;
     int width;
     std::string name;

@@ -24,15 +24,15 @@ namespace DHLS {
   }
 
   Port inputPort(const int width, const std::string& name) {
-    return {true, width, name, false};
+    return {false, true, width, name, false};
   }
 
   Port outputPort(const int width, const std::string& name) {
-    return {false, width, name, false};
+    return {false, false, width, name, false};
   }
 
   Port outputDebugPort(const int width, const std::string& name) {
-    return {false, width, name, true};
+    return {false, false, width, name, true};
   }
   
   std::ostream& operator<<(std::ostream& out, const FunctionalUnit& unit) {
@@ -65,10 +65,19 @@ namespace DHLS {
     return true;
   }
 
-  std::vector<Port>
-  getPorts(MicroArchitecture& arch,
-           std::map<llvm::Value*, int>& memLayout) {
+  Port wireToInputPort(const Wire w) {
+    assert(!w.registered);
+    
+    return {w.registered, true, w.width, w.name, false};
+  }
 
+
+  Port wireToOutputPort(const Wire w) {
+    return {w.registered, false, w.width, w.name, false};
+  }
+  
+  std::vector<Port>
+  getPorts(MicroArchitecture& arch) {
     auto& unitAssignment = arch.unitAssignment;
 
     vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
@@ -80,7 +89,7 @@ namespace DHLS {
       Instruction* i = instr.first;
       auto unit = instr.second;
 
-      if (!elem(unit.instName, alreadyChecked) && ((unit.getModName() == "load") || (unit.getModName() == "store"))) {
+      if (!elem(unit.instName, alreadyChecked) && ((unit.getModName() == "load") || (unit.getModName() == "store") || (unit.getModName() == "fifo"))) {
         alreadyChecked.insert(unit.instName);
 
         if (StoreInst::classof(i)) {
@@ -101,6 +110,17 @@ namespace DHLS {
           pts.push_back(outputPort(1, "ren_" + to_string(numReadPorts)));
 
           numReadPorts++;
+        }
+
+        if (isBuiltinFifoRead(i) || isBuiltinFifoWrite(i)) {
+          for (auto w : unit.portWires) {
+            pts.push_back(wireToOutputPort(w.second));
+          }
+
+          for (auto w : unit.outWires) {
+            pts.push_back(wireToInputPort(w.second));
+          }
+
         }
       }
 
@@ -392,6 +412,7 @@ namespace DHLS {
   }
   
   FunctionalUnit createUnit(std::string unitName,
+                            map<Value*, std::string>& fifoNames,
                             map<Value*, std::string>& memNames,
                             map<Instruction*, Value*>& memSrcs,
                             HardwareConstraints& hcs,
@@ -486,11 +507,15 @@ namespace DHLS {
     } else if (CallInst::classof(instr)) {
       if (isBuiltinFifoWrite(instr)) {
         modName = "fifo";
+
+        unitName = map_find(instr->getOperand(1), fifoNames);
         
-        wiring = {{"read_valid", {true, 1, "this_fifo_valid"}},
-                  {"write_valid", {true, 1, "this_fifo_valid"}}};        
+        wiring = {{"read_valid", {true, 1, unitName + "_read_valid_reg"}},
+                  {"write_valid", {true, 1, unitName + "_write_valid_reg"}}};
       } else if (isBuiltinFifoRead(instr)) {
         modName = "fifo";
+
+        unitName = map_find(instr->getOperand(0), fifoNames);
       } else {
         // No action
       }
@@ -520,6 +545,12 @@ namespace DHLS {
     std::map<Instruction*, FunctionalUnit> units;
 
     auto memSrcs = memoryOpLocations(stg.getFunction());
+    map<Value*, std::string> fifoNames;
+    for (int fifoNum = 0; fifoNum < stg.getFunction()->arg_size(); fifoNum++) {
+      auto arg = getArg(stg.getFunction(), fifoNum);
+      fifoNames[arg] = "fifo_" + to_string(fifoNum);
+    }
+
     map<Value*, std::string> memNames;
     int i = 0;
     for (auto src : memSrcs) {
@@ -556,7 +587,7 @@ namespace DHLS {
 
         string unitName = string(instr->getOpcodeName()) + "_" + rStr;
         auto unit =
-          createUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
+          createUnit(unitName, fifoNames, memNames, memSrcs, hcs, readNum, writeNum, instr);
         units[instr] = unit;
 
         resSuffix++;
@@ -1428,7 +1459,8 @@ namespace DHLS {
       // These are external functional units
       if ((unit.getModName() == "load") ||
           (unit.getModName() == "store") ||
-          (unit.getModName() == "ret")) {
+          (unit.getModName() == "ret") ||
+          (unit.getModName() == "fifo")) {
         continue;
       }
 
@@ -1965,7 +1997,7 @@ namespace DHLS {
     // This is a very flawed way to handle memory ports. For a few reasons
     //   1. It does not know anything about read / write port widths
     //   2. It does not know anything about read / write port resource limits
-    vector<Port> allPorts = getPorts(arch, arch.memoryMap);
+    vector<Port> allPorts = getPorts(arch);
     for (auto w : debugInfo.wiresToWatch) {
       allPorts.push_back(outputDebugPort(w.width, w.name));
     }

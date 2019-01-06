@@ -15,6 +15,10 @@ namespace DHLS {
   }
 
   bool isBuiltinFifoWrite(llvm::Instruction* const iptr) {
+    if (!CallInst::classof(iptr)) {
+      return false;
+    }
+
     CallInst* call = dyn_cast<CallInst>(iptr);
     Function* called = call->getCalledFunction();
 
@@ -27,6 +31,10 @@ namespace DHLS {
   }
 
   bool isBuiltinFifoRead(llvm::Instruction* const iptr) {
+    if (!CallInst::classof(iptr)) {
+      return false;
+    }
+
     CallInst* call = dyn_cast<CallInst>(iptr);
     Function* called = call->getCalledFunction();
 
