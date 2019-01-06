@@ -13,7 +13,6 @@ using namespace std;
 // Pull zip file for z3 via travis? https://github.com/Z3Prover/z3/releases/download/z3-4.8.4/z3-4.8.4.d6df51951f4c-x64-ubuntu-14.04.zip
 
 // Plan for external functional units:
-//   1. Add "isExternal" field to functional unit
 //   2. Replace the if statement in emitFunctionalUnits with isExternal check
 //   3. Replace more code in the external unit statement
 namespace DHLS {
@@ -411,7 +410,10 @@ namespace DHLS {
 
         unitName = string(instr->getOpcodeName()) + "_" + to_string(readNum);            
         int inputWidth = getValueBitWidth(instr);
-        wiring = {{"raddr", {true, 32, "raddr_" + to_string(readNum) + "_reg"}}, {"ren", {true, 1, "ren_" + to_string(readNum) + "_reg"}}};
+        // wiring = {{"raddr", {true, 32, "raddr_" + to_string(readNum) + "_reg"}}, {"ren", {true, 1, "ren_" + to_string(readNum) + "_reg"}}};
+
+        wiring = {{"raddr", {true, 32, "raddr_" + to_string(readNum)}}, {"ren", {true, 1, "ren_" + to_string(readNum)}}};
+
         outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(readNum)}}};
 
         readNum++;
@@ -952,10 +954,18 @@ namespace DHLS {
       Value* location = instr->getOperand(0);
       auto locValue = outputName(location, pos, arch); //outputName(location, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
-      assignments.insert({addUnit.portWires["raddr"].name, locValue});      
+      if (map_find(instr, arch.unitAssignment).isExternal()) {
+        assignments.insert({addUnit.portWires["raddr"].name + rS, locValue});      
 
-      if (contains_key(string("ren"), addUnit.portWires)) {
-        assignments.insert({addUnit.portWires["ren"].name, "1"});      
+        if (contains_key(string("ren"), addUnit.portWires)) {
+          assignments.insert({addUnit.portWires["ren"].name + rS, "1"});      
+        }
+      } else {
+        assignments.insert({addUnit.portWires["raddr"].name, locValue});      
+
+        if (contains_key(string("ren"), addUnit.portWires)) {
+          assignments.insert({addUnit.portWires["ren"].name, "1"});
+        }
       }
     } else if (BinaryOperator::classof(instr) ||
                CmpInst::classof(instr)) {
