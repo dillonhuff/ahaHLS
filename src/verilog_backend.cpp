@@ -1139,10 +1139,8 @@ namespace DHLS {
 
         out << tab(4) << "if (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
 
-        // TODO: Fix this hack once I have basic FIFO example working
-        if (unit.outWires.size() == 1) {
-          out << "\t\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
-        }
+        out << tab(5) << instrName << " <= " << dataOutput(instr, arch) << ";" << endl;
+
         out << "\t\t\t\tend" << endl;
           
       }
@@ -2736,11 +2734,11 @@ namespace DHLS {
             string in1Name = map_find(string("in1"), unit.portWires).name;
 
             addAssert(notAtState(activeState, arch) + " || " +
-                      in0Name + " !== 'dx",
+                      in0Name + " !== " + to_string(getValueBitWidth(instr->getOperand(0))) + "'dx",
                       debugInfo);
 
             addAssert(notAtState(activeState, arch) + " || " +
-                      in1Name + " !== 'dx",
+                      in1Name + " !== " + to_string(getValueBitWidth(instr->getOperand(1))) + "'dx",
                       debugInfo);
             
           }
