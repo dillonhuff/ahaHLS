@@ -2233,6 +2233,24 @@ namespace DHLS {
 
     cout << "Systolic array" << endl;
     cout << valueString(f) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    // TODO: Do this by default
+    hcs.memoryMapping = memoryOpLocations(f);
+
+    cout << "Memory mapping" << endl;
+    for (auto mm : hcs.memoryMapping) {
+      cout << "\t" << valueString(mm.first) << " -> " << valueString(mm.second) << endl;
+    }
+    setAllAllocaMemTypes(hcs, f, registerSpec(width));
+
+    hcs.setCount(MUL_OP, 4);
+
+    Schedule s = scheduleFunction(f, hcs);
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
     
   }
   
