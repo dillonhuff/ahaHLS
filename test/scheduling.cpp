@@ -2182,12 +2182,8 @@ namespace DHLS {
       for (int i = 0; i < 2; i++) {
         bColVals.push_back(b.CreateCall(readFifo, bCols[i]));
       }
-      
-      // auto aRow0V = loadVal(b, aRow0, ind, "aRow0_" + iStr);
-      // auto left0 = loadVal(b, rightRegisters[0], mkInt(0, 32), "left0_" + iStr);
-      // auto bCol0V = loadVal(b, bCol0, ind, "bCol0_" + iStr);
-      // auto bCol1V = loadVal(b, bCol1, ind, "bCol1_" + iStr);
 
+      
       // cout << "Storing computed values" << endl;
       
       // // Store to new down / left registers
