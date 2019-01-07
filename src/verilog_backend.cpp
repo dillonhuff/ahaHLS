@@ -1011,16 +1011,18 @@ namespace DHLS {
       assignments.insert({addUnit.portWires["in1"].name, trueName});
       assignments.insert({addUnit.portWires["sel"].name, condName});            
 
-    } else if (CallInst::classof(instr) && isBuiltinFifoCall(instr)) {
-      if (isBuiltinFifoWrite(instr)) {
-        if (addUnit.isExternal()) {
-          assignments.insert({addUnit.portWires["write_valid"].name + rS, "1"});
-        } else {
-          assignments.insert({addUnit.portWires["write_valid"].name + rS, "1"});
-        }
-      } else if (isBuiltinFifoRead(instr)) {
+    } else if (CallInst::classof(instr)) {
+      if (isBuiltinFifoCall(instr)) {
+        if (isBuiltinFifoWrite(instr)) {
+          if (addUnit.isExternal()) {
+            assignments.insert({addUnit.portWires["write_valid"].name + rS, "1"});
+          } else {
+            assignments.insert({addUnit.portWires["write_valid"].name + rS, "1"});
+          }
+        } else if (isBuiltinFifoRead(instr)) {
         
-      } else {
+        } else {
+        }
       }
     } else if (AllocaInst::classof(instr) ||
                BitCastInst::classof(instr) ||
