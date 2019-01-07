@@ -2210,23 +2210,15 @@ namespace DHLS {
         }
       }
 
-      // // Store to new down / left registers
-      // auto newAccum0 =
-      //   b.CreateAdd(loadReg(b, accumRegisters[0]),
-      //                          b.CreateMul(aRow0V, bCol0V));
+      // Update register values
+      for (int col = 0; col < 2; col++) {
+        storeReg(b, downRegisters[col], bColVals[col]);
+      }
 
-      // auto newAccum1 =
-      //   b.CreateAdd(loadReg(b, accumRegisters[1]),
-      //                          b.CreateMul(left0, bCol1V));
-
-      // cout << "Storing regs" << endl;
-
-      // storeReg(b, accumRegisters[0], newAccum0);
-      // storeReg(b, accumRegisters[1], newAccum1);
-
-      // // Transfer left to right
-      // storeReg(b, rightRegisters[0], aRow0V);
-
+      for (int row = 0; row < 2; row++) {
+        storeReg(b, rightRegisters[row], bColVals[row]);
+      }
+      
     }
 
     // Store out final results
@@ -2236,8 +2228,6 @@ namespace DHLS {
         b.CreateCall(writeFifo, {loadReg(b, accumRegisters[2*i + j]), cCol});
       }
     }
-    // storeVal(b, cRow0, mkInt(0, 32), loadReg(b, accumRegisters[0]));
-    // storeVal(b, cRow0, mkInt(1, 32), loadReg(b, accumRegisters[1]));
 
     b.CreateRet(nullptr);
 
