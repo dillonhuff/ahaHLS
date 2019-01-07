@@ -931,25 +931,30 @@ namespace DHLS {
     if (ReturnInst::classof(instr)) {
       assert(addUnit.isExternal());
       
-      assignments.insert({"valid" + rS, "1"});
+      //assignments.insert({"valid" + rS, "1"});
+      assignments.insert({addUnit.inputWire("valid"), "1"});
     } else if (StoreInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
       auto wdataName = outputName(arg0, pos, arch);
       
       Value* location = instr->getOperand(1);
-
       auto locValue = outputName(location, pos, arch);
 
-      if (map_find(instr, arch.unitAssignment).isExternal()) {
-        assignments.insert({addUnit.portWires["waddr"].name + rS, locValue});
-        assignments.insert({addUnit.portWires["wdata"].name + rS, wdataName});
-        assignments.insert({addUnit.portWires["wen"].name + rS, "1"});
-      } else {
-        assignments.insert({addUnit.portWires["waddr"].name, locValue});
-        assignments.insert({addUnit.portWires["wdata"].name, wdataName});
-        assignments.insert({addUnit.portWires["wen"].name, "1"});
-      }
+      assignments.insert({addUnit.inputWire("waddr"), locValue});
+      assignments.insert({addUnit.inputWire("wdata"), wdataName});
+      assignments.insert({addUnit.inputWire("wen"), "1"});
+
+
+      // if (map_find(instr, arch.unitAssignment).isExternal()) {
+      //   assignments.insert({addUnit.portWires["waddr"].name + rS, locValue});
+      //   assignments.insert({addUnit.portWires["wdata"].name + rS, wdataName});
+      //   assignments.insert({addUnit.portWires["wen"].name + rS, "1"});
+      // } else {
+      //   assignments.insert({addUnit.portWires["waddr"].name, locValue});
+      //   assignments.insert({addUnit.portWires["wdata"].name, wdataName});
+      //   assignments.insert({addUnit.portWires["wen"].name, "1"});
+      // }
 
     } else if (LoadInst::classof(instr)) {
 

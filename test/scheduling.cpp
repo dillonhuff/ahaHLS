@@ -74,30 +74,14 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("plus"));
   }
 
-  // Handling ready / valid FIFO:
-  //   1. Should it be a builtin?
-  //   2. My first thought is that we should have a custom function
-  //      that is recognized by the system to represent FIFOs
-  //   3. LLVM externally declared struct?
-
-  // Other thing is how efficient does AXI / external memory handling need to be
-  // in order for the generated code to beat normal code? Possible problems:
-  //   1. AXI burst mode may be mandatory for good performance
-  //   2. AXI transactions have variable completion times, but the generated
-  //      hardware needs to overlap transactions
-  //   3. AXI data bus is much wider than the widest load / store, so we need to
-  //      be able to pack accesses together to get the best data storage possible
-  //      (a form of vectorization)
-
   // Q: What test cases do I need?
   // A: Test that uses multiple different RAM types
   //    Test that uses limited numbers of memory read/write ports
   //    Test case that merges basic blocks that execute different numbers of times
-  //    Test case that uses a struct as an argument
   //    Test case with outer loop pipelining
-  //    Test case using unit with ready valid interface
   //    Test case using ready valid interface together with pipelining
   //    Test case that builds a linebuffer from LLVM
+  //    Test case that stores code from the output of a FIFO before using it
   TEST_CASE("A simple if") {
     SMDiagnostic Err;
     LLVMContext Context;

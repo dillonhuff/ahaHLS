@@ -145,6 +145,15 @@ namespace DHLS {
       return module.name;
     }
 
+    std::string inputWire(const std::string& name) const {
+      auto n = dbhc::map_find(name, portWires).name;
+      if (isExternal()) {
+        return n + "_reg";
+      }
+
+      return n;
+    }
+
     std::map<std::string, std::string> getParams() const {
       return module.params;
     }
