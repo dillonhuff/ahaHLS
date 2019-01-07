@@ -2042,4 +2042,57 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("fifo_user"));
   }
 
+  TEST_CASE("Delay between reading from FIFO and using the result") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    int width = 16;
+    auto iStr = to_string(width);
+
+    StructType* tp = StructType::create(context, "builtin_fifo_" + iStr);
+    cout << "type name = " << typeString(tp) << endl;
+
+    auto mod = llvm::make_unique<Module>("fifo use", context);
+
+    vector<Type*> readArgs = {tp->getPointerTo()};
+    Function* readFifo =
+      mkFunc(readArgs, intType(width), "builtin_read_fifo_" + iStr, mod.get());
+
+    vector<Type*> writeArgs = {tp->getPointerTo(), intType(width)};
+    Function* writeFifo =
+      mkFunc(readArgs, "builtin_write_fifo_" + iStr, mod.get());
+    
+    std::vector<Type *> inputs{tp->getPointerTo(),
+        tp->getPointerTo()};
+    Function* f = mkFunc(inputs, "fifo_read_delay", mod.get());
+    auto blk = mkBB("entry_block", f);
+    
+    IRBuilder<> builder(blk);
+    auto val = builder.CreateCall(readFifo, {getArg(f, 0)});
+    builder.CreateCall(writeFifo, {val, getArg(f, 1)});
+    builder.CreateRet(nullptr);
+
+    cout << "LLVM function" << endl;
+    cout << valueString(f) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    Schedule s = scheduleFunction(f, hcs);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG is " << endl;
+    graph.print(cout);
+    
+    map<llvm::Value*, int> layout = {};
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(f, arch, info);
+
+    REQUIRE(runIVerilogTB("fifo_read_delay"));
+  }
+  
 }
