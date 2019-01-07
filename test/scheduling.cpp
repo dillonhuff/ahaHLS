@@ -2274,7 +2274,8 @@ namespace DHLS {
       bool res = (numReads == 0) || (numReads == 4);
       REQUIRE(res);
 
-      // TODO: Figure out how 
+      // TODO: Need to auto-generate code to test this thing. Way too hard to
+      // directly write fifo code
     }
     
   }
