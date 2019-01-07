@@ -81,6 +81,7 @@ namespace DHLS {
   //    Test case with outer loop pipelining
   //    Test case using ready valid interface together with pipelining
   //    Test case that builds a linebuffer from LLVM
+  //    Test case that creates systolic array with correct interconnect structure
   TEST_CASE("A simple if") {
     SMDiagnostic Err;
     LLVMContext Context;
