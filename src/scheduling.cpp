@@ -830,6 +830,8 @@ namespace DHLS {
 
 
             // Check FIFO dependences
+
+            // Check RAR dependence
             if (isBuiltinFifoRead(&instr) && isBuiltinFifoRead(&otherInstr)) {
               //cout << "Checking aliasing for " << valueString(instr) << " and " << valueString(otherInstr) << endl;
 
@@ -844,7 +846,7 @@ namespace DHLS {
               }
             }
 
-            // Check RAM dependences
+            // Check dependences between RAM operations
             // Check RAW dependence
             if (StoreInst::classof(&instr) && LoadInst::classof(&otherInstr)) {
               //cout << "Checking aliasing for " << valueString(instr) << " and " << valueString(otherInstr) << endl;
