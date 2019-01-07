@@ -945,35 +945,30 @@ namespace DHLS {
       assignments.insert({addUnit.inputWire("wdata"), wdataName});
       assignments.insert({addUnit.inputWire("wen"), "1"});
 
-
-      // if (map_find(instr, arch.unitAssignment).isExternal()) {
-      //   assignments.insert({addUnit.portWires["waddr"].name + rS, locValue});
-      //   assignments.insert({addUnit.portWires["wdata"].name + rS, wdataName});
-      //   assignments.insert({addUnit.portWires["wen"].name + rS, "1"});
-      // } else {
-      //   assignments.insert({addUnit.portWires["waddr"].name, locValue});
-      //   assignments.insert({addUnit.portWires["wdata"].name, wdataName});
-      //   assignments.insert({addUnit.portWires["wen"].name, "1"});
-      // }
-
     } else if (LoadInst::classof(instr)) {
 
       Value* location = instr->getOperand(0);
       auto locValue = outputName(location, pos, arch);
 
-      if (map_find(instr, arch.unitAssignment).isExternal()) {
-        assignments.insert({addUnit.portWires["raddr"].name + rS, locValue});      
+      assignments.insert({addUnit.inputWire("raddr"), locValue});      
 
-        if (contains_key(string("ren"), addUnit.portWires)) {
-          assignments.insert({addUnit.portWires["ren"].name + rS, "1"});      
-        }
-      } else {
-        assignments.insert({addUnit.portWires["raddr"].name, locValue});      
-
-        if (contains_key(string("ren"), addUnit.portWires)) {
-          assignments.insert({addUnit.portWires["ren"].name, "1"});
-        }
+      if (contains_key(string("ren"), addUnit.portWires)) {
+        assignments.insert({addUnit.inputWire("ren"), "1"});
       }
+      
+      // if (map_find(instr, arch.unitAssignment).isExternal()) {
+      //   assignments.insert({addUnit.portWires["raddr"].name + rS, locValue});      
+
+      //   if (contains_key(string("ren"), addUnit.portWires)) {
+      //     assignments.insert({addUnit.portWires["ren"].name + rS, "1"});      
+      //   }
+      // } else {
+      //   assignments.insert({addUnit.portWires["raddr"].name, locValue});      
+
+      //   if (contains_key(string("ren"), addUnit.portWires)) {
+      //     assignments.insert({addUnit.portWires["ren"].name, "1"});
+      //   }
+      // }
     } else if (BinaryOperator::classof(instr) ||
                CmpInst::classof(instr)) {
 
