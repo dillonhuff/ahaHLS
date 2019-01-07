@@ -382,14 +382,22 @@ module fifo(input clk,
             // Wraparound
             read_addr <= next_read_addr;
 
-            if (next_read_addr == write_addr) begin
+            if (!empty && (next_read_addr == write_addr)) begin
                empty <= 1;
             end
          end
       end
    end
 
-   assign out_data = ram[read_addr];
+   reg [WIDTH - 1 : 0] out_data_reg;
+
+   always @(posedge clk) begin
+      if (read_valid) begin
+         out_data_reg <= ram[read_addr];
+      end
+   end
+
+   assign out_data = out_data_reg;
    
    assign full = !empty && (write_addr == read_addr);
    assign write_ready = !full;

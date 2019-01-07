@@ -494,7 +494,6 @@ namespace DHLS {
     } else if (CallInst::classof(instr)) {
       if (isBuiltinFifoWrite(instr)) {
         isExternal = true;
-        
         modName = "fifo";
 
         unitName = map_find(instr->getOperand(1), fifoNames);
@@ -504,11 +503,23 @@ namespace DHLS {
         wiring = {{"read_valid", {true, 1, unitName + "_read_valid"}},
                   {"write_valid", {true, 1, unitName + "_write_valid"}},
                   {"in_data", {true, w, unitName + "_in_data"}}};
+
+        outWires = {{"out_data", {false, w, unitName + "_out_data"}}};
+        
       } else if (isBuiltinFifoRead(instr)) {
         isExternal = true;
         modName = "fifo";
 
         unitName = map_find(instr->getOperand(0), fifoNames);
+
+        auto w = getValueBitWidth(instr);
+        
+        wiring = {{"read_valid", {true, 1, unitName + "_read_valid"}},
+                  {"write_valid", {true, 1, unitName + "_write_valid"}},
+                  {"in_data", {true, w, unitName + "_in_data"}}};
+
+        outWires = {{"out_data", {false, w, unitName + "_out_data"}}};        
+        
       } else {
         // No action
       }
@@ -777,6 +788,19 @@ namespace DHLS {
     return tmpRes.name;
   }
 
+  std::string dataOutput(llvm::Instruction* instr0, MicroArchitecture& arch) {
+    auto unit0Src =
+      map_find(instr0, arch.unitAssignment);
+
+    if (isBuiltinFifoRead(instr0)) {
+      return map_find(string("out_data"), unit0Src.outWires).name;
+    } else {
+      assert(unit0Src.outWires.size() == 1);
+      string valName = unit0Src.onlyOutputVar();
+      return valName;
+    }
+  }
+
   std::string outputName(Value* val,
                          ControlFlowPosition& currentPosition,
                          MicroArchitecture& arch) {
@@ -796,11 +820,12 @@ namespace DHLS {
       auto instr0 = dyn_cast<Instruction>(val);
 
       if (instr0 == instr) {
-        auto unit0Src =
-          map_find(instr0, arch.unitAssignment);
-        assert(unit0Src.outWires.size() == 1);
-        string valName = unit0Src.onlyOutputVar();
-        return valName;
+        return dataOutput(instr0, arch);
+        // auto unit0Src =
+        //   map_find(instr0, arch.unitAssignment);
+        // assert(unit0Src.outWires.size() == 1);
+        // string valName = unit0Src.onlyOutputVar();
+        // return valName;
       }
 
       StateId argState = map_find(instr0, arch.stg.sched.instrTimes).back();
@@ -816,11 +841,7 @@ namespace DHLS {
         OrderedBasicBlock obb(argBB);
 
         if (obb.dominates(instr0, instr)) {
-          auto unit0Src =
-            map_find(instr0, arch.unitAssignment);
-          assert(unit0Src.outWires.size() == 1);
-          string valName = unit0Src.onlyOutputVar();
-          return valName;
+          return dataOutput(instr0, arch);
         } else {
           return mostRecentStorageLocation(instr0, currentPosition, arch);
         }
@@ -1023,7 +1044,12 @@ namespace DHLS {
             assignments.insert({addUnit.portWires["in_data"].name, inName});
           }
         } else if (isBuiltinFifoRead(instr)) {
-        
+
+          if (addUnit.isExternal()) {
+            assignments.insert({addUnit.portWires["read_valid"].name + rS, "1"});
+          } else {
+            assignments.insert({addUnit.portWires["read_valid"].name, "1"});
+          }
         } else {
         }
       }
