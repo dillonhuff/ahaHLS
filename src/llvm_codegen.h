@@ -119,5 +119,27 @@ namespace DHLS {
   llvm::Value* storeReg(llvm::IRBuilder<>& builder, llvm::Value* reg, llvm::Value* val) {
     return storeVal(builder, reg, mkInt(0, 32), val);
   }
+
+  static inline
+  llvm::StructType* fifoType(const int width) {
+    llvm::StructType* tp =
+      llvm::StructType::create(getGlobalLLVMContext(),
+                               "builtin_fifo_" + std::to_string(width));
+    return tp;
+  }
+
+  static inline
+  llvm::Function* fifoRead(const int width, llvm::Module* m) {
+    auto name = "builtin_read_fifo_" + std::to_string(width);
+
+    llvm::FunctionType *tp =
+      llvm::FunctionType::get(intType(width), {fifoType(width)->getPointerTo()}, false);
+
+    auto c = m->getOrInsertFunction(name, tp);
+
+    assert(llvm::Function::classof(c));
+
+    return llvm::dyn_cast<llvm::Function>(c);
+  }
   
 }

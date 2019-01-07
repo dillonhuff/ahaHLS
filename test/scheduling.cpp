@@ -12,6 +12,14 @@ using namespace std;
 
 namespace DHLS {
 
+  // Q: What test cases do I need?
+  // A: Test that uses multiple different RAM types
+  //    Test that uses limited numbers of memory read/write ports
+  //    Test case that merges basic blocks that execute different numbers of times
+  //    Test case with outer loop pipelining
+  //    Test case using ready valid interface together with pipelining
+  //    Test case that builds a linebuffer from LLVM
+  //    Test case that creates systolic array with correct interconnect structure
   TEST_CASE("Schedule a single store operation") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -74,14 +82,6 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("plus"));
   }
 
-  // Q: What test cases do I need?
-  // A: Test that uses multiple different RAM types
-  //    Test that uses limited numbers of memory read/write ports
-  //    Test case that merges basic blocks that execute different numbers of times
-  //    Test case with outer loop pipelining
-  //    Test case using ready valid interface together with pipelining
-  //    Test case that builds a linebuffer from LLVM
-  //    Test case that creates systolic array with correct interconnect structure
   TEST_CASE("A simple if") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -2096,6 +2096,33 @@ namespace DHLS {
     emitVerilog(f, arch, info);
 
     REQUIRE(runIVerilogTB("fifo_read_delay"));
+  }
+
+  TEST_CASE("2 x 2 systolic array with FIFOs") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    int width = 16;
+    auto iStr = to_string(width);
+
+    StructType* tp = fifoType(width);
+    auto mod = llvm::make_unique<Module>("fifo use with a delay", context);
+
+    vector<Type*> readArgs = {tp->getPointerTo()};
+    Function* readFifo = fifoRead(width, mod.get());
+
+    cout << "Read fifo func" << endl;
+    cout << valueString(readFifo) << endl;
+    // vector<Type*> writeArgs = {tp->getPointerTo(), intType(width)};
+    // Function* writeFifo =
+    //   mkFunc(readArgs, "builtin_write_fifo_" + iStr, mod.get());
+    
+    // std::vector<Type *> inputs{tp->getPointerTo(),
+    //     tp->getPointerTo()};
+    // Function* f = mkFunc(inputs, "fifo_read_delay", mod.get());
+    // auto blk = mkBB("entry_block", f);
+
+    
   }
   
 }
