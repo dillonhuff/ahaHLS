@@ -2703,11 +2703,11 @@ namespace DHLS {
             string in1Name = map_find(string("in1"), unit.portWires).name;
 
             addAssert(notAtState(activeState, arch) + " || " +
-                      in0Name + " !== 'dx",
+                      in0Name + " !== " + to_string(getValueBitWidth(instr)) + "'dx",
                       debugInfo);
 
             addAssert(notAtState(activeState, arch) + " || " +
-                      in1Name + " !== 'dx",
+                      in1Name + " !== " + to_string(getValueBitWidth(instr)) + "'dx",
                       debugInfo);
             
           }
