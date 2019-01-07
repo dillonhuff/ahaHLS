@@ -2052,7 +2052,7 @@ namespace DHLS {
     StructType* tp = StructType::create(context, "builtin_fifo_" + iStr);
     cout << "type name = " << typeString(tp) << endl;
 
-    auto mod = llvm::make_unique<Module>("fifo use", context);
+    auto mod = llvm::make_unique<Module>("fifo use with a delay", context);
 
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo =
@@ -2069,13 +2069,16 @@ namespace DHLS {
     
     IRBuilder<> builder(blk);
     auto val = builder.CreateCall(readFifo, {getArg(f, 0)});
-    builder.CreateCall(writeFifo, {val, getArg(f, 1)});
+    auto p0 = builder.CreateAdd(mkInt(2, width), val);
+    auto prod = builder.CreateAdd(p0, val);
+    builder.CreateCall(writeFifo, {prod, getArg(f, 1)});
     builder.CreateRet(nullptr);
 
     cout << "LLVM function" << endl;
     cout << valueString(f) << endl;
 
     HardwareConstraints hcs = standardConstraints();
+    hcs.setCount(ADD_OP, 1);
     Schedule s = scheduleFunction(f, hcs);
 
     STG graph = buildSTG(s, f);
