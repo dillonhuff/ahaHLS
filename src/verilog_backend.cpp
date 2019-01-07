@@ -83,14 +83,13 @@ namespace DHLS {
   getPorts(MicroArchitecture& arch) {
     auto& unitAssignment = arch.unitAssignment;
 
-    vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
+    vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst")};
 
     std::set<std::string> alreadyChecked;
     for (auto instr : unitAssignment) {
       auto unit = instr.second;
 
-      if (!elem(unit.instName, alreadyChecked) && ((unit.getModName() == "load") || (unit.getModName() == "store") || (unit.getModName() == "fifo"))) {
-
+      if (!elem(unit.instName, alreadyChecked) && unit.isExternal()) {
         alreadyChecked.insert(unit.instName);
 
         for (auto w : unit.portWires) {
@@ -384,7 +383,6 @@ namespace DHLS {
 
         unitName = string(instr->getOpcodeName()) + "_" + to_string(readNum);            
         int inputWidth = getValueBitWidth(instr);
-        // wiring = {{"raddr", {true, 32, "raddr_" + to_string(readNum) + "_reg"}}, {"ren", {true, 1, "ren_" + to_string(readNum) + "_reg"}}};
 
         wiring = {{"raddr", {true, 32, "raddr_" + to_string(readNum)}}, {"ren", {true, 1, "ren_" + to_string(readNum)}}};
 
