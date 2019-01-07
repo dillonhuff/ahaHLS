@@ -31,8 +31,6 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
-      #1 rst = 0;
-
       #1 `assert(valid, 1'd0)
       #1 `assert(write_ready0, 1'd1)
       #1 `assert(read_ready0, 1'd0)
@@ -53,40 +51,43 @@ module test();
       #1 `assert(read_ready0, 1'd1)
 
       #1 `assert(read_ready1, 1'd0)
+
+      #1 rst = 0;
+
       
-      #1 clk = 0;
-      #1 clk = 1;
+      // #1 clk = 0;
+      // #1 clk = 1;
 
-      #1 clk = 0;
-      #1 clk = 1;
+      // #1 clk = 0;
+      // #1 clk = 1;
 
-      #1 clk = 0;
-      #1 clk = 1;
+      // #1 clk = 0;
+      // #1 clk = 1;
 
-      #1 clk = 0;
-      #1 clk = 1;
+      // #1 clk = 0;
+      // #1 clk = 1;
 
-      #1 clk = 0;
-      #1 clk = 1;
+      // #1 clk = 0;
+      // #1 clk = 1;
 
-      #1 clk = 0;
-      #1 clk = 1;
+      // #1 clk = 0;
+      // #1 clk = 1;
 
-      #1 `assert(read_ready1, 1'd1)
-      #1 `assert(valid, 1'd1)
+      // #1 `assert(read_ready1, 1'd1)
+      // #1 `assert(valid, 1'd1)
 
-      #1 read_valid1 = 1;
+      // #1 read_valid1 = 1;
       
-      #1 clk = 0;
-      #1 clk = 1;
+      // #1 clk = 0;
+      // #1 clk = 1;
       
-      #1 read_valid1 = 0;
+      // #1 read_valid1 = 0;
 
-      #1 $display("out_data1", out_data1);
+      // #1 $display("out_data1", out_data1);
 
-      #1 `assert(read_ready1, 1'd0)
-      #1 `assert(out_data1, 32'd791);
-      #1 `assert(valid, 1'd1)
+      // #1 `assert(read_ready1, 1'd0)
+      // #1 `assert(out_data1, 32'd791);
+      // #1 `assert(valid, 1'd1)
       
       #1 clk = 0;
       #1 clk = 1;
