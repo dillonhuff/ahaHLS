@@ -12,9 +12,6 @@ using namespace std;
 
 // Pull zip file for z3 via travis? https://github.com/Z3Prover/z3/releases/download/z3-4.8.4/z3-4.8.4.d6df51951f4c-x64-ubuntu-14.04.zip
 
-// Plan for external functional units:
-//   2. Replace the if statement in emitFunctionalUnits with isExternal check
-//   3. Replace more code in the external unit statement
 namespace DHLS {
 
   std::ostream& operator<<(std::ostream& out, const Wire w) {
