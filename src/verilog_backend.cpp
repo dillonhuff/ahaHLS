@@ -330,8 +330,6 @@ namespace DHLS {
 
         unitName = string(instr->getOpcodeName()) + "_" + wStr;
                                                                         
-        // wiring = {{"wen", {true, 1, "wen_" + wStr + "_reg"}}, {"waddr", {true, 32, "waddr_" + wStr + "_reg"}}, {"wdata", {true, inputWidth, "wdata_" + wStr + "_reg"}}};
-
         wiring = {{"wen", {true, 1, "wen_" + wStr}}, {"waddr", {true, 32, "waddr_" + wStr}}, {"wdata", {true, inputWidth, "wdata_" + wStr}}};
 
         outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};

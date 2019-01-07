@@ -355,6 +355,7 @@ module fifo(input clk,
 
    reg [$clog2(DEPTH) - 1 : 0]                write_addr;
    reg [$clog2(DEPTH) - 1 : 0]                read_addr;
+   wire [$clog2(DEPTH) - 1 : 0]                next_read_addr;
 
    always @(posedge clk) begin
       if (!rst) begin
@@ -371,13 +372,19 @@ module fifo(input clk,
       end
    end
 
+   assign next_read_addr = DEPTH == read_addr ? 0 : read_addr + 1;
+   
    always @(posedge clk) begin
       if (!rst) begin
          if (read_valid) begin
             `assert(read_ready, 1'd1)
 
             // Wraparound
-            read_addr <= DEPTH == read_addr ? 0 : read_addr + 1;
+            read_addr <= next_read_addr;
+
+            if (next_read_addr == write_addr) begin
+               empty <= 1;
+            end
          end
       end
    end
