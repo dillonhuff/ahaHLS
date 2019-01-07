@@ -504,8 +504,10 @@ namespace DHLS {
                   {"write_valid", {true, 1, unitName + "_write_valid"}},
                   {"in_data", {true, w, unitName + "_in_data"}}};
 
-        outWires = {{"out_data", {false, w, unitName + "_out_data"}}};
-        
+        outWires = {{"out_data", {false, w, unitName + "_out_data"}},
+                     {"read_ready", {false, 1, unitName + "_read_ready"}},
+                     {"write_ready", {false, 1, unitName + "_write_ready"}}};
+                    
       } else if (isBuiltinFifoRead(instr)) {
         isExternal = true;
         modName = "fifo";
@@ -518,7 +520,9 @@ namespace DHLS {
                   {"write_valid", {true, 1, unitName + "_write_valid"}},
                   {"in_data", {true, w, unitName + "_in_data"}}};
 
-        outWires = {{"out_data", {false, w, unitName + "_out_data"}}};        
+        outWires = {{"out_data", {false, w, unitName + "_out_data"}},
+                    {"read_ready", {false, 1, unitName + "_read_ready"}},
+                    {"write_ready", {false, 1, unitName + "_write_ready"}}};
         
       } else {
         // No action
@@ -1308,7 +1312,24 @@ namespace DHLS {
     
     out << "\t\tend" << endl;
 
-  }  
+  }
+
+  // TODO: Change name to unstallCondition or readyCondition?
+  std::string iiCondition(llvm::Instruction* const instr,
+                          MicroArchitecture& arch) {
+    if (isBuiltinFifoCall(instr)) {
+      auto unit = map_find(instr, arch.unitAssignment);
+
+      if (isBuiltinFifoRead(instr)) {
+        return map_find(string("read_ready"), unit.outWires).name;
+      } else {
+        assert(isBuiltinFifoWrite(instr));
+        return map_find(string("write_ready"), unit.outWires).name;
+      }
+    }
+
+    return "1";
+  }
 
   void emitConditionalInstruction(std::ostream& out,
                                   GuardedInstruction& instrG,
@@ -1325,8 +1346,12 @@ namespace DHLS {
     auto pos = pipelinePosition(instrG.instruction, state, i);
     out << "\t\t\tif (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
 
+    out << tab(4) << "if (" << iiCondition(instrG.instruction, arch) << ") begin " << endl;
+
     instructionVerilog(out, pos, arch);
 
+    out << tab(4) << "end" << endl;
+    
     out << "\t\t\tend" << endl;
     out << "\t\tend" << endl;
     out << "\tend" << endl;
@@ -1433,7 +1458,12 @@ namespace DHLS {
             out << tab(3) << "if (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
 
             out << tab(4) << "// " << instructionString(instr) << endl;
+
+            out << tab(4) << "if (" << iiCondition(instrG.instruction, arch) << ") begin" << endl;
+            
             instructionVerilog(out, position(state, instr), arch);
+
+            out << tab(4) << "end" << endl;
 
             out << "\t\t\tend else begin " << endl;
             out << "\t\t\t// Default values" << endl;
