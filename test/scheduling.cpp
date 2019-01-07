@@ -2251,6 +2251,32 @@ namespace DHLS {
 
     cout << "STG Is" << endl;
     graph.print(cout);
+
+    // TODO: Add unit test of how fifo reads are distributed. This should
+    // test that the reads are allocated to cycles correctly
+
+    // Issue: I could allow an input that represents a wire, this would allow
+    // coding up CGRA type algorithms (be more specific. What is it about the CGRA
+    // algorithms? No valid signal, they dont really complete they just reach a
+    // steady state, they are totally synchronous?), but it makes the code rate
+    // sensitive.
+    // How you schedule calls to the read and write on a wire potentially affects 
+    // the data that you see.
+
+    for (auto& st : graph.opStates) {
+      int numReads = 0;
+      for (auto instrG : graph.instructionsFinishingAt(st.first)) {
+        Instruction* instr = instrG.instruction;
+        if (isBuiltinFifoRead(instr)) {
+          numReads++;
+        }
+      }
+
+      cout << "numReads == " << numReads << endl;
+      
+      bool res = (numReads == 0) || (numReads == 4);
+      REQUIRE(res);
+    }
     
   }
   

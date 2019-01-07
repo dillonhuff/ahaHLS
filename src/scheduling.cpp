@@ -830,7 +830,7 @@ namespace DHLS {
 
             // Check RAW dependence
             if (StoreInst::classof(&instr) && LoadInst::classof(&otherInstr)) {
-              cout << "Checking aliasing for " << valueString(instr) << " and " << valueString(otherInstr) << endl;
+              //cout << "Checking aliasing for " << valueString(instr) << " and " << valueString(otherInstr) << endl;
 
               Value* storeLoc = instr.getOperand(1);
               Value* loadLoc = otherInstr.getOperand(0);
@@ -845,7 +845,7 @@ namespace DHLS {
 
             // Check WAW dependence
             if (StoreInst::classof(&instr) && StoreInst::classof(&otherInstr)) {
-              cout << "Checking WAW aliasing for " << valueString(instr) << " and " << valueString(otherInstr) << endl;
+              //cout << "Checking WAW aliasing for " << valueString(instr) << " and " << valueString(otherInstr) << endl;
 
               Value* storeLoc = instr.getOperand(1);
               Value* otherStoreLoc = otherInstr.getOperand(1);
