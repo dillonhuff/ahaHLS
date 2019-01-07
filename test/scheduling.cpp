@@ -81,7 +81,6 @@ namespace DHLS {
   //    Test case with outer loop pipelining
   //    Test case using ready valid interface together with pipelining
   //    Test case that builds a linebuffer from LLVM
-  //    Test case that stores code from the output of a FIFO before using it
   TEST_CASE("A simple if") {
     SMDiagnostic Err;
     LLVMContext Context;
