@@ -141,5 +141,21 @@ namespace DHLS {
 
     return llvm::dyn_cast<llvm::Function>(c);
   }
+
+  static inline
+  llvm::Function* fifoWrite(const int width, llvm::Module* m) {
+    auto name = "builtin_write_fifo_" + std::to_string(width);
+
+    llvm::FunctionType *tp =
+      llvm::FunctionType::get(llvm::Type::getVoidTy(getGlobalLLVMContext()),
+                              {intType(width), fifoType(width)->getPointerTo()},
+                              false);
+
+    auto c = m->getOrInsertFunction(name, tp);
+
+    assert(llvm::Function::classof(c));
+
+    return llvm::dyn_cast<llvm::Function>(c);
+  }
   
 }

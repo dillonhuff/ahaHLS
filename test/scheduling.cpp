@@ -2113,15 +2113,103 @@ namespace DHLS {
 
     cout << "Read fifo func" << endl;
     cout << valueString(readFifo) << endl;
-    // vector<Type*> writeArgs = {tp->getPointerTo(), intType(width)};
-    // Function* writeFifo =
-    //   mkFunc(readArgs, "builtin_write_fifo_" + iStr, mod.get());
-    
-    // std::vector<Type *> inputs{tp->getPointerTo(),
-    //     tp->getPointerTo()};
-    // Function* f = mkFunc(inputs, "fifo_read_delay", mod.get());
-    // auto blk = mkBB("entry_block", f);
 
+    Function* writeFifo = fifoWrite(width, mod.get());
+
+    cout << "Write fifo func" << endl;
+    cout << valueString(writeFifo) << endl;
+
+    std::vector<Type *> inputs{tp->getPointerTo(),
+        tp->getPointerTo(),
+        tp->getPointerTo(),
+        tp->getPointerTo(),
+        tp->getPointerTo(),
+        tp->getPointerTo()};
+    
+    Function* f = mkFunc(inputs, "sys_array_fifo", mod.get());
+
+    auto blk = mkBB("entry_block", f);
+
+    IRBuilder<> b(blk);
+    
+    auto aRow0 = getArg(f, 0);
+    auto aRow1 = getArg(f, 1);
+    vector<llvm::Value*> aRows{aRow0, aRow1};
+
+    auto bCol0 = getArg(f, 2);
+    auto bCol1 = getArg(f, 3);
+    vector<llvm::Value*> bCols{bCol0, bCol1};    
+
+    auto cRow0 = getArg(f, 4);
+    auto cRow1 = getArg(f, 5);
+    vector<llvm::Value*> cCols{cRow0, cRow1};
+    
+    vector<Value*> rightRegisters;
+    for (int i = 0; i < 1; i++) {
+      auto reg =
+        b.CreateAlloca(intType(width), nullptr, "right_" + to_string(i));
+      storeReg(b, reg, mkInt(0, 32));
+      rightRegisters.push_back(reg);
+    }
+
+    vector<Value*> accumRegisters;
+    for (int i = 0; i < 2; i++) {
+      auto reg =
+        b.CreateAlloca(intType(width), nullptr, "accum_" + to_string(i));
+      storeReg(b, reg, mkInt(0, 32));
+      accumRegisters.push_back(reg);
+    }
+
+    for (int i = 0; i < 3; i++) {
+      cout << "i = " << i << endl;
+      
+      vector<Value*> aRowVals;
+      for (int i = 0; i < 2; i++) {
+        aRowVals.push_back(b.CreateCall(readFifo, aRows[i]));
+      }
+
+      vector<Value*> bColVals;
+      for (int i = 0; i < 2; i++) {
+        bColVals.push_back(b.CreateCall(readFifo, bCols[i]));
+      }
+      
+      // auto ind = mkInt(i, 32);
+
+      // auto iStr = to_string(i);
+      // auto aRow0V = loadVal(b, aRow0, ind, "aRow0_" + iStr);
+      // auto left0 = loadVal(b, rightRegisters[0], mkInt(0, 32), "left0_" + iStr);
+      // auto bCol0V = loadVal(b, bCol0, ind, "bCol0_" + iStr);
+      // auto bCol1V = loadVal(b, bCol1, ind, "bCol1_" + iStr);
+
+      // cout << "Storing computed values" << endl;
+      
+      // // Store to new down / left registers
+      // auto newAccum0 =
+      //   b.CreateAdd(loadReg(b, accumRegisters[0]),
+      //                          b.CreateMul(aRow0V, bCol0V));
+
+      // auto newAccum1 =
+      //   b.CreateAdd(loadReg(b, accumRegisters[1]),
+      //                          b.CreateMul(left0, bCol1V));
+
+      // cout << "Storing regs" << endl;
+
+      // storeReg(b, accumRegisters[0], newAccum0);
+      // storeReg(b, accumRegisters[1], newAccum1);
+
+      // // Transfer left to right
+      // storeReg(b, rightRegisters[0], aRow0V);
+
+    }
+
+    // Store out final results
+    // storeVal(b, cRow0, mkInt(0, 32), loadReg(b, accumRegisters[0]));
+    // storeVal(b, cRow0, mkInt(1, 32), loadReg(b, accumRegisters[1]));
+
+    b.CreateRet(nullptr);
+
+    cout << "Systolic array" << endl;
+    cout << valueString(f) << endl;
     
   }
   
