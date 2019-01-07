@@ -14,6 +14,9 @@ using namespace std;
 
 namespace DHLS {
 
+  std::string iiCondition(llvm::Instruction* const instr,
+                          MicroArchitecture& arch);
+
   std::ostream& operator<<(std::ostream& out, const Wire w) {
     out << w.toString();
     return out;
@@ -1270,7 +1273,22 @@ namespace DHLS {
         } else {
           out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
           out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << ") begin" << endl;
+
+          // TODO: Add multiple stall condition handling, and add stall logic
+          // to other cases in control logic
+          Instruction* instructionWithStall;
+          for (auto instr : arch.stg.instructionsStartingAt(state)) {
+            instructionWithStall = instr.instruction;
+            if (isBuiltinFifoCall(instr.instruction)) {
+              instructionWithStall = instr.instruction;
+              break;
+            }
+          }
+          
+          out << tab(4) << "if (" << iiCondition(instructionWithStall, arch) << ") begin " << endl;
           out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
+          out << tab(4) << "end" << endl;
+
           out << "\t\t\t\tend" << endl;
         }
       }
