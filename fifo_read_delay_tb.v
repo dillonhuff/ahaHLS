@@ -85,7 +85,7 @@ module test();
       #1 $display("out_data1", out_data1);
 
       #1 `assert(read_ready1, 1'd0)
-      #1 `assert(out_data1, 791 + 791 + 2);
+      #1 `assert(out_data1, 791 + 791 + 2)
       #1 `assert(valid, 1'd1)
       
       #1 clk = 0;

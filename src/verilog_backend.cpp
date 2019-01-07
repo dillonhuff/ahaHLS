@@ -555,7 +555,7 @@ namespace DHLS {
 
     auto memSrcs = memoryOpLocations(stg.getFunction());
     map<Value*, std::string> fifoNames;
-    for (int fifoNum = 0; fifoNum < stg.getFunction()->arg_size(); fifoNum++) {
+    for (int fifoNum = 0; fifoNum < (int) stg.getFunction()->arg_size(); fifoNum++) {
       auto arg = getArg(stg.getFunction(), fifoNum);
       fifoNames[arg] = "fifo_" + to_string(fifoNum);
     }
@@ -763,7 +763,7 @@ namespace DHLS {
         } else {
           cout << "Getting data from previous stage" << endl;
           int stagePlusII = stage + p.II();
-          if (stagePlusII >= p.pipelineRegisters.size()) {
+          if (stagePlusII >= (int) p.pipelineRegisters.size()) {
             assert(contains_key(result, arch.names));
                    
             Wire tmpRes = map_find(result, arch.names);
