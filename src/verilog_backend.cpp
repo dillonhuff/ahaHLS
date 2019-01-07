@@ -60,7 +60,7 @@ namespace DHLS {
         BranchInst::classof(instr) ||
         AllocaInst::classof(instr) ||
         BitCastInst::classof(instr) ||
-        (CallInst::classof(instr) && !isBuiltinFifoCall(instr)) ||
+        (CallInst::classof(instr) && !isBuiltinFifoRead(instr)) ||
         ReturnInst::classof(instr)) {
       return false;
     }
@@ -604,7 +604,7 @@ namespace DHLS {
         if (StoreInst::classof(instr) ||
             BranchInst::classof(instr) ||
             AllocaInst::classof(instr) ||
-            CallInst::classof(instr) ||
+            (CallInst::classof(instr) && !isBuiltinFifoRead(instr)) ||
             BitCastInst::classof(instr)) {
           continue;
         }
@@ -1011,8 +1011,18 @@ namespace DHLS {
       assignments.insert({addUnit.portWires["in1"].name, trueName});
       assignments.insert({addUnit.portWires["sel"].name, condName});            
 
+    } else if (CallInst::classof(instr) && isBuiltinFifoCall(instr)) {
+      if (isBuiltinFifoWrite(instr)) {
+        if (addUnit.isExternal()) {
+          assignments.insert({addUnit.portWires["write_valid"].name + rS, "1"});
+        } else {
+          assignments.insert({addUnit.portWires["write_valid"].name + rS, "1"});
+        }
+      } else if (isBuiltinFifoRead(instr)) {
+        
+      } else {
+      }
     } else if (AllocaInst::classof(instr) ||
-               CallInst::classof(instr) ||
                BitCastInst::classof(instr) ||
                BranchInst::classof(instr)) {
       // No-ops
@@ -1082,11 +1092,6 @@ namespace DHLS {
                        const std::vector<StateTransition>& destinations,
                        MicroArchitecture& arch) {
 
-                       // const STG& stg,
-                       // map<Instruction*, FunctionalUnit>& unitAssignment,
-                       // map<Instruction*, Wire>& names,
-                       // const std::vector<ElaboratedPipeline>& pipelines) {
-
     auto& names = arch.names;
     auto& pipelines = arch.pipelines;
     auto& unitAssignment = arch.unitAssignment;
@@ -1100,6 +1105,8 @@ namespace DHLS {
 
       if (hasOutput(instr)) {
 
+        assert(contains_key(instr, names));
+        
         string instrName = map_find(instr, names).name;
         
         if (isPipelineState(state, pipelines)) {
@@ -1114,9 +1121,12 @@ namespace DHLS {
 
         auto unit = map_find(instr, unitAssignment);
 
-        //out << "\t\t\t\tif (" << verilogForCondition(instrG.cond, state, stg, unitAssignment, names) << ") begin" << endl;
         out << tab(4) << "if (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
-        out << "\t\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
+
+        // TODO: Fix this hack once I have basic FIFO example working
+        if (unit.outWires.size() == 1) {
+          out << "\t\t\t\t\t" << instrName << " <= " << unit.onlyOutputVar() << ";" << endl;
+        }
         out << "\t\t\t\tend" << endl;
           
       }
