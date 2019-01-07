@@ -2183,9 +2183,33 @@ namespace DHLS {
         bColVals.push_back(b.CreateCall(readFifo, bCols[i]));
       }
 
-      
-      // cout << "Storing computed values" << endl;
-      
+      for (int row = 0; row < 2; row++) {
+        for (int col = 0; col < 2; col++) {
+          Value* aVal = nullptr;
+          if (row == 0) {
+            aVal = aRowVals[col];
+          } else {
+            // Add row num to index
+            aVal = rightRegisters[col];
+          }
+
+          Value* bVal = nullptr;
+          if (col == 0) {
+            bVal = bColVals[row];
+          } else {
+            // Add row num to index
+            bVal = downRegisters[row];
+          }
+
+          auto accumReg = accumRegisters[2*row + col];
+          auto newAccum =
+            b.CreateAdd(loadReg(b, accumReg), b.CreateMul(aVal, bVal));
+
+          storeReg(b, accumReg, newAccum);
+
+        }
+      }
+
       // // Store to new down / left registers
       // auto newAccum0 =
       //   b.CreateAdd(loadReg(b, accumRegisters[0]),
