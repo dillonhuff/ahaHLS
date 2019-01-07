@@ -2145,19 +2145,29 @@ namespace DHLS {
     vector<llvm::Value*> cCols{cRow0, cRow1};
     
     vector<Value*> rightRegisters;
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < 2; i++) {
       auto reg =
         b.CreateAlloca(intType(width), nullptr, "right_" + to_string(i));
       storeReg(b, reg, mkInt(0, 32));
       rightRegisters.push_back(reg);
     }
 
-    vector<Value*> accumRegisters;
+    vector<Value*> downRegisters;
     for (int i = 0; i < 2; i++) {
       auto reg =
-        b.CreateAlloca(intType(width), nullptr, "accum_" + to_string(i));
+        b.CreateAlloca(intType(width), nullptr, "down_" + to_string(i));
       storeReg(b, reg, mkInt(0, 32));
-      accumRegisters.push_back(reg);
+      downRegisters.push_back(reg);
+    }
+    
+    vector<Value*> accumRegisters;
+    for (int i = 0; i < 2; i++) {
+      for (int j = 0; j < 2; j++) {
+        auto reg =
+          b.CreateAlloca(intType(width), nullptr, "accum_" + to_string(i) + "_" + to_string(j));
+        storeReg(b, reg, mkInt(0, 32));
+        accumRegisters.push_back(reg);
+      }
     }
 
     for (int i = 0; i < 3; i++) {
@@ -2173,9 +2183,6 @@ namespace DHLS {
         bColVals.push_back(b.CreateCall(readFifo, bCols[i]));
       }
       
-      // auto ind = mkInt(i, 32);
-
-      // auto iStr = to_string(i);
       // auto aRow0V = loadVal(b, aRow0, ind, "aRow0_" + iStr);
       // auto left0 = loadVal(b, rightRegisters[0], mkInt(0, 32), "left0_" + iStr);
       // auto bCol0V = loadVal(b, bCol0, ind, "bCol0_" + iStr);
@@ -2203,6 +2210,12 @@ namespace DHLS {
     }
 
     // Store out final results
+    for (int j = 0; j < 2; j++) {
+      auto cCol = cCols[j];
+      for (int i = 0; i < 2; i++) {
+        b.CreateCall(writeFifo, {loadReg(b, accumRegisters[2*i + j]), cCol});
+      }
+    }
     // storeVal(b, cRow0, mkInt(0, 32), loadReg(b, accumRegisters[0]));
     // storeVal(b, cRow0, mkInt(1, 32), loadReg(b, accumRegisters[1]));
 
