@@ -955,20 +955,7 @@ namespace DHLS {
       if (contains_key(string("ren"), addUnit.portWires)) {
         assignments.insert({addUnit.inputWire("ren"), "1"});
       }
-      
-      // if (map_find(instr, arch.unitAssignment).isExternal()) {
-      //   assignments.insert({addUnit.portWires["raddr"].name + rS, locValue});      
 
-      //   if (contains_key(string("ren"), addUnit.portWires)) {
-      //     assignments.insert({addUnit.portWires["ren"].name + rS, "1"});      
-      //   }
-      // } else {
-      //   assignments.insert({addUnit.portWires["raddr"].name, locValue});      
-
-      //   if (contains_key(string("ren"), addUnit.portWires)) {
-      //     assignments.insert({addUnit.portWires["ren"].name, "1"});
-      //   }
-      // }
     } else if (BinaryOperator::classof(instr) ||
                CmpInst::classof(instr)) {
 
@@ -1043,20 +1030,13 @@ namespace DHLS {
         if (isBuiltinFifoWrite(instr)) {
           auto inName = outputName(instr->getOperand(0), pos, arch);
 
-          if (addUnit.isExternal()) {
-            assignments.insert({addUnit.portWires["write_valid"].name + rS, "1"});
-            assignments.insert({addUnit.portWires["in_data"].name + rS, inName});
-          } else {
-            assignments.insert({addUnit.portWires["write_valid"].name + rS, "1"});
-            assignments.insert({addUnit.portWires["in_data"].name, inName});
-          }
+          assignments.insert({addUnit.inputWire("write_valid"), "1"});
+          assignments.insert({addUnit.inputWire("in_data"), inName});
+          
         } else if (isBuiltinFifoRead(instr)) {
 
-          if (addUnit.isExternal()) {
-            assignments.insert({addUnit.portWires["read_valid"].name + rS, "1"});
-          } else {
-            assignments.insert({addUnit.portWires["read_valid"].name, "1"});
-          }
+          assignments.insert({addUnit.inputWire("read_valid"), "1"});
+
         } else {
         }
       }
