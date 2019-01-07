@@ -21,7 +21,7 @@ module test();
    wire write_ready1;
    wire  write_valid1;
 
-   reg [31 : 0]  in_data1;
+   wire [31 : 0]  in_data1;
    wire [31 : 0] out_data1;
    
    initial begin
@@ -97,8 +97,8 @@ module test();
 
    fifo #(.WIDTH(32), .DEPTH(16)) in(.clk(clk), .rst(rst), .read_valid(read_valid0), .read_ready(read_ready0), .write_ready(write_ready0), .write_valid(write_valid0));
 
-   fifo #(.WIDTH(32), .DEPTH(16)) out(.clk(clk), .rst(rst), .read_valid(read_valid1), .read_ready(read_ready1), .write_ready(write_ready1), .write_valid(write_valid1), .out_data(out_data1));
+   fifo #(.WIDTH(32), .DEPTH(16)) out(.clk(clk), .rst(rst), .read_valid(read_valid1), .read_ready(read_ready1), .write_ready(write_ready1), .write_valid(write_valid1), .out_data(out_data1), .in_data(in_data1));
 
-   fifo_user ss(.clk(clk), .rst(rst), .valid(valid), .fifo_1_write_valid(write_valid1));
+   fifo_user ss(.clk(clk), .rst(rst), .valid(valid), .fifo_1_write_valid(write_valid1), .fifo_1_in_data(in_data1));
    
 endmodule

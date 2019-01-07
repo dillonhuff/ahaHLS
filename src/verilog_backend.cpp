@@ -498,9 +498,12 @@ namespace DHLS {
         modName = "fifo";
 
         unitName = map_find(instr->getOperand(1), fifoNames);
+
+        auto w = getValueBitWidth(instr->getOperand(0));
         
         wiring = {{"read_valid", {true, 1, unitName + "_read_valid"}},
-                  {"write_valid", {true, 1, unitName + "_write_valid"}}};
+                  {"write_valid", {true, 1, unitName + "_write_valid"}},
+                  {"in_data", {true, w, unitName + "_in_data"}}};
       } else if (isBuiltinFifoRead(instr)) {
         isExternal = true;
         modName = "fifo";
@@ -1008,11 +1011,16 @@ namespace DHLS {
 
     } else if (CallInst::classof(instr)) {
       if (isBuiltinFifoCall(instr)) {
+
         if (isBuiltinFifoWrite(instr)) {
+          auto inName = outputName(instr->getOperand(0), pos, arch);
+
           if (addUnit.isExternal()) {
             assignments.insert({addUnit.portWires["write_valid"].name + rS, "1"});
+            assignments.insert({addUnit.portWires["in_data"].name + rS, inName});
           } else {
             assignments.insert({addUnit.portWires["write_valid"].name + rS, "1"});
+            assignments.insert({addUnit.portWires["in_data"].name, inName});
           }
         } else if (isBuiltinFifoRead(instr)) {
         
