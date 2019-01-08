@@ -323,6 +323,10 @@ namespace DHLS {
       return numFUsWithName("load");
     }
 
+    int numWritePorts() const {
+      return numFUsWithName("store");
+    }
+    
     bool isPipelineState(const StateId id) const {
       return DHLS::isPipelineState(id, pipelines);
     }

@@ -305,7 +305,7 @@ namespace DHLS {
 
         assert(inputWidth == dataWidth);
 
-        cout << "Got name forop" << endl;
+        cout << "Got name for op" << endl;
         unitName = memSrc;
         // These names need to match names created in the portlist. So
         // maybe this should be used to create the port list? Generate the
@@ -415,6 +415,8 @@ namespace DHLS {
     map<string, Wire> wiring;
     map<string, Wire> outWires;
 
+    cout << "Creating a unit for " << valueString(instr) << endl;
+    
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
       return createMemUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
     } else if (BinaryOperator::classof(instr)) {
@@ -2430,9 +2432,11 @@ namespace DHLS {
       ramComps.debugAssigns.push_back({"rdata" + iStr, "rdata" + iStr + "_reg"});
     }
 
-    ports.push_back(inputPort(width, "wdata"));
-    ports.push_back(inputPort(addrWidth, "waddr"));
-    ports.push_back(inputPort(1, "wen"));    
+    for (int i = 0; i < arch.numWritePorts(); i++) {
+      ports.push_back(inputPort(width, "wdata"));
+      ports.push_back(inputPort(addrWidth, "waddr"));
+      ports.push_back(inputPort(1, "wen"));
+    }
 
     ports.push_back(inputPort(addrWidth, "debug_addr"));
     ports.push_back(outputPort(width, "debug_data"));

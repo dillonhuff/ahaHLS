@@ -2148,7 +2148,7 @@ namespace DHLS {
     for (int i = 0; i < 2; i++) {
       auto reg =
         b.CreateAlloca(intType(width), nullptr, "right_" + to_string(i));
-      storeReg(b, reg, mkInt(0, 32));
+      storeReg(b, reg, mkInt(0, width));
       rightRegisters.push_back(reg);
     }
 
@@ -2156,7 +2156,7 @@ namespace DHLS {
     for (int i = 0; i < 2; i++) {
       auto reg =
         b.CreateAlloca(intType(width), nullptr, "down_" + to_string(i));
-      storeReg(b, reg, mkInt(0, 32));
+      storeReg(b, reg, mkInt(0, width));
       downRegisters.push_back(reg);
     }
     
@@ -2165,7 +2165,7 @@ namespace DHLS {
       for (int j = 0; j < 2; j++) {
         auto reg =
           b.CreateAlloca(intType(width), nullptr, "accum_" + to_string(i) + "_" + to_string(j));
-        storeReg(b, reg, mkInt(0, 32));
+        storeReg(b, reg, mkInt(0, width));
         accumRegisters.push_back(reg);
       }
     }
@@ -2190,7 +2190,7 @@ namespace DHLS {
             aVal = aRowVals[col];
           } else {
             // Add row num to index
-            aVal = rightRegisters[col];
+            aVal = loadReg(b, rightRegisters[col]);
           }
 
           Value* bVal = nullptr;
@@ -2198,7 +2198,7 @@ namespace DHLS {
             bVal = bColVals[row];
           } else {
             // Add row num to index
-            bVal = downRegisters[row];
+            bVal = loadReg(b, downRegisters[row]);
           }
 
           auto accumReg = accumRegisters[2*row + col];
@@ -2273,21 +2273,22 @@ namespace DHLS {
       
       bool res = (numReads == 0) || (numReads == 4);
       REQUIRE(res);
-
-      map<string, int> layout;
-      ArchOptions options;
-      auto arch = buildMicroArchitecture(f,
-                                         graph,
-                                         layout,
-                                         options,
-                                         hcs);
-      
-      TestBenchSpec tb;
-      tb.name = "sys_array_2x2";
-
-      emitVerilogTestBench(tb, arch, layout);
-      REQUIRE(runIVerilogTB("sys_array_2x2"));
     }
+
+    map<Value*, int> layout;
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f,
+                                       graph,
+                                       layout,
+                                       options,
+                                       hcs);
+
+    map<string, int> testLayout;      
+    TestBenchSpec tb;
+    tb.name = "sys_array_2x2";
+
+    emitVerilogTestBench(tb, arch, testLayout);
+    REQUIRE(runIVerilogTB("sys_array_2x2"));
     
   }
   
