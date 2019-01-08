@@ -2274,8 +2274,19 @@ namespace DHLS {
       bool res = (numReads == 0) || (numReads == 4);
       REQUIRE(res);
 
-      // TODO: Need to auto-generate code to test this thing. Way too hard to
-      // directly write fifo code
+      map<string, int> layout;
+      ArchOptions options;
+      auto arch = buildMicroArchitecture(f,
+                                         graph,
+                                         layout,
+                                         options,
+                                         hcs);
+      
+      TestBenchSpec tb;
+      tb.name = "sys_array_2x2";
+
+      emitVerilogTestBench(tb, arch, layout);
+      REQUIRE(runIVerilogTB("sys_array_2x2"));
     }
     
   }
