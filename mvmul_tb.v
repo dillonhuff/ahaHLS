@@ -11,8 +11,8 @@ module RAM_1_3_32_32(input [0:0] clk, input [0:0] rst, output [31:0] rdata_0, in
 	reg [31 : 0] data[31: 0];
 
 	assign debug_data = data[debug_addr];
-	assign rdata0 = rdata0_reg;
-	assign rdata1 = rdata1_reg;
+	assign rdata_0 = rdata0_reg;
+	assign rdata_1 = rdata1_reg;
 
 	always @(posedge clk) begin
 		if (wen_del) begin data[waddr_del] <= wdata_del; end if (debug_write_en) begin data[debug_write_addr] <= debug_write_data; end rdata0_reg <= data[raddr_0];rdata1_reg <= data[raddr_1];
@@ -20,11 +20,11 @@ module RAM_1_3_32_32(input [0:0] clk, input [0:0] rst, output [31:0] rdata_0, in
 
 
 
-	delay #(.WIDTH(1)) wen_delay(.clk(clk), .in(wen), .out(wen_del));
+	delay #(.WIDTH(1)) wen_delay(.clk(clk), .in(wen_0), .out(wen_del));
 
-	delay #(.WIDTH(32)) wdata_delay(.clk(clk), .in(wdata), .out(wdata_del));
+	delay #(.WIDTH(32)) wdata_delay(.clk(clk), .in(wdata_0), .out(wdata_del));
 
-	delay #(.WIDTH(5)) waddr_delay(.clk(clk), .in(waddr), .out(waddr_del));
+	delay #(.WIDTH(5)) waddr_delay(.clk(clk), .in(waddr_0), .out(waddr_del));
 
 endmodule
 module mvmul_tb();

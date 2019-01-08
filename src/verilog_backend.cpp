@@ -2429,7 +2429,7 @@ namespace DHLS {
       ports.push_back(inputPort(addrWidth, "raddr_" + iStr));
       ports.push_back(inputPort(1, "ren_" + iStr));
 
-      ramComps.debugAssigns.push_back({"rdata" + iStr, "rdata" + iStr + "_reg"});
+      ramComps.debugAssigns.push_back({"rdata_" + iStr, "rdata" + iStr + "_reg"});
     }
 
     for (int i = 0; i < arch.numWritePorts(); i++) {
@@ -2451,15 +2451,16 @@ namespace DHLS {
     ramComps.debugWires.push_back({false, 1, "wen_del"});
 
 
-    map<string, string> wenConns{{"clk", "clk"}, {"in", "wen"}, {"out", "wen_del"}};
+    // TODO: Generalize to arbitrary numbers of writes
+    map<string, string> wenConns{{"clk", "clk"}, {"in", "wen_0"}, {"out", "wen_del"}};
     map<string, string> wenParams{{"WIDTH", "1"}};
     ramComps.instances.push_back({"delay", wenParams, "wen_delay", wenConns});
 
-    map<string, string> wdataConns{{"clk", "clk"}, {"in", "wdata"}, {"out", "wdata_del"}};
+    map<string, string> wdataConns{{"clk", "clk"}, {"in", "wdata_0"}, {"out", "wdata_del"}};
     map<string, string> wdataParams{{"WIDTH", "32"}};
     ramComps.instances.push_back({"delay", wdataParams, "wdata_delay", wdataConns});
 
-    map<string, string> waddrConns{{"clk", "clk"}, {"in", "waddr"}, {"out", "waddr_del"}};
+    map<string, string> waddrConns{{"clk", "clk"}, {"in", "waddr_0"}, {"out", "waddr_del"}};
     map<string, string> waddrParams{{"WIDTH", "5"}};
     ramComps.instances.push_back({"delay", waddrParams, "waddr_delay", waddrConns});
     
