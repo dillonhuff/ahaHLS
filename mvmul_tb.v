@@ -1,4 +1,4 @@
-module RAM_1_3_32_32(input [0:0] clk, input [0:0] rst, output [31:0] rdata0, input [4:0] raddr0, input [0:0] ren0, output [31:0] rdata1, input [4:0] raddr1, input [0:0] ren1, input [31:0] wdata, input [4:0] waddr, input [0:0] wen, input [4:0] debug_addr, output [31:0] debug_data, input [4:0] debug_write_addr, input [31:0] debug_write_data, input [0:0] debug_write_en);
+module RAM_1_3_32_32(input [0:0] clk, input [0:0] rst, output [31:0] rdata_0, input [4:0] raddr_0, input [0:0] ren_0, output [31:0] rdata_1, input [4:0] raddr_1, input [0:0] ren_1, input [31:0] wdata_0, input [4:0] waddr_0, input [0:0] wen_0, input [4:0] debug_addr, output [31:0] debug_data, input [4:0] debug_write_addr, input [31:0] debug_write_data, input [0:0] debug_write_en);
 	reg [31:0] rdata0_reg;
 	reg [31:0] rdata1_reg;
 	wire [4:0] waddr_del;
@@ -15,7 +15,7 @@ module RAM_1_3_32_32(input [0:0] clk, input [0:0] rst, output [31:0] rdata0, inp
 	assign rdata1 = rdata1_reg;
 
 	always @(posedge clk) begin
-		if (wen_del) begin data[waddr_del] <= wdata_del; end if (debug_write_en) begin data[debug_write_addr] <= debug_write_data; end rdata0_reg <= data[raddr0];rdata1_reg <= data[raddr1];
+		if (wen_del) begin data[waddr_del] <= wdata_del; end if (debug_write_en) begin data[debug_write_addr] <= debug_write_data; end rdata0_reg <= data[raddr_0];rdata1_reg <= data[raddr_1];
 	end
 
 
@@ -191,7 +191,7 @@ module mvmul_tb();
 	end
 
 
-	RAM_1_3_32_32 ram(.clk(clk), .debug_addr(dbg_addr), .debug_data(dbg_data), .debug_write_addr(dbg_wr_addr), .debug_write_data(dbg_wr_data), .debug_write_en(dbg_wr_en), .raddr0(raddr_0), .raddr1(raddr_1), .rdata0(rdata_0), .rdata1(rdata_1), .rst(rst), .waddr(waddr_0), .wdata(wdata_0), .wen(wen_0));
+	RAM_1_3_32_32 ram(.clk(clk), .debug_addr(dbg_addr), .debug_data(dbg_data), .debug_write_addr(dbg_wr_addr), .debug_write_data(dbg_wr_data), .debug_write_en(dbg_wr_en), .raddr_0(raddr_0), .raddr_1(raddr_1), .rdata_0(rdata_0), .rdata_1(rdata_1), .rst(rst), .waddr_0(waddr_0), .wdata_0(wdata_0), .wen_0(wen_0));
 
 	mvmul dut(.clk(clk), .raddr_0(raddr_0), .raddr_1(raddr_1), .rdata_0(rdata_0), .rdata_1(rdata_1), .rst(rst), .valid(valid), .waddr_0(waddr_0), .wdata_0(wdata_0), .wen_0(wen_0));
 

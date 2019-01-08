@@ -2407,7 +2407,7 @@ namespace DHLS {
     string memUpdate = "if (wen_del) begin data[waddr_del] <= wdata_del; end if (debug_write_en) begin data[debug_write_addr] <= debug_write_data; end ";
     for (int i = 0; i < arch.numReadPorts(); i++) {
       string iStr = to_string(i);
-      memUpdate += "rdata" + iStr + "_reg <= data[raddr" + iStr + "];";
+      memUpdate += "rdata" + iStr + "_reg <= data[raddr_" + iStr + "];";
     }
 
     addAlwaysBlock({"clk"}, memUpdate, ramComps);
@@ -2425,17 +2425,18 @@ namespace DHLS {
       auto iStr = to_string(i);
       ramComps.debugWires.push_back({true, width, "rdata" + iStr + "_reg"});
       
-      ports.push_back(outputPort(width, "rdata" + iStr));
-      ports.push_back(inputPort(addrWidth, "raddr" + iStr));
-      ports.push_back(inputPort(1, "ren" + iStr));
+      ports.push_back(outputPort(width, "rdata_" + iStr));
+      ports.push_back(inputPort(addrWidth, "raddr_" + iStr));
+      ports.push_back(inputPort(1, "ren_" + iStr));
 
       ramComps.debugAssigns.push_back({"rdata" + iStr, "rdata" + iStr + "_reg"});
     }
 
     for (int i = 0; i < arch.numWritePorts(); i++) {
-      ports.push_back(inputPort(width, "wdata"));
-      ports.push_back(inputPort(addrWidth, "waddr"));
-      ports.push_back(inputPort(1, "wen"));
+      auto iStr = to_string(i);
+      ports.push_back(inputPort(width, "wdata_" + iStr));
+      ports.push_back(inputPort(addrWidth, "waddr_" + iStr));
+      ports.push_back(inputPort(1, "wen_" + iStr));
     }
 
     ports.push_back(inputPort(addrWidth, "debug_addr"));
@@ -2464,12 +2465,20 @@ namespace DHLS {
     
     emitModule(out, ramName, ports, ramComps);
 
-    map<string, string> ramConnections{{"clk", "clk"}, {"rst", "rst"}, {"wen", "wen_0"}, {"waddr", "waddr_0"}, {"wdata", "wdata_0"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}, {"debug_write_addr", "dbg_wr_addr"}, {"debug_write_data", "dbg_wr_data"}, {"debug_write_en", "dbg_wr_en"}};
+    //map<string, string> ramConnections{{"clk", "clk"}, {"rst", "rst"}, {"wen", "wen_0"}, {"waddr", "waddr_0"}, {"wdata", "wdata_0"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}, {"debug_write_addr", "dbg_wr_addr"}, {"debug_write_data", "dbg_wr_data"}, {"debug_write_en", "dbg_wr_en"}};
 
+    map<string, string> ramConnections{{"clk", "clk"}, {"rst", "rst"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}, {"debug_write_addr", "dbg_wr_addr"}, {"debug_write_data", "dbg_wr_data"}, {"debug_write_en", "dbg_wr_en"}};    
     for (int i = 0; i < arch.numReadPorts(); i++) {
       auto iStr = to_string(i);
-      ramConnections.insert({"raddr" + iStr, "raddr_" + to_string(i)});
-      ramConnections.insert({"rdata" + iStr, "rdata_" + to_string(i)});
+      ramConnections.insert({"raddr_" + iStr, "raddr_" + to_string(i)});
+      ramConnections.insert({"rdata_" + iStr, "rdata_" + to_string(i)});
+    }
+
+    for (int i = 0; i < arch.numWritePorts(); i++) {
+      auto iStr = to_string(i);
+      ramConnections.insert({"waddr_" + iStr, "waddr_" + to_string(i)});
+      ramConnections.insert({"wdata_" + iStr, "wdata_" + to_string(i)});
+      ramConnections.insert({"wen_" + iStr, "wen_" + to_string(i)});      
     }
     
     comps.instances.push_back({ramName, "ram", ramConnections});
