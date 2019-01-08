@@ -2331,70 +2331,11 @@ namespace DHLS {
 
     emitVerilog(f, graph, memoryMap);
   }
-  
-  void emitVerilogTestBench(const TestBenchSpec& tb,
-                            MicroArchitecture& arch,
-                            const std::map<std::string, int>& layout) {
-    string modName = tb.name + "_tb";
-    ofstream out(modName + ".v");
 
-    VerilogComponents comps;
-    comps.debugWires.push_back({true, 1, "rst"});
-    comps.debugWires.push_back({true, 1, "clk"});
-    comps.debugWires.push_back({true, 1, "in_set_mem_phase"});
-    comps.debugWires.push_back({true, 1, "in_run_phase"});
-    comps.debugWires.push_back({true, 1, "in_check_mem_phase"});    
-
-    comps.debugWires.push_back({true, 32, "clocks_in_set_mem_phase"});
-    comps.debugWires.push_back({true, 32, "clocks_in_run_phase"});
-    comps.debugWires.push_back({true, 32, "clocks_in_check_mem_phase"});    
-
-    comps.debugWires.push_back({true, 32, "num_clocks_after_reset"});
-    comps.debugWires.push_back({true, 32, "total_cycles"});
-    comps.debugWires.push_back({true, 32, "max_cycles"});
-
-    for (int i = 0; i < arch.numReadPorts(); i++) {
-      comps.debugWires.push_back({false, 5, "raddr_" + to_string(i)});    
-      comps.debugWires.push_back({false, 32, "rdata_" + to_string(i)});
-    }
-
-    comps.debugWires.push_back({true, 5, "dbg_wr_addr"});    
-    comps.debugWires.push_back({true, 32, "dbg_wr_data"});
-    comps.debugWires.push_back({true, 1, "dbg_wr_en"});
-
-    comps.debugWires.push_back({true, 5, "dbg_addr"});    
-    comps.debugWires.push_back({false, 32, "dbg_data"});
-    
-    comps.debugWires.push_back({false, 5, "waddr_0"});
-    comps.debugWires.push_back({false, 32, "wdata_0"});        
-    comps.debugWires.push_back({false, 1, "wen_0"});
-
-    comps.debugWires.push_back({false, 1, "valid"});        
-
-
-    comps.delayBlocks.push_back({3, "clk = !clk;"});
-
-    addAlwaysBlock({"clk"}, "total_cycles <= total_cycles + 1;", comps);
-    addAlwaysBlock({"clk"}, "if (total_cycles >= max_cycles) begin if (valid == 1 && in_check_mem_phase) begin $display(\"Passed\"); $finish(); end else begin $display(\"valid == %d. Ran out of cycles, finishing.\", valid); $finish(); end end", comps);
-
-    addAlwaysBlock({"clk"}, "if (!in_set_mem_phase) begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", comps);
-
-    addAlwaysBlock({"clk"}, "if (in_set_mem_phase) begin clocks_in_set_mem_phase <= clocks_in_set_mem_phase + 1; end ", comps);
-    
-    comps.initStmts.push_back("#1 clk = 0;");
-    comps.initStmts.push_back("#1 rst = 1;");
-
-    comps.initStmts.push_back("#1 in_set_mem_phase = 1;");
-    comps.initStmts.push_back("#1 in_check_mem_phase = 0;");
-    comps.initStmts.push_back("#1 in_run_phase = 0;");        
-
-    comps.initStmts.push_back("#1 total_cycles = 0;");
-    comps.initStmts.push_back("#1 max_cycles = " + to_string(tb.maxCycles) + ";");
-    comps.initStmts.push_back("#1 num_clocks_after_reset = 0;");
-    comps.initStmts.push_back("#1 clocks_in_set_mem_phase = 0;");
-    comps.initStmts.push_back("#1 clocks_in_run_phase = 0;");        
-    comps.initStmts.push_back("#1 clocks_in_check_mem_phase = 0;");
-
+  std::string emitTestRAM(std::ostream& out,
+                          const TestBenchSpec& tb,
+                          MicroArchitecture& arch,
+                          const std::map<std::string, int>& layout) {
     // TODO: Do not hardcode these values, read them from hardware constraints
     int readDelay = 1;
     int writeDelay = 3;
@@ -2466,8 +2407,74 @@ namespace DHLS {
     
     emitModule(out, ramName, ports, ramComps);
 
-    //map<string, string> ramConnections{{"clk", "clk"}, {"rst", "rst"}, {"wen", "wen_0"}, {"waddr", "waddr_0"}, {"wdata", "wdata_0"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}, {"debug_write_addr", "dbg_wr_addr"}, {"debug_write_data", "dbg_wr_data"}, {"debug_write_en", "dbg_wr_en"}};
+    return ramName;
+  }
 
+  void emitVerilogTestBench(const TestBenchSpec& tb,
+                            MicroArchitecture& arch,
+                            const std::map<std::string, int>& layout) {
+    string modName = tb.name + "_tb";
+    ofstream out(modName + ".v");
+
+    VerilogComponents comps;
+    comps.debugWires.push_back({true, 1, "rst"});
+    comps.debugWires.push_back({true, 1, "clk"});
+    comps.debugWires.push_back({true, 1, "in_set_mem_phase"});
+    comps.debugWires.push_back({true, 1, "in_run_phase"});
+    comps.debugWires.push_back({true, 1, "in_check_mem_phase"});    
+
+    comps.debugWires.push_back({true, 32, "clocks_in_set_mem_phase"});
+    comps.debugWires.push_back({true, 32, "clocks_in_run_phase"});
+    comps.debugWires.push_back({true, 32, "clocks_in_check_mem_phase"});    
+
+    comps.debugWires.push_back({true, 32, "num_clocks_after_reset"});
+    comps.debugWires.push_back({true, 32, "total_cycles"});
+    comps.debugWires.push_back({true, 32, "max_cycles"});
+
+    for (int i = 0; i < arch.numReadPorts(); i++) {
+      comps.debugWires.push_back({false, 5, "raddr_" + to_string(i)});    
+      comps.debugWires.push_back({false, 32, "rdata_" + to_string(i)});
+    }
+
+    comps.debugWires.push_back({true, 5, "dbg_wr_addr"});    
+    comps.debugWires.push_back({true, 32, "dbg_wr_data"});
+    comps.debugWires.push_back({true, 1, "dbg_wr_en"});
+
+    comps.debugWires.push_back({true, 5, "dbg_addr"});    
+    comps.debugWires.push_back({false, 32, "dbg_data"});
+    
+    comps.debugWires.push_back({false, 5, "waddr_0"});
+    comps.debugWires.push_back({false, 32, "wdata_0"});        
+    comps.debugWires.push_back({false, 1, "wen_0"});
+
+    comps.debugWires.push_back({false, 1, "valid"});        
+
+
+    comps.delayBlocks.push_back({3, "clk = !clk;"});
+
+    addAlwaysBlock({"clk"}, "total_cycles <= total_cycles + 1;", comps);
+    addAlwaysBlock({"clk"}, "if (total_cycles >= max_cycles) begin if (valid == 1 && in_check_mem_phase) begin $display(\"Passed\"); $finish(); end else begin $display(\"valid == %d. Ran out of cycles, finishing.\", valid); $finish(); end end", comps);
+
+    addAlwaysBlock({"clk"}, "if (!in_set_mem_phase) begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", comps);
+
+    addAlwaysBlock({"clk"}, "if (in_set_mem_phase) begin clocks_in_set_mem_phase <= clocks_in_set_mem_phase + 1; end ", comps);
+    
+    comps.initStmts.push_back("#1 clk = 0;");
+    comps.initStmts.push_back("#1 rst = 1;");
+
+    comps.initStmts.push_back("#1 in_set_mem_phase = 1;");
+    comps.initStmts.push_back("#1 in_check_mem_phase = 0;");
+    comps.initStmts.push_back("#1 in_run_phase = 0;");        
+
+    comps.initStmts.push_back("#1 total_cycles = 0;");
+    comps.initStmts.push_back("#1 max_cycles = " + to_string(tb.maxCycles) + ";");
+    comps.initStmts.push_back("#1 num_clocks_after_reset = 0;");
+    comps.initStmts.push_back("#1 clocks_in_set_mem_phase = 0;");
+    comps.initStmts.push_back("#1 clocks_in_run_phase = 0;");        
+    comps.initStmts.push_back("#1 clocks_in_check_mem_phase = 0;");
+
+    auto ramName = emitTestRAM(out, tb, arch, layout);
+    
     map<string, string> ramConnections{{"clk", "clk"}, {"rst", "rst"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}, {"debug_write_addr", "dbg_wr_addr"}, {"debug_write_data", "dbg_wr_data"}, {"debug_write_en", "dbg_wr_en"}};    
     for (int i = 0; i < arch.numReadPorts(); i++) {
       auto iStr = to_string(i);
@@ -2569,8 +2576,6 @@ namespace DHLS {
     out << "endmodule" << endl;
 
     out.close();
-    
-
   }
 
   void noStoredValuesXWhenUsed(const MicroArchitecture& arch,
