@@ -75,3 +75,6 @@ mem_dep_pipe*
 temp_storage_pipe*
 outer_read_pipe*
 experiments/
+fifo_user*
+fifo_read_delay*
+sys_array_1_2*
