@@ -13,35 +13,35 @@ module sys_array_2x2_tb();
    reg [15:0]     in_data0;
    wire [15:0]     out_data0;
 
-   wire            read_valid1;
+   wire           read_valid1;
    wire            read_ready1;   
    reg            write_valid1;
    wire            write_ready1;
    reg [15:0]     in_data1;
    wire [15:0]     out_data1;
 
-   wire            read_valid2;
+   wire           read_valid2;
    wire            read_ready2;   
    reg            write_valid2;
    wire            write_ready2;
    reg [15:0]     in_data2;
    wire [15:0]     out_data2;
 
-   wire            read_valid3;
+   wire           read_valid3;
    wire            read_ready3;   
    reg            write_valid3;
    wire            write_ready3;
    reg [15:0]     in_data3;
    wire [15:0]     out_data3;
 
-   wire            read_valid4;
+   reg           read_valid4;
    wire            read_ready4;   
    wire            write_valid4;
    wire            write_ready4;
    wire [15:0]     in_data4;
    wire [15:0]     out_data4;
 
-   wire            read_valid5;
+   reg            read_valid5;
    wire            read_ready5;   
    wire            write_valid5;
    wire            write_ready5;
@@ -54,21 +54,45 @@ module sys_array_2x2_tb();
            #1 write_valid0 = 0;
            #1 write_valid1 = 0;
            #1 write_valid2 = 0;           
+           #1 write_valid3 = 0;           
 
+           #1 read_valid4 = 0;
+           #1 read_valid5 = 0;                      
+           
            `POSEDGE
-
+             
              #1 rst = 0;
 
+           #1 write_valid0 = 1;
+           #1 write_valid1 = 1;
+           #1 write_valid2 = 1;
+           #1 write_valid3 = 1;
+           
+           #1 in_data0 = 1;
+           #1 in_data1 = 2;
+           #1 in_data2 = 3;           
+           #1 in_data3 = 4;
+
+           `POSEDGE
 
            #1 write_valid0 = 0;
            #1 write_valid1 = 0;
-           #1 write_valid2 = 0;           
-           
-           `POSEDGE
-
+           #1 write_valid2 = 0;
+           #1 write_valid3 = 0;                      
 
            `POSEDGE             
 
+           `POSEDGE             
+
+           `POSEDGE             
+
+           `POSEDGE             
+
+           `POSEDGE             
+
+           `POSEDGE             
+
+           `POSEDGE                          
 	end
 
    fifo #(.WIDTH(16), .DEPTH(8)) fifo0(.clk(clk),
@@ -142,7 +166,15 @@ module sys_array_2x2_tb();
 
                      .fifo_3_out_data(out_data3),
                      .fifo_3_read_valid(read_valid3),
-                     .fifo_3_read_ready(read_ready3)
+                     .fifo_3_read_ready(read_ready3),
+
+                     .fifo_4_in_data(in_data4),
+                     .fifo_4_write_valid(write_valid4),
+                     .fifo_4_write_ready(write_ready4),
+
+                     .fifo_5_in_data(in_data5),
+                     .fifo_5_write_valid(write_valid5),
+                     .fifo_5_write_ready(write_ready5)
                      
                      );
 

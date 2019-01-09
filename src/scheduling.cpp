@@ -91,51 +91,51 @@ namespace DHLS {
 
       AAResults& a = getAnalysis<AAResultsWrapperPass>().getAAResults();
       ScalarEvolution& sc = getAnalysis<ScalarEvolutionWrapperPass>().getSE();
-      LoopInfo& li = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
-      auto* TLIP = getAnalysisIfAvailable<TargetLibraryInfoWrapperPass>();
-      auto TLI = TLIP ? &TLIP->getTLI() : nullptr;
+      //LoopInfo& li = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
+      // auto* TLIP = getAnalysisIfAvailable<TargetLibraryInfoWrapperPass>();
+      // auto TLI = TLIP ? &TLIP->getTLI() : nullptr;
 
-      DominatorTree domTree(F);
+      // DominatorTree domTree(F);
       
-      cout << "Loop access info" << endl;
-      for (Loop* loop : li) {
-        cout << "Info for loop" << endl;
-        LoopAccessInfo lai(loop, &sc, TLI, &a, &domTree, &li);
-        cout << "# loads  = " << lai.getNumLoads() << endl;
-        cout << "# stores = " << lai.getNumStores() << endl;
+      // cout << "Loop access info" << endl;
+      // for (Loop* loop : li) {
+      //   cout << "Info for loop" << endl;
+      //   LoopAccessInfo lai(loop, &sc, TLI, &a, &domTree, &li);
+      //   cout << "# loads  = " << lai.getNumLoads() << endl;
+      //   cout << "# stores = " << lai.getNumStores() << endl;
 
-        auto& depChecker = lai.getDepChecker();
-        cout << "Dependence Analysis" << endl;
-        for (auto dep : *(depChecker.getDependences())) {
-          std::string str;
-          llvm::raw_string_ostream ss(str);
-          dep.print(ss, 1, depChecker.getMemoryInstructions());
-          auto depStr = ss.str();
-          cout << depStr << endl;
-        }
+      //   auto& depChecker = lai.getDepChecker();
+      //   cout << "Dependence Analysis" << endl;
+      //   for (auto dep : *(depChecker.getDependences())) {
+      //     std::string str;
+      //     llvm::raw_string_ostream ss(str);
+      //     dep.print(ss, 1, depChecker.getMemoryInstructions());
+      //     auto depStr = ss.str();
+      //     cout << depStr << endl;
+      //   }
 
-        cout << "Safe vectorization distance = " << lai.getMaxSafeDepDistBytes() << endl;
+      //   cout << "Safe vectorization distance = " << lai.getMaxSafeDepDistBytes() << endl;
 
-        for (auto sl : loop->getSubLoops()) {
-          cout << "Info for this subloop" << endl;
-          LoopAccessInfo lai(sl, &sc, TLI, &a, &domTree, &li);
-          cout << "# loads  = " << lai.getNumLoads() << endl;
-          cout << "# stores = " << lai.getNumStores() << endl;
+      //   for (auto sl : loop->getSubLoops()) {
+      //     cout << "Info for this subloop" << endl;
+      //     LoopAccessInfo lai(sl, &sc, TLI, &a, &domTree, &li);
+      //     cout << "# loads  = " << lai.getNumLoads() << endl;
+      //     cout << "# stores = " << lai.getNumStores() << endl;
 
-          auto& depChecker = lai.getDepChecker();
-          cout << "Dependence Analysis" << endl;
-          for (auto dep : *(depChecker.getDependences())) {
-            std::string str;
-            llvm::raw_string_ostream ss(str);
-            dep.print(ss, 1, depChecker.getMemoryInstructions());
-            auto depStr = ss.str();
-            cout << depStr << endl;
-          }
+      //     auto& depChecker = lai.getDepChecker();
+      //     cout << "Dependence Analysis" << endl;
+      //     for (auto dep : *(depChecker.getDependences())) {
+      //       std::string str;
+      //       llvm::raw_string_ostream ss(str);
+      //       dep.print(ss, 1, depChecker.getMemoryInstructions());
+      //       auto depStr = ss.str();
+      //       cout << depStr << endl;
+      //     }
 
-          cout << "Safe vectorization distance = " << lai.getMaxSafeDepDistBytes() << endl;
+      //     cout << "Safe vectorization distance = " << lai.getMaxSafeDepDistBytes() << endl;
 
-        }
-      }
+      //   }
+      // }
 
 
       // cout << "SCEV Results " << endl;
