@@ -419,3 +419,35 @@ module fifo(input clk,
    end
    
 endmodule
+
+module phi( last_block, s, in, out);
+
+  parameter integer WIDTH = 32;
+  parameter integer NB_PAIR = 2;
+  
+  input [WIDTH-1:0] last_block; 
+  input [WIDTH*NB_PAIR-1:0] s; 
+  input [WIDTH*NB_PAIR-1:0] in; 
+  output [WIDTH-1:0] out; 
+
+  reg [WIDTH-1:0] out_reg;
+
+ integer i;
+ integer found;
+  always @(*) begin
+    found = 0;
+    for (i = 0 ; i < NB_PAIR; i=i+1) begin
+      if (last_block == s[WIDTH*i +: WIDTH]) begin
+        out_reg <= in[i*WIDTH +: WIDTH];
+        found = 1;
+      end
+    end
+    if (found == 0) begin
+      $display("Error: last_block: %b not in s : %b",last_block, s);
+      out_reg <= {{WIDTH}{1'bx}};
+    end
+  end
+
+  assign out = out_reg;
+  
+endmodule

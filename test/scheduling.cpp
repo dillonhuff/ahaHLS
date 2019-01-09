@@ -2369,7 +2369,7 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}}; //, {"arg_2", 15}};
+    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
 
     auto arch = buildMicroArchitecture(f, graph, layout);
 
@@ -2380,9 +2380,8 @@ namespace DHLS {
 
     // Create testing infrastructure
     SECTION("Taking false, true path") {
-      map<string, vector<int> > memoryInit{{"arg_0", {0}}}; //, {"arg_1", {1}}};
+      map<string, vector<int> > memoryInit{{"arg_0", {0}}};
       map<string, vector<int> > memoryExpected{{"arg_1", {0}}};
-      //      map<string, vector<int> > memoryExpected{{"arg_2", {2}}};
 
       TestBenchSpec tb;
       tb.memoryInit = memoryInit;
