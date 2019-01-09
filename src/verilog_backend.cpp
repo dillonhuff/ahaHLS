@@ -482,7 +482,7 @@ namespace DHLS {
       int nb = (int) phi->getNumIncomingValues();
       modParams = {{"WIDTH", to_string(w0)}, {"NB_PAIR", to_string(nb)}};
 
-      wiring.insert({"s", {true, w0*nb, string("phi_s") + "_" + rStr}});
+      wiring.insert({"s", {true, 32*nb, string("phi_s") + "_" + rStr}});
       wiring.insert({"in", {true, w0*nb, string("phi_in_") + rStr}});
       
       // for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {

@@ -430,9 +430,10 @@ module phi( last_block, s, in, out);
 
   parameter integer WIDTH = 32;
   parameter integer NB_PAIR = 2;
-  
-  input [WIDTH-1:0] last_block; 
-  input [WIDTH*NB_PAIR-1:0] s; 
+
+   // last block storage variable is always 32 bits  
+  input [31:0] last_block; 
+  input [32*NB_PAIR-1:0] s; 
   input [WIDTH*NB_PAIR-1:0] in; 
   output [WIDTH-1:0] out; 
 
@@ -443,7 +444,7 @@ module phi( last_block, s, in, out);
   always @(*) begin
     found = 0;
     for (i = 0 ; i < NB_PAIR; i=i+1) begin
-      if (last_block == s[WIDTH*i +: WIDTH]) begin
+      if (last_block == s[32*i +: 32]) begin
         out_reg <= in[i*WIDTH +: WIDTH];
         found = 1;
       end
