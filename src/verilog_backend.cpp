@@ -192,7 +192,7 @@ namespace DHLS {
 
       std::set<Instruction*> foundOps;
       while (((int) foundOps.size()) < numMemOps(bb)) {
-        cout << "FoundInstrs =  "<< foundOps.size() << endl;
+        //cout << "FoundInstrs =  "<< foundOps.size() << endl;
 
         for (auto& instrPtr : bb) {
 

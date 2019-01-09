@@ -1943,10 +1943,6 @@ namespace DHLS {
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
 
-    cout << "Memory mapping" << endl;
-    for (auto mm : hcs.memoryMapping) {
-      cout << "\t" << valueString(mm.first) << " -> " << valueString(mm.second) << endl;
-    }
     setAllAllocaMemTypes(hcs, f, registerSpec(32));
 
     hcs.setCount(MUL_OP, 2);
@@ -2294,6 +2290,110 @@ namespace DHLS {
 
     // emitVerilogTestBench(tb, arch, testLayout);
     REQUIRE(runIVerilogTB("sys_array_2x2"));
+  }
+
+  TEST_CASE("Phi node with 4 inputs") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    int width = 32;
+
+    auto mod = llvm::make_unique<Module>("BB diamond 4", context);
+
+    std::vector<Type *> inputs{intType(width)->getPointerTo(),
+        intType(width)->getPointerTo()};
+    Function* f = mkFunc(inputs, "bb_diamond_4", mod.get());
+
+    auto entryBlock = mkBB("entry_block", f);
+    auto fBlock = mkBB("false_block", f);
+    auto tBlock = mkBB("true_block", f);
+    
+    auto ffBlock = mkBB("false_false_block", f);
+    auto ftBlock = mkBB("false_true_block", f);        
+
+    auto tfBlock = mkBB("true_false_block", f);
+    auto ttBlock = mkBB("true_true_block", f);
+    
+    auto exitBlock = mkBB("exit_block", f);
+
+    ConstantInt* zero = mkInt("0", width);
+    ConstantInt* one = mkInt("1", width);
+    ConstantInt* two = mkInt("2", width);    
+    ConstantInt* three = mkInt("3", width);    
+
+    IRBuilder<> builder(entryBlock);
+    auto condVal = loadVal(builder, getArg(f, 0), zero);
+    //auto gt0 = builder.CreateCmp
+    builder.CreateCondBr(condVal, tBlock, fBlock);
+
+    IRBuilder<> fBuilder(fBlock);
+    fBuilder.CreateCondBr(condVal, ftBlock, ffBlock);
+
+    IRBuilder<> ffBuilder(ffBlock);
+    ffBuilder.CreateBr(exitBlock);
+
+    IRBuilder<> ftBuilder(ftBlock);
+    ftBuilder.CreateBr(exitBlock);
+    
+    IRBuilder<> tBuilder(tBlock);
+    tBuilder.CreateCondBr(condVal, ttBlock, tfBlock);
+
+    IRBuilder<> tfBuilder(tfBlock);
+    tfBuilder.CreateBr(exitBlock);
+
+    IRBuilder<> ttBuilder(ttBlock);
+    ttBuilder.CreateBr(exitBlock);
+
+    IRBuilder<> exitBuilder(exitBlock);
+    auto valPhi = exitBuilder.CreatePHI(intType(width), 3);
+    valPhi->addIncoming(zero, ffBlock);
+    valPhi->addIncoming(one, ftBlock);
+    valPhi->addIncoming(two, tfBlock);
+    valPhi->addIncoming(three, ttBlock);    
+    
+    storeVal(exitBuilder,
+             getArg(f, 1),
+             zero,
+             valPhi);
+    
+    exitBuilder.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    Schedule s = scheduleFunction(f, hcs);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}}; //, {"arg_2", 15}};
+
+    auto arch = buildMicroArchitecture(f, graph, layout);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(f, arch, info);
+
+    // Create testing infrastructure
+    SECTION("Taking false, true path") {
+      map<string, vector<int> > memoryInit{{"arg_0", {0}}}; //, {"arg_1", {1}}};
+      map<string, vector<int> > memoryExpected{{"arg_1", {0}}};
+      //      map<string, vector<int> > memoryExpected{{"arg_2", {2}}};
+
+      TestBenchSpec tb;
+      tb.memoryInit = memoryInit;
+      tb.memoryExpected = memoryExpected;
+      tb.runCycles = 30;
+      tb.name = "bb_diamond_4";
+      emitVerilogTestBench(tb, arch, layout);
+
+      REQUIRE(runIVerilogTB("bb_diamond_4"));
+    }
+    
   }
   
 }

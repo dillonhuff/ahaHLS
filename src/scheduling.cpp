@@ -320,10 +320,10 @@ namespace DHLS {
       CallInst* call = dyn_cast<CallInst>(iptr);
       Function* called = call->getCalledFunction();
 
-      cout << "Called function = " << valueString(called) << endl;
+      //cout << "Called function = " << valueString(called) << endl;
       string name = called->getName();
 
-      cout << "Called name     = " << name << endl;
+      //cout << "Called name     = " << name << endl;
 
       if (hasPrefix(name, "builtin_read_fifo_")) {
         latency = 1;
@@ -840,7 +840,7 @@ namespace DHLS {
               
               AliasResult aliasRes = aliasAnalysis.alias(load0, load1);
               if (aliasRes != NoAlias) {
-                cout << valueString(&instr) << " and " << valueString(&otherInstr) << " can RAW alias" << endl;
+                //cout << valueString(&instr) << " and " << valueString(&otherInstr) << " can RAW alias" << endl;
 
                 s.add(instrEnd(&instr, schedVars) <= instrStart(&otherInstr, schedVars));
               }
@@ -856,7 +856,7 @@ namespace DHLS {
               
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
               if (aliasRes != NoAlias) {
-                cout << valueString(&instr) << " and " << valueString(&otherInstr) << " can RAW alias" << endl;
+                //cout << valueString(&instr) << " and " << valueString(&otherInstr) << " can RAW alias" << endl;
 
                 s.add(instrEnd(&instr, schedVars) <= instrStart(&otherInstr, schedVars));
               }
@@ -872,7 +872,7 @@ namespace DHLS {
               // TODO: Add SCEV analysis
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, otherStoreLoc);
               if (aliasRes != NoAlias) {
-                cout << valueString(&instr) << " and " << valueString(&otherInstr) << " can RAW alias" << endl;
+                //cout << valueString(&instr) << " and " << valueString(&otherInstr) << " can RAW alias" << endl;
 
                 s.add(instrEnd(&instr, schedVars) < instrEnd(&otherInstr, schedVars));
               }
@@ -949,7 +949,7 @@ namespace DHLS {
 
             for (auto firstI : iGroups.front()) {
               for (auto lastI : iGroups.back()) {
-                cout << "adding constraint on " << valueString(firstI) << " and " << valueString(lastI) << endl;
+                //cout << "adding constraint on " << valueString(firstI) << " and " << valueString(lastI) << endl;
                 s.add(instrEnd(lastI, schedVars) < II + instrStart(firstI, schedVars));
               }
             }
