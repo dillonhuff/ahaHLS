@@ -471,14 +471,23 @@ namespace DHLS {
     } else if (PHINode::classof(instr)) {
       PHINode* phi = dyn_cast<PHINode>(instr);
 
-      modName = "phi_" + to_string(phi->getNumIncomingValues());
+      //modName = "phi_" + to_string(phi->getNumIncomingValues());
+      modName = "phi";
 
       wiring = {{"last_block", {true, 32, "phi_last_block_" + rStr}}};
-      for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
-        auto iStr = to_string(i);
-        wiring.insert({"s" + iStr, {true, 32, "phi_s" + iStr + "_" + rStr}});
-        wiring.insert({"in" + iStr, {true, 32, "phi_in" + iStr + "_" + rStr}});
-      }
+
+      int w0 = getValueBitWidth(phi);
+      int nb = (int) phi->getNumIncomingValues();
+      modParams = {{"WIDTH", to_string(w0)}, {"NB_PAIR", to_string(nb)}};
+
+      wiring.insert({"s", {true, w0*nb, string("phi_s") + "_" + rStr}});
+      wiring.insert({"in", {true, w0*nb, string("phi_in_") + rStr}});
+      
+      // for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
+      //   auto iStr = to_string(i);
+      //   wiring.insert({"s" + iStr, {true, 32, "phi_s" + iStr + "_" + rStr}});
+      //   wiring.insert({"in" + iStr, {true, 32, "phi_in" + iStr + "_" + rStr}});
+      // }
       outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
 
     } else if (SelectInst::classof(instr)) {
@@ -995,17 +1004,43 @@ namespace DHLS {
     } else if (PHINode::classof(instr)) {
       PHINode* phi = dyn_cast<PHINode>(instr);
 
+      int w0 = getValueBitWidth(phi);
+
+      string input = "{";
+      string s = "{";      
+
       for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
         BasicBlock* b0 = phi->getIncomingBlock(i);
         int b0Val = map_find(b0, arch.basicBlockNos);
 
         Value* v0 = phi->getIncomingValue(i);
-        string val0Name = outputName(v0, pos, arch); //outputName(v0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
-        assignments.insert({addUnit.portWires["in" + to_string(i)].name, val0Name});
-        assignments.insert({addUnit.portWires["s" + to_string(i)].name, to_string(b0Val)});
+        string val0Name = outputName(v0, pos, arch);
+
+        if (ConstantInt::classof(v0)) {
+          val0Name = to_string(w0) + "'d" + val0Name;
+        }
+
+        input += val0Name;
+        s += "32'd" + to_string(b0Val);
+
+        // assignments.insert({addUnit.portWires["in" + to_string(i)].name, val0Name});
+        // assignments.insert({addUnit.portWires["s" + to_string(i)].name, to_string(b0Val)});
+        
+        if (i < ((int) phi->getNumIncomingValues()) - 1) {
+          input += ", ";
+          s += ", ";
+        }
+        // assignments.insert({addUnit.portWires["in" + to_string(i)].name, val0Name});
+        // assignments.insert({addUnit.portWires["s" + to_string(i)].name, to_string(b0Val)});
       }
 
+      input += "}";
+      s += "}";
+
+      assignments.insert({addUnit.portWires["in"].name, input});
+      assignments.insert({addUnit.portWires["s"].name, s});
+      
       assignments.insert({addUnit.portWires["last_block"].name, "last_BB_reg"});
 
     } else if (SelectInst::classof(instr)) {
