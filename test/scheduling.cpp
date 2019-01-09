@@ -2323,11 +2323,13 @@ namespace DHLS {
 
     IRBuilder<> builder(entryBlock);
     auto condVal = loadVal(builder, getArg(f, 0), zero);
-    //auto gt0 = builder.CreateCmp
-    builder.CreateCondBr(condVal, tBlock, fBlock);
+    auto lt2 = builder.CreateICmpULT(condVal, two);
+    auto lt1 = builder.CreateICmpULT(condVal, one);
+    auto lt3 = builder.CreateICmpULT(condVal, three);
+    builder.CreateCondBr(lt2, tBlock, fBlock);
 
     IRBuilder<> fBuilder(fBlock);
-    fBuilder.CreateCondBr(condVal, ftBlock, ffBlock);
+    fBuilder.CreateCondBr(lt3, ftBlock, ffBlock);
 
     IRBuilder<> ffBuilder(ffBlock);
     ffBuilder.CreateBr(exitBlock);
@@ -2336,7 +2338,7 @@ namespace DHLS {
     ftBuilder.CreateBr(exitBlock);
     
     IRBuilder<> tBuilder(tBlock);
-    tBuilder.CreateCondBr(condVal, ttBlock, tfBlock);
+    tBuilder.CreateCondBr(lt1, ttBlock, tfBlock);
 
     IRBuilder<> tfBuilder(tfBlock);
     tfBuilder.CreateBr(exitBlock);
@@ -2346,10 +2348,10 @@ namespace DHLS {
 
     IRBuilder<> exitBuilder(exitBlock);
     auto valPhi = exitBuilder.CreatePHI(intType(width), 3);
-    valPhi->addIncoming(zero, ffBlock);
-    valPhi->addIncoming(one, ftBlock);
-    valPhi->addIncoming(two, tfBlock);
-    valPhi->addIncoming(three, ttBlock);    
+    valPhi->addIncoming(three, ffBlock);
+    valPhi->addIncoming(two, ftBlock);
+    valPhi->addIncoming(one, tfBlock);
+    valPhi->addIncoming(zero, ttBlock);    
     
     storeVal(exitBuilder,
              getArg(f, 1),
@@ -2379,9 +2381,51 @@ namespace DHLS {
     emitVerilog(f, arch, info);
 
     // Create testing infrastructure
-    SECTION("Taking false, true path") {
+    SECTION("Taking true, true path") {
       map<string, vector<int> > memoryInit{{"arg_0", {0}}};
       map<string, vector<int> > memoryExpected{{"arg_1", {0}}};
+
+      TestBenchSpec tb;
+      tb.memoryInit = memoryInit;
+      tb.memoryExpected = memoryExpected;
+      tb.runCycles = 30;
+      tb.name = "bb_diamond_4";
+      emitVerilogTestBench(tb, arch, layout);
+
+      REQUIRE(runIVerilogTB("bb_diamond_4"));
+    }
+
+    SECTION("Taking true, false") {
+      map<string, vector<int> > memoryInit{{"arg_0", {1}}};
+      map<string, vector<int> > memoryExpected{{"arg_1", {1}}};
+
+      TestBenchSpec tb;
+      tb.memoryInit = memoryInit;
+      tb.memoryExpected = memoryExpected;
+      tb.runCycles = 30;
+      tb.name = "bb_diamond_4";
+      emitVerilogTestBench(tb, arch, layout);
+
+      REQUIRE(runIVerilogTB("bb_diamond_4"));
+    }
+
+    SECTION("Taking false, true") {
+      map<string, vector<int> > memoryInit{{"arg_0", {2}}};
+      map<string, vector<int> > memoryExpected{{"arg_1", {2}}};
+
+      TestBenchSpec tb;
+      tb.memoryInit = memoryInit;
+      tb.memoryExpected = memoryExpected;
+      tb.runCycles = 30;
+      tb.name = "bb_diamond_4";
+      emitVerilogTestBench(tb, arch, layout);
+
+      REQUIRE(runIVerilogTB("bb_diamond_4"));
+    }
+
+    SECTION("Taking false, false") {
+      map<string, vector<int> > memoryInit{{"arg_0", {3}}};
+      map<string, vector<int> > memoryExpected{{"arg_1", {3}}};
 
       TestBenchSpec tb;
       tb.memoryInit = memoryInit;

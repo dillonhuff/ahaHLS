@@ -255,7 +255,9 @@ namespace DHLS {
       modName = "slt";
     } else if (pred == CmpInst::ICMP_NE) {
       modName = "ne";
-    } else {
+    } else if (pred == CmpInst::ICMP_ULT) {
+      modName = "ult";
+    }else {
       cout << "Error: Unsupported predicate in cmp: " << pred << endl;
       assert(false);
     }

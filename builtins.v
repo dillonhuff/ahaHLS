@@ -60,6 +60,12 @@ module slt(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [0:0] out);
    assign out = $signed(in0) < $signed(in1);
 endmodule
 
+module ult(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [0:0] out);
+   parameter WIDTH = 1;
+   
+   assign out = $unsigned(in0) < $unsigned(in1);
+endmodule
+
 module ret();
 endmodule
 
