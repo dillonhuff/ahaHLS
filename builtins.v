@@ -69,69 +69,69 @@ endmodule
 module ret();
 endmodule
 
-module phi_2(input [31:0] last_block,
-             input [31:0] s0,
-             input [31:0] s1,             
-             input [31:0] in0,
-             input [31:0] in1,
-             output [31:0] out);
+// module phi_2(input [31:0] last_block,
+//              input [31:0] s0,
+//              input [31:0] s1,             
+//              input [31:0] in0,
+//              input [31:0] in1,
+//              output [31:0] out);
 
-   reg [31:0]              out_reg;
+//    reg [31:0]              out_reg;
    
 
-    always @(*) begin
-       //$display("In phi: last_block == %d, but s0 == %d, and s1 == %d", last_block, s0, s1);
-      if (last_block == s0) begin
-         out_reg = in0;
-      end else if (last_block == s1) begin
-         out_reg = in1;
-      end else begin
-         $display("Error: last_block == %d, but s0 == %d, and s1 == %d", last_block, s0, s1);
-      end
+//     always @(*) begin
+//        //$display("In phi: last_block == %d, but s0 == %d, and s1 == %d", last_block, s0, s1);
+//       if (last_block == s0) begin
+//          out_reg = in0;
+//       end else if (last_block == s1) begin
+//          out_reg = in1;
+//       end else begin
+//          $display("Error: last_block == %d, but s0 == %d, and s1 == %d", last_block, s0, s1);
+//       end
 
       
-      // else begin
-      //    $display("Error: last_block == %d, but s0 == %d, and s1 == %d", last_block, s0, s1);
-      //    $finish();
-      // end
+//       // else begin
+//       //    $display("Error: last_block == %d, but s0 == %d, and s1 == %d", last_block, s0, s1);
+//       //    $finish();
+//       // end
 
-   end
+//    end
 
-   assign out = out_reg;
+//    assign out = out_reg;
    
    
-endmodule
+// endmodule
 
-module phi_3(input [31:0] last_block,
-             input [31:0]  s0,
-             input [31:0]  s1,
-             input [31:0]  s2, 
-             input [31:0]  in0,
-             input [31:0]  in1,
-             input [31:0]  in2,             
-             output [31:0] out);
+// module phi_3(input [31:0] last_block,
+//              input [31:0]  s0,
+//              input [31:0]  s1,
+//              input [31:0]  s2, 
+//              input [31:0]  in0,
+//              input [31:0]  in1,
+//              input [31:0]  in2,             
+//              output [31:0] out);
 
-   reg [31:0]              out_reg;
+//    reg [31:0]              out_reg;
    
 
-    always @(*) begin
+//     always @(*) begin
 
-      if (last_block == s0) begin
-         out_reg = in0;
-      end else if (last_block == s1) begin
-         out_reg = in1;
-      end else if (last_block == s2) begin
-         out_reg = in2;
-      end else begin
-         $display("Error: last_block == %d, but s0 == %d, and s1 == %d, and s2== %d", last_block, s0, s1, s2);
-      end
+//       if (last_block == s0) begin
+//          out_reg = in0;
+//       end else if (last_block == s1) begin
+//          out_reg = in1;
+//       end else if (last_block == s2) begin
+//          out_reg = in2;
+//       end else begin
+//          $display("Error: last_block == %d, but s0 == %d, and s1 == %d, and s2== %d", last_block, s0, s1, s2);
+//       end
 
-   end
+//    end
 
-   assign out = out_reg;
+//    assign out = out_reg;
    
    
-endmodule
+// endmodule
 
 module br_dummy();
 endmodule
