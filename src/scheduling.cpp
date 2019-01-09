@@ -138,24 +138,24 @@ namespace DHLS {
       }
 
 
-      cout << "SCEV Results " << endl;
+      // cout << "SCEV Results " << endl;
       
-      for (auto& bb : F.getBasicBlockList()) {
-        for (auto& instr : bb) {
-          auto scev = sc.getSCEV(&instr);
+      // for (auto& bb : F.getBasicBlockList()) {
+      //   for (auto& instr : bb) {
+      //     auto scev = sc.getSCEV(&instr);
 
-          if (scev != nullptr) {
-            std::string str;
-            llvm::raw_string_ostream ss(str);
-            ss << *scev;
-            auto scevStr = ss.str();
+      //     if (scev != nullptr) {
+      //       std::string str;
+      //       llvm::raw_string_ostream ss(str);
+      //       ss << *scev;
+      //       auto scevStr = ss.str();
 
-            ss << scev;
-            cout << valueString(&instr) << endl;
-            cout << " --> " << scevStr << endl;
-          }
-        }
-      }
+      //       ss << scev;
+      //       cout << valueString(&instr) << endl;
+      //       cout << " --> " << scevStr << endl;
+      //     }
+      //   }
+      // }
         
       schedule = scheduleFunction(&F,
                                   hdc,

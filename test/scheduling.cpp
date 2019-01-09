@@ -2126,7 +2126,7 @@ namespace DHLS {
         tp->getPointerTo(),
         tp->getPointerTo()};
     
-    Function* f = mkFunc(inputs, "sys_array_fifo", mod.get());
+    Function* f = mkFunc(inputs, "sys_array_2x2", mod.get());
 
     auto blk = mkBB("entry_block", f);
 
@@ -2258,7 +2258,7 @@ namespace DHLS {
     // steady state, they are totally synchronous?), but it makes the code rate
     // sensitive.
     // How you schedule calls to the read and write on a wire potentially affects 
-    // the data that you see.
+    // the data that you see. Hello
 
     for (auto& st : graph.opStates) {
       int numReads = 0;
@@ -2283,13 +2283,17 @@ namespace DHLS {
                                        options,
                                        hcs);
 
-    map<string, int> testLayout;      
-    TestBenchSpec tb;
-    tb.name = "sys_array_2x2";
-
-    emitVerilogTestBench(tb, arch, testLayout);
-    REQUIRE(runIVerilogTB("sys_array_2x2"));
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
     
+    emitVerilog(f, arch, info);
+
+    // map<string, int> testLayout;      
+    // TestBenchSpec tb;
+    // tb.name = "sys_array_2x2";
+
+    // emitVerilogTestBench(tb, arch, testLayout);
+    REQUIRE(runIVerilogTB("sys_array_2x2"));
   }
   
 }
