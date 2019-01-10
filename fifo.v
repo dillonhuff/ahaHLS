@@ -4,7 +4,6 @@ module test();
 
    reg clk;
    reg rst;
-   wire valid;
 
    wire read_valid0;
    wire  read_ready0;
@@ -24,7 +23,6 @@ module test();
 
       #1 rst = 0;
 
-      #1 `assert(valid, 1'd0)
       #1 `assert(write_ready0, 1'd1)
       #1 `assert(read_ready0, 1'd0)
 
@@ -36,7 +34,6 @@ module test();
 
       #1 write_valid0 = 0;
 
-      #1 `assert(valid, 1'd0)
       #1 `assert(write_ready0, 1'd1)
       #1 `assert(read_ready0, 1'd1)
 
@@ -58,12 +55,8 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
-      #1 `assert(valid, 1'd1)
-
       #1 clk = 0;
       #1 clk = 1;
-      
-      #1 `assert(valid, 1'd1)
       
       #1 clk = 0;
       #1 clk = 1;
@@ -73,6 +66,7 @@ module test();
    end // initial begin
 
    always @(posedge clk) begin
+      $display("in_data0  = %d", in_data0);      
       $display("out_data0 = %d", out_data0);
    end
 
