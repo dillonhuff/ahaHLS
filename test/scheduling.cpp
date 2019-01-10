@@ -2438,5 +2438,9 @@ namespace DHLS {
     }
     
   }
+
+  TEST_CASE("Running verilog fifo tests") {
+    REQUIRE(runIVerilogTB("fifo"));    
+  }
   
 }
