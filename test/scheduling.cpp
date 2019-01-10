@@ -2440,7 +2440,45 @@ namespace DHLS {
   }
 
   TEST_CASE("Running verilog fifo tests") {
-    REQUIRE(runIVerilogTB("fifo"));    
+
+    string moduleName = "fifo";
+    string mainName = moduleName + "_tb.v";
+    string modFile = moduleName + ".v";
+
+    string genCmd = "iverilog -g2005 -o " + moduleName + " " + mainName + " " + modFile + " RAM.v RAM2.v RAM3.v axil_ram.v delay.v builtins.v";
+
+    bool compiled = runCmd(genCmd);
+
+    REQUIRE(compiled);
+
+    string resFile = moduleName + "_tb_result.txt";
+    string exeCmd = "./" + moduleName + " > " + resFile;
+    bool ran = runCmd(exeCmd);
+
+    assert(ran);
+
+    ifstream res(resFile);
+    std::string str((std::istreambuf_iterator<char>(res)),
+                    std::istreambuf_iterator<char>());
+
+    cout << "str = " << str << endl;
+    
+    reverse(begin(str), end(str));
+    string lastLine;
+
+    for (int i = 1; i < (int) str.size(); i++) {
+      if (str[i] == '\n') {
+        break;
+      }
+
+      lastLine += str[i];
+    }
+
+    reverse(begin(lastLine), end(lastLine));
+
+    cout << "Lastline = " << lastLine << endl;
+    REQUIRE(lastLine == "Passed");
+
   }
   
 }
