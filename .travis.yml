@@ -25,7 +25,7 @@ before_install:
   - make -j
 
 script:
-  - valgrind ./all-tests
+  - ./all-tests
 
 compiler:
   - gcc
