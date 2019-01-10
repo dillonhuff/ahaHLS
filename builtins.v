@@ -362,6 +362,14 @@ module fifo(input clk,
    reg [$clog2(DEPTH) - 1 : 0]                write_addr;
    reg [$clog2(DEPTH) - 1 : 0]                read_addr;
    wire [$clog2(DEPTH) - 1 : 0]                next_read_addr;
+   wire [$clog2(DEPTH) - 1 : 0]                next_write_addr;
+
+   always @(posedge clk) begin
+      $display("next_write_addr         = %d", next_write_addr);
+      $display("write_addr              = %d", write_addr);
+      $display("read_addr               = %d", read_addr);      
+      $display("write_addr + 1 == DEPTH = %d", DEPTH == (write_addr + 1));
+   end
 
    always @(posedge clk) begin
       if (!rst) begin
@@ -369,17 +377,16 @@ module fifo(input clk,
             `assert(write_ready, 1'd1)
 
             ram[write_addr] <= in_data;
-
-            // Wraparound
-            write_addr <= DEPTH == write_addr ? 0 : write_addr + 1;
+            write_addr <= next_write_addr;
 
             empty <= 0;
          end
       end
    end
 
-   assign next_read_addr = DEPTH == read_addr ? 0 : read_addr + 1;
-   
+   assign next_read_addr = (DEPTH == (read_addr + 1)) ? 0 : read_addr + 1;
+   assign next_write_addr = (DEPTH == (write_addr + 1)) ? 0 : write_addr + 1;   
+
    always @(posedge clk) begin
       if (!rst) begin
          if (read_valid) begin
@@ -410,6 +417,7 @@ module fifo(input clk,
 
    always @(posedge clk) begin
       $display("empty = %d", empty);
+      $display("full  = %d", full);      
    end
 
    assign read_ready = !empty;

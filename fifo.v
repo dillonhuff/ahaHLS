@@ -1,5 +1,8 @@
 `define assert(signal, value) if ((signal) !== (value)) begin $display("ASSERTION FAILED in %m: signal != value"); $finish(1); end
 
+`define POSEDGE #1 clk = 0; #1 clk = 1;
+
+
 module test();
 
    reg clk;
@@ -18,8 +21,7 @@ module test();
 
       #1 rst = 1;
 
-      #1 clk = 0;
-      #1 clk = 1;
+      `POSEDGE
 
       #1 rst = 0;
 
@@ -29,8 +31,7 @@ module test();
       in_data0 = 1;
       write_valid0 = 1;
 
-      #1 clk = 0;
-      #1 clk = 1;
+      `POSEDGE      
 
       in_data0 = 2;
       write_valid0 = 1;
@@ -38,46 +39,44 @@ module test();
       #1 `assert(write_ready0, 1'd1)
       #1 `assert(read_ready0, 1'd1)
 
-      #1 clk = 0;
-      #1 clk = 1;
+
 
       in_data0 = 3;
       write_valid0 = 1;
 
       #1 `assert(write_ready0, 1'd1)
       #1 `assert(read_ready0, 1'd1)
-      
-      #1 clk = 0;
-      #1 clk = 1;
 
-      in_data0 = 3;
-      write_valid0 = 1;
+      `POSEDGE                  
+
+      #1 in_data0 = 4;
+      #1 write_valid0 = 1;
 
       #1 `assert(write_ready0, 1'd1)
       #1 `assert(read_ready0, 1'd1)
-      
-      #1 clk = 0;
-      #1 clk = 1;
 
-      write_valid0 = 0;
+      `POSEDGE                  
 
-      #1 clk = 0;
-      #1 clk = 1;
+      #1 in_data0 = 5;
+      #1 write_valid0 = 1;
+
+      #1 `assert(write_ready0, 1'd1)
+      #1 `assert(read_ready0, 1'd1)
+        
+      `POSEDGE                          
+
+      #1 write_valid0 = 0;
+
+      `POSEDGE                        
 
       #1 `assert(write_ready0, 1'd0)
       #1 `assert(read_ready0, 1'd1)
-      
-      #1 clk = 0;
-      #1 clk = 1;
 
-      #1 clk = 0;
-      #1 clk = 1;
-
-      #1 clk = 0;
-      #1 clk = 1;
-      
-      #1 clk = 0;
-      #1 clk = 1;
+      `POSEDGE                        
+      `POSEDGE                        
+      `POSEDGE                        
+      `POSEDGE                              
+      `POSEDGE                                    
       
       #1 $display("Passed");
 
