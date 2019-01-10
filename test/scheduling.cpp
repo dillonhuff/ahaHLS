@@ -2289,7 +2289,8 @@ namespace DHLS {
     // tb.name = "sys_array_2x2";
 
     // emitVerilogTestBench(tb, arch, testLayout);
-    //REQUIRE(runIVerilogTB("sys_array_2x2"));
+
+    REQUIRE(runIVerilogTB("sys_array_2x2"));
   }
 
   TEST_CASE("Phi node with 4 inputs") {

@@ -398,7 +398,7 @@ module fifo(input clk,
             // Wraparound
             read_addr <= next_read_addr;
 
-            if (!empty && (next_read_addr == write_addr)) begin
+            if (!empty && (next_read_addr == write_addr) && !write_valid) begin
                empty <= 1;
             end
          end

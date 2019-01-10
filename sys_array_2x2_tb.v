@@ -1,3 +1,4 @@
+`define assert(signal, value) if ((signal) !== (value)) begin $display("ASSERTION FAILED in %m: signal != value"); $finish(1); end
 `define POSEDGE #1 clk = 0; #1 clk = 1;
 
 module sys_array_2x2_tb();
@@ -75,24 +76,82 @@ module sys_array_2x2_tb();
 
            `POSEDGE
 
-           #1 write_valid0 = 0;
-           #1 write_valid1 = 0;
-           #1 write_valid2 = 0;
-           #1 write_valid3 = 0;                      
+           #1 write_valid0 = 1;
+           #1 write_valid1 = 1;
+           #1 write_valid2 = 1;
+           #1 write_valid3 = 1;
+           
+           #1 in_data0 = 1;
+           #1 in_data1 = 2;
+           #1 in_data2 = 3;           
+           #1 in_data3 = 4;
 
-           `POSEDGE             
+           `POSEDGE
 
-           `POSEDGE             
+           #1 write_valid0 = 1;
+           #1 write_valid1 = 1;
+           #1 write_valid2 = 1;
+           #1 write_valid3 = 1;
+           
+           #1 in_data0 = 1;
+           #1 in_data1 = 2;
+           #1 in_data2 = 3;           
+           #1 in_data3 = 4;
 
-           `POSEDGE             
+           `POSEDGE
 
-           `POSEDGE             
+           #1 write_valid0 = 1;
+           #1 write_valid1 = 1;
+           #1 write_valid2 = 1;
+           #1 write_valid3 = 1;
+           
+           #1 in_data0 = 1;
+           #1 in_data1 = 2;
+           #1 in_data2 = 3;           
+           #1 in_data3 = 4;
 
-           `POSEDGE             
+           `POSEDGE
 
-           `POSEDGE             
+           #1 write_valid0 = 1;
+           #1 write_valid1 = 1;
+           #1 write_valid2 = 1;
+           #1 write_valid3 = 1;
+           
+           #1 in_data0 = 1;
+           #1 in_data1 = 2;
+           #1 in_data2 = 3;           
+           #1 in_data3 = 4;
 
-           `POSEDGE                          
+           `POSEDGE
+
+           #1 write_valid0 = 1;
+           #1 write_valid1 = 1;
+           #1 write_valid2 = 1;
+           #1 write_valid3 = 1;
+           
+           #1 in_data0 = 1;
+           #1 in_data1 = 2;
+           #1 in_data2 = 3;           
+           #1 in_data3 = 4;
+
+           `POSEDGE
+
+           #1 write_valid0 = 1;
+           #1 write_valid1 = 1;
+           #1 write_valid2 = 1;
+           #1 write_valid3 = 1;
+           
+           #1 in_data0 = 1;
+           #1 in_data1 = 2;
+           #1 in_data2 = 3;           
+           #1 in_data3 = 4;
+
+           `POSEDGE
+
+             `assert(valid, 1'b1)
+             
+             $display("Passed");
+           
 	end
 
    fifo #(.WIDTH(16), .DEPTH(8)) fifo0(.clk(clk),
