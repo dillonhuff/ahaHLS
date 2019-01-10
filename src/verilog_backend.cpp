@@ -1291,7 +1291,7 @@ namespace DHLS {
 
           // TODO: Add multiple stall condition handling, and add stall logic
           // to other cases in control logic
-          Instruction* instructionWithStall;
+          Instruction* instructionWithStall = nullptr;
           for (auto instr : arch.stg.instructionsStartingAt(state)) {
             instructionWithStall = instr.instruction;
             if (isBuiltinFifoCall(instr.instruction)) {
@@ -1299,10 +1299,15 @@ namespace DHLS {
               break;
             }
           }
-          
-          out << tab(4) << "if (" << iiCondition(instructionWithStall, arch) << ") begin " << endl;
+
+          if (instructionWithStall != nullptr) {
+            out << tab(4) << "if (" << iiCondition(instructionWithStall, arch) << ") begin " << endl;
+          }
           out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
-          out << tab(4) << "end" << endl;
+
+          if (instructionWithStall != nullptr) {          
+            out << tab(4) << "end" << endl;
+          }
 
           out << "\t\t\t\tend" << endl;
         }
