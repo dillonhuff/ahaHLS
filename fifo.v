@@ -31,7 +31,10 @@ module test();
       in_data0 = 1;
       write_valid0 = 1;
 
-      `POSEDGE      
+      `POSEDGE
+
+        write_valid0 = 0;
+      
       `POSEDGE
 
       write_valid0 = 0;
