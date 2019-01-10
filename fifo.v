@@ -1,6 +1,6 @@
 `define assert(signal, value) if ((signal) !== (value)) begin $display("ASSERTION FAILED in %m: signal != value"); $finish(1); end
 
-`define POSEDGE #1 clk = 0; #1 clk = 1;
+`define POSEDGE #1 clk = 0; #1 clk = 0; #1 clk = 1; #1 clk = 1;
 
 
 module test();
@@ -8,7 +8,7 @@ module test();
    reg clk;
    reg rst;
 
-   wire read_valid0;
+   reg read_valid0;
    wire  read_ready0;
 
    wire write_ready0;
@@ -23,18 +23,15 @@ module test();
 
       `POSEDGE
 
-      #1 rst = 0;
+        #1 rst = 0;
+      
 
       #1 `assert(write_ready0, 1'd1)
       #1 `assert(read_ready0, 1'd0)
 
-      in_data0 = 1;
-      write_valid0 = 1;
+      #1 in_data0 = 1;
+      #1 write_valid0 = 1;
 
-      `POSEDGE
-
-        write_valid0 = 0;
-      
       `POSEDGE
 
       write_valid0 = 0;
@@ -42,6 +39,20 @@ module test();
       #1 `assert(write_ready0, 1'd0)
       #1 `assert(read_ready0, 1'd1)
       
+      `POSEDGE
+
+        read_valid0 = 1;
+
+      `POSEDGE
+
+        read_valid0 = 0;
+
+      $display("out_data0 = %d", out_data0);
+      
+      #1 `assert(out_data0, 1);
+      #1 `assert(write_ready0, 1'd1)
+      #1 `assert(read_ready0, 1'd0)
+
       #1 $display("Passed");
 
    end // initial begin
