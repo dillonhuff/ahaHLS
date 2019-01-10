@@ -11,6 +11,7 @@ addons:
     - iverilog
     - llvm
     - z3
+    - valgrind
 
 before_install:
   - ls /usr/local/lib
@@ -24,7 +25,7 @@ before_install:
   - make -j
 
 script:
-  - ./all-tests
+  - valgrind ./all-tests
 
 compiler:
   - gcc
