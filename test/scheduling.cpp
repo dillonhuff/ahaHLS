@@ -2441,18 +2441,17 @@ namespace DHLS {
 
   TEST_CASE("Running verilog fifo tests") {
 
-    string moduleName = "fifo";
-    string mainName = moduleName + "_tb.v";
-    string modFile = moduleName + ".v";
+    string mainName = "fifo.v"; //moduleName + "_tb.v";
+    string exeName = "fifo";
 
-    string genCmd = "iverilog -g2005 -o " + moduleName + " " + mainName + " " + modFile + " RAM.v RAM2.v RAM3.v axil_ram.v delay.v builtins.v";
+    string genCmd = "iverilog -g2005 -o " + exeName + " " + mainName + string(" ") + " RAM.v RAM2.v RAM3.v axil_ram.v delay.v builtins.v";
 
     bool compiled = runCmd(genCmd);
 
     REQUIRE(compiled);
 
-    string resFile = moduleName + "_tb_result.txt";
-    string exeCmd = "./" + moduleName + " > " + resFile;
+    string resFile = exeName + "_tb_result.txt";
+    string exeCmd = "./" + exeName + " > " + resFile;
     bool ran = runCmd(exeCmd);
 
     assert(ran);

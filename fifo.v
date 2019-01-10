@@ -28,8 +28,6 @@ module test();
       #1 `assert(write_ready0, 1'd1)
       #1 `assert(read_ready0, 1'd0)
 
-      #1 `assert(read_ready1, 1'd0)
-
       in_data0 = 791;
       write_valid0 = 1;
 
@@ -38,13 +36,10 @@ module test();
 
       #1 write_valid0 = 0;
 
-      
       #1 `assert(valid, 1'd0)
       #1 `assert(write_ready0, 1'd1)
       #1 `assert(read_ready0, 1'd1)
 
-      #1 `assert(read_ready1, 1'd0)
-      
       #1 clk = 0;
       #1 clk = 1;
 
@@ -63,20 +58,11 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
-      #1 `assert(read_ready1, 1'd1)
       #1 `assert(valid, 1'd1)
 
-      #1 read_valid1 = 1;
-      
       #1 clk = 0;
       #1 clk = 1;
       
-      #1 read_valid1 = 0;
-
-      #1 $display("out_data1", out_data1);
-
-      #1 `assert(read_ready1, 1'd0)
-      #1 `assert(out_data1, 32'd791)
       #1 `assert(valid, 1'd1)
       
       #1 clk = 0;
@@ -87,7 +73,6 @@ module test();
    end // initial begin
 
    always @(posedge clk) begin
-      $display("in_data1  = %d", in_data1);
       $display("out_data0 = %d", out_data0);
    end
 
