@@ -26,13 +26,14 @@ module test();
       #1 `assert(write_ready0, 1'd1)
       #1 `assert(read_ready0, 1'd0)
 
-      in_data0 = 791;
+      in_data0 = 1;
       write_valid0 = 1;
 
       #1 clk = 0;
       #1 clk = 1;
 
-      #1 write_valid0 = 0;
+      in_data0 = 2;
+      write_valid0 = 1;
 
       #1 `assert(write_ready0, 1'd1)
       #1 `assert(read_ready0, 1'd1)
@@ -40,15 +41,32 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
+      in_data0 = 3;
+      write_valid0 = 1;
+
+      #1 `assert(write_ready0, 1'd1)
+      #1 `assert(read_ready0, 1'd1)
+      
       #1 clk = 0;
       #1 clk = 1;
+
+      in_data0 = 3;
+      write_valid0 = 1;
+
+      #1 `assert(write_ready0, 1'd1)
+      #1 `assert(read_ready0, 1'd1)
+      
+      #1 clk = 0;
+      #1 clk = 1;
+
+      write_valid0 = 0;
 
       #1 clk = 0;
       #1 clk = 1;
 
-      #1 clk = 0;
-      #1 clk = 1;
-
+      #1 `assert(write_ready0, 1'd0)
+      #1 `assert(read_ready0, 1'd1)
+      
       #1 clk = 0;
       #1 clk = 1;
 
