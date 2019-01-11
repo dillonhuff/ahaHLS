@@ -20,6 +20,7 @@ namespace DHLS {
   //    Test case using ready valid interface together with pipelining
   //    Test case that builds a linebuffer from LLVM
   //    Test case that creates systolic array with correct interconnect structure
+  //      and functional unit binding
   TEST_CASE("Schedule a single store operation") {
     SMDiagnostic Err;
     LLVMContext Context;

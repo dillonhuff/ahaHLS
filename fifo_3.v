@@ -49,7 +49,7 @@ module test();
 
       $display("out_data0 = %d", out_data0);
       
-      #1 `assert(out_data0, 1);
+      #1 `assert(out_data0, 1)
       #1 `assert(write_ready0, 1'd1)
       #1 `assert(read_ready0, 1'd0)
 
@@ -75,9 +75,9 @@ module test();
 
       `POSEDGE
 
-        `assert(read_ready0, 1'b1);
-        `assert(write_ready0, 1'b1);
-        `assert(out_data0, 10);
+        `assert(read_ready0, 1'b1)
+        `assert(write_ready0, 1'b1)
+        `assert(out_data0, 10)
 
       #1 write_valid0 = 0;
 
@@ -85,9 +85,9 @@ module test();
 
       `POSEDGE
 
-        `assert(read_ready0, 1'b1);
-        `assert(write_ready0, 1'b1);
-        `assert(out_data0, 8);
+        `assert(read_ready0, 1'b1)
+        `assert(write_ready0, 1'b1)
+        `assert(out_data0, 8)
         
       #1 read_valid0 = 1;
 
@@ -95,10 +95,10 @@ module test();
 
         #1 read_valid0 = 0;
       
-      #1 `assert(read_ready0, 1'b0);
-      #1 `assert(write_ready0, 1'b1);
+      #1 `assert(read_ready0, 1'b0)
+      #1 `assert(write_ready0, 1'b1)
       
-      #1 `assert(out_data0, 7);
+      #1 `assert(out_data0, 7)
 
       `POSEDGE
       
@@ -106,11 +106,6 @@ module test();
 
       
    end // initial begin
-
-   always @(posedge clk) begin
-      $display("in_data0  = %d", in_data0);      
-      $display("out_data0 = %d", out_data0);
-   end
 
    fifo #(.WIDTH(32), .DEPTH(3)) in(.clk(clk), .rst(rst), .read_valid(read_valid0), .read_ready(read_ready0), .write_ready(write_ready0), .write_valid(write_valid0), .out_data(out_data0), .in_data(in_data0));
    
