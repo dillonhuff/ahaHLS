@@ -833,14 +833,12 @@ namespace DHLS {
 
             // Check RAR dependence
             if (isBuiltinFifoRead(&instr) && isBuiltinFifoRead(&otherInstr)) {
-              //cout << "Checking aliasing for " << valueString(instr) << " and " << valueString(otherInstr) << endl;
 
               Value* load0 = instr.getOperand(0);
               Value* load1 = otherInstr.getOperand(0);
               
               AliasResult aliasRes = aliasAnalysis.alias(load0, load1);
               if (aliasRes != NoAlias) {
-                //cout << valueString(&instr) << " and " << valueString(&otherInstr) << " can RAW alias" << endl;
 
                 s.add(instrEnd(&instr, schedVars) <= instrStart(&otherInstr, schedVars));
               }

@@ -2212,7 +2212,7 @@ namespace DHLS {
       }
 
       for (int row = 0; row < 2; row++) {
-        storeReg(b, rightRegisters[row], bColVals[row]);
+        storeReg(b, rightRegisters[row], aRowVals[row]);
       }
       
     }

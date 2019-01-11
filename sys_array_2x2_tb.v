@@ -77,9 +77,9 @@ module sys_array_2x2_tb();
            #1 write_valid3 = 1;
            
            #1 in_data0 = 1;
-           #1 in_data1 = 2;
-           #1 in_data2 = 3;           
-           #1 in_data3 = 4;
+           #1 in_data1 = 0;
+           #1 in_data2 = 5;           
+           #1 in_data3 = 0;
 
            `POSEDGE
 
@@ -96,10 +96,10 @@ module sys_array_2x2_tb();
            #1 write_valid2 = 1;
            #1 write_valid3 = 1;
            
-           #1 in_data0 = 1;
-           #1 in_data1 = 2;
-           #1 in_data2 = 3;           
-           #1 in_data3 = 4;
+           #1 in_data0 = 2;
+           #1 in_data1 = 4;
+           #1 in_data2 = 7;           
+           #1 in_data3 = 6;
 
            `POSEDGE
 
@@ -110,54 +110,28 @@ module sys_array_2x2_tb();
            #1 write_valid2 = 1;
            #1 write_valid3 = 1;
            
-           #1 in_data0 = 1;
-           #1 in_data1 = 2;
-           #1 in_data2 = 3;           
-           #1 in_data3 = 4;
+           #1 in_data0 = 0;
+           #1 in_data1 = 3;
+           #1 in_data2 = 0;           
+           #1 in_data3 = 8;
 
            `POSEDGE
 
            #1 `assert(global_state_dbg, 2)                          
 
              
-           #1 write_valid0 = 1;
-           #1 write_valid1 = 1;
-           #1 write_valid2 = 1;
-           #1 write_valid3 = 1;
-           
-           #1 in_data0 = 1;
-           #1 in_data1 = 2;
-           #1 in_data2 = 3;           
-           #1 in_data3 = 4;
+           #1 write_valid0 = 0;
+           #1 write_valid1 = 0;
+           #1 write_valid2 = 0;
+           #1 write_valid3 = 0;
 
            `POSEDGE
 
            #1 `assert(global_state_dbg, 3)                                       
 
-           #1 write_valid0 = 1;
-           #1 write_valid1 = 1;
-           #1 write_valid2 = 1;
-           #1 write_valid3 = 1;
-           
-           #1 in_data0 = 1;
-           #1 in_data1 = 2;
-           #1 in_data2 = 3;           
-           #1 in_data3 = 4;
-
            `POSEDGE
 
              #1 `assert(global_state_dbg, 4)
-           
-
-           #1 write_valid0 = 1;
-           #1 write_valid1 = 1;
-           #1 write_valid2 = 1;
-           #1 write_valid3 = 1;
-           
-           #1 in_data0 = 1;
-           #1 in_data1 = 2;
-           #1 in_data2 = 3;           
-           #1 in_data3 = 4;
 
            #1 `assert(valid, 1'b0)                      
 
@@ -165,21 +139,11 @@ module sys_array_2x2_tb();
 
              #1 `assert(global_state_dbg, 5)             
 
-           #1 write_valid0 = 0;
-           #1 write_valid1 = 0;
-           #1 write_valid2 = 0;
-           #1 write_valid3 = 0;
-             
            #1 `assert(valid, 1'b0)           
            
            `POSEDGE
 
              #1 `assert(global_state_dbg, 6)             
-
-           #1 write_valid0 = 0;
-           #1 write_valid1 = 0;
-           #1 write_valid2 = 0;
-           #1 write_valid3 = 0;
              
            #1 `assert(valid, 1'b1)           
            
