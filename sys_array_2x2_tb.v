@@ -146,13 +146,35 @@ module sys_array_2x2_tb();
            #1 in_data2 = 3;           
            #1 in_data3 = 4;
 
+             #1 `assert(valid, 1'b1)           
+           
            `POSEDGE
 
-             `assert(valid, 1'b1)
+           #1 write_valid0 = 0;
+           #1 write_valid1 = 0;
+           #1 write_valid2 = 0;
+           #1 write_valid3 = 0;
+             
+             `assert(read_ready4, 1'b1);
+             `assert(read_ready5, 1'b1);
+
+             #1 read_valid4 = 1;
+             #1 read_valid5 = 1;
+
+           `POSEDGE
+           `POSEDGE
+
              
              $display("Passed");
            
-	end
+	end // initial begin
+
+   always @(posedge clk) begin
+
+      $display("out_data4 = %d", out_data4);
+      $display("out_data5 = %d", out_data5);           
+      
+   end
 
    fifo #(.WIDTH(16), .DEPTH(8)) fifo0(.clk(clk),
                                        .rst(rst),
@@ -234,7 +256,6 @@ module sys_array_2x2_tb();
                      .fifo_5_in_data(in_data5),
                      .fifo_5_write_valid(write_valid5),
                      .fifo_5_write_ready(write_ready5)
-                     
                      );
 
 

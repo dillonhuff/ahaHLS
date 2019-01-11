@@ -744,11 +744,11 @@ namespace DHLS {
                                         MicroArchitecture& arch) {
 
 
-    cout << "Getting most recent location of " << valueString(result) << " for instruction " << valueString(currentPosition.instr) << endl;
+    //cout << "Getting most recent location of " << valueString(result) << " for instruction " << valueString(currentPosition.instr) << endl;
 
     
     if (currentPosition.inPipeline()) {
-      cout << "We are in a pipeline" << endl;
+      //cout << "We are in a pipeline" << endl;
 
       int stage = currentPosition.pipelineStage();
       auto p = arch.getPipeline(currentPosition.stateId());
@@ -774,7 +774,7 @@ namespace DHLS {
           Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
           return tmpRes.name;
         } else {
-          cout << "Getting data from previous stage" << endl;
+          //cout << "Getting data from previous stage" << endl;
           int stagePlusII = stage + p.II();
           if (stagePlusII >= (int) p.pipelineRegisters.size()) {
             assert(contains_key(result, arch.names));
@@ -795,13 +795,13 @@ namespace DHLS {
       }
     }
 
-    cout << "Getting the value of " << valueString(result) << " from arch.names" << endl;
+    //cout << "Getting the value of " << valueString(result) << " from arch.names" << endl;
 
     assert(contains_key(result, arch.names));
     
     Wire tmpRes = map_find(result, arch.names);
 
-    cout << "Name is " << tmpRes.name << endl;
+    //cout << "Name is " << tmpRes.name << endl;
     
     return tmpRes.name;
   }
@@ -987,7 +987,7 @@ namespace DHLS {
 
       auto arg0 = instr->getOperand(0);
 
-      cout << "arg0 = " << valueString(arg0) << endl;
+      //cout << "arg0 = " << valueString(arg0) << endl;
 
       auto arg0Name = outputName(arg0, pos, arch); //outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
@@ -995,7 +995,7 @@ namespace DHLS {
 
       for (int i = 1; i < (int) numOperands; i++) {
         auto arg1 = instr->getOperand(i);
-        cout << "Getting operand " << valueString(arg1) << endl;
+        //cout << "Getting operand " << valueString(arg1) << endl;
         auto arg1Name =
           outputName(arg1, pos, arch);
           //outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
