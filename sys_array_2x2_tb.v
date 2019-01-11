@@ -166,8 +166,8 @@ module sys_array_2x2_tb();
            
            `POSEDGE
              
-             #1 `assert(read_ready4, 1'b1);
-             #1 `assert(read_ready5, 1'b1);
+             #1 `assert(read_ready4, 1'b1)
+             #1 `assert(read_ready5, 1'b1)
 
              #1 read_valid4 = 1;
              #1 read_valid5 = 1;
@@ -177,8 +177,8 @@ module sys_array_2x2_tb();
              #1 `assert(out_data4, 19)
              #1 `assert(out_data5, 22)
 
-             #1 `assert(read_ready4, 1'b1);
-             #1 `assert(read_ready5, 1'b1);
+             #1 `assert(read_ready4, 1'b1)
+             #1 `assert(read_ready5, 1'b1)
              
              #1 read_valid4 = 1;
              #1 read_valid5 = 1;
