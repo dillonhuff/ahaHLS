@@ -2440,10 +2440,8 @@ namespace DHLS {
     
   }
 
-  TEST_CASE("Running verilog fifo tests") {
-
-    string mainName = "fifo.v"; //moduleName + "_tb.v";
-    string exeName = "fifo";
+  bool runIVerilogTest(const std::string& mainName,
+                       const std::string& exeName) {
 
     string genCmd = "iverilog -g2005 -o " + exeName + " " + mainName + string(" ") + " RAM.v RAM2.v RAM3.v axil_ram.v delay.v builtins.v";
 
@@ -2477,8 +2475,20 @@ namespace DHLS {
     reverse(begin(lastLine), end(lastLine));
 
     cout << "Lastline = " << lastLine << endl;
-    REQUIRE(lastLine == "Passed");
 
+    return lastLine == "Passed";
+  }
+  
+  TEST_CASE("Running verilog fifo tests") {
+
+    string mainName = "fifo.v";
+    string exeName = "fifo";
+    REQUIRE(runIVerilogTest(mainName, exeName));
+
+    string mName = "fifo_3.v";
+    string eName = "fifo_3";
+    REQUIRE(runIVerilogTest(mName, eName));
+    
   }
   
 }

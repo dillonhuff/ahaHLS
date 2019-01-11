@@ -136,34 +136,33 @@ module sys_array_2x2_tb();
 
            `POSEDGE
 
-           #1 write_valid0 = 1;
-           #1 write_valid1 = 1;
-           #1 write_valid2 = 1;
-           #1 write_valid3 = 1;
-           
-           #1 in_data0 = 1;
-           #1 in_data1 = 2;
-           #1 in_data2 = 3;           
-           #1 in_data3 = 4;
-
-             #1 `assert(valid, 1'b1)           
-           
-           `POSEDGE
-
            #1 write_valid0 = 0;
            #1 write_valid1 = 0;
            #1 write_valid2 = 0;
            #1 write_valid3 = 0;
              
-             `assert(read_ready4, 1'b1);
-             `assert(read_ready5, 1'b1);
+           #1 `assert(valid, 1'b1)           
+           
+           `POSEDGE
+             
+             #1 `assert(read_ready4, 1'b1);
+             #1 `assert(read_ready5, 1'b1);
 
              #1 read_valid4 = 1;
              #1 read_valid5 = 1;
 
            `POSEDGE
+
+             #1 `assert(read_ready4, 1'b1);
+             #1 `assert(read_ready5, 1'b1);
+             
+             #1 read_valid4 = 1;
+             #1 read_valid5 = 1;
+             
            `POSEDGE
 
+             #1 read_valid4 = 0;
+             #1 read_valid5 = 0;
              
              $display("Passed");
            

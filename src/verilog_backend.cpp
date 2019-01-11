@@ -343,7 +343,7 @@ namespace DHLS {
 
     } else if (LoadInst::classof(instr)) {
 
-      cout << "Finding memories for " << valueString(instr) << endl;
+      //cout << "Finding memories for " << valueString(instr) << endl;
       
       Value* memVal = map_find(instr, memSrcs);          
       string memSrc = memName(instr, memSrcs, memNames);
@@ -417,7 +417,7 @@ namespace DHLS {
     map<string, Wire> wiring;
     map<string, Wire> outWires;
 
-    cout << "Creating a unit for " << valueString(instr) << endl;
+    //cout << "Creating a unit for " << valueString(instr) << endl;
     
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
       return createMemUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
@@ -1084,7 +1084,7 @@ namespace DHLS {
     } else if(SExtInst::classof(instr)) {
 
       Value* trueVal = instr->getOperand(0);
-      string trueName = outputName(trueVal, pos, arch); //outputName(trueVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+      string trueName = outputName(trueVal, pos, arch);
 
       assignments.insert({addUnit.portWires["in"].name, trueName});
     } else {
