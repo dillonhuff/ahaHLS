@@ -2166,7 +2166,7 @@ namespace DHLS {
       }
     }
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 4; i++) {
       cout << "i = " << i << endl;
       
       vector<Value*> aRowVals;

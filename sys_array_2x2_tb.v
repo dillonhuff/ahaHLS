@@ -97,7 +97,7 @@ module sys_array_2x2_tb();
            #1 write_valid3 = 1;
            
            #1 in_data0 = 2;
-           #1 in_data1 = 4;
+           #1 in_data1 = 3;
            #1 in_data2 = 7;           
            #1 in_data3 = 6;
 
@@ -111,7 +111,7 @@ module sys_array_2x2_tb();
            #1 write_valid3 = 1;
            
            #1 in_data0 = 0;
-           #1 in_data1 = 3;
+           #1 in_data1 = 4;
            #1 in_data2 = 0;           
            #1 in_data3 = 8;
 
@@ -119,14 +119,24 @@ module sys_array_2x2_tb();
 
            #1 `assert(global_state_dbg, 2)                          
 
+           #1 write_valid0 = 1;
+           #1 write_valid1 = 1;
+           #1 write_valid2 = 1;
+           #1 write_valid3 = 1;
+           
+           #1 in_data0 = 0;
+           #1 in_data1 = 0;
+           #1 in_data2 = 0;           
+           #1 in_data3 = 0;
              
+           `POSEDGE
+
            #1 write_valid0 = 0;
            #1 write_valid1 = 0;
            #1 write_valid2 = 0;
            #1 write_valid3 = 0;
 
-           `POSEDGE
-
+             
            #1 `assert(global_state_dbg, 3)                                       
 
            `POSEDGE
@@ -146,7 +156,10 @@ module sys_array_2x2_tb();
            `POSEDGE
            `POSEDGE
            `POSEDGE
+           `POSEDGE
            `POSEDGE                          
+           `POSEDGE                          
+           `POSEDGE                                       
 //             #1 `assert(global_state_dbg, 6)             
              
            #1 `assert(valid, 1'b1)           
@@ -161,6 +174,9 @@ module sys_array_2x2_tb();
 
            `POSEDGE
 
+             #1 `assert(out_data4, 19)
+             #1 `assert(out_data5, 22)
+
              #1 `assert(read_ready4, 1'b1);
              #1 `assert(read_ready5, 1'b1);
              
@@ -169,6 +185,9 @@ module sys_array_2x2_tb();
 
            `POSEDGE
 
+             #1 `assert(out_data4, 43)
+             #1 `assert(out_data5, 50)
+             
              #1 read_valid4 = 0;
              #1 read_valid5 = 0;
              
@@ -178,10 +197,10 @@ module sys_array_2x2_tb();
            
 	end // initial begin
 
-   always @(posedge clk) begin
-      $display("out_data4 = %d", out_data4);
-      $display("out_data5 = %d", out_data5);           
-   end
+   // always @(posedge clk) begin
+   //    $display("out_data4 = %d", out_data4);
+   //    $display("out_data5 = %d", out_data5);           
+   // end
 
    fifo #(.WIDTH(16), .DEPTH(8)) fifo0(.clk(clk),
                                        .rst(rst),
