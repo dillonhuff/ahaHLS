@@ -2517,8 +2517,8 @@ namespace DHLS {
     auto entryBlock = mkBB("entry_block", f);
     auto exitBlock = mkBB("exit_block", f);
 
-    ConstantInt* loopBound = mkInt("10", width);
     ConstantInt* three = mkInt("3", width);
+    ConstantInt* zero = mkInt("0", width);
 
     auto bodyF = [f, readFifo, writeFifo, width](IRBuilder<>& builder, Value* i) {
 
@@ -2527,7 +2527,7 @@ namespace DHLS {
       auto sum = builder.CreateAdd(p0, val);
       builder.CreateCall(writeFifo, {sum, getArg(f, 1)});
     };
-    auto loopBlock = sivLoop(f, entryBlock, exitBlock, three, loopBound, bodyF);
+    auto loopBlock = sivLoop(f, entryBlock, exitBlock, zero, three, bodyF);
 
     IRBuilder<> entryBuilder(entryBlock);        
     entryBuilder.CreateBr(loopBlock);
