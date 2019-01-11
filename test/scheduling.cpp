@@ -2182,21 +2182,35 @@ namespace DHLS {
       for (int row = 0; row < 2; row++) {
         for (int col = 0; col < 2; col++) {
           Value* aVal = nullptr;
-          if (row == 0) {
-            aVal = aRowVals[col];
+
+          // if (row == 0) {
+          //   aVal = aRowVals[col];
+          // } else {
+          //   // Add row num to index
+          //   aVal = loadReg(b, rightRegisters[col]);
+          // }
+
+          // Value* bVal = nullptr;
+          // if (col == 0) {
+          //   bVal = bColVals[row];
+          // } else {
+          //   // Add row num to index
+          //   bVal = loadReg(b, downRegisters[row]);
+          // }
+
+          if (col == 0) {
+            aVal = aRowVals[row];
           } else {
-            // Add row num to index
-            aVal = loadReg(b, rightRegisters[col]);
+            aVal = loadReg(b, rightRegisters[row]);
           }
 
           Value* bVal = nullptr;
-          if (col == 0) {
-            bVal = bColVals[row];
+          if (row == 0) {
+            bVal = bColVals[col];
           } else {
-            // Add row num to index
-            bVal = loadReg(b, downRegisters[row]);
+            bVal = loadReg(b, downRegisters[col]);
           }
-
+          
           auto accumReg = accumRegisters[2*row + col];
           auto newAccum =
             b.CreateAdd(loadReg(b, accumReg), b.CreateMul(aVal, bVal));

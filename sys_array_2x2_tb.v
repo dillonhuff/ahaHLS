@@ -142,8 +142,12 @@ module sys_array_2x2_tb();
            #1 `assert(valid, 1'b0)           
            
            `POSEDGE
-
-             #1 `assert(global_state_dbg, 6)             
+           `POSEDGE
+           `POSEDGE
+           `POSEDGE
+           `POSEDGE
+           `POSEDGE                          
+//             #1 `assert(global_state_dbg, 6)             
              
            #1 `assert(valid, 1'b1)           
            

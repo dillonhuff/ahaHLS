@@ -873,17 +873,25 @@ namespace DHLS {
 
             // Check WAW dependence
             if (StoreInst::classof(&instr) && StoreInst::classof(&otherInstr)) {
-              //cout << "Checking WAW aliasing for " << valueString(instr) << " and " << valueString(otherInstr) << endl;
-
               Value* storeLoc = instr.getOperand(1);
               Value* otherStoreLoc = otherInstr.getOperand(1);
 
               // TODO: Add SCEV analysis
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, otherStoreLoc);
               if (aliasRes != NoAlias) {
-                //cout << valueString(&instr) << " and " << valueString(&otherInstr) << " can RAW alias" << endl;
-
                 s.add(instrEnd(&instr, schedVars) < instrEnd(&otherInstr, schedVars));
+              }
+            }
+
+            // Check WAR dependence
+            if (LoadInst::classof(&instr) && StoreInst::classof(&otherInstr)) {
+              Value* loadLoc = instr.getOperand(0);
+              Value* storeLoc = otherInstr.getOperand(1);
+
+              // TODO: Add SCEV analysis
+              AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
+              if (aliasRes != NoAlias) {
+                s.add(instrStart(&instr, schedVars) < instrStart(&otherInstr, schedVars));
               }
             }
             
