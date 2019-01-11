@@ -84,19 +84,31 @@ module test();
       `POSEDGE
       `POSEDGE
 
-//        write_valid0 = 0;
-
-        
       `POSEDGE        
 
-//        read_valid0 = 0;
-
-      $display("out_data0 = %d", out_data0);
-      
-      //#1 `assert(out_data0, 1);
       #1 `assert(write_ready0, 1'd1)
-      //#1 `assert(read_ready0, 1'd0)
       #1 `assert(valid, 1'd1)
+
+      `POSEDGE        
+
+        #1 read_valid1 = 1;
+
+      `POSEDGE        
+
+        #1 `assert(out_data1, (2 + 1) + 1)      
+        #1 read_valid1 = 1;
+
+      `POSEDGE        
+
+        #1 `assert(out_data1, (2 + 2) + 2)
+        #1 read_valid1 = 1;
+      
+      `POSEDGE        
+
+        #1 `assert(out_data1, (2 + 3) + 3)
+      #1 read_valid1 = 0;
+      
+      `POSEDGE
 
       #1 $display("Passed");
 
@@ -105,6 +117,7 @@ module test();
    always @(posedge clk) begin
       $display("in_data0  = %d", in_data0);      
       $display("out_data0 = %d", out_data0);
+      $display("out_data1 = %d", out_data1);      
    end
 
    fifo #(.WIDTH(32), .DEPTH(16)) in(.clk(clk), .rst(rst), .read_valid(read_valid0), .read_ready(read_ready0), .write_ready(write_ready0), .write_valid(write_valid0), .out_data(out_data0), .in_data(in_data0));
