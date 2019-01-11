@@ -55,6 +55,56 @@ module test();
 
       #1 $display("Passed");
 
+      `POSEDGE
+
+        #1 write_valid0 = 1;
+      #1 in_data0 = 10;
+
+      `POSEDGE
+
+        #1 write_valid0 = 1;
+      #1 in_data0 = 8;
+
+
+      `POSEDGE
+
+        #1 write_valid0 = 1;
+      #1 in_data0 = 7;
+
+      #1 read_valid0 = 1;
+
+      `POSEDGE
+
+        `assert(read_ready0, 1'b1);
+        `assert(write_ready0, 1'b1);
+        `assert(out_data0, 10);
+
+      #1 write_valid0 = 0;
+
+      #1 read_valid0 = 1;
+
+      `POSEDGE
+
+        `assert(read_ready0, 1'b1);
+        `assert(write_ready0, 1'b1);
+        `assert(out_data0, 8);
+        
+      #1 read_valid0 = 1;
+
+      `POSEDGE
+
+        #1 read_valid0 = 0;
+      
+      #1 `assert(read_ready0, 1'b0);
+      #1 `assert(write_ready0, 1'b1);
+      
+      #1 `assert(out_data0, 7);
+
+      `POSEDGE
+      
+      #1 $display("Passed");
+
+      
    end // initial begin
 
    always @(posedge clk) begin
