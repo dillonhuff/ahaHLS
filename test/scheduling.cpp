@@ -2248,14 +2248,6 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    // Issue: I could allow an input that represents a wire, this would allow
-    // coding up CGRA type algorithms (be more specific. What is it about the CGRA
-    // algorithms? No valid signal, they dont really complete they just reach a
-    // steady state, they are totally synchronous?), but it makes the code rate
-    // sensitive.
-    // How you schedule calls to the read and write on a wire potentially affects 
-    // the data that you see. Hello
-
     for (auto& st : graph.opStates) {
       int numReads = 0;
       for (auto instrG : graph.instructionsStartingAt(st.first)) {
@@ -2281,6 +2273,8 @@ namespace DHLS {
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
+    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
     
     emitVerilog(f, arch, info);
 

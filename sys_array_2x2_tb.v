@@ -7,6 +7,8 @@ module sys_array_2x2_tb();
    reg [0:0] clk;
    wire [0:0] valid;
 
+   wire [31:0] global_state_dbg;
+
    wire            read_valid0;
    wire            read_ready0;   
    reg            write_valid0;
@@ -48,6 +50,7 @@ module sys_array_2x2_tb();
    wire            write_ready5;
    wire [15:0]     in_data5;
    wire [15:0]     out_data5;
+
    
 	initial begin
 	   #1 rst = 1;
@@ -64,17 +67,9 @@ module sys_array_2x2_tb();
              
              #1 rst = 0;
 
-           #1 write_valid0 = 1;
-           #1 write_valid1 = 1;
-           #1 write_valid2 = 1;
-           #1 write_valid3 = 1;
-           
-           #1 in_data0 = 1;
-           #1 in_data1 = 2;
-           #1 in_data2 = 3;           
-           #1 in_data3 = 4;
-
-           `POSEDGE
+           // After reset we are in global state 0,
+           // and the first read has not been done so the ready is zero
+           #1 `assert(global_state_dbg, 0)
 
            #1 write_valid0 = 1;
            #1 write_valid1 = 1;
@@ -88,6 +83,14 @@ module sys_array_2x2_tb();
 
            `POSEDGE
 
+             // Still in global state 0, but read readys are now 1
+           #1 `assert(global_state_dbg, 0)
+
+           #1 `assert(read_ready0, 1)
+           #1 `assert(read_ready1, 1)
+           #1 `assert(read_ready2, 1)
+           #1 `assert(read_ready3, 1)
+           
            #1 write_valid0 = 1;
            #1 write_valid1 = 1;
            #1 write_valid2 = 1;
@@ -100,17 +103,7 @@ module sys_array_2x2_tb();
 
            `POSEDGE
 
-           #1 write_valid0 = 1;
-           #1 write_valid1 = 1;
-           #1 write_valid2 = 1;
-           #1 write_valid3 = 1;
-           
-           #1 in_data0 = 1;
-           #1 in_data1 = 2;
-           #1 in_data2 = 3;           
-           #1 in_data3 = 4;
-
-           `POSEDGE
+             #1 `assert(global_state_dbg, 1)
 
            #1 write_valid0 = 1;
            #1 write_valid1 = 1;
@@ -124,6 +117,9 @@ module sys_array_2x2_tb();
 
            `POSEDGE
 
+           #1 `assert(global_state_dbg, 2)                          
+
+             
            #1 write_valid0 = 1;
            #1 write_valid1 = 1;
            #1 write_valid2 = 1;
@@ -135,6 +131,37 @@ module sys_array_2x2_tb();
            #1 in_data3 = 4;
 
            `POSEDGE
+
+           #1 `assert(global_state_dbg, 3)                                       
+
+           #1 write_valid0 = 1;
+           #1 write_valid1 = 1;
+           #1 write_valid2 = 1;
+           #1 write_valid3 = 1;
+           
+           #1 in_data0 = 1;
+           #1 in_data1 = 2;
+           #1 in_data2 = 3;           
+           #1 in_data3 = 4;
+
+           `POSEDGE
+
+             #1 `assert(global_state_dbg, 4)
+           
+
+           #1 write_valid0 = 1;
+           #1 write_valid1 = 1;
+           #1 write_valid2 = 1;
+           #1 write_valid3 = 1;
+           
+           #1 in_data0 = 1;
+           #1 in_data1 = 2;
+           #1 in_data2 = 3;           
+           #1 in_data3 = 4;
+
+           `POSEDGE
+
+             #1 `assert(global_state_dbg, 5)             
 
            #1 write_valid0 = 0;
            #1 write_valid1 = 0;
@@ -169,10 +196,8 @@ module sys_array_2x2_tb();
 	end // initial begin
 
    always @(posedge clk) begin
-
       $display("out_data4 = %d", out_data4);
       $display("out_data5 = %d", out_data5);           
-      
    end
 
    fifo #(.WIDTH(16), .DEPTH(8)) fifo0(.clk(clk),
@@ -254,7 +279,9 @@ module sys_array_2x2_tb();
 
                      .fifo_5_in_data(in_data5),
                      .fifo_5_write_valid(write_valid5),
-                     .fifo_5_write_ready(write_ready5)
+                     .fifo_5_write_ready(write_ready5),
+
+                     .global_state_dbg(global_state_dbg)
                      );
 
 
