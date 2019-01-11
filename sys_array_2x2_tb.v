@@ -180,16 +180,16 @@ module sys_array_2x2_tb();
 
            `POSEDGE
 
-             #1 `assert(read_ready4, 1'b1);
-             #1 `assert(read_ready5, 1'b1);
+             // #1 `assert(read_ready4, 1'b1);
+             // #1 `assert(read_ready5, 1'b1);
              
-             #1 read_valid4 = 1;
-             #1 read_valid5 = 1;
-             
-           `POSEDGE
+             // #1 read_valid4 = 1;
+             // #1 read_valid5 = 1;
 
              #1 read_valid4 = 0;
              #1 read_valid5 = 0;
+             
+           `POSEDGE
              
              $display("Passed");
            
