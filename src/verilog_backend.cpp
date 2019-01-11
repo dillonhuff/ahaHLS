@@ -15,7 +15,7 @@ using namespace std;
 namespace DHLS {
 
   std::string iiCondition(llvm::Instruction* const instr,
-                          MicroArchitecture& arch);
+                          const MicroArchitecture& arch);
 
   std::ostream& operator<<(std::ostream& out, const Wire w) {
     out << w.toString();
@@ -1354,7 +1354,7 @@ namespace DHLS {
 
   // TODO: Change name to unstallCondition or readyCondition?
   std::string iiCondition(llvm::Instruction* const instr,
-                          MicroArchitecture& arch) {
+                          const MicroArchitecture& arch) {
     if (isBuiltinFifoCall(instr)) {
       auto unit = map_find(instr, arch.unitAssignment);
 
@@ -2701,10 +2701,13 @@ namespace DHLS {
                          const MicroArchitecture& arch,
                          VerilogDebugInfo& debugInfo) {
     auto iStr = sanitizeFormatForVerilog(instructionString(instr));
-    //FunctionalUnit unit = map_find(instr, arch.unitAssignment);
-    auto unitOutput = dataOutput(instr, arch); //unit.onlyOutputVar();
-    
-    addAlwaysBlock({"clk"}, "if(" + atState(st, arch) + ") begin $display(\"" + iStr + " == %d\", " + unitOutput + "); end", debugInfo);
+
+    if (hasOutput(instr)) {
+      auto unitOutput = dataOutput(instr, arch);
+      addAlwaysBlock({"clk"}, "if(" + atState(st, arch) + ") begin $display(\"" + iStr + " == %d\", " + unitOutput + "); end", debugInfo);
+    } else {
+      addAlwaysBlock({"clk"}, "if(" + atState(st, arch) + ") begin $display(\"" + iStr + "\"); end", debugInfo);
+    }
   }
 
   std::string atState(const StateId state, const MicroArchitecture& arch) {
@@ -2743,13 +2746,47 @@ namespace DHLS {
     }
   }
 
-  void noFifoLoadsX(const MicroArchitecture& arch,
+  void noFifoReadsX(const MicroArchitecture& arch,
                     VerilogDebugInfo& debugInfo) {
     for (auto st : arch.stg.opStates) {
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
         auto instr = instrG.instruction;
         if (isBuiltinFifoRead(instr)) {
-          printInstrAtState(instr, st.first, arch, debugInfo);
+          StateId activeState = st.first;
+          string iStr = instructionString(instr);
+
+          printInstrAtState(instr, activeState, arch, debugInfo);
+          
+          string wireName = dataOutput(instr, arch);
+
+          string valCheck = wireName + " !== 'dx";
+          string active = andStr(atState(st.first, arch), iiCondition(instr, arch));
+
+          addAssert(notStr(active) + " || " + valCheck, debugInfo);
+          
+        }
+      }
+    }
+  }
+
+  void noFifoWritesX(const MicroArchitecture& arch,
+                     VerilogDebugInfo& debugInfo) {
+    for (auto st : arch.stg.opStates) {
+      for (auto instrG : arch.stg.instructionsStartingAt(st.first)) {
+        auto instr = instrG.instruction;
+        if (isBuiltinFifoWrite(instr)) {
+          StateId activeState = st.first;
+          string iStr = instructionString(instr);
+
+          printInstrAtState(instr, activeState, arch, debugInfo);
+
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment);          
+          string in0Name = map_find(string("in_data"), unit.portWires).name;
+
+          string valCheck = in0Name + " !== 'dx";
+          string active = andStr(atState(st.first, arch), iiCondition(instr, arch));
+
+          addAssert(notStr(active) + " || " + valCheck, debugInfo);
         }
       }
     }
@@ -2848,7 +2885,8 @@ namespace DHLS {
 
   void addNoXChecks(const MicroArchitecture& arch,
                     VerilogDebugInfo& info) {
-    noFifoLoadsX(arch, info);
+    noFifoReadsX(arch, info);
+    noFifoWritesX(arch, info);    
     noCompareOpsTakeXInputs(arch, info, "ne");
     noAddsTakeXInputs(arch, info);
     noMulsTakeXInputs(arch, info);

@@ -85,4 +85,15 @@ namespace DHLS {
   bool isBuiltinFifoCall(llvm::Instruction* const instr) {
     return isBuiltinFifoWrite(instr) || isBuiltinFifoRead(instr);
   }
+
+  static inline
+  std::string andStr(const std::string& left, const std::string& right) {
+    return parens(left + " && " + right);
+  }
+
+  static inline
+  std::string notStr(const std::string& a) {
+    return "!" + parens(a);
+  }
+
 }
