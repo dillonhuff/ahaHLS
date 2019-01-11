@@ -2227,7 +2227,7 @@ namespace DHLS {
 
     b.CreateRet(nullptr);
 
-    cout << "Systolic array" << endl;
+    cout << "LLVM Function" << endl;
     cout << valueString(f) << endl;
 
     HardwareConstraints hcs = standardConstraints();

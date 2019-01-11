@@ -295,7 +295,7 @@ namespace DHLS {
       string memSrc = memName(instr, memSrcs, memNames);
 
       if (!Argument::classof(memVal)) {
-        cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
+        //cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
         Value* op = map_find(instr, hcs.memoryMapping);
 
         assert(contains_key(op, hcs.memSpecs));
@@ -307,7 +307,7 @@ namespace DHLS {
 
         assert(inputWidth == dataWidth);
 
-        cout << "Got name for op" << endl;
+        //cout << "Got name for op" << endl;
         unitName = memSrc;
         // These names need to match names created in the portlist. So
         // maybe this should be used to create the port list? Generate the
@@ -806,7 +806,7 @@ namespace DHLS {
     return tmpRes.name;
   }
 
-  std::string dataOutput(llvm::Instruction* instr0, MicroArchitecture& arch) {
+  std::string dataOutput(llvm::Instruction* instr0, const MicroArchitecture& arch) {
     auto unit0Src =
       map_find(instr0, arch.unitAssignment);
 
@@ -2701,8 +2701,8 @@ namespace DHLS {
                          const MicroArchitecture& arch,
                          VerilogDebugInfo& debugInfo) {
     auto iStr = sanitizeFormatForVerilog(instructionString(instr));
-    FunctionalUnit unit = map_find(instr, arch.unitAssignment);
-    auto unitOutput = unit.onlyOutputVar();
+    //FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+    auto unitOutput = dataOutput(instr, arch); //unit.onlyOutputVar();
     
     addAlwaysBlock({"clk"}, "if(" + atState(st, arch) + ") begin $display(\"" + iStr + " == %d\", " + unitOutput + "); end", debugInfo);
   }
@@ -2743,6 +2743,18 @@ namespace DHLS {
     }
   }
 
+  void noFifoLoadsX(const MicroArchitecture& arch,
+                    VerilogDebugInfo& debugInfo) {
+    for (auto st : arch.stg.opStates) {
+      for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
+        auto instr = instrG.instruction;
+        if (isBuiltinFifoRead(instr)) {
+          printInstrAtState(instr, st.first, arch, debugInfo);
+        }
+      }
+    }
+  }
+  
   void noBinopsTakeXInputs(const MicroArchitecture& arch,
                            VerilogDebugInfo& debugInfo,
                            const std::string& opName) {
@@ -2776,6 +2788,8 @@ namespace DHLS {
 
   }  
 
+  // Not sure how to incorporate ready-valid instructions in to this
+  // debug framework. Maybe use the iiCondition function?
   void noCompareOpsTakeXInputs(const MicroArchitecture& arch,
                                VerilogDebugInfo& debugInfo,
                                const std::string& opName) {
@@ -2834,6 +2848,7 @@ namespace DHLS {
 
   void addNoXChecks(const MicroArchitecture& arch,
                     VerilogDebugInfo& info) {
+    noFifoLoadsX(arch, info);
     noCompareOpsTakeXInputs(arch, info, "ne");
     noAddsTakeXInputs(arch, info);
     noMulsTakeXInputs(arch, info);
