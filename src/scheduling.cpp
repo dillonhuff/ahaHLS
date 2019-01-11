@@ -846,6 +846,17 @@ namespace DHLS {
               }
             }
 
+            // Check WAW dependence
+            if (isBuiltinFifoWrite(&instr) && isBuiltinFifoWrite(&otherInstr)) {
+              Value* store0 = instr.getOperand(1);
+              Value* store1 = otherInstr.getOperand(1);
+              
+              AliasResult aliasRes = aliasAnalysis.alias(store0, store1);
+              if (aliasRes != NoAlias) {
+                s.add(instrEnd(&instr, schedVars) <= instrStart(&otherInstr, schedVars));
+              }
+            }
+            
             // Check dependences between RAM operations
             // Check RAW dependence
             if (StoreInst::classof(&instr) && LoadInst::classof(&otherInstr)) {
@@ -890,9 +901,17 @@ namespace DHLS {
 
     //cout << "Added data dependencies" << endl;    
 
+    // // TODO: Merge fifo specific code and normal instruction resource
+    // // conflict detection
+    // for (auto& bb : f->getBasicBlockList()) {
+    //   int
+    //   for (auto
+    // }
+    
     // Add partial order constraints to respect resource constraints
     for (auto& bb : f->getBasicBlockList()) {
       for (auto& op : allOps()) {
+
         int opCount = countOperations(op, &bb);
         if (opCount > hdc.getCount(op)) {
           vector<vector<Instruction*> > iGroups;
