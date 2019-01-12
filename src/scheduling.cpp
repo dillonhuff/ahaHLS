@@ -1,7 +1,5 @@
 #include "scheduling.h"
 
-#include "z3++.h"
-
 #include <llvm/IR/Instructions.h>
 
 #include <llvm/Analysis/OrderedBasicBlock.h>
@@ -91,71 +89,6 @@ namespace DHLS {
 
       AAResults& a = getAnalysis<AAResultsWrapperPass>().getAAResults();
       ScalarEvolution& sc = getAnalysis<ScalarEvolutionWrapperPass>().getSE();
-      //LoopInfo& li = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
-      // auto* TLIP = getAnalysisIfAvailable<TargetLibraryInfoWrapperPass>();
-      // auto TLI = TLIP ? &TLIP->getTLI() : nullptr;
-
-      // DominatorTree domTree(F);
-      
-      // cout << "Loop access info" << endl;
-      // for (Loop* loop : li) {
-      //   cout << "Info for loop" << endl;
-      //   LoopAccessInfo lai(loop, &sc, TLI, &a, &domTree, &li);
-      //   cout << "# loads  = " << lai.getNumLoads() << endl;
-      //   cout << "# stores = " << lai.getNumStores() << endl;
-
-      //   auto& depChecker = lai.getDepChecker();
-      //   cout << "Dependence Analysis" << endl;
-      //   for (auto dep : *(depChecker.getDependences())) {
-      //     std::string str;
-      //     llvm::raw_string_ostream ss(str);
-      //     dep.print(ss, 1, depChecker.getMemoryInstructions());
-      //     auto depStr = ss.str();
-      //     cout << depStr << endl;
-      //   }
-
-      //   cout << "Safe vectorization distance = " << lai.getMaxSafeDepDistBytes() << endl;
-
-      //   for (auto sl : loop->getSubLoops()) {
-      //     cout << "Info for this subloop" << endl;
-      //     LoopAccessInfo lai(sl, &sc, TLI, &a, &domTree, &li);
-      //     cout << "# loads  = " << lai.getNumLoads() << endl;
-      //     cout << "# stores = " << lai.getNumStores() << endl;
-
-      //     auto& depChecker = lai.getDepChecker();
-      //     cout << "Dependence Analysis" << endl;
-      //     for (auto dep : *(depChecker.getDependences())) {
-      //       std::string str;
-      //       llvm::raw_string_ostream ss(str);
-      //       dep.print(ss, 1, depChecker.getMemoryInstructions());
-      //       auto depStr = ss.str();
-      //       cout << depStr << endl;
-      //     }
-
-      //     cout << "Safe vectorization distance = " << lai.getMaxSafeDepDistBytes() << endl;
-
-      //   }
-      // }
-
-
-      // cout << "SCEV Results " << endl;
-      
-      // for (auto& bb : F.getBasicBlockList()) {
-      //   for (auto& instr : bb) {
-      //     auto scev = sc.getSCEV(&instr);
-
-      //     if (scev != nullptr) {
-      //       std::string str;
-      //       llvm::raw_string_ostream ss(str);
-      //       ss << *scev;
-      //       auto scevStr = ss.str();
-
-      //       ss << scev;
-      //       cout << valueString(&instr) << endl;
-      //       cout << " --> " << scevStr << endl;
-      //     }
-      //   }
-      // }
         
       schedule = scheduleFunction(&F,
                                   hdc,
@@ -417,10 +350,11 @@ namespace DHLS {
   }
 
   void addScheduleVars(llvm::BasicBlock& bb,
-                       context& c,
-                       std::map<Instruction*, std::vector<expr> >& schedVars,
-                       std::map<BasicBlock*, std::vector<expr> >& blockVars,
-                       HardwareConstraints& hdc,
+                       SchedulingProblem& p
+                       // context& c,
+                       // std::map<Instruction*, std::vector<expr> >& schedVars,
+                       // std::map<BasicBlock*, std::vector<expr> >& blockVars,
+                       // HardwareConstraints& hdc,
                        int& blockNo) {
 
     string snkPre = "basic_block_end_state_";
@@ -428,7 +362,7 @@ namespace DHLS {
 
     cout << "Creating basic blocks" << endl;
     
-    blockVars[&bb] = {c.int_const((srcPre + to_string(blockNo)).c_str()), c.int_const((snkPre + to_string(blockNo)).c_str())};
+    blockVars[&bb] = {p.c.int_const((srcPre + to_string(blockNo)).c_str()), p.c.int_const((snkPre + to_string(blockNo)).c_str())};
     blockNo += 1;
 
     int instrNo = 0;
@@ -441,7 +375,7 @@ namespace DHLS {
 
       string instrPre = string(iptr->getOpcodeName()) + "_" + to_string(blockNo) + "_" + to_string(instrNo);
       for (int i = 0; i <= latency; i++) {
-        map_insert(schedVars, iptr, c.int_const((instrPre + "_" + to_string(i)).c_str()));
+        map_insert(schedVars, iptr, p.c.int_const((instrPre + "_" + to_string(i)).c_str()));
       }
 
       instrNo += 1;
@@ -717,39 +651,32 @@ namespace DHLS {
                             AAResults& aliasAnalysis,
                             ScalarEvolution& sc) {
 
-    map<Instruction*, vector<expr> > schedVars;
-    map<BasicBlock*, vector<expr> > blockVars;
- 
-    context c;
-    solver s(c);
-
-    //cout << "Starting to make schedule" << endl;
+    SchedulingProblem p;
 
     int blockNo = 0;
     for (auto& bb : f->getBasicBlockList()) {
       
-      addScheduleVars(bb,
-                      c,
-                      schedVars,
-                      blockVars,
-                      hdc,
-                      blockNo);
+      addScheduleVars(bb, p, hdc, blockNo);
+                      // p.c,
+                      // p.schedVars,
+                      // p.blockVars,
+                      // hdc,
+                      // blockNo);
 
       //cout << "Added schedule vars" << endl;
 
-      addBlockConstraints(bb, s, blockVars, schedVars);
+      addBlockConstraints(bb, p.s, p.blockVars, p.schedVars);
       //cout << "Added block constraints" << endl;
-      addLatencyConstraints(bb, s, schedVars, blockVars);
+      addLatencyConstraints(bb, p.s, p.schedVars, p.blockVars);
       //cout << "Added latency constraints" << endl;
     }
 
 
-    // TODO: 1. Add memory dependence distance analysis to II
     map<BasicBlock*, vector<expr> > IIs;
     int i = 0;
     for (auto bb : toPipeline) {
-      expr ii = c.int_const((string("II_") + to_string(i)).c_str());
-      s.add(0 < ii);      
+      expr ii = p.c.int_const((string("II_") + to_string(i)).c_str());
+      p.s.add(0 < ii);      
       map_insert(IIs, bb, ii);
       i++;
     }
@@ -776,13 +703,7 @@ namespace DHLS {
         for (auto* nextBB : dyn_cast<TerminatorInst>(term)->successors()) {
           if (!elem(nextBB, alreadyVisited)) {
 
-            // // TODO: Remove redundant if statement here?
-            // if (elem(nextBB, toPipeline) || elem(next, toPipeline)) {
-            //   s.add(blockSink(next, blockVars) < blockSource(nextBB, blockVars));
-            // } else {
-            s.add(blockSink(next, blockVars) < blockSource(nextBB, blockVars));
-              //}
-
+            p.s.add(blockSink(next, p.blockVars) < blockSource(nextBB, p.blockVars));
 
             // next is a predecessor of nextBB
             map_insert(controlPredecessors, nextBB, next);
@@ -799,7 +720,7 @@ namespace DHLS {
     for (int i = 0; i < (int) sortedBlocks.size() - 1; i++) {
       auto next = sortedBlocks[i];
       auto nextBB = sortedBlocks[i + 1];
-      s.add(blockSink(next, blockVars) < blockSource(nextBB, blockVars));
+      p.s.add(blockSink(next, p.blockVars) < blockSource(nextBB, p.blockVars));
     }
     //cout << "Added control edges" << endl;    
 
@@ -819,7 +740,7 @@ namespace DHLS {
 
           if (!PHINode::classof(userInstr)) {
 
-            s.add(instrEnd(iptr, schedVars) <= instrStart(userInstr, schedVars));
+            p.s.add(instrEnd(iptr, p.schedVars) <= instrStart(userInstr, p.schedVars));
             cout << instructionString(iptr) << " must finish before " << instructionString(userInstr) << endl;
           }
         }
@@ -840,7 +761,7 @@ namespace DHLS {
               AliasResult aliasRes = aliasAnalysis.alias(load0, load1);
               if (aliasRes != NoAlias) {
 
-                s.add(instrEnd(&instr, schedVars) <= instrStart(&otherInstr, schedVars));
+                p.s.add(instrEnd(&instr, p.schedVars) <= instrStart(&otherInstr, p.schedVars));
               }
             }
 
@@ -851,7 +772,7 @@ namespace DHLS {
               
               AliasResult aliasRes = aliasAnalysis.alias(store0, store1);
               if (aliasRes != NoAlias) {
-                s.add(instrEnd(&instr, schedVars) <= instrStart(&otherInstr, schedVars));
+                p.s.add(instrEnd(&instr, p.schedVars) <= instrStart(&otherInstr, p.schedVars));
               }
             }
             
@@ -867,7 +788,7 @@ namespace DHLS {
               if (aliasRes != NoAlias) {
                 //cout << valueString(&instr) << " and " << valueString(&otherInstr) << " can RAW alias" << endl;
 
-                s.add(instrEnd(&instr, schedVars) <= instrStart(&otherInstr, schedVars));
+                p.s.add(instrEnd(&instr, p.schedVars) <= instrStart(&otherInstr, p.schedVars));
               }
             }
 
@@ -879,7 +800,7 @@ namespace DHLS {
               // TODO: Add SCEV analysis
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, otherStoreLoc);
               if (aliasRes != NoAlias) {
-                s.add(instrEnd(&instr, schedVars) < instrEnd(&otherInstr, schedVars));
+                p.s.add(instrEnd(&instr, p.schedVars) < instrEnd(&otherInstr, p.schedVars));
               }
             }
 
@@ -891,7 +812,7 @@ namespace DHLS {
               // TODO: Add SCEV analysis
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
               if (aliasRes != NoAlias) {
-                s.add(instrStart(&instr, schedVars) < instrStart(&otherInstr, schedVars));
+                p.s.add(instrStart(&instr, p.schedVars) < instrStart(&otherInstr, p.schedVars));
               }
             }
             
@@ -905,15 +826,6 @@ namespace DHLS {
       }
     }
 
-    //cout << "Added data dependencies" << endl;    
-
-    // // TODO: Merge fifo specific code and normal instruction resource
-    // // conflict detection
-    // for (auto& bb : f->getBasicBlockList()) {
-    //   int
-    //   for (auto
-    // }
-    
     // Add partial order constraints to respect resource constraints
     for (auto& bb : f->getBasicBlockList()) {
       for (auto& op : allOps()) {
@@ -956,7 +868,7 @@ namespace DHLS {
             auto next = iGroups[i + 1];
             for (auto preI : gp) {
               for (auto nextI : next) {
-                s.add(instrEnd(preI, schedVars) < instrStart(nextI, schedVars));
+                p.s.add(instrEnd(preI, p.schedVars) < instrStart(nextI, p.schedVars));
               }
             }
           }
@@ -975,7 +887,7 @@ namespace DHLS {
             for (auto firstI : iGroups.front()) {
               for (auto lastI : iGroups.back()) {
                 //cout << "adding constraint on " << valueString(firstI) << " and " << valueString(lastI) << endl;
-                s.add(instrEnd(lastI, schedVars) < II + instrStart(firstI, schedVars));
+                p.s.add(instrEnd(lastI, p.schedVars) < II + instrStart(firstI, p.schedVars));
               }
             }
 
@@ -994,7 +906,7 @@ namespace DHLS {
           for (Instruction& instrB : bb) {
             int rawDD = rawOperandDD(&instrA, &instrB, domTree);
             if (rawDD > 0) {
-              s.add(instrEnd(&instrA, schedVars) < II*rawDD + instrStart(&instrB, schedVars));
+              p.s.add(instrEnd(&instrA, p.schedVars) < II*rawDD + instrStart(&instrB, p.schedVars));
             }
 
             if (StoreInst::classof(&instrA) &&
@@ -1004,7 +916,7 @@ namespace DHLS {
                                          aliasAnalysis,
                                          sc);
               if (memRawDD > 0) {
-                s.add(instrEnd(&instrA, schedVars) < II*memRawDD + instrStart(&instrB, schedVars));
+                p.s.add(instrEnd(&instrA, p.schedVars) < II*memRawDD + instrStart(&instrB, p.schedVars));
               }
             }
           }
@@ -1014,7 +926,7 @@ namespace DHLS {
 
     // cout << "Solver constraints" << endl;
     // cout << s << endl;
-    return buildFromModel(s, schedVars, blockVars, IIs);
+    return buildFromModel(p.s, p.schedVars, p.blockVars, IIs);
   }
   
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc) {

@@ -358,7 +358,7 @@ namespace DHLS {
           for (auto mm : hcs.memoryMapping) {
             cout << "\t" << valueString(mm.first) << " -> " << valueString(mm.second) << endl;
           }
-          
+
         }
         assert(contains_key(instr, hcs.memoryMapping));
         Value* op = map_find(instr, hcs.memoryMapping);

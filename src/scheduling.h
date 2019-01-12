@@ -1,5 +1,7 @@
 #pragma once
 
+#include "z3++.h"
+
 #include "algorithm.h"
 #include "utils.h"
 
@@ -468,4 +470,16 @@ namespace DHLS {
   STG buildSTG(Schedule& sched, llvm::Function* const f);
 
   HardwareConstraints standardConstraints();
+
+  class SchedulingProblem {
+  public:
+    std::map<llvm::Instruction*, std::vector<z3::expr> > schedVars;
+    std::map<llvm::BasicBlock*, std::vector<z3::expr> > blockVars;
+ 
+    z3::context c;
+    z3::solver s;
+
+    SchedulingProblem() : s(c) {}
+
+  };
 }
