@@ -351,9 +351,6 @@ namespace DHLS {
 
   void addScheduleVars(llvm::BasicBlock& bb,
                        SchedulingProblem& p,
-                       // context& c,
-                       // std::map<Instruction*, std::vector<expr> >& schedVars,
-                       // std::map<BasicBlock*, std::vector<expr> >& blockVars,
                        HardwareConstraints& hdc,
                        int& blockNo) {
 
@@ -383,14 +380,15 @@ namespace DHLS {
   }
 
   void addBlockConstraints(llvm::BasicBlock& bb,
-                           solver& s,
-                           std::map<BasicBlock*, std::vector<expr> >& blockVars,
-                           std::map<Instruction*, std::vector<expr> >& schedVars) {
+                           SchedulingProblem& p) {
+                           // solver& s,
+                           // std::map<BasicBlock*, std::vector<expr> >& blockVars,
+                           // std::map<Instruction*, std::vector<expr> >& schedVars) {
 
     // Basic blocks cannot start before the beginning of time
-    s.add(blockSource(&bb, blockVars) >= 0);
+    p.s.add(blockSource(&bb, p.blockVars) >= 0);
     // Basic blocks must start before they finish
-    s.add(blockSource(&bb, blockVars) <= blockSink(&bb, blockVars));
+    p.s.add(blockSource(&bb, p.blockVars) <= blockSink(&bb, p.blockVars));
 
     Instruction* term = bb.getTerminator();
 
@@ -398,26 +396,27 @@ namespace DHLS {
     
     // By definition the completion of a branch is the completion of
     // the basic block that contains it.
-    s.add(blockSink(&bb, blockVars) == map_find(term, schedVars).back());
+    p.s.add(blockSink(&bb, p.blockVars) == map_find(term, p.schedVars).back());
   }
 
   void addLatencyConstraints(llvm::BasicBlock& bb,
-                             solver& s,
-                             std::map<Instruction*, std::vector<expr> >& schedVars,
-                             std::map<BasicBlock*, std::vector<expr> >& blockVars) {
+                             SchedulingProblem& p) {
+                             // solver& s,
+                             // std::map<Instruction*, std::vector<expr> >& schedVars,
+                             // std::map<BasicBlock*, std::vector<expr> >& blockVars) {
 
     for (auto& instruction : bb) {
       auto iptr = &instruction;
-      auto svs = map_find(iptr, schedVars);
+      auto svs = map_find(iptr, p.schedVars);
       assert(svs.size() > 0);
 
       // Operations must be processed within the basic block that contains them
-      s.add(svs.front() >= blockSource(&bb, blockVars));
-      s.add(svs.back() <= blockSink(&bb, blockVars));
+      p.s.add(svs.front() >= blockSource(&bb, p.blockVars));
+      p.s.add(svs.back() <= blockSink(&bb, p.blockVars));
 
       // Operations with latency N take N clock ticks to finish
       for (int i = 1; i < (int) svs.size(); i++) {
-        s.add(svs[i - 1] + 1 == svs[i]);
+        p.s.add(svs[i - 1] + 1 == svs[i]);
       }
     }
 
@@ -657,27 +656,16 @@ namespace DHLS {
     for (auto& bb : f->getBasicBlockList()) {
       
       addScheduleVars(bb, p, hdc, blockNo);
-                      // p.c,
-                      // p.schedVars,
-                      // p.blockVars,
-                      // hdc,
-                      // blockNo);
+      addBlockConstraints(bb, p);
+      addLatencyConstraints(bb, p);
 
-      //cout << "Added schedule vars" << endl;
-
-      addBlockConstraints(bb, p.s, p.blockVars, p.schedVars);
-      //cout << "Added block constraints" << endl;
-      addLatencyConstraints(bb, p.s, p.schedVars, p.blockVars);
-      //cout << "Added latency constraints" << endl;
     }
 
-
-    map<BasicBlock*, vector<expr> > IIs;
     int i = 0;
     for (auto bb : toPipeline) {
       expr ii = p.c.int_const((string("II_") + to_string(i)).c_str());
       p.s.add(0 < ii);      
-      map_insert(IIs, bb, ii);
+      map_insert(p.IIs, bb, ii);
       i++;
     }
     
@@ -779,14 +767,12 @@ namespace DHLS {
             // Check dependences between RAM operations
             // Check RAW dependence
             if (StoreInst::classof(&instr) && LoadInst::classof(&otherInstr)) {
-              //cout << "Checking aliasing for " << valueString(instr) << " and " << valueString(otherInstr) << endl;
 
               Value* storeLoc = instr.getOperand(1);
               Value* loadLoc = otherInstr.getOperand(0);
               
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
               if (aliasRes != NoAlias) {
-                //cout << valueString(&instr) << " and " << valueString(&otherInstr) << " can RAW alias" << endl;
 
                 p.s.add(instrEnd(&instr, p.schedVars) <= instrStart(&otherInstr, p.schedVars));
               }
@@ -879,7 +865,7 @@ namespace DHLS {
           // Make sure subsequent pipelined loop iterations obey
           // the resource partial order
           if (elem(&bb, toPipeline)) {
-            auto II = map_find(&bb, IIs).at(0);
+            auto II = map_find(&bb, p.IIs).at(0);
 
             assert(iGroups.front().size() > 0);
             assert(iGroups.at(iGroups.size() - 1).size() > 0);
@@ -900,7 +886,7 @@ namespace DHLS {
     DominatorTree domTree(*f);
     for (auto& bb : f->getBasicBlockList()) {
       if (elem(&bb, toPipeline)) {
-        auto II = map_find(&bb, IIs).at(0);
+        auto II = map_find(&bb, p.IIs).at(0);
 
         for (Instruction& instrA : bb) {
           for (Instruction& instrB : bb) {
@@ -926,7 +912,7 @@ namespace DHLS {
 
     // cout << "Solver constraints" << endl;
     // cout << s << endl;
-    return buildFromModel(p.s, p.schedVars, p.blockVars, IIs);
+    return buildFromModel(p.s, p.schedVars, p.blockVars, p.IIs);
   }
   
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc) {

@@ -475,7 +475,8 @@ namespace DHLS {
   public:
     std::map<llvm::Instruction*, std::vector<z3::expr> > schedVars;
     std::map<llvm::BasicBlock*, std::vector<z3::expr> > blockVars;
- 
+    std::map<llvm::BasicBlock*, std::vector<z3::expr> > IIs;
+    
     z3::context c;
     z3::solver s;
 
