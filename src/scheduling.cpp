@@ -354,12 +354,10 @@ namespace DHLS {
                        HardwareConstraints& hdc,
                        int& blockNo) {
 
-    string snkPre = "basic_block_end_state_";
-    string srcPre = "basic_block_start_state_";
-
     cout << "Creating basic blocks" << endl;
-    
-    p.blockVars[&bb] = {p.c.int_const((srcPre + to_string(blockNo)).c_str()), p.c.int_const((snkPre + to_string(blockNo)).c_str())};
+
+    p.addBasicBlock(&bb);
+
     blockNo += 1;
 
     int instrNo = 0;
@@ -381,9 +379,6 @@ namespace DHLS {
 
   void addBlockConstraints(llvm::BasicBlock& bb,
                            SchedulingProblem& p) {
-                           // solver& s,
-                           // std::map<BasicBlock*, std::vector<expr> >& blockVars,
-                           // std::map<Instruction*, std::vector<expr> >& schedVars) {
 
     // Basic blocks cannot start before the beginning of time
     p.s.add(blockSource(&bb, p.blockVars) >= 0);

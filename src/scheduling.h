@@ -471,16 +471,64 @@ namespace DHLS {
 
   HardwareConstraints standardConstraints();
 
+  class LinearConstraint {
+    std::map<std::string, int> vars;
+    int c;
+
+  public:
+
+    LinearConstraint(std::map<std::string, int>& vars_, const int c_) :
+      vars(vars_), c(c_) {}
+
+    int getCoeff() const {
+      return c;
+    }
+
+    std::map<std::string, int> getVars() const {
+      return vars;
+    }
+
+    int getValue(const std::string& var) {
+      assert(dbhc::contains_key(var, vars));
+      return dbhc::map_find(var, vars);
+    }
+  };
+
   class SchedulingProblem {
   public:
-    std::map<llvm::Instruction*, std::vector<z3::expr> > schedVars;
-    std::map<llvm::BasicBlock*, std::vector<z3::expr> > blockVars;
-    std::map<llvm::BasicBlock*, std::vector<z3::expr> > IIs;
+    int blockNo;
     
+    std::map<llvm::Instruction*, std::vector<z3::expr> > schedVars;
+
+    std::map<llvm::BasicBlock*, std::vector<z3::expr> > blockVars;
+    std::map<llvm::BasicBlock*, std::vector<std::string> > blockVarNames;
+
+    std::map<llvm::BasicBlock*, std::vector<z3::expr> > IIs;
+
+    std::vector<LinearConstraint> constraints;
+
     z3::context c;
     z3::solver s;
 
-    SchedulingProblem() : s(c) {}
+    SchedulingProblem() : s(c) {
+      blockNo = 0;
+    }
+
+    int blockNumber() const {
+      return blockNo;
+    }
+
+    void addBasicBlock(llvm::BasicBlock* const bb) {
+      std::string snkPre = "basic_block_end_state_";
+      std::string srcPre = "basic_block_start_state_";
+
+      std::string start = srcPre + std::to_string(blockNo);
+      std::string end = snkPre + std::to_string(blockNo);
+
+      blockVars[bb] = {c.int_const(start.c_str()), c.int_const(end.c_str())};
+      blockVarNames[bb] = {start, end};
+      blockNo++;
+    }
 
   };
 }
