@@ -350,11 +350,11 @@ namespace DHLS {
   }
 
   void addScheduleVars(llvm::BasicBlock& bb,
-                       SchedulingProblem& p
+                       SchedulingProblem& p,
                        // context& c,
                        // std::map<Instruction*, std::vector<expr> >& schedVars,
                        // std::map<BasicBlock*, std::vector<expr> >& blockVars,
-                       // HardwareConstraints& hdc,
+                       HardwareConstraints& hdc,
                        int& blockNo) {
 
     string snkPre = "basic_block_end_state_";
@@ -362,7 +362,7 @@ namespace DHLS {
 
     cout << "Creating basic blocks" << endl;
     
-    blockVars[&bb] = {p.c.int_const((srcPre + to_string(blockNo)).c_str()), p.c.int_const((snkPre + to_string(blockNo)).c_str())};
+    p.blockVars[&bb] = {p.c.int_const((srcPre + to_string(blockNo)).c_str()), p.c.int_const((snkPre + to_string(blockNo)).c_str())};
     blockNo += 1;
 
     int instrNo = 0;
@@ -371,11 +371,11 @@ namespace DHLS {
 
       int latency = getLatency(iptr, hdc);
 
-      schedVars[iptr] = {};
+      p.schedVars[iptr] = {};
 
       string instrPre = string(iptr->getOpcodeName()) + "_" + to_string(blockNo) + "_" + to_string(instrNo);
       for (int i = 0; i <= latency; i++) {
-        map_insert(schedVars, iptr, p.c.int_const((instrPre + "_" + to_string(i)).c_str()));
+        map_insert(p.schedVars, iptr, p.c.int_const((instrPre + "_" + to_string(i)).c_str()));
       }
 
       instrNo += 1;
