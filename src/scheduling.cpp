@@ -911,7 +911,7 @@ namespace DHLS {
     }
 
     // cout << "Solver constraints" << endl;
-    // cout << s << endl;
+    // cout << p.s << endl;
     return buildFromModel(p.s, p.schedVars, p.blockVars, p.IIs);
   }
   
