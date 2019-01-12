@@ -645,7 +645,7 @@ namespace DHLS {
         auto schedVars = map_find(instr, stg.sched.instrTimes);
         auto* tp = instr->getType();
 
-        cout << "type = " << typeString(tp) << endl;
+        //cout << "type = " << typeString(tp) << endl;
         int width;
 
         // TODO: Extract to its own function
@@ -656,7 +656,7 @@ namespace DHLS {
           PointerType* pTp = dyn_cast<PointerType>(tp);
 
 
-          cout << "Element type = " << typeString(pTp->getElementType()) << endl;
+          //cout << "Element type = " << typeString(pTp->getElementType()) << endl;
 
           assert(IntegerType::classof(pTp->getElementType()));
 
@@ -1144,7 +1144,6 @@ namespace DHLS {
 
   void emitTempStorage(std::ostream& out,
                        const StateId state,
-                       const std::vector<StateTransition>& destinations,
                        MicroArchitecture& arch) {
 
     auto& names = arch.names;
@@ -1319,7 +1318,6 @@ namespace DHLS {
 
     emitTempStorage(out,
                     state,
-                    destinations,
                     arch);
     
     out << "\t\t\tend" << endl;
