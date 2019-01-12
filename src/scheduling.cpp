@@ -643,7 +643,7 @@ namespace DHLS {
 
     return 0;
   }
-  
+
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
                             std::set<BasicBlock*>& toPipeline,
