@@ -528,7 +528,8 @@ namespace DHLS {
 
     HardwareConstraints hdc;
 
-    SchedulingProblem(const HardwareConstraints& hcs_) : s(c), hdc(hcs_) {}
+    SchedulingProblem(const HardwareConstraints& hcs_) :
+      blockNo(0), s(c), hdc(hcs_) {}
 
     SchedulingProblem() : s(c) {
       blockNo = 0;

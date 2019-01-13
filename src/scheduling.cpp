@@ -390,57 +390,43 @@ namespace DHLS {
     s.add(blockSink(bb, blockVars) == dbhc::map_find(term, schedVars).back());
 
     blockNo++;
-  }
-  
-  void addScheduleVars(llvm::BasicBlock& bb,
-                       SchedulingProblem& p,
-                       HardwareConstraints& hdc) {
 
-    cout << "Creating basic blocks" << endl;
-
-    p.addBasicBlock(&bb);
-  }
-
-  // void addBlockConstraints(llvm::BasicBlock& bb,
-  //                          SchedulingProblem& p) {
-
-  //   // Basic blocks cannot start before the beginning of time
-  //   p.s.add(blockSource(&bb, p.blockVars) >= 0);
-  //   // Basic blocks must start before they finish
-  //   p.blockLTE(bb);
-  //   p.s.add(blockSource(&bb, p.blockVars) <= blockSink(&bb, p.blockVars));
-
-  //   Instruction* term = bb.getTerminator();
-
-  //   assert(term != nullptr);
-    
-  //   // By definition the completion of a branch is the completion of
-  //   // the basic block that contains it.
-  //   p.s.add(blockSink(&bb, p.blockVars) == map_find(term, p.schedVars).back());
-  // }
-
-  void addLatencyConstraints(llvm::BasicBlock& bb,
-                             SchedulingProblem& p) {
-                             // solver& s,
-                             // std::map<Instruction*, std::vector<expr> >& schedVars,
-                             // std::map<BasicBlock*, std::vector<expr> >& blockVars) {
-
-    for (auto& instruction : bb) {
+    for (auto& instruction : *bb) {
       auto iptr = &instruction;
-      auto svs = map_find(iptr, p.schedVars);
+      auto svs = map_find(iptr, schedVars);
       assert(svs.size() > 0);
 
       // Operations must be processed within the basic block that contains them
-      p.s.add(svs.front() >= blockSource(&bb, p.blockVars));
-      p.s.add(svs.back() <= blockSink(&bb, p.blockVars));
+      s.add(svs.front() >= blockSource(bb, blockVars));
+      s.add(svs.back() <= blockSink(bb, blockVars));
 
       // Operations with latency N take N clock ticks to finish
       for (int i = 1; i < (int) svs.size(); i++) {
-        p.s.add(svs[i - 1] + 1 == svs[i]);
+        s.add(svs[i - 1] + 1 == svs[i]);
       }
     }
 
   }
+  
+  // void addLatencyConstraints(llvm::BasicBlock& bb,
+  //                            SchedulingProblem& p) {
+
+  //   for (auto& instruction : bb) {
+  //     auto iptr = &instruction;
+  //     auto svs = map_find(iptr, p.schedVars);
+  //     assert(svs.size() > 0);
+
+  //     // Operations must be processed within the basic block that contains them
+  //     p.s.add(svs.front() >= blockSource(&bb, p.blockVars));
+  //     p.s.add(svs.back() <= blockSink(&bb, p.blockVars));
+
+  //     // Operations with latency N take N clock ticks to finish
+  //     for (int i = 1; i < (int) svs.size(); i++) {
+  //       p.s.add(svs[i - 1] + 1 == svs[i]);
+  //     }
+  //   }
+
+  // }
 
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
@@ -673,11 +659,7 @@ namespace DHLS {
     SchedulingProblem p(hdc);
 
     for (auto& bb : f->getBasicBlockList()) {
-      
-      addScheduleVars(bb, p, hdc);
-      //addBlockConstraints(bb, p);
-      addLatencyConstraints(bb, p);
-
+      p.addBasicBlock(&bb);
     }
 
     int i = 0;
