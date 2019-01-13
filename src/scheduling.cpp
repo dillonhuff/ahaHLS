@@ -42,6 +42,9 @@ namespace DHLS {
 
     return hcs;
   }
+
+  z3::expr toZ3(z3::context& c,
+                const LinearConstraint& constraint);
   
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
@@ -287,6 +290,13 @@ namespace DHLS {
   }
 
   Schedule buildFromModel(SchedulingProblem& p) {
+
+    for (auto& constraint : p.constraints) {
+      p.s.add(toZ3(p.c, constraint));
+    }
+
+    cout << "Solver constraints" << endl;
+    cout << p.s << endl;
 
     auto& schedVars = p.schedVars;
     auto& blockVars = p.blockVars;
@@ -928,13 +938,6 @@ namespace DHLS {
         }
       }
     }
-
-    for (auto& constraint : p.constraints) {
-      p.s.add(toZ3(p.c, constraint));
-    }
-
-    cout << "Solver constraints" << endl;
-    cout << p.s << endl;
 
     return buildFromModel(p);
   }
