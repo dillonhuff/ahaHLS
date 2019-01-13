@@ -539,6 +539,10 @@ namespace DHLS {
       return blockNo;
     }
 
+    z3::expr blockSink(llvm::BasicBlock* bb) {
+      return dbhc::map_find(bb, blockVars).back();
+    }
+
     void addBasicBlock(llvm::BasicBlock* const bb);
   };
 }

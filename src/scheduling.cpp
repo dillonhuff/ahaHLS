@@ -361,8 +361,9 @@ namespace DHLS {
 
     // Basic blocks cannot start before the beginning of time
     s.add(blockSource(bb, blockVars) >= 0);
-    // Basic blocks must start before they finish
-    s.add(blockSource(bb, blockVars) <= blockSink(bb, blockVars));
+    // Basic blocks must start before they finish asdf
+    //s.add(blockSource(bb, blockVars) <= blockSink(bb, blockVars));
+    s.add(blockSource(bb, blockVars) <= blockSink(bb));
 
 
     int instrNo = 0;
@@ -387,7 +388,7 @@ namespace DHLS {
     
     // By definition the completion of a branch is the completion of
     // the basic block that contains it.
-    s.add(blockSink(bb, blockVars) == dbhc::map_find(term, schedVars).back());
+    s.add(blockSink(bb) == dbhc::map_find(term, schedVars).back());
 
     blockNo++;
 
@@ -398,7 +399,8 @@ namespace DHLS {
 
       // Operations must be processed within the basic block that contains them
       s.add(svs.front() >= blockSource(bb, blockVars));
-      s.add(svs.back() <= blockSink(bb, blockVars));
+      //s.add(svs.back() <= blockSink(bb, blockVars));
+      s.add(svs.back() <= blockSink(bb));
 
       // Operations with latency N take N clock ticks to finish
       for (int i = 1; i < (int) svs.size(); i++) {
@@ -408,26 +410,6 @@ namespace DHLS {
 
   }
   
-  // void addLatencyConstraints(llvm::BasicBlock& bb,
-  //                            SchedulingProblem& p) {
-
-  //   for (auto& instruction : bb) {
-  //     auto iptr = &instruction;
-  //     auto svs = map_find(iptr, p.schedVars);
-  //     assert(svs.size() > 0);
-
-  //     // Operations must be processed within the basic block that contains them
-  //     p.s.add(svs.front() >= blockSource(&bb, p.blockVars));
-  //     p.s.add(svs.back() <= blockSink(&bb, p.blockVars));
-
-  //     // Operations with latency N take N clock ticks to finish
-  //     for (int i = 1; i < (int) svs.size(); i++) {
-  //       p.s.add(svs[i - 1] + 1 == svs[i]);
-  //     }
-  //   }
-
-  // }
-
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
                             std::set<BasicBlock*>& toPipeline) {
@@ -670,8 +652,6 @@ namespace DHLS {
       i++;
     }
     
-    //cout << "Created schedule vars" << endl;
-
     // Connect the control edges
     std::deque<BasicBlock*> toVisit{&(f->getEntryBlock())};
     std::set<BasicBlock*> alreadyVisited;
@@ -692,7 +672,7 @@ namespace DHLS {
         for (auto* nextBB : dyn_cast<TerminatorInst>(term)->successors()) {
           if (!elem(nextBB, alreadyVisited)) {
 
-            p.s.add(blockSink(next, p.blockVars) < blockSource(nextBB, p.blockVars));
+            p.s.add(p.blockSink(next) < blockSource(nextBB, p.blockVars));
 
             // next is a predecessor of nextBB
             map_insert(controlPredecessors, nextBB, next);
@@ -704,16 +684,12 @@ namespace DHLS {
     }
     std::vector<BasicBlock*> sortedBlocks =
       topologicalSortOfBlocks(f, controlPredecessors);
-    //cout << "Basic block order " << endl;
     
     for (int i = 0; i < (int) sortedBlocks.size() - 1; i++) {
       auto next = sortedBlocks[i];
       auto nextBB = sortedBlocks[i + 1];
-      p.s.add(blockSink(next, p.blockVars) < blockSource(nextBB, p.blockVars));
+      p.s.add(p.blockSink(next) < blockSource(nextBB, p.blockVars));
     }
-    //cout << "Added control edges" << endl;    
-
-    //cout << "Adding memory control" << endl;
 
     // Instructions must finish before their dependencies
     for (auto& bb : f->getBasicBlockList()) {
