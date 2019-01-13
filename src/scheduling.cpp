@@ -360,10 +360,10 @@ namespace DHLS {
     blockVarNames[bb] = {start, end};
 
     // Basic blocks cannot start before the beginning of time
-    s.add(blockSource(bb, blockVars) >= 0);
+    s.add(blockSource(bb) >= 0);
     // Basic blocks must start before they finish asdf
     //s.add(blockSource(bb, blockVars) <= blockSink(bb, blockVars));
-    s.add(blockSource(bb, blockVars) <= blockSink(bb));
+    s.add(blockSource(bb) <= blockSink(bb));
 
 
     int instrNo = 0;
@@ -398,8 +398,7 @@ namespace DHLS {
       assert(svs.size() > 0);
 
       // Operations must be processed within the basic block that contains them
-      s.add(svs.front() >= blockSource(bb, blockVars));
-      //s.add(svs.back() <= blockSink(bb, blockVars));
+      s.add(svs.front() >= blockSource(bb));
       s.add(svs.back() <= blockSink(bb));
 
       // Operations with latency N take N clock ticks to finish
@@ -449,8 +448,6 @@ namespace DHLS {
 
         // Iterate over all blocks picking any whose predecessors are all
         bool allPredsAdded = true;
-
-        //for (auto predBB : predecessors(next)) {
 
         if (contains_key(next, controlPredecessors)) {
           for (auto predBB : map_find(next, controlPredecessors)) {
@@ -672,7 +669,7 @@ namespace DHLS {
         for (auto* nextBB : dyn_cast<TerminatorInst>(term)->successors()) {
           if (!elem(nextBB, alreadyVisited)) {
 
-            p.s.add(p.blockSink(next) < blockSource(nextBB, p.blockVars));
+            p.s.add(p.blockSink(next) < p.blockSource(nextBB));
 
             // next is a predecessor of nextBB
             map_insert(controlPredecessors, nextBB, next);
@@ -688,7 +685,7 @@ namespace DHLS {
     for (int i = 0; i < (int) sortedBlocks.size() - 1; i++) {
       auto next = sortedBlocks[i];
       auto nextBB = sortedBlocks[i + 1];
-      p.s.add(p.blockSink(next) < blockSource(nextBB, p.blockVars));
+      p.s.add(p.blockSink(next) < p.blockSource(nextBB));
     }
 
     // Instructions must finish before their dependencies
