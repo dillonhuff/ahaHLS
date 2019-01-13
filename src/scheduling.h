@@ -1,7 +1,5 @@
 #pragma once
 
-#include "z3++.h"
-
 #include "algorithm.h"
 #include "utils.h"
 
@@ -10,14 +8,6 @@
 
 namespace DHLS {
 
-  z3::expr
-  blockSink(llvm::BasicBlock* const bb,
-            const std::map<llvm::BasicBlock*, std::vector<z3::expr> >& vars);
-
-  z3::expr
-  blockSource(llvm::BasicBlock* const bb,
-              const std::map<llvm::BasicBlock*, std::vector<z3::expr> >& vars);
-  
   std::string typeString(llvm::Type* const tptr);
   std::string instructionString(llvm::Instruction* const iptr);
   std::string valueString(llvm::Value* const iptr);
@@ -574,28 +564,18 @@ namespace DHLS {
   public:
     int blockNo;
     
-    //std::map<llvm::Instruction*, std::vector<z3::expr> > schedVars;
-
     std::map<llvm::Instruction*, std::vector<std::string> > schedVarNames;
-
-    //std::map<llvm::BasicBlock*, std::vector<z3::expr> > blockVars;
     std::map<llvm::BasicBlock*, std::vector<std::string> > blockVarNames;
-
-    //std::map<llvm::BasicBlock*, std::vector<z3::expr> > IIs;
-
     std::map<llvm::BasicBlock*, std::string> IInames;
 
     std::vector<LinearConstraint> constraints;
 
-    z3::context c;
-    z3::solver s;
-
     HardwareConstraints hdc;
 
     SchedulingProblem(const HardwareConstraints& hcs_) :
-      blockNo(0), s(c), hdc(hcs_) {}
+      blockNo(0), hdc(hcs_) {}
 
-    SchedulingProblem() : s(c) {
+    SchedulingProblem() {
       blockNo = 0;
     }
 
@@ -613,14 +593,6 @@ namespace DHLS {
       return blockNo;
     }
 
-    // z3::expr blockSource(llvm::BasicBlock* bb) {
-    //   return dbhc::map_find(bb, blockVars).front();
-    // }
-
-    // z3::expr blockSink(llvm::BasicBlock* bb) {
-    //   return dbhc::map_find(bb, blockVars).back();
-    // }
-    
     LinearExpression blockStart(llvm::BasicBlock* bb) {
       return LinearExpression(dbhc::map_find(bb, blockVarNames).front());
     }
@@ -667,7 +639,6 @@ namespace DHLS {
   static inline
   LinearExpression
   operator-(const LinearExpression left, const LinearExpression right) {
-    //std::cout << "difference between " << left << " and " << right << " = " << left.sub(right) << std::endl;
     return left.sub(right);
   }
 

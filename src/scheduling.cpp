@@ -1,5 +1,7 @@
 #include "scheduling.h"
 
+#include "z3++.h"
+
 #include <llvm/IR/Instructions.h>
 
 #include <llvm/Analysis/OrderedBasicBlock.h>
@@ -177,26 +179,6 @@ namespace DHLS {
     return ss.str();
   }
   
-  // expr blockSource(BasicBlock* const bb,
-  //                  const map<BasicBlock*, vector<expr> >& vars) {
-  //   return map_find(bb, vars).front();
-  // }
-
-  // expr blockSink(BasicBlock* const bb,
-  //                const map<BasicBlock*, vector<expr> >& vars) {
-  //   return map_find(bb, vars).back();
-  // }
-
-  expr instrStart(Instruction* const bb,
-                  const map<Instruction*, vector<expr> >& vars) {
-    return map_find(bb, vars).front();
-  }
-
-  expr instrEnd(Instruction* const bb,
-                const map<Instruction*, vector<expr> >& vars) {
-    return map_find(bb, vars).back();
-  }
-
   int HardwareConstraints::getLatency(Instruction* iptr) const {
     int latency;
     if (ReturnInst::classof(iptr)) {
@@ -291,8 +273,11 @@ namespace DHLS {
 
   Schedule buildFromModel(SchedulingProblem& p) {
 
+    z3::context c;
+    z3::solver s(c);
+    
     for (auto& constraint : p.constraints) {
-      p.s.add(toZ3(p.c, constraint));
+      s.add(toZ3(c, constraint));
     }
 
     // cout << "Solver constraints" << endl;
@@ -301,7 +286,7 @@ namespace DHLS {
     //auto& schedVars = p.schedVars;
     //auto& blockVars = p.blockVars;
     //auto& pipelineSchedules = p.IIs;
-    auto& s = p.s;
+    //auto& s = p.s;
     
     auto satRes = s.check();
 
@@ -322,15 +307,15 @@ namespace DHLS {
       auto srcExpr = blk.second.front();
       auto snkExpr = blk.second.back();
 
-      map_insert(sched.blockTimes, blk.first, (int) m.eval(p.c.int_const(srcExpr.c_str())).get_numeral_int64());
-      map_insert(sched.blockTimes, blk.first, (int) m.eval(p.c.int_const(snkExpr.c_str())).get_numeral_int64());
+      map_insert(sched.blockTimes, blk.first, (int) m.eval(c.int_const(srcExpr.c_str())).get_numeral_int64());
+      map_insert(sched.blockTimes, blk.first, (int) m.eval(c.int_const(snkExpr.c_str())).get_numeral_int64());
       //cout << srcExpr << " = " << m.eval(srcExpr) << endl;
       //cout << snkExpr << " = " << m.eval(snkExpr) << endl;
     }
 
     for (auto v : p.schedVarNames) {//schedVars) {
       for (auto ex : v.second) {
-        map_insert(sched.instrTimes, v.first, (int) m.eval(p.c.int_const(ex.c_str())).get_numeral_int64());
+        map_insert(sched.instrTimes, v.first, (int) m.eval(c.int_const(ex.c_str())).get_numeral_int64());
         //cout << ex << " = " << m.eval(ex) << endl;
       }
     }
@@ -339,7 +324,7 @@ namespace DHLS {
       //vector<expr>& iiVec = s.second;
       //int ii = m.eval(iiVec[0]).get_numeral_int64();
       int ii =
-        m.eval(p.c.int_const(p.getIIName(s.first).c_str())).get_numeral_int64();
+        m.eval(c.int_const(p.getIIName(s.first).c_str())).get_numeral_int64();
       //cout << iiVec[0] << " = " << ii << endl;
       sched.pipelineSchedules[s.first] = ii;
     }
@@ -681,7 +666,7 @@ namespace DHLS {
     int i = 0;
     for (auto bb : toPipeline) {
       string iiName = string("II_") + to_string(i);
-      expr iiE = p.c.int_const(iiName.c_str());
+      //expr iiE = c.int_const(iiName.c_str());
       //p.s.add(0 < ii);
       //map_insert(p.IIs, bb, iiE);
       p.IInames.insert({bb, iiName});
