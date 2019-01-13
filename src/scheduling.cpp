@@ -53,7 +53,7 @@ namespace DHLS {
                             std::set<BasicBlock*>& toPipeline,
                             AAResults& aliasAnalysis,
                             ScalarEvolution& scalarEvolution);
-  
+
   struct SkeletonPass : public FunctionPass {
     static char ID;
     Function* target;
@@ -654,9 +654,7 @@ namespace DHLS {
   SchedulingProblem
   createSchedulingProblem(llvm::Function* f,
                           HardwareConstraints& hdc,
-                          std::set<BasicBlock*>& toPipeline,
-                          AAResults& aliasAnalysis,
-                          ScalarEvolution& sc) {
+                          std::set<BasicBlock*>& toPipeline) {
     SchedulingProblem p(hdc);
 
     for (auto& bb : f->getBasicBlockList()) {
@@ -718,6 +716,18 @@ namespace DHLS {
       p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
     }
 
+
+    return p;
+  }
+  
+  SchedulingProblem
+  createSchedulingProblem(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          std::set<BasicBlock*>& toPipeline,
+                          AAResults& aliasAnalysis,
+                          ScalarEvolution& sc) {
+    auto p = createSchedulingProblem(f, hdc, toPipeline);
+    
     // Instructions must finish before their dependencies
     for (auto& bb : f->getBasicBlockList()) {
 
