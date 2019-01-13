@@ -365,7 +365,7 @@ namespace DHLS {
     std::string start = srcPre + std::to_string(blockNo);
     std::string end = snkPre + std::to_string(blockNo);
 
-    blockVars[bb] = {c.int_const(start.c_str()), c.int_const(end.c_str())};
+    //blockVars[bb] = {c.int_const(start.c_str()), c.int_const(end.c_str())};
     blockVarNames[bb] = {start, end};
 
     // Basic blocks cannot start before the beginning of time
@@ -381,12 +381,12 @@ namespace DHLS {
 
       int latency = getLatency(iptr, hdc);
 
-      schedVars[iptr] = {};
+      //schedVars[iptr] = {};
       schedVarNames[iptr] = {};
 
       string instrPre = string(iptr->getOpcodeName()) + "_" + to_string(blockNumber()) + "_" + to_string(instrNo);
       for (int i = 0; i <= latency; i++) {
-        map_insert(schedVars, iptr, c.int_const((instrPre + "_" + to_string(i)).c_str()));
+        //map_insert(schedVars, iptr, c.int_const((instrPre + "_" + to_string(i)).c_str()));
         map_insert(schedVarNames, iptr, (instrPre + "_" + to_string(i)));
       }
 
@@ -406,8 +406,8 @@ namespace DHLS {
 
     for (auto& instruction : *bb) {
       auto iptr = &instruction;
-      auto svs = map_find(iptr, schedVars);
-      assert(svs.size() > 0);
+      //auto svs = map_find(iptr, schedVars);
+      //assert(svs.size() > 0);
 
       // Operations must be processed within the basic block that contains them
       addConstraint(instrStart(iptr) >= blockStart(bb));
@@ -417,7 +417,7 @@ namespace DHLS {
       //s.add(svs.back() <= blockSink(bb));
 
       // Operations with latency N take N clock ticks to finish
-      for (int i = 1; i < (int) svs.size(); i++) {
+      for (int i = 1; i < (int) numStages(iptr); i++) {
         addConstraint((instrStage(iptr, i - 1) + 1) == instrStage(iptr, i));
         //s.add(svs[i - 1] + 1 == svs[i]);
       }
@@ -683,7 +683,7 @@ namespace DHLS {
       string iiName = string("II_") + to_string(i);
       expr iiE = p.c.int_const(iiName.c_str());
       //p.s.add(0 < ii);
-      map_insert(p.IIs, bb, iiE);
+      //map_insert(p.IIs, bb, iiE);
       p.IInames.insert({bb, iiName});
 
       auto ii = p.getII(bb);

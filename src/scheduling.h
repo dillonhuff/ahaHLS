@@ -574,14 +574,14 @@ namespace DHLS {
   public:
     int blockNo;
     
-    std::map<llvm::Instruction*, std::vector<z3::expr> > schedVars;
+    //std::map<llvm::Instruction*, std::vector<z3::expr> > schedVars;
 
     std::map<llvm::Instruction*, std::vector<std::string> > schedVarNames;
 
-    std::map<llvm::BasicBlock*, std::vector<z3::expr> > blockVars;
+    //std::map<llvm::BasicBlock*, std::vector<z3::expr> > blockVars;
     std::map<llvm::BasicBlock*, std::vector<std::string> > blockVarNames;
 
-    std::map<llvm::BasicBlock*, std::vector<z3::expr> > IIs;
+    //std::map<llvm::BasicBlock*, std::vector<z3::expr> > IIs;
 
     std::map<llvm::BasicBlock*, std::string> IInames;
 
@@ -613,13 +613,13 @@ namespace DHLS {
       return blockNo;
     }
 
-    z3::expr blockSource(llvm::BasicBlock* bb) {
-      return dbhc::map_find(bb, blockVars).front();
-    }
+    // z3::expr blockSource(llvm::BasicBlock* bb) {
+    //   return dbhc::map_find(bb, blockVars).front();
+    // }
 
-    z3::expr blockSink(llvm::BasicBlock* bb) {
-      return dbhc::map_find(bb, blockVars).back();
-    }
+    // z3::expr blockSink(llvm::BasicBlock* bb) {
+    //   return dbhc::map_find(bb, blockVars).back();
+    // }
     
     LinearExpression blockStart(llvm::BasicBlock* bb) {
       return LinearExpression(dbhc::map_find(bb, blockVarNames).front());
@@ -637,9 +637,13 @@ namespace DHLS {
     LinearExpression instrStage(llvm::Instruction* instr, const int i) {
       return LinearExpression(dbhc::map_find(instr, schedVarNames).at(i));
     }
-    
+
     LinearExpression instrEnd(llvm::Instruction* instr) {
       return LinearExpression(dbhc::map_find(instr, schedVarNames).back());
+    }
+
+    int numStages(llvm::Instruction* instr) {
+      return (int) dbhc::map_find(instr, schedVarNames).size();
     }
     
     void addBasicBlock(llvm::BasicBlock* const bb);
