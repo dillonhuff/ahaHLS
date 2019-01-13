@@ -726,5 +726,6 @@ namespace DHLS {
   operator<(const int left, const LinearExpression right) {
     return {LinearExpression(left) - right, CMP_LTZ};
   }
-  
+
+  Schedule buildFromModel(SchedulingProblem& p);
 }

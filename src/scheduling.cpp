@@ -21,6 +21,14 @@ using namespace z3;
 
 namespace DHLS {
 
+  void
+  addMemoryConstraints(llvm::Function* f,
+                       HardwareConstraints& hdc,
+                       std::set<BasicBlock*>& toPipeline,
+                       AAResults& aliasAnalysis,
+                       ScalarEvolution& sc,
+                       SchedulingProblem& p);
+  
   std::ostream& operator<<(std::ostream& out, const GuardedInstruction& t) {
     std::string str;
     llvm::raw_string_ostream ss(str);
@@ -61,6 +69,8 @@ namespace DHLS {
     std::set<BasicBlock*>& toPipeline;
 
     Schedule schedule;
+
+    std::map<Function*, SchedulingProblem> functionConstraints;
     
     SkeletonPass(Function* target_,
                  HardwareConstraints& hdc_,
@@ -94,12 +104,25 @@ namespace DHLS {
 
       AAResults& a = getAnalysis<AAResultsWrapperPass>().getAAResults();
       ScalarEvolution& sc = getAnalysis<ScalarEvolutionWrapperPass>().getSE();
-        
+
+      if (!contains_key(&F, functionConstraints)) {
       schedule = scheduleFunction(&F,
                                   hdc,
                                   toPipeline,
                                   a,
                                   sc);
+      } else {
+        SchedulingProblem p = map_find(&F, functionConstraints);
+        addMemoryConstraints(&F,
+                           hdc,
+                           toPipeline,
+                           a,
+                           sc,
+                           p);
+
+        schedule = buildFromModel(p);
+        
+      }
 
       return false;
     }
