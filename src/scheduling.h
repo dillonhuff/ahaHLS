@@ -729,9 +729,16 @@ namespace DHLS {
 
   Schedule buildFromModel(SchedulingProblem& p);
 
+  // TODO: Add incremental support for building scheduling constraints?
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
                             std::set<llvm::BasicBlock*>& toPipeline,
                             std::map<llvm::Function*, SchedulingProblem>& constraints);
+
+  SchedulingProblem
+  createSchedulingProblem(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          std::set<llvm::BasicBlock*>& toPipeline);
+  
   
 }

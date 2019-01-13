@@ -2184,21 +2184,6 @@ namespace DHLS {
         for (int col = 0; col < 2; col++) {
           Value* aVal = nullptr;
 
-          // if (row == 0) {
-          //   aVal = aRowVals[col];
-          // } else {
-          //   // Add row num to index
-          //   aVal = loadReg(b, rightRegisters[col]);
-          // }
-
-          // Value* bVal = nullptr;
-          // if (col == 0) {
-          //   bVal = bColVals[row];
-          // } else {
-          //   // Add row num to index
-          //   bVal = loadReg(b, downRegisters[row]);
-          // }
-
           if (col == 0) {
             aVal = aRowVals[row];
           } else {
@@ -2257,7 +2242,27 @@ namespace DHLS {
 
     hcs.setCount(MUL_OP, 4);
 
-    Schedule s = scheduleFunction(f, hcs);
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    // Add gep restriction
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instrR : bb) {
+        auto instr = &instrR;
+        int numUsers = 0;
+        for (auto& user : instr->uses()) {
+          numUsers++;
+        }
+
+        if (GetElementPtrInst::classof(instr) && (numUsers == 1)) {
+          auto& user = *(instr->uses().begin());
+          assert(Instruction::classof(user));
+          auto userInstr = dyn_cast<Instruction>(user.getUser());
+          p.addConstraint(p.instrEnd(instr) == p.instrStart(userInstr));
+        }
+      }
+    }
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
     STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
