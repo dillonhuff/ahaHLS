@@ -646,10 +646,12 @@ namespace DHLS {
     if (constraint.cond == CMP_GTEZ) {
       return e >= 0;
     } else if (constraint.cond == CMP_LTEZ) {
-      cout << "LTEZ constraint = " << (e <= 0) << endl;
+      //cout << "LTEZ constraint = " << (e <= 0) << endl;
       return e <= 0;
     } else if (constraint.cond == CMP_EQZ) {
       return e == 0;      
+    } else if (constraint.cond == CMP_LTZ) {
+      return e < 0;
     } else {
       assert(false);
     }
@@ -669,9 +671,15 @@ namespace DHLS {
 
     int i = 0;
     for (auto bb : toPipeline) {
-      expr ii = p.c.int_const((string("II_") + to_string(i)).c_str());
-      p.s.add(0 < ii);
-      map_insert(p.IIs, bb, ii);
+      string iiName = string("II_") + to_string(i);
+      expr iiE = p.c.int_const(iiName.c_str());
+      //p.s.add(0 < ii);
+      map_insert(p.IIs, bb, iiE);
+      p.IInames.insert({bb, iiName});
+
+      auto ii = p.getII(bb);
+      p.addConstraint(0 < ii);
+      
       i++;
     }
     
@@ -695,7 +703,8 @@ namespace DHLS {
         for (auto* nextBB : dyn_cast<TerminatorInst>(term)->successors()) {
           if (!elem(nextBB, alreadyVisited)) {
 
-            p.s.add(p.blockSink(next) < p.blockSource(nextBB));
+            //p.s.add(p.blockSink(next) < p.blockSource(nextBB));
+            p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
 
             // next is a predecessor of nextBB
             map_insert(controlPredecessors, nextBB, next);
@@ -711,7 +720,8 @@ namespace DHLS {
     for (int i = 0; i < (int) sortedBlocks.size() - 1; i++) {
       auto next = sortedBlocks[i];
       auto nextBB = sortedBlocks[i + 1];
-      p.s.add(p.blockSink(next) < p.blockSource(nextBB));
+      //p.s.add(p.blockSink(next) < p.blockSource(nextBB));
+      p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
     }
 
     // Instructions must finish before their dependencies
@@ -728,7 +738,8 @@ namespace DHLS {
 
           if (!PHINode::classof(userInstr)) {
 
-            p.s.add(instrEnd(iptr, p.schedVars) <= instrStart(userInstr, p.schedVars));
+            //p.s.add(instrEnd(iptr, p.schedVars) <= instrStart(userInstr, p.schedVars));
+            p.addConstraint(p.instrEnd(iptr) <= p.instrStart(userInstr));
             cout << instructionString(iptr) << " must finish before " << instructionString(userInstr) << endl;
           }
         }
@@ -749,7 +760,8 @@ namespace DHLS {
               AliasResult aliasRes = aliasAnalysis.alias(load0, load1);
               if (aliasRes != NoAlias) {
 
-                p.s.add(instrEnd(&instr, p.schedVars) <= instrStart(&otherInstr, p.schedVars));
+                //p.s.add(instrEnd(&instr, p.schedVars) <= instrStart(&otherInstr, p.schedVars));
+                p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
               }
             }
 
@@ -760,7 +772,8 @@ namespace DHLS {
               
               AliasResult aliasRes = aliasAnalysis.alias(store0, store1);
               if (aliasRes != NoAlias) {
-                p.s.add(instrEnd(&instr, p.schedVars) <= instrStart(&otherInstr, p.schedVars));
+                //p.s.add(instrEnd(&instr, p.schedVars) <= instrStart(&otherInstr, p.schedVars));
+                p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
               }
             }
             
@@ -774,7 +787,8 @@ namespace DHLS {
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
               if (aliasRes != NoAlias) {
 
-                p.s.add(instrEnd(&instr, p.schedVars) <= instrStart(&otherInstr, p.schedVars));
+                //p.s.add(instrEnd(&instr, p.schedVars) <= instrStart(&otherInstr, p.schedVars));
+                p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
               }
             }
 
@@ -786,7 +800,8 @@ namespace DHLS {
               // TODO: Add SCEV analysis
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, otherStoreLoc);
               if (aliasRes != NoAlias) {
-                p.s.add(instrEnd(&instr, p.schedVars) < instrEnd(&otherInstr, p.schedVars));
+                //p.s.add(instrEnd(&instr, p.schedVars) < instrEnd(&otherInstr, p.schedVars));
+                p.addConstraint(p.instrEnd(&instr) < p.instrEnd(&otherInstr));
               }
             }
 
@@ -798,7 +813,8 @@ namespace DHLS {
               // TODO: Add SCEV analysis
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
               if (aliasRes != NoAlias) {
-                p.s.add(instrStart(&instr, p.schedVars) < instrStart(&otherInstr, p.schedVars));
+                //p.s.add(instrStart(&instr, p.schedVars) < instrStart(&otherInstr, p.schedVars));
+                p.addConstraint(p.instrStart(&instr) < p.instrStart(&otherInstr));
               }
             }
             
@@ -854,7 +870,8 @@ namespace DHLS {
             auto next = iGroups[i + 1];
             for (auto preI : gp) {
               for (auto nextI : next) {
-                p.s.add(instrEnd(preI, p.schedVars) < instrStart(nextI, p.schedVars));
+                //p.s.add(instrEnd(preI, p.schedVars) < instrStart(nextI, p.schedVars));
+                p.addConstraint(p.instrEnd(preI) < p.instrStart(nextI));
               }
             }
           }
@@ -865,7 +882,8 @@ namespace DHLS {
           // Make sure subsequent pipelined loop iterations obey
           // the resource partial order
           if (elem(&bb, toPipeline)) {
-            auto II = map_find(&bb, p.IIs).at(0);
+            //auto II = map_find(&bb, p.IIs).at(0);
+            auto II = p.getII(&bb); //map_find(&bb, p.IIs).at(0);
 
             assert(iGroups.front().size() > 0);
             assert(iGroups.at(iGroups.size() - 1).size() > 0);
@@ -873,7 +891,8 @@ namespace DHLS {
             for (auto firstI : iGroups.front()) {
               for (auto lastI : iGroups.back()) {
                 //cout << "adding constraint on " << valueString(firstI) << " and " << valueString(lastI) << endl;
-                p.s.add(instrEnd(lastI, p.schedVars) < II + instrStart(firstI, p.schedVars));
+                //p.s.add(instrEnd(lastI, p.schedVars) < II + instrStart(firstI, p.schedVars));
+                p.addConstraint(p.instrEnd(lastI) < II + p.instrStart(firstI));
               }
             }
 
@@ -886,13 +905,15 @@ namespace DHLS {
     DominatorTree domTree(*f);
     for (auto& bb : f->getBasicBlockList()) {
       if (elem(&bb, toPipeline)) {
-        auto II = map_find(&bb, p.IIs).at(0);
+        //auto II = map_find(&bb, p.IIs).at(0);
+        LinearExpression II = p.getII(&bb);
 
         for (Instruction& instrA : bb) {
           for (Instruction& instrB : bb) {
             int rawDD = rawOperandDD(&instrA, &instrB, domTree);
             if (rawDD > 0) {
-              p.s.add(instrEnd(&instrA, p.schedVars) < II*rawDD + instrStart(&instrB, p.schedVars));
+              //p.s.add(instrEnd(&instrA, p.schedVars) < II*rawDD + instrStart(&instrB, p.schedVars));
+              p.addConstraint(p.instrEnd(&instrA) < II*rawDD + p.instrStart(&instrB));
             }
 
             if (StoreInst::classof(&instrA) &&
@@ -902,7 +923,8 @@ namespace DHLS {
                                          aliasAnalysis,
                                          sc);
               if (memRawDD > 0) {
-                p.s.add(instrEnd(&instrA, p.schedVars) < II*memRawDD + instrStart(&instrB, p.schedVars));
+                //p.s.add(instrEnd(&instrA, p.schedVars) < II*memRawDD + instrStart(&instrB, p.schedVars));
+                p.addConstraint(p.instrEnd(&instrA) < II*memRawDD + p.instrStart(&instrB));
               }
             }
           }

@@ -494,6 +494,14 @@ namespace DHLS {
     LinearExpression(std::map<std::string, int>& vars_, const int c_) :
       vars(vars_), c(c_) {}
 
+    LinearExpression scalarMul(const int k) const {
+      std::map<std::string, int> mulVars;
+      for (auto v : vars) {
+        mulVars.insert({v.first, k*v.second});
+      }
+      return {mulVars, k*getCoeff()};
+    }
+    
     LinearExpression sub(const LinearExpression& right) const {
       std::map<std::string, int> subVars;
       auto rightVars = right.getVars();
@@ -575,6 +583,8 @@ namespace DHLS {
 
     std::map<llvm::BasicBlock*, std::vector<z3::expr> > IIs;
 
+    std::map<llvm::BasicBlock*, std::string> IInames;
+
     std::vector<LinearConstraint> constraints;
 
     z3::context c;
@@ -589,6 +599,11 @@ namespace DHLS {
       blockNo = 0;
     }
 
+    LinearExpression getII(llvm::BasicBlock* bb) const {
+      std::string val = dbhc::map_find(bb, IInames);
+      return LinearExpression(val);
+    }
+    
     int blockNumber() const {
       return blockNo;
     }
@@ -652,6 +667,12 @@ namespace DHLS {
   operator+(const LinearExpression left, const LinearExpression right) {
     return left.add(right);
   }
+
+  static inline
+  LinearExpression
+  operator*(const LinearExpression left, const int c) {
+    return left.scalarMul(c);
+  }
   
   static inline
   LinearConstraint
@@ -705,6 +726,25 @@ namespace DHLS {
   LinearConstraint
   operator==(const int left, const LinearExpression right) {
     return {LinearExpression(left) - right, CMP_EQZ};
+  }
+
+  // ---
+  static inline
+  LinearConstraint
+  operator<(const LinearExpression left, const LinearExpression right) {
+    return {left - right, CMP_LTZ};
+  }
+
+  static inline
+  LinearConstraint
+  operator<(const LinearExpression left, const int right) {
+    return {left - LinearExpression(right), CMP_LTZ};
+  }
+
+  static inline
+  LinearConstraint
+  operator<(const int left, const LinearExpression right) {
+    return {LinearExpression(left) - right, CMP_LTZ};
   }
   
 }
