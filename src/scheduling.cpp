@@ -432,13 +432,22 @@ namespace DHLS {
     }
 
   }
-  
+
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
                             std::set<BasicBlock*>& toPipeline) {
+    map<Function*, SchedulingProblem> cs;
+    return scheduleFunction(f, hdc, toPipeline, cs);
+  }  
+
+  Schedule scheduleFunction(llvm::Function* f,
+                            HardwareConstraints& hdc,
+                            std::set<BasicBlock*>& toPipeline,
+                            std::map<Function*, SchedulingProblem>& constraints) {
 
     llvm::legacy::PassManager pm;
     auto skeleton = new SkeletonPass(f, hdc, toPipeline);
+    skeleton->functionConstraints = constraints;
     pm.add(new LoopInfoWrapperPass());
     pm.add(new AAResultsWrapperPass());
     pm.add(new TargetLibraryInfoWrapperPass());

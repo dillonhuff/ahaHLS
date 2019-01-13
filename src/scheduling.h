@@ -728,4 +728,10 @@ namespace DHLS {
   }
 
   Schedule buildFromModel(SchedulingProblem& p);
+
+  Schedule scheduleFunction(llvm::Function* f,
+                            HardwareConstraints& hdc,
+                            std::set<llvm::BasicBlock*>& toPipeline,
+                            std::map<llvm::Function*, SchedulingProblem>& constraints);
+  
 }
