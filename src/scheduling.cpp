@@ -360,11 +360,11 @@ namespace DHLS {
     blockVarNames[bb] = {start, end};
 
     // Basic blocks cannot start before the beginning of time
-    addConstraint(blockStart(bb) >= LinearExpression(0));
+    addConstraint(blockStart(bb) >= 0);
     //s.add(blockSource(bb) >= 0);
     // Basic blocks must start before they finish asdf
-    s.add(blockSource(bb) <= blockSink(bb));
-
+    //s.add(blockSource(bb) <= blockSink(bb));
+    addConstraint(blockStart(bb) <= blockEnd(bb));
 
     int instrNo = 0;
     for (auto& instr : *bb) {
@@ -373,10 +373,12 @@ namespace DHLS {
       int latency = getLatency(iptr, hdc);
 
       schedVars[iptr] = {};
+      schedVarNames[iptr] = {};
 
       string instrPre = string(iptr->getOpcodeName()) + "_" + to_string(blockNumber()) + "_" + to_string(instrNo);
       for (int i = 0; i <= latency; i++) {
         map_insert(schedVars, iptr, c.int_const((instrPre + "_" + to_string(i)).c_str()));
+        map_insert(schedVarNames, iptr, (instrPre + "_" + to_string(i)));
       }
 
       instrNo += 1;
@@ -398,8 +400,11 @@ namespace DHLS {
       assert(svs.size() > 0);
 
       // Operations must be processed within the basic block that contains them
+      //addConstraint(instrStart(iptr) >= blockStart(bb));
+      addConstraint(instrEnd(iptr) <= blockEnd(bb));
+
       s.add(svs.front() >= blockSource(bb));
-      s.add(svs.back() <= blockSink(bb));
+      //s.add(svs.back() <= blockSink(bb));
 
       // Operations with latency N take N clock ticks to finish
       for (int i = 1; i < (int) svs.size(); i++) {
@@ -633,11 +638,14 @@ namespace DHLS {
                 const LinearConstraint& constraint) {
     expr e = c.int_val(constraint.expr.getCoeff());
     for (auto v : constraint.expr.getVars()) {
-      e = v.second*c.int_const(v.first.c_str());
+      e = e + v.second*c.int_const(v.first.c_str());
     }
 
     if (constraint.cond == CMP_GTEZ) {
       return e >= 0;
+    } else if (constraint.cond == CMP_LTEZ) {
+      cout << "LTEZ constraint = " << (e <= 0) << endl;
+      return e <= 0;
     } else {
       assert(false);
     }
@@ -658,7 +666,7 @@ namespace DHLS {
     int i = 0;
     for (auto bb : toPipeline) {
       expr ii = p.c.int_const((string("II_") + to_string(i)).c_str());
-      p.s.add(0 < ii);      
+      p.s.add(0 < ii);
       map_insert(p.IIs, bb, ii);
       i++;
     }
@@ -898,12 +906,13 @@ namespace DHLS {
       }
     }
 
-    // cout << "Solver constraints" << endl;
-    // cout << p.s << endl;
-
     for (auto& constraint : p.constraints) {
       p.s.add(toZ3(p.c, constraint));
     }
+
+    cout << "Solver constraints" << endl;
+    cout << p.s << endl;
+
     return buildFromModel(p.s, p.schedVars, p.blockVars, p.IIs);
   }
   
