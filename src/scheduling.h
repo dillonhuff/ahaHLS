@@ -10,6 +10,14 @@
 
 namespace DHLS {
 
+  z3::expr
+  blockSink(llvm::BasicBlock* const bb,
+            const std::map<llvm::BasicBlock*, std::vector<z3::expr> >& vars);
+
+  z3::expr
+  blockSource(llvm::BasicBlock* const bb,
+              const std::map<llvm::BasicBlock*, std::vector<z3::expr> >& vars);
+  
   std::string typeString(llvm::Type* const tptr);
   std::string instructionString(llvm::Instruction* const iptr);
   std::string valueString(llvm::Value* const iptr);
@@ -494,6 +502,14 @@ namespace DHLS {
     }
   };
 
+  enum Comparator {
+    CMP_LT,
+    CMP_GT,
+    CMP_LTE,
+    CMP_GTE,
+    CMP_EQ
+  };
+
   class SchedulingProblem {
   public:
     int blockNo;
@@ -510,6 +526,10 @@ namespace DHLS {
     z3::context c;
     z3::solver s;
 
+    HardwareConstraints hdc;
+
+    SchedulingProblem(const HardwareConstraints& hcs_) : s(c), hdc(hcs_) {}
+
     SchedulingProblem() : s(c) {
       blockNo = 0;
     }
@@ -518,17 +538,6 @@ namespace DHLS {
       return blockNo;
     }
 
-    void addBasicBlock(llvm::BasicBlock* const bb) {
-      std::string snkPre = "basic_block_end_state_";
-      std::string srcPre = "basic_block_start_state_";
-
-      std::string start = srcPre + std::to_string(blockNo);
-      std::string end = snkPre + std::to_string(blockNo);
-
-      blockVars[bb] = {c.int_const(start.c_str()), c.int_const(end.c_str())};
-      blockVarNames[bb] = {start, end};
-      blockNo++;
-    }
-
+    void addBasicBlock(llvm::BasicBlock* const bb);
   };
 }

@@ -349,50 +349,75 @@ namespace DHLS {
     return count;
   }
 
-  void addScheduleVars(llvm::BasicBlock& bb,
-                       SchedulingProblem& p,
-                       HardwareConstraints& hdc) {
-                       //int& blockNo) {
+  void SchedulingProblem::addBasicBlock(llvm::BasicBlock* const bb) {
+    std::string snkPre = "basic_block_end_state_";
+    std::string srcPre = "basic_block_start_state_";
 
-    cout << "Creating basic blocks" << endl;
+    std::string start = srcPre + std::to_string(blockNo);
+    std::string end = snkPre + std::to_string(blockNo);
 
-    p.addBasicBlock(&bb);
+    blockVars[bb] = {c.int_const(start.c_str()), c.int_const(end.c_str())};
+    blockVarNames[bb] = {start, end};
 
-    //blockNo += 1;
+    // Basic blocks cannot start before the beginning of time
+    s.add(blockSource(bb, blockVars) >= 0);
+    // Basic blocks must start before they finish
+    s.add(blockSource(bb, blockVars) <= blockSink(bb, blockVars));
+
 
     int instrNo = 0;
-    for (auto& instr : bb) {
+    for (auto& instr : *bb) {
       Instruction* iptr = &instr;
 
       int latency = getLatency(iptr, hdc);
 
-      p.schedVars[iptr] = {};
+      schedVars[iptr] = {};
 
-      string instrPre = string(iptr->getOpcodeName()) + "_" + to_string(p.blockNumber()) + "_" + to_string(instrNo);
+      string instrPre = string(iptr->getOpcodeName()) + "_" + to_string(blockNumber()) + "_" + to_string(instrNo);
       for (int i = 0; i <= latency; i++) {
-        map_insert(p.schedVars, iptr, p.c.int_const((instrPre + "_" + to_string(i)).c_str()));
+        map_insert(schedVars, iptr, c.int_const((instrPre + "_" + to_string(i)).c_str()));
       }
 
       instrNo += 1;
     }
-  }
-
-  void addBlockConstraints(llvm::BasicBlock& bb,
-                           SchedulingProblem& p) {
-
-    // Basic blocks cannot start before the beginning of time
-    p.s.add(blockSource(&bb, p.blockVars) >= 0);
-    // Basic blocks must start before they finish
-    p.s.add(blockSource(&bb, p.blockVars) <= blockSink(&bb, p.blockVars));
-
-    Instruction* term = bb.getTerminator();
+    
+    llvm::Instruction* term = bb->getTerminator();
 
     assert(term != nullptr);
     
     // By definition the completion of a branch is the completion of
     // the basic block that contains it.
-    p.s.add(blockSink(&bb, p.blockVars) == map_find(term, p.schedVars).back());
+    s.add(blockSink(bb, blockVars) == dbhc::map_find(term, schedVars).back());
+
+    blockNo++;
   }
+  
+  void addScheduleVars(llvm::BasicBlock& bb,
+                       SchedulingProblem& p,
+                       HardwareConstraints& hdc) {
+
+    cout << "Creating basic blocks" << endl;
+
+    p.addBasicBlock(&bb);
+  }
+
+  // void addBlockConstraints(llvm::BasicBlock& bb,
+  //                          SchedulingProblem& p) {
+
+  //   // Basic blocks cannot start before the beginning of time
+  //   p.s.add(blockSource(&bb, p.blockVars) >= 0);
+  //   // Basic blocks must start before they finish
+  //   p.blockLTE(bb);
+  //   p.s.add(blockSource(&bb, p.blockVars) <= blockSink(&bb, p.blockVars));
+
+  //   Instruction* term = bb.getTerminator();
+
+  //   assert(term != nullptr);
+    
+  //   // By definition the completion of a branch is the completion of
+  //   // the basic block that contains it.
+  //   p.s.add(blockSink(&bb, p.blockVars) == map_find(term, p.schedVars).back());
+  // }
 
   void addLatencyConstraints(llvm::BasicBlock& bb,
                              SchedulingProblem& p) {
@@ -645,13 +670,12 @@ namespace DHLS {
                             AAResults& aliasAnalysis,
                             ScalarEvolution& sc) {
 
-    SchedulingProblem p;
+    SchedulingProblem p(hdc);
 
-    //int blockNo = 0;
     for (auto& bb : f->getBasicBlockList()) {
       
       addScheduleVars(bb, p, hdc);
-      addBlockConstraints(bb, p);
+      //addBlockConstraints(bb, p);
       addLatencyConstraints(bb, p);
 
     }
