@@ -351,14 +351,14 @@ namespace DHLS {
 
   void addScheduleVars(llvm::BasicBlock& bb,
                        SchedulingProblem& p,
-                       HardwareConstraints& hdc,
-                       int& blockNo) {
+                       HardwareConstraints& hdc) {
+                       //int& blockNo) {
 
     cout << "Creating basic blocks" << endl;
 
     p.addBasicBlock(&bb);
 
-    blockNo += 1;
+    //blockNo += 1;
 
     int instrNo = 0;
     for (auto& instr : bb) {
@@ -368,7 +368,7 @@ namespace DHLS {
 
       p.schedVars[iptr] = {};
 
-      string instrPre = string(iptr->getOpcodeName()) + "_" + to_string(blockNo) + "_" + to_string(instrNo);
+      string instrPre = string(iptr->getOpcodeName()) + "_" + to_string(p.blockNumber()) + "_" + to_string(instrNo);
       for (int i = 0; i <= latency; i++) {
         map_insert(p.schedVars, iptr, p.c.int_const((instrPre + "_" + to_string(i)).c_str()));
       }
@@ -647,10 +647,10 @@ namespace DHLS {
 
     SchedulingProblem p;
 
-    int blockNo = 0;
+    //int blockNo = 0;
     for (auto& bb : f->getBasicBlockList()) {
       
-      addScheduleVars(bb, p, hdc, blockNo);
+      addScheduleVars(bb, p, hdc);
       addBlockConstraints(bb, p);
       addLatencyConstraints(bb, p);
 
