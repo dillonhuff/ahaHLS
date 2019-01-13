@@ -286,13 +286,13 @@ namespace DHLS {
     return hdc.getLatency(iptr);
   }
 
-  Schedule buildFromModel(solver& s,
-                          map<Instruction*, vector<expr> >& schedVars,
-                          map<BasicBlock*, vector<expr> >& blockVars,
-                          map<BasicBlock*, vector<expr> >& pipelineSchedules) {
-                          //map<BasicBlock*, int>& pipelineSchedules) {
+  Schedule buildFromModel(SchedulingProblem& p) {
 
-
+    auto& schedVars = p.schedVars;
+    auto& blockVars = p.blockVars;
+    auto& pipelineSchedules = p.IIs;
+    auto& s = p.s;
+    
     auto satRes = s.check();
 
     if (satRes == unsat) {
@@ -319,13 +319,10 @@ namespace DHLS {
     }
 
     for (auto v : schedVars) {
-
-      //if (!contains_key(v.first->getParent(), pipelineSchedules)) {
-        for (auto ex : v.second) {
-          map_insert(sched.instrTimes, v.first, (int) m.eval(ex).get_numeral_int64());
-          cout << ex << " = " << m.eval(ex) << endl;
-        }
-        //}
+      for (auto ex : v.second) {
+        map_insert(sched.instrTimes, v.first, (int) m.eval(ex).get_numeral_int64());
+        cout << ex << " = " << m.eval(ex) << endl;
+      }
     }
 
     for (auto s : pipelineSchedules) {
@@ -939,7 +936,7 @@ namespace DHLS {
     cout << "Solver constraints" << endl;
     cout << p.s << endl;
 
-    return buildFromModel(p.s, p.schedVars, p.blockVars, p.IIs);
+    return buildFromModel(p);
   }
   
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc) {
