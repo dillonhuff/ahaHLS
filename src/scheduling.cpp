@@ -174,15 +174,15 @@ namespace DHLS {
     return ss.str();
   }
   
-  expr blockSource(BasicBlock* const bb,
-                   const map<BasicBlock*, vector<expr> >& vars) {
-    return map_find(bb, vars).front();
-  }
+  // expr blockSource(BasicBlock* const bb,
+  //                  const map<BasicBlock*, vector<expr> >& vars) {
+  //   return map_find(bb, vars).front();
+  // }
 
-  expr blockSink(BasicBlock* const bb,
-                 const map<BasicBlock*, vector<expr> >& vars) {
-    return map_find(bb, vars).back();
-  }
+  // expr blockSink(BasicBlock* const bb,
+  //                const map<BasicBlock*, vector<expr> >& vars) {
+  //   return map_find(bb, vars).back();
+  // }
 
   expr instrStart(Instruction* const bb,
                   const map<Instruction*, vector<expr> >& vars) {
@@ -360,9 +360,9 @@ namespace DHLS {
     blockVarNames[bb] = {start, end};
 
     // Basic blocks cannot start before the beginning of time
-    s.add(blockSource(bb) >= 0);
+    addConstraint(blockStart(bb) >= LinearExpression(0));
+    //s.add(blockSource(bb) >= 0);
     // Basic blocks must start before they finish asdf
-    //s.add(blockSource(bb, blockVars) <= blockSink(bb, blockVars));
     s.add(blockSource(bb) <= blockSink(bb));
 
 
@@ -629,6 +629,20 @@ namespace DHLS {
     return 0;
   }
 
+  z3::expr toZ3(z3::context& c,
+                const LinearConstraint& constraint) {
+    expr e = c.int_val(constraint.expr.getCoeff());
+    for (auto v : constraint.expr.getVars()) {
+      e = v.second*c.int_const(v.first.c_str());
+    }
+
+    if (constraint.cond == CMP_GTEZ) {
+      return e >= 0;
+    } else {
+      assert(false);
+    }
+  }
+  
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
                             std::set<BasicBlock*>& toPipeline,
@@ -886,6 +900,10 @@ namespace DHLS {
 
     // cout << "Solver constraints" << endl;
     // cout << p.s << endl;
+
+    for (auto& constraint : p.constraints) {
+      p.s.add(toZ3(p.c, constraint));
+    }
     return buildFromModel(p.s, p.schedVars, p.blockVars, p.IIs);
   }
   

@@ -479,14 +479,40 @@ namespace DHLS {
 
   HardwareConstraints standardConstraints();
 
-  class LinearConstraint {
+  class LinearExpression {
     std::map<std::string, int> vars;
     int c;
 
   public:
 
-    LinearConstraint(std::map<std::string, int>& vars_, const int c_) :
+    LinearExpression(std::string& var_) :
+      vars({{var_, 1}}), c(0) {}
+
+    LinearExpression(int c_) :
+      vars({}), c(c_) {}
+    
+    LinearExpression(std::map<std::string, int>& vars_, const int c_) :
       vars(vars_), c(c_) {}
+
+    LinearExpression sub(const LinearExpression& right) const {
+      std::map<std::string, int> subVars;
+      auto rightVars = right.getVars();
+      for (auto v : vars) {
+        if (dbhc::contains_key(v.first, rightVars)) {
+          subVars.insert({v.first, v.second - dbhc::map_find(v.first, rightVars)});
+        } else {
+          subVars.insert(v);
+        }
+      }
+
+      for (auto v : rightVars) {
+        if (!dbhc::contains_key(v.first, vars)) {
+          subVars.insert({v.first, -v.second});
+        }
+      }
+
+      return {subVars, c - right.getCoeff()};
+    }
 
     int getCoeff() const {
       return c;
@@ -502,12 +528,18 @@ namespace DHLS {
     }
   };
 
-  enum Comparator {
-    CMP_LT,
-    CMP_GT,
-    CMP_LTE,
-    CMP_GTE,
-    CMP_EQ
+  enum ZCondition {
+    CMP_LTZ,
+    CMP_GTZ,
+    CMP_LTEZ,
+    CMP_GTEZ,
+    CMP_EQZ
+  };
+
+  class LinearConstraint {
+  public:
+    LinearExpression expr;
+    ZCondition cond;
   };
 
   class SchedulingProblem {
@@ -539,14 +571,34 @@ namespace DHLS {
       return blockNo;
     }
 
-    z3::expr blockSink(llvm::BasicBlock* bb) {
-      return dbhc::map_find(bb, blockVars).back();
-    }
-
     z3::expr blockSource(llvm::BasicBlock* bb) {
       return dbhc::map_find(bb, blockVars).front();
     }
+
+    z3::expr blockSink(llvm::BasicBlock* bb) {
+      return dbhc::map_find(bb, blockVars).back();
+    }
     
+    LinearExpression blockStart(llvm::BasicBlock* bb) {
+      return LinearExpression(dbhc::map_find(bb, blockVarNames).front());
+    }
+
     void addBasicBlock(llvm::BasicBlock* const bb);
+
+    void addConstraint(const LinearConstraint& constraint) {
+      constraints.push_back(constraint);
+    }
   };
+
+  static inline
+  LinearExpression
+  operator-(const LinearExpression left, const LinearExpression right) {
+    return left.sub(right);
+  }
+  
+  static inline
+  LinearConstraint
+  operator>=(const LinearExpression left, const LinearExpression right) {
+    return {left - right, CMP_GTEZ};
+  }
 }
