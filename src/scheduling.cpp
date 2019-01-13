@@ -716,17 +716,6 @@ namespace DHLS {
       p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
     }
 
-
-    return p;
-  }
-  
-  SchedulingProblem
-  createSchedulingProblem(llvm::Function* f,
-                          HardwareConstraints& hdc,
-                          std::set<BasicBlock*>& toPipeline,
-                          AAResults& aliasAnalysis,
-                          ScalarEvolution& sc) {
-    auto p = createSchedulingProblem(f, hdc, toPipeline);
     
     // Instructions must finish before their dependencies
     for (auto& bb : f->getBasicBlockList()) {
@@ -748,6 +737,29 @@ namespace DHLS {
           }
         }
 
+        instrInd++;
+
+      }
+    }
+
+    return p;
+  }
+
+  void
+  addMemoryConstraints(llvm::Function* f,
+                       HardwareConstraints& hdc,
+                       std::set<BasicBlock*>& toPipeline,
+                       AAResults& aliasAnalysis,
+                       ScalarEvolution& sc,
+                       SchedulingProblem& p) {
+    // Instructions must finish before their dependencies
+    for (auto& bb : f->getBasicBlockList()) {
+
+      int instrInd = 0;
+
+      for (auto& instr : bb) {
+        //Instruction* iptr = &instr;
+      
         int otherInd = 0;
         for (auto& otherInstr : bb) {
           if (otherInd > instrInd && (&otherInstr != &instr)) {
@@ -930,6 +942,17 @@ namespace DHLS {
         }
       }
     }
+
+  }
+  
+  SchedulingProblem
+  createSchedulingProblem(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          std::set<BasicBlock*>& toPipeline,
+                          AAResults& aliasAnalysis,
+                          ScalarEvolution& sc) {
+    auto p = createSchedulingProblem(f, hdc, toPipeline);
+    addMemoryConstraints(f, hdc, toPipeline, aliasAnalysis, sc, p);
 
     return p;
   }
