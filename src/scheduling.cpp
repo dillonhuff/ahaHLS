@@ -650,13 +650,13 @@ namespace DHLS {
       assert(false);
     }
   }
-  
-  Schedule scheduleFunction(llvm::Function* f,
-                            HardwareConstraints& hdc,
-                            std::set<BasicBlock*>& toPipeline,
-                            AAResults& aliasAnalysis,
-                            ScalarEvolution& sc) {
 
+  SchedulingProblem
+  createSchedulingProblem(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          std::set<BasicBlock*>& toPipeline,
+                          AAResults& aliasAnalysis,
+                          ScalarEvolution& sc) {
     SchedulingProblem p(hdc);
 
     for (auto& bb : f->getBasicBlockList()) {
@@ -877,15 +877,13 @@ namespace DHLS {
           // the resource partial order
           if (elem(&bb, toPipeline)) {
             //auto II = map_find(&bb, p.IIs).at(0);
-            auto II = p.getII(&bb); //map_find(&bb, p.IIs).at(0);
+            auto II = p.getII(&bb);
 
             assert(iGroups.front().size() > 0);
             assert(iGroups.at(iGroups.size() - 1).size() > 0);
 
             for (auto firstI : iGroups.front()) {
               for (auto lastI : iGroups.back()) {
-                //cout << "adding constraint on " << valueString(firstI) << " and " << valueString(lastI) << endl;
-                //p.s.add(instrEnd(lastI, p.schedVars) < II + instrStart(firstI, p.schedVars));
                 p.addConstraint(p.instrEnd(lastI) < II + p.instrStart(firstI));
               }
             }
@@ -899,14 +897,12 @@ namespace DHLS {
     DominatorTree domTree(*f);
     for (auto& bb : f->getBasicBlockList()) {
       if (elem(&bb, toPipeline)) {
-        //auto II = map_find(&bb, p.IIs).at(0);
         LinearExpression II = p.getII(&bb);
 
         for (Instruction& instrA : bb) {
           for (Instruction& instrB : bb) {
             int rawDD = rawOperandDD(&instrA, &instrB, domTree);
             if (rawDD > 0) {
-              //p.s.add(instrEnd(&instrA, p.schedVars) < II*rawDD + instrStart(&instrB, p.schedVars));
               p.addConstraint(p.instrEnd(&instrA) < II*rawDD + p.instrStart(&instrB));
             }
 
@@ -917,7 +913,6 @@ namespace DHLS {
                                          aliasAnalysis,
                                          sc);
               if (memRawDD > 0) {
-                //p.s.add(instrEnd(&instrA, p.schedVars) < II*memRawDD + instrStart(&instrB, p.schedVars));
                 p.addConstraint(p.instrEnd(&instrA) < II*memRawDD + p.instrStart(&instrB));
               }
             }
@@ -925,6 +920,18 @@ namespace DHLS {
         }
       }
     }
+
+    return p;
+  }
+  
+  Schedule scheduleFunction(llvm::Function* f,
+                            HardwareConstraints& hdc,
+                            std::set<BasicBlock*>& toPipeline,
+                            AAResults& aliasAnalysis,
+                            ScalarEvolution& sc) {
+
+    SchedulingProblem p =
+      createSchedulingProblem(f, hdc, toPipeline, aliasAnalysis, sc);
 
     return buildFromModel(p);
   }
