@@ -295,12 +295,12 @@ namespace DHLS {
       p.s.add(toZ3(p.c, constraint));
     }
 
-    cout << "Solver constraints" << endl;
-    cout << p.s << endl;
+    // cout << "Solver constraints" << endl;
+    // cout << p.s << endl;
 
-    auto& schedVars = p.schedVars;
-    auto& blockVars = p.blockVars;
-    auto& pipelineSchedules = p.IIs;
+    //auto& schedVars = p.schedVars;
+    //auto& blockVars = p.blockVars;
+    //auto& pipelineSchedules = p.IIs;
     auto& s = p.s;
     
     auto satRes = s.check();
@@ -315,30 +315,32 @@ namespace DHLS {
     // cout << "Final model" << endl;
     // cout << m << endl;
     
-    cout << "Final schedule" << endl;
+    //cout << "Final schedule" << endl;
     Schedule sched;
     
-    for (auto blk : blockVars) {
+    for (auto blk : p.blockVarNames) {
       auto srcExpr = blk.second.front();
       auto snkExpr = blk.second.back();
 
-      map_insert(sched.blockTimes, blk.first, (int) m.eval(srcExpr).get_numeral_int64());
-      map_insert(sched.blockTimes, blk.first, (int) m.eval(snkExpr).get_numeral_int64());
-      cout << srcExpr << " = " << m.eval(srcExpr) << endl;
-      cout << snkExpr << " = " << m.eval(snkExpr) << endl;
+      map_insert(sched.blockTimes, blk.first, (int) m.eval(p.c.int_const(srcExpr.c_str())).get_numeral_int64());
+      map_insert(sched.blockTimes, blk.first, (int) m.eval(p.c.int_const(snkExpr.c_str())).get_numeral_int64());
+      //cout << srcExpr << " = " << m.eval(srcExpr) << endl;
+      //cout << snkExpr << " = " << m.eval(snkExpr) << endl;
     }
 
-    for (auto v : schedVars) {
+    for (auto v : p.schedVarNames) {//schedVars) {
       for (auto ex : v.second) {
-        map_insert(sched.instrTimes, v.first, (int) m.eval(ex).get_numeral_int64());
-        cout << ex << " = " << m.eval(ex) << endl;
+        map_insert(sched.instrTimes, v.first, (int) m.eval(p.c.int_const(ex.c_str())).get_numeral_int64());
+        //cout << ex << " = " << m.eval(ex) << endl;
       }
     }
 
-    for (auto s : pipelineSchedules) {
-      vector<expr>& iiVec = s.second;
-      int ii = m.eval(iiVec[0]).get_numeral_int64();
-      cout << iiVec[0] << " = " << ii << endl;
+    for (auto s : p.IInames) {
+      //vector<expr>& iiVec = s.second;
+      //int ii = m.eval(iiVec[0]).get_numeral_int64();
+      int ii =
+        m.eval(p.c.int_const(p.getIIName(s.first).c_str())).get_numeral_int64();
+      //cout << iiVec[0] << " = " << ii << endl;
       sched.pipelineSchedules[s.first] = ii;
     }
     //sched.pipelineSchedules = pipelineSchedules;

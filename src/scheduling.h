@@ -485,7 +485,7 @@ namespace DHLS {
 
   public:
 
-    LinearExpression(std::string& var_) :
+    LinearExpression(const std::string var_) :
       vars({{var_, 1}}), c(0) {}
 
     LinearExpression(int c_) :
@@ -599,9 +599,14 @@ namespace DHLS {
       blockNo = 0;
     }
 
-    LinearExpression getII(llvm::BasicBlock* bb) const {
+    std::string getIIName(llvm::BasicBlock* bb) const {
       std::string val = dbhc::map_find(bb, IInames);
-      return LinearExpression(val);
+      return val;
+    }
+    
+    LinearExpression getII(llvm::BasicBlock* bb) const {
+      std::string val = getIIName(bb);
+      return LinearExpression(getIIName(bb));
     }
     
     int blockNumber() const {
