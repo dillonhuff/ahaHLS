@@ -514,6 +514,26 @@ namespace DHLS {
       return {subVars, c - right.getCoeff()};
     }
 
+    LinearExpression add(const LinearExpression& right) const {
+      std::map<std::string, int> addVars;
+      auto rightVars = right.getVars();
+      for (auto v : vars) {
+        if (dbhc::contains_key(v.first, rightVars)) {
+          addVars.insert({v.first, v.second + dbhc::map_find(v.first, rightVars)});
+        } else {
+          addVars.insert(v);
+        }
+      }
+
+      for (auto v : rightVars) {
+        if (!dbhc::contains_key(v.first, vars)) {
+          addVars.insert({v.first, v.second});
+        }
+      }
+
+      return {addVars, c + right.getCoeff()};
+    }
+    
     int getCoeff() const {
       return c;
     }
@@ -594,6 +614,10 @@ namespace DHLS {
       return LinearExpression(dbhc::map_find(instr, schedVarNames).front());
     }
 
+    LinearExpression instrStage(llvm::Instruction* instr, const int i) {
+      return LinearExpression(dbhc::map_find(instr, schedVarNames).at(i));
+    }
+    
     LinearExpression instrEnd(llvm::Instruction* instr) {
       return LinearExpression(dbhc::map_find(instr, schedVarNames).back());
     }
@@ -619,8 +643,14 @@ namespace DHLS {
   static inline
   LinearExpression
   operator-(const LinearExpression left, const LinearExpression right) {
-    std::cout << "difference between " << left << " and " << right << " = " << left.sub(right) << std::endl;
+    //std::cout << "difference between " << left << " and " << right << " = " << left.sub(right) << std::endl;
     return left.sub(right);
+  }
+
+  static inline
+  LinearExpression
+  operator+(const LinearExpression left, const LinearExpression right) {
+    return left.add(right);
   }
   
   static inline
@@ -657,6 +687,24 @@ namespace DHLS {
   LinearConstraint
   operator<=(const int left, const LinearExpression right) {
     return {LinearExpression(left) - right, CMP_LTEZ};
+  }
+
+  static inline
+  LinearConstraint
+  operator==(const LinearExpression left, const LinearExpression right) {
+    return {left - right, CMP_EQZ};
+  }
+
+  static inline
+  LinearConstraint
+  operator==(const LinearExpression left, const int right) {
+    return {left - LinearExpression(right), CMP_EQZ};
+  }
+
+  static inline
+  LinearConstraint
+  operator==(const int left, const LinearExpression right) {
+    return {LinearExpression(left) - right, CMP_EQZ};
   }
   
 }

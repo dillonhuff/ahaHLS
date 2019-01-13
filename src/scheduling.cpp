@@ -390,7 +390,8 @@ namespace DHLS {
     
     // By definition the completion of a branch is the completion of
     // the basic block that contains it.
-    s.add(blockSink(bb) == dbhc::map_find(term, schedVars).back());
+    //s.add(blockSink(bb) == dbhc::map_find(term, schedVars).back());
+    addConstraint(blockEnd(bb) == instrEnd(term));
 
     blockNo++;
 
@@ -400,15 +401,16 @@ namespace DHLS {
       assert(svs.size() > 0);
 
       // Operations must be processed within the basic block that contains them
-      //addConstraint(instrStart(iptr) >= blockStart(bb));
+      addConstraint(instrStart(iptr) >= blockStart(bb));
       addConstraint(instrEnd(iptr) <= blockEnd(bb));
 
-      s.add(svs.front() >= blockSource(bb));
+      //s.add(svs.front() >= blockSource(bb));
       //s.add(svs.back() <= blockSink(bb));
 
       // Operations with latency N take N clock ticks to finish
       for (int i = 1; i < (int) svs.size(); i++) {
-        s.add(svs[i - 1] + 1 == svs[i]);
+        addConstraint((instrStage(iptr, i - 1) + 1) == instrStage(iptr, i));
+        //s.add(svs[i - 1] + 1 == svs[i]);
       }
     }
 
@@ -646,6 +648,8 @@ namespace DHLS {
     } else if (constraint.cond == CMP_LTEZ) {
       cout << "LTEZ constraint = " << (e <= 0) << endl;
       return e <= 0;
+    } else if (constraint.cond == CMP_EQZ) {
+      return e == 0;      
     } else {
       assert(false);
     }
