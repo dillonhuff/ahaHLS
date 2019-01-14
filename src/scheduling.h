@@ -591,6 +591,11 @@ namespace DHLS {
       blockNo = 0;
     }
 
+    void setObjective(const LinearExpression& expr) {
+      objectiveFunction = expr;
+      optimize = true;
+    }
+
     std::string getIIName(llvm::BasicBlock* bb) const {
       std::string val = dbhc::map_find(bb, IInames);
       return val;

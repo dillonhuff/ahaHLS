@@ -353,10 +353,15 @@ namespace DHLS {
     context c;
     optimize s(c);
     if (p.optimize) {
-      s.minimize(toZ3(c, p.objectiveFunction));
+      cout << "Objective function = " << p.objectiveFunction << endl;
+      optimize::handle h = s.minimize(toZ3(c, p.objectiveFunction));
+      Schedule sched = extractModel(p, c, s);
+      cout << "h = " << s.lower(h).get_numeral_int64() << endl;
+      return sched;
+    } else {
+      Schedule sched = extractModel(p, c, s);
+      return sched;
     }
-    Schedule sched = extractModel(p, c, s);
-    return sched;
   }
 
   int countOperations(const OperationType tp, BasicBlock* bb) {

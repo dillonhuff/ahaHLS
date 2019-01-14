@@ -2240,25 +2240,26 @@ namespace DHLS {
     }
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
 
-    hcs.setCount(MUL_OP, 4);
+    //hcs.setCount(MUL_OP, 4);
 
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
     // Add gep restriction
     for (auto& bb : f->getBasicBlockList()) {
       for (auto& instrR : bb) {
         auto instr = &instrR;
-        int numUsers = 0;
-        for (auto& user : instr->uses()) {
-          numUsers++;
-        }
+        // int numUsers = 0;
+        // for (auto& user : instr->uses()) {
+        //   numUsers++;
+        // }
 
-        if (!BinaryOperator::classof(instr) && (numUsers == 1)) {
-          auto& user = *(instr->uses().begin());
-          assert(Instruction::classof(user));
-          auto userInstr = dyn_cast<Instruction>(user.getUser());
-          p.addConstraint(p.instrEnd(instr) == p.instrStart(userInstr));
-        }
+        // if (!BinaryOperator::classof(instr) && (numUsers == 1)) {
+        //   auto& user = *(instr->uses().begin());
+        //   assert(Instruction::classof(user));
+        //   auto userInstr = dyn_cast<Instruction>(user.getUser());
+        //   p.addConstraint(p.instrEnd(instr) == p.instrStart(userInstr));
+        // }
       }
     }
     map<Function*, SchedulingProblem> constraints{{f, p}};
@@ -2270,15 +2271,50 @@ namespace DHLS {
 
     for (auto& st : graph.opStates) {
       int numReads = 0;
+      int numWrites = 0;
+      int numMuls = 0;
+      int numAdds = 0;
+      int numLoads = 0;
+      int numStores = 0;
+
       for (auto instrG : graph.instructionsStartingAt(st.first)) {
         Instruction* instr = instrG.instruction;
         if (isBuiltinFifoRead(instr)) {
           numReads++;
         }
+
+        if (isBuiltinFifoWrite(instr)) {
+          numWrites++;
+        }
+
+        if (instr->getOpcode() == Instruction::Mul) {
+          numMuls++;
+        }
+
+        if (instr->getOpcode() == Instruction::Add) {
+          numAdds++;
+        }
+
+        if (LoadInst::classof(instr)) {
+          numLoads++;
+        }
+
+        if (StoreInst::classof(instr)) {
+          numStores++;
+        }
+        
       }
 
-      cout << "At state " << st.first << " numReads == " << numReads << endl;
-      
+      // Looks like a register cannot be loaded from and stored to
+      // 
+      cout << "At state " << st.first << endl;
+      cout << tab(1) << " numReads     == " << numReads << endl;
+      cout << tab(1) << " numWrites    == " << numWrites << endl;
+      cout << tab(1) << " numMuls      == " << numMuls << endl;
+      cout << tab(1) << " numAdds      == " << numAdds << endl;
+      cout << tab(1) << " numLoads     == " << numLoads << endl;
+      cout << tab(1) << " numStores    == " << numStores << endl;
+
       bool res = (numReads == 0) || (numReads == 4);
       REQUIRE(res);
     }
