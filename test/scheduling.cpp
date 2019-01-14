@@ -2253,7 +2253,7 @@ namespace DHLS {
           numUsers++;
         }
 
-        if (GetElementPtrInst::classof(instr) && (numUsers == 1)) {
+        if (!BinaryOperator::classof(instr) && (numUsers == 1)) {
           auto& user = *(instr->uses().begin());
           assert(Instruction::classof(user));
           auto userInstr = dyn_cast<Instruction>(user.getUser());
