@@ -55,6 +55,9 @@ namespace DHLS {
 
   z3::expr toZ3(z3::context& c,
                 const LinearConstraint& constraint);
+
+  z3::expr toZ3(z3::context& c,
+                const LinearExpression& expr);
   
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
@@ -294,10 +297,8 @@ namespace DHLS {
     return hdc.getLatency(iptr);
   }
 
-  Schedule buildFromModel(SchedulingProblem& p) {
-
-    z3::context c;
-    z3::solver s(c);
+  template<typename Solver>
+  Schedule extractModel(SchedulingProblem& p, z3::context& c, Solver& s) {
     
     for (auto& constraint : p.constraints) {
       s.add(toZ3(c, constraint));
@@ -306,11 +307,6 @@ namespace DHLS {
     // cout << "Solver constraints" << endl;
     // cout << p.s << endl;
 
-    //auto& schedVars = p.schedVars;
-    //auto& blockVars = p.blockVars;
-    //auto& pipelineSchedules = p.IIs;
-    //auto& s = p.s;
-    
     auto satRes = s.check();
 
     if (satRes == unsat) {
@@ -336,7 +332,7 @@ namespace DHLS {
       //cout << snkExpr << " = " << m.eval(snkExpr) << endl;
     }
 
-    for (auto v : p.schedVarNames) {//schedVars) {
+    for (auto v : p.schedVarNames) {
       for (auto ex : v.second) {
         map_insert(sched.instrTimes, v.first, (int) m.eval(c.int_const(ex.c_str())).get_numeral_int64());
         //cout << ex << " = " << m.eval(ex) << endl;
@@ -344,15 +340,22 @@ namespace DHLS {
     }
 
     for (auto s : p.IInames) {
-      //vector<expr>& iiVec = s.second;
-      //int ii = m.eval(iiVec[0]).get_numeral_int64();
       int ii =
         m.eval(c.int_const(p.getIIName(s.first).c_str())).get_numeral_int64();
       //cout << iiVec[0] << " = " << ii << endl;
       sched.pipelineSchedules[s.first] = ii;
     }
-    //sched.pipelineSchedules = pipelineSchedules;
 
+    return sched;
+  }
+
+  Schedule buildFromModel(SchedulingProblem& p) {
+    context c;
+    optimize s(c);
+    if (p.optimize) {
+      s.minimize(toZ3(c, p.objectiveFunction));
+    }
+    Schedule sched = extractModel(p, c, s);
     return sched;
   }
 
@@ -663,12 +666,20 @@ namespace DHLS {
   }
 
   z3::expr toZ3(z3::context& c,
-                const LinearConstraint& constraint) {
-    expr e = c.int_val(constraint.expr.getCoeff());
-    for (auto v : constraint.expr.getVars()) {
+                const LinearExpression& expr) {
+    z3::expr e = c.int_val(expr.getCoeff());
+    for (auto v : expr.getVars()) {
       e = e + v.second*c.int_const(v.first.c_str());
     }
 
+    return e;
+  }
+  
+  z3::expr toZ3(z3::context& c,
+                const LinearConstraint& constraint) {
+
+    auto e = toZ3(c, constraint.expr);
+    
     if (constraint.cond == CMP_GTEZ) {
       return e >= 0;
     } else if (constraint.cond == CMP_LTEZ) {

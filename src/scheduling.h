@@ -492,6 +492,8 @@ namespace DHLS {
     LinearExpression(std::map<std::string, int>& vars_, const int c_) :
       vars(vars_), c(c_) {}
 
+    LinearExpression() : vars({}), c(0) {}
+
     LinearExpression scalarMul(const int k) const {
       std::map<std::string, int> mulVars;
       for (auto v : vars) {
@@ -579,11 +581,13 @@ namespace DHLS {
     std::vector<LinearConstraint> constraints;
 
     HardwareConstraints hdc;
+    bool optimize;
+    LinearExpression objectiveFunction;
 
     SchedulingProblem(const HardwareConstraints& hcs_) :
-      blockNo(0), hdc(hcs_) {}
+      blockNo(0), hdc(hcs_), optimize(false) {}
 
-    SchedulingProblem() {
+    SchedulingProblem() : optimize(false) {
       blockNo = 0;
     }
 
