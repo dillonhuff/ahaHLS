@@ -1147,19 +1147,29 @@ namespace DHLS {
 
     const BasicBlock* instrBB = instr->getParent();
     OrderedBasicBlock obb(instrBB);
-    
+
     for (auto& user : instr->uses()) {
       assert(Instruction::classof(user));
-      Instruction* userInstr = dyn_cast<Instruction>(user.get());
+      Instruction* userInstr = dyn_cast<Instruction>(user.getUser());
 
+      cout << "Checking if " << valueString(userInstr) << " uses " << valueString(instr) << " in a distinct instance of a state" << endl;
+
+      StateId userStart = arch.stg.instructionStartState(userInstr);
+      StateId instrEnd = arch.stg.instructionEndState(instr);
+
+      cout << tab(1) << "User starts in " << userStart << endl;
+      cout << tab(1) << "Instr ends in " << instrEnd << endl;      
       if ((userInstr->getParent() == instrBB) &&
-          (arch.stg.instructionStartState(userInstr) == arch.stg.instructionEndState(instr))) {
+          (userStart == instrEnd)) {
 
-        cout << "In same basic block and same state" << endl;
+        cout << tab(2) << "In same basic block and same state" << endl;
 
         // If in same basic block but user is before instr we need temp storage
         if ((userInstr != instr) && !obb.dominates(instr, userInstr)) {
+          cout << tab(3) << "Instruction does not dominate user" << endl;
           return true;
+        } else {
+          continue;
         }
       } else {
         return true;
