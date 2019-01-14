@@ -12,15 +12,26 @@ using namespace std;
 
 namespace DHLS {
 
+  // Q: System TODOs:
+  // A: Remove useless address fields from registers (allow custom memory interfaces)
+  //
+
+  // NOTE: Systolic array example has correct binding by chance. The control
+  // structure around the array is a tricky question. Most papers on systolic
+  // arrays just show the datapath not the control logic that feeds the array.
+  // Im not sure what the most area efficient way to create control logic for
+  // the array is.
+
   // Q: What test cases do I need?
   // A: Test that uses multiple different RAM types
   //    Test that uses limited numbers of memory read/write ports
   //    Test case that merges basic blocks that execute different numbers of times
   //    Test case with outer loop pipelining
+  //    Test case that pipelines inner loop surrounded by outer loop
   //    Test case using ready valid interface together with pipelining
   //    Test case that builds a linebuffer from LLVM
-  //    Test case that creates systolic array with correct interconnect structure
-  //      and functional unit binding
+  //    Test case that uses wires and interface specifications
+  //    Test case that uses multiple functions with interface specs connecting
   TEST_CASE("Schedule a single store operation") {
     SMDiagnostic Err;
     LLVMContext Context;
