@@ -824,7 +824,6 @@ namespace DHLS {
               AliasResult aliasRes = aliasAnalysis.alias(load0, load1);
               if (aliasRes != NoAlias) {
 
-                //p.s.add(instrEnd(&instr, p.schedVars) <= instrStart(&otherInstr, p.schedVars));
                 p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
               }
             }
@@ -836,7 +835,6 @@ namespace DHLS {
               
               AliasResult aliasRes = aliasAnalysis.alias(store0, store1);
               if (aliasRes != NoAlias) {
-                //p.s.add(instrEnd(&instr, p.schedVars) <= instrStart(&otherInstr, p.schedVars));
                 p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
               }
             }
@@ -851,7 +849,6 @@ namespace DHLS {
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
               if (aliasRes != NoAlias) {
 
-                //p.s.add(instrEnd(&instr, p.schedVars) <= instrStart(&otherInstr, p.schedVars));
                 p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
               }
             }
@@ -864,7 +861,6 @@ namespace DHLS {
               // TODO: Add SCEV analysis
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, otherStoreLoc);
               if (aliasRes != NoAlias) {
-                //p.s.add(instrEnd(&instr, p.schedVars) < instrEnd(&otherInstr, p.schedVars));
                 p.addConstraint(p.instrEnd(&instr) < p.instrEnd(&otherInstr));
               }
             }
