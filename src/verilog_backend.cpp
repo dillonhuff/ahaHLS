@@ -1142,6 +1142,36 @@ namespace DHLS {
     return false;
   }
 
+  bool needsTempStorage(llvm::Instruction* const instr,
+                        MicroArchitecture& arch) {
+
+    const BasicBlock* instrBB = instr->getParent();
+    OrderedBasicBlock obb(instrBB);
+    
+    for (auto& user : instr->uses()) {
+      assert(Instruction::classof(user));
+      Instruction* userInstr = dyn_cast<Instruction>(user.get());
+
+      if ((userInstr->getParent() == instrBB) &&
+          (arch.stg.instructionStartState(userInstr) == arch.stg.instructionEndState(instr))) {
+
+        cout << "In same basic block and same state" << endl;
+
+        // If in same basic block but user is before instr we need temp storage
+        if ((userInstr != instr) && !obb.dominates(instr, userInstr)) {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    }
+
+    cout << "No temp storage for " << valueString(instr) << endl;
+    //assert(false);
+
+    return false;
+  }
+  
   void emitTempStorage(std::ostream& out,
                        const StateId state,
                        MicroArchitecture& arch) {
@@ -1169,17 +1199,19 @@ namespace DHLS {
           pos = pipelinePosition(lastI, state, stage);
           if (stage < p.numStages() - 1) {
             instrName = map_find(instr, p.pipelineRegisters[stage + 1]).name;
-            cout << "Now instrName = " << instrName << endl;
+            //cout << "Now instrName = " << instrName << endl;
           }
         }
 
-        auto unit = map_find(instr, unitAssignment);
+        if (needsTempStorage(instr, arch)) {
+          auto unit = map_find(instr, unitAssignment);
 
-        out << tab(4) << "if (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
+          out << tab(4) << "if (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
 
-        out << tab(5) << instrName << " <= " << dataOutput(instr, arch) << ";" << endl;
+          out << tab(5) << instrName << " <= " << dataOutput(instr, arch) << ";" << endl;
 
-        out << "\t\t\t\tend" << endl;
+          out << "\t\t\t\tend" << endl;
+        }
           
       }
     }

@@ -401,6 +401,14 @@ namespace DHLS {
 
     StateTransitionGraph(Schedule& sched_) : sched(sched_) {}
 
+    StateId instructionStartState(llvm::Instruction* const instr) {
+      return dbhc::map_find(instr, sched.instrTimes).front();
+    }
+
+    StateId instructionEndState(llvm::Instruction* const instr) {
+      return dbhc::map_find(instr, sched.instrTimes).back();
+    }
+    
     std::vector<GuardedInstruction>
     instructionsFinishingAt(const StateId id) const {
       std::vector<GuardedInstruction> instrs;
