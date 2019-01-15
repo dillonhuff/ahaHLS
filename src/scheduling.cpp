@@ -88,9 +88,11 @@ namespace DHLS {
     
     virtual void getAnalysisUsage(AnalysisUsage& AU) const override {
       AU.addRequired<AAResultsWrapperPass>();
-      AU.addRequired<LoopInfoWrapperPass>();
       AU.addRequired<ScalarEvolutionWrapperPass>();
-      AU.addRequired<TargetLibraryInfoWrapperPass>();
+
+      // AU.addRequired<LoopInfoWrapperPass>();
+      // AU.addRequired<TargetLibraryInfoWrapperPass>();
+
       AU.setPreservesAll();
     }
 
