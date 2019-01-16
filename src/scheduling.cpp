@@ -1216,6 +1216,9 @@ namespace DHLS {
           assert(!contains_key(bb, inProgressInstructions));
 
           if (ReturnInst::classof(instr)) {
+            // Add programmable return instruction behavior?
+            assert(!g.hasTransition(st.first, st.first));
+
             if (!g.hasTransition(st.first, st.first)) {
               map_insert(g.opTransitions, st.first, {st.first, cond});
             }

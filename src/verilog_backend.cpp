@@ -2076,8 +2076,7 @@ namespace DHLS {
     for (auto val : arch.resetValues) {
       out << tab(3) << val.first.name << " <= " << val.second << ";" << endl;
     }
-    // TODO: Change this from 0 to the global state that contains the entry block
-    //out << "\t\t\tglobal_state <= 0;" << endl;
+
     out << "\t\tend else begin" << endl;
   }
   
