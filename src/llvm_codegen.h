@@ -19,6 +19,11 @@ namespace DHLS {
   }
 
   static inline
+  llvm::ConstantFP* mkFloat(const float value) {
+    return llvm::ConstantFP::get(getGlobalLLVMContext(), llvm::APFloat(value));
+  }
+  
+  static inline
   llvm::ConstantInt* mkInt(const int value, int bitWidth) {
     return llvm::ConstantInt::get(getGlobalLLVMContext(), llvm::APInt(bitWidth, llvm::StringRef(std::to_string(value)), 10));
   }

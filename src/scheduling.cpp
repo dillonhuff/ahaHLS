@@ -45,6 +45,7 @@ namespace DHLS {
     hcs.setLatency(CMP_OP, 0);
     hcs.setLatency(BR_OP, 0);
     hcs.setLatency(ADD_OP, 0);
+    hcs.setLatency(FADD_OP, 2);    
     hcs.setLatency(SUB_OP, 0);    
     hcs.setLatency(MUL_OP, 0);
     hcs.setLatency(SEXT_OP, 0);
@@ -153,6 +154,8 @@ namespace DHLS {
         return MUL_OP;
       } else if (opCode == Instruction::Sub) {
         return SUB_OP;
+      } else if (opCode == Instruction::FAdd) {
+        return FADD_OP;
       } else {
         assert(false);
       }
@@ -240,6 +243,8 @@ namespace DHLS {
       auto opCode = iptr->getOpcode();
       if (opCode == Instruction::Add) {
         latency = getLatency(ADD_OP);
+      } else if (opCode == Instruction::FAdd) {
+        latency = getLatency(FADD_OP);        
       } else if (opCode == Instruction::Mul) {
         latency = getLatency(MUL_OP);
       } else if (opCode == Instruction::Sub) {
