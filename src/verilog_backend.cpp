@@ -1108,7 +1108,7 @@ namespace DHLS {
         } else if (isBuiltinFifoRead(instr)) {
 
           if (arch.hcs.getFifoType(instr->getOperand(0)) == FIFO_RV) {
-            assignments.insert({addUnit.inputWire("read_valid"), "1"});            
+            assignments.insert({addUnit.inputWire("read_valid"), "1"});
           }
 
 
