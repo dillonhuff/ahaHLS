@@ -2690,113 +2690,22 @@ namespace DHLS {
     cout << valueString(writeFifo) << endl;
 
     std::vector<Type *> inputs{tp->getPointerTo(),
-        tp->getPointerTo(),
-        tp->getPointerTo(),
-        tp->getPointerTo(),
-        tp->getPointerTo(),
         tp->getPointerTo()};
     
     Function* f = mkFunc(inputs, "timed_wire_reduce", mod.get());
 
     auto blk = mkBB("entry_block", f);
     IRBuilder<> b(blk);
-    
-    // auto aRow0 = getArg(f, 0);
-    // auto aRow1 = getArg(f, 1);
-    // vector<llvm::Value*> aRows{aRow0, aRow1};
 
-    // auto bCol0 = getArg(f, 2);
-    // auto bCol1 = getArg(f, 3);
-    // vector<llvm::Value*> bCols{bCol0, bCol1};    
+    auto in = getArg(f, 0);
+    Value* val = mkInt(0, width);
+    for (int i = 0; i < 4; i++) {
+      auto nextVal = b.CreateCall(readFifo, {in});
+      val = b.CreateAdd(val, nextVal);
+    }
 
-    // auto cRow0 = getArg(f, 4);
-    // auto cRow1 = getArg(f, 5);
-    // vector<llvm::Value*> cCols{cRow0, cRow1};
-    
-    // vector<Value*> rightRegisters;
-    // for (int i = 0; i < 2; i++) {
-    //   auto reg =
-    //     b.CreateAlloca(intType(width), nullptr, "right_" + to_string(i));
-    //   storeReg(b, reg, mkInt(0, width));
-    //   rightRegisters.push_back(reg);
-    // }
-
-    // vector<Value*> downRegisters;
-    // for (int i = 0; i < 2; i++) {
-    //   auto reg =
-    //     b.CreateAlloca(intType(width), nullptr, "down_" + to_string(i));
-    //   storeReg(b, reg, mkInt(0, width));
-    //   downRegisters.push_back(reg);
-    // }
-    
-    // vector<Value*> accumRegisters;
-    // for (int i = 0; i < 2; i++) {
-    //   for (int j = 0; j < 2; j++) {
-    //     auto reg =
-    //       b.CreateAlloca(intType(width), nullptr, "accum_" + to_string(i) + "_" + to_string(j));
-    //     storeReg(b, reg, mkInt(0, width));
-    //     accumRegisters.push_back(reg);
-    //   }
-    // }
-
-    // for (int i = 0; i < 4; i++) {
-    //   cout << "i = " << i << endl;
-      
-    //   vector<Value*> aRowVals;
-    //   for (int i = 0; i < 2; i++) {
-    //     aRowVals.push_back(b.CreateCall(readFifo, aRows[i]));
-    //   }
-
-    //   vector<Value*> bColVals;
-    //   for (int i = 0; i < 2; i++) {
-    //     bColVals.push_back(b.CreateCall(readFifo, bCols[i]));
-    //   }
-
-    //   for (int row = 0; row < 2; row++) {
-    //     for (int col = 0; col < 2; col++) {
-    //       Value* aVal = nullptr;
-
-    //       if (col == 0) {
-    //         aVal = aRowVals[row];
-    //       } else {
-    //         aVal = loadReg(b, rightRegisters[row]);
-    //       }
-
-    //       Value* bVal = nullptr;
-    //       if (row == 0) {
-    //         bVal = bColVals[col];
-    //       } else {
-    //         bVal = loadReg(b, downRegisters[col]);
-    //       }
-          
-    //       auto accumReg = accumRegisters[2*row + col];
-    //       auto newAccum =
-    //         b.CreateAdd(loadReg(b, accumReg), b.CreateMul(aVal, bVal));
-
-    //       storeReg(b, accumReg, newAccum);
-
-    //     }
-    //   }
-
-    //   // Update register values
-    //   for (int col = 0; col < 2; col++) {
-    //     storeReg(b, downRegisters[col], bColVals[col]);
-    //   }
-
-    //   for (int row = 0; row < 2; row++) {
-    //     storeReg(b, rightRegisters[row], aRowVals[row]);
-    //   }
-      
-    // }
-
-    // // Store out final results
-    // for (int j = 0; j < 2; j++) {
-    //   auto cCol = cCols[j];
-    //   for (int i = 0; i < 2; i++) {
-    //     b.CreateCall(writeFifo, {loadReg(b, accumRegisters[2*i + j]), cCol});
-    //   }
-    // }
-
+    auto out = getArg(f, 1);
+    b.CreateCall(writeFifo, {val, out});
     b.CreateRet(nullptr);
 
     cout << "LLVM Function" << endl;
@@ -2812,7 +2721,7 @@ namespace DHLS {
     }
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
 
-    hcs.setCount(MUL_OP, 4);
+    hcs.setCount(ADD_OP, 1);
 
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
