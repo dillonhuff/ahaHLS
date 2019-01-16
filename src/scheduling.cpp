@@ -269,9 +269,18 @@ namespace DHLS {
       //cout << "Called name     = " << name << endl;
 
       if (hasPrefix(name, "builtin_read_fifo_")) {
-        latency = 1;
+        if (contains_key(call->getOperand(0), fifoSpecs)) {
+          latency = map_find(call->getOperand(0), fifoSpecs).readDelay;
+        } else {
+          latency = 1;
+        }
       } else if (hasPrefix(name, "builtin_write_fifo_")) {
-        latency = 1;
+
+        if (contains_key(call->getOperand(1), fifoSpecs)) {
+          latency = map_find(call->getOperand(1), fifoSpecs).writeDelay;
+        } else {
+          latency = 1;
+        }
       } else {
         // Value* func = call->getOperand(0);
         // cout << "Function name = " << valueString(func) << endl;
@@ -421,20 +430,14 @@ namespace DHLS {
 
     for (auto& instruction : *bb) {
       auto iptr = &instruction;
-      //auto svs = map_find(iptr, schedVars);
-      //assert(svs.size() > 0);
 
       // Operations must be processed within the basic block that contains them
       addConstraint(instrStart(iptr) >= blockStart(bb));
       addConstraint(instrEnd(iptr) <= blockEnd(bb));
 
-      //s.add(svs.front() >= blockSource(bb));
-      //s.add(svs.back() <= blockSink(bb));
-
       // Operations with latency N take N clock ticks to finish
       for (int i = 1; i < (int) numStages(iptr); i++) {
         addConstraint((instrStage(iptr, i - 1) + 1) == instrStage(iptr, i));
-        //s.add(svs[i - 1] + 1 == svs[i]);
       }
     }
 
