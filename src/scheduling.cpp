@@ -825,7 +825,15 @@ namespace DHLS {
               
               AliasResult aliasRes = aliasAnalysis.alias(load0, load1);
               if (aliasRes != NoAlias) {
-                p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
+
+                FifoInterface fifoTp = hdc.getFifoType(instr.getOperand(0));
+                if (fifoTp == FIFO_RV) {
+                  p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
+                } else {
+                  assert(fifoTp == FIFO_TIMED);
+                  p.addConstraint(p.instrEnd(&instr) < p.instrStart(&otherInstr));
+                }
+                //p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
               }
             }
 
@@ -836,7 +844,15 @@ namespace DHLS {
               
               AliasResult aliasRes = aliasAnalysis.alias(store0, store1);
               if (aliasRes != NoAlias) {
-                p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
+
+                FifoInterface fifoTp = hdc.getFifoType(instr.getOperand(1));
+                if (fifoTp == FIFO_RV) {
+                  p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
+                } else {
+                  assert(fifoTp == FIFO_TIMED);
+                  p.addConstraint(p.instrEnd(&instr) < p.instrStart(&otherInstr));
+                }
+
               }
             }
             
