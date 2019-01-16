@@ -2069,6 +2069,18 @@ namespace DHLS {
     out << "\tend" << endl;
   }
 
+  void
+  emitResetCode(std::ostream& out,
+                const MicroArchitecture& arch) {
+    out << "\t\tif (rst) begin" << endl;
+    for (auto val : arch.resetValues) {
+      out << tab(3) << val.first.name << " <= " << val.second << ";" << endl;
+    }
+    // TODO: Change this from 0 to the global state that contains the entry block
+    //out << "\t\t\tglobal_state <= 0;" << endl;
+    out << "\t\tend else begin" << endl;
+  }
+  
   MicroArchitecture
   buildMicroArchitecture(llvm::Function* f,
                          const STG& stg,
@@ -2230,11 +2242,12 @@ namespace DHLS {
 
     out << "\talways @(posedge clk) begin" << endl;
 
-    out << "\t\tif (rst) begin" << endl;
-    // TODO: Change this from 0 to the global state that contains the entry block
+    emitResetCode(out, arch);
+    // out << "\t\tif (rst) begin" << endl;
+    // // TODO: Change this from 0 to the global state that contains the entry block
     
-    out << "\t\t\tglobal_state <= 0;" << endl;
-    out << "\t\tend else begin" << endl;
+    // out << "\t\t\tglobal_state <= 0;" << endl;
+    // out << "\t\tend else begin" << endl;
 
     emitControlCode(out, arch, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
 

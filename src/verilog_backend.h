@@ -47,6 +47,11 @@ namespace DHLS {
     }
   };
 
+  static inline
+  bool operator<(const Wire a, const Wire b) {
+    return a.name < b.name;
+  }
+
   std::ostream& operator<<(std::ostream& out, const Wire w);
 
   class AlwaysBlock {
@@ -279,6 +284,7 @@ namespace DHLS {
     std::vector<ElaboratedPipeline> pipelines;
     std::vector<RAM> rams;
     std::vector<Wire> globalStall;
+    std::map<Wire, std::string> resetValues;
 
     MicroArchitecture(const ArchOptions& archOptions_,
                       const STG& stg_,
@@ -295,7 +301,11 @@ namespace DHLS {
       names(names_),
       basicBlockNos(basicBlockNos_),
       pipelines(pipelines_),
-      rams(rams_) {}
+      rams(rams_) {
+
+      resetValues.insert({Wire(true, 32, "global_state"),
+            std::to_string(dbhc::map_find(&(stg.getFunction()->getEntryBlock()), basicBlockNos))});
+    }
 
     bool hasGlobalStall() const {
       assert(globalStall.size() <= 1);
