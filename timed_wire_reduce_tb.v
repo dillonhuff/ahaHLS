@@ -15,7 +15,11 @@ module test();
 
       #1 rst = 1;
 
+      // global_state == x
+
       `POSEDGE
+
+      // global_state == 0        
 
         #1 rst = 0;
       
@@ -29,17 +33,44 @@ module test();
       `POSEDGE
 
         #1 in_data0 = 7;
-        
+
+      #1 `assert(valid, 1'b0)      
+
       `POSEDGE
+
+      // global_state == 3        
 
         #1 in_data0 = 4;        
 
       $display("out_data0 = %d", out_data0);
       
       #1 `assert(out_data0, 1 + 8 + 7  + 4)
+      #1 `assert(valid, 1'b1)
 
       `POSEDGE
 
+      #1 `assert(valid, 1'b0)        
+      // global_state == 0, LOOPS BACK
+
+        #1 in_data0 = 6;
+
+      `POSEDGE
+
+        #1 in_data0 = 4;
+
+      `POSEDGE
+
+        #1 in_data0 = 19;
+
+      `POSEDGE
+
+        #1 in_data0 = 7;
+      
+      #1 `assert(out_data0, 6 + 4 + 19 + 7)
+      #1 `assert(valid, 1'b1)
+
+      `POSEDGE
+        
       #1 $display("Passed");
       
    end // initial begin
