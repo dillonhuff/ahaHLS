@@ -833,7 +833,6 @@ namespace DHLS {
                   assert(fifoTp == FIFO_TIMED);
                   p.addConstraint(p.instrEnd(&instr) < p.instrStart(&otherInstr));
                 }
-                //p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
               }
             }
 
@@ -890,7 +889,6 @@ namespace DHLS {
               // TODO: Add SCEV analysis
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
               if (aliasRes != NoAlias) {
-                //p.s.add(instrStart(&instr, p.schedVars) < instrStart(&otherInstr, p.schedVars));
                 p.addConstraint(p.instrStart(&instr) <= p.instrStart(&otherInstr));
               }
             }

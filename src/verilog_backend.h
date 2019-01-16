@@ -285,6 +285,7 @@ namespace DHLS {
     std::vector<RAM> rams;
     std::vector<Wire> globalStall;
     std::map<Wire, std::string> resetValues;
+    HardwareConstraints hcs;
 
     MicroArchitecture(const ArchOptions& archOptions_,
                       const STG& stg_,
@@ -293,7 +294,8 @@ namespace DHLS {
                       const std::map<llvm::Instruction*, Wire>& names_,
                       const std::map<llvm::BasicBlock*, int>& basicBlockNos_,
                       const std::vector<ElaboratedPipeline>& pipelines_,
-                      const std::vector<RAM>& rams_) :
+                      const std::vector<RAM>& rams_,
+                      const HardwareConstraints& hcs_) :
       archOptions(archOptions_),
       stg(stg_),
       unitAssignment(unitAssignment_),
@@ -301,7 +303,8 @@ namespace DHLS {
       names(names_),
       basicBlockNos(basicBlockNos_),
       pipelines(pipelines_),
-      rams(rams_) {
+      rams(rams_),
+      hcs(hcs_) {
 
       resetValues.insert({Wire(true, 32, "global_state"),
             std::to_string(dbhc::map_find(&(stg.getFunction()->getEntryBlock()), basicBlockNos))});

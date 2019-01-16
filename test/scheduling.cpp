@@ -2717,23 +2717,7 @@ namespace DHLS {
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
     p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
-    // // Add gep restriction
-    // for (auto& bb : f->getBasicBlockList()) {
-    //   for (auto& instrR : bb) {
-    //     auto instr = &instrR;
-    //     int numUsers = 0;
-    //     for (auto& user : instr->uses()) {
-    //       numUsers++;
-    //     }
 
-    //     if (!BinaryOperator::classof(instr) && (numUsers == 1)) {
-    //       auto& user = *(instr->uses().begin());
-    //       assert(Instruction::classof(user));
-    //       auto userInstr = dyn_cast<Instruction>(user.getUser());
-    //       p.addConstraint(p.instrEnd(instr) == p.instrStart(userInstr));
-    //     }
-    //   }
-    // }
     map<Function*, SchedulingProblem> constraints{{f, p}};
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
     STG graph = buildSTG(s, f);
