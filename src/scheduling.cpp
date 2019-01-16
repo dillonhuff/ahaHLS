@@ -1120,6 +1120,16 @@ namespace DHLS {
 
     map<BasicBlock*, vector<vector<Atom> > > blockGuards;
 
+    auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
+      assert(!stg.hasTransition(st, st));
+
+      if (!stg.hasTransition(st, st)) {
+        map_insert(stg.opTransitions, st, {st, cond});
+      }
+    };
+    
+    std::function<void(Schedule&, STG&, StateId, llvm::ReturnInst*, Condition& cond)> returnBehavior(retB);
+
     // NOTE: One possible problem is that I only compute
     // path conditions from the entry and not pairwise between
     // blocks, but that should include all possible (non-looped)
@@ -1216,12 +1226,15 @@ namespace DHLS {
           assert(!contains_key(bb, inProgressInstructions));
 
           if (ReturnInst::classof(instr)) {
-            // Add programmable return instruction behavior?
-            assert(!g.hasTransition(st.first, st.first));
 
-            if (!g.hasTransition(st.first, st.first)) {
-              map_insert(g.opTransitions, st.first, {st.first, cond});
-            }
+            returnBehavior(sched, g, st.first, dyn_cast<ReturnInst>(instr), cond);
+
+            // // Add programmable return instruction behavior?
+            // assert(!g.hasTransition(st.first, st.first));
+
+            // if (!g.hasTransition(st.first, st.first)) {
+            //   map_insert(g.opTransitions, st.first, {st.first, cond});
+            // }
           } else {
 
             auto* branch = dyn_cast<BranchInst>(instr);
