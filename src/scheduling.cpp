@@ -1097,6 +1097,16 @@ namespace DHLS {
 
   }
 
+  STG buildSTG(Schedule& sched,
+               BasicBlock* entryBlock,
+               std::set<BasicBlock*>& blockList,
+               std::function<void(Schedule&,
+                                  STG&,
+                                  StateId,
+                                  llvm::ReturnInst*,
+                                  Condition&)>& returnBehavior);
+
+  
   // Maybe I should re-write this entire thing assuming that each state
   // contains exactly one basic block? That is the working assumption, and
   // it delegates the work of converting control edges to select instructions
@@ -1116,10 +1126,6 @@ namespace DHLS {
                BasicBlock* entryBlock,
                std::set<BasicBlock*>& blockList) {
 
-    STG g(sched);
-
-    map<BasicBlock*, vector<vector<Atom> > > blockGuards;
-
     auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
       assert(!stg.hasTransition(st, st));
 
@@ -1130,19 +1136,29 @@ namespace DHLS {
     
     std::function<void(Schedule&, STG&, StateId, llvm::ReturnInst*, Condition& cond)> returnBehavior(retB);
 
+    return buildSTG(sched, entryBlock, blockList, returnBehavior);
+  }
+  
+  STG buildSTG(Schedule& sched,
+               BasicBlock* entryBlock,
+               std::set<BasicBlock*>& blockList,
+               std::function<void(Schedule&,
+                                  STG&,
+                                  StateId,
+                                  llvm::ReturnInst*,
+                                  Condition&)>& returnBehavior) {
+               
+    STG g(sched);
+
+    map<BasicBlock*, vector<vector<Atom> > > blockGuards;
+
     // NOTE: One possible problem is that I only compute
     // path conditions from the entry and not pairwise between
     // blocks, but that should include all possible (non-looped)
     // paths
     for (auto bbR : blockList) {
       BasicBlock* target = bbR;
-      // set<BasicBlock*> considered;
-      // vector<vector<Atom> > allPaths =
-      //   allPathConditions(entryBlock, target, considered);
-      // cout << "# of paths = " << allPaths.size() << endl;
-
-      blockGuards[target] = {{}}; //allPaths;
-
+      blockGuards[target] = {{}};
     }
 
     // Make sure pipeline states are included in STG
