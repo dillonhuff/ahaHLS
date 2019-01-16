@@ -822,7 +822,6 @@ namespace DHLS {
               
               AliasResult aliasRes = aliasAnalysis.alias(load0, load1);
               if (aliasRes != NoAlias) {
-
                 p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
               }
             }

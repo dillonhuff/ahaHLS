@@ -2681,13 +2681,7 @@ namespace DHLS {
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo = fifoRead(width, mod.get());
 
-    cout << "Read fifo func" << endl;
-    cout << valueString(readFifo) << endl;
-
     Function* writeFifo = fifoWrite(width, mod.get());
-
-    cout << "Write fifo func" << endl;
-    cout << valueString(writeFifo) << endl;
 
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo()};
@@ -2714,12 +2708,9 @@ namespace DHLS {
     HardwareConstraints hcs = standardConstraints();
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
-
-    cout << "Memory mapping" << endl;
-    for (auto mm : hcs.memoryMapping) {
-      cout << "\t" << valueString(mm.first) << " -> " << valueString(mm.second) << endl;
-    }
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
+    hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
 
     hcs.setCount(ADD_OP, 1);
 
