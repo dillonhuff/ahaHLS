@@ -1245,12 +1245,6 @@ namespace DHLS {
 
             returnBehavior(sched, g, st.first, dyn_cast<ReturnInst>(instr), cond);
 
-            // // Add programmable return instruction behavior?
-            // assert(!g.hasTransition(st.first, st.first));
-
-            // if (!g.hasTransition(st.first, st.first)) {
-            //   map_insert(g.opTransitions, st.first, {st.first, cond});
-            // }
           } else {
 
             auto* branch = dyn_cast<BranchInst>(instr);

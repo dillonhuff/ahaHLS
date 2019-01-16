@@ -161,17 +161,17 @@ namespace DHLS {
   void setAllAllocaMemTypes(HardwareConstraints& hcs,
                             llvm::Function* f,
                             MemorySpec spec) {
-    bool found = false;
+    //bool found = false;
     for (auto& bb : f->getBasicBlockList()) {
       for (auto& instr : bb) {
         if (llvm::AllocaInst::classof(&instr)) {
           hcs.memSpecs[llvm::dyn_cast<llvm::Value>(&instr)] = spec;
-          found = true;
+          //found = true;
         }
       }
     }
 
-    assert(found);
+    //assert(found);
   }
   
   static inline
@@ -475,6 +475,15 @@ namespace DHLS {
 
   STG buildSTG(Schedule& sched, llvm::Function* const f);
 
+  STG buildSTG(Schedule& sched,
+               llvm::BasicBlock* entryBlock,
+               std::set<llvm::BasicBlock*>& blockList,
+               std::function<void(Schedule&,
+                                  STG&,
+                                  StateId,
+                                  llvm::ReturnInst*,
+                                  Condition&)>& returnBehavior);
+  
   HardwareConstraints standardConstraints();
 
   class LinearExpression {

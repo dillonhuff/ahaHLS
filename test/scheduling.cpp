@@ -2667,5 +2667,196 @@ namespace DHLS {
 
     REQUIRE(runIVerilogTB("add_reduce_15"));
   }
+
+  TEST_CASE("Timed wire reduction") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    int width = 16;
+    auto iStr = to_string(width);
+
+    StructType* tp = fifoType(width);
+    auto mod = llvm::make_unique<Module>("fifo use with a delay", context);
+
+    vector<Type*> readArgs = {tp->getPointerTo()};
+    Function* readFifo = fifoRead(width, mod.get());
+
+    cout << "Read fifo func" << endl;
+    cout << valueString(readFifo) << endl;
+
+    Function* writeFifo = fifoWrite(width, mod.get());
+
+    cout << "Write fifo func" << endl;
+    cout << valueString(writeFifo) << endl;
+
+    std::vector<Type *> inputs{tp->getPointerTo(),
+        tp->getPointerTo(),
+        tp->getPointerTo(),
+        tp->getPointerTo(),
+        tp->getPointerTo(),
+        tp->getPointerTo()};
+    
+    Function* f = mkFunc(inputs, "timed_wire_reduce", mod.get());
+
+    auto blk = mkBB("entry_block", f);
+    IRBuilder<> b(blk);
+    
+    // auto aRow0 = getArg(f, 0);
+    // auto aRow1 = getArg(f, 1);
+    // vector<llvm::Value*> aRows{aRow0, aRow1};
+
+    // auto bCol0 = getArg(f, 2);
+    // auto bCol1 = getArg(f, 3);
+    // vector<llvm::Value*> bCols{bCol0, bCol1};    
+
+    // auto cRow0 = getArg(f, 4);
+    // auto cRow1 = getArg(f, 5);
+    // vector<llvm::Value*> cCols{cRow0, cRow1};
+    
+    // vector<Value*> rightRegisters;
+    // for (int i = 0; i < 2; i++) {
+    //   auto reg =
+    //     b.CreateAlloca(intType(width), nullptr, "right_" + to_string(i));
+    //   storeReg(b, reg, mkInt(0, width));
+    //   rightRegisters.push_back(reg);
+    // }
+
+    // vector<Value*> downRegisters;
+    // for (int i = 0; i < 2; i++) {
+    //   auto reg =
+    //     b.CreateAlloca(intType(width), nullptr, "down_" + to_string(i));
+    //   storeReg(b, reg, mkInt(0, width));
+    //   downRegisters.push_back(reg);
+    // }
+    
+    // vector<Value*> accumRegisters;
+    // for (int i = 0; i < 2; i++) {
+    //   for (int j = 0; j < 2; j++) {
+    //     auto reg =
+    //       b.CreateAlloca(intType(width), nullptr, "accum_" + to_string(i) + "_" + to_string(j));
+    //     storeReg(b, reg, mkInt(0, width));
+    //     accumRegisters.push_back(reg);
+    //   }
+    // }
+
+    // for (int i = 0; i < 4; i++) {
+    //   cout << "i = " << i << endl;
+      
+    //   vector<Value*> aRowVals;
+    //   for (int i = 0; i < 2; i++) {
+    //     aRowVals.push_back(b.CreateCall(readFifo, aRows[i]));
+    //   }
+
+    //   vector<Value*> bColVals;
+    //   for (int i = 0; i < 2; i++) {
+    //     bColVals.push_back(b.CreateCall(readFifo, bCols[i]));
+    //   }
+
+    //   for (int row = 0; row < 2; row++) {
+    //     for (int col = 0; col < 2; col++) {
+    //       Value* aVal = nullptr;
+
+    //       if (col == 0) {
+    //         aVal = aRowVals[row];
+    //       } else {
+    //         aVal = loadReg(b, rightRegisters[row]);
+    //       }
+
+    //       Value* bVal = nullptr;
+    //       if (row == 0) {
+    //         bVal = bColVals[col];
+    //       } else {
+    //         bVal = loadReg(b, downRegisters[col]);
+    //       }
+          
+    //       auto accumReg = accumRegisters[2*row + col];
+    //       auto newAccum =
+    //         b.CreateAdd(loadReg(b, accumReg), b.CreateMul(aVal, bVal));
+
+    //       storeReg(b, accumReg, newAccum);
+
+    //     }
+    //   }
+
+    //   // Update register values
+    //   for (int col = 0; col < 2; col++) {
+    //     storeReg(b, downRegisters[col], bColVals[col]);
+    //   }
+
+    //   for (int row = 0; row < 2; row++) {
+    //     storeReg(b, rightRegisters[row], aRowVals[row]);
+    //   }
+      
+    // }
+
+    // // Store out final results
+    // for (int j = 0; j < 2; j++) {
+    //   auto cCol = cCols[j];
+    //   for (int i = 0; i < 2; i++) {
+    //     b.CreateCall(writeFifo, {loadReg(b, accumRegisters[2*i + j]), cCol});
+    //   }
+    // }
+
+    b.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    // TODO: Do this by default
+    hcs.memoryMapping = memoryOpLocations(f);
+
+    cout << "Memory mapping" << endl;
+    for (auto mm : hcs.memoryMapping) {
+      cout << "\t" << valueString(mm.first) << " -> " << valueString(mm.second) << endl;
+    }
+    setAllAllocaMemTypes(hcs, f, registerSpec(width));
+
+    hcs.setCount(MUL_OP, 4);
+
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
+    // // Add gep restriction
+    // for (auto& bb : f->getBasicBlockList()) {
+    //   for (auto& instrR : bb) {
+    //     auto instr = &instrR;
+    //     int numUsers = 0;
+    //     for (auto& user : instr->uses()) {
+    //       numUsers++;
+    //     }
+
+    //     if (!BinaryOperator::classof(instr) && (numUsers == 1)) {
+    //       auto& user = *(instr->uses().begin());
+    //       assert(Instruction::classof(user));
+    //       auto userInstr = dyn_cast<Instruction>(user.getUser());
+    //       p.addConstraint(p.instrEnd(instr) == p.instrStart(userInstr));
+    //     }
+    //   }
+    // }
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<Value*, int> layout;
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f,
+                                       graph,
+                                       layout,
+                                       options,
+                                       hcs);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+    
+    emitVerilog(f, arch, info);
+
+    REQUIRE(runIVerilogTB("timed_wire_reduce"));
+  }
   
 }
