@@ -236,6 +236,8 @@ namespace DHLS {
       modName = "mul";
     } else if (instr->getOpcode() == Instruction::Sub) {
       modName = "sub";            
+    } else if (instr->getOpcode() == Instruction::FAdd) {
+      modName = "fpu";
     } else {
       assert(false);
     }
@@ -676,38 +678,9 @@ namespace DHLS {
         }
 
         auto schedVars = map_find(instr, stg.sched.instrTimes);
-        auto* tp = instr->getType();
 
-        //cout << "type = " << typeString(tp) << endl;
-        int width;
-
-        // TODO: Extract to its own function
-        if (IntegerType::classof(tp)) {
-          IntegerType* iTp = dyn_cast<IntegerType>(tp);
-          width = iTp->getBitWidth();
-        } else if (PointerType::classof(tp)) {
-          PointerType* pTp = dyn_cast<PointerType>(tp);
-
-
-          //cout << "Element type = " << typeString(pTp->getElementType()) << endl;
-
-          assert(IntegerType::classof(pTp->getElementType()));
-
-          IntegerType* iTp = dyn_cast<IntegerType>(pTp->getElementType());
-          width = iTp->getBitWidth();
-
-        } else {
-          assert(ArrayType::classof(tp));
-          Type* iTp = dyn_cast<ArrayType>(tp)->getElementType();
-          assert(IntegerType::classof(iTp));
-          width = dyn_cast<IntegerType>(iTp)->getBitWidth();
-          
-          //cout << "Array width = " << dyn_cast<ArrayType>(tp)->getElementType() << endl;
-          //assert(false);
-        }
-        
         if (state.first == schedVars.front()) {
-          resultNames[instr] = {true, width, string(instr->getOpcodeName()) + "_tmp_" + to_string(resSuffix)};
+          resultNames[instr] = {true, getValueBitWidth(instr), string(instr->getOpcodeName()) + "_tmp_" + to_string(resSuffix)};
           resSuffix++;
         }
       }

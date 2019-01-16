@@ -182,30 +182,6 @@ namespace DHLS {
     }
 
   }
-
-  std::string instructionString(Instruction* const iptr) {
-    std::string str;
-    llvm::raw_string_ostream ss(str);
-    ss << *iptr;
-
-    return ss.str();
-  }
-
-  std::string valueString(Value* const iptr) {
-    std::string str;
-    llvm::raw_string_ostream ss(str);
-    ss << *iptr;
-
-    return ss.str();
-  }
-  
-  std::string typeString(Type* const tptr) {
-    std::string str;
-    llvm::raw_string_ostream ss(str);
-    ss << *tptr;
-
-    return ss.str();
-  }
   
   int HardwareConstraints::getLatency(Instruction* iptr) const {
     int latency;

@@ -8,15 +8,6 @@
 
 namespace DHLS {
 
-  std::string typeString(llvm::Type* const tptr);
-  std::string instructionString(llvm::Instruction* const iptr);
-  std::string valueString(llvm::Value* const iptr);
-
-  static inline
-  std::string valueString(llvm::Value& iptr) {
-    return valueString(&iptr);
-  }
-
   class ModuleSpec {
   public:
     std::map<std::string, std::string> params;

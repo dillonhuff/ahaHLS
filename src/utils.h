@@ -8,6 +8,15 @@
 
 namespace DHLS {
 
+  std::string typeString(llvm::Type* const tptr);
+  std::string instructionString(llvm::Instruction* const iptr);
+  std::string valueString(llvm::Value* const iptr);
+
+  static inline
+  std::string valueString(llvm::Value& iptr) {
+    return valueString(&iptr);
+  }
+
   static inline
   llvm::Value* getArg(llvm::Function* f, const int argNum) {
     assert(argNum < (int) f->arg_size());
