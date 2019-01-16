@@ -1154,7 +1154,7 @@ namespace DHLS {
 
     return buildSTG(sched, entryBlock, blockList, returnBehavior);
   }
-  
+
   STG buildSTG(Schedule& sched,
                BasicBlock* entryBlock,
                std::set<BasicBlock*>& blockList,
@@ -1350,6 +1350,25 @@ namespace DHLS {
     return g;
   }
 
+
+  STG buildSTG(Schedule& sched,
+               llvm::Function* const f,
+               std::function<void(Schedule&,
+                                  STG&,
+                                  StateId,
+                                  llvm::ReturnInst*,
+                                  Condition&)>& returnBehavior) {
+
+    BasicBlock* entryBlock = &(f->getEntryBlock());
+    SymbolTableList<BasicBlock>& blockList = f->getBasicBlockList();
+    std::set<BasicBlock*> blockSet;
+    for (auto& bb : blockList) {
+      blockSet.insert(&bb);
+    }
+
+    return buildSTG(sched, entryBlock, blockSet, returnBehavior);
+  }
+  
   STG buildSTG(Schedule& sched, llvm::Function* const f) {
     BasicBlock* entryBlock = &(f->getEntryBlock());
     SymbolTableList<BasicBlock>& blockList = f->getBasicBlockList();

@@ -503,6 +503,14 @@ namespace DHLS {
   STG buildSTG(Schedule& sched, llvm::Function* const f);
 
   STG buildSTG(Schedule& sched,
+               llvm::Function* const f,
+               std::function<void(Schedule&,
+                                  STG&,
+                                  StateId,
+                                  llvm::ReturnInst*,
+                                  Condition&)>& returnBehavior);
+  
+  STG buildSTG(Schedule& sched,
                llvm::BasicBlock* entryBlock,
                std::set<llvm::BasicBlock*>& blockList,
                std::function<void(Schedule&,

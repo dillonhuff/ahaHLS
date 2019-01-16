@@ -2720,7 +2720,14 @@ namespace DHLS {
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
-    STG graph = buildSTG(s, f);
+
+    auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
+      map_insert(stg.opTransitions, st, {0, cond});
+    };
+    
+    std::function<void(Schedule&, STG&, StateId, llvm::ReturnInst*, Condition& cond)> returnBehavior(retB);
+    
+    STG graph = buildSTG(s, f, returnBehavior);
 
     cout << "STG Is" << endl;
     graph.print(cout);
