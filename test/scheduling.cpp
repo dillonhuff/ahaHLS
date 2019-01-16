@@ -28,7 +28,7 @@ namespace DHLS {
   //    Test case that merges basic blocks that execute different numbers of times
   //    Test case with outer loop pipelining
   //    Test case that pipelines inner loop surrounded by outer loop
-  //    Test case using ready valid interface together with pipelining
+  //    Test case using a ready-valid interface together with pipelining
   //    Test case that builds a linebuffer from LLVM
   //    Test case that uses wires and interface specifications
   //    Test case that uses multiple functions with interface specs connecting them
@@ -2620,6 +2620,52 @@ namespace DHLS {
     emitVerilog(f, arch, info);
 
     REQUIRE(runIVerilogTB("fifo_in_loop"));
+  }
+
+  TEST_CASE("Reduce loop") {
+    LLVMContext context;
+    SMDiagnostic err;
+    setGlobalLLVMContext(&context);
+
+    auto mod = loadModule(context, err, "add_reduce_15");
+
+    Function* f = mod->getFunction("add_reduce_15");
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.setCount(ADD_OP, 1);
+
+    set<BasicBlock*> blocksToPipeline;
+    Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<string, int> testLayout = {{"in", 0}, {"out", 17}};
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 17}};
+    auto arch = buildMicroArchitecture(f, graph, layout);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(f, arch, info);
+
+    // Create testing infrastructure
+    map<string, vector<int> > memoryInit{{"in", {4, 8, 6, 12, 3, 1, 3, 1, 5, 2, 5, 2, 5, 2, 7}}};
+    map<string, vector<int> > memoryExpected{{"out", {4 + 8 + 6 + 12 + 3 + 1 + 3 + 1 + 5 + 2 + 5 + 2 + 5 + 2 + 7}}};
+
+    TestBenchSpec tb;
+    tb.memoryInit = memoryInit;
+    tb.memoryExpected = memoryExpected;
+    tb.runCycles = 100;
+    tb.maxCycles = 200;
+    tb.name = "add_reduce_15";
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    REQUIRE(runIVerilogTB("add_reduce_15"));
   }
   
 }

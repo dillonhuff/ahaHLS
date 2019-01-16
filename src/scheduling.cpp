@@ -90,9 +90,6 @@ namespace DHLS {
       AU.addRequired<AAResultsWrapperPass>();
       AU.addRequired<ScalarEvolutionWrapperPass>();
 
-      // AU.addRequired<LoopInfoWrapperPass>();
-      // AU.addRequired<TargetLibraryInfoWrapperPass>();
-
       AU.setPreservesAll();
     }
 
