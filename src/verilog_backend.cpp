@@ -2540,18 +2540,6 @@ namespace DHLS {
     }
     
     VerilogComponents comps;
-    // comps.debugWires.push_back({true, 1, "rst"});
-    // comps.debugWires.push_back({true, 1, "clk"});
-
-    if (hasRAM) {
-      comps.debugWires.push_back({true, 1, "in_set_mem_phase"});
-      comps.debugWires.push_back({true, 1, "in_run_phase"});
-      comps.debugWires.push_back({true, 1, "in_check_mem_phase"});
-
-      comps.debugWires.push_back({true, 32, "clocks_in_set_mem_phase"});
-      comps.debugWires.push_back({true, 32, "clocks_in_run_phase"});
-      comps.debugWires.push_back({true, 32, "clocks_in_check_mem_phase"});
-    }
 
     comps.debugWires.push_back({true, 32, "num_clocks_after_reset"});
     comps.debugWires.push_back({true, 32, "total_cycles"});
@@ -2567,17 +2555,6 @@ namespace DHLS {
     comps.debugAssigns.push_back({"clk", "clk_reg"});
     comps.debugAssigns.push_back({"rst", "rst_reg"});    
 
-    if (hasRAM) {
-
-      comps.debugWires.push_back({true, 5, "dbg_wr_addr"});    
-      comps.debugWires.push_back({true, 32, "dbg_wr_data"});
-      comps.debugWires.push_back({true, 1, "dbg_wr_en"});
-
-      comps.debugWires.push_back({true, 5, "dbg_addr"});    
-      comps.debugWires.push_back({false, 32, "dbg_data"});
-
-    }
-
     comps.delayBlocks.push_back({3, "clk_reg = !clk_reg;"});
 
     for (auto action : tb.actionsOnCycles) {
@@ -2587,21 +2564,42 @@ namespace DHLS {
 
     addAlwaysBlock({"clk"}, "total_cycles <= total_cycles + 1;", comps);
 
+    comps.initStmts.push_back("#1 clk_reg = 0;");
+    comps.initStmts.push_back("#1 rst_reg = 1;");
+    comps.initStmts.push_back("#1 total_cycles = 0;");
+    
+    if (hasRAM) {
+      comps.debugWires.push_back({true, 1, "in_set_mem_phase"});
+      comps.debugWires.push_back({true, 1, "in_run_phase"});
+      comps.debugWires.push_back({true, 1, "in_check_mem_phase"});
+
+      comps.debugWires.push_back({true, 32, "clocks_in_set_mem_phase"});
+      comps.debugWires.push_back({true, 32, "clocks_in_run_phase"});
+      comps.debugWires.push_back({true, 32, "clocks_in_check_mem_phase"});
+    // }
+
+    // if (hasRAM) {
+
+      comps.debugWires.push_back({true, 5, "dbg_wr_addr"});    
+      comps.debugWires.push_back({true, 32, "dbg_wr_data"});
+      comps.debugWires.push_back({true, 1, "dbg_wr_en"});
+
+      comps.debugWires.push_back({true, 5, "dbg_addr"});    
+      comps.debugWires.push_back({false, 32, "dbg_data"});
+
+    }
+    
     if (hasRAM) {
       addAlwaysBlock({"clk"}, "if (total_cycles >= max_cycles) begin if (valid == 1 && in_check_mem_phase) begin $display(\"Passed\"); $finish(); end else begin $display(\"valid == %d. Ran out of cycles, finishing.\", valid); $finish(); end end", comps);
     } else {
       addAlwaysBlock({"clk"}, "if (total_cycles >= max_cycles) begin $display(\"Passed\"); $finish(); end", comps);
-    }
+    // }
 
-    if (hasRAM) {
+    // if (hasRAM) {
       addAlwaysBlock({"clk"}, "if (!in_set_mem_phase) begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", comps);
 
       addAlwaysBlock({"clk"}, "if (in_set_mem_phase) begin clocks_in_set_mem_phase <= clocks_in_set_mem_phase + 1; end ", comps);
     }
-    
-    comps.initStmts.push_back("#1 clk_reg = 0;");
-    comps.initStmts.push_back("#1 rst_reg = 1;");
-    comps.initStmts.push_back("#1 total_cycles = 0;");
 
     if (hasRAM) {
       comps.initStmts.push_back("#1 in_set_mem_phase = 1;");
