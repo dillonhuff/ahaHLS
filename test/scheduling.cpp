@@ -2794,7 +2794,7 @@ namespace DHLS {
     hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
     hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
 
-    hcs.setCount(ADD_OP, 1);
+    hcs.setCount(FADD_OP, 1);
 
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
@@ -2829,6 +2829,15 @@ namespace DHLS {
     
     emitVerilog(f, arch, info);
 
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 100;
+    tb.maxCycles = 200;
+    tb.name = "timed_wire_reduce_fp";
+    emitVerilogTestBench(tb, arch, testLayout);
+    
     REQUIRE(runIVerilogTB("timed_wire_reduce_fp"));
 
   }

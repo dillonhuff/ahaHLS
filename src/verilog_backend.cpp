@@ -237,7 +237,7 @@ namespace DHLS {
     } else if (instr->getOpcode() == Instruction::Sub) {
       modName = "sub";            
     } else if (instr->getOpcode() == Instruction::FAdd) {
-      modName = "fpu";
+      modName = "fadd";
     } else {
       assert(false);
     }
@@ -2560,10 +2560,13 @@ namespace DHLS {
 
     comps.debugWires.push_back({true, 5, "dbg_addr"});    
     comps.debugWires.push_back({false, 32, "dbg_data"});
-    
-    comps.debugWires.push_back({false, 5, "waddr_0"});
-    comps.debugWires.push_back({false, 32, "wdata_0"});        
-    comps.debugWires.push_back({false, 1, "wen_0"});
+
+    for (int i = 0; i < arch.numWritePorts(); i++) {
+      auto iStr = to_string(i);
+      comps.debugWires.push_back({false, 5, "waddr_" + iStr});
+      comps.debugWires.push_back({false, 32, "wdata_" + iStr});
+      comps.debugWires.push_back({false, 1, "wen_" + iStr});
+    }
 
     comps.debugWires.push_back({false, 1, "valid"});        
 
@@ -2613,8 +2616,15 @@ namespace DHLS {
     comps.instances.push_back({ramName, "ram", ramConnections});
     
     // TODO: Move this to be generic code passed in to this function
-    ModuleInstance dut{tb.name, "dut", {{"clk", "clk"}, {"rst", "rst"}, {"valid", "valid"}, {"waddr_0", "waddr_0"}, {"wdata_0", "wdata_0"}, {"wen_0", "wen_0"}}};
+    ModuleInstance dut{tb.name, "dut", {{"clk", "clk"}, {"rst", "rst"}, {"valid", "valid"}}}; //, {"waddr_0", "waddr_0"}, {"wdata_0", "wdata_0"}, {"wen_0", "wen_0"}}};
 
+    for (int i = 0; i < arch.numWritePorts(); i++) {
+      auto iStr = to_string(i);
+      dut.portConnections.insert({"waddr_" + iStr, "waddr_" + to_string(i)});    
+      dut.portConnections.insert({"wdata_" + iStr, "wdata_" + to_string(i)});
+      dut.portConnections.insert({"wen_" + iStr, "wen_" + to_string(i)});      
+    }
+    
     for (int i = 0; i < arch.numReadPorts(); i++) {
       auto iStr = to_string(i);
       dut.portConnections.insert({"raddr_" + iStr, "raddr_" + to_string(i)});    

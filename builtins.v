@@ -1012,3 +1012,7 @@ module reciprocal (in, out);
 	);
 
 endmodule
+
+module fadd(input clk, input [31 : 0] in0, input [31 : 0] in1, output [31 : 0] out);
+   fpu adder(.clk(clk), .A(in0), .B(in1), .opcode(2'b0), .O(out));
+endmodule
