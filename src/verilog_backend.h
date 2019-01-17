@@ -24,6 +24,14 @@ namespace DHLS {
     std::string name;
     bool isDebug;
 
+    bool input() const {
+      return isInput;
+    }
+
+    bool output() const {
+      return !isInput;
+    }
+
     std::string toString() {
       return std::string(isInput ? "input" : "output") + " [" + std::to_string(width - 1) + ":0] " + name;
     }

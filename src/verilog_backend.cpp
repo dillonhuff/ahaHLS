@@ -83,7 +83,7 @@ namespace DHLS {
   }
   
   std::vector<Port>
-  getPorts(MicroArchitecture& arch) {
+  getPorts(const MicroArchitecture& arch) {
     auto& unitAssignment = arch.unitAssignment;
 
     vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst")};
@@ -2540,8 +2540,8 @@ namespace DHLS {
     }
     
     VerilogComponents comps;
-    comps.debugWires.push_back({true, 1, "rst"});
-    comps.debugWires.push_back({true, 1, "clk"});
+    // comps.debugWires.push_back({true, 1, "rst"});
+    // comps.debugWires.push_back({true, 1, "clk"});
 
     if (hasRAM) {
       comps.debugWires.push_back({true, 1, "in_set_mem_phase"});
@@ -2557,11 +2557,19 @@ namespace DHLS {
     comps.debugWires.push_back({true, 32, "total_cycles"});
     comps.debugWires.push_back({true, 32, "max_cycles"});
 
-    if (hasRAM) {
-      for (int i = 0; i < arch.numReadPorts(); i++) {
-        comps.debugWires.push_back({false, 5, "raddr_" + to_string(i)});    
-        comps.debugWires.push_back({false, 32, "rdata_" + to_string(i)});
+    for (auto pt : getPorts(arch)) {
+      if (pt.input()) {
+        comps.debugWires.push_back({false, pt.width, pt.name});
+      } else {
+        assert(pt.output());
+        comps.debugWires.push_back({false, pt.width, pt.name});
       }
+    }
+    if (hasRAM) {
+    //   for (int i = 0; i < arch.numReadPorts(); i++) {
+    //     comps.debugWires.push_back({false, 5, "raddr_" + to_string(i)});    
+    //     comps.debugWires.push_back({false, 32, "rdata_" + to_string(i)});
+    //   }
 
       comps.debugWires.push_back({true, 5, "dbg_wr_addr"});    
       comps.debugWires.push_back({true, 32, "dbg_wr_data"});
@@ -2570,15 +2578,15 @@ namespace DHLS {
       comps.debugWires.push_back({true, 5, "dbg_addr"});    
       comps.debugWires.push_back({false, 32, "dbg_data"});
 
-      for (int i = 0; i < arch.numWritePorts(); i++) {
-        auto iStr = to_string(i);
-        comps.debugWires.push_back({false, 5, "waddr_" + iStr});
-        comps.debugWires.push_back({false, 32, "wdata_" + iStr});
-        comps.debugWires.push_back({false, 1, "wen_" + iStr});
-      }
+    //   for (int i = 0; i < arch.numWritePorts(); i++) {
+    //     auto iStr = to_string(i);
+    //     comps.debugWires.push_back({false, 5, "waddr_" + iStr});
+    //     comps.debugWires.push_back({false, 32, "wdata_" + iStr});
+    //     comps.debugWires.push_back({false, 1, "wen_" + iStr});
+    //   }
     }
 
-    comps.debugWires.push_back({false, 1, "valid"});        
+    // comps.debugWires.push_back({false, 1, "valid"});        
 
 
     comps.delayBlocks.push_back({3, "clk = !clk;"});
