@@ -2636,29 +2636,6 @@ namespace DHLS {
       comps.instances.push_back({ramName, "ram", ramConnections});
     }
     
-    // TODO: Move this to be generic code passed in to this function
-    map<string, string > dutConns;
-    ModuleInstance dut{tb.name, "dut", dutConns}; //{{"clk", "clk"}, {"rst", "rst"}, {"valid", "valid"}}};
-    for (auto pt : getPorts(arch)) {
-      dut.portConnections.insert({pt.name, pt.name});
-    }
-
-    // for (int i = 0; i < arch.numWritePorts(); i++) {
-    //   auto iStr = to_string(i);
-    //   dut.portConnections.insert({"waddr_" + iStr, "waddr_" + to_string(i)});
-    //   dut.portConnections.insert({"wdata_" + iStr, "wdata_" + to_string(i)});
-    //   dut.portConnections.insert({"wen_" + iStr, "wen_" + to_string(i)});
-    // }
-    
-    // for (int i = 0; i < arch.numReadPorts(); i++) {
-    //   auto iStr = to_string(i);
-    //   dut.portConnections.insert({"raddr_" + iStr, "raddr_" + to_string(i)});    
-    //   dut.portConnections.insert({"rdata_" + iStr, "rdata_" + to_string(i)});
-    // }
-
-    comps.instances.push_back(dut);
-
-
     if (hasRAM) {
       int cyclesInRun = tb.runCycles;
 
@@ -2722,6 +2699,14 @@ namespace DHLS {
       }
     }
 
+    map<string, string > dutConns;
+    ModuleInstance dut{tb.name, "dut", dutConns};
+    for (auto pt : getPorts(arch)) {
+      dut.portConnections.insert({pt.name, pt.name});
+    }
+
+    comps.instances.push_back(dut);
+    
     vector<Port> pts;
     emitModule(out, modName, pts, comps);
 
