@@ -926,8 +926,8 @@ namespace DHLS {
             auto next = iGroups[i + 1];
             for (auto preI : gp) {
               for (auto nextI : next) {
-                //p.s.add(instrEnd(preI, p.schedVars) < instrStart(nextI, p.schedVars));
-                p.addConstraint(p.instrEnd(preI) < p.instrStart(nextI));
+                // Change to p.instrStart(preI) + II_unit
+                p.addConstraint(p.instrStart(preI) + 1 <= p.instrStart(nextI));
               }
             }
           }
@@ -938,7 +938,6 @@ namespace DHLS {
           // Make sure subsequent pipelined loop iterations obey
           // the resource partial order
           if (elem(&bb, toPipeline)) {
-            //auto II = map_find(&bb, p.IIs).at(0);
             auto II = p.getII(&bb);
 
             assert(iGroups.front().size() > 0);
