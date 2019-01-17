@@ -2569,7 +2569,6 @@ namespace DHLS {
 
     if (hasRAM) {
 
-
       comps.debugWires.push_back({true, 5, "dbg_wr_addr"});    
       comps.debugWires.push_back({true, 32, "dbg_wr_data"});
       comps.debugWires.push_back({true, 1, "dbg_wr_en"});
@@ -2638,20 +2637,24 @@ namespace DHLS {
     }
     
     // TODO: Move this to be generic code passed in to this function
-    ModuleInstance dut{tb.name, "dut", {{"clk", "clk"}, {"rst", "rst"}, {"valid", "valid"}}};
+    map<string, string > dutConns;
+    ModuleInstance dut{tb.name, "dut", dutConns}; //{{"clk", "clk"}, {"rst", "rst"}, {"valid", "valid"}}};
+    for (auto pt : getPorts(arch)) {
+      dut.portConnections.insert({pt.name, pt.name});
+    }
 
-    for (int i = 0; i < arch.numWritePorts(); i++) {
-      auto iStr = to_string(i);
-      dut.portConnections.insert({"waddr_" + iStr, "waddr_" + to_string(i)});
-      dut.portConnections.insert({"wdata_" + iStr, "wdata_" + to_string(i)});
-      dut.portConnections.insert({"wen_" + iStr, "wen_" + to_string(i)});
-    }
+    // for (int i = 0; i < arch.numWritePorts(); i++) {
+    //   auto iStr = to_string(i);
+    //   dut.portConnections.insert({"waddr_" + iStr, "waddr_" + to_string(i)});
+    //   dut.portConnections.insert({"wdata_" + iStr, "wdata_" + to_string(i)});
+    //   dut.portConnections.insert({"wen_" + iStr, "wen_" + to_string(i)});
+    // }
     
-    for (int i = 0; i < arch.numReadPorts(); i++) {
-      auto iStr = to_string(i);
-      dut.portConnections.insert({"raddr_" + iStr, "raddr_" + to_string(i)});    
-      dut.portConnections.insert({"rdata_" + iStr, "rdata_" + to_string(i)});
-    }
+    // for (int i = 0; i < arch.numReadPorts(); i++) {
+    //   auto iStr = to_string(i);
+    //   dut.portConnections.insert({"raddr_" + iStr, "raddr_" + to_string(i)});    
+    //   dut.portConnections.insert({"rdata_" + iStr, "rdata_" + to_string(i)});
+    // }
 
     comps.instances.push_back(dut);
 

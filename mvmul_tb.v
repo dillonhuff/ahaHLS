@@ -39,17 +39,17 @@ module mvmul_tb();
 	reg [31:0] max_cycles;
 	wire [0:0] clk;
 	wire [0:0] rst;
+	wire [0:0] valid;
+	wire [31:0] waddr_0;
+	wire [31:0] wdata_0;
+	wire [0:0] wen_0;
+	wire [31:0] rdata_store_0;
 	wire [31:0] raddr_0;
 	wire [0:0] ren_0;
 	wire [31:0] rdata_0;
 	wire [31:0] raddr_1;
 	wire [0:0] ren_1;
 	wire [31:0] rdata_1;
-	wire [0:0] valid;
-	wire [31:0] waddr_0;
-	wire [31:0] wdata_0;
-	wire [0:0] wen_0;
-	wire [31:0] rdata_store_0;
 	reg [0:0] clk_reg;
 	reg [0:0] rst_reg;
 	reg [4:0] dbg_wr_addr;
@@ -199,6 +199,6 @@ module mvmul_tb();
 
 	RAM_1_3_32_32 ram(.clk(clk), .debug_addr(dbg_addr), .debug_data(dbg_data), .debug_write_addr(dbg_wr_addr), .debug_write_data(dbg_wr_data), .debug_write_en(dbg_wr_en), .raddr_0(raddr_0), .raddr_1(raddr_1), .rdata_0(rdata_0), .rdata_1(rdata_1), .rst(rst), .waddr_0(waddr_0), .wdata_0(wdata_0), .wen_0(wen_0));
 
-	mvmul dut(.clk(clk), .raddr_0(raddr_0), .raddr_1(raddr_1), .rdata_0(rdata_0), .rdata_1(rdata_1), .rst(rst), .valid(valid), .waddr_0(waddr_0), .wdata_0(wdata_0), .wen_0(wen_0));
+	mvmul dut(.clk(clk), .raddr_0(raddr_0), .raddr_1(raddr_1), .rdata_0(rdata_0), .rdata_1(rdata_1), .rdata_store_0(rdata_store_0), .ren_0(ren_0), .ren_1(ren_1), .rst(rst), .valid(valid), .waddr_0(waddr_0), .wdata_0(wdata_0), .wen_0(wen_0));
 
 endmodule
