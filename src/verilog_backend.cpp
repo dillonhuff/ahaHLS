@@ -1672,6 +1672,7 @@ namespace DHLS {
       }
 
       print(out, 1, {modName, params, instName, wireConns});
+      out << endl;
     }
     out << "\t// End Functional Units" << endl;
     out << endl;
