@@ -1348,25 +1348,23 @@ namespace DHLS {
 
           // TODO: Add multiple stall condition handling, and add stall logic
           // to other cases in control logic
-          //Instruction* instructionWithStall = nullptr;
+
           vector<string> stallConds;
           for (auto instr : arch.stg.instructionsStartingAt(state)) {
-            //instructionWithStall = instr.instruction;
+
             if (isBuiltinFifoCall(instr.instruction)) {
-              //instructionWithStall = instr.instruction;
+
               stallConds.push_back(iiCondition(instr.instruction, arch));
-              //break;
+
             }
           }
 
-          //if (instructionWithStall != nullptr) {
+
           if (stallConds.size() > 0) {
-            //out << tab(4) << "if (" << iiCondition(instructionWithStall, arch) << ") begin " << endl;
             out << tab(4) << "if (" << andStrings(stallConds) << ") begin " << endl;
           }
           out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
 
-          //if (instructionWithStall != nullptr) {
           if (stallConds.size() > 0) {          
             out << tab(4) << "end" << endl;
           }
@@ -2545,11 +2543,11 @@ namespace DHLS {
     comps.debugWires.push_back({true, 1, "clk"});
     comps.debugWires.push_back({true, 1, "in_set_mem_phase"});
     comps.debugWires.push_back({true, 1, "in_run_phase"});
-    comps.debugWires.push_back({true, 1, "in_check_mem_phase"});    
+    comps.debugWires.push_back({true, 1, "in_check_mem_phase"});
 
     comps.debugWires.push_back({true, 32, "clocks_in_set_mem_phase"});
     comps.debugWires.push_back({true, 32, "clocks_in_run_phase"});
-    comps.debugWires.push_back({true, 32, "clocks_in_check_mem_phase"});    
+    comps.debugWires.push_back({true, 32, "clocks_in_check_mem_phase"});
 
     comps.debugWires.push_back({true, 32, "num_clocks_after_reset"});
     comps.debugWires.push_back({true, 32, "total_cycles"});
@@ -2575,6 +2573,11 @@ namespace DHLS {
 
 
     comps.delayBlocks.push_back({3, "clk = !clk;"});
+
+    for (auto action : tb.actionsOnCycles) {
+      int cycleNo = action.first;
+      addAlwaysBlock({"clk"}, "if (" + to_string(cycleNo) + " == total_cycles) begin " + action.second + " end", comps);
+    }
 
     addAlwaysBlock({"clk"}, "total_cycles <= total_cycles + 1;", comps);
     addAlwaysBlock({"clk"}, "if (total_cycles >= max_cycles) begin if (valid == 1 && in_check_mem_phase) begin $display(\"Passed\"); $finish(); end else begin $display(\"valid == %d. Ran out of cycles, finishing.\", valid); $finish(); end end", comps);
@@ -2686,8 +2689,6 @@ namespace DHLS {
       str += "  if (dbg_data == " + to_string(memName.second[lastNum]) + ") begin $display(\"Correct.\"); end else begin $display(\"Assert failed\"); $finish(); end ";
       str += "end";
       addAlwaysBlock({"clk"}, str, comps);
-
-      //checkNum++;
     }
     
     vector<string> portStrings;    

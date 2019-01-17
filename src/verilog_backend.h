@@ -354,6 +354,8 @@ namespace DHLS {
     int maxCycles;
     std::string name;
 
+    std::map<int, std::string> actionsOnCycles;
+
     TestBenchSpec() {
       maxCycles = 400;
     }
