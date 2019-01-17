@@ -85,3 +85,5 @@ fifo
 fifo_3
 fifo_in_loop
 fifo_in_loop.v
+test/ll_files/host/
+test/host
