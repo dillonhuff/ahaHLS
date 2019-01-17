@@ -50,6 +50,8 @@ module mvmul_tb();
 	wire [31:0] wdata_0;
 	wire [0:0] wen_0;
 	wire [31:0] rdata_store_0;
+	reg [0:0] clk_reg;
+	reg [0:0] rst_reg;
 	reg [4:0] dbg_wr_addr;
 	reg [31:0] dbg_wr_data;
 	reg [0:0] dbg_wr_en;
@@ -57,8 +59,8 @@ module mvmul_tb();
 	wire [31:0] dbg_data;
 
 	initial begin
-		#1 clk = 0;
-		#1 rst = 1;
+		#1 clk_reg = 0;
+		#1 rst_reg = 1;
 		#1 total_cycles = 0;
 		#1 in_set_mem_phase = 1;
 		#1 in_check_mem_phase = 0;
@@ -70,6 +72,8 @@ module mvmul_tb();
 		#1 clocks_in_check_mem_phase = 0;
 	end
 
+	assign clk = clk_reg;
+	assign rst = rst_reg;
 
 	always @(posedge clk) begin
 		total_cycles <= total_cycles + 1;
@@ -152,7 +156,7 @@ module mvmul_tb();
 	end
 
 	always @(posedge clk) begin
-		if (clocks_in_set_mem_phase == (12)) begin in_run_phase <= 1; rst <= 0; dbg_wr_en <= 0; in_set_mem_phase <= 0; end
+		if (clocks_in_set_mem_phase == (12)) begin in_run_phase <= 1; rst_reg <= 0; dbg_wr_en <= 0; in_set_mem_phase <= 0; end
 	end
 
 	always @(posedge clk) begin
@@ -189,7 +193,7 @@ module mvmul_tb();
 
 
 	always #3 begin
-		clk = !clk;
+		clk_reg = !clk_reg;
 	end
 
 

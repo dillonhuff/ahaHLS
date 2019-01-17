@@ -2558,18 +2558,17 @@ namespace DHLS {
     comps.debugWires.push_back({true, 32, "max_cycles"});
 
     for (auto pt : getPorts(arch)) {
-      if (pt.input()) {
-        comps.debugWires.push_back({false, pt.width, pt.name});
-      } else {
-        assert(pt.output());
-        comps.debugWires.push_back({false, pt.width, pt.name});
-      }
+      comps.debugWires.push_back({false, pt.width, pt.name});
     }
+
+    comps.debugWires.push_back({true, 1, "clk_reg"});
+    comps.debugWires.push_back({true, 1, "rst_reg"});    
+
+    comps.debugAssigns.push_back({"clk", "clk_reg"});
+    comps.debugAssigns.push_back({"rst", "rst_reg"});    
+
     if (hasRAM) {
-    //   for (int i = 0; i < arch.numReadPorts(); i++) {
-    //     comps.debugWires.push_back({false, 5, "raddr_" + to_string(i)});    
-    //     comps.debugWires.push_back({false, 32, "rdata_" + to_string(i)});
-    //   }
+
 
       comps.debugWires.push_back({true, 5, "dbg_wr_addr"});    
       comps.debugWires.push_back({true, 32, "dbg_wr_data"});
@@ -2578,18 +2577,9 @@ namespace DHLS {
       comps.debugWires.push_back({true, 5, "dbg_addr"});    
       comps.debugWires.push_back({false, 32, "dbg_data"});
 
-    //   for (int i = 0; i < arch.numWritePorts(); i++) {
-    //     auto iStr = to_string(i);
-    //     comps.debugWires.push_back({false, 5, "waddr_" + iStr});
-    //     comps.debugWires.push_back({false, 32, "wdata_" + iStr});
-    //     comps.debugWires.push_back({false, 1, "wen_" + iStr});
-    //   }
     }
 
-    // comps.debugWires.push_back({false, 1, "valid"});        
-
-
-    comps.delayBlocks.push_back({3, "clk = !clk;"});
+    comps.delayBlocks.push_back({3, "clk_reg = !clk_reg;"});
 
     for (auto action : tb.actionsOnCycles) {
       int cycleNo = action.first;
@@ -2610,8 +2600,8 @@ namespace DHLS {
       addAlwaysBlock({"clk"}, "if (in_set_mem_phase) begin clocks_in_set_mem_phase <= clocks_in_set_mem_phase + 1; end ", comps);
     }
     
-    comps.initStmts.push_back("#1 clk = 0;");
-    comps.initStmts.push_back("#1 rst = 1;");
+    comps.initStmts.push_back("#1 clk_reg = 0;");
+    comps.initStmts.push_back("#1 rst_reg = 1;");
     comps.initStmts.push_back("#1 total_cycles = 0;");
 
     if (hasRAM) {
@@ -2691,7 +2681,7 @@ namespace DHLS {
       }
 
       int cyclesInSetMem = setNum;
-      addAlwaysBlock({"clk"}, "if (clocks_in_set_mem_phase == (" + to_string(cyclesInSetMem) + ")) begin in_run_phase <= 1; rst <= 0; dbg_wr_en <= 0; in_set_mem_phase <= 0; end", comps);
+      addAlwaysBlock({"clk"}, "if (clocks_in_set_mem_phase == (" + to_string(cyclesInSetMem) + ")) begin in_run_phase <= 1; rst_reg <= 0; dbg_wr_en <= 0; in_set_mem_phase <= 0; end", comps);
 
       addAlwaysBlock({"clk"}, "if (!in_set_mem_phase) begin dbg_wr_en <= 0; end", comps);
     
