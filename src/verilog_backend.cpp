@@ -565,14 +565,6 @@ namespace DHLS {
           outWires = {{"out_data", {false, w, unitName + "_out_data"}}};
         }
         
-        // wiring = {{"read_valid", {true, 1, unitName + "_read_valid"}},
-        //           {"write_valid", {true, 1, unitName + "_write_valid"}},
-        //           {"in_data", {true, w, unitName + "_in_data"}}};
-
-        // outWires = {{"out_data", {false, w, unitName + "_out_data"}},
-        //             {"read_ready", {false, 1, unitName + "_read_ready"}},
-        //             {"write_ready", {false, 1, unitName + "_write_ready"}}};
-        
       } else {
         // No action
       }
@@ -845,11 +837,6 @@ namespace DHLS {
 
       if (instr0 == instr) {
         return dataOutput(instr0, arch);
-        // auto unit0Src =
-        //   map_find(instr0, arch.unitAssignment);
-        // assert(unit0Src.outWires.size() == 1);
-        // string valName = unit0Src.onlyOutputVar();
-        // return valName;
       }
 
       StateId argState = map_find(instr0, arch.stg.sched.instrTimes).back();
@@ -879,12 +866,30 @@ namespace DHLS {
       assert(contains_key(val, arch.memoryMap));
       
       return to_string(map_find(val, arch.memoryMap));
-    } else {
-      assert(ConstantInt::classof(val));
+    } else if (ConstantInt::classof(val)) {
+      
       auto valC = dyn_cast<ConstantInt>(val);
       auto apInt = valC->getValue();
 
       return to_string(dyn_cast<ConstantInt>(val)->getSExtValue());
+    } else {
+      assert(ConstantFP::classof(val));
+
+      ConstantFP* fpVal = dyn_cast<ConstantFP>(val);
+
+      cout << "Float value = " << valueString(fpVal) << endl;
+
+      assert(false);
+      
+      // static const size_t BufBytes = 128;
+      // char buf[BufBytes];
+      // auto Written = fpVal->getValueAPF().convertToHexString(buf,
+      //                                                        /*hexDigits=*/0,
+      //                                                        /*upperCase=*/false,
+      //                                                        APFloat::rmNearestTiesToEven);
+
+      // cout << string(buf) << endl;
+      // assert(false);
     }
 
     
@@ -1343,21 +1348,26 @@ namespace DHLS {
 
           // TODO: Add multiple stall condition handling, and add stall logic
           // to other cases in control logic
-          Instruction* instructionWithStall = nullptr;
+          //Instruction* instructionWithStall = nullptr;
+          vector<string> stallConds;
           for (auto instr : arch.stg.instructionsStartingAt(state)) {
-            instructionWithStall = instr.instruction;
+            //instructionWithStall = instr.instruction;
             if (isBuiltinFifoCall(instr.instruction)) {
-              instructionWithStall = instr.instruction;
-              break;
+              //instructionWithStall = instr.instruction;
+              stallConds.push_back(iiCondition(instr.instruction, arch));
+              //break;
             }
           }
 
-          if (instructionWithStall != nullptr) {
-            out << tab(4) << "if (" << iiCondition(instructionWithStall, arch) << ") begin " << endl;
+          //if (instructionWithStall != nullptr) {
+          if (stallConds.size() > 0) {
+            //out << tab(4) << "if (" << iiCondition(instructionWithStall, arch) << ") begin " << endl;
+            out << tab(4) << "if (" << andStrings(stallConds) << ") begin " << endl;
           }
           out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
 
-          if (instructionWithStall != nullptr) {          
+          //if (instructionWithStall != nullptr) {
+          if (stallConds.size() > 0) {          
             out << tab(4) << "end" << endl;
           }
 

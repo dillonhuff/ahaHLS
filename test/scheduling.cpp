@@ -2750,87 +2750,87 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("timed_wire_reduce"));
   }
 
-  TEST_CASE("Floating point reduce with timed wires") {
-    LLVMContext context;
-    setGlobalLLVMContext(&context);
+  // TEST_CASE("Floating point reduce with timed wires") {
+  //   LLVMContext context;
+  //   setGlobalLLVMContext(&context);
 
-    int width = 32;
-    auto iStr = to_string(width);
+  //   int width = 32;
+  //   auto iStr = to_string(width);
 
-    StructType* tp = fifoType(width);
-    auto mod = llvm::make_unique<Module>("floating point reduce with timed wires", context);
+  //   StructType* tp = fifoType(width);
+  //   auto mod = llvm::make_unique<Module>("floating point reduce with timed wires", context);
 
-    vector<Type*> readArgs = {tp->getPointerTo()};
-    Function* readFifo = fifoRead(width, mod.get());
+  //   vector<Type*> readArgs = {tp->getPointerTo()};
+  //   Function* readFifo = fifoRead(width, mod.get());
 
-    Function* writeFifo = fifoWrite(width, mod.get());
+  //   Function* writeFifo = fifoWrite(width, mod.get());
 
-    std::vector<Type *> inputs{tp->getPointerTo(),
-        tp->getPointerTo()};
+  //   std::vector<Type *> inputs{tp->getPointerTo(),
+  //       tp->getPointerTo()};
     
-    Function* f = mkFunc(inputs, "timed_wire_reduce_fp", mod.get());
+  //   Function* f = mkFunc(inputs, "timed_wire_reduce_fp", mod.get());
 
-    auto blk = mkBB("entry_block", f);
-    IRBuilder<> b(blk);
+  //   auto blk = mkBB("entry_block", f);
+  //   IRBuilder<> b(blk);
 
-    auto in = getArg(f, 0);
-    Value* val = mkFloat(0);
-    for (int i = 0; i < 4; i++) {
-      auto nextVal = b.CreateCall(readFifo, {in});
-      val = b.CreateFAdd(val, nextVal);
-    }
+  //   auto in = getArg(f, 0);
+  //   Value* val = mkFloat(0);
+  //   for (int i = 0; i < 4; i++) {
+  //     auto nextVal = b.CreateCall(readFifo, {in});
+  //     val = b.CreateFAdd(val, nextVal);
+  //   }
 
-    auto out = getArg(f, 1);
-    b.CreateCall(writeFifo, {val, out});
-    b.CreateRet(nullptr);
+  //   auto out = getArg(f, 1);
+  //   b.CreateCall(writeFifo, {val, out});
+  //   b.CreateRet(nullptr);
 
-    cout << "LLVM Function" << endl;
-    cout << valueString(f) << endl;
+  //   cout << "LLVM Function" << endl;
+  //   cout << valueString(f) << endl;
 
-    HardwareConstraints hcs = standardConstraints();
-    // TODO: Do this by default
-    hcs.memoryMapping = memoryOpLocations(f);
-    setAllAllocaMemTypes(hcs, f, registerSpec(width));
-    hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
-    hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
+  //   HardwareConstraints hcs = standardConstraints();
+  //   // TODO: Do this by default
+  //   hcs.memoryMapping = memoryOpLocations(f);
+  //   setAllAllocaMemTypes(hcs, f, registerSpec(width));
+  //   hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
+  //   hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
 
-    hcs.setCount(ADD_OP, 1);
+  //   hcs.setCount(ADD_OP, 1);
 
-    set<BasicBlock*> toPipeline;
-    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
-    p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
+  //   set<BasicBlock*> toPipeline;
+  //   SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+  //   p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
 
-    map<Function*, SchedulingProblem> constraints{{f, p}};
-    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+  //   map<Function*, SchedulingProblem> constraints{{f, p}};
+  //   Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
 
-    auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
-      map_insert(stg.opTransitions, st, {0, cond});
-    };
+  //   auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
+  //     map_insert(stg.opTransitions, st, {0, cond});
+  //   };
     
-    std::function<void(Schedule&, STG&, StateId, llvm::ReturnInst*, Condition& cond)> returnBehavior(retB);
+  //   std::function<void(Schedule&, STG&, StateId, llvm::ReturnInst*, Condition& cond)> returnBehavior(retB);
     
-    STG graph = buildSTG(s, f, returnBehavior);
+  //   STG graph = buildSTG(s, f, returnBehavior);
 
-    cout << "STG Is" << endl;
-    graph.print(cout);
+  //   cout << "STG Is" << endl;
+  //   graph.print(cout);
 
-    map<Value*, int> layout;
-    ArchOptions options;
-    auto arch = buildMicroArchitecture(f,
-                                       graph,
-                                       layout,
-                                       options,
-                                       hcs);
+  //   map<Value*, int> layout;
+  //   ArchOptions options;
+  //   auto arch = buildMicroArchitecture(f,
+  //                                      graph,
+  //                                      layout,
+  //                                      options,
+  //                                      hcs);
 
-    VerilogDebugInfo info;
-    addNoXChecks(arch, info);
-    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
-    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+  //   VerilogDebugInfo info;
+  //   addNoXChecks(arch, info);
+  //   info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+  //   info.debugAssigns.push_back({"global_state_dbg", "global_state"});
     
-    emitVerilog(f, arch, info);
+  //   emitVerilog(f, arch, info);
 
-    REQUIRE(runIVerilogTB("timed_wire_reduce_fp"));
+  //   REQUIRE(runIVerilogTB("timed_wire_reduce_fp"));
 
-  }
+  // }
   
 }
