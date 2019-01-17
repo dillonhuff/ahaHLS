@@ -878,9 +878,12 @@ namespace DHLS {
       ConstantFP* fpVal = dyn_cast<ConstantFP>(val);
 
       cout << "Float value = " << valueString(fpVal) << endl;
+      string floatBits = fpVal->getValueAPF().bitcastToAPInt().toString(2, false);
 
-      assert(false);
-      
+      cout << "Bitcast     = " << floatBits << endl;
+
+      return "32'b" + zeroExtend(floatBits, 32);
+
       // static const size_t BufBytes = 128;
       // char buf[BufBytes];
       // auto Written = fpVal->getValueAPF().convertToHexString(buf,
@@ -2538,6 +2541,8 @@ namespace DHLS {
     string modName = tb.name + "_tb";
     ofstream out(modName + ".v");
 
+    auto ramName = emitTestRAM(out, tb, arch, layout);
+    
     VerilogComponents comps;
     comps.debugWires.push_back({true, 1, "rst"});
     comps.debugWires.push_back({true, 1, "clk"});
@@ -2588,20 +2593,18 @@ namespace DHLS {
     
     comps.initStmts.push_back("#1 clk = 0;");
     comps.initStmts.push_back("#1 rst = 1;");
-
+    comps.initStmts.push_back("#1 total_cycles = 0;");
+    
     comps.initStmts.push_back("#1 in_set_mem_phase = 1;");
     comps.initStmts.push_back("#1 in_check_mem_phase = 0;");
     comps.initStmts.push_back("#1 in_run_phase = 0;");        
 
-    comps.initStmts.push_back("#1 total_cycles = 0;");
     comps.initStmts.push_back("#1 max_cycles = " + to_string(tb.maxCycles) + ";");
     comps.initStmts.push_back("#1 num_clocks_after_reset = 0;");
     comps.initStmts.push_back("#1 clocks_in_set_mem_phase = 0;");
     comps.initStmts.push_back("#1 clocks_in_run_phase = 0;");        
     comps.initStmts.push_back("#1 clocks_in_check_mem_phase = 0;");
 
-    auto ramName = emitTestRAM(out, tb, arch, layout);
-    
     map<string, string> ramConnections{{"clk", "clk"}, {"rst", "rst"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}, {"debug_write_addr", "dbg_wr_addr"}, {"debug_write_data", "dbg_wr_data"}, {"debug_write_en", "dbg_wr_en"}};    
     for (int i = 0; i < arch.numReadPorts(); i++) {
       auto iStr = to_string(i);
@@ -2690,15 +2693,9 @@ namespace DHLS {
       str += "end";
       addAlwaysBlock({"clk"}, str, comps);
     }
-    
-    vector<string> portStrings;    
-    out << "module " << modName << "(" + commaListString(portStrings) + ");" << endl;
-    out << endl;
 
-
-    emitComponents(out, comps);
-
-    out << "endmodule" << endl;
+    vector<Port> pts;
+    emitModule(out, modName, pts, comps);
 
     out.close();
   }

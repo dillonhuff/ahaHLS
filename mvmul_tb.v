@@ -28,7 +28,6 @@ module RAM_1_3_32_32(input [0:0] clk, input [0:0] rst, output [31:0] rdata_0, in
 
 endmodule
 module mvmul_tb();
-
 	reg [0:0] rst;
 	reg [0:0] clk;
 	reg [0:0] in_set_mem_phase;
@@ -57,10 +56,10 @@ module mvmul_tb();
 	initial begin
 		#1 clk = 0;
 		#1 rst = 1;
+		#1 total_cycles = 0;
 		#1 in_set_mem_phase = 1;
 		#1 in_check_mem_phase = 0;
 		#1 in_run_phase = 0;
-		#1 total_cycles = 0;
 		#1 max_cycles = 400;
 		#1 num_clocks_after_reset = 0;
 		#1 clocks_in_set_mem_phase = 0;

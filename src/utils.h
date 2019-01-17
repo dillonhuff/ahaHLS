@@ -132,4 +132,18 @@ namespace DHLS {
     return "!" + parens(a);
   }
 
+  static inline
+  std::string zeroExtend(const std::string val, const int width) {
+    assert(val.size() < width);
+    std::string res;
+    for (int i = 0; i < (int) (width - val.size()); i++) {
+      res += "0";
+    }
+    res += val;
+
+    assert(((int) res.size()) == width);
+
+    return res;
+  }
+
 }
