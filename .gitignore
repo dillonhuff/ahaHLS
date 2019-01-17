@@ -78,3 +78,10 @@ experiments/
 fifo_user*
 fifo_read_delay*
 sys_array_1_2*
+timed_wire_reduce*
+timed_wire_reduce_fp.v
+add_reduce_15*
+fifo
+fifo_3
+fifo_in_loop
+fifo_in_loop.v

@@ -883,16 +883,6 @@ namespace DHLS {
       cout << "Bitcast     = " << floatBits << endl;
 
       return "32'b" + zeroExtend(floatBits, 32);
-
-      // static const size_t BufBytes = 128;
-      // char buf[BufBytes];
-      // auto Written = fpVal->getValueAPF().convertToHexString(buf,
-      //                                                        /*hexDigits=*/0,
-      //                                                        /*upperCase=*/false,
-      //                                                        APFloat::rmNearestTiesToEven);
-
-      // cout << string(buf) << endl;
-      // assert(false);
     }
 
     
