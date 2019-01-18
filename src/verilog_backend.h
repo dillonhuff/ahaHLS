@@ -76,10 +76,17 @@ namespace DHLS {
   
   static inline
   void print(std::ostream& out, int level, const AlwaysBlock& b) {
-    assert(b.triggers.size() == 1);
-    out << tab(level) << "always @(posedge " << b.triggers[0] << ") begin" << std::endl;
-    out << tab(level + 1) << b.body << std::endl;
-    out << tab(level) << "end" << std::endl;
+    
+    if (b.triggers.size() == 1) {
+      out << tab(level) << "always @(posedge " << b.triggers[0] << ") begin" << std::endl;
+      out << tab(level + 1) << b.body << std::endl;
+      out << tab(level) << "end" << std::endl;
+    } else {
+      out << tab(level) << "always @(*) begin" << std::endl;
+      out << tab(level + 1) << b.body << std::endl;
+      out << tab(level) << "end" << std::endl;
+      
+    }
   }
 
   class AlwaysDelayBlock {
@@ -362,13 +369,14 @@ namespace DHLS {
     int maxCycles;
     std::string name;
 
-    std::map<int, std::string> actionsOnCycles;
-    std::vector<std::string> settableWires;
+    std::map<int, std::vector<std::string> > actionsOnCycles;
+    std::map<int, std::vector<std::string> > actionsInCycles;    
+    std::set<std::string> settableWires;
 
     TestBenchSpec() {
       maxCycles = 400;
-      settableWires.push_back("clk");
-      settableWires.push_back("rst");      
+      settableWires.insert("clk");
+      settableWires.insert("rst");      
     }
   };
 

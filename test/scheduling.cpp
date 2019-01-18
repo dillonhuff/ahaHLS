@@ -2836,9 +2836,16 @@ namespace DHLS {
     tb.runCycles = 100;
     tb.maxCycles = 200;
     tb.name = "timed_wire_reduce_fp";
-    tb.actionsOnCycles[0] = "rst_reg <= 0;";
-    tb.settableWires.push_back("fifo_0_out_data");
-    tb.settableWires.push_back("fifo_1_in_data");    
+    tb.settableWires.insert("fifo_0_out_data");
+    tb.settableWires.insert("fifo_1_in_data");
+    map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
+
+    // TODO: Make these values valid floats
+    map_insert(tb.actionsInCycles, 1, string("fifo_0_out_data_reg = 0;"));
+    map_insert(tb.actionsInCycles, 2, string("fifo_0_out_data_reg = 0;"));
+    map_insert(tb.actionsInCycles, 3, string("fifo_0_out_data_reg = 0;"));    
+    map_insert(tb.actionsInCycles, 4, string("fifo_0_out_data_reg = 0;"));
+
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("timed_wire_reduce_fp"));

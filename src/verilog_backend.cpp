@@ -1657,9 +1657,14 @@ namespace DHLS {
       }
 
       // TODO: Put sequential vs combinational distincion in module description
-      if ((unit.getModName() == "RAM") || (unit.getModName() == "register")) {
+      if ((unit.getModName() == "RAM") ||
+          (unit.getModName() == "register")) {
         wireConns.insert({"clk", "clk"});
         wireConns.insert({"rst", "rst"});
+      }
+
+      if (unit.getModName() == "fadd") {
+        wireConns.insert({"clk", "clk"});
       }
 
       string modName = unit.getModName();
@@ -2579,11 +2584,20 @@ namespace DHLS {
 
     comps.delayBlocks.push_back({3, "clk_reg = !clk_reg;"});
 
-    for (auto action : tb.actionsOnCycles) {
-      int cycleNo = action.first;
-      addAlwaysBlock({"clk"}, "if (" + to_string(cycleNo) + " == total_cycles) begin " + action.second + " end", comps);
+    for (auto actionList : tb.actionsOnCycles) {
+      int cycleNo = actionList.first;
+      for (auto action : actionList.second) {
+        addAlwaysBlock({"clk"}, "if (" + to_string(cycleNo) + " == total_cycles) begin " + action + " end", comps);
+      }
     }
 
+    for (auto actionList : tb.actionsInCycles) {
+      int cycleNo = actionList.first;
+      for (auto action : actionList.second) {
+        addAlwaysBlock({}, "if (" + to_string(cycleNo) + " == total_cycles) begin " + action + " end", comps);
+      }
+    }
+    
     addAlwaysBlock({"clk"}, "total_cycles <= total_cycles + 1;", comps);
 
     if (hasRAM) {
@@ -2875,7 +2889,7 @@ namespace DHLS {
           FunctionalUnit unit = map_find(instr, arch.unitAssignment);          
           string in0Name = map_find(string("in_data"), unit.portWires).name;
 
-          string valCheck = in0Name + " !== 'dx";
+          string valCheck = in0Name + " !== " + to_string(getValueBitWidth(instr->getOperand(0))) + "'dx";
           string active = andStr(atState(st.first, arch), iiCondition(instr, arch));
 
           addAssert(notStr(active) + " || " + valCheck, debugInfo);
@@ -2889,6 +2903,7 @@ namespace DHLS {
                            const std::string& opName) {
     
     for (auto st : arch.stg.opStates) {
+      // TODO: Instructions starting at?
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
         auto instr = instrG.instruction;
         if (BinaryOperator::classof(instr)) {
@@ -2917,6 +2932,33 @@ namespace DHLS {
 
   }  
 
+  void noBinopsProduceXOutputs(const MicroArchitecture& arch,
+                               VerilogDebugInfo& debugInfo,
+                               const std::string& opName) {
+    
+    for (auto st : arch.stg.opStates) {
+      for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
+        auto instr = instrG.instruction;
+        if (BinaryOperator::classof(instr)) {
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+          if (unit.getModName() == opName) {
+            StateId activeState = st.first;
+
+            string iStr = instructionString(instr);
+            printInstrAtState(instr, activeState, arch, debugInfo);
+
+            string outName = map_find(string("out"), unit.outWires).name;
+            addAssert(notAtState(activeState, arch) + " || " +
+                      outName + " !== " + to_string(getValueBitWidth(instr)) + "'dx",
+                      debugInfo);
+            
+          }
+        }
+      }
+    }
+
+  }  
+  
   // Not sure how to incorporate ready-valid instructions in to this
   // debug framework. Maybe use the iiCondition function?
   void noCompareOpsTakeXInputs(const MicroArchitecture& arch,
@@ -2977,6 +3019,8 @@ namespace DHLS {
 
   void addNoXChecks(const MicroArchitecture& arch,
                     VerilogDebugInfo& info) {
+    noBinopsTakeXInputs(arch, info, "fadd");
+    noBinopsProduceXOutputs(arch, info, "fadd");    
     noFifoReadsX(arch, info);
     noFifoWritesX(arch, info);    
     noCompareOpsTakeXInputs(arch, info, "ne");
