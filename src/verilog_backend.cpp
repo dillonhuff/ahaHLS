@@ -2903,8 +2903,7 @@ namespace DHLS {
                            const std::string& opName) {
     
     for (auto st : arch.stg.opStates) {
-      // TODO: Instructions starting at?
-      for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
+      for (auto instrG : arch.stg.instructionsStartingAt(st.first)) {
         auto instr = instrG.instruction;
         if (BinaryOperator::classof(instr)) {
           FunctionalUnit unit = map_find(instr, arch.unitAssignment);
