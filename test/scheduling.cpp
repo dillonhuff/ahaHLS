@@ -2837,7 +2837,6 @@ namespace DHLS {
     tb.maxCycles = 200;
     tb.name = "timed_wire_reduce_fp";
     tb.settableWires.insert("fifo_0_out_data");
-    tb.settableWires.insert("fifo_1_in_data");
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
 
     // TODO: Make these values valid floats
