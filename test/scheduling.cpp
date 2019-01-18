@@ -2833,14 +2833,14 @@ namespace DHLS {
     map<string, int> testLayout = {};
     tb.memoryInit = {};
     tb.memoryExpected = {};
-    tb.runCycles = 100;
-    tb.maxCycles = 200;
+    tb.runCycles = 10;
+    tb.maxCycles = 20;
     tb.name = "timed_wire_reduce_fp";
     tb.settableWires.insert("fifo_0_out_data");
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
 
     // TODO: Make these values valid floats
-    map_insert(tb.actionsInCycles, 1, string("fifo_0_out_data_reg = 0;"));
+    map_insert(tb.actionsInCycles, 1, string("fifo_0_out_data_reg = 1;"));
     map_insert(tb.actionsInCycles, 2, string("fifo_0_out_data_reg = 0;"));
     map_insert(tb.actionsInCycles, 3, string("fifo_0_out_data_reg = 0;"));    
     map_insert(tb.actionsInCycles, 4, string("fifo_0_out_data_reg = 0;"));
