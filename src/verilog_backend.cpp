@@ -2559,17 +2559,16 @@ namespace DHLS {
 
     for (auto pt : getPorts(arch)) {
       comps.debugWires.push_back({false, pt.width, pt.name});
+
+      if (elem(pt.name, tb.settableWires)) {
+        comps.debugWires.push_back({true, pt.width, pt.name + "_reg"});
+        comps.debugAssigns.push_back({pt.name, pt.name + "_reg"});
+      }
     }
-
-    comps.debugWires.push_back({true, 1, "clk_reg"});
-    comps.debugWires.push_back({true, 1, "rst_reg"});    
-
-    comps.debugAssigns.push_back({"clk", "clk_reg"});
-    comps.debugAssigns.push_back({"rst", "rst_reg"});    
 
     if (hasRAM) {
 
-      comps.debugWires.push_back({true, 5, "dbg_wr_addr"});    
+      comps.debugWires.push_back({true, 5, "dbg_wr_addr"});
       comps.debugWires.push_back({true, 32, "dbg_wr_data"});
       comps.debugWires.push_back({true, 1, "dbg_wr_en"});
 

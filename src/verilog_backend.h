@@ -363,9 +363,12 @@ namespace DHLS {
     std::string name;
 
     std::map<int, std::string> actionsOnCycles;
+    std::vector<std::string> settableWires;
 
     TestBenchSpec() {
       maxCycles = 400;
+      settableWires.push_back("clk");
+      settableWires.push_back("rst");      
     }
   };
 

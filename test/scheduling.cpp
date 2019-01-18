@@ -2837,7 +2837,8 @@ namespace DHLS {
     tb.maxCycles = 200;
     tb.name = "timed_wire_reduce_fp";
     tb.actionsOnCycles[0] = "rst_reg <= 0;";
-    tb.settableWires.push_back("fifo_0_in_data");
+    tb.settableWires.push_back("fifo_0_out_data");
+    tb.settableWires.push_back("fifo_1_in_data");    
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("timed_wire_reduce_fp"));
