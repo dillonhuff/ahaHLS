@@ -2942,7 +2942,7 @@ namespace DHLS {
     tb.memoryInit = {};
     tb.memoryExpected = {};
     tb.runCycles = 10;
-    tb.maxCycles = 20;
+    tb.maxCycles = 100;
     tb.name = "timed_wire_reduce_fp";
     tb.settableWires.insert("fifo_0_out_data");
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
