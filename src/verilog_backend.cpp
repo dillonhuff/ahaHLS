@@ -441,9 +441,16 @@ namespace DHLS {
 
       string opCodeName = instr->getOpcodeName();
       int width = getValueBitWidth(instr);
-      modParams = {{"WIDTH", to_string(width)}};
+      if (modName != "fadd") {
+        modParams = {{"WIDTH", to_string(width)}};
+      }
+
       wiring = {{"in0", {true, width, opCodeName + "_in0_" + rStr}},
                 {"in1", {true, width, opCodeName + "_in1_" + rStr}}};
+
+      if (modName == "fadd") {
+        wiring.insert({"en", {true, 1, opCodeName + "_en_" + rStr}});
+      }
       outWires = {{"out", {false, width, opCodeName + "_out_" + rStr}}};
     } else if (ReturnInst::classof(instr)) {
       isExternal = true;
@@ -980,6 +987,9 @@ namespace DHLS {
       auto arg1 = instr->getOperand(1);
       auto arg1Name = outputName(arg1, pos, arch); //outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
+      if (instr->getOpcode() == Instruction::FAdd) {
+        assignments.insert({addUnit.portWires["en"].name, "1"});        
+      }
       assignments.insert({addUnit.portWires["in0"].name, arg0Name});
       assignments.insert({addUnit.portWires["in1"].name, arg1Name});      
             
@@ -3030,5 +3040,5 @@ namespace DHLS {
     noLoadAddressesXWhenUsed(arch, info);
     noStoredValuesXWhenUsed(arch, info);
   }
-  
+
 }

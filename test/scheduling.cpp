@@ -15,6 +15,7 @@ namespace DHLS {
   // Q: System TODOs:
   // A: Remove useless address fields from registers (allow custom memory interfaces)
   //    Add an "I dont care about default values to this FU" option?
+  //    Move test layout int testbenchspec
 
   // NOTE: Systolic array example has correct binding by chance. The control
   // structure around the array is a tricky question. Most papers on systolic
@@ -2750,6 +2751,111 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("timed_wire_reduce"));
   }
 
+  TEST_CASE("One floating point add") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    int width = 32;
+    auto iStr = to_string(width);
+
+    StructType* tp = fifoType(width);
+    auto mod = llvm::make_unique<Module>("One float add", context);
+
+    vector<Type*> readArgs = {tp->getPointerTo()};
+    Function* readFifo = fifoRead(width, mod.get());
+
+    Function* writeFifo = fifoWrite(width, mod.get());
+
+    std::vector<Type *> inputs{tp->getPointerTo(),
+        tp->getPointerTo(),
+        tp->getPointerTo()};
+    
+    Function* f = mkFunc(inputs, "timed_wire_fp_add", mod.get());
+
+    auto blk = mkBB("entry_block", f);
+    IRBuilder<> b(blk);
+
+    auto in0 = getArg(f, 0);
+    auto in1 = getArg(f, 1);
+    auto a = b.CreateCall(readFifo, {in0});
+    auto b0 = b.CreateCall(readFifo, {in1});
+    auto val = b.CreateFAdd(a, b0);
+    auto out = getArg(f, 2);
+    b.CreateCall(writeFifo, {val, out});
+    b.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    // TODO: Do this by default
+    hcs.memoryMapping = memoryOpLocations(f);
+    setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
+    hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
+    hcs.fifoSpecs[getArg(f, 2)] = FifoSpec(0, 0, FIFO_TIMED);
+
+    // TODO: Set latency of fadd to 15?
+    hcs.setCount(FADD_OP, 1);
+
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+
+    auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
+      map_insert(stg.opTransitions, st, {0, cond});
+    };
+    
+    std::function<void(Schedule&, STG&, StateId, llvm::ReturnInst*, Condition& cond)> returnBehavior(retB);
+    
+    STG graph = buildSTG(s, f, returnBehavior);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<Value*, int> layout;
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f,
+                                       graph,
+                                       layout,
+                                       options,
+                                       hcs);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+    
+    emitVerilog(f, arch, info);
+
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 10;
+    tb.maxCycles = 20;
+    tb.name = "timed_wire_fp_add";
+    tb.settableWires.insert("fifo_0_out_data");
+    tb.settableWires.insert("fifo_1_out_data");    
+    map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
+
+    float af = 3.0;
+    float bf = 4.0;
+    float cf = af + bf;
+
+    cout << "Sum bits = " << floatBits(cf) << endl;
+
+    map_insert(tb.actionsInCycles, 1, string("fifo_0_out_data_reg = " + floatBits(af) + ";"));
+    map_insert(tb.actionsInCycles, 1, string("fifo_1_out_data_reg = " + floatBits(bf) + ";"));
+    emitVerilogTestBench(tb, arch, testLayout);
+    
+    REQUIRE(runIVerilogTB("timed_wire_fp_add"));
+
+  }
+  
   TEST_CASE("Floating point reduce with timed wires") {
     LLVMContext context;
     setGlobalLLVMContext(&context);

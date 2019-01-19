@@ -106,4 +106,11 @@ namespace DHLS {
     return false;
   }
 
+  std::string floatBits(const float f) {
+    APFloat fpVal(f); // Create ap
+    string fBits = fpVal.bitcastToAPInt().toString(2, false);
+    return "32'b" + zeroExtend(fBits, 32);
+  }
+  
+  
 }

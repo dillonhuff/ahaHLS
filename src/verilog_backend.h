@@ -538,5 +538,7 @@ namespace DHLS {
                          StateId st,
                          const MicroArchitecture& arch,
                          VerilogDebugInfo& debugInfo);
+
+  std::string floatBits(const float f);
   
 }
