@@ -37,7 +37,7 @@ namespace DHLS {
   // are inputs are mapped to the same units, there is no resource duplication
   // on wires.
 
-  // Is there ever a more better way of mapping a lower II to a higher
+  // Is there ever a better way of mapping a lower II to a higher
   // than just duplicating the functional units?
 
   // Q: What does better mean?
@@ -48,6 +48,15 @@ namespace DHLS {
 
   // Is the initiation interval problem really the same problem as
   // pipelining or is it something different?
+
+  // Should building compound functional units be part of the scheduling algorithm
+  // or should it be done by some other code?
+  // In a way it can be phrased as a scheduling problem: you just duplicate a
+  // computation and feed that to the scheduler with II constraints, and a loop-back
+
+  // Or: Check the initiation interval and if any functional unit has II higher than
+  // the target unit build a lower II version by duplication. Then schedule the
+  // application with the lower II version?
 
   // Q: What test cases do I need?
   // A: Test that uses multiple different RAM types
@@ -2927,6 +2936,8 @@ namespace DHLS {
 
     hcs.setCount(FADD_OP, 1);
 
+    // TODO: Fix the fadd instantiation problem: 2 fadds but scheduled like
+    // there is only 1?
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
     p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
