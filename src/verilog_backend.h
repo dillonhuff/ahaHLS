@@ -428,11 +428,16 @@ namespace DHLS {
                              VerilogDebugInfo& info) {
     addAlwaysBlock({"clk"}, "$display(\"global_state == %d, " + wireName + " == %d\", global_state, " + wireName + ");", info);
   }
+
+  static inline
+  std::string assertString(const std::string& condition) {
+    return "if (!(" + condition + ")) begin $display(\"assertion(" + condition + ")\"); $finish(); end";
+  }
   
   static inline void
   addAssert(const std::string& condition,
             VerilogDebugInfo& info) {
-    addAlwaysBlock({"clk"}, "if (!(" + condition + ")) begin $display(\"assertion(" + condition + ")\"); $finish(); end", info);
+    addAlwaysBlock({"clk"}, assertString(condition), info); 
   }
 
   

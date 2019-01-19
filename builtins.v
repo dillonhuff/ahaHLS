@@ -1072,9 +1072,9 @@ module adder(
   reg       guard, round_bit, sticky;
   reg       [27:0] sum;
 
-   always @(posedge clk) begin
-      $display("state = %d", state);
-   end
+   // always @(posedge clk) begin
+   //    $display("state = %d", state);
+   // end
 
   always @(posedge clk)
   begin
@@ -1344,14 +1344,14 @@ module fadd(
    end
 
    always @(posedge clk) begin
-      $display("ST      = %b", state);
-      $display("out     = %b", out);
-      $display("a_ack   = %b", a_ack);
-      $display("b_ack   = %b", b_ack);
-      $display("in0     = %b", in0);
-      $display("in1     = %b", in1);
-      $display("in0_s     = %b", in0_stored);
-      $display("in1_s     = %b", in1_stored);
+      // $display("ST      = %b", state);
+      // $display("out     = %b", out);
+      // $display("a_ack   = %b", a_ack);
+      // $display("b_ack   = %b", b_ack);
+      // $display("in0     = %b", in0);
+      // $display("in1     = %b", in1);
+      // $display("in0_s     = %b", in0_stored);
+      // $display("in1_s     = %b", in1_stored);
 
    end
 
