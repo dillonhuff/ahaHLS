@@ -23,6 +23,32 @@ namespace DHLS {
   // Im not sure what the most area efficient way to create control logic for
   // the array is.
 
+  // Is the initiation interval multiplexing loop problem a problem that can
+  // be solved by a binding API?
+  // I guess if I was given a target II for the loop and given unlimited resources
+  // I could just find a schedule for that II, and then duplicate that schedule
+  // with control logic to offset it? Is there ever a better way to do this? And
+  // if not how do I incorporate it in to the current control structure?
+
+  // One form of pipelining is mapping different instances of the same computation
+  // on to the same functional units at overlapping times.
+  // Another form of pipelining is mapping different instances of the same
+  // computation on to different instances of a computation, but the wires that
+  // are inputs are mapped to the same units, there is no resource duplication
+  // on wires.
+
+  // Is there ever a more better way of mapping a lower II to a higher
+  // than just duplicating the functional units?
+
+  // Q: What does better mean?
+  // A: 1. Higher utilization of II bounded resources
+  //    2. Higher utilization of other resources
+  //    3. Lower latency
+  //    4. Lower total initiation interval
+
+  // Is the initiation interval problem really the same problem as
+  // pipelining or is it something different?
+
   // Q: What test cases do I need?
   // A: Test that uses multiple different RAM types
   //    Test that uses limited numbers of memory read/write ports
