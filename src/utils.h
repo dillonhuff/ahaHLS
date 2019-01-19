@@ -39,27 +39,11 @@ namespace DHLS {
   static inline
   std::string commaListString(const std::vector<std::string>& strings) {
     return separatedListString(strings, ", ");
-    // std::string res = "";
-    // for (int i = 0; i < (int) strings.size(); i++) {
-    //   res += strings[i];
-    //   if (i < (((int) strings.size()) - 1)) {
-    //     res += ", ";
-    //   }
-    // }
-    // return res;
   }
 
   static inline
   std::string andStrings(const std::vector<std::string>& strings) {
     return separatedListString(strings, " && ");    
-    // std::string res = "";
-    // for (int i = 0; i < (int) strings.size(); i++) {
-    //   res += strings[i];
-    //   if (i < (((int) strings.size()) - 1)) {
-    //     res += " && ";
-    //   }
-    // }
-    // return res;
   }
 
   template<typename T>

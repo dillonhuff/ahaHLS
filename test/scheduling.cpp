@@ -2261,10 +2261,7 @@ namespace DHLS {
     for (auto& bb : f->getBasicBlockList()) {
       for (auto& instrR : bb) {
         auto instr = &instrR;
-        int numUsers = 0;
-        for (auto& user : instr->uses()) {
-          numUsers++;
-        }
+        int numUsers = instr->getNumUses();
 
         if (!BinaryOperator::classof(instr) && (numUsers == 1)) {
           auto& user = *(instr->uses().begin());
@@ -2946,17 +2943,16 @@ namespace DHLS {
     tb.name = "timed_wire_reduce_fp";
     tb.settableWires.insert("fifo_0_out_data");
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
+    map_insert(tb.actionsOnCycles, 81, assertString("fifo_1_in_data === (1 + 2 + 3 + 4)"));
 
-    // TODO: Make these values valid floats
     map_insert(tb.actionsInCycles, 1, string("fifo_0_out_data_reg = 1;"));
-    map_insert(tb.actionsInCycles, 2, string("fifo_0_out_data_reg = 0;"));
-    map_insert(tb.actionsInCycles, 3, string("fifo_0_out_data_reg = 0;"));    
-    map_insert(tb.actionsInCycles, 4, string("fifo_0_out_data_reg = 0;"));
+    map_insert(tb.actionsInCycles, 2, string("fifo_0_out_data_reg = 2;"));
+    map_insert(tb.actionsInCycles, 3, string("fifo_0_out_data_reg = 3;"));    
+    map_insert(tb.actionsInCycles, 4, string("fifo_0_out_data_reg = 4;"));
 
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("timed_wire_reduce_fp"));
-
   }
   
 }
