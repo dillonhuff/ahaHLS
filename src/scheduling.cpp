@@ -774,6 +774,28 @@ namespace DHLS {
     return p;
   }
 
+  // Very hard to know where to begin changing to a readport, writeport
+  // formulation for channels. Id like to replace calls to read and write
+  // FIFOs with calls to set ports, and Id like to change the code generation
+  // API to output ports
+
+  // Also: In the background of all this is the fact that the resource binding
+  // code is still wrong in a subtle way that I dont understand, and that
+  // the calling convention for readport and writeport functions needs to
+  // take in a pointer to a resource, even though Im not sure which resource
+  // will be bound to which call until after scheduling is finished.
+
+  // Solution to binding: Assume always unique, then modify program later
+  // to reflect resource constraints?
+
+  // Maybe I should build the readport, writeport stuff using the FPU first
+  // in a totally separate example, then figure out how to get preprocessing
+  // (inlining?) code working to convert builtin fifo calls to readport,
+  // and writeport code?
+
+  // I also need to think about how to convert the readport, writeport API
+  // description in a function in to sequential code snippets that can be
+  // used to drive a simulated model of a program.
   void
   addMemoryConstraints(llvm::Function* f,
                        HardwareConstraints& hdc,
