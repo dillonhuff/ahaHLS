@@ -3011,9 +3011,10 @@ namespace DHLS {
     b.CreateCall(writePort("input_a_stb"), {mkInt(1, 0)});
     b.CreateCall(writePort("input_b"), {b});
     b.CreateCall(writePort("input_b_stb"), {mkInt(1, 1)});
-    // Wait for output_z_stb == 1
+    // Wait one or two cycles?
     b.CreateCall(writePort("input_b_stb"), {mkInt(1, 0)});
-    auto val = b.CreateCall(readPort("output_z_z"));
+    // Wait at least one cycle after input_b_stb == 1, for output_z_stb == 1
+    auto val = b.CreateCall(readPort("output_z"));
 
     //auto val = b.CreateFAdd(a, b0);
     auto out = getArg(f, 2);
