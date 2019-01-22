@@ -339,6 +339,9 @@ namespace DHLS {
   Schedule buildFromModel(SchedulingProblem& p) {
     context c;
     optimize s(c);
+
+    cout << "Constraints" << endl;
+    cout << s << endl;
     if (p.optimize) {
       cout << "Objective function = " << p.objectiveFunction << endl;
       optimize::handle h = s.minimize(toZ3(c, p.objectiveFunction));
