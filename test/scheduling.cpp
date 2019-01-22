@@ -37,27 +37,6 @@ namespace DHLS {
   // are inputs are mapped to the same units, there is no resource duplication
   // on wires.
 
-  // Is there ever a better way of mapping a lower II to a higher
-  // than just duplicating the functional units?
-
-  // Q: What does better mean?
-  // A: 1. Higher utilization of II bounded resources
-  //    2. Higher utilization of other resources
-  //    3. Lower latency
-  //    4. Lower total initiation interval
-
-  // Is the initiation interval problem really the same problem as
-  // pipelining or is it something different?
-
-  // Should building compound functional units be part of the scheduling algorithm
-  // or should it be done by some other code?
-  // In a way it can be phrased as a scheduling problem: you just duplicate a
-  // computation and feed that to the scheduler with II constraints, and a loop-back
-
-  // Or: Check the initiation interval and if any functional unit has II higher than
-  // the target unit build a lower II version by duplication. Then schedule the
-  // application with the lower II version?
-
   // Q: What test cases do I need?
   // A: Test that uses multiple different RAM types
   //    Test that uses limited numbers of memory read/write ports
@@ -66,7 +45,6 @@ namespace DHLS {
   //    Test case that pipelines inner loop surrounded by outer loop
   //    Test case using a ready-valid interface together with pipelining
   //    Test case that builds a linebuffer from LLVM
-  //    Test case that uses wires and interface specifications
   //    Test case that uses multiple functions with interface specs connecting them
   TEST_CASE("Schedule a single store operation") {
     SMDiagnostic Err;
