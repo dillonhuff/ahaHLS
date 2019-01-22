@@ -2999,6 +2999,8 @@ namespace DHLS {
     auto a = b.CreateCall(readFifo, {in0});
     auto b0 = b.CreateCall(readFifo, {in1});
 
+    // Create transaction constraints data structure?
+
     // Interface with floating point adder
     b.CreateCall(writePort("rst"), {mkInt(1, 1)});
     // Wait until next cycle
