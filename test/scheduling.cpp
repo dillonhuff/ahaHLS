@@ -2969,5 +2969,127 @@ namespace DHLS {
     
     REQUIRE(runIVerilogTB("timed_wire_reduce_fp"));
   }
+
+  TEST_CASE("One floating point add via readport and writeport") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    int width = 32;
+    auto iStr = to_string(width);
+
+    StructType* tp = fifoType(width);
+    auto mod = llvm::make_unique<Module>("One float add via port API", context);
+
+    vector<Type*> readArgs = {tp->getPointerTo()};
+    Function* readFifo = fifoRead(width, mod.get());
+
+    Function* writeFifo = fifoWrite(width, mod.get());
+
+    std::vector<Type *> inputs{tp->getPointerTo(),
+        tp->getPointerTo(),
+        tp->getPointerTo()};
+    
+    Function* f = mkFunc(inputs, "timed_wire_fp_add", mod.get());
+
+    auto blk = mkBB("entry_block", f);
+    IRBuilder<> b(blk);
+
+    auto in0 = getArg(f, 0);
+    auto in1 = getArg(f, 1);
+    auto a = b.CreateCall(readFifo, {in0});
+    auto b0 = b.CreateCall(readFifo, {in1});
+
+    // Interface with floating point adder
+    b.CreateCall(writePort("rst"), {mkInt(1, 1)});
+    // Wait until next cycle
+    b.CreateCall(writePort("rst"), {mkInt(1, 1)});    
+    b.CreateCall(writePort("input_a"), {a});
+    b.CreateCall(writePort("input_a_stb"), {mkInt(1, 1)});
+    // Wait for input_a_ack == 1, and then wait 1 more cycle
+    b.CreateCall(writePort("input_a_stb"), {mkInt(1, 0)});
+    b.CreateCall(writePort("input_b"), {b});
+    b.CreateCall(writePort("input_b_stb"), {mkInt(1, 1)});
+    // Wait for output_z_stb == 1
+    b.CreateCall(writePort("input_b_stb"), {mkInt(1, 0)});
+    auto val = b.CreateCall(readPort("output_z_z"));
+
+    //auto val = b.CreateFAdd(a, b0);
+    auto out = getArg(f, 2);
+    b.CreateCall(writeFifo, {val, out});
+    b.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    // TODO: Do this by default
+    hcs.memoryMapping = memoryOpLocations(f);
+    setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
+    hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
+    hcs.fifoSpecs[getArg(f, 2)] = FifoSpec(0, 0, FIFO_TIMED);
+
+    // TODO: Set latency of fadd to 15?
+    hcs.setCount(FADD_OP, 1);
+
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+
+    auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
+      map_insert(stg.opTransitions, st, {0, cond});
+    };
+    
+    std::function<void(Schedule&, STG&, StateId, llvm::ReturnInst*, Condition& cond)> returnBehavior(retB);
+    
+    STG graph = buildSTG(s, f, returnBehavior);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<Value*, int> layout;
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f,
+                                       graph,
+                                       layout,
+                                       options,
+                                       hcs);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+    
+    emitVerilog(f, arch, info);
+
+    float af = 3.0;
+    float bf = 4.0;
+    float cf = af + bf;
+
+    cout << "Sum bits = " << floatBits(cf) << endl;
+    
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 30;
+    tb.maxCycles = 50;
+    tb.name = "timed_wire_fp_add";
+    tb.settableWires.insert("fifo_0_out_data");
+    tb.settableWires.insert("fifo_1_out_data");    
+    map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
+    map_insert(tb.actionsOnCycles, 21, assertString("fifo_2_in_data == " + floatBits(cf)));
+
+    map_insert(tb.actionsInCycles, 1, string("fifo_0_out_data_reg = " + floatBits(af) + ";"));
+    map_insert(tb.actionsInCycles, 1, string("fifo_1_out_data_reg = " + floatBits(bf) + ";"));
+    map_insert(tb.actionsInCycles, 1, string("fifo_1_out_data_reg = " + floatBits(bf) + ";"));
+    map_insert(tb.actionsInCycles, 21, string("$display(\"fifo_2_in_data = %d\", fifo_2_in_data);"));
+    emitVerilogTestBench(tb, arch, testLayout);
+    
+    REQUIRE(runIVerilogTB("timed_wire_fp_add"));
+  }
   
 }
