@@ -574,6 +574,15 @@ namespace DHLS {
         
       } else {
         // No action
+
+        auto fuPtr = instr->getOperand(0);
+        assert(contains_key(fuPtr, hcs.modSpecs));
+
+        modName = map_find(fuPtr, hcs.modSpecs).name;
+        // TODO: Actually check this instead of just using it as a builtin
+        int w = 32;
+        wiring = {{"input_a", {true, w, unitName + "_in_data"}}};
+        outWires = {{"output_z", {false, w, unitName + "_out_data"}}};
       }
     } else if (AllocaInst::classof(instr) ||
                BitCastInst::classof(instr)) {
@@ -1094,6 +1103,9 @@ namespace DHLS {
 
 
         } else {
+
+          cout << "Operand 0 = " << valueString(instr->getOperand(0)) << endl;
+          assert(contains_key(instr->getOperand(0), arch.hcs.modSpecs));
         }
       }
     } else if (AllocaInst::classof(instr) ||

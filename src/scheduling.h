@@ -110,8 +110,8 @@ namespace DHLS {
 
     std::map<llvm::Value*, MemorySpec> memSpecs;
     std::map<llvm::Instruction*, llvm::Value*> memoryMapping;
-
     std::map<llvm::Value*, FifoSpec> fifoSpecs;
+    std::map<llvm::Value*, ModuleSpec> modSpecs;
 
     FifoInterface getFifoType(llvm::Value* const val) const {
       if (dbhc::contains_key(val, fifoSpecs)) {

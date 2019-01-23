@@ -16,6 +16,7 @@ namespace DHLS {
   // A: Remove useless address fields from registers (allow custom memory interfaces)
   //    Add an "I dont care about default values to this FU" option?
   //    Move test layout int testbenchspec
+  //    Incorporate fifoSpecs in to scheduling constraints automatically
 
   // NOTE: Systolic array example has correct binding by chance. The control
   // structure around the array is a tricky question. Most papers on systolic
@@ -2989,8 +2990,7 @@ namespace DHLS {
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo(),
         tp->getPointerTo()};
-    
-    Function* f = mkFunc(inputs, "timed_wire_fp_add", mod.get());
+        Function* f = mkFunc(inputs, "direct_port_fp_add", mod.get());
 
     auto blk = mkBB("entry_block", f);
     IRBuilder<> b(blk);
@@ -3032,7 +3032,6 @@ namespace DHLS {
     // Wait at least one cycle after input_b_stb == 1, for output_z_stb == 1
     auto val = b.CreateCall(readPort("output_z", 32, fpuType), {fpu});
 
-    //auto val = b.CreateFAdd(a, b0);
     auto out = getArg(f, 2);
     b.CreateCall(writeFifo, {val, out});
     b.CreateRet(nullptr);
@@ -3043,6 +3042,7 @@ namespace DHLS {
     HardwareConstraints hcs = standardConstraints();
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
+    hcs.modSpecs[fpu] = {{}, "adder"};
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
     hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
     hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
@@ -3096,7 +3096,7 @@ namespace DHLS {
     tb.memoryExpected = {};
     tb.runCycles = 30;
     tb.maxCycles = 50;
-    tb.name = "timed_wire_fp_add";
+    tb.name = "direct_port_fp_add";
     tb.settableWires.insert("fifo_0_out_data");
     tb.settableWires.insert("fifo_1_out_data");    
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
@@ -3108,7 +3108,7 @@ namespace DHLS {
     map_insert(tb.actionsInCycles, 21, string("$display(\"fifo_2_in_data = %d\", fifo_2_in_data);"));
     emitVerilogTestBench(tb, arch, testLayout);
     
-    REQUIRE(runIVerilogTB("timed_wire_fp_add"));
+    REQUIRE(runIVerilogTB("direct_port_fp_add"));
   }
   
 }
