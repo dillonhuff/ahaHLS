@@ -74,6 +74,38 @@ namespace DHLS {
     // return dyn_cast<IntegerType>(tp)->getBitWidth();
   }
 
+  bool isBuiltinPortWrite(llvm::Instruction* const iptr) {
+    if (!CallInst::classof(iptr)) {
+      return false;
+    }
+
+    CallInst* call = dyn_cast<CallInst>(iptr);
+    Function* called = call->getCalledFunction();
+
+    string name = called->getName();
+
+    if (hasPrefix(name, "builtin_write_port_")) {
+      return true;
+    }
+    return false;
+  }
+
+  bool isBuiltinPortRead(llvm::Instruction* const iptr) {
+    if (!CallInst::classof(iptr)) {
+      return false;
+    }
+
+    CallInst* call = dyn_cast<CallInst>(iptr);
+    Function* called = call->getCalledFunction();
+
+    string name = called->getName();
+
+    if (hasPrefix(name, "builtin_read_port_")) {
+      return true;
+    }
+    return false;
+  }
+  
   bool isBuiltinFifoWrite(llvm::Instruction* const iptr) {
     if (!CallInst::classof(iptr)) {
       return false;

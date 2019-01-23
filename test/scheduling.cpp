@@ -3063,8 +3063,8 @@ namespace DHLS {
     p.addConstraint(p.instrStart(wB) == p.instrStart(wBStb));
     p.addConstraint(p.instrStart(wAStb0) == p.instrStart(wBStb));
 
-    p.addConstraint(p.instrEnd(wBStb) < p.instrStart(wBStb0));    
-    p.addConstraint(p.instrEnd(wBStb0) + 15 < p.instrStart(val));
+    p.addConstraint(p.instrEnd(wBStb) < p.instrStart(wBStb0));
+    p.addConstraint(p.instrEnd(wBStb0) < p.instrStart(val));
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);

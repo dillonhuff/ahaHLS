@@ -106,6 +106,14 @@ namespace DHLS {
     return isBuiltinFifoWrite(instr) || isBuiltinFifoRead(instr);
   }
 
+  bool isBuiltinPortWrite(llvm::Instruction* const instr);
+  bool isBuiltinPortRead(llvm::Instruction* const instr);
+  
+  static inline
+  bool isBuiltinPortCall(llvm::Instruction* const instr) {
+    return isBuiltinPortWrite(instr) || isBuiltinPortRead(instr);
+  }
+  
   static inline
   std::string andStr(const std::string& left, const std::string& right) {
     return parens(left + " && " + right);

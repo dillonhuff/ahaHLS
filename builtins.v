@@ -1072,9 +1072,10 @@ module adder(
   reg       guard, round_bit, sticky;
   reg       [27:0] sum;
 
-   // always @(posedge clk) begin
-   //    $display("state = %d", state);
-   // end
+   always @(posedge clk) begin
+      $display("state = %d", state);
+      $display("input_a_stb = %d", state);      
+   end
 
   always @(posedge clk)
   begin

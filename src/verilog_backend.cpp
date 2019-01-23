@@ -572,17 +572,22 @@ namespace DHLS {
           outWires = {{"out_data", {false, w, unitName + "_out_data"}}};
         }
         
-      } else {
+      } else if (isBuiltinPortCall(instr)) {
         // No action
 
         auto fuPtr = instr->getOperand(0);
         assert(contains_key(fuPtr, hcs.modSpecs));
 
         modName = map_find(fuPtr, hcs.modSpecs).name;
+        unitName = fuPtr->getName();
         // TODO: Actually check this instead of just using it as a builtin
         int w = 32;
         wiring = {{"input_a", {true, w, unitName + "_in_data"}}};
         outWires = {{"output_z", {false, w, unitName + "_out_data"}}};
+
+      } else {
+
+        // No action
       }
     } else if (AllocaInst::classof(instr) ||
                BitCastInst::classof(instr)) {
@@ -1680,7 +1685,8 @@ namespace DHLS {
 
       // TODO: Put sequential vs combinational distincion in module description
       if ((unit.getModName() == "RAM") ||
-          (unit.getModName() == "register")) {
+          (unit.getModName() == "register") ||
+          (unit.getModName() == "adder")) {
         wireConns.insert({"clk", "clk"});
         wireConns.insert({"rst", "rst"});
       }
