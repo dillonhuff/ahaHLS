@@ -177,12 +177,16 @@ namespace DHLS {
 
   static inline
   llvm::Function* writePort(const std::string& portName,
-                            const int width) {
+                            const int width,
+                            llvm::Type* argType) {
+
+    // TODO: Add argType to name
     auto name = "builtin_write_port_" + portName + "_" + std::to_string(width);
 
     llvm::FunctionType *tp =
       llvm::FunctionType::get(llvm::Type::getVoidTy(getGlobalLLVMContext()),
-                              {intType(width), wireType(width)->getPointerTo()},
+                              {argType,
+                                  intType(width)},
                               false);
 
     auto c = getGlobalLLVMModule().getOrInsertFunction(name, tp);
@@ -197,12 +201,16 @@ namespace DHLS {
 
   static inline
   llvm::Function* readPort(const std::string& portName,
-                            const int width) {
+                           const int width,
+                           llvm::Type* argType) {
+
+    // TODO: Add typestring to name
     auto name = "builtin_read_port_" + portName + "_" + std::to_string(width);
 
     llvm::FunctionType *tp =
       llvm::FunctionType::get(intType(width),
-                              {wireType(width)->getPointerTo()},
+                              {argType,
+                                  wireType(width)->getPointerTo()},
                               false);
 
     auto c = getGlobalLLVMModule().getOrInsertFunction(name, tp);

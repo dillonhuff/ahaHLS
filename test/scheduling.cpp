@@ -3003,27 +3003,34 @@ namespace DHLS {
     // Create transaction constraints data structure?
 
     // Interface with floating point adder
-
-    auto writeRst = writePort("rst", 1);
-    auto writeA = writePort("input_a", 32);
-    auto writeAStb = writePort("input_a_stb", 1);        
-
-    auto writeB = writePort("input_b", 32);
-    auto writeBStb = writePort("input_b_stb", 1);        
+    auto fpuType =
+      llvm::StructType::create(getGlobalLLVMContext(),
+                               "builtin_fadd");
     
-    b.CreateCall(writeRst, {mkInt(1, 1)});
+    auto writeRst = writePort("rst", 1, fpuType);
+    auto writeA = writePort("input_a", 32, fpuType);
+    auto writeAStb = writePort("input_a_stb", 1, fpuType);
+
+    auto writeB = writePort("input_b", 32, fpuType);
+    auto writeBStb = writePort("input_b_stb", 1, fpuType);
+
+    auto fpu = b.CreateAlloca(fpuType, nullptr, "fpu_0");
+    b.CreateCall(writeRst, {fpu, mkInt(1, 1)});
     // Wait until next cycle
-    b.CreateCall(writeRst, {mkInt(0, 1)});
-    b.CreateCall(writeA, {a});
-    b.CreateCall(writeAStb, {mkInt(1, 1)});
+    b.CreateCall(writeRst, {fpu, mkInt(0, 1)});
+    b.CreateCall(writeA, {fpu, a});
+    b.CreateCall(writeAStb, {fpu, mkInt(1, 1)});
+
     // Wait for input_a_ack == 1, and then wait 1 more cycle
-    b.CreateCall(writeAStb, {mkInt(0, 1)});
-    b.CreateCall(writeB, {b0});
-    b.CreateCall(writeBStb, {mkInt(1, 1)});
+    b.CreateCall(writeAStb, {fpu, mkInt(0, 1)});
+    b.CreateCall(writeB, {fpu, b0});
+    b.CreateCall(writeBStb, {fpu, mkInt(1, 1)});
+
     // Wait one or two cycles?
-    b.CreateCall(writeBStb, {mkInt(0, 1)});
+    b.CreateCall(writeBStb, {fpu, mkInt(0, 1)});
+
     // Wait at least one cycle after input_b_stb == 1, for output_z_stb == 1
-    auto val = b.CreateCall(readPort("output_z", 32));
+    auto val = b.CreateCall(readPort("output_z", 32, fpuType), {fpu});
 
     //auto val = b.CreateFAdd(a, b0);
     auto out = getArg(f, 2);
