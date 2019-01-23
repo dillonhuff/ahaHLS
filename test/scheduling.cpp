@@ -3017,6 +3017,7 @@ namespace DHLS {
 
     auto readAAck = readPort("input_a_ack", 1, fpuType);
     auto readBAck = readPort("input_b_ack", 1, fpuType);
+    auto readZStb = readPort("output_z_stb", 1, fpuType);
 
     auto fpu = b.CreateAlloca(fpuType, nullptr, "fpu_0");
     auto rst0 = b.CreateCall(writeRst, {fpu, mkInt(1, 1)});
@@ -3040,10 +3041,12 @@ namespace DHLS {
     auto wBStb0 = b.CreateCall(writeBStb, {fpu, mkInt(0, 1)});
 
     // Wait at least one cycle after input_b_stb == 1, for output_z_stb == 1
+    auto zStb = b.CreateCall(readZStb, {fpu});
+    auto stallUntilZStb = b.CreateCall(stall, {zStb});
     auto val = b.CreateCall(readPort("output_z", 32, fpuType), {fpu});
 
     auto out = getArg(f, 2);
-    b.CreateCall(writeFifo, {val, out});
+    auto writeZ = b.CreateCall(writeFifo, {val, out});
     b.CreateRet(nullptr);
 
     cout << "LLVM Function" << endl;
@@ -3080,6 +3083,11 @@ namespace DHLS {
 
     p.addConstraint(p.instrEnd(wBStb) < p.instrStart(wBStb0));
     p.addConstraint(p.instrEnd(wBStb0) < p.instrStart(val));
+
+
+    p.addConstraint(p.instrStart(val) == p.instrStart(zStb));
+    p.addConstraint(p.instrStart(stallUntilZStb) == p.instrStart(zStb));
+    p.addConstraint(p.instrEnd(val) < p.instrStart(writeZ));
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);

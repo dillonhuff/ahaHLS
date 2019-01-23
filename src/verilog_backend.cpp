@@ -688,7 +688,7 @@ namespace DHLS {
         if (StoreInst::classof(instr) ||
             BranchInst::classof(instr) ||
             AllocaInst::classof(instr) ||
-            (CallInst::classof(instr) && !isBuiltinFifoRead(instr)) ||
+            (CallInst::classof(instr) && !isBuiltinFifoRead(instr) && !isBuiltinPortRead(instr)) ||
             BitCastInst::classof(instr)) {
           continue;
         }
@@ -823,7 +823,7 @@ namespace DHLS {
       }
     }
 
-    //cout << "Getting the value of " << valueString(result) << " from arch.names" << endl;
+    cout << "Getting the value of " << valueString(result) << " from arch.names" << endl;
 
     assert(contains_key(result, arch.names));
     
@@ -1408,6 +1408,7 @@ namespace DHLS {
               stallConds.push_back(iiCondition(instr.instruction, arch));
             } else if (isBuiltinStallCall(instr.instruction)) {
 
+              cout << "Getting builtin stall cond for " << instr.instruction->getOperand(0) << endl;
               string cond = outputName(instr.instruction->getOperand(0),
                                        pos,
                                        arch);
