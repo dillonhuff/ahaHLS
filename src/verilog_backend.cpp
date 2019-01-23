@@ -63,7 +63,7 @@ namespace DHLS {
         BranchInst::classof(instr) ||
         AllocaInst::classof(instr) ||
         BitCastInst::classof(instr) ||
-        (CallInst::classof(instr) && !isBuiltinFifoRead(instr)) ||
+        (CallInst::classof(instr) && !isBuiltinFifoRead(instr) && !isBuiltinPortRead(instr)) ||
         ReturnInst::classof(instr)) {
       return false;
     }
@@ -685,6 +685,7 @@ namespace DHLS {
       for (auto instrG : state.second) {
         Instruction* instr = instrG.instruction;
 
+        // TODO: Replace with hasOutput?
         if (StoreInst::classof(instr) ||
             BranchInst::classof(instr) ||
             AllocaInst::classof(instr) ||
