@@ -5,6 +5,7 @@ using namespace llvm;
 namespace DHLS {
 
   static LLVMContext* context;
+  static Module* globalMod;
 
   void setGlobalLLVMContext(llvm::LLVMContext* contextPtr) {
     context = contextPtr;
@@ -15,4 +16,15 @@ namespace DHLS {
     
     return *context;
   }
+
+  void setGlobalLLVMModule(llvm::Module* modulePtr) {
+    globalMod = modulePtr;
+  }
+
+  llvm::Module& getGlobalLLVMModule() {
+    assert(globalMod != nullptr);
+    
+    return *globalMod;
+  }
+
 }

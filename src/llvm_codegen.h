@@ -10,9 +10,11 @@
 namespace DHLS {
 
   void setGlobalLLVMContext(llvm::LLVMContext* contextPtr);
-
   llvm::LLVMContext& getGlobalLLVMContext();
 
+  void setGlobalLLVMModule(llvm::Module* modulePtr);
+  llvm::Module& getGlobalLLVMModule();
+  
   static inline
   llvm::ConstantInt* mkInt(const std::string& decimalValueString, int bitWidth) {
     return llvm::ConstantInt::get(getGlobalLLVMContext(), llvm::APInt(bitWidth, llvm::StringRef(decimalValueString), 10));
@@ -134,6 +136,14 @@ namespace DHLS {
   }
 
   static inline
+  llvm::StructType* wireType(const int width) {
+    llvm::StructType* tp =
+      llvm::StructType::create(getGlobalLLVMContext(),
+                               "builtin_wire_" + std::to_string(width));
+    return tp;
+  }
+  
+  static inline
   llvm::Function* fifoRead(const int width, llvm::Module* m) {
     auto name = "builtin_read_fifo_" + std::to_string(width);
 
@@ -162,5 +172,40 @@ namespace DHLS {
 
     return llvm::dyn_cast<llvm::Function>(c);
   }
+
+  static inline
+  llvm::Function* writePort(const std::string& portName,
+                            const int width) {
+    auto name = "builtin_write_port_" + portName + "_" + std::to_string(width);
+
+    llvm::FunctionType *tp =
+      llvm::FunctionType::get(llvm::Type::getVoidTy(getGlobalLLVMContext()),
+                              {intType(width), wireType(width)->getPointerTo()},
+                              false);
+
+    auto c = getGlobalLLVMModule().getOrInsertFunction(name, tp);
+
+    assert(llvm::Function::classof(c));
+
+    return llvm::dyn_cast<llvm::Function>(c);
+  }
+
+  static inline
+  llvm::Function* readPort(const std::string& portName,
+                            const int width) {
+    auto name = "builtin_read_port_" + portName + "_" + std::to_string(width);
+
+    llvm::FunctionType *tp =
+      llvm::FunctionType::get(intType(width),
+                              {wireType(width)->getPointerTo()},
+                              false);
+
+    auto c = getGlobalLLVMModule().getOrInsertFunction(name, tp);
+
+    assert(llvm::Function::classof(c));
+
+    return llvm::dyn_cast<llvm::Function>(c);
+  }
+  
   
 }

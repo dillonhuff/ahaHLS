@@ -2979,6 +2979,7 @@ namespace DHLS {
 
     StructType* tp = fifoType(width);
     auto mod = llvm::make_unique<Module>("One float add via port API", context);
+    setGlobalLLVMModule(mod.get());
 
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo = fifoRead(width, mod.get());
@@ -3002,19 +3003,19 @@ namespace DHLS {
     // Create transaction constraints data structure?
 
     // Interface with floating point adder
-    b.CreateCall(writePort("rst"), {mkInt(1, 1)});
+    b.CreateCall(writePort("rst", 1), {mkInt(1, 1)});
     // Wait until next cycle
-    b.CreateCall(writePort("rst"), {mkInt(1, 1)});    
-    b.CreateCall(writePort("input_a"), {a});
-    b.CreateCall(writePort("input_a_stb"), {mkInt(1, 1)});
+    b.CreateCall(writePort("rst", 1), {mkInt(1, 1)});
+    b.CreateCall(writePort("input_a", width), {a});
+    b.CreateCall(writePort("input_a_stb", 1), {mkInt(1, 1)});
     // Wait for input_a_ack == 1, and then wait 1 more cycle
-    b.CreateCall(writePort("input_a_stb"), {mkInt(1, 0)});
-    b.CreateCall(writePort("input_b"), {b});
-    b.CreateCall(writePort("input_b_stb"), {mkInt(1, 1)});
+    b.CreateCall(writePort("input_a_stb", 1), {mkInt(1, 0)});
+    b.CreateCall(writePort("input_b", 32), {b0});
+    b.CreateCall(writePort("input_b_stb", 1), {mkInt(1, 1)});
     // Wait one or two cycles?
-    b.CreateCall(writePort("input_b_stb"), {mkInt(1, 0)});
+    b.CreateCall(writePort("input_b_stb", 1), {mkInt(1, 0)});
     // Wait at least one cycle after input_b_stb == 1, for output_z_stb == 1
-    auto val = b.CreateCall(readPort("output_z"));
+    auto val = b.CreateCall(readPort("output_z", 32));
 
     //auto val = b.CreateFAdd(a, b0);
     auto out = getArg(f, 2);
