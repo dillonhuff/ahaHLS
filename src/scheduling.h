@@ -777,10 +777,28 @@ namespace DHLS {
 
   static inline
   LinearConstraint
+  operator>(const int left, const LinearExpression right) {
+    return {LinearExpression(left) - right, CMP_GTZ};
+  }
+
+  static inline
+  LinearConstraint
+  operator>(const LinearExpression left, const LinearExpression right) {
+    return {left - right, CMP_GTZ};
+  }
+
+  static inline
+  LinearConstraint
+  operator>(const LinearExpression left, const int right) {
+    return {left - LinearExpression(right), CMP_GTZ};
+  }
+
+  static inline
+  LinearConstraint
   operator<(const int left, const LinearExpression right) {
     return {LinearExpression(left) - right, CMP_LTZ};
   }
-
+  
   Schedule buildFromModel(SchedulingProblem& p);
 
   // TODO: Add incremental support for building scheduling constraints?

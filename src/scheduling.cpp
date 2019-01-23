@@ -669,12 +669,13 @@ namespace DHLS {
     if (constraint.cond == CMP_GTEZ) {
       return e >= 0;
     } else if (constraint.cond == CMP_LTEZ) {
-      //cout << "LTEZ constraint = " << (e <= 0) << endl;
       return e <= 0;
     } else if (constraint.cond == CMP_EQZ) {
       return e == 0;      
     } else if (constraint.cond == CMP_LTZ) {
       return e < 0;
+    } else if (constraint.cond == CMP_GTZ) {
+      return e > 0;      
     } else {
       assert(false);
     }
