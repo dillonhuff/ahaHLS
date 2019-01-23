@@ -2971,6 +2971,24 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("timed_wire_reduce_fp"));
   }
 
+  // Some problems with this prototype:
+  // 1. Directly creating scheduler constraints works, but I cant use it to
+  //    create simulator bindings (need a different data structure)
+  // 2. Writing out constraints like these is tedious and error prone
+  // 3. I want to be able to express loop related constraints as well
+  //    (constraints on execution order of instances of an action)
+  // 4. I want to be able to build up constraints iteratively as I build the
+  //    function
+  // 5. Eventually I want a constraint API that is good enough to write a paper
+  //    about. Ideally using C/C++ as a frontend
+  // 6. Not only is writing these constraints tedious, writing LLVM code for
+  //    reads and writes to ports is also tedious. Id like to encapsulate
+  //    these reads and writes and the accompanying scheduling constraints
+  //    in a data structure.
+
+  // Idea: Automatically generate SystemC glue code to connect different modules?
+  // This language for describing constraints is really just a way of describing
+  // the skeleton of an event driven program. 
   TEST_CASE("One floating point add via readport and writeport") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
@@ -3083,7 +3101,6 @@ namespace DHLS {
 
     p.addConstraint(p.instrEnd(wBStb) < p.instrStart(wBStb0));
     p.addConstraint(p.instrEnd(wBStb0) < p.instrStart(val));
-
 
     p.addConstraint(p.instrStart(val) == p.instrStart(zStb));
     p.addConstraint(p.instrStart(stallUntilZStb) == p.instrStart(zStb));
