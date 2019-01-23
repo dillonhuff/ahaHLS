@@ -220,5 +220,22 @@ namespace DHLS {
     return llvm::dyn_cast<llvm::Function>(c);
   }
   
+  static inline
+  llvm::Function* stallFunction() {
+
+    // TODO: Add typestring to name
+    auto name = "builtin_stall";
+
+    llvm::FunctionType *tp =
+      llvm::FunctionType::get(llvm::Type::getVoidTy(getGlobalLLVMContext()),
+                              {intType(1)},
+                              false);
+
+    auto c = getGlobalLLVMModule().getOrInsertFunction(name, tp);
+
+    assert(llvm::Function::classof(c));
+
+    return llvm::dyn_cast<llvm::Function>(c);
+  }
   
 }

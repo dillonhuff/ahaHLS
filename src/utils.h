@@ -98,6 +98,8 @@ namespace DHLS {
     return false;
   }
 
+  bool isBuiltinStallCall(llvm::Instruction* const instr);
+
   bool isBuiltinFifoWrite(llvm::Instruction* const instr);
   bool isBuiltinFifoRead(llvm::Instruction* const instr);
 

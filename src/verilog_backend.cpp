@@ -589,7 +589,11 @@ namespace DHLS {
                   {"rst", {true, 1, unitName + "_rst"}}
         };
 
-        outWires = {{"output_z", {false, w, unitName + "_output_z"}}};
+        outWires = {{"output_z", {false, w, unitName + "_output_z"}},
+                    {"input_a_ack", {false, 1, unitName + "_input_a_ack"}},
+                    {"input_b_ack", {false, 1, unitName + "_input_b_ack"}},
+                    {"output_z_stb", {false, 1, unitName + "_output_z_stb"}}
+        };
       } else {
 
         // No action
@@ -836,6 +840,9 @@ namespace DHLS {
 
     if (isBuiltinFifoRead(instr0)) {
       return map_find(string("out_data"), unit0Src.outWires).name;
+    } else if (isBuiltinPortRead(instr0)) {
+      auto portName = getPortName(instr0);
+      return map_find(string(portName), unit0Src.outWires).name;
     } else {
       assert(unit0Src.outWires.size() == 1);
       string valName = unit0Src.onlyOutputVar();
@@ -1125,6 +1132,17 @@ namespace DHLS {
 
           assignments.insert({addUnit.inputWire(portName), val});
 
+      } else if (isBuiltinPortRead(instr)) {
+
+        // cout << "Operand 0 = " << valueString(instr->getOperand(0)) << endl;
+        // assert(contains_key(instr->getOperand(0), arch.hcs.modSpecs));
+
+        // std::string portName = getPortName(instr);
+        // cout << "Port name = " << portName << endl;
+        // string val = outputName(instr->getOperand(1), pos, arch);
+
+        // assignments.insert({addUnit.inputWire(portName), val});
+        
       } else {
       }
     } else if (AllocaInst::classof(instr) ||
@@ -1387,9 +1405,15 @@ namespace DHLS {
           for (auto instr : arch.stg.instructionsStartingAt(state)) {
 
             if (isBuiltinFifoCall(instr.instruction)) {
-
               stallConds.push_back(iiCondition(instr.instruction, arch));
+            } else if (isBuiltinStallCall(instr.instruction)) {
 
+              string cond = outputName(instr.instruction->getOperand(0),
+                                       pos,
+                                       arch);
+
+              cout << "Builtin stall cond = " << cond << endl;
+              stallConds.push_back(cond);
             }
           }
 
@@ -1432,7 +1456,6 @@ namespace DHLS {
 
     for (auto state : stg.opTransitions) {
 
-      //emitPipelineStateCode(out, state.first, state.second, stg, unitAssignment, names, pipelines);
       emitPipelineStateCode(out, state.first, state.second, arch);
 
     }

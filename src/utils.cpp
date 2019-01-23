@@ -138,6 +138,23 @@ namespace DHLS {
     return false;
   }
 
+  bool isBuiltinStallCall(llvm::Instruction* const iptr) {
+    if (!CallInst::classof(iptr)) {
+      return false;
+    }
+
+    CallInst* call = dyn_cast<CallInst>(iptr);
+    Function* called = call->getCalledFunction();
+
+    string name = called->getName();
+
+    // Look for stall
+    if (hasPrefix(name, "builtin_stall")) {
+      return true;
+    }
+    return false;
+  }
+
   std::string floatBits(const float f) {
     APFloat fpVal(f); // Create ap
     string fBits = fpVal.bitcastToAPInt().toString(2, false);
@@ -159,6 +176,8 @@ namespace DHLS {
       return name.substr(string("builtin_write_fifo_").size());
     }
   }
+
+  
   
   
 }

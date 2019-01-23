@@ -3013,6 +3013,9 @@ namespace DHLS {
 
     auto writeB = writePort("input_b", 32, fpuType);
     auto writeBStb = writePort("input_b_stb", 1, fpuType);
+    auto stall = stallFunction();
+
+    auto readAAck = readPort("input_a_ack", 1, fpuType);
 
     auto fpu = b.CreateAlloca(fpuType, nullptr, "fpu_0");
     auto rst0 = b.CreateCall(writeRst, {fpu, mkInt(1, 1)});
@@ -3022,6 +3025,9 @@ namespace DHLS {
     auto wAStb = b.CreateCall(writeAStb, {fpu, mkInt(1, 1)});
 
     // Wait for input_a_ack == 1, and then wait 1 more cycle
+    auto aAck = b.CreateCall(readAAck, {fpu});
+    auto stallUntilAAck = b.CreateCall(stall, {aAck});
+
     auto wAStb0 = b.CreateCall(writeAStb, {fpu, mkInt(0, 1)});
     auto wB = b.CreateCall(writeB, {fpu, b0});
     auto wBStb = b.CreateCall(writeBStb, {fpu, mkInt(1, 1)});
@@ -3058,6 +3064,8 @@ namespace DHLS {
     p.addConstraint(p.instrEnd(rst0) < p.instrStart(rst1));
     p.addConstraint(p.instrStart(rst1) == p.instrStart(wA));
     p.addConstraint(p.instrStart(rst1) == p.instrStart(wAStb));
+    p.addConstraint(p.instrStart(aAck) == p.instrEnd(wAStb));
+    p.addConstraint(p.instrStart(stallUntilAAck) == p.instrEnd(wAStb));
 
     p.addConstraint(p.instrEnd(wA) < p.instrStart(wBStb));
     p.addConstraint(p.instrStart(wB) == p.instrStart(wBStb));
