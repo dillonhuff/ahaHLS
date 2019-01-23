@@ -2988,7 +2988,10 @@ namespace DHLS {
 
   // Idea: Automatically generate SystemC glue code to connect different modules?
   // This language for describing constraints is really just a way of describing
-  // the skeleton of an event driven program. 
+  // the skeleton of an event driven program.
+
+  // Maybe action language where you can reference beginning and end of actions?
+  // And also reference
   TEST_CASE("One floating point add via readport and writeport") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
