@@ -1073,14 +1073,14 @@ module adder(
   reg       [27:0] sum;
 
    always @(posedge clk) begin
-      $display("state          = %d", state);
-      $display("input_a_stb    = %d", input_a_stb);
-      $display("input_a_ack    = %d", input_a_ack);      
-      $display("input_b_stb    = %d", input_b_stb);
-      $display("input_b_ack    = %d", input_b_ack);
-      $display("output_z_stb   = %d", output_z_stb);
-      $display("output_z       = %d", output_z);                  
-      $display("rst            = %d", rst);            
+      // $display("state          = %d", state);
+      // $display("input_a_stb    = %d", input_a_stb);
+      // $display("input_a_ack    = %d", input_a_ack);      
+      // $display("input_b_stb    = %d", input_b_stb);
+      // $display("input_b_ack    = %d", input_b_ack);
+      // $display("output_z_stb   = %d", output_z_stb);
+      // $display("output_z       = %d", output_z);                  
+      // $display("rst            = %d", rst);            
    end
 
   always @(posedge clk)

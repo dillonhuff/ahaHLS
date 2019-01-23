@@ -3134,12 +3134,12 @@ namespace DHLS {
     tb.settableWires.insert("fifo_0_out_data");
     tb.settableWires.insert("fifo_1_out_data");    
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
-    map_insert(tb.actionsOnCycles, 21, assertString("fifo_2_in_data == " + floatBits(cf)));
+    map_insert(tb.actionsOnCycles, 18, assertString("fifo_2_in_data == " + floatBits(cf)));
 
     map_insert(tb.actionsInCycles, 1, string("fifo_0_out_data_reg = " + floatBits(af) + ";"));
     map_insert(tb.actionsInCycles, 1, string("fifo_1_out_data_reg = " + floatBits(bf) + ";"));
     map_insert(tb.actionsInCycles, 1, string("fifo_1_out_data_reg = " + floatBits(bf) + ";"));
-    map_insert(tb.actionsInCycles, 21, string("$display(\"fifo_2_in_data = %d\", fifo_2_in_data);"));
+    map_insert(tb.actionsInCycles, 8, string("$display(\"fifo_2_in_data = %d\", fifo_2_in_data);"));
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("direct_port_fp_add"));
