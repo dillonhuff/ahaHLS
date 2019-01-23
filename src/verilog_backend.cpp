@@ -582,9 +582,14 @@ namespace DHLS {
         unitName = fuPtr->getName();
         // TODO: Actually check this instead of just using it as a builtin
         int w = 32;
-        wiring = {{"input_a", {true, w, unitName + "_in_data"}}};
-        outWires = {{"output_z", {false, w, unitName + "_out_data"}}};
+        wiring = {{"input_a", {true, w, unitName + "_input_a"}},
+                  {"input_a_stb", {true, 1, unitName + "_input_a_stb"}},
+                  {"input_b", {true, w, unitName + "_input_b"}},
+                  {"input_b_stb", {true, 1, unitName + "_input_b_stb"}},
+                  {"rst", {true, 1, unitName + "_rst"}}
+        };
 
+        outWires = {{"output_z", {false, w, unitName + "_output_z"}}};
       } else {
 
         // No action
@@ -1108,10 +1113,19 @@ namespace DHLS {
 
 
         } else {
-
+          assert(false);
+        }
+      } else if (isBuiltinPortWrite(instr)) {
           cout << "Operand 0 = " << valueString(instr->getOperand(0)) << endl;
           assert(contains_key(instr->getOperand(0), arch.hcs.modSpecs));
-        }
+
+          std::string portName = getPortName(instr);
+          cout << "Port name = " << portName << endl;
+          string val = outputName(instr->getOperand(1), pos, arch);
+
+          assignments.insert({addUnit.inputWire(portName), val});
+
+      } else {
       }
     } else if (AllocaInst::classof(instr) ||
                BitCastInst::classof(instr) ||

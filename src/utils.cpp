@@ -143,6 +143,22 @@ namespace DHLS {
     string fBits = fpVal.bitcastToAPInt().toString(2, false);
     return "32'b" + zeroExtend(fBits, 32);
   }
+
+  std::string getPortName(llvm::Instruction* const instr) {
+    assert(isBuiltinPortCall(instr));
+
+    CallInst* call = dyn_cast<CallInst>(instr);
+    Function* called = call->getCalledFunction();
+
+    string name = called->getName();
+
+    if (isBuiltinPortRead(instr)) {
+      return name.substr(string("builtin_read_port_").size());
+    } else {
+      assert(isBuiltinPortWrite(instr));
+      return name.substr(string("builtin_write_fifo_").size());
+    }
+  }
   
   
 }

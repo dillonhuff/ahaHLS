@@ -181,7 +181,7 @@ namespace DHLS {
                             llvm::Type* argType) {
 
     // TODO: Add argType to name
-    auto name = "builtin_write_port_" + portName + "_" + std::to_string(width);
+    auto name = "builtin_write_port_" + portName; // + "_" + std::to_string(width);
 
     llvm::FunctionType *tp =
       llvm::FunctionType::get(llvm::Type::getVoidTy(getGlobalLLVMContext()),
@@ -205,7 +205,7 @@ namespace DHLS {
                            llvm::Type* argType) {
 
     // TODO: Add typestring to name
-    auto name = "builtin_read_port_" + portName + "_" + std::to_string(width);
+    auto name = "builtin_read_port_" + portName; // + "_" + std::to_string(width);
 
     llvm::FunctionType *tp =
       llvm::FunctionType::get(intType(width),
