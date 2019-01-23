@@ -3015,19 +3015,19 @@ namespace DHLS {
     auto writeBStb = writePort("input_b_stb", 1, fpuType);
 
     auto fpu = b.CreateAlloca(fpuType, nullptr, "fpu_0");
-    b.CreateCall(writeRst, {fpu, mkInt(1, 1)});
+    auto rst0 = b.CreateCall(writeRst, {fpu, mkInt(1, 1)});
     // Wait until next cycle
-    b.CreateCall(writeRst, {fpu, mkInt(0, 1)});
-    b.CreateCall(writeA, {fpu, a});
-    b.CreateCall(writeAStb, {fpu, mkInt(1, 1)});
+    auto rst1 = b.CreateCall(writeRst, {fpu, mkInt(0, 1)});
+    auto wA = b.CreateCall(writeA, {fpu, a});
+    auto wAStb = b.CreateCall(writeAStb, {fpu, mkInt(1, 1)});
 
     // Wait for input_a_ack == 1, and then wait 1 more cycle
-    b.CreateCall(writeAStb, {fpu, mkInt(0, 1)});
-    b.CreateCall(writeB, {fpu, b0});
-    b.CreateCall(writeBStb, {fpu, mkInt(1, 1)});
+    auto wAStb0 = b.CreateCall(writeAStb, {fpu, mkInt(0, 1)});
+    auto wB = b.CreateCall(writeB, {fpu, b0});
+    auto wBStb = b.CreateCall(writeBStb, {fpu, mkInt(1, 1)});
 
     // Wait one or two cycles?
-    b.CreateCall(writeBStb, {fpu, mkInt(0, 1)});
+    auto wBStb0 = b.CreateCall(writeBStb, {fpu, mkInt(0, 1)});
 
     // Wait at least one cycle after input_b_stb == 1, for output_z_stb == 1
     auto val = b.CreateCall(readPort("output_z", 32, fpuType), {fpu});
@@ -3054,6 +3054,17 @@ namespace DHLS {
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
     p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
+
+    p.addConstraint(p.instrEnd(rst0) < p.instrStart(rst1));
+    p.addConstraint(p.instrStart(rst1) == p.instrStart(wA));
+    p.addConstraint(p.instrStart(rst1) == p.instrStart(wAStb));
+
+    p.addConstraint(p.instrEnd(wA) < p.instrStart(wBStb));
+    p.addConstraint(p.instrStart(wB) == p.instrStart(wBStb));
+    p.addConstraint(p.instrStart(wAStb0) == p.instrStart(wBStb));
+
+    p.addConstraint(p.instrEnd(wBStb) < p.instrStart(wBStb0));    
+    p.addConstraint(p.instrEnd(wBStb0) < p.instrStart(val));
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
