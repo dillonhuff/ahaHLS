@@ -87,3 +87,5 @@ fifo_in_loop
 fifo_in_loop.v
 test/ll_files/host/
 test/host
+timed_wire_fp_add*
+direct_port_fp_add*
