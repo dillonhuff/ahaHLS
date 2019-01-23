@@ -7,6 +7,8 @@
 
 #include "utils.h"
 
+#include <iostream>
+
 namespace DHLS {
 
   void setGlobalLLVMContext(llvm::LLVMContext* contextPtr);
@@ -185,7 +187,10 @@ namespace DHLS {
 
     auto c = getGlobalLLVMModule().getOrInsertFunction(name, tp);
 
-    assert(llvm::Function::classof(c));
+    if (!llvm::Function::classof(c)) {
+      std::cout << "c = " << valueString(c) << std::endl;
+      assert(false);
+    }
 
     return llvm::dyn_cast<llvm::Function>(c);
   }

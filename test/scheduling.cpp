@@ -3003,17 +3003,25 @@ namespace DHLS {
     // Create transaction constraints data structure?
 
     // Interface with floating point adder
-    b.CreateCall(writePort("rst", 1), {mkInt(1, 1)});
+
+    auto writeRst = writePort("rst", 1);
+    auto writeA = writePort("input_a", 32);
+    auto writeAStb = writePort("input_a_stb", 1);        
+
+    auto writeB = writePort("input_b", 32);
+    auto writeBStb = writePort("input_b_stb", 1);        
+    
+    b.CreateCall(writeRst, {mkInt(1, 1)});
     // Wait until next cycle
-    b.CreateCall(writePort("rst", 1), {mkInt(1, 1)});
-    b.CreateCall(writePort("input_a", width), {a});
-    b.CreateCall(writePort("input_a_stb", 1), {mkInt(1, 1)});
+    b.CreateCall(writeRst, {mkInt(0, 1)});
+    b.CreateCall(writeA, {a});
+    b.CreateCall(writeAStb, {mkInt(1, 1)});
     // Wait for input_a_ack == 1, and then wait 1 more cycle
-    b.CreateCall(writePort("input_a_stb", 1), {mkInt(1, 0)});
-    b.CreateCall(writePort("input_b", 32), {b0});
-    b.CreateCall(writePort("input_b_stb", 1), {mkInt(1, 1)});
+    b.CreateCall(writeAStb, {mkInt(0, 1)});
+    b.CreateCall(writeB, {b0});
+    b.CreateCall(writeBStb, {mkInt(1, 1)});
     // Wait one or two cycles?
-    b.CreateCall(writePort("input_b_stb", 1), {mkInt(1, 0)});
+    b.CreateCall(writeBStb, {mkInt(0, 1)});
     // Wait at least one cycle after input_b_stb == 1, for output_z_stb == 1
     auto val = b.CreateCall(readPort("output_z", 32));
 
