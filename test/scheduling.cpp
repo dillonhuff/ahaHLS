@@ -3115,7 +3115,6 @@ namespace DHLS {
     p.addConstraint(p.instrStart(wA) == p.instrStart(wAStb));
     
     // Wait for A to be written before writing b
-    //p.addConstraint(p.instrEnd(wA) < p.instrStart(wB));
     p.addConstraint(p.instrEnd(aAck) < p.instrStart(wB));
 
     // Wait for b to be acknowledged before reading Z
@@ -3128,6 +3127,15 @@ namespace DHLS {
     // Really ought to have the option to let the backend propagate
     // stalls.
     p.addConstraint(p.instrEnd(val) < p.instrStart(writeZ));
+
+    // Note: Because the names of ports are embedded in LLVM functions
+    // I cannot build a single function to represent doing ready valid
+    // setting on different ports. So I need some sort of function
+    // template
+
+    // Note: It is also a pain that I cannot run-the getOrAddFunction
+    // method of llvm::Module and get back a function each time. Being able
+    // to do that would be awesome.
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
