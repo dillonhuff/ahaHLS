@@ -2997,8 +2997,8 @@ namespace DHLS {
 
   // BlueSpec-ish: Triggered actions that can happen in parallel, after a port
   // goes high, a fixed number of cycles after an event, etc.
-  // Q: What are events?
-  // A: 
+  // Q: What are events? What about "events" that occur in a loop? How to represent
+  //    these compactly?
 
   // Q: Will I have to write my own inlining pass in order to do this? Maybe
   //    an inline_builtins pass?
@@ -3021,7 +3021,7 @@ namespace DHLS {
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo(),
         tp->getPointerTo()};
-        Function* f = mkFunc(inputs, "direct_port_fp_add", mod.get());
+    Function* f = mkFunc(inputs, "direct_port_fp_add", mod.get());
 
     auto blk = mkBB("entry_block", f);
     IRBuilder<> b(blk);
