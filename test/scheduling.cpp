@@ -3105,21 +3105,28 @@ namespace DHLS {
 
     p.addConstraint(p.instrStart(aAck) == p.instrEnd(wAStb));
     p.addConstraint(p.instrStart(bAck) == p.instrEnd(wBStb));
+
+    p.addConstraint(p.instrStart(aAck) < p.instrStart(wAStb0));
+    p.addConstraint(p.instrEnd(bAck) < p.instrStart(wBStb0));
     
     p.addConstraint(p.instrStart(stallUntilAAck) == p.instrEnd(aAck));
-    p.addConstraint(p.instrEnd(stallUntilBAck) == p.instrStart(bAck));
+    p.addConstraint(p.instrStart(stallUntilBAck) == p.instrEnd(bAck));
 
+    p.addConstraint(p.instrStart(wB) == p.instrStart(wBStb));
+    p.addConstraint(p.instrStart(wA) == p.instrStart(wAStb));
+    
     // Wait for A to be written before writing b
     p.addConstraint(p.instrEnd(wA) < p.instrStart(wBStb));
 
-    p.addConstraint(p.instrStart(wB) == p.instrStart(wBStb));
-    
-    p.addConstraint(p.instrStart(wAStb0) > p.instrStart(wBStb));
-    p.addConstraint(p.instrEnd(wBStb) < p.instrStart(wBStb0));
+    // Wait for b to be acknowledged before reading Z
     p.addConstraint(p.instrEnd(wBStb0) < p.instrStart(val));
 
     p.addConstraint(p.instrStart(val) == p.instrStart(zStb));
     p.addConstraint(p.instrStart(stallUntilZStb) == p.instrStart(zStb));
+
+    // Split them up so that Z is written only after the stall finishes
+    // Really ought to have the option to let the backend propagate
+    // stalls.
     p.addConstraint(p.instrEnd(val) < p.instrStart(writeZ));
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
