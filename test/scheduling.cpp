@@ -17,6 +17,7 @@ namespace DHLS {
   //    Add an "I dont care about default values to this FU" option?
   //    Move test layout int testbenchspec
   //    Incorporate fifoSpecs in to scheduling constraints automatically
+  //    Create verilator wrapper for the FPU
 
   // NOTE: Systolic array example has correct binding by chance. The control
   // structure around the array is a tricky question. Most papers on systolic
@@ -2991,7 +2992,16 @@ namespace DHLS {
   // the skeleton of an event driven program.
 
   // Maybe action language where you can reference beginning and end of actions?
-  // And also reference
+  // Q: How will this be connected to LLVM? Mapping from primitive actions
+  //    to read and write port instructions?
+
+  // BlueSpec-ish: Triggered actions that can happen in parallel, after a port
+  // goes high, a fixed number of cycles after an event, etc.
+  // Q: What are events?
+  // A: 
+
+  // Q: Will I have to write my own inlining pass in order to do this? Maybe
+  //    an inline_builtins pass?
   TEST_CASE("One floating point add via readport and writeport") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
