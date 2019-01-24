@@ -3102,7 +3102,6 @@ namespace DHLS {
 
 
     // A / B stall    
-
     p.addConstraint(p.instrStart(aAck) == p.instrEnd(wAStb));
     p.addConstraint(p.instrStart(bAck) == p.instrEnd(wBStb));
 
@@ -3116,10 +3115,10 @@ namespace DHLS {
     p.addConstraint(p.instrStart(wA) == p.instrStart(wAStb));
     
     // Wait for A to be written before writing b
-    p.addConstraint(p.instrEnd(wA) < p.instrStart(wBStb));
+    p.addConstraint(p.instrEnd(wA) < p.instrStart(wB));
 
     // Wait for b to be acknowledged before reading Z
-    p.addConstraint(p.instrEnd(wBStb0) < p.instrStart(val));
+    p.addConstraint(p.instrEnd(bAck) < p.instrStart(val));
 
     p.addConstraint(p.instrStart(val) == p.instrStart(zStb));
     p.addConstraint(p.instrStart(stallUntilZStb) == p.instrStart(zStb));
