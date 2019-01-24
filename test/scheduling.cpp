@@ -3092,9 +3092,6 @@ namespace DHLS {
     hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
     hcs.fifoSpecs[getArg(f, 2)] = FifoSpec(0, 0, FIFO_TIMED);
 
-    // TODO: Set latency of fadd to 15?
-    hcs.setCount(FADD_OP, 1);
-
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
     p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
@@ -3102,16 +3099,22 @@ namespace DHLS {
     p.addConstraint(p.instrEnd(rst0) < p.instrStart(rst1));
     p.addConstraint(p.instrStart(rst1) == p.instrStart(wA));
     p.addConstraint(p.instrStart(rst1) == p.instrStart(wAStb));
+
+
+    // A / B stall    
+
     p.addConstraint(p.instrStart(aAck) == p.instrEnd(wAStb));
-    p.addConstraint(p.instrStart(stallUntilAAck) == p.instrEnd(wAStb));
-
-    p.addConstraint(p.instrEnd(wA) < p.instrStart(wBStb));
-    p.addConstraint(p.instrStart(wB) == p.instrStart(wBStb));
     p.addConstraint(p.instrStart(bAck) == p.instrEnd(wBStb));
-    p.addConstraint(p.instrStart(bAck) == p.instrEnd(stallUntilBAck));
+    
+    p.addConstraint(p.instrStart(stallUntilAAck) == p.instrEnd(aAck));
+    p.addConstraint(p.instrEnd(stallUntilBAck) == p.instrStart(bAck));
 
+    // Wait for A to be written before writing b
+    p.addConstraint(p.instrEnd(wA) < p.instrStart(wBStb));
+
+    p.addConstraint(p.instrStart(wB) == p.instrStart(wBStb));
+    
     p.addConstraint(p.instrStart(wAStb0) > p.instrStart(wBStb));
-
     p.addConstraint(p.instrEnd(wBStb) < p.instrStart(wBStb0));
     p.addConstraint(p.instrEnd(wBStb0) < p.instrStart(val));
 
