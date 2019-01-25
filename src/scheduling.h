@@ -8,40 +8,6 @@
 
 namespace DHLS {
 
-  // class Action {
-  // };
-
-  // // Should reading a port and a port having a value be different
-  // // events?
-  // // Both can be relevant: reading a port is an action in control logic
-  // // that sends data to someone, waiting on a stall is a trigger condition
-
-  // // Maybe event should be an IO event, you receive data, or send data.
-  // // I guess in hardware you (who is you here?) are implicitly always listening
-  // // to ports, so ports having a value is not a big deal
-  // class Event {
-  // };
-
-  // class Trigger {
-  // };
-
-  // class StartOfEvent : public Trigger {
-  // };
-
-  // class EndOfEvent : public Trigger {
-  // };
-
-  // class OffsetFromEvent : public Trigger {
-  // };
-
-  // class PortHasValue : public Trigger {
-    
-  // };
-
-  // class AllTrue : public Trigger {
-    
-  // };
-
   class ModuleSpec {
   public:
     std::map<std::string, std::string> params;

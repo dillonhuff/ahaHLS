@@ -2972,6 +2972,69 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("timed_wire_reduce_fp"));
   }
 
+  class Action {
+    
+  };
+
+  class SetPort : public Action {
+  };
+
+  class GetPort : public Action {
+  };
+
+  class CompositeAction : public Action {
+    
+  };
+
+  class ExecutionConstraint {
+  };
+
+  class StallUntil : public ExecutionConstraint {
+  };
+
+  class Ordered : public ExecutionConstraint {
+  };
+
+  class IOPort {
+  public:
+    
+  };
+
+
+  // Q: Maybe the easiest first step is to create a wrapper for scheduling
+  // constraints that is more abstract and use that to create simulator
+  // bindings?
+  // A: I think so, and have a wrapper function for each transaction that
+  // can be inlined in to the original function along with constraints?
+  // As part of inlining replace constraints that reference the original
+  // function with constraints that reference the start and end of the
+  // new function?
+
+  // I guess so. Id like to be able to build up an updateConstraints method
+  // in the SchedulingProblem, and then call it automatically whenever needed.
+  // Or: Have a data structure that represents these constraints in a more
+  // abstract way, and have it run during SchedulingProblem creation?
+
+  // Q: When should stall instructions be created? And should there really be
+  // stall instructions or should they just exist in a separate place?
+
+  // Where do functional unit names fit in to this?
+  CompositeAction fpuRV(IOPort const pt, llvm::Value* value) {
+    CompositeAction rvHandshake;
+    Action* wA = rvHandshake.setPort(pt, value);
+
+    auto aAck = b.CreateCall(readAAck, {fpu});
+    auto stallUntilAAck = b.CreateCall(stall, {aAck});
+
+    auto wAStb0 = b.CreateCall(writeAStb, {fpu, mkInt(0, 1)});
+    
+    p.addConstraint(p.instrStart(aAck) == p.instrEnd(wAStb));
+    p.addConstraint(p.instrStart(aAck) < p.instrStart(wAStb0));
+    p.addConstraint(p.instrStart(stallUntilAAck) == p.instrEnd(aAck));
+    p.addConstraint(p.instrStart(wA) == p.instrStart(wAStb));
+    
+  }
+
   // Some problems with this prototype:
   // 1. Directly creating scheduler constraints works, but I cant use it to
   //    create simulator bindings (need a different data structure)
@@ -3037,7 +3100,6 @@ namespace DHLS {
     auto fpuType =
       llvm::StructType::create(getGlobalLLVMContext(),
                                "builtin_fadd");
-    
     auto writeRst = writePort("rst", 1, fpuType);
     auto writeA = writePort("input_a", 32, fpuType);
     auto writeAStb = writePort("input_a_stb", 1, fpuType);
@@ -3100,20 +3162,17 @@ namespace DHLS {
     p.addConstraint(p.instrStart(rst1) == p.instrStart(wA));
     p.addConstraint(p.instrStart(rst1) == p.instrStart(wAStb));
 
-
     // A / B stall    
     p.addConstraint(p.instrStart(aAck) == p.instrEnd(wAStb));
-    p.addConstraint(p.instrStart(bAck) == p.instrEnd(wBStb));
-
     p.addConstraint(p.instrStart(aAck) < p.instrStart(wAStb0));
-    p.addConstraint(p.instrEnd(bAck) < p.instrStart(wBStb0));
-    
     p.addConstraint(p.instrStart(stallUntilAAck) == p.instrEnd(aAck));
-    p.addConstraint(p.instrStart(stallUntilBAck) == p.instrEnd(bAck));
-
-    p.addConstraint(p.instrStart(wB) == p.instrStart(wBStb));
     p.addConstraint(p.instrStart(wA) == p.instrStart(wAStb));
-    
+
+    p.addConstraint(p.instrStart(bAck) == p.instrEnd(wBStb));
+    p.addConstraint(p.instrEnd(bAck) < p.instrStart(wBStb0));
+    p.addConstraint(p.instrStart(stallUntilBAck) == p.instrEnd(bAck));
+    p.addConstraint(p.instrStart(wB) == p.instrStart(wBStb));
+
     // Wait for A to be written before writing b
     p.addConstraint(p.instrEnd(aAck) < p.instrStart(wB));
 
