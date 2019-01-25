@@ -3017,6 +3017,12 @@ namespace DHLS {
 
   // Q: When should stall instructions be created? And should there really be
   // stall instructions or should they just exist in a separate place?
+  // A: This is really the challenge for the constraints wrapper because this
+  //    is where I have to generate an instruction in the final function, as
+  //    well as constraints in the scheduling problem. So just pass both
+  //    the Function and SchedulingProblem by reference to the function
+  //    that converts abstract constraints in to concrete ones so that I
+  //    can create stall instructions wherever needed?
 
   // Where do functional unit names fit in to this?
   CompositeAction fpuRV(IOPort const pt, llvm::Value* value) {
