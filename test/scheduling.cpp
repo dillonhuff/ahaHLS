@@ -2972,20 +2972,6 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("timed_wire_reduce_fp"));
   }
 
-  class Action {
-    
-  };
-
-  class SetPort : public Action {
-  };
-
-  class GetPort : public Action {
-  };
-
-  class CompositeAction : public Action {
-    
-  };
-
   class ExecutionConstraint {
   };
 
@@ -2993,11 +2979,6 @@ namespace DHLS {
   };
 
   class Ordered : public ExecutionConstraint {
-  };
-
-  class IOPort {
-  public:
-    
   };
 
 
@@ -3024,22 +3005,22 @@ namespace DHLS {
   //    that converts abstract constraints in to concrete ones so that I
   //    can create stall instructions wherever needed?
 
-  // Where do functional unit names fit in to this?
-  CompositeAction fpuRV(IOPort const pt, llvm::Value* value) {
-    CompositeAction rvHandshake;
-    Action* wA = rvHandshake.setPort(pt, value);
+  // // Where do functional unit names fit in to this?
+  // CompositeAction fpuRV(IOPort const pt, llvm::Value* value) {
+  //   CompositeAction rvHandshake;
+  //   Action* wA = rvHandshake.setPort(pt, value);
 
-    auto aAck = b.CreateCall(readAAck, {fpu});
-    auto stallUntilAAck = b.CreateCall(stall, {aAck});
+  //   auto aAck = b.CreateCall(readAAck, {fpu});
+  //   auto stallUntilAAck = b.CreateCall(stall, {aAck});
 
-    auto wAStb0 = b.CreateCall(writeAStb, {fpu, mkInt(0, 1)});
+  //   auto wAStb0 = b.CreateCall(writeAStb, {fpu, mkInt(0, 1)});
     
-    p.addConstraint(p.instrStart(aAck) == p.instrEnd(wAStb));
-    p.addConstraint(p.instrStart(aAck) < p.instrStart(wAStb0));
-    p.addConstraint(p.instrStart(stallUntilAAck) == p.instrEnd(aAck));
-    p.addConstraint(p.instrStart(wA) == p.instrStart(wAStb));
+  //   p.addConstraint(p.instrStart(aAck) == p.instrEnd(wAStb));
+  //   p.addConstraint(p.instrStart(aAck) < p.instrStart(wAStb0));
+  //   p.addConstraint(p.instrStart(stallUntilAAck) == p.instrEnd(aAck));
+  //   p.addConstraint(p.instrStart(wA) == p.instrStart(wAStb));
     
-  }
+  // }
 
   // Some problems with this prototype:
   // 1. Directly creating scheduler constraints works, but I cant use it to
