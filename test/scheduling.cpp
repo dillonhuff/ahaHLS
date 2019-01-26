@@ -2972,13 +2972,94 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("timed_wire_reduce_fp"));
   }
 
+
+  class InstructionTime {
+  public:
+    Instruction* instr;
+    bool isEnd;
+  };
+
+  InstructionTime instrEnd(Instruction* const instr) {
+    return {instr, true};
+  }
+
+  InstructionTime instrStart(Instruction* const instr) {
+    return {instr, false};
+  }
+
   class ExecutionConstraint {
+  public:
+    virtual void addSelfTo(SchedulingProblem& p, Function* f) = 0;
+    virtual ~ExecutionConstraint() {}
   };
 
-  class StallUntil : public ExecutionConstraint {
+  class WaitUntil : public ExecutionConstraint {
+  public:
+    Value* value;
+    Instruction* mustWait;
   };
 
+  enum OrderRestriction {
+    ORDER_RESTRICTION_SIMULTANEOUS,
+    ORDER_RESTRICTION_BEFORE,
+    ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS,
+  };
+  
   class Ordered : public ExecutionConstraint {
+  public:
+    InstructionTime before;
+    InstructionTime after;
+
+    OrderRestriction restriction;
+    int gap;
+
+    Ordered(const InstructionTime before_,
+            const InstructionTime after_,
+            const OrderRestriction restriction_,
+            const int gap_) :
+      before(before_),
+      after(after_),
+      restriction(restriction_),
+      gap(gap_) {}
+
+    virtual void addSelfTo(SchedulingProblem& p, Function* f) {
+      LinearExpression aTime = after.isEnd ? p.instrEnd(after.instr) : p.instrStart(after.instr);
+      LinearExpression bTime = before.isEnd ? p.instrEnd(before.instr) : p.instrStart(before.instr);      
+      if (restriction == ORDER_RESTRICTION_SIMULTANEOUS) {
+        p.addConstraint(bTime == (aTime + gap));
+      } else if (restriction == ORDER_RESTRICTION_BEFORE) {
+        p.addConstraint(bTime < (aTime + gap));
+      } else {
+        assert(false);
+      }
+    }
+  };
+
+  class ExecutionConstraints {
+  public:
+    std::vector<ExecutionConstraint*> constraints;
+
+    void addConstraint(ExecutionConstraint* c) {
+      constraints.push_back(c);
+    }
+
+    void addConstraints(SchedulingProblem& p,
+                        Function* f) {
+      for (auto c : constraints) {
+        c->addSelfTo(p, f);
+      }
+    }
+
+    void endsBeforeStarts(Instruction* const before,
+                          Instruction* const after) {
+      constraints.push_back(new Ordered(instrEnd(before), instrStart(after), ORDER_RESTRICTION_BEFORE, 0));
+    }
+
+    ~ExecutionConstraints() {
+      for (auto c : constraints) {
+        delete c;
+      }
+    }
   };
 
 
@@ -3068,6 +3149,7 @@ namespace DHLS {
 
     Function* writeFifo = fifoWrite(width, mod.get());
 
+    ExecutionConstraints exeConstraints;
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo(),
         tp->getPointerTo()};
@@ -3103,6 +3185,9 @@ namespace DHLS {
     auto rst0 = b.CreateCall(writeRst, {fpu, mkInt(1, 1)});
     // Wait until next cycle
     auto rst1 = b.CreateCall(writeRst, {fpu, mkInt(0, 1)});
+
+    exeConstraints.endsBeforeStarts(rst0, rst1);
+
     auto wA = b.CreateCall(writeA, {fpu, a});
     auto wAStb = b.CreateCall(writeAStb, {fpu, mkInt(1, 1)});
 
@@ -3143,9 +3228,10 @@ namespace DHLS {
 
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
-    p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
+    exeConstraints.addConstraints(p, f);
 
-    p.addConstraint(p.instrEnd(rst0) < p.instrStart(rst1));
+    p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
+    //p.addConstraint(p.instrEnd(rst0) < p.instrStart(rst1));
     p.addConstraint(p.instrStart(rst1) == p.instrStart(wA));
     p.addConstraint(p.instrStart(rst1) == p.instrStart(wAStb));
 
