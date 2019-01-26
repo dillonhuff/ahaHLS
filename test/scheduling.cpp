@@ -3102,6 +3102,32 @@ namespace DHLS {
     }
   };
 
+  std::string cString(llvm::Instruction* const instr) {
+    if (ReturnInst::classof(instr)) {
+      return "return";
+    } else if (AllocaInst::classof(instr)) {
+      return "";
+    }
+
+    // What instruction are we printing?
+    cout << valueString(instr) << endl;
+    
+    assert(CallInst::classof(instr));
+
+    return "call";
+  }
+
+  // Really I ought to emit a software model of the MicroArchitecture
+  // and then drive it with posedges until we get to a valid output, while
+  // connecting the fields of the model to the arguments of the simulator
+  // binding function
+
+  // Also: To make this work I need to add module declarations for the floating
+  // point unit that will allow me to create the port list for the module
+  // using an external floating point unit
+
+  // Conceptualy the function that takes in a floating point unit is a control
+  // state machine that can be connected to any FPU
   void emitVerilatorBinding(STG& graph) {
     Function* f = graph.getFunction();
     ofstream out(string(f->getName()) + ".c");
@@ -3111,6 +3137,20 @@ namespace DHLS {
       args.push_back("insert_type* " + string(arg.getName()));
     }
     out << "void " << string(f->getName()) << "(" << commaListString(args) << ") {" << endl;
+    // Issues:
+    // 1. The states in opStates are not sequentially ordered, and may
+    //    not have a sequential order
+    // 2. Inside a state instructions are not ordered
+    for (auto opState : graph.opStates) {
+      for (auto instrG : opState.second) {
+        Instruction* instr = instrG.instruction;
+        out << tab(1) << cString(instr) << ";" << endl;
+      }
+
+      // TODO: Allow the user to set which llvm value contains the state machine
+      // being simulated
+      out << tab(1) << "POSEDGE(" << string(getArg(f, 0)->getName()) << ")" << endl;
+    }
     out << "}";
       
     out.close();
