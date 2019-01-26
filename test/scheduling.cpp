@@ -3055,53 +3055,17 @@ namespace DHLS {
       constraints.push_back(new Ordered(instrEnd(before), instrStart(after), ORDER_RESTRICTION_BEFORE, 0));
     }
 
+    void startSameTime(Instruction* const before,
+                       Instruction* const after) {
+      constraints.push_back(new Ordered(instrStart(before), instrStart(after), ORDER_RESTRICTION_SIMULTANEOUS, 0));
+    }
+    
     ~ExecutionConstraints() {
       for (auto c : constraints) {
         delete c;
       }
     }
   };
-
-
-  // Q: Maybe the easiest first step is to create a wrapper for scheduling
-  // constraints that is more abstract and use that to create simulator
-  // bindings?
-  // A: I think so, and have a wrapper function for each transaction that
-  // can be inlined in to the original function along with constraints?
-  // As part of inlining replace constraints that reference the original
-  // function with constraints that reference the start and end of the
-  // new function?
-
-  // I guess so. Id like to be able to build up an updateConstraints method
-  // in the SchedulingProblem, and then call it automatically whenever needed.
-  // Or: Have a data structure that represents these constraints in a more
-  // abstract way, and have it run during SchedulingProblem creation?
-
-  // Q: When should stall instructions be created? And should there really be
-  // stall instructions or should they just exist in a separate place?
-  // A: This is really the challenge for the constraints wrapper because this
-  //    is where I have to generate an instruction in the final function, as
-  //    well as constraints in the scheduling problem. So just pass both
-  //    the Function and SchedulingProblem by reference to the function
-  //    that converts abstract constraints in to concrete ones so that I
-  //    can create stall instructions wherever needed?
-
-  // // Where do functional unit names fit in to this?
-  // CompositeAction fpuRV(IOPort const pt, llvm::Value* value) {
-  //   CompositeAction rvHandshake;
-  //   Action* wA = rvHandshake.setPort(pt, value);
-
-  //   auto aAck = b.CreateCall(readAAck, {fpu});
-  //   auto stallUntilAAck = b.CreateCall(stall, {aAck});
-
-  //   auto wAStb0 = b.CreateCall(writeAStb, {fpu, mkInt(0, 1)});
-    
-  //   p.addConstraint(p.instrStart(aAck) == p.instrEnd(wAStb));
-  //   p.addConstraint(p.instrStart(aAck) < p.instrStart(wAStb0));
-  //   p.addConstraint(p.instrStart(stallUntilAAck) == p.instrEnd(aAck));
-  //   p.addConstraint(p.instrStart(wA) == p.instrStart(wAStb));
-    
-  // }
 
   // Some problems with this prototype:
   // 1. Directly creating scheduler constraints works, but I cant use it to
@@ -3117,22 +3081,6 @@ namespace DHLS {
   //    reads and writes to ports is also tedious. Id like to encapsulate
   //    these reads and writes and the accompanying scheduling constraints
   //    in a data structure.
-
-  // Idea: Automatically generate SystemC glue code to connect different modules?
-  // This language for describing constraints is really just a way of describing
-  // the skeleton of an event driven program.
-
-  // Maybe action language where you can reference beginning and end of actions?
-  // Q: How will this be connected to LLVM? Mapping from primitive actions
-  //    to read and write port instructions?
-
-  // BlueSpec-ish: Triggered actions that can happen in parallel, after a port
-  // goes high, a fixed number of cycles after an event, etc.
-  // Q: What are events? What about "events" that occur in a loop? How to represent
-  //    these compactly?
-
-  // Q: Will I have to write my own inlining pass in order to do this? Maybe
-  //    an inline_builtins pass?
   TEST_CASE("One floating point add via readport and writeport") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
@@ -3191,6 +3139,9 @@ namespace DHLS {
     auto wA = b.CreateCall(writeA, {fpu, a});
     auto wAStb = b.CreateCall(writeAStb, {fpu, mkInt(1, 1)});
 
+    exeConstraints.startSameTime(rst1, wA);    
+    exeConstraints.startSameTime(wA, wAStb);    
+
     // Wait for input_a_ack == 1, and then wait 1 more cycle
     auto aAck = b.CreateCall(readAAck, {fpu});
     auto stallUntilAAck = b.CreateCall(stall, {aAck});
@@ -3228,23 +3179,23 @@ namespace DHLS {
 
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
-    exeConstraints.addConstraints(p, f);
-
     p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
-    //p.addConstraint(p.instrEnd(rst0) < p.instrStart(rst1));
-    p.addConstraint(p.instrStart(rst1) == p.instrStart(wA));
-    p.addConstraint(p.instrStart(rst1) == p.instrStart(wAStb));
+    //p.addConstraint(p.instrStart(rst1) == p.instrStart(wA));
+    //p.addConstraint(p.instrStart(rst1) == p.instrStart(wAStb));
 
-    // A / B stall    
+    // A / B stall
     p.addConstraint(p.instrStart(aAck) == p.instrEnd(wAStb));
     p.addConstraint(p.instrStart(aAck) < p.instrStart(wAStb0));
     p.addConstraint(p.instrStart(stallUntilAAck) == p.instrEnd(aAck));
-    p.addConstraint(p.instrStart(wA) == p.instrStart(wAStb));
+
+    exeConstraints.startSameTime(wA, wAStb);
+    //p.addConstraint(p.instrStart(wA) == p.instrStart(wAStb));
 
     p.addConstraint(p.instrStart(bAck) == p.instrEnd(wBStb));
     p.addConstraint(p.instrEnd(bAck) < p.instrStart(wBStb0));
     p.addConstraint(p.instrStart(stallUntilBAck) == p.instrEnd(bAck));
-    p.addConstraint(p.instrStart(wB) == p.instrStart(wBStb));
+    exeConstraints.startSameTime(wB, wBStb);    
+    //p.addConstraint(p.instrStart(wB) == p.instrStart(wBStb));
 
     // Wait for A to be written before writing b
     p.addConstraint(p.instrEnd(aAck) < p.instrStart(wB));
@@ -3252,8 +3203,10 @@ namespace DHLS {
     // Wait for b to be acknowledged before reading Z
     p.addConstraint(p.instrEnd(bAck) < p.instrStart(val));
 
-    p.addConstraint(p.instrStart(val) == p.instrStart(zStb));
-    p.addConstraint(p.instrStart(stallUntilZStb) == p.instrStart(zStb));
+    exeConstraints.startSameTime(val, zStb);
+    exeConstraints.startSameTime(stallUntilZStb, zStb);        
+    //p.addConstraint(p.instrStart(val) == p.instrStart(zStb));
+    //p.addConstraint(p.instrStart(stallUntilZStb) == p.instrStart(zStb));
 
     // Split them up so that Z is written only after the stall finishes
     // Really ought to have the option to let the backend propagate
@@ -3268,6 +3221,8 @@ namespace DHLS {
     // Note: It is also a pain that I cannot run-the getOrAddFunction
     // method of llvm::Module and get back a function each time. Being able
     // to do that would be awesome.
+
+    exeConstraints.addConstraints(p, f);
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
