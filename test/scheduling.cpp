@@ -2978,14 +2978,29 @@ namespace DHLS {
   public:
     Instruction* instr;
     bool isEnd;
+    int offset;
   };
 
+  InstructionTime operator+(const InstructionTime t, const int offset) {
+    return {t.instr, t.isEnd, t.offset + offset};
+  }
+
+  InstructionTime operator+(const int offset, const InstructionTime t) {
+    return {t.instr, t.isEnd, t.offset + offset};
+  }
+  
+  LinearExpression
+  toLinearExpression(const InstructionTime& time,
+                     SchedulingProblem& p) {
+    return (time.isEnd ? p.instrEnd(time.instr) : p.instrStart(time.instr)) + time.offset;
+  }
+  
   InstructionTime instrEnd(Instruction* const instr) {
-    return {instr, true};
+    return {instr, true, 0};
   }
 
   InstructionTime instrStart(Instruction* const instr) {
-    return {instr, false};
+    return {instr, false, 0};
   }
 
   class ExecutionConstraint {
@@ -3012,30 +3027,39 @@ namespace DHLS {
     InstructionTime after;
 
     OrderRestriction restriction;
-    int gap;
 
     Ordered(const InstructionTime before_,
             const InstructionTime after_,
-            const OrderRestriction restriction_,
-            const int gap_) :
+            const OrderRestriction restriction_) :
       before(before_),
       after(after_),
-      restriction(restriction_),
-      gap(gap_) {}
+      restriction(restriction_) {}
 
     virtual void addSelfTo(SchedulingProblem& p, Function* f) {
-      LinearExpression aTime = after.isEnd ? p.instrEnd(after.instr) : p.instrStart(after.instr);
-      LinearExpression bTime = before.isEnd ? p.instrEnd(before.instr) : p.instrStart(before.instr);      
+      LinearExpression aTime = toLinearExpression(after, p);
+      LinearExpression bTime = toLinearExpression(before, p);
       if (restriction == ORDER_RESTRICTION_SIMULTANEOUS) {
-        p.addConstraint(bTime == (aTime + gap));
+        p.addConstraint(bTime == aTime);
       } else if (restriction == ORDER_RESTRICTION_BEFORE) {
-        p.addConstraint(bTime < (aTime + gap));
+        p.addConstraint(bTime < aTime);
       } else {
         assert(false);
       }
     }
   };
 
+  Ordered* operator<(InstructionTime before, InstructionTime after) {
+    return new Ordered(before, after, ORDER_RESTRICTION_BEFORE);
+  }
+
+  Ordered* operator==(InstructionTime before, InstructionTime after) {
+    return new Ordered(before, after, ORDER_RESTRICTION_SIMULTANEOUS);
+  }
+
+  Ordered* operator<=(InstructionTime before, InstructionTime after) {
+    return new Ordered(before, after, ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS);
+  }
+  
   class ExecutionConstraints {
   public:
     std::vector<ExecutionConstraint*> constraints;
@@ -3053,22 +3077,22 @@ namespace DHLS {
 
     void startsBeforeStarts(Instruction* const before,
                             Instruction* const after) {
-      constraints.push_back(new Ordered(instrStart(before), instrStart(after), ORDER_RESTRICTION_BEFORE, 0));
+      constraints.push_back(new Ordered(instrStart(before), instrStart(after), ORDER_RESTRICTION_BEFORE));
     }
     
     void endsBeforeStarts(Instruction* const before,
                           Instruction* const after) {
-      constraints.push_back(new Ordered(instrEnd(before), instrStart(after), ORDER_RESTRICTION_BEFORE, 0));
+      constraints.push_back(new Ordered(instrEnd(before), instrStart(after), ORDER_RESTRICTION_BEFORE));
     }
 
     void startsBeforeEnds(Instruction* const before,
                           Instruction* const after) {
-      constraints.push_back(new Ordered(instrStart(before), instrEnd(after), ORDER_RESTRICTION_BEFORE, 0));
+      constraints.push_back(new Ordered(instrStart(before), instrEnd(after), ORDER_RESTRICTION_BEFORE));
     }
     
     void startSameTime(Instruction* const before,
                        Instruction* const after) {
-      constraints.push_back(new Ordered(instrStart(before), instrStart(after), ORDER_RESTRICTION_SIMULTANEOUS, 0));
+      constraints.push_back(new Ordered(instrStart(before), instrStart(after), ORDER_RESTRICTION_SIMULTANEOUS));
     }
     
     ~ExecutionConstraints() {
@@ -3193,22 +3217,28 @@ namespace DHLS {
     p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
 
     // A / B stall
-    p.addConstraint(p.instrStart(aAck) == p.instrEnd(wAStb));
+    exeConstraints.addConstraint(instrStart(aAck) == instrEnd(wAStb));
+    //p.addConstraint(p.instrStart(aAck) == p.instrEnd(wAStb));
     exeConstraints.startsBeforeStarts(aAck, wAStb0);
-    p.addConstraint(p.instrStart(stallUntilAAck) == p.instrEnd(aAck));
+    exeConstraints.addConstraint(instrStart(stallUntilAAck) == instrEnd(aAck));
+    //p.addConstraint(p.instrStart(stallUntilAAck) == p.instrEnd(aAck));
 
     exeConstraints.startSameTime(wA, wAStb);
 
-    p.addConstraint(p.instrStart(bAck) == p.instrEnd(wBStb));
+    exeConstraints.addConstraint(instrStart(bAck) == instrEnd(wBStb));
+    //p.addConstraint(p.instrStart(bAck) == p.instrEnd(wBStb));
     exeConstraints.endsBeforeStarts(bAck, wBStb0);
-    p.addConstraint(p.instrStart(stallUntilBAck) == p.instrEnd(bAck));
+    //p.addConstraint(p.instrStart(stallUntilBAck) == p.instrEnd(bAck));
+    exeConstraints.addConstraint(instrStart(stallUntilBAck) == instrEnd(bAck));
     exeConstraints.startSameTime(wB, wBStb);    
 
     // Wait for A to be written before writing b
-    p.addConstraint(p.instrEnd(aAck) < p.instrStart(wB));
+    //p.addConstraint(p.instrEnd(aAck) < p.instrStart(wB));
+    exeConstraints.addConstraint(instrEnd(aAck) < instrStart(wB));
 
     // Wait for b to be acknowledged before reading Z
-    p.addConstraint(p.instrEnd(bAck) < p.instrStart(val));
+    //p.addConstraint(p.instrEnd(bAck) < p.instrStart(val));
+    exeConstraints.addConstraint(instrEnd(bAck) < instrStart(val));
 
     exeConstraints.startSameTime(val, zStb);
     exeConstraints.startSameTime(stallUntilZStb, zStb);        
@@ -3216,7 +3246,8 @@ namespace DHLS {
     // Split them up so that Z is written only after the stall finishes
     // Really ought to have the option to let the backend propagate
     // stalls.
-    p.addConstraint(p.instrEnd(val) < p.instrStart(writeZ));
+    //p.addConstraint(p.instrEnd(val) < p.instrStart(writeZ));
+    exeConstraints.addConstraint(instrEnd(val) < instrStart(writeZ));
 
     // Note: Because the names of ports are embedded in LLVM functions
     // I cannot build a single function to represent doing ready valid
