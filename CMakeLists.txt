@@ -33,5 +33,8 @@ SET(ALL_TEST_FILES ./test/scheduling.cpp
                    ./test/test_utils.cpp)
 
 add_executable(all-tests ${ALL_TEST_FILES})
-
 target_link_libraries(all-tests dhls ${llvm_libs})
+
+SET(ALL_BINDING_FILES experiments/generate_bindings.cpp)
+add_executable(make-bindings ${ALL_BINDING_FILES})
+target_link_libraries(make-bindings dhls ${llvm_libs})
