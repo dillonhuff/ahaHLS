@@ -3050,11 +3050,21 @@ namespace DHLS {
       }
     }
 
+    void startsBeforeStarts(Instruction* const before,
+                            Instruction* const after) {
+      constraints.push_back(new Ordered(instrStart(before), instrStart(after), ORDER_RESTRICTION_BEFORE, 0));
+    }
+    
     void endsBeforeStarts(Instruction* const before,
                           Instruction* const after) {
       constraints.push_back(new Ordered(instrEnd(before), instrStart(after), ORDER_RESTRICTION_BEFORE, 0));
     }
 
+    void startsBeforeEnds(Instruction* const before,
+                          Instruction* const after) {
+      constraints.push_back(new Ordered(instrStart(before), instrEnd(after), ORDER_RESTRICTION_BEFORE, 0));
+    }
+    
     void startSameTime(Instruction* const before,
                        Instruction* const after) {
       constraints.push_back(new Ordered(instrStart(before), instrStart(after), ORDER_RESTRICTION_SIMULTANEOUS, 0));
@@ -3180,22 +3190,20 @@ namespace DHLS {
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
     p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
-    //p.addConstraint(p.instrStart(rst1) == p.instrStart(wA));
-    //p.addConstraint(p.instrStart(rst1) == p.instrStart(wAStb));
 
     // A / B stall
     p.addConstraint(p.instrStart(aAck) == p.instrEnd(wAStb));
-    p.addConstraint(p.instrStart(aAck) < p.instrStart(wAStb0));
+    //p.addConstraint(p.instrStart(aAck) < p.instrStart(wAStb0));
+    exeConstraints.startsBeforeStarts(aAck, wAStb0);
     p.addConstraint(p.instrStart(stallUntilAAck) == p.instrEnd(aAck));
 
     exeConstraints.startSameTime(wA, wAStb);
-    //p.addConstraint(p.instrStart(wA) == p.instrStart(wAStb));
 
     p.addConstraint(p.instrStart(bAck) == p.instrEnd(wBStb));
-    p.addConstraint(p.instrEnd(bAck) < p.instrStart(wBStb0));
+    //p.addConstraint(p.instrEnd(bAck) < p.instrStart(wBStb0));
+    exeConstraints.endsBeforeStarts(bAck, wBStb0);
     p.addConstraint(p.instrStart(stallUntilBAck) == p.instrEnd(bAck));
     exeConstraints.startSameTime(wB, wBStb);    
-    //p.addConstraint(p.instrStart(wB) == p.instrStart(wBStb));
 
     // Wait for A to be written before writing b
     p.addConstraint(p.instrEnd(aAck) < p.instrStart(wB));
@@ -3205,8 +3213,6 @@ namespace DHLS {
 
     exeConstraints.startSameTime(val, zStb);
     exeConstraints.startSameTime(stallUntilZStb, zStb);        
-    //p.addConstraint(p.instrStart(val) == p.instrStart(zStb));
-    //p.addConstraint(p.instrStart(stallUntilZStb) == p.instrStart(zStb));
 
     // Split them up so that Z is written only after the stall finishes
     // Really ought to have the option to let the backend propagate
