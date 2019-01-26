@@ -56,6 +56,37 @@ float bitCastToFloat(const int a) {
   return *ap;
 }
 
+typedef Fifo<float, 10> builtin_fifo_32;
+typedef uint8_t bit;
+
+int builtin_read_fifo_32(builtin_fifo_32* a) {
+  return bitCastToInt(a->read());
+}
+
+void builtin_write_fifo_32(int val, builtin_fifo_32* a) {
+  return a->write(bitCastToFloat(val));
+}
+
+void builtin_write_port_rst(adder* fpu, bit a) {
+  assert((a == 0) || (a == 1));
+
+  fpu->rst = a;
+}
+
+void builtin_write_port_input_a_stb(adder* fpu, bit a) {
+  assert((a == 0) || (a == 1));
+
+  fpu->input_a_stb = a;
+}
+
+void builtin_write_port_input_b_stb(adder* fpu, bit a) {
+  assert((a == 0) || (a == 1));
+
+  fpu->input_b_stb = a;
+}
+
+// END of software definitions for hardware builtins
+
 // Goal is for this function to be implemented using builtin read and write
 // port functions, and then to have those implemented in verilator in software
 // with stalls inserted where necessary and as primitives in hardware. The HLS
@@ -64,17 +95,22 @@ float bitCastToFloat(const int a) {
 // software testing, or in to a synthesized piece of hardware for use in HLS
 
 // Q: Where will I add the scheduling metadata?
-void builtin_fadd(adder* const fpu, Fifo<float, 10>* a, Fifo<float, 10>* b, Fifo<float, 10>* c) {
-  int af = bitCastToInt(a->read());
-  int bf = bitCastToInt(b->read());
+void builtin_fadd(adder* const fpu,
+                  builtin_fifo_32* a,
+                  builtin_fifo_32* b,
+                  builtin_fifo_32* c) {
+  int af = builtin_read_fifo_32(a);
+  int bf = builtin_read_fifo_32(b);  
 
-  fpu->rst = 1;
+  builtin_write_port_rst(fpu, 1);
+  //fpu->rst = 1;
 
   POSEDGE(fpu);
 
-  fpu->rst = 0;
+  builtin_write_port_rst(fpu, 0);
+
   fpu->input_a = af;
-  fpu->input_a_stb = 1;
+  builtin_write_port_input_a_stb(fpu, 1);
 
   while (fpu->input_a_ack != 1) {
     POSEDGE(fpu);
@@ -83,7 +119,7 @@ void builtin_fadd(adder* const fpu, Fifo<float, 10>* a, Fifo<float, 10>* b, Fifo
   assert(fpu->input_a_ack == 1);
 
   fpu->input_b = bf;
-  fpu->input_b_stb = 1;
+  builtin_write_port_input_b_stb(fpu, 1);
 
   POSEDGE(fpu);
 
@@ -101,7 +137,8 @@ void builtin_fadd(adder* const fpu, Fifo<float, 10>* a, Fifo<float, 10>* b, Fifo
   
   assert(fpu->output_z_stb == 1);
 
-  c->write(bitCastToFloat(fpu->output_z));
+  builtin_write_fifo_32(fpu->output_z, c);
+  //c->write(bitCastToFloat(fpu->output_z));
 }
 
 int main() {
