@@ -123,7 +123,7 @@ void builtin_fadd(adder* const fpu,
 
   POSEDGE(fpu);
 
-  fpu->input_a_stb = 0;
+  //  fpu->input_a_stb = 0;
 
   while (fpu->input_b_ack != 1) {
     POSEDGE(fpu);
@@ -138,7 +138,6 @@ void builtin_fadd(adder* const fpu,
   assert(fpu->output_z_stb == 1);
 
   builtin_write_fifo_32(fpu->output_z, c);
-  //c->write(bitCastToFloat(fpu->output_z));
 }
 
 int main() {
