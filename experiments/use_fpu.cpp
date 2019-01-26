@@ -56,15 +56,17 @@ float bitCastToFloat(const int a) {
   return *ap;
 }
 
-//float builtin_fadd(adder* const fpu, const float a, const float b) {
-float builtin_fadd(adder* const fpu, Fifo<float, 10>* a, Fifo<float, 10>* b) {
+// Goal is for this function to be implemented using builtin read and write
+// port functions, and then to have those implemented in verilator in software
+// with stalls inserted where necessary and as primitives in hardware. The HLS
+// compiler will have 2 modes. It will be able to compile the function from
+// builtin port and fifo calls in to a simulator binding version in C++ for
+// software testing, or in to a synthesized piece of hardware for use in HLS
+
+// Q: Where will I add the scheduling metadata?
+void builtin_fadd(adder* const fpu, Fifo<float, 10>* a, Fifo<float, 10>* b, Fifo<float, 10>* c) {
   int af = bitCastToInt(a->read());
-
-  cout << "af = " << af << endl;
-  
   int bf = bitCastToInt(b->read());
-
-  cout << "bf = " << bf << endl;
 
   fpu->rst = 1;
 
@@ -77,8 +79,6 @@ float builtin_fadd(adder* const fpu, Fifo<float, 10>* a, Fifo<float, 10>* b) {
   while (fpu->input_a_ack != 1) {
     POSEDGE(fpu);
   }
-
-  cout << "input_a_ack = " << (int) fpu->input_a_ack << endl;
 
   assert(fpu->input_a_ack == 1);
 
@@ -93,9 +93,6 @@ float builtin_fadd(adder* const fpu, Fifo<float, 10>* a, Fifo<float, 10>* b) {
     POSEDGE(fpu);
   }
   
-  cout << "input_a_ack = " << (int) fpu->input_a_ack << endl;
-  cout << "input_b_ack = " << (int) fpu->input_b_ack << endl;
-
   assert(fpu->input_b_ack == 1);
 
   while (fpu->output_z_stb != 1) {
@@ -103,13 +100,12 @@ float builtin_fadd(adder* const fpu, Fifo<float, 10>* a, Fifo<float, 10>* b) {
   }
   
   assert(fpu->output_z_stb == 1);
-  return bitCastToFloat(fpu->output_z);
+
+  c->write(bitCastToFloat(fpu->output_z));
 }
 
 int main() {
   adder fpu0;
-  // float a = 10.0;
-  // float b = 23.6;
 
   Fifo<float, 10> a;
   a.write(10.0);
@@ -117,8 +113,10 @@ int main() {
   Fifo<float, 10> b;
   b.write(23.6);
 
-  float result = builtin_fadd(&fpu0, &a, &b);
-
+  Fifo<float, 10> c;
+  
+  builtin_fadd(&fpu0, &a, &b, &c);
+  float result = c.read();
 
   cout << "result = " << result << endl;
 
