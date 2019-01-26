@@ -17,7 +17,8 @@ namespace DHLS {
   //    Add an "I dont care about default values to this FU" option?
   //    Move test layout int testbenchspec
   //    Incorporate fifoSpecs in to scheduling constraints automatically
-  //    Create verilator wrapper for the FPU
+  //    Generalize InstructionTime to include fixed offset and build operator
+  //    overloaded API for creating them
 
   // NOTE: Systolic array example has correct binding by chance. The control
   // structure around the array is a tricky question. Most papers on systolic
@@ -3193,14 +3194,12 @@ namespace DHLS {
 
     // A / B stall
     p.addConstraint(p.instrStart(aAck) == p.instrEnd(wAStb));
-    //p.addConstraint(p.instrStart(aAck) < p.instrStart(wAStb0));
     exeConstraints.startsBeforeStarts(aAck, wAStb0);
     p.addConstraint(p.instrStart(stallUntilAAck) == p.instrEnd(aAck));
 
     exeConstraints.startSameTime(wA, wAStb);
 
     p.addConstraint(p.instrStart(bAck) == p.instrEnd(wBStb));
-    //p.addConstraint(p.instrEnd(bAck) < p.instrStart(wBStb0));
     exeConstraints.endsBeforeStarts(bAck, wBStb0);
     p.addConstraint(p.instrStart(stallUntilBAck) == p.instrEnd(bAck));
     exeConstraints.startSameTime(wB, wBStb);    
