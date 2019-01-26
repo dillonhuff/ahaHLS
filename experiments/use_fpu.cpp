@@ -85,6 +85,18 @@ void builtin_write_port_input_b_stb(adder* fpu, bit a) {
   fpu->input_b_stb = a;
 }
 
+void builtin_write_port_input_b(adder* fpu, int a) {
+  fpu->input_b = a;
+}
+
+void builtin_write_port_input_a(adder* fpu, int a) {
+  fpu->input_a = a;
+}
+
+int builtin_read_port_output_z(adder* fpu) {
+  return fpu->output_z;
+}
+
 // END of software definitions for hardware builtins
 
 // Goal is for this function to be implemented using builtin read and write
@@ -103,13 +115,12 @@ void builtin_fadd(adder* const fpu,
   int bf = builtin_read_fifo_32(b);  
 
   builtin_write_port_rst(fpu, 1);
-  //fpu->rst = 1;
 
   POSEDGE(fpu);
 
   builtin_write_port_rst(fpu, 0);
 
-  fpu->input_a = af;
+  builtin_write_port_input_a(fpu, af);
   builtin_write_port_input_a_stb(fpu, 1);
 
   while (fpu->input_a_ack != 1) {
@@ -118,12 +129,10 @@ void builtin_fadd(adder* const fpu,
 
   assert(fpu->input_a_ack == 1);
 
-  fpu->input_b = bf;
+  builtin_write_port_input_b(fpu, bf);
   builtin_write_port_input_b_stb(fpu, 1);
 
   POSEDGE(fpu);
-
-  //  fpu->input_a_stb = 0;
 
   while (fpu->input_b_ack != 1) {
     POSEDGE(fpu);
@@ -137,7 +146,8 @@ void builtin_fadd(adder* const fpu,
   
   assert(fpu->output_z_stb == 1);
 
-  builtin_write_fifo_32(fpu->output_z, c);
+  int result = builtin_read_port_output_z(fpu);
+  builtin_write_fifo_32(result, c);
 }
 
 int main() {
