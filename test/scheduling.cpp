@@ -3102,14 +3102,24 @@ namespace DHLS {
     }
   };
 
+  void emitVerilatorBinding(STG& graph) {
+    Function* f = graph.getFunction();
+    ofstream out(string(f->getName()) + ".c");
+
+    vector<string> args;
+    for (auto& arg : f->args()) {
+      args.push_back("insert_type* " + string(arg.getName()));
+    }
+    out << "void " << string(f->getName()) << "(" << commaListString(args) << ") {" << endl;
+    out << "}";
+      
+    out.close();
+  }
+
   // Some problems with this prototype:
-  // 1. Directly creating scheduler constraints works, but I cant use it to
-  //    create simulator bindings (need a different data structure)
   // 2. Writing out constraints like these is tedious and error prone
   // 3. I want to be able to express loop related constraints as well
   //    (constraints on execution order of instances of an action)
-  // 4. I want to be able to build up constraints iteratively as I build the
-  //    function
   // 5. Eventually I want a constraint API that is good enough to write a paper
   //    about. Ideally using C/C++ as a frontend
   // 6. Not only is writing these constraints tedious, writing LLVM code for
@@ -3212,52 +3222,36 @@ namespace DHLS {
     hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
     hcs.fifoSpecs[getArg(f, 2)] = FifoSpec(0, 0, FIFO_TIMED);
 
-    set<BasicBlock*> toPipeline;
-    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
-    p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
-
     // A / B stall
     exeConstraints.addConstraint(instrStart(aAck) == instrEnd(wAStb));
-    //p.addConstraint(p.instrStart(aAck) == p.instrEnd(wAStb));
     exeConstraints.startsBeforeStarts(aAck, wAStb0);
     exeConstraints.addConstraint(instrStart(stallUntilAAck) == instrEnd(aAck));
-    //p.addConstraint(p.instrStart(stallUntilAAck) == p.instrEnd(aAck));
 
     exeConstraints.startSameTime(wA, wAStb);
 
     exeConstraints.addConstraint(instrStart(bAck) == instrEnd(wBStb));
-    //p.addConstraint(p.instrStart(bAck) == p.instrEnd(wBStb));
     exeConstraints.endsBeforeStarts(bAck, wBStb0);
-    //p.addConstraint(p.instrStart(stallUntilBAck) == p.instrEnd(bAck));
     exeConstraints.addConstraint(instrStart(stallUntilBAck) == instrEnd(bAck));
     exeConstraints.startSameTime(wB, wBStb);    
 
     // Wait for A to be written before writing b
-    //p.addConstraint(p.instrEnd(aAck) < p.instrStart(wB));
     exeConstraints.addConstraint(instrEnd(aAck) < instrStart(wB));
 
     // Wait for b to be acknowledged before reading Z
-    //p.addConstraint(p.instrEnd(bAck) < p.instrStart(val));
     exeConstraints.addConstraint(instrEnd(bAck) < instrStart(val));
 
     exeConstraints.startSameTime(val, zStb);
     exeConstraints.startSameTime(stallUntilZStb, zStb);        
 
-    // Split them up so that Z is written only after the stall finishes
-    // Really ought to have the option to let the backend propagate
-    // stalls.
-    //p.addConstraint(p.instrEnd(val) < p.instrStart(writeZ));
     exeConstraints.addConstraint(instrEnd(val) < instrStart(writeZ));
-
-    // Note: Because the names of ports are embedded in LLVM functions
-    // I cannot build a single function to represent doing ready valid
-    // setting on different ports. So I need some sort of function
-    // template
 
     // Note: It is also a pain that I cannot run-the getOrAddFunction
     // method of llvm::Module and get back a function each time. Being able
     // to do that would be awesome.
 
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
     exeConstraints.addConstraints(p, f);
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
@@ -3274,6 +3268,8 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
+    emitVerilatorBinding(graph);
+    
     map<Value*, int> layout;
     ArchOptions options;
     auto arch = buildMicroArchitecture(f,
