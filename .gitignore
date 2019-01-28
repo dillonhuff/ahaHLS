@@ -96,3 +96,6 @@ one_register
 sys_array_2x2
 sys_array_2x2.v
 sys_array_fifo.v
+dynamic_arch
+dynamic_arch.v
+make-bindings
