@@ -3165,6 +3165,28 @@ namespace DHLS {
     }
   };
 
+  void addDataConstraints(llvm::Function* f, ExecutionConstraints& exe) {
+    // Instructions must finish before their dependencies
+    for (auto& bb : f->getBasicBlockList()) {
+
+      for (auto& instr : bb) {
+        Instruction* iptr = &instr;
+        
+        for (auto& user : iptr->uses()) {
+          assert(Instruction::classof(user));
+          auto userInstr = dyn_cast<Instruction>(user.getUser());          
+
+          if (!PHINode::classof(userInstr)) {
+
+            exe.addConstraint(instrEnd(iptr) <= instrStart(userInstr));
+          }
+        }
+
+      }
+    }
+
+  }
+
   std::string cString(llvm::Instruction* const instr) {
     if (ReturnInst::classof(instr)) {
       return "return";
@@ -3650,12 +3672,30 @@ namespace DHLS {
       return globalTime.name;
     }
 
-    std::string instrTimeString(InstructionTime& time) const {
+    std::string afterTimeFlag(InstructionTime& time) const {
       if (time.isEnd) {
-        return map_find(time.instr, timeDoneCounters).name;
+        return map_find(time.instr, instrDoneFlags).name;
       } else {
-        return map_find(time.instr, timeStartedCounters).name;
+        return map_find(time.instr, instrStartedFlags).name;
       }
+    }
+
+    // Time at which an instruction started or finished
+    std::string instrTimeString(InstructionTime& time) const {
+      string alreadyDoneTime;
+      string thisCycleFlag;
+      if (time.isEnd) {
+        alreadyDoneTime = map_find(time.instr, timeDoneCounters).name;
+        thisCycleFlag = map_find(time.instr, instrDoneThisCycleFlags).name;
+      } else {
+        alreadyDoneTime = map_find(time.instr, timeStartedCounters).name;
+        thisCycleFlag = map_find(time.instr, instrStartingThisCycleFlags).name;
+      }
+
+      // If this time is the start or end then the time of the event is
+      // the current global time, otherwise it is the saved complete time
+      // Result is invalid if the event is not starting
+      return condStr(thisCycleFlag, globalTimeString(), alreadyDoneTime);
     }
 
     std::string afterTimeString(InstructionTime& time) {
@@ -3671,30 +3711,41 @@ namespace DHLS {
       return andStr(eventHappened, requiredTimeElapsed);
     }
 
-    std::string atTimeString(InstructionTime& time) {
-
+    std::string atOrAfterTime(InstructionTime& time) {
       string eventHappened;
+      string eventHappening;
       if (time.isEnd) {
         eventHappened = map_find(time.instr, instrDoneFlags).name;
+        eventHappening = couldEndFlag(time.instr);
       } else {
         eventHappened = map_find(time.instr, instrStartedFlags).name;
+        eventHappening = couldStartFlag(time.instr);        
       }
+
+      return orStr(eventHappened, eventHappening);
+    }
+
+    std::string atTimeString(InstructionTime& time) {
+
+      
+      string eventHappened = atOrAfterTime(time);
 
       string requiredTimeElapsed = parens(parens(instrTimeString(time) + " + " + to_string(time.offset)) + " == " + globalTimeString());
       return andStr(eventHappened, requiredTimeElapsed);
     }
 
     std::string afterOrAtTimeString(InstructionTime& time) {
+      return orStr(atTimeString(time), afterTimeString(time));
 
-      string eventHappened;
-      if (time.isEnd) {
-        eventHappened = map_find(time.instr, instrDoneFlags).name;
-      } else {
-        eventHappened = map_find(time.instr, instrStartedFlags).name;
-      }
+      // string eventHappened;
+      // if (time.isEnd) {
+      //   eventHappened = map_find(time.instr, instrDoneFlags).name;
+      // } else {
+      //   eventHappened = map_find(time.instr, instrStartedFlags).name;
+      // }
 
-      string requiredTimeElapsed = parens(parens(instrTimeString(time) + " + " + to_string(time.offset)) + " <= " + globalTimeString());
-      return andStr(eventHappened, requiredTimeElapsed);
+      // string requiredTimeElapsed = parens(parens(instrTimeString(time) + " + " + to_string(time.offset)) + " <= " + globalTimeString());
+      // return andStr(eventHappened, requiredTimeElapsed);
     }
     
     std::string constraintString(ExecutionConstraint* c) {
@@ -3741,6 +3792,7 @@ namespace DHLS {
         rcs.push_back(constraintString(c));
       }
 
+      rcs.push_back(orStr(instrStartString(instr), couldStartFlag(instr)));
       rcs.push_back(notStr(instrEndString(instr)));
       return separatedListString(rcs, " && ");
     }
@@ -3883,7 +3935,7 @@ namespace DHLS {
 
     auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
     ConstantInt* zero = mkInt("0", 32);
-    ConstantInt* five = mkInt("5", 32);        
+    ConstantInt* five = mkInt("5", 32);
     IRBuilder<> builder(entryBlock);
     auto ldA = loadVal(builder, getArg(srUser, 0), zero);
     auto plus = builder.CreateAdd(ldA, five);
@@ -3894,10 +3946,7 @@ namespace DHLS {
     cout << valueString(srUser) << endl;
 
     ExecutionConstraints exec;
-    // Data dependencies
-    exec.add(instrEnd(ldA) <= instrStart(plus));
-    exec.add(instrEnd(plus) <= instrStart(st));
-    exec.add(instrEnd(st) <= instrStart(ret));
+    addDataConstraints(srUser, exec);
 
     // Control time dependencies
     exec.add(instrStart(ldA) + 1 == instrEnd(ldA));

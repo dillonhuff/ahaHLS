@@ -117,12 +117,22 @@ namespace DHLS {
   bool isBuiltinPortCall(llvm::Instruction* const instr) {
     return isBuiltinPortWrite(instr) || isBuiltinPortRead(instr);
   }
+
+  static inline
+  std::string orStr(const std::string& left, const std::string& right) {
+    return parens(left + " || " + right);
+  }
   
   static inline
   std::string andStr(const std::string& left, const std::string& right) {
     return parens(left + " && " + right);
   }
 
+  static inline
+  std::string condStr(const std::string& cond, const std::string& left, const std::string& right) {
+    return parens(cond + " ? " + left + " : " + right);
+  }
+  
   static inline
   std::string notStr(const std::string& a) {
     return "!" + parens(a);
