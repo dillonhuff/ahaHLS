@@ -71,9 +71,11 @@ module test();
       `POSEDGE
       `POSEDGE        
       `POSEDGE
-
+      `POSEDGE
+      `POSEDGE
+      `POSEDGE        
         `assert(dbg_data, 12 + 5)
-
+        `assert(valid, 1'b1)
       `POSEDGE
 
       #1 $display("Passed");
@@ -87,7 +89,7 @@ module test();
       $display("waddr_0 = %d", waddr_0);
       $display("wdata_0 = %d", wdata_0);
       $display("wen_0   = %d", wen_0);            
-
+      $display("valid   = %d", valid);            
    end
 
 	RAM_1_3_32_32 ram(.clk(clk), .debug_addr(dbg_addr), .debug_data(dbg_data), .debug_write_addr(dbg_wr_addr), .debug_write_data(dbg_wr_data), .debug_write_en(dbg_wr_en), .raddr_0(raddr_0), .rdata_0(rdata_0), .rst(rst), .waddr_0(waddr_0), .wdata_0(wdata_0), .wen_0(wen_0));

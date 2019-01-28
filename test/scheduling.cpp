@@ -3185,7 +3185,9 @@ namespace DHLS {
 
         // Instructions must finish before their basic block terminator,
         // this is not true anymore in pipelining
-        exe.addConstraint(instrEnd(iptr) <= instrStart(term));
+        if (iptr != term) {
+          exe.addConstraint(instrEnd(iptr) <= instrStart(term));
+        }
       }
     }
 
@@ -3584,7 +3586,15 @@ namespace DHLS {
         
         inWires = {{"raddr_0", raddr}, {"ren_0", ren}, {"waddr_0", waddr}, {"wdata_0", wdata}, {"wen_0", wen}};
         outWires = {{"rdata_0", rdata}};
+      } else if (ReturnInst::classof(instr)) {
+
+        modName = "external_RET";
+        unitName = "external_RET";
+
+        Wire valid = addReg(1, "valid_reg");
+        inWires = {{"valid", valid}};
       }
+
       if (LoadInst::classof(instr) ||
           StoreInst::classof(instr) ||
           ReturnInst::classof(instr)) {
@@ -3888,7 +3898,7 @@ namespace DHLS {
         // Set completion times
         addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin " + arch.startTimeString(&instr) + " <= " + arch.globalTimeString() + "; end", comps);
         addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin " + arch.doneTimeString(&instr) + " <= " + arch.globalTimeString() + "; end", comps);
-        
+
         // Debug printouts, TODO: Move these to separate debug function
         addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin $display(\"Starting " + sanitizeFormatForVerilog(valueString(&instr)) + "\"); end", comps);     
         addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin $display(\"Ending " + sanitizeFormatForVerilog(valueString(&instr)) + "\"); end", comps);
@@ -3896,26 +3906,41 @@ namespace DHLS {
         
         // Actually execute instructions, should move this to another function?
         FunctionalUnit unit = map_find(&instr, arch.unitAssignment);
-        string portSetting = "";          
+        string portSetting = "";
+        string resultValue = "";
 
         if (BinaryOperator::classof(&instr)) {
           portSetting += unit.portWires["in0"].name + " = " + arch.outputName(instr.getOperand(0)) + "; ";
           portSetting += unit.portWires["in1"].name + " = " + arch.outputName(instr.getOperand(1)) + "; ";
+          resultValue = unit.outWires["out"].name;
         } else if (GetElementPtrInst::classof(&instr)) {
           portSetting += unit.portWires["base_addr"].name + " = " + arch.outputName(instr.getOperand(0)) + "; ";
           for (int i = 1; i < (int) instr.getNumOperands(); i++) {
             portSetting += unit.portWires["in" + to_string(i)].name + " = " + arch.outputName(instr.getOperand(i)) + ";";
+
           }
+
+          resultValue = unit.outWires["out"].name;
         } else if (LoadInst::classof(&instr)) {
           portSetting += unit.portWires["raddr_0"].name + " = " + arch.outputName(instr.getOperand(0)) + "; ";
           portSetting += unit.portWires["ren_0"].name + " = 1;";
+
+          resultValue = unit.outWires["rdata_0"].name;
         } else if (StoreInst::classof(&instr)) {
           portSetting += unit.portWires["waddr_0"].name + " = " + arch.outputName(instr.getOperand(1)) + "; ";
           portSetting += unit.portWires["wdata_0"].name + " = " + arch.outputName(instr.getOperand(0)) + "; ";
           portSetting += unit.portWires["wen_0"].name + " = 1;";
+        } else if (ReturnInst::classof(&instr)) {
+          portSetting += unit.portWires["valid"].name + " = 1;";          
         }
 
-        addAlwaysBlock({}, "if (" + arch.couldStartFlag(&instr) + ") begin " + portSetting + " end", comps);                  
+        addAlwaysBlock({}, "if (" + arch.couldStartFlag(&instr) + ") begin " + portSetting + " end", comps);
+
+        // Store results to temporaries
+        if (hasOutput(&instr)) {
+          addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin " + map_find(&instr, arch.tempStorage).name + " <= " + resultValue + "; end", comps);
+        }
+        
         
       }
     }
@@ -3929,8 +3954,8 @@ namespace DHLS {
     
     auto mod = llvm::make_unique<Module>("dynamic arch", context);
 
-    std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo(),
-        Type::getInt32Ty(context)->getPointerTo()};
+    std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo()};
+        //        Type::getInt32Ty(context)->getPointerTo()};
     FunctionType *tp =
       FunctionType::get(Type::getVoidTy(context), inputs, false);
     Function *srUser =
@@ -3948,7 +3973,7 @@ namespace DHLS {
     IRBuilder<> builder(entryBlock);
     auto ldA = loadVal(builder, getArg(srUser, 0), zero);
     auto plus = builder.CreateAdd(ldA, five);
-    auto st = storeVal(builder, getArg(srUser, 1), zero, plus);
+    auto st = storeVal(builder, getArg(srUser, 0), zero, plus);
     auto ret = builder.CreateRet(nullptr);
 
     cout << "LLVM Function" << endl;
