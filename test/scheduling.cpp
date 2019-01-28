@@ -3448,8 +3448,49 @@ namespace DHLS {
     std::vector<Wire> allWires;
 
     std::vector<FunctionalUnit> functionalUnits;
+    std::map<llvm::Instruction*, FunctionalUnit> unitAssignment;
 
-    void addFunctionalUnit(llvm::Instruction* instr) {
+    Wire addReg(const int width, const std::string& name) {
+      Wire w = {true, width, name};
+      allWires.push_back(w);
+      return w;
+    }
+
+    Wire addWire(const int width, const std::string& name) {
+      Wire w = {false, width, name};
+      allWires.push_back(w);
+      return w;
+    }
+
+    string outputName(llvm::Value* const val) {
+      if (Instruction::classof(val)) {
+        cout << "Value for " << valueString(val) << endl;
+        Instruction* instr = dyn_cast<Instruction>(val);
+        FunctionalUnit unit = map_find(instr, unitAssignment);
+        string unitOut;
+        if (LoadInst::classof(instr)) {
+          cout << "loading rdata" << endl;
+          unitOut = map_find(string("rdata_0"), unit.outWires).name;
+        } else {
+          unitOut = map_find(string("out"), unit.outWires).name;
+        }
+
+        cout << "finding temp storage" << endl;
+        string regOut = map_find(instr, tempStorage).name;
+        return parens(couldEndFlag(instr) + " ? " + unitOut + " : " + regOut);
+      } else if (ConstantInt::classof(val)) {
+        auto valC = dyn_cast<ConstantInt>(val);
+        auto apInt = valC->getValue();
+
+        return to_string(dyn_cast<ConstantInt>(val)->getSExtValue());
+      }
+
+      cout << "Unsupported value = " << valueString(val) << endl;
+      // Value
+      assert(false);
+    }
+    
+    FunctionalUnit addFunctionalUnit(llvm::Instruction* instr) {
       map<string, string> modParams;
       string modName = instr->getOpcodeName();
       string rStr = to_string(functionalUnits.size());
@@ -3460,7 +3501,15 @@ namespace DHLS {
       bool isExternal = false;
 
 
-      if (GetElementPtrInst::classof(instr)) {
+      if (BinaryOperator::classof(instr)) {
+        int w = getValueBitWidth(instr);
+        Wire in0 = addReg(w, "in0_" + rStr);
+        Wire in1 = addReg(w, "in1_" + rStr);
+        Wire out = addWire(w, "out_" + rStr);
+        inWires = {{"in0", in0}, {"in1", in1}};
+        outWires = {{"out", out}};
+        modParams = {{"WIDTH", to_string(w)}};
+      } else if (GetElementPtrInst::classof(instr)) {
         modName += "_" + to_string(instr->getNumOperands() - 1);
 
         Wire baseAddr = {true, 32, "base_addr_" + rStr};
@@ -3476,6 +3525,19 @@ namespace DHLS {
         allWires.push_back(outWire);
         outWires = {{"out", outWire}};
         
+      } else if (LoadInst::classof(instr)) {
+        modName = "external_RAM";
+        int w = getValueBitWidth(instr);
+        Wire raddr = addReg(w, "raddr_0");
+        Wire waddr = addReg(w, "waddr_0");
+        Wire wdata = addWire(w, "wdata_0");
+        Wire wen = addWire(1, "wen_0");
+        Wire ren = addWire(1, "ren_0");
+
+        Wire rdata = addWire(32, "rdata_0");
+        
+        inWires = {{"raddr_0", raddr}, {"ren_0", ren}, {"waddr_0", waddr}, {"wdata_0", waddr}, {"wen_0", wen}};
+        outWires = {{"rdata_0", rdata}};
       }
       if (LoadInst::classof(instr) ||
           StoreInst::classof(instr) ||
@@ -3484,6 +3546,8 @@ namespace DHLS {
       }
       FunctionalUnit unit = {{modParams, modName}, unitName, inWires, outWires, isExternal};
       functionalUnits.push_back(unit);
+
+      return unit;
     }
     
     DynArch(Function* f_, ExecutionConstraints& exe_) : f(f_), exe(exe_) {
@@ -3500,9 +3564,11 @@ namespace DHLS {
           if (hasOutput(&instr)) {
             Wire tempValue = {true, getValueBitWidth(&instr), prefix + "_tmp"};
             allWires.push_back(tempValue);
+            tempStorage[&instr] = tempValue;
           }
 
-          addFunctionalUnit(&instr);
+          FunctionalUnit unit = addFunctionalUnit(&instr);
+          unitAssignment[&instr] = unit;
 
           Wire si = {true, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_started"};
           allWires.push_back(si);
@@ -3670,21 +3736,6 @@ namespace DHLS {
     return pts;
   }
 
-  std::string valueName(llvm::Value* val, DynArch& arch) {
-    if (Instruction::classof(val)) {
-      return "instr";
-    } else if (ConstantInt::classof(val)) {
-      auto valC = dyn_cast<ConstantInt>(val);
-      auto apInt = valC->getValue();
-
-      return to_string(dyn_cast<ConstantInt>(val)->getSExtValue());
-    }
-
-    cout << "Unsupported value = " << valueString(val) << endl;
-    // Value
-    assert(false);
-  }
-
   void emitVerilog(std::ostream& out, DynArch& arch) {
     vector<Port> pts = getPorts(arch);
 
@@ -3745,6 +3796,15 @@ namespace DHLS {
 
         addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin " + arch.startedFlag(&instr) + " <= 1; end", comps);
         addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin " + arch.doneFlag(&instr) + " <= 1; end", comps);
+
+        // Actually execute instructions
+        if (BinaryOperator::classof(&instr)) {
+          FunctionalUnit unit = map_find(&instr, arch.unitAssignment);
+          string portSetting = "";
+          portSetting += unit.portWires["in0"].name + " = " + arch.outputName(instr.getOperand(0)) + "; ";
+          portSetting += unit.portWires["in1"].name + " = " + arch.outputName(instr.getOperand(1)) + "; ";
+          addAlwaysBlock({}, "if (" + arch.couldStartFlag(&instr) + ") begin " + portSetting + " end", comps);                  
+        }
 
       }
     }
