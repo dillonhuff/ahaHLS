@@ -3620,6 +3620,10 @@ namespace DHLS {
     return pts;
   }
 
+  std::string valueName(llvm::Value* val, DynArch& arch) {
+    assert(false);
+  }
+
   void emitVerilog(std::ostream& out, DynArch& arch) {
     vector<Port> pts = getPorts(arch);
 
@@ -3643,7 +3647,22 @@ namespace DHLS {
         addAlwaysBlock({"clk"}, "if (rst) begin " + arch.doneFlag(&instr) + " <= 0; end", comps);        
 
         addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin " + arch.startedFlag(&instr) + " <= 1; end", comps);
-        addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin " + arch.doneFlag(&instr) + " <= 1; end", comps);        
+        addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin " + arch.doneFlag(&instr) + " <= 1; end", comps);
+
+        if (BinaryOperator::classof(&instr)) {
+          string opStr = " + ";
+          Value* op0 = instr.getOperand(0);
+          Value* op1 = instr.getOperand(0);
+
+          string op0Str = valueName(op0, arch);
+          string op1Str = valueName(op1, arch);
+          string resStr = valueName(&instr, arch);
+          string binopStr = resStr + " = " + op0Str + opStr + op1Str + ";";
+          addAlwaysBlock({}, "if (" + arch.couldStartFlag(&instr) + ") begin " + binopStr + " end", comps);
+        } else {
+          assert(false);
+        }
+
       }
     }
 
