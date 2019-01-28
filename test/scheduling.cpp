@@ -2980,6 +2980,10 @@ namespace DHLS {
     Instruction* instr;
     bool isEnd;
     int offset;
+
+    bool isStart() const {
+      return !isEnd;
+    }
   };
 
   InstructionTime operator+(const InstructionTime t, const int offset) {
@@ -3086,12 +3090,12 @@ namespace DHLS {
     std::vector<ExecutionConstraint*> constraints;
 
     std::vector<ExecutionConstraint*>
-    constraintsOn(llvm::Instruction* const instr) const {
+    constraintsOnStart(llvm::Instruction* const instr) const {
       std::vector<ExecutionConstraint*> on;      
       for (auto c : constraints) {
         if (c->type() == CONSTRAINT_TYPE_ORDERED) {
           Ordered* oc = static_cast<Ordered*>(c);
-          if (oc->after.instr == instr) {
+          if (oc->after.isStart() && (oc->after.instr == instr)) {
             on.push_back(c);
           }
         } else {
@@ -3403,24 +3407,63 @@ namespace DHLS {
     Function* f;
     ExecutionConstraints exe;
 
+    Wire globalTime;
+
     // Map from instruction times to wire names?
     std::map<llvm::Instruction*, Wire> instrStartedFlags;
     std::map<llvm::Instruction*, Wire> instrDoneFlags;    
 
+    std::map<llvm::Instruction*, Wire> timeSinceStartFlags;
+    std::map<llvm::Instruction*, Wire> timeSinceEndFlags;
+    
   public:
     DynArch(Function* f_, ExecutionConstraints& exe_) : f(f_), exe(exe_) {
+      globalTime = {true, 32, "clocks_since_reset"};
+      
       int i = 0;
       for (auto& bb : f->getBasicBlockList()) {
         for (auto& instr : bb) {
           instrStartedFlags[&instr] = {false, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_started"};
           instrDoneFlags[&instr] = {false, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_finished"};
+
+          timeSinceStartFlags[&instr] = {false, 32, string(instr.getOpcodeName()) + std::to_string(i) + "_time_since_started_started"};
+          timeSinceEndFlags[&instr] = {false, 32, string(instr.getOpcodeName()) + std::to_string(i) + "_time_since_finished"};
+
           i++;
         }
       }
     }
 
+    std::string globalTimeString() const {
+      return globalTime.name;
+    }
+
+    std::string instrTimeString(InstructionTime& time) const {
+      if (time.isEnd) {
+        return map_find(time.instr, timeSinceEndFlags).name;
+      } else {
+        return map_find(time.instr, timeSinceStartFlags).name;
+      }
+    }
+
+    std::string afterTimeString(InstructionTime& time) {
+
+      string eventHappened;
+      if (time.isEnd) {
+        eventHappened = map_find(time.instr, instrDoneFlags).name;
+      } else {
+        eventHappened = map_find(time.instr, instrStartedFlags).name;
+      }
+
+      string requiredTimeElapsed = parens(parens(instrTimeString(time) + " + " + to_string(time.offset)) + " < " + globalTimeString());
+      return andStr(eventHappened, requiredTimeElapsed);
+    }
+
     std::string constraintString(ExecutionConstraint* c) {
-      return "exe";
+      assert(c->type() == CONSTRAINT_TYPE_ORDERED);
+      Ordered* oc = static_cast<Ordered*>(c);
+      InstructionTime before = oc->before;
+      return afterTimeString(before);
     }
 
     std::string instrDoneString(Instruction* instr) {
@@ -3429,7 +3472,7 @@ namespace DHLS {
 
     std::string startInstrConstraint(Instruction* instr) {
       vector<string> rcs;
-      for (auto c : exe.constraintsOn(instr)) {
+      for (auto c : exe.constraintsOnStart(instr)) {
         rcs.push_back(constraintString(c));
       }
 
@@ -3478,6 +3521,9 @@ namespace DHLS {
     auto plus = builder.CreateAdd(ldA, five);
     auto st = storeVal(builder, getArg(srUser, 1), zero, plus);
     auto ret = builder.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(srUser) << endl;
 
     ExecutionConstraints exec;
     // Data dependencies
