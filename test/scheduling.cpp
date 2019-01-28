@@ -3004,6 +3004,16 @@ namespace DHLS {
     return {instr, false, 0};
   }
 
+  InstructionTime instrEnd(llvm::Value* const instr) {
+    assert(llvm::Instruction::classof(instr));
+    return {llvm::dyn_cast<llvm::Instruction>(instr), true, 0};
+  }
+
+  InstructionTime instrStart(llvm::Value* const instr) {
+    assert(llvm::Instruction::classof(instr));
+    return {llvm::dyn_cast<llvm::Instruction>(instr), false, 0};
+  }
+  
   class ExecutionConstraint {
   public:
     virtual void addSelfTo(SchedulingProblem& p, Function* f) = 0;
@@ -3069,6 +3079,10 @@ namespace DHLS {
       constraints.push_back(c);
     }
 
+    void add(ExecutionConstraint* c) {
+      addConstraint(c);
+    }
+    
     void addConstraints(SchedulingProblem& p,
                         Function* f) {
       for (auto c : constraints) {
@@ -3353,7 +3367,69 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("direct_port_fp_add"));
   }
 
-  TEST_CASE("Constraint free, out of order microarchitecture") {
+  TEST_CASE("Constraint free out of order microarchitecture") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+    
+    auto mod = llvm::make_unique<Module>("dynamic arch", context);
+
+    std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo(),
+        Type::getInt32Ty(context)->getPointerTo()};
+    FunctionType *tp =
+      FunctionType::get(Type::getVoidTy(context), inputs, false);
+    Function *srUser =
+      Function::Create(tp, Function::ExternalLinkage, "dynamic_arch", mod.get());
+
+    int argId = 0;
+    for (auto &Arg : srUser->args()) {
+      Arg.setName("arg_" + to_string(argId));
+      argId++;
+    }
+
+    auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
+    ConstantInt* zero = mkInt("0", 32);
+    ConstantInt* five = mkInt("5", 32);        
+    IRBuilder<> builder(entryBlock);
+    auto ldA = loadVal(builder, getArg(srUser, 0), zero);
+    auto plus = builder.CreateAdd(ldA, five);
+    auto st = storeVal(builder, getArg(srUser, 1), zero, plus);
+    auto ret = builder.CreateRet(nullptr);
+
+    ExecutionConstraints exec;
+    exec.add(instrEnd(ldA) <= instrStart(plus));
+    exec.add(instrEnd(plus) <= instrStart(st));
+    exec.add(instrEnd(st) <= instrStart(ret));
+
+    // HardwareConstraints hcs = standardConstraints();
+    // Schedule s = scheduleFunction(srUser, hcs);
+
+    // STG graph = buildSTG(s, srUser);
+
+    // cout << "STG Is" << endl;
+    // graph.print(cout);
+
+    // 3 x 3
+    // map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 1}};
+    // map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 1}};
+    // auto arch = buildMicroArchitecture(srUser, graph, layout);
+
+    // VerilogDebugInfo info;
+    // addNoXChecks(arch, info);
+
+    // emitVerilog(srUser, arch, info);
+
+    // map<string, vector<int> > memoryInit{{"arg_0", {6}}};
+    // map<string, vector<int> > memoryExpected{{"arg_1", {11}}};
+
+    // TestBenchSpec tb;
+    // tb.memoryInit = memoryInit;
+    // tb.memoryExpected = memoryExpected;
+    // tb.runCycles = 10;
+    // tb.name = "dynamic_arch";
+    // emitVerilogTestBench(tb, arch, testLayout);
+
+    REQUIRE(runIVerilogTB("dynamic_arch"));
+    
   }
   
 }

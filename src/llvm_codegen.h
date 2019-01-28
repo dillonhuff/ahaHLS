@@ -71,7 +71,7 @@ namespace DHLS {
   }
 
   static inline
-  llvm::Value* loadVal(llvm::IRBuilder<>& builder,
+  llvm::Instruction* loadVal(llvm::IRBuilder<>& builder,
                        llvm::Value* buffer,
                        llvm::Value* offset,
                        const std::string name = "") {
@@ -81,7 +81,7 @@ namespace DHLS {
   }
 
   static inline
-  llvm::Value* storeVal(llvm::IRBuilder<>& builder,
+  llvm::Instruction* storeVal(llvm::IRBuilder<>& builder,
                         llvm::Value* buffer,
                         llvm::Value* offset,
                         llvm::Value* value) {
