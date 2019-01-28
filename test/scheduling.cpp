@@ -3452,12 +3452,21 @@ namespace DHLS {
 
     Wire addReg(const int width, const std::string& name) {
       Wire w = {true, width, name};
+      if (elem_by(w, allWires, [](const Wire a, const Wire b) { return a.name == b.name; })) {
+        return w;
+      }
+                        
       allWires.push_back(w);
       return w;
     }
 
     Wire addWire(const int width, const std::string& name) {
       Wire w = {false, width, name};
+
+      if (elem_by(w, allWires, [](const Wire a, const Wire b) { return a.name == b.name; })) {
+        return w;
+      }
+
       allWires.push_back(w);
       return w;
     }
@@ -3529,16 +3538,23 @@ namespace DHLS {
         allWires.push_back(outWire);
         outWires = {{"out", outWire}};
         
-      } else if (LoadInst::classof(instr)) {
+      } else if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
         modName = "external_RAM";
-        int w = getValueBitWidth(instr);
-        Wire raddr = addReg(w, "raddr_0");
-        Wire waddr = addReg(w, "waddr_0");
-        Wire wdata = addWire(w, "wdata_0");
-        Wire wen = addWire(1, "wen_0");
-        Wire ren = addWire(1, "ren_0");
+        unitName = "external_RAM";
 
-        Wire rdata = addWire(32, "rdata_0");
+        int w = 0;
+        if (LoadInst::classof(instr)) {
+          w = getValueBitWidth(instr);
+        } else {
+          w = getValueBitWidth(instr->getOperand(0));
+        }
+        Wire raddr = addReg(w, "raddr_0_reg");
+        Wire waddr = addReg(w, "waddr_0_reg");
+        Wire wdata = addReg(w, "wdata_0_reg");
+        Wire wen = addReg(1, "wen_0_reg");
+        Wire ren = addReg(1, "ren_0_reg");
+
+        Wire rdata = addWire(32, "rdata_0_out");
         
         inWires = {{"raddr_0", raddr}, {"ren_0", ren}, {"waddr_0", waddr}, {"wdata_0", waddr}, {"wen_0", wen}};
         outWires = {{"rdata_0", rdata}};
@@ -3549,7 +3565,15 @@ namespace DHLS {
         isExternal = true;
       }
       FunctionalUnit unit = {{modParams, modName}, unitName, inWires, outWires, isExternal};
-      functionalUnits.push_back(unit);
+
+      if (!elem_by(unit, functionalUnits, [](const FunctionalUnit& a, const FunctionalUnit& b) { return a.instName == b.instName; })) {
+        functionalUnits.push_back(unit);
+      }
+
+      cout << "Unit name" << endl;
+      for (auto unit : functionalUnits) {
+        cout << tab(1) << unit.instName << endl;
+      }
 
       return unit;
     }
@@ -3747,7 +3771,6 @@ namespace DHLS {
     for (auto w : arch.allWires) {
       comps.debugWires.push_back(w);
     }
-
     // Adding module instances      
 
     for (auto unit : arch.functionalUnits) {
@@ -3780,6 +3803,15 @@ namespace DHLS {
 
       if (!unit.isExternal()) {
         comps.instances.push_back(inst);
+      } else {
+        for (auto w : unit.portWires) {
+          comps.debugAssigns.push_back({w.first, w.second.name});
+        }
+
+        for (auto w : unit.outWires) {
+          comps.debugAssigns.push_back({w.second.name, w.first});
+        }
+
       }
     }
     // Done adding module instances
@@ -3813,6 +3845,13 @@ namespace DHLS {
           for (int i = 1; i < (int) instr.getNumOperands(); i++) {
             portSetting += unit.portWires["in" + to_string(i)].name + " = " + arch.outputName(instr.getOperand(i)) + ";";
           }
+        } else if (LoadInst::classof(&instr)) {
+          portSetting += unit.portWires["raddr_0"].name + " = " + arch.outputName(instr.getOperand(0)) + "; ";
+          portSetting += unit.portWires["ren_0"].name + " = 1;";
+        } else if (StoreInst::classof(&instr)) {
+          portSetting += unit.portWires["waddr_0"].name + " = " + arch.outputName(instr.getOperand(1)) + "; ";
+          portSetting += unit.portWires["wdata_0"].name + " = " + arch.outputName(instr.getOperand(0)) + "; ";
+          portSetting += unit.portWires["wen_0"].name + " = 1;";
         }
 
         addAlwaysBlock({}, "if (" + arch.couldStartFlag(&instr) + ") begin " + portSetting + " end", comps);                  

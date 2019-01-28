@@ -37,6 +37,10 @@ namespace DHLS {
     return {false, false, width, name, false};
   }
 
+  Port outputRegPort(const int width, const std::string& name) {
+    return {true, false, width, name, false};
+  }
+  
   Port outputDebugPort(const int width, const std::string& name) {
     return {false, false, width, name, true};
   }
@@ -74,12 +78,14 @@ namespace DHLS {
   Port wireToInputPort(const Wire w) {
     assert(!w.registered);
     
-    return {w.registered, true, w.width, w.name, false};
+    //return {w.registered, true, w.width, w.name, false};
+    return {false, true, w.width, w.name, false};
   }
 
 
   Port wireToOutputPort(const Wire w) {
-    return {w.registered, false, w.width, w.name, false};
+    //return {w.registered, false, w.width, w.name, false};
+    return {false, false, w.width, w.name, false};
   }
   
   std::vector<Port>

@@ -35,12 +35,13 @@ namespace DHLS {
     }
 
     std::string toString() {
-      return std::string(isInput ? "input" : "output") + " [" + std::to_string(width - 1) + ":0] " + name;
+      return std::string(isInput ? "input" : "output") + (registered ? " reg " : "") + " [" + std::to_string(width - 1) + ":0] " + name;
     }
   };
 
   Port inputPort(const int width, const std::string& name);
   Port outputPort(const int width, const std::string& name);
+  Port outputRegPort(const int width, const std::string& name);  
   Port outputDebugPort(const int width, const std::string& name);
   
   class Wire {
