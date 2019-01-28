@@ -3403,6 +3403,11 @@ namespace DHLS {
   // Instruction has started flag and has ended flag
   // Combinational flags saying if the instruction is ending now?
   // Global clock
+
+  // Going to need markers for:
+  // Time since an instruction started / ended
+  // Whether an instruction starts / ends in this cycle
+  // Time elapsed since an instruction has started / ended (or just start cycle?)
   class DynArch {
     Function* f;
     ExecutionConstraints exe;
@@ -3415,6 +3420,10 @@ namespace DHLS {
 
     std::map<llvm::Instruction*, Wire> timeStartedCounters;
     std::map<llvm::Instruction*, Wire> timeDoneCounters;
+
+    std::map<llvm::Instruction*, Wire> instrStartingThisCycleFlags;
+    std::map<llvm::Instruction*, Wire> instrDoneThisCycleFlags;
+    
     
   public:
     DynArch(Function* f_, ExecutionConstraints& exe_) : f(f_), exe(exe_) {
@@ -3429,6 +3438,9 @@ namespace DHLS {
           timeStartedCounters[&instr] = {false, 32, string(instr.getOpcodeName()) + std::to_string(i) + "_time_started"};
           timeDoneCounters[&instr] = {false, 32, string(instr.getOpcodeName()) + std::to_string(i) + "_time_finished"};
 
+          instrStartingThisCycleFlags[&instr] = {false, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_starting_this_cycle"};
+          instrDoneThisCycleFlags[&instr] = {false, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_done_this_cycle"};
+          
           i++;
         }
       }
@@ -3505,13 +3517,17 @@ namespace DHLS {
       return map_find(instr, instrDoneFlags).name;
     }
 
+    std::string instrStartString(Instruction* instr) {
+      return map_find(instr, instrStartedFlags).name;
+    }
+    
     std::string startInstrConstraint(Instruction* instr) {
       vector<string> rcs;
       for (auto c : exe.constraintsOnStart(instr)) {
         rcs.push_back(constraintString(c));
       }
 
-      rcs.push_back(notStr(instrDoneString(instr)));
+      rcs.push_back(notStr(instrStartString(instr)));
       return separatedListString(rcs, " && ");
     }
 
