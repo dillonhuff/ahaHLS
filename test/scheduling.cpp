@@ -3478,6 +3478,10 @@ namespace DHLS {
         cout << "finding temp storage" << endl;
         string regOut = map_find(instr, tempStorage).name;
         return parens(couldEndFlag(instr) + " ? " + unitOut + " : " + regOut);
+      } else if (Argument::classof(val)) {
+
+        // TODO: For now assume all memory starts at 0?
+        return "0";
       } else if (ConstantInt::classof(val)) {
         auto valC = dyn_cast<ConstantInt>(val);
         auto apInt = valC->getValue();
@@ -3798,14 +3802,21 @@ namespace DHLS {
         addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin " + arch.doneFlag(&instr) + " <= 1; end", comps);
 
         // Actually execute instructions
+        FunctionalUnit unit = map_find(&instr, arch.unitAssignment);
+        string portSetting = "";          
+
         if (BinaryOperator::classof(&instr)) {
-          FunctionalUnit unit = map_find(&instr, arch.unitAssignment);
-          string portSetting = "";
           portSetting += unit.portWires["in0"].name + " = " + arch.outputName(instr.getOperand(0)) + "; ";
           portSetting += unit.portWires["in1"].name + " = " + arch.outputName(instr.getOperand(1)) + "; ";
-          addAlwaysBlock({}, "if (" + arch.couldStartFlag(&instr) + ") begin " + portSetting + " end", comps);                  
+        } else if (GetElementPtrInst::classof(&instr)) {
+          portSetting += unit.portWires["base_addr"].name + " = " + arch.outputName(instr.getOperand(0)) + "; ";
+          for (int i = 1; i < (int) instr.getNumOperands(); i++) {
+            portSetting += unit.portWires["in" + to_string(i)].name + " = " + arch.outputName(instr.getOperand(i)) + ";";
+          }
         }
 
+        addAlwaysBlock({}, "if (" + arch.couldStartFlag(&instr) + ") begin " + portSetting + " end", comps);                  
+        
       }
     }
 
