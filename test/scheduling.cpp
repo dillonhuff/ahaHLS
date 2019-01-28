@@ -3538,14 +3538,36 @@ namespace DHLS {
     Function* getFunction() const { return f; }
   };
 
-  void emitVerilog(std::ostream& out, DynArch& arch) {
-    out << "module " << string(arch.getFunction()->getName()) << "();" << endl;
+  std::vector<Port> getPorts(DynArch& arch) {
+    vector<Port> pts;
+    pts.push_back(inputPort(1, "clk"));
+    pts.push_back(inputPort(1, "rst"));
+    pts.push_back(outputPort(1, "valid"));
 
-    for (auto& bb : arch.getFunction()->getBasicBlockList()) {
-      for (auto& instr : bb) {
-        out << tab(1) << arch.startInstrConstraint(&instr) << endl;
-      }
+    pts.push_back(outputPort(32, "raddr_0"));
+    pts.push_back(outputPort(1, "ren_0"));
+    pts.push_back(inputPort(32, "rdata_0"));
+    pts.push_back(outputPort(32, "waddr_0"));
+    pts.push_back(outputPort(32, "wdata_0"));
+    pts.push_back(outputPort(1, "wen_0"));
+
+    return pts;
+  }
+
+  void emitVerilog(std::ostream& out, DynArch& arch) {
+    vector<Port> pts = getPorts(arch);
+    vector<string> portStrings;
+    for (auto pt : pts) {
+      portStrings.push_back(pt.toString());
     }
+    
+    out << "module " << string(arch.getFunction()->getName()) << "(" << commaListString(portStrings) << ");" << endl;
+
+    // for (auto& bb : arch.getFunction()->getBasicBlockList()) {
+    //   for (auto& instr : bb) {
+    //     out << tab(1) << arch.startInstrConstraint(&instr) << endl;
+    //   }
+    // }
     out << "endmodule" << endl;
   }
 

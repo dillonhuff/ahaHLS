@@ -37,6 +37,10 @@ namespace DHLS {
     }
   };
 
+  Port inputPort(const int width, const std::string& name);
+  Port outputPort(const int width, const std::string& name);
+  Port outputDebugPort(const int width, const std::string& name);
+  
   class Wire {
   public:
     bool registered;
