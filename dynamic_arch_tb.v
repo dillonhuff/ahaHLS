@@ -73,7 +73,6 @@ module test();
       `POSEDGE
 
         `assert(dbg_data, 12 + 5)
-      
 
       `POSEDGE
 

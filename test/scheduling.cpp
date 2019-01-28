@@ -3423,29 +3423,60 @@ namespace DHLS {
 
     std::map<llvm::Instruction*, Wire> instrStartingThisCycleFlags;
     std::map<llvm::Instruction*, Wire> instrDoneThisCycleFlags;
-    
+
     
   public:
+
+    std::vector<Wire> allWires;
+    
+    
     DynArch(Function* f_, ExecutionConstraints& exe_) : f(f_), exe(exe_) {
       globalTime = {true, 32, "clocks_since_reset"};
+      allWires.push_back(globalTime);
       
       int i = 0;
       for (auto& bb : f->getBasicBlockList()) {
         for (auto& instr : bb) {
-          instrStartedFlags[&instr] = {false, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_started"};
-          instrDoneFlags[&instr] = {false, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_finished"};
+          Wire si = {true, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_started"};
+          allWires.push_back(si);
+          instrStartedFlags[&instr] = si;
 
-          timeStartedCounters[&instr] = {false, 32, string(instr.getOpcodeName()) + std::to_string(i) + "_time_started"};
-          timeDoneCounters[&instr] = {false, 32, string(instr.getOpcodeName()) + std::to_string(i) + "_time_finished"};
+          Wire se = {true, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_finished"};
+          allWires.push_back(se);          
+          instrDoneFlags[&instr] = se;
 
-          instrStartingThisCycleFlags[&instr] = {false, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_starting_this_cycle"};
-          instrDoneThisCycleFlags[&instr] = {false, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_done_this_cycle"};
+          Wire sc = {false, 32, string(instr.getOpcodeName()) + std::to_string(i) + "_time_started"};
+          allWires.push_back(sc);          
+          timeStartedCounters[&instr] = sc;
+
+          Wire ec = {false, 32, string(instr.getOpcodeName()) + std::to_string(i) + "_time_finished"};
+          allWires.push_back(ec);          
+          timeDoneCounters[&instr] = ec;
+
+          Wire ssc = {false, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_starting_this_cycle"};
+          allWires.push_back(ssc);          
+          instrStartingThisCycleFlags[&instr] = ssc;
+          Wire esc = {false, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_done_this_cycle"};
+          allWires.push_back(esc);                    
+          instrDoneThisCycleFlags[&instr] = esc;
           
           i++;
         }
       }
     }
 
+    std::string couldStartFlag(llvm::Instruction* instr) {
+      return map_find(instr, instrStartingThisCycleFlags).name;
+    }
+
+    std::string startedFlag(llvm::Instruction* instr) {
+      return map_find(instr, instrStartedFlags).name;
+    }
+
+    std::string doneFlag(llvm::Instruction* instr) {
+      return map_find(instr, instrDoneFlags).name;
+    }
+    
     // Need two different things: "Already started" (every clock period after the
     // actual start), and "could start", could_start and !already_started means
     // starting_this_cycle
@@ -3556,19 +3587,31 @@ namespace DHLS {
 
   void emitVerilog(std::ostream& out, DynArch& arch) {
     vector<Port> pts = getPorts(arch);
-    vector<string> portStrings;
-    for (auto pt : pts) {
-      portStrings.push_back(pt.toString());
-    }
-    
-    out << "module " << string(arch.getFunction()->getName()) << "(" << commaListString(portStrings) << ");" << endl;
 
-    // for (auto& bb : arch.getFunction()->getBasicBlockList()) {
-    //   for (auto& instr : bb) {
-    //     out << tab(1) << arch.startInstrConstraint(&instr) << endl;
-    //   }
-    // }
-    out << "endmodule" << endl;
+    VerilogComponents comps;
+    for (auto w : arch.allWires) {
+      comps.debugWires.push_back(w);
+    }
+
+    addAlwaysBlock({"clk"}, "if (rst) begin " + arch.globalTimeString() + " <= 0; end", comps);
+    addAlwaysBlock({"clk"}, "if (!rst) begin " + arch.globalTimeString() + " <= " + arch.globalTimeString() + " + 1; end", comps);
+    
+    for (auto& bb : arch.getFunction()->getBasicBlockList()) {
+      for (auto& instr : bb) {
+
+        // Instruction start in cycle flag
+        comps.debugAssigns.push_back({arch.couldStartFlag(&instr), arch.startInstrConstraint(&instr)});
+
+        // Reset behavior
+        addAlwaysBlock({"clk"}, "if (rst) begin " + arch.startedFlag(&instr) + " <= 0; end", comps);
+        addAlwaysBlock({"clk"}, "if (rst) begin " + arch.doneFlag(&instr) + " <= 0; end", comps);        
+
+        addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin " + arch.startedFlag(&instr) + " <= 1; end", comps);
+        
+      }
+    }
+
+    emitModule(out, string(arch.getFunction()->getName()), pts, comps);
   }
 
   TEST_CASE("Constraint free out of order microarchitecture") {
@@ -3637,18 +3680,6 @@ namespace DHLS {
 
     // VerilogDebugInfo info;
     // addNoXChecks(arch, info);
-
-    // emitVerilog(srUser, arch, info);
-
-    // map<string, vector<int> > memoryInit{{"arg_0", {6}}};
-    // map<string, vector<int> > memoryExpected{{"arg_1", {11}}};
-
-    // TestBenchSpec tb;
-    // tb.memoryInit = memoryInit;
-    // tb.memoryExpected = memoryExpected;
-    // tb.runCycles = 10;
-    // tb.name = "dynamic_arch";
-    // emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("dynamic_arch"));
     
