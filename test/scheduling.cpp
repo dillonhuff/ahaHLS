@@ -3166,9 +3166,10 @@ namespace DHLS {
   };
 
   void addDataConstraints(llvm::Function* f, ExecutionConstraints& exe) {
-    // Instructions must finish before their dependencies
     for (auto& bb : f->getBasicBlockList()) {
 
+      Instruction* term = bb.getTerminator();
+      
       for (auto& instr : bb) {
         Instruction* iptr = &instr;
         
@@ -3177,11 +3178,14 @@ namespace DHLS {
           auto userInstr = dyn_cast<Instruction>(user.getUser());          
 
           if (!PHINode::classof(userInstr)) {
-
+            // Instructions must finish before their dependencies
             exe.addConstraint(instrEnd(iptr) <= instrStart(userInstr));
           }
         }
 
+        // Instructions must finish before their basic block terminator,
+        // this is not true anymore in pipelining
+        exe.addConstraint(instrEnd(iptr) <= instrStart(term));
       }
     }
 
@@ -3628,12 +3632,10 @@ namespace DHLS {
           allWires.push_back(se);          
           instrDoneFlags[&instr] = se;
 
-          Wire sc = {false, 32, string(instr.getOpcodeName()) + std::to_string(i) + "_time_started"};
-          allWires.push_back(sc);          
+          Wire sc = addReg(32, string(instr.getOpcodeName()) + std::to_string(i) + "_time_started");
           timeStartedCounters[&instr] = sc;
 
-          Wire ec = {false, 32, string(instr.getOpcodeName()) + std::to_string(i) + "_time_finished"};
-          allWires.push_back(ec);          
+          Wire ec = addReg(32, string(instr.getOpcodeName()) + std::to_string(i) + "_time_finished");
           timeDoneCounters[&instr] = ec;
 
           Wire ssc = {false, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_starting_this_cycle"};
@@ -3680,6 +3682,14 @@ namespace DHLS {
       }
     }
 
+    std::string doneTimeString(llvm::Instruction* instr) const {
+      return map_find(instr, timeDoneCounters).name;
+    }
+
+    std::string startTimeString(llvm::Instruction* instr) const {
+      return map_find(instr, timeStartedCounters).name;
+    }
+    
     // Time at which an instruction started or finished
     std::string instrTimeString(InstructionTime& time) const {
       string alreadyDoneTime;
@@ -3875,6 +3885,10 @@ namespace DHLS {
         addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin " + arch.startedFlag(&instr) + " <= 1; end", comps);
         addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin " + arch.doneFlag(&instr) + " <= 1; end", comps);
 
+        // Set completion times
+        addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin " + arch.startTimeString(&instr) + " <= " + arch.globalTimeString() + "; end", comps);
+        addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin " + arch.doneTimeString(&instr) + " <= " + arch.globalTimeString() + "; end", comps);
+        
         // Debug printouts, TODO: Move these to separate debug function
         addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin $display(\"Starting " + sanitizeFormatForVerilog(valueString(&instr)) + "\"); end", comps);     
         addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin $display(\"Ending " + sanitizeFormatForVerilog(valueString(&instr)) + "\"); end", comps);
