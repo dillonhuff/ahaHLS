@@ -3413,8 +3413,8 @@ namespace DHLS {
     std::map<llvm::Instruction*, Wire> instrStartedFlags;
     std::map<llvm::Instruction*, Wire> instrDoneFlags;    
 
-    std::map<llvm::Instruction*, Wire> timeSinceStartFlags;
-    std::map<llvm::Instruction*, Wire> timeSinceEndFlags;
+    std::map<llvm::Instruction*, Wire> timeStartedCounters;
+    std::map<llvm::Instruction*, Wire> timeDoneCounters;
     
   public:
     DynArch(Function* f_, ExecutionConstraints& exe_) : f(f_), exe(exe_) {
@@ -3426,8 +3426,8 @@ namespace DHLS {
           instrStartedFlags[&instr] = {false, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_started"};
           instrDoneFlags[&instr] = {false, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_finished"};
 
-          timeSinceStartFlags[&instr] = {false, 32, string(instr.getOpcodeName()) + std::to_string(i) + "_time_since_started_started"};
-          timeSinceEndFlags[&instr] = {false, 32, string(instr.getOpcodeName()) + std::to_string(i) + "_time_since_finished"};
+          timeStartedCounters[&instr] = {false, 32, string(instr.getOpcodeName()) + std::to_string(i) + "_time_started"};
+          timeDoneCounters[&instr] = {false, 32, string(instr.getOpcodeName()) + std::to_string(i) + "_time_finished"};
 
           i++;
         }
@@ -3440,9 +3440,9 @@ namespace DHLS {
 
     std::string instrTimeString(InstructionTime& time) const {
       if (time.isEnd) {
-        return map_find(time.instr, timeSinceEndFlags).name;
+        return map_find(time.instr, timeDoneCounters).name;
       } else {
-        return map_find(time.instr, timeSinceStartFlags).name;
+        return map_find(time.instr, timeStartedCounters).name;
       }
     }
 
@@ -3459,11 +3459,46 @@ namespace DHLS {
       return andStr(eventHappened, requiredTimeElapsed);
     }
 
+    std::string atTimeString(InstructionTime& time) {
+
+      string eventHappened;
+      if (time.isEnd) {
+        eventHappened = map_find(time.instr, instrDoneFlags).name;
+      } else {
+        eventHappened = map_find(time.instr, instrStartedFlags).name;
+      }
+
+      string requiredTimeElapsed = parens(parens(instrTimeString(time) + " + " + to_string(time.offset)) + " == " + globalTimeString());
+      return andStr(eventHappened, requiredTimeElapsed);
+    }
+
+    std::string afterOrAtTimeString(InstructionTime& time) {
+
+      string eventHappened;
+      if (time.isEnd) {
+        eventHappened = map_find(time.instr, instrDoneFlags).name;
+      } else {
+        eventHappened = map_find(time.instr, instrStartedFlags).name;
+      }
+
+      string requiredTimeElapsed = parens(parens(instrTimeString(time) + " + " + to_string(time.offset)) + " <= " + globalTimeString());
+      return andStr(eventHappened, requiredTimeElapsed);
+    }
+    
     std::string constraintString(ExecutionConstraint* c) {
       assert(c->type() == CONSTRAINT_TYPE_ORDERED);
       Ordered* oc = static_cast<Ordered*>(c);
       InstructionTime before = oc->before;
-      return afterTimeString(before);
+
+      if (oc->restriction == ORDER_RESTRICTION_BEFORE) {
+        return afterTimeString(before);
+      } if (oc->restriction == ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS) {
+        return afterOrAtTimeString(before);
+      } if (oc->restriction == ORDER_RESTRICTION_SIMULTANEOUS) {
+        return atTimeString(before);
+      } else {
+        assert(false);
+      }
     }
 
     std::string instrDoneString(Instruction* instr) {
