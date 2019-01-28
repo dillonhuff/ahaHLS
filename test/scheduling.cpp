@@ -3446,6 +3446,10 @@ namespace DHLS {
       }
     }
 
+    // Need two different things: "Already started" (every clock period after the
+    // actual start), and "could start", could_start and !already_started means
+    // starting_this_cycle
+
     std::string globalTimeString() const {
       return globalTime.name;
     }
