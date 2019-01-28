@@ -3013,10 +3013,16 @@ namespace DHLS {
     assert(llvm::Instruction::classof(instr));
     return {llvm::dyn_cast<llvm::Instruction>(instr), false, 0};
   }
-  
+
+  enum ExecutionConstraintType {
+    CONSTRAINT_TYPE_ORDERED,
+    CONSTRAINT_TYPE_STALL,    
+  };
+
   class ExecutionConstraint {
   public:
     virtual void addSelfTo(SchedulingProblem& p, Function* f) = 0;
+    virtual ExecutionConstraintType type() const = 0;    
     virtual ~ExecutionConstraint() {}
   };
 
@@ -3046,7 +3052,11 @@ namespace DHLS {
       after(after_),
       restriction(restriction_) {}
 
-    virtual void addSelfTo(SchedulingProblem& p, Function* f) {
+    virtual ExecutionConstraintType type() const override {
+      return CONSTRAINT_TYPE_ORDERED;
+    }
+    
+    virtual void addSelfTo(SchedulingProblem& p, Function* f) override {
       LinearExpression aTime = toLinearExpression(after, p);
       LinearExpression bTime = toLinearExpression(before, p);
       if (restriction == ORDER_RESTRICTION_SIMULTANEOUS) {
@@ -3074,6 +3084,23 @@ namespace DHLS {
   class ExecutionConstraints {
   public:
     std::vector<ExecutionConstraint*> constraints;
+
+    std::vector<ExecutionConstraint*>
+    constraintsOn(llvm::Instruction* const instr) const {
+      std::vector<ExecutionConstraint*> on;      
+      for (auto c : constraints) {
+        if (c->type() == CONSTRAINT_TYPE_ORDERED) {
+          Ordered* oc = static_cast<Ordered*>(c);
+          if (oc->after.instr == instr) {
+            on.push_back(c);
+          }
+        } else {
+          std::cout << "No constraint on stalls yet" << std::endl;
+          assert(false);
+        }
+      }
+      return on;
+    }
 
     void addConstraint(ExecutionConstraint* c) {
       constraints.push_back(c);
@@ -3367,6 +3394,47 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("direct_port_fp_add"));
   }
 
+  class DynArch {
+    Function* f;
+    ExecutionConstraints exe;
+
+    // Map from instruction times to wire names?
+    
+  public:
+    DynArch(Function* f_, ExecutionConstraints& exe_) : f(f_), exe(exe_) {}
+
+    std::string constraintString(ExecutionConstraint* c) {
+      return "exe";
+    }
+
+    std::string instrDoneString(Instruction* instr) {
+      return "idone";
+    }
+
+    std::string startInstrConstraint(Instruction* instr) {
+      vector<string> rcs;
+      for (auto c : exe.constraintsOn(instr)) {
+        rcs.push_back(constraintString(c));
+      }
+
+      rcs.push_back(notStr(instrDoneString(instr)));
+      return separatedListString(rcs, " && ");
+    }
+
+    Function* getFunction() const { return f; }
+  };
+
+  void emitVerilog(std::ostream& out, DynArch& arch) {
+    out << "module " << string(arch.getFunction()->getName()) << "();" << endl;
+
+    for (auto& bb : arch.getFunction()->getBasicBlockList()) {
+      for (auto& instr : bb) {
+        out << tab(1) << arch.startInstrConstraint(&instr) << endl;
+      }
+    }
+    out << "endmodule" << endl;
+  }
+
   TEST_CASE("Constraint free out of order microarchitecture") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
@@ -3396,9 +3464,23 @@ namespace DHLS {
     auto ret = builder.CreateRet(nullptr);
 
     ExecutionConstraints exec;
+    // Data dependencies
     exec.add(instrEnd(ldA) <= instrStart(plus));
     exec.add(instrEnd(plus) <= instrStart(st));
     exec.add(instrEnd(st) <= instrStart(ret));
+
+    // Control time dependencies
+    exec.add(instrStart(ldA) + 1 == instrEnd(ldA));
+    exec.add(instrStart(plus) == instrEnd(plus));
+    exec.add(instrStart(st) + 3 == instrEnd(st));
+    exec.add(instrStart(ret) == instrEnd(ret));
+
+    // Create architecture that respects these constraints
+    DynArch arch(srUser, exec);
+
+    ofstream out(string(arch.getFunction()->getName()) + ".v");
+    emitVerilog(out, arch);
+    out.close();
 
     // HardwareConstraints hcs = standardConstraints();
     // Schedule s = scheduleFunction(srUser, hcs);
