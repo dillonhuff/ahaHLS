@@ -3700,12 +3700,12 @@ namespace DHLS {
 
     std::string afterTimeString(InstructionTime& time) {
 
-      string eventHappened;
-      if (time.isEnd) {
-        eventHappened = map_find(time.instr, instrDoneFlags).name;
-      } else {
-        eventHappened = map_find(time.instr, instrStartedFlags).name;
-      }
+      string eventHappened = atOrAfterTime(time);
+      // if (time.isEnd) {
+      //   eventHappened = map_find(time.instr, instrDoneFlags).name;
+      // } else {
+      //   eventHappened = map_find(time.instr, instrStartedFlags).name;
+      // }
 
       string requiredTimeElapsed = parens(parens(instrTimeString(time) + " + " + to_string(time.offset)) + " < " + globalTimeString());
       return andStr(eventHappened, requiredTimeElapsed);
@@ -3736,16 +3736,6 @@ namespace DHLS {
 
     std::string afterOrAtTimeString(InstructionTime& time) {
       return orStr(atTimeString(time), afterTimeString(time));
-
-      // string eventHappened;
-      // if (time.isEnd) {
-      //   eventHappened = map_find(time.instr, instrDoneFlags).name;
-      // } else {
-      //   eventHappened = map_find(time.instr, instrStartedFlags).name;
-      // }
-
-      // string requiredTimeElapsed = parens(parens(instrTimeString(time) + " + " + to_string(time.offset)) + " <= " + globalTimeString());
-      // return andStr(eventHappened, requiredTimeElapsed);
     }
     
     std::string constraintString(ExecutionConstraint* c) {
@@ -3885,7 +3875,12 @@ namespace DHLS {
         addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin " + arch.startedFlag(&instr) + " <= 1; end", comps);
         addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin " + arch.doneFlag(&instr) + " <= 1; end", comps);
 
-        // Actually execute instructions
+        // Debug printouts, TODO: Move these to separate debug function
+        addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin $display(\"Starting " + sanitizeFormatForVerilog(valueString(&instr)) + "\"); end", comps);     
+        addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin $display(\"Ending " + sanitizeFormatForVerilog(valueString(&instr)) + "\"); end", comps);
+        // End debug printouts
+        
+        // Actually execute instructions, should move this to another function?
         FunctionalUnit unit = map_find(&instr, arch.unitAssignment);
         string portSetting = "";          
 

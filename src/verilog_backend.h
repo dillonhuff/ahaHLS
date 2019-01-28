@@ -552,5 +552,7 @@ namespace DHLS {
                          VerilogDebugInfo& debugInfo);
 
   std::string floatBits(const float f);
+
+  std::string sanitizeFormatForVerilog(const std::string& str);
   
 }
