@@ -3444,8 +3444,47 @@ namespace DHLS {
     
   public:
 
+    std::map<llvm::Instruction*, Wire> tempStorage;
     std::vector<Wire> allWires;
-    
+
+    std::vector<FunctionalUnit> functionalUnits;
+
+    void addFunctionalUnit(llvm::Instruction* instr) {
+      map<string, string> modParams;
+      string modName = instr->getOpcodeName();
+      string rStr = to_string(functionalUnits.size());
+      string prefix = instr->getOpcodeName() + rStr;
+      string unitName = prefix + "_unit";
+      map<string, Wire> inWires;
+      map<string, Wire> outWires;
+      bool isExternal = false;
+
+
+      if (GetElementPtrInst::classof(instr)) {
+        modName += "_" + to_string(instr->getNumOperands() - 1);
+
+        Wire baseAddr = {true, 32, "base_addr_" + rStr};
+        allWires.push_back(baseAddr);
+        inWires = {{"base_addr", baseAddr}};
+        for (int i = 1; i < (int) instr->getNumOperands(); i++) {
+          Wire offset = {true, 32, "gep_add_in" + to_string(i) + "_" + rStr};
+          allWires.push_back(offset);
+          inWires.insert({"in" + to_string(i), offset});
+        }
+
+        Wire outWire = {false, 32, "getelementptr_out_" + rStr};
+        allWires.push_back(outWire);
+        outWires = {{"out", outWire}};
+        
+      }
+      if (LoadInst::classof(instr) ||
+          StoreInst::classof(instr) ||
+          ReturnInst::classof(instr)) {
+        isExternal = true;
+      }
+      FunctionalUnit unit = {{modParams, modName}, unitName, inWires, outWires, isExternal};
+      functionalUnits.push_back(unit);
+    }
     
     DynArch(Function* f_, ExecutionConstraints& exe_) : f(f_), exe(exe_) {
       globalTime = {true, 32, "clocks_since_reset"};
@@ -3454,6 +3493,17 @@ namespace DHLS {
       int i = 0;
       for (auto& bb : f->getBasicBlockList()) {
         for (auto& instr : bb) {
+          
+          string prefix =
+            string(instr.getOpcodeName()) + "_" + std::to_string(i);
+
+          if (hasOutput(&instr)) {
+            Wire tempValue = {true, getValueBitWidth(&instr), prefix + "_tmp"};
+            allWires.push_back(tempValue);
+          }
+
+          addFunctionalUnit(&instr);
+
           Wire si = {true, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_started"};
           allWires.push_back(si);
           instrStartedFlags[&instr] = si;
@@ -3643,6 +3693,42 @@ namespace DHLS {
       comps.debugWires.push_back(w);
     }
 
+    // Adding module instances      
+
+    for (auto unit : arch.functionalUnits) {
+      map<string, string> wireConns;
+      for (auto w : unit.portWires) {
+        wireConns.insert({w.first, w.second.name});        
+      }
+
+      // TODO: Put sequential vs combinational distincion in module description
+      if ((unit.getModName() == "RAM") ||
+          (unit.getModName() == "register") ||
+          (unit.getModName() == "adder")) {
+        wireConns.insert({"clk", "clk"});
+        wireConns.insert({"rst", "rst"});
+      }
+
+      if (unit.getModName() == "fadd") {
+        wireConns.insert({"clk", "clk"});
+      }
+
+      string modName = unit.getModName();
+      auto params = unit.getParams();
+      string instName = unit.instName;
+
+      for (auto w : unit.outWires) {
+        wireConns.insert({w.first, w.second.name});
+      }
+
+      ModuleInstance inst = {modName, params, instName, wireConns};
+
+      if (!unit.isExternal()) {
+        comps.instances.push_back(inst);
+      }
+    }
+    // Done adding module instances
+
     addAlwaysBlock({"clk"}, "if (rst) begin " + arch.globalTimeString() + " <= 0; end", comps);
     addAlwaysBlock({"clk"}, "if (!rst) begin " + arch.globalTimeString() + " <= " + arch.globalTimeString() + " + 1; end", comps);
     
@@ -3659,22 +3745,6 @@ namespace DHLS {
 
         addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin " + arch.startedFlag(&instr) + " <= 1; end", comps);
         addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin " + arch.doneFlag(&instr) + " <= 1; end", comps);
-
-        // I guess I need to bite the bullet and create functional units here.
-        if (BinaryOperator::classof(&instr)) {
-          string opStr = " + ";
-          Value* op0 = instr.getOperand(0);
-          Value* op1 = instr.getOperand(0);
-
-          string op0Str = valueName(op0, arch);
-          string op1Str = valueName(op1, arch);
-          string resStr = valueName(&instr, arch);
-          string binopStr = resStr + " = " + op0Str + opStr + op1Str + ";";
-          addAlwaysBlock({}, "if (" + arch.couldStartFlag(&instr) + ") begin " + binopStr + " end", comps);
-        } else {
-          // Do nothing for now
-          //assert(false);
-        }
 
       }
     }
@@ -3732,22 +3802,6 @@ namespace DHLS {
     ofstream out(string(arch.getFunction()->getName()) + ".v");
     emitVerilog(out, arch);
     out.close();
-
-    // HardwareConstraints hcs = standardConstraints();
-    // Schedule s = scheduleFunction(srUser, hcs);
-
-    // STG graph = buildSTG(s, srUser);
-
-    // cout << "STG Is" << endl;
-    // graph.print(cout);
-
-    // 3 x 3
-    // map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 1}};
-    // map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 1}};
-    // auto arch = buildMicroArchitecture(srUser, graph, layout);
-
-    // VerilogDebugInfo info;
-    // addNoXChecks(arch, info);
 
     REQUIRE(runIVerilogTB("dynamic_arch"));
     

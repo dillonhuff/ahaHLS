@@ -6,6 +6,8 @@
 
 namespace DHLS {
 
+  bool hasOutput(llvm::Instruction* instr);
+
   class Memory {
   public:
     int width;
@@ -77,7 +79,7 @@ namespace DHLS {
     out << tab(level) << "reg [" + std::to_string(b.width - 1) << " : 0] "
         << b.name << "[" << std::to_string(b.depth - 1) << ": 0];" << std::endl;
   }
-  
+
   static inline
   void print(std::ostream& out, int level, const AlwaysBlock& b) {
     
