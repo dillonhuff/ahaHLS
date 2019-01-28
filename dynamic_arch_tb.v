@@ -58,7 +58,7 @@ module test();
       // #1 `assert(write_ready0, 1'd1)
       // #1 `assert(read_ready0, 1'd0)
 
-      // #1 $display("Passed");
+      #1 $display("Passed");
 
    end // initial begin
 

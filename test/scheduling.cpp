@@ -3410,7 +3410,7 @@ namespace DHLS {
   // Time elapsed since an instruction has started / ended (or just start cycle?)
   class DynArch {
     Function* f;
-    ExecutionConstraints exe;
+    ExecutionConstraints& exe;
 
     Wire globalTime;
 
@@ -3617,6 +3617,7 @@ namespace DHLS {
     // Create architecture that respects these constraints
     DynArch arch(srUser, exec);
 
+    // Move result
     ofstream out(string(arch.getFunction()->getName()) + ".v");
     emitVerilog(out, arch);
     out.close();
