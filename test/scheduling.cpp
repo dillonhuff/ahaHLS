@@ -3394,21 +3394,37 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("direct_port_fp_add"));
   }
 
+  // What should the instructions be?
+  // Instruction start time, instruction end time
+  // Instruction has started flag and has ended flag
+  // Combinational flags saying if the instruction is ending now?
+  // Global clock
   class DynArch {
     Function* f;
     ExecutionConstraints exe;
 
     // Map from instruction times to wire names?
-    
+    std::map<llvm::Instruction*, Wire> instrStartedFlags;
+    std::map<llvm::Instruction*, Wire> instrDoneFlags;    
+
   public:
-    DynArch(Function* f_, ExecutionConstraints& exe_) : f(f_), exe(exe_) {}
+    DynArch(Function* f_, ExecutionConstraints& exe_) : f(f_), exe(exe_) {
+      int i = 0;
+      for (auto& bb : f->getBasicBlockList()) {
+        for (auto& instr : bb) {
+          instrStartedFlags[&instr] = {false, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_started"};
+          instrDoneFlags[&instr] = {false, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_finished"};
+          i++;
+        }
+      }
+    }
 
     std::string constraintString(ExecutionConstraint* c) {
       return "exe";
     }
 
     std::string instrDoneString(Instruction* instr) {
-      return "idone";
+      return map_find(instr, instrDoneFlags).name;
     }
 
     std::string startInstrConstraint(Instruction* instr) {
