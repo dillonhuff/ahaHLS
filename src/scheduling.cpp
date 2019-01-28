@@ -1023,6 +1023,9 @@ namespace DHLS {
                             AAResults& aliasAnalysis,
                             ScalarEvolution& sc) {
 
+    // Remove builtin calls and replace them with sequences of calls
+    // to port setting functions?
+
     SchedulingProblem p =
       createSchedulingProblem(f, hdc, toPipeline, aliasAnalysis, sc);
 

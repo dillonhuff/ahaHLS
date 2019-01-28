@@ -19,6 +19,7 @@ namespace DHLS {
   //    Incorporate fifoSpecs in to scheduling constraints automatically
   //    Generalize InstructionTime to include fixed offset and build operator
   //    overloaded API for creating them
+  //    Add some simple examples to the README
 
   // NOTE: Systolic array example has correct binding by chance. The control
   // structure around the array is a tricky question. Most papers on systolic
@@ -3350,6 +3351,9 @@ namespace DHLS {
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("direct_port_fp_add"));
+  }
+
+  TEST_CASE("Constraint free, out of order microarchitecture") {
   }
   
 }
