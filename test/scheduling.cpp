@@ -3621,6 +3621,17 @@ namespace DHLS {
   }
 
   std::string valueName(llvm::Value* val, DynArch& arch) {
+    if (Instruction::classof(val)) {
+      return "instr";
+    } else if (ConstantInt::classof(val)) {
+      auto valC = dyn_cast<ConstantInt>(val);
+      auto apInt = valC->getValue();
+
+      return to_string(dyn_cast<ConstantInt>(val)->getSExtValue());
+    }
+
+    cout << "Unsupported value = " << valueString(val) << endl;
+    // Value
     assert(false);
   }
 
@@ -3649,6 +3660,7 @@ namespace DHLS {
         addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin " + arch.startedFlag(&instr) + " <= 1; end", comps);
         addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin " + arch.doneFlag(&instr) + " <= 1; end", comps);
 
+        // I guess I need to bite the bullet and create functional units here.
         if (BinaryOperator::classof(&instr)) {
           string opStr = " + ";
           Value* op0 = instr.getOperand(0);
@@ -3660,7 +3672,8 @@ namespace DHLS {
           string binopStr = resStr + " = " + op0Str + opStr + op1Str + ";";
           addAlwaysBlock({}, "if (" + arch.couldStartFlag(&instr) + ") begin " + binopStr + " end", comps);
         } else {
-          assert(false);
+          // Do nothing for now
+          //assert(false);
         }
 
       }
