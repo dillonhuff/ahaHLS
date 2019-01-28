@@ -3582,7 +3582,7 @@ namespace DHLS {
 
         Wire rdata = addWire(32, "rdata_0_out");
         
-        inWires = {{"raddr_0", raddr}, {"ren_0", ren}, {"waddr_0", waddr}, {"wdata_0", waddr}, {"wen_0", wen}};
+        inWires = {{"raddr_0", raddr}, {"ren_0", ren}, {"waddr_0", waddr}, {"wdata_0", wdata}, {"wen_0", wen}};
         outWires = {{"rdata_0", rdata}};
       }
       if (LoadInst::classof(instr) ||
