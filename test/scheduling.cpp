@@ -3106,6 +3106,23 @@ namespace DHLS {
       return on;
     }
 
+    std::vector<ExecutionConstraint*>
+    constraintsOnEnd(llvm::Instruction* const instr) const {
+      std::vector<ExecutionConstraint*> on;      
+      for (auto c : constraints) {
+        if (c->type() == CONSTRAINT_TYPE_ORDERED) {
+          Ordered* oc = static_cast<Ordered*>(c);
+          if (oc->after.isEnd && (oc->after.instr == instr)) {
+            on.push_back(c);
+          }
+        } else {
+          std::cout << "No constraint on stalls yet" << std::endl;
+          assert(false);
+        }
+      }
+      return on;
+    }
+    
     void addConstraint(ExecutionConstraint* c) {
       constraints.push_back(c);
     }
@@ -3469,6 +3486,10 @@ namespace DHLS {
       return map_find(instr, instrStartingThisCycleFlags).name;
     }
 
+    std::string couldEndFlag(llvm::Instruction* instr) {
+      return map_find(instr, instrDoneThisCycleFlags).name;
+    }
+    
     std::string startedFlag(llvm::Instruction* instr) {
       return map_find(instr, instrStartedFlags).name;
     }
@@ -3555,6 +3576,10 @@ namespace DHLS {
     std::string instrStartString(Instruction* instr) {
       return map_find(instr, instrStartedFlags).name;
     }
+
+    std::string instrEndString(Instruction* instr) {
+      return map_find(instr, instrDoneFlags).name;
+    }
     
     std::string startInstrConstraint(Instruction* instr) {
       vector<string> rcs;
@@ -3566,6 +3591,16 @@ namespace DHLS {
       return separatedListString(rcs, " && ");
     }
 
+    std::string endInstrConstraint(Instruction* instr) {
+      vector<string> rcs;
+      for (auto c : exe.constraintsOnEnd(instr)) {
+        rcs.push_back(constraintString(c));
+      }
+
+      rcs.push_back(notStr(instrEndString(instr)));
+      return separatedListString(rcs, " && ");
+    }
+    
     Function* getFunction() const { return f; }
   };
 
@@ -3599,15 +3634,16 @@ namespace DHLS {
     for (auto& bb : arch.getFunction()->getBasicBlockList()) {
       for (auto& instr : bb) {
 
-        // Instruction start in cycle flag
+        // Instruction start / end in cycle flag
         comps.debugAssigns.push_back({arch.couldStartFlag(&instr), arch.startInstrConstraint(&instr)});
+        comps.debugAssigns.push_back({arch.couldEndFlag(&instr), arch.endInstrConstraint(&instr)});
 
         // Reset behavior
         addAlwaysBlock({"clk"}, "if (rst) begin " + arch.startedFlag(&instr) + " <= 0; end", comps);
         addAlwaysBlock({"clk"}, "if (rst) begin " + arch.doneFlag(&instr) + " <= 0; end", comps);        
 
         addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin " + arch.startedFlag(&instr) + " <= 1; end", comps);
-        
+        addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin " + arch.doneFlag(&instr) + " <= 1; end", comps);        
       }
     }
 
