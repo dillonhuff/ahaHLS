@@ -6,6 +6,9 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Instructions.h>
 
+using namespace llvm;
+using namespace std;
+
 namespace DHLS {
 
   class ModuleSpec {
@@ -812,5 +815,233 @@ namespace DHLS {
                           HardwareConstraints& hdc,
                           std::set<llvm::BasicBlock*>& toPipeline);
   
+  class InstructionTime {
+  public:
+    Instruction* instr;
+    bool isEnd;
+    int offset;
+
+    bool isStart() const {
+      return !isEnd;
+    }
+  };
+
+  static inline   
+  InstructionTime operator+(const InstructionTime t, const int offset) {
+    return {t.instr, t.isEnd, t.offset + offset};
+  }
+
+  static inline   
+  InstructionTime operator+(const int offset, const InstructionTime t) {
+    return {t.instr, t.isEnd, t.offset + offset};
+  }
+
+  static inline   
+  LinearExpression
+  toLinearExpression(const InstructionTime& time,
+                     SchedulingProblem& p) {
+    return (time.isEnd ? p.instrEnd(time.instr) : p.instrStart(time.instr)) + time.offset;
+  }
+
+  static inline   
+  InstructionTime instrEnd(Instruction* const instr) {
+    return {instr, true, 0};
+  }
+
+  static inline   
+  InstructionTime instrStart(Instruction* const instr) {
+    return {instr, false, 0};
+  }
+
+  static inline   
+  InstructionTime instrEnd(llvm::Value* const instr) {
+    assert(llvm::Instruction::classof(instr));
+    return {llvm::dyn_cast<llvm::Instruction>(instr), true, 0};
+  }
+
+  static inline 
+  InstructionTime instrStart(llvm::Value* const instr) {
+    assert(llvm::Instruction::classof(instr));
+    return {llvm::dyn_cast<llvm::Instruction>(instr), false, 0};
+  }
+
+  enum ExecutionConstraintType {
+    CONSTRAINT_TYPE_ORDERED,
+    CONSTRAINT_TYPE_STALL,    
+  };
+
+  class ExecutionConstraint {
+  public:
+    virtual void addSelfTo(SchedulingProblem& p, Function* f) = 0;
+    virtual ExecutionConstraintType type() const = 0;    
+    virtual ~ExecutionConstraint() {}
+  };
+
+  class WaitUntil : public ExecutionConstraint {
+  public:
+    Value* value;
+    Instruction* mustWait;
+  };
+
+  enum OrderRestriction {
+    ORDER_RESTRICTION_SIMULTANEOUS,
+    ORDER_RESTRICTION_BEFORE,
+    ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS,
+  };
+  
+  class Ordered : public ExecutionConstraint {
+  public:
+    InstructionTime before;
+    InstructionTime after;
+
+    OrderRestriction restriction;
+
+    Ordered(const InstructionTime before_,
+            const InstructionTime after_,
+            const OrderRestriction restriction_) :
+      before(before_),
+      after(after_),
+      restriction(restriction_) {}
+
+    virtual ExecutionConstraintType type() const override {
+      return CONSTRAINT_TYPE_ORDERED;
+    }
+    
+    virtual void addSelfTo(SchedulingProblem& p, Function* f) override {
+      LinearExpression aTime = toLinearExpression(after, p);
+      LinearExpression bTime = toLinearExpression(before, p);
+      if (restriction == ORDER_RESTRICTION_SIMULTANEOUS) {
+        p.addConstraint(bTime == aTime);
+      } else if (restriction == ORDER_RESTRICTION_BEFORE) {
+        p.addConstraint(bTime < aTime);
+      } else {
+        assert(false);
+      }
+    }
+  };
+
+  static inline
+  Ordered* operator<(InstructionTime before, InstructionTime after) {
+    return new Ordered(before, after, ORDER_RESTRICTION_BEFORE);
+  }
+
+  static inline
+  Ordered* operator==(InstructionTime before, InstructionTime after) {
+    return new Ordered(before, after, ORDER_RESTRICTION_SIMULTANEOUS);
+  }
+
+  static inline
+  Ordered* operator<=(InstructionTime before, InstructionTime after) {
+    return new Ordered(before, after, ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS);
+  }
+  
+  class ExecutionConstraints {
+  public:
+    std::vector<ExecutionConstraint*> constraints;
+
+    std::vector<ExecutionConstraint*>
+    constraintsOnStart(llvm::Instruction* const instr) const {
+      std::vector<ExecutionConstraint*> on;      
+      for (auto c : constraints) {
+        if (c->type() == CONSTRAINT_TYPE_ORDERED) {
+          Ordered* oc = static_cast<Ordered*>(c);
+          if (oc->after.isStart() && (oc->after.instr == instr)) {
+            on.push_back(c);
+          }
+        } else {
+          std::cout << "No constraint on stalls yet" << std::endl;
+          assert(false);
+        }
+      }
+      return on;
+    }
+
+    std::vector<ExecutionConstraint*>
+    constraintsOnEnd(llvm::Instruction* const instr) const {
+      std::vector<ExecutionConstraint*> on;      
+      for (auto c : constraints) {
+        if (c->type() == CONSTRAINT_TYPE_ORDERED) {
+          Ordered* oc = static_cast<Ordered*>(c);
+          if (oc->after.isEnd && (oc->after.instr == instr)) {
+            on.push_back(c);
+          }
+        } else {
+          std::cout << "No constraint on stalls yet" << std::endl;
+          assert(false);
+        }
+      }
+      return on;
+    }
+    
+    void addConstraint(ExecutionConstraint* c) {
+      constraints.push_back(c);
+    }
+
+    void add(ExecutionConstraint* c) {
+      addConstraint(c);
+    }
+    
+    void addConstraints(SchedulingProblem& p,
+                        Function* f) {
+      for (auto c : constraints) {
+        c->addSelfTo(p, f);
+      }
+    }
+
+    void startsBeforeStarts(Instruction* const before,
+                            Instruction* const after) {
+      constraints.push_back(new Ordered(instrStart(before), instrStart(after), ORDER_RESTRICTION_BEFORE));
+    }
+    
+    void endsBeforeStarts(Instruction* const before,
+                          Instruction* const after) {
+      constraints.push_back(new Ordered(instrEnd(before), instrStart(after), ORDER_RESTRICTION_BEFORE));
+    }
+
+    void startsBeforeEnds(Instruction* const before,
+                          Instruction* const after) {
+      constraints.push_back(new Ordered(instrStart(before), instrEnd(after), ORDER_RESTRICTION_BEFORE));
+    }
+    
+    void startSameTime(Instruction* const before,
+                       Instruction* const after) {
+      constraints.push_back(new Ordered(instrStart(before), instrStart(after), ORDER_RESTRICTION_SIMULTANEOUS));
+    }
+    
+    ~ExecutionConstraints() {
+      for (auto c : constraints) {
+        delete c;
+      }
+    }
+  };
+
+  static inline
+  void addDataConstraints(llvm::Function* f, ExecutionConstraints& exe) {
+    for (auto& bb : f->getBasicBlockList()) {
+
+      Instruction* term = bb.getTerminator();
+      
+      for (auto& instr : bb) {
+        Instruction* iptr = &instr;
+        
+        for (auto& user : iptr->uses()) {
+          assert(Instruction::classof(user));
+          auto userInstr = dyn_cast<Instruction>(user.getUser());          
+
+          if (!PHINode::classof(userInstr)) {
+            // Instructions must finish before their dependencies
+            exe.addConstraint(instrEnd(iptr) <= instrStart(userInstr));
+          }
+        }
+
+        // Instructions must finish before their basic block terminator,
+        // this is not true anymore in pipelining
+        if (iptr != term) {
+          exe.addConstraint(instrEnd(iptr) <= instrStart(term));
+        }
+      }
+    }
+
+  }
   
 }

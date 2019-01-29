@@ -2974,279 +2974,6 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("timed_wire_reduce_fp"));
   }
 
-
-  class InstructionTime {
-  public:
-    Instruction* instr;
-    bool isEnd;
-    int offset;
-
-    bool isStart() const {
-      return !isEnd;
-    }
-  };
-
-  InstructionTime operator+(const InstructionTime t, const int offset) {
-    return {t.instr, t.isEnd, t.offset + offset};
-  }
-
-  InstructionTime operator+(const int offset, const InstructionTime t) {
-    return {t.instr, t.isEnd, t.offset + offset};
-  }
-  
-  LinearExpression
-  toLinearExpression(const InstructionTime& time,
-                     SchedulingProblem& p) {
-    return (time.isEnd ? p.instrEnd(time.instr) : p.instrStart(time.instr)) + time.offset;
-  }
-  
-  InstructionTime instrEnd(Instruction* const instr) {
-    return {instr, true, 0};
-  }
-
-  InstructionTime instrStart(Instruction* const instr) {
-    return {instr, false, 0};
-  }
-
-  InstructionTime instrEnd(llvm::Value* const instr) {
-    assert(llvm::Instruction::classof(instr));
-    return {llvm::dyn_cast<llvm::Instruction>(instr), true, 0};
-  }
-
-  InstructionTime instrStart(llvm::Value* const instr) {
-    assert(llvm::Instruction::classof(instr));
-    return {llvm::dyn_cast<llvm::Instruction>(instr), false, 0};
-  }
-
-  enum ExecutionConstraintType {
-    CONSTRAINT_TYPE_ORDERED,
-    CONSTRAINT_TYPE_STALL,    
-  };
-
-  class ExecutionConstraint {
-  public:
-    virtual void addSelfTo(SchedulingProblem& p, Function* f) = 0;
-    virtual ExecutionConstraintType type() const = 0;    
-    virtual ~ExecutionConstraint() {}
-  };
-
-  class WaitUntil : public ExecutionConstraint {
-  public:
-    Value* value;
-    Instruction* mustWait;
-  };
-
-  enum OrderRestriction {
-    ORDER_RESTRICTION_SIMULTANEOUS,
-    ORDER_RESTRICTION_BEFORE,
-    ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS,
-  };
-  
-  class Ordered : public ExecutionConstraint {
-  public:
-    InstructionTime before;
-    InstructionTime after;
-
-    OrderRestriction restriction;
-
-    Ordered(const InstructionTime before_,
-            const InstructionTime after_,
-            const OrderRestriction restriction_) :
-      before(before_),
-      after(after_),
-      restriction(restriction_) {}
-
-    virtual ExecutionConstraintType type() const override {
-      return CONSTRAINT_TYPE_ORDERED;
-    }
-    
-    virtual void addSelfTo(SchedulingProblem& p, Function* f) override {
-      LinearExpression aTime = toLinearExpression(after, p);
-      LinearExpression bTime = toLinearExpression(before, p);
-      if (restriction == ORDER_RESTRICTION_SIMULTANEOUS) {
-        p.addConstraint(bTime == aTime);
-      } else if (restriction == ORDER_RESTRICTION_BEFORE) {
-        p.addConstraint(bTime < aTime);
-      } else {
-        assert(false);
-      }
-    }
-  };
-
-  Ordered* operator<(InstructionTime before, InstructionTime after) {
-    return new Ordered(before, after, ORDER_RESTRICTION_BEFORE);
-  }
-
-  Ordered* operator==(InstructionTime before, InstructionTime after) {
-    return new Ordered(before, after, ORDER_RESTRICTION_SIMULTANEOUS);
-  }
-
-  Ordered* operator<=(InstructionTime before, InstructionTime after) {
-    return new Ordered(before, after, ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS);
-  }
-  
-  class ExecutionConstraints {
-  public:
-    std::vector<ExecutionConstraint*> constraints;
-
-    std::vector<ExecutionConstraint*>
-    constraintsOnStart(llvm::Instruction* const instr) const {
-      std::vector<ExecutionConstraint*> on;      
-      for (auto c : constraints) {
-        if (c->type() == CONSTRAINT_TYPE_ORDERED) {
-          Ordered* oc = static_cast<Ordered*>(c);
-          if (oc->after.isStart() && (oc->after.instr == instr)) {
-            on.push_back(c);
-          }
-        } else {
-          std::cout << "No constraint on stalls yet" << std::endl;
-          assert(false);
-        }
-      }
-      return on;
-    }
-
-    std::vector<ExecutionConstraint*>
-    constraintsOnEnd(llvm::Instruction* const instr) const {
-      std::vector<ExecutionConstraint*> on;      
-      for (auto c : constraints) {
-        if (c->type() == CONSTRAINT_TYPE_ORDERED) {
-          Ordered* oc = static_cast<Ordered*>(c);
-          if (oc->after.isEnd && (oc->after.instr == instr)) {
-            on.push_back(c);
-          }
-        } else {
-          std::cout << "No constraint on stalls yet" << std::endl;
-          assert(false);
-        }
-      }
-      return on;
-    }
-    
-    void addConstraint(ExecutionConstraint* c) {
-      constraints.push_back(c);
-    }
-
-    void add(ExecutionConstraint* c) {
-      addConstraint(c);
-    }
-    
-    void addConstraints(SchedulingProblem& p,
-                        Function* f) {
-      for (auto c : constraints) {
-        c->addSelfTo(p, f);
-      }
-    }
-
-    void startsBeforeStarts(Instruction* const before,
-                            Instruction* const after) {
-      constraints.push_back(new Ordered(instrStart(before), instrStart(after), ORDER_RESTRICTION_BEFORE));
-    }
-    
-    void endsBeforeStarts(Instruction* const before,
-                          Instruction* const after) {
-      constraints.push_back(new Ordered(instrEnd(before), instrStart(after), ORDER_RESTRICTION_BEFORE));
-    }
-
-    void startsBeforeEnds(Instruction* const before,
-                          Instruction* const after) {
-      constraints.push_back(new Ordered(instrStart(before), instrEnd(after), ORDER_RESTRICTION_BEFORE));
-    }
-    
-    void startSameTime(Instruction* const before,
-                       Instruction* const after) {
-      constraints.push_back(new Ordered(instrStart(before), instrStart(after), ORDER_RESTRICTION_SIMULTANEOUS));
-    }
-    
-    ~ExecutionConstraints() {
-      for (auto c : constraints) {
-        delete c;
-      }
-    }
-  };
-
-  void addDataConstraints(llvm::Function* f, ExecutionConstraints& exe) {
-    for (auto& bb : f->getBasicBlockList()) {
-
-      Instruction* term = bb.getTerminator();
-      
-      for (auto& instr : bb) {
-        Instruction* iptr = &instr;
-        
-        for (auto& user : iptr->uses()) {
-          assert(Instruction::classof(user));
-          auto userInstr = dyn_cast<Instruction>(user.getUser());          
-
-          if (!PHINode::classof(userInstr)) {
-            // Instructions must finish before their dependencies
-            exe.addConstraint(instrEnd(iptr) <= instrStart(userInstr));
-          }
-        }
-
-        // Instructions must finish before their basic block terminator,
-        // this is not true anymore in pipelining
-        if (iptr != term) {
-          exe.addConstraint(instrEnd(iptr) <= instrStart(term));
-        }
-      }
-    }
-
-  }
-
-  std::string cString(llvm::Instruction* const instr) {
-    if (ReturnInst::classof(instr)) {
-      return "return";
-    } else if (AllocaInst::classof(instr)) {
-      return "";
-    }
-
-    // What instruction are we printing?
-    cout << valueString(instr) << endl;
-    
-    assert(CallInst::classof(instr));
-
-    return "call";
-  }
-
-  // Really I ought to emit a software model of the MicroArchitecture
-  // and then drive it with posedges until we get to a valid output, while
-  // connecting the fields of the model to the arguments of the simulator
-  // binding function
-
-  // Also: To make this work I need to add module declarations for the floating
-  // point unit that will allow me to create the port list for the module
-  // using an external floating point unit
-
-  // Conceptualy the function that takes in a floating point unit is a control
-  // state machine that can be connected to any FPU
-  void emitVerilatorBinding(STG& graph) {
-    Function* f = graph.getFunction();
-    ofstream out(string(f->getName()) + ".c");
-
-    vector<string> args;
-    for (auto& arg : f->args()) {
-      args.push_back("insert_type* " + string(arg.getName()));
-    }
-    out << "void " << string(f->getName()) << "(" << commaListString(args) << ") {" << endl;
-    // Issues:
-    // 1. The states in opStates are not sequentially ordered, and may
-    //    not have a sequential order
-    // 2. Inside a state instructions are not ordered
-    for (auto opState : graph.opStates) {
-      for (auto instrG : opState.second) {
-        Instruction* instr = instrG.instruction;
-        out << tab(1) << cString(instr) << ";" << endl;
-      }
-
-      // TODO: Allow the user to set which llvm value contains the state machine
-      // being simulated
-      out << tab(1) << "POSEDGE(" << string(getArg(f, 0)->getName()) << ")" << endl;
-    }
-    out << "}";
-      
-    out.close();
-  }
-
   // Some problems with this prototype:
   // 2. Writing out constraints like these is tedious and error prone
   // 3. I want to be able to express loop related constraints as well
@@ -3399,7 +3126,7 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    emitVerilatorBinding(graph);
+    //emitVerilatorBinding(graph);
     
     map<Value*, int> layout;
     ArchOptions options;
@@ -3453,6 +3180,9 @@ namespace DHLS {
   // Time since an instruction started / ended
   // Whether an instruction starts / ends in this cycle
   // Time elapsed since an instruction has started / ended (or just start cycle?)
+
+  // Idea: Time marker class, with 3 regions: before, clock period where event
+  // (program point in LLVM) is happening, after
   class DynArch {
     Function* f;
     ExecutionConstraints& exe;
@@ -3652,7 +3382,7 @@ namespace DHLS {
           allWires.push_back(ssc);          
           instrStartingThisCycleFlags[&instr] = ssc;
           Wire esc = {false, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_done_this_cycle"};
-          allWires.push_back(esc);                    
+          allWires.push_back(esc);
           instrDoneThisCycleFlags[&instr] = esc;
           
           i++;
@@ -3721,11 +3451,6 @@ namespace DHLS {
     std::string afterTimeString(InstructionTime& time) {
 
       string eventHappened = atOrAfterTime(time);
-      // if (time.isEnd) {
-      //   eventHappened = map_find(time.instr, instrDoneFlags).name;
-      // } else {
-      //   eventHappened = map_find(time.instr, instrStartedFlags).name;
-      // }
 
       string requiredTimeElapsed = parens(parens(instrTimeString(time) + " + " + to_string(time.offset)) + " < " + globalTimeString());
       return andStr(eventHappened, requiredTimeElapsed);
