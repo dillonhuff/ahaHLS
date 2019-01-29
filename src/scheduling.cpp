@@ -694,9 +694,7 @@ namespace DHLS {
     int i = 0;
     for (auto bb : toPipeline) {
       string iiName = string("II_") + to_string(i);
-      //expr iiE = c.int_const(iiName.c_str());
-      //p.s.add(0 < ii);
-      //map_insert(p.IIs, bb, iiE);
+
       p.IInames.insert({bb, iiName});
 
       auto ii = p.getII(bb);
@@ -742,35 +740,13 @@ namespace DHLS {
     for (int i = 0; i < (int) sortedBlocks.size() - 1; i++) {
       auto next = sortedBlocks[i];
       auto nextBB = sortedBlocks[i + 1];
-      //p.s.add(p.blockSink(next) < p.blockSource(nextBB));
       p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
     }
 
-    
-    // Instructions must finish before their dependencies
-    for (auto& bb : f->getBasicBlockList()) {
 
-      int instrInd = 0;
-      
-      for (auto& instr : bb) {
-        Instruction* iptr = &instr;
-        
-        for (auto& user : iptr->uses()) {
-          assert(Instruction::classof(user));
-          auto userInstr = dyn_cast<Instruction>(user.getUser());          
-
-          if (!PHINode::classof(userInstr)) {
-
-            //p.s.add(instrEnd(iptr, p.schedVars) <= instrStart(userInstr, p.schedVars));
-            p.addConstraint(p.instrEnd(iptr) <= p.instrStart(userInstr));
-            cout << instructionString(iptr) << " must finish before " << instructionString(userInstr) << endl;
-          }
-        }
-
-        instrInd++;
-
-      }
-    }
+    ExecutionConstraints exe;
+    addDataConstraints(f, exe);
+    exe.addConstraints(p, f);
 
     return p;
   }
@@ -804,6 +780,8 @@ namespace DHLS {
                        AAResults& aliasAnalysis,
                        ScalarEvolution& sc,
                        SchedulingProblem& p) {
+
+    ExecutionConstraints exe;
     // Instructions must finish before their dependencies
     for (auto& bb : f->getBasicBlockList()) {
 
@@ -830,10 +808,12 @@ namespace DHLS {
 
                 FifoInterface fifoTp = hdc.getFifoType(instr.getOperand(0));
                 if (fifoTp == FIFO_RV) {
-                  p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
+                  exe.addConstraint(instrEnd(&instr) <= instrStart(&otherInstr));
+                  //p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
                 } else {
                   assert(fifoTp == FIFO_TIMED);
-                  p.addConstraint(p.instrEnd(&instr) < p.instrStart(&otherInstr));
+                  //p.addConstraint(p.instrEnd(&instr) < p.instrStart(&otherInstr));
+                  exe.addConstraint(instrEnd(&instr) < instrStart(&otherInstr));
                 }
               }
             }
@@ -848,10 +828,12 @@ namespace DHLS {
 
                 FifoInterface fifoTp = hdc.getFifoType(instr.getOperand(1));
                 if (fifoTp == FIFO_RV) {
-                  p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
+                  //p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
+                  exe.addConstraint(instrEnd(&instr) <= instrStart(&otherInstr));
                 } else {
                   assert(fifoTp == FIFO_TIMED);
-                  p.addConstraint(p.instrEnd(&instr) < p.instrStart(&otherInstr));
+                  //p.addConstraint(p.instrEnd(&instr) < p.instrStart(&otherInstr));
+                  exe.addConstraint(instrEnd(&instr) < instrStart(&otherInstr));
                 }
 
               }
@@ -866,8 +848,8 @@ namespace DHLS {
               
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
               if (aliasRes != NoAlias) {
-
-                p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
+                //p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
+                exe.addConstraint(instrEnd(&instr) <= instrStart(&otherInstr));
               }
             }
 
@@ -879,7 +861,8 @@ namespace DHLS {
               // TODO: Add SCEV analysis
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, otherStoreLoc);
               if (aliasRes != NoAlias) {
-                p.addConstraint(p.instrEnd(&instr) < p.instrEnd(&otherInstr));
+                //p.addConstraint(p.instrEnd(&instr) < p.instrEnd(&otherInstr));
+                exe.addConstraint(instrEnd(&instr) < instrEnd(&otherInstr));
               }
             }
 
@@ -891,7 +874,8 @@ namespace DHLS {
               // TODO: Add SCEV analysis
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
               if (aliasRes != NoAlias) {
-                p.addConstraint(p.instrStart(&instr) <= p.instrStart(&otherInstr));
+                //p.addConstraint(p.instrStart(&instr) <= p.instrStart(&otherInstr));
+                exe.addConstraint(instrStart(&instr) <= instrStart(&otherInstr));
               }
             }
             
@@ -948,7 +932,8 @@ namespace DHLS {
             for (auto preI : gp) {
               for (auto nextI : next) {
                 // Change to p.instrStart(preI) + II_unit
-                p.addConstraint(p.instrStart(preI) + 1 <= p.instrStart(nextI));
+                //p.addConstraint(p.instrStart(preI) + 1 <= p.instrStart(nextI));
+                exe.addConstraint(instrStart(preI) + 1 <= instrStart(nextI));
               }
             }
           }
@@ -986,6 +971,7 @@ namespace DHLS {
             int rawDD = rawOperandDD(&instrA, &instrB, domTree);
             if (rawDD > 0) {
               p.addConstraint(p.instrEnd(&instrA) < II*rawDD + p.instrStart(&instrB));
+              //exe.addConstraint(instrEnd(&instrA) < II*rawDD + instrStart(&instrB));
             }
 
             if (StoreInst::classof(&instrA) &&
@@ -996,12 +982,15 @@ namespace DHLS {
                                          sc);
               if (memRawDD > 0) {
                 p.addConstraint(p.instrEnd(&instrA) < II*memRawDD + p.instrStart(&instrB));
+                //exe.addConstraint(instrEnd(&instrA) < II*memRawDD + instrStart(&instrB));
               }
             }
           }
         }
       }
     }
+
+    exe.addConstraints(p, f);
 
   }
   

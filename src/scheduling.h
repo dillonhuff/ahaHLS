@@ -914,6 +914,8 @@ namespace DHLS {
         p.addConstraint(bTime == aTime);
       } else if (restriction == ORDER_RESTRICTION_BEFORE) {
         p.addConstraint(bTime < aTime);
+      } else if (restriction == ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS) {
+        p.addConstraint(bTime <= aTime);        
       } else {
         assert(false);
       }
