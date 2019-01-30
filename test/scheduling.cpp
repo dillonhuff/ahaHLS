@@ -2580,9 +2580,6 @@ namespace DHLS {
         for (auto& instr : bb) {
           if (isBuiltinFifoRead(&instr)) {
 
-            // TODO: 1. Stall until read is ready
-            //       2. The cycle when read is ready set the read valid
-            //       3. The cycle after that read the value on out_data
             int w = getValueBitWidth(&instr);
 
             auto rp = readPort("out_data", w, fifoType(w));
