@@ -3117,7 +3117,26 @@ namespace DHLS {
     HardwareConstraints hcs = standardConstraints();
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
-    hcs.modSpecs[fpu] = {{}, "adder"};
+    map<string, Port> adderPorts = {
+      {"input_a", inputPort(width, "input_a")},
+      {"input_a_stb", inputPort(1, "input_a_stb")},
+      {"input_b", inputPort(width, "input_b")},
+      {"input_b_stb", inputPort(1, "input_b_stb")},
+      {"rst", inputPort(1, "rst")},
+
+      {"output_z", outputPort(width, "output_z")},
+      {"input_a_ack", outputPort(1, "input_a_ack")},
+      {"input_b_ack", outputPort(1, "input_b_ack")},
+      {"output_z_stb", outputPort(1, "output_z_stb")}
+      //             {"input_a_stb", {true, 1, unitName + "_input_a_stb"}},
+      //             {"input_b", {true, w, unitName + "_input_b"}},
+      //             {"input_b_stb", {true, 1, unitName + "_input_b_stb"}},
+      //             {"rst", {true, 1, unitName + "_rst"}}
+
+      // {""},
+      // {}
+    };
+    hcs.modSpecs[fpu] = {{}, "adder", adderPorts};
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
     hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
     hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);

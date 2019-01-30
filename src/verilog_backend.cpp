@@ -588,23 +588,31 @@ namespace DHLS {
           isExternal = true;
         }
 
-        modName = map_find(fuPtr, hcs.modSpecs).name;
+        ModuleSpec modSpec = map_find(fuPtr, hcs.modSpecs);
+        modName = modSpec.name;
         unitName = fuPtr->getName();
         // TODO: Actually check this instead of just using it as a builtin
         int w = 32;
-        wiring = {{"input_a", {true, w, unitName + "_input_a"}},
-                  {"input_a_stb", {true, 1, unitName + "_input_a_stb"}},
-                  {"input_b", {true, w, unitName + "_input_b"}},
-                  {"input_b_stb", {true, 1, unitName + "_input_b_stb"}},
-                  {"rst", {true, 1, unitName + "_rst"}}
-        };
+        for (auto pt : modSpec.ports) {
+          if (pt.second.input()) {
+            wiring.insert({pt.first, {true, pt.second.width, unitName + pt.second.name}});
+          } else {
+            outWires.insert({pt.first, {false, pt.second.width, unitName + pt.second.name}});            
+          }
+        }
+        // wiring = {{"input_a", {true, w, unitName + "_input_a"}},
+        //           {"input_a_stb", {true, 1, unitName + "_input_a_stb"}},
+        //           {"input_b", {true, w, unitName + "_input_b"}},
+        //           {"input_b_stb", {true, 1, unitName + "_input_b_stb"}},
+        //           {"rst", {true, 1, unitName + "_rst"}}
+        // };
 
-        // TODO: Fix this monstrosity, should really use modulespec to define ports
-        outWires = {{"output_z", {false, w, unitName + "_output_z"}},
-                    {"input_a_ack", {false, 1, unitName + "_input_a_ack"}},
-                    {"input_b_ack", {false, 1, unitName + "_input_b_ack"}},
-                    {"output_z_stb", {false, 1, unitName + "_output_z_stb"}},
-                    {"out_data", {false, w, unitName + "_out_data"}}};
+        // // TODO: Fix this monstrosity, should really use modulespec to define ports
+        // outWires = {{"output_z", {false, w, unitName + "_output_z"}},
+        //             {"input_a_ack", {false, 1, unitName + "_input_a_ack"}},
+        //             {"input_b_ack", {false, 1, unitName + "_input_b_ack"}},
+        //             {"output_z_stb", {false, 1, unitName + "_output_z_stb"}},
+        //             {"out_data", {false, w, unitName + "_out_data"}}};
       } else {
 
         // No action
