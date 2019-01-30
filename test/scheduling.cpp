@@ -6,6 +6,8 @@
 #include "llvm_codegen.h"
 #include "test_utils.h"
 
+#include <llvm/Transforms/Utils/BasicBlockUtils.h>
+
 using namespace dbhc;
 using namespace llvm;
 using namespace std;
@@ -2568,6 +2570,33 @@ namespace DHLS {
     
   }
 
+  void inlineFifoCalls(Function* f,
+                       ExecutionConstraints& exec) {
+    bool replaced = true;
+    while (replaced) {
+      replaced = false;
+
+      for (auto& bb : f->getBasicBlockList()) {
+        for (auto& instr : bb) {
+          if (isBuiltinFifoRead(&instr)) {
+            int w = getValueBitWidth(&instr);
+            auto rp = readPort("out_data", w, fifoType(w));
+            FunctionType* fp = rp->getFunctionType();
+            Instruction* freshCall = CallInst::Create(fp, rp, {instr.getOperand(0)});
+            ReplaceInstWithInst(&instr, freshCall);
+
+            replaced = true;
+            break;
+          }
+        }
+
+        if (replaced) {
+          break;
+        }
+      }
+    }
+  }
+
   TEST_CASE("Reading and writing FIFOs") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
@@ -2578,7 +2607,8 @@ namespace DHLS {
     StructType* tp = StructType::create(context, "builtin_fifo_" + iStr);
 
     auto mod = llvm::make_unique<Module>("fifo use in a loop", context);
-
+    setGlobalLLVMModule(mod.get());
+    
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo =
       mkFunc(readArgs, intType(width), "builtin_read_fifo_" + iStr, mod.get());
@@ -2615,9 +2645,23 @@ namespace DHLS {
     cout << "LLVM function" << endl;
     cout << valueString(f) << endl;
 
+    ExecutionConstraints exec;
+    inlineFifoCalls(f, exec);
+    
+    cout << "LLVM function after inlining reads" << endl;
+    cout << valueString(f) << endl;
+
     HardwareConstraints hcs = standardConstraints();
     hcs.setCount(ADD_OP, 1);
-    Schedule s = scheduleFunction(f, hcs);
+    hcs.modSpecs[getArg(f, 0)] =
+      {{{"WIDTH", to_string(width)}, {"DEPTH", "16"}}, "fifo"};
+
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
 
     STG graph = buildSTG(s, f);
 

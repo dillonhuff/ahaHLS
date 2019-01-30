@@ -132,50 +132,6 @@ namespace DHLS {
 
   char SkeletonPass::ID = 0;
 
-  // Annoying things about this pass framework:
-  // 1. I dont know how to access the LLVM context
-  // 2. I have to run it in the passmanager rather than just
-  //    removing builtins manually
-  // 3. Putting it in the flow automatically means running it
-  //    on every example and breaking all of them.
-  // 4. I have to thread the ExecutionConstraints through the
-  //    pass framework
-  struct InlineBuiltinsPass : public FunctionPass {
-    static char ID;
-    
-    InlineBuiltinsPass() : FunctionPass(ID) {}
-
-    // TODO: Save execution constraints on each function
-
-    std::string aliasString;
-    
-    virtual void getAnalysisUsage(AnalysisUsage& AU) const override {
-    }
-
-    virtual StringRef getPassName() const override {
-      return StringRef("DillonHuffInlineBuiltinsPass");
-    }
-    
-    virtual bool runOnFunction(Function& f) override {
-      errs() << "Inlining builtins from " << f.getName() << "!\n";
-
-      for (auto& bb : f.getBasicBlockList()) {
-        for (auto& instr : bb) {
-          if (isBuiltinFifoRead(&instr)) {
-            int w = getValueBitWidth(&instr);
-            CallInst* c = new CallInst(callTp, );
-            replaceInstWithInst(&instr, );
-          } else if (isBuiltinFifoWrite(&instr)) {
-            
-          }
-        }
-      }
-      return true;
-    }
-  };
-
-  char InlineBuiltinsPass::ID = 0;
-  
   OperationType opType(Instruction* const iptr) {
     if (ReturnInst::classof(iptr)) {
       return RETURN_OP;
@@ -482,7 +438,6 @@ namespace DHLS {
     llvm::legacy::PassManager pm;
     auto skeleton = new SkeletonPass(f, hdc, toPipeline);
     skeleton->functionConstraints = constraints;
-    pm.add(new InlineBuiltinsPass());
     pm.add(new LoopInfoWrapperPass());
     pm.add(new AAResultsWrapperPass());
     pm.add(new TargetLibraryInfoWrapperPass());

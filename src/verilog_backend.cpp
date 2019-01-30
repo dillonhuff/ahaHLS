@@ -584,6 +584,10 @@ namespace DHLS {
         auto fuPtr = instr->getOperand(0);
         assert(contains_key(fuPtr, hcs.modSpecs));
 
+        if (Argument::classof(fuPtr)) {
+          isExternal = true;
+        }
+
         modName = map_find(fuPtr, hcs.modSpecs).name;
         unitName = fuPtr->getName();
         // TODO: Actually check this instead of just using it as a builtin
@@ -595,11 +599,12 @@ namespace DHLS {
                   {"rst", {true, 1, unitName + "_rst"}}
         };
 
+        // TODO: Fix this monstrosity, should really use modulespec to define ports
         outWires = {{"output_z", {false, w, unitName + "_output_z"}},
                     {"input_a_ack", {false, 1, unitName + "_input_a_ack"}},
                     {"input_b_ack", {false, 1, unitName + "_input_b_ack"}},
-                    {"output_z_stb", {false, 1, unitName + "_output_z_stb"}}
-        };
+                    {"output_z_stb", {false, 1, unitName + "_output_z_stb"}},
+                    {"out_data", {false, w, unitName + "_out_data"}}};
       } else {
 
         // No action

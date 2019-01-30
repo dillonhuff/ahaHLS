@@ -205,12 +205,11 @@ namespace DHLS {
                            llvm::Type* argType) {
 
     // TODO: Add typestring to name
-    auto name = "builtin_read_port_" + portName; // + "_" + std::to_string(width);
-
+    auto name = "builtin_read_port_" + portName;
     llvm::FunctionType *tp =
       llvm::FunctionType::get(intType(width),
-                              {argType,
-                                  wireType(width)->getPointerTo()},
+                              {argType},
+                                  //                                  wireType(width)->getPointerTo()},
                               false);
 
     auto c = getGlobalLLVMModule().getOrInsertFunction(name, tp);
