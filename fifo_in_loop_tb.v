@@ -126,9 +126,9 @@ module test();
    
    fifo_in_loop user(.clk(clk), .rst(rst), .valid(valid),
 
-                     .fifo_0_out_data(out_data0),
-                     .fifo_0_read_valid(read_valid0),
-                     .fifo_0_read_ready(read_ready0),
+                     .arg_0_out_data(out_data0),
+                     .arg_0_read_valid(read_valid0),
+                     .arg_0_read_ready(read_ready0),
 
                      .fifo_1_in_data(in_data1),
                      .fifo_1_write_valid(write_valid1),

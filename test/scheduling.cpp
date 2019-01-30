@@ -2653,8 +2653,20 @@ namespace DHLS {
 
     HardwareConstraints hcs = standardConstraints();
     hcs.setCount(ADD_OP, 1);
+    // Setting ports for fifo
+    map<string, Port> fifoPorts = {
+      {"in_data", inputPort(width, "in_data")},
+      {"read_valid", inputPort(1, "read_valid")},
+      {"write_valid", inputPort(width, "write_valid")},
+      {"rst", inputPort(1, "rst")},
+
+      {"out_data", outputPort(width, "out_data")},
+      {"read_ready", outputPort(1, "read_ready")},
+      {"write_ready", outputPort(1, "write_ready")}
+    };
+    
     hcs.modSpecs[getArg(f, 0)] =
-      {{{"WIDTH", to_string(width)}, {"DEPTH", "16"}}, "fifo"};
+      {{{"WIDTH", to_string(width)}, {"DEPTH", "16"}}, "fifo", fifoPorts};
 
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
@@ -3128,13 +3140,6 @@ namespace DHLS {
       {"input_a_ack", outputPort(1, "input_a_ack")},
       {"input_b_ack", outputPort(1, "input_b_ack")},
       {"output_z_stb", outputPort(1, "output_z_stb")}
-      //             {"input_a_stb", {true, 1, unitName + "_input_a_stb"}},
-      //             {"input_b", {true, w, unitName + "_input_b"}},
-      //             {"input_b_stb", {true, 1, unitName + "_input_b_stb"}},
-      //             {"rst", {true, 1, unitName + "_rst"}}
-
-      // {""},
-      // {}
     };
     hcs.modSpecs[fpu] = {{}, "adder", adderPorts};
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
