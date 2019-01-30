@@ -117,7 +117,8 @@ module test();
    always @(posedge clk) begin
       $display("in_data0  = %d", in_data0);      
       $display("out_data0 = %d", out_data0);
-      $display("out_data1 = %d", out_data1);      
+      $display("out_data1 = %d", out_data1);
+      $display("read_ready0 = %d", read_ready0);            
    end
 
    fifo #(.WIDTH(32), .DEPTH(16)) in(.clk(clk), .rst(rst), .read_valid(read_valid0), .read_ready(read_ready0), .write_ready(write_ready0), .write_valid(write_valid0), .out_data(out_data0), .in_data(in_data0));

@@ -2579,6 +2579,10 @@ namespace DHLS {
       for (auto& bb : f->getBasicBlockList()) {
         for (auto& instr : bb) {
           if (isBuiltinFifoRead(&instr)) {
+
+            // TODO: 1. Stall until read is ready
+            //       2. The cycle when read is ready set the read valid
+            //       3. The cycle after that read the value on out_data
             int w = getValueBitWidth(&instr);
 
             auto rp = readPort("out_data", w, fifoType(w));
@@ -2592,8 +2596,16 @@ namespace DHLS {
 
             auto stallF = stallFunction();
             auto stallR = stallF->getFunctionType();
-            CallInst::Create(stallR, stallF, {callReady}, "stall_on_read_ready", callReady);
+            auto stallInst = CallInst::Create(stallR, stallF, {callReady}, "stall_on_read_ready", callReady);
             
+
+            auto setRValid = writePort("read_valid", 1, fifoType(w));
+            FunctionType* rValidF = rr->getFunctionType();
+            auto setValid = CallInst::Create(rValidF, setRValid, {instr.getOperand(0), mkInt(1, 1)}, "set_read_valid", stallInst);
+
+            exec.addConstraint(instrEnd(callReady) == instrStart(stallInst));
+            exec.addConstraint(instrEnd(stallInst) < instrStart(setValid));
+            exec.addConstraint(instrEnd(setValid) < instrStart(freshCall));
             
             replaced = true;
             break;
