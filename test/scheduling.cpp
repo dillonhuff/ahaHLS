@@ -2580,11 +2580,21 @@ namespace DHLS {
         for (auto& instr : bb) {
           if (isBuiltinFifoRead(&instr)) {
             int w = getValueBitWidth(&instr);
+
             auto rp = readPort("out_data", w, fifoType(w));
             FunctionType* fp = rp->getFunctionType();
             Instruction* freshCall = CallInst::Create(fp, rp, {instr.getOperand(0)});
             ReplaceInstWithInst(&instr, freshCall);
 
+            auto rr = readPort("read_ready", 1, fifoType(w));
+            FunctionType* fpr = rr->getFunctionType();
+            Instruction* callReady = CallInst::Create(fpr, rr, {instr.getOperand(0)}, "read_ready", freshCall);
+
+            auto stallF = stallFunction();
+            auto stallR = stallF->getFunctionType();
+            CallInst::Create(stallR, stallF, {callReady}, "stall_on_read_ready", callReady);
+            
+            
             replaced = true;
             break;
           }
