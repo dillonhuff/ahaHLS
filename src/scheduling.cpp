@@ -106,12 +106,13 @@ namespace DHLS {
       AAResults& a = getAnalysis<AAResultsWrapperPass>().getAAResults();
       ScalarEvolution& sc = getAnalysis<ScalarEvolutionWrapperPass>().getSE();
 
+      errs() << "Scheduling " << "\n" << valueString(&F) << "\n";
       if (!contains_key(&F, functionConstraints)) {
-      schedule = scheduleFunction(&F,
-                                  hdc,
-                                  toPipeline,
-                                  a,
-                                  sc);
+        schedule = scheduleFunction(&F,
+                                    hdc,
+                                    toPipeline,
+                                    a,
+                                    sc);
       } else {
         SchedulingProblem p = map_find(&F, functionConstraints);
         addMemoryConstraints(&F,
@@ -131,11 +132,20 @@ namespace DHLS {
 
   char SkeletonPass::ID = 0;
 
+  // Annoying things about this pass framework:
+  // 1. I dont know how to access the LLVM context
+  // 2. I have to run it in the passmanager rather than just
+  //    removing builtins manually
+  // 3. Putting it in the flow automatically means running it
+  //    on every example and breaking all of them.
+  // 4. I have to thread the ExecutionConstraints through the
+  //    pass framework
   struct InlineBuiltinsPass : public FunctionPass {
     static char ID;
     
     InlineBuiltinsPass() : FunctionPass(ID) {}
 
+    // TODO: Save execution constraints on each function
 
     std::string aliasString;
     
@@ -146,9 +156,20 @@ namespace DHLS {
       return StringRef("DillonHuffInlineBuiltinsPass");
     }
     
-    virtual bool runOnFunction(Function &f) override {
+    virtual bool runOnFunction(Function& f) override {
       errs() << "Inlining builtins from " << f.getName() << "!\n";
 
+      for (auto& bb : f.getBasicBlockList()) {
+        for (auto& instr : bb) {
+          if (isBuiltinFifoRead(&instr)) {
+            int w = getValueBitWidth(&instr);
+            CallInst* c = new CallInst(callTp, );
+            replaceInstWithInst(&instr, );
+          } else if (isBuiltinFifoWrite(&instr)) {
+            
+          }
+        }
+      }
       return true;
     }
   };

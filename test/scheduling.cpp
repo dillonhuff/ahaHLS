@@ -17,9 +17,8 @@ namespace DHLS {
   //    Add an "I dont care about default values to this FU" option?
   //    Move test layout int testbenchspec
   //    Incorporate fifoSpecs in to scheduling constraints automatically
-  //    Generalize InstructionTime to include fixed offset and build operator
-  //    overloaded API for creating them
   //    Add some simple examples to the README
+  //    Fix createFunction to return a function every time without the useless cast
 
   // NOTE: Systolic array example has correct binding by chance. The control
   // structure around the array is a tricky question. Most papers on systolic
