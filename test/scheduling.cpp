@@ -2574,6 +2574,41 @@ namespace DHLS {
             
             replaced = true;
             break;
+          } else if (isBuiltinFifoWrite(&instr)) {
+
+            int w = getValueBitWidth(instr.getOperand(0));
+
+            auto rp = writePort("in_data", w, fifoType(w));
+            FunctionType* fp = rp->getFunctionType();
+            Instruction* writeData = CallInst::Create(fp, rp, {instr.getOperand(1), instr.getOperand(0)});
+
+            auto rr = readPort("write_ready", 1, fifoType(w));
+            FunctionType* fpr = rr->getFunctionType();
+            Instruction* callReady = CallInst::Create(fpr, rr, {instr.getOperand(1)}, "read_ready");
+
+            auto stallF = stallFunction();
+            auto stallR = stallF->getFunctionType();
+            auto stallInst = CallInst::Create(stallR, stallF, {callReady}, "stall_on_read_ready");
+
+            auto setRValid = writePort("write_valid", 1, fifoType(w));
+            FunctionType* rValidF = rr->getFunctionType();
+            auto setValid = CallInst::Create(rValidF, setRValid, {instr.getOperand(1), mkInt(1, 1)}, "set_write_valid");
+
+            auto setValid0 = CallInst::Create(rValidF, setRValid, {instr.getOperand(1), mkInt(0, 1)}, "set_write_valid_0");
+            
+            callReady->insertBefore(&instr);
+            stallInst->insertBefore(&instr);
+            setValid->insertBefore(&instr);
+            writeData->insertBefore(&instr);            
+            ReplaceInstWithInst(&instr, setValid0);
+            
+            exec.addConstraint(instrEnd(callReady) == instrStart(stallInst));
+            exec.addConstraint(instrEnd(stallInst) < instrStart(setValid));
+            exec.addConstraint(instrEnd(setValid) == instrStart(writeData));
+            exec.addConstraint(instrEnd(setValid) + 1 == instrStart(setValid0));
+            
+            replaced = true;
+            break;
           }
         }
 
@@ -2655,6 +2690,9 @@ namespace DHLS {
     hcs.modSpecs[getArg(f, 0)] =
       {{{"WIDTH", to_string(width)}, {"DEPTH", "16"}}, "fifo", fifoPorts};
 
+    hcs.modSpecs[getArg(f, 1)] =
+      {{{"WIDTH", to_string(width)}, {"DEPTH", "16"}}, "fifo", fifoPorts};
+    
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
     exec.addConstraints(p, f);

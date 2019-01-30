@@ -131,9 +131,9 @@ module test();
                      .arg_0_read_valid(read_valid0),
                      .arg_0_read_ready(read_ready0),
 
-                     .fifo_1_in_data(in_data1),
-                     .fifo_1_write_valid(write_valid1),
-                     .fifo_1_write_ready(write_ready1)
+                     .arg_1_in_data(in_data1),
+                     .arg_1_write_valid(write_valid1),
+                     .arg_1_write_ready(write_ready1)
                      );
    
    
