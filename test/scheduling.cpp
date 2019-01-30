@@ -2559,14 +2559,18 @@ namespace DHLS {
             FunctionType* rValidF = rr->getFunctionType();
             auto setValid = CallInst::Create(rValidF, setRValid, {instr.getOperand(0), mkInt(1, 1)}, "set_read_valid");
 
+            auto setValid0 = CallInst::Create(rValidF, setRValid, {instr.getOperand(0), mkInt(0, 1)}, "set_read_valid_0");
+            
             callReady->insertBefore(&instr);
             stallInst->insertBefore(&instr);
-            setValid->insertBefore(&instr);            
+            setValid->insertBefore(&instr);
+            setValid0->insertBefore(&instr);            
             ReplaceInstWithInst(&instr, freshCall);
             
             exec.addConstraint(instrEnd(callReady) == instrStart(stallInst));
             exec.addConstraint(instrEnd(stallInst) < instrStart(setValid));
-            exec.addConstraint(instrEnd(setValid) < instrStart(freshCall));
+            exec.addConstraint(instrEnd(setValid) + 1 == instrStart(setValid0));
+            exec.addConstraint(instrEnd(setValid) + 1 == instrStart(freshCall));
             
             replaced = true;
             break;

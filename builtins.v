@@ -368,7 +368,8 @@ module fifo(input clk,
       if (!rst) begin
          if (write_valid) begin
 
-            $display("writing %d", in_data);
+            $display("writing %d to address %d", in_data, write_addr);
+            $display("write_addr = %b, next_write_addr = %b, depth = %b", write_addr, next_write_addr, DEPTH);            
             
             `assert(write_ready, 1'd1)
 
@@ -380,6 +381,8 @@ module fifo(input clk,
       end
    end
 
+
+   
    assign next_read_addr = (DEPTH == (read_addr + 1)) ? 0 : read_addr + 1;
    assign next_write_addr = (DEPTH == (write_addr + 1)) ? 0 : write_addr + 1;
 
@@ -425,6 +428,7 @@ module fifo(input clk,
       if (rst) begin
          empty <= 1;
 
+         $display("reseting");
          write_addr <= 0;
          read_addr <= 0;
 
