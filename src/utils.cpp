@@ -135,7 +135,7 @@ namespace DHLS {
       return false;
     }
     
-    cout << "Checking if " << valueString(iptr) << " is builtin read" << endl;
+    //cout << "Checking if " << valueString(iptr) << " is builtin read" << endl;
     if (!CallInst::classof(iptr)) {
       return false;
     }
@@ -143,18 +143,18 @@ namespace DHLS {
     CallInst* call = dyn_cast<CallInst>(iptr);
     Function* called = call->getCalledFunction();
 
-    cout << "Got called" << endl;
+    //cout << "Got called" << endl;
     if (called == nullptr) {
       return false;
     }
 
-    cout << "Called not null" << endl;    
+    //cout << "Called not null" << endl;    
 
     if (!called->hasName()) {
       return false;
     }
 
-    cout << "Has a name" << endl;
+    //cout << "Has a name" << endl;
     
     string name = called->getName();
 

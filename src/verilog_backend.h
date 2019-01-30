@@ -15,30 +15,6 @@ namespace DHLS {
     int depth;
   };
 
-  class Port {
-  public:
-    // TODO: registered is currently ignored in code generation. Registered
-    // ports have separate companion reg variables inside generated verilog.
-    // maybe I should print out output reg and remove internal regs?
-    bool registered;    
-    bool isInput;
-    int width;
-    std::string name;
-    bool isDebug;
-
-    bool input() const {
-      return isInput;
-    }
-
-    bool output() const {
-      return !isInput;
-    }
-
-    std::string toString() {
-      return std::string(isInput ? "input" : "output") + (registered ? " reg " : "") + " [" + std::to_string(width - 1) + ":0] " + name;
-    }
-  };
-
   Port inputPort(const int width, const std::string& name);
   Port outputPort(const int width, const std::string& name);
   Port outputRegPort(const int width, const std::string& name);  
