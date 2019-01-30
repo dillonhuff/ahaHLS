@@ -2819,6 +2819,8 @@ namespace DHLS {
     // hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
     hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
     hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
+
+    // TODO: Add relative timing constraints on wires
     
     hcs.setCount(ADD_OP, 1);
 
