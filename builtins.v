@@ -367,6 +367,9 @@ module fifo(input clk,
    always @(posedge clk) begin
       if (!rst) begin
          if (write_valid) begin
+
+            $display("writing %d", in_data);
+            
             `assert(write_ready, 1'd1)
 
             ram[write_addr] <= in_data;
@@ -378,12 +381,14 @@ module fifo(input clk,
    end
 
    assign next_read_addr = (DEPTH == (read_addr + 1)) ? 0 : read_addr + 1;
-   assign next_write_addr = (DEPTH == (write_addr + 1)) ? 0 : write_addr + 1;   
+   assign next_write_addr = (DEPTH == (write_addr + 1)) ? 0 : write_addr + 1;
 
    always @(posedge clk) begin
       if (!rst) begin
          if (read_valid) begin
             `assert(read_ready, 1'd1)
+
+            $display("reading %d", out_data);            
 
             // Wraparound
             read_addr <= next_read_addr;
