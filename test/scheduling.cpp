@@ -2682,31 +2682,18 @@ namespace DHLS {
     cout << "LLVM function" << endl;
     cout << valueString(f) << endl;
 
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.setCount(ADD_OP, 1);
+
+    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
+    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
+    
     ExecutionConstraints exec;
     inlineFifoCalls(f, exec);
     
     cout << "LLVM function after inlining reads" << endl;
     cout << valueString(f) << endl;
-
-    HardwareConstraints hcs = standardConstraints();
-    hcs.setCount(ADD_OP, 1);
-    // // Setting ports for fifo
-    // map<string, Port> fifoPorts = {
-    //   {"in_data", inputPort(width, "in_data")},
-    //   {"read_valid", inputPort(1, "read_valid")},
-    //   {"write_valid", inputPort(width, "write_valid")},
-    //   {"rst", inputPort(1, "rst")},
-
-    //   {"out_data", outputPort(width, "out_data")},
-    //   {"read_ready", outputPort(1, "read_ready")},
-    //   {"write_ready", outputPort(1, "write_ready")}
-    // };
-    
-    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
-    // {{{"WIDTH", to_string(width)}, {"DEPTH", "16"}}, "fifo", fifoPorts};
-
-    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
-    //{{{"WIDTH", to_string(width)}, {"DEPTH", "16"}}, "fifo", fifoPorts};
     
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
