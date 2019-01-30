@@ -2619,6 +2619,21 @@ namespace DHLS {
     }
   }
 
+  ModuleSpec fifoSpec(int width, int depth) {
+    map<string, Port> fifoPorts = {
+      {"in_data", inputPort(width, "in_data")},
+      {"read_valid", inputPort(1, "read_valid")},
+      {"write_valid", inputPort(width, "write_valid")},
+      {"rst", inputPort(1, "rst")},
+
+      {"out_data", outputPort(width, "out_data")},
+      {"read_ready", outputPort(1, "read_ready")},
+      {"write_ready", outputPort(1, "write_ready")}
+    };
+    
+    return {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "fifo", fifoPorts};
+  }
+
   TEST_CASE("Reading and writing FIFOs") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
@@ -2675,23 +2690,23 @@ namespace DHLS {
 
     HardwareConstraints hcs = standardConstraints();
     hcs.setCount(ADD_OP, 1);
-    // Setting ports for fifo
-    map<string, Port> fifoPorts = {
-      {"in_data", inputPort(width, "in_data")},
-      {"read_valid", inputPort(1, "read_valid")},
-      {"write_valid", inputPort(width, "write_valid")},
-      {"rst", inputPort(1, "rst")},
+    // // Setting ports for fifo
+    // map<string, Port> fifoPorts = {
+    //   {"in_data", inputPort(width, "in_data")},
+    //   {"read_valid", inputPort(1, "read_valid")},
+    //   {"write_valid", inputPort(width, "write_valid")},
+    //   {"rst", inputPort(1, "rst")},
 
-      {"out_data", outputPort(width, "out_data")},
-      {"read_ready", outputPort(1, "read_ready")},
-      {"write_ready", outputPort(1, "write_ready")}
-    };
+    //   {"out_data", outputPort(width, "out_data")},
+    //   {"read_ready", outputPort(1, "read_ready")},
+    //   {"write_ready", outputPort(1, "write_ready")}
+    // };
     
-    hcs.modSpecs[getArg(f, 0)] =
-      {{{"WIDTH", to_string(width)}, {"DEPTH", "16"}}, "fifo", fifoPorts};
+    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
+    // {{{"WIDTH", to_string(width)}, {"DEPTH", "16"}}, "fifo", fifoPorts};
 
-    hcs.modSpecs[getArg(f, 1)] =
-      {{{"WIDTH", to_string(width)}, {"DEPTH", "16"}}, "fifo", fifoPorts};
+    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
+    //{{{"WIDTH", to_string(width)}, {"DEPTH", "16"}}, "fifo", fifoPorts};
     
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
@@ -3291,7 +3306,6 @@ namespace DHLS {
     std::map<llvm::Instruction*, Wire> instrStartingThisCycleFlags;
     std::map<llvm::Instruction*, Wire> instrDoneThisCycleFlags;
 
-    
   public:
 
     std::map<llvm::Instruction*, Wire> tempStorage;
@@ -3772,7 +3786,7 @@ namespace DHLS {
     auto mod = llvm::make_unique<Module>("dynamic arch", context);
 
     std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo()};
-        //        Type::getInt32Ty(context)->getPointerTo()};
+
     FunctionType *tp =
       FunctionType::get(Type::getVoidTy(context), inputs, false);
     Function *srUser =
