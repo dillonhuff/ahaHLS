@@ -131,6 +131,30 @@ namespace DHLS {
 
   char SkeletonPass::ID = 0;
 
+  struct InlineBuiltinsPass : public FunctionPass {
+    static char ID;
+    
+    InlineBuiltinsPass() : FunctionPass(ID) {}
+
+
+    std::string aliasString;
+    
+    virtual void getAnalysisUsage(AnalysisUsage& AU) const override {
+    }
+
+    virtual StringRef getPassName() const override {
+      return StringRef("DillonHuffInlineBuiltinsPass");
+    }
+    
+    virtual bool runOnFunction(Function &f) override {
+      errs() << "Inlining builtins from " << f.getName() << "!\n";
+
+      return true;
+    }
+  };
+
+  char InlineBuiltinsPass::ID = 0;
+  
   OperationType opType(Instruction* const iptr) {
     if (ReturnInst::classof(iptr)) {
       return RETURN_OP;
@@ -437,6 +461,7 @@ namespace DHLS {
     llvm::legacy::PassManager pm;
     auto skeleton = new SkeletonPass(f, hdc, toPipeline);
     skeleton->functionConstraints = constraints;
+    pm.add(new InlineBuiltinsPass());
     pm.add(new LoopInfoWrapperPass());
     pm.add(new AAResultsWrapperPass());
     pm.add(new TargetLibraryInfoWrapperPass());
