@@ -84,5 +84,44 @@ namespace DHLS {
     cout << "Lastline = " << lastLine << endl;
     return lastLine == "Passed";
   }
+
+  bool runIVerilogTest(const std::string& mainName,
+                       const std::string& exeName) {
+
+    string genCmd = "iverilog -g2005 -o " + exeName + " " + mainName + string(" ") + " RAM.v RAM2.v RAM3.v axil_ram.v delay.v builtins.v";
+
+    bool compiled = runCmd(genCmd);
+
+    assert(compiled);
+
+    string resFile = exeName + "_tb_result.txt";
+    string exeCmd = "./" + exeName + " > " + resFile;
+    bool ran = runCmd(exeCmd);
+
+    assert(ran);
+
+    ifstream res(resFile);
+    std::string str((std::istreambuf_iterator<char>(res)),
+                    std::istreambuf_iterator<char>());
+
+    cout << "str = " << str << endl;
+    
+    reverse(begin(str), end(str));
+    string lastLine;
+
+    for (int i = 1; i < (int) str.size(); i++) {
+      if (str[i] == '\n') {
+        break;
+      }
+
+      lastLine += str[i];
+    }
+
+    reverse(begin(lastLine), end(lastLine));
+
+    cout << "Lastline = " << lastLine << endl;
+
+    return lastLine == "Passed";
+  }
   
 }

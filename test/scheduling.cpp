@@ -2519,45 +2519,6 @@ namespace DHLS {
     
   }
 
-  bool runIVerilogTest(const std::string& mainName,
-                       const std::string& exeName) {
-
-    string genCmd = "iverilog -g2005 -o " + exeName + " " + mainName + string(" ") + " RAM.v RAM2.v RAM3.v axil_ram.v delay.v builtins.v";
-
-    bool compiled = runCmd(genCmd);
-
-    REQUIRE(compiled);
-
-    string resFile = exeName + "_tb_result.txt";
-    string exeCmd = "./" + exeName + " > " + resFile;
-    bool ran = runCmd(exeCmd);
-
-    assert(ran);
-
-    ifstream res(resFile);
-    std::string str((std::istreambuf_iterator<char>(res)),
-                    std::istreambuf_iterator<char>());
-
-    cout << "str = " << str << endl;
-    
-    reverse(begin(str), end(str));
-    string lastLine;
-
-    for (int i = 1; i < (int) str.size(); i++) {
-      if (str[i] == '\n') {
-        break;
-      }
-
-      lastLine += str[i];
-    }
-
-    reverse(begin(lastLine), end(lastLine));
-
-    cout << "Lastline = " << lastLine << endl;
-
-    return lastLine == "Passed";
-  }
-  
   TEST_CASE("Running verilog fifo tests") {
 
     string mainName = "fifo.v";
@@ -2585,21 +2546,24 @@ namespace DHLS {
             auto rp = readPort("out_data", w, fifoType(w));
             FunctionType* fp = rp->getFunctionType();
             Instruction* freshCall = CallInst::Create(fp, rp, {instr.getOperand(0)});
-            ReplaceInstWithInst(&instr, freshCall);
 
             auto rr = readPort("read_ready", 1, fifoType(w));
             FunctionType* fpr = rr->getFunctionType();
-            Instruction* callReady = CallInst::Create(fpr, rr, {instr.getOperand(0)}, "read_ready", freshCall);
+            Instruction* callReady = CallInst::Create(fpr, rr, {instr.getOperand(0)}, "read_ready");
 
             auto stallF = stallFunction();
             auto stallR = stallF->getFunctionType();
-            auto stallInst = CallInst::Create(stallR, stallF, {callReady}, "stall_on_read_ready", callReady);
-            
+            auto stallInst = CallInst::Create(stallR, stallF, {callReady}, "stall_on_read_ready");
 
             auto setRValid = writePort("read_valid", 1, fifoType(w));
             FunctionType* rValidF = rr->getFunctionType();
-            auto setValid = CallInst::Create(rValidF, setRValid, {instr.getOperand(0), mkInt(1, 1)}, "set_read_valid", stallInst);
+            auto setValid = CallInst::Create(rValidF, setRValid, {instr.getOperand(0), mkInt(1, 1)}, "set_read_valid");
 
+            callReady->insertBefore(&instr);
+            stallInst->insertBefore(&instr);
+            setValid->insertBefore(&instr);            
+            ReplaceInstWithInst(&instr, freshCall);
+            
             exec.addConstraint(instrEnd(callReady) == instrStart(stallInst));
             exec.addConstraint(instrEnd(stallInst) < instrStart(setValid));
             exec.addConstraint(instrEnd(setValid) < instrStart(freshCall));

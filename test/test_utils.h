@@ -20,4 +20,8 @@ namespace DHLS {
   bool runCmd(const std::string& cmd);
 
   bool runIVerilogTB(const std::string& moduleName);
+
+  bool runIVerilogTest(const std::string& mainName,
+                       const std::string& exeName);
+
 }
