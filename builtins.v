@@ -394,6 +394,7 @@ module fifo(input clk,
             read_addr <= next_read_addr;
 
             if (!empty && (next_read_addr == write_addr) && !write_valid) begin
+               $display("FIFO empty: next_read_addr = %d, write_addr = %d", next_read_addr, write_addr);
                empty <= 1;
             end
          end
