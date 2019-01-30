@@ -2634,6 +2634,14 @@ namespace DHLS {
     return {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "fifo", fifoPorts};
   }
 
+  ModuleSpec wireSpec(int width) {
+    map<string, Port> wirePorts = {
+      {"in_data", inputPort(width, "in_data")},
+      {"out_data", outputPort(width, "out_data")}};
+    
+    return {{{"WIDTH", to_string(width)}}, "wire", wirePorts};
+  }
+  
   TEST_CASE("Reading and writing FIFOs") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
@@ -2665,7 +2673,6 @@ namespace DHLS {
     ConstantInt* zero = mkInt("0", width);
 
     auto bodyF = [f, readFifo, writeFifo, width](IRBuilder<>& builder, Value* i) {
-
       auto val = builder.CreateCall(readFifo, {getArg(f, 0)});
       auto p0 = builder.CreateAdd(mkInt(2, width), val);
       auto sum = builder.CreateAdd(p0, val);
@@ -2673,7 +2680,7 @@ namespace DHLS {
     };
     auto loopBlock = sivLoop(f, entryBlock, exitBlock, zero, three, bodyF);
 
-    IRBuilder<> entryBuilder(entryBlock);        
+    IRBuilder<> entryBuilder(entryBlock);
     entryBuilder.CreateBr(loopBlock);
 
     IRBuilder<> exitBuilder(exitBlock);
@@ -2681,7 +2688,6 @@ namespace DHLS {
     
     cout << "LLVM function" << endl;
     cout << valueString(f) << endl;
-
 
     HardwareConstraints hcs = standardConstraints();
     hcs.setCount(ADD_OP, 1);
@@ -2806,9 +2812,14 @@ namespace DHLS {
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
-    hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
-    hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
 
+    // TODO: Change this to a modspec that assumes 0 cycles for each
+    // action? Also set actions
+    // hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
+    // hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
+    hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
+    hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
+    
     hcs.setCount(ADD_OP, 1);
 
     set<BasicBlock*> toPipeline;
