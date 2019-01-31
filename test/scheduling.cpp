@@ -3112,8 +3112,9 @@ namespace DHLS {
     StructType* tp = fifoType(width);
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo = fifoRead(width, mod.get());
-
+    implementWireRead(readFifo);
     Function* writeFifo = fifoWrite(width, mod.get());
+    implementWireWrite(writeFifo);
 
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo()};
@@ -3141,15 +3142,22 @@ namespace DHLS {
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
-    hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
-    hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
+    hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
+    hcs.modSpecs[getArg(f, 1)] = wireSpec(width);    
+    // Remove
+    // hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
+    // hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
 
     hcs.setCount(FADD_OP, 1);
+
+    ExecutionConstraints exec;
+    inlineWireCalls(f, exec);
 
     // TODO: Fix the fadd instantiation problem: 2 fadds but scheduled like
     // there is only 1?
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
     p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
@@ -3188,14 +3196,14 @@ namespace DHLS {
     tb.runCycles = 10;
     tb.maxCycles = 100;
     tb.name = "timed_wire_reduce_fp";
-    tb.settableWires.insert("fifo_0_out_data");
+    tb.settableWires.insert("arg_0_out_data");
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
-    map_insert(tb.actionsOnCycles, 81, assertString("fifo_1_in_data === (1 + 2 + 3 + 4)"));
+    map_insert(tb.actionsOnCycles, 81, assertString("arg_1_in_data === (1 + 2 + 3 + 4)"));
 
-    map_insert(tb.actionsInCycles, 1, string("fifo_0_out_data_reg = 1;"));
-    map_insert(tb.actionsInCycles, 2, string("fifo_0_out_data_reg = 2;"));
-    map_insert(tb.actionsInCycles, 3, string("fifo_0_out_data_reg = 3;"));    
-    map_insert(tb.actionsInCycles, 4, string("fifo_0_out_data_reg = 4;"));
+    map_insert(tb.actionsInCycles, 1, string("arg_0_out_data_reg = 1;"));
+    map_insert(tb.actionsInCycles, 2, string("arg_0_out_data_reg = 2;"));
+    map_insert(tb.actionsInCycles, 3, string("arg_0_out_data_reg = 3;"));    
+    map_insert(tb.actionsInCycles, 4, string("arg_0_out_data_reg = 4;"));
 
     emitVerilogTestBench(tb, arch, testLayout);
     
