@@ -849,6 +849,7 @@ namespace DHLS {
       return map_find(string("out_data"), unit0Src.outWires).name;
     } else if (isBuiltinPortRead(instr0)) {
       auto portName = getPortName(instr0);
+      //cout << "looking for " << portName << endl;
       return map_find(string(portName), unit0Src.outWires).name;
     } else {
       assert(unit0Src.outWires.size() == 1);

@@ -75,6 +75,6 @@ module test();
       
    end // initial begin
    
-   timed_wire_reduce dut(.clk(clk), .rst(rst), .valid(valid), .fifo_0_out_data(in_data0), .fifo_1_in_data(out_data0));
+   timed_wire_reduce dut(.clk(clk), .rst(rst), .valid(valid), .arg_0_out_data(in_data0), .arg_1_in_data(out_data0));
    
 endmodule

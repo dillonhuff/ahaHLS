@@ -261,6 +261,8 @@ namespace DHLS {
         } else {
           latency = 1;
         }
+      } else if (isBuiltinPortWrite(iptr)) {
+        latency = 0;
       } else {
         // Value* func = call->getOperand(0);
         // cout << "Function name = " << valueString(func) << endl;

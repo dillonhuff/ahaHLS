@@ -2619,6 +2619,57 @@ namespace DHLS {
     }
   }
 
+  void inlineWireCalls(Function* f,
+                       ExecutionConstraints& exec) {
+    bool replaced = true;
+    vector<Instruction*> reads;
+
+    while (replaced) {
+      replaced = false;
+
+      for (auto& bb : f->getBasicBlockList()) {
+        for (auto& instr : bb) {
+          if (isBuiltinFifoRead(&instr)) {
+
+            int w = getValueBitWidth(&instr);
+
+            // Reading
+            auto rp = readPort("out_data", w, fifoType(w));
+            FunctionType* fp = rp->getFunctionType();
+            Instruction* freshCall = CallInst::Create(fp, rp, {instr.getOperand(0)});
+
+            ReplaceInstWithInst(&instr, freshCall);
+
+            reads.push_back(freshCall);
+
+            replaced = true;
+            break;
+          } else if (isBuiltinFifoWrite(&instr)) {
+
+            int w = getValueBitWidth(instr.getOperand(0));
+
+            auto rp = writePort("in_data", w, fifoType(w));
+            FunctionType* fp = rp->getFunctionType();
+            Instruction* writeData = CallInst::Create(fp, rp, {instr.getOperand(1), instr.getOperand(0)});
+
+            ReplaceInstWithInst(&instr, writeData);
+
+            replaced = true;
+            break;
+          }
+        }
+
+        if (replaced) {
+          break;
+        }
+      }
+    }
+
+    for (int i = 0; i < ((int) reads.size()) - 1; i++) {
+      exec.addConstraint(instrEnd(reads[i]) + 1 == instrStart(reads[i + 1]));
+    }
+  }
+  
   ModuleSpec fifoSpec(int width, int depth) {
     map<string, Port> fifoPorts = {
       {"in_data", inputPort(width, "in_data")},
@@ -2778,9 +2829,10 @@ namespace DHLS {
     int width = 16;
     auto iStr = to_string(width);
 
-    StructType* tp = fifoType(width);
     auto mod = llvm::make_unique<Module>("Add-reduce with timed wires", context);
+    setGlobalLLVMModule(mod.get());
 
+    StructType* tp = fifoType(width);
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo = fifoRead(width, mod.get());
 
@@ -2824,8 +2876,12 @@ namespace DHLS {
     
     hcs.setCount(ADD_OP, 1);
 
+    ExecutionConstraints exec;
+    inlineWireCalls(f, exec);
+
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
     p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
 
     map<Function*, SchedulingProblem> constraints{{f, p}};

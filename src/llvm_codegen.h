@@ -131,9 +131,12 @@ namespace DHLS {
 
   static inline
   llvm::StructType* fifoType(const int width) {
-    llvm::StructType* tp =
-      llvm::StructType::create(getGlobalLLVMContext(),
-                               "builtin_fifo_" + std::to_string(width));
+    std::string name = "builtin_fifo_" + std::to_string(width);
+    llvm::StructType* tp = getGlobalLLVMModule().getTypeByName(name);
+    if (tp == nullptr) {
+      tp = llvm::StructType::create(getGlobalLLVMContext(), name);
+    }
+                               
     return tp;
   }
 
@@ -154,9 +157,14 @@ namespace DHLS {
 
     auto c = m->getOrInsertFunction(name, tp);
 
-    assert(llvm::Function::classof(c));
-
-    return llvm::dyn_cast<llvm::Function>(c);
+    if (llvm::Function::classof(c)) {
+      return llvm::dyn_cast<llvm::Function>(c);
+    } else if (llvm::ConstantExpr::classof(c)) {
+      std::cout << "Is constantexpr" << std::endl;
+      assert(false);
+    } else {
+      assert(false);
+    }
   }
 
   static inline
@@ -209,14 +217,34 @@ namespace DHLS {
     llvm::FunctionType *tp =
       llvm::FunctionType::get(intType(width),
                               {argType},
-                                  //                                  wireType(width)->getPointerTo()},
                               false);
 
     auto c = getGlobalLLVMModule().getOrInsertFunction(name, tp);
 
-    assert(llvm::Function::classof(c));
+    if (llvm::Function::classof(c)) {
+      return llvm::dyn_cast<llvm::Function>(c);
+    } else if (llvm::ConstantExpr::classof(c)) {
+      std::cout << valueString(c) << " is constantexpr" << std::endl;
+      if (llvm::ConstantExpr::classof(c)) {
+        std::cout << "Is unary" << std::endl;
+        auto castC = llvm::dyn_cast<llvm::ConstantExpr>(c);
+        std::cout << "is cast ? " << castC->isCast() << std::endl;
+        auto f = castC->getOperand(0);
+        std::cout << "Function = " << valueString(f) << std::endl;
 
-    return llvm::dyn_cast<llvm::Function>(c);
+        assert(llvm::Function::classof(c));
+
+        return llvm::dyn_cast<llvm::Function>(f);
+      } else {
+        assert(false);
+      }
+    } else {
+      assert(false);
+    }
+    
+    // assert(llvm::Function::classof(c));
+
+    // return llvm::dyn_cast<llvm::Function>(c);
   }
   
   static inline
