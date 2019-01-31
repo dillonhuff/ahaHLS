@@ -2533,6 +2533,11 @@ namespace DHLS {
     
   }
 
+  class InterfaceFunctions {
+  public:
+    std::map<llvm::Function*, ExecutionConstraints> constraints;
+  };
+
   void inlineFifoCalls(Function* f,
                        ExecutionConstraints& exec) {
     bool replaced = true;
@@ -2713,7 +2718,8 @@ namespace DHLS {
   }
   
   void inlineWireCalls(Function* f,
-                       ExecutionConstraints& exec) {
+                       ExecutionConstraints& exec,
+                       InterfaceFunctions& interfaces) {
     bool replaced = true;
     vector<Instruction*> reads;
 
@@ -2763,7 +2769,9 @@ namespace DHLS {
     
     return {{{"WIDTH", to_string(width)}}, "wire", wirePorts};
   }
-  
+
+  // TODO: Convert this test to use definitions of functions and constraints
+  // on those definitions
   TEST_CASE("Reading and writing FIFOs") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
@@ -2967,8 +2975,9 @@ namespace DHLS {
     
     hcs.setCount(ADD_OP, 1);
 
+    InterfaceFunctions interfaces;
     ExecutionConstraints exec;
-    inlineWireCalls(f, exec);
+    inlineWireCalls(f, exec, interfaces);
 
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
@@ -3062,8 +3071,9 @@ namespace DHLS {
     // TODO: Set latency of fadd to 15?
     hcs.setCount(FADD_OP, 1);
 
+    InterfaceFunctions interfaces;    
     ExecutionConstraints exec;
-    inlineWireCalls(f, exec);
+    inlineWireCalls(f, exec, interfaces);
 
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
@@ -3174,8 +3184,9 @@ namespace DHLS {
 
     hcs.setCount(FADD_OP, 1);
 
+    InterfaceFunctions interfaces;        
     ExecutionConstraints exec;
-    inlineWireCalls(f, exec);
+    inlineWireCalls(f, exec, interfaces);
 
     // TODO: Fix the fadd instantiation problem: 2 fadds but scheduled like
     // there is only 1?
@@ -3386,7 +3397,8 @@ namespace DHLS {
 
     exeConstraints.addConstraint(instrEnd(val) < instrStart(writeZ));
 
-    inlineWireCalls(f, exeConstraints);
+    InterfaceFunctions interfaces;            
+    inlineWireCalls(f, exeConstraints, interfaces);
 
     cout << "After inlining" << endl;
     cout << valueString(f) << endl;
