@@ -2867,6 +2867,29 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("add_reduce_15"));
   }
 
+  void implementWireRead(Function* readFifo) {
+    int width = getTypeBitWidth(readFifo->getReturnType());
+    auto tp = getArg(readFifo, 0)->getType();
+    {
+      auto readEntry = mkBB("entry_block", readFifo);
+      IRBuilder<> eb(readEntry);
+      auto rp = readPort("out_data", width, tp);
+      auto readValue = eb.CreateCall(rp, {getArg(readFifo, 0)});
+      eb.CreateRet(readValue);
+    }
+
+  }
+
+  void implementWireWrite(Function* writeFifo) {
+    int width = getValueBitWidth(getArg(writeFifo, 0));
+    auto tp = getArg(writeFifo, 1)->getType();
+    auto writeEntry = mkBB("entry_block", writeFifo);
+    IRBuilder<> eb(writeEntry);
+    auto wp = writePort("in_data", width, tp);
+    eb.CreateCall(wp, {getArg(writeFifo, 1), getArg(writeFifo, 0)});
+    eb.CreateRet(nullptr);
+  }
+
   TEST_CASE("Timed wire reduction") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
@@ -2878,24 +2901,11 @@ namespace DHLS {
     setGlobalLLVMModule(mod.get());
 
     StructType* tp = fifoType(width);
-    //vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo = fifoRead(width, mod.get());
-    {
-      auto readEntry = mkBB("entry_block", readFifo);
-      IRBuilder<> eb(readEntry);
-      auto rp = readPort("out_data", width, tp);
-      auto readValue = eb.CreateCall(rp, {getArg(readFifo, 0)});
-      eb.CreateRet(readValue);
-    }
+    implementWireRead(readFifo);    
 
     Function* writeFifo = fifoWrite(width, mod.get());
-    {
-      auto writeEntry = mkBB("entry_block", writeFifo);
-      IRBuilder<> eb(writeEntry);
-      auto wp = writePort("in_data", width, tp);
-      eb.CreateCall(wp, {getArg(writeFifo, 1), getArg(writeFifo, 0)});
-      eb.CreateRet(nullptr);
-    }
+    implementWireWrite(writeFifo);
 
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo()};

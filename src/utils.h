@@ -152,4 +152,5 @@ namespace DHLS {
     return res;
   }
 
+  int getTypeBitWidth(llvm::Type* const tp);
 }

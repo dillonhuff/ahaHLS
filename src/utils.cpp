@@ -36,7 +36,10 @@ namespace DHLS {
   int getValueBitWidth(Value* const instr) {
     Type* tp = instr->getType();
 
-    //cout << "type = " << typeString(tp) << endl;
+    return getTypeBitWidth(tp);
+  }
+
+  int getTypeBitWidth(Type* const tp) {
     int width;
 
     if (IntegerType::classof(tp)) {
