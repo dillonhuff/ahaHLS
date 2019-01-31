@@ -2903,7 +2903,6 @@ namespace DHLS {
     StructType* tp = fifoType(width);
     Function* readFifo = fifoRead(width, mod.get());
     implementWireRead(readFifo);    
-
     Function* writeFifo = fifoWrite(width, mod.get());
     implementWireWrite(writeFifo);
 
@@ -2995,8 +2994,13 @@ namespace DHLS {
     
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo = fifoRead(width, mod.get());
-
+    implementWireRead(readFifo);    
     Function* writeFifo = fifoWrite(width, mod.get());
+    implementWireWrite(writeFifo);
+
+    // Function* readFifo = fifoRead(width, mod.get());
+
+    // Function* writeFifo = fifoWrite(width, mod.get());
 
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo(),
@@ -3023,15 +3027,20 @@ namespace DHLS {
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
-    hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
-    hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
-    hcs.fifoSpecs[getArg(f, 2)] = FifoSpec(0, 0, FIFO_TIMED);
+
+    hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
+    hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
+    hcs.modSpecs[getArg(f, 2)] = wireSpec(width);
 
     // TODO: Set latency of fadd to 15?
     hcs.setCount(FADD_OP, 1);
 
+    ExecutionConstraints exec;
+    inlineWireCalls(f, exec);
+
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
     p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
@@ -3076,15 +3085,15 @@ namespace DHLS {
     tb.runCycles = 30;
     tb.maxCycles = 50;
     tb.name = "timed_wire_fp_add";
-    tb.settableWires.insert("fifo_0_out_data");
-    tb.settableWires.insert("fifo_1_out_data");    
+    tb.settableWires.insert("arg_0_out_data");
+    tb.settableWires.insert("arg_1_out_data");    
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
-    map_insert(tb.actionsOnCycles, 21, assertString("fifo_2_in_data == " + floatBits(cf)));
+    map_insert(tb.actionsOnCycles, 21, assertString("arg_2_in_data == " + floatBits(cf)));
 
-    map_insert(tb.actionsInCycles, 1, string("fifo_0_out_data_reg = " + floatBits(af) + ";"));
-    map_insert(tb.actionsInCycles, 1, string("fifo_1_out_data_reg = " + floatBits(bf) + ";"));
-    map_insert(tb.actionsInCycles, 1, string("fifo_1_out_data_reg = " + floatBits(bf) + ";"));
-    map_insert(tb.actionsInCycles, 21, string("$display(\"fifo_2_in_data = %d\", fifo_2_in_data);"));
+    map_insert(tb.actionsInCycles, 1, string("arg_0_out_data_reg = " + floatBits(af) + ";"));
+    map_insert(tb.actionsInCycles, 1, string("arg_1_out_data_reg = " + floatBits(bf) + ";"));
+    map_insert(tb.actionsInCycles, 1, string("arg_1_out_data_reg = " + floatBits(bf) + ";"));
+    map_insert(tb.actionsInCycles, 21, string("$display(\"arg_2_in_data = %d\", arg_2_in_data);"));
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("timed_wire_fp_add"));
