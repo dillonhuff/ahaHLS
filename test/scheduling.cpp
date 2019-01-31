@@ -2651,7 +2651,7 @@ namespace DHLS {
     cout << "Built value list" << endl;
     
     map<Instruction*, Instruction*> oldInstrsToClones;
-
+    vector<Instruction*> inlinedInstrs;
     // Inline the constraints
     Value* finalRetVal = nullptr;
     for (auto& bb : called->getBasicBlockList()) {
@@ -2661,6 +2661,7 @@ namespace DHLS {
           oldInstrsToClones[&instr] = clone;
           replaceValues(argsToValues, clone);
           clone->insertBefore(toInline);
+          inlinedInstrs.push_back(clone);
         } else {
 
           if (instr.getNumOperands() > 0) {
@@ -2673,6 +2674,25 @@ namespace DHLS {
             finalRetVal = map_find(dyn_cast<Instruction>(retVal), oldInstrsToClones);
           }
         }
+      }
+    }
+
+
+
+    // In general I want to do the following:
+    // For every constraint involving the call to be inlined, for
+    // every instruction in the inlined version, create a new instance
+    // of that constraint using the current instruction
+    for (auto c : exec.constraints) {
+      if (c->references(toInline)) {
+        cout << "Replacing constraint " << *c << endl;
+        for (auto instr : inlinedInstrs) {
+          ExecutionConstraint* newC = c->clone();
+          newC->replaceInstruction(toInline, instr);
+          cout << "\tAdding replacement " << *newC << endl;
+          exec.add(newC);
+        }
+        exec.remove(c);
       }
     }
 
@@ -3359,7 +3379,11 @@ namespace DHLS {
     exeConstraints.startSameTime(val, zStb);
     exeConstraints.startSameTime(stallUntilZStb, zStb);        
 
-    // This is causing an error, its not getting inlined
+    // This is causing an error. I need to find all constraints on
+    // starts and ends of instructions being inlined and replace them
+    // with constraints on starts and ends of each instruction in the
+    // inlined version of the program.
+
     exeConstraints.addConstraint(instrEnd(val) < instrStart(writeZ));
 
     inlineWireCalls(f, exeConstraints);
@@ -3421,15 +3445,15 @@ namespace DHLS {
     tb.runCycles = 30;
     tb.maxCycles = 50;
     tb.name = "direct_port_fp_add";
-    tb.settableWires.insert("fifo_0_out_data");
-    tb.settableWires.insert("fifo_1_out_data");    
+    tb.settableWires.insert("arg_0_out_data");
+    tb.settableWires.insert("arg_1_out_data");    
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
-    map_insert(tb.actionsOnCycles, 18, assertString("fifo_2_in_data == " + floatBits(cf)));
+    map_insert(tb.actionsOnCycles, 18, assertString("arg_2_in_data == " + floatBits(cf)));
 
-    map_insert(tb.actionsInCycles, 1, string("fifo_0_out_data_reg = " + floatBits(af) + ";"));
-    map_insert(tb.actionsInCycles, 1, string("fifo_1_out_data_reg = " + floatBits(bf) + ";"));
-    map_insert(tb.actionsInCycles, 1, string("fifo_1_out_data_reg = " + floatBits(bf) + ";"));
-    map_insert(tb.actionsInCycles, 8, string("$display(\"fifo_2_in_data = %d\", fifo_2_in_data);"));
+    map_insert(tb.actionsInCycles, 1, string("arg_0_out_data_reg = " + floatBits(af) + ";"));
+    map_insert(tb.actionsInCycles, 1, string("arg_1_out_data_reg = " + floatBits(bf) + ";"));
+    map_insert(tb.actionsInCycles, 1, string("arg_1_out_data_reg = " + floatBits(bf) + ";"));
+    map_insert(tb.actionsInCycles, 8, string("$display(\"arg_2_in_data = %d\", arg_2_in_data);"));
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("direct_port_fp_add"));

@@ -898,6 +898,13 @@ namespace DHLS {
     return {llvm::dyn_cast<llvm::Instruction>(instr), false, 0};
   }
 
+  static inline
+  std::ostream& operator<<(std::ostream& out, const InstructionTime& t) {
+    std::string pre = t.isEnd ? "end" : "start";
+    out << pre << "(" << valueString(t.instr) << ") + " << t.offset;
+    return out;
+  }
+
   enum ExecutionConstraintType {
     CONSTRAINT_TYPE_ORDERED,
     CONSTRAINT_TYPE_STALL,    
@@ -908,9 +915,18 @@ namespace DHLS {
     virtual void addSelfTo(SchedulingProblem& p, Function* f) = 0;
     virtual ExecutionConstraintType type() const = 0;
     virtual void replaceInstruction(Instruction* const toReplace,
-                                    Instruction* const replacement) = 0; 
+                                    Instruction* const replacement) = 0;
+    virtual bool references(Instruction* instr) const = 0;
+    virtual ExecutionConstraint* clone() const = 0;
+    virtual void print(std::ostream& out) const = 0;    
     virtual ~ExecutionConstraint() {}
   };
+
+  static inline
+  std::ostream& operator<<(std::ostream& out, const ExecutionConstraint& c) {
+    c.print(out);
+    return out;
+  }
 
   class WaitUntil : public ExecutionConstraint {
   public:
@@ -923,7 +939,21 @@ namespace DHLS {
     ORDER_RESTRICTION_BEFORE,
     ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS,
   };
-  
+
+  static inline
+  std::string toString(OrderRestriction r) {
+    switch(r) {
+    case ORDER_RESTRICTION_SIMULTANEOUS:
+      return "==";
+    case ORDER_RESTRICTION_BEFORE:
+      return "<";
+    case ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS:
+      return "<=";
+    default:
+      assert(false);
+    }
+  }
+
   class Ordered : public ExecutionConstraint {
   public:
     InstructionTime before;
@@ -940,6 +970,20 @@ namespace DHLS {
 
     virtual ExecutionConstraintType type() const override {
       return CONSTRAINT_TYPE_ORDERED;
+    }
+
+    virtual void print(std::ostream& out) const override {
+      out << before << toString(restriction) << after;
+    }
+    
+    virtual ExecutionConstraint* clone() const override {
+      InstructionTime beforeCpy(before);
+      InstructionTime afterCpy(after);      
+      return new Ordered(beforeCpy, afterCpy, restriction);
+    }
+    
+    virtual bool references(Instruction* instr) const override {
+      return (before.instr == instr) || (after.instr == instr);
     }
 
     virtual void replaceInstruction(Instruction* const toReplace,
@@ -997,6 +1041,21 @@ namespace DHLS {
         }
       }
       return on;
+    }
+
+    void remove(ExecutionConstraint* c) {
+      assert(dbhc::elem(c, constraints));
+
+      // std::vector<ExecutionConstraint*> newCs;
+      // for (auto other : constraints) {
+      //   if (other != c) {
+      //     newCs.push_back(other);
+      //   }
+      // }
+
+      // constraints = newCs;
+      dbhc::remove(c, constraints);
+      delete c;
     }
 
     std::vector<ExecutionConstraint*>
