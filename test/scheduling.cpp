@@ -3144,9 +3144,6 @@ namespace DHLS {
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
     hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
     hcs.modSpecs[getArg(f, 1)] = wireSpec(width);    
-    // Remove
-    // hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
-    // hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
 
     hcs.setCount(FADD_OP, 1);
 
@@ -3234,8 +3231,9 @@ namespace DHLS {
     
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo = fifoRead(width, mod.get());
-
+    implementWireRead(readFifo);
     Function* writeFifo = fifoWrite(width, mod.get());
+    implementWireWrite(writeFifo);
 
     ExecutionConstraints exeConstraints;
     std::vector<Type *> inputs{tp->getPointerTo(),
@@ -3325,9 +3323,13 @@ namespace DHLS {
     };
     hcs.modSpecs[fpu] = {{}, "adder", adderPorts};
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
-    hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
-    hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
-    hcs.fifoSpecs[getArg(f, 2)] = FifoSpec(0, 0, FIFO_TIMED);
+    hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
+    hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
+    hcs.modSpecs[getArg(f, 2)] = wireSpec(width);    
+
+    // hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
+    // hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
+    // hcs.fifoSpecs[getArg(f, 2)] = FifoSpec(0, 0, FIFO_TIMED);
 
     // A / B stall
     exeConstraints.addConstraint(instrStart(aAck) == instrEnd(wAStb));
@@ -3352,6 +3354,11 @@ namespace DHLS {
 
     exeConstraints.addConstraint(instrEnd(val) < instrStart(writeZ));
 
+    inlineWireCalls(f, exeConstraints);
+
+    cout << "After inlining" << endl;
+    cout << valueString(f) << endl;
+    
     // Note: It is also a pain that I cannot run-the getOrAddFunction
     // method of llvm::Module and get back a function each time. Being able
     // to do that would be awesome.
@@ -3359,6 +3366,7 @@ namespace DHLS {
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
     p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
+
     exeConstraints.addConstraints(p, f);
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
