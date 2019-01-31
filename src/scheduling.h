@@ -973,7 +973,7 @@ namespace DHLS {
     }
 
     virtual void print(std::ostream& out) const override {
-      out << before << toString(restriction) << after;
+      out << before << " " << toString(restriction) << " " << after;
     }
     
     virtual ExecutionConstraint* clone() const override {
