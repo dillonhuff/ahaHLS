@@ -2536,6 +2536,10 @@ namespace DHLS {
   class InterfaceFunctions {
   public:
     std::map<llvm::Function*, ExecutionConstraints> constraints;
+
+    void addFunction(Function* const f) {
+      constraints[f] = ExecutionConstraints();
+    }
   };
 
   void inlineFifoCalls(Function* f,
@@ -3268,9 +3272,13 @@ namespace DHLS {
     StructType* tp = fifoType(width);
     
     vector<Type*> readArgs = {tp->getPointerTo()};
+
+    InterfaceFunctions interfaces;
     Function* readFifo = fifoRead(width, mod.get());
+    interfaces.addFunction(readFifo);
     implementWireRead(readFifo);
     Function* writeFifo = fifoWrite(width, mod.get());
+    interfaces.addFunction(writeFifo);
     implementWireWrite(writeFifo);
 
     ExecutionConstraints exeConstraints;
@@ -3397,7 +3405,6 @@ namespace DHLS {
 
     exeConstraints.addConstraint(instrEnd(val) < instrStart(writeZ));
 
-    InterfaceFunctions interfaces;            
     inlineWireCalls(f, exeConstraints, interfaces);
 
     cout << "After inlining" << endl;
