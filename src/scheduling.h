@@ -847,6 +847,13 @@ namespace DHLS {
     bool isEnd;
     int offset;
 
+    void replaceInstruction(Instruction* const toReplace,
+                            Instruction* const replacement) {
+      if (instr == toReplace) {
+        instr = replacement;
+      }
+    }
+    
     bool isStart() const {
       return !isEnd;
     }
@@ -899,7 +906,9 @@ namespace DHLS {
   class ExecutionConstraint {
   public:
     virtual void addSelfTo(SchedulingProblem& p, Function* f) = 0;
-    virtual ExecutionConstraintType type() const = 0;    
+    virtual ExecutionConstraintType type() const = 0;
+    virtual void replaceInstruction(Instruction* const toReplace,
+                                    Instruction* const replacement) = 0; 
     virtual ~ExecutionConstraint() {}
   };
 
@@ -931,6 +940,12 @@ namespace DHLS {
 
     virtual ExecutionConstraintType type() const override {
       return CONSTRAINT_TYPE_ORDERED;
+    }
+
+    virtual void replaceInstruction(Instruction* const toReplace,
+                                    Instruction* const replacement) override {
+      before.replaceInstruction(toReplace, replacement);
+      after.replaceInstruction(toReplace, replacement);      
     }
     
     virtual void addSelfTo(SchedulingProblem& p, Function* f) override {

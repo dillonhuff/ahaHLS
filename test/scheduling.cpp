@@ -2651,6 +2651,7 @@ namespace DHLS {
     cout << "Built value list" << endl;
     
     map<Instruction*, Instruction*> oldInstrsToClones;
+
     // Inline the constraints
     Value* finalRetVal = nullptr;
     for (auto& bb : called->getBasicBlockList()) {
@@ -2677,8 +2678,14 @@ namespace DHLS {
 
     if (finalRetVal != nullptr) {
       toInline->replaceAllUsesWith(finalRetVal);
+      // Replace constraints on toInline
+      Instruction* replacementRet = dyn_cast<Instruction>(finalRetVal);
+      for (auto c : exec.constraints) {
+        c->replaceInstruction(toInline, replacementRet);
+      }
     }
-    
+
+
     // Remove old call
     toInline->eraseFromParent();
 
@@ -3352,6 +3359,7 @@ namespace DHLS {
     exeConstraints.startSameTime(val, zStb);
     exeConstraints.startSameTime(stallUntilZStb, zStb);        
 
+    // This is causing an error, its not getting inlined
     exeConstraints.addConstraint(instrEnd(val) < instrStart(writeZ));
 
     inlineWireCalls(f, exeConstraints);
