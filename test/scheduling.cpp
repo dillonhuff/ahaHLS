@@ -2641,12 +2641,15 @@ namespace DHLS {
     map<Value*, Value*> argsToValues;
     Function* called = toInline->getCalledFunction();
     for (int i = 0; i < (int) toInline->getNumOperands() - 1; i++) {
+      cout << "i = " << i << endl;
       cout << "Operand " << i << " = " << valueString(toInline->getOperand(i)) << endl;
       argsToValues[getArg(called, i)] = toInline->getOperand(i);
     }
 
     assert(called->getBasicBlockList().size() == 1);
 
+    cout << "Built value list" << endl;
+    
     map<Instruction*, Instruction*> oldInstrsToClones;
     // Inline the constraints
     Value* finalRetVal = nullptr;
@@ -2658,9 +2661,14 @@ namespace DHLS {
           replaceValues(argsToValues, clone);
           clone->insertBefore(toInline);
         } else {
-          Value* retVal = instr.getOperand(0);
-          if (retVal != nullptr) {
+
+          if (instr.getNumOperands() > 0) {
+            assert(instr.getNumOperands() == 1);
+
+            Value* retVal = instr.getOperand(0);
+
             assert(Instruction::classof(retVal));
+
             finalRetVal = map_find(dyn_cast<Instruction>(retVal), oldInstrsToClones);
           }
         }
@@ -2692,30 +2700,17 @@ namespace DHLS {
             CallInst* call = dyn_cast<CallInst>(&instr);
             ExecutionConstraints execToInline;
             inlineFunctionWithConstraints(f, exec, call, execToInline);
-            // int w = getValueBitWidth(&instr);
-
-            // // Reading
-            // auto rp = readPort("out_data", w, fifoType(w));
-            // FunctionType* fp = rp->getFunctionType();
-            // Instruction* freshCall = CallInst::Create(fp, rp, {instr.getOperand(0)});
-
-            // ReplaceInstWithInst(&instr, freshCall);
-
-            // reads.push_back(freshCall);
 
             replaced = true;
             break;
           } else if (isBuiltinFifoWrite(&instr)) {
 
-            int w = getValueBitWidth(instr.getOperand(0));
-
-            auto rp = writePort("in_data", w, fifoType(w));
-            FunctionType* fp = rp->getFunctionType();
-            Instruction* writeData = CallInst::Create(fp, rp, {instr.getOperand(1), instr.getOperand(0)});
-
-            ReplaceInstWithInst(&instr, writeData);
+            CallInst* call = dyn_cast<CallInst>(&instr);
+            ExecutionConstraints execToInline;
+            inlineFunctionWithConstraints(f, exec, call, execToInline);
 
             replaced = true;
+            
             break;
           }
         }
@@ -2895,15 +2890,24 @@ namespace DHLS {
     setGlobalLLVMModule(mod.get());
 
     StructType* tp = fifoType(width);
-    vector<Type*> readArgs = {tp->getPointerTo()};
+    //vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo = fifoRead(width, mod.get());
-    auto readEntry = mkBB("entry_block", readFifo);
-    IRBuilder<> eb(readEntry);
-    auto rp = readPort("out_data", width, tp);
-    auto readValue = eb.CreateCall(rp, {getArg(readFifo, 0)});
-    eb.CreateRet(readValue);
+    {
+      auto readEntry = mkBB("entry_block", readFifo);
+      IRBuilder<> eb(readEntry);
+      auto rp = readPort("out_data", width, tp);
+      auto readValue = eb.CreateCall(rp, {getArg(readFifo, 0)});
+      eb.CreateRet(readValue);
+    }
 
     Function* writeFifo = fifoWrite(width, mod.get());
+    {
+      auto writeEntry = mkBB("entry_block", writeFifo);
+      IRBuilder<> eb(writeEntry);
+      auto wp = writePort("in_data", width, tp);
+      eb.CreateCall(wp, {getArg(writeFifo, 1), getArg(writeFifo, 0)});
+      eb.CreateRet(nullptr);
+    }
 
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo()};
@@ -2932,10 +2936,6 @@ namespace DHLS {
     hcs.memoryMapping = memoryOpLocations(f);
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
 
-    // TODO: Change this to a modspec that assumes 0 cycles for each
-    // action? Also set actions
-    // hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
-    // hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
     hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
     hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
 
