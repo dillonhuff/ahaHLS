@@ -2542,7 +2542,6 @@ namespace DHLS {
       for (auto& bb : f->getBasicBlockList()) {
         for (auto& instr : bb) {
           if (isBuiltinFifoRead(&instr)) {
-
             int w = getValueBitWidth(&instr);
 
             auto rp = readPort("out_data", w, fifoType(w));
@@ -2621,6 +2620,50 @@ namespace DHLS {
     }
   }
 
+  void replaceValues(map<Value*, Value*>& argsToValues,
+                     Instruction* const clone) {
+    for (int i = 0; i < (int) clone->getNumOperands(); i++) {
+      Value* opI = clone->getOperand(i);
+      if (contains_key(opI, argsToValues)) {
+        clone->setOperand(i, map_find(opI, argsToValues));
+      }
+    }
+  }
+
+  void inlineFunctionWithConstraints(Function* const f,
+                                     ExecutionConstraints& exec,
+                                     CallInst* const toInline,
+                                     ExecutionConstraints& constraintsToInline) {
+
+    cout << "Inlining " << valueString(toInline) << endl;
+    cout << "# of operands = " << toInline->getNumOperands() << endl;
+    
+    map<Value*, Value*> argsToValues;
+    Function* called = toInline->getCalledFunction();
+    for (int i = 0; i < (int) toInline->getNumOperands() - 1; i++) {
+      cout << "Operand " << i << " = " << valueString(toInline->getOperand(i)) << endl;
+      argsToValues[getArg(called, i)] = toInline->getOperand(i);
+    }
+
+    assert(called->getBasicBlockList().size() == 1);
+
+    map<Instruction*, Instruction*> oldInstrsToClones;
+    // Inline the constraints
+    for (auto& bb : called->getBasicBlockList()) {
+      for (auto& instr : bb) {
+        Instruction* clone = instr.clone();
+        oldInstrsToClones[&instr] = clone;
+        replaceValues(argsToValues, clone);
+        clone->insertBefore(toInline);
+      }
+    }
+
+    // Remove old call
+    toInline->eraseFromParent();
+
+    // Inline constraints
+  }
+  
   void inlineWireCalls(Function* f,
                        ExecutionConstraints& exec) {
     bool replaced = true;
@@ -2633,16 +2676,19 @@ namespace DHLS {
         for (auto& instr : bb) {
           if (isBuiltinFifoRead(&instr)) {
 
-            int w = getValueBitWidth(&instr);
+            CallInst* call = dyn_cast<CallInst>(&instr);
+            ExecutionConstraints execToInline;
+            inlineFunctionWithConstraints(f, exec, call, execToInline);
+            // int w = getValueBitWidth(&instr);
 
-            // Reading
-            auto rp = readPort("out_data", w, fifoType(w));
-            FunctionType* fp = rp->getFunctionType();
-            Instruction* freshCall = CallInst::Create(fp, rp, {instr.getOperand(0)});
+            // // Reading
+            // auto rp = readPort("out_data", w, fifoType(w));
+            // FunctionType* fp = rp->getFunctionType();
+            // Instruction* freshCall = CallInst::Create(fp, rp, {instr.getOperand(0)});
 
-            ReplaceInstWithInst(&instr, freshCall);
+            // ReplaceInstWithInst(&instr, freshCall);
 
-            reads.push_back(freshCall);
+            // reads.push_back(freshCall);
 
             replaced = true;
             break;
@@ -2838,6 +2884,11 @@ namespace DHLS {
     StructType* tp = fifoType(width);
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo = fifoRead(width, mod.get());
+    auto readEntry = mkBB("entry_block", readFifo);
+    IRBuilder<> eb(readEntry);
+    auto rp = readPort("out_data", width, tp);
+    auto readValue = eb.CreateCall(rp, {getArg(readFifo, 0)});
+    eb.CreateRet(readValue);
 
     Function* writeFifo = fifoWrite(width, mod.get());
 
@@ -2861,7 +2912,7 @@ namespace DHLS {
     b.CreateRet(nullptr);
 
     cout << "LLVM Function" << endl;
-    cout << valueString(f) << endl;
+    cout << valueString(readFifo) << endl;
 
     HardwareConstraints hcs = standardConstraints();
     // TODO: Do this by default
