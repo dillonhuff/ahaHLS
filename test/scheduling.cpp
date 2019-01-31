@@ -2649,15 +2649,28 @@ namespace DHLS {
 
     map<Instruction*, Instruction*> oldInstrsToClones;
     // Inline the constraints
+    Value* finalRetVal = nullptr;
     for (auto& bb : called->getBasicBlockList()) {
       for (auto& instr : bb) {
-        Instruction* clone = instr.clone();
-        oldInstrsToClones[&instr] = clone;
-        replaceValues(argsToValues, clone);
-        clone->insertBefore(toInline);
+        if (!ReturnInst::classof(&instr)) {
+          Instruction* clone = instr.clone();
+          oldInstrsToClones[&instr] = clone;
+          replaceValues(argsToValues, clone);
+          clone->insertBefore(toInline);
+        } else {
+          Value* retVal = instr.getOperand(0);
+          if (retVal != nullptr) {
+            assert(Instruction::classof(retVal));
+            finalRetVal = map_find(dyn_cast<Instruction>(retVal), oldInstrsToClones);
+          }
+        }
       }
     }
 
+    if (finalRetVal != nullptr) {
+      toInline->replaceAllUsesWith(finalRetVal);
+    }
+    
     // Remove old call
     toInline->eraseFromParent();
 
