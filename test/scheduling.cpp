@@ -2132,9 +2132,10 @@ namespace DHLS {
     int width = 16;
     auto iStr = to_string(width);
 
-    StructType* tp = fifoType(width);
     auto mod = llvm::make_unique<Module>("fifo use with a delay", context);
+    setGlobalLLVMModule(mod.get());
 
+    StructType* tp = fifoType(width);
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo = fifoRead(width, mod.get());
 
@@ -2379,7 +2380,8 @@ namespace DHLS {
     int width = 32;
 
     auto mod = llvm::make_unique<Module>("BB diamond 4", context);
-
+    setGlobalLLVMModule(mod.get());
+    
     std::vector<Type *> inputs{intType(width)->getPointerTo(),
         intType(width)->getPointerTo()};
     Function* f = mkFunc(inputs, "bb_diamond_4", mod.get());
@@ -2700,11 +2702,11 @@ namespace DHLS {
     int width = 16;
     auto iStr = to_string(width);
 
-    StructType* tp = StructType::create(context, "builtin_fifo_" + iStr);
-
     auto mod = llvm::make_unique<Module>("fifo use in a loop", context);
     setGlobalLLVMModule(mod.get());
-    
+
+    StructType* tp = StructType::create(context, "builtin_fifo_" + iStr);
+
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo =
       mkFunc(readArgs, intType(width), "builtin_read_fifo_" + iStr, mod.get());
@@ -2782,7 +2784,8 @@ namespace DHLS {
     setGlobalLLVMContext(&context);
 
     auto mod = loadModule(context, err, "add_reduce_15");
-
+    setGlobalLLVMModule(mod.get());
+    
     Function* f = mod->getFunction("add_reduce_15");
 
     cout << "LLVM Function" << endl;
@@ -2923,9 +2926,11 @@ namespace DHLS {
     int width = 32;
     auto iStr = to_string(width);
 
-    StructType* tp = fifoType(width);
     auto mod = llvm::make_unique<Module>("One float add", context);
+    setGlobalLLVMModule(mod.get());
 
+    StructType* tp = fifoType(width);
+    
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo = fifoRead(width, mod.get());
 
@@ -3030,9 +3035,10 @@ namespace DHLS {
     int width = 32;
     auto iStr = to_string(width);
 
-    StructType* tp = fifoType(width);
     auto mod = llvm::make_unique<Module>("floating point reduce with timed wires", context);
+    setGlobalLLVMModule(mod.get());    
 
+    StructType* tp = fifoType(width);
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo = fifoRead(width, mod.get());
 
@@ -3142,10 +3148,11 @@ namespace DHLS {
     int width = 32;
     auto iStr = to_string(width);
 
-    StructType* tp = fifoType(width);
     auto mod = llvm::make_unique<Module>("One float add via port API", context);
     setGlobalLLVMModule(mod.get());
 
+    StructType* tp = fifoType(width);
+    
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo = fifoRead(width, mod.get());
 
