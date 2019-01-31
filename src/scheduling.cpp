@@ -808,7 +808,12 @@ namespace DHLS {
               
               AliasResult aliasRes = aliasAnalysis.alias(store0, store1);
               if (aliasRes != NoAlias) {
+
+                auto p0 = getPortName(&instr);
+                auto p1 = getPortName(&otherInstr);
+                if (p0 == p1) {
                   exe.addConstraint(instrEnd(&instr) < instrStart(&otherInstr));
+                }
               }
             }
 
@@ -819,7 +824,12 @@ namespace DHLS {
               
               AliasResult aliasRes = aliasAnalysis.alias(store0, store1);
               if (aliasRes != NoAlias) {
+
+                auto p0 = getPortName(&instr);
+                auto p1 = getPortName(&otherInstr);
+                if (p0 == p1) {
                   exe.addConstraint(instrEnd(&instr) < instrStart(&otherInstr));
+                }
               }
             }
             
