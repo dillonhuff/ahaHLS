@@ -800,6 +800,29 @@ namespace DHLS {
 
             // Check FIFO dependences
 
+            // TODO: Check that Im reading / writing the same port
+            // Check WAW dependence
+            if (isBuiltinPortWrite(&instr) && isBuiltinPortWrite(&otherInstr)) {
+              Value* store0 = instr.getOperand(0);
+              Value* store1 = otherInstr.getOperand(0);
+              
+              AliasResult aliasRes = aliasAnalysis.alias(store0, store1);
+              if (aliasRes != NoAlias) {
+                  exe.addConstraint(instrEnd(&instr) < instrStart(&otherInstr));
+              }
+            }
+
+            // Check RAR
+            if (isBuiltinPortRead(&instr) && isBuiltinPortRead(&otherInstr)) {
+              Value* store0 = instr.getOperand(0);
+              Value* store1 = otherInstr.getOperand(0);
+              
+              AliasResult aliasRes = aliasAnalysis.alias(store0, store1);
+              if (aliasRes != NoAlias) {
+                  exe.addConstraint(instrEnd(&instr) < instrStart(&otherInstr));
+              }
+            }
+            
             // Check RAR dependence
             if (isBuiltinFifoRead(&instr) && isBuiltinFifoRead(&otherInstr)) {
 
@@ -841,6 +864,7 @@ namespace DHLS {
 
               }
             }
+
             
             // Check dependences between RAM operations
             // Check RAW dependence
