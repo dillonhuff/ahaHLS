@@ -3403,6 +3403,11 @@ namespace DHLS {
     // with constraints on starts and ends of each instruction in the
     // inlined version of the program.
 
+    // In final version this will be a constraint on the return
+    // value of the call to the wrapper of the FPU. When the wrapper
+    // function is inlined the return value producing instruction
+    // will be the new constraint, and that instruction will be
+    // restricted internally by stall time constraints.
     exeConstraints.addConstraint(instrEnd(val) < instrStart(writeZ));
 
     inlineWireCalls(f, exeConstraints, interfaces);
