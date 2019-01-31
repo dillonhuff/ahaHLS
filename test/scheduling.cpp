@@ -2695,22 +2695,13 @@ namespace DHLS {
 
       for (auto& bb : f->getBasicBlockList()) {
         for (auto& instr : bb) {
-          if (isBuiltinFifoRead(&instr)) {
+          if (isBuiltinFifoCall(&instr)) {
 
             CallInst* call = dyn_cast<CallInst>(&instr);
             ExecutionConstraints execToInline;
             inlineFunctionWithConstraints(f, exec, call, execToInline);
-
             replaced = true;
-            break;
-          } else if (isBuiltinFifoWrite(&instr)) {
 
-            CallInst* call = dyn_cast<CallInst>(&instr);
-            ExecutionConstraints execToInline;
-            inlineFunctionWithConstraints(f, exec, call, execToInline);
-
-            replaced = true;
-            
             break;
           }
         }
@@ -2721,9 +2712,6 @@ namespace DHLS {
       }
     }
 
-    for (int i = 0; i < ((int) reads.size()) - 1; i++) {
-      exec.addConstraint(instrEnd(reads[i]) + 1 == instrStart(reads[i + 1]));
-    }
   }
   
   ModuleSpec fifoSpec(int width, int depth) {
