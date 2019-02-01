@@ -3441,7 +3441,7 @@ namespace DHLS {
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
     hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
     hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
-    hcs.modSpecs[getArg(f, 2)] = wireSpec(width);    
+    hcs.modSpecs[getArg(f, 2)] = wireSpec(width);
 
     exeConstraints.addConstraint(instrEnd(val) < instrStart(writeZ));
 

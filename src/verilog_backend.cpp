@@ -862,6 +862,7 @@ namespace DHLS {
                          ControlFlowPosition& currentPosition,
                          MicroArchitecture& arch) {
 
+    cout << "Getting name of " << valueString(val) << endl;
     if (Instruction::classof(val)) {
 
       // Pointers to allocations (RAMs) always have a base
@@ -2275,6 +2276,9 @@ namespace DHLS {
                    MicroArchitecture& arch,
                    const VerilogDebugInfo& debugInfo) {
 
+    cout << "Emitting verilog for" << endl;
+    cout << valueString(f) << endl;
+    
     string fn = f->getName();
 
     // This is a very flawed way to handle memory ports. For a few reasons
