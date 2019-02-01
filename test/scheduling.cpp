@@ -2403,13 +2403,6 @@ namespace DHLS {
     map<Function*, SchedulingProblem> constraints{{f, p}};
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
     
-    // cout << "LLVM function" << endl;
-    // cout << valueString(f) << endl;
-
-    // HardwareConstraints hcs = standardConstraints();
-    // hcs.setCount(ADD_OP, 1);
-    // Schedule s = scheduleFunction(f, hcs);
-
     STG graph = buildSTG(s, f);
 
     cout << "STG is " << endl;
@@ -2922,8 +2915,6 @@ namespace DHLS {
     }
   }
 
-  // TODO: Convert this test to use definitions of functions and constraints
-  // on those definitions
   TEST_CASE("Reading and writing FIFOs") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
@@ -2936,13 +2927,14 @@ namespace DHLS {
 
     StructType* tp = StructType::create(context, "builtin_fifo_" + iStr);
 
-    vector<Type*> readArgs = {tp->getPointerTo()};
-    Function* readFifo =
-      mkFunc(readArgs, intType(width), "builtin_read_fifo_" + iStr, mod.get());
+    InterfaceFunctions interfaces;
+    Function* readFifo = fifoRead(width);
+    interfaces.addFunction(readFifo);
+    implementRVFifoRead(readFifo, interfaces.getConstraints(readFifo));
 
-    vector<Type*> writeArgs = {tp->getPointerTo(), intType(width)};
-    Function* writeFifo =
-      mkFunc(readArgs, "builtin_write_fifo_" + iStr, mod.get());
+    Function* writeFifo = fifoWrite(width);
+    interfaces.addFunction(writeFifo);
+    implementRVFifoWrite(writeFifo, interfaces.getConstraints(writeFifo));
     
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo()};
@@ -2978,7 +2970,8 @@ namespace DHLS {
     hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
     
     ExecutionConstraints exec;
-    inlineFifoCalls(f, exec);
+    inlineWireCalls(f, exec, interfaces);
+    //inlineFifoCalls(f, exec);
     
     cout << "LLVM function after inlining reads" << endl;
     cout << valueString(f) << endl;
