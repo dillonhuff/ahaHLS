@@ -1046,14 +1046,6 @@ namespace DHLS {
     void remove(ExecutionConstraint* c) {
       assert(dbhc::elem(c, constraints));
 
-      // std::vector<ExecutionConstraint*> newCs;
-      // for (auto other : constraints) {
-      //   if (other != c) {
-      //     newCs.push_back(other);
-      //   }
-      // }
-
-      // constraints = newCs;
       dbhc::remove(c, constraints);
       delete c;
     }
@@ -1086,6 +1078,7 @@ namespace DHLS {
     void addConstraints(SchedulingProblem& p,
                         Function* f) {
       for (auto c : constraints) {
+        std::cout << "Adding constraint " << *c << " to problem" << std::endl;
         c->addSelfTo(p, f);
       }
     }

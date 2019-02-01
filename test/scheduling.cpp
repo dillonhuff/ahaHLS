@@ -2540,6 +2540,16 @@ namespace DHLS {
     void addFunction(Function* const f) {
       constraints[f] = ExecutionConstraints();
     }
+
+    ExecutionConstraints& getConstraints(llvm::Function* const f) {
+      assert(contains_key(f, constraints));
+      return constraints.find(f)->second;
+    }
+
+    bool containsFunction(llvm::Function* const f) const {
+      return contains_key(f, constraints);
+    }
+    
   };
 
   void inlineFifoCalls(Function* f,
@@ -2663,6 +2673,7 @@ namespace DHLS {
     vector<Instruction*> inlinedInstrs;
     // Inline the constraints
     Value* finalRetVal = nullptr;
+
     for (auto& bb : called->getBasicBlockList()) {
       for (auto& instr : bb) {
         if (!ReturnInst::classof(&instr)) {
@@ -2671,6 +2682,7 @@ namespace DHLS {
           replaceValues(argsToValues, clone);
           clone->insertBefore(toInline);
           inlinedInstrs.push_back(clone);
+
         } else {
 
           if (instr.getNumOperands() > 0) {
@@ -2686,22 +2698,29 @@ namespace DHLS {
       }
     }
 
-
-
     // In general I want to do the following:
     // For every constraint involving the call to be inlined, for
     // every instruction in the inlined version, create a new instance
     // of that constraint using the current instruction
-    for (auto c : exec.constraints) {
-      if (c->references(toInline)) {
-        cout << "Replacing constraint " << *c << endl;
-        for (auto instr : inlinedInstrs) {
-          ExecutionConstraint* newC = c->clone();
-          newC->replaceInstruction(toInline, instr);
-          cout << "\tAdding replacement " << *newC << endl;
-          exec.add(newC);
+    bool replaced = true;
+    while (replaced) {
+      replaced = false;
+
+      for (auto c : exec.constraints) {
+        if (c->references(toInline)) {
+
+          cout << "Replacing constraint " << *c << endl;
+          for (auto instr : inlinedInstrs) {
+            ExecutionConstraint* newC = c->clone();
+            newC->replaceInstruction(toInline, instr);
+            cout << "\tAdding replacement " << *newC << endl;
+            exec.add(newC);
+          }
+          exec.remove(c);
+
+          replaced = true;
+          break;
         }
-        exec.remove(c);
       }
     }
 
@@ -2740,6 +2759,17 @@ namespace DHLS {
             replaced = true;
 
             break;
+          } else if (CallInst::classof(&instr)) {
+            CallInst* call = dyn_cast<CallInst>(&instr);
+
+            Function* inlineFunc = call->getCalledFunction();
+            if (interfaces.containsFunction(inlineFunc)) {
+
+              inlineFunctionWithConstraints(f, exec, call, interfaces.getConstraints(inlineFunc));
+              replaced = true;
+            
+              break;
+            }
           }
         }
 
@@ -3343,6 +3373,8 @@ namespace DHLS {
       auto stallUntilZStb = b.CreateCall(stall, {zStb});
       auto val = b.CreateCall(readPort("output_z", 32, fpuType), {fpu});
 
+      b.CreateRet(val);
+      
       // A / B stall
       exec.addConstraint(instrStart(aAck) == instrEnd(wAStb));
       exec.startsBeforeStarts(aAck, wAStb0);
@@ -3363,8 +3395,6 @@ namespace DHLS {
 
       exec.startSameTime(val, zStb);
       exec.startSameTime(stallUntilZStb, zStb);        
-      
-      b.CreateRet(val);
     }
 
     ExecutionConstraints exeConstraints;
@@ -3380,10 +3410,10 @@ namespace DHLS {
     
     auto in0 = getArg(f, 0);
     auto in1 = getArg(f, 1);
-    auto a = b.CreateCall(readFifo, {in0});
-    auto b0 = b.CreateCall(readFifo, {in1});
 
-    auto val = b.CreateCall(fadd, {fpu, in0, in1});    
+    auto a0 = b.CreateCall(readFifo, {in0});
+    auto b0 = b.CreateCall(readFifo, {in1});
+    auto val = b.CreateCall(fadd, {fpu, a0, b0});
     auto out = getArg(f, 2);
 
     auto writeZ = b.CreateCall(writeFifo, {val, out});
@@ -3413,20 +3443,6 @@ namespace DHLS {
     hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
     hcs.modSpecs[getArg(f, 2)] = wireSpec(width);    
 
-    // hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
-    // hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
-    // hcs.fifoSpecs[getArg(f, 2)] = FifoSpec(0, 0, FIFO_TIMED);
-
-    // This is causing an error. I need to find all constraints on
-    // starts and ends of instructions being inlined and replace them
-    // with constraints on starts and ends of each instruction in the
-    // inlined version of the program.
-
-    // In final version this will be a constraint on the return
-    // value of the call to the wrapper of the FPU. When the wrapper
-    // function is inlined the return value producing instruction
-    // will be the new constraint, and that instruction will be
-    // restricted internally by stall time constraints.
     exeConstraints.addConstraint(instrEnd(val) < instrStart(writeZ));
 
     inlineWireCalls(f, exeConstraints, interfaces);

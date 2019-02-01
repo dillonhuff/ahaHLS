@@ -183,6 +183,11 @@ namespace DHLS {
   }
 
   static inline
+  llvm::Function* fifoRead(const int width) {
+    return fifoRead(width, &getGlobalLLVMModule());
+  }  
+
+  static inline
   llvm::Function* fifoWrite(const int width, llvm::Module* m) {
     auto name = "builtin_write_fifo_" + std::to_string(width);
 
