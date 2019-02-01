@@ -2744,6 +2744,20 @@ namespace DHLS {
     toInline->eraseFromParent();
 
     // Inline constraints
+    // TODO: How to handle constraints on the return instruction,
+    // since the return instruction is not handled?
+    for (auto c : constraintsToInline.constraints) {
+      if (c->type() == CONSTRAINT_TYPE_ORDERED) {
+        Ordered* oc = static_cast<Ordered*>(c->clone());
+        auto beforeInstr = oc->before.instr;
+        auto afterInstr = oc->after.instr;        
+        oc->before.replaceInstruction(beforeInstr, map_find(beforeInstr, oldInstrsToClones));
+        oc->after.replaceInstruction(afterInstr, map_find(afterInstr, oldInstrsToClones));
+        exec.addConstraint(oc); // Add to existing constraints
+      } else {
+        assert(false);
+      }
+    }
   }
   
   void inlineWireCalls(Function* f,
