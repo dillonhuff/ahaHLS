@@ -219,6 +219,15 @@ namespace DHLS {
   //    Add some simple examples to the README
   //    Fix createFunction to return a function every time without the useless cast
 
+  // NOTE: The code for testbenches is getting really complicated. Some of that
+  // is automatic testbench generation, but some of it is just the hodgepodge of
+  // different data structures for scheduling, verilog code generation, and
+  // constraint generation. These really need to be fixed up.
+  // Ideas?
+  //  1. Merge schedule and STG creation in to one function when the schedule
+  //     does not need to be checked
+  //  2. Remove or wrap the function -> SchedulingConstraints map
+
   // NOTE: Systolic array example has correct binding by chance. The control
   // structure around the array is a tricky question. Most papers on systolic
   // arrays just show the datapath not the control logic that feeds the array.
@@ -2348,18 +2357,25 @@ namespace DHLS {
     int width = 16;
     auto iStr = to_string(width);
 
+    auto mod = llvm::make_unique<Module>("fifo use with a delay", context);
+    setGlobalLLVMModule(mod.get());
+
     StructType* tp = StructType::create(context, "builtin_fifo_" + iStr);
     cout << "type name = " << typeString(tp) << endl;
 
-    auto mod = llvm::make_unique<Module>("fifo use with a delay", context);
+    InterfaceFunctions interfaces;
+    //vector<Type*> readArgs = {tp->getPointerTo()};
+    Function* readFifo = fifoRead(width);
+    interfaces.addFunction(readFifo);
+    implementRVFifoRead(readFifo, interfaces.getConstraints(readFifo));
+    //mkFunc(readArgs, intType(width), "builtin_read_fifo_" + iStr, mod.get());
 
-    vector<Type*> readArgs = {tp->getPointerTo()};
-    Function* readFifo =
-      mkFunc(readArgs, intType(width), "builtin_read_fifo_" + iStr, mod.get());
-
-    vector<Type*> writeArgs = {tp->getPointerTo(), intType(width)};
-    Function* writeFifo =
-      mkFunc(readArgs, "builtin_write_fifo_" + iStr, mod.get());
+    //vector<Type*> writeArgs = {tp->getPointerTo(), intType(width)};
+    Function* writeFifo = fifoWrite(width);
+    interfaces.addFunction(writeFifo);
+    implementRVFifoWrite(writeFifo, interfaces.getConstraints(writeFifo));
+    //mkFunc(readArgs, "builtin_write_fifo_" + iStr, mod.get());
+    
     
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo()};
@@ -2373,12 +2389,26 @@ namespace DHLS {
     builder.CreateCall(writeFifo, {prod, getArg(f, 1)});
     builder.CreateRet(nullptr);
 
-    cout << "LLVM function" << endl;
-    cout << valueString(f) << endl;
-
     HardwareConstraints hcs = standardConstraints();
-    hcs.setCount(ADD_OP, 1);
-    Schedule s = scheduleFunction(f, hcs);
+    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
+    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
+
+    ExecutionConstraints exec;
+    inlineWireCalls(f, exec, interfaces);
+
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+    
+    // cout << "LLVM function" << endl;
+    // cout << valueString(f) << endl;
+
+    // HardwareConstraints hcs = standardConstraints();
+    // hcs.setCount(ADD_OP, 1);
+    // Schedule s = scheduleFunction(f, hcs);
 
     STG graph = buildSTG(s, f);
 
