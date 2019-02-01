@@ -109,11 +109,11 @@ namespace DHLS {
       for (auto c : exec.constraints) {
         if (c->references(toInline)) {
 
-          cout << "Replacing constraint " << *c << endl;
+          //cout << "Replacing constraint " << *c << endl;
           for (auto instr : inlinedInstrs) {
             ExecutionConstraint* newC = c->clone();
             newC->replaceInstruction(toInline, instr);
-            cout << "\tAdding replacement " << *newC << endl;
+            //cout << "\tAdding replacement " << *newC << endl;
             exec.add(newC);
           }
           exec.remove(c);
@@ -2213,6 +2213,64 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("sys_array_1_2"));
   }
 
+  void implementRVFifoRead(llvm::Function* readFifo, ExecutionConstraints& exec) {
+    auto out = getArg(readFifo, 0);
+
+    auto tp = out->getType();
+    int width = getTypeBitWidth(readFifo->getReturnType());
+      
+    auto eb = mkBB("entry_block", readFifo);
+    IRBuilder<> b(eb);
+
+    auto readInDataF = readPort("out_data", width, tp);
+    auto readReadyF = readPort("read_ready", 1, tp);
+
+    auto setValidF = writePort("read_valid", 1, tp);
+    auto stallF = stallFunction();
+
+    auto readReady = b.CreateCall(readReadyF, {out});
+    auto stallUntilReady = b.CreateCall(stallF, {readReady});
+    auto setValid1 = b.CreateCall(setValidF, {out, mkInt(1, 1)});
+    auto setValid0 = b.CreateCall(setValidF, {out, mkInt(0, 1)});
+    auto readValue = b.CreateCall(readInDataF, {out});
+
+    exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
+    exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
+    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(readValue));
+    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+      
+    b.CreateRet(readValue);
+  }
+
+  void implementRVFifoWrite(llvm::Function* writeFifo, ExecutionConstraints& exec) {
+    auto eb = mkBB("entry_block", writeFifo);
+    IRBuilder<> b(eb);
+
+    auto out = getArg(writeFifo, 1);
+
+    auto tp = out->getType();
+    int width = getValueBitWidth(getArg(writeFifo, 0));
+    
+    auto writeDataF = writePort("in_data", width, tp);
+    auto readReadyF = readPort("write_ready", 1, tp);
+
+    auto setValidF = writePort("write_valid", 1, tp);
+    auto stallF = stallFunction();
+
+    auto readReady = b.CreateCall(readReadyF, {out});
+    auto stallUntilReady = b.CreateCall(stallF, {readReady});
+    auto setValid1 = b.CreateCall(setValidF, {out, mkInt(1, 1)});
+    auto setValid0 = b.CreateCall(setValidF, {out, mkInt(0, 1)});
+    auto writeValue = b.CreateCall(writeDataF, {out, getArg(writeFifo, 0)});
+
+    exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
+    exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
+    exec.addConstraint(instrStart(setValid1) == instrStart(writeValue));
+    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+      
+    b.CreateRet(nullptr);
+  }
+  
   TEST_CASE("Builtin FIFO as argument to function") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
@@ -2230,62 +2288,12 @@ namespace DHLS {
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo = fifoRead(width);
     interfaces.addFunction(readFifo);
-    {
-      ExecutionConstraints& exec = interfaces.getConstraints(readFifo);
-      auto eb = mkBB("entry_block", readFifo);
-      IRBuilder<> b(eb);
-
-      auto readInDataF = readPort("out_data", width, tp);
-      auto readReadyF = readPort("read_ready", 1, tp);
-
-      auto setValidF = writePort("read_valid", 1, tp);
-      auto stallF = stallFunction();
-
-      auto out = getArg(readFifo, 0);
-
-      auto readReady = b.CreateCall(readReadyF, {out});
-      auto stallUntilReady = b.CreateCall(stallF, {readReady});
-      auto setValid1 = b.CreateCall(setValidF, {out, mkInt(1, 1)});
-      auto setValid0 = b.CreateCall(setValidF, {out, mkInt(0, 1)});
-      auto readValue = b.CreateCall(readInDataF, {out});
-
-      exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
-      exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
-      exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(readValue));
-      exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
-      
-      b.CreateRet(readValue);
-    }
+    implementRVFifoRead(readFifo, interfaces.getConstraints(readFifo));
 
     vector<Type*> writeArgs = {tp->getPointerTo(), intType(32)};
     Function* writeFifo = fifoWrite(width);
     interfaces.addFunction(writeFifo);
-    {
-      ExecutionConstraints& exec = interfaces.getConstraints(writeFifo);
-      auto eb = mkBB("entry_block", writeFifo);
-      IRBuilder<> b(eb);
-
-      auto writeDataF = writePort("in_data", width, tp);
-      auto readReadyF = readPort("write_ready", 1, tp);
-
-      auto setValidF = writePort("write_valid", 1, tp);
-      auto stallF = stallFunction();
-
-      auto out = getArg(writeFifo, 1);
-
-      auto readReady = b.CreateCall(readReadyF, {out});
-      auto stallUntilReady = b.CreateCall(stallF, {readReady});
-      auto setValid1 = b.CreateCall(setValidF, {out, mkInt(1, 1)});
-      auto setValid0 = b.CreateCall(setValidF, {out, mkInt(0, 1)});
-      auto writeValue = b.CreateCall(writeDataF, {out, getArg(writeFifo, 0)});
-
-      exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
-      exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
-      exec.addConstraint(instrStart(setValid1) == instrStart(writeValue));
-      exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
-      
-      b.CreateRet(nullptr);
-    }
+    implementRVFifoWrite(writeFifo, interfaces.getConstraints(writeFifo));
     
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo()};
