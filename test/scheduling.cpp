@@ -2234,12 +2234,12 @@ namespace DHLS {
     auto setValid0 = b.CreateCall(setValidF, {out, mkInt(0, 1)});
     auto readValue = b.CreateCall(readInDataF, {out});
 
+    b.CreateRet(readValue);
+    
     exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
     exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
     exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(readValue));
     exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
-      
-    b.CreateRet(readValue);
   }
 
   void implementRVFifoWrite(llvm::Function* writeFifo, ExecutionConstraints& exec) {
@@ -2262,13 +2262,13 @@ namespace DHLS {
     auto setValid1 = b.CreateCall(setValidF, {out, mkInt(1, 1)});
     auto setValid0 = b.CreateCall(setValidF, {out, mkInt(0, 1)});
     auto writeValue = b.CreateCall(writeDataF, {out, getArg(writeFifo, 0)});
-
+      
+    b.CreateRet(nullptr);
+    
     exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
     exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
     exec.addConstraint(instrStart(setValid1) == instrStart(writeValue));
     exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
-      
-    b.CreateRet(nullptr);
   }
   
   TEST_CASE("Builtin FIFO as argument to function") {
