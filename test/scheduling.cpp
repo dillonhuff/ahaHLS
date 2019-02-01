@@ -2640,11 +2640,17 @@ namespace DHLS {
   }
 
   void replaceValues(map<Value*, Value*>& argsToValues,
+                     map<Instruction*, Instruction*>& oldInstrsToClones,
                      Instruction* const clone) {
     for (int i = 0; i < (int) clone->getNumOperands(); i++) {
       Value* opI = clone->getOperand(i);
       if (contains_key(opI, argsToValues)) {
         clone->setOperand(i, map_find(opI, argsToValues));
+      } else if (Instruction::classof(opI)) {
+        auto opII = dyn_cast<Instruction>(opI);
+        if (contains_key(opII, oldInstrsToClones)) {
+          clone->setOperand(i, map_find(opII, oldInstrsToClones));
+        }
       }
     }
   }
@@ -2679,7 +2685,7 @@ namespace DHLS {
         if (!ReturnInst::classof(&instr)) {
           Instruction* clone = instr.clone();
           oldInstrsToClones[&instr] = clone;
-          replaceValues(argsToValues, clone);
+          replaceValues(argsToValues, oldInstrsToClones, clone);
           clone->insertBefore(toInline);
           inlinedInstrs.push_back(clone);
 
