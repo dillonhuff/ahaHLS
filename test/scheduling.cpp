@@ -2229,15 +2229,37 @@ namespace DHLS {
     InterfaceFunctions interfaces;
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo = fifoRead(width);
+    interfaces.addFunction(readFifo);
     {
       ExecutionConstraints& exec = interfaces.getConstraints(readFifo);
       auto eb = mkBB("entry_block", readFifo);
+      IRBuilder<> b(eb);
+
+      auto readDataF = readPort("out_data", width, tp);
+      auto readReadyF = readPort("read_ready", width, tp);
+
+      auto setValidF = writePort("read_valid", 1, tp);
+      auto stallF = stallFunction();
+
+      auto in = getArg(readFifo, 0);
+
+      auto readReady = b.CreateCall(readReadyF, {getArg(readFifo, 0)});
+      auto stallUntilReady = b.CreateCall(stallF, {readReady});
+      auto setValid1 = b.CreateCall(setValidF, {in, mkInt(1, 1)});
+      auto setValid0 = b.CreateCall(setValidF, {in, mkInt(0, 1)});
+      auto readValue = b.CreateCall(readDataF, {getArg(readFifo, 0)});
+
+      exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
+      exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
+      exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(readValue));
+      exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+      
+      b.CreateRet(readValue);
     }
-    interfaces.addFunction(readFifo);
 
     vector<Type*> writeArgs = {tp->getPointerTo(), intType(32)};
     Function* writeFifo = fifoWrite(width);
-    interfaces.addFunction(writeFifo);    
+    //interfaces.addFunction(writeFifo);    
     
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo()};
@@ -2249,11 +2271,26 @@ namespace DHLS {
     builder.CreateCall(writeFifo, {val, getArg(f, 1)});
     builder.CreateRet(nullptr);
 
+    ExecutionConstraints exec;
+    
+    inlineWireCalls(f, exec, interfaces);
+
     cout << "LLVM function" << endl;
     cout << valueString(f) << endl;
 
     HardwareConstraints hcs = standardConstraints();
-    Schedule s = scheduleFunction(f, hcs);
+    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
+    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
+
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+    
+    // HardwareConstraints hcs = standardConstraints();
+    // Schedule s = scheduleFunction(f, hcs);
 
     STG graph = buildSTG(s, f);
 
