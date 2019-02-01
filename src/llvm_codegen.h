@@ -204,6 +204,11 @@ namespace DHLS {
   }
 
   static inline
+  llvm::Function* fifoWrite(const int width) {
+    return fifoWrite(width, &getGlobalLLVMModule());
+  }  
+  
+  static inline
   llvm::Function* writePort(const std::string& portName,
                             const int width,
                             llvm::Type* argType) {

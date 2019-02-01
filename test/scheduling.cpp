@@ -2220,18 +2220,24 @@ namespace DHLS {
     int width = 32;
     auto iStr = to_string(width);
 
+    auto mod = llvm::make_unique<Module>("fifo use", context);
+    setGlobalLLVMModule(mod.get());
+    
     StructType* tp = StructType::create(context, "builtin_fifo_" + iStr);
     cout << "type name = " << typeString(tp) << endl;
 
-    auto mod = llvm::make_unique<Module>("fifo use", context);
-
+    InterfaceFunctions interfaces;
     vector<Type*> readArgs = {tp->getPointerTo()};
-    Function* readFifo =
-      mkFunc(readArgs, intType(32), "builtin_read_fifo_" + iStr, mod.get());
+    Function* readFifo = fifoRead(width);
+    {
+      ExecutionConstraints& exec = interfaces.getConstraints(readFifo);
+      auto eb = mkBB("entry_block", readFifo);
+    }
+    interfaces.addFunction(readFifo);
 
     vector<Type*> writeArgs = {tp->getPointerTo(), intType(32)};
-    Function* writeFifo =
-      mkFunc(readArgs, "builtin_write_fifo_" + iStr, mod.get());
+    Function* writeFifo = fifoWrite(width);
+    interfaces.addFunction(writeFifo);    
     
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo()};
