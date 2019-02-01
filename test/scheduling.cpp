@@ -2265,7 +2265,7 @@ namespace DHLS {
       auto eb = mkBB("entry_block", writeFifo);
       IRBuilder<> b(eb);
 
-      auto writeDataF = readPort("in_data", width, tp);
+      auto writeDataF = writePort("in_data", width, tp);
       auto readReadyF = readPort("write_ready", 1, tp);
 
       auto setValidF = writePort("write_valid", 1, tp);
@@ -2281,7 +2281,7 @@ namespace DHLS {
 
       exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
       exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
-      exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(writeValue));
+      exec.addConstraint(instrStart(setValid1) == instrStart(writeValue));
       exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
       
       b.CreateRet(nullptr);
@@ -2294,10 +2294,11 @@ namespace DHLS {
     
     IRBuilder<> builder(blk);
     auto val = builder.CreateCall(readFifo, {getArg(f, 0)});
-    builder.CreateCall(writeFifo, {val, getArg(f, 1)});
+    auto writeVal = builder.CreateCall(writeFifo, {val, getArg(f, 1)});
     builder.CreateRet(nullptr);
 
     ExecutionConstraints exec;
+    exec.addConstraint(instrEnd(val) < instrStart(writeVal));
     
     inlineWireCalls(f, exec, interfaces);
 
