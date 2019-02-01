@@ -2235,19 +2235,19 @@ namespace DHLS {
       auto eb = mkBB("entry_block", readFifo);
       IRBuilder<> b(eb);
 
-      auto readDataF = readPort("out_data", width, tp);
-      auto readReadyF = readPort("read_ready", width, tp);
+      auto readInDataF = readPort("out_data", width, tp);
+      auto readReadyF = readPort("read_ready", 1, tp);
 
       auto setValidF = writePort("read_valid", 1, tp);
       auto stallF = stallFunction();
 
-      auto in = getArg(readFifo, 0);
+      auto out = getArg(readFifo, 0);
 
-      auto readReady = b.CreateCall(readReadyF, {getArg(readFifo, 0)});
+      auto readReady = b.CreateCall(readReadyF, {out});
       auto stallUntilReady = b.CreateCall(stallF, {readReady});
-      auto setValid1 = b.CreateCall(setValidF, {in, mkInt(1, 1)});
-      auto setValid0 = b.CreateCall(setValidF, {in, mkInt(0, 1)});
-      auto readValue = b.CreateCall(readDataF, {getArg(readFifo, 0)});
+      auto setValid1 = b.CreateCall(setValidF, {out, mkInt(1, 1)});
+      auto setValid0 = b.CreateCall(setValidF, {out, mkInt(0, 1)});
+      auto readValue = b.CreateCall(readInDataF, {out});
 
       exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
       exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
@@ -2259,7 +2259,33 @@ namespace DHLS {
 
     vector<Type*> writeArgs = {tp->getPointerTo(), intType(32)};
     Function* writeFifo = fifoWrite(width);
-    //interfaces.addFunction(writeFifo);    
+    interfaces.addFunction(writeFifo);
+    {
+      ExecutionConstraints& exec = interfaces.getConstraints(writeFifo);
+      auto eb = mkBB("entry_block", writeFifo);
+      IRBuilder<> b(eb);
+
+      auto writeDataF = readPort("in_data", width, tp);
+      auto readReadyF = readPort("write_ready", 1, tp);
+
+      auto setValidF = writePort("write_valid", 1, tp);
+      auto stallF = stallFunction();
+
+      auto out = getArg(writeFifo, 1);
+
+      auto readReady = b.CreateCall(readReadyF, {out});
+      auto stallUntilReady = b.CreateCall(stallF, {readReady});
+      auto setValid1 = b.CreateCall(setValidF, {out, mkInt(1, 1)});
+      auto setValid0 = b.CreateCall(setValidF, {out, mkInt(0, 1)});
+      auto writeValue = b.CreateCall(writeDataF, {out, getArg(writeFifo, 0)});
+
+      exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
+      exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
+      exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(writeValue));
+      exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+      
+      b.CreateRet(nullptr);
+    }
     
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo()};
@@ -2288,9 +2314,6 @@ namespace DHLS {
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
-    
-    // HardwareConstraints hcs = standardConstraints();
-    // Schedule s = scheduleFunction(f, hcs);
 
     STG graph = buildSTG(s, f);
 
