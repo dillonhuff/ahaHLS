@@ -2771,15 +2771,8 @@ namespace DHLS {
 
       for (auto& bb : f->getBasicBlockList()) {
         for (auto& instr : bb) {
-          if (isBuiltinFifoCall(&instr)) {
 
-            CallInst* call = dyn_cast<CallInst>(&instr);
-            ExecutionConstraints execToInline;
-            inlineFunctionWithConstraints(f, exec, call, execToInline);
-            replaced = true;
-
-            break;
-          } else if (CallInst::classof(&instr)) {
+          if (CallInst::classof(&instr)) {
             CallInst* call = dyn_cast<CallInst>(&instr);
 
             Function* inlineFunc = call->getCalledFunction();
@@ -2990,10 +2983,14 @@ namespace DHLS {
     setGlobalLLVMModule(mod.get());
 
     StructType* tp = fifoType(width);
+
+    InterfaceFunctions interfaces;
     Function* readFifo = fifoRead(width, mod.get());
-    implementWireRead(readFifo);    
+    implementWireRead(readFifo);
+    interfaces.addFunction(readFifo);
     Function* writeFifo = fifoWrite(width, mod.get());
     implementWireWrite(writeFifo);
+    interfaces.addFunction(writeFifo);
 
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo()};
@@ -3029,7 +3026,6 @@ namespace DHLS {
     
     hcs.setCount(ADD_OP, 1);
 
-    InterfaceFunctions interfaces;
     ExecutionConstraints exec;
     inlineWireCalls(f, exec, interfaces);
 
@@ -3081,16 +3077,15 @@ namespace DHLS {
     setGlobalLLVMModule(mod.get());
 
     StructType* tp = fifoType(width);
-    
+
+    InterfaceFunctions interfaces;    
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo = fifoRead(width, mod.get());
-    implementWireRead(readFifo);    
+    implementWireRead(readFifo);
+    interfaces.addFunction(readFifo);
     Function* writeFifo = fifoWrite(width, mod.get());
     implementWireWrite(writeFifo);
-
-    // Function* readFifo = fifoRead(width, mod.get());
-
-    // Function* writeFifo = fifoWrite(width, mod.get());
+    interfaces.addFunction(writeFifo);
 
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo(),
@@ -3125,7 +3120,6 @@ namespace DHLS {
     // TODO: Set latency of fadd to 15?
     hcs.setCount(FADD_OP, 1);
 
-    InterfaceFunctions interfaces;    
     ExecutionConstraints exec;
     inlineWireCalls(f, exec, interfaces);
 
@@ -3202,10 +3196,14 @@ namespace DHLS {
 
     StructType* tp = fifoType(width);
     vector<Type*> readArgs = {tp->getPointerTo()};
+
+    InterfaceFunctions interfaces;        
     Function* readFifo = fifoRead(width, mod.get());
     implementWireRead(readFifo);
+    interfaces.addFunction(readFifo);
     Function* writeFifo = fifoWrite(width, mod.get());
     implementWireWrite(writeFifo);
+    interfaces.addFunction(writeFifo);
 
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo()};
@@ -3238,7 +3236,6 @@ namespace DHLS {
 
     hcs.setCount(FADD_OP, 1);
 
-    InterfaceFunctions interfaces;        
     ExecutionConstraints exec;
     inlineWireCalls(f, exec, interfaces);
 
