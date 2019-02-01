@@ -14,6 +14,203 @@ using namespace std;
 
 namespace DHLS {
 
+  class InterfaceFunctions {
+  public:
+    std::map<llvm::Function*, ExecutionConstraints> constraints;
+
+    void addFunction(Function* const f) {
+      constraints[f] = ExecutionConstraints();
+    }
+
+    ExecutionConstraints& getConstraints(llvm::Function* const f) {
+      assert(contains_key(f, constraints));
+      return constraints.find(f)->second;
+    }
+
+    bool containsFunction(llvm::Function* const f) const {
+      return contains_key(f, constraints);
+    }
+    
+  };
+
+  void replaceValues(map<Value*, Value*>& argsToValues,
+                     map<Instruction*, Instruction*>& oldInstrsToClones,
+                     Instruction* const clone) {
+    for (int i = 0; i < (int) clone->getNumOperands(); i++) {
+      Value* opI = clone->getOperand(i);
+      if (contains_key(opI, argsToValues)) {
+        clone->setOperand(i, map_find(opI, argsToValues));
+      } else if (Instruction::classof(opI)) {
+        auto opII = dyn_cast<Instruction>(opI);
+        if (contains_key(opII, oldInstrsToClones)) {
+          clone->setOperand(i, map_find(opII, oldInstrsToClones));
+        }
+      }
+    }
+  }
+
+  void inlineFunctionWithConstraints(Function* const f,
+                                     ExecutionConstraints& exec,
+                                     CallInst* const toInline,
+                                     ExecutionConstraints& constraintsToInline) {
+
+    cout << "Inlining " << valueString(toInline) << endl;
+    cout << "# of operands = " << toInline->getNumOperands() << endl;
+    
+    map<Value*, Value*> argsToValues;
+    Function* called = toInline->getCalledFunction();
+    for (int i = 0; i < (int) toInline->getNumOperands() - 1; i++) {
+      cout << "i = " << i << endl;
+      cout << "Operand " << i << " = " << valueString(toInline->getOperand(i)) << endl;
+      argsToValues[getArg(called, i)] = toInline->getOperand(i);
+    }
+
+    assert(called->getBasicBlockList().size() == 1);
+
+    cout << "Built value list" << endl;
+    
+    map<Instruction*, Instruction*> oldInstrsToClones;
+    vector<Instruction*> inlinedInstrs;
+    // Inline the constraints
+    Value* finalRetVal = nullptr;
+
+    for (auto& bb : called->getBasicBlockList()) {
+      for (auto& instr : bb) {
+        if (!ReturnInst::classof(&instr)) {
+          Instruction* clone = instr.clone();
+          oldInstrsToClones[&instr] = clone;
+          replaceValues(argsToValues, oldInstrsToClones, clone);
+          clone->insertBefore(toInline);
+          inlinedInstrs.push_back(clone);
+
+        } else {
+
+          if (instr.getNumOperands() > 0) {
+            assert(instr.getNumOperands() == 1);
+
+            Value* retVal = instr.getOperand(0);
+
+            assert(Instruction::classof(retVal));
+
+            finalRetVal = map_find(dyn_cast<Instruction>(retVal), oldInstrsToClones);
+          }
+        }
+      }
+    }
+
+    // In general I want to do the following:
+    // For every constraint involving the call to be inlined, for
+    // every instruction in the inlined version, create a new instance
+    // of that constraint using the current instruction
+    bool replaced = true;
+    while (replaced) {
+      replaced = false;
+
+      for (auto c : exec.constraints) {
+        if (c->references(toInline)) {
+
+          cout << "Replacing constraint " << *c << endl;
+          for (auto instr : inlinedInstrs) {
+            ExecutionConstraint* newC = c->clone();
+            newC->replaceInstruction(toInline, instr);
+            cout << "\tAdding replacement " << *newC << endl;
+            exec.add(newC);
+          }
+          exec.remove(c);
+
+          replaced = true;
+          break;
+        }
+      }
+    }
+
+    if (finalRetVal != nullptr) {
+      toInline->replaceAllUsesWith(finalRetVal);
+      // Replace constraints on toInline
+      Instruction* replacementRet = dyn_cast<Instruction>(finalRetVal);
+      for (auto c : exec.constraints) {
+        c->replaceInstruction(toInline, replacementRet);
+      }
+    }
+
+
+    // Remove old call
+    toInline->eraseFromParent();
+
+    // Inline constraints
+    // TODO: How to handle constraints on the return instruction,
+    // since the return instruction is not handled?
+    for (auto c : constraintsToInline.constraints) {
+      if (c->type() == CONSTRAINT_TYPE_ORDERED) {
+        Ordered* oc = static_cast<Ordered*>(c->clone());
+        auto beforeInstr = oc->before.instr;
+        auto afterInstr = oc->after.instr;        
+        oc->before.replaceInstruction(beforeInstr, map_find(beforeInstr, oldInstrsToClones));
+        oc->after.replaceInstruction(afterInstr, map_find(afterInstr, oldInstrsToClones));
+        exec.addConstraint(oc); // Add to existing constraints
+      } else {
+        assert(false);
+      }
+    }
+  }
+  
+  void inlineWireCalls(Function* f,
+                       ExecutionConstraints& exec,
+                       InterfaceFunctions& interfaces) {
+    bool replaced = true;
+    vector<Instruction*> reads;
+
+    while (replaced) {
+      replaced = false;
+
+      for (auto& bb : f->getBasicBlockList()) {
+        for (auto& instr : bb) {
+
+          if (CallInst::classof(&instr)) {
+            CallInst* call = dyn_cast<CallInst>(&instr);
+
+            Function* inlineFunc = call->getCalledFunction();
+            if (interfaces.containsFunction(inlineFunc)) {
+
+              inlineFunctionWithConstraints(f, exec, call, interfaces.getConstraints(inlineFunc));
+              replaced = true;
+            
+              break;
+            }
+          }
+        }
+
+        if (replaced) {
+          break;
+        }
+      }
+    }
+
+  }
+  
+  ModuleSpec fifoSpec(int width, int depth) {
+    map<string, Port> fifoPorts = {
+      {"in_data", inputPort(width, "in_data")},
+      {"read_valid", inputPort(1, "read_valid")},
+      {"write_valid", inputPort(width, "write_valid")},
+      {"rst", inputPort(1, "rst")},
+
+      {"out_data", outputPort(width, "out_data")},
+      {"read_ready", outputPort(1, "read_ready")},
+      {"write_ready", outputPort(1, "write_ready")}
+    };
+    
+    return {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "fifo", fifoPorts};
+  }
+
+  ModuleSpec wireSpec(int width) {
+    map<string, Port> wirePorts = {
+      {"in_data", inputPort(width, "in_data")},
+      {"out_data", outputPort(width, "out_data")}};
+    
+    return {{{"WIDTH", to_string(width)}}, "wire", wirePorts};
+  }
+  
   // Q: System TODOs:
   // A: Remove useless address fields from registers (allow custom memory interfaces)
   //    Add an "I dont care about default values to this FU" option?
@@ -2533,25 +2730,6 @@ namespace DHLS {
     
   }
 
-  class InterfaceFunctions {
-  public:
-    std::map<llvm::Function*, ExecutionConstraints> constraints;
-
-    void addFunction(Function* const f) {
-      constraints[f] = ExecutionConstraints();
-    }
-
-    ExecutionConstraints& getConstraints(llvm::Function* const f) {
-      assert(contains_key(f, constraints));
-      return constraints.find(f)->second;
-    }
-
-    bool containsFunction(llvm::Function* const f) const {
-      return contains_key(f, constraints);
-    }
-    
-  };
-
   void inlineFifoCalls(Function* f,
                        ExecutionConstraints& exec) {
     bool replaced = true;
@@ -2637,184 +2815,6 @@ namespace DHLS {
         }
       }
     }
-  }
-
-  void replaceValues(map<Value*, Value*>& argsToValues,
-                     map<Instruction*, Instruction*>& oldInstrsToClones,
-                     Instruction* const clone) {
-    for (int i = 0; i < (int) clone->getNumOperands(); i++) {
-      Value* opI = clone->getOperand(i);
-      if (contains_key(opI, argsToValues)) {
-        clone->setOperand(i, map_find(opI, argsToValues));
-      } else if (Instruction::classof(opI)) {
-        auto opII = dyn_cast<Instruction>(opI);
-        if (contains_key(opII, oldInstrsToClones)) {
-          clone->setOperand(i, map_find(opII, oldInstrsToClones));
-        }
-      }
-    }
-  }
-
-  void inlineFunctionWithConstraints(Function* const f,
-                                     ExecutionConstraints& exec,
-                                     CallInst* const toInline,
-                                     ExecutionConstraints& constraintsToInline) {
-
-    cout << "Inlining " << valueString(toInline) << endl;
-    cout << "# of operands = " << toInline->getNumOperands() << endl;
-    
-    map<Value*, Value*> argsToValues;
-    Function* called = toInline->getCalledFunction();
-    for (int i = 0; i < (int) toInline->getNumOperands() - 1; i++) {
-      cout << "i = " << i << endl;
-      cout << "Operand " << i << " = " << valueString(toInline->getOperand(i)) << endl;
-      argsToValues[getArg(called, i)] = toInline->getOperand(i);
-    }
-
-    assert(called->getBasicBlockList().size() == 1);
-
-    cout << "Built value list" << endl;
-    
-    map<Instruction*, Instruction*> oldInstrsToClones;
-    vector<Instruction*> inlinedInstrs;
-    // Inline the constraints
-    Value* finalRetVal = nullptr;
-
-    for (auto& bb : called->getBasicBlockList()) {
-      for (auto& instr : bb) {
-        if (!ReturnInst::classof(&instr)) {
-          Instruction* clone = instr.clone();
-          oldInstrsToClones[&instr] = clone;
-          replaceValues(argsToValues, oldInstrsToClones, clone);
-          clone->insertBefore(toInline);
-          inlinedInstrs.push_back(clone);
-
-        } else {
-
-          if (instr.getNumOperands() > 0) {
-            assert(instr.getNumOperands() == 1);
-
-            Value* retVal = instr.getOperand(0);
-
-            assert(Instruction::classof(retVal));
-
-            finalRetVal = map_find(dyn_cast<Instruction>(retVal), oldInstrsToClones);
-          }
-        }
-      }
-    }
-
-    // In general I want to do the following:
-    // For every constraint involving the call to be inlined, for
-    // every instruction in the inlined version, create a new instance
-    // of that constraint using the current instruction
-    bool replaced = true;
-    while (replaced) {
-      replaced = false;
-
-      for (auto c : exec.constraints) {
-        if (c->references(toInline)) {
-
-          cout << "Replacing constraint " << *c << endl;
-          for (auto instr : inlinedInstrs) {
-            ExecutionConstraint* newC = c->clone();
-            newC->replaceInstruction(toInline, instr);
-            cout << "\tAdding replacement " << *newC << endl;
-            exec.add(newC);
-          }
-          exec.remove(c);
-
-          replaced = true;
-          break;
-        }
-      }
-    }
-
-    if (finalRetVal != nullptr) {
-      toInline->replaceAllUsesWith(finalRetVal);
-      // Replace constraints on toInline
-      Instruction* replacementRet = dyn_cast<Instruction>(finalRetVal);
-      for (auto c : exec.constraints) {
-        c->replaceInstruction(toInline, replacementRet);
-      }
-    }
-
-
-    // Remove old call
-    toInline->eraseFromParent();
-
-    // Inline constraints
-    // TODO: How to handle constraints on the return instruction,
-    // since the return instruction is not handled?
-    for (auto c : constraintsToInline.constraints) {
-      if (c->type() == CONSTRAINT_TYPE_ORDERED) {
-        Ordered* oc = static_cast<Ordered*>(c->clone());
-        auto beforeInstr = oc->before.instr;
-        auto afterInstr = oc->after.instr;        
-        oc->before.replaceInstruction(beforeInstr, map_find(beforeInstr, oldInstrsToClones));
-        oc->after.replaceInstruction(afterInstr, map_find(afterInstr, oldInstrsToClones));
-        exec.addConstraint(oc); // Add to existing constraints
-      } else {
-        assert(false);
-      }
-    }
-  }
-  
-  void inlineWireCalls(Function* f,
-                       ExecutionConstraints& exec,
-                       InterfaceFunctions& interfaces) {
-    bool replaced = true;
-    vector<Instruction*> reads;
-
-    while (replaced) {
-      replaced = false;
-
-      for (auto& bb : f->getBasicBlockList()) {
-        for (auto& instr : bb) {
-
-          if (CallInst::classof(&instr)) {
-            CallInst* call = dyn_cast<CallInst>(&instr);
-
-            Function* inlineFunc = call->getCalledFunction();
-            if (interfaces.containsFunction(inlineFunc)) {
-
-              inlineFunctionWithConstraints(f, exec, call, interfaces.getConstraints(inlineFunc));
-              replaced = true;
-            
-              break;
-            }
-          }
-        }
-
-        if (replaced) {
-          break;
-        }
-      }
-    }
-
-  }
-  
-  ModuleSpec fifoSpec(int width, int depth) {
-    map<string, Port> fifoPorts = {
-      {"in_data", inputPort(width, "in_data")},
-      {"read_valid", inputPort(1, "read_valid")},
-      {"write_valid", inputPort(width, "write_valid")},
-      {"rst", inputPort(1, "rst")},
-
-      {"out_data", outputPort(width, "out_data")},
-      {"read_ready", outputPort(1, "read_ready")},
-      {"write_ready", outputPort(1, "write_ready")}
-    };
-    
-    return {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "fifo", fifoPorts};
-  }
-
-  ModuleSpec wireSpec(int width) {
-    map<string, Port> wirePorts = {
-      {"in_data", inputPort(width, "in_data")},
-      {"out_data", outputPort(width, "out_data")}};
-    
-    return {{{"WIDTH", to_string(width)}}, "wire", wirePorts};
   }
 
   // TODO: Convert this test to use definitions of functions and constraints
