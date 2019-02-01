@@ -1078,7 +1078,7 @@ namespace DHLS {
     void addConstraints(SchedulingProblem& p,
                         Function* f) {
       for (auto c : constraints) {
-        std::cout << "Adding constraint " << *c << " to problem" << std::endl;
+        //std::cout << "Adding constraint " << *c << " to problem" << std::endl;
         c->addSelfTo(p, f);
       }
     }

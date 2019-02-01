@@ -259,29 +259,29 @@ module sys_array_2x2_tb();
    
    sys_array_2x2 dut(.clk(clk), .rst(rst), .valid(valid),
 
-                     .fifo_0_out_data(out_data0),
-                     .fifo_0_read_valid(read_valid0),
-                     .fifo_0_read_ready(read_ready0),                
+                     .arg_0_out_data(out_data0),
+                     .arg_0_read_valid(read_valid0),
+                     .arg_0_read_ready(read_ready0),                
 
-                     .fifo_1_out_data(out_data1),
-                     .fifo_1_read_valid(read_valid1),
-                     .fifo_1_read_ready(read_ready1),                
+                     .arg_1_out_data(out_data1),
+                     .arg_1_read_valid(read_valid1),
+                     .arg_1_read_ready(read_ready1),                
 
-                     .fifo_2_out_data(out_data2),
-                     .fifo_2_read_valid(read_valid2),
-                     .fifo_2_read_ready(read_ready2),                
+                     .arg_2_out_data(out_data2),
+                     .arg_2_read_valid(read_valid2),
+                     .arg_2_read_ready(read_ready2),                
 
-                     .fifo_3_out_data(out_data3),
-                     .fifo_3_read_valid(read_valid3),
-                     .fifo_3_read_ready(read_ready3),
+                     .arg_3_out_data(out_data3),
+                     .arg_3_read_valid(read_valid3),
+                     .arg_3_read_ready(read_ready3),
 
-                     .fifo_4_in_data(in_data4),
-                     .fifo_4_write_valid(write_valid4),
-                     .fifo_4_write_ready(write_ready4),
+                     .arg_4_in_data(in_data4),
+                     .arg_4_write_valid(write_valid4),
+                     .arg_4_write_ready(write_ready4),
 
-                     .fifo_5_in_data(in_data5),
-                     .fifo_5_write_valid(write_valid5),
-                     .fifo_5_write_ready(write_ready5),
+                     .arg_5_in_data(in_data5),
+                     .arg_5_write_valid(write_valid5),
+                     .arg_5_write_ready(write_ready5),
 
                      .global_state_dbg(global_state_dbg)
                      );
