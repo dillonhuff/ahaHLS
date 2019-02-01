@@ -62,6 +62,21 @@ namespace DHLS {
 
     return srUser;
   }
+
+  static inline
+  llvm::Function* mkFunc(std::vector<llvm::Type*>& inputs,
+                         llvm::Type* outputType,
+                         const std::string& funcName) {
+    return mkFunc(inputs, outputType, funcName, &getGlobalLLVMModule());
+  }  
+
+  static inline
+  llvm::Function* mkFunc(std::vector<llvm::Type*> inputs,
+                         llvm::Type* outputType,
+                         const std::string& funcName) {
+    auto inCpy = inputs;
+    return mkFunc(inCpy, outputType, funcName, &getGlobalLLVMModule());
+  }  
   
   static inline
   llvm::Function* mkFunc(std::vector<llvm::Type*>& inputs,

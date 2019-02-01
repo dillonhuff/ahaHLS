@@ -3281,6 +3281,92 @@ namespace DHLS {
     interfaces.addFunction(writeFifo);
     implementWireWrite(writeFifo);
 
+    auto fpuType =
+      llvm::StructType::create(getGlobalLLVMContext(),
+                               "builtin_fadd");
+    
+    Function* fadd =
+      mkFunc({fpuType, intType(width), intType(width)}, intType(width), "jd_fadd");
+    interfaces.addFunction(fadd);
+    {
+      // TODO: Implement fadd and add execution constraints
+      ExecutionConstraints& exec = interfaces.getConstraints(fadd);
+      auto entryBlock = mkBB("entry_block", fadd);
+      IRBuilder<> b(entryBlock);
+      auto f = fadd;
+
+      auto fpu = getArg(f, 0);
+      auto a = getArg(f, 1);
+      auto b0 = getArg(f, 2);
+
+      // Interface with floating point adder
+      auto writeRst = writePort("rst", 1, fpuType);
+      auto writeA = writePort("input_a", 32, fpuType);
+      auto writeAStb = writePort("input_a_stb", 1, fpuType);
+
+      auto writeB = writePort("input_b", 32, fpuType);
+      auto writeBStb = writePort("input_b_stb", 1, fpuType);
+      auto stall = stallFunction();
+
+      auto readAAck = readPort("input_a_ack", 1, fpuType);
+      auto readBAck = readPort("input_b_ack", 1, fpuType);
+      auto readZStb = readPort("output_z_stb", 1, fpuType);
+
+      auto rst0 = b.CreateCall(writeRst, {fpu, mkInt(1, 1)});
+      // Wait until next cycle
+      auto rst1 = b.CreateCall(writeRst, {fpu, mkInt(0, 1)});
+
+      exec.endsBeforeStarts(rst0, rst1);
+
+      auto wA = b.CreateCall(writeA, {fpu, a});
+      auto wAStb = b.CreateCall(writeAStb, {fpu, mkInt(1, 1)});
+
+      exec.startSameTime(rst1, wA);    
+      exec.startSameTime(wA, wAStb);    
+
+      // Wait for input_a_ack == 1, and then wait 1 more cycle
+      auto aAck = b.CreateCall(readAAck, {fpu});
+      auto stallUntilAAck = b.CreateCall(stall, {aAck});
+
+      auto wAStb0 = b.CreateCall(writeAStb, {fpu, mkInt(0, 1)});
+      auto wB = b.CreateCall(writeB, {fpu, b0});
+      auto wBStb = b.CreateCall(writeBStb, {fpu, mkInt(1, 1)});
+
+      auto bAck = b.CreateCall(readBAck, {fpu});
+      auto stallUntilBAck = b.CreateCall(stall, {bAck});
+    
+      // Wait one or two cycles?
+      auto wBStb0 = b.CreateCall(writeBStb, {fpu, mkInt(0, 1)});
+
+      // Wait at least one cycle after input_b_stb == 1, for output_z_stb == 1
+      auto zStb = b.CreateCall(readZStb, {fpu});
+      auto stallUntilZStb = b.CreateCall(stall, {zStb});
+      auto val = b.CreateCall(readPort("output_z", 32, fpuType), {fpu});
+
+      // A / B stall
+      exec.addConstraint(instrStart(aAck) == instrEnd(wAStb));
+      exec.startsBeforeStarts(aAck, wAStb0);
+      exec.addConstraint(instrStart(stallUntilAAck) == instrEnd(aAck));
+
+      exec.startSameTime(wA, wAStb);
+
+      exec.addConstraint(instrStart(bAck) == instrEnd(wBStb));
+      exec.endsBeforeStarts(bAck, wBStb0);
+      exec.addConstraint(instrStart(stallUntilBAck) == instrEnd(bAck));
+      exec.startSameTime(wB, wBStb);    
+
+      // Wait for A to be written before writing b
+      exec.addConstraint(instrEnd(aAck) < instrStart(wB));
+
+      // Wait for b to be acknowledged before reading Z
+      exec.addConstraint(instrEnd(bAck) < instrStart(val));
+
+      exec.startSameTime(val, zStb);
+      exec.startSameTime(stallUntilZStb, zStb);        
+      
+      b.CreateRet(val);
+    }
+
     ExecutionConstraints exeConstraints;
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo(),
@@ -3290,62 +3376,16 @@ namespace DHLS {
     auto blk = mkBB("entry_block", f);
     IRBuilder<> b(blk);
 
+    auto fpu = b.CreateAlloca(fpuType, nullptr, "fpu_0");
+    
     auto in0 = getArg(f, 0);
     auto in1 = getArg(f, 1);
     auto a = b.CreateCall(readFifo, {in0});
     auto b0 = b.CreateCall(readFifo, {in1});
 
-    // Create transaction constraints data structure?
-
-    // Interface with floating point adder
-    auto fpuType =
-      llvm::StructType::create(getGlobalLLVMContext(),
-                               "builtin_fadd");
-    auto writeRst = writePort("rst", 1, fpuType);
-    auto writeA = writePort("input_a", 32, fpuType);
-    auto writeAStb = writePort("input_a_stb", 1, fpuType);
-
-    auto writeB = writePort("input_b", 32, fpuType);
-    auto writeBStb = writePort("input_b_stb", 1, fpuType);
-    auto stall = stallFunction();
-
-    auto readAAck = readPort("input_a_ack", 1, fpuType);
-    auto readBAck = readPort("input_b_ack", 1, fpuType);
-    auto readZStb = readPort("output_z_stb", 1, fpuType);
-
-    auto fpu = b.CreateAlloca(fpuType, nullptr, "fpu_0");
-    auto rst0 = b.CreateCall(writeRst, {fpu, mkInt(1, 1)});
-    // Wait until next cycle
-    auto rst1 = b.CreateCall(writeRst, {fpu, mkInt(0, 1)});
-
-    exeConstraints.endsBeforeStarts(rst0, rst1);
-
-    auto wA = b.CreateCall(writeA, {fpu, a});
-    auto wAStb = b.CreateCall(writeAStb, {fpu, mkInt(1, 1)});
-
-    exeConstraints.startSameTime(rst1, wA);    
-    exeConstraints.startSameTime(wA, wAStb);    
-
-    // Wait for input_a_ack == 1, and then wait 1 more cycle
-    auto aAck = b.CreateCall(readAAck, {fpu});
-    auto stallUntilAAck = b.CreateCall(stall, {aAck});
-
-    auto wAStb0 = b.CreateCall(writeAStb, {fpu, mkInt(0, 1)});
-    auto wB = b.CreateCall(writeB, {fpu, b0});
-    auto wBStb = b.CreateCall(writeBStb, {fpu, mkInt(1, 1)});
-
-    auto bAck = b.CreateCall(readBAck, {fpu});
-    auto stallUntilBAck = b.CreateCall(stall, {bAck});
-    
-    // Wait one or two cycles?
-    auto wBStb0 = b.CreateCall(writeBStb, {fpu, mkInt(0, 1)});
-
-    // Wait at least one cycle after input_b_stb == 1, for output_z_stb == 1
-    auto zStb = b.CreateCall(readZStb, {fpu});
-    auto stallUntilZStb = b.CreateCall(stall, {zStb});
-    auto val = b.CreateCall(readPort("output_z", 32, fpuType), {fpu});
-
+    auto val = b.CreateCall(fadd, {fpu, in0, in1});    
     auto out = getArg(f, 2);
+
     auto writeZ = b.CreateCall(writeFifo, {val, out});
     b.CreateRet(nullptr);
 
@@ -3376,27 +3416,6 @@ namespace DHLS {
     // hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
     // hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
     // hcs.fifoSpecs[getArg(f, 2)] = FifoSpec(0, 0, FIFO_TIMED);
-
-    // A / B stall
-    exeConstraints.addConstraint(instrStart(aAck) == instrEnd(wAStb));
-    exeConstraints.startsBeforeStarts(aAck, wAStb0);
-    exeConstraints.addConstraint(instrStart(stallUntilAAck) == instrEnd(aAck));
-
-    exeConstraints.startSameTime(wA, wAStb);
-
-    exeConstraints.addConstraint(instrStart(bAck) == instrEnd(wBStb));
-    exeConstraints.endsBeforeStarts(bAck, wBStb0);
-    exeConstraints.addConstraint(instrStart(stallUntilBAck) == instrEnd(bAck));
-    exeConstraints.startSameTime(wB, wBStb);    
-
-    // Wait for A to be written before writing b
-    exeConstraints.addConstraint(instrEnd(aAck) < instrStart(wB));
-
-    // Wait for b to be acknowledged before reading Z
-    exeConstraints.addConstraint(instrEnd(bAck) < instrStart(val));
-
-    exeConstraints.startSameTime(val, zStb);
-    exeConstraints.startSameTime(stallUntilZStb, zStb);        
 
     // This is causing an error. I need to find all constraints on
     // starts and ends of instructions being inlined and replace them
