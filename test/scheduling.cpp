@@ -199,7 +199,7 @@ namespace DHLS {
       {"wen_0", inputPort(1, "wen_0")},            
       {"rst", inputPort(1, "rst")},
 
-      {"rdata_0", outputPort(1, "raddr_0")}
+      {"rdata_0", outputPort(1, "rdata_0")}
     };
     
     return {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "RAM", ramPorts};
@@ -3588,6 +3588,7 @@ namespace DHLS {
   class DynArch {
     Function* f;
     ExecutionConstraints& exe;
+    HardwareConstraints& hcs;
 
     Wire globalTime;
 
@@ -3639,6 +3640,9 @@ namespace DHLS {
         if (LoadInst::classof(instr)) {
           cout << "loading rdata" << endl;
           unitOut = map_find(string("rdata_0"), unit.outWires).name;
+        } else if (isBuiltinPortRead(instr)) {
+          string name = getPortName(instr);
+          unitOut = map_find(name, unit.outWires).name;
         } else {
           unitOut = map_find(string("out"), unit.outWires).name;
         }
@@ -3724,6 +3728,26 @@ namespace DHLS {
 
         Wire valid = addReg(1, "valid_reg");
         inWires = {{"valid", valid}};
+      } else if (isBuiltinPortCall(instr)) {
+        auto fuPtr = instr->getOperand(0);
+        assert(contains_key(fuPtr, hcs.modSpecs));
+
+        if (Argument::classof(fuPtr)) {
+          isExternal = true;
+        }
+
+        ModuleSpec modSpec = map_find(fuPtr, hcs.modSpecs);
+        modName = modSpec.name;
+        unitName = fuPtr->getName();
+
+        for (auto pt : modSpec.ports) {
+          if (pt.second.input()) {
+            inWires.insert({pt.first, {true, pt.second.width, unitName + "_" + pt.second.name}});
+          } else {
+            outWires.insert({pt.first, {false, pt.second.width, unitName + "_" + pt.second.name}});            
+          }
+        }
+        
       }
 
       if (LoadInst::classof(instr) ||
@@ -3745,7 +3769,7 @@ namespace DHLS {
       return unit;
     }
     
-    DynArch(Function* f_, ExecutionConstraints& exe_) : f(f_), exe(exe_) {
+    DynArch(Function* f_, ExecutionConstraints& exe_, HardwareConstraints& hcs_) : f(f_), exe(exe_), hcs(hcs_) {
       globalTime = {true, 32, "clocks_since_reset"};
       allWires.push_back(globalTime);
       
@@ -3949,6 +3973,17 @@ namespace DHLS {
     pts.push_back(outputPort(32, "wdata_0"));
     pts.push_back(outputPort(1, "wen_0"));
 
+    for (auto unit : arch.functionalUnits) {
+      for (auto w : unit.portWires) {
+        pts.push_back(wireToOutputPort(w.second));
+      }
+
+      for (auto w : unit.outWires) {
+        pts.push_back(wireToInputPort(w.second));
+      }
+
+    }
+
     return pts;
   }
 
@@ -4058,6 +4093,12 @@ namespace DHLS {
           portSetting += unit.portWires["wen_0"].name + " = 1;";
         } else if (ReturnInst::classof(&instr)) {
           portSetting += unit.portWires["valid"].name + " = 1;";          
+        } else if (isBuiltinPortRead(&instr)) {
+          string portName = getPortName(&instr);
+          resultValue = unit.outWires[portName].name;          
+        } else if (isBuiltinPortWrite(&instr)) {
+          string portName = getPortName(&instr);          
+          portSetting += unit.portWires[portName].name + " = " + arch.outputName(instr.getOperand(1)) + "; ";
         }
 
         addAlwaysBlock({}, "if (" + arch.couldStartFlag(&instr) + ") begin " + portSetting + " end", comps);
@@ -4115,7 +4156,8 @@ namespace DHLS {
     exec.add(instrStart(ret) == instrEnd(ret));
 
     // Create architecture that respects these constraints
-    DynArch arch(srUser, exec);
+    HardwareConstraints hcs;    
+    DynArch arch(srUser, exec, hcs);
 
     // Move result
     ofstream out(string(arch.getFunction()->getName()) + ".v");
@@ -4188,7 +4230,7 @@ namespace DHLS {
     FunctionType *tp =
       FunctionType::get(Type::getVoidTy(context), inputs, false);
     Function *srUser =
-      Function::Create(tp, Function::ExternalLinkage, "dynamic_arch", mod.get());
+      Function::Create(tp, Function::ExternalLinkage, "dynamic_arch_sram_class", mod.get());
 
     int argId = 0;
     for (auto &Arg : srUser->args()) {
@@ -4226,14 +4268,14 @@ namespace DHLS {
     HardwareConstraints hcs;
     hcs.modSpecs[getArg(srUser, 0)] = ramSpec(width, depth);
     // Create architecture that respects these constraints
-    DynArch arch(srUser, exec);
+    DynArch arch(srUser, exec, hcs);
 
     // Move result
     ofstream out(string(arch.getFunction()->getName()) + ".v");
     emitVerilog(out, arch);
     out.close();
 
-    REQUIRE(runIVerilogTB("dynamic_arch"));
+    REQUIRE(runIVerilogTB("dynamic_arch_sram_class"));
     
   }
   

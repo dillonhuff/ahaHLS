@@ -19,7 +19,7 @@ namespace DHLS {
   Port outputPort(const int width, const std::string& name);
   Port outputRegPort(const int width, const std::string& name);  
   Port outputDebugPort(const int width, const std::string& name);
-  
+
   class Wire {
   public:
     bool registered;
@@ -38,6 +38,9 @@ namespace DHLS {
     }
   };
 
+  Port wireToOutputPort(const Wire w);
+  Port wireToInputPort(const Wire w);
+  
   static inline
   bool operator<(const Wire a, const Wire b) {
     return a.name < b.name;
