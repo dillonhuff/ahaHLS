@@ -3572,6 +3572,32 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("direct_port_fp_add"));
   }
 
+  std::string sanitizeFormatForVerilogId(const std::string& str) {
+    auto st = sanitizeFormatForVerilog(str);
+    std::string res = "";
+    for (auto c : st) {
+      if (c == '@') {
+        res += "_amp_";
+      } else if (c == ',') {
+        res += "_cm_";
+      } else if (c == ' ') {
+        res += "__";
+      } else if (c == '$') {
+        res += "_dlr_";
+      } else if (c == '*') {
+        res += "_ptr_";
+      } else if (c == '=') {
+        res += "_eq_";
+      } else if (c == '(') {
+        res += "_lp_";
+      } else if (c == ')') {
+        res += "_rp_";
+      } else {
+        res += c;
+      }
+    }
+    return res;
+  }
   // What should the instructions be?
   // Instruction start time, instruction end time
   // Instruction has started flag and has ended flag
@@ -3777,8 +3803,9 @@ namespace DHLS {
       for (auto& bb : f->getBasicBlockList()) {
         for (auto& instr : bb) {
           
-          string prefix =
-            string(instr.getOpcodeName()) + "_" + std::to_string(i);
+          string prefix = sanitizeFormatForVerilogId(valueString(&instr));
+            //verilogSanitizedName();
+            //string(instr.getOpcodeName()) + "_" + std::to_string(i);
 
           if (hasOutput(&instr)) {
             Wire tempValue = {true, getValueBitWidth(&instr), prefix + "_tmp"};
@@ -3789,24 +3816,24 @@ namespace DHLS {
           FunctionalUnit unit = addFunctionalUnit(&instr);
           unitAssignment[&instr] = unit;
 
-          Wire si = {true, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_started"};
+          Wire si = {true, 1, prefix + "_started"};
           allWires.push_back(si);
           instrStartedFlags[&instr] = si;
 
-          Wire se = {true, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_finished"};
+          Wire se = {true, 1, prefix + "_finished"};
           allWires.push_back(se);          
           instrDoneFlags[&instr] = se;
 
-          Wire sc = addReg(32, string(instr.getOpcodeName()) + std::to_string(i) + "_time_started");
+          Wire sc = addReg(32, prefix + "_time_started");
           timeStartedCounters[&instr] = sc;
 
-          Wire ec = addReg(32, string(instr.getOpcodeName()) + std::to_string(i) + "_time_finished");
+          Wire ec = addReg(32, prefix + "_time_finished");
           timeDoneCounters[&instr] = ec;
 
-          Wire ssc = {false, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_starting_this_cycle"};
+          Wire ssc = {false, 1, prefix + "_starting_this_cycle"};
           allWires.push_back(ssc);          
           instrStartingThisCycleFlags[&instr] = ssc;
-          Wire esc = {false, 1, string(instr.getOpcodeName()) + std::to_string(i) + "_done_this_cycle"};
+          Wire esc = {false, 1, prefix + "_done_this_cycle"};
           allWires.push_back(esc);
           instrDoneThisCycleFlags[&instr] = esc;
           
@@ -4064,7 +4091,7 @@ namespace DHLS {
         addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin " + arch.doneTimeString(&instr) + " <= " + arch.globalTimeString() + "; end", comps);
 
         // Debug printouts, TODO: Move these to separate debug function
-        addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin $display(\"Starting " + sanitizeFormatForVerilog(valueString(&instr)) + " at cycle %d\", " + arch.globalTimeString() + "); end", comps);     
+        addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin $display(\"Starting " + sanitizeFormatForVerilog(valueString(&instr)) + " at cycle %d\", " + arch.globalTimeString() + "); end", comps);
         addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin $display(\"Ending " + sanitizeFormatForVerilog(valueString(&instr)) + " at cycle %d\", " + arch.globalTimeString() + "); end", comps);
         // End debug printouts
         
@@ -4202,6 +4229,9 @@ namespace DHLS {
       eb.CreateRet(readData);
 
       exec.add(instrStart(setAddr) + 1 == instrStart(readData));
+      //exec.add(instrStart(setAddr) == instrEnd(setAddr));
+
+      //exec.add(instrStart(readData) == instrEnd(readData));
     }
     Function* ramWrite0 = mkFunc({sramTp, intType(addrWidth), intType(width)}, voidType(), "write0");
     interfaces.addFunction(ramWrite0);
