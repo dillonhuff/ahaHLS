@@ -102,7 +102,7 @@ namespace DHLS {
     // For every constraint involving the call to be inlined, for
     // every instruction in the inlined version, create a new instance
     // of that constraint using the current instruction
-    bool replaced = true;
+    // bool replaced = true;
     // while (replaced) {
     //   replaced = false;
 
