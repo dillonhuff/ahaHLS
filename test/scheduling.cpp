@@ -187,7 +187,25 @@ namespace DHLS {
     }
 
   }
-  
+
+
+  ModuleSpec ramSpec(const int width, const int depth) {
+    int addrWidth = clog2(depth);
+
+    map<string, Port> ramPorts = {
+      {"raddr_0", inputPort(addrWidth, "raddr_0")},
+      {"waddr_0", inputPort(addrWidth, "waddr_0")},
+      {"wdata_0", inputPort(width, "wdata_0")},
+      {"wen_0", inputPort(1, "wen_0")},            
+      {"rst", inputPort(1, "rst")},
+
+      {"rdata_0", outputPort(1, "raddr_0")}
+    };
+    
+    return {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "RAM", ramPorts};
+
+  }
+
   ModuleSpec fifoSpec(int width, int depth) {
     map<string, Port> fifoPorts = {
       {"in_data", inputPort(width, "in_data")},
@@ -4204,7 +4222,9 @@ namespace DHLS {
 
     cout << "LLVM Function after inlining" << endl;
     cout << valueString(srUser) << endl;
-    
+
+    HardwareConstraints hcs;
+    hcs.modSpecs[getArg(srUser, 0)] = ramSpec(width, depth);
     // Create architecture that respects these constraints
     DynArch arch(srUser, exec);
 
