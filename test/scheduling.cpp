@@ -3999,7 +3999,7 @@ namespace DHLS {
     for (auto unit : arch.functionalUnits) {
       map<string, string> wireConns;
       for (auto w : unit.portWires) {
-        wireConns.insert({w.first, w.second.name});        
+        wireConns.insert({w.first, w.second.name});
       }
 
       // TODO: Put sequential vs combinational distincion in module description
@@ -4028,12 +4028,12 @@ namespace DHLS {
         comps.instances.push_back(inst);
       } else {
         for (auto w : unit.portWires) {
-          comps.debugAssigns.push_back({w.first, w.second.name});
+          comps.debugAssigns.push_back({w.second.name, w.second.name + "_reg"});
         }
 
-        for (auto w : unit.outWires) {
-          comps.debugAssigns.push_back({w.second.name, w.first});
-        }
+        // for (auto w : unit.outWires) {
+        //   comps.debugAssigns.push_back({w.second.name, w.first});
+        // }
 
       }
     }
