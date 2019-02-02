@@ -156,6 +156,17 @@ namespace DHLS {
   }
 
   static inline
+  llvm::StructType* sramType(const int width, const int depth) {
+    std::string name = "SRAM_" + std::to_string(width) + "_" + std::to_string(depth);
+    llvm::StructType* tp = getGlobalLLVMModule().getTypeByName(name);
+    if (tp == nullptr) {
+      tp = llvm::StructType::create(getGlobalLLVMContext(), name);
+    }
+                               
+    return tp;
+  }
+  
+  static inline
   llvm::StructType* wireType(const int width) {
     llvm::StructType* tp =
       llvm::StructType::create(getGlobalLLVMContext(),
@@ -186,6 +197,10 @@ namespace DHLS {
   llvm::Function* fifoRead(const int width) {
     return fifoRead(width, &getGlobalLLVMModule());
   }  
+
+  static inline llvm::Type* voidType() {
+    return llvm::Type::getVoidTy(getGlobalLLVMContext());
+  }
 
   static inline
   llvm::Function* fifoWrite(const int width, llvm::Module* m) {

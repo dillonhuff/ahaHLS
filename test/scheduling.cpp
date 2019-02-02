@@ -4105,6 +4105,75 @@ namespace DHLS {
     out.close();
 
     REQUIRE(runIVerilogTB("dynamic_arch"));
+  }
+
+  TEST_CASE("Creating memory interface functions") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+    
+    auto mod = llvm::make_unique<Module>("dynamic arch", context);
+    setGlobalLLVMModule(mod.get());
+
+    int width = 32;
+    int depth = 128;
+    int addrWidth = clog2(depth);
+    StructType* sramTp = sramType(width, depth);
+    
+    std::vector<Type *> inputs{sramTp->getPointerTo()};
+
+    InterfaceFunctions interfaces;
+    Function* ramRead0 = mkFunc({sramTp, intType(addrWidth)}, intType(width), "read0");
+    interfaces.addFunction(ramRead0);
+    {
+      ExecutionConstraints& exec = ;
+    }
+    Function* ramWrite0 = mkFunc({sramTp, intType(addrWidth), intType(width)}, voidType(), "write0");
+    interfaces.addFunction(ramWrite0);
+
+    FunctionType *tp =
+      FunctionType::get(Type::getVoidTy(context), inputs, false);
+    Function *srUser =
+      Function::Create(tp, Function::ExternalLinkage, "dynamic_arch", mod.get());
+
+    int argId = 0;
+    for (auto &Arg : srUser->args()) {
+      Arg.setName("arg_" + to_string(argId));
+      argId++;
+    }
+
+    auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
+    ConstantInt* five = mkInt("5", width);
+    ConstantInt* zero = mkInt("0", addrWidth);    
+
+    IRBuilder<> builder(entryBlock);
+    auto ldA = builder.CreateCall(ramRead0, {getArg(srUser, 0), zero});
+    auto plus = builder.CreateAdd(ldA, five);
+    auto st = builder.CreateCall(ramWrite0, {getArg(srUser, 0), zero, plus});
+    auto ret = builder.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(srUser) << endl;
+
+    ExecutionConstraints exec;
+    addDataConstraints(srUser, exec);
+
+    // Control time dependencies
+    exec.add(instrStart(ldA) + 1 == instrEnd(ldA));
+    exec.add(instrStart(plus) == instrEnd(plus));
+    exec.add(instrStart(st) + 3 == instrEnd(st));
+    exec.add(instrStart(ret) == instrEnd(ret));
+
+    inlineWireCalls(srUser, exec, interfaces);
+
+    // Create architecture that respects these constraints
+    DynArch arch(srUser, exec);
+
+    // Move result
+    ofstream out(string(arch.getFunction()->getName()) + ".v");
+    emitVerilog(out, arch);
+    out.close();
+
+    REQUIRE(runIVerilogTB("dynamic_arch"));
     
   }
   
