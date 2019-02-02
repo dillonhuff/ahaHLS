@@ -109,7 +109,18 @@ namespace DHLS {
       for (auto c : exec.constraints) {
         if (c->references(toInline)) {
 
+          // TODO: Should really be replacing instruction times,
+          // so replace: start(toInline) with start(inlinedInstrs.front())
+          //             end(toInline) with end(inlinedInstrs.back()) 
+
+
           //cout << "Replacing constraint " << *c << endl;
+
+          // ExecutionConstraint* newC = c->clone();
+          // newC->replaceInstruction(toInline, inlinedInstrs.front());
+          // //cout << "\tAdding replacement " << *newC << endl;
+          // exec.add(newC);
+          
           for (auto instr : inlinedInstrs) {
             ExecutionConstraint* newC = c->clone();
             newC->replaceInstruction(toInline, instr);
