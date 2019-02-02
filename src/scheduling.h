@@ -916,6 +916,11 @@ namespace DHLS {
     virtual ExecutionConstraintType type() const = 0;
     virtual void replaceInstruction(Instruction* const toReplace,
                                     Instruction* const replacement) = 0;
+    virtual void replaceStart(Instruction* const toReplace,
+                              Instruction* const replacement) = 0;
+    virtual void replaceEnd(Instruction* const toReplace,
+                            Instruction* const replacement) = 0;
+
     virtual bool references(Instruction* instr) const = 0;
     virtual ExecutionConstraint* clone() const = 0;
     virtual void print(std::ostream& out) const = 0;    
@@ -968,6 +973,28 @@ namespace DHLS {
       after(after_),
       restriction(restriction_) {}
 
+    virtual void replaceStart(Instruction* const toReplace,
+                              Instruction* const replacement) override {
+      if (before.isStart()) {
+        before.replaceInstruction(toReplace, replacement);
+      }
+      if (after.isStart()) {
+        after.replaceInstruction(toReplace, replacement);
+      }
+    }
+
+    virtual void replaceEnd(Instruction* const toReplace,
+                            Instruction* const replacement) override {
+      if (before.isEnd) {
+        before.replaceInstruction(toReplace, replacement);
+      }
+
+      if (after.isEnd) {
+        after.replaceInstruction(toReplace, replacement);
+      }
+      
+    }
+    
     virtual ExecutionConstraintType type() const override {
       return CONSTRAINT_TYPE_ORDERED;
     }

@@ -103,37 +103,38 @@ namespace DHLS {
     // every instruction in the inlined version, create a new instance
     // of that constraint using the current instruction
     bool replaced = true;
-    while (replaced) {
-      replaced = false;
+    // while (replaced) {
+    //   replaced = false;
 
       for (auto c : exec.constraints) {
-        if (c->references(toInline)) {
+        c->replaceStart(toInline, inlinedInstrs.front());
+        c->replaceEnd(toInline, inlinedInstrs.back());        
+        // if (c->references(toInline)) {
 
-          // TODO: Should really be replacing instruction times,
-          // so replace: start(toInline) with start(inlinedInstrs.front())
-          //             end(toInline) with end(inlinedInstrs.back()) 
+        //   // TODO: Should really be replacing instruction times,
+        //   // so replace: start(toInline) with start(inlinedInstrs.front())
+        //   //             end(toInline) with end(inlinedInstrs.back())
 
+        //   //cout << "Replacing constraint " << *c << endl;
 
-          //cout << "Replacing constraint " << *c << endl;
-
-          // ExecutionConstraint* newC = c->clone();
-          // newC->replaceInstruction(toInline, inlinedInstrs.front());
-          // //cout << "\tAdding replacement " << *newC << endl;
-          // exec.add(newC);
+        //   // ExecutionConstraint* newC = c->clone();
+        //   // newC->replaceInstruction(toInline, inlinedInstrs.front());
+        //   // //cout << "\tAdding replacement " << *newC << endl;
+        //   // exec.add(newC);
           
-          for (auto instr : inlinedInstrs) {
-            ExecutionConstraint* newC = c->clone();
-            newC->replaceInstruction(toInline, instr);
-            //cout << "\tAdding replacement " << *newC << endl;
-            exec.add(newC);
-          }
-          exec.remove(c);
+        //   for (auto instr : inlinedInstrs) {
+        //     ExecutionConstraint* newC = c->clone();
+        //     newC->replaceInstruction(toInline, instr);
+        //     //cout << "\tAdding replacement " << *newC << endl;
+        //     exec.add(newC);
+        //   }
+        //   exec.remove(c);
 
-          replaced = true;
-          break;
-        }
+        //   replaced = true;
+        //   break;
+        // }
       }
-    }
+      //    }
 
     if (finalRetVal != nullptr) {
       toInline->replaceAllUsesWith(finalRetVal);
