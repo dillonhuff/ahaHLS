@@ -4125,10 +4125,47 @@ namespace DHLS {
     Function* ramRead0 = mkFunc({sramTp, intType(addrWidth)}, intType(width), "read0");
     interfaces.addFunction(ramRead0);
     {
-      ExecutionConstraints& exec = ;
+      ExecutionConstraints& exec = interfaces.getConstraints(ramRead0);
+      auto waddr0F = writePort("raddr_0", addrWidth, sramTp);
+      auto rdata0F = readPort("rdata_0", width, sramTp);
+
+      auto sram = getArg(ramRead0, 0);
+      auto addr = getArg(ramRead0, 1);
+      
+      auto bb = mkBB("entry_block", ramRead0);
+      IRBuilder<> eb(bb);
+      auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
+      auto readData = eb.CreateCall(rdata0F, {sram});
+      eb.CreateRet(readData);
+
+      exec.add(instrStart(setAddr) + 1 == instrStart(readData));
     }
     Function* ramWrite0 = mkFunc({sramTp, intType(addrWidth), intType(width)}, voidType(), "write0");
     interfaces.addFunction(ramWrite0);
+    {
+      auto exec = interfaces.getConstraints(ramWrite0);
+      auto waddr0F = writePort("waddr_0", addrWidth, sramTp);
+      auto wdata0F = writePort("wdata_0", width, sramTp);
+      auto wen0F = writePort("wen_0", 1, sramTp);
+
+      auto sram = getArg(ramWrite0, 0);
+      auto addr = getArg(ramWrite0, 1);
+      auto data = getArg(ramWrite0, 2);
+
+      auto bb = mkBB("entry_block", ramWrite0);
+      IRBuilder<> eb(bb);
+      auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
+      auto setData = eb.CreateCall(wdata0F, {sram, data});
+      auto setEn1 = eb.CreateCall(wen0F, {sram, mkInt(1, 1)});
+      auto setEn0 = eb.CreateCall(wen0F, {sram, mkInt(0, 1)});
+      eb.CreateRet(nullptr);
+
+      exec.add(instrStart(setAddr) == instrStart(setData));
+      exec.add(instrStart(setAddr) == instrStart(setEn1));
+
+      exec.add(instrEnd(setEn1) + 1 == instrStart(setEn0));
+    }
+  
 
     FunctionType *tp =
       FunctionType::get(Type::getVoidTy(context), inputs, false);
@@ -4165,6 +4202,9 @@ namespace DHLS {
 
     inlineWireCalls(srUser, exec, interfaces);
 
+    cout << "LLVM Function after inlining" << endl;
+    cout << valueString(srUser) << endl;
+    
     // Create architecture that respects these constraints
     DynArch arch(srUser, exec);
 
