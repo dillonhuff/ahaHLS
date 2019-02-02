@@ -4064,8 +4064,8 @@ namespace DHLS {
         addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin " + arch.doneTimeString(&instr) + " <= " + arch.globalTimeString() + "; end", comps);
 
         // Debug printouts, TODO: Move these to separate debug function
-        addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin $display(\"Starting " + sanitizeFormatForVerilog(valueString(&instr)) + "\"); end", comps);     
-        addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin $display(\"Ending " + sanitizeFormatForVerilog(valueString(&instr)) + "\"); end", comps);
+        addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin $display(\"Starting " + sanitizeFormatForVerilog(valueString(&instr)) + " at cycle %d\", " + arch.globalTimeString() + "); end", comps);     
+        addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin $display(\"Ending " + sanitizeFormatForVerilog(valueString(&instr)) + " at cycle %d\", " + arch.globalTimeString() + "); end", comps);
         // End debug printouts
         
         // Actually execute instructions, should move this to another function?
