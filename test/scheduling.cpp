@@ -3726,8 +3726,8 @@ namespace DHLS {
         modName = "external_RET";
         unitName = "external_RET";
 
-        Wire valid = addReg(1, "valid_reg");
-        inWires = {{"valid", valid}};
+        //Wire valid = addReg(1, "valid");
+        inWires = {{"valid", {true, 1, "valid"}}};
       } else if (isBuiltinPortCall(instr)) {
         auto fuPtr = instr->getOperand(0);
         assert(contains_key(fuPtr, hcs.modSpecs));
@@ -3964,24 +3964,27 @@ namespace DHLS {
     vector<Port> pts;
     pts.push_back(inputPort(1, "clk"));
     pts.push_back(inputPort(1, "rst"));
-    pts.push_back(outputPort(1, "valid"));
+    // pts.push_back(outputPort(1, "valid"));
 
-    pts.push_back(outputPort(32, "raddr_0"));
-    pts.push_back(outputPort(1, "ren_0"));
-    pts.push_back(inputPort(32, "rdata_0"));
-    pts.push_back(outputPort(32, "waddr_0"));
-    pts.push_back(outputPort(32, "wdata_0"));
-    pts.push_back(outputPort(1, "wen_0"));
+    // pts.push_back(outputPort(32, "raddr_0"));
+    // pts.push_back(outputPort(1, "ren_0"));
+    // pts.push_back(inputPort(32, "rdata_0"));
+    // pts.push_back(outputPort(32, "waddr_0"));
+    // pts.push_back(outputPort(32, "wdata_0"));
+    // pts.push_back(outputPort(1, "wen_0"));
 
     for (auto unit : arch.functionalUnits) {
-      for (auto w : unit.portWires) {
-        pts.push_back(wireToOutputPort(w.second));
-      }
+      if (unit.isExternal()) {
+        for (auto w : unit.portWires) {
+          Port pt = wireToOutputPort(w.second);
+          pt.registered = true;
+          pts.push_back(pt);
+        }
 
-      for (auto w : unit.outWires) {
-        pts.push_back(wireToInputPort(w.second));
+        for (auto w : unit.outWires) {
+          pts.push_back(wireToInputPort(w.second));
+        }
       }
-
     }
 
     return pts;
@@ -4027,9 +4030,9 @@ namespace DHLS {
       if (!unit.isExternal()) {
         comps.instances.push_back(inst);
       } else {
-        for (auto w : unit.portWires) {
-          comps.debugAssigns.push_back({w.second.name, w.second.name + "_reg"});
-        }
+        // for (auto w : unit.portWires) {
+        //   comps.debugAssigns.push_back({w.second.name, w.second.name + "_reg"});
+        // }
 
         // for (auto w : unit.outWires) {
         //   comps.debugAssigns.push_back({w.second.name, w.first});
