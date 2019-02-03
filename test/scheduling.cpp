@@ -4170,6 +4170,39 @@ namespace DHLS {
   //  2. Constraints that I dont think should exist are forming (raddr depending on rdata?)
   //  3. Constraints that I dont think should be a problem (return value constraints
   //     on functions) seem to cause everything to stop executing
+
+  // Q: How do I propagate instruction time constraints? For example, what if
+  //    I have something like:
+  //    start(ld) + 3 == end(ld) (bc ld has a latency of 3)
+  //    start(k) < end(ld)
+
+  //    start(k) < start(ld) + 3
+  //    So that ld must end after k, but there are no other constraints? I dont
+  //    think my current architecture can prevent ld from starting.
+
+  //    So I suppose the way to evaluate constraints is to treat them as hypotheticals
+  //    start(k) < start(ld) + 3 gets interpreted as:
+  //    start(k) < start(current_time) + 3 (if ld has not started yet and k has?)
+
+  //    Im doing ILP solving by checking if each value could be satisfied at each
+  //    time and if that assignment to a value leaves a SAT solution to all
+  //    other constraints
+
+  //    Latency optimal: minimize the sum of all start / end times (because this
+  //    will minimize all of them since they are all positive)
+
+  //    At any given time some constraints have been determined, and some are
+  //    still undetermined.
+
+  //    What if ld starts? I could re-phrase as: start(k) < start(ld) + 3
+  //    But that cannot be computed
+
+  //    Have flags for if every instruction time is already determined, if so
+  //    just substitute it in to the constraints. If not then for each undetermined
+  //    value check if current_time could satisfy all constraints and leave
+  //    a viable solution for existing constraints. Wont be latency optimal for
+  //    resource ordering, but will be latency optimal for unlimited resource
+  //    bounds.
   TEST_CASE("Creating memory interface functions") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
@@ -4199,12 +4232,14 @@ namespace DHLS {
       IRBuilder<> eb(bb);
       auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
       auto readData = eb.CreateCall(rdata0F, {sram});
-      eb.CreateRet(readData);
+      auto ret = eb.CreateRet(readData);
 
       exec.add(instrStart(setAddr) + 1 == instrStart(readData));
+
+      exec.add(instrEnd(readData) == instrStart(ret));
       //addDataConstraints(ramRead0, exec);
 
-      cout << "-- Constraints on read function" << endl;
+      cout << "-- # of constraints on read function = " << exec.constraints.size() << endl;
       for (auto c : exec.constraints) {
         cout << tab(1) << *c << endl;
       }
