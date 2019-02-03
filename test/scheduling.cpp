@@ -3970,7 +3970,9 @@ namespace DHLS {
 
     std::string startInstrConstraint(ExecutionAction instr) {
       vector<string> rcs;
+      cout << "Start constraints on " << instr << endl;
       for (auto c : exe.constraintsOnStart(instr)) {
+        cout << tab(1) << *c << endl;
         rcs.push_back(constraintString(c));
       }
 
@@ -4161,58 +4163,6 @@ namespace DHLS {
 
     emitModule(out, string(arch.getFunction()->getName()), pts, comps);
   }
-
-  // TEST_CASE("Constraint free out of order microarchitecture") {
-  //   LLVMContext context;
-  //   setGlobalLLVMContext(&context);
-    
-  //   auto mod = llvm::make_unique<Module>("dynamic arch", context);
-
-  //   std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo()};
-
-  //   FunctionType *tp =
-  //     FunctionType::get(Type::getVoidTy(context), inputs, false);
-  //   Function *srUser =
-  //     Function::Create(tp, Function::ExternalLinkage, "dynamic_arch", mod.get());
-
-  //   int argId = 0;
-  //   for (auto &Arg : srUser->args()) {
-  //     Arg.setName("arg_" + to_string(argId));
-  //     argId++;
-  //   }
-
-  //   auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
-  //   ConstantInt* zero = mkInt("0", 32);
-  //   ConstantInt* five = mkInt("5", 32);
-  //   IRBuilder<> builder(entryBlock);
-  //   auto ldA = loadVal(builder, getArg(srUser, 0), zero);
-  //   auto plus = builder.CreateAdd(ldA, five);
-  //   auto st = storeVal(builder, getArg(srUser, 0), zero, plus);
-  //   auto ret = builder.CreateRet(nullptr);
-
-  //   cout << "LLVM Function" << endl;
-  //   cout << valueString(srUser) << endl;
-
-  //   ExecutionConstraints exec;
-  //   addDataConstraints(srUser, exec);
-
-  //   // Control time dependencies
-  //   exec.add(instrStart(ldA) + 1 == instrEnd(ldA));
-  //   exec.add(instrStart(plus) == instrEnd(plus));
-  //   exec.add(instrStart(st) + 3 == instrEnd(st));
-  //   exec.add(instrStart(ret) == instrEnd(ret));
-
-  //   // Create architecture that respects these constraints
-  //   HardwareConstraints hcs;    
-  //   DynArch arch(srUser, exec, hcs);
-
-  //   // Move result
-  //   ofstream out(string(arch.getFunction()->getName()) + ".v");
-  //   emitVerilog(out, arch);
-  //   out.close();
-
-  //   REQUIRE(runIVerilogTB("dynamic_arch"));
-  // }
 
   TEST_CASE("Creating memory interface functions") {
     LLVMContext context;

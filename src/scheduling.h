@@ -1249,9 +1249,14 @@ namespace DHLS {
 
           if (oc->after.isStart() &&
               (oc->after.action == instr)) {
-
             on.push_back(c);
           }
+
+          // else if (oc->before.isStart() &&
+          //            (oc->before.action == instr)) {
+          //   on.push_back(c);
+          // }
+
         } else {
           std::cout << "No constraint on stalls yet" << std::endl;
           assert(false);
