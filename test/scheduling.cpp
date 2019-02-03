@@ -3607,16 +3607,6 @@ namespace DHLS {
 
     std::map<ExecutionAction, ActionTracker> actionTrackers;
 
-    // Map from instruction times to wire names?
-    std::map<llvm::Instruction*, Wire> instrStartedFlags;
-    std::map<llvm::Instruction*, Wire> instrDoneFlags;    
-
-    std::map<llvm::Instruction*, Wire> timeStartedCounters;
-    std::map<llvm::Instruction*, Wire> timeDoneCounters;
-
-    std::map<llvm::Instruction*, Wire> instrStartingThisCycleFlags;
-    std::map<llvm::Instruction*, Wire> instrDoneThisCycleFlags;
-
   public:
 
     std::map<llvm::Instruction*, Wire> tempStorage;
@@ -3741,7 +3731,6 @@ namespace DHLS {
         modName = "external_RET";
         unitName = "external_RET";
 
-        //Wire valid = addReg(1, "valid");
         inWires = {{"valid", {true, 1, "valid"}}};
       } else if (isBuiltinPortCall(instr)) {
         auto fuPtr = instr->getOperand(0);
@@ -3793,8 +3782,6 @@ namespace DHLS {
         for (auto& instr : bb) {
           
           string prefix = sanitizeFormatForVerilogId(valueString(&instr));
-            //verilogSanitizedName();
-            //string(instr.getOpcodeName()) + "_" + std::to_string(i);
 
           if (hasOutput(&instr)) {
             Wire tempValue = {true, getValueBitWidth(&instr), prefix + "_tmp"};
@@ -3808,24 +3795,17 @@ namespace DHLS {
           Wire si = {true, 1, prefix + "_started"};
           allWires.push_back(si);
 
-          //instrStartedFlags[&instr] = si;
-
           Wire se = {true, 1, prefix + "_finished"};
           allWires.push_back(se);          
-          //instrDoneFlags[&instr] = se;
 
           Wire sc = addReg(32, prefix + "_time_started");
-          //timeStartedCounters[&instr] = sc;
 
           Wire ec = addReg(32, prefix + "_time_finished");
-          //timeDoneCounters[&instr] = ec;
 
           Wire ssc = {false, 1, prefix + "_starting_this_cycle"};
           allWires.push_back(ssc);          
-          //instrStartingThisCycleFlags[&instr] = ssc;
           Wire esc = {false, 1, prefix + "_done_this_cycle"};
           allWires.push_back(esc);
-          //instrDoneThisCycleFlags[&instr] = esc;
 
           actionTrackers[&instr] = {si, se, sc, ec, ssc, esc};
           
@@ -3870,14 +3850,6 @@ namespace DHLS {
     
     std::string globalTimeString() const {
       return globalTime.name;
-    }
-
-    std::string afterTimeFlag(InstructionTime& time) const {
-      if (time.isEnd) {
-        return map_find(time.instr, instrDoneFlags).name;
-      } else {
-        return map_find(time.instr, instrStartedFlags).name;
-      }
     }
 
     std::string doneTimeString(llvm::Instruction* instr) const {
