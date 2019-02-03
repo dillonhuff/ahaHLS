@@ -1243,9 +1243,6 @@ namespace DHLS {
       for (auto c : constraints) {
         if (c->type() == CONSTRAINT_TYPE_ORDERED) {
           Ordered* oc = static_cast<Ordered*>(c);
-          // if (oc->after.isStart() &&
-          //     oc->after.action.isInstruction() &&
-          //     (oc->after.action.getInstruction() == instr)) {
 
           if (oc->after.isStart() &&
               (oc->after.action == instr)) {
