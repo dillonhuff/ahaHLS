@@ -4196,12 +4196,18 @@ namespace DHLS {
       eb.CreateRet(readData);
 
       exec.add(instrStart(setAddr) + 1 == instrStart(readData));
-      //addDataConstraints(ramRead0, exec);
+      addDataConstraints(ramRead0, exec);
+
+      cout << "Constraints on read function" << endl;
+      for (auto c : exec.constraints) {
+        cout << tab(1) << *c << endl;
+      }
+      
     }
     Function* ramWrite0 = mkFunc({sramTp, intType(addrWidth), intType(width)}, voidType(), "write0");
     interfaces.addFunction(ramWrite0);
     {
-      auto exec = interfaces.getConstraints(ramWrite0);
+      auto& exec = interfaces.getConstraints(ramWrite0);
       auto waddr0F = writePort("waddr_0", addrWidth, sramTp);
       auto wdata0F = writePort("wdata_0", width, sramTp);
       auto wen0F = writePort("wen_0", 1, sramTp);
@@ -4222,7 +4228,7 @@ namespace DHLS {
       exec.add(instrStart(setAddr) == instrStart(setEn1));
 
       exec.add(instrEnd(setEn1) + 1 == instrStart(setEn0));
-      addDataConstraints(ramWrite0, exec);
+      //addDataConstraints(ramWrite0, exec);
 
       cout << "Constraints on write function" << endl;
       for (auto c : exec.constraints) {
