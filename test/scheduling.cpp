@@ -102,15 +102,21 @@ namespace DHLS {
       }
     }
 
+    // Replace the inline start and end times with marker action noops
     ExecutionAction inlineAction(toInline);
     ExecutionAction inlineMarkerAction(sanitizeFormatForVerilogId(valueString(toInline)));
-
     for (auto c : exec.constraints) {
-      // c->replaceStart(toInline, inlinedInstrs.front());
-      // c->replaceEnd(toInline, inlinedInstrs.back());
-
       c->replaceAction(inlineAction, inlineMarkerAction);
     }
+
+    // Require that all instructions that have been inlined finish inside
+    // the inlined function start and end time
+    for (auto instr : inlinedInstrs) {
+      exec.addConstraint(actionStart(inlineMarkerAction) <= instrStart(instr));
+      exec.addConstraint(instrEnd(instr) <= actionEnd(inlineMarkerAction));
+    }
+
+    exec.addConstraint(actionStart(inlineMarkerAction) <= actionEnd(inlineMarkerAction));
 
     if (finalRetVal != nullptr) {
       toInline->replaceAllUsesWith(finalRetVal);
@@ -120,7 +126,6 @@ namespace DHLS {
         c->replaceInstruction(toInline, replacementRet);
       }
     }
-
 
     // Remove old call
     toInline->eraseFromParent();

@@ -1006,6 +1006,16 @@ namespace DHLS {
   }
 
   static inline   
+  InstructionTime actionStart(ExecutionAction& action) {
+    return {action, true, 0};
+  }
+
+  static inline   
+  InstructionTime actionEnd(ExecutionAction& action) {
+    return {action, false, 0};
+  }
+  
+  static inline   
   InstructionTime instrEnd(llvm::Value* const instr) {
     assert(llvm::Instruction::classof(instr));
     return {llvm::dyn_cast<llvm::Instruction>(instr), true, 0};
