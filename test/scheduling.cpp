@@ -3590,16 +3590,14 @@ namespace DHLS {
 
   class ActionTracker {
   public:
-    Wire startFlag;
-    Wire endFlag;
+    Wire startedFlag;
+    Wire endedFlag;
     Wire startTimeCounter;
     Wire endTimeCounter;
     Wire startingThisCycleFlag;
     Wire endingThisCycleFlag;
   };
 
-  // Idea: Time marker class, with 3 regions: before, clock period where event
-  // (program point in LLVM) is happening, after
   class DynArch {
     Function* f;
     ExecutionConstraints& exe;
@@ -3607,7 +3605,7 @@ namespace DHLS {
 
     Wire globalTime;
 
-    std::map<ExecutionAction, ActionTracker> actions;
+    std::map<ExecutionAction, ActionTracker> actionTrackers;
 
     // Map from instruction times to wire names?
     std::map<llvm::Instruction*, Wire> instrStartedFlags;
@@ -3809,6 +3807,7 @@ namespace DHLS {
 
           Wire si = {true, 1, prefix + "_started"};
           allWires.push_back(si);
+
           instrStartedFlags[&instr] = si;
 
           Wire se = {true, 1, prefix + "_finished"};
@@ -3827,6 +3826,8 @@ namespace DHLS {
           Wire esc = {false, 1, prefix + "_done_this_cycle"};
           allWires.push_back(esc);
           instrDoneThisCycleFlags[&instr] = esc;
+
+          actionTrackers[&instr] = {si};
           
           i++;
         }
@@ -3842,7 +3843,7 @@ namespace DHLS {
     }
     
     std::string startedFlag(llvm::Instruction* instr) {
-      return map_find(instr, instrStartedFlags).name;
+      return map_find(ExecutionAction(instr), actionTrackers).startedFlag.name; //map_find(instr, instrStartedFlags).name;
     }
 
     std::string doneFlag(llvm::Instruction* instr) {
@@ -4220,7 +4221,7 @@ namespace DHLS {
       eb.CreateRet(readData);
 
       exec.add(instrStart(setAddr) + 1 == instrStart(readData));
-      addDataConstraints(ramRead0, exec);
+      //addDataConstraints(ramRead0, exec);
     }
     Function* ramWrite0 = mkFunc({sramTp, intType(addrWidth), intType(width)}, voidType(), "write0");
     interfaces.addFunction(ramWrite0);
@@ -4246,7 +4247,7 @@ namespace DHLS {
       exec.add(instrStart(setAddr) == instrStart(setEn1));
 
       exec.add(instrEnd(setEn1) + 1 == instrStart(setEn0));
-      addDataConstraints(ramWrite0, exec);
+      //addDataConstraints(ramWrite0, exec);
     }
   
 
