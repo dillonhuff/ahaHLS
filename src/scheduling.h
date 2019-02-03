@@ -841,32 +841,50 @@ namespace DHLS {
                           HardwareConstraints& hdc,
                           std::set<llvm::BasicBlock*>& toPipeline);
 
-  class ExecutionEvent {
+  class ExecutionAction {
     llvm::Instruction* instr;
     std::string tag;
     bool isInstructionFlag;
-    bool isEndFlag;
     
   public:
-    ExecutionEvent(Instruction* const instr_,
-                   const bool isEnd_) : instr(instr_), tag(""), isInstructionFlag(true), isEndFlag(isEnd_) {}
+    ExecutionAction(Instruction* const instr_) : instr(instr_), tag(""), isInstructionFlag(true) {}
 
+    ExecutionAction(const std::string& name) : instr(nullptr), tag(name), isInstructionFlag(false) {}
+
+    bool isInstruction() const {
+      return isInstructionFlag;
+    }
+    
     std::string getName() const {
-      assert(!isInstructionFlag);
+      assert(!isInstruction());
       return tag;
     }
 
     llvm::Instruction* getInstruction() const {
-      assert(isInstructionFlag);
+      assert(isInstruction());
       return instr;
     }
-
-    bool isEnd() const { return isEndFlag; }
-    bool isStart() const { return !isEnd(); }
-    
   };
+
+  static inline
+  bool operator<(const ExecutionAction& a, const ExecutionAction& b) {
+    if (a.isInstruction() && !b.isInstruction()) {
+      return true;
+    }
+
+    if (!a.isInstruction() && b.isInstruction()) {
+      return false;
+    }
+
+    if (a.isInstruction() == b.isInstruction()) {
+      return a.getInstruction() < b.getInstruction();
+    }
+
+
+    return a.getName() < b.getName();
+  }
   
-  class InstructionTime {
+  class EventTime {
   public:
     Instruction* instr;
     bool isEnd;
@@ -883,6 +901,8 @@ namespace DHLS {
       return !isEnd;
     }
   };
+
+  typedef EventTime InstructionTime;
 
   static inline   
   InstructionTime operator+(const InstructionTime t, const int offset) {
