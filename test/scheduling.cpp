@@ -127,8 +127,8 @@ namespace DHLS {
     for (auto c : constraintsToInline.constraints) {
       if (c->type() == CONSTRAINT_TYPE_ORDERED) {
         Ordered* oc = static_cast<Ordered*>(c->clone());
-        auto beforeInstr = oc->before.instr;
-        auto afterInstr = oc->after.instr;        
+        auto beforeInstr = oc->before.getInstr();
+        auto afterInstr = oc->after.getInstr();        
         oc->before.replaceInstruction(beforeInstr, map_find(beforeInstr, oldInstrsToClones));
         oc->after.replaceInstruction(afterInstr, map_find(afterInstr, oldInstrsToClones));
         exec.addConstraint(oc); // Add to existing constraints
@@ -3859,11 +3859,11 @@ namespace DHLS {
       string alreadyDoneTime;
       string thisCycleFlag;
       if (time.isEnd) {
-        alreadyDoneTime = doneTimeString(time.instr); //map_find(time.instr, timeDoneCounters).name;
-        thisCycleFlag = couldEndFlag(time.instr); //map_find(time.instr, instrDoneThisCycleFlags).name;
+        alreadyDoneTime = doneTimeString(time.getInstr()); //map_find(time.instr, timeDoneCounters).name;
+        thisCycleFlag = couldEndFlag(time.getInstr()); //map_find(time.instr, instrDoneThisCycleFlags).name;
       } else {
-        alreadyDoneTime = startTimeString(time.instr); //map_find(time.instr, timeStartedCounters).name;
-        thisCycleFlag = couldStartFlag(time.instr); //map_find(time.instr, instrStartingThisCycleFlags).name;
+        alreadyDoneTime = startTimeString(time.getInstr()); //map_find(time.instr, timeStartedCounters).name;
+        thisCycleFlag = couldStartFlag(time.getInstr()); //map_find(time.instr, instrStartingThisCycleFlags).name;
       }
 
       // If this time is the start or end then the time of the event is
@@ -3884,11 +3884,11 @@ namespace DHLS {
       string eventHappened;
       string eventHappening;
       if (time.isEnd) {
-        eventHappened = doneFlag(time.instr); //map_find(time.instr, instrDoneFlags).name;
-        eventHappening = couldEndFlag(time.instr);
+        eventHappened = doneFlag(time.getInstr()); //map_find(time.instr, instrDoneFlags).name;
+        eventHappening = couldEndFlag(time.getInstr());
       } else {
-        eventHappened = startedFlag(time.instr); //map_find(time.instr, instrStartedFlags).name;
-        eventHappening = couldStartFlag(time.instr);        
+        eventHappened = startedFlag(time.getInstr()); //map_find(time.instr, instrStartedFlags).name;
+        eventHappening = couldStartFlag(time.getInstr());        
       }
 
       return orStr(eventHappened, eventHappening);

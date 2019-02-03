@@ -925,6 +925,10 @@ namespace DHLS {
     bool isStart() const {
       return !isEnd;
     }
+
+    llvm::Instruction* getInstr() const {
+      return action.getInstruction();
+    }
   };
 
   typedef EventTime InstructionTime;
