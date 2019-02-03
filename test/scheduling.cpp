@@ -197,7 +197,7 @@ namespace DHLS {
       {"wen_0", inputPort(1, "wen_0")},            
       {"rst", inputPort(1, "rst")},
 
-      {"rdata_0", outputPort(1, "rdata_0")}
+      {"rdata_0", outputPort(width, "rdata_0")}
     };
     
     return {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "RAM", ramPorts};
