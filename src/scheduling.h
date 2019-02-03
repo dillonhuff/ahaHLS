@@ -1237,14 +1237,19 @@ namespace DHLS {
     std::vector<ExecutionConstraint*> constraints;
 
     std::vector<ExecutionConstraint*>
-    constraintsOnStart(llvm::Instruction* const instr) const {
+    //    constraintsOnStart(llvm::Instruction* const instr) const {
+    constraintsOnStart(ExecutionAction instr) const {    
       std::vector<ExecutionConstraint*> on;      
       for (auto c : constraints) {
         if (c->type() == CONSTRAINT_TYPE_ORDERED) {
           Ordered* oc = static_cast<Ordered*>(c);
+          // if (oc->after.isStart() &&
+          //     oc->after.action.isInstruction() &&
+          //     (oc->after.action.getInstruction() == instr)) {
+
           if (oc->after.isStart() &&
-              oc->after.action.isInstruction() &&
-              (oc->after.action.getInstruction() == instr)) {
+              (oc->after.action == instr)) {
+
             on.push_back(c);
           }
         } else {
@@ -1263,14 +1268,19 @@ namespace DHLS {
     }
 
     std::vector<ExecutionConstraint*>
-    constraintsOnEnd(llvm::Instruction* const instr) const {
+    //constraintsOnEnd(llvm::Instruction* const instr) const {
+    constraintsOnEnd(ExecutionAction instr) const {
       std::vector<ExecutionConstraint*> on;      
       for (auto c : constraints) {
         if (c->type() == CONSTRAINT_TYPE_ORDERED) {
           Ordered* oc = static_cast<Ordered*>(c);
+          // if (oc->after.isEnd &&
+          //     oc->after.action.isInstruction() &&
+          //     (oc->after.action.getInstruction() == instr)) {
+
           if (oc->after.isEnd &&
-              oc->after.action.isInstruction() &&
-              (oc->after.action.getInstruction() == instr)) {
+              (oc->after.action == instr)) {
+
             on.push_back(c);
           }
         } else {

@@ -3593,9 +3593,9 @@ namespace DHLS {
 
     Wire globalTime;
 
-    std::map<ExecutionAction, ActionTracker> actionTrackers;
-
   public:
+
+    std::map<ExecutionAction, ActionTracker> actionTrackers;
 
     std::map<llvm::Instruction*, Wire> tempStorage;
     std::vector<Wire> allWires;
@@ -3815,6 +3815,7 @@ namespace DHLS {
           sanitizeFormatForVerilogId(valueString(action.getInstruction()));
       } else {
         prefix = action.getName();
+        cout << "Non instruction action = " << prefix << endl;
       }
 
       Wire si = {true, 1, prefix + "_started"};
@@ -3946,7 +3947,7 @@ namespace DHLS {
       }
     }
 
-    std::string startInstrConstraint(Instruction* instr) {
+    std::string startInstrConstraint(ExecutionAction instr) {
       vector<string> rcs;
       for (auto c : exe.constraintsOnStart(instr)) {
         rcs.push_back(constraintString(c));
@@ -3956,7 +3957,7 @@ namespace DHLS {
       return separatedListString(rcs, " && ");
     }
 
-    std::string endInstrConstraint(Instruction* instr) {
+    std::string endInstrConstraint(ExecutionAction instr) {
       vector<string> rcs;
       for (auto c : exe.constraintsOnEnd(instr)) {
         rcs.push_back(constraintString(c));
@@ -4055,75 +4056,83 @@ namespace DHLS {
     addAlwaysBlock({"clk"}, "if (rst) begin " + arch.globalTimeString() + " <= 0; end", comps);
     addAlwaysBlock({"clk"}, "if (!rst) begin " + arch.globalTimeString() + " <= " + arch.globalTimeString() + " + 1; end", comps);
     
-    for (auto& bb : arch.getFunction()->getBasicBlockList()) {
-      for (auto& instr : bb) {
+    // for (auto& bb : arch.getFunction()->getBasicBlockList()) {
+    //   for (auto& instr : bb) {
 
-        // Instruction start / end in cycle flag
-        comps.debugAssigns.push_back({arch.couldStartFlag(&instr), arch.startInstrConstraint(&instr)});
-        comps.debugAssigns.push_back({arch.couldEndFlag(&instr), arch.endInstrConstraint(&instr)});
+    for (auto actionMarker : arch.actionTrackers) {
+      ExecutionAction action = actionMarker.first;
 
-        // Reset behavior
-        addAlwaysBlock({"clk"}, "if (rst) begin " + arch.startedFlag(&instr) + " <= 0; end", comps);
-        addAlwaysBlock({"clk"}, "if (rst) begin " + arch.doneFlag(&instr) + " <= 0; end", comps);        
+      // Reset behavior
+      addAlwaysBlock({"clk"}, "if (rst) begin " + arch.startedFlag(action) + " <= 0; end", comps);
+      addAlwaysBlock({"clk"}, "if (rst) begin " + arch.doneFlag(action) + " <= 0; end", comps);        
 
-        addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin " + arch.startedFlag(&instr) + " <= 1; end", comps);
-        addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin " + arch.doneFlag(&instr) + " <= 1; end", comps);
+      addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(action) + ") begin " + arch.startedFlag(action) + " <= 1; end", comps);
+      addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(action) + ") begin " + arch.doneFlag(action) + " <= 1; end", comps);
 
-        // Set completion times
-        addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin " + arch.startTimeString(&instr) + " <= " + arch.globalTimeString() + "; end", comps);
-        addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin " + arch.doneTimeString(&instr) + " <= " + arch.globalTimeString() + "; end", comps);
+      // Set completion times
+      addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(action) + ") begin " + arch.startTimeString(action) + " <= " + arch.globalTimeString() + "; end", comps);
+      addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(action) + ") begin " + arch.doneTimeString(action) + " <= " + arch.globalTimeString() + "; end", comps);
 
-        // Debug printouts, TODO: Move these to separate debug function
-        addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(&instr) + ") begin $display(\"Starting " + sanitizeFormatForVerilog(valueString(&instr)) + " at cycle %d\", " + arch.globalTimeString() + "); end", comps);
-        addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin $display(\"Ending " + sanitizeFormatForVerilog(valueString(&instr)) + " at cycle %d\", " + arch.globalTimeString() + "); end", comps);
-        // End debug printouts
-        
+      // Debug printouts, TODO: Move these to separate debug function
+      string actionStr = action.isInstruction() ? valueString(action.getInstruction()) : action.getName();
+      addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(action) + ") begin $display(\"Starting " + sanitizeFormatForVerilog(actionStr) + " at cycle %d\", " + arch.globalTimeString() + "); end", comps);
+      addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(action) + ") begin $display(\"Ending " + sanitizeFormatForVerilog(actionStr) + " at cycle %d\", " + arch.globalTimeString() + "); end", comps);
+      // End debug printouts
+
+
+      comps.debugAssigns.push_back({arch.couldStartFlag(action), arch.startInstrConstraint(action)});
+      comps.debugAssigns.push_back({arch.couldEndFlag(action), arch.endInstrConstraint(action)});
+      
+      if (action.isInstruction()) {
+
+        Instruction* instr = action.getInstruction();
         // Actually execute instructions, should move this to another function?
-        FunctionalUnit unit = map_find(&instr, arch.unitAssignment);
+        FunctionalUnit unit = map_find(instr, arch.unitAssignment);
         string portSetting = "";
         string resultValue = "";
-
-        if (BinaryOperator::classof(&instr)) {
-          portSetting += unit.portWires["in0"].name + " = " + arch.outputName(instr.getOperand(0)) + "; ";
-          portSetting += unit.portWires["in1"].name + " = " + arch.outputName(instr.getOperand(1)) + "; ";
+        
+        
+        if (BinaryOperator::classof(instr)) {
+          portSetting += unit.portWires["in0"].name + " = " + arch.outputName(instr->getOperand(0)) + "; ";
+          portSetting += unit.portWires["in1"].name + " = " + arch.outputName(instr->getOperand(1)) + "; ";
           resultValue = unit.outWires["out"].name;
-        } else if (GetElementPtrInst::classof(&instr)) {
-          portSetting += unit.portWires["base_addr"].name + " = " + arch.outputName(instr.getOperand(0)) + "; ";
-          for (int i = 1; i < (int) instr.getNumOperands(); i++) {
-            portSetting += unit.portWires["in" + to_string(i)].name + " = " + arch.outputName(instr.getOperand(i)) + ";";
+        } else if (GetElementPtrInst::classof(instr)) {
+          portSetting += unit.portWires["base_addr"].name + " = " + arch.outputName(instr->getOperand(0)) + "; ";
+          for (int i = 1; i < (int) instr->getNumOperands(); i++) {
+            portSetting += unit.portWires["in" + to_string(i)].name + " = " + arch.outputName(instr->getOperand(i)) + ";";
 
           }
 
           resultValue = unit.outWires["out"].name;
-        } else if (LoadInst::classof(&instr)) {
-          portSetting += unit.portWires["raddr_0"].name + " = " + arch.outputName(instr.getOperand(0)) + "; ";
+        } else if (LoadInst::classof(instr)) {
+          portSetting += unit.portWires["raddr_0"].name + " = " + arch.outputName(instr->getOperand(0)) + "; ";
           portSetting += unit.portWires["ren_0"].name + " = 1;";
 
           resultValue = unit.outWires["rdata_0"].name;
-        } else if (StoreInst::classof(&instr)) {
-          portSetting += unit.portWires["waddr_0"].name + " = " + arch.outputName(instr.getOperand(1)) + "; ";
-          portSetting += unit.portWires["wdata_0"].name + " = " + arch.outputName(instr.getOperand(0)) + "; ";
+        } else if (StoreInst::classof(instr)) {
+          portSetting += unit.portWires["waddr_0"].name + " = " + arch.outputName(instr->getOperand(1)) + "; ";
+          portSetting += unit.portWires["wdata_0"].name + " = " + arch.outputName(instr->getOperand(0)) + "; ";
           portSetting += unit.portWires["wen_0"].name + " = 1;";
-        } else if (ReturnInst::classof(&instr)) {
+        } else if (ReturnInst::classof(instr)) {
           portSetting += unit.portWires["valid"].name + " = 1;";          
-        } else if (isBuiltinPortRead(&instr)) {
-          string portName = getPortName(&instr);
+        } else if (isBuiltinPortRead(instr)) {
+          string portName = getPortName(instr);
           resultValue = unit.outWires[portName].name;          
-        } else if (isBuiltinPortWrite(&instr)) {
-          string portName = getPortName(&instr);          
-          portSetting += unit.portWires[portName].name + " = " + arch.outputName(instr.getOperand(1)) + "; ";
+        } else if (isBuiltinPortWrite(instr)) {
+          string portName = getPortName(instr);          
+          portSetting += unit.portWires[portName].name + " = " + arch.outputName(instr->getOperand(1)) + "; ";
         }
 
-        addAlwaysBlock({}, "if (" + arch.couldStartFlag(&instr) + ") begin " + portSetting + " end", comps);
+        addAlwaysBlock({}, "if (" + arch.couldStartFlag(instr) + ") begin " + portSetting + " end", comps);
 
         // Store results to temporaries
-        if (hasOutput(&instr)) {
-          addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(&instr) + ") begin " + map_find(&instr, arch.tempStorage).name + " <= " + resultValue + "; end", comps);
+        if (hasOutput(instr)) {
+          addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(instr) + ") begin " + map_find(instr, arch.tempStorage).name + " <= " + resultValue + "; end", comps);
         }
-        
-        
       }
     }
+    //   }
+    // }
 
     emitModule(out, string(arch.getFunction()->getName()), pts, comps);
   }
