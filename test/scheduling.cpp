@@ -3808,24 +3808,24 @@ namespace DHLS {
           Wire si = {true, 1, prefix + "_started"};
           allWires.push_back(si);
 
-          instrStartedFlags[&instr] = si;
+          //instrStartedFlags[&instr] = si;
 
           Wire se = {true, 1, prefix + "_finished"};
           allWires.push_back(se);          
-          instrDoneFlags[&instr] = se;
+          //instrDoneFlags[&instr] = se;
 
           Wire sc = addReg(32, prefix + "_time_started");
-          timeStartedCounters[&instr] = sc;
+          //timeStartedCounters[&instr] = sc;
 
           Wire ec = addReg(32, prefix + "_time_finished");
-          timeDoneCounters[&instr] = ec;
+          //timeDoneCounters[&instr] = ec;
 
           Wire ssc = {false, 1, prefix + "_starting_this_cycle"};
           allWires.push_back(ssc);          
-          instrStartingThisCycleFlags[&instr] = ssc;
+          //instrStartingThisCycleFlags[&instr] = ssc;
           Wire esc = {false, 1, prefix + "_done_this_cycle"};
           allWires.push_back(esc);
-          instrDoneThisCycleFlags[&instr] = esc;
+          //instrDoneThisCycleFlags[&instr] = esc;
 
           actionTrackers[&instr] = {si, se, sc, ec, ssc, esc};
           
@@ -3834,44 +3834,40 @@ namespace DHLS {
       }
     }
 
-    std::string couldStartFlag(llvm::Instruction* instr) {
+    std::string couldStartFlag(llvm::Instruction* instr) const {
       //return map_find(instr, instrStartingThisCycleFlags).name;
       return map_find(ExecutionAction(instr), actionTrackers).startingThisCycleFlag.name;
     }
 
-    std::string couldEndFlag(llvm::Instruction* instr) {
+    std::string couldEndFlag(llvm::Instruction* instr) const {
       //return map_find(instr, instrDoneThisCycleFlags).name;
       return map_find(ExecutionAction(instr), actionTrackers).endingThisCycleFlag.name;      
     }
 
-    std::string instrDoneString(Instruction* instr) {
+    std::string instrDoneString(Instruction* instr) const {
       return doneFlag(instr);
       //return map_find(instr, instrDoneFlags).name;
     }
 
-    std::string instrStartString(Instruction* instr) {
+    std::string instrStartString(Instruction* instr) const {
       return startedFlag(instr);
       //return map_find(instr, instrStartedFlags).name;
     }
 
-    std::string instrEndString(Instruction* instr) {
+    std::string instrEndString(Instruction* instr) const {
       //return map_find(instr, instrDoneFlags).name;
       return doneFlag(instr);
     }
     
-    std::string startedFlag(llvm::Instruction* instr) {
+    std::string startedFlag(llvm::Instruction* instr) const {
       return map_find(ExecutionAction(instr), actionTrackers).startedFlag.name; //map_find(instr, instrStartedFlags).name;
     }
 
-    std::string doneFlag(llvm::Instruction* instr) {
+    std::string doneFlag(llvm::Instruction* instr) const {
       //return map_find(instr, instrDoneFlags).name;
       return map_find(ExecutionAction(instr), actionTrackers).endedFlag.name; //map_find(instr, instrStartedFlags).name;      
     }
     
-    // Need two different things: "Already started" (every clock period after the
-    // actual start), and "could start", could_start and !already_started means
-    // starting_this_cycle
-
     std::string globalTimeString() const {
       return globalTime.name;
     }
@@ -3885,11 +3881,13 @@ namespace DHLS {
     }
 
     std::string doneTimeString(llvm::Instruction* instr) const {
-      return map_find(instr, timeDoneCounters).name;
+      //return map_find(instr, timeDoneCounters).name;
+      return map_find(ExecutionAction(instr), actionTrackers).endTimeCounter.name;
     }
 
     std::string startTimeString(llvm::Instruction* instr) const {
-      return map_find(instr, timeStartedCounters).name;
+      //return map_find(instr, timeStartedCounters).name;
+      return map_find(ExecutionAction(instr), actionTrackers).startTimeCounter.name;
     }
     
     // Time at which an instruction started or finished
@@ -3897,11 +3895,11 @@ namespace DHLS {
       string alreadyDoneTime;
       string thisCycleFlag;
       if (time.isEnd) {
-        alreadyDoneTime = map_find(time.instr, timeDoneCounters).name;
-        thisCycleFlag = map_find(time.instr, instrDoneThisCycleFlags).name;
+        alreadyDoneTime = doneTimeString(time.instr); //map_find(time.instr, timeDoneCounters).name;
+        thisCycleFlag = couldEndFlag(time.instr); //map_find(time.instr, instrDoneThisCycleFlags).name;
       } else {
-        alreadyDoneTime = map_find(time.instr, timeStartedCounters).name;
-        thisCycleFlag = map_find(time.instr, instrStartingThisCycleFlags).name;
+        alreadyDoneTime = startTimeString(time.instr); //map_find(time.instr, timeStartedCounters).name;
+        thisCycleFlag = couldStartFlag(time.instr); //map_find(time.instr, instrStartingThisCycleFlags).name;
       }
 
       // If this time is the start or end then the time of the event is
@@ -3922,10 +3920,10 @@ namespace DHLS {
       string eventHappened;
       string eventHappening;
       if (time.isEnd) {
-        eventHappened = map_find(time.instr, instrDoneFlags).name;
+        eventHappened = doneFlag(time.instr); //map_find(time.instr, instrDoneFlags).name;
         eventHappening = couldEndFlag(time.instr);
       } else {
-        eventHappened = map_find(time.instr, instrStartedFlags).name;
+        eventHappened = startedFlag(time.instr); //map_find(time.instr, instrStartedFlags).name;
         eventHappening = couldStartFlag(time.instr);        
       }
 
