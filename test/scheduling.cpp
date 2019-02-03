@@ -49,6 +49,17 @@ namespace DHLS {
     }
   }
 
+  ExecutionAction
+  findReplacement(Instruction* instr,
+                  std::map<Instruction*, Instruction*>& oldInstrsToClones,
+                  ExecutionAction& functionAction) {
+    if (ReturnInst::classof(instr)) {
+      return functionAction;
+    }
+
+    return map_find(instr, oldInstrsToClones);
+  }
+
   void inlineFunctionWithConstraints(Function* const f,
                                      ExecutionConstraints& exec,
                                      CallInst* const toInline,
@@ -141,10 +152,20 @@ namespace DHLS {
 
       if (c->type() == CONSTRAINT_TYPE_ORDERED) {
         Ordered* oc = static_cast<Ordered*>(c->clone());
+
+        cout << "Before = " << oc->before << endl;
+        cout << "After  = " << oc->after << endl;        
+
         auto beforeInstr = oc->before.getInstr();
-        auto afterInstr = oc->after.getInstr();        
-        oc->before.replaceInstruction(beforeInstr, map_find(beforeInstr, oldInstrsToClones));
-        oc->after.replaceInstruction(afterInstr, map_find(afterInstr, oldInstrsToClones));
+        ExecutionAction bRep = findReplacement(beforeInstr, oldInstrsToClones, inlineMarkerAction);
+        oc->before.replaceAction(oc->before.action, bRep);
+        //map_find(beforeInstr, oldInstrsToClones));
+
+        auto afterInstr = oc->after.getInstr();
+        ExecutionAction aRep = findReplacement(afterInstr, oldInstrsToClones, inlineMarkerAction);
+        oc->after.replaceAction(oc->after.action, aRep);
+
+        //map_find(afterInstr, oldInstrsToClones));
         exec.addConstraint(oc); // Add to existing constraints
       } else {
         assert(false);
@@ -4141,57 +4162,57 @@ namespace DHLS {
     emitModule(out, string(arch.getFunction()->getName()), pts, comps);
   }
 
-  TEST_CASE("Constraint free out of order microarchitecture") {
-    LLVMContext context;
-    setGlobalLLVMContext(&context);
+  // TEST_CASE("Constraint free out of order microarchitecture") {
+  //   LLVMContext context;
+  //   setGlobalLLVMContext(&context);
     
-    auto mod = llvm::make_unique<Module>("dynamic arch", context);
+  //   auto mod = llvm::make_unique<Module>("dynamic arch", context);
 
-    std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo()};
+  //   std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo()};
 
-    FunctionType *tp =
-      FunctionType::get(Type::getVoidTy(context), inputs, false);
-    Function *srUser =
-      Function::Create(tp, Function::ExternalLinkage, "dynamic_arch", mod.get());
+  //   FunctionType *tp =
+  //     FunctionType::get(Type::getVoidTy(context), inputs, false);
+  //   Function *srUser =
+  //     Function::Create(tp, Function::ExternalLinkage, "dynamic_arch", mod.get());
 
-    int argId = 0;
-    for (auto &Arg : srUser->args()) {
-      Arg.setName("arg_" + to_string(argId));
-      argId++;
-    }
+  //   int argId = 0;
+  //   for (auto &Arg : srUser->args()) {
+  //     Arg.setName("arg_" + to_string(argId));
+  //     argId++;
+  //   }
 
-    auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
-    ConstantInt* zero = mkInt("0", 32);
-    ConstantInt* five = mkInt("5", 32);
-    IRBuilder<> builder(entryBlock);
-    auto ldA = loadVal(builder, getArg(srUser, 0), zero);
-    auto plus = builder.CreateAdd(ldA, five);
-    auto st = storeVal(builder, getArg(srUser, 0), zero, plus);
-    auto ret = builder.CreateRet(nullptr);
+  //   auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
+  //   ConstantInt* zero = mkInt("0", 32);
+  //   ConstantInt* five = mkInt("5", 32);
+  //   IRBuilder<> builder(entryBlock);
+  //   auto ldA = loadVal(builder, getArg(srUser, 0), zero);
+  //   auto plus = builder.CreateAdd(ldA, five);
+  //   auto st = storeVal(builder, getArg(srUser, 0), zero, plus);
+  //   auto ret = builder.CreateRet(nullptr);
 
-    cout << "LLVM Function" << endl;
-    cout << valueString(srUser) << endl;
+  //   cout << "LLVM Function" << endl;
+  //   cout << valueString(srUser) << endl;
 
-    ExecutionConstraints exec;
-    addDataConstraints(srUser, exec);
+  //   ExecutionConstraints exec;
+  //   addDataConstraints(srUser, exec);
 
-    // Control time dependencies
-    exec.add(instrStart(ldA) + 1 == instrEnd(ldA));
-    exec.add(instrStart(plus) == instrEnd(plus));
-    exec.add(instrStart(st) + 3 == instrEnd(st));
-    exec.add(instrStart(ret) == instrEnd(ret));
+  //   // Control time dependencies
+  //   exec.add(instrStart(ldA) + 1 == instrEnd(ldA));
+  //   exec.add(instrStart(plus) == instrEnd(plus));
+  //   exec.add(instrStart(st) + 3 == instrEnd(st));
+  //   exec.add(instrStart(ret) == instrEnd(ret));
 
-    // Create architecture that respects these constraints
-    HardwareConstraints hcs;    
-    DynArch arch(srUser, exec, hcs);
+  //   // Create architecture that respects these constraints
+  //   HardwareConstraints hcs;    
+  //   DynArch arch(srUser, exec, hcs);
 
-    // Move result
-    ofstream out(string(arch.getFunction()->getName()) + ".v");
-    emitVerilog(out, arch);
-    out.close();
+  //   // Move result
+  //   ofstream out(string(arch.getFunction()->getName()) + ".v");
+  //   emitVerilog(out, arch);
+  //   out.close();
 
-    REQUIRE(runIVerilogTB("dynamic_arch"));
-  }
+  //   REQUIRE(runIVerilogTB("dynamic_arch"));
+  // }
 
   TEST_CASE("Creating memory interface functions") {
     LLVMContext context;
@@ -4244,14 +4265,14 @@ namespace DHLS {
       auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
       auto setData = eb.CreateCall(wdata0F, {sram, data});
       auto setEn1 = eb.CreateCall(wen0F, {sram, mkInt(1, 1)});
-      //auto setEn0 = eb.CreateCall(wen0F, {sram, mkInt(1, 1)});
+      //auto setEn0 = eb.CreateCall(wen0F, {sram, mkInt(0, 1)});
       eb.CreateRet(nullptr);
 
       exec.add(instrStart(setAddr) == instrStart(setData));
       exec.add(instrStart(setAddr) == instrStart(setEn1));
 
       //exec.add(instrEnd(setEn1) + 1 == instrStart(setEn0));
-      //addDataConstraints(ramWrite0, exec);
+      addDataConstraints(ramWrite0, exec);
     }
   
 
@@ -4304,7 +4325,6 @@ namespace DHLS {
     out.close();
 
     REQUIRE(runIVerilogTB("dynamic_arch_sram_class"));
-    
   }
   
 }
