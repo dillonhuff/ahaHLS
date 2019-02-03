@@ -4196,7 +4196,7 @@ namespace DHLS {
       eb.CreateRet(readData);
 
       exec.add(instrStart(setAddr) + 1 == instrStart(readData));
-      addDataConstraints(ramRead0, exec);
+      //addDataConstraints(ramRead0, exec);
 
       cout << "Constraints on read function" << endl;
       for (auto c : exec.constraints) {
