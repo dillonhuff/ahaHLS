@@ -74,6 +74,10 @@ namespace DHLS {
     // Inline the constraints
     Value* finalRetVal = nullptr;
 
+    // Real procedure should be to replace all references to start(toInline),
+    // end(toInline) in the receiver function with references to start(funcMarker)
+    // end(funcMarker), and in the constraints internally replace all references
+    // to start(ret), end(ret) with end(funcMarker)
     for (auto& bb : called->getBasicBlockList()) {
       for (auto& instr : bb) {
         if (!ReturnInst::classof(&instr)) {
@@ -98,43 +102,10 @@ namespace DHLS {
       }
     }
 
-    // In general I want to do the following:
-    // For every constraint involving the call to be inlined, for
-    // every instruction in the inlined version, create a new instance
-    // of that constraint using the current instruction
-    // bool replaced = true;
-    // while (replaced) {
-    //   replaced = false;
-
-      for (auto c : exec.constraints) {
-        c->replaceStart(toInline, inlinedInstrs.front());
-        c->replaceEnd(toInline, inlinedInstrs.back());        
-        // if (c->references(toInline)) {
-
-        //   // TODO: Should really be replacing instruction times,
-        //   // so replace: start(toInline) with start(inlinedInstrs.front())
-        //   //             end(toInline) with end(inlinedInstrs.back())
-
-        //   //cout << "Replacing constraint " << *c << endl;
-
-        //   // ExecutionConstraint* newC = c->clone();
-        //   // newC->replaceInstruction(toInline, inlinedInstrs.front());
-        //   // //cout << "\tAdding replacement " << *newC << endl;
-        //   // exec.add(newC);
-          
-        //   for (auto instr : inlinedInstrs) {
-        //     ExecutionConstraint* newC = c->clone();
-        //     newC->replaceInstruction(toInline, instr);
-        //     //cout << "\tAdding replacement " << *newC << endl;
-        //     exec.add(newC);
-        //   }
-        //   exec.remove(c);
-
-        //   replaced = true;
-        //   break;
-        // }
-      }
-      //    }
+    for (auto c : exec.constraints) {
+      c->replaceStart(toInline, inlinedInstrs.front());
+      c->replaceEnd(toInline, inlinedInstrs.back());        
+    }
 
     if (finalRetVal != nullptr) {
       toInline->replaceAllUsesWith(finalRetVal);
@@ -149,6 +120,7 @@ namespace DHLS {
     // Remove old call
     toInline->eraseFromParent();
 
+    cout << "Inlining constraints" << endl;
     // Inline constraints
     // TODO: How to handle constraints on the return instruction,
     // since the return instruction is not handled?
@@ -4241,9 +4213,7 @@ namespace DHLS {
       eb.CreateRet(readData);
 
       exec.add(instrStart(setAddr) + 1 == instrStart(readData));
-      //exec.add(instrStart(setAddr) == instrEnd(setAddr));
-
-      //exec.add(instrStart(readData) == instrEnd(readData));
+      addDataConstraints(ramRead0, exec);
     }
     Function* ramWrite0 = mkFunc({sramTp, intType(addrWidth), intType(width)}, voidType(), "write0");
     interfaces.addFunction(ramWrite0);
@@ -4269,6 +4239,7 @@ namespace DHLS {
       exec.add(instrStart(setAddr) == instrStart(setEn1));
 
       exec.add(instrEnd(setEn1) + 1 == instrStart(setEn0));
+      addDataConstraints(ramWrite0, exec);
     }
   
 
