@@ -801,7 +801,9 @@ namespace DHLS {
     }
 
     LinearExpression actionStart(const ExecutionAction& action) {
-      return LinearExpression(dbhc::map_find(action, actionVarNames).front());
+      auto lc = LinearExpression(dbhc::map_find(action, actionVarNames).front());
+      cout << "start of " << action << " is " << lc << endl;
+      return lc;
     }
 
     LinearExpression actionEnd(const ExecutionAction& action) {
