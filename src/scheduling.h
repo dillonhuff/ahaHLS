@@ -991,6 +991,10 @@ namespace DHLS {
       return !isEnd;
     }
 
+    ExecutionAction getAction() const {
+      return action;
+    }
+    
     llvm::Instruction* getInstr() const {
       return action.getInstruction();
     }

@@ -117,7 +117,6 @@ namespace DHLS {
     }
 
     exec.addConstraint(actionStart(inlineMarkerAction) <= actionEnd(inlineMarkerAction));
-    //exec.addConstraint(actionStart(inlineMarkerAction) > actionEnd(inlineMarkerAction));
     
     if (finalRetVal != nullptr) {
       toInline->replaceAllUsesWith(finalRetVal);
@@ -3781,67 +3780,101 @@ namespace DHLS {
           FunctionalUnit unit = addFunctionalUnit(&instr);
           unitAssignment[&instr] = unit;
 
-          Wire si = {true, 1, prefix + "_started"};
-          allWires.push_back(si);
+          addAction(&instr);
 
-          Wire se = {true, 1, prefix + "_finished"};
-          allWires.push_back(se);          
-
-          Wire sc = addReg(32, prefix + "_time_started");
-
-          Wire ec = addReg(32, prefix + "_time_finished");
-
-          Wire ssc = {false, 1, prefix + "_starting_this_cycle"};
-          allWires.push_back(ssc);          
-          Wire esc = {false, 1, prefix + "_done_this_cycle"};
-          allWires.push_back(esc);
-
-          actionTrackers[&instr] = {si, se, sc, ec, ssc, esc};
-          
           i++;
         }
       }
 
+      std::set<ExecutionAction> added;
+      for (auto c : exe.constraints) {
+        if (c->type() == CONSTRAINT_TYPE_ORDERED) {
+          Ordered* oc = static_cast<Ordered*>(c);
+          InstructionTime before = oc->before;
+          if (!before.action.isInstruction() && !elem(before.action, added)) {
+            added.insert(before.action);
+            addAction(before.action);
+          }
+
+          InstructionTime after = oc->after;
+          if (!after.action.isInstruction() && !elem(after.action, added)) {
+            added.insert(after.action);
+            addAction(after.action);
+          }
+
+        } else {
+          assert(false);
+        }
+      }
     }
 
-    std::string couldStartFlag(llvm::Instruction* instr) const {
-      return map_find(ExecutionAction(instr), actionTrackers).startingThisCycleFlag.name;
+    void addAction(ExecutionAction action) {
+      string prefix;
+      if (action.isInstruction()) {
+        prefix =
+          sanitizeFormatForVerilogId(valueString(action.getInstruction()));
+      } else {
+        prefix = action.getName();
+      }
+
+      Wire si = {true, 1, prefix + "_started"};
+      allWires.push_back(si);
+
+      Wire se = {true, 1, prefix + "_finished"};
+      allWires.push_back(se);          
+
+      Wire sc = addReg(32, prefix + "_time_started");
+
+      Wire ec = addReg(32, prefix + "_time_finished");
+
+      Wire ssc = {false, 1, prefix + "_starting_this_cycle"};
+      allWires.push_back(ssc);          
+      Wire esc = {false, 1, prefix + "_done_this_cycle"};
+      allWires.push_back(esc);
+
+      actionTrackers[action] = {si, se, sc, ec, ssc, esc};
+          
+
     }
 
-    std::string couldEndFlag(llvm::Instruction* instr) const {
-      return map_find(ExecutionAction(instr), actionTrackers).endingThisCycleFlag.name;      
+    std::string couldStartFlag(ExecutionAction instr) const {
+      return map_find(instr, actionTrackers).startingThisCycleFlag.name;
     }
 
-    std::string instrDoneString(Instruction* instr) const {
+    std::string couldEndFlag(ExecutionAction instr) const {
+      return map_find(instr, actionTrackers).endingThisCycleFlag.name;      
+    }
+
+    std::string instrDoneString(ExecutionAction instr) const {
       return doneFlag(instr);
     }
 
-    std::string instrStartString(Instruction* instr) const {
+    std::string instrStartString(ExecutionAction instr) const {
       return startedFlag(instr);
     }
 
-    std::string instrEndString(Instruction* instr) const {
+    std::string instrEndString(ExecutionAction instr) const {
       return doneFlag(instr);
     }
     
-    std::string startedFlag(llvm::Instruction* instr) const {
-      return map_find(ExecutionAction(instr), actionTrackers).startedFlag.name;
+    std::string startedFlag(ExecutionAction instr) const {
+      return map_find(instr, actionTrackers).startedFlag.name;
     }
 
-    std::string doneFlag(llvm::Instruction* instr) const {
-      return map_find(ExecutionAction(instr), actionTrackers).endedFlag.name;
+    std::string doneFlag(ExecutionAction instr) const {
+      return map_find(instr, actionTrackers).endedFlag.name;
+    }
+
+    std::string doneTimeString(ExecutionAction instr) const {
+      return map_find(instr, actionTrackers).endTimeCounter.name;
+    }
+
+    std::string startTimeString(ExecutionAction instr) const {
+      return map_find(instr, actionTrackers).startTimeCounter.name;
     }
     
     std::string globalTimeString() const {
       return globalTime.name;
-    }
-
-    std::string doneTimeString(llvm::Instruction* instr) const {
-      return map_find(ExecutionAction(instr), actionTrackers).endTimeCounter.name;
-    }
-
-    std::string startTimeString(llvm::Instruction* instr) const {
-      return map_find(ExecutionAction(instr), actionTrackers).startTimeCounter.name;
     }
     
     // Time at which an instruction started or finished
@@ -3849,11 +3882,11 @@ namespace DHLS {
       string alreadyDoneTime;
       string thisCycleFlag;
       if (time.isEnd) {
-        alreadyDoneTime = doneTimeString(time.getInstr()); //map_find(time.instr, timeDoneCounters).name;
-        thisCycleFlag = couldEndFlag(time.getInstr()); //map_find(time.instr, instrDoneThisCycleFlags).name;
+        alreadyDoneTime = doneTimeString(time.getAction());
+        thisCycleFlag = couldEndFlag(time.getAction());
       } else {
-        alreadyDoneTime = startTimeString(time.getInstr()); //map_find(time.instr, timeStartedCounters).name;
-        thisCycleFlag = couldStartFlag(time.getInstr()); //map_find(time.instr, instrStartingThisCycleFlags).name;
+        alreadyDoneTime = startTimeString(time.getAction());
+        thisCycleFlag = couldStartFlag(time.getAction());
       }
 
       // If this time is the start or end then the time of the event is
@@ -3874,11 +3907,11 @@ namespace DHLS {
       string eventHappened;
       string eventHappening;
       if (time.isEnd) {
-        eventHappened = doneFlag(time.getInstr());
-        eventHappening = couldEndFlag(time.getInstr());
+        eventHappened = doneFlag(time.getAction());
+        eventHappening = couldEndFlag(time.getAction());
       } else {
-        eventHappened = startedFlag(time.getInstr());
-        eventHappening = couldStartFlag(time.getInstr());
+        eventHappened = startedFlag(time.getAction());
+        eventHappening = couldStartFlag(time.getAction());
       }
 
       return orStr(eventHappened, eventHappening);
