@@ -4056,9 +4056,6 @@ namespace DHLS {
     addAlwaysBlock({"clk"}, "if (rst) begin " + arch.globalTimeString() + " <= 0; end", comps);
     addAlwaysBlock({"clk"}, "if (!rst) begin " + arch.globalTimeString() + " <= " + arch.globalTimeString() + " + 1; end", comps);
     
-    // for (auto& bb : arch.getFunction()->getBasicBlockList()) {
-    //   for (auto& instr : bb) {
-
     for (auto actionMarker : arch.actionTrackers) {
       ExecutionAction action = actionMarker.first;
 
@@ -4076,7 +4073,10 @@ namespace DHLS {
       // Debug printouts, TODO: Move these to separate debug function
       string actionStr = action.isInstruction() ? valueString(action.getInstruction()) : action.getName();
       addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(action) + ") begin $display(\"Starting " + sanitizeFormatForVerilog(actionStr) + " at cycle %d\", " + arch.globalTimeString() + "); end", comps);
-      addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(action) + ") begin $display(\"Ending " + sanitizeFormatForVerilog(actionStr) + " at cycle %d\", " + arch.globalTimeString() + "); end", comps);
+
+      string outputPrintout = "$display(\"Ending " + sanitizeFormatForVerilog(actionStr) + " at cycle %d\", " + arch.globalTimeString() + ");";
+
+      addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(action) + ") begin " + outputPrintout + " end", comps);
       // End debug printouts
 
 
@@ -4121,6 +4121,8 @@ namespace DHLS {
         } else if (isBuiltinPortWrite(instr)) {
           string portName = getPortName(instr);          
           portSetting += unit.portWires[portName].name + " = " + arch.outputName(instr->getOperand(1)) + "; ";
+        } else {
+          assert(false);
         }
 
         addAlwaysBlock({}, "if (" + arch.couldStartFlag(instr) + ") begin " + portSetting + " end", comps);
@@ -4128,11 +4130,13 @@ namespace DHLS {
         // Store results to temporaries
         if (hasOutput(instr)) {
           addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(instr) + ") begin " + map_find(instr, arch.tempStorage).name + " <= " + resultValue + "; end", comps);
+
+          string outputPrintout = "$display(\"Ending " + sanitizeFormatForVerilog(actionStr) + " at cycle %d, with value %d\", " + arch.globalTimeString() + ", " + resultValue + ");";
+          addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(action) + ") begin " + outputPrintout + " end", comps);
+          
         }
       }
     }
-    //   }
-    // }
 
     emitModule(out, string(arch.getFunction()->getName()), pts, comps);
   }
