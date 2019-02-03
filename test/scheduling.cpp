@@ -117,7 +117,8 @@ namespace DHLS {
     }
 
     exec.addConstraint(actionStart(inlineMarkerAction) <= actionEnd(inlineMarkerAction));
-
+    exec.addConstraint(actionStart(inlineMarkerAction) > actionEnd(inlineMarkerAction));
+    
     if (finalRetVal != nullptr) {
       toInline->replaceAllUsesWith(finalRetVal);
       // Replace constraints on toInline
@@ -3800,6 +3801,7 @@ namespace DHLS {
           i++;
         }
       }
+
     }
 
     std::string couldStartFlag(llvm::Instruction* instr) const {

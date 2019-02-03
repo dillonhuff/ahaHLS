@@ -691,6 +691,17 @@ namespace DHLS {
     }
   };
 
+  static inline
+  std::ostream& operator<<(std::ostream& out, const LinearExpression expr) {
+    auto vars = expr.getVars();
+    for (auto v : vars) {
+      out << v.second << "*" << v.first << " + ";
+    }
+    out << expr.getCoeff();
+
+    return out;
+  }
+
   enum ZCondition {
     CMP_LTZ,
     CMP_GTZ,
@@ -704,6 +715,31 @@ namespace DHLS {
     LinearExpression expr;
     ZCondition cond;
   };
+
+  static inline
+  std::string toString(const ZCondition cond) {
+    switch (cond) {
+    case CMP_LTZ:
+      return "< 0";
+    case CMP_GTEZ:
+      return ">= 0";
+    case CMP_LTEZ:
+      return "<= 0";
+    case CMP_GTZ:
+      return "> 0";
+    case CMP_EQZ:
+      return "== 0";
+      
+    default:
+      assert(false);
+    }
+  }
+
+  static inline
+  std::ostream& operator<<(std::ostream& out, const LinearConstraint& c) {
+    out << c.expr << " " << toString(c.cond);
+    return out;
+  }
 
   class SchedulingProblem {
   public:
@@ -804,17 +840,6 @@ namespace DHLS {
       constraints.push_back(constraint);
     }
   };
-
-  static inline
-  std::ostream& operator<<(std::ostream& out, const LinearExpression expr) {
-    auto vars = expr.getVars();
-    for (auto v : vars) {
-      out << v.second << "*" << v.first << " + ";
-    }
-    out << expr.getCoeff();
-
-    return out;
-  }
 
   static inline
   LinearExpression
@@ -1194,6 +1219,11 @@ namespace DHLS {
   static inline
   Ordered* operator<=(InstructionTime before, InstructionTime after) {
     return new Ordered(before, after, ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS);
+  }
+
+  static inline
+  Ordered* operator>(InstructionTime before, InstructionTime after) {
+    return after < before;
   }
   
   class ExecutionConstraints {

@@ -289,8 +289,10 @@ namespace DHLS {
 
   template<typename Solver>
   Schedule extractModel(SchedulingProblem& p, z3::context& c, Solver& s) {
-    
+
+    cout << "Extracting model" << endl;
     for (auto& constraint : p.constraints) {
+      cout << "Constraint = " << constraint << endl;
       s.add(toZ3(c, constraint));
     }
 
@@ -306,8 +308,8 @@ namespace DHLS {
 
     model m = s.get_model();
 
-    // cout << "Final model" << endl;
-    // cout << m << endl;
+    cout << "Final model" << endl;
+    cout << m << endl;
     
     //cout << "Final schedule" << endl;
     Schedule sched;
