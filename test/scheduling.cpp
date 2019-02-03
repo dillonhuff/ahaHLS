@@ -117,7 +117,7 @@ namespace DHLS {
     }
 
     exec.addConstraint(actionStart(inlineMarkerAction) <= actionEnd(inlineMarkerAction));
-    exec.addConstraint(actionStart(inlineMarkerAction) > actionEnd(inlineMarkerAction));
+    //exec.addConstraint(actionStart(inlineMarkerAction) > actionEnd(inlineMarkerAction));
     
     if (finalRetVal != nullptr) {
       toInline->replaceAllUsesWith(finalRetVal);

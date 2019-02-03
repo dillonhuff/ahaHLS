@@ -1034,12 +1034,12 @@ namespace DHLS {
 
   static inline   
   InstructionTime actionStart(ExecutionAction& action) {
-    return {action, true, 0};
+    return {action, false, 0};
   }
 
   static inline   
   InstructionTime actionEnd(ExecutionAction& action) {
-    return {action, false, 0};
+    return {action, true, 0};
   }
   
   static inline   
