@@ -4164,6 +4164,12 @@ namespace DHLS {
     emitModule(out, string(arch.getFunction()->getName()), pts, comps);
   }
 
+  // Several things are going wrong here and I dont understand the effect of
+  // changes that I make to the system very well.
+  //  1. Output code is pretty unreadable
+  //  2. Constraints that I dont think should exist are forming (raddr depending on rdata?)
+  //  3. Constraints that I dont think should be a problem (return value constraints
+  //     on functions) seem to cause everything to stop executing
   TEST_CASE("Creating memory interface functions") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
@@ -4198,7 +4204,7 @@ namespace DHLS {
       exec.add(instrStart(setAddr) + 1 == instrStart(readData));
       //addDataConstraints(ramRead0, exec);
 
-      cout << "Constraints on read function" << endl;
+      cout << "-- Constraints on read function" << endl;
       for (auto c : exec.constraints) {
         cout << tab(1) << *c << endl;
       }
@@ -4230,7 +4236,7 @@ namespace DHLS {
       exec.add(instrEnd(setEn1) + 1 == instrStart(setEn0));
       //addDataConstraints(ramWrite0, exec);
 
-      cout << "Constraints on write function" << endl;
+      cout << "-- Constraints on write function" << endl;
       for (auto c : exec.constraints) {
         cout << tab(1) << *c << endl;
       }
