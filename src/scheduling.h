@@ -11,7 +11,54 @@ using namespace std;
 
 namespace DHLS {
 
+  class ExecutionAction {
+    llvm::Instruction* instr;
+    std::string tag;
+    bool isInstructionFlag;
+    
+  public:
+    ExecutionAction(Instruction* const instr_) : instr(instr_), tag(""), isInstructionFlag(true) {}
 
+    ExecutionAction(const std::string& name) : instr(nullptr), tag(name), isInstructionFlag(false) {}
+
+    bool isInstruction() const {
+      return isInstructionFlag;
+    }
+    
+    std::string getName() const {
+      assert(!isInstruction());
+      return tag;
+    }
+
+    void setInstruction(llvm::Instruction* newInstr) {
+      instr = newInstr;
+      isInstructionFlag = true;
+    }
+
+    llvm::Instruction* getInstruction() const {
+      assert(isInstruction());
+      return instr;
+    }
+  };
+
+  static inline
+  bool operator<(const ExecutionAction& a, const ExecutionAction& b) {
+    if (a.isInstruction() && !b.isInstruction()) {
+      return true;
+    }
+
+    if (!a.isInstruction() && b.isInstruction()) {
+      return false;
+    }
+
+    if (a.isInstruction() == b.isInstruction()) {
+      return a.getInstruction() < b.getInstruction();
+    }
+
+
+    return a.getName() < b.getName();
+  }
+  
   class Port {
   public:
     // TODO: registered is currently ignored in code generation. Registered
@@ -684,7 +731,16 @@ namespace DHLS {
       return LinearExpression(dbhc::map_find(bb, blockVarNames).back());
     }
 
+    LinearExpression instrStart(const ExecutionAction& action) {
+      assert(action.isInstruction());
+      return LinearExpression(dbhc::map_find(action.getInstruction(), schedVarNames).front());
+    }
 
+    LinearExpression instrEnd(const ExecutionAction& action) {
+      assert(action.isInstruction());      
+      return LinearExpression(dbhc::map_find(action.getInstruction(), schedVarNames).back());
+    }
+    
     LinearExpression instrStart(llvm::Instruction* instr) {
       return LinearExpression(dbhc::map_find(instr, schedVarNames).front());
     }
@@ -841,59 +897,18 @@ namespace DHLS {
                           HardwareConstraints& hdc,
                           std::set<llvm::BasicBlock*>& toPipeline);
 
-  class ExecutionAction {
-    llvm::Instruction* instr;
-    std::string tag;
-    bool isInstructionFlag;
-    
-  public:
-    ExecutionAction(Instruction* const instr_) : instr(instr_), tag(""), isInstructionFlag(true) {}
-
-    ExecutionAction(const std::string& name) : instr(nullptr), tag(name), isInstructionFlag(false) {}
-
-    bool isInstruction() const {
-      return isInstructionFlag;
-    }
-    
-    std::string getName() const {
-      assert(!isInstruction());
-      return tag;
-    }
-
-    llvm::Instruction* getInstruction() const {
-      assert(isInstruction());
-      return instr;
-    }
-  };
-
-  static inline
-  bool operator<(const ExecutionAction& a, const ExecutionAction& b) {
-    if (a.isInstruction() && !b.isInstruction()) {
-      return true;
-    }
-
-    if (!a.isInstruction() && b.isInstruction()) {
-      return false;
-    }
-
-    if (a.isInstruction() == b.isInstruction()) {
-      return a.getInstruction() < b.getInstruction();
-    }
-
-
-    return a.getName() < b.getName();
-  }
-  
   class EventTime {
   public:
-    Instruction* instr;
+    //Instruction* instr;
+    ExecutionAction action;
     bool isEnd;
     int offset;
 
     void replaceInstruction(Instruction* const toReplace,
                             Instruction* const replacement) {
-      if (instr == toReplace) {
-        instr = replacement;
+      if (action.isInstruction() && (action.getInstruction() == toReplace)) {
+        action.setInstruction(replacement);
+        //instr = replacement;
       }
     }
     
@@ -906,19 +921,26 @@ namespace DHLS {
 
   static inline   
   InstructionTime operator+(const InstructionTime t, const int offset) {
-    return {t.instr, t.isEnd, t.offset + offset};
+    return {t.action, t.isEnd, t.offset + offset};
   }
 
   static inline   
   InstructionTime operator+(const int offset, const InstructionTime t) {
-    return {t.instr, t.isEnd, t.offset + offset};
+    return {t.action, t.isEnd, t.offset + offset};
   }
 
   static inline   
   LinearExpression
   toLinearExpression(const InstructionTime& time,
                      SchedulingProblem& p) {
-    return (time.isEnd ? p.instrEnd(time.instr) : p.instrStart(time.instr)) + time.offset;
+    return time.isEnd ? p.instrEnd(time.action) : p.instrStart(time.action);
+  }
+
+  static inline   
+  LinearExpression
+  toLinearExpression(const InstructionTime& time,
+                     SchedulingProblem& p) {
+    return toLinearExpression(time.action, p) + time.offset;
   }
 
   static inline   

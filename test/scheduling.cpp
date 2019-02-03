@@ -3815,37 +3815,31 @@ namespace DHLS {
     }
 
     std::string couldStartFlag(llvm::Instruction* instr) const {
-      //return map_find(instr, instrStartingThisCycleFlags).name;
       return map_find(ExecutionAction(instr), actionTrackers).startingThisCycleFlag.name;
     }
 
     std::string couldEndFlag(llvm::Instruction* instr) const {
-      //return map_find(instr, instrDoneThisCycleFlags).name;
       return map_find(ExecutionAction(instr), actionTrackers).endingThisCycleFlag.name;      
     }
 
     std::string instrDoneString(Instruction* instr) const {
       return doneFlag(instr);
-      //return map_find(instr, instrDoneFlags).name;
     }
 
     std::string instrStartString(Instruction* instr) const {
       return startedFlag(instr);
-      //return map_find(instr, instrStartedFlags).name;
     }
 
     std::string instrEndString(Instruction* instr) const {
-      //return map_find(instr, instrDoneFlags).name;
       return doneFlag(instr);
     }
     
     std::string startedFlag(llvm::Instruction* instr) const {
-      return map_find(ExecutionAction(instr), actionTrackers).startedFlag.name; //map_find(instr, instrStartedFlags).name;
+      return map_find(ExecutionAction(instr), actionTrackers).startedFlag.name;
     }
 
     std::string doneFlag(llvm::Instruction* instr) const {
-      //return map_find(instr, instrDoneFlags).name;
-      return map_find(ExecutionAction(instr), actionTrackers).endedFlag.name; //map_find(instr, instrStartedFlags).name;      
+      return map_find(ExecutionAction(instr), actionTrackers).endedFlag.name;
     }
     
     std::string globalTimeString() const {
@@ -3853,12 +3847,10 @@ namespace DHLS {
     }
 
     std::string doneTimeString(llvm::Instruction* instr) const {
-      //return map_find(instr, timeDoneCounters).name;
       return map_find(ExecutionAction(instr), actionTrackers).endTimeCounter.name;
     }
 
     std::string startTimeString(llvm::Instruction* instr) const {
-      //return map_find(instr, timeStartedCounters).name;
       return map_find(ExecutionAction(instr), actionTrackers).startTimeCounter.name;
     }
     
