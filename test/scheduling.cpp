@@ -3827,7 +3827,7 @@ namespace DHLS {
           allWires.push_back(esc);
           instrDoneThisCycleFlags[&instr] = esc;
 
-          actionTrackers[&instr] = {si};
+          actionTrackers[&instr] = {si, se, sc, ec, ssc, esc};
           
           i++;
         }
@@ -3835,11 +3835,28 @@ namespace DHLS {
     }
 
     std::string couldStartFlag(llvm::Instruction* instr) {
-      return map_find(instr, instrStartingThisCycleFlags).name;
+      //return map_find(instr, instrStartingThisCycleFlags).name;
+      return map_find(ExecutionAction(instr), actionTrackers).startingThisCycleFlag.name;
     }
 
     std::string couldEndFlag(llvm::Instruction* instr) {
-      return map_find(instr, instrDoneThisCycleFlags).name;
+      //return map_find(instr, instrDoneThisCycleFlags).name;
+      return map_find(ExecutionAction(instr), actionTrackers).endingThisCycleFlag.name;      
+    }
+
+    std::string instrDoneString(Instruction* instr) {
+      return doneFlag(instr);
+      //return map_find(instr, instrDoneFlags).name;
+    }
+
+    std::string instrStartString(Instruction* instr) {
+      return startedFlag(instr);
+      //return map_find(instr, instrStartedFlags).name;
+    }
+
+    std::string instrEndString(Instruction* instr) {
+      //return map_find(instr, instrDoneFlags).name;
+      return doneFlag(instr);
     }
     
     std::string startedFlag(llvm::Instruction* instr) {
@@ -3847,7 +3864,8 @@ namespace DHLS {
     }
 
     std::string doneFlag(llvm::Instruction* instr) {
-      return map_find(instr, instrDoneFlags).name;
+      //return map_find(instr, instrDoneFlags).name;
+      return map_find(ExecutionAction(instr), actionTrackers).endedFlag.name; //map_find(instr, instrStartedFlags).name;      
     }
     
     // Need two different things: "Already started" (every clock period after the
@@ -3943,18 +3961,6 @@ namespace DHLS {
       }
     }
 
-    std::string instrDoneString(Instruction* instr) {
-      return map_find(instr, instrDoneFlags).name;
-    }
-
-    std::string instrStartString(Instruction* instr) {
-      return map_find(instr, instrStartedFlags).name;
-    }
-
-    std::string instrEndString(Instruction* instr) {
-      return map_find(instr, instrDoneFlags).name;
-    }
-    
     std::string startInstrConstraint(Instruction* instr) {
       vector<string> rcs;
       for (auto c : exe.constraintsOnStart(instr)) {
