@@ -840,6 +840,31 @@ namespace DHLS {
   createSchedulingProblem(llvm::Function* f,
                           HardwareConstraints& hdc,
                           std::set<llvm::BasicBlock*>& toPipeline);
+
+  class ExecutionEvent {
+    llvm::Instruction* instr;
+    std::string tag;
+    bool isInstructionFlag;
+    bool isEndFlag;
+    
+  public:
+    ExecutionEvent(Instruction* const instr_,
+                   const bool isEnd_) : instr(instr_), tag(""), isInstructionFlag(true), isEndFlag(isEnd_) {}
+
+    std::string getName() const {
+      assert(!isInstructionFlag);
+      return tag;
+    }
+
+    llvm::Instruction* getInstruction() const {
+      assert(isInstructionFlag);
+      return instr;
+    }
+
+    bool isEnd() const { return isEndFlag; }
+    bool isStart() const { return !isEnd(); }
+    
+  };
   
   class InstructionTime {
   public:
