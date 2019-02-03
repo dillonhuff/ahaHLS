@@ -42,6 +42,16 @@ namespace DHLS {
   };
 
   static inline
+  std::ostream& operator<<(std::ostream& out, const ExecutionAction& action) {
+    if (action.isInstruction()) {
+      out << valueString(action.getInstruction());
+    } else {
+      out << action.getName();
+    }
+    return out;
+  }
+  
+  static inline
   bool operator<(const ExecutionAction& a, const ExecutionAction& b) {
     if (a.isInstruction() && !b.isInstruction()) {
       return true;
@@ -933,14 +943,7 @@ namespace DHLS {
   LinearExpression
   toLinearExpression(const InstructionTime& time,
                      SchedulingProblem& p) {
-    return time.isEnd ? p.instrEnd(time.action) : p.instrStart(time.action);
-  }
-
-  static inline   
-  LinearExpression
-  toLinearExpression(const InstructionTime& time,
-                     SchedulingProblem& p) {
-    return toLinearExpression(time.action, p) + time.offset;
+    return (time.isEnd ? p.instrEnd(time.action) : p.instrStart(time.action)) + time.offset;
   }
 
   static inline   
@@ -968,7 +971,7 @@ namespace DHLS {
   static inline
   std::ostream& operator<<(std::ostream& out, const InstructionTime& t) {
     std::string pre = t.isEnd ? "end" : "start";
-    out << pre << "(" << valueString(t.instr) << ") + " << t.offset;
+    out << pre << "(" << t.action << ") + " << t.offset;
     return out;
   }
 
@@ -1077,7 +1080,15 @@ namespace DHLS {
     }
     
     virtual bool references(Instruction* instr) const override {
-      return (before.instr == instr) || (after.instr == instr);
+      if (before.action.isInstruction() && (before.action.getInstruction() == instr)) {
+        return true;
+      }
+
+      if (after.action.isInstruction() && (after.action.getInstruction() == instr)) {
+        return true;
+      }
+
+      return false;
     }
 
     virtual void replaceInstruction(Instruction* const toReplace,
@@ -1126,7 +1137,9 @@ namespace DHLS {
       for (auto c : constraints) {
         if (c->type() == CONSTRAINT_TYPE_ORDERED) {
           Ordered* oc = static_cast<Ordered*>(c);
-          if (oc->after.isStart() && (oc->after.instr == instr)) {
+          if (oc->after.isStart() &&
+              oc->after.action.isInstruction() &&
+              (oc->after.action.getInstruction() == instr)) {
             on.push_back(c);
           }
         } else {
@@ -1150,7 +1163,9 @@ namespace DHLS {
       for (auto c : constraints) {
         if (c->type() == CONSTRAINT_TYPE_ORDERED) {
           Ordered* oc = static_cast<Ordered*>(c);
-          if (oc->after.isEnd && (oc->after.instr == instr)) {
+          if (oc->after.isEnd &&
+              oc->after.action.isInstruction() &&
+              (oc->after.action.getInstruction() == instr)) {
             on.push_back(c);
           }
         } else {
