@@ -3588,10 +3588,15 @@ namespace DHLS {
   // Combinational flags saying if the instruction is ending now?
   // Global clock
 
-  // Going to need markers for:
-  // Time since an instruction started / ended
-  // Whether an instruction starts / ends in this cycle
-  // Time elapsed since an instruction has started / ended (or just start cycle?)
+  class ActionTracker {
+  public:
+    Wire startFlag;
+    Wire endFlag;
+    Wire startTimeCounter;
+    Wire endTimeCounter;
+    Wire startingThisCycleFlag;
+    Wire endingThisCycleFlag;
+  };
 
   // Idea: Time marker class, with 3 regions: before, clock period where event
   // (program point in LLVM) is happening, after
@@ -3601,6 +3606,8 @@ namespace DHLS {
     HardwareConstraints& hcs;
 
     Wire globalTime;
+
+    std::map<ExecutionAction, ActionTracker> actions;
 
     // Map from instruction times to wire names?
     std::map<llvm::Instruction*, Wire> instrStartedFlags;
