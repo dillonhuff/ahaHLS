@@ -4244,13 +4244,13 @@ namespace DHLS {
       auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
       auto setData = eb.CreateCall(wdata0F, {sram, data});
       auto setEn1 = eb.CreateCall(wen0F, {sram, mkInt(1, 1)});
-      auto setEn0 = eb.CreateCall(wen0F, {sram, mkInt(0, 1)});
+      //auto setEn0 = eb.CreateCall(wen0F, {sram, mkInt(1, 1)});
       eb.CreateRet(nullptr);
 
       exec.add(instrStart(setAddr) == instrStart(setData));
       exec.add(instrStart(setAddr) == instrStart(setEn1));
 
-      exec.add(instrEnd(setEn1) + 1 == instrStart(setEn0));
+      //exec.add(instrEnd(setEn1) + 1 == instrStart(setEn0));
       //addDataConstraints(ramWrite0, exec);
     }
   
