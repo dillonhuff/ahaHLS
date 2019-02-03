@@ -208,5 +208,21 @@ namespace DHLS {
 
   
   
+  std::string sanitizeFormatForVerilog(const std::string& str) {
+    string san = "";
+    for (auto c : str) {
+
+      if (c == '"') {
+        san += "\\\"";
+      } else if (c == '%') {
+        san += '$';
+      } else {
+        san += c;
+      }
+        
+    }
+    return san;
+  }
+  
   
 }

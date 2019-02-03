@@ -50,6 +50,18 @@ namespace DHLS {
     }
     return out;
   }
+
+  static inline
+  bool operator==(const ExecutionAction& a, const ExecutionAction& b) {
+    if (a.isInstruction() != b.isInstruction()) {
+      return false;
+    }
+    if (a.isInstruction() && b.isInstruction()) {
+      return a.getInstruction() == b.getInstruction();
+    }
+
+    return a.getName() == b.getName();
+  }
   
   static inline
   bool operator<(const ExecutionAction& a, const ExecutionAction& b) {
@@ -61,7 +73,7 @@ namespace DHLS {
       return false;
     }
 
-    if (a.isInstruction() == b.isInstruction()) {
+    if (a.isInstruction() && b.isInstruction()) {
       return a.getInstruction() < b.getInstruction();
     }
 
@@ -696,7 +708,8 @@ namespace DHLS {
   class SchedulingProblem {
   public:
     int blockNo;
-    
+
+    std::map<ExecutionAction, std::vector<std::string> > actionVarNames;
     std::map<llvm::Instruction*, std::vector<std::string> > schedVarNames;
     std::map<llvm::BasicBlock*, std::vector<std::string> > blockVarNames;
     std::map<llvm::BasicBlock*, std::string> IInames;
@@ -741,6 +754,24 @@ namespace DHLS {
       return LinearExpression(dbhc::map_find(bb, blockVarNames).back());
     }
 
+    bool hasAction(const ExecutionAction& action) {
+      return dbhc::contains_key(action, actionVarNames);
+    }
+
+    void addAction(const ExecutionAction& action) {
+      // TODO: Eventually use this for all actions including instructions
+      assert(!action.isInstruction());
+      actionVarNames[action] = {action.getName() + "_start", action.getName() + "_end"};
+    }
+
+    LinearExpression actionStart(const ExecutionAction& action) {
+      return LinearExpression(dbhc::map_find(action, actionVarNames).front());
+    }
+
+    LinearExpression actionEnd(const ExecutionAction& action) {
+      return LinearExpression(dbhc::map_find(action, actionVarNames).back());
+    }
+    
     LinearExpression instrStart(const ExecutionAction& action) {
       assert(action.isInstruction());
       return LinearExpression(dbhc::map_find(action.getInstruction(), schedVarNames).front());
@@ -921,6 +952,13 @@ namespace DHLS {
         //instr = replacement;
       }
     }
+
+    void replaceAction(ExecutionAction& toReplace,
+                       ExecutionAction& replacement) {
+      if (action == toReplace) {
+        action = replacement;
+      }
+    }
     
     bool isStart() const {
       return !isEnd;
@@ -947,7 +985,14 @@ namespace DHLS {
   LinearExpression
   toLinearExpression(const InstructionTime& time,
                      SchedulingProblem& p) {
-    return (time.isEnd ? p.instrEnd(time.action) : p.instrStart(time.action)) + time.offset;
+    if (time.action.isInstruction()) {
+      return (time.isEnd ? p.instrEnd(time.action) : p.instrStart(time.action)) + time.offset;
+    } else {
+      if (!p.hasAction(time.action)) {
+        p.addAction(time.action);
+      }
+      return (time.isEnd ? p.actionEnd(time.action) : p.actionStart(time.action)) + time.offset;      
+    }
   }
 
   static inline   
@@ -990,6 +1035,10 @@ namespace DHLS {
     virtual ExecutionConstraintType type() const = 0;
     virtual void replaceInstruction(Instruction* const toReplace,
                                     Instruction* const replacement) = 0;
+
+    virtual void replaceAction(ExecutionAction& toReplace,
+                               ExecutionAction& replacement) = 0;
+    
     virtual void replaceStart(Instruction* const toReplace,
                               Instruction* const replacement) = 0;
     virtual void replaceEnd(Instruction* const toReplace,
@@ -1095,6 +1144,12 @@ namespace DHLS {
       return false;
     }
 
+    virtual void replaceAction(ExecutionAction& toReplace,
+                               ExecutionAction& replacement) override {
+      before.replaceAction(toReplace, replacement);
+      after.replaceAction(toReplace, replacement);      
+    }
+    
     virtual void replaceInstruction(Instruction* const toReplace,
                                     Instruction* const replacement) override {
       before.replaceInstruction(toReplace, replacement);

@@ -102,9 +102,14 @@ namespace DHLS {
       }
     }
 
+    ExecutionAction inlineAction(toInline);
+    ExecutionAction inlineMarkerAction(sanitizeFormatForVerilogId(valueString(toInline)));
+
     for (auto c : exec.constraints) {
-      c->replaceStart(toInline, inlinedInstrs.front());
-      c->replaceEnd(toInline, inlinedInstrs.back());        
+      // c->replaceStart(toInline, inlinedInstrs.front());
+      // c->replaceEnd(toInline, inlinedInstrs.back());
+
+      c->replaceAction(inlineAction, inlineMarkerAction);
     }
 
     if (finalRetVal != nullptr) {
@@ -124,7 +129,11 @@ namespace DHLS {
     // Inline constraints
     // TODO: How to handle constraints on the return instruction,
     // since the return instruction is not handled?
+    cout << "Iterating over constraints" << endl;
+    
     for (auto c : constraintsToInline.constraints) {
+      //c->replaceAction(inlineAction, inlineMarkerAction);
+
       if (c->type() == CONSTRAINT_TYPE_ORDERED) {
         Ordered* oc = static_cast<Ordered*>(c->clone());
         auto beforeInstr = oc->before.getInstr();
@@ -3556,32 +3565,6 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("direct_port_fp_add"));
   }
 
-  std::string sanitizeFormatForVerilogId(const std::string& str) {
-    auto st = sanitizeFormatForVerilog(str);
-    std::string res = "";
-    for (auto c : st) {
-      if (c == '@') {
-        res += "_amp_";
-      } else if (c == ',') {
-        res += "_cm_";
-      } else if (c == ' ') {
-        res += "__";
-      } else if (c == '$') {
-        res += "_dlr_";
-      } else if (c == '*') {
-        res += "_ptr_";
-      } else if (c == '=') {
-        res += "_eq_";
-      } else if (c == '(') {
-        res += "_lp_";
-      } else if (c == ')') {
-        res += "_rp_";
-      } else {
-        res += c;
-      }
-    }
-    return res;
-  }
   // What should the instructions be?
   // Instruction start time, instruction end time
   // Instruction has started flag and has ended flag
@@ -3884,11 +3867,11 @@ namespace DHLS {
       string eventHappened;
       string eventHappening;
       if (time.isEnd) {
-        eventHappened = doneFlag(time.getInstr()); //map_find(time.instr, instrDoneFlags).name;
+        eventHappened = doneFlag(time.getInstr());
         eventHappening = couldEndFlag(time.getInstr());
       } else {
-        eventHappened = startedFlag(time.getInstr()); //map_find(time.instr, instrStartedFlags).name;
-        eventHappening = couldStartFlag(time.getInstr());        
+        eventHappened = startedFlag(time.getInstr());
+        eventHappening = couldStartFlag(time.getInstr());
       }
 
       return orStr(eventHappened, eventHappening);

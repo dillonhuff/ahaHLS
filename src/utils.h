@@ -153,4 +153,35 @@ namespace DHLS {
   }
 
   int getTypeBitWidth(llvm::Type* const tp);
+
+  std::string sanitizeFormatForVerilog(const std::string& str);
+  
+  static inline
+  std::string sanitizeFormatForVerilogId(const std::string& str) {
+    auto st = sanitizeFormatForVerilog(str);
+    std::string res = "";
+    for (auto c : st) {
+      if (c == '@') {
+        res += "_amp_";
+      } else if (c == ',') {
+        res += "_cm_";
+      } else if (c == ' ') {
+        res += "__";
+      } else if (c == '$') {
+        res += "_dlr_";
+      } else if (c == '*') {
+        res += "_ptr_";
+      } else if (c == '=') {
+        res += "_eq_";
+      } else if (c == '(') {
+        res += "_lp_";
+      } else if (c == ')') {
+        res += "_rp_";
+      } else {
+        res += c;
+      }
+    }
+    return res;
+  }
+
 }
