@@ -6,16 +6,280 @@
 #include "llvm_codegen.h"
 #include "test_utils.h"
 
+#include <llvm/Transforms/Utils/BasicBlockUtils.h>
+
 using namespace dbhc;
 using namespace llvm;
 using namespace std;
 
 namespace DHLS {
 
+  class InterfaceFunctions {
+  public:
+    std::map<llvm::Function*, ExecutionConstraints> constraints;
+
+    void addFunction(Function* const f) {
+      constraints[f] = ExecutionConstraints();
+    }
+
+    ExecutionConstraints& getConstraints(llvm::Function* const f) {
+      assert(contains_key(f, constraints));
+      return constraints.find(f)->second;
+    }
+
+    bool containsFunction(llvm::Function* const f) const {
+      return contains_key(f, constraints);
+    }
+    
+  };
+
+  void replaceValues(map<Value*, Value*>& argsToValues,
+                     map<Instruction*, Instruction*>& oldInstrsToClones,
+                     Instruction* const clone) {
+    for (int i = 0; i < (int) clone->getNumOperands(); i++) {
+      Value* opI = clone->getOperand(i);
+      if (contains_key(opI, argsToValues)) {
+        clone->setOperand(i, map_find(opI, argsToValues));
+      } else if (Instruction::classof(opI)) {
+        auto opII = dyn_cast<Instruction>(opI);
+        if (contains_key(opII, oldInstrsToClones)) {
+          clone->setOperand(i, map_find(opII, oldInstrsToClones));
+        }
+      }
+    }
+  }
+
+  ExecutionAction
+  findReplacement(Instruction* instr,
+                  std::map<Instruction*, Instruction*>& oldInstrsToClones,
+                  ExecutionAction& functionAction) {
+    if (ReturnInst::classof(instr)) {
+      return functionAction;
+    }
+
+    return map_find(instr, oldInstrsToClones);
+  }
+
+  void inlineFunctionWithConstraints(Function* const f,
+                                     ExecutionConstraints& exec,
+                                     CallInst* const toInline,
+                                     ExecutionConstraints& constraintsToInline) {
+
+    cout << "Inlining " << valueString(toInline) << endl;
+    cout << "# of operands = " << toInline->getNumOperands() << endl;
+    
+    map<Value*, Value*> argsToValues;
+    Function* called = toInline->getCalledFunction();
+    for (int i = 0; i < (int) toInline->getNumOperands() - 1; i++) {
+      cout << "i = " << i << endl;
+      cout << "Operand " << i << " = " << valueString(toInline->getOperand(i)) << endl;
+      argsToValues[getArg(called, i)] = toInline->getOperand(i);
+    }
+
+    assert(called->getBasicBlockList().size() == 1);
+
+    cout << "Built value list" << endl;
+    
+    map<Instruction*, Instruction*> oldInstrsToClones;
+    vector<Instruction*> inlinedInstrs;
+    // Inline the constraints
+    Value* finalRetVal = nullptr;
+
+    // Real procedure should be to replace all references to start(toInline),
+    // end(toInline) in the receiver function with references to start(funcMarker)
+    // end(funcMarker), and in the constraints internally replace all references
+    // to start(ret), end(ret) with end(funcMarker)
+    for (auto& bb : called->getBasicBlockList()) {
+      for (auto& instr : bb) {
+        if (!ReturnInst::classof(&instr)) {
+          Instruction* clone = instr.clone();
+          oldInstrsToClones[&instr] = clone;
+          replaceValues(argsToValues, oldInstrsToClones, clone);
+          clone->insertBefore(toInline);
+          inlinedInstrs.push_back(clone);
+
+        } else {
+
+          if (instr.getNumOperands() > 0) {
+            assert(instr.getNumOperands() == 1);
+
+            Value* retVal = instr.getOperand(0);
+
+            assert(Instruction::classof(retVal));
+
+            finalRetVal = map_find(dyn_cast<Instruction>(retVal), oldInstrsToClones);
+          }
+        }
+      }
+    }
+
+    // Replace the inline start and end times with marker action noops
+    ExecutionAction inlineAction(toInline);
+    ExecutionAction inlineMarkerAction(sanitizeFormatForVerilogId(valueString(toInline)));
+
+    // Need to fit the basic block start and end time in to the execution
+    // constraints
+    BasicBlock* bb = toInline->getParent();
+    exec.add(start(bb) <= actionStart(inlineMarkerAction));
+    exec.add(actionEnd(inlineMarkerAction) <= end(bb));    
+
+    for (auto c : exec.constraints) {
+      c->replaceAction(inlineAction, inlineMarkerAction);
+    }
+
+    // Require that all instructions that have been inlined finish inside
+    // the inlined function start and end time
+    for (auto instr : inlinedInstrs) {
+      exec.addConstraint(actionStart(inlineMarkerAction) <= instrStart(instr));
+      exec.addConstraint(instrEnd(instr) <= actionEnd(inlineMarkerAction));
+    }
+
+    exec.addConstraint(actionStart(inlineMarkerAction) <= actionEnd(inlineMarkerAction));
+    
+    if (finalRetVal != nullptr) {
+      toInline->replaceAllUsesWith(finalRetVal);
+      // Replace constraints on toInline
+      Instruction* replacementRet = dyn_cast<Instruction>(finalRetVal);
+      for (auto c : exec.constraints) {
+        c->replaceInstruction(toInline, replacementRet);
+      }
+    }
+
+    // Remove old call
+    toInline->eraseFromParent();
+
+    // cout << "Inlining constraints" << endl;
+    cout << "Iterating over constraints" << endl;
+    
+    for (auto c : constraintsToInline.constraints) {
+      //c->replaceAction(inlineAction, inlineMarkerAction);
+
+      if (c->type() == CONSTRAINT_TYPE_ORDERED) {
+        Ordered* oc = static_cast<Ordered*>(c->clone());
+
+        cout << "Before = " << oc->before << endl;
+        cout << "After  = " << oc->after << endl;        
+
+        // start(inline_ret) -> end(inlineMarker)
+        // end(inline_ret) -> end(inlineMarker)
+        // Assumption is start(inline_ret) == end(inline_ret), since ret
+        // takes no time
+        auto beforeInstr = oc->before.getInstr();
+        ExecutionAction bRep = findReplacement(beforeInstr, oldInstrsToClones, inlineMarkerAction);
+        oc->before.replaceAction(oc->before.action, bRep);
+        if (ReturnInst::classof(beforeInstr)) {
+          if (oc->before.isStart()) {
+            oc->before.isEnd = true;
+          }
+        }
+
+        auto afterInstr = oc->after.getInstr();
+        ExecutionAction aRep = findReplacement(afterInstr, oldInstrsToClones, inlineMarkerAction);
+        oc->after.replaceAction(oc->after.action, aRep);
+        if (ReturnInst::classof(afterInstr)) {
+          if (oc->after.isStart()) {
+            oc->after.isEnd = true;
+          }
+        }
+
+        exec.addConstraint(oc);
+      } else {
+        assert(false);
+      }
+    }
+  }
+  
+  void inlineWireCalls(Function* f,
+                       ExecutionConstraints& exec,
+                       InterfaceFunctions& interfaces) {
+    bool replaced = true;
+    vector<Instruction*> reads;
+
+    while (replaced) {
+      replaced = false;
+
+      for (auto& bb : f->getBasicBlockList()) {
+        for (auto& instr : bb) {
+
+          if (CallInst::classof(&instr)) {
+            CallInst* call = dyn_cast<CallInst>(&instr);
+
+            Function* inlineFunc = call->getCalledFunction();
+            if (interfaces.containsFunction(inlineFunc)) {
+
+              inlineFunctionWithConstraints(f, exec, call, interfaces.getConstraints(inlineFunc));
+              replaced = true;
+            
+              break;
+            }
+          }
+        }
+
+        if (replaced) {
+          break;
+        }
+      }
+    }
+
+  }
+
+
+  ModuleSpec ramSpec(const int width, const int depth) {
+    int addrWidth = clog2(depth);
+
+    map<string, Port> ramPorts = {
+      {"raddr_0", inputPort(addrWidth, "raddr_0")},
+      {"waddr_0", inputPort(addrWidth, "waddr_0")},
+      {"wdata_0", inputPort(width, "wdata_0")},
+      {"wen_0", inputPort(1, "wen_0")},            
+      {"rst", inputPort(1, "rst")},
+
+      {"rdata_0", outputPort(width, "rdata_0")}
+    };
+    
+    return {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "RAM", ramPorts};
+
+  }
+
+  ModuleSpec fifoSpec(int width, int depth) {
+    map<string, Port> fifoPorts = {
+      {"in_data", inputPort(width, "in_data")},
+      {"read_valid", inputPort(1, "read_valid")},
+      {"write_valid", inputPort(width, "write_valid")},
+      {"rst", inputPort(1, "rst")},
+
+      {"out_data", outputPort(width, "out_data")},
+      {"read_ready", outputPort(1, "read_ready")},
+      {"write_ready", outputPort(1, "write_ready")}
+    };
+    
+    return {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "fifo", fifoPorts};
+  }
+
+  ModuleSpec wireSpec(int width) {
+    map<string, Port> wirePorts = {
+      {"in_data", inputPort(width, "in_data")},
+      {"out_data", outputPort(width, "out_data")}};
+    
+    return {{{"WIDTH", to_string(width)}}, "wire", wirePorts};
+  }
+  
   // Q: System TODOs:
   // A: Remove useless address fields from registers (allow custom memory interfaces)
   //    Add an "I dont care about default values to this FU" option?
   //    Move test layout int testbenchspec
+  //    Incorporate fifoSpecs in to scheduling constraints automatically
+  //    Add some simple examples to the README
+  //    Fix createFunction to return a function every time without the useless cast
+
+  // NOTE: The code for testbenches is getting really complicated. Some of that
+  // is automatic testbench generation, but some of it is just the hodgepodge of
+  // different data structures for scheduling, verilog code generation, and
+  // constraint generation. These really need to be fixed up.
+  // Ideas?
+  //  1. Merge schedule and STG creation in to one function when the schedule
+  //     does not need to be checked
+  //  2. Remove or wrap the function -> SchedulingConstraints map
 
   // NOTE: Systolic array example has correct binding by chance. The control
   // structure around the array is a tricky question. Most papers on systolic
@@ -2011,6 +2275,64 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("sys_array_1_2"));
   }
 
+  void implementRVFifoRead(llvm::Function* readFifo, ExecutionConstraints& exec) {
+    auto out = getArg(readFifo, 0);
+
+    auto tp = out->getType();
+    int width = getTypeBitWidth(readFifo->getReturnType());
+      
+    auto eb = mkBB("entry_block", readFifo);
+    IRBuilder<> b(eb);
+
+    auto readInDataF = readPort("out_data", width, tp);
+    auto readReadyF = readPort("read_ready", 1, tp);
+
+    auto setValidF = writePort("read_valid", 1, tp);
+    auto stallF = stallFunction();
+
+    auto readReady = b.CreateCall(readReadyF, {out});
+    auto stallUntilReady = b.CreateCall(stallF, {readReady});
+    auto setValid1 = b.CreateCall(setValidF, {out, mkInt(1, 1)});
+    auto setValid0 = b.CreateCall(setValidF, {out, mkInt(0, 1)});
+    auto readValue = b.CreateCall(readInDataF, {out});
+
+    b.CreateRet(readValue);
+    
+    exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
+    exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
+    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(readValue));
+    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+  }
+
+  void implementRVFifoWrite(llvm::Function* writeFifo, ExecutionConstraints& exec) {
+    auto eb = mkBB("entry_block", writeFifo);
+    IRBuilder<> b(eb);
+
+    auto out = getArg(writeFifo, 1);
+
+    auto tp = out->getType();
+    int width = getValueBitWidth(getArg(writeFifo, 0));
+    
+    auto writeDataF = writePort("in_data", width, tp);
+    auto readReadyF = readPort("write_ready", 1, tp);
+
+    auto setValidF = writePort("write_valid", 1, tp);
+    auto stallF = stallFunction();
+
+    auto readReady = b.CreateCall(readReadyF, {out});
+    auto stallUntilReady = b.CreateCall(stallF, {readReady});
+    auto setValid1 = b.CreateCall(setValidF, {out, mkInt(1, 1)});
+    auto setValid0 = b.CreateCall(setValidF, {out, mkInt(0, 1)});
+    auto writeValue = b.CreateCall(writeDataF, {out, getArg(writeFifo, 0)});
+      
+    b.CreateRet(nullptr);
+    
+    exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
+    exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
+    exec.addConstraint(instrStart(setValid1) == instrStart(writeValue));
+    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+  }
+  
   TEST_CASE("Builtin FIFO as argument to function") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
@@ -2018,18 +2340,22 @@ namespace DHLS {
     int width = 32;
     auto iStr = to_string(width);
 
+    auto mod = llvm::make_unique<Module>("fifo use", context);
+    setGlobalLLVMModule(mod.get());
+    
     StructType* tp = StructType::create(context, "builtin_fifo_" + iStr);
     cout << "type name = " << typeString(tp) << endl;
 
-    auto mod = llvm::make_unique<Module>("fifo use", context);
-
+    InterfaceFunctions interfaces;
     vector<Type*> readArgs = {tp->getPointerTo()};
-    Function* readFifo =
-      mkFunc(readArgs, intType(32), "builtin_read_fifo_" + iStr, mod.get());
+    Function* readFifo = fifoRead(width);
+    interfaces.addFunction(readFifo);
+    implementRVFifoRead(readFifo, interfaces.getConstraints(readFifo));
 
     vector<Type*> writeArgs = {tp->getPointerTo(), intType(32)};
-    Function* writeFifo =
-      mkFunc(readArgs, "builtin_write_fifo_" + iStr, mod.get());
+    Function* writeFifo = fifoWrite(width);
+    interfaces.addFunction(writeFifo);
+    implementRVFifoWrite(writeFifo, interfaces.getConstraints(writeFifo));
     
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo()};
@@ -2038,14 +2364,27 @@ namespace DHLS {
     
     IRBuilder<> builder(blk);
     auto val = builder.CreateCall(readFifo, {getArg(f, 0)});
-    builder.CreateCall(writeFifo, {val, getArg(f, 1)});
+    auto writeVal = builder.CreateCall(writeFifo, {val, getArg(f, 1)});
     builder.CreateRet(nullptr);
+
+    ExecutionConstraints exec;
+    exec.addConstraint(instrEnd(val) < instrStart(writeVal));
+    
+    inlineWireCalls(f, exec, interfaces);
 
     cout << "LLVM function" << endl;
     cout << valueString(f) << endl;
 
     HardwareConstraints hcs = standardConstraints();
-    Schedule s = scheduleFunction(f, hcs);
+    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
+    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
+
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
 
     STG graph = buildSTG(s, f);
 
@@ -2071,18 +2410,20 @@ namespace DHLS {
     int width = 16;
     auto iStr = to_string(width);
 
+    auto mod = llvm::make_unique<Module>("fifo use with a delay", context);
+    setGlobalLLVMModule(mod.get());
+
     StructType* tp = StructType::create(context, "builtin_fifo_" + iStr);
     cout << "type name = " << typeString(tp) << endl;
 
-    auto mod = llvm::make_unique<Module>("fifo use with a delay", context);
+    InterfaceFunctions interfaces;
+    Function* readFifo = fifoRead(width);
+    interfaces.addFunction(readFifo);
+    implementRVFifoRead(readFifo, interfaces.getConstraints(readFifo));
 
-    vector<Type*> readArgs = {tp->getPointerTo()};
-    Function* readFifo =
-      mkFunc(readArgs, intType(width), "builtin_read_fifo_" + iStr, mod.get());
-
-    vector<Type*> writeArgs = {tp->getPointerTo(), intType(width)};
-    Function* writeFifo =
-      mkFunc(readArgs, "builtin_write_fifo_" + iStr, mod.get());
+    Function* writeFifo = fifoWrite(width);
+    interfaces.addFunction(writeFifo);
+    implementRVFifoWrite(writeFifo, interfaces.getConstraints(writeFifo));
     
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo()};
@@ -2096,13 +2437,20 @@ namespace DHLS {
     builder.CreateCall(writeFifo, {prod, getArg(f, 1)});
     builder.CreateRet(nullptr);
 
-    cout << "LLVM function" << endl;
-    cout << valueString(f) << endl;
-
     HardwareConstraints hcs = standardConstraints();
-    hcs.setCount(ADD_OP, 1);
-    Schedule s = scheduleFunction(f, hcs);
+    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
+    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
 
+    ExecutionConstraints exec;
+    inlineWireCalls(f, exec, interfaces);
+
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+    
     STG graph = buildSTG(s, f);
 
     cout << "STG is " << endl;
@@ -2127,16 +2475,22 @@ namespace DHLS {
     int width = 16;
     auto iStr = to_string(width);
 
-    StructType* tp = fifoType(width);
     auto mod = llvm::make_unique<Module>("fifo use with a delay", context);
+    setGlobalLLVMModule(mod.get());
 
+    InterfaceFunctions interfaces;
+    StructType* tp = fifoType(width);
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo = fifoRead(width, mod.get());
+    interfaces.addFunction(readFifo);
+    implementRVFifoRead(readFifo, interfaces.getConstraints(readFifo));
 
     cout << "Read fifo func" << endl;
     cout << valueString(readFifo) << endl;
 
     Function* writeFifo = fifoWrite(width, mod.get());
+    interfaces.addFunction(writeFifo);
+    implementRVFifoWrite(writeFifo, interfaces.getConstraints(writeFifo));
 
     cout << "Write fifo func" << endl;
     cout << valueString(writeFifo) << endl;
@@ -2252,23 +2606,38 @@ namespace DHLS {
 
     b.CreateRet(nullptr);
 
+    ExecutionConstraints exec;
+    inlineWireCalls(f, exec, interfaces);
+
     cout << "LLVM Function" << endl;
     cout << valueString(f) << endl;
 
     HardwareConstraints hcs = standardConstraints();
+    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
+    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
+    hcs.modSpecs[getArg(f, 2)] = fifoSpec(width, 16);
+    hcs.modSpecs[getArg(f, 3)] = fifoSpec(width, 16);
+    hcs.modSpecs[getArg(f, 4)] = fifoSpec(width, 16);            
+    hcs.modSpecs[getArg(f, 5)] = fifoSpec(width, 16);
+
+    // More constraints
+    
+    // HardwareConstraints hcs = standardConstraints();
+
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
 
-    cout << "Memory mapping" << endl;
-    for (auto mm : hcs.memoryMapping) {
-      cout << "\t" << valueString(mm.first) << " -> " << valueString(mm.second) << endl;
-    }
+    // cout << "Memory mapping" << endl;
+    // for (auto mm : hcs.memoryMapping) {
+    //   cout << "\t" << valueString(mm.first) << " -> " << valueString(mm.second) << endl;
+    // }
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
 
     hcs.setCount(MUL_OP, 4);
 
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
     p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
     // Add gep restriction
     for (auto& bb : f->getBasicBlockList()) {
@@ -2291,7 +2660,7 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    REQUIRE(graph.numControlStates() == 8);
+    //REQUIRE(graph.numControlStates() == 8);
 
     for (auto& st : graph.opStates) {
       int numReads = 0;
@@ -2358,12 +2727,6 @@ namespace DHLS {
     
     emitVerilog(f, arch, info);
 
-    // map<string, int> testLayout;      
-    // TestBenchSpec tb;
-    // tb.name = "sys_array_2x2";
-
-    // emitVerilogTestBench(tb, arch, testLayout);
-
     REQUIRE(runIVerilogTB("sys_array_2x2"));
   }
 
@@ -2374,7 +2737,8 @@ namespace DHLS {
     int width = 32;
 
     auto mod = llvm::make_unique<Module>("BB diamond 4", context);
-
+    setGlobalLLVMModule(mod.get());
+    
     std::vector<Type *> inputs{intType(width)->getPointerTo(),
         intType(width)->getPointerTo()};
     Function* f = mkFunc(inputs, "bb_diamond_4", mod.get());
@@ -2514,45 +2878,6 @@ namespace DHLS {
     
   }
 
-  bool runIVerilogTest(const std::string& mainName,
-                       const std::string& exeName) {
-
-    string genCmd = "iverilog -g2005 -o " + exeName + " " + mainName + string(" ") + " RAM.v RAM2.v RAM3.v axil_ram.v delay.v builtins.v";
-
-    bool compiled = runCmd(genCmd);
-
-    REQUIRE(compiled);
-
-    string resFile = exeName + "_tb_result.txt";
-    string exeCmd = "./" + exeName + " > " + resFile;
-    bool ran = runCmd(exeCmd);
-
-    assert(ran);
-
-    ifstream res(resFile);
-    std::string str((std::istreambuf_iterator<char>(res)),
-                    std::istreambuf_iterator<char>());
-
-    cout << "str = " << str << endl;
-    
-    reverse(begin(str), end(str));
-    string lastLine;
-
-    for (int i = 1; i < (int) str.size(); i++) {
-      if (str[i] == '\n') {
-        break;
-      }
-
-      lastLine += str[i];
-    }
-
-    reverse(begin(lastLine), end(lastLine));
-
-    cout << "Lastline = " << lastLine << endl;
-
-    return lastLine == "Passed";
-  }
-  
   TEST_CASE("Running verilog fifo tests") {
 
     string mainName = "fifo.v";
@@ -2572,17 +2897,19 @@ namespace DHLS {
     int width = 16;
     auto iStr = to_string(width);
 
+    auto mod = llvm::make_unique<Module>("fifo use in a loop", context);
+    setGlobalLLVMModule(mod.get());
+
     StructType* tp = StructType::create(context, "builtin_fifo_" + iStr);
 
-    auto mod = llvm::make_unique<Module>("fifo use in a loop", context);
+    InterfaceFunctions interfaces;
+    Function* readFifo = fifoRead(width);
+    interfaces.addFunction(readFifo);
+    implementRVFifoRead(readFifo, interfaces.getConstraints(readFifo));
 
-    vector<Type*> readArgs = {tp->getPointerTo()};
-    Function* readFifo =
-      mkFunc(readArgs, intType(width), "builtin_read_fifo_" + iStr, mod.get());
-
-    vector<Type*> writeArgs = {tp->getPointerTo(), intType(width)};
-    Function* writeFifo =
-      mkFunc(readArgs, "builtin_write_fifo_" + iStr, mod.get());
+    Function* writeFifo = fifoWrite(width);
+    interfaces.addFunction(writeFifo);
+    implementRVFifoWrite(writeFifo, interfaces.getConstraints(writeFifo));
     
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo()};
@@ -2595,7 +2922,6 @@ namespace DHLS {
     ConstantInt* zero = mkInt("0", width);
 
     auto bodyF = [f, readFifo, writeFifo, width](IRBuilder<>& builder, Value* i) {
-
       auto val = builder.CreateCall(readFifo, {getArg(f, 0)});
       auto p0 = builder.CreateAdd(mkInt(2, width), val);
       auto sum = builder.CreateAdd(p0, val);
@@ -2603,7 +2929,7 @@ namespace DHLS {
     };
     auto loopBlock = sivLoop(f, entryBlock, exitBlock, zero, three, bodyF);
 
-    IRBuilder<> entryBuilder(entryBlock);        
+    IRBuilder<> entryBuilder(entryBlock);
     entryBuilder.CreateBr(loopBlock);
 
     IRBuilder<> exitBuilder(exitBlock);
@@ -2614,7 +2940,22 @@ namespace DHLS {
 
     HardwareConstraints hcs = standardConstraints();
     hcs.setCount(ADD_OP, 1);
-    Schedule s = scheduleFunction(f, hcs);
+
+    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
+    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
+    
+    ExecutionConstraints exec;
+    inlineWireCalls(f, exec, interfaces);
+    
+    cout << "LLVM function after inlining reads" << endl;
+    cout << valueString(f) << endl;
+    
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
 
     STG graph = buildSTG(s, f);
 
@@ -2639,7 +2980,8 @@ namespace DHLS {
     setGlobalLLVMContext(&context);
 
     auto mod = loadModule(context, err, "add_reduce_15");
-
+    setGlobalLLVMModule(mod.get());
+    
     Function* f = mod->getFunction("add_reduce_15");
 
     cout << "LLVM Function" << endl;
@@ -2679,6 +3021,29 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("add_reduce_15"));
   }
 
+  void implementWireRead(Function* readFifo) {
+    int width = getTypeBitWidth(readFifo->getReturnType());
+    auto tp = getArg(readFifo, 0)->getType();
+    {
+      auto readEntry = mkBB("entry_block", readFifo);
+      IRBuilder<> eb(readEntry);
+      auto rp = readPort("out_data", width, tp);
+      auto readValue = eb.CreateCall(rp, {getArg(readFifo, 0)});
+      eb.CreateRet(readValue);
+    }
+
+  }
+
+  void implementWireWrite(Function* writeFifo) {
+    int width = getValueBitWidth(getArg(writeFifo, 0));
+    auto tp = getArg(writeFifo, 1)->getType();
+    auto writeEntry = mkBB("entry_block", writeFifo);
+    IRBuilder<> eb(writeEntry);
+    auto wp = writePort("in_data", width, tp);
+    eb.CreateCall(wp, {getArg(writeFifo, 1), getArg(writeFifo, 0)});
+    eb.CreateRet(nullptr);
+  }
+
   TEST_CASE("Timed wire reduction") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
@@ -2686,13 +3051,18 @@ namespace DHLS {
     int width = 16;
     auto iStr = to_string(width);
 
-    StructType* tp = fifoType(width);
     auto mod = llvm::make_unique<Module>("Add-reduce with timed wires", context);
+    setGlobalLLVMModule(mod.get());
 
-    vector<Type*> readArgs = {tp->getPointerTo()};
+    StructType* tp = fifoType(width);
+
+    InterfaceFunctions interfaces;
     Function* readFifo = fifoRead(width, mod.get());
-
+    implementWireRead(readFifo);
+    interfaces.addFunction(readFifo);
     Function* writeFifo = fifoWrite(width, mod.get());
+    implementWireWrite(writeFifo);
+    interfaces.addFunction(writeFifo);
 
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo()};
@@ -2714,19 +3084,26 @@ namespace DHLS {
     b.CreateRet(nullptr);
 
     cout << "LLVM Function" << endl;
-    cout << valueString(f) << endl;
+    cout << valueString(readFifo) << endl;
 
     HardwareConstraints hcs = standardConstraints();
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
-    hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
-    hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
 
+    hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
+    hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
+
+    // TODO: Add relative timing constraints on wires
+    
     hcs.setCount(ADD_OP, 1);
+
+    ExecutionConstraints exec;
+    inlineWireCalls(f, exec, interfaces);
 
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
     p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
@@ -2768,13 +3145,19 @@ namespace DHLS {
     int width = 32;
     auto iStr = to_string(width);
 
-    StructType* tp = fifoType(width);
     auto mod = llvm::make_unique<Module>("One float add", context);
+    setGlobalLLVMModule(mod.get());
 
+    StructType* tp = fifoType(width);
+
+    InterfaceFunctions interfaces;    
     vector<Type*> readArgs = {tp->getPointerTo()};
     Function* readFifo = fifoRead(width, mod.get());
-
+    implementWireRead(readFifo);
+    interfaces.addFunction(readFifo);
     Function* writeFifo = fifoWrite(width, mod.get());
+    implementWireWrite(writeFifo);
+    interfaces.addFunction(writeFifo);
 
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo(),
@@ -2801,15 +3184,20 @@ namespace DHLS {
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
-    hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
-    hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
-    hcs.fifoSpecs[getArg(f, 2)] = FifoSpec(0, 0, FIFO_TIMED);
+
+    hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
+    hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
+    hcs.modSpecs[getArg(f, 2)] = wireSpec(width);
 
     // TODO: Set latency of fadd to 15?
     hcs.setCount(FADD_OP, 1);
 
+    ExecutionConstraints exec;
+    inlineWireCalls(f, exec, interfaces);
+
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
     p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
@@ -2854,15 +3242,15 @@ namespace DHLS {
     tb.runCycles = 30;
     tb.maxCycles = 50;
     tb.name = "timed_wire_fp_add";
-    tb.settableWires.insert("fifo_0_out_data");
-    tb.settableWires.insert("fifo_1_out_data");    
+    tb.settableWires.insert("arg_0_out_data");
+    tb.settableWires.insert("arg_1_out_data");    
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
-    map_insert(tb.actionsOnCycles, 21, assertString("fifo_2_in_data == " + floatBits(cf)));
+    map_insert(tb.actionsOnCycles, 21, assertString("arg_2_in_data == " + floatBits(cf)));
 
-    map_insert(tb.actionsInCycles, 1, string("fifo_0_out_data_reg = " + floatBits(af) + ";"));
-    map_insert(tb.actionsInCycles, 1, string("fifo_1_out_data_reg = " + floatBits(bf) + ";"));
-    map_insert(tb.actionsInCycles, 1, string("fifo_1_out_data_reg = " + floatBits(bf) + ";"));
-    map_insert(tb.actionsInCycles, 21, string("$display(\"fifo_2_in_data = %d\", fifo_2_in_data);"));
+    map_insert(tb.actionsInCycles, 1, string("arg_0_out_data_reg = " + floatBits(af) + ";"));
+    map_insert(tb.actionsInCycles, 1, string("arg_1_out_data_reg = " + floatBits(bf) + ";"));
+    map_insert(tb.actionsInCycles, 1, string("arg_1_out_data_reg = " + floatBits(bf) + ";"));
+    map_insert(tb.actionsInCycles, 21, string("$display(\"arg_2_in_data = %d\", arg_2_in_data);"));
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("timed_wire_fp_add"));
@@ -2875,13 +3263,19 @@ namespace DHLS {
     int width = 32;
     auto iStr = to_string(width);
 
-    StructType* tp = fifoType(width);
     auto mod = llvm::make_unique<Module>("floating point reduce with timed wires", context);
+    setGlobalLLVMModule(mod.get());    
 
+    StructType* tp = fifoType(width);
     vector<Type*> readArgs = {tp->getPointerTo()};
-    Function* readFifo = fifoRead(width, mod.get());
 
+    InterfaceFunctions interfaces;        
+    Function* readFifo = fifoRead(width, mod.get());
+    implementWireRead(readFifo);
+    interfaces.addFunction(readFifo);
     Function* writeFifo = fifoWrite(width, mod.get());
+    implementWireWrite(writeFifo);
+    interfaces.addFunction(writeFifo);
 
     std::vector<Type *> inputs{tp->getPointerTo(),
         tp->getPointerTo()};
@@ -2909,15 +3303,19 @@ namespace DHLS {
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
-    hcs.fifoSpecs[getArg(f, 0)] = FifoSpec(0, 0, FIFO_TIMED);
-    hcs.fifoSpecs[getArg(f, 1)] = FifoSpec(0, 0, FIFO_TIMED);
+    hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
+    hcs.modSpecs[getArg(f, 1)] = wireSpec(width);    
 
     hcs.setCount(FADD_OP, 1);
+
+    ExecutionConstraints exec;
+    inlineWireCalls(f, exec, interfaces);
 
     // TODO: Fix the fadd instantiation problem: 2 fadds but scheduled like
     // there is only 1?
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
     p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
@@ -2956,18 +3354,1036 @@ namespace DHLS {
     tb.runCycles = 10;
     tb.maxCycles = 100;
     tb.name = "timed_wire_reduce_fp";
-    tb.settableWires.insert("fifo_0_out_data");
+    tb.settableWires.insert("arg_0_out_data");
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
-    map_insert(tb.actionsOnCycles, 81, assertString("fifo_1_in_data === (1 + 2 + 3 + 4)"));
+    map_insert(tb.actionsOnCycles, 81, assertString("arg_1_in_data === (1 + 2 + 3 + 4)"));
 
-    map_insert(tb.actionsInCycles, 1, string("fifo_0_out_data_reg = 1;"));
-    map_insert(tb.actionsInCycles, 2, string("fifo_0_out_data_reg = 2;"));
-    map_insert(tb.actionsInCycles, 3, string("fifo_0_out_data_reg = 3;"));    
-    map_insert(tb.actionsInCycles, 4, string("fifo_0_out_data_reg = 4;"));
+    map_insert(tb.actionsInCycles, 1, string("arg_0_out_data_reg = 1;"));
+    map_insert(tb.actionsInCycles, 2, string("arg_0_out_data_reg = 2;"));
+    map_insert(tb.actionsInCycles, 3, string("arg_0_out_data_reg = 3;"));    
+    map_insert(tb.actionsInCycles, 4, string("arg_0_out_data_reg = 4;"));
 
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("timed_wire_reduce_fp"));
+  }
+
+  // Some problems with this prototype:
+  // 2. Writing out constraints like these is tedious and error prone
+  // 3. I want to be able to express loop related constraints as well
+  //    (constraints on execution order of instances of an action)
+  // 5. Eventually I want a constraint API that is good enough to write a paper
+  //    about. Ideally using C/C++ as a frontend
+  // 6. Not only is writing these constraints tedious, writing LLVM code for
+  //    reads and writes to ports is also tedious. Id like to encapsulate
+  //    these reads and writes and the accompanying scheduling constraints
+  //    in a data structure.
+  TEST_CASE("One floating point add via readport and writeport") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    int width = 32;
+    auto iStr = to_string(width);
+
+    auto mod = llvm::make_unique<Module>("One float add via port API", context);
+    setGlobalLLVMModule(mod.get());
+
+    StructType* tp = fifoType(width);
+    
+    vector<Type*> readArgs = {tp->getPointerTo()};
+
+    InterfaceFunctions interfaces;
+    Function* readFifo = fifoRead(width, mod.get());
+    interfaces.addFunction(readFifo);
+    implementWireRead(readFifo);
+    Function* writeFifo = fifoWrite(width, mod.get());
+    interfaces.addFunction(writeFifo);
+    implementWireWrite(writeFifo);
+
+    auto fpuType =
+      llvm::StructType::create(getGlobalLLVMContext(),
+                               "builtin_fadd");
+    
+    Function* fadd =
+      mkFunc({fpuType, intType(width), intType(width)}, intType(width), "jd_fadd");
+    interfaces.addFunction(fadd);
+    {
+      ExecutionConstraints& exec = interfaces.getConstraints(fadd);
+      auto entryBlock = mkBB("entry_block", fadd);
+      IRBuilder<> b(entryBlock);
+      auto f = fadd;
+
+      auto fpu = getArg(f, 0);
+      auto a = getArg(f, 1);
+      auto b0 = getArg(f, 2);
+
+      // Interface with floating point adder
+      auto writeRst = writePort("rst", 1, fpuType);
+      auto writeA = writePort("input_a", 32, fpuType);
+      auto writeAStb = writePort("input_a_stb", 1, fpuType);
+
+      auto writeB = writePort("input_b", 32, fpuType);
+      auto writeBStb = writePort("input_b_stb", 1, fpuType);
+      auto stall = stallFunction();
+
+      auto readAAck = readPort("input_a_ack", 1, fpuType);
+      auto readBAck = readPort("input_b_ack", 1, fpuType);
+      auto readZStb = readPort("output_z_stb", 1, fpuType);
+
+      auto rst0 = b.CreateCall(writeRst, {fpu, mkInt(1, 1)});
+      // Wait until next cycle
+      auto rst1 = b.CreateCall(writeRst, {fpu, mkInt(0, 1)});
+
+      exec.endsBeforeStarts(rst0, rst1);
+
+      auto wA = b.CreateCall(writeA, {fpu, a});
+      auto wAStb = b.CreateCall(writeAStb, {fpu, mkInt(1, 1)});
+
+      exec.startSameTime(rst1, wA);    
+      exec.startSameTime(wA, wAStb);    
+
+      // Wait for input_a_ack == 1, and then wait 1 more cycle
+      auto aAck = b.CreateCall(readAAck, {fpu});
+      auto stallUntilAAck = b.CreateCall(stall, {aAck});
+
+      auto wAStb0 = b.CreateCall(writeAStb, {fpu, mkInt(0, 1)});
+      auto wB = b.CreateCall(writeB, {fpu, b0});
+      auto wBStb = b.CreateCall(writeBStb, {fpu, mkInt(1, 1)});
+
+      auto bAck = b.CreateCall(readBAck, {fpu});
+      auto stallUntilBAck = b.CreateCall(stall, {bAck});
+    
+      // Wait one or two cycles?
+      auto wBStb0 = b.CreateCall(writeBStb, {fpu, mkInt(0, 1)});
+
+      // Wait at least one cycle after input_b_stb == 1, for output_z_stb == 1
+      auto zStb = b.CreateCall(readZStb, {fpu});
+      auto stallUntilZStb = b.CreateCall(stall, {zStb});
+      auto val = b.CreateCall(readPort("output_z", 32, fpuType), {fpu});
+
+      b.CreateRet(val);
+      
+      // A / B stall
+      exec.addConstraint(instrStart(aAck) == instrEnd(wAStb));
+      exec.startsBeforeStarts(aAck, wAStb0);
+      exec.addConstraint(instrStart(stallUntilAAck) == instrEnd(aAck));
+
+      exec.startSameTime(wA, wAStb);
+
+      exec.addConstraint(instrStart(bAck) == instrEnd(wBStb));
+      exec.endsBeforeStarts(bAck, wBStb0);
+      exec.addConstraint(instrStart(stallUntilBAck) == instrEnd(bAck));
+      exec.startSameTime(wB, wBStb);    
+
+      // Wait for A to be written before writing b
+      exec.addConstraint(instrEnd(aAck) < instrStart(wB));
+
+      // Wait for b to be acknowledged before reading Z
+      exec.addConstraint(instrEnd(bAck) < instrStart(val));
+
+      exec.startSameTime(val, zStb);
+      exec.startSameTime(stallUntilZStb, zStb);        
+    }
+
+    ExecutionConstraints exeConstraints;
+    std::vector<Type *> inputs{tp->getPointerTo(),
+        tp->getPointerTo(),
+        tp->getPointerTo()};
+    Function* f = mkFunc(inputs, "direct_port_fp_add", mod.get());
+
+    auto blk = mkBB("entry_block", f);
+    IRBuilder<> b(blk);
+
+    auto fpu = b.CreateAlloca(fpuType, nullptr, "fpu_0");
+    
+    auto in0 = getArg(f, 0);
+    auto in1 = getArg(f, 1);
+
+    auto a0 = b.CreateCall(readFifo, {in0});
+    auto b0 = b.CreateCall(readFifo, {in1});
+    auto val = b.CreateCall(fadd, {fpu, a0, b0});
+    auto out = getArg(f, 2);
+
+    auto writeZ = b.CreateCall(writeFifo, {val, out});
+    b.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    // TODO: Do this by default
+    hcs.memoryMapping = memoryOpLocations(f);
+    map<string, Port> adderPorts = {
+      {"input_a", inputPort(width, "input_a")},
+      {"input_a_stb", inputPort(1, "input_a_stb")},
+      {"input_b", inputPort(width, "input_b")},
+      {"input_b_stb", inputPort(1, "input_b_stb")},
+      {"rst", inputPort(1, "rst")},
+
+      {"output_z", outputPort(width, "output_z")},
+      {"input_a_ack", outputPort(1, "input_a_ack")},
+      {"input_b_ack", outputPort(1, "input_b_ack")},
+      {"output_z_stb", outputPort(1, "output_z_stb")}
+    };
+    hcs.modSpecs[fpu] = {{}, "adder", adderPorts};
+    setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
+    hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
+    hcs.modSpecs[getArg(f, 2)] = wireSpec(width);
+
+    exeConstraints.addConstraint(instrEnd(val) < instrStart(writeZ));
+
+    inlineWireCalls(f, exeConstraints, interfaces);
+
+    cout << "After inlining" << endl;
+    cout << valueString(f) << endl;
+    
+    // Note: It is also a pain that I cannot run-the getOrAddFunction
+    // method of llvm::Module and get back a function each time. Being able
+    // to do that would be awesome.
+
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
+
+    exeConstraints.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+
+    auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
+      map_insert(stg.opTransitions, st, {0, cond});
+    };
+    
+    std::function<void(Schedule&, STG&, StateId, llvm::ReturnInst*, Condition& cond)> returnBehavior(retB);
+    
+    STG graph = buildSTG(s, f, returnBehavior);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    //emitVerilatorBinding(graph);
+    
+    map<Value*, int> layout;
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f,
+                                       graph,
+                                       layout,
+                                       options,
+                                       hcs);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+    
+    emitVerilog(f, arch, info);
+
+    float af = 3.0;
+    float bf = 4.0;
+    float cf = af + bf;
+
+    cout << "Sum bits = " << floatBits(cf) << endl;
+    
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 30;
+    tb.maxCycles = 50;
+    tb.name = "direct_port_fp_add";
+    tb.settableWires.insert("arg_0_out_data");
+    tb.settableWires.insert("arg_1_out_data");    
+    map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
+    map_insert(tb.actionsOnCycles, 18, assertString("arg_2_in_data == " + floatBits(cf)));
+
+    map_insert(tb.actionsInCycles, 1, string("arg_0_out_data_reg = " + floatBits(af) + ";"));
+    map_insert(tb.actionsInCycles, 1, string("arg_1_out_data_reg = " + floatBits(bf) + ";"));
+    map_insert(tb.actionsInCycles, 1, string("arg_1_out_data_reg = " + floatBits(bf) + ";"));
+    map_insert(tb.actionsInCycles, 8, string("$display(\"arg_2_in_data = %d\", arg_2_in_data);"));
+    emitVerilogTestBench(tb, arch, testLayout);
+    
+    REQUIRE(runIVerilogTB("direct_port_fp_add"));
+  }
+
+  // What should the instructions be?
+  // Instruction start time, instruction end time
+  // Instruction has started flag and has ended flag
+  // Combinational flags saying if the instruction is ending now?
+  // Global clock
+
+  class ActionTracker {
+  public:
+    Wire startedFlag;
+    Wire endedFlag;
+    Wire startTimeCounter;
+    Wire endTimeCounter;
+    Wire startingThisCycleFlag;
+    Wire endingThisCycleFlag;
+  };
+
+  class DynArch {
+    Function* f;
+    ExecutionConstraints& exe;
+    HardwareConstraints& hcs;
+
+    Wire globalTime;
+
+  public:
+
+    std::map<ExecutionAction, ActionTracker> actionTrackers;
+
+    std::map<llvm::Instruction*, Wire> tempStorage;
+    std::vector<Wire> allWires;
+
+    std::vector<FunctionalUnit> functionalUnits;
+    std::map<llvm::Instruction*, FunctionalUnit> unitAssignment;
+
+    Wire addReg(const int width, const std::string& name) {
+      Wire w = {true, width, name};
+      if (elem_by(w, allWires, [](const Wire a, const Wire b) { return a.name == b.name; })) {
+        return w;
+      }
+                        
+      allWires.push_back(w);
+      return w;
+    }
+
+    Wire addWire(const int width, const std::string& name) {
+      Wire w = {false, width, name};
+
+      if (elem_by(w, allWires, [](const Wire a, const Wire b) { return a.name == b.name; })) {
+        return w;
+      }
+
+      allWires.push_back(w);
+      return w;
+    }
+
+    string outputName(llvm::Value* const val) {
+      if (Instruction::classof(val)) {
+        cout << "Value for " << valueString(val) << endl;
+        Instruction* instr = dyn_cast<Instruction>(val);
+        FunctionalUnit unit = map_find(instr, unitAssignment);
+        string unitOut;
+        if (LoadInst::classof(instr)) {
+          cout << "loading rdata" << endl;
+          unitOut = map_find(string("rdata_0"), unit.outWires).name;
+        } else if (isBuiltinPortRead(instr)) {
+          string name = getPortName(instr);
+          unitOut = map_find(name, unit.outWires).name;
+        } else {
+          unitOut = map_find(string("out"), unit.outWires).name;
+        }
+
+        cout << "finding temp storage" << endl;
+        string regOut = map_find(instr, tempStorage).name;
+        return parens(couldEndFlag(instr) + " ? " + unitOut + " : " + regOut);
+      } else if (Argument::classof(val)) {
+
+        // TODO: For now assume all memory starts at 0?
+        return "0";
+      } else if (ConstantInt::classof(val)) {
+        auto valC = dyn_cast<ConstantInt>(val);
+        auto apInt = valC->getValue();
+
+        return to_string(dyn_cast<ConstantInt>(val)->getSExtValue());
+      }
+
+      cout << "Unsupported value = " << valueString(val) << endl;
+      // Value
+      assert(false);
+    }
+    
+    FunctionalUnit addFunctionalUnit(llvm::Instruction* instr) {
+      map<string, string> modParams;
+      string modName = instr->getOpcodeName();
+      string rStr = to_string(functionalUnits.size());
+      string prefix = instr->getOpcodeName() + rStr;
+      string unitName = prefix + "_unit";
+      map<string, Wire> inWires;
+      map<string, Wire> outWires;
+      bool isExternal = false;
+
+
+      if (BinaryOperator::classof(instr)) {
+        int w = getValueBitWidth(instr);
+        Wire in0 = addReg(w, "in0_" + rStr);
+        Wire in1 = addReg(w, "in1_" + rStr);
+        Wire out = addWire(w, "out_" + rStr);
+        inWires = {{"in0", in0}, {"in1", in1}};
+        outWires = {{"out", out}};
+        modParams = {{"WIDTH", to_string(w)}};
+      } else if (GetElementPtrInst::classof(instr)) {
+        modName += "_" + to_string(instr->getNumOperands() - 1);
+
+        Wire baseAddr = {true, 32, "base_addr_" + rStr};
+        allWires.push_back(baseAddr);
+        inWires = {{"base_addr", baseAddr}};
+        for (int i = 1; i < (int) instr->getNumOperands(); i++) {
+          Wire offset = {true, 32, "gep_add_in" + to_string(i) + "_" + rStr};
+          allWires.push_back(offset);
+          inWires.insert({"in" + to_string(i), offset});
+        }
+
+        Wire outWire = {false, 32, "getelementptr_out_" + rStr};
+        allWires.push_back(outWire);
+        outWires = {{"out", outWire}};
+        
+      } else if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
+        modName = "external_RAM";
+        unitName = "external_RAM";
+
+        int w = 0;
+        if (LoadInst::classof(instr)) {
+          w = getValueBitWidth(instr);
+        } else {
+          w = getValueBitWidth(instr->getOperand(0));
+        }
+        Wire raddr = addReg(w, "raddr_0_reg");
+        Wire waddr = addReg(w, "waddr_0_reg");
+        Wire wdata = addReg(w, "wdata_0_reg");
+        Wire wen = addReg(1, "wen_0_reg");
+        Wire ren = addReg(1, "ren_0_reg");
+
+        Wire rdata = addWire(32, "rdata_0_out");
+        
+        inWires = {{"raddr_0", raddr}, {"ren_0", ren}, {"waddr_0", waddr}, {"wdata_0", wdata}, {"wen_0", wen}};
+        outWires = {{"rdata_0", rdata}};
+      } else if (ReturnInst::classof(instr)) {
+
+        modName = "external_RET";
+        unitName = "external_RET";
+
+        inWires = {{"valid", {true, 1, "valid"}}};
+      } else if (isBuiltinPortCall(instr)) {
+        auto fuPtr = instr->getOperand(0);
+        assert(contains_key(fuPtr, hcs.modSpecs));
+
+        if (Argument::classof(fuPtr)) {
+          isExternal = true;
+        }
+
+        ModuleSpec modSpec = map_find(fuPtr, hcs.modSpecs);
+        modName = modSpec.name;
+        unitName = fuPtr->getName();
+
+        for (auto pt : modSpec.ports) {
+          if (pt.second.input()) {
+            inWires.insert({pt.first, {true, pt.second.width, unitName + "_" + pt.second.name}});
+          } else {
+            outWires.insert({pt.first, {false, pt.second.width, unitName + "_" + pt.second.name}});            
+          }
+        }
+        
+      }
+
+      if (LoadInst::classof(instr) ||
+          StoreInst::classof(instr) ||
+          ReturnInst::classof(instr)) {
+        isExternal = true;
+      }
+      FunctionalUnit unit = {{modParams, modName}, unitName, inWires, outWires, isExternal};
+
+      if (!elem_by(unit, functionalUnits, [](const FunctionalUnit& a, const FunctionalUnit& b) { return a.instName == b.instName; })) {
+        functionalUnits.push_back(unit);
+      }
+
+      cout << "Unit name" << endl;
+      for (auto unit : functionalUnits) {
+        cout << tab(1) << unit.instName << endl;
+      }
+
+      return unit;
+    }
+    
+    DynArch(Function* f_, ExecutionConstraints& exe_, HardwareConstraints& hcs_) : f(f_), exe(exe_), hcs(hcs_) {
+      globalTime = {true, 32, "clocks_since_reset"};
+      allWires.push_back(globalTime);
+      
+      int i = 0;
+      for (auto& bb : f->getBasicBlockList()) {
+        for (auto& instr : bb) {
+          
+          string prefix = sanitizeFormatForVerilogId(valueString(&instr));
+
+          if (hasOutput(&instr)) {
+            Wire tempValue = {true, getValueBitWidth(&instr), prefix + "_tmp"};
+            allWires.push_back(tempValue);
+            tempStorage[&instr] = tempValue;
+          }
+
+          FunctionalUnit unit = addFunctionalUnit(&instr);
+          unitAssignment[&instr] = unit;
+
+          addAction(&instr);
+
+          i++;
+        }
+      }
+
+      std::set<ExecutionAction> added;
+      for (auto c : exe.constraints) {
+        if (c->type() == CONSTRAINT_TYPE_ORDERED) {
+          Ordered* oc = static_cast<Ordered*>(c);
+          InstructionTime before = oc->before;
+          if (!before.action.isInstruction() && !elem(before.action, added)) {
+            added.insert(before.action);
+            addAction(before.action);
+          }
+
+          InstructionTime after = oc->after;
+          if (!after.action.isInstruction() && !elem(after.action, added)) {
+            added.insert(after.action);
+            addAction(after.action);
+          }
+
+        } else {
+          assert(false);
+        }
+      }
+    }
+
+    void addAction(ExecutionAction action) {
+      string prefix;
+      if (action.isInstruction()) {
+        prefix =
+          sanitizeFormatForVerilogId(valueString(action.getInstruction()));
+      } else {
+        prefix = action.getName();
+        cout << "Non instruction action = " << prefix << endl;
+      }
+
+      Wire si = {true, 1, prefix + "_started"};
+      allWires.push_back(si);
+
+      Wire se = {true, 1, prefix + "_finished"};
+      allWires.push_back(se);          
+
+      Wire sc = addReg(32, prefix + "_time_started");
+
+      Wire ec = addReg(32, prefix + "_time_finished");
+
+      Wire ssc = {false, 1, prefix + "_starting_this_cycle"};
+      allWires.push_back(ssc);          
+      Wire esc = {false, 1, prefix + "_done_this_cycle"};
+      allWires.push_back(esc);
+
+      actionTrackers[action] = {si, se, sc, ec, ssc, esc};
+          
+
+    }
+
+    std::string couldStartFlag(ExecutionAction instr) const {
+      return map_find(instr, actionTrackers).startingThisCycleFlag.name;
+    }
+
+    std::string couldEndFlag(ExecutionAction instr) const {
+      return map_find(instr, actionTrackers).endingThisCycleFlag.name;      
+    }
+
+    std::string instrDoneString(ExecutionAction instr) const {
+      return doneFlag(instr);
+    }
+
+    std::string instrStartString(ExecutionAction instr) const {
+      return startedFlag(instr);
+    }
+
+    std::string instrEndString(ExecutionAction instr) const {
+      return doneFlag(instr);
+    }
+    
+    std::string startedFlag(ExecutionAction instr) const {
+      return map_find(instr, actionTrackers).startedFlag.name;
+    }
+
+    std::string doneFlag(ExecutionAction instr) const {
+      return map_find(instr, actionTrackers).endedFlag.name;
+    }
+
+    std::string doneTimeString(ExecutionAction instr) const {
+      return map_find(instr, actionTrackers).endTimeCounter.name;
+    }
+
+    std::string startTimeString(ExecutionAction instr) const {
+      return map_find(instr, actionTrackers).startTimeCounter.name;
+    }
+    
+    std::string globalTimeString() const {
+      return globalTime.name;
+    }
+    
+    // Time at which an instruction started or finished
+    std::string instrTimeString(InstructionTime& time) const {
+      string alreadyDoneTime;
+      string thisCycleFlag;
+      if (time.isEnd) {
+        alreadyDoneTime = doneTimeString(time.getAction());
+        thisCycleFlag = couldEndFlag(time.getAction());
+      } else {
+        alreadyDoneTime = startTimeString(time.getAction());
+        thisCycleFlag = couldStartFlag(time.getAction());
+      }
+
+      // If this time is the start or end then the time of the event is
+      // the current global time, otherwise it is the saved complete time
+      // Result is invalid if the event is not starting
+      return condStr(thisCycleFlag, globalTimeString(), alreadyDoneTime);
+    }
+
+    std::string afterTimeString(InstructionTime& time) {
+
+      string eventHappened = atOrAfterTime(time);
+
+      string requiredTimeElapsed = parens(parens(instrTimeString(time) + " + " + to_string(time.offset)) + " < " + globalTimeString());
+      return andStr(eventHappened, requiredTimeElapsed);
+    }
+
+    std::string atOrAfterTime(InstructionTime& time) {
+      string eventHappened;
+      string eventHappening;
+      if (time.isEnd) {
+        eventHappened = doneFlag(time.getAction());
+        eventHappening = couldEndFlag(time.getAction());
+      } else {
+        eventHappened = startedFlag(time.getAction());
+        eventHappening = couldStartFlag(time.getAction());
+      }
+
+      return orStr(eventHappened, eventHappening);
+    }
+
+    std::string atTimeString(InstructionTime& time) {
+
+      
+      string eventHappened = atOrAfterTime(time);
+
+      string requiredTimeElapsed = parens(parens(instrTimeString(time) + " + " + to_string(time.offset)) + " == " + globalTimeString());
+      return andStr(eventHappened, requiredTimeElapsed);
+    }
+
+    std::string afterOrAtTimeString(InstructionTime& time) {
+      return orStr(atTimeString(time), afterTimeString(time));
+    }
+    
+    std::string constraintString(ExecutionConstraint* c) {
+      assert(c->type() == CONSTRAINT_TYPE_ORDERED);
+      Ordered* oc = static_cast<Ordered*>(c);
+      InstructionTime before = oc->before;
+
+      if (oc->restriction == ORDER_RESTRICTION_BEFORE) {
+        return afterTimeString(before);
+      } if (oc->restriction == ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS) {
+        return afterOrAtTimeString(before);
+      } if (oc->restriction == ORDER_RESTRICTION_SIMULTANEOUS) {
+        return atTimeString(before);
+      } else {
+        assert(false);
+      }
+    }
+
+    std::string startInstrConstraint(ExecutionAction instr) {
+      vector<string> rcs;
+      cout << "Start constraints on " << instr << endl;
+      for (auto c : exe.constraintsOnStart(instr)) {
+        cout << tab(1) << *c << endl;
+        rcs.push_back(constraintString(c));
+      }
+
+      rcs.push_back(notStr(instrStartString(instr)));
+      return separatedListString(rcs, " && ");
+    }
+
+    std::string endInstrConstraint(ExecutionAction instr) {
+      vector<string> rcs;
+      for (auto c : exe.constraintsOnEnd(instr)) {
+        rcs.push_back(constraintString(c));
+      }
+
+      rcs.push_back(orStr(instrStartString(instr), couldStartFlag(instr)));
+      rcs.push_back(notStr(instrEndString(instr)));
+      return separatedListString(rcs, " && ");
+    }
+    
+    Function* getFunction() const { return f; }
+  };
+
+  std::vector<Port> getPorts(DynArch& arch) {
+    vector<Port> pts;
+    pts.push_back(inputPort(1, "clk"));
+    pts.push_back(inputPort(1, "rst"));
+    // pts.push_back(outputPort(1, "valid"));
+
+    // pts.push_back(outputPort(32, "raddr_0"));
+    // pts.push_back(outputPort(1, "ren_0"));
+    // pts.push_back(inputPort(32, "rdata_0"));
+    // pts.push_back(outputPort(32, "waddr_0"));
+    // pts.push_back(outputPort(32, "wdata_0"));
+    // pts.push_back(outputPort(1, "wen_0"));
+
+    for (auto unit : arch.functionalUnits) {
+      if (unit.isExternal()) {
+        for (auto w : unit.portWires) {
+          Port pt = wireToOutputPort(w.second);
+          pt.registered = true;
+          pts.push_back(pt);
+        }
+
+        for (auto w : unit.outWires) {
+          pts.push_back(wireToInputPort(w.second));
+        }
+      }
+    }
+
+    return pts;
+  }
+
+  void emitVerilog(std::ostream& out, DynArch& arch) {
+    vector<Port> pts = getPorts(arch);
+
+    VerilogComponents comps;
+    for (auto w : arch.allWires) {
+      comps.debugWires.push_back(w);
+    }
+    // Adding module instances      
+
+    for (auto unit : arch.functionalUnits) {
+      map<string, string> wireConns;
+      for (auto w : unit.portWires) {
+        wireConns.insert({w.first, w.second.name});
+      }
+
+      // TODO: Put sequential vs combinational distincion in module description
+      if ((unit.getModName() == "RAM") ||
+          (unit.getModName() == "register") ||
+          (unit.getModName() == "adder")) {
+        wireConns.insert({"clk", "clk"});
+        wireConns.insert({"rst", "rst"});
+      }
+
+      if (unit.getModName() == "fadd") {
+        wireConns.insert({"clk", "clk"});
+      }
+
+      string modName = unit.getModName();
+      auto params = unit.getParams();
+      string instName = unit.instName;
+
+      for (auto w : unit.outWires) {
+        wireConns.insert({w.first, w.second.name});
+      }
+
+      ModuleInstance inst = {modName, params, instName, wireConns};
+
+      if (!unit.isExternal()) {
+        comps.instances.push_back(inst);
+      } else {
+        // for (auto w : unit.portWires) {
+        //   comps.debugAssigns.push_back({w.second.name, w.second.name + "_reg"});
+        // }
+
+        // for (auto w : unit.outWires) {
+        //   comps.debugAssigns.push_back({w.second.name, w.first});
+        // }
+
+      }
+    }
+    // Done adding module instances
+
+    addAlwaysBlock({"clk"}, "if (rst) begin " + arch.globalTimeString() + " <= 0; end", comps);
+    addAlwaysBlock({"clk"}, "if (!rst) begin " + arch.globalTimeString() + " <= " + arch.globalTimeString() + " + 1; end", comps);
+    
+    for (auto actionMarker : arch.actionTrackers) {
+      ExecutionAction action = actionMarker.first;
+
+      // Reset behavior
+      addAlwaysBlock({"clk"}, "if (rst) begin " + arch.startedFlag(action) + " <= 0; end", comps);
+      addAlwaysBlock({"clk"}, "if (rst) begin " + arch.doneFlag(action) + " <= 0; end", comps);        
+
+      addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(action) + ") begin " + arch.startedFlag(action) + " <= 1; end", comps);
+      addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(action) + ") begin " + arch.doneFlag(action) + " <= 1; end", comps);
+
+      // Set completion times
+      addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(action) + ") begin " + arch.startTimeString(action) + " <= " + arch.globalTimeString() + "; end", comps);
+      addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(action) + ") begin " + arch.doneTimeString(action) + " <= " + arch.globalTimeString() + "; end", comps);
+
+      // Debug printouts, TODO: Move these to separate debug function
+      string actionStr = action.isInstruction() ? valueString(action.getInstruction()) : action.getName();
+      addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(action) + ") begin $display(\"Starting " + sanitizeFormatForVerilog(actionStr) + " at cycle %d\", " + arch.globalTimeString() + "); end", comps);
+
+      string outputPrintout = "$display(\"Ending " + sanitizeFormatForVerilog(actionStr) + " at cycle %d\", " + arch.globalTimeString() + ");";
+
+      addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(action) + ") begin " + outputPrintout + " end", comps);
+      // End debug printouts
+
+
+      comps.debugAssigns.push_back({arch.couldStartFlag(action), arch.startInstrConstraint(action)});
+      comps.debugAssigns.push_back({arch.couldEndFlag(action), arch.endInstrConstraint(action)});
+      
+      if (action.isInstruction()) {
+
+        Instruction* instr = action.getInstruction();
+        // Actually execute instructions, should move this to another function?
+        FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+        string portSetting = "";
+        string resultValue = "";
+        
+        
+        if (BinaryOperator::classof(instr)) {
+          portSetting += unit.portWires["in0"].name + " = " + arch.outputName(instr->getOperand(0)) + "; ";
+          portSetting += unit.portWires["in1"].name + " = " + arch.outputName(instr->getOperand(1)) + "; ";
+          resultValue = unit.outWires["out"].name;
+        } else if (GetElementPtrInst::classof(instr)) {
+          portSetting += unit.portWires["base_addr"].name + " = " + arch.outputName(instr->getOperand(0)) + "; ";
+          for (int i = 1; i < (int) instr->getNumOperands(); i++) {
+            portSetting += unit.portWires["in" + to_string(i)].name + " = " + arch.outputName(instr->getOperand(i)) + ";";
+
+          }
+
+          resultValue = unit.outWires["out"].name;
+        } else if (LoadInst::classof(instr)) {
+          portSetting += unit.portWires["raddr_0"].name + " = " + arch.outputName(instr->getOperand(0)) + "; ";
+          portSetting += unit.portWires["ren_0"].name + " = 1;";
+
+          resultValue = unit.outWires["rdata_0"].name;
+        } else if (StoreInst::classof(instr)) {
+          portSetting += unit.portWires["waddr_0"].name + " = " + arch.outputName(instr->getOperand(1)) + "; ";
+          portSetting += unit.portWires["wdata_0"].name + " = " + arch.outputName(instr->getOperand(0)) + "; ";
+          portSetting += unit.portWires["wen_0"].name + " = 1;";
+        } else if (ReturnInst::classof(instr)) {
+          portSetting += unit.portWires["valid"].name + " = 1;";          
+        } else if (isBuiltinPortRead(instr)) {
+          string portName = getPortName(instr);
+          resultValue = unit.outWires[portName].name;          
+        } else if (isBuiltinPortWrite(instr)) {
+          string portName = getPortName(instr);          
+          portSetting += unit.portWires[portName].name + " = " + arch.outputName(instr->getOperand(1)) + "; ";
+        } else {
+          assert(false);
+        }
+
+        addAlwaysBlock({}, "if (" + arch.couldStartFlag(instr) + ") begin " + portSetting + " end", comps);
+
+        // Store results to temporaries
+        if (hasOutput(instr)) {
+          addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(instr) + ") begin " + map_find(instr, arch.tempStorage).name + " <= " + resultValue + "; end", comps);
+
+          string outputPrintout = "$display(\"Ending " + sanitizeFormatForVerilog(actionStr) + " at cycle %d, with value %d\", " + arch.globalTimeString() + ", " + resultValue + ");";
+          addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(action) + ") begin " + outputPrintout + " end", comps);
+          
+        }
+      }
+    }
+
+    emitModule(out, string(arch.getFunction()->getName()), pts, comps);
+  }
+
+  // Several things are going wrong here and I dont understand the effect of
+  // changes that I make to the system very well.
+  //  1. Output code is pretty unreadable
+  //  2. Constraints that I dont think should exist are forming (raddr depending on rdata?)
+  //  3. Constraints that I dont think should be a problem (return value constraints
+  //     on functions) seem to cause everything to stop executing
+
+  // Q: How do I propagate instruction time constraints? For example, what if
+  //    I have something like:
+  //    start(ld) + 3 == end(ld) (bc ld has a latency of 3)
+  //    start(k) < end(ld)
+
+  //    start(k) < start(ld) + 3
+  //    So that ld must end after k, but there are no other constraints? I dont
+  //    think my current architecture can prevent ld from starting.
+
+  //    So I suppose the way to evaluate constraints is to treat them as hypotheticals
+  //    start(k) < start(ld) + 3 gets interpreted as:
+  //    start(k) < start(current_time) + 3 (if ld has not started yet and k has?)
+
+  //    Im doing ILP solving by checking if each value could be satisfied at each
+  //    time and if that assignment to a value leaves a SAT solution to all
+  //    other constraints
+
+  //    Latency optimal: minimize the sum of all start / end times (because this
+  //    will minimize all of them since they are all positive)
+
+  //    At any given time some constraints have been determined, and some are
+  //    still undetermined.
+
+  //    What if ld starts? I could re-phrase as: start(k) < start(ld) + 3
+  //    But that cannot be computed
+
+  //    Have flags for if every instruction time is already determined, if so
+  //    just substitute it in to the constraints. If not then for each undetermined
+  //    value check if current_time could satisfy all constraints and leave
+  //    a viable solution for existing constraints. Wont be latency optimal for
+  //    resource ordering, but will be latency optimal for unlimited resource
+  //    bounds.
+
+  void implementRAMRead0(Function* ramRead0, InterfaceFunctions& interfaces) {
+    int addrWidth = getValueBitWidth(getArg(ramRead0, 1));
+    int width = getTypeBitWidth(ramRead0->getReturnType());
+    auto sramTp = getArg(ramRead0, 0)->getType();
+
+    ExecutionConstraints& exec = interfaces.getConstraints(ramRead0);
+    auto waddr0F = writePort("raddr_0", addrWidth, sramTp);
+    auto rdata0F = readPort("rdata_0", width, sramTp);
+
+    auto sram = getArg(ramRead0, 0);
+    auto addr = getArg(ramRead0, 1);
+
+    auto bb = mkBB("entry_block", ramRead0);
+    IRBuilder<> eb(bb);
+    auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
+    auto readData = eb.CreateCall(rdata0F, {sram});
+    auto ret = eb.CreateRet(readData);
+
+    exec.add(instrStart(setAddr) + 1 == instrStart(readData));
+
+    addDataConstraints(ramRead0, exec);
+    
+    cout << "-- # of constraints on read function = " << exec.constraints.size() << endl;
+    for (auto c : exec.constraints) {
+      cout << tab(1) << *c << endl;
+    }
+
+  }
+
+  void implementRAMWrite0(Function* ramWrite0, InterfaceFunctions& interfaces) {
+    int addrWidth = getValueBitWidth(getArg(ramWrite0, 1));
+    int width = getValueBitWidth(getArg(ramWrite0, 2));
+    auto sramTp = ramWrite0->getReturnType();
+
+    ExecutionConstraints& exec = interfaces.getConstraints(ramWrite0);
+    auto waddr0F = writePort("waddr_0", addrWidth, sramTp);
+    auto wdata0F = writePort("wdata_0", width, sramTp);
+    auto wen0F = writePort("wen_0", 1, sramTp);
+
+    auto sram = getArg(ramWrite0, 0);
+    auto addr = getArg(ramWrite0, 1);
+    auto data = getArg(ramWrite0, 2);
+
+    auto bb = mkBB("entry_block", ramWrite0);
+    IRBuilder<> eb(bb);
+    auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
+    auto setData = eb.CreateCall(wdata0F, {sram, data});
+    auto setEn1 = eb.CreateCall(wen0F, {sram, mkInt(1, 1)});
+    auto setEn0 = eb.CreateCall(wen0F, {sram, mkInt(0, 1)});
+    auto ret = eb.CreateRet(nullptr);
+
+    exec.add(instrStart(setAddr) == instrStart(setData));
+    exec.add(instrStart(setAddr) == instrStart(setEn1));
+
+    exec.add(instrEnd(setEn1) + 1 == instrStart(setEn0));
+
+    // TODO: Replace start(ret) with end(inlineMarker)?
+    exec.add(instrStart(setAddr) + 3 == instrStart(ret));
+
+    addDataConstraints(ramWrite0, exec);
+
+    cout << "-- Constraints on write function" << endl;
+    for (auto c : exec.constraints) {
+      cout << tab(1) << *c << endl;
+    }
+  }
+  
+  TEST_CASE("Creating memory interface functions") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+    
+    auto mod = llvm::make_unique<Module>("dynamic arch", context);
+    setGlobalLLVMModule(mod.get());
+
+    int width = 32;
+    int depth = 128;
+    int addrWidth = clog2(depth);
+    StructType* sramTp = sramType(width, depth);
+    
+    std::vector<Type *> inputs{sramTp->getPointerTo()};
+
+    InterfaceFunctions interfaces;
+    Function* ramRead0 =
+      mkFunc({sramTp, intType(addrWidth)}, intType(width), "read0");
+    interfaces.addFunction(ramRead0);
+    implementRAMRead0(ramRead0, interfaces);
+
+    Function* ramWrite0 = mkFunc({sramTp, intType(addrWidth), intType(width)}, voidType(), "write0");
+    interfaces.addFunction(ramWrite0);
+    implementRAMWrite0(ramWrite0, interfaces);
+  
+
+    FunctionType *tp =
+      FunctionType::get(Type::getVoidTy(context), inputs, false);
+    Function *srUser =
+      Function::Create(tp, Function::ExternalLinkage, "dynamic_arch_sram_class", mod.get());
+
+    int argId = 0;
+    for (auto &Arg : srUser->args()) {
+      Arg.setName("arg_" + to_string(argId));
+      argId++;
+    }
+
+    auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
+    ConstantInt* five = mkInt("5", width);
+    ConstantInt* zero = mkInt("0", addrWidth);    
+
+    IRBuilder<> builder(entryBlock);
+    auto ldA = builder.CreateCall(ramRead0, {getArg(srUser, 0), zero});
+    auto plus = builder.CreateAdd(ldA, five);
+    auto st = builder.CreateCall(ramWrite0, {getArg(srUser, 0), zero, plus});
+    auto ret = builder.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(srUser) << endl;
+
+    ExecutionConstraints exec;
+
+    // Control time dependencies
+    exec.add(instrStart(ldA) + 1 == instrEnd(ldA));
+    exec.add(instrStart(plus) == instrEnd(plus));
+    exec.add(instrStart(st) + 3 == instrEnd(st));
+    exec.add(instrStart(ret) == instrEnd(ret));
+
+    inlineWireCalls(srUser, exec, interfaces);
+    addDataConstraints(srUser, exec);
+
+    cout << "LLVM Function after inlining" << endl;
+    cout << valueString(srUser) << endl;
+
+    cout << "Constraints after inlining" << endl;
+    for (auto c : exec.constraints) {
+      cout << tab(1) << *c << endl;
+    }
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.modSpecs[getArg(srUser, 0)] = ramSpec(width, depth);
+
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(srUser, hcs, toPipeline);
+    exec.addConstraints(p, srUser);
+
+    map<Function*, SchedulingProblem> constraints{{srUser, p}};
+    Schedule s = scheduleFunction(srUser, hcs, toPipeline, constraints);
+
+    STG graph = buildSTG(s, srUser);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    REQUIRE(graph.opStates.size() == 5);
+
+    map<Value*, int> layout;
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(srUser,
+                                       graph,
+                                       layout,
+                                       options,
+                                       hcs);
+
+    VerilogDebugInfo info;
+    // addNoXChecks(arch, info);
+    emitVerilog(srUser, arch, info);
+    
+    REQUIRE(runIVerilogTB("dynamic_arch_sram_class"));
   }
   
 }

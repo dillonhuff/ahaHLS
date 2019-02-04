@@ -106,12 +106,13 @@ namespace DHLS {
       AAResults& a = getAnalysis<AAResultsWrapperPass>().getAAResults();
       ScalarEvolution& sc = getAnalysis<ScalarEvolutionWrapperPass>().getSE();
 
+      errs() << "Scheduling " << "\n" << valueString(&F) << "\n";
       if (!contains_key(&F, functionConstraints)) {
-      schedule = scheduleFunction(&F,
-                                  hdc,
-                                  toPipeline,
-                                  a,
-                                  sc);
+        schedule = scheduleFunction(&F,
+                                    hdc,
+                                    toPipeline,
+                                    a,
+                                    sc);
       } else {
         SchedulingProblem p = map_find(&F, functionConstraints);
         addMemoryConstraints(&F,
@@ -260,6 +261,8 @@ namespace DHLS {
         } else {
           latency = 1;
         }
+      } else if (isBuiltinPortWrite(iptr)) {
+        latency = 0;
       } else {
         // Value* func = call->getOperand(0);
         // cout << "Function name = " << valueString(func) << endl;
@@ -286,8 +289,10 @@ namespace DHLS {
 
   template<typename Solver>
   Schedule extractModel(SchedulingProblem& p, z3::context& c, Solver& s) {
-    
+
+    //cout << "Extracting model" << endl;
     for (auto& constraint : p.constraints) {
+      //cout << "Constraint = " << constraint << endl;
       s.add(toZ3(c, constraint));
     }
 
@@ -303,8 +308,8 @@ namespace DHLS {
 
     model m = s.get_model();
 
-    // cout << "Final model" << endl;
-    // cout << m << endl;
+    cout << "Final model" << endl;
+    cout << m << endl;
     
     //cout << "Final schedule" << endl;
     Schedule sched;
@@ -672,12 +677,13 @@ namespace DHLS {
     if (constraint.cond == CMP_GTEZ) {
       return e >= 0;
     } else if (constraint.cond == CMP_LTEZ) {
-      //cout << "LTEZ constraint = " << (e <= 0) << endl;
       return e <= 0;
     } else if (constraint.cond == CMP_EQZ) {
       return e == 0;      
     } else if (constraint.cond == CMP_LTZ) {
       return e < 0;
+    } else if (constraint.cond == CMP_GTZ) {
+      return e > 0;      
     } else {
       assert(false);
     }
@@ -696,9 +702,7 @@ namespace DHLS {
     int i = 0;
     for (auto bb : toPipeline) {
       string iiName = string("II_") + to_string(i);
-      //expr iiE = c.int_const(iiName.c_str());
-      //p.s.add(0 < ii);
-      //map_insert(p.IIs, bb, iiE);
+
       p.IInames.insert({bb, iiName});
 
       auto ii = p.getII(bb);
@@ -744,39 +748,39 @@ namespace DHLS {
     for (int i = 0; i < (int) sortedBlocks.size() - 1; i++) {
       auto next = sortedBlocks[i];
       auto nextBB = sortedBlocks[i + 1];
-      //p.s.add(p.blockSink(next) < p.blockSource(nextBB));
       p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
     }
 
-    
-    // Instructions must finish before their dependencies
-    for (auto& bb : f->getBasicBlockList()) {
 
-      int instrInd = 0;
-      
-      for (auto& instr : bb) {
-        Instruction* iptr = &instr;
-        
-        for (auto& user : iptr->uses()) {
-          assert(Instruction::classof(user));
-          auto userInstr = dyn_cast<Instruction>(user.getUser());          
-
-          if (!PHINode::classof(userInstr)) {
-
-            //p.s.add(instrEnd(iptr, p.schedVars) <= instrStart(userInstr, p.schedVars));
-            p.addConstraint(p.instrEnd(iptr) <= p.instrStart(userInstr));
-            cout << instructionString(iptr) << " must finish before " << instructionString(userInstr) << endl;
-          }
-        }
-
-        instrInd++;
-
-      }
-    }
+    ExecutionConstraints exe;
+    addDataConstraints(f, exe);
+    exe.addConstraints(p, f);
 
     return p;
   }
 
+  // Very hard to know where to begin changing to a readport, writeport
+  // formulation for channels. Id like to replace calls to read and write
+  // FIFOs with calls to set ports, and Id like to change the code generation
+  // API to output ports
+
+  // Also: In the background of all this is the fact that the resource binding
+  // code is still wrong in a subtle way that I dont understand, and that
+  // the calling convention for readport and writeport functions needs to
+  // take in a pointer to a resource, even though Im not sure which resource
+  // will be bound to which call until after scheduling is finished.
+
+  // Solution to binding: Assume always unique, then modify program later
+  // to reflect resource constraints?
+
+  // Maybe I should build the readport, writeport stuff using the FPU first
+  // in a totally separate example, then figure out how to get preprocessing
+  // (inlining?) code working to convert builtin fifo calls to readport,
+  // and writeport code?
+
+  // I also need to think about how to convert the readport, writeport API
+  // description in a function in to sequential code snippets that can be
+  // used to drive a simulated model of a program.
   void
   addMemoryConstraints(llvm::Function* f,
                        HardwareConstraints& hdc,
@@ -784,6 +788,8 @@ namespace DHLS {
                        AAResults& aliasAnalysis,
                        ScalarEvolution& sc,
                        SchedulingProblem& p) {
+
+    ExecutionConstraints exe;
     // Instructions must finish before their dependencies
     for (auto& bb : f->getBasicBlockList()) {
 
@@ -799,6 +805,39 @@ namespace DHLS {
 
             // Check FIFO dependences
 
+            // TODO: Check that Im reading / writing the same port
+            // Check WAW dependence
+            if (isBuiltinPortWrite(&instr) && isBuiltinPortWrite(&otherInstr)) {
+              Value* store0 = instr.getOperand(0);
+              Value* store1 = otherInstr.getOperand(0);
+              
+              AliasResult aliasRes = aliasAnalysis.alias(store0, store1);
+              if (aliasRes != NoAlias) {
+
+                auto p0 = getPortName(&instr);
+                auto p1 = getPortName(&otherInstr);
+                if (p0 == p1) {
+                  exe.addConstraint(instrEnd(&instr) < instrStart(&otherInstr));
+                }
+              }
+            }
+
+            // Check RAR
+            if (isBuiltinPortRead(&instr) && isBuiltinPortRead(&otherInstr)) {
+              Value* store0 = instr.getOperand(0);
+              Value* store1 = otherInstr.getOperand(0);
+              
+              AliasResult aliasRes = aliasAnalysis.alias(store0, store1);
+              if (aliasRes != NoAlias) {
+
+                auto p0 = getPortName(&instr);
+                auto p1 = getPortName(&otherInstr);
+                if (p0 == p1) {
+                  exe.addConstraint(instrEnd(&instr) < instrStart(&otherInstr));
+                }
+              }
+            }
+            
             // Check RAR dependence
             if (isBuiltinFifoRead(&instr) && isBuiltinFifoRead(&otherInstr)) {
 
@@ -810,10 +849,12 @@ namespace DHLS {
 
                 FifoInterface fifoTp = hdc.getFifoType(instr.getOperand(0));
                 if (fifoTp == FIFO_RV) {
-                  p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
+                  exe.addConstraint(instrEnd(&instr) <= instrStart(&otherInstr));
+                  //p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
                 } else {
                   assert(fifoTp == FIFO_TIMED);
-                  p.addConstraint(p.instrEnd(&instr) < p.instrStart(&otherInstr));
+                  //p.addConstraint(p.instrEnd(&instr) < p.instrStart(&otherInstr));
+                  exe.addConstraint(instrEnd(&instr) < instrStart(&otherInstr));
                 }
               }
             }
@@ -828,14 +869,17 @@ namespace DHLS {
 
                 FifoInterface fifoTp = hdc.getFifoType(instr.getOperand(1));
                 if (fifoTp == FIFO_RV) {
-                  p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
+                  //p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
+                  exe.addConstraint(instrEnd(&instr) <= instrStart(&otherInstr));
                 } else {
                   assert(fifoTp == FIFO_TIMED);
-                  p.addConstraint(p.instrEnd(&instr) < p.instrStart(&otherInstr));
+                  //p.addConstraint(p.instrEnd(&instr) < p.instrStart(&otherInstr));
+                  exe.addConstraint(instrEnd(&instr) < instrStart(&otherInstr));
                 }
 
               }
             }
+
             
             // Check dependences between RAM operations
             // Check RAW dependence
@@ -846,8 +890,8 @@ namespace DHLS {
               
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
               if (aliasRes != NoAlias) {
-
-                p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
+                //p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
+                exe.addConstraint(instrEnd(&instr) <= instrStart(&otherInstr));
               }
             }
 
@@ -859,7 +903,8 @@ namespace DHLS {
               // TODO: Add SCEV analysis
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, otherStoreLoc);
               if (aliasRes != NoAlias) {
-                p.addConstraint(p.instrEnd(&instr) < p.instrEnd(&otherInstr));
+                //p.addConstraint(p.instrEnd(&instr) < p.instrEnd(&otherInstr));
+                exe.addConstraint(instrEnd(&instr) < instrEnd(&otherInstr));
               }
             }
 
@@ -871,7 +916,8 @@ namespace DHLS {
               // TODO: Add SCEV analysis
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
               if (aliasRes != NoAlias) {
-                p.addConstraint(p.instrStart(&instr) <= p.instrStart(&otherInstr));
+                //p.addConstraint(p.instrStart(&instr) <= p.instrStart(&otherInstr));
+                exe.addConstraint(instrStart(&instr) <= instrStart(&otherInstr));
               }
             }
             
@@ -928,7 +974,8 @@ namespace DHLS {
             for (auto preI : gp) {
               for (auto nextI : next) {
                 // Change to p.instrStart(preI) + II_unit
-                p.addConstraint(p.instrStart(preI) + 1 <= p.instrStart(nextI));
+                //p.addConstraint(p.instrStart(preI) + 1 <= p.instrStart(nextI));
+                exe.addConstraint(instrStart(preI) + 1 <= instrStart(nextI));
               }
             }
           }
@@ -966,6 +1013,7 @@ namespace DHLS {
             int rawDD = rawOperandDD(&instrA, &instrB, domTree);
             if (rawDD > 0) {
               p.addConstraint(p.instrEnd(&instrA) < II*rawDD + p.instrStart(&instrB));
+              //exe.addConstraint(instrEnd(&instrA) < II*rawDD + instrStart(&instrB));
             }
 
             if (StoreInst::classof(&instrA) &&
@@ -976,12 +1024,15 @@ namespace DHLS {
                                          sc);
               if (memRawDD > 0) {
                 p.addConstraint(p.instrEnd(&instrA) < II*memRawDD + p.instrStart(&instrB));
+                //exe.addConstraint(instrEnd(&instrA) < II*memRawDD + instrStart(&instrB));
               }
             }
           }
         }
       }
     }
+
+    exe.addConstraints(p, f);
 
   }
   
@@ -1002,6 +1053,9 @@ namespace DHLS {
                             std::set<BasicBlock*>& toPipeline,
                             AAResults& aliasAnalysis,
                             ScalarEvolution& sc) {
+
+    // Remove builtin calls and replace them with sequences of calls
+    // to port setting functions?
 
     SchedulingProblem p =
       createSchedulingProblem(f, hdc, toPipeline, aliasAnalysis, sc);
@@ -1180,6 +1234,26 @@ namespace DHLS {
               Condition(map_find(containerBB, blockGuards))});
       }
     }
+
+    // Add no instruction states to schedule
+    StateId minState = 0;
+    StateId maxState = minState;
+    for (auto st : g.opStates) {
+      if (st.first > maxState) {
+        maxState = st.first;
+      }
+    }
+
+    // Add no instruction states to transitions
+    for (StateId i = minState; i < maxState; i++) {
+      if (!contains_key(i, g.opStates)) {
+        g.opStates[i] = {};
+        Condition t;
+        assert(t.isTrue());
+        g.opTransitions[i] = {{i + 1, t}};
+      }
+    }
+
 
     // Q: What are the transition possibilities?
     // A: Each state contains instructions from many

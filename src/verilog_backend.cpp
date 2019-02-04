@@ -37,6 +37,10 @@ namespace DHLS {
     return {false, false, width, name, false};
   }
 
+  Port outputRegPort(const int width, const std::string& name) {
+    return {true, false, width, name, false};
+  }
+  
   Port outputDebugPort(const int width, const std::string& name) {
     return {false, false, width, name, true};
   }
@@ -63,7 +67,7 @@ namespace DHLS {
         BranchInst::classof(instr) ||
         AllocaInst::classof(instr) ||
         BitCastInst::classof(instr) ||
-        (CallInst::classof(instr) && !isBuiltinFifoRead(instr)) ||
+        (CallInst::classof(instr) && !isBuiltinFifoRead(instr) && !isBuiltinPortRead(instr)) ||
         ReturnInst::classof(instr)) {
       return false;
     }
@@ -74,12 +78,14 @@ namespace DHLS {
   Port wireToInputPort(const Wire w) {
     assert(!w.registered);
     
-    return {w.registered, true, w.width, w.name, false};
+    //return {w.registered, true, w.width, w.name, false};
+    return {false, true, w.width, w.name, false};
   }
 
 
   Port wireToOutputPort(const Wire w) {
-    return {w.registered, false, w.width, w.name, false};
+    //return {w.registered, false, w.width, w.name, false};
+    return {false, false, w.width, w.name, false};
   }
   
   std::vector<Port>
@@ -572,7 +578,30 @@ namespace DHLS {
           outWires = {{"out_data", {false, w, unitName + "_out_data"}}};
         }
         
+      } else if (isBuiltinPortCall(instr)) {
+        // No action
+
+        auto fuPtr = instr->getOperand(0);
+        assert(contains_key(fuPtr, hcs.modSpecs));
+
+        if (Argument::classof(fuPtr)) {
+          isExternal = true;
+        }
+
+        ModuleSpec modSpec = map_find(fuPtr, hcs.modSpecs);
+        modName = modSpec.name;
+        unitName = fuPtr->getName();
+
+        for (auto pt : modSpec.ports) {
+          if (pt.second.input()) {
+            wiring.insert({pt.first, {true, pt.second.width, unitName + "_" + pt.second.name}});
+          } else {
+            outWires.insert({pt.first, {false, pt.second.width, unitName + "_" + pt.second.name}});            
+          }
+        }
+
       } else {
+
         // No action
       }
     } else if (AllocaInst::classof(instr) ||
@@ -662,10 +691,11 @@ namespace DHLS {
       for (auto instrG : state.second) {
         Instruction* instr = instrG.instruction;
 
+        // TODO: Replace with hasOutput?
         if (StoreInst::classof(instr) ||
             BranchInst::classof(instr) ||
             AllocaInst::classof(instr) ||
-            (CallInst::classof(instr) && !isBuiltinFifoRead(instr)) ||
+            (CallInst::classof(instr) && !isBuiltinFifoRead(instr) && !isBuiltinPortRead(instr)) ||
             BitCastInst::classof(instr)) {
           continue;
         }
@@ -800,7 +830,7 @@ namespace DHLS {
       }
     }
 
-    //cout << "Getting the value of " << valueString(result) << " from arch.names" << endl;
+    cout << "Getting the value of " << valueString(result) << " from arch.names" << endl;
 
     assert(contains_key(result, arch.names));
     
@@ -817,6 +847,10 @@ namespace DHLS {
 
     if (isBuiltinFifoRead(instr0)) {
       return map_find(string("out_data"), unit0Src.outWires).name;
+    } else if (isBuiltinPortRead(instr0)) {
+      auto portName = getPortName(instr0);
+      //cout << "looking for " << portName << endl;
+      return map_find(string(portName), unit0Src.outWires).name;
     } else {
       assert(unit0Src.outWires.size() == 1);
       string valName = unit0Src.onlyOutputVar();
@@ -828,6 +862,7 @@ namespace DHLS {
                          ControlFlowPosition& currentPosition,
                          MicroArchitecture& arch) {
 
+    //cout << "Getting name of " << valueString(val) << endl;
     if (Instruction::classof(val)) {
 
       // Pointers to allocations (RAMs) always have a base
@@ -1094,7 +1129,30 @@ namespace DHLS {
 
 
         } else {
+          assert(false);
         }
+      } else if (isBuiltinPortWrite(instr)) {
+          cout << "Operand 0 = " << valueString(instr->getOperand(0)) << endl;
+          assert(contains_key(instr->getOperand(0), arch.hcs.modSpecs));
+
+          std::string portName = getPortName(instr);
+          cout << "Port name = " << portName << endl;
+          string val = outputName(instr->getOperand(1), pos, arch);
+
+          assignments.insert({addUnit.inputWire(portName), val});
+
+      } else if (isBuiltinPortRead(instr)) {
+
+        // cout << "Operand 0 = " << valueString(instr->getOperand(0)) << endl;
+        // assert(contains_key(instr->getOperand(0), arch.hcs.modSpecs));
+
+        // std::string portName = getPortName(instr);
+        // cout << "Port name = " << portName << endl;
+        // string val = outputName(instr->getOperand(1), pos, arch);
+
+        // assignments.insert({addUnit.inputWire(portName), val});
+        
+      } else {
       }
     } else if (AllocaInst::classof(instr) ||
                BitCastInst::classof(instr) ||
@@ -1356,9 +1414,16 @@ namespace DHLS {
           for (auto instr : arch.stg.instructionsStartingAt(state)) {
 
             if (isBuiltinFifoCall(instr.instruction)) {
-
               stallConds.push_back(iiCondition(instr.instruction, arch));
+            } else if (isBuiltinStallCall(instr.instruction)) {
 
+              cout << "Getting builtin stall cond for " << instr.instruction->getOperand(0) << endl;
+              string cond = outputName(instr.instruction->getOperand(0),
+                                       pos,
+                                       arch);
+
+              cout << "Builtin stall cond = " << cond << endl;
+              stallConds.push_back(cond);
             }
           }
 
@@ -1401,7 +1466,6 @@ namespace DHLS {
 
     for (auto state : stg.opTransitions) {
 
-      //emitPipelineStateCode(out, state.first, state.second, stg, unitAssignment, names, pipelines);
       emitPipelineStateCode(out, state.first, state.second, arch);
 
     }
@@ -1668,7 +1732,8 @@ namespace DHLS {
 
       // TODO: Put sequential vs combinational distincion in module description
       if ((unit.getModName() == "RAM") ||
-          (unit.getModName() == "register")) {
+          (unit.getModName() == "register") ||
+          (unit.getModName() == "adder")) {
         wireConns.insert({"clk", "clk"});
         wireConns.insert({"rst", "rst"});
       }
@@ -2047,44 +2112,45 @@ namespace DHLS {
     out << "\t\tend else begin" << endl;
 
     for (auto st : arch.stg.opStates) {
-      assert(st.second.size() > 0);
+      if (st.second.size() > 0) {
 
-      map<BasicBlock*, GuardedInstruction> instructionsForBlocks;
-      for (auto instrG : st.second) {
-        Instruction* instr = instrG.instruction;
-        BasicBlock* bb = instr->getParent();
-        if (!contains_key(bb, instructionsForBlocks) && TerminatorInst::classof(instr)) {
-          instructionsForBlocks.insert({bb, instrG});
+        map<BasicBlock*, GuardedInstruction> instructionsForBlocks;
+        for (auto instrG : st.second) {
+          Instruction* instr = instrG.instruction;
+          BasicBlock* bb = instr->getParent();
+          if (!contains_key(bb, instructionsForBlocks) && TerminatorInst::classof(instr)) {
+            instructionsForBlocks.insert({bb, instrG});
+          }
+
         }
 
-      }
+        if (isPipelineState(st.first, pipelines)) {
+          if (instructionsForBlocks.size() > 0) {
+            assert(instructionsForBlocks.size() == 1);
 
-      if (isPipelineState(st.first, pipelines)) {
-        if (instructionsForBlocks.size() > 0) {
-          assert(instructionsForBlocks.size() == 1);
+            ElaboratedPipeline p = getPipeline(st.first, pipelines);
+            auto bbI = *begin(instructionsForBlocks);
 
-          ElaboratedPipeline p = getPipeline(st.first, pipelines);
-          auto bbI = *begin(instructionsForBlocks);
+            out << tab(3) << "if (global_state == " << p.stateId << ") begin" << endl;
 
-          out << tab(3) << "if (global_state == " << p.stateId << ") begin" << endl;
+            auto bbNo = map_find(bbI.first, arch.basicBlockNos);
+            out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
+            //out << tab(4) << "end" << endl;
+            out << tab(3) << "end" << endl;
+          }
 
-          auto bbNo = map_find(bbI.first, arch.basicBlockNos);
-          out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
-          //out << tab(4) << "end" << endl;
+        } else {
+          out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
+          for (auto bbI : instructionsForBlocks) {
+
+            auto pos = position(st.first, bbI.second.instruction->getParent()->getTerminator());
+            out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, pos, arch) << ") begin" << endl;
+            auto bbNo = map_find(bbI.first, arch.basicBlockNos);
+            out << tab(5) << "last_BB_reg <= " << bbNo << ";" << endl;
+            out << tab(4) << "end" << endl;
+          }
           out << tab(3) << "end" << endl;
         }
-
-      } else {
-        out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
-        for (auto bbI : instructionsForBlocks) {
-
-          auto pos = position(st.first, bbI.second.instruction->getParent()->getTerminator());
-          out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, pos, arch) << ") begin" << endl;
-          auto bbNo = map_find(bbI.first, arch.basicBlockNos);
-          out << tab(5) << "last_BB_reg <= " << bbNo << ";" << endl;
-          out << tab(4) << "end" << endl;
-        }
-        out << tab(3) << "end" << endl;
       }
     }
 
@@ -2211,6 +2277,9 @@ namespace DHLS {
                    MicroArchitecture& arch,
                    const VerilogDebugInfo& debugInfo) {
 
+    cout << "Emitting verilog for" << endl;
+    cout << valueString(f) << endl;
+    
     string fn = f->getName();
 
     // This is a very flawed way to handle memory ports. For a few reasons
@@ -2796,22 +2865,6 @@ namespace DHLS {
 
   }
   
-  std::string sanitizeFormatForVerilog(const std::string& str) {
-    string san = "";
-    for (auto c : str) {
-
-      if (c == '"') {
-        san += "\\\"";
-      } else if (c == '%') {
-        san += '$';
-      } else {
-        san += c;
-      }
-        
-    }
-    return san;
-  }
-  
   void printInstrAtState(Instruction* instr,
                          StateId st,
                          const MicroArchitecture& arch,
@@ -3029,7 +3082,7 @@ namespace DHLS {
   void addNoXChecks(const MicroArchitecture& arch,
                     VerilogDebugInfo& info) {
     noBinopsTakeXInputs(arch, info, "fadd");
-    noBinopsProduceXOutputs(arch, info, "fadd");    
+    noBinopsProduceXOutputs(arch, info, "fadd");
     noFifoReadsX(arch, info);
     noFifoWritesX(arch, info);    
     noCompareOpsTakeXInputs(arch, info, "ne");

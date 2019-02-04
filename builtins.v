@@ -367,6 +367,10 @@ module fifo(input clk,
    always @(posedge clk) begin
       if (!rst) begin
          if (write_valid) begin
+
+            $display("writing %d to address %d", in_data, write_addr);
+            $display("write_addr = %b, next_write_addr = %b, depth = %b", write_addr, next_write_addr, DEPTH);            
+            
             `assert(write_ready, 1'd1)
 
             ram[write_addr] <= in_data;
@@ -377,18 +381,23 @@ module fifo(input clk,
       end
    end
 
+
+   
    assign next_read_addr = (DEPTH == (read_addr + 1)) ? 0 : read_addr + 1;
-   assign next_write_addr = (DEPTH == (write_addr + 1)) ? 0 : write_addr + 1;   
+   assign next_write_addr = (DEPTH == (write_addr + 1)) ? 0 : write_addr + 1;
 
    always @(posedge clk) begin
       if (!rst) begin
          if (read_valid) begin
             `assert(read_ready, 1'd1)
 
+            $display("reading %d", out_data);            
+
             // Wraparound
             read_addr <= next_read_addr;
 
             if (!empty && (next_read_addr == write_addr) && !write_valid) begin
+               $display("FIFO empty: next_read_addr = %d, write_addr = %d", next_read_addr, write_addr);
                empty <= 1;
             end
          end
@@ -419,6 +428,7 @@ module fifo(input clk,
       if (rst) begin
          empty <= 1;
 
+         $display("reseting");
          write_addr <= 0;
          read_addr <= 0;
 
@@ -1072,9 +1082,16 @@ module adder(
   reg       guard, round_bit, sticky;
   reg       [27:0] sum;
 
-   // always @(posedge clk) begin
-   //    $display("state = %d", state);
-   // end
+   always @(posedge clk) begin
+      // $display("state          = %d", state);
+      // $display("input_a_stb    = %d", input_a_stb);
+      // $display("input_a_ack    = %d", input_a_ack);      
+      // $display("input_b_stb    = %d", input_b_stb);
+      // $display("input_b_ack    = %d", input_b_ack);
+      // $display("output_z_stb   = %d", output_z_stb);
+      // $display("output_z       = %d", output_z);                  
+      // $display("rst            = %d", rst);            
+   end
 
   always @(posedge clk)
   begin

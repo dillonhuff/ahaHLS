@@ -36,7 +36,10 @@ namespace DHLS {
   int getValueBitWidth(Value* const instr) {
     Type* tp = instr->getType();
 
-    //cout << "type = " << typeString(tp) << endl;
+    return getTypeBitWidth(tp);
+  }
+
+  int getTypeBitWidth(Type* const tp) {
     int width;
 
     if (IntegerType::classof(tp)) {
@@ -74,6 +77,38 @@ namespace DHLS {
     // return dyn_cast<IntegerType>(tp)->getBitWidth();
   }
 
+  bool isBuiltinPortWrite(llvm::Instruction* const iptr) {
+    if (!CallInst::classof(iptr)) {
+      return false;
+    }
+
+    CallInst* call = dyn_cast<CallInst>(iptr);
+    Function* called = call->getCalledFunction();
+
+    string name = called->getName();
+
+    if (hasPrefix(name, "builtin_write_port_")) {
+      return true;
+    }
+    return false;
+  }
+
+  bool isBuiltinPortRead(llvm::Instruction* const iptr) {
+    if (!CallInst::classof(iptr)) {
+      return false;
+    }
+
+    CallInst* call = dyn_cast<CallInst>(iptr);
+    Function* called = call->getCalledFunction();
+
+    string name = called->getName();
+
+    if (hasPrefix(name, "builtin_read_port_")) {
+      return true;
+    }
+    return false;
+  }
+  
   bool isBuiltinFifoWrite(llvm::Instruction* const iptr) {
     if (!CallInst::classof(iptr)) {
       return false;
@@ -81,6 +116,14 @@ namespace DHLS {
 
     CallInst* call = dyn_cast<CallInst>(iptr);
     Function* called = call->getCalledFunction();
+
+    if (called == nullptr) {
+      return false;
+    }
+    
+    if (!called->hasName()) {
+      return false;
+    }
 
     string name = called->getName();
 
@@ -91,6 +134,40 @@ namespace DHLS {
   }
 
   bool isBuiltinFifoRead(llvm::Instruction* const iptr) {
+    if (iptr == nullptr) {
+      return false;
+    }
+    
+    //cout << "Checking if " << valueString(iptr) << " is builtin read" << endl;
+    if (!CallInst::classof(iptr)) {
+      return false;
+    }
+
+    CallInst* call = dyn_cast<CallInst>(iptr);
+    Function* called = call->getCalledFunction();
+
+    //cout << "Got called" << endl;
+    if (called == nullptr) {
+      return false;
+    }
+
+    //cout << "Called not null" << endl;    
+
+    if (!called->hasName()) {
+      return false;
+    }
+
+    //cout << "Has a name" << endl;
+    
+    string name = called->getName();
+
+    if (hasPrefix(name, "builtin_read_fifo_")) {
+      return true;
+    }
+    return false;
+  }
+
+  bool isBuiltinStallCall(llvm::Instruction* const iptr) {
     if (!CallInst::classof(iptr)) {
       return false;
     }
@@ -100,7 +177,8 @@ namespace DHLS {
 
     string name = called->getName();
 
-    if (hasPrefix(name, "builtin_read_fifo_")) {
+    // Look for stall
+    if (hasPrefix(name, "builtin_stall")) {
       return true;
     }
     return false;
@@ -110,6 +188,40 @@ namespace DHLS {
     APFloat fpVal(f); // Create ap
     string fBits = fpVal.bitcastToAPInt().toString(2, false);
     return "32'b" + zeroExtend(fBits, 32);
+  }
+
+  std::string getPortName(llvm::Instruction* const instr) {
+    assert(isBuiltinPortCall(instr));
+
+    CallInst* call = dyn_cast<CallInst>(instr);
+    Function* called = call->getCalledFunction();
+
+    string name = called->getName();
+
+    if (isBuiltinPortRead(instr)) {
+      return name.substr(string("builtin_read_port_").size());
+    } else {
+      assert(isBuiltinPortWrite(instr));
+      return name.substr(string("builtin_write_fifo_").size());
+    }
+  }
+
+  
+  
+  std::string sanitizeFormatForVerilog(const std::string& str) {
+    string san = "";
+    for (auto c : str) {
+
+      if (c == '"') {
+        san += "\\\"";
+      } else if (c == '%') {
+        san += '$';
+      } else {
+        san += c;
+      }
+        
+    }
+    return san;
   }
   
   

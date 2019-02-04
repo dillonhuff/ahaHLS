@@ -7,12 +7,16 @@
 
 #include "utils.h"
 
+#include <iostream>
+
 namespace DHLS {
 
   void setGlobalLLVMContext(llvm::LLVMContext* contextPtr);
-
   llvm::LLVMContext& getGlobalLLVMContext();
 
+  void setGlobalLLVMModule(llvm::Module* modulePtr);
+  llvm::Module& getGlobalLLVMModule();
+  
   static inline
   llvm::ConstantInt* mkInt(const std::string& decimalValueString, int bitWidth) {
     return llvm::ConstantInt::get(getGlobalLLVMContext(), llvm::APInt(bitWidth, llvm::StringRef(decimalValueString), 10));
@@ -58,6 +62,21 @@ namespace DHLS {
 
     return srUser;
   }
+
+  static inline
+  llvm::Function* mkFunc(std::vector<llvm::Type*>& inputs,
+                         llvm::Type* outputType,
+                         const std::string& funcName) {
+    return mkFunc(inputs, outputType, funcName, &getGlobalLLVMModule());
+  }  
+
+  static inline
+  llvm::Function* mkFunc(std::vector<llvm::Type*> inputs,
+                         llvm::Type* outputType,
+                         const std::string& funcName) {
+    auto inCpy = inputs;
+    return mkFunc(inCpy, outputType, funcName, &getGlobalLLVMModule());
+  }  
   
   static inline
   llvm::Function* mkFunc(std::vector<llvm::Type*>& inputs,
@@ -67,7 +86,7 @@ namespace DHLS {
   }
 
   static inline
-  llvm::Value* loadVal(llvm::IRBuilder<>& builder,
+  llvm::Instruction* loadVal(llvm::IRBuilder<>& builder,
                        llvm::Value* buffer,
                        llvm::Value* offset,
                        const std::string name = "") {
@@ -77,7 +96,7 @@ namespace DHLS {
   }
 
   static inline
-  llvm::Value* storeVal(llvm::IRBuilder<>& builder,
+  llvm::Instruction* storeVal(llvm::IRBuilder<>& builder,
                         llvm::Value* buffer,
                         llvm::Value* offset,
                         llvm::Value* value) {
@@ -127,12 +146,34 @@ namespace DHLS {
 
   static inline
   llvm::StructType* fifoType(const int width) {
-    llvm::StructType* tp =
-      llvm::StructType::create(getGlobalLLVMContext(),
-                               "builtin_fifo_" + std::to_string(width));
+    std::string name = "builtin_fifo_" + std::to_string(width);
+    llvm::StructType* tp = getGlobalLLVMModule().getTypeByName(name);
+    if (tp == nullptr) {
+      tp = llvm::StructType::create(getGlobalLLVMContext(), name);
+    }
+                               
     return tp;
   }
 
+  static inline
+  llvm::StructType* sramType(const int width, const int depth) {
+    std::string name = "SRAM_" + std::to_string(width) + "_" + std::to_string(depth);
+    llvm::StructType* tp = getGlobalLLVMModule().getTypeByName(name);
+    if (tp == nullptr) {
+      tp = llvm::StructType::create(getGlobalLLVMContext(), name);
+    }
+                               
+    return tp;
+  }
+  
+  static inline
+  llvm::StructType* wireType(const int width) {
+    llvm::StructType* tp =
+      llvm::StructType::create(getGlobalLLVMContext(),
+                               "builtin_wire_" + std::to_string(width));
+    return tp;
+  }
+  
   static inline
   llvm::Function* fifoRead(const int width, llvm::Module* m) {
     auto name = "builtin_read_fifo_" + std::to_string(width);
@@ -142,9 +183,23 @@ namespace DHLS {
 
     auto c = m->getOrInsertFunction(name, tp);
 
-    assert(llvm::Function::classof(c));
+    if (llvm::Function::classof(c)) {
+      return llvm::dyn_cast<llvm::Function>(c);
+    } else if (llvm::ConstantExpr::classof(c)) {
+      std::cout << "Is constantexpr" << std::endl;
+      assert(false);
+    } else {
+      assert(false);
+    }
+  }
 
-    return llvm::dyn_cast<llvm::Function>(c);
+  static inline
+  llvm::Function* fifoRead(const int width) {
+    return fifoRead(width, &getGlobalLLVMModule());
+  }  
+
+  static inline llvm::Type* voidType() {
+    return llvm::Type::getVoidTy(getGlobalLLVMContext());
   }
 
   static inline
@@ -157,6 +212,93 @@ namespace DHLS {
                               false);
 
     auto c = m->getOrInsertFunction(name, tp);
+
+    assert(llvm::Function::classof(c));
+
+    return llvm::dyn_cast<llvm::Function>(c);
+  }
+
+  static inline
+  llvm::Function* fifoWrite(const int width) {
+    return fifoWrite(width, &getGlobalLLVMModule());
+  }  
+  
+  static inline
+  llvm::Function* writePort(const std::string& portName,
+                            const int width,
+                            llvm::Type* argType) {
+
+    // TODO: Add argType to name
+    auto name = "builtin_write_port_" + portName;
+
+    llvm::FunctionType *tp =
+      llvm::FunctionType::get(llvm::Type::getVoidTy(getGlobalLLVMContext()),
+                              {argType,
+                                  intType(width)},
+                              false);
+
+    auto c = getGlobalLLVMModule().getOrInsertFunction(name, tp);
+
+    if (!llvm::Function::classof(c)) {
+      std::cout << "c = " << valueString(c) << std::endl;
+      assert(false);
+    }
+
+    return llvm::dyn_cast<llvm::Function>(c);
+  }
+
+  static inline
+  llvm::Function* readPort(const std::string& portName,
+                           const int width,
+                           llvm::Type* argType) {
+
+    // TODO: Add typestring to name
+    auto name = "builtin_read_port_" + portName;
+    llvm::FunctionType *tp =
+      llvm::FunctionType::get(intType(width),
+                              {argType},
+                              false);
+
+    auto c = getGlobalLLVMModule().getOrInsertFunction(name, tp);
+
+    if (llvm::Function::classof(c)) {
+      return llvm::dyn_cast<llvm::Function>(c);
+    } else if (llvm::ConstantExpr::classof(c)) {
+      std::cout << valueString(c) << " is constantexpr" << std::endl;
+      if (llvm::ConstantExpr::classof(c)) {
+        std::cout << "Is unary" << std::endl;
+        auto castC = llvm::dyn_cast<llvm::ConstantExpr>(c);
+        std::cout << "is cast ? " << castC->isCast() << std::endl;
+        auto f = castC->getOperand(0);
+        std::cout << "Function = " << valueString(f) << std::endl;
+
+        assert(llvm::Function::classof(c));
+
+        return llvm::dyn_cast<llvm::Function>(f);
+      } else {
+        assert(false);
+      }
+    } else {
+      assert(false);
+    }
+    
+    // assert(llvm::Function::classof(c));
+
+    // return llvm::dyn_cast<llvm::Function>(c);
+  }
+  
+  static inline
+  llvm::Function* stallFunction() {
+
+    // TODO: Add typestring to name
+    auto name = "builtin_stall";
+
+    llvm::FunctionType *tp =
+      llvm::FunctionType::get(llvm::Type::getVoidTy(getGlobalLLVMContext()),
+                              {intType(1)},
+                              false);
+
+    auto c = getGlobalLLVMModule().getOrInsertFunction(name, tp);
 
     assert(llvm::Function::classof(c));
 

@@ -104,6 +104,6 @@ module test();
 
    fifo #(.WIDTH(32), .DEPTH(16)) out(.clk(clk), .rst(rst), .read_valid(read_valid1), .read_ready(read_ready1), .write_ready(write_ready1), .write_valid(write_valid1), .out_data(out_data1), .in_data(in_data1));
 
-   fifo_user ss(.clk(clk), .rst(rst), .valid(valid), .fifo_1_write_valid(write_valid1), .fifo_1_in_data(in_data1), .fifo_1_write_ready(write_ready1), .fifo_0_out_data(out_data0), .fifo_0_read_valid(read_valid0), .fifo_0_read_ready(read_ready0));
+   fifo_user ss(.clk(clk), .rst(rst), .valid(valid), .arg_1_write_valid(write_valid1), .arg_1_in_data(in_data1), .arg_1_write_ready(write_ready1), .arg_0_out_data(out_data0), .arg_0_read_valid(read_valid0), .arg_0_read_ready(read_ready0));
    
 endmodule

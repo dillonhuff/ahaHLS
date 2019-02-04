@@ -98,6 +98,8 @@ namespace DHLS {
     return false;
   }
 
+  bool isBuiltinStallCall(llvm::Instruction* const instr);
+
   bool isBuiltinFifoWrite(llvm::Instruction* const instr);
   bool isBuiltinFifoRead(llvm::Instruction* const instr);
 
@@ -106,11 +108,31 @@ namespace DHLS {
     return isBuiltinFifoWrite(instr) || isBuiltinFifoRead(instr);
   }
 
+  std::string getPortName(llvm::Instruction* const instr);
+
+  bool isBuiltinPortWrite(llvm::Instruction* const instr);
+  bool isBuiltinPortRead(llvm::Instruction* const instr);
+  
+  static inline
+  bool isBuiltinPortCall(llvm::Instruction* const instr) {
+    return isBuiltinPortWrite(instr) || isBuiltinPortRead(instr);
+  }
+
+  static inline
+  std::string orStr(const std::string& left, const std::string& right) {
+    return parens(left + " || " + right);
+  }
+  
   static inline
   std::string andStr(const std::string& left, const std::string& right) {
     return parens(left + " && " + right);
   }
 
+  static inline
+  std::string condStr(const std::string& cond, const std::string& left, const std::string& right) {
+    return parens(cond + " ? " + left + " : " + right);
+  }
+  
   static inline
   std::string notStr(const std::string& a) {
     return "!" + parens(a);
@@ -127,6 +149,38 @@ namespace DHLS {
 
     assert(((int) res.size()) == width);
 
+    return res;
+  }
+
+  int getTypeBitWidth(llvm::Type* const tp);
+
+  std::string sanitizeFormatForVerilog(const std::string& str);
+  
+  static inline
+  std::string sanitizeFormatForVerilogId(const std::string& str) {
+    auto st = sanitizeFormatForVerilog(str);
+    std::string res = "";
+    for (auto c : st) {
+      if (c == '@') {
+        res += "_amp_";
+      } else if (c == ',') {
+        res += "_cm_";
+      } else if (c == ' ') {
+        res += "__";
+      } else if (c == '$') {
+        res += "_dlr_";
+      } else if (c == '*') {
+        res += "_ptr_";
+      } else if (c == '=') {
+        res += "_eq_";
+      } else if (c == '(') {
+        res += "_lp_";
+      } else if (c == ')') {
+        res += "_rp_";
+      } else {
+        res += c;
+      }
+    }
     return res;
   }
 
