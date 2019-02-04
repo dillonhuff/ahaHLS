@@ -4208,14 +4208,14 @@ namespace DHLS {
     int addrWidth = getValueBitWidth(getArg(ramRead0, 1));
     int width = getTypeBitWidth(ramRead0->getReturnType());
     auto sramTp = getArg(ramRead0, 0)->getType();
-    
+
     ExecutionConstraints& exec = interfaces.getConstraints(ramRead0);
     auto waddr0F = writePort("raddr_0", addrWidth, sramTp);
     auto rdata0F = readPort("rdata_0", width, sramTp);
 
     auto sram = getArg(ramRead0, 0);
     auto addr = getArg(ramRead0, 1);
-      
+
     auto bb = mkBB("entry_block", ramRead0);
     IRBuilder<> eb(bb);
     auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
@@ -4251,12 +4251,15 @@ namespace DHLS {
     auto setData = eb.CreateCall(wdata0F, {sram, data});
     auto setEn1 = eb.CreateCall(wen0F, {sram, mkInt(1, 1)});
     auto setEn0 = eb.CreateCall(wen0F, {sram, mkInt(0, 1)});
-    eb.CreateRet(nullptr);
+    auto ret = eb.CreateRet(nullptr);
 
     exec.add(instrStart(setAddr) == instrStart(setData));
     exec.add(instrStart(setAddr) == instrStart(setEn1));
 
     exec.add(instrEnd(setEn1) + 1 == instrStart(setEn0));
+
+    // TODO: Replace start(ret) with end(inlineMarker)?
+    exec.add(instrStart(setAddr) + 3 == instrEnd(ret));
 
     //addDataConstraints(ramWrite0, exec);
 
