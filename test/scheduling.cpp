@@ -4238,6 +4238,8 @@ namespace DHLS {
 
     exec.add(instrStart(setAddr) + 1 == instrStart(readData));
 
+    addDataConstraints(ramRead0, exec);
+    
     cout << "-- # of constraints on read function = " << exec.constraints.size() << endl;
     for (auto c : exec.constraints) {
       cout << tab(1) << *c << endl;
@@ -4275,7 +4277,7 @@ namespace DHLS {
     // TODO: Replace start(ret) with end(inlineMarker)?
     exec.add(instrStart(setAddr) + 3 == instrStart(ret));
 
-    //addDataConstraints(ramWrite0, exec);
+    addDataConstraints(ramWrite0, exec);
 
     cout << "-- Constraints on write function" << endl;
     for (auto c : exec.constraints) {
