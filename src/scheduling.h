@@ -20,7 +20,7 @@ namespace DHLS {
   class ExecutionAction {
     llvm::Instruction* instr;
     std::string tag;
-    BasicBlock* bb;
+    llvm::BasicBlock* bb;
     ExecutionActionType tp;
     
   public:
@@ -30,7 +30,7 @@ namespace DHLS {
     ExecutionAction(const std::string& name) :
       instr(nullptr), tag(name), bb(nullptr), tp(EXECUTION_ACTION_TAG) {}
 
-    ExecutionAction(BasicBlock* const bb_) :
+    ExecutionAction(llvm::BasicBlock* const bb_) :
       instr(nullptr), tag(""), bb(bb_), tp(EXECUTION_ACTION_BASIC_BLOCK) {}
 
     ExecutionActionType type() const { return tp; }
@@ -70,13 +70,14 @@ namespace DHLS {
 
   static inline
   std::ostream& operator<<(std::ostream& out, const ExecutionAction& action) {
-    if (action.isInstruction() || action.isBasicBlock()) {
-      llvm::Instruction* instr = action.getInstruction();
-      assert(instr != nullptr);
-      out << valueString(instr);
+    if (action.isInstruction()) {
+      out << valueString(action.getInstruction());
+    }  else if (action.isBasicBlock()) {
+      out << valueString(action.getBasicBlock());      
     } else {
       assert(action.isTag());
       out << action.getName();
+      
     }
     return out;
   }
@@ -102,8 +103,8 @@ namespace DHLS {
   
   static inline
   bool operator<(const ExecutionAction& a, const ExecutionAction& b) {
-    if (a.type() < b.type()) {
-      return true;
+    if (a.type() != b.type()) {
+      return a.type() < b.type();
     }
 
     if (a.isInstruction() && b.isInstruction()) {
@@ -1056,6 +1057,8 @@ namespace DHLS {
                      SchedulingProblem& p) {
     if (time.action.isInstruction()) {
       return (time.isEnd ? p.instrEnd(time.action) : p.instrStart(time.action)) + time.offset;
+    } else if (time.action.isBasicBlock()) {
+      return (time.isEnd ? p.blockEnd(time.action.getBasicBlock()) : p.blockStart(time.action.getBasicBlock())) + time.offset;
     } else {
       if (!p.hasAction(time.action)) {
         p.addAction(time.action);
@@ -1064,6 +1067,16 @@ namespace DHLS {
     }
   }
 
+  static inline   
+  InstructionTime start(BasicBlock* const bb) {
+    return {bb, false, 0};
+  }
+
+  static inline   
+  InstructionTime end(BasicBlock* const bb) {
+    return {bb, true, 0};
+  }
+  
   static inline   
   InstructionTime instrEnd(Instruction* const instr) {
     return {instr, true, 0};

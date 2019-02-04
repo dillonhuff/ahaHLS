@@ -117,10 +117,12 @@ namespace DHLS {
     ExecutionAction inlineAction(toInline);
     ExecutionAction inlineMarkerAction(sanitizeFormatForVerilogId(valueString(toInline)));
 
-    // TODO: Need to fit the basic block start and end time in to the execution
+    // Need to fit the basic block start and end time in to the execution
     // constraints
-    //BasicBlock* bb = toInline->getParent();
-    
+    BasicBlock* bb = toInline->getParent();
+    exec.add(start(bb) <= actionStart(inlineMarkerAction));
+    exec.add(actionEnd(inlineMarkerAction) <= end(bb));    
+
     for (auto c : exec.constraints) {
       c->replaceAction(inlineAction, inlineMarkerAction);
     }
