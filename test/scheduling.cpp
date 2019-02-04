@@ -3408,7 +3408,6 @@ namespace DHLS {
       mkFunc({fpuType, intType(width), intType(width)}, intType(width), "jd_fadd");
     interfaces.addFunction(fadd);
     {
-      // TODO: Implement fadd and add execution constraints
       ExecutionConstraints& exec = interfaces.getConstraints(fadd);
       auto entryBlock = mkBB("entry_block", fadd);
       IRBuilder<> b(entryBlock);
