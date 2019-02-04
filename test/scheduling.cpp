@@ -116,6 +116,11 @@ namespace DHLS {
     // Replace the inline start and end times with marker action noops
     ExecutionAction inlineAction(toInline);
     ExecutionAction inlineMarkerAction(sanitizeFormatForVerilogId(valueString(toInline)));
+
+    // TODO: Need to fit the basic block start and end time in to the execution
+    // constraints
+    //BasicBlock* bb = toInline->getParent();
+    
     for (auto c : exec.constraints) {
       c->replaceAction(inlineAction, inlineMarkerAction);
     }
@@ -141,10 +146,7 @@ namespace DHLS {
     // Remove old call
     toInline->eraseFromParent();
 
-    cout << "Inlining constraints" << endl;
-    // Inline constraints
-    // TODO: How to handle constraints on the return instruction,
-    // since the return instruction is not handled?
+    // cout << "Inlining constraints" << endl;
     cout << "Iterating over constraints" << endl;
     
     for (auto c : constraintsToInline.constraints) {
@@ -156,17 +158,29 @@ namespace DHLS {
         cout << "Before = " << oc->before << endl;
         cout << "After  = " << oc->after << endl;        
 
+        // start(inline_ret) -> end(inlineMarker)
+        // end(inline_ret) -> end(inlineMarker)
+        // Assumption is start(inline_ret) == end(inline_ret), since ret
+        // takes no time
         auto beforeInstr = oc->before.getInstr();
         ExecutionAction bRep = findReplacement(beforeInstr, oldInstrsToClones, inlineMarkerAction);
         oc->before.replaceAction(oc->before.action, bRep);
-        //map_find(beforeInstr, oldInstrsToClones));
+        if (ReturnInst::classof(beforeInstr)) {
+          if (oc->before.isStart()) {
+            oc->before.isEnd = true;
+          }
+        }
 
         auto afterInstr = oc->after.getInstr();
         ExecutionAction aRep = findReplacement(afterInstr, oldInstrsToClones, inlineMarkerAction);
         oc->after.replaceAction(oc->after.action, aRep);
+        if (ReturnInst::classof(afterInstr)) {
+          if (oc->after.isStart()) {
+            oc->after.isEnd = true;
+          }
+        }
 
-        //map_find(afterInstr, oldInstrsToClones));
-        exec.addConstraint(oc); // Add to existing constraints
+        exec.addConstraint(oc);
       } else {
         assert(false);
       }
@@ -4259,7 +4273,7 @@ namespace DHLS {
     exec.add(instrEnd(setEn1) + 1 == instrStart(setEn0));
 
     // TODO: Replace start(ret) with end(inlineMarker)?
-    exec.add(instrStart(setAddr) + 3 == instrEnd(ret));
+    exec.add(instrStart(setAddr) + 3 == instrStart(ret));
 
     //addDataConstraints(ramWrite0, exec);
 

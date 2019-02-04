@@ -967,7 +967,6 @@ namespace DHLS {
 
   class EventTime {
   public:
-    //Instruction* instr;
     ExecutionAction action;
     bool isEnd;
     int offset;
