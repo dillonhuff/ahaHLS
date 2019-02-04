@@ -4370,6 +4370,8 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
+    REQUIRE(graph.opStates.size() == 5);
+
     map<Value*, int> layout;
     ArchOptions options;
     auto arch = buildMicroArchitecture(srUser,
