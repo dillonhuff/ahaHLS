@@ -4203,6 +4203,34 @@ namespace DHLS {
   //    a viable solution for existing constraints. Wont be latency optimal for
   //    resource ordering, but will be latency optimal for unlimited resource
   //    bounds.
+
+  void implementRAMRead0(Function* ramRead0, InterfaceFunctions& interfaces) {
+    int addrWidth = getValueBitWidth(getArg(ramRead0, 1));
+    int width = getTypeBitWidth(ramRead0->getReturnType());
+    auto sramTp = getArg(ramRead0, 0)->getType();
+    
+    ExecutionConstraints& exec = interfaces.getConstraints(ramRead0);
+    auto waddr0F = writePort("raddr_0", addrWidth, sramTp);
+    auto rdata0F = readPort("rdata_0", width, sramTp);
+
+    auto sram = getArg(ramRead0, 0);
+    auto addr = getArg(ramRead0, 1);
+      
+    auto bb = mkBB("entry_block", ramRead0);
+    IRBuilder<> eb(bb);
+    auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
+    auto readData = eb.CreateCall(rdata0F, {sram});
+    auto ret = eb.CreateRet(readData);
+
+    exec.add(instrStart(setAddr) + 1 == instrStart(readData));
+
+    cout << "-- # of constraints on read function = " << exec.constraints.size() << endl;
+    for (auto c : exec.constraints) {
+      cout << tab(1) << *c << endl;
+    }
+
+  }
+
   TEST_CASE("Creating memory interface functions") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
@@ -4218,33 +4246,11 @@ namespace DHLS {
     std::vector<Type *> inputs{sramTp->getPointerTo()};
 
     InterfaceFunctions interfaces;
-    Function* ramRead0 = mkFunc({sramTp, intType(addrWidth)}, intType(width), "read0");
+    Function* ramRead0 =
+      mkFunc({sramTp, intType(addrWidth)}, intType(width), "read0");
     interfaces.addFunction(ramRead0);
-    {
-      ExecutionConstraints& exec = interfaces.getConstraints(ramRead0);
-      auto waddr0F = writePort("raddr_0", addrWidth, sramTp);
-      auto rdata0F = readPort("rdata_0", width, sramTp);
+    implementRAMRead0(ramRead0, interfaces);
 
-      auto sram = getArg(ramRead0, 0);
-      auto addr = getArg(ramRead0, 1);
-      
-      auto bb = mkBB("entry_block", ramRead0);
-      IRBuilder<> eb(bb);
-      auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
-      auto readData = eb.CreateCall(rdata0F, {sram});
-      auto ret = eb.CreateRet(readData);
-
-      exec.add(instrStart(setAddr) + 1 == instrStart(readData));
-
-      // exec.add(instrEnd(readData) == instrStart(ret));
-      // addDataConstraints(ramRead0, exec);
-
-      cout << "-- # of constraints on read function = " << exec.constraints.size() << endl;
-      for (auto c : exec.constraints) {
-        cout << tab(1) << *c << endl;
-      }
-      
-    }
     Function* ramWrite0 = mkFunc({sramTp, intType(addrWidth), intType(width)}, voidType(), "write0");
     interfaces.addFunction(ramWrite0);
     {
