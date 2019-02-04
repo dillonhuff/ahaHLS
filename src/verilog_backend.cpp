@@ -2112,44 +2112,45 @@ namespace DHLS {
     out << "\t\tend else begin" << endl;
 
     for (auto st : arch.stg.opStates) {
-      assert(st.second.size() > 0);
+      if (st.second.size() > 0) {
 
-      map<BasicBlock*, GuardedInstruction> instructionsForBlocks;
-      for (auto instrG : st.second) {
-        Instruction* instr = instrG.instruction;
-        BasicBlock* bb = instr->getParent();
-        if (!contains_key(bb, instructionsForBlocks) && TerminatorInst::classof(instr)) {
-          instructionsForBlocks.insert({bb, instrG});
+        map<BasicBlock*, GuardedInstruction> instructionsForBlocks;
+        for (auto instrG : st.second) {
+          Instruction* instr = instrG.instruction;
+          BasicBlock* bb = instr->getParent();
+          if (!contains_key(bb, instructionsForBlocks) && TerminatorInst::classof(instr)) {
+            instructionsForBlocks.insert({bb, instrG});
+          }
+
         }
 
-      }
+        if (isPipelineState(st.first, pipelines)) {
+          if (instructionsForBlocks.size() > 0) {
+            assert(instructionsForBlocks.size() == 1);
 
-      if (isPipelineState(st.first, pipelines)) {
-        if (instructionsForBlocks.size() > 0) {
-          assert(instructionsForBlocks.size() == 1);
+            ElaboratedPipeline p = getPipeline(st.first, pipelines);
+            auto bbI = *begin(instructionsForBlocks);
 
-          ElaboratedPipeline p = getPipeline(st.first, pipelines);
-          auto bbI = *begin(instructionsForBlocks);
+            out << tab(3) << "if (global_state == " << p.stateId << ") begin" << endl;
 
-          out << tab(3) << "if (global_state == " << p.stateId << ") begin" << endl;
+            auto bbNo = map_find(bbI.first, arch.basicBlockNos);
+            out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
+            //out << tab(4) << "end" << endl;
+            out << tab(3) << "end" << endl;
+          }
 
-          auto bbNo = map_find(bbI.first, arch.basicBlockNos);
-          out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
-          //out << tab(4) << "end" << endl;
+        } else {
+          out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
+          for (auto bbI : instructionsForBlocks) {
+
+            auto pos = position(st.first, bbI.second.instruction->getParent()->getTerminator());
+            out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, pos, arch) << ") begin" << endl;
+            auto bbNo = map_find(bbI.first, arch.basicBlockNos);
+            out << tab(5) << "last_BB_reg <= " << bbNo << ";" << endl;
+            out << tab(4) << "end" << endl;
+          }
           out << tab(3) << "end" << endl;
         }
-
-      } else {
-        out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
-        for (auto bbI : instructionsForBlocks) {
-
-          auto pos = position(st.first, bbI.second.instruction->getParent()->getTerminator());
-          out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, pos, arch) << ") begin" << endl;
-          auto bbNo = map_find(bbI.first, arch.basicBlockNos);
-          out << tab(5) << "last_BB_reg <= " << bbNo << ";" << endl;
-          out << tab(4) << "end" << endl;
-        }
-        out << tab(3) << "end" << endl;
       }
     }
 

@@ -1232,6 +1232,26 @@ namespace DHLS {
       }
     }
 
+    // Add no instruction states to schedule
+    StateId minState = 0;
+    StateId maxState = minState;
+    for (auto st : g.opStates) {
+      if (st.first > maxState) {
+        maxState = st.first;
+      }
+    }
+
+    // Add no instruction states to transitions
+    for (StateId i = minState; i < maxState; i++) {
+      if (!contains_key(i, g.opStates)) {
+        g.opStates[i] = {};
+        Condition t;
+        assert(t.isTrue());
+        g.opTransitions[i] = {{i + 1, t}};
+      }
+    }
+
+
     // Q: What are the transition possibilities?
     // A: Each state contains instructions from many
     //    different basic blocks, b0, b1, ..., bn
