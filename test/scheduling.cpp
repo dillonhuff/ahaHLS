@@ -4236,7 +4236,7 @@ namespace DHLS {
 
       exec.add(instrStart(setAddr) + 1 == instrStart(readData));
 
-      exec.add(instrEnd(readData) == instrStart(ret));
+      // exec.add(instrEnd(readData) == instrStart(ret));
       //addDataConstraints(ramRead0, exec);
 
       cout << "-- # of constraints on read function = " << exec.constraints.size() << endl;
@@ -4269,6 +4269,7 @@ namespace DHLS {
       exec.add(instrStart(setAddr) == instrStart(setEn1));
 
       exec.add(instrEnd(setEn1) + 1 == instrStart(setEn0));
+
       //addDataConstraints(ramWrite0, exec);
 
       cout << "-- Constraints on write function" << endl;
@@ -4303,15 +4304,15 @@ namespace DHLS {
     cout << valueString(srUser) << endl;
 
     ExecutionConstraints exec;
-    addDataConstraints(srUser, exec);
 
     // Control time dependencies
-    exec.add(instrStart(ldA) + 1 == instrEnd(ldA));
-    exec.add(instrStart(plus) == instrEnd(plus));
-    exec.add(instrStart(st) + 3 == instrEnd(st));
-    exec.add(instrStart(ret) == instrEnd(ret));
+    // exec.add(instrStart(ldA) + 1 == instrEnd(ldA));
+    // exec.add(instrStart(plus) == instrEnd(plus));
+    // exec.add(instrStart(st) + 3 == instrEnd(st));
+    // exec.add(instrStart(ret) == instrEnd(ret));
 
     inlineWireCalls(srUser, exec, interfaces);
+    // addDataConstraints(srUser, exec);
 
     cout << "LLVM Function after inlining" << endl;
     cout << valueString(srUser) << endl;
@@ -4321,16 +4322,45 @@ namespace DHLS {
       cout << tab(1) << *c << endl;
     }
 
-    HardwareConstraints hcs;
+    HardwareConstraints hcs = standardConstraints();
     hcs.modSpecs[getArg(srUser, 0)] = ramSpec(width, depth);
-    // Create architecture that respects these constraints
-    DynArch arch(srUser, exec, hcs);
 
-    // Move result
-    ofstream out(string(arch.getFunction()->getName()) + ".v");
-    emitVerilog(out, arch);
-    out.close();
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(srUser, hcs, toPipeline);
+    exec.addConstraints(p, srUser);
 
+    map<Function*, SchedulingProblem> constraints{{srUser, p}};
+    Schedule s = scheduleFunction(srUser, hcs, toPipeline, constraints);
+
+    STG graph = buildSTG(s, srUser);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    //emitVerilatorBinding(graph);
+    
+    map<Value*, int> layout;
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(srUser,
+                                       graph,
+                                       layout,
+                                       options,
+                                       hcs);
+
+    VerilogDebugInfo info;
+    // addNoXChecks(arch, info);
+    // info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    // info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+    
+    emitVerilog(srUser, arch, info);
+    
+    // // Create architecture that respects these constraints
+    // DynArch arch(srUser, exec, hcs);
+
+    // // Move result
+    // ofstream out(string(arch.getFunction()->getName()) + ".v");
+    // emitVerilog(out, arch);
+    // out.close();
     REQUIRE(runIVerilogTB("dynamic_arch_sram_class"));
   }
   
