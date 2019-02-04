@@ -3082,7 +3082,7 @@ namespace DHLS {
   void addNoXChecks(const MicroArchitecture& arch,
                     VerilogDebugInfo& info) {
     noBinopsTakeXInputs(arch, info, "fadd");
-    noBinopsProduceXOutputs(arch, info, "fadd");    
+    noBinopsProduceXOutputs(arch, info, "fadd");
     noFifoReadsX(arch, info);
     noFifoWritesX(arch, info);    
     noCompareOpsTakeXInputs(arch, info, "ne");
