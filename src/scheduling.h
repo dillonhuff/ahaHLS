@@ -11,28 +11,55 @@ using namespace std;
 
 namespace DHLS {
 
+  enum ExecutionActionType {
+    EXECUTION_ACTION_INSTRUCTION,
+    EXECUTION_ACTION_TAG,
+    EXECUTION_ACTION_BASIC_BLOCK
+  };
+
   class ExecutionAction {
     llvm::Instruction* instr;
     std::string tag;
-    bool isInstructionFlag;
+    BasicBlock* bb;
+    ExecutionActionType tp;
     
   public:
-    ExecutionAction(Instruction* const instr_) : instr(instr_), tag(""), isInstructionFlag(true) {}
+    ExecutionAction(Instruction* const instr_) :
+      instr(instr_), tag(""), bb(nullptr), tp(EXECUTION_ACTION_INSTRUCTION) {}
 
-    ExecutionAction(const std::string& name) : instr(nullptr), tag(name), isInstructionFlag(false) {}
+    ExecutionAction(const std::string& name) :
+      instr(nullptr), tag(name), bb(nullptr), tp(EXECUTION_ACTION_TAG) {}
 
+    ExecutionAction(BasicBlock* const bb_) :
+      instr(nullptr), tag(""), bb(bb_), tp(EXECUTION_ACTION_BASIC_BLOCK) {}
+
+    ExecutionActionType type() const { return tp; }
+    
     bool isInstruction() const {
-      return isInstructionFlag;
+      return type() == EXECUTION_ACTION_INSTRUCTION;
+    }
+
+    bool isTag() const {
+      return type() == EXECUTION_ACTION_TAG;
+    }
+
+    bool isBasicBlock() const {
+      return type() == EXECUTION_ACTION_BASIC_BLOCK;
+    }
+
+    BasicBlock* getBasicBlock() const {
+      assert(isBasicBlock());
+      return bb;
     }
     
     std::string getName() const {
-      assert(!isInstruction());
+      assert(isTag());
       return tag;
     }
 
     void setInstruction(llvm::Instruction* newInstr) {
       instr = newInstr;
-      isInstructionFlag = true;
+      tp = EXECUTION_ACTION_INSTRUCTION;
     }
 
     llvm::Instruction* getInstruction() const {
@@ -43,9 +70,12 @@ namespace DHLS {
 
   static inline
   std::ostream& operator<<(std::ostream& out, const ExecutionAction& action) {
-    if (action.isInstruction()) {
-      out << valueString(action.getInstruction());
+    if (action.isInstruction() || action.isBasicBlock()) {
+      llvm::Instruction* instr = action.getInstruction();
+      assert(instr != nullptr);
+      out << valueString(instr);
     } else {
+      assert(action.isTag());
       out << action.getName();
     }
     return out;
@@ -53,32 +83,41 @@ namespace DHLS {
 
   static inline
   bool operator==(const ExecutionAction& a, const ExecutionAction& b) {
-    if (a.isInstruction() != b.isInstruction()) {
+    if (a.type() != b.type()) {
       return false;
     }
+
     if (a.isInstruction() && b.isInstruction()) {
       return a.getInstruction() == b.getInstruction();
     }
 
+    if (a.isBasicBlock() && b.isBasicBlock()) {
+      return a.getBasicBlock() == b.getBasicBlock();
+    }
+
+    assert(a.isTag() && b.isTag());
+    
     return a.getName() == b.getName();
   }
   
   static inline
   bool operator<(const ExecutionAction& a, const ExecutionAction& b) {
-    if (a.isInstruction() && !b.isInstruction()) {
+    if (a.type() < b.type()) {
       return true;
-    }
-
-    if (!a.isInstruction() && b.isInstruction()) {
-      return false;
     }
 
     if (a.isInstruction() && b.isInstruction()) {
       return a.getInstruction() < b.getInstruction();
     }
 
+    if (a.isBasicBlock() && b.isBasicBlock()) {
+      return a.getBasicBlock() < b.getBasicBlock();
+    }
 
+    assert(a.isTag() && b.isTag());
+    
     return a.getName() < b.getName();
+    
   }
   
   class Port {
@@ -1269,15 +1308,11 @@ namespace DHLS {
     }
 
     std::vector<ExecutionConstraint*>
-    //constraintsOnEnd(llvm::Instruction* const instr) const {
     constraintsOnEnd(ExecutionAction instr) const {
-      std::vector<ExecutionConstraint*> on;      
+      std::vector<ExecutionConstraint*> on;
       for (auto c : constraints) {
         if (c->type() == CONSTRAINT_TYPE_ORDERED) {
           Ordered* oc = static_cast<Ordered*>(c);
-          // if (oc->after.isEnd &&
-          //     oc->after.action.isInstruction() &&
-          //     (oc->after.action.getInstruction() == instr)) {
 
           if (oc->after.isEnd &&
               (oc->after.action == instr)) {

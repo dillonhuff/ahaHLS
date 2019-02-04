@@ -66,11 +66,19 @@ module test();
       #1 dbg_wr_en = 0;        
 
       `POSEDGE
+
+        // Load finished
+        // Store start
+
       `POSEDGE
+        
       `POSEDGE
+        
       `POSEDGE
-      `POSEDGE        
-      `POSEDGE
+
+        `assert(dbg_data, 12 + 5)
+        `assert(valid, 1'b1)
+        
       `POSEDGE
       `POSEDGE
       `POSEDGE        
