@@ -38,3 +38,7 @@ target_link_libraries(all-tests dhls ${llvm_libs})
 SET(ALL_BINDING_FILES experiments/generate_bindings.cpp)
 add_executable(make-bindings ${ALL_BINDING_FILES})
 target_link_libraries(make-bindings dhls ${llvm_libs})
+
+SET(ALL_REDUCE_4_FILES experiments/synthesize_reduce_4.cpp)
+add_executable(synthesize-reduce-4 ${ALL_REDUCE_4_FILES})
+target_link_libraries(synthesize-reduce-4 dhls ${llvm_libs})
