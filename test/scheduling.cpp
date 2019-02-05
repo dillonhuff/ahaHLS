@@ -4170,6 +4170,25 @@ namespace DHLS {
     addNoXChecks(arch, info);
 
     emitVerilog(f, arch, info);
+
+    // TODO: Change wire setting to use the module specs?
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 30;
+    tb.maxCycles = 50;
+    tb.name = "reduce_4";
+    tb.settableWires.insert("arg_0_out_data");
+    map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
+    // map_insert(tb.actionsOnCycles, 18, assertString("arg_2_in_data == " + to_string(1 + 3 + 5 + 19)));
+
+    // map_insert(tb.actionsInCycles, 1, string("arg_0_out_data_reg = " + floatBits(af) + ";"));
+    // map_insert(tb.actionsInCycles, 2, string("arg_0_out_data_reg = " + floatBits(af) + ";"));
+    // map_insert(tb.actionsInCycles, 3, string("arg_0_out_data_reg = " + floatBits(af) + ";"));        
+    emitVerilogTestBench(tb, arch, testLayout);
+    
+    REQUIRE(runIVerilogTB("direct_port_fp_add"));
   }
   
 }
