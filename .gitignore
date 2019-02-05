@@ -99,3 +99,8 @@ sys_array_fifo.v
 dynamic_arch
 dynamic_arch.v
 make-bindings
+synthesize-reduce-4
+fix_assert_calls.py
+dynamic_arch_sram_class
+dynamic_arch_sram_class.v
+reduce_4.v

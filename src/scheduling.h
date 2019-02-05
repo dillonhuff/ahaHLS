@@ -144,6 +144,11 @@ namespace DHLS {
       return std::string(isInput ? "input" : "output") + (registered ? " reg " : "") + " [" + std::to_string(width - 1) + ":0] " + name;
     }
   };
+
+  Port inputPort(const int width, const std::string& name);
+  Port outputPort(const int width, const std::string& name);
+  Port outputRegPort(const int width, const std::string& name);  
+  Port outputDebugPort(const int width, const std::string& name);
   
   class ModuleSpec {
   public:
@@ -1411,5 +1416,33 @@ namespace DHLS {
     }
 
   }
-  
+
+
+  class InterfaceFunctions {
+  public:
+    std::map<llvm::Function*, ExecutionConstraints> constraints;
+
+    void addFunction(Function* const f) {
+      constraints[f] = ExecutionConstraints();
+    }
+
+    ExecutionConstraints& getConstraints(llvm::Function* const f) {
+      assert(dbhc::contains_key(f, constraints));
+      return constraints.find(f)->second;
+    }
+
+    bool containsFunction(llvm::Function* const f) const {
+      return dbhc::contains_key(f, constraints);
+    }
+    
+  };
+
+  void implementRVFifoRead(llvm::Function* readFifo, ExecutionConstraints& exec);
+  void implementRVFifoWrite(llvm::Function* writeFifo, ExecutionConstraints& exec);  
+
+  void inlineWireCalls(llvm::Function* f,
+                       ExecutionConstraints& exec,
+                       InterfaceFunctions& interfaces);
+
+  ModuleSpec fifoSpec(int width, int depth);  
 }

@@ -176,21 +176,31 @@ namespace DHLS {
   
   static inline
   llvm::Function* fifoRead(const int width, llvm::Module* m) {
+
     auto name = "builtin_read_fifo_" + std::to_string(width);
+
+    llvm::Function* fifoRead = m->getFunction(name);
+
+    if (fifoRead != nullptr) {
+      return fifoRead;
+    }
 
     llvm::FunctionType *tp =
       llvm::FunctionType::get(intType(width), {fifoType(width)->getPointerTo()}, false);
 
     auto c = m->getOrInsertFunction(name, tp);
 
-    if (llvm::Function::classof(c)) {
-      return llvm::dyn_cast<llvm::Function>(c);
-    } else if (llvm::ConstantExpr::classof(c)) {
-      std::cout << "Is constantexpr" << std::endl;
-      assert(false);
-    } else {
-      assert(false);
-    }
+    assert(llvm::Function::classof(c));
+
+    return llvm::dyn_cast<llvm::Function>(c);
+    // if (llvm::Function::classof(c)) {
+    //   return llvm::dyn_cast<llvm::Function>(c);
+    // } else if (llvm::ConstantExpr::classof(c)) {
+    //   std::cout << "Is constantexpr " << valueString(c) << std::endl;
+    //   assert(false);
+    // } else {
+    //   assert(false);
+    // }
   }
 
   static inline
@@ -205,6 +215,11 @@ namespace DHLS {
   static inline
   llvm::Function* fifoWrite(const int width, llvm::Module* m) {
     auto name = "builtin_write_fifo_" + std::to_string(width);
+
+    llvm::Function* writeF = m->getFunction(name);
+    if (writeF != nullptr) {
+      return writeF;
+    }
 
     llvm::FunctionType *tp =
       llvm::FunctionType::get(llvm::Type::getVoidTy(getGlobalLLVMContext()),
