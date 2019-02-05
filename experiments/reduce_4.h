@@ -46,3 +46,10 @@ void init_builtin_fifo_32(builtin_fifo_32* buf) {
 }
 
 void reduce_4(builtin_fifo_32* in, builtin_fifo_32* out);
+
+static inline
+builtin_fifo_32 builtin_build_fifo_32() {
+  builtin_fifo_32 f;
+  init_builtin_fifo_32(&f);
+  return f;
+}

@@ -1,12 +1,12 @@
 #include "reduce_4.h"
 
-typedef builtin_fifo_32 fifo;
-
 #include <assert.h>
 #include <stdio.h>
 
 int main() {
-  fifo in, out;
+  builtin_fifo_32 in = builtin_build_fifo_32();
+  builtin_fifo_32 out = builtin_build_fifo_32();    
+
   init_builtin_fifo_32(&in);
   init_builtin_fifo_32(&out);
 
