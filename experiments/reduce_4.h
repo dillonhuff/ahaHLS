@@ -1,3 +1,8 @@
+// Compile calls: clang -S -emit-llvm -O1 -c -D__SYNTHESIS__ experiments/reduce_4.c
+// clang ./experiments/test_reduce.c ./experiments/reduce_4.c 
+
+#ifndef __SYNTHESIS__
+
 typedef unsigned char bool;
 
 #include <assert.h>
@@ -53,3 +58,14 @@ builtin_fifo_32 builtin_build_fifo_32() {
   init_builtin_fifo_32(&f);
   return f;
 }
+
+#else
+
+struct builtin_fifo_32;
+
+typedef struct builtin_fifo_32 builtin_fifo_32;
+
+int builtin_read_fifo_32(builtin_fifo_32* in);
+void builtin_write_fifo_32(int val, builtin_fifo_32* out);
+
+#endif
