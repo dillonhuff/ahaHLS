@@ -2791,6 +2791,24 @@ namespace DHLS {
       }
     }
 
+    // Add module instances for arguments to function
+    auto f = arch.stg.getFunction();
+    for (int i = 0; i < f->arg_size(); i++) {
+      if (contains_key(getArg(f, i), arch.hcs.modSpecs)) {
+        cout << valueString(getArg(f, i)) << "is modspeced" << endl;
+        ModuleSpec s = map_find(getArg(f, i), arch.hcs.modSpecs);
+        string instName = getArg(f, i)->getName();
+        map<string, string> conns;
+        for (auto p : s.ports) {
+          Wire w = wire(p.second.width, instName + "_" + p.second.name);
+          comps.debugWires.push_back(w);
+          conns[p.first] = w.name;
+        }
+        ModuleInstance arg{s.name, instName, conns};
+        comps.instances.push_back(arg);
+      }
+    }
+
     map<string, string > dutConns;
     ModuleInstance dut{tb.name, "dut", dutConns};
     for (auto pt : getPorts(arch)) {

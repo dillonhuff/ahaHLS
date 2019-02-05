@@ -149,7 +149,7 @@ namespace DHLS {
   Port outputPort(const int width, const std::string& name);
   Port outputRegPort(const int width, const std::string& name);  
   Port outputDebugPort(const int width, const std::string& name);
-  
+
   class ModuleSpec {
   public:
     std::map<std::string, std::string> params;
