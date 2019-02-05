@@ -50,7 +50,6 @@ int main() {
   cout << valueString(f) << endl;
   
   HardwareConstraints hcs = standardConstraints();
-
   hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
   hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
     
