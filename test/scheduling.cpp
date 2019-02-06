@@ -4420,12 +4420,12 @@ namespace DHLS {
 
     map_insert(tb.actionsOnCycles, 25, assertString("valid === 1"));
     map_insert(tb.actionsOnCycles, 21, assertString(outName + "_out_data === 1 + 10"));
-    //to_string(1 + 3 + 5 + 19)));
+
     map_insert(tb.actionsInCycles, 0, string(outName + "_read_valid = 0;"));
     map_insert(tb.actionsInCycles, 0, string(in0Name + "_write_valid = 0;"));        
 
     map_insert(tb.actionsInCycles, 3, string(in0Name + "_in_data = 1;"));
-    map_insert(tb.actionsInCycles, 3, string(in0Name + "_write_valid = 1;"));    
+    map_insert(tb.actionsInCycles, 3, string(in0Name + "_write_valid = 1;"));
 
     map_insert(tb.actionsInCycles, 4, string(in0Name + "_write_valid = 0;"));        
 
