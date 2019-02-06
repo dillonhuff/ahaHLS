@@ -223,7 +223,15 @@ namespace DHLS {
     }
     return san;
   }
+
+  bool canDemangle(const std::string& mangled) {
+    const char* mangledName = mangled.c_str();
+    int status = 0;
   
+    abi::__cxa_demangle(mangledName, 0, 0, &status);
+    return status == 0;
+  }
+
   std::string demangle(const std::string& mangled) {
     const char* mangledName = mangled.c_str();
     int status = 0;

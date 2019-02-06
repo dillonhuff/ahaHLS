@@ -4217,6 +4217,34 @@ namespace DHLS {
     //REQUIRE(runIVerilogTB("reduce_4"));
   }
 
+  // TODO: Replace with a real parser
+  std::string extractFunctionName(const std::string& name) {
+    string funcName = "";
+    int i = 0;
+    while (i < (int) name.size()) {
+      if (name[i] == '(') {
+        break;
+      }
+      funcName += name[i];
+      i++;
+    }
+    return funcName;
+  }
+  
+  llvm::Function*
+  getFunctionByDemangledName(llvm::Module* mod, const std::string& name) {
+    for (auto& f : mod->functions()) {
+      if (canDemangle(f.getName())) {
+        cout << demangle(f.getName()) << endl;
+        if (extractFunctionName(demangle(f.getName())) == name) {
+          return &f;
+        }
+      }
+    }
+
+    assert(false);
+  }
+
   TEST_CASE("Templatized FIFO") {
     LLVMContext context;
     SMDiagnostic err;
@@ -4236,10 +4264,7 @@ namespace DHLS {
     interfaces.addFunction(writeFifo);
     implementRVFifoWrite(writeFifo, interfaces.getConstraints(writeFifo));
 
-    for (auto& f : mod->functions()) {
-      cout << demangle(f.getName()) << endl;
-    }
-    auto f = mod->getFunction("add_10_template");
+    auto f = getFunctionByDemangledName(mod.get(), "add_10_template");
 
     REQUIRE(f != nullptr);
 
