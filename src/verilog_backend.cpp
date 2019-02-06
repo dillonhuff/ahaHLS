@@ -2812,6 +2812,9 @@ namespace DHLS {
           cout << valueString(getArg(f, i)) << "is modspeced" << endl;
           ModuleSpec s = map_find(getArg(f, i), arch.hcs.modSpecs);
           string instName = getArg(f, i)->getName();
+          if (instName == "") {
+            instName = "arg_" + to_string(i);
+          }
           map<string, string> conns;
           for (auto p : s.ports) {
             if (p.first != "rst") {
