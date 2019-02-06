@@ -591,6 +591,8 @@ namespace DHLS {
         ModuleSpec modSpec = map_find(fuPtr, hcs.modSpecs);
         modName = modSpec.name;
         unitName = fuPtr->getName();
+
+        // All internal functional units must have names
         if (unitName == "") {
           assert(Argument::classof(fuPtr));
           int i = 0;
@@ -2835,7 +2837,7 @@ namespace DHLS {
       comps.debugAssigns.push_back({"clk", "clk_reg"});
       comps.debugAssigns.push_back({"rst", "rst_reg"});      
 
-      for (int i = 0; i < f->arg_size(); i++) {
+      for (int i = 0; i < (int) f->arg_size(); i++) {
         if (contains_key(getArg(f, i), arch.hcs.modSpecs)) {
           cout << valueString(getArg(f, i)) << "is modspeced" << endl;
           ModuleSpec s = map_find(getArg(f, i), arch.hcs.modSpecs);
