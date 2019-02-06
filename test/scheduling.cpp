@@ -4141,7 +4141,7 @@ namespace DHLS {
     SMDiagnostic err;
     setGlobalLLVMContext(&context);
 
-    auto mod = loadLLFile(context, err, "reduce_4");
+    auto mod = loadModule(context, err, "reduce_4");
     setGlobalLLVMModule(mod.get());
 
     int width = 32;
