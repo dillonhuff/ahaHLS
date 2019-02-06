@@ -4245,6 +4245,10 @@ namespace DHLS {
     assert(false);
   }
 
+  std::string extractFunctionName(const std::string& demangleName) {
+    
+  }
+  
   TEST_CASE("Templatized FIFO") {
     LLVMContext context;
     SMDiagnostic err;
@@ -4271,6 +4275,22 @@ namespace DHLS {
     // Q: What processing needs to be done?
     // A: 1. Need to inline each function call (or function that is really
     //       a method)
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& iref : bb) {
+        Instruction* instr = &iref;
+        if (CallInst::classof(instr)) {
+          CallInst* call = dyn_cast<CallInst>(instr);
+
+          Function* inlineFunc = call->getCalledFunction();
+          
+          if (canDemangle(inlineFunc->getName())) {
+            string demangleName = demangle(inlineFunc->getName());
+            string functionName = extractFunctionName(demangleName);
+            cout << "Call to demanglable name " << demangle(inlineFunc->getName()) << endl;
+          }
+        }
+      }
+    }
   }
   
 }
