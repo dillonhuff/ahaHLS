@@ -1444,5 +1444,11 @@ namespace DHLS {
                        ExecutionConstraints& exec,
                        InterfaceFunctions& interfaces);
 
-  ModuleSpec fifoSpec(int width, int depth);  
+  ModuleSpec fifoSpec(int width, int depth);
+
+  void inlineFunctionWithConstraints(llvm::Function* const f,
+                                     ExecutionConstraints& exec,
+                                     llvm::CallInst* const toInline,
+                                     ExecutionConstraints& constraintsToInline);
+  
 }

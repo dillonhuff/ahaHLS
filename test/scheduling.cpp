@@ -4255,9 +4255,18 @@ namespace DHLS {
     return name.substr(0, pos);
   }
   
-  std::string demangledFuncName(const std::string& demangleName) {
-    cout << "Demangle name = " << demangleName << endl;
-    assert(false);
+  std::string demangledFuncName(const std::string& demangledName) {
+    cout << "Getting function from = " << demangledName << endl;
+    string nextNamespace = takeUntil("::", demangledName);
+    cout << "namespace = " << nextNamespace << endl;
+    string remainder = drop("::", demangledName);
+    cout << "remainder = " << remainder << endl;
+
+    string funcDecl = drop("::", remainder);
+    string funcName = takeUntil("(", funcDecl);
+    cout << "FuncName = " << funcName << endl;
+
+    return funcName;
   }
 
   std::string demangledClassName(const std::string& demangledName) {
@@ -4266,6 +4275,10 @@ namespace DHLS {
     cout << "namespace = " << nextNamespace << endl;
     string remainder = drop("::", demangledName);
     cout << "remainder = " << remainder << endl;
+
+    string funcDecl = drop("::", remainder);
+    string funcName = takeUntil("(", funcDecl);
+    cout << "FuncName = " << funcName << endl;
     assert(false);
   }
   
@@ -4277,20 +4290,22 @@ namespace DHLS {
     auto mod = loadCppModule(context, err, "add_10_template");
     setGlobalLLVMModule(mod.get());
 
-    int width = 32;
+    // int width = 32;
 
     InterfaceFunctions interfaces;
-    Function* readFifo = fifoRead(width);
-    interfaces.addFunction(readFifo);
-    implementRVFifoRead(readFifo, interfaces.getConstraints(readFifo));
+    // Function* readFifo = fifoRead(width);
+    // interfaces.addFunction(readFifo);
+    // implementRVFifoRead(readFifo, interfaces.getConstraints(readFifo));
 
-    Function* writeFifo = fifoWrite(width);
-    interfaces.addFunction(writeFifo);
-    implementRVFifoWrite(writeFifo, interfaces.getConstraints(writeFifo));
+    // Function* writeFifo = fifoWrite(width);
+    // interfaces.addFunction(writeFifo);
+    // implementRVFifoWrite(writeFifo, interfaces.getConstraints(writeFifo));
 
     auto f = getFunctionByDemangledName(mod.get(), "add_10_template");
 
     REQUIRE(f != nullptr);
+
+    ExecutionConstraints exec;
 
     // Q: What processing needs to be done?
     // A: 1. Need to inline each function call (or function that is really
@@ -4302,20 +4317,27 @@ namespace DHLS {
           CallInst* call = dyn_cast<CallInst>(instr);
 
           Function* inlineFunc = call->getCalledFunction();
-          
           if (canDemangle(inlineFunc->getName())) {
             string demangleName = demangle(inlineFunc->getName());
-            string className = demangledClassName(demangleName);            
+            //string className = demangledClassName(demangleName);            
             string functionName = demangledFuncName(demangleName);
-            if (className == "Fifo") {
-              if (functionName == "read") {
-                assert(false);
+            //if (className == "Fifo") {
+            if (functionName == "read") {
+              if (!interfaces.containsFunction(inlineFunc)) {
+                interfaces.addFunction(inlineFunc);
+                implementRVFifoRead(inlineFunc, interfaces.getConstraints(inlineFunc));
+
+                inlineFunctionWithConstraints(f, exec, call, interfaces.getConstraints(inlineFunc));
               }
             }
+            //}
           }
         }
       }
     }
+
+    cout << "After inlining" << endl;
+    cout << valueString(f) << endl;
   }
   
 }
