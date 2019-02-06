@@ -17,7 +17,6 @@ typedef struct {
 #else
 
 struct builtin_fifo_32;
-
 typedef struct builtin_fifo_32 builtin_fifo_32;
 
 #endif

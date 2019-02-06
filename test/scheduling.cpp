@@ -4145,7 +4145,6 @@ namespace DHLS {
     setGlobalLLVMModule(mod.get());
 
     int width = 32;
-    auto iStr = to_string(width);
 
     InterfaceFunctions interfaces;
     Function* readFifo = fifoRead(width);
