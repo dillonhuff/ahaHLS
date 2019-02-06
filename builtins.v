@@ -391,7 +391,7 @@ module fifo(input clk,
          if (read_valid) begin
             `assert(read_ready, 1'd1)
 
-            $display("reading %d", out_data);            
+            $display("reading %d, from address %d", ram[read_addr], read_addr);            
 
             // Wraparound
             read_addr <= next_read_addr;

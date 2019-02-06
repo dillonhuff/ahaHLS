@@ -4188,7 +4188,7 @@ namespace DHLS {
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
 
     map_insert(tb.actionsOnCycles, 25, assertString("valid === 1"));
-    map_insert(tb.actionsOnCycles, 16, assertString("out_out_data === 1 + 4 + 7 + 9"));    
+    map_insert(tb.actionsOnCycles, 21, assertString("out_out_data === 1 + 4 + 7 + 9"));    
     //to_string(1 + 3 + 5 + 19)));
     map_insert(tb.actionsInCycles, 0, string("out_read_valid = 0;"));
     map_insert(tb.actionsInCycles, 0, string("in_write_valid = 0;"));        
@@ -4211,9 +4211,9 @@ namespace DHLS {
 
     map_insert(tb.actionsInCycles, 10, string("in_write_valid = 0;")); 
 
-    map_insert(tb.actionsInCycles, 15, string("out_read_valid = 1;"));    
+    map_insert(tb.actionsInCycles, 20, string("out_read_valid = 1;"));    
 
-    map_insert(tb.actionsInCycles, 16, string("out_read_valid = 0;"));
+    map_insert(tb.actionsInCycles, 21, string("out_read_valid = 0;"));
 
     emitVerilogTestBench(tb, arch, testLayout);
     
