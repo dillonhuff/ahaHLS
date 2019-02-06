@@ -4209,7 +4209,6 @@ namespace DHLS {
     map_insert(tb.actionsInCycles, 9, string(in0Name + "_write_valid = 1;"));    
 
     map_insert(tb.actionsInCycles, 10, string(in0Name + "_write_valid = 0;")); 
-
     map_insert(tb.actionsInCycles, 20, string(outName + "_read_valid = 1;"));    
 
     map_insert(tb.actionsInCycles, 21, string(outName + "_read_valid = 0;"));
