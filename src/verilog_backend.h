@@ -359,10 +359,13 @@ namespace DHLS {
     std::map<int, std::vector<std::string> > actionsInCycles;    
     std::set<std::string> settableWires;
 
+    bool useModSpecs;
+
     TestBenchSpec() {
       maxCycles = 400;
       settableWires.insert("clk");
-      settableWires.insert("rst");      
+      settableWires.insert("rst");
+      useModSpecs = false;
     }
   };
 

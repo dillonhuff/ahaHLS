@@ -2641,12 +2641,14 @@ namespace DHLS {
     comps.debugWires.push_back({true, 32, "total_cycles"});
     comps.debugWires.push_back({true, 32, "max_cycles"});
 
-    for (auto pt : getPorts(arch)) {
-      comps.debugWires.push_back({false, pt.width, pt.name});
+    if (!tb.useModSpecs) {    
+      for (auto pt : getPorts(arch)) {
+        comps.debugWires.push_back({false, pt.width, pt.name});
 
-      if (elem(pt.name, tb.settableWires)) {
-        comps.debugWires.push_back({true, pt.width, pt.name + "_reg"});
-        comps.debugAssigns.push_back({pt.name, pt.name + "_reg"});
+        if (elem(pt.name, tb.settableWires)) {
+          comps.debugWires.push_back({true, pt.width, pt.name + "_reg"});
+          comps.debugAssigns.push_back({pt.name, pt.name + "_reg"});
+        }
       }
     }
 
@@ -2792,20 +2794,36 @@ namespace DHLS {
     }
 
     // Add module instances for arguments to function
-    auto f = arch.stg.getFunction();
-    for (int i = 0; i < f->arg_size(); i++) {
-      if (contains_key(getArg(f, i), arch.hcs.modSpecs)) {
-        cout << valueString(getArg(f, i)) << "is modspeced" << endl;
-        ModuleSpec s = map_find(getArg(f, i), arch.hcs.modSpecs);
-        string instName = getArg(f, i)->getName();
-        map<string, string> conns;
-        for (auto p : s.ports) {
-          Wire w = wire(p.second.width, instName + "_" + p.second.name);
-          comps.debugWires.push_back(w);
-          conns[p.first] = w.name;
+
+    if (tb.useModSpecs) {
+      auto f = arch.stg.getFunction();
+
+      comps.debugWires.push_back({true, 1, "clk_reg"});
+      comps.debugWires.push_back({true, 1, "rst_reg"});
+
+      comps.debugWires.push_back({false, 1, "clk"});
+      comps.debugWires.push_back({false, 1, "rst"});      
+
+      comps.debugAssigns.push_back({"clk", "clk_reg"});
+      comps.debugAssigns.push_back({"rst", "rst_reg"});      
+
+      for (int i = 0; i < f->arg_size(); i++) {
+        if (contains_key(getArg(f, i), arch.hcs.modSpecs)) {
+          cout << valueString(getArg(f, i)) << "is modspeced" << endl;
+          ModuleSpec s = map_find(getArg(f, i), arch.hcs.modSpecs);
+          string instName = getArg(f, i)->getName();
+          map<string, string> conns;
+          for (auto p : s.ports) {
+            Wire w = wire(p.second.width, instName + "_" + p.second.name);
+            comps.debugWires.push_back(w);
+            conns[p.first] = w.name;
+          }
+
+          conns.insert({"clk", "clk"});
+          conns.insert({"rst", "rst"});          
+          ModuleInstance arg{s.name, instName, conns};
+          comps.instances.push_back(arg);
         }
-        ModuleInstance arg{s.name, instName, conns};
-        comps.instances.push_back(arg);
       }
     }
 

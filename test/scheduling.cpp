@@ -4180,6 +4180,7 @@ namespace DHLS {
     tb.runCycles = 30;
     tb.maxCycles = 50;
     tb.name = "reduce_4";
+    tb.useModSpecs = true;
     // tb.settableWires.insert("in_out_data");
     // tb.settableWires.insert("in_out_data");
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
