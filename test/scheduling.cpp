@@ -4166,7 +4166,12 @@ namespace DHLS {
     hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
     
     auto arch = synthesizeVerilog(f, interfaces, hcs);
-    
+
+    string in0Name =
+      getArg(f, 0)->getName() == "" ? "arg_0" : getArg(f, 0)->getName();
+    string outName =
+      getArg(f, 1)->getName() == "" ? "arg_1" : getArg(f, 1)->getName();
+
     // Idea: Spin one sequential test in to many timed tests?
     TestBenchSpec tb;
     map<string, int> testLayout = {};
@@ -4176,38 +4181,38 @@ namespace DHLS {
     tb.maxCycles = 50;
     tb.name = "reduce_4";
     tb.useModSpecs = true;
-    tb.settableWires.insert("in_in_data");
-    tb.settableWires.insert("in_write_valid");
-    tb.settableWires.insert("out_read_valid");    
+    tb.settableWires.insert(in0Name + "_in_data");
+    tb.settableWires.insert(in0Name + "_write_valid");
+    tb.settableWires.insert(outName + "_read_valid");    
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
 
     map_insert(tb.actionsOnCycles, 25, assertString("valid === 1"));
-    map_insert(tb.actionsOnCycles, 21, assertString("out_out_data === 1 + 4 + 7 + 9"));
+    map_insert(tb.actionsOnCycles, 21, assertString(outName + "_out_data === 1 + 4 + 7 + 9"));
     //to_string(1 + 3 + 5 + 19)));
-    map_insert(tb.actionsInCycles, 0, string("out_read_valid = 0;"));
-    map_insert(tb.actionsInCycles, 0, string("in_write_valid = 0;"));        
+    map_insert(tb.actionsInCycles, 0, string(outName + "_read_valid = 0;"));
+    map_insert(tb.actionsInCycles, 0, string(in0Name + "_write_valid = 0;"));        
 
-    map_insert(tb.actionsInCycles, 1, string("in_in_data = 1;"));
-    map_insert(tb.actionsInCycles, 1, string("in_write_valid = 1;"));    
+    map_insert(tb.actionsInCycles, 1, string(in0Name + "_in_data = 1;"));
+    map_insert(tb.actionsInCycles, 1, string(in0Name + "_write_valid = 1;"));    
 
-    map_insert(tb.actionsInCycles, 2, string("in_in_data = 4;"));
-    map_insert(tb.actionsInCycles, 2, string("in_write_valid = 1;"));    
+    map_insert(tb.actionsInCycles, 2, string(in0Name + "_in_data = 4;"));
+    map_insert(tb.actionsInCycles, 2, string(in0Name + "_write_valid = 1;"));    
 
-    map_insert(tb.actionsInCycles, 3, string("in_write_valid = 0;"));        
+    map_insert(tb.actionsInCycles, 3, string(in0Name + "_write_valid = 0;"));        
 
-    map_insert(tb.actionsInCycles, 5, string("in_in_data = 7;"));
-    map_insert(tb.actionsInCycles, 5, string("in_write_valid = 1;"));    
+    map_insert(tb.actionsInCycles, 5, string(in0Name + "_in_data = 7;"));
+    map_insert(tb.actionsInCycles, 5, string(in0Name + "_write_valid = 1;"));    
 
-    map_insert(tb.actionsInCycles, 6, string("in_write_valid = 0;"));
+    map_insert(tb.actionsInCycles, 6, string(in0Name + "_write_valid = 0;"));
 
-    map_insert(tb.actionsInCycles, 9, string("in_in_data = 9;"));
-    map_insert(tb.actionsInCycles, 9, string("in_write_valid = 1;"));    
+    map_insert(tb.actionsInCycles, 9, string(in0Name + "_in_data = 9;"));
+    map_insert(tb.actionsInCycles, 9, string(in0Name + "_write_valid = 1;"));    
 
-    map_insert(tb.actionsInCycles, 10, string("in_write_valid = 0;")); 
+    map_insert(tb.actionsInCycles, 10, string(in0Name + "_write_valid = 0;")); 
 
-    map_insert(tb.actionsInCycles, 20, string("out_read_valid = 1;"));    
+    map_insert(tb.actionsInCycles, 20, string(outName + "_read_valid = 1;"));    
 
-    map_insert(tb.actionsInCycles, 21, string("out_read_valid = 0;"));
+    map_insert(tb.actionsInCycles, 21, string(outName + "_read_valid = 0;"));
 
     emitVerilogTestBench(tb, arch, testLayout);
     
