@@ -4103,51 +4103,12 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("dynamic_arch_sram_class"));
   }
 
-  TEST_CASE("Reduce 4 with FIFOs") {
-    LLVMContext context;
-    SMDiagnostic err;
-    setGlobalLLVMContext(&context);
-
-    auto mod = loadLLFile(context, err, "reduce_4");
-    // string moduleName ="./test/ll_files/reduce_4";
-    // system(("clang -D__SYNTHESIS__ -O1 -c -S -emit-llvm " + moduleName + ".c -o " + moduleName + ".ll").c_str());  
-
-    // SMDiagnostic Err;
-    // LLVMContext Context;
-
-    // string modFile = "./test/ll_files/reduce_4.ll";
-
-    // std::unique_ptr<Module> mod(parseIRFile(modFile, Err, Context));
-    // if (!mod) {
-    //   outs() << "Error: No mod\n";
-    //   assert(false);
-    // }
-
-    setGlobalLLVMModule(mod.get());
-
-    int width = 32;
-    auto iStr = to_string(width);
-
-    InterfaceFunctions interfaces;
-    Function* readFifo = fifoRead(width);
-    interfaces.addFunction(readFifo);
-    implementRVFifoRead(readFifo, interfaces.getConstraints(readFifo));
-
-    Function* writeFifo = fifoWrite(width);
-    interfaces.addFunction(writeFifo);
-    implementRVFifoWrite(writeFifo, interfaces.getConstraints(writeFifo));
-
-    auto f = mod->getFunction("reduce_4");
-    cout << "LLVM function" << endl;
-    cout << valueString(f) << endl;
-  
-    HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
-    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
-    
+  MicroArchitecture synthesizeVerilog(llvm::Function* f,
+                                      InterfaceFunctions& interfaces,
+                                      HardwareConstraints& hcs) {
     ExecutionConstraints exec;
     inlineWireCalls(f, exec, interfaces);
-    
+
     cout << "LLVM function after inlining reads" << endl;
     cout << valueString(f) << endl;
 
@@ -4172,6 +4133,39 @@ namespace DHLS {
 
     emitVerilog(f, arch, info);
 
+    return arch;
+  }
+
+  TEST_CASE("Reduce 4 with FIFOs") {
+    LLVMContext context;
+    SMDiagnostic err;
+    setGlobalLLVMContext(&context);
+
+    auto mod = loadLLFile(context, err, "reduce_4");
+    setGlobalLLVMModule(mod.get());
+
+    int width = 32;
+    auto iStr = to_string(width);
+
+    InterfaceFunctions interfaces;
+    Function* readFifo = fifoRead(width);
+    interfaces.addFunction(readFifo);
+    implementRVFifoRead(readFifo, interfaces.getConstraints(readFifo));
+
+    Function* writeFifo = fifoWrite(width);
+    interfaces.addFunction(writeFifo);
+    implementRVFifoWrite(writeFifo, interfaces.getConstraints(writeFifo));
+
+    auto f = mod->getFunction("reduce_4");
+    cout << "LLVM function" << endl;
+    cout << valueString(f) << endl;
+  
+    HardwareConstraints hcs = standardConstraints();
+    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
+    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
+    
+    auto arch = synthesizeVerilog(f, interfaces, hcs);
+    
     // TODO: Change wire setting to use the module specs? And change
     // the wire specs to use
     // Idea: Spin one sequential test in to many timed tests?
@@ -4189,7 +4183,7 @@ namespace DHLS {
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
 
     map_insert(tb.actionsOnCycles, 25, assertString("valid === 1"));
-    map_insert(tb.actionsOnCycles, 21, assertString("out_out_data === 1 + 4 + 7 + 9"));    
+    map_insert(tb.actionsOnCycles, 21, assertString("out_out_data === 1 + 4 + 7 + 9"));
     //to_string(1 + 3 + 5 + 19)));
     map_insert(tb.actionsInCycles, 0, string("out_read_valid = 0;"));
     map_insert(tb.actionsInCycles, 0, string("in_write_valid = 0;"));        
