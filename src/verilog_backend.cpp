@@ -2843,7 +2843,7 @@ namespace DHLS {
     ModuleInstance dut{tb.name, "dut", dutConns};
     for (auto pt : getPorts(arch)) {
       cout << "port = " << pt.name << endl;
-      if (!elem(pt.name, tb.settableWires) || (pt.name == "clk") || (pt.name == "rst")) {
+      if (!tb.useModSpecs || (!elem(pt.name, tb.settableWires) || (pt.name == "clk") || (pt.name == "rst"))) {
         cout << "not settable = " << pt.name << endl;        
         dut.portConnections.insert({pt.name, pt.name});
       }
