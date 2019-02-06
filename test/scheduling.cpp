@@ -4325,9 +4325,8 @@ namespace DHLS {
 
             if (canDemangle(inlineFunc->getName())) {
               string demangleName = demangle(inlineFunc->getName());
-              //string className = demangledClassName(demangleName);            
               string functionName = demangledFuncName(demangleName);
-              //if (className == "Fifo") {
+
               if (functionName == "read") {
                 if (!interfaces.containsFunction(inlineFunc)) {
 
@@ -4343,8 +4342,16 @@ namespace DHLS {
                   inlined = true;
                   break;
                 }
+              } else if (functionName == "write") {
+                  // Remove the body, which is the untimed software model
+                  inlineFunc->deleteBody();
+                  interfaces.addFunction(inlineFunc);
+                  implementRVFifoWriteTemplate(inlineFunc, interfaces.getConstraints(inlineFunc));
+                  inlineFunctionWithConstraints(f, exec, call, interfaces.getConstraints(inlineFunc));
+                  inlined = true;
+                  break;
+                
               }
-              //}
             }
           }
         }
@@ -4357,6 +4364,16 @@ namespace DHLS {
 
     cout << "After inlining" << endl;
     cout << valueString(f) << endl;
+
+    // TODO: How do I extract the hardware mapping from argument types
+    // to module specs?
+    int width = 32;
+    HardwareConstraints hcs = standardConstraints();
+    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
+    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
+    
+    auto arch = synthesizeVerilog(f, interfaces, hcs);
+
   }
   
 }
