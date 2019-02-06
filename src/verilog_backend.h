@@ -37,6 +37,11 @@ namespace DHLS {
   Wire wire(const int width, const std::string& name) {
     return {false, width, name};
   }
+
+  static inline
+  Wire reg(const int width, const std::string& name) {
+    return {true, width, name};
+  }
   
   Port wireToOutputPort(const Wire w);
   Port wireToInputPort(const Wire w);

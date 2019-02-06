@@ -2814,13 +2814,25 @@ namespace DHLS {
           string instName = getArg(f, i)->getName();
           map<string, string> conns;
           for (auto p : s.ports) {
-            Wire w = wire(p.second.width, instName + "_" + p.second.name);
-            comps.debugWires.push_back(w);
-            conns[p.first] = w.name;
+            if (p.first != "rst") {
+              Wire w;
+              string wireName = instName + "_" + p.second.name;
+              if (!elem(wireName, tb.settableWires)) {
+                w = wire(p.second.width, wireName);
+                comps.debugWires.push_back(w);
+              } else {
+                cout << "Settable wire " << p.first << endl;
+                w = reg(p.second.width, wireName);
+                comps.debugWires.push_back(w);
+              }
+              conns[p.first] = w.name;
+            } else {
+              conns[p.first] = "rst";
+            }
           }
 
           conns.insert({"clk", "clk"});
-          conns.insert({"rst", "rst"});          
+          conns.insert({"rst", "rst"});
           ModuleInstance arg{s.name, instName, conns};
           comps.instances.push_back(arg);
         }
@@ -2830,7 +2842,11 @@ namespace DHLS {
     map<string, string > dutConns;
     ModuleInstance dut{tb.name, "dut", dutConns};
     for (auto pt : getPorts(arch)) {
-      dut.portConnections.insert({pt.name, pt.name});
+      cout << "port = " << pt.name << endl;
+      if (!elem(pt.name, tb.settableWires) || (pt.name == "clk") || (pt.name == "rst")) {
+        cout << "not settable = " << pt.name << endl;        
+        dut.portConnections.insert({pt.name, pt.name});
+      }
     }
 
     comps.instances.push_back(dut);

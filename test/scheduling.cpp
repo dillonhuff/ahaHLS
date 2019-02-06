@@ -4173,6 +4173,7 @@ namespace DHLS {
 
     // TODO: Change wire setting to use the module specs? And change
     // the wire specs to use
+    // Idea: Spin one sequential test in to many timed tests?
     TestBenchSpec tb;
     map<string, int> testLayout = {};
     tb.memoryInit = {};
@@ -4181,15 +4182,39 @@ namespace DHLS {
     tb.maxCycles = 50;
     tb.name = "reduce_4";
     tb.useModSpecs = true;
-    // tb.settableWires.insert("in_out_data");
-    // tb.settableWires.insert("in_out_data");
+    tb.settableWires.insert("in_in_data");
+    tb.settableWires.insert("in_write_valid");
+    tb.settableWires.insert("out_read_valid");    
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
 
-    // map_insert(tb.actionsOnCycles, 18, assertString("arg_2_in_data == " + to_string(1 + 3 + 5 + 19)));
+    map_insert(tb.actionsOnCycles, 25, assertString("valid === 1"));
+    map_insert(tb.actionsOnCycles, 16, assertString("out_out_data === 1 + 4 + 7 + 9"));    
+    //to_string(1 + 3 + 5 + 19)));
+    map_insert(tb.actionsInCycles, 0, string("out_read_valid = 0;"));
+    map_insert(tb.actionsInCycles, 0, string("in_write_valid = 0;"));        
 
-    // map_insert(tb.actionsInCycles, 1, string("arg_0_out_data_reg = " + floatBits(af) + ";"));
-    // map_insert(tb.actionsInCycles, 2, string("arg_0_out_data_reg = " + floatBits(af) + ";"));
-    // map_insert(tb.actionsInCycles, 3, string("arg_0_out_data_reg = " + floatBits(af) + ";"));        
+    map_insert(tb.actionsInCycles, 1, string("in_in_data = 1;"));
+    map_insert(tb.actionsInCycles, 1, string("in_write_valid = 1;"));    
+
+    map_insert(tb.actionsInCycles, 2, string("in_in_data = 4;"));
+    map_insert(tb.actionsInCycles, 2, string("in_write_valid = 1;"));    
+
+    map_insert(tb.actionsInCycles, 3, string("in_write_valid = 0;"));        
+
+    map_insert(tb.actionsInCycles, 5, string("in_in_data = 7;"));
+    map_insert(tb.actionsInCycles, 5, string("in_write_valid = 1;"));    
+
+    map_insert(tb.actionsInCycles, 6, string("in_write_valid = 0;"));
+
+    map_insert(tb.actionsInCycles, 9, string("in_in_data = 9;"));
+    map_insert(tb.actionsInCycles, 9, string("in_write_valid = 1;"));    
+
+    map_insert(tb.actionsInCycles, 10, string("in_write_valid = 0;")); 
+
+    map_insert(tb.actionsInCycles, 15, string("out_read_valid = 1;"));    
+
+    map_insert(tb.actionsInCycles, 16, string("out_read_valid = 0;"));
+
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("reduce_4"));
