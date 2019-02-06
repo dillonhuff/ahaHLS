@@ -4215,7 +4215,7 @@ namespace DHLS {
 
     emitVerilogTestBench(tb, arch, testLayout);
     
-    //REQUIRE(runIVerilogTB("reduce_4"));
+    REQUIRE(runIVerilogTB("reduce_4"));
   }
 
   // TODO: Replace with a real parser
