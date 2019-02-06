@@ -4218,7 +4218,25 @@ namespace DHLS {
   }
 
   TEST_CASE("Templatized FIFO") {
-    
+    LLVMContext context;
+    SMDiagnostic err;
+    setGlobalLLVMContext(&context);
+
+    auto mod = loadCppModule(context, err, "add_10_template");
+    setGlobalLLVMModule(mod.get());
+
+    int width = 32;
+
+    InterfaceFunctions interfaces;
+    Function* readFifo = fifoRead(width);
+    interfaces.addFunction(readFifo);
+    implementRVFifoRead(readFifo, interfaces.getConstraints(readFifo));
+
+    Function* writeFifo = fifoWrite(width);
+    interfaces.addFunction(writeFifo);
+    implementRVFifoWrite(writeFifo, interfaces.getConstraints(writeFifo));
+
+    auto f = mod->getFunction("add_10_template");
   }
   
 }

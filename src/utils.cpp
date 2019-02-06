@@ -9,7 +9,6 @@ using namespace std;
 
 namespace DHLS {
 
-
   std::string instructionString(Instruction* const iptr) {
     std::string str;
     llvm::raw_string_ostream ss(str);

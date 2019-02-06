@@ -17,6 +17,10 @@ namespace DHLS {
                                            llvm::SMDiagnostic& Err,
                                            const std::string& name);
 
+  std::unique_ptr<llvm::Module> loadCppModule(llvm::LLVMContext& Context,
+                                              llvm::SMDiagnostic& Err,
+                                              const std::string& name);
+  
   bool runCmd(const std::string& cmd);
 
   bool runIVerilogTB(const std::string& moduleName);
