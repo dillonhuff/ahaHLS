@@ -184,4 +184,6 @@ namespace DHLS {
     return res;
   }
 
+  std::string demangle(const std::string& mangled);
+
 }

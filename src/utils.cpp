@@ -224,41 +224,41 @@ namespace DHLS {
     return san;
   }
   
+  std::string demangle(const std::string& mangled) {
+    const char* mangledName = mangled.c_str();
+    int status = 0;
   
-}
+    const char* realName = abi::__cxa_demangle(mangledName, 0, 0, &status);
+    bool quiet = false;
+  
+    switch (status) {
+    case 0:
+      if (quiet) {
+        puts(realName);
+      } else {
+        printf("%s, mangled: %s\n", realName, mangledName);
+      }
 
-std::string demangle(const std::string& mangled) {
-  const char* mangledName = mangled.c_str();
-  int status = 0;
-  
-  const char* realName = abi::__cxa_demangle(mangledName, 0, 0, &status);
-  bool quiet = false;
-  
-  switch (status) {
-  case 0:
-    if (quiet) {
-      puts(realName);
-    } else {
-      printf("%s, mangled: %s\n", realName, mangledName);
+      return string(realName);
+
+    case -1:
+      printf("FAIL: failed to allocate memory while demangling %s\n",
+             mangledName);
+      free((void *)realName);  
+      assert(false);
+
+    case -2:
+      printf("FAIL: %s is not a valid name under the C++ ABI mangling rules\n",
+             mangledName);
+      free((void *)realName);  
+      assert(false);
+
+    default:
+      printf("FAIL: some other unexpected error: %d\n", status);
+      free((void *)realName);  
+      assert(false);
     }
-
-    return string(realName);
-
-  case -1:
-    printf("FAIL: failed to allocate memory while demangling %s\n",
-           mangledName);
-    free((void *)realName);  
-    assert(false);
-
-  case -2:
-    printf("FAIL: %s is not a valid name under the C++ ABI mangling rules\n",
-           mangledName);
-    free((void *)realName);  
-    assert(false);
-
-  default:
-    printf("FAIL: some other unexpected error: %d\n", status);
-    free((void *)realName);  
-    assert(false);
   }
+  
 }
+

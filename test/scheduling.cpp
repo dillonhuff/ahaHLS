@@ -4236,12 +4236,16 @@ namespace DHLS {
     interfaces.addFunction(writeFifo);
     implementRVFifoWrite(writeFifo, interfaces.getConstraints(writeFifo));
 
+    for (auto& f : mod->functions()) {
+      cout << demangle(f.getName()) << endl;
+    }
     auto f = mod->getFunction("add_10_template");
 
     REQUIRE(f != nullptr);
 
     // Q: What processing needs to be done?
-    // A: 1. Need to inline each function call
+    // A: 1. Need to inline each function call (or function that is really
+    //       a method)
   }
   
 }
