@@ -4108,19 +4108,20 @@ namespace DHLS {
     SMDiagnostic err;
     setGlobalLLVMContext(&context);
 
-    string moduleName ="./test/ll_files/reduce_4";
-    system(("clang -D__SYNTHESIS__ -O1 -c -S -emit-llvm " + moduleName + ".c -o " + moduleName + ".ll").c_str());  
+    auto mod = loadLLFile(context, err, "reduce_4");
+    // string moduleName ="./test/ll_files/reduce_4";
+    // system(("clang -D__SYNTHESIS__ -O1 -c -S -emit-llvm " + moduleName + ".c -o " + moduleName + ".ll").c_str());  
 
-    SMDiagnostic Err;
-    LLVMContext Context;
+    // SMDiagnostic Err;
+    // LLVMContext Context;
 
-    string modFile = "./test/ll_files/reduce_4.ll";
+    // string modFile = "./test/ll_files/reduce_4.ll";
 
-    std::unique_ptr<Module> mod(parseIRFile(modFile, Err, Context));
-    if (!mod) {
-      outs() << "Error: No mod\n";
-      assert(false);
-    }
+    // std::unique_ptr<Module> mod(parseIRFile(modFile, Err, Context));
+    // if (!mod) {
+    //   outs() << "Error: No mod\n";
+    //   assert(false);
+    // }
 
     setGlobalLLVMModule(mod.get());
 

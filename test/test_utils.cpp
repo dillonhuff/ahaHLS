@@ -10,7 +10,7 @@ namespace DHLS {
 
 
   int createLLFile(const std::string& moduleName) {
-    return system(("clang -O1 -c -S -emit-llvm " + moduleName + ".c -o " + moduleName + ".ll").c_str());
+    return system(("clang -O1 -D__SYNTHESIS__ -c -S -emit-llvm " + moduleName + ".c -o " + moduleName + ".ll").c_str());
   }
 
   std::unique_ptr<Module> loadLLFile(LLVMContext& Context,
