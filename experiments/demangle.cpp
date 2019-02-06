@@ -7,9 +7,9 @@
 
 using namespace std;
 
-int main() {
+void demangle(const char* mangledName) {
   int status = 0;
-  const char* mangledName = string("_ZN4FifoIiLi32EE4readEv").c_str();
+  
   const char* realName = abi::__cxa_demangle(mangledName, 0, 0, &status);
   bool quiet = false;
   
@@ -18,7 +18,7 @@ int main() {
     if (quiet) {
       puts(realName);
     } else {
-      printf("%s  %s\n", realName, mangledName);
+      printf("%s, mangled: %s\n", realName, mangledName);
     }
     break;
   case -1:
@@ -34,4 +34,16 @@ int main() {
     break;
   }
   free((void *)realName);  
+}
+
+// Q: Could I build a more complex interface function?
+// A: I guess I could, I would need to build a more interesting
+//    system that 
+int main() {
+  const char* mangledName = string("_ZN4FifoIiLi32EE4readEv").c_str();
+  demangle(mangledName);
+
+  const char* mn2 = string("_ZN4FifoIiLi32EE5writeEi").c_str();
+  demangle(mn2);
+
 }

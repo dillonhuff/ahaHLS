@@ -4216,5 +4216,9 @@ namespace DHLS {
     
     //REQUIRE(runIVerilogTB("reduce_4"));
   }
+
+  TEST_CASE("Templatized FIFO") {
+    
+  }
   
 }
