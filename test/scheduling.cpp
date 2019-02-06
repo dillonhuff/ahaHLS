@@ -4372,9 +4372,33 @@ namespace DHLS {
     HardwareConstraints hcs = standardConstraints();
     hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
     hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
-    
-    auto arch = synthesizeVerilog(f, interfaces, hcs);
 
+    addDataConstraints(f, exec);
+
+    cout << "LLVM function after inlining reads" << endl;
+    cout << valueString(f) << endl;
+
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG is " << endl;
+    graph.print(cout);
+    
+    map<llvm::Value*, int> layout = {};
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog("add_10_template", f, arch, info);
+    
     string in0Name =
       getArg(f, 0)->getName() == "" ? "arg_0" : getArg(f, 0)->getName();
     string outName =
@@ -4395,28 +4419,16 @@ namespace DHLS {
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
 
     map_insert(tb.actionsOnCycles, 25, assertString("valid === 1"));
-    map_insert(tb.actionsOnCycles, 21, assertString(outName + "_out_data === 1 + 4 + 7 + 9"));
+    map_insert(tb.actionsOnCycles, 21, assertString(outName + "_out_data === 1 + 10"));
     //to_string(1 + 3 + 5 + 19)));
     map_insert(tb.actionsInCycles, 0, string(outName + "_read_valid = 0;"));
     map_insert(tb.actionsInCycles, 0, string(in0Name + "_write_valid = 0;"));        
 
-    map_insert(tb.actionsInCycles, 1, string(in0Name + "_in_data = 1;"));
-    map_insert(tb.actionsInCycles, 1, string(in0Name + "_write_valid = 1;"));    
+    map_insert(tb.actionsInCycles, 3, string(in0Name + "_in_data = 1;"));
+    map_insert(tb.actionsInCycles, 3, string(in0Name + "_write_valid = 1;"));    
 
-    map_insert(tb.actionsInCycles, 2, string(in0Name + "_in_data = 4;"));
-    map_insert(tb.actionsInCycles, 2, string(in0Name + "_write_valid = 1;"));    
+    map_insert(tb.actionsInCycles, 4, string(in0Name + "_write_valid = 0;"));        
 
-    map_insert(tb.actionsInCycles, 3, string(in0Name + "_write_valid = 0;"));        
-
-    map_insert(tb.actionsInCycles, 5, string(in0Name + "_in_data = 7;"));
-    map_insert(tb.actionsInCycles, 5, string(in0Name + "_write_valid = 1;"));    
-
-    map_insert(tb.actionsInCycles, 6, string(in0Name + "_write_valid = 0;"));
-
-    map_insert(tb.actionsInCycles, 9, string(in0Name + "_in_data = 9;"));
-    map_insert(tb.actionsInCycles, 9, string(in0Name + "_write_valid = 1;"));    
-
-    map_insert(tb.actionsInCycles, 10, string(in0Name + "_write_valid = 0;")); 
     map_insert(tb.actionsInCycles, 20, string(outName + "_read_valid = 1;"));    
 
     map_insert(tb.actionsInCycles, 21, string(outName + "_read_valid = 0;"));

@@ -540,5 +540,9 @@ namespace DHLS {
 
   std::string floatBits(const float f);
 
+  void emitVerilog(const std::string& fn,
+                   llvm::Function* f,
+                   MicroArchitecture& arch,
+                   const VerilogDebugInfo& debugInfo);
   
 }

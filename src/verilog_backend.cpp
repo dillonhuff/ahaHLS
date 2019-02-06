@@ -2281,7 +2281,19 @@ namespace DHLS {
     cout << valueString(f) << endl;
     
     string fn = f->getName();
+    emitVerilog(fn, f, arch, debugInfo);
+  }
 
+  void emitVerilog(const std::string& fn,
+                   llvm::Function* f,
+                   MicroArchitecture& arch,
+                   const VerilogDebugInfo& debugInfo) {
+
+    cout << "Emitting verilog for" << endl;
+    cout << valueString(f) << endl;
+    
+    // string fn = f->getName();
+    
     // This is a very flawed way to handle memory ports. For a few reasons
     //   1. It does not know anything about read / write port widths
     //   2. It does not know anything about read / write port resource limits
