@@ -1656,6 +1656,8 @@ namespace DHLS {
         assert(false);
       }
     }
+
+    cout << "Done inlining" << endl;
   }
   
   void inlineWireCalls(Function* f,

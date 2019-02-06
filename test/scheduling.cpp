@@ -4310,28 +4310,47 @@ namespace DHLS {
     // Q: What processing needs to be done?
     // A: 1. Need to inline each function call (or function that is really
     //       a method)
-    for (auto& bb : f->getBasicBlockList()) {
-      for (auto& iref : bb) {
-        Instruction* instr = &iref;
-        if (CallInst::classof(instr)) {
-          CallInst* call = dyn_cast<CallInst>(instr);
 
-          Function* inlineFunc = call->getCalledFunction();
-          if (canDemangle(inlineFunc->getName())) {
-            string demangleName = demangle(inlineFunc->getName());
-            //string className = demangledClassName(demangleName);            
-            string functionName = demangledFuncName(demangleName);
-            //if (className == "Fifo") {
-            if (functionName == "read") {
-              if (!interfaces.containsFunction(inlineFunc)) {
-                interfaces.addFunction(inlineFunc);
-                implementRVFifoRead(inlineFunc, interfaces.getConstraints(inlineFunc));
+    bool inlined = true;
+    while (inlined) {
+      inlined = false;
+      for (auto& bb : f->getBasicBlockList()) {
+        for (auto& iref : bb) {
+          Instruction* instr = &iref;
 
-                inlineFunctionWithConstraints(f, exec, call, interfaces.getConstraints(inlineFunc));
+          if (CallInst::classof(instr)) {
+            CallInst* call = dyn_cast<CallInst>(instr);
+
+            Function* inlineFunc = call->getCalledFunction();
+
+            if (canDemangle(inlineFunc->getName())) {
+              string demangleName = demangle(inlineFunc->getName());
+              //string className = demangledClassName(demangleName);            
+              string functionName = demangledFuncName(demangleName);
+              //if (className == "Fifo") {
+              if (functionName == "read") {
+                if (!interfaces.containsFunction(inlineFunc)) {
+
+                  // Remove the body, which is the untimed software model
+                  inlineFunc->deleteBody();
+                  interfaces.addFunction(inlineFunc);
+                  implementRVFifoRead(inlineFunc, interfaces.getConstraints(inlineFunc));
+
+                  cout << "# bbs = " << inlineFunc->getBasicBlockList().size() << endl;
+                  assert(inlineFunc->getBasicBlockList().size() == 1);
+
+                  inlineFunctionWithConstraints(f, exec, call, interfaces.getConstraints(inlineFunc));
+                  inlined = true;
+                  break;
+                }
               }
+              //}
             }
-            //}
           }
+        }
+
+        if (inlined) {
+          break;
         }
       }
     }
