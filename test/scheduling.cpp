@@ -4245,8 +4245,28 @@ namespace DHLS {
     assert(false);
   }
 
-  std::string extractFunctionName(const std::string& demangleName) {
-    
+  std::string drop(std::string pattern, const std::string& name) {
+    size_t pos = name.find(pattern);
+    return name.substr(pos + pattern.size());
+  }
+
+  std::string takeUntil(std::string pattern, const std::string& name) {
+    size_t pos = name.find(pattern);
+    return name.substr(0, pos);
+  }
+  
+  std::string demangledFuncName(const std::string& demangleName) {
+    cout << "Demangle name = " << demangleName << endl;
+    assert(false);
+  }
+
+  std::string demangledClassName(const std::string& demangledName) {
+    cout << "Getting class from = " << demangledName << endl;
+    string nextNamespace = takeUntil("::", demangledName);
+    cout << "namespace = " << nextNamespace << endl;
+    string remainder = drop("::", demangledName);
+    cout << "remainder = " << remainder << endl;
+    assert(false);
   }
   
   TEST_CASE("Templatized FIFO") {
@@ -4285,8 +4305,13 @@ namespace DHLS {
           
           if (canDemangle(inlineFunc->getName())) {
             string demangleName = demangle(inlineFunc->getName());
-            string functionName = extractFunctionName(demangleName);
-            cout << "Call to demanglable name " << demangle(inlineFunc->getName()) << endl;
+            string className = demangledClassName(demangleName);            
+            string functionName = demangledFuncName(demangleName);
+            if (className == "Fifo") {
+              if (functionName == "read") {
+                assert(false);
+              }
+            }
           }
         }
       }
