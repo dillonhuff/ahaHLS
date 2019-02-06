@@ -4157,17 +4157,16 @@ namespace DHLS {
     implementRVFifoWrite(writeFifo, interfaces.getConstraints(writeFifo));
 
     auto f = mod->getFunction("reduce_4");
-    cout << "LLVM function" << endl;
-    cout << valueString(f) << endl;
-  
+
     HardwareConstraints hcs = standardConstraints();
+    // NOTE: Its a little annoying to have to put module specifications
+    // in to the hardware constraints in one place, and then put
+    // the interface function definition in another place.
     hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
     hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
     
     auto arch = synthesizeVerilog(f, interfaces, hcs);
     
-    // TODO: Change wire setting to use the module specs? And change
-    // the wire specs to use
     // Idea: Spin one sequential test in to many timed tests?
     TestBenchSpec tb;
     map<string, int> testLayout = {};
