@@ -4237,6 +4237,11 @@ namespace DHLS {
     implementRVFifoWrite(writeFifo, interfaces.getConstraints(writeFifo));
 
     auto f = mod->getFunction("add_10_template");
+
+    REQUIRE(f != nullptr);
+
+    // Q: What processing needs to be done?
+    // A: 1. Need to inline each function call
   }
   
 }
