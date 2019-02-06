@@ -591,6 +591,22 @@ namespace DHLS {
         ModuleSpec modSpec = map_find(fuPtr, hcs.modSpecs);
         modName = modSpec.name;
         unitName = fuPtr->getName();
+        if (unitName == "") {
+          assert(Argument::classof(fuPtr));
+          int i = 0;
+          bool foundArg = false;
+          Function* f = instr->getParent()->getParent();
+          for (auto& arg : f->args()) {
+            if (&arg == fuPtr) {
+              unitName = "arg_" + to_string(i);
+              foundArg = true;
+              break;
+            }
+            i++;
+          }
+
+          assert(foundArg);
+        }
 
         for (auto pt : modSpec.ports) {
           if (pt.second.input()) {

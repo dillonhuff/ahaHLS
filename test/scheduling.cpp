@@ -4291,26 +4291,12 @@ namespace DHLS {
     auto mod = loadCppModule(context, err, "add_10_template");
     setGlobalLLVMModule(mod.get());
 
-    // int width = 32;
-
     InterfaceFunctions interfaces;
-    // Function* readFifo = fifoRead(width);
-    // interfaces.addFunction(readFifo);
-    // implementRVFifoRead(readFifo, interfaces.getConstraints(readFifo));
-
-    // Function* writeFifo = fifoWrite(width);
-    // interfaces.addFunction(writeFifo);
-    // implementRVFifoWrite(writeFifo, interfaces.getConstraints(writeFifo));
-
     auto f = getFunctionByDemangledName(mod.get(), "add_10_template");
 
     REQUIRE(f != nullptr);
 
     ExecutionConstraints exec;
-
-    // Q: What processing needs to be done?
-    // A: 1. Need to inline each function call (or function that is really
-    //       a method)
 
     bool inlined = true;
     while (inlined) {
