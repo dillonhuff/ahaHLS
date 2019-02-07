@@ -4384,7 +4384,7 @@ namespace DHLS {
     ExecutionConstraints exec;
     InterfaceFunctions interfaces;
     interfaces.functionTemplates[string("read")] = implementRVFifoRead;
-    interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef; //implementRVFifoWriteTemplate;
+    interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef;
 
     inlineWireCalls(f, exec, interfaces);
 
@@ -4464,6 +4464,105 @@ namespace DHLS {
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("add_10_channel"));
+  }
+
+  TEST_CASE("Templatized channel add") {
+    LLVMContext context;
+    SMDiagnostic err;
+    setGlobalLLVMContext(&context);
+
+    auto mod = loadCppModule(context, err, "channel_add");
+    setGlobalLLVMModule(mod.get());
+
+    auto f = getFunctionByDemangledName(mod.get(), "channel_add");
+
+    REQUIRE(f != nullptr);
+
+    ExecutionConstraints exec;
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read")] = implementRVFifoRead;
+    interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef;
+
+    inlineWireCalls(f, exec, interfaces);
+
+    cout << "After inlining" << endl;
+    cout << valueString(f) << endl;
+
+    // TODO: How do I extract the hardware mapping from argument types
+    // to module specs?
+    int width = 32;
+    HardwareConstraints hcs = standardConstraints();
+    hcs.memoryMapping = memoryOpLocations(f);
+    setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    
+    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
+    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
+
+    addDataConstraints(f, exec);
+
+    cout << "LLVM function after inlining reads" << endl;
+    cout << valueString(f) << endl;
+
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG is " << endl;
+    graph.print(cout);
+    
+    map<llvm::Value*, int> layout = {};
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog("channel_add", f, arch, info);
+    
+    string in0Name =
+      getArg(f, 0)->getName() == "" ? "arg_0" : getArg(f, 0)->getName();
+    string in1Name =
+      getArg(f, 0)->getName() == "" ? "arg_1" : getArg(f, 0)->getName();
+    string outName =
+      getArg(f, 1)->getName() == "" ? "arg_2" : getArg(f, 1)->getName();
+
+    // Idea: Spin one sequential test in to many timed tests?
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 30;
+    tb.maxCycles = 50;
+    tb.name = "channel_add";
+    tb.useModSpecs = true;
+    tb.settableWires.insert(in0Name + "_in_data");
+    tb.settableWires.insert(in0Name + "_write_valid");
+    tb.settableWires.insert(outName + "_read_valid");    
+    map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
+
+    map_insert(tb.actionsOnCycles, 25, assertString("valid === 1"));
+    map_insert(tb.actionsOnCycles, 21, assertString(outName + "_out_data === 1 + 10"));
+
+    map_insert(tb.actionsInCycles, 0, string(outName + "_read_valid = 0;"));
+    map_insert(tb.actionsInCycles, 0, string(in0Name + "_write_valid = 0;"));        
+
+    map_insert(tb.actionsInCycles, 3, string(in0Name + "_in_data = 1;"));
+    map_insert(tb.actionsInCycles, 3, string(in0Name + "_write_valid = 1;"));
+
+    map_insert(tb.actionsInCycles, 4, string(in0Name + "_write_valid = 0;"));        
+
+    map_insert(tb.actionsInCycles, 20, string(outName + "_read_valid = 1;"));    
+
+    map_insert(tb.actionsInCycles, 21, string(outName + "_read_valid = 0;"));
+
+    emitVerilogTestBench(tb, arch, testLayout);
+    
+    REQUIRE(runIVerilogTB("channel_add"));
   }
   
 }
