@@ -4395,6 +4395,9 @@ namespace DHLS {
     // to module specs?
     int width = 32;
     HardwareConstraints hcs = standardConstraints();
+    hcs.memoryMapping = memoryOpLocations(f);
+    setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    
     hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
     hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
 

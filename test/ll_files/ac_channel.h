@@ -120,7 +120,7 @@ public:
     } else
       return false;
   }
-  void write(const T t) { chan.write(t); }
+  void write(const T& t) { chan.write(t); }
 
   bool nb_write(T& t) {
     chan.incr_size_call_count();
