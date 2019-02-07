@@ -4384,7 +4384,7 @@ namespace DHLS {
     ExecutionConstraints exec;
     InterfaceFunctions interfaces;
     interfaces.functionTemplates[string("read")] = implementRVFifoRead;
-    interfaces.functionTemplates[string("write")] = implementRVFifoWriteTemplate;
+    interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef; //implementRVFifoWriteTemplate;
 
     inlineWireCalls(f, exec, interfaces);
 

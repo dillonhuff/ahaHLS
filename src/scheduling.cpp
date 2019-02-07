@@ -1502,6 +1502,50 @@ namespace DHLS {
     exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
   }
 
+  void implementRVFifoWriteRef(llvm::Function* writeFifo,
+                               ExecutionConstraints& exec) {
+    auto eb = mkBB("entry_block", writeFifo);
+    IRBuilder<> b(eb);
+
+    auto out = getArg(writeFifo, 0);
+    auto dataPtr = getArg(writeFifo, 1);
+
+    assert(PointerType::classof(dataPtr->getType()));
+
+    auto dataPtrTp = dyn_cast<PointerType>(dataPtr->getType());
+
+    auto tp = out->getType();
+    
+    int width = getTypeBitWidth(dataPtrTp->getElementType()); //getValueBitWidth(getArg(writeFifo, 1));
+
+    cout << "Data width of " << typeString(dataPtrTp) << " = " << width << endl;
+
+    auto writeDataF = writePort("in_data", width, tp);
+    auto readReadyF = readPort("write_ready", 1, tp);
+
+    auto setValidF = writePort("write_valid", 1, tp);
+    auto stallF = stallFunction();
+
+    auto readOutF = readPort("out", width, dataPtrTp);
+
+    auto readReady = b.CreateCall(readReadyF, {out});
+    auto stallUntilReady = b.CreateCall(stallF, {readReady});
+    auto setValid1 = b.CreateCall(setValidF, {out, mkInt(1, 1)});
+    auto setValid0 = b.CreateCall(setValidF, {out, mkInt(0, 1)});
+    //auto data = b.CreateCall(readOutF, {dataPtr});
+    auto data = b.CreateLoad(dataPtr);
+    auto writeValue = b.CreateCall(writeDataF, {out, data});
+      
+    b.CreateRet(nullptr);
+    
+    exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
+    exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
+    exec.addConstraint(instrStart(setValid1) == instrStart(writeValue));
+    exec.addConstraint(instrEnd(data) == instrStart(data));
+    exec.addConstraint(instrEnd(data) == instrStart(writeValue));    
+    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+  }
+  
   void implementRVFifoWriteTemplate(llvm::Function* writeFifo,
                                     ExecutionConstraints& exec) {
     auto eb = mkBB("entry_block", writeFifo);

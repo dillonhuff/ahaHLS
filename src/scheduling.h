@@ -1444,6 +1444,8 @@ namespace DHLS {
   void implementRVFifoWrite(llvm::Function* writeFifo, ExecutionConstraints& exec);
   void implementRVFifoWriteTemplate(llvm::Function* writeFifo,
                                     ExecutionConstraints& exec);
+  void implementRVFifoWriteRef(llvm::Function* writeFifo,
+                               ExecutionConstraints& exec);
 
   void inlineWireCalls(llvm::Function* f,
                        ExecutionConstraints& exec,
