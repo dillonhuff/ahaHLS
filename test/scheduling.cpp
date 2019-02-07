@@ -4353,6 +4353,22 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("add_10_template"));
   }
 
+
+  // Now I can make channels work with a pass-by-value write. Could
+  // I do it with pass-by-reference write? What would that even mean?
+
+  // I suppose it would mean that I was creating a register that contained
+  // an integer and connecting the output of the register to the data input
+  // of the underlying FIFO?
+
+  // Idea: Use some sort of register elimination optimization after inlining
+  // and scheduling to turn this in to a pass-by-value operation?
+
+  // Note: I really need to convert the old c examples using pointers as arbitrary
+  // width memories into examples that use SRAMs. Then I can re-purpose pointers
+  // to a built-in type to mean "registers of that type". Note also: Distinction
+  // between a types width (the sum of the widths of all of its state), and the
+  // types hardware interface.
   TEST_CASE("Templatized channel") {
     LLVMContext context;
     SMDiagnostic err;
