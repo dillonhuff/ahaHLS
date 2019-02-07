@@ -4277,56 +4277,6 @@ namespace DHLS {
     interfaces.functionTemplates[string("write")] = implementRVFifoWriteTemplate;
 
     inlineWireCalls(f, exec, interfaces);
-    // bool inlined = true;
-    // while (inlined) {
-    //   inlined = false;
-    //   for (auto& bb : f->getBasicBlockList()) {
-    //     for (auto& iref : bb) {
-    //       Instruction* instr = &iref;
-
-    //       if (CallInst::classof(instr)) {
-    //         CallInst* call = dyn_cast<CallInst>(instr);
-
-    //         Function* inlineFunc = call->getCalledFunction();
-
-    //         if (canDemangle(inlineFunc->getName())) {
-    //           string demangleName = demangle(inlineFunc->getName());
-    //           string functionName = demangledFuncName(demangleName);
-
-    //           if (functionName == "read") {
-    //             if (!interfaces.containsFunction(inlineFunc)) {
-
-    //               // Remove the body, which is the untimed software model
-    //               inlineFunc->deleteBody();
-    //               interfaces.addFunction(inlineFunc);
-    //               implementRVFifoRead(inlineFunc, interfaces.getConstraints(inlineFunc));
-
-    //               cout << "# bbs = " << inlineFunc->getBasicBlockList().size() << endl;
-    //               assert(inlineFunc->getBasicBlockList().size() == 1);
-
-    //               inlineFunctionWithConstraints(f, exec, call, interfaces.getConstraints(inlineFunc));
-    //               inlined = true;
-    //               break;
-    //             }
-    //           } else if (functionName == "write") {
-    //               // Remove the body, which is the untimed software model
-    //               inlineFunc->deleteBody();
-    //               interfaces.addFunction(inlineFunc);
-    //               implementRVFifoWriteTemplate(inlineFunc, interfaces.getConstraints(inlineFunc));
-    //               inlineFunctionWithConstraints(f, exec, call, interfaces.getConstraints(inlineFunc));
-    //               inlined = true;
-    //               break;
-                
-    //           }
-    //         }
-    //       }
-    //     }
-
-    //     if (inlined) {
-    //       break;
-    //     }
-    //   }
-    // }
 
     cout << "After inlining" << endl;
     cout << valueString(f) << endl;
