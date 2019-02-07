@@ -276,6 +276,7 @@ namespace DHLS {
     cout << "remainder = " << remainder << endl;
 
     string funcDecl = drop("::", remainder);
+    cout << "FuncDecl = " << funcDecl << endl;
     string funcName = takeUntil("(", funcDecl);
     cout << "FuncName = " << funcName << endl;
 
@@ -284,6 +285,10 @@ namespace DHLS {
 
   std::string drop(std::string pattern, const std::string& name) {
     size_t pos = name.find(pattern);
+    if (pos == std::string::npos) {
+      return name;
+    }
+
     return name.substr(pos + pattern.size());
   }
 
