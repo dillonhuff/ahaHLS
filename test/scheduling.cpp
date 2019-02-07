@@ -45,7 +45,7 @@ namespace DHLS {
   //    Move test layout int testbenchspec
   //    Incorporate fifoSpecs in to scheduling constraints automatically
   //    Add some simple examples to the README
-  //    Fix createFunction to return a function every time without the useless cast
+  //    Clean up testbench set / get API
 
   // NOTE: The code for testbenches is getting really complicated. Some of that
   // is automatic testbench generation, but some of it is just the hodgepodge of
