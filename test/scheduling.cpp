@@ -4483,6 +4483,8 @@ namespace DHLS {
     interfaces.functionTemplates[string("read")] = implementRVFifoRead;
     interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef;
 
+    addDataConstraints(f, exec);
+
     inlineWireCalls(f, exec, interfaces);
 
     cout << "After inlining" << endl;
@@ -4497,8 +4499,7 @@ namespace DHLS {
     
     hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
     hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
-
-    addDataConstraints(f, exec);
+    hcs.modSpecs[getArg(f, 2)] = fifoSpec(width, 32);
 
     cout << "LLVM function after inlining reads" << endl;
     cout << valueString(f) << endl;
@@ -4527,9 +4528,9 @@ namespace DHLS {
     string in0Name =
       getArg(f, 0)->getName() == "" ? "arg_0" : getArg(f, 0)->getName();
     string in1Name =
-      getArg(f, 0)->getName() == "" ? "arg_1" : getArg(f, 0)->getName();
+      getArg(f, 1)->getName() == "" ? "arg_1" : getArg(f, 0)->getName();
     string outName =
-      getArg(f, 1)->getName() == "" ? "arg_2" : getArg(f, 1)->getName();
+      getArg(f, 2)->getName() == "" ? "arg_2" : getArg(f, 1)->getName();
 
     // Idea: Spin one sequential test in to many timed tests?
     TestBenchSpec tb;
@@ -4542,20 +4543,28 @@ namespace DHLS {
     tb.useModSpecs = true;
     tb.settableWires.insert(in0Name + "_in_data");
     tb.settableWires.insert(in0Name + "_write_valid");
+    tb.settableWires.insert(in1Name + "_in_data");
+    tb.settableWires.insert(in1Name + "_write_valid");
     tb.settableWires.insert(outName + "_read_valid");    
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
 
     map_insert(tb.actionsOnCycles, 25, assertString("valid === 1"));
-    map_insert(tb.actionsOnCycles, 21, assertString(outName + "_out_data === 1 + 10"));
+    map_insert(tb.actionsOnCycles, 21, assertString(outName + "_out_data === 2 + 14"));
 
     map_insert(tb.actionsInCycles, 0, string(outName + "_read_valid = 0;"));
-    map_insert(tb.actionsInCycles, 0, string(in0Name + "_write_valid = 0;"));        
+    map_insert(tb.actionsInCycles, 0, string(in0Name + "_write_valid = 0;"));
+    map_insert(tb.actionsInCycles, 0, string(in1Name + "_write_valid = 0;"));
 
-    map_insert(tb.actionsInCycles, 3, string(in0Name + "_in_data = 1;"));
+    map_insert(tb.actionsInCycles, 3, string(in0Name + "_in_data = 2;"));
     map_insert(tb.actionsInCycles, 3, string(in0Name + "_write_valid = 1;"));
 
     map_insert(tb.actionsInCycles, 4, string(in0Name + "_write_valid = 0;"));        
 
+    map_insert(tb.actionsInCycles, 7, string(in1Name + "_in_data = 14;"));
+    map_insert(tb.actionsInCycles, 7, string(in1Name + "_write_valid = 1;"));
+
+    map_insert(tb.actionsInCycles, 8, string(in1Name + "_write_valid = 0;"));
+    
     map_insert(tb.actionsInCycles, 20, string(outName + "_read_valid = 1;"));    
 
     map_insert(tb.actionsInCycles, 21, string(outName + "_read_valid = 0;"));
