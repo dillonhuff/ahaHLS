@@ -1421,6 +1421,9 @@ namespace DHLS {
   class InterfaceFunctions {
   public:
     std::map<llvm::Function*, ExecutionConstraints> constraints;
+    std::map<std::string,
+             std::function<void(llvm::Function*, ExecutionConstraints&)> >
+    functionTemplates;
 
     void addFunction(Function* const f) {
       constraints[f] = ExecutionConstraints();
@@ -1452,5 +1455,5 @@ namespace DHLS {
                                      ExecutionConstraints& exec,
                                      llvm::CallInst* const toInline,
                                      ExecutionConstraints& constraintsToInline);
-  
+
 }

@@ -267,6 +267,29 @@ namespace DHLS {
       assert(false);
     }
   }
+
+  std::string demangledFuncName(const std::string& demangledName) {
+    cout << "Getting function from = " << demangledName << endl;
+    string nextNamespace = takeUntil("::", demangledName);
+    cout << "namespace = " << nextNamespace << endl;
+    string remainder = drop("::", demangledName);
+    cout << "remainder = " << remainder << endl;
+
+    string funcDecl = drop("::", remainder);
+    string funcName = takeUntil("(", funcDecl);
+    cout << "FuncName = " << funcName << endl;
+
+    return funcName;
+  }
+
+  std::string drop(std::string pattern, const std::string& name) {
+    size_t pos = name.find(pattern);
+    return name.substr(pos + pattern.size());
+  }
+
+  std::string takeUntil(std::string pattern, const std::string& name) {
+    size_t pos = name.find(pattern);
+    return name.substr(0, pos);
+  }
   
 }
-

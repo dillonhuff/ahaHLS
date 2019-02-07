@@ -1713,6 +1713,22 @@ namespace DHLS {
               replaced = true;
             
               break;
+            } else if (canDemangle(inlineFunc->getName())) {
+              cout << "Can demangle" << endl;
+              string dmName =
+                demangledFuncName(demangle(inlineFunc->getName()));
+              if (contains_key(dmName, interfaces.functionTemplates)) {
+                if (!interfaces.containsFunction(inlineFunc)) {
+                  inlineFunc->deleteBody();
+                  interfaces.addFunction(inlineFunc);
+                  auto implFunc = map_find(dmName, interfaces.functionTemplates);
+                  implFunc(inlineFunc, interfaces.getConstraints(inlineFunc));
+                }
+
+                inlineFunctionWithConstraints(f, exec, call, interfaces.getConstraints(inlineFunc));
+                replaced = true;
+                break;
+              }
             }
           }
         }

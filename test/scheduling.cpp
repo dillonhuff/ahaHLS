@@ -4246,30 +4246,6 @@ namespace DHLS {
     assert(false);
   }
 
-  std::string drop(std::string pattern, const std::string& name) {
-    size_t pos = name.find(pattern);
-    return name.substr(pos + pattern.size());
-  }
-
-  std::string takeUntil(std::string pattern, const std::string& name) {
-    size_t pos = name.find(pattern);
-    return name.substr(0, pos);
-  }
-  
-  std::string demangledFuncName(const std::string& demangledName) {
-    cout << "Getting function from = " << demangledName << endl;
-    string nextNamespace = takeUntil("::", demangledName);
-    cout << "namespace = " << nextNamespace << endl;
-    string remainder = drop("::", demangledName);
-    cout << "remainder = " << remainder << endl;
-
-    string funcDecl = drop("::", remainder);
-    string funcName = takeUntil("(", funcDecl);
-    cout << "FuncName = " << funcName << endl;
-
-    return funcName;
-  }
-
   std::string demangledClassName(const std::string& demangledName) {
     cout << "Getting class from = " << demangledName << endl;
     string nextNamespace = takeUntil("::", demangledName);
@@ -4291,63 +4267,66 @@ namespace DHLS {
     auto mod = loadCppModule(context, err, "add_10_template");
     setGlobalLLVMModule(mod.get());
 
-    InterfaceFunctions interfaces;
     auto f = getFunctionByDemangledName(mod.get(), "add_10_template");
 
     REQUIRE(f != nullptr);
 
     ExecutionConstraints exec;
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read")] = implementRVFifoRead;
+    interfaces.functionTemplates[string("write")] = implementRVFifoWriteTemplate;
 
-    bool inlined = true;
-    while (inlined) {
-      inlined = false;
-      for (auto& bb : f->getBasicBlockList()) {
-        for (auto& iref : bb) {
-          Instruction* instr = &iref;
+    inlineWireCalls(f, exec, interfaces);
+    // bool inlined = true;
+    // while (inlined) {
+    //   inlined = false;
+    //   for (auto& bb : f->getBasicBlockList()) {
+    //     for (auto& iref : bb) {
+    //       Instruction* instr = &iref;
 
-          if (CallInst::classof(instr)) {
-            CallInst* call = dyn_cast<CallInst>(instr);
+    //       if (CallInst::classof(instr)) {
+    //         CallInst* call = dyn_cast<CallInst>(instr);
 
-            Function* inlineFunc = call->getCalledFunction();
+    //         Function* inlineFunc = call->getCalledFunction();
 
-            if (canDemangle(inlineFunc->getName())) {
-              string demangleName = demangle(inlineFunc->getName());
-              string functionName = demangledFuncName(demangleName);
+    //         if (canDemangle(inlineFunc->getName())) {
+    //           string demangleName = demangle(inlineFunc->getName());
+    //           string functionName = demangledFuncName(demangleName);
 
-              if (functionName == "read") {
-                if (!interfaces.containsFunction(inlineFunc)) {
+    //           if (functionName == "read") {
+    //             if (!interfaces.containsFunction(inlineFunc)) {
 
-                  // Remove the body, which is the untimed software model
-                  inlineFunc->deleteBody();
-                  interfaces.addFunction(inlineFunc);
-                  implementRVFifoRead(inlineFunc, interfaces.getConstraints(inlineFunc));
+    //               // Remove the body, which is the untimed software model
+    //               inlineFunc->deleteBody();
+    //               interfaces.addFunction(inlineFunc);
+    //               implementRVFifoRead(inlineFunc, interfaces.getConstraints(inlineFunc));
 
-                  cout << "# bbs = " << inlineFunc->getBasicBlockList().size() << endl;
-                  assert(inlineFunc->getBasicBlockList().size() == 1);
+    //               cout << "# bbs = " << inlineFunc->getBasicBlockList().size() << endl;
+    //               assert(inlineFunc->getBasicBlockList().size() == 1);
 
-                  inlineFunctionWithConstraints(f, exec, call, interfaces.getConstraints(inlineFunc));
-                  inlined = true;
-                  break;
-                }
-              } else if (functionName == "write") {
-                  // Remove the body, which is the untimed software model
-                  inlineFunc->deleteBody();
-                  interfaces.addFunction(inlineFunc);
-                  implementRVFifoWriteTemplate(inlineFunc, interfaces.getConstraints(inlineFunc));
-                  inlineFunctionWithConstraints(f, exec, call, interfaces.getConstraints(inlineFunc));
-                  inlined = true;
-                  break;
+    //               inlineFunctionWithConstraints(f, exec, call, interfaces.getConstraints(inlineFunc));
+    //               inlined = true;
+    //               break;
+    //             }
+    //           } else if (functionName == "write") {
+    //               // Remove the body, which is the untimed software model
+    //               inlineFunc->deleteBody();
+    //               interfaces.addFunction(inlineFunc);
+    //               implementRVFifoWriteTemplate(inlineFunc, interfaces.getConstraints(inlineFunc));
+    //               inlineFunctionWithConstraints(f, exec, call, interfaces.getConstraints(inlineFunc));
+    //               inlined = true;
+    //               break;
                 
-              }
-            }
-          }
-        }
+    //           }
+    //         }
+    //       }
+    //     }
 
-        if (inlined) {
-          break;
-        }
-      }
-    }
+    //     if (inlined) {
+    //       break;
+    //     }
+    //   }
+    // }
 
     cout << "After inlining" << endl;
     cout << valueString(f) << endl;

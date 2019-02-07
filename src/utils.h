@@ -185,6 +185,9 @@ namespace DHLS {
   }
 
   std::string demangle(const std::string& mangled);
-  bool canDemangle(const std::string& mangled);  
+  bool canDemangle(const std::string& mangled);
+  std::string demangledFuncName(const std::string& demangledName);
+  std::string takeUntil(std::string pattern, const std::string& name);
+  std::string drop(std::string pattern, const std::string& name);  
 
 }
