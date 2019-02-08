@@ -1471,6 +1471,8 @@ namespace DHLS {
     exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
     exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(readValue));
     exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+
+    addDataConstraints(readFifo, exec);
   }
 
   void implementRVFifoWrite(llvm::Function* writeFifo, ExecutionConstraints& exec) {
@@ -1544,6 +1546,7 @@ namespace DHLS {
     exec.addConstraint(instrEnd(data) == instrStart(data));
     exec.addConstraint(instrEnd(data) == instrStart(writeValue));    
     exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+    addDataConstraints(writeFifo, exec);
   }
   
   void implementRVFifoWriteTemplate(llvm::Function* writeFifo,

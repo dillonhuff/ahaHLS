@@ -4485,6 +4485,10 @@ namespace DHLS {
 
     addDataConstraints(f, exec);
 
+    cout << "Before inlining" << endl;
+    cout << valueString(f) << endl;
+
+    addDataConstraints(f, exec);    
     inlineWireCalls(f, exec, interfaces);
 
     cout << "After inlining" << endl;
