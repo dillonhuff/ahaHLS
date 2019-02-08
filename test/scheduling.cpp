@@ -4556,10 +4556,6 @@ namespace DHLS {
       map_insert(tb.actionsInCycles, 4, string(in0Name + "_write_valid = 0;"));
       map_insert(tb.actionsInCycles, 4, string(in0Name + "_write_valid = 0;"));
 
-      // TODO: Add this back in as a test case
-      // map_insert(tb.actionsInCycles, 7, string(in1Name + "_in_data = 14;"));
-      // map_insert(tb.actionsInCycles, 7, string(in1Name + "_write_valid = 1;"));
-
       map_insert(tb.actionsInCycles, 8, string(in1Name + "_write_valid = 0;"));
     
       map_insert(tb.actionsInCycles, 20, string(outName + "_read_valid = 1;"));    
@@ -4595,5 +4591,130 @@ namespace DHLS {
 
     }
   }
-  
+
+  TEST_CASE("Reduce 4 channels") {
+    LLVMContext context;
+    SMDiagnostic err;
+    setGlobalLLVMContext(&context);
+
+    auto mod = loadCppModule(context, err, "channel_reduce_4");
+    setGlobalLLVMModule(mod.get());
+
+    auto f = getFunctionByDemangledName(mod.get(), "channel_reduce_4");
+
+    REQUIRE(f != nullptr);
+
+    ExecutionConstraints exec;
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read")] = implementRVFifoRead;
+    interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef;
+
+    addDataConstraints(f, exec);
+
+    cout << "Before inlining" << endl;
+    cout << valueString(f) << endl;
+
+    addDataConstraints(f, exec);    
+    inlineWireCalls(f, exec, interfaces);
+
+    cout << "After inlining" << endl;
+    cout << valueString(f) << endl;
+
+    // TODO: How do I extract the hardware mapping from argument types
+    // to module specs?
+    int width = 32;
+    HardwareConstraints hcs = standardConstraints();
+    hcs.memoryMapping = memoryOpLocations(f);
+    setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    
+    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
+    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
+
+    cout << "LLVM function after inlining reads" << endl;
+    cout << valueString(f) << endl;
+
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG is " << endl;
+    graph.print(cout);
+    
+    map<llvm::Value*, int> layout = {};
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog("channel_reduce_4", f, arch, info);
+    
+    string in0Name =
+      getArg(f, 0)->getName() == "" ? "arg_0" : getArg(f, 0)->getName();
+    string outName =
+      getArg(f, 1)->getName() == "" ? "arg_1" : getArg(f, 1)->getName();
+
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 40;
+    tb.maxCycles = 50;
+    tb.name = "channel_reduce_4";
+    tb.useModSpecs = true;
+    tb.settableWires.insert(in0Name + "_in_data");
+    tb.settableWires.insert(in0Name + "_write_valid");
+    tb.settableWires.insert(outName + "_read_valid");    
+    map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
+
+    map_insert(tb.actionsOnCycles, 37, assertString("valid === 1"));
+    map_insert(tb.actionsOnCycles, 36, assertString(outName + "_out_data === 2 + 5 + 9 + 7"));
+    
+    map_insert(tb.actionsInCycles, 0, string(outName + "_read_valid = 0;"));
+    map_insert(tb.actionsInCycles, 0, string(in0Name + "_write_valid = 0;"));
+
+    map_insert(tb.actionsInCycles, 3, string(in0Name + "_in_data = 2;"));
+    map_insert(tb.actionsInCycles, 3, string(in0Name + "_write_valid = 1;"));
+
+    map_insert(tb.actionsInCycles, 4, string(in0Name + "_write_valid = 0;"));
+
+    map_insert(tb.actionsInCycles, 8, string(in0Name + "_in_data = 5;"));
+    map_insert(tb.actionsInCycles, 8, string(in0Name + "_write_valid = 1;"));
+
+    //
+    // map_insert(tb.actionsInCycles, 9, string(in0Name + "_write_valid = 0;"));
+
+    // map_insert(tb.actionsInCycles, 12, string(in0Name + "_in_data = 9;"));
+    // map_insert(tb.actionsInCycles, 12, string(in0Name + "_write_valid = 1;"));
+
+    // map_insert(tb.actionsInCycles, 13, string(in0Name + "_in_data = 7;"));
+    // map_insert(tb.actionsInCycles, 13, string(in0Name + "_write_valid = 1;"));
+    
+    // map_insert(tb.actionsInCycles, 14, string(in0Name + "_write_valid = 0;"));
+    //    
+    map_insert(tb.actionsInCycles, 9, string(in0Name + "_write_valid = 0;"));
+
+    map_insert(tb.actionsInCycles, 12, string(in0Name + "_in_data = 9;"));
+    map_insert(tb.actionsInCycles, 12, string(in0Name + "_write_valid = 1;"));
+
+    map_insert(tb.actionsInCycles, 13, string(in0Name + "_in_data = 7;"));
+    map_insert(tb.actionsInCycles, 13, string(in0Name + "_write_valid = 1;"));
+    
+    map_insert(tb.actionsInCycles, 14, string(in0Name + "_write_valid = 0;"));
+    
+    map_insert(tb.actionsInCycles, 35, string(outName + "_read_valid = 1;"));
+
+    map_insert(tb.actionsInCycles, 36, string(outName + "_read_valid = 0;"));
+
+    emitVerilogTestBench(tb, arch, testLayout);
+    
+    REQUIRE(runIVerilogTB("channel_reduce_4"));
+
+
+  }
 }
