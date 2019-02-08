@@ -4532,9 +4532,9 @@ namespace DHLS {
     string in0Name =
       getArg(f, 0)->getName() == "" ? "arg_0" : getArg(f, 0)->getName();
     string in1Name =
-      getArg(f, 1)->getName() == "" ? "arg_1" : getArg(f, 0)->getName();
+      getArg(f, 1)->getName() == "" ? "arg_1" : getArg(f, 1)->getName();
     string outName =
-      getArg(f, 2)->getName() == "" ? "arg_2" : getArg(f, 1)->getName();
+      getArg(f, 2)->getName() == "" ? "arg_2" : getArg(f, 2)->getName();
 
     // Idea: Spin one sequential test in to many timed tests?
     TestBenchSpec tb;
@@ -4562,10 +4562,13 @@ namespace DHLS {
     map_insert(tb.actionsInCycles, 3, string(in0Name + "_in_data = 2;"));
     map_insert(tb.actionsInCycles, 3, string(in0Name + "_write_valid = 1;"));
 
+    map_insert(tb.actionsInCycles, 3, string(in1Name + "_in_data = 14;"));
+    map_insert(tb.actionsInCycles, 3, string(in1Name + "_write_valid = 1;"));
+    
     map_insert(tb.actionsInCycles, 4, string(in0Name + "_write_valid = 0;"));        
-
-    map_insert(tb.actionsInCycles, 7, string(in1Name + "_in_data = 14;"));
-    map_insert(tb.actionsInCycles, 7, string(in1Name + "_write_valid = 1;"));
+    map_insert(tb.actionsInCycles, 4, string(in1Name + "_write_valid = 0;"));
+    // map_insert(tb.actionsInCycles, 7, string(in1Name + "_in_data = 14;"));
+    // map_insert(tb.actionsInCycles, 7, string(in1Name + "_write_valid = 1;"));
 
     map_insert(tb.actionsInCycles, 8, string(in1Name + "_write_valid = 0;"));
     
