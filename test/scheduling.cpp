@@ -4536,23 +4536,23 @@ namespace DHLS {
     string outName =
       getArg(f, 2)->getName() == "" ? "arg_2" : getArg(f, 2)->getName();
 
-      TestBenchSpec tb;
-      map<string, int> testLayout = {};
-      tb.memoryInit = {};
-      tb.memoryExpected = {};
-      tb.runCycles = 30;
-      tb.maxCycles = 50;
-      tb.name = "channel_add";
-      tb.useModSpecs = true;
-      tb.settableWires.insert(in0Name + "_in_data");
-      tb.settableWires.insert(in0Name + "_write_valid");
-      tb.settableWires.insert(in1Name + "_in_data");
-      tb.settableWires.insert(in1Name + "_write_valid");
-      tb.settableWires.insert(outName + "_read_valid");    
-      map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 30;
+    tb.maxCycles = 50;
+    tb.name = "channel_add";
+    tb.useModSpecs = true;
+    tb.settableWires.insert(in0Name + "_in_data");
+    tb.settableWires.insert(in0Name + "_write_valid");
+    tb.settableWires.insert(in1Name + "_in_data");
+    tb.settableWires.insert(in1Name + "_write_valid");
+    tb.settableWires.insert(outName + "_read_valid");    
+    map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
 
-      map_insert(tb.actionsOnCycles, 25, assertString("valid === 1"));
-      map_insert(tb.actionsOnCycles, 21, assertString(outName + "_out_data === 2 + 14"));
+    map_insert(tb.actionsOnCycles, 25, assertString("valid === 1"));
+    map_insert(tb.actionsOnCycles, 21, assertString(outName + "_out_data === 2 + 14"));
     
     SECTION("Writing to both inputs in the same cycle") {
 

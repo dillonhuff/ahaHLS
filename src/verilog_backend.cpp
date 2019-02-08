@@ -1644,7 +1644,26 @@ namespace DHLS {
 
             out << tab(4) << "// " << instructionString(instr) << endl;
 
-            out << tab(4) << "if (" << iiCondition(instrG.instruction, arch) << ") begin" << endl;
+            // TODO: Extract stall calculation
+            vector<std::string> stallConds;
+            stallConds.push_back(iiCondition(instrG.instruction, arch));
+            cout << "at state " << state << " writing instr " << valueString(instrG.instruction) <<  endl;
+
+            // Stalls do not get stalled by themselves
+            if (!isBuiltinStallCall(instr)) {
+              for (auto instrK : arch.stg.instructionsStartingAt(state)) {
+                cout << "Instruction = " << valueString(instrK.instruction) << endl;
+                if (isBuiltinStallCall(instrK.instruction)) {
+
+                  string cond = outputName(instrK.instruction->getOperand(0),
+                                           pos,
+                                           arch);
+
+                  stallConds.push_back(cond);
+                }
+              }
+            }
+            out << tab(4) << "if (" << andStrings(stallConds) << ") begin" << endl;
             
             instructionVerilog(out, position(state, instr), arch);
 
