@@ -3199,7 +3199,9 @@ namespace DHLS {
       exec.addConstraint(instrEnd(bAck) < instrStart(val));
 
       exec.startSameTime(val, zStb);
-      exec.startSameTime(stallUntilZStb, zStb);        
+      exec.startSameTime(stallUntilZStb, zStb);
+
+      addDataConstraints(fadd, exec);
     }
 
     ExecutionConstraints exeConstraints;
