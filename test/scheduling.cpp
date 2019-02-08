@@ -3156,7 +3156,8 @@ namespace DHLS {
       auto wA = b.CreateCall(writeA, {fpu, a});
       auto wAStb = b.CreateCall(writeAStb, {fpu, mkInt(1, 1)});
 
-      exec.startSameTime(rst1, wA);    
+      exec.add(instrEnd(rst1) < instrStart(wA));
+      //exec.startSameTime(rst1, wA);    
       exec.startSameTime(wA, wAStb);    
 
       // Wait for input_a_ack == 1, and then wait 1 more cycle
@@ -3185,6 +3186,7 @@ namespace DHLS {
       exec.startsBeforeStarts(aAck, wAStb0);
       exec.addConstraint(instrStart(stallUntilAAck) == instrEnd(aAck));
 
+      
       exec.startSameTime(wA, wAStb);
 
       exec.addConstraint(instrStart(bAck) == instrEnd(wBStb));
