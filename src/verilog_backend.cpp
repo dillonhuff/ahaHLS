@@ -1647,12 +1647,12 @@ namespace DHLS {
             // TODO: Extract stall calculation
             vector<std::string> stallConds;
             stallConds.push_back(iiCondition(instrG.instruction, arch));
-            cout << "at state " << state << " writing instr " << valueString(instrG.instruction) <<  endl;
+            //cout << "at state " << state << " writing instr " << valueString(instrG.instruction) <<  endl;
 
             // Stalls do not get stalled by themselves
             if (!isBuiltinStallCall(instr)) {
               for (auto instrK : arch.stg.instructionsStartingAt(state)) {
-                cout << "Instruction = " << valueString(instrK.instruction) << endl;
+                //cout << "Instruction = " << valueString(instrK.instruction) << endl;
                 if (isBuiltinStallCall(instrK.instruction)) {
 
                   auto stallPos = position(state, instrK.instruction);
