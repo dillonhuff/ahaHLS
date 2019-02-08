@@ -1655,8 +1655,9 @@ namespace DHLS {
                 cout << "Instruction = " << valueString(instrK.instruction) << endl;
                 if (isBuiltinStallCall(instrK.instruction)) {
 
+                  auto stallPos = position(state, instrK.instruction);
                   string cond = outputName(instrK.instruction->getOperand(0),
-                                           pos,
+                                           stallPos,
                                            arch);
 
                   stallConds.push_back(cond);
