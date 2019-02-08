@@ -56,25 +56,8 @@ namespace DHLS {
   //     does not need to be checked
   //  2. Remove or wrap the function -> SchedulingConstraints map
 
-  // NOTE: Systolic array example has correct binding by chance. The control
-  // structure around the array is a tricky question. Most papers on systolic
-  // arrays just show the datapath not the control logic that feeds the array.
-  // Im not sure what the most area efficient way to create control logic for
-  // the array is.
-
-  // Is the initiation interval multiplexing loop problem a problem that can
-  // be solved by a binding API?
-  // I guess if I was given a target II for the loop and given unlimited resources
-  // I could just find a schedule for that II, and then duplicate that schedule
-  // with control logic to offset it? Is there ever a better way to do this? And
-  // if not how do I incorporate it in to the current control structure?
-
-  // One form of pipelining is mapping different instances of the same computation
-  // on to the same functional units at overlapping times.
-  // Another form of pipelining is mapping different instances of the same
-  // computation on to different instances of a computation, but the wires that
-  // are inputs are mapped to the same units, there is no resource duplication
-  // on wires.
+  // Q: How should C++ code that copies structs (or reads / writes their internal
+  //    state) be treated? How should code that passes structs by value work?
 
   // Q: What test cases do I need?
   // A: Test that uses multiple different RAM types
@@ -84,7 +67,7 @@ namespace DHLS {
   //    Test case that pipelines inner loop surrounded by outer loop
   //    Test case using a ready-valid interface together with pipelining
   //    Test case that builds a linebuffer from LLVM
-  //    Test case that uses multiple functions with interface specs connecting them
+  //    Test case with struct (compound type) passed via channel (or used by value)
   TEST_CASE("Schedule a single store operation") {
     SMDiagnostic Err;
     LLVMContext Context;
