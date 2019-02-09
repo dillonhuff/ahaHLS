@@ -4686,17 +4686,6 @@ namespace DHLS {
     map_insert(tb.actionsInCycles, 8, string(in0Name + "_in_data = 5;"));
     map_insert(tb.actionsInCycles, 8, string(in0Name + "_write_valid = 1;"));
 
-    //
-    // map_insert(tb.actionsInCycles, 9, string(in0Name + "_write_valid = 0;"));
-
-    // map_insert(tb.actionsInCycles, 12, string(in0Name + "_in_data = 9;"));
-    // map_insert(tb.actionsInCycles, 12, string(in0Name + "_write_valid = 1;"));
-
-    // map_insert(tb.actionsInCycles, 13, string(in0Name + "_in_data = 7;"));
-    // map_insert(tb.actionsInCycles, 13, string(in0Name + "_write_valid = 1;"));
-    
-    // map_insert(tb.actionsInCycles, 14, string(in0Name + "_write_valid = 0;"));
-    //    
     map_insert(tb.actionsInCycles, 9, string(in0Name + "_write_valid = 0;"));
 
     map_insert(tb.actionsInCycles, 12, string(in0Name + "_in_data = 9;"));
