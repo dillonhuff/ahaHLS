@@ -4543,11 +4543,9 @@ namespace DHLS {
     
     SECTION("Writing to both inputs in the same cycle") {
 
-
-      //map_insert(tb.actionsInCycles, 0, string(outName + "_read_valid = 0;"));
-
       auto in0 = dyn_cast<Argument>(getArg(f, 0));
       auto in1 = dyn_cast<Argument>(getArg(f, 1));
+      auto out = dyn_cast<Argument>(getArg(f, 2));
 
       tb.setArgPort(in0, "write_valid", 0, "0");
       tb.setArgPort(in1, "write_valid", 0, "0");
@@ -4560,15 +4558,11 @@ namespace DHLS {
 
       tb.setArgPort(in0, "write_valid", 4, 0);
       tb.setArgPort(in1, "write_valid", 4, 0);      
-      // map_insert(tb.actionsInCycles, 4, string(in0Name + "_write_valid = 0;"));
-      // map_insert(tb.actionsInCycles, 4, string(in0Name + "_write_valid = 0;"));
 
-      // map_insert(tb.actionsInCycles, 8, string(in1Name + "_write_valid = 0;"));
       tb.setArgPort(in1, "write_valid", 8, 0);
-    
-      map_insert(tb.actionsInCycles, 20, string(outName + "_read_valid = 1;"));    
 
-      map_insert(tb.actionsInCycles, 21, string(outName + "_read_valid = 0;"));
+      tb.setArgPort(out, "read_valid", 20, 1);
+      tb.setArgPort(out, "read_valid", 21, 0);
 
       emitVerilogTestBench(tb, arch, testLayout);
     
