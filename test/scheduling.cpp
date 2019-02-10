@@ -4516,10 +4516,6 @@ namespace DHLS {
 
     emitVerilog("channel_add", f, arch, info);
     
-    string in0Name =
-      getArg(f, 0)->getName() == "" ? "arg_0" : getArg(f, 0)->getName();
-    string in1Name =
-      getArg(f, 1)->getName() == "" ? "arg_1" : getArg(f, 1)->getName();
     string outName =
       getArg(f, 2)->getName() == "" ? "arg_2" : getArg(f, 2)->getName();
 
@@ -4540,11 +4536,7 @@ namespace DHLS {
     tb.settablePort(in1, "in_data");
     tb.settablePort(in1, "write_valid");    
     tb.settablePort(out, "read_valid");    
-    // tb.settableWires.insert(in0Name + "_in_data");
-    // tb.settableWires.insert(in0Name + "_write_valid");
-    // tb.settableWires.insert(in1Name + "_in_data");
-    // tb.settableWires.insert(in1Name + "_write_valid");
-    // tb.settableWires.insert(outName + "_read_valid");
+
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
 
     map_insert(tb.actionsOnCycles, 25, assertString("valid === 1"));
@@ -4575,6 +4567,12 @@ namespace DHLS {
     }
 
     SECTION("Waiting between writes to in0 and in1") {
+
+      string in0Name =
+        getArg(f, 0)->getName() == "" ? "arg_0" : getArg(f, 0)->getName();
+      string in1Name =
+        getArg(f, 1)->getName() == "" ? "arg_1" : getArg(f, 1)->getName();
+      
       map_insert(tb.actionsInCycles, 0, string(outName + "_read_valid = 0;"));
       map_insert(tb.actionsInCycles, 0, string(in0Name + "_write_valid = 0;"));
       map_insert(tb.actionsInCycles, 0, string(in1Name + "_write_valid = 0;"));
