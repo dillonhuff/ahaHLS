@@ -372,6 +372,8 @@ namespace DHLS {
       settableWires.insert("rst");
       useModSpecs = false;
     }
+
+    void setArgPort(llvm::Argument* arg, std::string port, int cycleNo, std::string value);
   };
 
   void emitVerilogTestBench(const TestBenchSpec& tb,

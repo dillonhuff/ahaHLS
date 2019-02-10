@@ -3199,4 +3199,12 @@ namespace DHLS {
     noStoredValuesXWhenUsed(arch, info);
   }
 
+  std::string argName(llvm::Argument* arg) {
+    return arg->getName() == "" ? "arg_0" : arg->getName();
+  }
+  void TestBenchSpec::setArgPort(llvm::Argument* arg, std::string port, int cycleNo, std::string value) {
+    auto argN = argName(arg) + "_" + port;
+    map_insert(actionsInCycles, cycleNo, argN + " = " + value + ";");
+  }
+
 }
