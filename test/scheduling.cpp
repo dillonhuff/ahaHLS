@@ -4515,6 +4515,11 @@ namespace DHLS {
     addNoXChecks(arch, info);
 
     emitVerilog("channel_add", f, arch, info);
+
+    string in0Name =
+      getArg(f, 0)->getName() == "" ? "arg_0" : getArg(f, 0)->getName();
+    string in1Name =
+      getArg(f, 1)->getName() == "" ? "arg_1" : getArg(f, 1)->getName();
     
     string outName =
       getArg(f, 2)->getName() == "" ? "arg_2" : getArg(f, 2)->getName();
@@ -4551,7 +4556,7 @@ namespace DHLS {
       tb.setArgPort(in0, "write_valid", 3, "1");      
 
       tb.setArgPort(in1, "in_data", 3, "14");
-      tb.setArgPort(in1, "write_valid", 3, "1");      
+      tb.setArgPort(in1, "write_valid", 3, "1");
 
       tb.setArgPort(in0, "write_valid", 4, 0);
       tb.setArgPort(in1, "write_valid", 4, 0);      
@@ -4567,11 +4572,6 @@ namespace DHLS {
     }
 
     SECTION("Waiting between writes to in0 and in1") {
-
-      string in0Name =
-        getArg(f, 0)->getName() == "" ? "arg_0" : getArg(f, 0)->getName();
-      string in1Name =
-        getArg(f, 1)->getName() == "" ? "arg_1" : getArg(f, 1)->getName();
       
       map_insert(tb.actionsInCycles, 0, string(outName + "_read_valid = 0;"));
       map_insert(tb.actionsInCycles, 0, string(in0Name + "_write_valid = 0;"));

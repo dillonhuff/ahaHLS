@@ -3200,7 +3200,20 @@ namespace DHLS {
   }
 
   std::string argName(llvm::Argument* arg) {
-    return arg->getName() == "" ? "arg_0" : arg->getName();
+    Function* f = arg->getParent();
+    bool found = false;
+    int argNum = 0;
+    for (auto& a : f->args()) {
+      if (&a == arg) {
+        found = true;
+        break;
+      }
+      argNum++;
+    }
+
+    assert(found);
+    
+    return (arg->getName() == "") ? ("arg_" + to_string(argNum)) : string(arg->getName());
   }
 
   void TestBenchSpec::setArgPort(llvm::Argument* arg, std::string port, int cycleNo, std::string value) {
