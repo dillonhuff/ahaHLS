@@ -374,6 +374,7 @@ namespace DHLS {
     }
 
     void setArgPort(llvm::Argument* arg, std::string port, int cycleNo, std::string value);
+    void setArgPort(llvm::Argument* arg, std::string port, int cycleNo, const int value);    
   };
 
   void emitVerilogTestBench(const TestBenchSpec& tb,

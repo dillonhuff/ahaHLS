@@ -4552,16 +4552,19 @@ namespace DHLS {
       tb.setArgPort(in0, "write_valid", 0, "0");
       tb.setArgPort(in1, "write_valid", 0, "0");
 
-      map_insert(tb.actionsInCycles, 3, string(in0Name + "_in_data = 2;"));
-      map_insert(tb.actionsInCycles, 3, string(in0Name + "_write_valid = 1;"));
+      tb.setArgPort(in0, "in_data", 3, "2");
+      tb.setArgPort(in0, "write_valid", 3, "1");      
 
-      map_insert(tb.actionsInCycles, 3, string(in1Name + "_in_data = 14;"));
-      map_insert(tb.actionsInCycles, 3, string(in1Name + "_write_valid = 1;"));
-      
-      map_insert(tb.actionsInCycles, 4, string(in0Name + "_write_valid = 0;"));
-      map_insert(tb.actionsInCycles, 4, string(in0Name + "_write_valid = 0;"));
+      tb.setArgPort(in1, "in_data", 3, "14");
+      tb.setArgPort(in1, "write_valid", 3, "1");      
 
-      map_insert(tb.actionsInCycles, 8, string(in1Name + "_write_valid = 0;"));
+      tb.setArgPort(in0, "write_valid", 4, 0);
+      tb.setArgPort(in1, "write_valid", 4, 0);      
+      // map_insert(tb.actionsInCycles, 4, string(in0Name + "_write_valid = 0;"));
+      // map_insert(tb.actionsInCycles, 4, string(in0Name + "_write_valid = 0;"));
+
+      // map_insert(tb.actionsInCycles, 8, string(in1Name + "_write_valid = 0;"));
+      tb.setArgPort(in1, "write_valid", 8, 0);
     
       map_insert(tb.actionsInCycles, 20, string(outName + "_read_valid = 1;"));    
 
