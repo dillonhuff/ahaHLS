@@ -4523,6 +4523,10 @@ namespace DHLS {
     string outName =
       getArg(f, 2)->getName() == "" ? "arg_2" : getArg(f, 2)->getName();
 
+    auto in0 = dyn_cast<Argument>(getArg(f, 0));
+    auto in1 = dyn_cast<Argument>(getArg(f, 1));
+    auto out = dyn_cast<Argument>(getArg(f, 2));
+    
     TestBenchSpec tb;
     map<string, int> testLayout = {};
     tb.memoryInit = {};
@@ -4531,21 +4535,22 @@ namespace DHLS {
     tb.maxCycles = 50;
     tb.name = "channel_add";
     tb.useModSpecs = true;
-    tb.settableWires.insert(in0Name + "_in_data");
-    tb.settableWires.insert(in0Name + "_write_valid");
-    tb.settableWires.insert(in1Name + "_in_data");
-    tb.settableWires.insert(in1Name + "_write_valid");
-    tb.settableWires.insert(outName + "_read_valid");
+    tb.settablePort(in0, "in_data");
+    tb.settablePort(in0, "write_valid");    
+    tb.settablePort(in1, "in_data");
+    tb.settablePort(in1, "write_valid");    
+    tb.settablePort(out, "read_valid");    
+    // tb.settableWires.insert(in0Name + "_in_data");
+    // tb.settableWires.insert(in0Name + "_write_valid");
+    // tb.settableWires.insert(in1Name + "_in_data");
+    // tb.settableWires.insert(in1Name + "_write_valid");
+    // tb.settableWires.insert(outName + "_read_valid");
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
 
     map_insert(tb.actionsOnCycles, 25, assertString("valid === 1"));
     map_insert(tb.actionsOnCycles, 21, assertString(outName + "_out_data === 2 + 14"));
     
     SECTION("Writing to both inputs in the same cycle") {
-
-      auto in0 = dyn_cast<Argument>(getArg(f, 0));
-      auto in1 = dyn_cast<Argument>(getArg(f, 1));
-      auto out = dyn_cast<Argument>(getArg(f, 2));
 
       tb.setArgPort(in0, "write_valid", 0, "0");
       tb.setArgPort(in1, "write_valid", 0, "0");

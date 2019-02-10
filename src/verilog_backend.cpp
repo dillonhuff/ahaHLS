@@ -3211,5 +3211,9 @@ namespace DHLS {
   void TestBenchSpec::setArgPort(llvm::Argument* arg, std::string port, int cycleNo, const int value) {
     setArgPort(arg, port, cycleNo, to_string(value));
   }
+
+  void TestBenchSpec::settablePort(llvm::Argument* arg, std::string port) {
+    settableWires.insert(argName(arg) + "_" + port);
+  }
   
 }
