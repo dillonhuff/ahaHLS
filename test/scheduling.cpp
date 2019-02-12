@@ -140,6 +140,30 @@ namespace DHLS {
       cout << tab(1) << *c << endl;
     }
   }
+
+  Schedule scheduleInterface(llvm::Function* f,
+                             HardwareConstraints& hcs,
+                             InterfaceFunctions& interfaces) {
+    ExecutionConstraints exec;
+
+    cout << "Before inlining" << endl;
+    cout << valueString(f) << endl;
+
+    addDataConstraints(f, exec);
+    inlineWireCalls(f, exec, interfaces);
+
+    cout << "After inlining" << endl;
+    cout << valueString(f) << endl;
+
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+
+    return s;
+  }
   
   // Q: System TODOs:
   // A: Remove useless address fields from registers (allow custom memory interfaces)
@@ -191,27 +215,11 @@ namespace DHLS {
     interfaces.functionTemplates[string("read")] = implementRAMRead0;
     interfaces.functionTemplates[string("write")] = implementRAMWrite0;
 
-    ExecutionConstraints exec;
-
     HardwareConstraints hcs = standardConstraints();
     hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16); 
-
-    cout << "Before inlining" << endl;
-    cout << valueString(f) << endl;
-
-    addDataConstraints(f, exec);
-    inlineWireCalls(f, exec, interfaces);
-
-    cout << "After inlining" << endl;
-    cout << valueString(f) << endl;
-
-    set<BasicBlock*> toPipeline;
-    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
-    exec.addConstraints(p, f);
-
-    map<Function*, SchedulingProblem> constraints{{f, p}};
-    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
-
+    
+    Schedule s = scheduleInterface(f, hcs, interfaces);
+    
     REQUIRE(s.numStates() == 4);
 
     auto& retInstr = f->getBasicBlockList().back().back();
