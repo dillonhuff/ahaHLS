@@ -13,6 +13,6 @@ public:
   }
 };
 
-void single_store(RAM* a) {
-  a.write(0, 5);
+void single_store(RAM<int, 16>* a) {
+  a->write(0, 5);
 }

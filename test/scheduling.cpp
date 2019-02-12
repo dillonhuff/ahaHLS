@@ -72,6 +72,74 @@ namespace DHLS {
     return {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "RAM", ramPorts};
 
   }
+
+
+  void implementRAMRead0(Function* ramRead0, ExecutionConstraints& exec) {
+    int addrWidth = getValueBitWidth(getArg(ramRead0, 1));
+    int width = getTypeBitWidth(ramRead0->getReturnType());
+    auto sramTp = getArg(ramRead0, 0)->getType();
+
+    //ExecutionConstraints& exec = interfaces.getConstraints(ramRead0);
+    auto waddr0F = writePort("raddr_0", addrWidth, sramTp);
+    auto rdata0F = readPort("rdata_0", width, sramTp);
+
+    auto sram = getArg(ramRead0, 0);
+    auto addr = getArg(ramRead0, 1);
+
+    auto bb = mkBB("entry_block", ramRead0);
+    IRBuilder<> eb(bb);
+    auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
+    auto readData = eb.CreateCall(rdata0F, {sram});
+    eb.CreateRet(readData);
+
+    exec.add(instrStart(setAddr) + 1 == instrStart(readData));
+
+    addDataConstraints(ramRead0, exec);
+    
+    cout << "-- # of constraints on read function = " << exec.constraints.size() << endl;
+    for (auto c : exec.constraints) {
+      cout << tab(1) << *c << endl;
+    }
+
+  }
+
+  void implementRAMWrite0(Function* ramWrite0, ExecutionConstraints& exec) {
+    int addrWidth = getValueBitWidth(getArg(ramWrite0, 1));
+    int width = getValueBitWidth(getArg(ramWrite0, 2));
+    auto sramTp = ramWrite0->getReturnType();
+
+    //ExecutionConstraints& exec = interfaces.getConstraints(ramWrite0);
+    auto waddr0F = writePort("waddr_0", addrWidth, sramTp);
+    auto wdata0F = writePort("wdata_0", width, sramTp);
+    auto wen0F = writePort("wen_0", 1, sramTp);
+
+    auto sram = getArg(ramWrite0, 0);
+    auto addr = getArg(ramWrite0, 1);
+    auto data = getArg(ramWrite0, 2);
+
+    auto bb = mkBB("entry_block", ramWrite0);
+    IRBuilder<> eb(bb);
+    auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
+    auto setData = eb.CreateCall(wdata0F, {sram, data});
+    auto setEn1 = eb.CreateCall(wen0F, {sram, mkInt(1, 1)});
+    auto setEn0 = eb.CreateCall(wen0F, {sram, mkInt(0, 1)});
+    auto ret = eb.CreateRet(nullptr);
+
+    exec.add(instrStart(setAddr) == instrStart(setData));
+    exec.add(instrStart(setAddr) == instrStart(setEn1));
+
+    exec.add(instrEnd(setEn1) + 1 == instrStart(setEn0));
+
+    // TODO: Replace start(ret) with end(inlineMarker)?
+    exec.add(instrStart(setAddr) + 3 == instrStart(ret));
+
+    addDataConstraints(ramWrite0, exec);
+
+    cout << "-- Constraints on write function" << endl;
+    for (auto c : exec.constraints) {
+      cout << tab(1) << *c << endl;
+    }
+  }
   
   // Q: System TODOs:
   // A: Remove useless address fields from registers (allow custom memory interfaces)
@@ -108,6 +176,7 @@ namespace DHLS {
   TEST_CASE("Schedule a single store operation") {
     SMDiagnostic err;
     LLVMContext context;
+    setGlobalLLVMContext(&context);
 
     auto mod = loadCppModule(context, err, "single_store");
     setGlobalLLVMModule(mod.get());
@@ -120,11 +189,30 @@ namespace DHLS {
     cout << "LLVM Function" << endl;
     cout << valueString(f) << endl;
 
-    HardwareConstraints hcs;
-    hcs.setLatency(STORE_OP, 3);
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}};
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read")] = implementRAMRead0;
+    interfaces.functionTemplates[string("write")] = implementRAMWrite0;
 
-    Schedule s = scheduleFunction(f, hcs);
+    ExecutionConstraints exec;
+
+    cout << "Before inlining" << endl;
+    cout << valueString(f) << endl;
+
+    addDataConstraints(f, exec);
+    inlineWireCalls(f, exec, interfaces);
+
+    cout << "After inlining" << endl;
+    cout << valueString(f) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16); 
+
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
 
     REQUIRE(s.numStates() == 4);
 
@@ -138,7 +226,11 @@ namespace DHLS {
 
     REQUIRE(graph.numControlStates() == 4);
 
-    emitVerilog(f, graph, layout);
+    map<llvm::Value*, int> layout = {};
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    
+    //emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("single_store"));
   }
@@ -3941,73 +4033,6 @@ namespace DHLS {
   //    a viable solution for existing constraints. Wont be latency optimal for
   //    resource ordering, but will be latency optimal for unlimited resource
   //    bounds.
-
-  void implementRAMRead0(Function* ramRead0, InterfaceFunctions& interfaces) {
-    int addrWidth = getValueBitWidth(getArg(ramRead0, 1));
-    int width = getTypeBitWidth(ramRead0->getReturnType());
-    auto sramTp = getArg(ramRead0, 0)->getType();
-
-    ExecutionConstraints& exec = interfaces.getConstraints(ramRead0);
-    auto waddr0F = writePort("raddr_0", addrWidth, sramTp);
-    auto rdata0F = readPort("rdata_0", width, sramTp);
-
-    auto sram = getArg(ramRead0, 0);
-    auto addr = getArg(ramRead0, 1);
-
-    auto bb = mkBB("entry_block", ramRead0);
-    IRBuilder<> eb(bb);
-    auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
-    auto readData = eb.CreateCall(rdata0F, {sram});
-    eb.CreateRet(readData);
-
-    exec.add(instrStart(setAddr) + 1 == instrStart(readData));
-
-    addDataConstraints(ramRead0, exec);
-    
-    cout << "-- # of constraints on read function = " << exec.constraints.size() << endl;
-    for (auto c : exec.constraints) {
-      cout << tab(1) << *c << endl;
-    }
-
-  }
-
-  void implementRAMWrite0(Function* ramWrite0, InterfaceFunctions& interfaces) {
-    int addrWidth = getValueBitWidth(getArg(ramWrite0, 1));
-    int width = getValueBitWidth(getArg(ramWrite0, 2));
-    auto sramTp = ramWrite0->getReturnType();
-
-    ExecutionConstraints& exec = interfaces.getConstraints(ramWrite0);
-    auto waddr0F = writePort("waddr_0", addrWidth, sramTp);
-    auto wdata0F = writePort("wdata_0", width, sramTp);
-    auto wen0F = writePort("wen_0", 1, sramTp);
-
-    auto sram = getArg(ramWrite0, 0);
-    auto addr = getArg(ramWrite0, 1);
-    auto data = getArg(ramWrite0, 2);
-
-    auto bb = mkBB("entry_block", ramWrite0);
-    IRBuilder<> eb(bb);
-    auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
-    auto setData = eb.CreateCall(wdata0F, {sram, data});
-    auto setEn1 = eb.CreateCall(wen0F, {sram, mkInt(1, 1)});
-    auto setEn0 = eb.CreateCall(wen0F, {sram, mkInt(0, 1)});
-    auto ret = eb.CreateRet(nullptr);
-
-    exec.add(instrStart(setAddr) == instrStart(setData));
-    exec.add(instrStart(setAddr) == instrStart(setEn1));
-
-    exec.add(instrEnd(setEn1) + 1 == instrStart(setEn0));
-
-    // TODO: Replace start(ret) with end(inlineMarker)?
-    exec.add(instrStart(setAddr) + 3 == instrStart(ret));
-
-    addDataConstraints(ramWrite0, exec);
-
-    cout << "-- Constraints on write function" << endl;
-    for (auto c : exec.constraints) {
-      cout << tab(1) << *c << endl;
-    }
-  }
   
   TEST_CASE("Creating memory interface functions") {
     LLVMContext context;
@@ -4027,11 +4052,11 @@ namespace DHLS {
     Function* ramRead0 =
       mkFunc({sramTp, intType(addrWidth)}, intType(width), "read0");
     interfaces.addFunction(ramRead0);
-    implementRAMRead0(ramRead0, interfaces);
+    implementRAMRead0(ramRead0, interfaces.getConstraints(ramRead0));
 
     Function* ramWrite0 = mkFunc({sramTp, intType(addrWidth), intType(width)}, voidType(), "write0");
     interfaces.addFunction(ramWrite0);
-    implementRAMWrite0(ramWrite0, interfaces);
+    implementRAMWrite0(ramWrite0, interfaces.getConstraints(ramWrite0));
   
 
     FunctionType *tp =
