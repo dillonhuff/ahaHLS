@@ -182,9 +182,7 @@ namespace DHLS {
     setGlobalLLVMModule(mod.get());
 
     auto f = getFunctionByDemangledName(mod.get(), "single_store");
-
-    //std::unique_ptr<Module> Mod = loadModule(Context, Err, "single_store");
-    //Function* f = Mod->getFunction("single_store");
+    getArg(f, 0)->setName("a");
 
     cout << "LLVM Function" << endl;
     cout << valueString(f) << endl;
