@@ -1458,4 +1458,9 @@ namespace DHLS {
                                      llvm::CallInst* const toInline,
                                      ExecutionConstraints& constraintsToInline);
 
+  ModuleSpec wireSpec(int width);
+
+  void implementWireRead(Function* readFifo);
+  void implementWireWrite(Function* writeFifo);
+
 }

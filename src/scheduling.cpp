@@ -1803,4 +1803,37 @@ namespace DHLS {
     return {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "fifo", fifoPorts};
   }
 
+
+  ModuleSpec wireSpec(int width) {
+    map<string, Port> wirePorts = {
+      {"in_data", inputPort(width, "in_data")},
+      {"out_data", outputPort(width, "out_data")}};
+    
+    return {{{"WIDTH", to_string(width)}}, "wire", wirePorts};
+  }
+
+  void implementWireRead(Function* readFifo) {
+    int width = getTypeBitWidth(readFifo->getReturnType());
+    auto tp = getArg(readFifo, 0)->getType();
+    {
+      auto readEntry = mkBB("entry_block", readFifo);
+      IRBuilder<> eb(readEntry);
+      auto rp = readPort("out_data", width, tp);
+      auto readValue = eb.CreateCall(rp, {getArg(readFifo, 0)});
+      eb.CreateRet(readValue);
+    }
+
+  }
+
+  void implementWireWrite(Function* writeFifo) {
+    int width = getValueBitWidth(getArg(writeFifo, 0));
+    auto tp = getArg(writeFifo, 1)->getType();
+    auto writeEntry = mkBB("entry_block", writeFifo);
+    IRBuilder<> eb(writeEntry);
+    auto wp = writePort("in_data", width, tp);
+    eb.CreateCall(wp, {getArg(writeFifo, 1), getArg(writeFifo, 0)});
+    eb.CreateRet(nullptr);
+  }
+
+  
 }
