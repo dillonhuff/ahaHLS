@@ -45,7 +45,10 @@ namespace DHLS {
   //    Move test layout int testbenchspec
   //    Incorporate fifoSpecs in to scheduling constraints automatically
   //    Add some simple examples to the README
-  //    Clean up testbench set / get API
+  //    Move wire specs to scheduling.cpp
+  //    Try to replace raw_ostream with std::ostream?
+  //    Delete FIFO specs and RAM specs (replaced by more general modSpecs)
+  //    Convert ptr to builtin codes to RAM templates
 
   // NOTE: The code for testbenches is getting really complicated. Some of that
   // is automatic testbench generation, but some of it is just the hodgepodge of
