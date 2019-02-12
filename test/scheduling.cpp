@@ -266,7 +266,8 @@ namespace DHLS {
 
     REQUIRE(graph.numControlStates() == 5);
 
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 3}, {getArg(f, 2), 4}};
+    map<llvm::Value*, int> layout =
+      {{getArg(f, 0), 0}, {getArg(f, 1), 3}, {getArg(f, 2), 4}};
     emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("plus"));
