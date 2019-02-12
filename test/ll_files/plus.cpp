@@ -1,5 +1,5 @@
 #include "ram.h"
 
-void plus(int* __restrict a, int* __restrict b, int* __restrict c) {
-  c[0] = a[0] + b[0];
+void plus(RAM_2<int, 16>* mem) {
+  mem->write_0(4, mem->read_0(0) + mem->read_1(3));
 }

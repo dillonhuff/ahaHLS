@@ -134,6 +134,6 @@ module test();
             .wdata(wdata),
             .waddr(waddr));
    
-   plus ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .raddr_0(raddr0), .rdata_0(rdata0), .raddr_1(raddr1), .rdata_1(rdata1));
+   plus ss(.clk(clk), .rst(rst), .valid(valid), .mem_waddr_0(waddr), .mem_wdata_0(wdata), .mem_wen_0(wen), .mem_raddr_0(raddr0), .mem_rdata_0(rdata0), .mem_raddr_1(raddr1), .mem_rdata_1(rdata1));
    
 endmodule

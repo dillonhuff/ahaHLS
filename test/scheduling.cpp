@@ -55,22 +55,33 @@ namespace DHLS {
     cout << "FuncName = " << funcName << endl;
     assert(false);
   }
-  
-  ModuleSpec ramSpec(const int width, const int depth) {
+
+  ModuleSpec ramSpec(const int width, const int depth, const int numReadPorts, const int numWritePorts) {
+
     int addrWidth = clog2(depth);
 
     map<string, Port> ramPorts = {
-      {"raddr_0", inputPort(addrWidth, "raddr_0")},
-      {"waddr_0", inputPort(addrWidth, "waddr_0")},
-      {"wdata_0", inputPort(width, "wdata_0")},
-      {"wen_0", inputPort(1, "wen_0")},            
-      {"rst", inputPort(1, "rst")},
-
-      {"rdata_0", outputPort(width, "rdata_0")}
+      {"rst", inputPort(1, "rst")}
     };
+
+    for (int i = 0; i < numReadPorts; i++) {
+      auto iStr = to_string(i);
+      ramPorts["raddr_" + iStr] = inputPort(addrWidth, "raddr_" + iStr);
+      ramPorts["rdata_" + iStr] = outputPort(width, "rdata_" + iStr);
+    }
+
+    for (int i = 0; i < numWritePorts; i++) {
+      auto iStr = to_string(i);
+      ramPorts["waddr_" + iStr] = inputPort(addrWidth, "waddr_" + iStr);
+      ramPorts["wdata_" + iStr] = inputPort(width, "wdata_" + iStr);
+      ramPorts["wen_" + iStr] = inputPort(1, "wen_" + iStr);      
+    }
     
     return {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "RAM", ramPorts};
-
+  }
+  
+  ModuleSpec ramSpec(const int width, const int depth) {
+    return ramSpec(width, depth, 1, 1);
   }
 
 
@@ -103,6 +114,28 @@ namespace DHLS {
 
   }
 
+  void implementRAMRead1(Function* ramRead1, ExecutionConstraints& exec) {
+    int addrWidth = getValueBitWidth(getArg(ramRead1, 1));
+    int width = getTypeBitWidth(ramRead1->getReturnType());
+    auto sramTp = getArg(ramRead1, 0)->getType();
+
+    auto waddr0F = writePort("raddr_1", addrWidth, sramTp);
+    auto rdata0F = readPort("rdata_1", width, sramTp);
+
+    auto sram = getArg(ramRead1, 0);
+    auto addr = getArg(ramRead1, 1);
+
+    auto bb = mkBB("entry_block", ramRead1);
+    IRBuilder<> eb(bb);
+    auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
+    auto readData = eb.CreateCall(rdata0F, {sram});
+    eb.CreateRet(readData);
+
+    exec.add(instrStart(setAddr) + 1 == instrStart(readData));
+
+    addDataConstraints(ramRead1, exec);
+  }
+  
   void implementRAMWrite0(Function* ramWrite0, ExecutionConstraints& exec) {
     int addrWidth = getValueBitWidth(getArg(ramWrite0, 1));
     int width = getValueBitWidth(getArg(ramWrite0, 2));
@@ -247,15 +280,22 @@ namespace DHLS {
 
     SMDiagnostic Err;
     LLVMContext Context;
-    std::unique_ptr<Module> Mod = loadModule(Context, Err, "plus");
+    setGlobalLLVMContext(&Context);
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "plus");
+    setGlobalLLVMModule(Mod.get());
+    
+    Function* f = getFunctionByDemangledName(Mod.get(), "plus");
 
-    HardwareConstraints hcs;
-    hcs.setLatency(STORE_OP, 3);
-    hcs.setLatency(LOAD_OP, 1);
-    hcs.setLatency(ADD_OP, 0);
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read_0")] = implementRAMRead0;
+    interfaces.functionTemplates[string("read_1")] = implementRAMRead1;    
+    interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
 
-    Function* f = Mod->getFunction("plus");
-    Schedule s = scheduleFunction(f, hcs);
+    HardwareConstraints hcs = standardConstraints();
+    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1); 
+    
+    Schedule s = scheduleInterface(f, hcs, interfaces);
+    //Schedule s = scheduleFunction(f, hcs);
 
     REQUIRE(s.numStates() == 5);
 
@@ -266,9 +306,16 @@ namespace DHLS {
 
     REQUIRE(graph.numControlStates() == 5);
 
-    map<llvm::Value*, int> layout =
-      {{getArg(f, 0), 0}, {getArg(f, 1), 3}, {getArg(f, 2), 4}};
-    emitVerilog(f, graph, layout);
+    map<llvm::Value*, int> layout = {};
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+
+    VerilogDebugInfo info;
+    emitVerilog("plus", f, arch, info);
+    
+    // map<llvm::Value*, int> layout = {};
+    // //{{getArg(f, 0), 0}, {getArg(f, 1), 3}, {getArg(f, 2), 4}};
+    // emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("plus"));
   }
