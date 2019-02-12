@@ -1643,8 +1643,8 @@ namespace DHLS {
 
 
 
-            ControlFlowPosition pos = position(state, instr);
-            out << tab(3) << "if (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
+            // ControlFlowPosition pos = position(state, instr);
+            //out << tab(3) << "if (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
 
             out << tab(4) << "// " << instructionString(instr) << endl;
 
@@ -1674,20 +1674,20 @@ namespace DHLS {
 
             out << tab(4) << "end" << endl;
 
-            out << "\t\t\tend else begin " << endl;
-            out << "\t\t\t// Default values" << endl;
-            for (auto w : unit.portWires) {
-              if (isExternal) {
-                out << tab(4) << w.second.name << "_reg = 0;" << endl;
-              } else {
-                out << tab(4) << w.second.name << " = 0;" << endl;                
-              }
-            }
+            // out << "\t\t\tend else begin " << endl;
+            // out << "\t\t\t// Default values" << endl;
+            // for (auto w : unit.portWires) {
+            //   if (isExternal) {
+            //     out << tab(4) << w.second.name << "_reg = 0;" << endl;
+            //   } else {
+            //     out << tab(4) << w.second.name << " = 0;" << endl;                
+            //   }
+            // }
 
-            if (BranchInst::classof(instr)) {
-              out << tab(4) << "last_BB = last_BB_reg;" << endl;
-            }
-            out << "\t\t\tend" << endl;
+            // if (BranchInst::classof(instr)) {
+            //   out << tab(4) << "last_BB = last_BB_reg;" << endl;
+            // }
+            // out << "\t\t\tend" << endl;
           }
 
           out << "\t\tend else ";
