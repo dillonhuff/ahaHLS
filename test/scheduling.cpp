@@ -34,11 +34,12 @@ namespace DHLS {
   // Q: System TODOs:
   // A: Remove useless address fields from registers (allow custom memory interfaces)
   //    Add an "I dont care about default values to this FU" option?
-  //    Move test layout int testbenchspec
-  //    Incorporate fifoSpecs in to scheduling constraints automatically
+  //    Move test layout into testbenchspec
+  //    Incorporate fifoSpecs in to scheduling constraints automatically instead of
+  //      of setting them in HardwareConstraints?
   //    Add some simple examples to the README
   //    Try to replace raw_ostream with std::ostream?
-  //    Delete FIFO specs and RAM specs (replaced by more general modSpecs)
+  //    Delete RAM specs (replaced by more general modSpecs)
   //    Convert ptr to builtin codes to RAM templates
 
   // NOTE: The code for testbenches is getting really complicated. Some of that

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <llvm/IR/LLVMContext.h>
 #include <cxxabi.h>
+#include <sstream>
 
 using namespace llvm;
 using namespace std;
