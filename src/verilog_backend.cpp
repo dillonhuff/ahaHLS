@@ -2185,11 +2185,11 @@ namespace DHLS {
           out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
           for (auto bbI : instructionsForBlocks) {
 
-            auto pos = position(st.first, bbI.second.instruction->getParent()->getTerminator());
-            out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, pos, arch) << ") begin" << endl;
+            //auto pos = position(st.first, bbI.second.instruction->getParent()->getTerminator());
+            //out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, pos, arch) << ") begin" << endl;
             auto bbNo = map_find(bbI.first, arch.basicBlockNos);
             out << tab(5) << "last_BB_reg <= " << bbNo << ";" << endl;
-            out << tab(4) << "end" << endl;
+            //out << tab(4) << "end" << endl;
           }
           out << tab(3) << "end" << endl;
         }
