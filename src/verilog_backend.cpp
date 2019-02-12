@@ -1533,15 +1533,15 @@ namespace DHLS {
 
     out << tab(2) << "if (" << atState(state, arch) << ") begin" << endl;
     auto pos = pipelinePosition(instrG.instruction, state, i);
-    out << "\t\t\tif (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
+    //out << "\t\t\tif (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
 
-    out << tab(4) << "if (" << iiCondition(instrG.instruction, arch) << ") begin " << endl;
+    //out << tab(4) << "if (" << iiCondition(instrG.instruction, arch) << ") begin " << endl;
 
     instructionVerilog(out, pos, arch);
 
-    out << tab(4) << "end" << endl;
+    //out << tab(4) << "end" << endl;
     
-    out << "\t\t\tend" << endl;
+    //out << "\t\t\tend" << endl; // Remove
     out << "\t\tend" << endl;
     out << "\tend" << endl;
   }
