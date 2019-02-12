@@ -1311,11 +1311,11 @@ namespace DHLS {
         if (needsTempStorage(instr, arch)) {
           auto unit = map_find(instr, unitAssignment);
 
-          out << tab(4) << "if (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
+          //out << tab(4) << "if (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
 
           out << tab(5) << instrName << " <= " << dataOutput(instr, arch) << ";" << endl;
 
-          out << "\t\t\t\tend" << endl;
+          //out << "\t\t\t\tend" << endl;
         }
           
       }
@@ -1399,7 +1399,9 @@ namespace DHLS {
           out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
           // TODO: Check whether true or false on transitionDest.cond
           // causes an exit from the block
+          // Rein
           out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << " && " << pipelineClearOnNextCycleCondition(p) << ") begin" << endl;
+          //out << tab(4) << "if (" << pipelineClearOnNextCycleCondition(p) << ") begin" << endl;
           out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
           out << "\t\t\t\tend" << endl;
         }
