@@ -419,10 +419,10 @@ namespace DHLS {
                             int& writeNum,
                             llvm::Instruction* instr) {
 
-    cout << "Fifo specs" << endl;
-    for (auto& fifoSpec : hcs.fifoSpecs) {
-      cout << tab(1) << "spec for " << valueString(fifoSpec.first) << endl;
-    }
+    // cout << "Fifo specs" << endl;
+    // for (auto& fifoSpec : hcs.fifoSpecs) {
+    //   cout << tab(1) << "spec for " << valueString(fifoSpec.first) << endl;
+    // }
     string modName = "add";
 
     auto rStr = unitName;

@@ -251,18 +251,20 @@ namespace DHLS {
       //cout << "Called name     = " << name << endl;
 
       if (hasPrefix(name, "builtin_read_fifo_")) {
-        if (contains_key(call->getOperand(0), fifoSpecs)) {
-          latency = map_find(call->getOperand(0), fifoSpecs).readDelay;
-        } else {
-          latency = 1;
-        }
+        assert(false);
+        // if (contains_key(call->getOperand(0), fifoSpecs)) {
+        //   latency = map_find(call->getOperand(0), fifoSpecs).readDelay;
+        // } else {
+        //   latency = 1;
+        // }
       } else if (hasPrefix(name, "builtin_write_fifo_")) {
+        assert(false);
 
-        if (contains_key(call->getOperand(1), fifoSpecs)) {
-          latency = map_find(call->getOperand(1), fifoSpecs).writeDelay;
-        } else {
-          latency = 1;
-        }
+        // if (contains_key(call->getOperand(1), fifoSpecs)) {
+        //   latency = map_find(call->getOperand(1), fifoSpecs).writeDelay;
+        // } else {
+        //   latency = 1;
+        // }
       } else if (isBuiltinPortWrite(iptr)) {
         latency = 0;
       } else {

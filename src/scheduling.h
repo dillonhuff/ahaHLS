@@ -253,15 +253,16 @@ namespace DHLS {
 
     std::map<llvm::Value*, MemorySpec> memSpecs;
     std::map<llvm::Instruction*, llvm::Value*> memoryMapping;
-    std::map<llvm::Value*, FifoSpec> fifoSpecs;
+    //std::map<llvm::Value*, FifoSpec> fifoSpecs;
     std::map<llvm::Value*, ModuleSpec> modSpecs;
 
     FifoInterface getFifoType(llvm::Value* const val) const {
-      if (dbhc::contains_key(val, fifoSpecs)) {
-        return dbhc::map_find(val, fifoSpecs).interface;
-      }
+      assert(false);
+      // if (dbhc::contains_key(val, fifoSpecs)) {
+      //   return dbhc::map_find(val, fifoSpecs).interface;
+      // }
 
-      return FIFO_RV;
+      // return FIFO_RV;
     }
 
     int getLatency(const OperationType op) const {
