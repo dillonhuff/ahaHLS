@@ -285,6 +285,7 @@ namespace DHLS {
     setGlobalLLVMModule(Mod.get());
     
     Function* f = getFunctionByDemangledName(Mod.get(), "plus");
+    getArg(f, 0)->setName("mem");
 
     InterfaceFunctions interfaces;
     interfaces.functionTemplates[string("read_0")] = implementRAMRead0;
