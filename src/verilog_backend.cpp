@@ -419,10 +419,6 @@ namespace DHLS {
                             int& writeNum,
                             llvm::Instruction* instr) {
 
-    // cout << "Fifo specs" << endl;
-    // for (auto& fifoSpec : hcs.fifoSpecs) {
-    //   cout << tab(1) << "spec for " << valueString(fifoSpec.first) << endl;
-    // }
     string modName = "add";
 
     auto rStr = unitName;
@@ -529,54 +525,56 @@ namespace DHLS {
             
     } else if (CallInst::classof(instr)) {
       if (isBuiltinFifoWrite(instr)) {
-        isExternal = true;
-        modName = "fifo";
+        assert(false);
+        // isExternal = true;
+        // modName = "fifo";
 
-        unitName = map_find(instr->getOperand(1), fifoNames);
+        // unitName = map_find(instr->getOperand(1), fifoNames);
 
-        auto w = getValueBitWidth(instr->getOperand(0));
+        // auto w = getValueBitWidth(instr->getOperand(0));
 
-        FifoInterface fi = hcs.getFifoType(instr->getOperand(1));
+        // FifoInterface fi = hcs.getFifoType(instr->getOperand(1));
 
-        if (fi == FIFO_RV) {
-          wiring = {{"read_valid", {true, 1, unitName + "_read_valid"}},
-                    {"write_valid", {true, 1, unitName + "_write_valid"}},
-                    {"in_data", {true, w, unitName + "_in_data"}}};
+        // if (fi == FIFO_RV) {
+        //   wiring = {{"read_valid", {true, 1, unitName + "_read_valid"}},
+        //             {"write_valid", {true, 1, unitName + "_write_valid"}},
+        //             {"in_data", {true, w, unitName + "_in_data"}}};
 
-          outWires = {{"out_data", {false, w, unitName + "_out_data"}},
-                      {"read_ready", {false, 1, unitName + "_read_ready"}},
-                      {"write_ready", {false, 1, unitName + "_write_ready"}}};
-        } else {
-          assert(fi == FIFO_TIMED);
+        //   outWires = {{"out_data", {false, w, unitName + "_out_data"}},
+        //               {"read_ready", {false, 1, unitName + "_read_ready"}},
+        //               {"write_ready", {false, 1, unitName + "_write_ready"}}};
+        // } else {
+        //   assert(fi == FIFO_TIMED);
 
-          wiring = {{"in_data", {true, w, unitName + "_in_data"}}};
-          outWires = {{"out_data", {false, w, unitName + "_out_data"}}};
-        }
+        //   wiring = {{"in_data", {true, w, unitName + "_in_data"}}};
+        //   outWires = {{"out_data", {false, w, unitName + "_out_data"}}};
+        // }
                     
       } else if (isBuiltinFifoRead(instr)) {
-        isExternal = true;
-        modName = "fifo";
+        assert(false);
+        // isExternal = true;
+        // modName = "fifo";
 
-        unitName = map_find(instr->getOperand(0), fifoNames);
+        // unitName = map_find(instr->getOperand(0), fifoNames);
 
-        auto w = getValueBitWidth(instr);
+        // auto w = getValueBitWidth(instr);
 
-        FifoInterface fi = hcs.getFifoType(instr->getOperand(0));
+        // FifoInterface fi = hcs.getFifoType(instr->getOperand(0));
 
-        if (fi == FIFO_RV) {
-          wiring = {{"read_valid", {true, 1, unitName + "_read_valid"}},
-                    {"write_valid", {true, 1, unitName + "_write_valid"}},
-                    {"in_data", {true, w, unitName + "_in_data"}}};
+        // if (fi == FIFO_RV) {
+        //   wiring = {{"read_valid", {true, 1, unitName + "_read_valid"}},
+        //             {"write_valid", {true, 1, unitName + "_write_valid"}},
+        //             {"in_data", {true, w, unitName + "_in_data"}}};
 
-          outWires = {{"out_data", {false, w, unitName + "_out_data"}},
-                      {"read_ready", {false, 1, unitName + "_read_ready"}},
-                      {"write_ready", {false, 1, unitName + "_write_ready"}}};
-        } else {
-          assert(fi == FIFO_TIMED);
+        //   outWires = {{"out_data", {false, w, unitName + "_out_data"}},
+        //               {"read_ready", {false, 1, unitName + "_read_ready"}},
+        //               {"write_ready", {false, 1, unitName + "_write_ready"}}};
+        // } else {
+        //   assert(fi == FIFO_TIMED);
 
-          wiring = {{"in_data", {true, w, unitName + "_in_data"}}};
-          outWires = {{"out_data", {false, w, unitName + "_out_data"}}};
-        }
+        //   wiring = {{"in_data", {true, w, unitName + "_in_data"}}};
+        //   outWires = {{"out_data", {false, w, unitName + "_out_data"}}};
+        // }
         
       } else if (isBuiltinPortCall(instr)) {
         // No action
@@ -1132,18 +1130,20 @@ namespace DHLS {
       if (isBuiltinFifoCall(instr)) {
 
         if (isBuiltinFifoWrite(instr)) {
-          auto inName = outputName(instr->getOperand(0), pos, arch);
+          assert(false);
+          // auto inName = outputName(instr->getOperand(0), pos, arch);
 
-          if (arch.hcs.getFifoType(instr->getOperand(1)) == FIFO_RV) {
-            assignments.insert({addUnit.inputWire("write_valid"), "1"});
-          }
-          assignments.insert({addUnit.inputWire("in_data"), inName});
+          // if (arch.hcs.getFifoType(instr->getOperand(1)) == FIFO_RV) {
+          //   assignments.insert({addUnit.inputWire("write_valid"), "1"});
+          // }
+          // assignments.insert({addUnit.inputWire("in_data"), inName});
           
         } else if (isBuiltinFifoRead(instr)) {
+          assert(false);
 
-          if (arch.hcs.getFifoType(instr->getOperand(0)) == FIFO_RV) {
-            assignments.insert({addUnit.inputWire("read_valid"), "1"});
-          }
+          // if (arch.hcs.getFifoType(instr->getOperand(0)) == FIFO_RV) {
+          //   assignments.insert({addUnit.inputWire("read_valid"), "1"});
+          // }
 
 
         } else {
@@ -1496,21 +1496,23 @@ namespace DHLS {
 
   }
 
-  // TODO: Change name to unstallCondition or readyCondition?
+  // TODO: No longer relevant?
   std::string iiCondition(llvm::Instruction* const instr,
                           const MicroArchitecture& arch) {
     if (isBuiltinFifoCall(instr)) {
       auto unit = map_find(instr, arch.unitAssignment);
 
-      if (isBuiltinFifoRead(instr) &&
-          (arch.hcs.getFifoType(instr->getOperand(0)) == FIFO_RV)) {
-        return map_find(string("read_ready"), unit.outWires).name;
-      }
+      // if (isBuiltinFifoRead(instr) &&
+      //     (arch.hcs.getFifoType(instr->getOperand(0)) == FIFO_RV)) {
+      //   assert(false);
+      //   return map_find(string("read_ready"), unit.outWires).name;
+      // }
 
-      if (isBuiltinFifoWrite(instr) &&
-          (arch.hcs.getFifoType(instr->getOperand(1)) == FIFO_RV)) {
-        return map_find(string("write_ready"), unit.outWires).name;
-      }
+      // if (isBuiltinFifoWrite(instr) &&
+      //     (arch.hcs.getFifoType(instr->getOperand(1)) == FIFO_RV)) {
+      //   assert(false);
+      //   //return map_find(string("write_ready"), unit.outWires).name;
+      // }
     }
 
     return "1";

@@ -227,22 +227,22 @@ namespace DHLS {
 
   OperationType opType(llvm::Instruction* const iptr);
 
-  enum FifoInterface {
-    FIFO_TIMED,
-    FIFO_RV,
-  };
+  // enum FifoInterface {
+  //   FIFO_TIMED,
+  //   FIFO_RV,
+  // };
 
-  class FifoSpec {
-  public:
-    int readDelay;
-    int writeDelay;
-    FifoInterface interface;
+  // class FifoSpec {
+  // public:
+  //   int readDelay;
+  //   int writeDelay;
+  //   FifoInterface interface;
 
-    FifoSpec() : readDelay(0), writeDelay(0), interface(FIFO_RV) {}
+  //   FifoSpec() : readDelay(0), writeDelay(0), interface(FIFO_RV) {}
     
-    FifoSpec(const int rd_, const int wd_, const FifoInterface interface_) :
-      readDelay(rd_), writeDelay(wd_), interface(interface_) {}
-  };
+  //   FifoSpec(const int rd_, const int wd_, const FifoInterface interface_) :
+  //     readDelay(rd_), writeDelay(wd_), interface(interface_) {}
+  // };
   
   class HardwareConstraints {
 
@@ -253,17 +253,7 @@ namespace DHLS {
 
     std::map<llvm::Value*, MemorySpec> memSpecs;
     std::map<llvm::Instruction*, llvm::Value*> memoryMapping;
-    //std::map<llvm::Value*, FifoSpec> fifoSpecs;
     std::map<llvm::Value*, ModuleSpec> modSpecs;
-
-    FifoInterface getFifoType(llvm::Value* const val) const {
-      assert(false);
-      // if (dbhc::contains_key(val, fifoSpecs)) {
-      //   return dbhc::map_find(val, fifoSpecs).interface;
-      // }
-
-      // return FIFO_RV;
-    }
 
     int getLatency(const OperationType op) const {
       return dbhc::map_find(op, latencies);

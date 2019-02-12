@@ -843,46 +843,46 @@ namespace DHLS {
             }
             
             // Check RAR dependence
-            if (isBuiltinFifoRead(&instr) && isBuiltinFifoRead(&otherInstr)) {
+            // if (isBuiltinFifoRead(&instr) && isBuiltinFifoRead(&otherInstr)) {
 
-              Value* load0 = instr.getOperand(0);
-              Value* load1 = otherInstr.getOperand(0);
+            //   Value* load0 = instr.getOperand(0);
+            //   Value* load1 = otherInstr.getOperand(0);
               
-              AliasResult aliasRes = aliasAnalysis.alias(load0, load1);
-              if (aliasRes != NoAlias) {
+            //   AliasResult aliasRes = aliasAnalysis.alias(load0, load1);
+            //   if (aliasRes != NoAlias) {
 
-                FifoInterface fifoTp = hdc.getFifoType(instr.getOperand(0));
-                if (fifoTp == FIFO_RV) {
-                  exe.addConstraint(instrEnd(&instr) <= instrStart(&otherInstr));
-                  //p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
-                } else {
-                  assert(fifoTp == FIFO_TIMED);
-                  //p.addConstraint(p.instrEnd(&instr) < p.instrStart(&otherInstr));
-                  exe.addConstraint(instrEnd(&instr) < instrStart(&otherInstr));
-                }
-              }
-            }
+            //     //FifoInterface fifoTp = hdc.getFifoType(instr.getOperand(0));
+            //     // if (fifoTp == FIFO_RV) {
+            //     //   exe.addConstraint(instrEnd(&instr) <= instrStart(&otherInstr));
+            //     //   //p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
+            //     // } else {
+            //     //   assert(fifoTp == FIFO_TIMED);
+            //     //   //p.addConstraint(p.instrEnd(&instr) < p.instrStart(&otherInstr));
+            //     //   exe.addConstraint(instrEnd(&instr) < instrStart(&otherInstr));
+            //     // }
+            //   }
+            // }
 
-            // Check WAW dependence
-            if (isBuiltinFifoWrite(&instr) && isBuiltinFifoWrite(&otherInstr)) {
-              Value* store0 = instr.getOperand(1);
-              Value* store1 = otherInstr.getOperand(1);
+            // // Check WAW dependence
+            // if (isBuiltinFifoWrite(&instr) && isBuiltinFifoWrite(&otherInstr)) {
+            //   Value* store0 = instr.getOperand(1);
+            //   Value* store1 = otherInstr.getOperand(1);
               
-              AliasResult aliasRes = aliasAnalysis.alias(store0, store1);
-              if (aliasRes != NoAlias) {
+            //   AliasResult aliasRes = aliasAnalysis.alias(store0, store1);
+            //   if (aliasRes != NoAlias) {
 
-                FifoInterface fifoTp = hdc.getFifoType(instr.getOperand(1));
-                if (fifoTp == FIFO_RV) {
-                  //p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
-                  exe.addConstraint(instrEnd(&instr) <= instrStart(&otherInstr));
-                } else {
-                  assert(fifoTp == FIFO_TIMED);
-                  //p.addConstraint(p.instrEnd(&instr) < p.instrStart(&otherInstr));
-                  exe.addConstraint(instrEnd(&instr) < instrStart(&otherInstr));
-                }
+            //     FifoInterface fifoTp = hdc.getFifoType(instr.getOperand(1));
+            //     if (fifoTp == FIFO_RV) {
+            //       //p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
+            //       exe.addConstraint(instrEnd(&instr) <= instrStart(&otherInstr));
+            //     } else {
+            //       assert(fifoTp == FIFO_TIMED);
+            //       //p.addConstraint(p.instrEnd(&instr) < p.instrStart(&otherInstr));
+            //       exe.addConstraint(instrEnd(&instr) < instrStart(&otherInstr));
+            //     }
 
-              }
-            }
+            //   }
+            // }
 
             
             // Check dependences between RAM operations
@@ -1530,7 +1530,7 @@ namespace DHLS {
     auto setValidF = writePort("write_valid", 1, tp);
     auto stallF = stallFunction();
 
-    auto readOutF = readPort("out", width, dataPtrTp);
+    //auto readOutF = readPort("out", width, dataPtrTp);
 
     auto readReady = b.CreateCall(readReadyF, {out});
     auto stallUntilReady = b.CreateCall(stallF, {readReady});
