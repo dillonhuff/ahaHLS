@@ -195,6 +195,9 @@ namespace DHLS {
 
     ExecutionConstraints exec;
 
+    HardwareConstraints hcs = standardConstraints();
+    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16); 
+
     cout << "Before inlining" << endl;
     cout << valueString(f) << endl;
 
@@ -203,9 +206,6 @@ namespace DHLS {
 
     cout << "After inlining" << endl;
     cout << valueString(f) << endl;
-
-    HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16); 
 
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
@@ -229,7 +229,9 @@ namespace DHLS {
     map<llvm::Value*, int> layout = {};
     ArchOptions options;
     auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
-    
+
+    VerilogDebugInfo info;
+    emitVerilog("single_store", f, arch, info);
     //emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("single_store"));

@@ -75,6 +75,6 @@ module test();
            .debug_addr(debug_addr),
            .debug_data(debug_data));
    
-   single_store ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen));
+   single_store ss(.clk(clk), .rst(rst), .valid(valid), .a_waddr_0(waddr), .a_wdata_0(wdata), .a_wen_0(wen));
    
 endmodule
