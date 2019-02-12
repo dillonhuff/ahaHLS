@@ -208,6 +208,7 @@ namespace DHLS {
   //    Try to replace raw_ostream with std::ostream?
   //    Delete RAM specs (replaced by more general modSpecs)
   //    Convert ptr to builtin codes to RAM templates
+  //    Get rid of iiCondition
 
   // NOTE: The code for testbenches is getting really complicated. Some of that
   // is automatic testbench generation, but some of it is just the hodgepodge of

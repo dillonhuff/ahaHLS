@@ -35,7 +35,8 @@ namespace DHLS {
     std::string str;
     llvm::raw_string_ostream ss(str);
     ss << *(t.instruction);
-    out << "\t\t" << ss.str() << " if " << t.cond << " in " << (t.instruction)->getParent()->getName().str() << std::endl;
+    //out << "\t\t" << ss.str() << " if " << t.cond << " in " << (t.instruction)->getParent()->getName().str() << std::endl;
+    out << "\t\t" << ss.str() << " in " << (t.instruction)->getParent()->getName().str() << std::endl;
     return out;
   }
   
@@ -1234,8 +1235,8 @@ namespace DHLS {
     for (auto var : sched.instrTimes) {
       for (auto state : var.second) {
         BasicBlock* containerBB = var.first->getParent();
-        map_insert(g.opStates, state, {var.first,
-              Condition(map_find(containerBB, blockGuards))});
+        map_insert(g.opStates, state, {var.first});
+              //Condition(map_find(containerBB, blockGuards))});
       }
     }
 
@@ -1307,7 +1308,7 @@ namespace DHLS {
             if (TerminatorInst::classof(ist.instruction)) {
               terminatorFinishing = true;
               instr = ist.instruction;
-              cond = ist.cond;
+              cond = Condition(); //ist.cond;
             }
           }
         }
@@ -1367,8 +1368,8 @@ namespace DHLS {
             auto endingInBlock = map_find(bb, endingInstructions);              
             assert(endingInBlock.size() > 0);
 
-            GuardedInstruction instrG = endingInBlock.back();
-            map_insert(g.opTransitions, st.first, {st.first + 1, instrG.cond});
+            //GuardedInstruction instrG = endingInBlock.back();
+            map_insert(g.opTransitions, st.first, {st.first + 1, Condition()});
 
           } else {
             // No terminator, but some instructions are in progress, need to
@@ -1379,8 +1380,9 @@ namespace DHLS {
             auto inProgressInBlock = map_find(bb, inProgressInstructions);    
             assert(inProgressInBlock.size() > 0);
 
-            GuardedInstruction instrG = inProgressInBlock.back();
-            map_insert(g.opTransitions, st.first, {st.first + 1, instrG.cond});
+            //GuardedInstruction instrG = inProgressInBlock.back();
+            //map_insert(g.opTransitions, st.first, {st.first + 1, instrG.cond});
+            map_insert(g.opTransitions, st.first, {st.first + 1, Condition()});
               
           }
         }

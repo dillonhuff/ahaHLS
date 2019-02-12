@@ -485,7 +485,7 @@ namespace DHLS {
   class GuardedInstruction {
   public:
     llvm::Instruction* instruction;
-    Condition cond;
+    //Condition cond;
   };
 
   std::ostream& operator<<(std::ostream& out, const GuardedInstruction& t);
