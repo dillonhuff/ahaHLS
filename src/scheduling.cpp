@@ -1234,7 +1234,7 @@ namespace DHLS {
     // Add instruction mapping to schedule
     for (auto var : sched.instrTimes) {
       for (auto state : var.second) {
-        BasicBlock* containerBB = var.first->getParent();
+        //BasicBlock* containerBB = var.first->getParent();
         map_insert(g.opStates, state, {var.first});
               //Condition(map_find(containerBB, blockGuards))});
       }
@@ -1380,7 +1380,7 @@ namespace DHLS {
             auto inProgressInBlock = map_find(bb, inProgressInstructions);    
             assert(inProgressInBlock.size() > 0);
 
-            //GuardedInstruction instrG = inProgressInBlock.back();
+            //GuardedInstruction instrG = inProgressInBlock.back();xo
             //map_insert(g.opTransitions, st.first, {st.first + 1, instrG.cond});
             map_insert(g.opTransitions, st.first, {st.first + 1, Condition()});
               

@@ -17,8 +17,8 @@ namespace DHLS {
   bool needsTempStorage(llvm::Instruction* const instr,
                         MicroArchitecture& arch);
 
-  std::string iiCondition(llvm::Instruction* const instr,
-                          const MicroArchitecture& arch);
+  // std::string iiCondition(llvm::Instruction* const instr,
+  //                         const MicroArchitecture& arch);
 
   std::ostream& operator<<(std::ostream& out, const Wire w) {
     out << w.toString();
@@ -1434,7 +1434,7 @@ namespace DHLS {
           for (auto instr : arch.stg.instructionsStartingAt(state)) {
 
             if (isBuiltinFifoCall(instr.instruction)) {
-              stallConds.push_back(iiCondition(instr.instruction, arch));
+              //stallConds.push_back(iiCondition(instr.instruction, arch));
             } else if (isBuiltinStallCall(instr.instruction)) {
 
               cout << "Getting builtin stall cond for " << instr.instruction->getOperand(0) << endl;
@@ -1498,27 +1498,27 @@ namespace DHLS {
 
   }
 
-  // TODO: No longer relevant?
-  std::string iiCondition(llvm::Instruction* const instr,
-                          const MicroArchitecture& arch) {
-    if (isBuiltinFifoCall(instr)) {
-      auto unit = map_find(instr, arch.unitAssignment);
+  // // TODO: No longer relevant?
+  // std::string iiCondition(llvm::Instruction* const instr,
+  //                         const MicroArchitecture& arch) {
+  //   if (isBuiltinFifoCall(instr)) {
+  //     auto unit = map_find(instr, arch.unitAssignment);
 
-      // if (isBuiltinFifoRead(instr) &&
-      //     (arch.hcs.getFifoType(instr->getOperand(0)) == FIFO_RV)) {
-      //   assert(false);
-      //   return map_find(string("read_ready"), unit.outWires).name;
-      // }
+  //     // if (isBuiltinFifoRead(instr) &&
+  //     //     (arch.hcs.getFifoType(instr->getOperand(0)) == FIFO_RV)) {
+  //     //   assert(false);
+  //     //   return map_find(string("read_ready"), unit.outWires).name;
+  //     // }
 
-      // if (isBuiltinFifoWrite(instr) &&
-      //     (arch.hcs.getFifoType(instr->getOperand(1)) == FIFO_RV)) {
-      //   assert(false);
-      //   //return map_find(string("write_ready"), unit.outWires).name;
-      // }
-    }
+  //     // if (isBuiltinFifoWrite(instr) &&
+  //     //     (arch.hcs.getFifoType(instr->getOperand(1)) == FIFO_RV)) {
+  //     //   assert(false);
+  //     //   //return map_find(string("write_ready"), unit.outWires).name;
+  //     // }
+  //   }
 
-    return "1";
-  }
+  //   return "1";
+  // }
 
   void emitConditionalInstruction(std::ostream& out,
                                   GuardedInstruction& instrG,
@@ -1650,7 +1650,7 @@ namespace DHLS {
 
             // TODO: Extract stall calculation
             vector<std::string> stallConds;
-            stallConds.push_back(iiCondition(instrG.instruction, arch));
+            //stallConds.push_back(iiCondition(instrG.instruction, arch));
             //cout << "at state " << state << " writing instr " << valueString(instrG.instruction) <<  endl;
 
             // Stalls do not get stalled by themselves
@@ -1668,11 +1668,14 @@ namespace DHLS {
                 }
               }
             }
-            out << tab(4) << "if (" << andStrings(stallConds) << ") begin" << endl;
-            
+            if (stallConds.size() > 0) {
+              out << tab(4) << "if (" << andStrings(stallConds) << ") begin" << endl;
+            }
             instructionVerilog(out, position(state, instr), arch);
 
-            out << tab(4) << "end" << endl;
+            if (stallConds.size() > 0) {            
+              out << tab(4) << "end" << endl;
+            }
 
             // out << "\t\t\tend else begin " << endl;
             // out << "\t\t\t// Default values" << endl;
@@ -3038,7 +3041,8 @@ namespace DHLS {
           string wireName = dataOutput(instr, arch);
 
           string valCheck = wireName + " !== 'dx";
-          string active = andStr(atState(st.first, arch), iiCondition(instr, arch));
+          //string active = andStr(atState(st.first, arch), iiCondition(instr, arch));
+          string active = atState(st.first, arch);
 
           addAssert(notStr(active) + " || " + valCheck, debugInfo);
           
@@ -3062,7 +3066,8 @@ namespace DHLS {
           string in0Name = map_find(string("in_data"), unit.portWires).name;
 
           string valCheck = in0Name + " !== " + to_string(getValueBitWidth(instr->getOperand(0))) + "'dx";
-          string active = andStr(atState(st.first, arch), iiCondition(instr, arch));
+          //string active = andStr(atState(st.first, arch), iiCondition(instr, arch));
+          string active = atState(st.first, arch);
 
           addAssert(notStr(active) + " || " + valCheck, debugInfo);
         }
