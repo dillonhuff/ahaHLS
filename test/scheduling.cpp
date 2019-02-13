@@ -229,6 +229,7 @@ namespace DHLS {
   //    Test case using a ready-valid interface together with pipelining
   //    Test case that builds a linebuffer from LLVM
   //    Test case with struct (compound type) passed via channel (or used by value)
+  //    Test case that computes a histogram
   TEST_CASE("Schedule a single store operation") {
     SMDiagnostic err;
     LLVMContext context;
