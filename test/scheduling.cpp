@@ -155,23 +155,23 @@ namespace DHLS {
     auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
     auto setData = eb.CreateCall(wdata0F, {sram, data});
     auto setEn1 = eb.CreateCall(wen0F, {sram, mkInt(1, 1)});
-    auto setEn0 = eb.CreateCall(wen0F, {sram, mkInt(0, 1)});
+    // auto setEn0 = eb.CreateCall(wen0F, {sram, mkInt(0, 1)});
     auto ret = eb.CreateRet(nullptr);
 
     exec.add(instrStart(setAddr) == instrStart(setData));
     exec.add(instrStart(setAddr) == instrStart(setEn1));
 
-    exec.add(instrEnd(setEn1) + 1 == instrStart(setEn0));
+    //exec.add(instrEnd(setEn1) + 1 == instrStart(setEn0));
 
     // TODO: Replace start(ret) with end(inlineMarker)?
     exec.add(instrStart(setAddr) + 3 == instrStart(ret));
 
     addDataConstraints(ramWrite0, exec);
 
-    cout << "-- Constraints on write function" << endl;
-    for (auto c : exec.constraints) {
-      cout << tab(1) << *c << endl;
-    }
+    // cout << "-- Constraints on write function" << endl;
+    // for (auto c : exec.constraints) {
+    //   cout << tab(1) << *c << endl;
+    // }
   }
 
   Schedule scheduleInterface(llvm::Function* f,
@@ -205,10 +205,8 @@ namespace DHLS {
   //    Incorporate fifoSpecs in to scheduling constraints automatically instead of
   //      of setting them in HardwareConstraints?
   //    Add some simple examples to the README
-  //    Try to replace raw_ostream with std::ostream?
   //    Delete RAM specs (replaced by more general modSpecs)
   //    Convert ptr to builtin codes to RAM templates
-  //    Get rid of iiCondition
 
   // NOTE: The code for testbenches is getting really complicated. Some of that
   // is automatic testbench generation, but some of it is just the hodgepodge of
@@ -617,6 +615,9 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("loop_add_4"));
   }
 
+  // Issue: How do we express the need to set defaults on ports? We need to be
+  // able to express that the wen == 0 at the end of a RAM write is only a default
+  // value and should not be considered essential
   TEST_CASE("Pipelining an array doing a[i] + 4, and exiting the pipeline in the TB, with a number of iterations large enough to fill the pipeline") {
 
     SMDiagnostic Err;

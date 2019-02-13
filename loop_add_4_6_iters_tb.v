@@ -142,7 +142,7 @@ module test();
 
       #1 dbg_addr = 1;
 
-      $display("dbg_data = %d", dbg_data);
+      $display("before assert, dbg_data = %d, dbg_addr = %d", dbg_data, dbg_addr);
       #1 `assert(global_state_dbg, 200000)       
 
       #1 `assert(valid, 1'd0)      
@@ -204,6 +204,7 @@ module test();
    always @(posedge clk) begin
       $display("-- In tb, waddr_0 = %d", waddr);
       $display("-- In tb, wdata_0 = %d", wdata);
+      $display("-- In tb, wen_0   = %d", wen);      
       $display("-- In tb, raddr_0 = %d", raddr0);
       $display("-- In tb, rdata_0 = %d", rdata0);
       $display("-- dbg_data       = %d", dbg_data);

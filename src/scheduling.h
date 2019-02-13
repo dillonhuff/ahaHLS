@@ -155,6 +155,7 @@ namespace DHLS {
     std::map<std::string, std::string> params;
     std::string name;
     std::map<std::string, Port> ports;
+    std::map<std::string, int> defaultValues;
   };
 
   class MemorySpec {
