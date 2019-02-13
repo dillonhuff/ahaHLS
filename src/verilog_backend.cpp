@@ -266,13 +266,6 @@ namespace DHLS {
     return modName;
   }
 
-  // bool canUseFor(const FunctionalUnit& unit, llvm::Instruction* const instr) {
-  //   if (GetElementPtrInst::classof(instr)) {
-  //     return false;
-  //   }
-  //   return true;
-  // }
-
   FunctionalUnit createMemUnit(std::string unitName,
                                map<Value*, std::string>& memNames,
                                map<Instruction*, Value*>& memSrcs,
@@ -2891,7 +2884,7 @@ namespace DHLS {
 
           printInstrAtState(instr, activeState, arch, debugInfo);
 
-          FunctionalUnit unit = map_find(instr, arch.unitAssignment);          
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment);   
           string in0Name = map_find(string("in_data"), unit.portWires).name;
 
           string valCheck = in0Name + " !== " + to_string(getValueBitWidth(instr->getOperand(0))) + "'dx";
