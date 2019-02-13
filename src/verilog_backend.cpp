@@ -435,6 +435,7 @@ namespace DHLS {
 
       if (modName == "fadd") {
         wiring.insert({"en", {true, 1, opCodeName + "_en_" + rStr}});
+        defaults.insert({"en", 0});
       }
       outWires = {{"out", {false, width, opCodeName + "_out_" + rStr}}};
     } else if (ReturnInst::classof(instr)) {

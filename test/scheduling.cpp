@@ -3435,7 +3435,16 @@ namespace DHLS {
       {"input_b_ack", outputPort(1, "input_b_ack")},
       {"output_z_stb", outputPort(1, "output_z_stb")}
     };
-    hcs.modSpecs[fpu] = {{}, "adder", adderPorts};
+
+    map<string, int> defaults = {
+      {"input_a", 0},
+      {"input_a_stb", 0},
+      {"input_b", 0},
+      {"input_b_stb", 0},
+      {"rst", 0}
+    };
+    
+    hcs.modSpecs[fpu] = {{}, "adder", adderPorts, defaults};
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
     hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
     hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
