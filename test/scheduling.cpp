@@ -627,15 +627,23 @@ namespace DHLS {
       loadCppModule(Context, Err, "loop_add_4_6_iters");
     setGlobalLLVMModule(Mod.get());
 
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read_0")] = implementRAMRead0;
+    interfaces.functionTemplates[string("read_1")] = implementRAMRead1;    
+    interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
+    
+    Function* f = getFunctionByDemangledName(Mod.get(), "loop_add_4_6_iters");
+    getArg(f, 0)->setName("ram");
+
     HardwareConstraints hcs;
+    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1);
     hcs.setLatency(STORE_OP, 3);
     hcs.setLatency(LOAD_OP, 1);
     hcs.setLatency(CMP_OP, 0);
     hcs.setLatency(BR_OP, 0);
     hcs.setLatency(ADD_OP, 0);
 
-    Function* f = Mod->getFunction("loop_add_4_6_iters");
-
+    
     std::set<BasicBlock*> blocksToPipeline;
     for (auto& bb : f->getBasicBlockList()) {
       auto term = bb.getTerminator();
@@ -652,7 +660,20 @@ namespace DHLS {
       }
     }
 
-    Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
+    // Pipelined
+    ExecutionConstraints exec;
+
+    addDataConstraints(f, exec);
+    inlineWireCalls(f, exec, interfaces);
+
+    SchedulingProblem p = createSchedulingProblem(f, hcs, blocksToPipeline);
+    exec.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, blocksToPipeline, constraints);
+    // Pipelined
+
+    //Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
 
     REQUIRE(s.numStates() == 7);
     REQUIRE(map_find(*begin(blocksToPipeline), s.pipelineSchedules) == 1);
@@ -666,8 +687,18 @@ namespace DHLS {
     REQUIRE(graph.pipelines[0].depth() == 5);
     REQUIRE(graph.pipelines[0].II() == 1);
 
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
-    emitVerilog(f, graph, layout);
+    //map<llvm::Value*, int> layout = {}; //{{getArg(f, 0), 0}, {getArg(f, 1), 10}};
+
+    map<llvm::Value*, int> layout = {};
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+
+    VerilogDebugInfo info;
+    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+    emitVerilog("loop_add_4_6_iters", f, arch, info);
+
+    //emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("loop_add_4_6_iters"));
   }
