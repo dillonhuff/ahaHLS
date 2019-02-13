@@ -621,7 +621,11 @@ namespace DHLS {
 
     SMDiagnostic Err;
     LLVMContext Context;
-    std::unique_ptr<Module> Mod = loadModule(Context, Err, "loop_add_4_6_iters");
+    setGlobalLLVMContext(&Context);
+    //std::unique_ptr<Module> Mod = loadModule(Context, Err, "loop_add_4_6_iters");
+    std::unique_ptr<Module> Mod =
+      loadCppModule(Context, Err, "loop_add_4_6_iters");
+    setGlobalLLVMModule(Mod.get());
 
     HardwareConstraints hcs;
     hcs.setLatency(STORE_OP, 3);
