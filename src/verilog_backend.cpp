@@ -410,7 +410,7 @@ namespace DHLS {
 
     map<string, Wire> wiring;
     map<string, Wire> outWires;
-
+    map<string, int> defaults;
     //cout << "Creating a unit for " << valueString(instr) << endl;
     
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
@@ -441,6 +441,7 @@ namespace DHLS {
       isExternal = true;
       modName = "ret";
 
+      defaults.insert({"valid", 0});
       wiring = {{"valid", {true, 1, "valid"}}};
       outWires = {};
           
@@ -563,7 +564,7 @@ namespace DHLS {
       assert(false);
     }
 
-    FunctionalUnit unit = {{modParams, modName}, unitName, wiring, outWires, isExternal};
+    FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
 
     return unit;
   }
@@ -1545,14 +1546,22 @@ namespace DHLS {
       }
 
       out << "\t\t\t// Default values" << endl;
-      for (auto w : unit.portWires) {
+      for (auto wd : unit.module.defaultValues) {
         if (isExternal) {
-          out << tab(4) << w.second.name << "_reg = 0;" << endl;
+          out << tab(4) << unit.portWires[wd.first].name << "_reg = " << wd.second << ";" << endl;
         } else {
-          out << tab(4) << w.second.name << " = 0;" << endl;                
+          out << tab(4) << unit.portWires[wd.first].name << " = " << wd.second << ";" << endl;
         }
-        
       }
+      
+      // for (auto w : unit.portWires) {
+      //   if (isExternal) {
+      //     out << tab(4) << w.second.name << "_reg = 0;" << endl;
+      //   } else {
+      //     out << tab(4) << w.second.name << " = 0;" << endl;                
+      //   }
+        
+      // }
 
       if (unit.getModName() == "br_dummy") {
         out << tab(4) << "last_BB = last_BB_reg;" << endl;
