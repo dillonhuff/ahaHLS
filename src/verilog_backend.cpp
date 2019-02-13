@@ -17,9 +17,6 @@ namespace DHLS {
   bool needsTempStorage(llvm::Instruction* const instr,
                         MicroArchitecture& arch);
 
-  // std::string iiCondition(llvm::Instruction* const instr,
-  //                         const MicroArchitecture& arch);
-
   std::ostream& operator<<(std::ostream& out, const Wire w) {
     out << w.toString();
     return out;
@@ -77,14 +74,13 @@ namespace DHLS {
 
   Port wireToInputPort(const Wire w) {
     assert(!w.registered);
-    
-    //return {w.registered, true, w.width, w.name, false};
+
     return {false, true, w.width, w.name, false};
   }
 
 
   Port wireToOutputPort(const Wire w) {
-    //return {w.registered, false, w.width, w.name, false};
+
     return {false, false, w.width, w.name, false};
   }
   
@@ -129,7 +125,6 @@ namespace DHLS {
 
       if (!AllocaInst::classof(locInstr)) {
         if (!contains_key(locInstr, ramNames)) {
-          //return "";
           return nullptr;
         }
 
@@ -144,7 +139,6 @@ namespace DHLS {
 
       return location;
     } else {
-      //return "";
       return nullptr;
     }
 
@@ -164,7 +158,7 @@ namespace DHLS {
 
   int numMemOps(BasicBlock& bb) {
     int ind = 0;
-    //for (auto instr : instrs) {
+
     for (auto& instr : bb) {
       if (StoreInst::classof(&instr) ||
           LoadInst::classof(&instr) ||
@@ -192,10 +186,7 @@ namespace DHLS {
   // TODO: Turn this in to a proper dataflow analysis using LLVM dataflow builtins
   std::map<llvm::Instruction*, llvm::Value*>
   memoryOpLocations(Function* f) {
-    //map<Instruction*, string> mems;
     map<Instruction*, llvm::Value*> mems;
-
-    //for (auto state : stg.opStates) {
 
     for (auto& bb : f->getBasicBlockList()) {
 
@@ -275,12 +266,12 @@ namespace DHLS {
     return modName;
   }
 
-  bool canUseFor(const FunctionalUnit& unit, llvm::Instruction* const instr) {
-    if (GetElementPtrInst::classof(instr)) {
-      return false;
-    }
-    return true;
-  }
+  // bool canUseFor(const FunctionalUnit& unit, llvm::Instruction* const instr) {
+  //   if (GetElementPtrInst::classof(instr)) {
+  //     return false;
+  //   }
+  //   return true;
+  // }
 
   FunctionalUnit createMemUnit(std::string unitName,
                                map<Value*, std::string>& memNames,
@@ -340,7 +331,6 @@ namespace DHLS {
         // These names need to match names created in the portlist. So
         // maybe this should be used to create the port list? Generate the
         // names here and then write ports for them?
-        //string wStr = "0";
         string wStr = to_string(writeNum);
 
         unitName = string(instr->getOpcodeName()) + "_" + wStr;
@@ -491,7 +481,6 @@ namespace DHLS {
     } else if (PHINode::classof(instr)) {
       PHINode* phi = dyn_cast<PHINode>(instr);
 
-      //modName = "phi_" + to_string(phi->getNumIncomingValues());
       modName = "phi";
 
       wiring = {{"last_block", {true, 32, "phi_last_block_" + rStr}}};
@@ -503,11 +492,6 @@ namespace DHLS {
       wiring.insert({"s", {true, 32*nb, string("phi_s") + "_" + rStr}});
       wiring.insert({"in", {true, w0*nb, string("phi_in_") + rStr}});
       
-      // for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
-      //   auto iStr = to_string(i);
-      //   wiring.insert({"s" + iStr, {true, 32, "phi_s" + iStr + "_" + rStr}});
-      //   wiring.insert({"in" + iStr, {true, 32, "phi_in" + iStr + "_" + rStr}});
-      // }
       outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
 
     } else if (SelectInst::classof(instr)) {
@@ -526,56 +510,8 @@ namespace DHLS {
     } else if (CallInst::classof(instr)) {
       if (isBuiltinFifoWrite(instr)) {
         assert(false);
-        // isExternal = true;
-        // modName = "fifo";
-
-        // unitName = map_find(instr->getOperand(1), fifoNames);
-
-        // auto w = getValueBitWidth(instr->getOperand(0));
-
-        // FifoInterface fi = hcs.getFifoType(instr->getOperand(1));
-
-        // if (fi == FIFO_RV) {
-        //   wiring = {{"read_valid", {true, 1, unitName + "_read_valid"}},
-        //             {"write_valid", {true, 1, unitName + "_write_valid"}},
-        //             {"in_data", {true, w, unitName + "_in_data"}}};
-
-        //   outWires = {{"out_data", {false, w, unitName + "_out_data"}},
-        //               {"read_ready", {false, 1, unitName + "_read_ready"}},
-        //               {"write_ready", {false, 1, unitName + "_write_ready"}}};
-        // } else {
-        //   assert(fi == FIFO_TIMED);
-
-        //   wiring = {{"in_data", {true, w, unitName + "_in_data"}}};
-        //   outWires = {{"out_data", {false, w, unitName + "_out_data"}}};
-        // }
-                    
       } else if (isBuiltinFifoRead(instr)) {
         assert(false);
-        // isExternal = true;
-        // modName = "fifo";
-
-        // unitName = map_find(instr->getOperand(0), fifoNames);
-
-        // auto w = getValueBitWidth(instr);
-
-        // FifoInterface fi = hcs.getFifoType(instr->getOperand(0));
-
-        // if (fi == FIFO_RV) {
-        //   wiring = {{"read_valid", {true, 1, unitName + "_read_valid"}},
-        //             {"write_valid", {true, 1, unitName + "_write_valid"}},
-        //             {"in_data", {true, w, unitName + "_in_data"}}};
-
-        //   outWires = {{"out_data", {false, w, unitName + "_out_data"}},
-        //               {"read_ready", {false, 1, unitName + "_read_ready"}},
-        //               {"write_ready", {false, 1, unitName + "_write_ready"}}};
-        // } else {
-        //   assert(fi == FIFO_TIMED);
-
-        //   wiring = {{"in_data", {true, w, unitName + "_in_data"}}};
-        //   outWires = {{"out_data", {false, w, unitName + "_out_data"}}};
-        // }
-        
       } else if (isBuiltinPortCall(instr)) {
         // No action
 
@@ -1004,7 +940,6 @@ namespace DHLS {
     if (ReturnInst::classof(instr)) {
       assert(addUnit.isExternal());
       
-      //assignments.insert({"valid" + rS, "1"});
       assignments.insert({addUnit.inputWire("valid"), "1"});
     } else if (StoreInst::classof(instr)) {
 
@@ -1033,10 +968,10 @@ namespace DHLS {
                CmpInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
-      auto arg0Name = outputName(arg0, pos, arch); //outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+      auto arg0Name = outputName(arg0, pos, arch);
 
       auto arg1 = instr->getOperand(1);
-      auto arg1Name = outputName(arg1, pos, arch); //outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+      auto arg1Name = outputName(arg1, pos, arch);
 
       if (instr->getOpcode() == Instruction::FAdd) {
         assignments.insert({addUnit.portWires["en"].name, "1"});        
@@ -1054,7 +989,7 @@ namespace DHLS {
 
       //cout << "arg0 = " << valueString(arg0) << endl;
 
-      auto arg0Name = outputName(arg0, pos, arch); //outputName(arg0, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+      auto arg0Name = outputName(arg0, pos, arch);
 
       assignments.insert({addUnit.portWires["base_addr"].name, arg0Name});
 
@@ -1063,7 +998,6 @@ namespace DHLS {
         //cout << "Getting operand " << valueString(arg1) << endl;
         auto arg1Name =
           outputName(arg1, pos, arch);
-          //outputName(arg1, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
 
         assignments.insert({addUnit.portWires["in" + to_string(i)].name, arg1Name});
       }
@@ -1091,15 +1025,10 @@ namespace DHLS {
         input += val0Name;
         s += "32'd" + to_string(b0Val);
 
-        // assignments.insert({addUnit.portWires["in" + to_string(i)].name, val0Name});
-        // assignments.insert({addUnit.portWires["s" + to_string(i)].name, to_string(b0Val)});
-        
         if (i < ((int) phi->getNumIncomingValues()) - 1) {
           input += ", ";
           s += ", ";
         }
-        // assignments.insert({addUnit.portWires["in" + to_string(i)].name, val0Name});
-        // assignments.insert({addUnit.portWires["s" + to_string(i)].name, to_string(b0Val)});
       }
 
       input += "}";
@@ -1114,13 +1043,13 @@ namespace DHLS {
       SelectInst* sel = dyn_cast<SelectInst>(instr);
 
       Value* cond = sel->getCondition();
-      string condName = outputName(cond, pos, arch); //outputName(cond, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+      string condName = outputName(cond, pos, arch);
 
       Value* trueVal = sel->getTrueValue();
-      string trueName = outputName(trueVal, pos, arch); //outputName(trueVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);
+      string trueName = outputName(trueVal, pos, arch);
 
       Value* falseVal = sel->getFalseValue();
-      string falseName = outputName(falseVal, pos, arch); //outputName(falseVal, instr, arch.stg, arch.unitAssignment, arch.names, arch.memoryMap, arch.rams);      
+      string falseName = outputName(falseVal, pos, arch);
 
       assignments.insert({addUnit.portWires["in0"].name, falseName});
       assignments.insert({addUnit.portWires["in1"].name, trueName});
@@ -1131,20 +1060,9 @@ namespace DHLS {
 
         if (isBuiltinFifoWrite(instr)) {
           assert(false);
-          // auto inName = outputName(instr->getOperand(0), pos, arch);
-
-          // if (arch.hcs.getFifoType(instr->getOperand(1)) == FIFO_RV) {
-          //   assignments.insert({addUnit.inputWire("write_valid"), "1"});
-          // }
-          // assignments.insert({addUnit.inputWire("in_data"), inName});
           
         } else if (isBuiltinFifoRead(instr)) {
           assert(false);
-
-          // if (arch.hcs.getFifoType(instr->getOperand(0)) == FIFO_RV) {
-          //   assignments.insert({addUnit.inputWire("read_valid"), "1"});
-          // }
-
 
         } else {
           assert(false);
@@ -1161,15 +1079,6 @@ namespace DHLS {
 
       } else if (isBuiltinPortRead(instr)) {
 
-        // cout << "Operand 0 = " << valueString(instr->getOperand(0)) << endl;
-        // assert(contains_key(instr->getOperand(0), arch.hcs.modSpecs));
-
-        // std::string portName = getPortName(instr);
-        // cout << "Port name = " << portName << endl;
-        // string val = outputName(instr->getOperand(1), pos, arch);
-
-        // assignments.insert({addUnit.inputWire(portName), val});
-        
       } else {
       }
     } else if (AllocaInst::classof(instr) ||
@@ -1247,8 +1156,6 @@ namespace DHLS {
       assert(Instruction::classof(user));
       Instruction* userInstr = dyn_cast<Instruction>(user.getUser());
 
-      //cout << "Checking if " << valueString(userInstr) << " uses " << valueString(instr) << " in a distinct instance of a state" << endl;
-
       StateId userStart = arch.stg.instructionStartState(userInstr);
       StateId instrEnd = arch.stg.instructionEndState(instr);
 
@@ -1270,9 +1177,6 @@ namespace DHLS {
         return true;
       }
     }
-
-    //cout << "No temp storage for " << valueString(instr) << endl;
-    //assert(false);
 
     return false;
   }
@@ -1311,17 +1215,12 @@ namespace DHLS {
         if (needsTempStorage(instr, arch)) {
           auto unit = map_find(instr, unitAssignment);
 
-          //out << tab(4) << "if (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
-
           out << tab(5) << instrName << " <= " << dataOutput(instr, arch) << ";" << endl;
 
-          //out << "\t\t\t\tend" << endl;
         }
           
       }
     }
-      
-
 
   }
 
@@ -1401,7 +1300,7 @@ namespace DHLS {
           // causes an exit from the block
           // Rein
           out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << " && " << pipelineClearOnNextCycleCondition(p) << ") begin" << endl;
-          //out << tab(4) << "if (" << pipelineClearOnNextCycleCondition(p) << ") begin" << endl;
+
           out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
           out << "\t\t\t\tend" << endl;
         }
@@ -1433,9 +1332,7 @@ namespace DHLS {
           vector<string> stallConds;
           for (auto instr : arch.stg.instructionsStartingAt(state)) {
 
-            if (isBuiltinFifoCall(instr.instruction)) {
-              //stallConds.push_back(iiCondition(instr.instruction, arch));
-            } else if (isBuiltinStallCall(instr.instruction)) {
+            if (isBuiltinStallCall(instr.instruction)) {
 
               cout << "Getting builtin stall cond for " << instr.instruction->getOperand(0) << endl;
               string cond = outputName(instr.instruction->getOperand(0),
@@ -1498,28 +1395,6 @@ namespace DHLS {
 
   }
 
-  // // TODO: No longer relevant?
-  // std::string iiCondition(llvm::Instruction* const instr,
-  //                         const MicroArchitecture& arch) {
-  //   if (isBuiltinFifoCall(instr)) {
-  //     auto unit = map_find(instr, arch.unitAssignment);
-
-  //     // if (isBuiltinFifoRead(instr) &&
-  //     //     (arch.hcs.getFifoType(instr->getOperand(0)) == FIFO_RV)) {
-  //     //   assert(false);
-  //     //   return map_find(string("read_ready"), unit.outWires).name;
-  //     // }
-
-  //     // if (isBuiltinFifoWrite(instr) &&
-  //     //     (arch.hcs.getFifoType(instr->getOperand(1)) == FIFO_RV)) {
-  //     //   assert(false);
-  //     //   //return map_find(string("write_ready"), unit.outWires).name;
-  //     // }
-  //   }
-
-  //   return "1";
-  // }
-
   void emitConditionalInstruction(std::ostream& out,
                                   GuardedInstruction& instrG,
                                   const StateId state,
@@ -1533,15 +1408,9 @@ namespace DHLS {
 
     out << tab(2) << "if (" << atState(state, arch) << ") begin" << endl;
     auto pos = pipelinePosition(instrG.instruction, state, i);
-    //out << "\t\t\tif (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
-
-    //out << tab(4) << "if (" << iiCondition(instrG.instruction, arch) << ") begin " << endl;
 
     instructionVerilog(out, pos, arch);
 
-    //out << tab(4) << "end" << endl;
-    
-    //out << "\t\t\tend" << endl; // Remove
     out << "\t\tend" << endl;
     out << "\tend" << endl;
   }
@@ -1641,17 +1510,10 @@ namespace DHLS {
           for (auto instrG : instrsAtState) {
             Instruction* instr = instrG.instruction;
 
-
-
-            // ControlFlowPosition pos = position(state, instr);
-            //out << tab(3) << "if (" << verilogForCondition(instrG.cond, pos, arch) << ") begin" << endl;
-
             out << tab(4) << "// " << instructionString(instr) << endl;
 
             // TODO: Extract stall calculation
             vector<std::string> stallConds;
-            //stallConds.push_back(iiCondition(instrG.instruction, arch));
-            //cout << "at state " << state << " writing instr " << valueString(instrG.instruction) <<  endl;
 
             // Stalls do not get stalled by themselves
             if (!isBuiltinStallCall(instr)) {
@@ -1677,20 +1539,6 @@ namespace DHLS {
               out << tab(4) << "end" << endl;
             }
 
-            // out << "\t\t\tend else begin " << endl;
-            // out << "\t\t\t// Default values" << endl;
-            // for (auto w : unit.portWires) {
-            //   if (isExternal) {
-            //     out << tab(4) << w.second.name << "_reg = 0;" << endl;
-            //   } else {
-            //     out << tab(4) << w.second.name << " = 0;" << endl;                
-            //   }
-            // }
-
-            // if (BranchInst::classof(instr)) {
-            //   out << tab(4) << "last_BB = last_BB_reg;" << endl;
-            // }
-            // out << "\t\t\tend" << endl;
           }
 
           out << "\t\tend else ";
@@ -1711,7 +1559,6 @@ namespace DHLS {
           out << tab(4) << w.second.name << " = 0;" << endl;                
         }
         
-        //out << "\t\t\t" << w.second.name << " = 0;" << endl;
       }
 
       if (unit.getModName() == "br_dummy") {
@@ -1814,16 +1661,6 @@ namespace DHLS {
       }
     }
     out << "\t// End instruction result storage" << endl;
-
-    // out << "\t// Start instruction result resets" << endl;
-    // out << tab(1) << "always @(posedge clk) begin" << endl;
-    // out << tab(2) << "if (rst) begin" << endl;
-    // for (auto n : names) {
-    //   out << tab(3) << n.second.name << " <= 0;" << endl;
-    // }
-    // out << tab(2) << "end" << endl;
-    // out << tab(1) << "end" << endl;
-    // out << "\t// End instruction result resets" << endl;
 
     out << endl;
 
@@ -2180,7 +2017,7 @@ namespace DHLS {
 
             auto bbNo = map_find(bbI.first, arch.basicBlockNos);
             out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
-            //out << tab(4) << "end" << endl;
+
             out << tab(3) << "end" << endl;
           }
 
@@ -2188,11 +2025,9 @@ namespace DHLS {
           out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
           for (auto bbI : instructionsForBlocks) {
 
-            //auto pos = position(st.first, bbI.second.instruction->getParent()->getTerminator());
-            //out << tab(4) << "if (" << verilogForCondition(bbI.second.cond, pos, arch) << ") begin" << endl;
             auto bbNo = map_find(bbI.first, arch.basicBlockNos);
             out << tab(5) << "last_BB_reg <= " << bbNo << ";" << endl;
-            //out << tab(4) << "end" << endl;
+
           }
           out << tab(3) << "end" << endl;
         }
@@ -2384,7 +2219,7 @@ namespace DHLS {
     emitPipelineRegisterChains(out, arch);
 
     emitPipelineInitiationBlock(out, arch);
-    //emitPipelineInitiationBlock(out, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
+
     // TODO: Remove pipelines arch, it is now a field of arch
     emitLastBBCode(out, f, arch.pipelines, arch);
 
@@ -2396,11 +2231,6 @@ namespace DHLS {
     out << "\talways @(posedge clk) begin" << endl;
 
     emitResetCode(out, arch);
-    // out << "\t\tif (rst) begin" << endl;
-    // // TODO: Change this from 0 to the global state that contains the entry block
-    
-    // out << "\t\t\tglobal_state <= 0;" << endl;
-    // out << "\t\tend else begin" << endl;
 
     emitControlCode(out, arch, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
 
@@ -3041,7 +2871,6 @@ namespace DHLS {
           string wireName = dataOutput(instr, arch);
 
           string valCheck = wireName + " !== 'dx";
-          //string active = andStr(atState(st.first, arch), iiCondition(instr, arch));
           string active = atState(st.first, arch);
 
           addAssert(notStr(active) + " || " + valCheck, debugInfo);
@@ -3066,7 +2895,6 @@ namespace DHLS {
           string in0Name = map_find(string("in_data"), unit.portWires).name;
 
           string valCheck = in0Name + " !== " + to_string(getValueBitWidth(instr->getOperand(0))) + "'dx";
-          //string active = andStr(atState(st.first, arch), iiCondition(instr, arch));
           string active = atState(st.first, arch);
 
           addAssert(notStr(active) + " || " + valCheck, debugInfo);
@@ -3135,8 +2963,6 @@ namespace DHLS {
 
   }  
   
-  // Not sure how to incorporate ready-valid instructions in to this
-  // debug framework. Maybe use the iiCondition function?
   void noCompareOpsTakeXInputs(const MicroArchitecture& arch,
                                VerilogDebugInfo& debugInfo,
                                const std::string& opName) {
