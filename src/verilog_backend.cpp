@@ -283,6 +283,7 @@ namespace DHLS {
 
     map<string, Wire> wiring;
     map<string, Wire> outWires;
+    map<string, int> defaults;
 
     if (StoreInst::classof(instr)) {
 
@@ -377,10 +378,12 @@ namespace DHLS {
         
         modName = "load";
 
-        unitName = string(instr->getOpcodeName()) + "_" + to_string(readNum);            
+        unitName = string(instr->getOpcodeName()) + "_" + to_string(readNum);
         int inputWidth = getValueBitWidth(instr);
 
         wiring = {{"raddr", {true, 32, "raddr_" + to_string(readNum)}}, {"ren", {true, 1, "ren_" + to_string(readNum)}}};
+
+        //defaults.insert({"ren_" + to_string(readNum), 0});
 
         outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(readNum)}}};
 
@@ -389,7 +392,7 @@ namespace DHLS {
 
     }
 
-    FunctionalUnit unit = {{modParams, modName}, unitName, wiring, outWires, isExternal};
+    FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
     return unit;
   }
   
