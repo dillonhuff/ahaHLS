@@ -83,11 +83,9 @@ namespace DHLS {
 
     return {false, false, w.width, w.name, false};
   }
-  
-  std::vector<Port>
-  getPorts(const MicroArchitecture& arch) {
-    auto& unitAssignment = arch.unitAssignment;
 
+  std::vector<Port>
+  getPorts(const std::map<llvm::Instruction*, FunctionalUnit>& unitAssignment) {
     vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst")};
 
     std::set<std::string> alreadyChecked;
@@ -111,7 +109,13 @@ namespace DHLS {
     }
 
     return pts;
+  }  
 
+  std::vector<Port>
+  getPorts(const MicroArchitecture& arch) {
+    auto& unitAssignment = arch.unitAssignment;
+
+    return getPorts(unitAssignment);
   }
 
   // Issue: what is the name of each register?
@@ -2428,6 +2432,91 @@ namespace DHLS {
     emitVerilog(f, graph, memoryMap);
   }
 
+  class MicroArch {
+  public:
+    std::map<ExecutionEvent, EventTracker> actionTrackers;
+    // Maybe add issue count?
+    std::vector<Wire> allWires;
+    std::map<llvm::Instruction*, FunctionalUnit> unitAssignment;
+    
+    Wire globalTime;
+
+    Wire addReg(const int width, const std::string& name) {
+      Wire w = {true, width, name};
+      if (elem_by(w, allWires, [](const Wire a, const Wire b) { return a.name == b.name; })) {
+        return w;
+      }
+                        
+      allWires.push_back(w);
+      return w;
+    }
+
+    Wire addWire(const int width, const std::string& name) {
+      Wire w = {false, width, name};
+
+      if (elem_by(w, allWires, [](const Wire a, const Wire b) { return a.name == b.name; })) {
+        return w;
+      }
+
+      allWires.push_back(w);
+      return w;
+    }
+
+    void addAction(ExecutionEvent event) {
+      string prefix = event.isEnd ? "end_" : "start_";
+
+      auto action = event.action;
+      if (action.isInstruction()) {
+        prefix +=
+          sanitizeFormatForVerilogId(valueString(action.getInstruction()));
+      } else if (action.isBasicBlock()) {
+        prefix +=
+          sanitizeFormatForVerilogId(valueString(action.getBasicBlock()));
+      } else {
+        prefix += action.getName();
+        cout << "Non instruction action = " << prefix << endl;
+      }
+
+      Wire happened = addReg(1, prefix + "_happened");
+      //{true, 1, prefix + "_happened"};
+      // allWires.push_back(happened);
+
+      Wire sc = addReg(32, prefix + "_happened_timestamp");
+      //allWires.push_back(sc);
+
+      Wire ssc = addWire(1, prefix + "_happening_this_cycle"); //{false, 1, prefix + "_happening_this_cycle"};
+      //allWires.push_back(ssc);
+
+      actionTrackers[event] = {happened, sc, ssc};
+    }
+    
+  };
+  
+  void emitVerilog(const std::string& fn,
+                   STG& stg,
+                   VerilogDebugInfo& debugInfo) {
+
+    std::map<Instruction*, FunctionalUnit> unitAssignment = 
+      assignFunctionalUnits(stg, stg.sched.hcs);
+
+    auto& cGraph = stg.sched.cgraph;
+    MicroArch arch;
+    for (auto v : cGraph.getVerts()) {
+      ExecutionEvent ev = cGraph.getNode(v);
+      arch.addAction(ev);
+    }
+    arch.unitAssignment = unitAssignment;
+
+    // Create verilog output
+    for (auto w : arch.allWires) {
+      debugInfo.debugWires.push_back(w);
+    }
+    vector<Port> ports = getPorts(unitAssignment);
+    std::ofstream out(fn + ".v");
+    emitModule(out, fn, ports, debugInfo);
+    out.close();
+  }
+  
   std::string emitTestRAM(std::ostream& out,
                           const TestBenchSpec& tb,
                           MicroArchitecture& arch,

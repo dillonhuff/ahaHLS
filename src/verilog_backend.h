@@ -548,5 +548,16 @@ namespace DHLS {
                    llvm::Function* f,
                    MicroArchitecture& arch,
                    const VerilogDebugInfo& debugInfo);
-  
+
+  void emitVerilog(const std::string& fn,
+                   STG& stg,
+                   VerilogDebugInfo& debugInfo);
+
+  class EventTracker {
+  public:
+    Wire happenedFlag;
+    Wire happenedTimeStamp;
+    Wire happeningThisCycleFlag;
+  };
+
 }

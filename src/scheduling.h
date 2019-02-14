@@ -11,6 +11,12 @@ using namespace std;
 
 namespace DHLS {
 
+  enum OrderRestriction {
+    ORDER_RESTRICTION_SIMULTANEOUS,
+    ORDER_RESTRICTION_BEFORE,
+    ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS,
+  };
+
   enum ExecutionActionType {
     EXECUTION_ACTION_INSTRUCTION,
     EXECUTION_ACTION_TAG,
@@ -127,7 +133,52 @@ namespace DHLS {
     return a.getName() < b.getName();
     
   }
-  
+
+  class ExecutionEvent {
+  public:
+    ExecutionAction action;
+    bool isEnd;
+  };
+
+  static inline
+  bool operator<(const ExecutionEvent a, const ExecutionEvent b) {
+    if (a.action == b.action) {
+      return a.isEnd < b.isEnd;
+    }
+
+    return a.action < b.action;
+  }
+
+  static inline
+  std::ostream& operator<<(std::ostream& out, const ExecutionEvent a) {
+    std::string prefix = a.isEnd ? "end" : "start";
+    out << prefix << "(" << a.action << ")";
+    return out;
+  }
+
+  class InstanceConstraint {
+  public:
+    int offset;
+    int instanceDifference;
+    OrderRestriction order;
+
+    InstanceConstraint() :
+      offset(0), instanceDifference(0), order(ORDER_RESTRICTION_SIMULTANEOUS) {}
+
+    InstanceConstraint(const int offset_,
+                       const int instanceDifference_,
+                       const OrderRestriction order_)  :
+      offset(offset_),
+      instanceDifference(instanceDifference_),
+      order(order_) {}
+  };
+
+  static inline
+  std::ostream& operator<<(std::ostream& out, const InstanceConstraint ic) {
+    out << "(" << ic.offset << ", " << ic.instanceDifference << ", " << ic.order << ")";
+    return out;
+  }
+
   class Port {
   public:
     // TODO: registered is currently ignored in code generation. Registered
@@ -352,6 +403,8 @@ namespace DHLS {
     std::map<llvm::Instruction*, std::vector<int> > instrTimes;
     std::map<llvm::BasicBlock*, std::vector<int> > blockTimes;
     std::map<llvm::BasicBlock*, int> pipelineSchedules;
+    DirectedGraph<ExecutionEvent, InstanceConstraint> cgraph;
+    HardwareConstraints hcs;
 
     int startTime(llvm::Instruction* const instr) const {
       return dbhc::map_find(instr, instrTimes).front();
@@ -1009,28 +1062,6 @@ namespace DHLS {
                           HardwareConstraints& hdc,
                           std::set<llvm::BasicBlock*>& toPipeline);
 
-  class ExecutionEvent {
-  public:
-    ExecutionAction action;
-    bool isEnd;
-  };
-
-  static inline
-  bool operator<(const ExecutionEvent a, const ExecutionEvent b) {
-    if (a.action == b.action) {
-      return a.isEnd < b.isEnd;
-    }
-
-    return a.action < b.action;
-  }
-
-  static inline
-  std::ostream& operator<<(std::ostream& out, const ExecutionEvent a) {
-    std::string prefix = a.isEnd ? "end" : "start";
-    out << prefix << "(" << a.action << ")";
-    return out;
-  }
-  
   class EventTime {
   public:
     // TODO: Replace with ExecutionEvent
@@ -1195,12 +1226,6 @@ namespace DHLS {
   public:
     Value* value;
     Instruction* mustWait;
-  };
-
-  enum OrderRestriction {
-    ORDER_RESTRICTION_SIMULTANEOUS,
-    ORDER_RESTRICTION_BEFORE,
-    ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS,
   };
 
   static inline
@@ -1502,20 +1527,6 @@ namespace DHLS {
 
   void implementWireRead(Function* readFifo);
   void implementWireWrite(Function* writeFifo);
-
-  class InstanceConstraint {
-  public:
-    int offset;
-    int instanceDifference;
-    bool isStrict;
-
-    InstanceConstraint(const int offset_,
-                       const int instanceDifference_,
-                       const bool isStrict_)  :
-      offset(offset_),
-      instanceDifference(instanceDifference_),
-      isStrict(isStrict_) {}
-  };
 
   DirectedGraph<ExecutionEvent, InstanceConstraint>
   buildExeGraph(ExecutionConstraints& exec);

@@ -1864,11 +1864,12 @@ namespace DHLS {
           eventTimes[after] = afterV;
         }
 
-        // TODO: Compute offset
-        InstanceConstraint ic(0, 0, false);
-        addEdge(map_find(before, eventTimes),
-                map_find(after, eventTimes),
-                ic);
+        int offset = oc->before.offset - oc->after.offset;
+        
+        InstanceConstraint ic(0, offset, oc->restriction);
+        ecs.addEdge(map_find(before, eventTimes),
+                    map_find(after, eventTimes),
+                    ic);
 
       } else {
         assert(false);

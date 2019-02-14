@@ -217,6 +217,10 @@ namespace DHLS {
         san += "\\\"";
       } else if (c == '%') {
         san += '$';
+      } else if (c == '.') {
+        san += "_p_";
+      } else if (c == '\n') {
+        san += "_nl_";
       } else {
         san += c;
       }

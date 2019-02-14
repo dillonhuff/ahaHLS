@@ -198,7 +198,7 @@ namespace DHLS {
       for (auto ed : exeGraph.inEdges(v)) {
         vdisc constraintNode = exeGraph.source(ed);
         ExecutionEvent ct = exeGraph.getNode(constraintNode);
-        cout << tab(2) << ed << ", with source " << constraintNode << ", " << ct << endl;
+        cout << tab(2) << ed << ", with source " << constraintNode << ", " << ct << " with distance " << exeGraph.getConn(ed) << endl;
       }
     }
     cout << "-- End constraint graph" << endl << endl;
@@ -209,6 +209,8 @@ namespace DHLS {
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+    s.cgraph = exeGraph;
+    s.hcs = hcs;
 
     return s;
   }
@@ -285,8 +287,8 @@ namespace DHLS {
     auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
 
     VerilogDebugInfo info;
-    emitVerilog("single_store", f, arch, info);
-    //emitVerilog(f, graph, layout);
+    emitVerilog("single_store", graph, info);
+    //emitVerilog("single_store", f, arch, info);
 
     REQUIRE(runIVerilogTB("single_store"));
   }
@@ -311,7 +313,6 @@ namespace DHLS {
     hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1); 
     
     Schedule s = scheduleInterface(f, hcs, interfaces);
-    //Schedule s = scheduleFunction(f, hcs);
 
     REQUIRE(s.numStates() == 5);
 
@@ -329,10 +330,6 @@ namespace DHLS {
     VerilogDebugInfo info;
     emitVerilog("plus", f, arch, info);
     
-    // map<llvm::Value*, int> layout = {};
-    // //{{getArg(f, 0), 0}, {getArg(f, 1), 3}, {getArg(f, 2), 4}};
-    // emitVerilog(f, graph, layout);
-
     REQUIRE(runIVerilogTB("plus"));
   }
 
@@ -3555,7 +3552,7 @@ namespace DHLS {
     Wire startingThisCycleFlag;
     Wire endingThisCycleFlag;
   };
-
+  
   class DynArch {
     Function* f;
     ExecutionConstraints& exe;
