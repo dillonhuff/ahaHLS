@@ -1,5 +1,9 @@
 #pragma once
 
+#include "algorithm.h"
+
+using namespace dbhc;
+
 namespace DHLS {
 
   typedef int vdisc;

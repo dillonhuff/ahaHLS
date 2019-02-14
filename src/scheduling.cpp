@@ -1839,4 +1839,23 @@ namespace DHLS {
     eb.CreateRet(nullptr);
   }
 
+  DirectedGraph<EventTime, InstanceConstraint>
+  buildExeGraph(ExecutionConstraints& exec) {
+    DirectedGraph<EventTime, InstanceConstraint> ecs;
+    for (auto c : exec.constraints) {
+      if (c->type() == CONSTRAINT_TYPE_ORDERED) {
+        Ordered* oc = static_cast<Ordered*>(c);
+        EventTime before = oc->before;
+        auto beforeEdge = ecs.addVertex(before);
+
+        EventTime after = oc->after;
+        auto afterEdge = ecs.addVertex(after);
+
+      } else {
+        assert(false);
+      }
+    }
+    return ecs;
+  }
+
 }

@@ -188,6 +188,21 @@ namespace DHLS {
     cout << "After inlining" << endl;
     cout << valueString(f) << endl;
 
+    DirectedGraph<EventTime, InstanceConstraint> exeGraph =
+      buildExeGraph(exec);
+
+    cout << "-- Constraint graph" << endl;
+    for (auto v : exeGraph.getVerts()) {
+      cout << tab(1) << v << ", " << exeGraph.getNode(v) << endl;
+      cout << tab(1) << "has constraints" << endl;
+      for (auto ed : exeGraph.inEdges(v)) {
+        vdisc constraintNode = exeGraph.source(ed);
+        EventTime ct = exeGraph.getNode(constraintNode);
+        cout << tab(2) << ed << ", with source " << constraintNode, ", " << ct << endl;
+      }
+    }
+    cout << "-- End constraint graph" << endl << endl;
+
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
     exec.addConstraints(p, f);

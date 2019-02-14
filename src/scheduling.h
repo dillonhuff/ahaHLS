@@ -1,6 +1,6 @@
 #pragma once
 
-#include "algorithm.h"
+#include "directed_graph.h"
 #include "utils.h"
 
 #include <llvm/IR/Module.h>
@@ -24,6 +24,10 @@ namespace DHLS {
     ExecutionActionType tp;
     
   public:
+
+    ExecutionAction() :
+      instr(nullptr), tag(""), bb(nullptr), tp(EXECUTION_ACTION_TAG) {}
+
     ExecutionAction(Instruction* const instr_) :
       instr(instr_), tag(""), bb(nullptr), tp(EXECUTION_ACTION_INSTRUCTION) {}
 
@@ -33,6 +37,9 @@ namespace DHLS {
     ExecutionAction(llvm::BasicBlock* const bb_) :
       instr(nullptr), tag(""), bb(bb_), tp(EXECUTION_ACTION_BASIC_BLOCK) {}
 
+    ExecutionAction(const ExecutionAction& other) :
+      instr(other.instr), tag(other.tag), bb(other.bb), tp(other.tp) {}
+    
     ExecutionActionType type() const { return tp; }
     
     bool isInstruction() const {
@@ -1008,6 +1015,14 @@ namespace DHLS {
     bool isEnd;
     int offset;
 
+    EventTime() : action(), isEnd(false), offset(0) {}
+    
+    EventTime(const EventTime& other) : action(other.action), isEnd(other.isEnd), offset(other.offset) {}
+
+    EventTime(const ExecutionAction& action_,
+              bool isEnd_,
+              int offset_) : action(action_), isEnd(isEnd_), offset(offset_) {}    
+
     void replaceInstruction(Instruction* const toReplace,
                             Instruction* const replacement) {
       if (action.isInstruction() && (action.getInstruction() == toReplace)) {
@@ -1035,6 +1050,13 @@ namespace DHLS {
       return action.getInstruction();
     }
   };
+
+  static inline
+  std::ostream& operator<<(std::ostream& out, const EventTime et) {
+    std::string prefix = et.isEnd ? "end" : "start";
+    out << prefix << "(" << et.action << ") + " << et.offset;
+    return out;
+  }
 
   typedef EventTime InstructionTime;
 
@@ -1212,7 +1234,7 @@ namespace DHLS {
     }
 
     virtual void print(std::ostream& out) const override {
-      out << before << " " << toString(restriction) << " " << after;
+      out << InstructionTime(before) << " " << toString(restriction) << " " << after;
     }
     
     virtual ExecutionConstraint* clone() const override {
@@ -1454,5 +1476,15 @@ namespace DHLS {
 
   void implementWireRead(Function* readFifo);
   void implementWireWrite(Function* writeFifo);
+
+  class InstanceConstraint {
+  public:
+    int offset;
+    int instanceDifference;
+    bool isStrict;
+  };
+
+  DirectedGraph<EventTime, InstanceConstraint>
+  buildExeGraph(ExecutionConstraints& exec);
 
 }
