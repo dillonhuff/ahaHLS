@@ -2441,6 +2441,26 @@ namespace DHLS {
     
     Wire globalTime;
 
+    MicroArch() {
+      globalTime = addReg(32, "global_time");
+    }
+
+    Wire doneFlag(ExecutionEvent& ev) {
+      return map_find(ev, actionTrackers).happenedFlag;
+    }
+
+    std::string
+    triggerCondition(const vdisc v,
+                     DirectedGraph<ExecutionEvent, InstanceConstraint>& cGraph) {
+      ExecutionEvent ev = cGraph.getNode(v);
+      std::vector<std::string> conds;
+      conds.push_back("!rst");
+      conds.push_back(notStr(doneFlag(ev).name));
+      return andStrings(conds);
+    }
+
+    Wire getGlobalTime() const { return globalTime; }
+    
     Wire addReg(const int width, const std::string& name) {
       Wire w = {true, width, name};
       if (elem_by(w, allWires, [](const Wire a, const Wire b) { return a.name == b.name; })) {
@@ -2478,14 +2498,8 @@ namespace DHLS {
       }
 
       Wire happened = addReg(1, prefix + "_happened");
-      //{true, 1, prefix + "_happened"};
-      // allWires.push_back(happened);
-
       Wire sc = addReg(32, prefix + "_happened_timestamp");
-      //allWires.push_back(sc);
-
-      Wire ssc = addWire(1, prefix + "_happening_this_cycle"); //{false, 1, prefix + "_happening_this_cycle"};
-      //allWires.push_back(ssc);
+      Wire ssc = addWire(1, prefix + "_happening_this_cycle");
 
       actionTrackers[event] = {happened, sc, ssc};
     }
@@ -2501,16 +2515,29 @@ namespace DHLS {
 
     auto& cGraph = stg.sched.cgraph;
     MicroArch arch;
+    arch.unitAssignment = unitAssignment;    
+
     for (auto v : cGraph.getVerts()) {
       ExecutionEvent ev = cGraph.getNode(v);
       arch.addAction(ev);
     }
-    arch.unitAssignment = unitAssignment;
 
     // Create verilog output
     for (auto w : arch.allWires) {
       debugInfo.debugWires.push_back(w);
     }
+
+    for (auto v : cGraph.getVerts()) {
+      ExecutionEvent ev = cGraph.getNode(v);
+
+      if (ev.action.isInstruction()) {
+        addAlwaysBlock({"clk"}, "if (" + arch.triggerCondition(v, cGraph) + ") begin $display(\"" + valueString(ev.action.getInstruction()) + "\"); end", debugInfo);
+      }
+    }
+
+    addAlwaysBlock({"clk"}, "if (rst) begin " + arch.getGlobalTime().name + " <= 0; end", debugInfo);
+    addAlwaysBlock({"clk"}, "if (!rst) begin " + arch.getGlobalTime().name + " <= " + arch.getGlobalTime().name + " + 1; end", debugInfo);
+    
     vector<Port> ports = getPorts(unitAssignment);
     std::ofstream out(fn + ".v");
     emitModule(out, fn, ports, debugInfo);
