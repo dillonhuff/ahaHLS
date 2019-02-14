@@ -1023,6 +1023,11 @@ namespace DHLS {
               bool isEnd_,
               int offset_) : action(action_), isEnd(isEnd_), offset(offset_) {}    
 
+    void print(std::ostream& out) const {
+      std::string pre = isEnd ? "end" : "start";
+      out << pre << "(" << action << ") + " << offset;
+    }
+    
     void replaceInstruction(Instruction* const toReplace,
                             Instruction* const replacement) {
       if (action.isInstruction() && (action.getInstruction() == toReplace)) {
@@ -1050,13 +1055,6 @@ namespace DHLS {
       return action.getInstruction();
     }
   };
-
-  static inline
-  std::ostream& operator<<(std::ostream& out, const EventTime et) {
-    std::string prefix = et.isEnd ? "end" : "start";
-    out << prefix << "(" << et.action << ") + " << et.offset;
-    return out;
-  }
 
   typedef EventTime InstructionTime;
 
@@ -1130,8 +1128,7 @@ namespace DHLS {
 
   static inline
   std::ostream& operator<<(std::ostream& out, const InstructionTime& t) {
-    std::string pre = t.isEnd ? "end" : "start";
-    out << pre << "(" << t.action << ") + " << t.offset;
+    t.print(out);
     return out;
   }
 
@@ -1234,7 +1231,9 @@ namespace DHLS {
     }
 
     virtual void print(std::ostream& out) const override {
-      out << InstructionTime(before) << " " << toString(restriction) << " " << after;
+      before.print(out);
+      out << " " << toString(restriction) << " ";
+      after.print(out);
     }
     
     virtual ExecutionConstraint* clone() const override {

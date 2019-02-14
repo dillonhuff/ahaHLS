@@ -198,7 +198,7 @@ namespace DHLS {
       for (auto ed : exeGraph.inEdges(v)) {
         vdisc constraintNode = exeGraph.source(ed);
         EventTime ct = exeGraph.getNode(constraintNode);
-        cout << tab(2) << ed << ", with source " << constraintNode, ", " << ct << endl;
+        cout << tab(2) << ed << ", with source " << constraintNode << ", " << ct << endl;
       }
     }
     cout << "-- End constraint graph" << endl << endl;

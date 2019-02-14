@@ -1708,8 +1708,12 @@ namespace DHLS {
       if (c->type() == CONSTRAINT_TYPE_ORDERED) {
         Ordered* oc = static_cast<Ordered*>(c->clone());
 
-        cout << "Before = " << oc->before << endl;
-        cout << "After  = " << oc->after << endl;        
+        cout << "Before = ";
+        oc->before.print(cout);
+        cout << endl;
+        cout << "After  = ";
+        oc->after.print(cout);
+        cout << endl;        
 
         // start(inline_ret) -> end(inlineMarker)
         // end(inline_ret) -> end(inlineMarker)
@@ -1842,14 +1846,23 @@ namespace DHLS {
   DirectedGraph<EventTime, InstanceConstraint>
   buildExeGraph(ExecutionConstraints& exec) {
     DirectedGraph<EventTime, InstanceConstraint> ecs;
+
+    std::map<EventTime, vdisc> eventTimes;
     for (auto c : exec.constraints) {
       if (c->type() == CONSTRAINT_TYPE_ORDERED) {
         Ordered* oc = static_cast<Ordered*>(c);
+
         EventTime before = oc->before;
-        auto beforeEdge = ecs.addVertex(before);
+        if (!contains_key(before, eventTimes)) {
+          auto beforeV = ecs.addVertex(before);
+          eventTimes[before] = beforeV;
+        }
 
         EventTime after = oc->after;
-        auto afterEdge = ecs.addVertex(after);
+        if (!contains_key(after, eventTimes)) {
+          auto afterV = ecs.addVertex(after);
+          eventTimes[after] = afterV;
+        }
 
       } else {
         assert(false);
