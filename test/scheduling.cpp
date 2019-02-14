@@ -188,7 +188,7 @@ namespace DHLS {
     cout << "After inlining" << endl;
     cout << valueString(f) << endl;
 
-    DirectedGraph<EventTime, InstanceConstraint> exeGraph =
+    DirectedGraph<ExecutionEvent, InstanceConstraint> exeGraph =
       buildExeGraph(exec);
 
     cout << "-- Constraint graph" << endl;
@@ -197,7 +197,7 @@ namespace DHLS {
       cout << tab(1) << "has constraints" << endl;
       for (auto ed : exeGraph.inEdges(v)) {
         vdisc constraintNode = exeGraph.source(ed);
-        EventTime ct = exeGraph.getNode(constraintNode);
+        ExecutionEvent ct = exeGraph.getNode(constraintNode);
         cout << tab(2) << ed << ", with source " << constraintNode << ", " << ct << endl;
       }
     }

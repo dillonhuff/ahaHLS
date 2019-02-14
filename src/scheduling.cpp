@@ -1843,22 +1843,22 @@ namespace DHLS {
     eb.CreateRet(nullptr);
   }
 
-  DirectedGraph<EventTime, InstanceConstraint>
+  DirectedGraph<ExecutionEvent, InstanceConstraint>
   buildExeGraph(ExecutionConstraints& exec) {
-    DirectedGraph<EventTime, InstanceConstraint> ecs;
+    DirectedGraph<ExecutionEvent, InstanceConstraint> ecs;
 
-    std::map<EventTime, vdisc> eventTimes;
+    std::map<ExecutionEvent, vdisc> eventTimes;
     for (auto c : exec.constraints) {
       if (c->type() == CONSTRAINT_TYPE_ORDERED) {
         Ordered* oc = static_cast<Ordered*>(c);
 
-        EventTime before = oc->before;
+        ExecutionEvent before = oc->before.event();
         if (!contains_key(before, eventTimes)) {
           auto beforeV = ecs.addVertex(before);
           eventTimes[before] = beforeV;
         }
 
-        EventTime after = oc->after;
+        ExecutionEvent after = oc->after.event();
         if (!contains_key(after, eventTimes)) {
           auto afterV = ecs.addVertex(after);
           eventTimes[after] = afterV;

@@ -1009,8 +1009,31 @@ namespace DHLS {
                           HardwareConstraints& hdc,
                           std::set<llvm::BasicBlock*>& toPipeline);
 
+  class ExecutionEvent {
+  public:
+    ExecutionAction action;
+    bool isEnd;
+  };
+
+  static inline
+  bool operator<(const ExecutionEvent a, const ExecutionEvent b) {
+    if (a.action == b.action) {
+      return a.isEnd < b.isEnd;
+    }
+
+    return a.action < b.action;
+  }
+
+  static inline
+  std::ostream& operator<<(std::ostream& out, const ExecutionEvent a) {
+    std::string prefix = a.isEnd ? "end" : "start";
+    out << prefix << "(" << a.action << ")";
+    return out;
+  }
+  
   class EventTime {
   public:
+    // TODO: Replace with ExecutionEvent
     ExecutionAction action;
     bool isEnd;
     int offset;
@@ -1022,6 +1045,10 @@ namespace DHLS {
     EventTime(const ExecutionAction& action_,
               bool isEnd_,
               int offset_) : action(action_), isEnd(isEnd_), offset(offset_) {}    
+
+    ExecutionEvent event() const {
+      return {action, isEnd};
+    }
 
     void print(std::ostream& out) const {
       std::string pre = isEnd ? "end" : "start";
@@ -1483,7 +1510,7 @@ namespace DHLS {
     bool isStrict;
   };
 
-  DirectedGraph<EventTime, InstanceConstraint>
+  DirectedGraph<ExecutionEvent, InstanceConstraint>
   buildExeGraph(ExecutionConstraints& exec);
 
 }
