@@ -1508,6 +1508,13 @@ namespace DHLS {
     int offset;
     int instanceDifference;
     bool isStrict;
+
+    InstanceConstraint(const int offset_,
+                       const int instanceDifference_,
+                       const bool isStrict_)  :
+      offset(offset_),
+      instanceDifference(instanceDifference_),
+      isStrict(isStrict_) {}
   };
 
   DirectedGraph<ExecutionEvent, InstanceConstraint>
