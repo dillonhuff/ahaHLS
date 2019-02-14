@@ -332,7 +332,8 @@ namespace DHLS {
         wiring = {{"wen", {true, 1, "wen_" + wStr}}, {"waddr", {true, 32, "waddr_" + wStr}}, {"wdata", {true, inputWidth, "wdata_" + wStr}}};
 
         outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
-            
+        defaults.insert({"wen", 0});            
+
         writeNum++;
       }
 
@@ -383,7 +384,9 @@ namespace DHLS {
 
         wiring = {{"raddr", {true, 32, "raddr_" + to_string(readNum)}}, {"ren", {true, 1, "ren_" + to_string(readNum)}}};
 
-        //defaults.insert({"ren_" + to_string(readNum), 0});
+        // Note: I think the "_reg not found" error is caused by the default
+        // value of the functional unit not containing the ren default entry?
+        defaults.insert({"ren", 0});
 
         outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(readNum)}}};
 
