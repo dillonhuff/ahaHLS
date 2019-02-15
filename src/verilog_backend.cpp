@@ -400,7 +400,6 @@ namespace DHLS {
   }
   
   FunctionalUnit createUnit(std::string unitName,
-                            map<Value*, std::string>& fifoNames,
                             map<Value*, std::string>& memNames,
                             map<Instruction*, Value*>& memSrcs,
                             HardwareConstraints& hcs,
@@ -583,11 +582,11 @@ namespace DHLS {
     std::map<Instruction*, FunctionalUnit> units;
 
     auto memSrcs = memoryOpLocations(stg.getFunction());
-    map<Value*, std::string> fifoNames;
-    for (int fifoNum = 0; fifoNum < (int) stg.getFunction()->arg_size(); fifoNum++) {
-      auto arg = getArg(stg.getFunction(), fifoNum);
-      fifoNames[arg] = "fifo_" + to_string(fifoNum);
-    }
+    // map<Value*, std::string> fifoNames;
+    // for (int fifoNum = 0; fifoNum < (int) stg.getFunction()->arg_size(); fifoNum++) {
+    //   auto arg = getArg(stg.getFunction(), fifoNum);
+    //   fifoNames[arg] = "fifo_" + to_string(fifoNum);
+    // }
 
     map<Value*, std::string> memNames;
     int i = 0;
@@ -625,7 +624,7 @@ namespace DHLS {
 
         string unitName = string(instr->getOpcodeName()) + "_" + rStr;
         auto unit =
-          createUnit(unitName, fifoNames, memNames, memSrcs, hcs, readNum, writeNum, instr);
+          createUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
         units[instr] = unit;
 
         resSuffix++;
