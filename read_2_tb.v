@@ -116,6 +116,6 @@ module test();
             .wdata(wdata),
             .waddr(waddr));
    
-   read_2 ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .raddr_0(raddr0), .rdata_0(rdata0));
+   read_2 ss(.clk(clk), .rst(rst), .valid(valid), .mem_waddr_0(waddr), .mem_wdata_0(wdata), .mem_wen_0(wen), .mem_raddr_0(raddr0), .mem_rdata_0(rdata0));
    
 endmodule

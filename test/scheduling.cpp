@@ -405,6 +405,19 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("if_else"));
   }
 
+  void emitVerilog(const std::string& name,
+                   STG& graph,
+                   HardwareConstraints& hcs) {
+    auto f = graph.getFunction();
+    map<llvm::Value*, int> layout = {};
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+
+    VerilogDebugInfo info;
+    emitVerilog(name, f, arch, info);
+
+  }
+
   TEST_CASE("Accessing a memory address that requires address calculation") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -422,20 +435,15 @@ namespace DHLS {
     interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1); 
+    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1);
 
     Schedule s = scheduleInterface(f, hcs, interfaces);
     STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
     graph.print(cout);
-    
-    map<llvm::Value*, int> layout = {};
-    ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
 
-    VerilogDebugInfo info;
-    emitVerilog("if_else", f, arch, info);
+    emitVerilog("read_2", graph, hcs);
     
     REQUIRE(runIVerilogTB("read_2"));
     
