@@ -519,7 +519,9 @@ namespace DHLS {
     Function* f = getFunctionByDemangledName(Mod.get(), "many_adds");
 
     InterfaceFunctions interfaces;
-    interfaces.functionTemplates[string("read")] = implementRAMRead0;
+    interfaces.functionTemplates[string("read_0")] = implementRAMRead0;
+    interfaces.functionTemplates[string("read_1")] = implementRAMRead1;
+    interfaces.functionTemplates[string("read_2")] = implementRAMRead2;        
     interfaces.functionTemplates[string("write")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
