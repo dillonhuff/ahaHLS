@@ -89,7 +89,7 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
-      #1 $display("Should overwrite value");
+      #1 $display("Should overwrite value, dbg_data = %d", dbg_data);
       
       `assert(dbg_data, 32'd23)
       `assert(valid, 1'd1)
@@ -174,6 +174,6 @@ module test();
             .wdata(wdata),
             .waddr(waddr));
    
-   if_else ss(.clk(clk), .rst(rst), .valid(valid), .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen), .raddr_0(raddr0), .rdata_0(rdata0));
+   if_else ss(.clk(clk), .rst(rst), .valid(valid), .mem_waddr_0(waddr), .mem_wdata_0(wdata), .mem_wen_0(wen), .mem_raddr_0(raddr0), .mem_rdata_0(rdata0));
    
 endmodule

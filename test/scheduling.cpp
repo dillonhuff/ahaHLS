@@ -364,8 +364,9 @@ namespace DHLS {
 
     HardwareConstraints hcs = standardConstraints();
     hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1); 
-    
-    Schedule s = scheduleFunction(f, hcs);
+
+    Schedule s = scheduleInterface(f, hcs, interfaces);
+    //Schedule s = scheduleFunction(f, hcs);
 
     STG graph = buildSTG(s, f);
 
@@ -374,9 +375,16 @@ namespace DHLS {
 
     REQUIRE(!graph.hasTransition(1, 1));
 
+    map<llvm::Value*, int> layout = {};
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+
+    VerilogDebugInfo info;
+    emitVerilog("if_else", f, arch, info);
+    
     //map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 3}, {getArg(f, 2), 4}};
-    map<Value*, int> layout;
-    emitVerilog(f, graph, layout);
+    // map<Value*, int> layout;
+    // emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("if_else"));
   }
