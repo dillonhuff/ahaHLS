@@ -414,17 +414,23 @@ namespace DHLS {
 
   void emitVerilog(const std::string& name,
                    STG& graph,
-                   HardwareConstraints& hcs) {
+                   HardwareConstraints& hcs,
+                   VerilogDebugInfo& info) {
     auto f = graph.getFunction();
     map<llvm::Value*, int> layout = {};
     ArchOptions options;
     auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
 
-    VerilogDebugInfo info;
     emitVerilog(name, f, arch, info);
-
   }
 
+  void emitVerilog(const std::string& name,
+                   STG& graph,
+                   HardwareConstraints& hcs) {
+    VerilogDebugInfo info;
+    emitVerilog(name, graph, hcs, info);
+  }
+  
   TEST_CASE("Accessing a memory address that requires address calculation") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -655,16 +661,23 @@ namespace DHLS {
 
     SMDiagnostic Err;
     LLVMContext Context;
-    std::unique_ptr<Module> Mod = loadModule(Context, Err, "loop_add_4");
+    setGlobalLLVMContext(&Context);
+    
+    //std::unique_ptr<Module> Mod = loadModule(Context, Err, "loop_add_4");
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "loop_add_4");
+    setGlobalLLVMModule(Mod.get());
 
-    HardwareConstraints hcs;
-    hcs.setLatency(STORE_OP, 3);
-    hcs.setLatency(LOAD_OP, 1);
-    hcs.setLatency(CMP_OP, 0);
-    hcs.setLatency(BR_OP, 0);
-    hcs.setLatency(ADD_OP, 0);
+    // HardwareConstraints hcs;
+    // hcs.setLatency(STORE_OP, 3);
+    // hcs.setLatency(LOAD_OP, 1);
+    // hcs.setLatency(CMP_OP, 0);
+    // hcs.setLatency(BR_OP, 0);
+    // hcs.setLatency(ADD_OP, 0);
 
-    Function* f = Mod->getFunction("loop_add_4");
+    // Function* f = Mod->getFunction("loop_add_4");
+    
+    Function* f = getFunctionByDemangledName(Mod.get(), "loop_add_4");
+    getArg(f, 0)->setName("ram");
 
     std::set<BasicBlock*> blocksToPipeline;
     for (auto& bb : f->getBasicBlockList()) {
@@ -682,7 +695,16 @@ namespace DHLS {
       }
     }
 
-    Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read")] = implementRAMRead0;
+    interfaces.functionTemplates[string("write")] = implementRAMWrite0;
+    
+    HardwareConstraints hcs = standardConstraints();
+    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
+
+    Schedule s = scheduleInterface(f, hcs, interfaces, blocksToPipeline);
+    
+    //Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
 
     REQUIRE(s.numStates() == 7);
     REQUIRE(map_find(*begin(blocksToPipeline), s.pipelineSchedules) == 1);
@@ -697,7 +719,7 @@ namespace DHLS {
     REQUIRE(graph.pipelines[0].II() == 1);
     
     //map<string, int> layout = {{"a", 0}, {"b", 10}};
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
+    //map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
     VerilogDebugInfo info;
 
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
@@ -709,7 +731,9 @@ namespace DHLS {
     // addWirePrintoutIf("num_clocks_after_reset == 10", "last_BB", info);
     // addAssert("num_clocks_after_reset !== 2 || last_BB === 2", info);
 
-    emitVerilog(f, graph, layout, info);
+    //emitVerilog(f, graph, layout, info);
+
+    emitVerilog("loop_add_4", graph, hcs, info);
 
     REQUIRE(runIVerilogTB("loop_add_4"));
   }
