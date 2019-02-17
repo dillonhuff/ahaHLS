@@ -492,35 +492,53 @@ namespace DHLS {
   }
 
   TEST_CASE("Adding numbers with resource limits") {
-    createLLFile("./test/ll_files/many_adds");    
+    //createLLFile("./test/ll_files/many_adds");    
 
     SMDiagnostic Err;
     LLVMContext Context;
+    setGlobalLLVMContext(&Context);
 
-    string modFile = "./test/ll_files/many_adds.ll";
-    std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
-    if (!Mod) {
-      outs() << "Error: No mod\n";
-      assert(false);
-    }
+    std::unique_ptr<Module> Mod =
+      loadCppModule(Context, Err, "many_adds");
 
-    HardwareConstraints hcs;
-    hcs.setLatency(STORE_OP, 3);
-    hcs.setLatency(LOAD_OP, 1);
-    hcs.setLatency(CMP_OP, 0);
-    hcs.setLatency(BR_OP, 0);
-    hcs.setLatency(ADD_OP, 0);
+    // string modFile = "./test/ll_files/many_adds.ll";
+    // std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
+    // if (!Mod) {
+    //   outs() << "Error: No mod\n";
+    //   assert(false);
+    // }
 
+    // HardwareConstraints hcs;
+    // hcs.setLatency(STORE_OP, 3);
+    // hcs.setLatency(LOAD_OP, 1);
+    // hcs.setLatency(CMP_OP, 0);
+    // hcs.setLatency(BR_OP, 0);
+    // hcs.setLatency(ADD_OP, 0);
+
+    //Function* f = Mod->getFunction("many_adds");
+    Function* f = getFunctionByDemangledName(Mod.get(), "many_adds");
+
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read")] = implementRAMRead0;
+    interfaces.functionTemplates[string("write")] = implementRAMWrite0;
+    
+    HardwareConstraints hcs = standardConstraints();
+    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
     // Limits number of adders
     hcs.setCount(ADD_OP, 1);
 
-    Function* f = Mod->getFunction("many_adds");
-    Schedule s = scheduleFunction(f, hcs);
-
+    Schedule s = scheduleInterface(f, hcs, interfaces);
     STG graph = buildSTG(s, f);
-
+    
     cout << "STG Is" << endl;
     graph.print(cout);
+
+    // Schedule s = scheduleFunction(f, hcs);
+
+    // STG graph = buildSTG(s, f);
+
+    // cout << "STG Is" << endl;
+    // graph.print(cout);
 
     for (auto st : graph.opStates) {
       map<OperationType, int> opCounts;
@@ -539,8 +557,11 @@ namespace DHLS {
       }
     }
 
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 1}, {getArg(f, 2), 2}, {getArg(f, 3), 3}};    
-    emitVerilog(f, graph, layout);
+    emitVerilog("many_adds", graph, hcs);
+    
+    // map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 1}, {getArg(f, 2), 2}, {getArg(f, 3), 3}};    
+    // emitVerilog(f, graph, layout);
+
     REQUIRE(runIVerilogTB("many_adds"));
     
   }
@@ -603,6 +624,7 @@ namespace DHLS {
 
     //Function* f = Mod->getFunction("loop_add_7");
     Function* f = getFunctionByDemangledName(Mod.get(), "loop_add_7");
+    getArg(f, 0)->setName("ram");
 
     std::set<BasicBlock*> blocksToPipeline;
     for (auto& bb : f->getBasicBlockList()) {
