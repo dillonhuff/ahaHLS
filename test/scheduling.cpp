@@ -219,7 +219,41 @@ namespace DHLS {
 
     return s;
   }
-  
+
+  MicroArchitecture synthesizeVerilog(llvm::Function* f,
+                                      InterfaceFunctions& interfaces,
+                                      HardwareConstraints& hcs) {
+    ExecutionConstraints exec;
+    inlineWireCalls(f, exec, interfaces);
+    addDataConstraints(f, exec);
+
+    cout << "LLVM function after inlining reads" << endl;
+    cout << valueString(f) << endl;
+
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG is " << endl;
+    graph.print(cout);
+    
+    map<llvm::Value*, int> layout = {};
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(f, arch, info);
+
+    return arch;
+  }
+
   // Q: System TODOs:
   // A: Remove useless address fields from registers (allow custom memory interfaces)
   //    Move test layout into testbenchspec
@@ -403,17 +437,6 @@ namespace DHLS {
     VerilogDebugInfo info;
     emitVerilog("if_else", f, arch, info);
     
-    // HardwareConstraints hcs;
-    // hcs.setLatency(STORE_OP, 3);
-    // hcs.setLatency(LOAD_OP, 1);
-    // hcs.setLatency(CMP_OP, 0);
-    // hcs.setLatency(BR_OP, 0);
-    // hcs.setLatency(ADD_OP, 0);
-
-    //Function* f = Mod->getFunction("read_2");
-    // map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 3}};
-    // synthesizeVerilog(f, hcs, layout);
-
     REQUIRE(runIVerilogTB("read_2"));
     
   }
@@ -4283,40 +4306,6 @@ namespace DHLS {
     emitVerilog(srUser, arch, info);
     
     REQUIRE(runIVerilogTB("dynamic_arch_sram_class"));
-  }
-
-  MicroArchitecture synthesizeVerilog(llvm::Function* f,
-                                      InterfaceFunctions& interfaces,
-                                      HardwareConstraints& hcs) {
-    ExecutionConstraints exec;
-    inlineWireCalls(f, exec, interfaces);
-    addDataConstraints(f, exec);
-
-    cout << "LLVM function after inlining reads" << endl;
-    cout << valueString(f) << endl;
-
-    set<BasicBlock*> toPipeline;
-    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
-    exec.addConstraints(p, f);
-
-    map<Function*, SchedulingProblem> constraints{{f, p}};
-    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
-
-    STG graph = buildSTG(s, f);
-
-    cout << "STG is " << endl;
-    graph.print(cout);
-    
-    map<llvm::Value*, int> layout = {};
-    ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
-
-    VerilogDebugInfo info;
-    addNoXChecks(arch, info);
-
-    emitVerilog(f, arch, info);
-
-    return arch;
   }
 
   TEST_CASE("Reduce 4 with FIFOs") {
