@@ -500,6 +500,7 @@ namespace DHLS {
 
     std::unique_ptr<Module> Mod =
       loadCppModule(Context, Err, "many_adds");
+    setGlobalLLVMModule(Mod.get());
 
     // string modFile = "./test/ll_files/many_adds.ll";
     // std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
@@ -522,10 +523,10 @@ namespace DHLS {
     interfaces.functionTemplates[string("read_0")] = implementRAMRead0;
     interfaces.functionTemplates[string("read_1")] = implementRAMRead1;
     interfaces.functionTemplates[string("read_2")] = implementRAMRead2;        
-    interfaces.functionTemplates[string("write")] = implementRAMWrite0;
+    interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
+    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 3, 1);
     // Limits number of adders
     hcs.setCount(ADD_OP, 1);
 
