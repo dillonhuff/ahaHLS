@@ -663,19 +663,9 @@ namespace DHLS {
     LLVMContext Context;
     setGlobalLLVMContext(&Context);
     
-    //std::unique_ptr<Module> Mod = loadModule(Context, Err, "loop_add_4");
     std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "loop_add_4");
     setGlobalLLVMModule(Mod.get());
 
-    // HardwareConstraints hcs;
-    // hcs.setLatency(STORE_OP, 3);
-    // hcs.setLatency(LOAD_OP, 1);
-    // hcs.setLatency(CMP_OP, 0);
-    // hcs.setLatency(BR_OP, 0);
-    // hcs.setLatency(ADD_OP, 0);
-
-    // Function* f = Mod->getFunction("loop_add_4");
-    
     Function* f = getFunctionByDemangledName(Mod.get(), "loop_add_4");
     getArg(f, 0)->setName("ram");
 
@@ -703,8 +693,6 @@ namespace DHLS {
     hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
 
     Schedule s = scheduleInterface(f, hcs, interfaces, blocksToPipeline);
-    
-    //Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
 
     REQUIRE(s.numStates() == 7);
     REQUIRE(map_find(*begin(blocksToPipeline), s.pipelineSchedules) == 1);
@@ -718,20 +706,10 @@ namespace DHLS {
     REQUIRE(graph.pipelines[0].depth() == 5);
     REQUIRE(graph.pipelines[0].II() == 1);
     
-    //map<string, int> layout = {{"a", 0}, {"b", 10}};
-    //map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
     VerilogDebugInfo info;
 
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
-
-    // info.debugWires.push_back({true, 32, "num_clocks_after_reset"});
-    // addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
-
-    // addWirePrintoutIf("num_clocks_after_reset == 10", "last_BB", info);
-    // addAssert("num_clocks_after_reset !== 2 || last_BB === 2", info);
-
-    //emitVerilog(f, graph, layout, info);
 
     emitVerilog("loop_add_4", graph, hcs, info);
 
