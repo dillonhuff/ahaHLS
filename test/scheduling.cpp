@@ -453,25 +453,45 @@ namespace DHLS {
 
     SMDiagnostic Err;
     LLVMContext Context;
-    std::unique_ptr<Module> Mod = loadModule(Context, Err, "loop_add_7");
+    setGlobalLLVMContext(&Context);
+    
+    //std::unique_ptr<Module> Mod = loadModule(Context, Err, "loop_add_7");
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "loop_add_7");
+    setGlobalLLVMModule(Mod.get());
 
-    HardwareConstraints hcs;
-    hcs.setLatency(STORE_OP, 3);
-    hcs.setLatency(LOAD_OP, 1);
-    hcs.setLatency(CMP_OP, 0);
-    hcs.setLatency(BR_OP, 0);
-    hcs.setLatency(ADD_OP, 0);
+    Function* f = getFunctionByDemangledName(Mod.get(), "loop_add_7");
+    getArg(f, 0)->setName("ram");
+    
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read")] = implementRAMRead0;
+    interfaces.functionTemplates[string("write")] = implementRAMWrite0;
+    
+    HardwareConstraints hcs = standardConstraints();
+    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1);
 
-    Function* f = Mod->getFunction("loop_add_7");
-    Schedule s = scheduleFunction(f, hcs);
-
+    Schedule s = scheduleInterface(f, hcs, interfaces);
     STG graph = buildSTG(s, f);
+    
+    // HardwareConstraints hcs;
+    // hcs.setLatency(STORE_OP, 3);
+    // hcs.setLatency(LOAD_OP, 1);
+    // hcs.setLatency(CMP_OP, 0);
+    // hcs.setLatency(BR_OP, 0);
+    // hcs.setLatency(ADD_OP, 0);
+
+    // Function* f = Mod->getFunction("loop_add_7");
+    // Schedule s = scheduleFunction(f, hcs);
+
+    // STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
-    emitVerilog(f, graph, layout);
+
+    emitVerilog("loop_add_7", graph, hcs);
+    
+    // map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
+    // emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("loop_add_7"));
   }
