@@ -198,7 +198,8 @@ namespace DHLS {
 
   Schedule scheduleInterface(llvm::Function* f,
                              HardwareConstraints& hcs,
-                             InterfaceFunctions& interfaces) {
+                             InterfaceFunctions& interfaces,
+                             std::set<BasicBlock*>& toPipeline) {
     ExecutionConstraints exec;
 
     cout << "Before inlining" << endl;
@@ -210,7 +211,6 @@ namespace DHLS {
     cout << "After inlining" << endl;
     cout << valueString(f) << endl;
 
-    set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
     exec.addConstraints(p, f);
 
@@ -220,6 +220,13 @@ namespace DHLS {
     return s;
   }
 
+  Schedule scheduleInterface(llvm::Function* f,
+                             HardwareConstraints& hcs,
+                             InterfaceFunctions& interfaces) {
+    set<BasicBlock*> toPipeline;
+    return scheduleInterface(f, hcs, interfaces, toPipeline);
+  }
+  
   MicroArchitecture synthesizeVerilog(llvm::Function* f,
                                       InterfaceFunctions& interfaces,
                                       HardwareConstraints& hcs) {
@@ -467,29 +474,17 @@ namespace DHLS {
     interfaces.functionTemplates[string("write")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1);
+    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
 
     Schedule s = scheduleInterface(f, hcs, interfaces);
     STG graph = buildSTG(s, f);
     
-    // HardwareConstraints hcs;
-    // hcs.setLatency(STORE_OP, 3);
-    // hcs.setLatency(LOAD_OP, 1);
-    // hcs.setLatency(CMP_OP, 0);
-    // hcs.setLatency(BR_OP, 0);
-    // hcs.setLatency(ADD_OP, 0);
-
-    // Function* f = Mod->getFunction("loop_add_7");
-    // Schedule s = scheduleFunction(f, hcs);
-
-    // STG graph = buildSTG(s, f);
-
     cout << "STG Is" << endl;
     graph.print(cout);
 
-
     emitVerilog("loop_add_7", graph, hcs);
-    
+
+    // No longer needed
     // map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
     // emitVerilog(f, graph, layout);
 
@@ -593,16 +588,21 @@ namespace DHLS {
 
     SMDiagnostic Err;
     LLVMContext Context;
-    std::unique_ptr<Module> Mod = loadModule(Context, Err, "loop_add_7");
+    setGlobalLLVMContext(&Context);
 
-    HardwareConstraints hcs;
-    hcs.setLatency(STORE_OP, 3);
-    hcs.setLatency(LOAD_OP, 1);
-    hcs.setLatency(CMP_OP, 0);
-    hcs.setLatency(BR_OP, 0);
-    hcs.setLatency(ADD_OP, 0);
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "loop_add_7");
+    setGlobalLLVMModule(Mod.get());
 
-    Function* f = Mod->getFunction("loop_add_7");
+    
+    // HardwareConstraints hcs;
+    // hcs.setLatency(STORE_OP, 3);
+    // hcs.setLatency(LOAD_OP, 1);
+    // hcs.setLatency(CMP_OP, 0);
+    // hcs.setLatency(BR_OP, 0);
+    // hcs.setLatency(ADD_OP, 0);
+
+    //Function* f = Mod->getFunction("loop_add_7");
+    Function* f = getFunctionByDemangledName(Mod.get(), "loop_add_7");
 
     std::set<BasicBlock*> blocksToPipeline;
     for (auto& bb : f->getBasicBlockList()) {
@@ -631,7 +631,14 @@ namespace DHLS {
       }
     }
 
-    Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read")] = implementRAMRead0;
+    interfaces.functionTemplates[string("write")] = implementRAMWrite0;
+    
+    HardwareConstraints hcs = standardConstraints();
+    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
+
+    Schedule s = scheduleInterface(f, hcs, interfaces, blocksToPipeline);
 
     REQUIRE(s.numStates() == 7);
     REQUIRE(map_find(*begin(blocksToPipeline), s.pipelineSchedules) == 1);
@@ -645,8 +652,7 @@ namespace DHLS {
     REQUIRE(graph.pipelines[0].depth() == 5);
     REQUIRE(graph.pipelines[0].II() == 1);
 
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
-    emitVerilog(f, graph, layout);
+    emitVerilog("loop_add_7", graph, hcs);
 
     REQUIRE(runIVerilogTB("loop_add_7"));
   }
