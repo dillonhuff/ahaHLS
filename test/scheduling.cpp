@@ -484,16 +484,10 @@ namespace DHLS {
 
     emitVerilog("loop_add_7", graph, hcs);
 
-    // No longer needed
-    // map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
-    // emitVerilog(f, graph, layout);
-
     REQUIRE(runIVerilogTB("loop_add_7"));
   }
 
   TEST_CASE("Adding numbers with resource limits") {
-    //createLLFile("./test/ll_files/many_adds");    
-
     SMDiagnostic Err;
     LLVMContext Context;
     setGlobalLLVMContext(&Context);
@@ -502,22 +496,8 @@ namespace DHLS {
       loadCppModule(Context, Err, "many_adds");
     setGlobalLLVMModule(Mod.get());
 
-    // string modFile = "./test/ll_files/many_adds.ll";
-    // std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
-    // if (!Mod) {
-    //   outs() << "Error: No mod\n";
-    //   assert(false);
-    // }
-
-    // HardwareConstraints hcs;
-    // hcs.setLatency(STORE_OP, 3);
-    // hcs.setLatency(LOAD_OP, 1);
-    // hcs.setLatency(CMP_OP, 0);
-    // hcs.setLatency(BR_OP, 0);
-    // hcs.setLatency(ADD_OP, 0);
-
-    //Function* f = Mod->getFunction("many_adds");
     Function* f = getFunctionByDemangledName(Mod.get(), "many_adds");
+    getArg(f, 0)->setName("ram");
 
     InterfaceFunctions interfaces;
     interfaces.functionTemplates[string("read_0")] = implementRAMRead0;
@@ -535,13 +515,6 @@ namespace DHLS {
     
     cout << "STG Is" << endl;
     graph.print(cout);
-
-    // Schedule s = scheduleFunction(f, hcs);
-
-    // STG graph = buildSTG(s, f);
-
-    // cout << "STG Is" << endl;
-    // graph.print(cout);
 
     for (auto st : graph.opStates) {
       map<OperationType, int> opCounts;
@@ -562,11 +535,7 @@ namespace DHLS {
 
     emitVerilog("many_adds", graph, hcs);
     
-    // map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 1}, {getArg(f, 2), 2}, {getArg(f, 3), 3}};    
-    // emitVerilog(f, graph, layout);
-
     REQUIRE(runIVerilogTB("many_adds"));
-    
   }
 
   TEST_CASE("Greater than") {
