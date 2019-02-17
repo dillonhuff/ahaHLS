@@ -135,6 +135,28 @@ namespace DHLS {
 
     addDataConstraints(ramRead1, exec);
   }
+
+  void implementRAMRead2(Function* ramRead1, ExecutionConstraints& exec) {
+    int addrWidth = getValueBitWidth(getArg(ramRead1, 1));
+    int width = getTypeBitWidth(ramRead1->getReturnType());
+    auto sramTp = getArg(ramRead1, 0)->getType();
+
+    auto waddr0F = writePort("raddr_2", addrWidth, sramTp);
+    auto rdata0F = readPort("rdata_2", width, sramTp);
+
+    auto sram = getArg(ramRead1, 0);
+    auto addr = getArg(ramRead1, 1);
+
+    auto bb = mkBB("entry_block", ramRead1);
+    IRBuilder<> eb(bb);
+    auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
+    auto readData = eb.CreateCall(rdata0F, {sram});
+    eb.CreateRet(readData);
+
+    exec.add(instrStart(setAddr) + 1 == instrStart(readData));
+
+    addDataConstraints(ramRead1, exec);
+  }
   
   void implementRAMWrite0(Function* ramWrite0, ExecutionConstraints& exec) {
     int addrWidth = getValueBitWidth(getArg(ramWrite0, 1));
@@ -296,7 +318,6 @@ namespace DHLS {
     hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1); 
     
     Schedule s = scheduleInterface(f, hcs, interfaces);
-    //Schedule s = scheduleFunction(f, hcs);
 
     REQUIRE(s.numStates() == 5);
 
@@ -314,27 +335,36 @@ namespace DHLS {
     VerilogDebugInfo info;
     emitVerilog("plus", f, arch, info);
     
-    // map<llvm::Value*, int> layout = {};
-    // //{{getArg(f, 0), 0}, {getArg(f, 1), 3}, {getArg(f, 2), 4}};
-    // emitVerilog(f, graph, layout);
-
     REQUIRE(runIVerilogTB("plus"));
   }
 
   TEST_CASE("A simple if") {
     SMDiagnostic Err;
     LLVMContext Context;
+    setGlobalLLVMContext(&Context);
 
-    std::unique_ptr<Module> Mod = loadModule(Context, Err, "if_else");
+    //std::unique_ptr<Module> Mod = loadModule(Context, Err, "if_else");
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "if_else");
+    setGlobalLLVMModule(Mod.get());
     
-    HardwareConstraints hcs;
-    hcs.setLatency(STORE_OP, 3);
-    hcs.setLatency(LOAD_OP, 1);
-    hcs.setLatency(CMP_OP, 0);
-    hcs.setLatency(BR_OP, 0);
-    hcs.setLatency(ADD_OP, 0);
+    // HardwareConstraints hcs;
+    // hcs.setLatency(STORE_OP, 3);
+    // hcs.setLatency(LOAD_OP, 1);
+    // hcs.setLatency(CMP_OP, 0);
+    // hcs.setLatency(BR_OP, 0);
+    // hcs.setLatency(ADD_OP, 0);
 
-    Function* f = Mod->getFunction("if_else");
+    Function* f = getFunctionByDemangledName(Mod.get(), "if_else");
+    getArg(f, 0)->setName("mem");
+    
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read_0")] = implementRAMRead0;
+    interfaces.functionTemplates[string("read_1")] = implementRAMRead1;
+    interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1); 
+    
     Schedule s = scheduleFunction(f, hcs);
 
     STG graph = buildSTG(s, f);
@@ -344,7 +374,8 @@ namespace DHLS {
 
     REQUIRE(!graph.hasTransition(1, 1));
 
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 3}, {getArg(f, 2), 4}};    
+    //map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 3}, {getArg(f, 2), 4}};
+    map<Value*, int> layout;
     emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("if_else"));
