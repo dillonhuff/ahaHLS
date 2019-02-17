@@ -222,7 +222,6 @@ namespace DHLS {
   
   // Q: System TODOs:
   // A: Remove useless address fields from registers (allow custom memory interfaces)
-  //    Add an "I dont care about default values to this FU" option?
   //    Move test layout into testbenchspec
   //    Incorporate fifoSpecs in to scheduling constraints automatically instead of
   //      of setting them in HardwareConstraints?
@@ -238,9 +237,6 @@ namespace DHLS {
   //  1. Merge schedule and STG creation in to one function when the schedule
   //     does not need to be checked
   //  2. Remove or wrap the function -> SchedulingConstraints map
-
-  // Q: How should C++ code that copies structs (or reads / writes their internal
-  //    state) be treated? How should code that passes structs by value work?
 
   // Q: What test cases do I need?
   // A: Test that uses multiple different RAM types
@@ -343,17 +339,9 @@ namespace DHLS {
     LLVMContext Context;
     setGlobalLLVMContext(&Context);
 
-    //std::unique_ptr<Module> Mod = loadModule(Context, Err, "if_else");
     std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "if_else");
     setGlobalLLVMModule(Mod.get());
     
-    // HardwareConstraints hcs;
-    // hcs.setLatency(STORE_OP, 3);
-    // hcs.setLatency(LOAD_OP, 1);
-    // hcs.setLatency(CMP_OP, 0);
-    // hcs.setLatency(BR_OP, 0);
-    // hcs.setLatency(ADD_OP, 0);
-
     Function* f = getFunctionByDemangledName(Mod.get(), "if_else");
     getArg(f, 0)->setName("mem");
     
@@ -366,7 +354,6 @@ namespace DHLS {
     hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1); 
 
     Schedule s = scheduleInterface(f, hcs, interfaces);
-    //Schedule s = scheduleFunction(f, hcs);
 
     STG graph = buildSTG(s, f);
 
@@ -382,10 +369,6 @@ namespace DHLS {
     VerilogDebugInfo info;
     emitVerilog("if_else", f, arch, info);
     
-    //map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 3}, {getArg(f, 2), 4}};
-    // map<Value*, int> layout;
-    // emitVerilog(f, graph, layout);
-
     REQUIRE(runIVerilogTB("if_else"));
   }
 
