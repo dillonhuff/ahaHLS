@@ -354,7 +354,6 @@ namespace DHLS {
     hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1); 
 
     Schedule s = scheduleInterface(f, hcs, interfaces);
-
     STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
@@ -375,19 +374,45 @@ namespace DHLS {
   TEST_CASE("Accessing a memory address that requires address calculation") {
     SMDiagnostic Err;
     LLVMContext Context;
+    setGlobalLLVMContext(&Context);
 
-    std::unique_ptr<Module> Mod = loadModule(Context, Err, "read_2");
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "read_2"); // Cpp
+    setGlobalLLVMModule(Mod.get());
 
-    HardwareConstraints hcs;
-    hcs.setLatency(STORE_OP, 3);
-    hcs.setLatency(LOAD_OP, 1);
-    hcs.setLatency(CMP_OP, 0);
-    hcs.setLatency(BR_OP, 0);
-    hcs.setLatency(ADD_OP, 0);
+    Function* f = getFunctionByDemangledName(Mod.get(), "read_2");
+    getArg(f, 0)->setName("mem");
+    
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read_0")] = implementRAMRead0;
+    interfaces.functionTemplates[string("read_1")] = implementRAMRead1;
+    interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
+    
+    HardwareConstraints hcs = standardConstraints();
+    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1); 
 
-    Function* f = Mod->getFunction("read_2");
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 3}};
-    synthesizeVerilog(f, hcs, layout);
+    Schedule s = scheduleInterface(f, hcs, interfaces);
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+    
+    map<llvm::Value*, int> layout = {};
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+
+    VerilogDebugInfo info;
+    emitVerilog("if_else", f, arch, info);
+    
+    // HardwareConstraints hcs;
+    // hcs.setLatency(STORE_OP, 3);
+    // hcs.setLatency(LOAD_OP, 1);
+    // hcs.setLatency(CMP_OP, 0);
+    // hcs.setLatency(BR_OP, 0);
+    // hcs.setLatency(ADD_OP, 0);
+
+    //Function* f = Mod->getFunction("read_2");
+    // map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 3}};
+    // synthesizeVerilog(f, hcs, layout);
 
     REQUIRE(runIVerilogTB("read_2"));
     
