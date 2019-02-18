@@ -77,6 +77,9 @@ namespace DHLS {
       ramPorts["wen_" + iStr] = inputPort(1, "wen_" + iStr);      
     }
 
+    ramPorts["debug_addr"] = inputPort(addrWidth, "debug_addr");
+    ramPorts["debug_data"] = inputPort(width, "debug_data");
+
     string name = "RAM";
     assert(numWritePorts == 1);
     if (numReadPorts > 1) {
@@ -910,10 +913,24 @@ namespace DHLS {
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 100;
     tb.name = "blur_no_lb";
-    emitVerilogTestBench(tb, arch, testLayout);
 
-    REQUIRE(runIVerilogTB("blur_no_lb"));
+    tb.settableWires.insert("ram_debug_addr");
     
+    int checkMemCycle = 50;
+    for (auto exp : memoryExpected) {
+      int offset = map_find(exp.first, testLayout);
+      for (int i = 0; i < exp.second.size(); i++) {
+        int val = exp.second[i];
+        map_insert(tb.actionsOnCycles, checkMemCycle, "ram_debug_addr <= " + to_string(offset) + ";");
+        map_insert(tb.actionsOnCycles, checkMemCycle, assertString("ram_debug_data === " + to_string(val)));
+        offset++;
+        checkMemCycle++;
+      }
+    }
+
+    emitVerilogTestBench(tb, arch, testLayout);
+    
+    REQUIRE(runIVerilogTB("blur_no_lb"));
   }
 
   TEST_CASE("Blur with linebuffering") {
@@ -939,7 +956,6 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<string, int> testLayout = {{"a", 0}, {"b", 8}};
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 8}};
     auto arch = buildMicroArchitecture(f, graph, layout);
 
@@ -960,6 +976,9 @@ namespace DHLS {
 
     emitVerilog(f, arch, info);
 
+    // Testbench specification
+
+    map<string, int> testLayout = {{"a", 0}, {"b", 8}};
     map<string, vector<int> > memoryInit{{"a", {0, 1, 2, 3, 7, 5, 5, 2}}};
     map<string, vector<int> > memoryExpected{{"b", {}}};
 
@@ -968,16 +987,17 @@ namespace DHLS {
       map_insert(memoryExpected, string("b"), (ma[i - 1] + ma[i] + ma[i + 1]));
     }
 
-    cout << "Expected values" << endl;
-    for (auto val : map_find(string("b"), memoryExpected)) {
-      cout << "\t" << val << endl;
-    }
-
     TestBenchSpec tb;
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 40;
     tb.name = "blur_lb";
+    
+    cout << "Expected values" << endl;
+    for (auto val : map_find(string("b"), memoryExpected)) {
+      cout << "\t" << val << endl;
+    }
+
     emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("blur_lb"));
