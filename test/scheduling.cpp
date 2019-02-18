@@ -903,6 +903,7 @@ namespace DHLS {
     }
 
     TestBenchSpec tb;
+    tb.useModSpecs = true;
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 100;

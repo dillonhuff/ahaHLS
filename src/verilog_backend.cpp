@@ -2517,6 +2517,9 @@ namespace DHLS {
     return ramName;
   }
 
+  // What is the problem I'm having? blur_no_lb_tb auto generated RAM
+  // has no ports for reads and writes. I need to actually instantiate
+  // the module that corresponds to 
   void emitVerilogTestBench(const TestBenchSpec& tb,
                             MicroArchitecture& arch,
                             const std::map<std::string, int>& layout) {
@@ -2531,8 +2534,6 @@ namespace DHLS {
     }
     
     VerilogComponents comps;
-    // comps.debugWires.push_back({true, 1, "rst"});
-    // comps.debugWires.push_back({true, 1, "clk"});
 
     if (hasRAM) {
       comps.debugWires.push_back({true, 1, "in_set_mem_phase"});
