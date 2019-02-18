@@ -95,7 +95,6 @@ namespace DHLS {
     int width = getTypeBitWidth(ramRead0->getReturnType());
     auto sramTp = getArg(ramRead0, 0)->getType();
 
-    //ExecutionConstraints& exec = interfaces.getConstraints(ramRead0);
     auto waddr0F = writePort("raddr_0", addrWidth, sramTp);
     auto rdata0F = readPort("rdata_0", width, sramTp);
 
