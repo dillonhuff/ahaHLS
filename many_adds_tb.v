@@ -127,14 +127,14 @@ module test();
    RAM3 mem(.clk(clk),
             .rst(rst),
 
-            .raddr0(raddr0),
-            .rdata0(rdata0),
+            .raddr_0(raddr0),
+            .rdata_0(rdata0),
 
-            .raddr1(raddr1),
-            .rdata1(rdata1),
+            .raddr_1(raddr1),
+            .rdata_1(rdata1),
 
-            .raddr2(raddr2),
-            .rdata2(rdata2),
+            .raddr_2(raddr2),
+            .rdata_2(rdata2),
             
             .debug_write_addr(dbg_wr_addr),
             .debug_write_data(dbg_wr_data),

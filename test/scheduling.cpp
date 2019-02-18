@@ -76,8 +76,13 @@ namespace DHLS {
       ramPorts["wdata_" + iStr] = inputPort(width, "wdata_" + iStr);
       ramPorts["wen_" + iStr] = inputPort(1, "wen_" + iStr);      
     }
-    
-    return {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "RAM", ramPorts};
+
+    string name = "RAM";
+    assert(numWritePorts == 1);
+    if (numReadPorts > 1) {
+      name += to_string(numReadPorts);
+    }
+    return {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, name, ramPorts};
   }
   
   ModuleSpec ramSpec(const int width, const int depth) {
@@ -882,13 +887,11 @@ namespace DHLS {
     VerilogDebugInfo info;
     emitVerilog("blur_no_lb", graph, hcs);
     
-    map<string, int> testLayout = {{"a", 0}, {"b", 8}};
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}}; //, {getArg(f, 1), 8}};
     ArchOptions options;
     auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
-    // VerilogDebugInfo info;
-    // emitVerilog(f, arch, info);
 
+    map<string, int> testLayout = {{"a", 0}, {"b", 8}};
     map<string, vector<int> > memoryInit{{"a", {0, 1, 2, 3, 7, 5, 5, 2}}};
     map<string, vector<int> > memoryExpected{{"b", {}}};
 

@@ -4,13 +4,13 @@ module RAM3(input clk,
            input [WIDTH - 1 : 0]  wdata,
            input [ADDR_WIDTH : 0] waddr,
 
-           input [ADDR_WIDTH : 0] raddr0,
-           input [ADDR_WIDTH : 0] raddr1,
-           input [ADDR_WIDTH : 0] raddr2,
+           input [ADDR_WIDTH : 0] raddr_0,
+           input [ADDR_WIDTH : 0] raddr_1,
+           input [ADDR_WIDTH : 0] raddr_2,
 
-           output [WIDTH - 1 : 0] rdata0,
-           output [WIDTH - 1 : 0] rdata1,
-           output [WIDTH - 1 : 0] rdata2,
+           output [WIDTH - 1 : 0] rdata_0,
+           output [WIDTH - 1 : 0] rdata_1,
+           output [WIDTH - 1 : 0] rdata_2,
             
            input [ADDR_WIDTH : 0] debug_write_addr,
            input [WIDTH - 1 : 0]  debug_write_data,
@@ -23,9 +23,9 @@ module RAM3(input clk,
    parameter DEPTH=16;
    parameter ADDR_WIDTH = $clog2(DEPTH);
 
-   reg [WIDTH - 1 : 0]            rdata0_reg;
-   reg [WIDTH - 1 : 0]            rdata1_reg;   
-   reg [WIDTH - 1 : 0]            rdata2_reg;   
+   reg [WIDTH - 1 : 0]            rdata_0_reg;
+   reg [WIDTH - 1 : 0]            rdata_1_reg;   
+   reg [WIDTH - 1 : 0]            rdata_2_reg;   
 
    wire [WIDTH - 1 : 0]            rdata_reg_del;
 
@@ -46,16 +46,16 @@ module RAM3(input clk,
          data[debug_write_addr] <= debug_write_data;
       end
 
-      rdata0_reg <= data[raddr0];
-      rdata1_reg <= data[raddr1];
-      rdata2_reg <= data[raddr2];            
+      rdata_0_reg <= data[raddr_0];
+      rdata_1_reg <= data[raddr_1];
+      rdata_2_reg <= data[raddr_2];            
    end
 
    delay #(.WIDTH(1)) wen_delay(.clk(clk), .in(wen), .out(wen_del));   
    delay #(.WIDTH(32)) wdata_delay(.clk(clk), .in(wdata), .out(wdata_del));   
    delay #(.WIDTH(5)) waddr_delay(.clk(clk), .in(waddr), .out(waddr_del));   
 
-   assign rdata0 = rdata0_reg;
-   assign rdata1 = rdata1_reg;
-   assign rdata2 = rdata2_reg;   
+   assign rdata_0 = rdata_0_reg;
+   assign rdata_1 = rdata_1_reg;
+   assign rdata_2 = rdata_2_reg;   
 endmodule

@@ -2529,13 +2529,13 @@ namespace DHLS {
     bool hasRAM = layout.size() > 0;
 
     string ramName = "noRam";
-    if (hasRAM) {
+    if (hasRAM && !tb.useModSpecs) {
       ramName = emitTestRAM(out, tb, arch, layout);
     }
     
     VerilogComponents comps;
 
-    if (hasRAM) {
+    if (hasRAM && !tb.useModSpecs) {
       comps.debugWires.push_back({true, 1, "in_set_mem_phase"});
       comps.debugWires.push_back({true, 1, "in_run_phase"});
       comps.debugWires.push_back({true, 1, "in_check_mem_phase"});
@@ -2560,7 +2560,7 @@ namespace DHLS {
       }
     }
 
-    if (hasRAM) {
+    if (hasRAM && !tb.useModSpecs) {
 
       comps.debugWires.push_back({true, 5, "dbg_wr_addr"});
       comps.debugWires.push_back({true, 32, "dbg_wr_data"});
@@ -2589,13 +2589,13 @@ namespace DHLS {
     
     addAlwaysBlock({"clk"}, "total_cycles <= total_cycles + 1;", comps);
 
-    if (hasRAM) {
+    if (hasRAM && !tb.useModSpecs) {
       addAlwaysBlock({"clk"}, "if (total_cycles >= max_cycles) begin if (valid == 1 && in_check_mem_phase) begin $display(\"Passed\"); $finish(); end else begin $display(\"valid == %d. Ran out of cycles, finishing.\", valid); $finish(); end end", comps);
     } else {
       addAlwaysBlock({"clk"}, "if (total_cycles >= max_cycles) begin $display(\"Passed\"); $finish(); end", comps);
     }
 
-    if (hasRAM) {
+    if (hasRAM && !tb.useModSpecs) {
       addAlwaysBlock({"clk"}, "if (!in_set_mem_phase) begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", comps);
 
       addAlwaysBlock({"clk"}, "if (in_set_mem_phase) begin clocks_in_set_mem_phase <= clocks_in_set_mem_phase + 1; end ", comps);
@@ -2605,7 +2605,7 @@ namespace DHLS {
     comps.initStmts.push_back("#1 rst_reg = 1;");
     comps.initStmts.push_back("#1 total_cycles = 0;");
 
-    if (hasRAM) {
+    if (hasRAM && !tb.useModSpecs) {
       comps.initStmts.push_back("#1 in_set_mem_phase = 1;");
       comps.initStmts.push_back("#1 in_check_mem_phase = 0;");
       comps.initStmts.push_back("#1 in_run_phase = 0;");
@@ -2614,13 +2614,13 @@ namespace DHLS {
     comps.initStmts.push_back("#1 max_cycles = " + to_string(tb.maxCycles) + ";");
     comps.initStmts.push_back("#1 num_clocks_after_reset = 0;");
 
-    if (hasRAM) {
+    if (hasRAM && !tb.useModSpecs) {
       comps.initStmts.push_back("#1 clocks_in_set_mem_phase = 0;");
       comps.initStmts.push_back("#1 clocks_in_run_phase = 0;");        
       comps.initStmts.push_back("#1 clocks_in_check_mem_phase = 0;");
     }
 
-    if (hasRAM) {
+    if (hasRAM && !tb.useModSpecs) {
       map<string, string> ramConnections{{"clk", "clk"}, {"rst", "rst"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}, {"debug_write_addr", "dbg_wr_addr"}, {"debug_write_data", "dbg_wr_data"}, {"debug_write_en", "dbg_wr_en"}};    
       for (int i = 0; i < arch.numReadPorts(); i++) {
         auto iStr = to_string(i);
@@ -2632,13 +2632,13 @@ namespace DHLS {
         auto iStr = to_string(i);
         ramConnections.insert({"waddr_" + iStr, "waddr_" + to_string(i)});
         ramConnections.insert({"wdata_" + iStr, "wdata_" + to_string(i)});
-        ramConnections.insert({"wen_" + iStr, "wen_" + to_string(i)});      
+        ramConnections.insert({"wen_" + iStr, "wen_" + to_string(i)});
       }
     
       comps.instances.push_back({ramName, "ram", ramConnections});
     }
     
-    if (hasRAM) {
+    if (hasRAM && !tb.useModSpecs) {
       int cyclesInRun = tb.runCycles;
 
       addAlwaysBlock({"clk"}, "if (in_check_mem_phase) begin if (!valid) begin $display(\"Failed: Checking memory, but the module is not done running\"); $finish(); end end", comps);
