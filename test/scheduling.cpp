@@ -420,6 +420,7 @@ namespace DHLS {
     ArchOptions options;
     auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
 
+    addNoXChecks(arch, info);
     emitVerilog(name, f, arch, info);
   }
 
@@ -856,35 +857,58 @@ namespace DHLS {
 
   TEST_CASE("Blur without linebuffering") {
 
+    // SMDiagnostic Err;
+    // LLVMContext Context;
+    // std::unique_ptr<Module> Mod = loadModule(Context, Err, "blur_no_lb");
+
+    // HardwareConstraints hcs;
+    // hcs.setLatency(STORE_OP, 3);
+    // hcs.setLatency(LOAD_OP, 1);
+    // hcs.setLatency(CMP_OP, 0);
+    // hcs.setLatency(BR_OP, 0);
+    // hcs.setLatency(ADD_OP, 0);
+
+    // Function* f = Mod->getFunction("blur_no_lb");
+    // assert(f != nullptr);
+    
+    // Schedule s = scheduleFunction(f, hcs);
+
+    // STG graph = buildSTG(s, f);
+
+    // cout << "STG Is" << endl;
+    // graph.print(cout);
+
     SMDiagnostic Err;
     LLVMContext Context;
-    std::unique_ptr<Module> Mod = loadModule(Context, Err, "blur_no_lb");
+    setGlobalLLVMContext(&Context);
+    std::unique_ptr<Module> Mod =
+      loadCppModule(Context, Err, "blur_no_lb");
+    setGlobalLLVMModule(Mod.get());
 
-    HardwareConstraints hcs;
-    hcs.setLatency(STORE_OP, 3);
-    hcs.setLatency(LOAD_OP, 1);
-    hcs.setLatency(CMP_OP, 0);
-    hcs.setLatency(BR_OP, 0);
-    hcs.setLatency(ADD_OP, 0);
-
-    Function* f = Mod->getFunction("blur_no_lb");
-    assert(f != nullptr);
+    Function* f = getFunctionByDemangledName(Mod.get(), "blur_no_lb");
+    getArg(f, 0)->setName("ram");
     
-    Schedule s = scheduleFunction(f, hcs);
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read_0")] = implementRAMRead0;
+    interfaces.functionTemplates[string("read_1")] = implementRAMRead1;
+    interfaces.functionTemplates[string("read_2")] = implementRAMRead2;
+    interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
+    
+    HardwareConstraints hcs = standardConstraints();
+    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 3, 1);
 
+    Schedule s = scheduleInterface(f, hcs, interfaces);
     STG graph = buildSTG(s, f);
 
-    cout << "STG Is" << endl;
-    graph.print(cout);
-
+    VerilogDebugInfo info;
+    emitVerilog("blur_no_lb", graph, hcs);
     
     map<string, int> testLayout = {{"a", 0}, {"b", 8}};
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 8}};
-
-    auto arch = buildMicroArchitecture(f, graph, layout);
-
-    VerilogDebugInfo info;
-    emitVerilog(f, arch, info);
+    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}}; //, {getArg(f, 1), 8}};
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    // VerilogDebugInfo info;
+    // emitVerilog(f, arch, info);
 
     map<string, vector<int> > memoryInit{{"a", {0, 1, 2, 3, 7, 5, 5, 2}}};
     map<string, vector<int> > memoryExpected{{"b", {}}};
