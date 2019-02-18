@@ -839,7 +839,7 @@ namespace DHLS {
 
     LinearExpression actionStart(const ExecutionAction& action) {
       auto lc = LinearExpression(dbhc::map_find(action, actionVarNames).front());
-      cout << "start of " << action << " is " << lc << endl;
+      //cout << "start of " << action << " is " << lc << endl;
       return lc;
     }
 

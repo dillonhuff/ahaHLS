@@ -314,8 +314,8 @@ namespace DHLS {
 
     model m = s.get_model();
 
-    cout << "Final model" << endl;
-    cout << m << endl;
+    // cout << "Final model" << endl;
+    // cout << m << endl;
     
     //cout << "Final schedule" << endl;
     Schedule sched;
