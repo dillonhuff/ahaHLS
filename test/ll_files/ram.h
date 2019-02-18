@@ -6,6 +6,18 @@ class RAM {
   
 public:
 
+  RAM() {
+    for (int i = 0; i < depth; i++) {
+      elems[i] = 0;
+    }
+  }
+
+  RAM(const RAM& other) {
+    for (int i = 0; i < depth; i++) {
+      elems[i] = other.elems[i];
+    }
+  }
+
   T read(int addr) {
     return elems[addr];
   }
