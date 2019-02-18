@@ -614,15 +614,6 @@ namespace DHLS {
     std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "loop_add_7");
     setGlobalLLVMModule(Mod.get());
 
-    
-    // HardwareConstraints hcs;
-    // hcs.setLatency(STORE_OP, 3);
-    // hcs.setLatency(LOAD_OP, 1);
-    // hcs.setLatency(CMP_OP, 0);
-    // hcs.setLatency(BR_OP, 0);
-    // hcs.setLatency(ADD_OP, 0);
-
-    //Function* f = Mod->getFunction("loop_add_7");
     Function* f = getFunctionByDemangledName(Mod.get(), "loop_add_7");
     getArg(f, 0)->setName("ram");
 
@@ -746,7 +737,6 @@ namespace DHLS {
     SMDiagnostic Err;
     LLVMContext Context;
     setGlobalLLVMContext(&Context);
-    //std::unique_ptr<Module> Mod = loadModule(Context, Err, "loop_add_4_6_iters");
     std::unique_ptr<Module> Mod =
       loadCppModule(Context, Err, "loop_add_4_6_iters");
     setGlobalLLVMModule(Mod.get());
@@ -797,8 +787,6 @@ namespace DHLS {
     Schedule s = scheduleFunction(f, hcs, blocksToPipeline, constraints);
     // Pipelined
 
-    //Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
-
     REQUIRE(s.numStates() == 7);
     REQUIRE(map_find(*begin(blocksToPipeline), s.pipelineSchedules) == 1);
 
@@ -811,8 +799,6 @@ namespace DHLS {
     REQUIRE(graph.pipelines[0].depth() == 5);
     REQUIRE(graph.pipelines[0].II() == 1);
 
-    //map<llvm::Value*, int> layout = {}; //{{getArg(f, 0), 0}, {getArg(f, 1), 10}};
-
     map<llvm::Value*, int> layout = {};
     ArchOptions options;
     auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
@@ -821,8 +807,6 @@ namespace DHLS {
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
     emitVerilog("loop_add_4_6_iters", f, arch, info);
-
-    //emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("loop_add_4_6_iters"));
   }
