@@ -1,7 +1,6 @@
 #include "ram.h"
 
 #define A_LEN 8
-#define B_LEN (A_LEN - 2);
 
 #define a 0
 #define b 8

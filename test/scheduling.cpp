@@ -857,27 +857,6 @@ namespace DHLS {
 
   TEST_CASE("Blur without linebuffering") {
 
-    // SMDiagnostic Err;
-    // LLVMContext Context;
-    // std::unique_ptr<Module> Mod = loadModule(Context, Err, "blur_no_lb");
-
-    // HardwareConstraints hcs;
-    // hcs.setLatency(STORE_OP, 3);
-    // hcs.setLatency(LOAD_OP, 1);
-    // hcs.setLatency(CMP_OP, 0);
-    // hcs.setLatency(BR_OP, 0);
-    // hcs.setLatency(ADD_OP, 0);
-
-    // Function* f = Mod->getFunction("blur_no_lb");
-    // assert(f != nullptr);
-    
-    // Schedule s = scheduleFunction(f, hcs);
-
-    // STG graph = buildSTG(s, f);
-
-    // cout << "STG Is" << endl;
-    // graph.print(cout);
-
     SMDiagnostic Err;
     LLVMContext Context;
     setGlobalLLVMContext(&Context);
