@@ -288,7 +288,6 @@ namespace DHLS {
   //    Test case using a ready-valid interface together with pipelining
   //    Test case that builds a linebuffer from LLVM
   //    Test case with struct (compound type) passed via channel (or used by value)
-  //    Test case that computes a histogram
   TEST_CASE("Schedule a single store operation") {
     SMDiagnostic err;
     LLVMContext context;
@@ -462,8 +461,36 @@ namespace DHLS {
     
   }
 
-  TEST_CASE("Looping over an array doing a[i] + 7") {
+  TEST_CASE("Histogram of image colors") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "histogram");
+    setGlobalLLVMModule(Mod.get());
 
+    Function* f = getFunctionByDemangledName(Mod.get(), "histogram");
+    getArg(f, 0)->setName("ram");
+    
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read")] = implementRAMRead0;
+    interfaces.functionTemplates[string("write")] = implementRAMWrite0;
+    
+    HardwareConstraints hcs = standardConstraints();
+    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
+
+    Schedule s = scheduleInterface(f, hcs, interfaces);
+    STG graph = buildSTG(s, f);
+    
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    emitVerilog("histogram", graph, hcs);
+
+    REQUIRE(runIVerilogTB("histogram"));
+  }
+
+  TEST_CASE("Looping over an array doing a[i] + 7") {
     SMDiagnostic Err;
     LLVMContext Context;
     setGlobalLLVMContext(&Context);

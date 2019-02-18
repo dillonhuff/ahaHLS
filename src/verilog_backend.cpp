@@ -565,6 +565,14 @@ namespace DHLS {
       modName = "sext";
       wiring = {{"in", {true, 32, "sgt_in0_" + rStr}}};
       outWires = {{"out", {false, 64, "sgt_out_" + rStr}}};
+    } else if (ZExtInst::classof(instr)) {
+      modName = "zext";
+      int outWidth = getValueBitWidth(instr);
+      int inWidth = getValueBitWidth(instr->getOperand(0));
+      
+      wiring = {{"in", {true, inWidth, "zext_in_" + rStr}}};
+      outWires = {{"out", {false, 64, "zext_out_" + rStr}}};
+      modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}};
     } else {
       cout << "Unsupported instruction = " << instructionString(instr) << endl;
       assert(false);
@@ -1091,6 +1099,10 @@ namespace DHLS {
       string trueName = outputName(trueVal, pos, arch);
 
       assignments.insert({addUnit.portWires["in"].name, trueName});
+    } else if (ZExtInst::classof(instr)) {
+      Value* inVal = instr->getOperand(0);
+      string inName = outputName(inVal, pos, arch);
+      assignments.insert({addUnit.portWires["in"].name, inName});
     } else {
 
       std::string str;

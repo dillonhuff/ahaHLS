@@ -52,6 +52,7 @@ namespace DHLS {
     hcs.setLatency(SUB_OP, 0);    
     hcs.setLatency(MUL_OP, 0);
     hcs.setLatency(SEXT_OP, 0);
+    hcs.setLatency(ZEXT_OP, 0);
     return hcs;
   }
 
