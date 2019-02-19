@@ -1581,9 +1581,9 @@ namespace DHLS {
         
       // }
 
-      if (unit.getModName() == "br_dummy") {
-        out << tab(4) << "last_BB = last_BB_reg;" << endl;
-      }
+      // if (unit.getModName() == "br_dummy") {
+      //   out << tab(4) << "last_BB = last_BB_reg;" << endl;
+      // }
 
       out << "\t\tend" << endl;
 
@@ -1864,7 +1864,7 @@ namespace DHLS {
   void emitGlobalStateVariables(std::ostream& out) {
     out << "\treg [31:0] global_state;" << endl << endl;
     out << "\treg [31:0] last_BB_reg;" << endl << endl;
-    out << "\treg [31:0] last_BB;" << endl << endl;    
+    //out << "\treg [31:0] last_BB;" << endl << endl;    
   }
 
   std::vector<ElaboratedPipeline>

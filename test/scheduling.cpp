@@ -280,6 +280,7 @@ namespace DHLS {
   //    Add some simple examples to the README
   //    Delete RAM specs (replaced by more general modSpecs)
   //    Convert ptr to builtin codes to RAM templates
+  //    Shrink registers to reduce area costs
 
   // NOTE: The code for testbenches is getting really complicated. Some of that
   // is automatic testbench generation, but some of it is just the hodgepodge of
