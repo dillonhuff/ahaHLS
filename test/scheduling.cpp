@@ -4929,10 +4929,12 @@ namespace DHLS {
     map_insert(tb.actionsInCycles, 12, string(in0Name + "_in_data = 9;"));
     map_insert(tb.actionsInCycles, 12, string(in0Name + "_write_valid = 1;"));
 
-    map_insert(tb.actionsInCycles, 13, string(in0Name + "_in_data = 7;"));
-    map_insert(tb.actionsInCycles, 13, string(in0Name + "_write_valid = 1;"));
+    map_insert(tb.actionsInCycles, 13, string(in0Name + "_write_valid = 0;"));    
+
+    map_insert(tb.actionsInCycles, 16, string(in0Name + "_in_data = 7;"));
+    map_insert(tb.actionsInCycles, 16, string(in0Name + "_write_valid = 1;"));
     
-    map_insert(tb.actionsInCycles, 14, string(in0Name + "_write_valid = 0;"));
+    map_insert(tb.actionsInCycles, 17, string(in0Name + "_write_valid = 0;"));
     
     map_insert(tb.actionsInCycles, 35, string(outName + "_read_valid = 1;"));
 
