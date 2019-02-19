@@ -78,7 +78,11 @@ namespace DHLS {
     }
 
     ramPorts["debug_addr"] = inputPort(addrWidth, "debug_addr");
-    ramPorts["debug_data"] = inputPort(width, "debug_data");
+    ramPorts["debug_data"] = outputPort(width, "debug_data");
+
+    ramPorts["debug_write_addr"] = inputPort(addrWidth, "debug_write_addr");
+    ramPorts["debug_write_en"] = inputPort(1, "debug_write_en");
+    ramPorts["debug_write_data"] = inputPort(width, "debug_write_data");    
 
     string name = "RAM";
     assert(numWritePorts == 1);
@@ -911,18 +915,42 @@ namespace DHLS {
     tb.useModSpecs = true;
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
-    tb.runCycles = 100;
+    tb.runCycles = 200;
     tb.name = "blur_no_lb";
 
     tb.settableWires.insert("ram_debug_addr");
-    
-    int checkMemCycle = 50;
+    tb.settableWires.insert("ram_debug_write_addr");
+    tb.settableWires.insert("ram_debug_write_data");
+    tb.settableWires.insert("ram_debug_write_en");
+
+    int startSetMemCycle = 1;
+    for (auto exp : memoryInit) {
+      int offset = map_find(exp.first, testLayout);
+      for (int i = 0; i < exp.second.size(); i++) {
+        int val = exp.second[i];
+
+        map_insert(tb.actionsOnCycles, startSetMemCycle, "ram_debug_write_addr <= " + to_string(offset) + ";");
+        map_insert(tb.actionsOnCycles, startSetMemCycle, "ram_debug_write_data <= " + to_string(val) + ";");
+        map_insert(tb.actionsOnCycles, startSetMemCycle, string("ram_debug_write_en <= 1;"));
+
+        offset++;
+        startSetMemCycle++;
+      }
+    }
+
+    map_insert(tb.actionsOnCycles, startSetMemCycle, string("ram_debug_write_en <= 0;"));
+
+    int startRunCycle = startSetMemCycle + 10; 
+    map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+    map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+
+    int checkMemCycle = 150;
     for (auto exp : memoryExpected) {
       int offset = map_find(exp.first, testLayout);
       for (int i = 0; i < exp.second.size(); i++) {
         int val = exp.second[i];
-        map_insert(tb.actionsOnCycles, checkMemCycle, "ram_debug_addr <= " + to_string(offset) + ";");
-        map_insert(tb.actionsOnCycles, checkMemCycle, assertString("ram_debug_data === " + to_string(val)));
+        map_insert(tb.actionsInCycles, checkMemCycle, "ram_debug_addr = " + to_string(offset) + ";");
+        map_insert(tb.actionsInCycles, checkMemCycle, assertString("ram_debug_data === " + to_string(val)));
         offset++;
         checkMemCycle++;
       }
