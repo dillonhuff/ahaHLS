@@ -143,9 +143,9 @@ module test();
             .debug_addr(dbg_addr),
             .debug_data(dbg_data),
             
-            .wen(wen),
-            .wdata(wdata),
-            .waddr(waddr));
+            .wen_0(wen),
+            .wdata_0(wdata),
+            .waddr_0(waddr));
    
    many_adds ss(.clk(clk), .rst(rst),
                 .valid(valid),

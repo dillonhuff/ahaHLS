@@ -265,7 +265,7 @@ namespace DHLS {
     auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
 
     VerilogDebugInfo info;
-    addNoXChecks(arch, info);
+    //addNoXChecks(arch, info);
 
     emitVerilog(f, arch, info);
 
@@ -431,7 +431,7 @@ namespace DHLS {
     ArchOptions options;
     auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
 
-    addNoXChecks(arch, info);
+    //addNoXChecks(arch, info);
     emitVerilog(name, f, arch, info);
   }
 
