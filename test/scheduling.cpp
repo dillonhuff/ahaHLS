@@ -4888,7 +4888,7 @@ namespace DHLS {
     auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
 
     VerilogDebugInfo info;
-    addNoXChecks(arch, info);
+    //addNoXChecks(arch, info);
 
     emitVerilog("channel_reduce_4", f, arch, info);
     
@@ -4940,8 +4940,7 @@ namespace DHLS {
 
     emitVerilogTestBench(tb, arch, testLayout);
 
-    // TODO: Restore this test once it is passing
-    // REQUIRE(runIVerilogTB("channel_reduce_4"));
+    REQUIRE(runIVerilogTB("channel_reduce_4"));
   }
 
 }
