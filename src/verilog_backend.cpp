@@ -1517,8 +1517,6 @@ namespace DHLS {
 
         if (!isPipelineState(state, pipelines)) {
 
-          //out << "\t\tif (global_state == " + to_string(state) + ") begin" << endl;
-
           out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
           for (auto instrG : instrsAtState) {
             Instruction* instr = instrG.instruction;
@@ -1573,19 +1571,6 @@ namespace DHLS {
         }
       }
       
-      // for (auto w : unit.portWires) {
-      //   if (isExternal) {
-      //     out << tab(4) << w.second.name << "_reg = 0;" << endl;
-      //   } else {
-      //     out << tab(4) << w.second.name << " = 0;" << endl;                
-      //   }
-        
-      // }
-
-      // if (unit.getModName() == "br_dummy") {
-      //   out << tab(4) << "last_BB = last_BB_reg;" << endl;
-      // }
-
       out << "\t\tend" << endl;
 
       out << "\tend" << endl;
@@ -1866,8 +1851,6 @@ namespace DHLS {
                                 MicroArchitecture& arch) {
     out << tab(1) << arch.cs.getGlobalState() << ";" << endl;
     out << tab(1) << arch.cs.getLastBB() << ";" << endl;    
-    // out << "\treg [31:0] global_state;" << endl << endl;
-    // out << "\treg [31:0] last_BB_reg;" << endl << endl;
   }
 
   std::vector<ElaboratedPipeline>
@@ -2037,8 +2020,6 @@ namespace DHLS {
             ElaboratedPipeline p = getPipeline(st.first, pipelines);
             auto bbI = *begin(instructionsForBlocks);
 
-            //out << tab(3) << "if (global_state == " << p.stateId << ") begin" << endl;
-
             out << tab(3) << ifStr(atState(p.stateId, arch)) << " begin" << endl;
             auto bbNo = arch.cs.getBasicBlockNo(bbI.first);
             out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
@@ -2047,8 +2028,7 @@ namespace DHLS {
           }
 
         } else {
-          out << tab(3) << ifStr(atState(st.first, arch)) << " begin" << endl;          
-          //out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
+          out << tab(3) << ifStr(atState(st.first, arch)) << " begin" << endl;  
           for (auto bbI : instructionsForBlocks) {
 
             auto bbNo = arch.cs.getBasicBlockNo(bbI.first);
@@ -2851,7 +2831,7 @@ namespace DHLS {
   }
 
   std::string atState(const StateId state, const MicroArchitecture& arch) {
-    string active = parens(arch.cs.getGlobalState().name + " == " + to_string(state)); //"global_state == " + to_string(state);
+    string active = parens(arch.cs.getGlobalState().name + " == " + to_string(state));
     if (arch.isPipelineState(state)) {
       auto p = arch.getPipeline(state);
       int stage = p.stageForState(state);
