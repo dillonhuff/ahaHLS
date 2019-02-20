@@ -301,6 +301,10 @@ namespace DHLS {
   
   class MicroArchitecture {
   public:
+    ControlState cs;
+
+    // Remove the need for global AXI stalls, just build that
+    // example via interface functions
     ArchOptions archOptions;
     STG stg;
     std::map<llvm::Instruction*, FunctionalUnit> unitAssignment;
@@ -308,12 +312,15 @@ namespace DHLS {
     std::map<llvm::Instruction*, Wire> names;
     std::map<llvm::BasicBlock*, int> basicBlockNos;
     std::vector<ElaboratedPipeline> pipelines;
+
+    // TODO: Delete this
     std::vector<RAM> rams;
     std::vector<Wire> globalStall;
     std::map<Wire, std::string> resetValues;
     HardwareConstraints hcs;
 
-    MicroArchitecture(const ArchOptions& archOptions_,
+    MicroArchitecture(const ControlState& cs_,
+                      const ArchOptions& archOptions_,
                       const STG& stg_,
                       const std::map<llvm::Instruction*, FunctionalUnit>& unitAssignment_,
                       const std::map<llvm::Value*, int>& memoryMap_,
@@ -322,6 +329,7 @@ namespace DHLS {
                       const std::vector<ElaboratedPipeline>& pipelines_,
                       const std::vector<RAM>& rams_,
                       const HardwareConstraints& hcs_) :
+      cs(cs_),
       archOptions(archOptions_),
       stg(stg_),
       unitAssignment(unitAssignment_),

@@ -2091,7 +2091,8 @@ namespace DHLS {
 
     // TODO: Add rams
     vector<RAM> rams;
-    MicroArchitecture arch(options, stg, unitAssignment, memMap, names, basicBlockNos, pipelines, rams, hcs);
+    ControlState cs;
+    MicroArchitecture arch(cs, options, stg, unitAssignment, memMap, names, basicBlockNos, pipelines, rams, hcs);
 
     if (options.globalStall) {
       arch.globalStall.push_back({false, 1, "global_stall"});
