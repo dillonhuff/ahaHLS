@@ -313,8 +313,6 @@ namespace DHLS {
     std::map<llvm::BasicBlock*, int> basicBlockNos;
     std::vector<ElaboratedPipeline> pipelines;
 
-    // TODO: Delete this
-    std::vector<RAM> rams;
     std::vector<Wire> globalStall;
     std::map<Wire, std::string> resetValues;
     HardwareConstraints hcs;
@@ -327,7 +325,6 @@ namespace DHLS {
                       const std::map<llvm::Instruction*, Wire>& names_,
                       const std::map<llvm::BasicBlock*, int>& basicBlockNos_,
                       const std::vector<ElaboratedPipeline>& pipelines_,
-                      const std::vector<RAM>& rams_,
                       const HardwareConstraints& hcs_) :
       cs(cs_),
       archOptions(archOptions_),
@@ -337,7 +334,6 @@ namespace DHLS {
       names(names_),
       basicBlockNos(basicBlockNos_),
       pipelines(pipelines_),
-      rams(rams_),
       hcs(hcs_) {
 
       resetValues.insert({Wire(true, 32, "global_state"),

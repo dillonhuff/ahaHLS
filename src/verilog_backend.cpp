@@ -2089,10 +2089,8 @@ namespace DHLS {
     map<Instruction*, FunctionalUnit> unitAssignment =
       assignFunctionalUnits(stg, hcs);
 
-    // TODO: Add rams
-    vector<RAM> rams;
     ControlState cs;
-    MicroArchitecture arch(cs, options, stg, unitAssignment, memMap, names, basicBlockNos, pipelines, rams, hcs);
+    MicroArchitecture arch(cs, options, stg, unitAssignment, memMap, names, basicBlockNos, pipelines, hcs);
 
     if (options.globalStall) {
       arch.globalStall.push_back({false, 1, "global_stall"});
