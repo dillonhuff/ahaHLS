@@ -1864,8 +1864,10 @@ namespace DHLS {
 
   void emitGlobalStateVariables(std::ostream& out,
                                 MicroArchitecture& arch) {
-    out << "\treg [31:0] global_state;" << endl << endl;
-    out << "\treg [31:0] last_BB_reg;" << endl << endl;
+    out << tab(1) << arch.cs.getGlobalState() << ";" << endl;
+    out << tab(1) << arch.cs.getLastBB() << ";" << endl;    
+    // out << "\treg [31:0] global_state;" << endl << endl;
+    // out << "\treg [31:0] last_BB_reg;" << endl << endl;
   }
 
   std::vector<ElaboratedPipeline>
