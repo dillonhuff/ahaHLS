@@ -4362,10 +4362,10 @@ namespace DHLS {
     cout << "LLVM Function after inlining" << endl;
     cout << valueString(srUser) << endl;
 
-    cout << "Constraints after inlining" << endl;
-    for (auto c : exec.constraints) {
-      cout << tab(1) << *c << endl;
-    }
+    // cout << "Constraints after inlining" << endl;
+    // for (auto c : exec.constraints) {
+    //   cout << tab(1) << *c << endl;
+    // }
 
     HardwareConstraints hcs = standardConstraints();
     hcs.modSpecs[getArg(srUser, 0)] = ramSpec(width, depth);

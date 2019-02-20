@@ -1861,10 +1861,10 @@ namespace DHLS {
 
   }
 
-  void emitGlobalStateVariables(std::ostream& out) {
+  void emitGlobalStateVariables(std::ostream& out,
+                                MicroArchitecture& arch) {
     out << "\treg [31:0] global_state;" << endl << endl;
     out << "\treg [31:0] last_BB_reg;" << endl << endl;
-    //out << "\treg [31:0] last_BB;" << endl << endl;    
   }
 
   std::vector<ElaboratedPipeline>
@@ -2232,7 +2232,7 @@ namespace DHLS {
     emitRegisterStorage(out, arch);
 
     emitPipelineVariables(out, arch.pipelines);
-    emitGlobalStateVariables(out);
+    emitGlobalStateVariables(out, arch);
 
     emitPipelineResetBlock(out, arch.pipelines);
     emitPipelineValidChainBlock(out, arch);
@@ -2778,7 +2778,7 @@ namespace DHLS {
           StateId activeState = st.first;
 
           string wireName = map_find(string("wdata"), unit.portWires).name;
-          addAssert("global_state !== " + to_string(activeState) + " || " +
+          addAssert(notAtState(activeState, arch) + " || " +
                     wireName + " !== 'dx",
                     debugInfo);
         }
