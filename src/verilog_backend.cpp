@@ -1517,8 +1517,9 @@ namespace DHLS {
 
         if (!isPipelineState(state, pipelines)) {
 
-          out << "\t\tif (global_state == " + to_string(state) + ") begin" << endl;
+          //out << "\t\tif (global_state == " + to_string(state) + ") begin" << endl;
 
+          out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
           for (auto instrG : instrsAtState) {
             Instruction* instr = instrG.instruction;
 
@@ -2034,8 +2035,9 @@ namespace DHLS {
             ElaboratedPipeline p = getPipeline(st.first, pipelines);
             auto bbI = *begin(instructionsForBlocks);
 
-            out << tab(3) << "if (global_state == " << p.stateId << ") begin" << endl;
+            //out << tab(3) << "if (global_state == " << p.stateId << ") begin" << endl;
 
+            out << tab(3) << ifStr(atState(p.stateId, arch)) << " begin" << endl;
             auto bbNo = arch.cs.getBasicBlockNo(bbI.first);
             out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
 
@@ -2043,7 +2045,8 @@ namespace DHLS {
           }
 
         } else {
-          out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
+          out << tab(3) << ifStr(atState(st.first, arch)) << " begin" << endl;          
+          //out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
           for (auto bbI : instructionsForBlocks) {
 
             auto bbNo = arch.cs.getBasicBlockNo(bbI.first);

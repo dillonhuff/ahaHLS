@@ -297,5 +297,9 @@ namespace DHLS {
     size_t pos = name.find(pattern);
     return name.substr(0, pos);
   }
+
+  std::string ifStr(const std::string s) {
+    return "if " + parens(s);
+  }
   
 }
