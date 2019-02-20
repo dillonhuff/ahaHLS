@@ -278,6 +278,26 @@ namespace DHLS {
       }
     }
   };
+
+  class ControlState {
+    Wire globalState;
+    Wire lastBB;
+
+  public:
+
+    ControlState() {
+      globalState = reg(32, "global_state");
+      lastBB = reg(32, "last_BB_reg");
+    }
+
+    Wire getGlobalState() const {
+      return globalState;
+    }
+
+    Wire getLastBB() const {
+      return lastBB;
+    }
+  };
   
   class MicroArchitecture {
   public:
