@@ -282,6 +282,7 @@ namespace DHLS {
   class ControlState {
     Wire globalState;
     Wire lastBB;
+    std::vector<Wire> globalStall;
 
   public:
 
@@ -290,8 +291,22 @@ namespace DHLS {
       lastBB = reg(32, "last_BB_reg");
     }
 
+    void setGlobalStall(const Wire w) {
+      globalStall.push_back(w);
+    }
+
     Wire getGlobalState() const {
       return globalState;
+    }
+
+    Wire getGlobalStall() const {
+      assert(hasGlobalStall());
+      return globalStall[0];
+    }
+
+    bool hasGlobalStall() const {
+      assert(globalStall.size() <= 1);
+      return globalStall.size() > 0;
     }
 
     Wire getLastBB() const {
@@ -313,7 +328,6 @@ namespace DHLS {
     std::map<llvm::BasicBlock*, int> basicBlockNos;
     std::vector<ElaboratedPipeline> pipelines;
 
-    std::vector<Wire> globalStall;
     std::map<Wire, std::string> resetValues;
     HardwareConstraints hcs;
 
@@ -341,8 +355,7 @@ namespace DHLS {
     }
 
     bool hasGlobalStall() const {
-      assert(globalStall.size() <= 1);
-      return globalStall.size() == 1;
+      return cs.hasGlobalStall();
     }
 
     ElaboratedPipeline getPipeline(const StateId state) const {

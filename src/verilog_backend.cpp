@@ -2090,11 +2090,12 @@ namespace DHLS {
       assignFunctionalUnits(stg, hcs);
 
     ControlState cs;
-    MicroArchitecture arch(cs, options, stg, unitAssignment, memMap, names, basicBlockNos, pipelines, hcs);
-
     if (options.globalStall) {
-      arch.globalStall.push_back({false, 1, "global_stall"});
+      cs.setGlobalStall(wire(1, "global_stall"));
+      //cs.globalStall.push_back({false, 1, "global_stall"});
     }
+
+    MicroArchitecture arch(cs, options, stg, unitAssignment, memMap, names, basicBlockNos, pipelines, hcs);
 
     assert(arch.stg.opStates.size() == stg.opStates.size());
     assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
@@ -2201,9 +2202,10 @@ namespace DHLS {
       allPorts.push_back(outputDebugPort(w.width, w.name));
     }
 
-    if (arch.globalStall.size() > 0) {
-      assert(arch.globalStall.size() == 1);
-      Wire stallVar = arch.globalStall[0];
+    // if (arch.globalStall.size() > 0) {
+    //   assert(arch.globalStall.size() == 1);
+    if (arch.hasGlobalStall()) {
+      Wire stallVar = arch.cs.getGlobalStall();
       allPorts.push_back(inputPort(stallVar.width, stallVar.name));
     }
     
