@@ -1020,7 +1020,7 @@ namespace DHLS {
 
       for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
         BasicBlock* b0 = phi->getIncomingBlock(i);
-        int b0Val = map_find(b0, arch.basicBlockNos);
+        int b0Val = arch.cs.getBasicBlockNo(b0); //map_find(b0, arch.basicBlockNos);
 
         Value* v0 = phi->getIncomingValue(i);
 
@@ -2010,7 +2010,8 @@ namespace DHLS {
     }
 
     out << "\t\tif (rst) begin" << endl;
-    out << "\t\t\tlast_BB_reg <= " << map_find(&(f->getEntryBlock()), arch.basicBlockNos) << ";" << endl;
+    out << "\t\t\tlast_BB_reg <= " << arch.cs.getBasicBlockNo(&(f->getEntryBlock())) << ";" << endl;
+      //map_find(&(f->getEntryBlock()), arch.basicBlockNos) << ";" << endl;
     out << "\t\tend else begin" << endl;
 
     for (auto st : arch.stg.opStates) {
@@ -2035,7 +2036,7 @@ namespace DHLS {
 
             out << tab(3) << "if (global_state == " << p.stateId << ") begin" << endl;
 
-            auto bbNo = map_find(bbI.first, arch.basicBlockNos);
+            auto bbNo = arch.cs.getBasicBlockNo(bbI.first); //map_find(bbI.first, arch.basicBlockNos);
             out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
 
             out << tab(3) << "end" << endl;
@@ -2045,7 +2046,7 @@ namespace DHLS {
           out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
           for (auto bbI : instructionsForBlocks) {
 
-            auto bbNo = map_find(bbI.first, arch.basicBlockNos);
+            auto bbNo = arch.cs.getBasicBlockNo(bbI.first); //map_find(bbI.first, arch.basicBlockNos);
             out << tab(5) << "last_BB_reg <= " << bbNo << ";" << endl;
 
           }
@@ -2090,12 +2091,15 @@ namespace DHLS {
       assignFunctionalUnits(stg, hcs);
 
     ControlState cs;
+    for (auto bb : basicBlockNos) {
+      cs.setBasicBlockNo(bb.first, bb.second);
+    }
     if (options.globalStall) {
       cs.setGlobalStall(wire(1, "global_stall"));
       //cs.globalStall.push_back({false, 1, "global_stall"});
     }
 
-    MicroArchitecture arch(cs, options, stg, unitAssignment, memMap, names, basicBlockNos, pipelines, hcs);
+    MicroArchitecture arch(cs, options, stg, unitAssignment, memMap, names, pipelines, hcs);
 
     assert(arch.stg.opStates.size() == stg.opStates.size());
     assert(arch.stg.opTransitions.size() == stg.opTransitions.size());

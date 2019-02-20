@@ -283,12 +283,21 @@ namespace DHLS {
     Wire globalState;
     Wire lastBB;
     std::vector<Wire> globalStall;
+    std::map<llvm::BasicBlock*, int> basicBlockNos;
 
   public:
 
     ControlState() {
       globalState = reg(32, "global_state");
       lastBB = reg(32, "last_BB_reg");
+    }
+
+    void setBasicBlockNo(BasicBlock* const bb, const int val) {
+      basicBlockNos[bb] = val;
+    }
+
+    int getBasicBlockNo(BasicBlock* bb) const {
+      return dbhc::map_find(bb, basicBlockNos);
     }
 
     void setGlobalStall(const Wire w) {
@@ -325,7 +334,7 @@ namespace DHLS {
     std::map<llvm::Instruction*, FunctionalUnit> unitAssignment;
     std::map<llvm::Value*, int> memoryMap;
     std::map<llvm::Instruction*, Wire> names;
-    std::map<llvm::BasicBlock*, int> basicBlockNos;
+    //std::map<llvm::BasicBlock*, int> basicBlockNos;
     std::vector<ElaboratedPipeline> pipelines;
 
     std::map<Wire, std::string> resetValues;
@@ -337,7 +346,7 @@ namespace DHLS {
                       const std::map<llvm::Instruction*, FunctionalUnit>& unitAssignment_,
                       const std::map<llvm::Value*, int>& memoryMap_,
                       const std::map<llvm::Instruction*, Wire>& names_,
-                      const std::map<llvm::BasicBlock*, int>& basicBlockNos_,
+                      //const std::map<llvm::BasicBlock*, int>& basicBlockNos_,
                       const std::vector<ElaboratedPipeline>& pipelines_,
                       const HardwareConstraints& hcs_) :
       cs(cs_),
@@ -346,12 +355,13 @@ namespace DHLS {
       unitAssignment(unitAssignment_),
       memoryMap(memoryMap_),
       names(names_),
-      basicBlockNos(basicBlockNos_),
+      //basicBlockNos(basicBlockNos_),
       pipelines(pipelines_),
       hcs(hcs_) {
 
       resetValues.insert({Wire(true, 32, "global_state"),
-            std::to_string(dbhc::map_find(&(stg.getFunction()->getEntryBlock()), basicBlockNos))});
+            std::to_string(cs.getBasicBlockNo(&(stg.getFunction()->getEntryBlock())))});
+            //std::to_string(dbhc::map_find(&(stg.getFunction()->getEntryBlock()), basicBlockNos))});
     }
 
     bool hasGlobalStall() const {
