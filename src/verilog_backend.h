@@ -327,14 +327,13 @@ namespace DHLS {
   public:
     ControlState cs;
 
-    // Remove the need for global AXI stalls, just build that
+    // TODO: Remove the need for global AXI stalls, just build that
     // example via interface functions
     ArchOptions archOptions;
     STG stg;
     std::map<llvm::Instruction*, FunctionalUnit> unitAssignment;
     std::map<llvm::Value*, int> memoryMap;
     std::map<llvm::Instruction*, Wire> names;
-    //std::map<llvm::BasicBlock*, int> basicBlockNos;
     std::vector<ElaboratedPipeline> pipelines;
 
     std::map<Wire, std::string> resetValues;
@@ -346,7 +345,6 @@ namespace DHLS {
                       const std::map<llvm::Instruction*, FunctionalUnit>& unitAssignment_,
                       const std::map<llvm::Value*, int>& memoryMap_,
                       const std::map<llvm::Instruction*, Wire>& names_,
-                      //const std::map<llvm::BasicBlock*, int>& basicBlockNos_,
                       const std::vector<ElaboratedPipeline>& pipelines_,
                       const HardwareConstraints& hcs_) :
       cs(cs_),
@@ -355,13 +353,11 @@ namespace DHLS {
       unitAssignment(unitAssignment_),
       memoryMap(memoryMap_),
       names(names_),
-      //basicBlockNos(basicBlockNos_),
       pipelines(pipelines_),
       hcs(hcs_) {
 
       resetValues.insert({Wire(true, 32, "global_state"),
             std::to_string(cs.getBasicBlockNo(&(stg.getFunction()->getEntryBlock())))});
-            //std::to_string(dbhc::map_find(&(stg.getFunction()->getEntryBlock()), basicBlockNos))});
     }
 
     bool hasGlobalStall() const {

@@ -1020,7 +1020,7 @@ namespace DHLS {
 
       for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
         BasicBlock* b0 = phi->getIncomingBlock(i);
-        int b0Val = arch.cs.getBasicBlockNo(b0); //map_find(b0, arch.basicBlockNos);
+        int b0Val = arch.cs.getBasicBlockNo(b0);
 
         Value* v0 = phi->getIncomingValue(i);
 
@@ -2036,7 +2036,7 @@ namespace DHLS {
 
             out << tab(3) << "if (global_state == " << p.stateId << ") begin" << endl;
 
-            auto bbNo = arch.cs.getBasicBlockNo(bbI.first); //map_find(bbI.first, arch.basicBlockNos);
+            auto bbNo = arch.cs.getBasicBlockNo(bbI.first);
             out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
 
             out << tab(3) << "end" << endl;
@@ -2046,7 +2046,7 @@ namespace DHLS {
           out << tab(3) << "if (global_state == " << st.first << ") begin" << endl;
           for (auto bbI : instructionsForBlocks) {
 
-            auto bbNo = arch.cs.getBasicBlockNo(bbI.first); //map_find(bbI.first, arch.basicBlockNos);
+            auto bbNo = arch.cs.getBasicBlockNo(bbI.first);
             out << tab(5) << "last_BB_reg <= " << bbNo << ";" << endl;
 
           }
@@ -2074,7 +2074,8 @@ namespace DHLS {
 
     out << "\t\tend else begin" << endl;
   }
-  
+
+  // TODO: Remove f, it can be retrieved from STG
   MicroArchitecture
   buildMicroArchitecture(llvm::Function* f,
                          const STG& stg,
@@ -2096,7 +2097,6 @@ namespace DHLS {
     }
     if (options.globalStall) {
       cs.setGlobalStall(wire(1, "global_stall"));
-      //cs.globalStall.push_back({false, 1, "global_stall"});
     }
 
     MicroArchitecture arch(cs, options, stg, unitAssignment, memMap, names, pipelines, hcs);
@@ -2846,7 +2846,7 @@ namespace DHLS {
   }
 
   std::string atState(const StateId state, const MicroArchitecture& arch) {
-    string active = "global_state == " + to_string(state);
+    string active = parens(arch.cs.getGlobalState().name + " == " + to_string(state)); //"global_state == " + to_string(state);
     if (arch.isPipelineState(state)) {
       auto p = arch.getPipeline(state);
       int stage = p.stageForState(state);
