@@ -2202,8 +2202,6 @@ namespace DHLS {
       allPorts.push_back(outputDebugPort(w.width, w.name));
     }
 
-    // if (arch.globalStall.size() > 0) {
-    //   assert(arch.globalStall.size() == 1);
     if (arch.hasGlobalStall()) {
       Wire stallVar = arch.cs.getGlobalStall();
       allPorts.push_back(inputPort(stallVar.width, stallVar.name));
