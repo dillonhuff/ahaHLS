@@ -355,7 +355,6 @@ namespace DHLS {
     interfaces.functionTemplates[string("write")] = implementRAMWrite0;
 
     HardwareConstraints hcs = standardConstraints();
-    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16);
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
 
@@ -401,7 +400,6 @@ namespace DHLS {
     interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
 
     HardwareConstraints hcs = standardConstraints();
-    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1); 
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
     
@@ -443,7 +441,6 @@ namespace DHLS {
     interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
 
     HardwareConstraints hcs = standardConstraints();
-    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1); 
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
 
@@ -502,7 +499,6 @@ namespace DHLS {
     interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1);
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
 
@@ -534,7 +530,6 @@ namespace DHLS {
     interfaces.functionTemplates[string("write")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
 
@@ -566,7 +561,6 @@ namespace DHLS {
     interfaces.functionTemplates[string("write")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
 
@@ -600,7 +594,6 @@ namespace DHLS {
     interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    // hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 3, 1);
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
     hcs.typeSpecs["class.RAM_3"] = ram3SpecFunc;
@@ -655,7 +648,6 @@ namespace DHLS {
     interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 3, 1);
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
     hcs.typeSpecs["class.RAM_3"] = ram3SpecFunc;    
@@ -717,7 +709,6 @@ namespace DHLS {
     interfaces.functionTemplates[string("write")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
 
@@ -773,7 +764,6 @@ namespace DHLS {
     interfaces.functionTemplates[string("write")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
     
@@ -823,7 +813,6 @@ namespace DHLS {
     getArg(f, 0)->setName("ram");
 
     HardwareConstraints hcs = standardConstraints();
-    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1);
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
     
@@ -908,7 +897,6 @@ namespace DHLS {
     interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
 
     HardwareConstraints hcs = standardConstraints();
-    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1);
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
 
@@ -951,7 +939,6 @@ namespace DHLS {
     interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 3, 1);
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
     hcs.typeSpecs["class.RAM_3"] = ram3SpecFunc;    
@@ -2539,8 +2526,6 @@ namespace DHLS {
 
     HardwareConstraints hcs = standardConstraints();
     hcs.typeSpecs["builtin_fifo_32"] = fifoSpec32;
-    // hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
-    // hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
 
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
