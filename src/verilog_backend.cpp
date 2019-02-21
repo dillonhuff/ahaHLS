@@ -1049,7 +1049,7 @@ namespace DHLS {
     } else if (PHINode::classof(instr)) {
       PHINode* phi = dyn_cast<PHINode>(instr);
 
-      int w0 = getValueBitWidth(phi);
+      //int w0 = getValueBitWidth(phi);
 
       string input = "{";
       string s = "{";      
@@ -1062,9 +1062,9 @@ namespace DHLS {
 
         string val0Name = outputName(v0, pos, arch);
 
-        if (ConstantInt::classof(v0)) {
-          val0Name = to_string(w0) + "'d" + val0Name;
-        }
+        // if (ConstantInt::classof(v0)) {
+        //   val0Name = to_string(w0) + "'d" + val0Name;
+        // }
 
         input += val0Name;
         s += "32'd" + to_string(b0Val);

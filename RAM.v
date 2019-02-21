@@ -43,8 +43,8 @@ module RAM(input clk,
    end
 
    delay #(.WIDTH(1)) wen_0_delay(.clk(clk), .in(wen_0), .out(wen_0_del));   
-   delay #(.WIDTH(32)) wdata_0_delay(.clk(clk), .in(wdata_0), .out(wdata_0_del));   
-   delay #(.WIDTH(5)) waddr_0_delay(.clk(clk), .in(waddr_0), .out(waddr_0_del));   
+   delay #(.WIDTH(WIDTH)) wdata_0_delay(.clk(clk), .in(wdata_0), .out(wdata_0_del));   
+   delay #(.WIDTH($clog2(DEPTH))) waddr_0_delay(.clk(clk), .in(waddr_0), .out(waddr_0_del));   
 
    assign rdata_0 = rdata_0_reg;
 
