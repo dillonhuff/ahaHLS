@@ -3676,8 +3676,10 @@ namespace DHLS {
       {"rst", 0}
     };
     
-    hcs.modSpecs[fpu] = {{}, "adder", adderPorts, defaults};
+    //hcs.modSpecs[fpu] = {{}, "adder", adderPorts, defaults};
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    hcs.typeSpecs[fpuType->getName()] =
+      [adderPorts, defaults](StructType* fp) { return ModuleSpec({}, "adder", adderPorts, defaults); };
     hcs.typeSpecs["builtin_fifo_32"] =
       [width](StructType* tp) { return wireSpec(width); };
     
@@ -4434,7 +4436,9 @@ namespace DHLS {
     // }
 
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(srUser, 0)] = ramSpec(width, depth);
+    hcs.typeSpecs[sramTp->getName()] =
+      [width, depth](StructType* tp) { return ramSpec(width, depth); };
+    //hcs.modSpecs[getArg(srUser, 0)] = ramSpec(width, depth);
 
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(srUser, hcs, toPipeline);

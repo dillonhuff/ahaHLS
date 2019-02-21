@@ -156,6 +156,36 @@ namespace DHLS {
     std::string name;
     std::map<std::string, Port> ports;
     std::map<std::string, int> defaultValues;
+
+    ModuleSpec() {
+    }
+
+    ModuleSpec(const std::map<std::string, std::string>& params_,
+               const std::string name_,
+               const std::map<std::string, Port>& ports_,
+               const std::map<std::string, int>& defaultValues_) :
+      params(params_),
+      name(name_),
+      ports(ports_),
+      defaultValues(defaultValues_) {
+
+    }
+
+    ModuleSpec(const std::map<std::string, std::string>& params_,
+               const std::string name_,
+               const std::map<std::string, Port>& ports_) :
+      params(params_),
+      name(name_),
+      ports(ports_),
+      defaultValues({}) {}
+
+    ModuleSpec(const std::map<std::string, std::string>& params_,
+               const std::string name_) :
+      params(params_),
+      name(name_),
+      ports({}),
+      defaultValues({}) {}
+    
   };
 
   class MemorySpec {
