@@ -4915,9 +4915,10 @@ namespace DHLS {
     HardwareConstraints hcs = standardConstraints();
     hcs.memoryMapping = memoryOpLocations(f);
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
-    
-    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
-    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
+    hcs.typeSpecs["class.ac_channel"] =
+      [width](StructType* tp) { return fifoSpec(width, 32); };
+    // hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
+    // hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
 
     cout << "LLVM function after inlining reads" << endl;
     cout << valueString(f) << endl;
