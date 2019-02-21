@@ -960,6 +960,8 @@ namespace DHLS {
                           ControlFlowPosition pos,
                           MicroArchitecture& arch) {
 
+    cout << "Generating code for " << valueString(pos.instr) << endl;
+
     auto instr = pos.instr;
     auto addUnit = map_find(instr, arch.unitAssignment);
 

@@ -4397,6 +4397,11 @@ namespace DHLS {
     interfaces.functionTemplates[string("write")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
+    // TODO: Make pointers to primitives registers of their width by default
+    hcs.memoryMapping = memoryOpLocations(f);
+    int width = 64;
+    setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
 

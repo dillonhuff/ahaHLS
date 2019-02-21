@@ -60,6 +60,12 @@ namespace DHLS {
     } else if (tp->isFloatTy()) {
       // TODO: Make floating point width parametric
       return 32;
+    } else if (tp->isStructTy()) {
+      width = 0;
+      StructType* stp = dyn_cast<StructType>(tp);
+      for (auto* fieldType : stp->elements()) {
+        width += getTypeBitWidth(fieldType);
+      }
     } else {
       std::cout << "Type = " << typeString(tp) << std::endl;
       assert(ArrayType::classof(tp));
