@@ -104,3 +104,10 @@ fix_assert_calls.py
 dynamic_arch_sram_class
 dynamic_arch_sram_class.v
 reduce_4.v
+add_10_channel*
+add_10_template*
+channel_reduce_4*
+channel_add*
+li_loop*
+_Z15add_10_templatePN4DHLS4FifoIiLi32EEES2_.v
+_Z7if_elseP5RAM_2IiLi16EE.v
