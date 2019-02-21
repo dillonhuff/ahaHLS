@@ -825,11 +825,25 @@ namespace DHLS {
   }
 
   ModuleSpec ramSpecFunc(llvm::StructType* tp) {
-    return ramSpec(32, 16, 1, 1);
+    auto elems = tp->elements();
+    assert(elems.size() == 1);
+
+    Type* internalArray = elems[0];
+    assert(ArrayType::classof(internalArray));
+
+    ArrayType* arrTp = dyn_cast<ArrayType>(internalArray);
+    return ramSpec(getTypeBitWidth(arrTp->getElementType()), arrTp->getNumElements(), 1, 1);
   }
 
   ModuleSpec ram2SpecFunc(llvm::StructType* tp) {
-    return ramSpec(32, 16, 2, 1);    
+    auto elems = tp->elements();
+    assert(elems.size() == 1);
+
+    Type* internalArray = elems[0];
+    assert(ArrayType::classof(internalArray));
+
+    ArrayType* arrTp = dyn_cast<ArrayType>(internalArray);
+    return ramSpec(getTypeBitWidth(arrTp->getElementType()), arrTp->getNumElements(), 2, 1);
   }
   
   TEST_CASE("Using temporary memory") {
@@ -843,6 +857,7 @@ namespace DHLS {
 
     Function* f = getFunctionByDemangledName(Mod.get(), "loop_add_4_copy");
     assert(f != nullptr);
+    getArg(f, 0)->setName("ram");
 
     InterfaceFunctions interfaces;
     interfaces.functionTemplates[string("read")] = implementRAMRead0;
