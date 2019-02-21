@@ -4416,4 +4416,40 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("complex_num"));
   }
 
+  TEST_CASE("Using a FIFO with compound type as argument") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "compound_fifo");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "compound_fifo");
+    getArg(f, 0)->setName("ram");
+    
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read")] = implementRVFifoRead;
+    interfaces.functionTemplates[string("write")] = implementRVFifoWrite;
+    
+    HardwareConstraints hcs = standardConstraints();
+    // TODO: Make pointers to primitives registers of their width by default
+    hcs.memoryMapping = memoryOpLocations(f);
+    int width = 64;
+    setAllAllocaMemTypes(hcs, f, registerSpec(width));
+
+    // TODO: Change this!
+    hcs.typeSpecs["class.ac_channel"] =
+      [width](StructType* tp) { return fifoSpec(width, 32); };
+
+    Schedule s = scheduleInterface(f, hcs, interfaces);
+    STG graph = buildSTG(s, f);
+    
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    emitVerilog("compound_fifo", graph, hcs);
+
+    REQUIRE(runIVerilogTB("compound_fifo"));
+  }
+
 }
