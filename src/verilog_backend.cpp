@@ -899,7 +899,15 @@ namespace DHLS {
       auto valC = dyn_cast<ConstantInt>(val);
       auto apInt = valC->getValue();
 
-      return to_string(dyn_cast<ConstantInt>(val)->getSExtValue());
+      // Get num bits
+      // TODO: Clean up number printouts
+      int tpWidth = getValueBitWidth(val);
+      string iStr = to_string(dyn_cast<ConstantInt>(val)->getSExtValue());
+      if (iStr[0] == '-') {
+        return "-" + parens(to_string(tpWidth) + "'d" + iStr.substr(1));
+      }
+      return parens(to_string(tpWidth) + "'d" + iStr);
+      
     } else {
       assert(ConstantFP::classof(val));
 
