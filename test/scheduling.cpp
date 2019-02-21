@@ -824,6 +824,14 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("loop_add_4_6_iters"));
   }
 
+  ModuleSpec ramSpecFunc(llvm::StructType* tp) {
+    return ramSpec(32, 16, 1, 1);
+  }
+
+  ModuleSpec ram2SpecFunc(llvm::StructType* tp) {
+    return ramSpec(32, 16, 2, 1);    
+  }
+  
   TEST_CASE("Using temporary memory") {
 
     SMDiagnostic Err;
@@ -846,6 +854,8 @@ namespace DHLS {
     // TODO: Add mapping from types to module generator functions
     HardwareConstraints hcs = standardConstraints();
     hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1);
+    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
 
     Schedule s = scheduleInterface(f, hcs, interfaces);
     STG graph = buildSTG(s, f);

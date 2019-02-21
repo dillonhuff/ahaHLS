@@ -516,13 +516,32 @@ namespace DHLS {
         // No action
 
         auto fuPtr = instr->getOperand(0);
-        assert(contains_key(fuPtr, hcs.modSpecs));
+        //assert(contains_key(fuPtr, hcs.modSpecs));        
 
         if (Argument::classof(fuPtr)) {
           isExternal = true;
         }
 
-        ModuleSpec modSpec = map_find(fuPtr, hcs.modSpecs);
+        ModuleSpec modSpec;
+        if (contains_key(fuPtr, hcs.modSpecs)) {
+          modSpec = map_find(fuPtr, hcs.modSpecs);
+        } else {
+          Type* fuTp = fuPtr->getType();
+
+          cout << "Functional unit type = " << typeString(fuTp) << endl;
+          assert(PointerType::classof(fuTp));
+
+          Type* fuDerefTp = dyn_cast<PointerType>(fuTp)->getElementType();
+
+          assert(StructType::classof(fuDerefTp));
+
+          StructType* structT = dyn_cast<StructType>(fuDerefTp);
+
+          cout << "Struct name = " << string(structT->getName()) << endl;
+          
+          modSpec = map_find(string(structT->getName()), hcs.typeSpecs)(structT);
+        }
+
         modName = modSpec.name;
         unitName = fuPtr->getName();
 
@@ -1077,7 +1096,7 @@ namespace DHLS {
         }
       } else if (isBuiltinPortWrite(instr)) {
           cout << "Operand 0 = " << valueString(instr->getOperand(0)) << endl;
-          assert(contains_key(instr->getOperand(0), arch.hcs.modSpecs));
+          //assert(contains_key(instr->getOperand(0), arch.hcs.modSpecs));
 
           std::string portName = getPortName(instr);
           cout << "Port name = " << portName << endl;

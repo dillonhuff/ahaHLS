@@ -255,6 +255,7 @@ namespace DHLS {
     std::map<llvm::Value*, MemorySpec> memSpecs;
     std::map<llvm::Instruction*, llvm::Value*> memoryMapping;
     std::map<llvm::Value*, ModuleSpec> modSpecs;
+    std::map<std::string, std::function<ModuleSpec(llvm::StructType*)> > typeSpecs;
 
     int getLatency(const OperationType op) const {
       return dbhc::map_find(op, latencies);
