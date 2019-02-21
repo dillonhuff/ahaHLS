@@ -1,4 +1,4 @@
-#include "ac_channel.h"
+#include "fifo.h"
 
 template<typename T, int width>
 class bus {
@@ -16,8 +16,8 @@ public:
 
 };
 
-void compound_fifo(ac_channel<bus<int, 8> >* in,
-                   ac_channel<int>* out) {
+void compound_fifo(DHLS::Fifo<bus<int, 8>, 16>* in,
+                   DHLS::Fifo<int, 16>* out) {
   bus<int, 8> b = in->read();
 
   int sum = 0;

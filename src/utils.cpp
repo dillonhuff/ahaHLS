@@ -37,6 +37,8 @@ namespace DHLS {
   int getValueBitWidth(Value* const instr) {
     Type* tp = instr->getType();
 
+    cout << "Getting bit width for " << valueString(instr) << endl;
+    
     return getTypeBitWidth(tp);
   }
 
@@ -48,7 +50,6 @@ namespace DHLS {
       width = iTp->getBitWidth();
     } else if (PointerType::classof(tp)) {
       PointerType* pTp = dyn_cast<PointerType>(tp);
-
 
       //cout << "Element type = " << typeString(pTp->getElementType()) << endl;
 
