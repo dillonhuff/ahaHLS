@@ -1,10 +1,10 @@
 module RAM(input clk,
            input                  rst,
-           input                  wen,
-           input [WIDTH - 1 : 0]  wdata,
-           input [ADDR_WIDTH : 0] raddr,
-           input [ADDR_WIDTH : 0] waddr,
-           output [WIDTH - 1 : 0] rdata,
+           input                  wen_0,
+           input [WIDTH - 1 : 0]  wdata_0,
+           input [ADDR_WIDTH : 0] raddr_0,
+           input [ADDR_WIDTH : 0] waddr_0,
+           output [WIDTH - 1 : 0] rdata_0,
 
            input [ADDR_WIDTH : 0] debug_write_addr,
            input [WIDTH - 1 : 0]  debug_write_data,
@@ -18,34 +18,34 @@ module RAM(input clk,
    parameter DEPTH=16;
    parameter ADDR_WIDTH = $clog2(DEPTH);
 
-   reg [WIDTH - 1 : 0]            rdata_reg;
-   wire [WIDTH - 1 : 0]            rdata_reg_del;
+   reg [WIDTH - 1 : 0]            rdata_0_reg;
+   wire [WIDTH - 1 : 0]            rdata_0_reg_del;
 
    reg [WIDTH - 1 : 0]            data [DEPTH - 1 : 0];
 
-   wire                            wen_del;
-   wire [ADDR_WIDTH : 0]            waddr_del;
-   wire [WIDTH - 1 : 0]            wdata_del;   
+   wire                            wen_0_del;
+   wire [ADDR_WIDTH : 0]            waddr_0_del;
+   wire [WIDTH - 1 : 0]            wdata_0_del;   
 
    assign debug_data = data[debug_addr];
    
    always @(posedge clk) begin
       
-      if (wen_del) begin
-         data[waddr_del] <= wdata_del;
+      if (wen_0_del) begin
+         data[waddr_0_del] <= wdata_0_del;
       end
 
       if (debug_write_en) begin
          data[debug_write_addr] <= debug_write_data;
       end
       
-      rdata_reg <= data[raddr];
+      rdata_0_reg <= data[raddr_0];
    end
 
-   delay #(.WIDTH(1)) wen_delay(.clk(clk), .in(wen), .out(wen_del));   
-   delay #(.WIDTH(32)) wdata_delay(.clk(clk), .in(wdata), .out(wdata_del));   
-   delay #(.WIDTH(5)) waddr_delay(.clk(clk), .in(waddr), .out(waddr_del));   
+   delay #(.WIDTH(1)) wen_0_delay(.clk(clk), .in(wen_0), .out(wen_0_del));   
+   delay #(.WIDTH(32)) wdata_0_delay(.clk(clk), .in(wdata_0), .out(wdata_0_del));   
+   delay #(.WIDTH(5)) waddr_0_delay(.clk(clk), .in(waddr_0), .out(waddr_0_del));   
 
-   assign rdata = rdata_reg;
+   assign rdata_0 = rdata_0_reg;
 
 endmodule
