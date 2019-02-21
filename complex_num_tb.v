@@ -47,7 +47,7 @@ module test();
 
         #1 debug_write_en = 0;
                             
-      #1 debug_addr = 0;
+      #1 debug_addr = 3;
 
       #1 clk = 0;
       #1 rst = 1;
@@ -80,10 +80,15 @@ module test();
 
       `POSEDGE
 
+        #1 $display("debug_data = %b", debug_data);
+        
         // gs 4
       `POSEDGE
 
         // gs 5, done
+
+        #1 $display("debug_data = %b", debug_data);
+      
       #1 `assert(valid, 1'd1)
       #1 `assert(debug_data, expected)
         
