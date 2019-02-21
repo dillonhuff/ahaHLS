@@ -311,7 +311,6 @@ namespace DHLS {
   //    Incorporate fifoSpecs in to scheduling constraints automatically instead of
   //      of setting them in HardwareConstraints?
   //    Add some simple examples to the README
-  //    Delete RAM specs (replaced by more general modSpecs)
   //    Convert ptr to builtin codes to RAM templates
   //    Shrink registers to reduce area costs
   //    Remove modspecs
@@ -2587,9 +2586,6 @@ namespace DHLS {
     hcs.typeSpecs[tp->getName()] =
       [width](StructType* tp) { return fifoSpec(width, 16); };
     
-    // hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
-    // hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
-
     ExecutionConstraints exec;
     inlineWireCalls(f, exec, interfaces);
 
@@ -2765,13 +2761,6 @@ namespace DHLS {
     hcs.typeSpecs[tp->getName()] =
       [width](StructType* tp) { return fifoSpec(width, 16); };
     
-    // hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
-    // hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
-    // hcs.modSpecs[getArg(f, 2)] = fifoSpec(width, 16);
-    // hcs.modSpecs[getArg(f, 3)] = fifoSpec(width, 16);
-    // hcs.modSpecs[getArg(f, 4)] = fifoSpec(width, 16);            
-    // hcs.modSpecs[getArg(f, 5)] = fifoSpec(width, 16);
-
     // More constraints
     
     // HardwareConstraints hcs = standardConstraints();
@@ -3095,9 +3084,6 @@ namespace DHLS {
     hcs.typeSpecs[tp->getName()] =
       [width](StructType* tp) { return fifoSpec(width, 16); };
 
-    // hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
-    // hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
-    
     ExecutionConstraints exec;
     inlineWireCalls(f, exec, interfaces);
     
@@ -3224,9 +3210,6 @@ namespace DHLS {
     hcs.typeSpecs[tp->getName()] =
       [width](StructType* tp) { return wireSpec(width); };
 
-    // hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
-    // hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
-
     // TODO: Add relative timing constraints on wires
     
     hcs.setCount(ADD_OP, 1);
@@ -3319,10 +3302,6 @@ namespace DHLS {
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
     hcs.typeSpecs["builtin_fifo_32"] =
       [width](StructType* tp) { return wireSpec(width); };
-
-    // hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
-    // hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
-    // hcs.modSpecs[getArg(f, 2)] = wireSpec(width);
 
     // TODO: Set latency of fadd to 15?
     hcs.setCount(FADD_OP, 1);
@@ -3441,9 +3420,6 @@ namespace DHLS {
     hcs.typeSpecs["builtin_fifo_32"] =
       [width](StructType* tp) { return wireSpec(width); };
     
-    // hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
-    // hcs.modSpecs[getArg(f, 1)] = wireSpec(width);    
-
     hcs.setCount(FADD_OP, 1);
 
     ExecutionConstraints exec;
@@ -3676,17 +3652,12 @@ namespace DHLS {
       {"rst", 0}
     };
     
-    //hcs.modSpecs[fpu] = {{}, "adder", adderPorts, defaults};
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
     hcs.typeSpecs[fpuType->getName()] =
       [adderPorts, defaults](StructType* fp) { return ModuleSpec({}, "adder", adderPorts, defaults); };
     hcs.typeSpecs["builtin_fifo_32"] =
       [width](StructType* tp) { return wireSpec(width); };
     
-    // hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
-    // hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
-    // hcs.modSpecs[getArg(f, 2)] = wireSpec(width);
-
     exeConstraints.addConstraint(instrEnd(val) < instrStart(writeZ));
 
     inlineWireCalls(f, exeConstraints, interfaces);
@@ -3761,611 +3732,6 @@ namespace DHLS {
     
     REQUIRE(runIVerilogTB("direct_port_fp_add"));
   }
-
-  // What should the instructions be?
-  // Instruction start time, instruction end time
-  // Instruction has started flag and has ended flag
-  // Combinational flags saying if the instruction is ending now?
-  // Global clock
-
-  class ActionTracker {
-  public:
-    Wire startedFlag;
-    Wire endedFlag;
-    Wire startTimeCounter;
-    Wire endTimeCounter;
-    Wire startingThisCycleFlag;
-    Wire endingThisCycleFlag;
-  };
-
-  class DynArch {
-    Function* f;
-    ExecutionConstraints& exe;
-    HardwareConstraints& hcs;
-
-    Wire globalTime;
-
-  public:
-
-    std::map<ExecutionAction, ActionTracker> actionTrackers;
-
-    std::map<llvm::Instruction*, Wire> tempStorage;
-    std::vector<Wire> allWires;
-
-    std::vector<FunctionalUnit> functionalUnits;
-    std::map<llvm::Instruction*, FunctionalUnit> unitAssignment;
-
-    Wire addReg(const int width, const std::string& name) {
-      Wire w = {true, width, name};
-      if (elem_by(w, allWires, [](const Wire a, const Wire b) { return a.name == b.name; })) {
-        return w;
-      }
-                        
-      allWires.push_back(w);
-      return w;
-    }
-
-    Wire addWire(const int width, const std::string& name) {
-      Wire w = {false, width, name};
-
-      if (elem_by(w, allWires, [](const Wire a, const Wire b) { return a.name == b.name; })) {
-        return w;
-      }
-
-      allWires.push_back(w);
-      return w;
-    }
-
-    string outputName(llvm::Value* const val) {
-      if (Instruction::classof(val)) {
-        cout << "Value for " << valueString(val) << endl;
-        Instruction* instr = dyn_cast<Instruction>(val);
-        FunctionalUnit unit = map_find(instr, unitAssignment);
-        string unitOut;
-        if (LoadInst::classof(instr)) {
-          cout << "loading rdata" << endl;
-          unitOut = map_find(string("rdata_0"), unit.outWires).name;
-        } else if (isBuiltinPortRead(instr)) {
-          string name = getPortName(instr);
-          unitOut = map_find(name, unit.outWires).name;
-        } else {
-          unitOut = map_find(string("out"), unit.outWires).name;
-        }
-
-        cout << "finding temp storage" << endl;
-        string regOut = map_find(instr, tempStorage).name;
-        return parens(couldEndFlag(instr) + " ? " + unitOut + " : " + regOut);
-      } else if (Argument::classof(val)) {
-
-        // TODO: For now assume all memory starts at 0?
-        return "0";
-      } else if (ConstantInt::classof(val)) {
-        auto valC = dyn_cast<ConstantInt>(val);
-        auto apInt = valC->getValue();
-
-        return to_string(dyn_cast<ConstantInt>(val)->getSExtValue());
-      }
-
-      cout << "Unsupported value = " << valueString(val) << endl;
-      // Value
-      assert(false);
-    }
-    
-    FunctionalUnit addFunctionalUnit(llvm::Instruction* instr) {
-      map<string, string> modParams;
-      string modName = instr->getOpcodeName();
-      string rStr = to_string(functionalUnits.size());
-      string prefix = instr->getOpcodeName() + rStr;
-      string unitName = prefix + "_unit";
-      map<string, Wire> inWires;
-      map<string, Wire> outWires;
-      bool isExternal = false;
-
-
-      if (BinaryOperator::classof(instr)) {
-        int w = getValueBitWidth(instr);
-        Wire in0 = addReg(w, "in0_" + rStr);
-        Wire in1 = addReg(w, "in1_" + rStr);
-        Wire out = addWire(w, "out_" + rStr);
-        inWires = {{"in0", in0}, {"in1", in1}};
-        outWires = {{"out", out}};
-        modParams = {{"WIDTH", to_string(w)}};
-      } else if (GetElementPtrInst::classof(instr)) {
-        modName += "_" + to_string(instr->getNumOperands() - 1);
-
-        Wire baseAddr = {true, 32, "base_addr_" + rStr};
-        allWires.push_back(baseAddr);
-        inWires = {{"base_addr", baseAddr}};
-        for (int i = 1; i < (int) instr->getNumOperands(); i++) {
-          Wire offset = {true, 32, "gep_add_in" + to_string(i) + "_" + rStr};
-          allWires.push_back(offset);
-          inWires.insert({"in" + to_string(i), offset});
-        }
-
-        Wire outWire = {false, 32, "getelementptr_out_" + rStr};
-        allWires.push_back(outWire);
-        outWires = {{"out", outWire}};
-        
-      } else if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
-        modName = "external_RAM";
-        unitName = "external_RAM";
-
-        int w = 0;
-        if (LoadInst::classof(instr)) {
-          w = getValueBitWidth(instr);
-        } else {
-          w = getValueBitWidth(instr->getOperand(0));
-        }
-        Wire raddr = addReg(w, "raddr_0_reg");
-        Wire waddr = addReg(w, "waddr_0_reg");
-        Wire wdata = addReg(w, "wdata_0_reg");
-        Wire wen = addReg(1, "wen_0_reg");
-        Wire ren = addReg(1, "ren_0_reg");
-
-        Wire rdata = addWire(32, "rdata_0_out");
-        
-        inWires = {{"raddr_0", raddr}, {"ren_0", ren}, {"waddr_0", waddr}, {"wdata_0", wdata}, {"wen_0", wen}};
-        outWires = {{"rdata_0", rdata}};
-      } else if (ReturnInst::classof(instr)) {
-
-        modName = "external_RET";
-        unitName = "external_RET";
-
-        inWires = {{"valid", {true, 1, "valid"}}};
-      } else if (isBuiltinPortCall(instr)) {
-        auto fuPtr = instr->getOperand(0);
-        assert(contains_key(fuPtr, hcs.modSpecs));
-
-        if (Argument::classof(fuPtr)) {
-          isExternal = true;
-        }
-
-        ModuleSpec modSpec = map_find(fuPtr, hcs.modSpecs);
-        modName = modSpec.name;
-        unitName = fuPtr->getName();
-
-        for (auto pt : modSpec.ports) {
-          if (pt.second.input()) {
-            inWires.insert({pt.first, {true, pt.second.width, unitName + "_" + pt.second.name}});
-          } else {
-            outWires.insert({pt.first, {false, pt.second.width, unitName + "_" + pt.second.name}});            
-          }
-        }
-        
-      }
-
-      if (LoadInst::classof(instr) ||
-          StoreInst::classof(instr) ||
-          ReturnInst::classof(instr)) {
-        isExternal = true;
-      }
-      FunctionalUnit unit = {{modParams, modName}, unitName, inWires, outWires, isExternal};
-
-      if (!elem_by(unit, functionalUnits, [](const FunctionalUnit& a, const FunctionalUnit& b) { return a.instName == b.instName; })) {
-        functionalUnits.push_back(unit);
-      }
-
-      cout << "Unit name" << endl;
-      for (auto unit : functionalUnits) {
-        cout << tab(1) << unit.instName << endl;
-      }
-
-      return unit;
-    }
-    
-    DynArch(Function* f_, ExecutionConstraints& exe_, HardwareConstraints& hcs_) : f(f_), exe(exe_), hcs(hcs_) {
-      globalTime = {true, 32, "clocks_since_reset"};
-      allWires.push_back(globalTime);
-      
-      int i = 0;
-      for (auto& bb : f->getBasicBlockList()) {
-        for (auto& instr : bb) {
-          
-          string prefix = sanitizeFormatForVerilogId(valueString(&instr));
-
-          if (hasOutput(&instr)) {
-            Wire tempValue = {true, getValueBitWidth(&instr), prefix + "_tmp"};
-            allWires.push_back(tempValue);
-            tempStorage[&instr] = tempValue;
-          }
-
-          FunctionalUnit unit = addFunctionalUnit(&instr);
-          unitAssignment[&instr] = unit;
-
-          addAction(&instr);
-
-          i++;
-        }
-      }
-
-      std::set<ExecutionAction> added;
-      for (auto c : exe.constraints) {
-        if (c->type() == CONSTRAINT_TYPE_ORDERED) {
-          Ordered* oc = static_cast<Ordered*>(c);
-          InstructionTime before = oc->before;
-          if (!before.action.isInstruction() && !elem(before.action, added)) {
-            added.insert(before.action);
-            addAction(before.action);
-          }
-
-          InstructionTime after = oc->after;
-          if (!after.action.isInstruction() && !elem(after.action, added)) {
-            added.insert(after.action);
-            addAction(after.action);
-          }
-
-        } else {
-          assert(false);
-        }
-      }
-    }
-
-    void addAction(ExecutionAction action) {
-      string prefix;
-      if (action.isInstruction()) {
-        prefix =
-          sanitizeFormatForVerilogId(valueString(action.getInstruction()));
-      } else {
-        prefix = action.getName();
-        cout << "Non instruction action = " << prefix << endl;
-      }
-
-      Wire si = {true, 1, prefix + "_started"};
-      allWires.push_back(si);
-
-      Wire se = {true, 1, prefix + "_finished"};
-      allWires.push_back(se);          
-
-      Wire sc = addReg(32, prefix + "_time_started");
-
-      Wire ec = addReg(32, prefix + "_time_finished");
-
-      Wire ssc = {false, 1, prefix + "_starting_this_cycle"};
-      allWires.push_back(ssc);          
-      Wire esc = {false, 1, prefix + "_done_this_cycle"};
-      allWires.push_back(esc);
-
-      actionTrackers[action] = {si, se, sc, ec, ssc, esc};
-          
-
-    }
-
-    std::string couldStartFlag(ExecutionAction instr) const {
-      return map_find(instr, actionTrackers).startingThisCycleFlag.name;
-    }
-
-    std::string couldEndFlag(ExecutionAction instr) const {
-      return map_find(instr, actionTrackers).endingThisCycleFlag.name;      
-    }
-
-    std::string instrDoneString(ExecutionAction instr) const {
-      return doneFlag(instr);
-    }
-
-    std::string instrStartString(ExecutionAction instr) const {
-      return startedFlag(instr);
-    }
-
-    std::string instrEndString(ExecutionAction instr) const {
-      return doneFlag(instr);
-    }
-    
-    std::string startedFlag(ExecutionAction instr) const {
-      return map_find(instr, actionTrackers).startedFlag.name;
-    }
-
-    std::string doneFlag(ExecutionAction instr) const {
-      return map_find(instr, actionTrackers).endedFlag.name;
-    }
-
-    std::string doneTimeString(ExecutionAction instr) const {
-      return map_find(instr, actionTrackers).endTimeCounter.name;
-    }
-
-    std::string startTimeString(ExecutionAction instr) const {
-      return map_find(instr, actionTrackers).startTimeCounter.name;
-    }
-    
-    std::string globalTimeString() const {
-      return globalTime.name;
-    }
-    
-    // Time at which an instruction started or finished
-    std::string instrTimeString(InstructionTime& time) const {
-      string alreadyDoneTime;
-      string thisCycleFlag;
-      if (time.isEnd) {
-        alreadyDoneTime = doneTimeString(time.getAction());
-        thisCycleFlag = couldEndFlag(time.getAction());
-      } else {
-        alreadyDoneTime = startTimeString(time.getAction());
-        thisCycleFlag = couldStartFlag(time.getAction());
-      }
-
-      // If this time is the start or end then the time of the event is
-      // the current global time, otherwise it is the saved complete time
-      // Result is invalid if the event is not starting
-      return condStr(thisCycleFlag, globalTimeString(), alreadyDoneTime);
-    }
-
-    std::string afterTimeString(InstructionTime& time) {
-
-      string eventHappened = atOrAfterTime(time);
-
-      string requiredTimeElapsed = parens(parens(instrTimeString(time) + " + " + to_string(time.offset)) + " < " + globalTimeString());
-      return andStr(eventHappened, requiredTimeElapsed);
-    }
-
-    std::string atOrAfterTime(InstructionTime& time) {
-      string eventHappened;
-      string eventHappening;
-      if (time.isEnd) {
-        eventHappened = doneFlag(time.getAction());
-        eventHappening = couldEndFlag(time.getAction());
-      } else {
-        eventHappened = startedFlag(time.getAction());
-        eventHappening = couldStartFlag(time.getAction());
-      }
-
-      return orStr(eventHappened, eventHappening);
-    }
-
-    std::string atTimeString(InstructionTime& time) {
-
-      
-      string eventHappened = atOrAfterTime(time);
-
-      string requiredTimeElapsed = parens(parens(instrTimeString(time) + " + " + to_string(time.offset)) + " == " + globalTimeString());
-      return andStr(eventHappened, requiredTimeElapsed);
-    }
-
-    std::string afterOrAtTimeString(InstructionTime& time) {
-      return orStr(atTimeString(time), afterTimeString(time));
-    }
-    
-    std::string constraintString(ExecutionConstraint* c) {
-      assert(c->type() == CONSTRAINT_TYPE_ORDERED);
-      Ordered* oc = static_cast<Ordered*>(c);
-      InstructionTime before = oc->before;
-
-      if (oc->restriction == ORDER_RESTRICTION_BEFORE) {
-        return afterTimeString(before);
-      } if (oc->restriction == ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS) {
-        return afterOrAtTimeString(before);
-      } if (oc->restriction == ORDER_RESTRICTION_SIMULTANEOUS) {
-        return atTimeString(before);
-      } else {
-        assert(false);
-      }
-    }
-
-    std::string startInstrConstraint(ExecutionAction instr) {
-      vector<string> rcs;
-      cout << "Start constraints on " << instr << endl;
-      for (auto c : exe.constraintsOnStart(instr)) {
-        cout << tab(1) << *c << endl;
-        rcs.push_back(constraintString(c));
-      }
-
-      rcs.push_back(notStr(instrStartString(instr)));
-      return separatedListString(rcs, " && ");
-    }
-
-    std::string endInstrConstraint(ExecutionAction instr) {
-      vector<string> rcs;
-      for (auto c : exe.constraintsOnEnd(instr)) {
-        rcs.push_back(constraintString(c));
-      }
-
-      rcs.push_back(orStr(instrStartString(instr), couldStartFlag(instr)));
-      rcs.push_back(notStr(instrEndString(instr)));
-      return separatedListString(rcs, " && ");
-    }
-    
-    Function* getFunction() const { return f; }
-  };
-
-  std::vector<Port> getPorts(DynArch& arch) {
-    vector<Port> pts;
-    pts.push_back(inputPort(1, "clk"));
-    pts.push_back(inputPort(1, "rst"));
-
-    for (auto unit : arch.functionalUnits) {
-      if (unit.isExternal()) {
-        for (auto w : unit.portWires) {
-          Port pt = wireToOutputPort(w.second);
-          pt.registered = true;
-          pts.push_back(pt);
-        }
-
-        for (auto w : unit.outWires) {
-          pts.push_back(wireToInputPort(w.second));
-        }
-      }
-    }
-
-    return pts;
-  }
-
-  void emitVerilog(std::ostream& out, DynArch& arch) {
-    vector<Port> pts = getPorts(arch);
-
-    VerilogComponents comps;
-    for (auto w : arch.allWires) {
-      comps.debugWires.push_back(w);
-    }
-    // Adding module instances      
-
-    for (auto unit : arch.functionalUnits) {
-      map<string, string> wireConns;
-      for (auto w : unit.portWires) {
-        wireConns.insert({w.first, w.second.name});
-      }
-
-      // TODO: Put sequential vs combinational distincion in module description
-      if ((unit.getModName() == "RAM") ||
-          (unit.getModName() == "register") ||
-          (unit.getModName() == "adder")) {
-        wireConns.insert({"clk", "clk"});
-        wireConns.insert({"rst", "rst"});
-      }
-
-      if (unit.getModName() == "fadd") {
-        wireConns.insert({"clk", "clk"});
-      }
-
-      string modName = unit.getModName();
-      auto params = unit.getParams();
-      string instName = unit.instName;
-
-      for (auto w : unit.outWires) {
-        wireConns.insert({w.first, w.second.name});
-      }
-
-      ModuleInstance inst = {modName, params, instName, wireConns};
-
-      if (!unit.isExternal()) {
-        comps.instances.push_back(inst);
-      } else {
-        // for (auto w : unit.portWires) {
-        //   comps.debugAssigns.push_back({w.second.name, w.second.name + "_reg"});
-        // }
-
-        // for (auto w : unit.outWires) {
-        //   comps.debugAssigns.push_back({w.second.name, w.first});
-        // }
-
-      }
-    }
-    // Done adding module instances
-
-    addAlwaysBlock({"clk"}, "if (rst) begin " + arch.globalTimeString() + " <= 0; end", comps);
-    addAlwaysBlock({"clk"}, "if (!rst) begin " + arch.globalTimeString() + " <= " + arch.globalTimeString() + " + 1; end", comps);
-    
-    for (auto actionMarker : arch.actionTrackers) {
-      ExecutionAction action = actionMarker.first;
-
-      // Reset behavior
-      addAlwaysBlock({"clk"}, "if (rst) begin " + arch.startedFlag(action) + " <= 0; end", comps);
-      addAlwaysBlock({"clk"}, "if (rst) begin " + arch.doneFlag(action) + " <= 0; end", comps);        
-
-      addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(action) + ") begin " + arch.startedFlag(action) + " <= 1; end", comps);
-      addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(action) + ") begin " + arch.doneFlag(action) + " <= 1; end", comps);
-
-      // Set completion times
-      addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(action) + ") begin " + arch.startTimeString(action) + " <= " + arch.globalTimeString() + "; end", comps);
-      addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(action) + ") begin " + arch.doneTimeString(action) + " <= " + arch.globalTimeString() + "; end", comps);
-
-      // Debug printouts, TODO: Move these to separate debug function
-      string actionStr = action.isInstruction() ? valueString(action.getInstruction()) : action.getName();
-      addAlwaysBlock({"clk"}, "if (" + arch.couldStartFlag(action) + ") begin $display(\"Starting " + sanitizeFormatForVerilog(actionStr) + " at cycle %d\", " + arch.globalTimeString() + "); end", comps);
-
-      string outputPrintout = "$display(\"Ending " + sanitizeFormatForVerilog(actionStr) + " at cycle %d\", " + arch.globalTimeString() + ");";
-
-      addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(action) + ") begin " + outputPrintout + " end", comps);
-      // End debug printouts
-
-
-      comps.debugAssigns.push_back({arch.couldStartFlag(action), arch.startInstrConstraint(action)});
-      comps.debugAssigns.push_back({arch.couldEndFlag(action), arch.endInstrConstraint(action)});
-      
-      if (action.isInstruction()) {
-
-        Instruction* instr = action.getInstruction();
-        // Actually execute instructions, should move this to another function?
-        FunctionalUnit unit = map_find(instr, arch.unitAssignment);
-        string portSetting = "";
-        string resultValue = "";
-        
-        
-        if (BinaryOperator::classof(instr)) {
-          portSetting += unit.portWires["in0"].name + " = " + arch.outputName(instr->getOperand(0)) + "; ";
-          portSetting += unit.portWires["in1"].name + " = " + arch.outputName(instr->getOperand(1)) + "; ";
-          resultValue = unit.outWires["out"].name;
-        } else if (GetElementPtrInst::classof(instr)) {
-          portSetting += unit.portWires["base_addr"].name + " = " + arch.outputName(instr->getOperand(0)) + "; ";
-          for (int i = 1; i < (int) instr->getNumOperands(); i++) {
-            portSetting += unit.portWires["in" + to_string(i)].name + " = " + arch.outputName(instr->getOperand(i)) + ";";
-
-          }
-
-          resultValue = unit.outWires["out"].name;
-        } else if (LoadInst::classof(instr)) {
-          portSetting += unit.portWires["raddr_0"].name + " = " + arch.outputName(instr->getOperand(0)) + "; ";
-          portSetting += unit.portWires["ren_0"].name + " = 1;";
-
-          resultValue = unit.outWires["rdata_0"].name;
-        } else if (StoreInst::classof(instr)) {
-          portSetting += unit.portWires["waddr_0"].name + " = " + arch.outputName(instr->getOperand(1)) + "; ";
-          portSetting += unit.portWires["wdata_0"].name + " = " + arch.outputName(instr->getOperand(0)) + "; ";
-          portSetting += unit.portWires["wen_0"].name + " = 1;";
-        } else if (ReturnInst::classof(instr)) {
-          portSetting += unit.portWires["valid"].name + " = 1;";          
-        } else if (isBuiltinPortRead(instr)) {
-          string portName = getPortName(instr);
-          resultValue = unit.outWires[portName].name;          
-        } else if (isBuiltinPortWrite(instr)) {
-          string portName = getPortName(instr);          
-          portSetting += unit.portWires[portName].name + " = " + arch.outputName(instr->getOperand(1)) + "; ";
-        } else {
-          assert(false);
-        }
-
-        addAlwaysBlock({}, "if (" + arch.couldStartFlag(instr) + ") begin " + portSetting + " end", comps);
-
-        // Store results to temporaries
-        if (hasOutput(instr)) {
-          addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(instr) + ") begin " + map_find(instr, arch.tempStorage).name + " <= " + resultValue + "; end", comps);
-
-          string outputPrintout = "$display(\"Ending " + sanitizeFormatForVerilog(actionStr) + " at cycle %d, with value %d\", " + arch.globalTimeString() + ", " + resultValue + ");";
-          addAlwaysBlock({"clk"}, "if (" + arch.couldEndFlag(action) + ") begin " + outputPrintout + " end", comps);
-          
-        }
-      }
-    }
-
-    emitModule(out, string(arch.getFunction()->getName()), pts, comps);
-  }
-
-  // Several things are going wrong here and I dont understand the effect of
-  // changes that I make to the system very well.
-  //  1. Output code is pretty unreadable
-  //  2. Constraints that I dont think should exist are forming (raddr depending on rdata?)
-  //  3. Constraints that I dont think should be a problem (return value constraints
-  //     on functions) seem to cause everything to stop executing
-
-  // Q: How do I propagate instruction time constraints? For example, what if
-  //    I have something like:
-  //    start(ld) + 3 == end(ld) (bc ld has a latency of 3)
-  //    start(k) < end(ld)
-
-  //    start(k) < start(ld) + 3
-  //    So that ld must end after k, but there are no other constraints? I dont
-  //    think my current architecture can prevent ld from starting.
-
-  //    So I suppose the way to evaluate constraints is to treat them as hypotheticals
-  //    start(k) < start(ld) + 3 gets interpreted as:
-  //    start(k) < start(current_time) + 3 (if ld has not started yet and k has?)
-
-  //    Im doing ILP solving by checking if each value could be satisfied at each
-  //    time and if that assignment to a value leaves a SAT solution to all
-  //    other constraints
-
-  //    Latency optimal: minimize the sum of all start / end times (because this
-  //    will minimize all of them since they are all positive)
-
-  //    At any given time some constraints have been determined, and some are
-  //    still undetermined.
-
-  //    What if ld starts? I could re-phrase as: start(k) < start(ld) + 3
-  //    But that cannot be computed
-
-  //    Have flags for if every instruction time is already determined, if so
-  //    just substitute it in to the constraints. If not then for each undetermined
-  //    value check if current_time could satisfy all constraints and leave
-  //    a viable solution for existing constraints. Wont be latency optimal for
-  //    resource ordering, but will be latency optimal for unlimited resource
-  //    bounds.
   
   TEST_CASE("Creating memory interface functions") {
     LLVMContext context;
@@ -4438,7 +3804,6 @@ namespace DHLS {
     HardwareConstraints hcs = standardConstraints();
     hcs.typeSpecs[sramTp->getName()] =
       [width, depth](StructType* tp) { return ramSpec(width, depth); };
-    //hcs.modSpecs[getArg(srUser, 0)] = ramSpec(width, depth);
 
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(srUser, hcs, toPipeline);
@@ -4494,8 +3859,7 @@ namespace DHLS {
     // NOTE: Its a little annoying to have to put module specifications
     // in to the hardware constraints in one place, and then put
     // the interface function definition in another place.
-    // hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
-    // hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
+
     hcs.typeSpecs["struct.builtin_fifo_32"] =
       [width](StructType* tp) { return fifoSpec(width, 32); };
     
@@ -4579,8 +3943,6 @@ namespace DHLS {
     // to module specs?
     int width = 32;
     HardwareConstraints hcs = standardConstraints();
-    // hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
-    // hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
     hcs.typeSpecs["class.DHLS::Fifo"] =
       [width](StructType* tp) { return fifoSpec(width, 32); };
     
@@ -4697,9 +4059,6 @@ namespace DHLS {
     hcs.typeSpecs["class.ac_channel"] =
       [width](StructType* tp) { return fifoSpec(width, 32); };
     
-    // hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
-    // hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
-
     addDataConstraints(f, exec);
 
     cout << "LLVM function after inlining reads" << endl;
@@ -4802,10 +4161,6 @@ namespace DHLS {
     hcs.typeSpecs["class.ac_channel"] =
       [width](StructType* tp) { return fifoSpec(width, 32); };
     
-    // hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
-    // hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
-    // hcs.modSpecs[getArg(f, 2)] = fifoSpec(width, 32);
-
     cout << "LLVM function after inlining reads" << endl;
     cout << valueString(f) << endl;
 
@@ -4947,8 +4302,6 @@ namespace DHLS {
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
     hcs.typeSpecs["class.ac_channel"] =
       [width](StructType* tp) { return fifoSpec(width, 32); };
-    // hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
-    // hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
 
     cout << "LLVM function after inlining reads" << endl;
     cout << valueString(f) << endl;
