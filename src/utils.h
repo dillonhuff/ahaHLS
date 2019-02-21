@@ -177,6 +177,8 @@ namespace DHLS {
         res += "_lp_";
       } else if (c == ')') {
         res += "_rp_";
+      } else if (c == '.') {
+        res += "_pr_";
       } else {
         res += c;
       }

@@ -281,6 +281,9 @@ namespace DHLS {
   //    Delete RAM specs (replaced by more general modSpecs)
   //    Convert ptr to builtin codes to RAM templates
   //    Shrink registers to reduce area costs
+  //    Remove modspecs
+  //    Remove internal RAM code
+  //    Rework the AXI examples
 
   // NOTE: The code for testbenches is getting really complicated. Some of that
   // is automatic testbench generation, but some of it is just the hodgepodge of
@@ -863,10 +866,9 @@ namespace DHLS {
     interfaces.functionTemplates[string("read")] = implementRAMRead0;
     interfaces.functionTemplates[string("write")] = implementRAMWrite0;
     interfaces.functionTemplates[string("read_0")] = implementRAMRead0;
-    interfaces.functionTemplates[string("read_1")] = implementRAMRead0;    
+    interfaces.functionTemplates[string("read_1")] = implementRAMRead0;  
     interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
 
-    // TODO: Add mapping from types to module generator functions
     HardwareConstraints hcs = standardConstraints();
     hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1);
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
