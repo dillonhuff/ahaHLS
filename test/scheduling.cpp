@@ -889,7 +889,11 @@ namespace DHLS {
     addNoXChecks(arch, info);    
 
     emitVerilog(f, arch, info);
-    
+
+    system("cat loop_add_4_copy.v");
+    system("cat RAM2.v");
+    system("cat loop_add_4_copy_tb.v");    
+
     REQUIRE(runIVerilogTB("loop_add_4_copy"));
   }
 
