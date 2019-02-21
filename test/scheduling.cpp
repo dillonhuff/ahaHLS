@@ -878,10 +878,6 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    // map<llvm::Value*, int> layout = {};
-    // ArchOptions options;
-    // auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
-
     // Arch debug
     VerilogDebugInfo info;
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
@@ -889,10 +885,6 @@ namespace DHLS {
 
     emitVerilog("loop_add_4_copy", graph, hcs, info);
     
-    // addNoXChecks(arch, info);    
-
-    // emitVerilog(f, arch, info);
-
     runCmd("cat loop_add_4_copy.v");
     runCmd("cat RAM2.v");
     runCmd("cat loop_add_4_copy_tb.v");

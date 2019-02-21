@@ -67,11 +67,11 @@ module test();
 
    RAM mem(.clk(clk),
            .rst(rst),
-           .raddr(raddr),
-           .rdata(rdata),
-           .wen(wen),
-           .wdata(wdata),
-           .waddr(waddr),
+           .raddr_0(raddr),
+           .rdata_0(rdata),
+           .wen_0(wen),
+           .wdata_0(wdata),
+           .waddr_0(waddr),
            .debug_addr(debug_addr),
            .debug_data(debug_data));
    
