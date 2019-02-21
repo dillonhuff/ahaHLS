@@ -261,6 +261,42 @@ namespace DHLS {
       return dbhc::map_find(op, latencies);
     }
 
+    bool hasArgumentSpec(llvm::Value* const arg) {
+      llvm::Type* tp = arg->getType();
+      if (llvm::PointerType::classof(tp)) {
+
+        llvm::Type* etp = dyn_cast<llvm::PointerType>(tp)->getElementType();
+
+        if (llvm::StructType::classof(etp)) {
+          llvm::StructType* tp = dyn_cast<StructType>(etp);
+          if (dbhc::contains_key(string(tp->getName()), typeSpecs)) {
+            return true;
+          }
+
+          return false;
+        }
+
+        return false;
+      }
+
+      return false;
+    }
+    
+    ModuleSpec getArgumentSpec(llvm::Value* const arg) {
+      assert(hasArgumentSpec(arg));
+
+      llvm::Type* tp = arg->getType();
+      assert(llvm::PointerType::classof(tp));
+
+      llvm::Type* etp = dyn_cast<llvm::PointerType>(tp)->getElementType();
+
+      assert(llvm::StructType::classof(etp));
+      llvm::StructType* stp = dyn_cast<StructType>(etp);
+      assert(dbhc::contains_key(string(stp->getName()), typeSpecs));
+
+      return dbhc::map_find(string(stp->getName()), typeSpecs)(stp);
+    }
+
     int getLatency(llvm::Instruction* iptr) const;
 
     bool isLimitedResource(const OperationType op) const {

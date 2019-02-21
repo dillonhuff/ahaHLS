@@ -2726,9 +2726,18 @@ namespace DHLS {
       comps.debugAssigns.push_back({"rst", "rst_reg"});      
 
       for (int i = 0; i < (int) f->arg_size(); i++) {
-        if (contains_key(getArg(f, i), arch.hcs.modSpecs)) {
+        //if (contains_key(getArg(f, i), arch.hcs.modSpecs)) {
+        if (arch.hcs.hasArgumentSpec(getArg(f, i)) ||
+            contains_key(getArg(f, i), arch.hcs.modSpecs)) {
           cout << valueString(getArg(f, i)) << "is modspeced" << endl;
-          ModuleSpec s = map_find(getArg(f, i), arch.hcs.modSpecs);
+
+          ModuleSpec s;
+          if (arch.hcs.hasArgumentSpec(getArg(f, i))) {
+            s = arch.hcs.getArgumentSpec(getArg(f, i)); //map_find(getArg(f, i), arch.hcs.modSpecs);
+          } else {
+            s = map_find(getArg(f, i), arch.hcs.modSpecs);            
+          }
+
           string instName = getArg(f, i)->getName();
           if (instName == "") {
             instName = "arg_" + to_string(i);
