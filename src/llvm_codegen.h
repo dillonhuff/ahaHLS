@@ -243,23 +243,45 @@ namespace DHLS {
                             const int width,
                             llvm::Type* argType) {
 
+    auto& m = getGlobalLLVMModule();
     // TODO: Add argType to name
     auto name = "builtin_write_port_" + portName;
+
+    llvm::Function* fifoRead = m.getFunction(name);
+
+    if (fifoRead != nullptr) {
+      return fifoRead;
+    }
 
     llvm::FunctionType *tp =
       llvm::FunctionType::get(llvm::Type::getVoidTy(getGlobalLLVMContext()),
                               {argType,
                                   intType(width)},
                               false);
+    
+    // llvm::FunctionType *tp =
+    //   llvm::FunctionType::get(intType(width), {fifoType(width)->getPointerTo()}, false);
 
-    auto c = getGlobalLLVMModule().getOrInsertFunction(name, tp);
+    auto c = m.getOrInsertFunction(name, tp);
 
-    if (!llvm::Function::classof(c)) {
-      std::cout << "c = " << valueString(c) << std::endl;
-      assert(false);
-    }
+    assert(llvm::Function::classof(c));
 
     return llvm::dyn_cast<llvm::Function>(c);
+    
+    // llvm::FunctionType *tp =
+    //   llvm::FunctionType::get(llvm::Type::getVoidTy(getGlobalLLVMContext()),
+    //                           {argType,
+    //                               intType(width)},
+    //                           false);
+
+    // auto c = getGlobalLLVMModule().getOrInsertFunction(name, tp);
+
+    // if (!llvm::Function::classof(c)) {
+    //   std::cout << "c = " << valueString(c) << std::endl;
+    //   assert(false);
+    // }
+
+    // return llvm::dyn_cast<llvm::Function>(c);
   }
 
   static inline
@@ -269,33 +291,61 @@ namespace DHLS {
 
     // TODO: Add typestring to name
     auto name = "builtin_read_port_" + portName;
+
+    auto& m = getGlobalLLVMModule();
+    llvm::Function* fifoRead = m.getFunction(name);
+
+    if (fifoRead != nullptr) {
+      return fifoRead;
+    }
+
     llvm::FunctionType *tp =
       llvm::FunctionType::get(intType(width),
                               {argType},
                               false);
+    
+    // llvm::FunctionType *tp =
+    //   llvm::FunctionType::get(llvm::Type::getVoidTy(getGlobalLLVMContext()),
+    //                           {argType,
+    //                               intType(width)},
+    //                           false);
+    
+    // llvm::FunctionType *tp =
+    //   llvm::FunctionType::get(intType(width), {fifoType(width)->getPointerTo()}, false);
 
-    auto c = getGlobalLLVMModule().getOrInsertFunction(name, tp);
+    auto c = m.getOrInsertFunction(name, tp);
 
-    if (llvm::Function::classof(c)) {
-      return llvm::dyn_cast<llvm::Function>(c);
-    } else if (llvm::ConstantExpr::classof(c)) {
-      std::cout << valueString(c) << " is constantexpr" << std::endl;
-      if (llvm::ConstantExpr::classof(c)) {
-        std::cout << "Is unary" << std::endl;
-        auto castC = llvm::dyn_cast<llvm::ConstantExpr>(c);
-        std::cout << "is cast ? " << castC->isCast() << std::endl;
-        auto f = castC->getOperand(0);
-        std::cout << "Function = " << valueString(f) << std::endl;
+    assert(llvm::Function::classof(c));
 
-        assert(llvm::Function::classof(c));
+    return llvm::dyn_cast<llvm::Function>(c);
 
-        return llvm::dyn_cast<llvm::Function>(f);
-      } else {
-        assert(false);
-      }
-    } else {
-      assert(false);
-    }
+    // llvm::FunctionType *tp =
+    //   llvm::FunctionType::get(intType(width),
+    //                           {argType},
+    //                           false);
+
+    // auto c = getGlobalLLVMModule().getOrInsertFunction(name, tp);
+
+    // if (llvm::Function::classof(c)) {
+    //   return llvm::dyn_cast<llvm::Function>(c);
+    // } else if (llvm::ConstantExpr::classof(c)) {
+    //   std::cout << valueString(c) << " is constantexpr" << std::endl;
+    //   if (llvm::ConstantExpr::classof(c)) {
+    //     std::cout << "Is unary" << std::endl;
+    //     auto castC = llvm::dyn_cast<llvm::ConstantExpr>(c);
+    //     std::cout << "is cast ? " << castC->isCast() << std::endl;
+    //     auto f = castC->getOperand(0);
+    //     std::cout << "Function = " << valueString(f) << std::endl;
+
+    //     assert(llvm::Function::classof(c));
+
+    //     return llvm::dyn_cast<llvm::Function>(f);
+    //   } else {
+    //     assert(false);
+    //   }
+    // } else {
+    //   assert(false);
+    // }
     
     // assert(llvm::Function::classof(c));
 
