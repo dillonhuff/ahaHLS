@@ -3663,9 +3663,12 @@ namespace DHLS {
     
     hcs.modSpecs[fpu] = {{}, "adder", adderPorts, defaults};
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
-    hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
-    hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
-    hcs.modSpecs[getArg(f, 2)] = wireSpec(width);
+    hcs.typeSpecs["struct.builtin_fifo_32"] =
+      [width](StructType* tp) { return wireSpec(width); };
+    
+    // hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
+    // hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
+    // hcs.modSpecs[getArg(f, 2)] = wireSpec(width);
 
     exeConstraints.addConstraint(instrEnd(val) < instrStart(writeZ));
 
