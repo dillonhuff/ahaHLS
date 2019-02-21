@@ -328,9 +328,7 @@ namespace DHLS {
   //  2. Remove or wrap the function -> SchedulingConstraints map
 
   // Q: What test cases do I need?
-  // A: Test that uses multiple different RAM types
-  //    Test that uses limited numbers of memory read/write ports
-  //    Test case that merges basic blocks that execute different numbers of times
+  // A: Test case that merges basic blocks that execute different numbers of times
   //    Test case with outer loop pipelining
   //    Test case that pipelines inner loop surrounded by outer loop
   //    Test case using a ready-valid interface together with pipelining
@@ -4474,8 +4472,11 @@ namespace DHLS {
     // NOTE: Its a little annoying to have to put module specifications
     // in to the hardware constraints in one place, and then put
     // the interface function definition in another place.
-    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
-    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
+    // hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
+    // hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
+    hcs.typeSpecs["struct.builtin_fifo_32"] =
+      [width](StructType* tp) { return fifoSpec(width, 32); };
+    
     
     auto arch = synthesizeVerilog(f, interfaces, hcs);
 
@@ -4556,8 +4557,11 @@ namespace DHLS {
     // to module specs?
     int width = 32;
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
-    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
+    // hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
+    // hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
+    hcs.typeSpecs["class.DHLS::Fifo"] =
+      [width](StructType* tp) { return fifoSpec(width, 32); };
+    
 
     addDataConstraints(f, exec);
 
@@ -4668,9 +4672,11 @@ namespace DHLS {
     HardwareConstraints hcs = standardConstraints();
     hcs.memoryMapping = memoryOpLocations(f);
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    hcs.typeSpecs["class.ac_channel"] =
+      [width](StructType* tp) { return fifoSpec(width, 32); };
     
-    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
-    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
+    // hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
+    // hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
 
     addDataConstraints(f, exec);
 
@@ -4771,10 +4777,12 @@ namespace DHLS {
     HardwareConstraints hcs = standardConstraints();
     hcs.memoryMapping = memoryOpLocations(f);
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    hcs.typeSpecs["class.ac_channel"] =
+      [width](StructType* tp) { return fifoSpec(width, 32); };
     
-    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
-    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
-    hcs.modSpecs[getArg(f, 2)] = fifoSpec(width, 32);
+    // hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 32);
+    // hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 32);
+    // hcs.modSpecs[getArg(f, 2)] = fifoSpec(width, 32);
 
     cout << "LLVM function after inlining reads" << endl;
     cout << valueString(f) << endl;
