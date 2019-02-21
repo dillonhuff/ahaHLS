@@ -319,8 +319,8 @@ namespace DHLS {
     interfaces.functionTemplates[string("write")] = implementRAMWrite0;
 
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16); 
-    
+    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16);
+
     Schedule s = scheduleInterface(f, hcs, interfaces);
     
     REQUIRE(s.numStates() == 4);
@@ -830,18 +830,9 @@ namespace DHLS {
     LLVMContext Context;
     setGlobalLLVMContext(&Context);
 
-    //std::unique_ptr<Module> Mod = loadModule(Context, Err, "loop_add_4_copy");
     std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "loop_add_4_copy");
     setGlobalLLVMModule(Mod.get());
 
-    // HardwareConstraints hcs;
-    // hcs.setLatency(STORE_OP, 3);
-    // hcs.setLatency(LOAD_OP, 1);
-    // hcs.setLatency(CMP_OP, 0);
-    // hcs.setLatency(BR_OP, 0);
-    // hcs.setLatency(ADD_OP, 0);
-
-    //Function* f = Mod->getFunction("loop_add_4_copy");
     Function* f = getFunctionByDemangledName(Mod.get(), "loop_add_4_copy");
     assert(f != nullptr);
 
@@ -851,26 +842,16 @@ namespace DHLS {
     interfaces.functionTemplates[string("read_0")] = implementRAMRead0;
     interfaces.functionTemplates[string("read_1")] = implementRAMRead0;    
     interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
-    
+
+    // TODO: Add mapping from types to module generator functions
     HardwareConstraints hcs = standardConstraints();
     hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1);
 
     Schedule s = scheduleInterface(f, hcs, interfaces);
-    
-    // hcs.memoryMapping = memoryOpLocations(f);
-    // setAllAllocaMemTypes(hcs, f, ramSpec(1, 3, 1, 1, 32, 32));
-    
-    // Schedule s = scheduleFunction(f, hcs);
-
     STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
     graph.print(cout);
-
-    //map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}};
-    // map<llvm::Value*, int> layout = {};
-    // ArchOptions options;
-    // auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
 
     map<llvm::Value*, int> layout = {};
     ArchOptions options;
