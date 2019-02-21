@@ -2584,8 +2584,11 @@ namespace DHLS {
     builder.CreateRet(nullptr);
 
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
-    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
+    hcs.typeSpecs[tp->getName()] =
+      [width](StructType* tp) { return fifoSpec(width, 16); };
+    
+    // hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
+    // hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
 
     ExecutionConstraints exec;
     inlineWireCalls(f, exec, interfaces);
@@ -2759,12 +2762,15 @@ namespace DHLS {
     cout << valueString(f) << endl;
 
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
-    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
-    hcs.modSpecs[getArg(f, 2)] = fifoSpec(width, 16);
-    hcs.modSpecs[getArg(f, 3)] = fifoSpec(width, 16);
-    hcs.modSpecs[getArg(f, 4)] = fifoSpec(width, 16);            
-    hcs.modSpecs[getArg(f, 5)] = fifoSpec(width, 16);
+    hcs.typeSpecs[tp->getName()] =
+      [width](StructType* tp) { return fifoSpec(width, 16); };
+    
+    // hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
+    // hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
+    // hcs.modSpecs[getArg(f, 2)] = fifoSpec(width, 16);
+    // hcs.modSpecs[getArg(f, 3)] = fifoSpec(width, 16);
+    // hcs.modSpecs[getArg(f, 4)] = fifoSpec(width, 16);            
+    // hcs.modSpecs[getArg(f, 5)] = fifoSpec(width, 16);
 
     // More constraints
     
@@ -3086,9 +3092,11 @@ namespace DHLS {
 
     HardwareConstraints hcs = standardConstraints();
     hcs.setCount(ADD_OP, 1);
+    hcs.typeSpecs[tp->getName()] =
+      [width](StructType* tp) { return fifoSpec(width, 16); };
 
-    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
-    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
+    // hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
+    // hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
     
     ExecutionConstraints exec;
     inlineWireCalls(f, exec, interfaces);
@@ -3213,9 +3221,11 @@ namespace DHLS {
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    hcs.typeSpecs[tp->getName()] =
+      [width](StructType* tp) { return wireSpec(width); };
 
-    hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
-    hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
+    // hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
+    // hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
 
     // TODO: Add relative timing constraints on wires
     
@@ -3307,10 +3317,12 @@ namespace DHLS {
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    hcs.typeSpecs["builtin_fifo_32"] =
+      [width](StructType* tp) { return wireSpec(width); };
 
-    hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
-    hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
-    hcs.modSpecs[getArg(f, 2)] = wireSpec(width);
+    // hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
+    // hcs.modSpecs[getArg(f, 1)] = wireSpec(width);
+    // hcs.modSpecs[getArg(f, 2)] = wireSpec(width);
 
     // TODO: Set latency of fadd to 15?
     hcs.setCount(FADD_OP, 1);
@@ -3426,8 +3438,11 @@ namespace DHLS {
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
-    hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
-    hcs.modSpecs[getArg(f, 1)] = wireSpec(width);    
+    hcs.typeSpecs["builtin_fifo_32"] =
+      [width](StructType* tp) { return wireSpec(width); };
+    
+    // hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
+    // hcs.modSpecs[getArg(f, 1)] = wireSpec(width);    
 
     hcs.setCount(FADD_OP, 1);
 
@@ -3663,7 +3678,7 @@ namespace DHLS {
     
     hcs.modSpecs[fpu] = {{}, "adder", adderPorts, defaults};
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
-    hcs.typeSpecs["struct.builtin_fifo_32"] =
+    hcs.typeSpecs["builtin_fifo_32"] =
       [width](StructType* tp) { return wireSpec(width); };
     
     // hcs.modSpecs[getArg(f, 0)] = wireSpec(width);
