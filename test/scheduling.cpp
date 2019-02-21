@@ -2490,7 +2490,11 @@ namespace DHLS {
 
     REQUIRE(runIVerilogTB("sys_array_1_2"));
   }
-  
+
+  ModuleSpec fifoSpec32(StructType* tp) {
+    return fifoSpec(32, 16);
+  }
+
   TEST_CASE("Builtin FIFO as argument to function") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
@@ -2534,8 +2538,9 @@ namespace DHLS {
     cout << valueString(f) << endl;
 
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
-    hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
+    hcs.typeSpecs["builtin_fifo_32"] = fifoSpec32;
+    // hcs.modSpecs[getArg(f, 0)] = fifoSpec(width, 16);
+    // hcs.modSpecs[getArg(f, 1)] = fifoSpec(width, 16);
 
     set<BasicBlock*> toPipeline;
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
@@ -4161,14 +4166,6 @@ namespace DHLS {
     vector<Port> pts;
     pts.push_back(inputPort(1, "clk"));
     pts.push_back(inputPort(1, "rst"));
-    // pts.push_back(outputPort(1, "valid"));
-
-    // pts.push_back(outputPort(32, "raddr_0"));
-    // pts.push_back(outputPort(1, "ren_0"));
-    // pts.push_back(inputPort(32, "rdata_0"));
-    // pts.push_back(outputPort(32, "waddr_0"));
-    // pts.push_back(outputPort(32, "wdata_0"));
-    // pts.push_back(outputPort(1, "wen_0"));
 
     for (auto unit : arch.functionalUnits) {
       if (unit.isExternal()) {
