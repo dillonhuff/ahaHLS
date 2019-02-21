@@ -235,6 +235,10 @@ namespace DHLS {
       modName = "sub";            
     } else if (instr->getOpcode() == Instruction::FAdd) {
       modName = "fadd";
+    } else if (instr->getOpcode() == Instruction::And) {
+      modName = "andOp";
+    } else if (instr->getOpcode() == Instruction::Or) {
+      modName = "orOp";
     } else {
       assert(false);
     }

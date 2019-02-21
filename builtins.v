@@ -23,6 +23,18 @@ module add(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [WIDTH - 1:
    assign out = in0 + in1;
 endmodule
 
+module andOp(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [WIDTH - 1:0] out);
+   parameter WIDTH = 1;
+   
+   assign out = in0 & in1;
+endmodule
+
+module orOp(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [WIDTH - 1:0] out);
+   parameter WIDTH = 1;
+   
+   assign out = in0 | in1;
+endmodule
+
 module sub(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [WIDTH - 1:0] out);
    parameter WIDTH = 1;
    

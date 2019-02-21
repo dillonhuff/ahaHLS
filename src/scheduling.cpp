@@ -53,6 +53,9 @@ namespace DHLS {
     hcs.setLatency(MUL_OP, 0);
     hcs.setLatency(SEXT_OP, 0);
     hcs.setLatency(ZEXT_OP, 0);
+    hcs.setLatency(AND_OP, 0);
+    hcs.setLatency(OR_OP, 0);
+    
     return hcs;
   }
 
@@ -159,6 +162,10 @@ namespace DHLS {
         return SUB_OP;
       } else if (opCode == Instruction::FAdd) {
         return FADD_OP;
+      } else if (opCode == Instruction::And) {
+        return AND_OP;
+      } else if (opCode == Instruction::Or) {
+        return OR_OP;        
       } else {
         assert(false);
       }
@@ -228,6 +235,10 @@ namespace DHLS {
         latency = getLatency(MUL_OP);
       } else if (opCode == Instruction::Sub) {
         latency = getLatency(SUB_OP);
+      } else if (opCode == Instruction::And) {
+        latency = getLatency(AND_OP);
+      } else if (opCode == Instruction::Or) {
+        latency = getLatency(OR_OP);
       } else {
         assert(false);
       }
