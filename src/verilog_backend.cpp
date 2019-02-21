@@ -546,8 +546,9 @@ namespace DHLS {
         unitName = fuPtr->getName();
 
         // All internal functional units must have names
-        if (unitName == "") {
-          assert(Argument::classof(fuPtr));
+        //        if (unitName == "") {
+        //assert(Argument::classof(fuPtr));
+        if (Argument::classof(fuPtr) && (unitName == "")) {
           int i = 0;
           bool foundArg = false;
           Function* f = instr->getParent()->getParent();
@@ -561,6 +562,8 @@ namespace DHLS {
           }
 
           assert(foundArg);
+        } else if (unitName == "") {
+          unitName = sanitizeFormatForVerilogId(valueString(fuPtr));
         }
 
         for (auto pt : modSpec.ports) {
