@@ -1459,12 +1459,29 @@ namespace DHLS {
     return 0;
   }
 
+  Type* readOutputType(llvm::Function* readFifo) {
+    if (readFifo->getReturnType() == Type::getVoidTy(getGlobalLLVMContext())) {
+      auto zArg = getArg(readFifo, 0);
+      assert(PointerType::classof(zArg->getType()));
+      return dyn_cast<PointerType>(zArg->getType())->getElementType();
+    }
 
+    return readFifo->getReturnType();
+  }
+
+  Value* readFifoVal(llvm::Function* readFifo) {
+    if (readFifo->getReturnType() == Type::getVoidTy(getGlobalLLVMContext())) {
+      return getArg(readFifo, 1);
+    }
+
+    return getArg(readFifo, 0);
+  }
+  
   void implementRVFifoRead(llvm::Function* readFifo, ExecutionConstraints& exec) {
-    auto out = getArg(readFifo, 0);
+    auto out = readFifoVal(readFifo); //getArg(readFifo, 0);
 
     auto tp = out->getType();
-    int width = getTypeBitWidth(readFifo->getReturnType());
+    int width = getTypeBitWidth(readOutputType(readFifo)); //readFifo->getReturnType());
       
     auto eb = mkBB("entry_block", readFifo);
     IRBuilder<> b(eb);
