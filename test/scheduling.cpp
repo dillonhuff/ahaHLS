@@ -878,21 +878,24 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<llvm::Value*, int> layout = {};
-    ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
-    
+    // map<llvm::Value*, int> layout = {};
+    // ArchOptions options;
+    // auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+
+    // Arch debug
     VerilogDebugInfo info;
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+
+    emitVerilog("loop_add_4_copy", graph, hcs, info);
     
-    addNoXChecks(arch, info);    
+    // addNoXChecks(arch, info);    
 
-    emitVerilog(f, arch, info);
+    // emitVerilog(f, arch, info);
 
-    system("cat loop_add_4_copy.v");
-    system("cat RAM2.v");
-    system("cat loop_add_4_copy_tb.v");    
+    runCmd("cat loop_add_4_copy.v");
+    runCmd("cat RAM2.v");
+    runCmd("cat loop_add_4_copy_tb.v");
 
     REQUIRE(runIVerilogTB("loop_add_4_copy"));
   }
@@ -957,7 +960,7 @@ namespace DHLS {
     int startSetMemCycle = 1;
     for (auto exp : memoryInit) {
       int offset = map_find(exp.first, testLayout);
-      for (int i = 0; i < exp.second.size(); i++) {
+      for (int i = 0; i < (int) exp.second.size(); i++) {
         int val = exp.second[i];
 
         map_insert(tb.actionsOnCycles, startSetMemCycle, "ram_debug_write_addr <= " + to_string(offset) + ";");
@@ -978,7 +981,7 @@ namespace DHLS {
     int checkMemCycle = 150;
     for (auto exp : memoryExpected) {
       int offset = map_find(exp.first, testLayout);
-      for (int i = 0; i < exp.second.size(); i++) {
+      for (int i = 0; i < (int) exp.second.size(); i++) {
         int val = exp.second[i];
         map_insert(tb.actionsInCycles, checkMemCycle, "ram_debug_addr = " + to_string(offset) + ";");
         map_insert(tb.actionsInCycles, checkMemCycle, assertString("ram_debug_data === " + to_string(val)));

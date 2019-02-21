@@ -111,8 +111,8 @@ module test();
    loop_add_4_copy ss(.clk(clk),
                       .rst(rst),
                       .valid(valid),
-                      .waddr_0(waddr), .wdata_0(wdata), .wen_0(wen),
-                      .raddr_0(raddr0), .rdata_0(rdata0),
+                      .ram_waddr_0(waddr), .ram_wdata_0(wdata), .ram_wen_0(wen),
+                      .ram_raddr_0(raddr0), .ram_rdata_0(rdata0),
                       .global_state_dbg(global_state_dbg));
 //,
 //                      .wdata_temp_reg_dbg(wdata_temp_reg_dbg));
