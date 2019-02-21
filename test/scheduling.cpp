@@ -272,6 +272,39 @@ namespace DHLS {
     return arch;
   }
 
+  ModuleSpec ramSpecFunc(llvm::StructType* tp) {
+    auto elems = tp->elements();
+    assert(elems.size() == 1);
+
+    Type* internalArray = elems[0];
+    assert(ArrayType::classof(internalArray));
+
+    ArrayType* arrTp = dyn_cast<ArrayType>(internalArray);
+    return ramSpec(getTypeBitWidth(arrTp->getElementType()), arrTp->getNumElements(), 1, 1);
+  }
+
+  ModuleSpec ram2SpecFunc(llvm::StructType* tp) {
+    auto elems = tp->elements();
+    assert(elems.size() == 1);
+
+    Type* internalArray = elems[0];
+    assert(ArrayType::classof(internalArray));
+
+    ArrayType* arrTp = dyn_cast<ArrayType>(internalArray);
+    return ramSpec(getTypeBitWidth(arrTp->getElementType()), arrTp->getNumElements(), 2, 1);
+  }
+
+  ModuleSpec ram3SpecFunc(llvm::StructType* tp) {
+    auto elems = tp->elements();
+    assert(elems.size() == 1);
+
+    Type* internalArray = elems[0];
+    assert(ArrayType::classof(internalArray));
+
+    ArrayType* arrTp = dyn_cast<ArrayType>(internalArray);
+    return ramSpec(getTypeBitWidth(arrTp->getElementType()), arrTp->getNumElements(), 3, 1);
+  }
+  
   // Q: System TODOs:
   // A: Remove useless address fields from registers (allow custom memory interfaces)
   //    Move test layout into testbenchspec
@@ -322,7 +355,9 @@ namespace DHLS {
     interfaces.functionTemplates[string("write")] = implementRAMWrite0;
 
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16);
+    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16);
+    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
 
     Schedule s = scheduleInterface(f, hcs, interfaces);
     
@@ -366,7 +401,9 @@ namespace DHLS {
     interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
 
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1); 
+    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1); 
+    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
     
     Schedule s = scheduleInterface(f, hcs, interfaces);
 
@@ -406,7 +443,9 @@ namespace DHLS {
     interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
 
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1); 
+    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1); 
+    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
 
     Schedule s = scheduleInterface(f, hcs, interfaces);
     STG graph = buildSTG(s, f);
@@ -463,7 +502,9 @@ namespace DHLS {
     interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1);
+    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1);
+    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
 
     Schedule s = scheduleInterface(f, hcs, interfaces);
     STG graph = buildSTG(s, f);
@@ -493,7 +534,9 @@ namespace DHLS {
     interfaces.functionTemplates[string("write")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
+    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
+    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
 
     Schedule s = scheduleInterface(f, hcs, interfaces);
     STG graph = buildSTG(s, f);
@@ -523,7 +566,9 @@ namespace DHLS {
     interfaces.functionTemplates[string("write")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
+    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
+    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
 
     Schedule s = scheduleInterface(f, hcs, interfaces);
     STG graph = buildSTG(s, f);
@@ -555,7 +600,11 @@ namespace DHLS {
     interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 3, 1);
+    // hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 3, 1);
+    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
+    hcs.typeSpecs["class.RAM_3"] = ram3SpecFunc;
+
     // Limits number of adders
     hcs.setCount(ADD_OP, 1);
 
@@ -606,7 +655,10 @@ namespace DHLS {
     interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 3, 1);
+    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 3, 1);
+    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
+    hcs.typeSpecs["class.RAM_3"] = ram3SpecFunc;    
 
     Schedule s = scheduleInterface(f, hcs, interfaces);
     STG graph = buildSTG(s, f);
@@ -665,7 +717,9 @@ namespace DHLS {
     interfaces.functionTemplates[string("write")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
+    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
+    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
 
     Schedule s = scheduleInterface(f, hcs, interfaces, blocksToPipeline);
 
@@ -719,7 +773,10 @@ namespace DHLS {
     interfaces.functionTemplates[string("write")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
+    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 1, 1);
+    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
+    
 
     Schedule s = scheduleInterface(f, hcs, interfaces, blocksToPipeline);
 
@@ -765,13 +822,16 @@ namespace DHLS {
     Function* f = getFunctionByDemangledName(Mod.get(), "loop_add_4_6_iters");
     getArg(f, 0)->setName("ram");
 
-    HardwareConstraints hcs;
-    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1);
-    hcs.setLatency(STORE_OP, 3);
-    hcs.setLatency(LOAD_OP, 1);
-    hcs.setLatency(CMP_OP, 0);
-    hcs.setLatency(BR_OP, 0);
-    hcs.setLatency(ADD_OP, 0);
+    HardwareConstraints hcs = standardConstraints();
+    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1);
+    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
+    
+    // hcs.setLatency(STORE_OP, 3);
+    // hcs.setLatency(LOAD_OP, 1);
+    // hcs.setLatency(CMP_OP, 0);
+    // hcs.setLatency(BR_OP, 0);
+    // hcs.setLatency(ADD_OP, 0);
 
     
     std::set<BasicBlock*> blocksToPipeline;
@@ -826,28 +886,6 @@ namespace DHLS {
 
     REQUIRE(runIVerilogTB("loop_add_4_6_iters"));
   }
-
-  ModuleSpec ramSpecFunc(llvm::StructType* tp) {
-    auto elems = tp->elements();
-    assert(elems.size() == 1);
-
-    Type* internalArray = elems[0];
-    assert(ArrayType::classof(internalArray));
-
-    ArrayType* arrTp = dyn_cast<ArrayType>(internalArray);
-    return ramSpec(getTypeBitWidth(arrTp->getElementType()), arrTp->getNumElements(), 1, 1);
-  }
-
-  ModuleSpec ram2SpecFunc(llvm::StructType* tp) {
-    auto elems = tp->elements();
-    assert(elems.size() == 1);
-
-    Type* internalArray = elems[0];
-    assert(ArrayType::classof(internalArray));
-
-    ArrayType* arrTp = dyn_cast<ArrayType>(internalArray);
-    return ramSpec(getTypeBitWidth(arrTp->getElementType()), arrTp->getNumElements(), 2, 1);
-  }
   
   TEST_CASE("Using temporary memory") {
 
@@ -870,7 +908,7 @@ namespace DHLS {
     interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
 
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1);
+    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 2, 1);
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
 
@@ -887,9 +925,9 @@ namespace DHLS {
 
     emitVerilog("loop_add_4_copy", graph, hcs, info);
     
-    runCmd("cat loop_add_4_copy.v");
-    runCmd("cat RAM2.v");
-    runCmd("cat loop_add_4_copy_tb.v");
+    // runCmd("cat loop_add_4_copy.v");
+    // runCmd("cat RAM2.v");
+    // runCmd("cat loop_add_4_copy_tb.v");
 
     REQUIRE(runIVerilogTB("loop_add_4_copy"));
   }
@@ -913,7 +951,10 @@ namespace DHLS {
     interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
     
     HardwareConstraints hcs = standardConstraints();
-    hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 3, 1);
+    //hcs.modSpecs[getArg(f, 0)] = ramSpec(32, 16, 3, 1);
+    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
+    hcs.typeSpecs["class.RAM_3"] = ram3SpecFunc;    
 
     Schedule s = scheduleInterface(f, hcs, interfaces);
     STG graph = buildSTG(s, f);
