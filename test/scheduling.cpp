@@ -4479,6 +4479,22 @@ namespace DHLS {
 
   // So then what are temporary values? Temps of primitive types are busses
   // Temp values of compound types? Maybe just ban them?
+
+  // This seems like a reasonable start. I think the next step is actually
+  // to comment back to passing tests and then clean up the memory related
+  // code. Check that pointers are only produced by:
+  //   1. alloca
+  //   2. return values of functions
+  //   3. arguments to the function?
+
+  // Note: Should the pre-scheduling assignment of ports have a distinction
+  // between wires and registers?
+  // Q: What about pointers to temporary objects? What do I mean temporary?
+  // A: I guess an object that gets optimized in to a wire?
+  //    So if I create an object, then start referencing it through pointers
+  //    the module itself has to have all of its internal state saved in
+  //    registers or memory.
+  //    You have cycle-scoping?
   TEST_CASE("2 x 2 pointwise multiply from Halide") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -4488,7 +4504,7 @@ namespace DHLS {
     setGlobalLLVMModule(Mod.get());
 
     Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
-    getArg(f, 0)->setName("ram");
+    //getArg(f, 0)->setName("ram");
 
     cout << "llvm function" << endl;
     cout << valueString(f) << endl;
