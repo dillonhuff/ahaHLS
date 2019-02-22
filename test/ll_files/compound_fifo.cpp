@@ -1,4 +1,39 @@
-#include "fifo.h"
+#include <cassert>
+
+template<typename T, int depth>
+class Fifo {
+  T buffer[depth];
+  int raddr;
+  int waddr;
+  bool empty;
+  
+public:
+
+  Fifo() {
+    raddr = 0;
+    waddr = 0;
+    empty = 1;
+  }
+
+  T read() {
+    assert(!empty);
+    T value = buffer[raddr];
+    raddr = (raddr + 1) % depth;
+
+    if (raddr == waddr) {
+      empty = 1;
+    }
+    return value;
+  }
+
+  void write(T& value) {
+
+    buffer[waddr] = value;
+    waddr = (waddr + 1) % depth;
+    empty = 0;
+
+  }
+};
 
 template<typename T, int width>
 class bus {
@@ -16,8 +51,8 @@ public:
 
 };
 
-void compound_fifo(DHLS::Fifo<bus<int, 8>, 16>* in,
-                   DHLS::Fifo<int, 16>* out) {
+void compound_fifo(Fifo<bus<int, 8>, 16>* in,
+                   Fifo<int, 16>* out) {
   bus<int, 8> b = in->read();
 
   int sum = 0;

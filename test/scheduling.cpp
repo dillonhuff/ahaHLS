@@ -4429,7 +4429,7 @@ namespace DHLS {
     
     InterfaceFunctions interfaces;
     interfaces.functionTemplates[string("read")] = implementRVFifoRead;
-    interfaces.functionTemplates[string("write")] = implementRVFifoWrite;
+    interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef;
     
     HardwareConstraints hcs = standardConstraints();
     // TODO: Make pointers to primitives registers of their width by default
