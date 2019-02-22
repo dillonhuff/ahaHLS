@@ -972,7 +972,7 @@ namespace DHLS {
                           ControlFlowPosition pos,
                           MicroArchitecture& arch) {
 
-    cout << "Generating code for " << valueString(pos.instr) << endl;
+    //cout << "Generating code for " << valueString(pos.instr) << endl;
 
     auto instr = pos.instr;
     auto addUnit = map_find(instr, arch.unitAssignment);
@@ -1112,11 +1112,11 @@ namespace DHLS {
           assert(false);
         }
       } else if (isBuiltinPortWrite(instr)) {
-          cout << "Operand 0 = " << valueString(instr->getOperand(0)) << endl;
+        //cout << "Operand 0 = " << valueString(instr->getOperand(0)) << endl;
           //assert(contains_key(instr->getOperand(0), arch.hcs.modSpecs));
 
           std::string portName = getPortName(instr);
-          cout << "Port name = " << portName << endl;
+          //cout << "Port name = " << portName << endl;
           string val = outputName(instr->getOperand(1), pos, arch);
 
           assignments.insert({addUnit.inputWire(portName), val});
