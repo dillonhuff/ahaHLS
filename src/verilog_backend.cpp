@@ -512,11 +512,13 @@ namespace DHLS {
       outWires = {{"out", {false, w0, "sel_out_" + rStr}}};
             
     } else if (CallInst::classof(instr)) {
-      if (isBuiltinFifoWrite(instr)) {
-        assert(false);
-      } else if (isBuiltinFifoRead(instr)) {
-        assert(false);
-      } else if (isBuiltinPortCall(instr)) {
+      // if (isBuiltinFifoWrite(instr)) {
+      //   assert(false);
+      // } else if (isBuiltinFifoRead(instr)) {
+      //   assert(false);
+      // } else
+
+      if (isBuiltinPortCall(instr)) {
         // No action
 
         auto fuPtr = instr->getOperand(0);
@@ -1100,18 +1102,20 @@ namespace DHLS {
       assignments.insert({addUnit.portWires["sel"].name, condName});            
 
     } else if (CallInst::classof(instr)) {
-      if (isBuiltinFifoCall(instr)) {
+      // if (isBuiltinFifoCall(instr)) {
 
-        if (isBuiltinFifoWrite(instr)) {
-          assert(false);
+      //   if (isBuiltinFifoWrite(instr)) {
+      //     assert(false);
           
-        } else if (isBuiltinFifoRead(instr)) {
-          assert(false);
+      //   } else if (isBuiltinFifoRead(instr)) {
+      //     assert(false);
 
-        } else {
-          assert(false);
-        }
-      } else if (isBuiltinPortWrite(instr)) {
+      //   } else {
+      //     assert(false);
+      //   }
+      // } else
+
+      if (isBuiltinPortWrite(instr)) {
         //cout << "Operand 0 = " << valueString(instr->getOperand(0)) << endl;
           //assert(contains_key(instr->getOperand(0), arch.hcs.modSpecs));
 
