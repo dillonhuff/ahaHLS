@@ -85,6 +85,23 @@ namespace DHLS {
     // return dyn_cast<IntegerType>(tp)->getBitWidth();
   }
 
+  bool matchesCall(std::string str, llvm::Instruction* const iptr) {
+    if (!CallInst::classof(iptr)) {
+      return false;
+    }
+
+    CallInst* call = dyn_cast<CallInst>(iptr);
+    Function* called = call->getCalledFunction();
+
+    string name = called->getName();
+
+    if (hasPrefix(name, str)) {
+      return true;
+    }
+    return false;
+
+  }
+  
   bool isBuiltinPortWrite(llvm::Instruction* const iptr) {
     if (!CallInst::classof(iptr)) {
       return false;

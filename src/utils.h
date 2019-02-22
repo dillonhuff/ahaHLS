@@ -194,4 +194,6 @@ namespace DHLS {
 
   std::string ifStr(const std::string s);
 
+  bool matchesCall(std::string str, llvm::Instruction* const iptr);
+
 }

@@ -4416,16 +4416,121 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("complex_num"));
   }
 
-  TEST_CASE("Using a FIFO with compound type as argument") {
+  // TEST_CASE("Using a FIFO with compound type as argument") {
+  //   SMDiagnostic Err;
+  //   LLVMContext Context;
+  //   setGlobalLLVMContext(&Context);
+    
+  //   std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "compound_fifo");
+  //   setGlobalLLVMModule(Mod.get());
+
+  //   Function* f = getFunctionByDemangledName(Mod.get(), "compound_fifo");
+  //   getArg(f, 0)->setName("ram");
+    
+  //   InterfaceFunctions interfaces;
+  //   interfaces.functionTemplates[string("read")] = implementRVFifoRead;
+  //   interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef;
+    
+  //   HardwareConstraints hcs = standardConstraints();
+  //   // TODO: Make pointers to primitives registers of their width by default
+  //   hcs.memoryMapping = memoryOpLocations(f);
+  //   int width = 64;
+  //   setAllAllocaMemTypes(hcs, f, registerSpec(width));
+
+  //   // TODO: Change this!
+  //   hcs.typeSpecs["class.ac_channel"] =
+  //     [width](StructType* tp) { return fifoSpec(width, 32); };
+
+  //   Schedule s = scheduleInterface(f, hcs, interfaces);
+  //   STG graph = buildSTG(s, f);
+    
+  //   cout << "STG Is" << endl;
+  //   graph.print(cout);
+
+  //   emitVerilog("compound_fifo", graph, hcs);
+
+  //   REQUIRE(runIVerilogTB("compound_fifo"));
+  // }
+
+  // Now there is an issue with port accesses. The operator(x, y) function that I use
+  // in the stencils to get and set values returns a pointer to one of its elements.
+  // This corresponds to a bundle of fields that can be set. It is set by
+  // reading the pointer to an i16 from an opaque function and then storing a value
+  // to that pointer. What does that correspond to in hardware?
+
+  // Case 1: Suppose the stencil is a bunch of registers under the surface. The
+  // operator(i) takes in 2 constants and corresponds to wiring the write port
+  // of the ith register in the stencil to the value %25
+
+  // So in this interpretation a pointer to a type represents "some way to write
+  // to a value of that type?" or more generally: "some way to perform any
+  // action in this types API?"
+
+  // Q: What if you dont need to perform any action on that type?
+  // Q: Why does that matter? Just dont use the wires that you got?
+  // Q: Id like for the dereference to be implemented as a slice that
+  //    just returns one wire?
+
+  // Stencil module: stencil(v0i, v1i, v2i, v3i, v0o, v1o, v2o, v3o)
+  // Deref module:   deref(stencil_v0i, stencil_v1i, stencil_v2i, stencil_v3i,
+  //                       stencil_v0o, stencil_v1o, stencil_v2o, stencil_v3o,
+  //                       index0, index1, index2,
+  //                       output_value_input, output_value_output)
+
+  // So then what are temporary values? Temps of primitive types are busses
+  // Temp values of compound types? Maybe just ban them?
+  TEST_CASE("2 x 2 pointwise multiply from Halide") {
     SMDiagnostic Err;
     LLVMContext Context;
     setGlobalLLVMContext(&Context);
     
-    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "compound_fifo");
+    std::unique_ptr<Module> Mod = loadLLFile(Context, Err, "vhls_target");
     setGlobalLLVMModule(Mod.get());
 
-    Function* f = getFunctionByDemangledName(Mod.get(), "compound_fifo");
+    Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
     getArg(f, 0)->setName("ram");
+
+    cout << "llvm function" << endl;
+    cout << valueString(f) << endl;
+
+
+    std::set<Instruction*> toDel;
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instrV : bb) {
+        auto instrP = &instrV;
+        if (matchesCall("llvm.lifetime.start", instrP) ||
+            matchesCall("llvm.lifetime.end", instrP)) {
+          toDel.insert(instrP);
+        }
+      }
+    }
+
+    cout << "Calls to delete = " << toDel.size() << endl;
+
+    for (auto instr : toDel) {
+      instr->eraseFromParent();
+    }
+
+    toDel = {};
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instrV : bb) {
+        auto instrP = &instrV;
+        if (instrP->use_empty() && GetElementPtrInst::classof(instrP)) {
+          toDel.insert(instrP);
+        }
+      }
+    }
+
+    cout << "Unused instructions = " << toDel.size() << endl;
+    for (auto instrP : toDel) {
+      cout << "No uses for " << valueString(instrP) << endl;
+      instrP->eraseFromParent();
+    }
+    
+    cout << "llvm after lifetime deletes" << endl;
+    cout << valueString(f) << endl;
+
+    assert(false);
     
     InterfaceFunctions interfaces;
     interfaces.functionTemplates[string("read")] = implementRVFifoRead;
@@ -4447,9 +4552,9 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    emitVerilog("compound_fifo", graph, hcs);
+    emitVerilog("vhls_target", graph, hcs);
 
-    REQUIRE(runIVerilogTB("compound_fifo"));
+    REQUIRE(runIVerilogTB("vhls_target")); // Run tb
   }
 
 }
