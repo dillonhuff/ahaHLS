@@ -42,7 +42,7 @@ public:
   }
 
   T read() {
-    assert(!empty);
+    //assert(!empty);
     T value = buffer[raddr];
     raddr = (raddr + 1) % depth;
 
