@@ -1487,10 +1487,38 @@ namespace DHLS {
     cout << "tp          = " << typeString(tp) << endl;
     cout << "type read   = " << typeString(readOutputType(readFifo)) << endl;
 
-    // Case 1: Null constructor
+    // Case 1: Null constructor, can be optimized away
     // Maybe instead of getting the bit width of the type I should get
     // the entire type signature (all fields of the type?) and then
-    // 
+    // Note: Maybe I also need the packed vs. unpacked distinction?
+    // the fifo can only hold objects whose C++ type is representable
+    // as a single entry in a RAM? I suppose the FIFO can represent
+    // any combination of states in each entry, it does not have to
+    // be a RAM
+
+    // Note: The fifo itself is a black box, so we do
+    // not need to represent the copy action internally, we just
+    // need to represent connecting the module pointed to by the
+    // receiver argument to the module.
+    // Note: The connections themselves have the scheduling property
+    // that they may need to endure for more than 1 cycle. For a complex
+    // copy it may be important that the codes stay copied for several
+    // cycles, or for an undetermined number of cycles?
+
+    // Q: Can read and write be phrased as connects?
+    // A: Read is connect to a temp wire for 1 cycle
+    //    Write is connect to a temp wire for 1 cycle
+    // Q: What about representing wires + read / write latencies?
+    //    If I rephrase read and write this way they will take
+    //    pointers as inputs, but that will be interpreted as a register
+    //    read / write?
+
+    // Basically the op here is:
+    // wait for ready == 1
+    // { connect valid port with constant 1
+    // { for each mport in result modulespec: connect mport to fifo mport
+    // wait for copy constructor duration, and connect valid with 0
+    // done
     int width = getTypeBitWidth(readOutputType(readFifo));
     //readFifo->getReturnType());
 
