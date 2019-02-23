@@ -1478,10 +1478,23 @@ namespace DHLS {
   }
   
   void implementRVFifoRead(llvm::Function* readFifo, ExecutionConstraints& exec) {
-    auto out = readFifoVal(readFifo); //getArg(readFifo, 0);
+    auto out = readFifoVal(readFifo);
+    //getArg(readFifo, 0);
 
     auto tp = out->getType();
-    int width = getTypeBitWidth(readOutputType(readFifo)); //readFifo->getReturnType());
+
+    cout << "readFifoVal = " << valueString(out) << endl;
+    cout << "tp          = " << typeString(tp) << endl;
+    cout << "type read   = " << typeString(readOutputType(readFifo)) << endl;
+
+    // Case 1: Null constructor
+    // Maybe instead of getting the bit width of the type I should get
+    // the entire type signature (all fields of the type?) and then
+    // 
+    int width = getTypeBitWidth(readOutputType(readFifo));
+    //readFifo->getReturnType());
+
+    cout << "type width = " << width << endl;
       
     auto eb = mkBB("entry_block", readFifo);
     IRBuilder<> b(eb);

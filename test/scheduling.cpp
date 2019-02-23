@@ -4416,6 +4416,46 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("complex_num"));
   }
 
+  void deleteLLVMLifetimeCalls(llvm::Function* f) {
+    std::set<Instruction*> toDel;
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instrV : bb) {
+        auto instrP = &instrV;
+        if (matchesCall("llvm.lifetime.start", instrP) ||
+            matchesCall("llvm.lifetime.end", instrP)) {
+          toDel.insert(instrP);
+        }
+      }
+    }
+
+    cout << "Calls to delete = " << toDel.size() << endl;
+
+    for (auto instr : toDel) {
+      instr->eraseFromParent();
+    }
+
+    toDel = {};
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instrV : bb) {
+        auto instrP = &instrV;
+        if (instrP->use_empty() &&
+            (GetElementPtrInst::classof(instrP) ||
+             BitCastInst::classof(instrP))) {
+          toDel.insert(instrP);
+        }
+      }
+    }
+
+    cout << "Unused instructions = " << toDel.size() << endl;
+    for (auto instrP : toDel) {
+      cout << "No uses for " << valueString(instrP) << endl;
+      instrP->eraseFromParent();
+    }
+    
+    cout << "llvm after lifetime deletes" << endl;
+    cout << valueString(f) << endl;
+  }
+
   TEST_CASE("Using a FIFO with compound type as argument") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -4424,8 +4464,11 @@ namespace DHLS {
     setGlobalLLVMModule(Mod.get());
 
     Function* f = getFunctionByDemangledName(Mod.get(), "compound_fifo");
-    getArg(f, 0)->setName("ram");
-    
+    getArg(f, 0)->setName("in");
+    getArg(f, 1)->setName("out");
+
+    deleteLLVMLifetimeCalls(f);
+
     InterfaceFunctions interfaces;
     interfaces.functionTemplates[string("read")] = implementRVFifoRead;
     interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef;
@@ -4440,15 +4483,15 @@ namespace DHLS {
     hcs.typeSpecs["class.ac_channel"] =
       [width](StructType* tp) { return fifoSpec(width, 32); };
 
-    Schedule s = scheduleInterface(f, hcs, interfaces);
-    STG graph = buildSTG(s, f);
+    // Schedule s = scheduleInterface(f, hcs, interfaces);
+    // STG graph = buildSTG(s, f);
     
-    cout << "STG Is" << endl;
-    graph.print(cout);
+    // cout << "STG Is" << endl;
+    // graph.print(cout);
 
-    emitVerilog("compound_fifo", graph, hcs);
+    // emitVerilog("compound_fifo", graph, hcs);
 
-    REQUIRE(runIVerilogTB("compound_fifo"));
+    // REQUIRE(runIVerilogTB("compound_fifo"));
   }
 
   // Now there is an issue with port accesses. The operator(x, y) function that I use
@@ -4518,67 +4561,31 @@ namespace DHLS {
     cout << valueString(f) << endl;
 
 
-    std::set<Instruction*> toDel;
-    for (auto& bb : f->getBasicBlockList()) {
-      for (auto& instrV : bb) {
-        auto instrP = &instrV;
-        if (matchesCall("llvm.lifetime.start", instrP) ||
-            matchesCall("llvm.lifetime.end", instrP)) {
-          toDel.insert(instrP);
-        }
-      }
-    }
-
-    cout << "Calls to delete = " << toDel.size() << endl;
-
-    for (auto instr : toDel) {
-      instr->eraseFromParent();
-    }
-
-    toDel = {};
-    for (auto& bb : f->getBasicBlockList()) {
-      for (auto& instrV : bb) {
-        auto instrP = &instrV;
-        if (instrP->use_empty() && GetElementPtrInst::classof(instrP)) {
-          toDel.insert(instrP);
-        }
-      }
-    }
-
-    cout << "Unused instructions = " << toDel.size() << endl;
-    for (auto instrP : toDel) {
-      cout << "No uses for " << valueString(instrP) << endl;
-      instrP->eraseFromParent();
-    }
-    
-    cout << "llvm after lifetime deletes" << endl;
-    cout << valueString(f) << endl;
-
     // assert(false);
     
-    InterfaceFunctions interfaces;
-    interfaces.functionTemplates[string("read")] = implementRVFifoRead;
-    interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef;
+    // InterfaceFunctions interfaces;
+    // interfaces.functionTemplates[string("read")] = implementRVFifoRead;
+    // interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef;
     
-    HardwareConstraints hcs = standardConstraints();
-    // TODO: Make pointers to primitives registers of their width by default
-    hcs.memoryMapping = memoryOpLocations(f);
-    int width = 64;
-    setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    // HardwareConstraints hcs = standardConstraints();
+    // // TODO: Make pointers to primitives registers of their width by default
+    // hcs.memoryMapping = memoryOpLocations(f);
+    // int width = 64;
+    // setAllAllocaMemTypes(hcs, f, registerSpec(width));
 
-    // TODO: Change this!
-    hcs.typeSpecs["class.ac_channel"] =
-      [width](StructType* tp) { return fifoSpec(width, 32); };
+    // // TODO: Change this!
+    // hcs.typeSpecs["class.ac_channel"] =
+    //   [width](StructType* tp) { return fifoSpec(width, 32); };
 
-    Schedule s = scheduleInterface(f, hcs, interfaces);
-    STG graph = buildSTG(s, f);
+    // Schedule s = scheduleInterface(f, hcs, interfaces);
+    // STG graph = buildSTG(s, f);
     
-    cout << "STG Is" << endl;
-    graph.print(cout);
+    // cout << "STG Is" << endl;
+    // graph.print(cout);
 
-    emitVerilog("vhls_target", graph, hcs);
+    // emitVerilog("vhls_target", graph, hcs);
 
-    REQUIRE(runIVerilogTB("vhls_target")); // Run tb
+    // REQUIRE(runIVerilogTB("vhls_target")); // Run tb
   }
 
 }
