@@ -4494,6 +4494,15 @@ namespace DHLS {
   //    the module itself has to have all of its internal state saved in
   //    registers or memory.
   //    You have cycle-scoping?
+
+  // problem:
+  // Stencil& a = channel.read();
+  // Stencil& b = channel.read();
+  // a.do_something();
+  // b.do_something();
+  // a still needs to refer to the original stored value in channel, but
+  // if passing by pointer just means connecting to ports that refer to the
+  // channel state, then the values will change when the channel is read again
   TEST_CASE("2 x 2 pointwise multiply from Halide") {
     SMDiagnostic Err;
     LLVMContext Context;

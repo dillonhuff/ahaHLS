@@ -188,6 +188,18 @@ namespace DHLS {
   memoryOpLocations(Function* f) {
     map<Instruction*, llvm::Value*> mems;
 
+    // // TODO: Eventually all examples that use this should be removable
+    // really need to figure out what pass by value vs reference means as well?
+    // Maybe non-primitive return values on functions should be banned for now?
+    // It is hard to predict what calling convention will show when using pass
+    // by value, and it is hard to interpret a returned pointer value in an
+    // ordinary function
+
+    // Again: The compiler defined vs. code defined distinction is relevant.
+    // port list predictability does not matter for below-top-level code.
+
+    // return mems;
+
     for (auto& bb : f->getBasicBlockList()) {
 
       std::set<Instruction*> foundOps;
