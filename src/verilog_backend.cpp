@@ -224,7 +224,9 @@ namespace DHLS {
     //   in the port list of the interface of the receiving module?
 
     // Maybe the real issue is not returning pointers, but assigning one
-    // pointer to another?
+    // pointer to another? Both are an issue. Returning a pointer creates
+    // problems as does passing a pointer, because each of them can create
+    // confusion about the mapping between pointer values and resources
 
     // return mems;
 
