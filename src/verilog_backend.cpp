@@ -198,6 +198,34 @@ namespace DHLS {
     // Again: The compiler defined vs. code defined distinction is relevant.
     // port list predictability does not matter for below-top-level code.
 
+    // No returning pointers maybe is the right rule?
+    // -- No dynamic allocation
+    // -- No returning a reference to a piece of state on your "stack"?
+    // -- Could take in 2 pointers and return one of them? Arbiters?
+    //    This is an important case...
+    // -- I guess you could say that each call to the function that gets a
+    //    pointer is like a barrell shifter, whose inputs must remain
+    //    constant for the lifetime of the pointer? But this creates a new
+    //    lifetime analysis problem...
+
+    // Maybe the invariant of this system is that each pointer points
+    // to a single instance of a module?
+    // You can call the copy constructor of the underlying type on 2
+    // pointers, but you cannot set the value of a pointer to be
+    // another pointer?
+    // Q: Would the implementation of a barrel shift register selector
+    //    produce this problem if it was actually implemented?
+
+    // No passing RAMs by value?
+    // Or / And: No getelementptr with variable arguments?
+    // Value: a wire (registered or not)
+    // Passing by value means connecting 2 wires (at some time?)
+    // Passing by reference means including one modules ports
+    //   in the port list of the interface of the receiving module?
+
+    // Maybe the real issue is not returning pointers, but assigning one
+    // pointer to another?
+
     // return mems;
 
     for (auto& bb : f->getBasicBlockList()) {
