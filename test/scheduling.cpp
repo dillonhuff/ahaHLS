@@ -339,7 +339,6 @@ namespace DHLS {
   //    Shrink registers to reduce area costs
   //    Remove modspecs
   //    Remove internal RAM code
-  //    Rework the AXI examples
 
   // NOTE: The code for testbenches is getting really complicated. Some of that
   // is automatic testbench generation, but some of it is just the hodgepodge of
@@ -1148,19 +1147,6 @@ namespace DHLS {
     std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "mvmul");
     setGlobalLLVMModule(Mod.get());
 
-    // HardwareConstraints hcs;
-    // hcs.setLatency(STORE_OP, 3);
-    // hcs.setLatency(LOAD_OP, 1);
-    // hcs.setLatency(CMP_OP, 0);
-    // hcs.setLatency(BR_OP, 0);
-    // hcs.setLatency(ADD_OP, 0);
-    // hcs.setLatency(MUL_OP, 0);
-
-    // Function* f = Mod->getFunction("mvmul");
-    // assert(f != nullptr);
-    
-    // Schedule s = scheduleFunction(f, hcs);
-
     Function* f = getFunctionByDemangledName(Mod.get(), "mvmul");
     assert(f != nullptr);
     getArg(f, 0)->setName("ram");
@@ -1170,10 +1156,7 @@ namespace DHLS {
     interfaces.functionTemplates[string("read_1")] = implementRAMRead1;
     interfaces.functionTemplates[string("read_2")] = implementRAMRead2;
     interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
-    
-    // interfaces.functionTemplates[string("read")] = implementRAMRead0;
-    // interfaces.functionTemplates[string("write")] = implementRAMWrite0;
-    
+
     HardwareConstraints hcs = standardConstraints();
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
@@ -1190,11 +1173,8 @@ namespace DHLS {
 
     // 3 x 3
     map<string, int> testLayout = {{"a", 0}, {"b", 9}, {"c", 12}};
-    map<llvm::Value*, int> layout; // = //{{getArg(f, 0), 0}, {getArg(f, 1), 9}, {getArg(f, 2), 12}};
-      //auto arch = buildMicroArchitecture(f, graph, layout);
+    map<llvm::Value*, int> layout;
 
-      //map<llvm::Value*, int> layout;
-    // ArchOptions options;
     auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     VerilogDebugInfo info;
@@ -1267,64 +1247,6 @@ namespace DHLS {
     emitVerilog("stalled_single_store_axi", graph, hcs, info);
 
     REQUIRE(runIVerilogTB("stalled_single_store_axi"));
-
-    // // ArchOptions options;
-    // options.globalStall = true;
-    // options.setMemInterface(MEM_INTERFACE_AXI4_LITE);
-
-    // map<llvm::Value*, int> layout;
-    // auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
-
-    // VerilogDebugInfo info;
-    // noAddsTakeXInputs(arch, info);
-    // noMulsTakeXInputs(arch, info);
-    // noPhiOutputsXWhenUsed(arch, info);
-    // noStoredValuesXWhenUsed(arch, info);
-
-    // emitVerilog(f, arch, info);
-
-    // REQUIRE(runIVerilogTB("stalled_single_store_axi"));
-    
-    // SMDiagnostic Err;
-    // LLVMContext Context;
-    // std::unique_ptr<Module> Mod =
-    //   loadModule(Context, Err, "stalled_single_store_axi");
-
-    // Function* f = Mod->getFunction("stalled_single_store_axi");
-
-    // HardwareConstraints hcs;
-    // hcs.setLatency(STORE_OP, 3);
-    // hcs.setLatency(LOAD_OP, 1);
-    // hcs.setLatency(CMP_OP, 0);
-    // hcs.setLatency(BR_OP, 0);
-    // hcs.setLatency(ADD_OP, 0);
-
-    // hcs.setCount(ADD_OP, 1);
-    
-    // //map<string, int> layout = {{"a", 0}, {"b", 1}};
-    // map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 1}};
-
-    // Schedule s = scheduleFunction(f, hcs);
-    // STG graph = buildSTG(s, f);
-
-    // cout << "STG Is" << endl;
-    // graph.print(cout);
-
-    // // ArchOptions options;
-    // options.globalStall = true;
-    // options.setMemInterface(MEM_INTERFACE_AXI4_LITE);
-
-    // auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
-
-    // VerilogDebugInfo info;
-    // noAddsTakeXInputs(arch, info);
-    // noMulsTakeXInputs(arch, info);
-    // noPhiOutputsXWhenUsed(arch, info);
-    // noStoredValuesXWhenUsed(arch, info);
-
-    // emitVerilog(f, arch, info);
-
-    // REQUIRE(runIVerilogTB("stalled_single_store_axi"));
   }
 
   // Random Thought: Test if an access pattern maps onto a cache type
