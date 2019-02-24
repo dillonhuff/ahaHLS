@@ -4469,13 +4469,27 @@ namespace DHLS {
 
     deleteLLVMLifetimeCalls(f);
 
-    InterfaceFunctions interfaces;
-    interfaces.functionTemplates[string("read")] = implementRVFifoRead;
-    interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef;
-    
     HardwareConstraints hcs = standardConstraints();
     // TODO: Make pointers to primitives registers of their width by default
     hcs.memoryMapping = memoryOpLocations(f);
+    
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read")] =
+      [hcs](llvm::Function* readFifo,
+            ExecutionConstraints& exec) {
+      implementRVCompoundRead(readFifo, exec, hcs);
+    };
+    interfaces.functionTemplates[string("write")] =
+      [hcs](llvm::Function* writeFifo,
+            ExecutionConstraints& exec) {
+      implementRVCompoundWrite(writeFifo, exec, hcs);
+    };
+    interfaces.functionTemplates[string("get")] =
+      [hcs](llvm::Function* busGet,
+            ExecutionConstraints& exec) {
+      implementBusGet(busGet, exec, hcs);
+    };
+    
     int width = 64;
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
 
@@ -4483,15 +4497,15 @@ namespace DHLS {
     hcs.typeSpecs["class.ac_channel"] =
       [width](StructType* tp) { return fifoSpec(width, 32); };
 
-    // Schedule s = scheduleInterface(f, hcs, interfaces);
-    // STG graph = buildSTG(s, f);
+    Schedule s = scheduleInterface(f, hcs, interfaces);
+    STG graph = buildSTG(s, f);
     
-    // cout << "STG Is" << endl;
-    // graph.print(cout);
+    cout << "STG Is" << endl;
+    graph.print(cout);
 
-    // emitVerilog("compound_fifo", graph, hcs);
+    emitVerilog("compound_fifo", graph, hcs);
 
-    // REQUIRE(runIVerilogTB("compound_fifo"));
+    REQUIRE(runIVerilogTB("compound_fifo"));
   }
 
   // Now there is an issue with port accesses. The operator(x, y) function that I use

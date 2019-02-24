@@ -335,7 +335,9 @@ module axi_stall_manager(input clk,
    
 endmodule // axi_stall_manager
 
-module register(input clk, input rst, input [31:0] raddr, input [31:0] waddr, input wen, input ren, input [31:0] wdata, output [31:0] rdata);
+module register(input clk, input rst, input [WIDTH - 1:0] raddr, input [WIDTH - 1:0] waddr, input wen, input ren, input [WIDTH - 1:0] wdata, output [WIDTH - 1:0] rdata);
+
+   parameter WIDTH = 32;
 
    reg [31:0] data;
 

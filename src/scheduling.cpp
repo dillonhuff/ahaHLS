@@ -1476,6 +1476,62 @@ namespace DHLS {
 
     return getArg(readFifo, 0);
   }
+
+
+  // Case 1: Null constructor, can be optimized away
+  // Maybe instead of getting the bit width of the type I should get
+  // the entire type signature (all fields of the type?) and then
+  // Note: Maybe I also need the packed vs. unpacked distinction?
+  // the fifo can only hold objects whose C++ type is representable
+  // as a single entry in a RAM? I suppose the FIFO can represent
+  // any combination of states in each entry, it does not have to
+  // be a RAM
+
+  // Note: The fifo itself is a black box, so we do
+  // not need to represent the copy action internally, we just
+  // need to represent connecting the module pointed to by the
+  // receiver argument to the module.
+  // Note: The connections themselves have the scheduling property
+  // that they may need to endure for more than 1 cycle. For a complex
+  // copy it may be important that the codes stay copied for several
+  // cycles, or for an undetermined number of cycles?
+
+  // Q: Can read and write be phrased as connects?
+  // A: Read is connect to a temp wire for 1 cycle
+  //    Write is connect to a temp wire for 1 cycle
+  // Q: What about representing wires + read / write latencies?
+  //    If I rephrase read and write this way they will take
+  //    pointers as inputs, but that will be interpreted as a register
+  //    read / write?
+
+  // Basically the op here is:
+  // wait for ready == 1
+  // { connect valid port with constant 1
+  // { for each mport in result modulespec (needed for copy?): connect mport to fifo mport
+  // wait for copy constructor duration, and connect valid with 0
+  // done
+
+  // TODO: Build a separate prototype of this connect calling convention
+  // for FIFOs?
+
+  // Q: Can stalls be phrased as connects + data dependencies?
+  // A: Phrase stall on ready as: connect wire to ready and then
+  //    make that wire a dependency of other codes?
+  void implementRVCompoundRead(llvm::Function* readFifo,
+                               ExecutionConstraints& exec,
+                               const HardwareConstraints& hcs) {
+    auto eb = mkBB("entry_block", readFifo);
+    IRBuilder<> b(eb);
+    b.CreateRet(nullptr);
+  }
+
+  void implementRVCompoundWrite(llvm::Function* readFifo,
+                                ExecutionConstraints& exec,
+                                const HardwareConstraints& hcs) {
+    auto eb = mkBB("entry_block", readFifo);
+    IRBuilder<> b(eb);
+    b.CreateRet(nullptr);
+  }
   
   void implementRVFifoRead(llvm::Function* readFifo, ExecutionConstraints& exec) {
     auto out = readFifoVal(readFifo);
@@ -1486,39 +1542,6 @@ namespace DHLS {
     cout << "readFifoVal = " << valueString(out) << endl;
     cout << "tp          = " << typeString(tp) << endl;
     cout << "type read   = " << typeString(readOutputType(readFifo)) << endl;
-
-    // Case 1: Null constructor, can be optimized away
-    // Maybe instead of getting the bit width of the type I should get
-    // the entire type signature (all fields of the type?) and then
-    // Note: Maybe I also need the packed vs. unpacked distinction?
-    // the fifo can only hold objects whose C++ type is representable
-    // as a single entry in a RAM? I suppose the FIFO can represent
-    // any combination of states in each entry, it does not have to
-    // be a RAM
-
-    // Note: The fifo itself is a black box, so we do
-    // not need to represent the copy action internally, we just
-    // need to represent connecting the module pointed to by the
-    // receiver argument to the module.
-    // Note: The connections themselves have the scheduling property
-    // that they may need to endure for more than 1 cycle. For a complex
-    // copy it may be important that the codes stay copied for several
-    // cycles, or for an undetermined number of cycles?
-
-    // Q: Can read and write be phrased as connects?
-    // A: Read is connect to a temp wire for 1 cycle
-    //    Write is connect to a temp wire for 1 cycle
-    // Q: What about representing wires + read / write latencies?
-    //    If I rephrase read and write this way they will take
-    //    pointers as inputs, but that will be interpreted as a register
-    //    read / write?
-
-    // Basically the op here is:
-    // wait for ready == 1
-    // { connect valid port with constant 1
-    // { for each mport in result modulespec: connect mport to fifo mport
-    // wait for copy constructor duration, and connect valid with 0
-    // done
     int width = getTypeBitWidth(readOutputType(readFifo));
     //readFifo->getReturnType());
 
@@ -1726,9 +1749,12 @@ namespace DHLS {
 
             Value* retVal = instr.getOperand(0);
 
-            assert(Instruction::classof(retVal));
+            if (Instruction::classof(retVal)) {
 
-            finalRetVal = map_find(dyn_cast<Instruction>(retVal), oldInstrsToClones);
+              finalRetVal = map_find(dyn_cast<Instruction>(retVal), oldInstrsToClones);
+            } else {
+              finalRetVal = retVal;
+            }
           }
         }
       }
@@ -1909,4 +1935,16 @@ namespace DHLS {
     eb.CreateRet(nullptr);
   }
 
+  void implementBusGet(llvm::Function* busGet,
+                       ExecutionConstraints& exec,
+                       const HardwareConstraints& hcs) {
+    
+    auto eb = mkBB("entry_block", busGet);
+    IRBuilder<> b(eb);
+    int width = 32;
+    auto val = mkInt(10, width);
+    b.CreateRet(val);
+
+  }
+  
 }

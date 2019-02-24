@@ -1526,4 +1526,16 @@ namespace DHLS {
   void implementWireRead(Function* readFifo);
   void implementWireWrite(Function* writeFifo);
 
+  void implementRVCompoundRead(llvm::Function* readFifo,
+                               ExecutionConstraints& exec,
+                               const HardwareConstraints& hcs);
+
+  void implementRVCompoundWrite(llvm::Function* writeFifo,
+                                ExecutionConstraints& exec,
+                                const HardwareConstraints& hcs);
+    
+  void implementBusGet(llvm::Function* busGet,
+                       ExecutionConstraints& exec,
+                       const HardwareConstraints& hcs);
+  
 }

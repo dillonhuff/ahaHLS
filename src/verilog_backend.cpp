@@ -337,17 +337,21 @@ namespace DHLS {
       string memSrc = memName(instr, memSrcs, memNames);
 
       if (!Argument::classof(memVal)) {
-        //cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
-        Value* op = map_find(instr, hcs.memoryMapping);
+        cout << "&&&& Memory unit Using unit " << memSrc << " for " << instructionString(instr) << endl;
+        //Value* op = map_find(instr, hcs.memoryMapping);
 
-        assert(contains_key(op, hcs.memSpecs));
-        MemorySpec spec = map_find(op, hcs.memSpecs);
-        modName = spec.modSpec.name;
-        int dataWidth = spec.width;
+        // assert(contains_key(op, hcs.memSpecs));
+        // MemorySpec spec = map_find(op, hcs.memSpecs);
+        // modName = spec.modSpec.name;
+        //int dataWidth = spec.width;
 
-        int inputWidth = getValueBitWidth(instr->getOperand(0));
+        //int inputWidth = getValueBitWidth(instr->getOperand(0));
 
-        assert(inputWidth == dataWidth);
+        modName = "register";
+
+        int dataWidth = getValueBitWidth(instr->getOperand(0));
+        modParams = {{"WIDTH", to_string(dataWidth)}};
+        //assert(inputWidth == dataWidth);
 
         //cout << "Got name for op" << endl;
         unitName = memSrc;
@@ -882,6 +886,9 @@ namespace DHLS {
       //cout << "looking for " << portName << endl;
       return map_find(string(portName), unit0Src.outWires).name;
     } else {
+      if (!(unit0Src.outWires.size() == 1)) {
+        cout << "Error: Cannot find 1 output wire for " << valueString(instr0) << endl;
+      }
       assert(unit0Src.outWires.size() == 1);
       string valName = unit0Src.onlyOutputVar();
       return valName;
