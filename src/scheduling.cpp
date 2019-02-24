@@ -31,16 +31,6 @@ namespace DHLS {
                        ScalarEvolution& sc,
                        SchedulingProblem& p);
   
-  // std::ostream& operator<<(std::ostream& out, const Instruction*& t) {
-  //   std::string str;
-  //   llvm::raw_string_ostream ss(str);
-  //   ss << *(t.instruction);
-  //   //out << "\t\t" << ss.str() << " if " << t.cond << " in " << (t.instruction)->getParent()->getName().str() << std::endl;
-  //   out << "\t\t" << ss.str() << " in " << (t.instruction)->getParent()->getName().str() << std::endl;
-  //   return out;
-  // }
-  
-  
   HardwareConstraints standardConstraints() {
     HardwareConstraints hcs;
     hcs.setLatency(STORE_OP, 3);
@@ -266,29 +256,9 @@ namespace DHLS {
 
       //cout << "Called name     = " << name << endl;
 
-      if (hasPrefix(name, "builtin_read_fifo_")) {
-        assert(false);
-        // if (contains_key(call->getOperand(0), fifoSpecs)) {
-        //   latency = map_find(call->getOperand(0), fifoSpecs).readDelay;
-        // } else {
-        //   latency = 1;
-        // }
-      } else if (hasPrefix(name, "builtin_write_fifo_")) {
-        assert(false);
-
-        // if (contains_key(call->getOperand(1), fifoSpecs)) {
-        //   latency = map_find(call->getOperand(1), fifoSpecs).writeDelay;
-        // } else {
-        //   latency = 1;
-        // }
-      } else if (isBuiltinPortWrite(iptr)) {
+      if (isBuiltinPortWrite(iptr)) {
         latency = 0;
       } else {
-        // Value* func = call->getOperand(0);
-        // cout << "Function name = " << valueString(func) << endl;
-      
-        // NOTE: For now the only call instructions are calls to lifetime start
-        // and end calls that have no meaning in hardware
         latency = 0;
       }
     } else if (SExtInst::classof(iptr)) {
