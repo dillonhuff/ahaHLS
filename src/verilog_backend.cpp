@@ -396,28 +396,33 @@ namespace DHLS {
 
       // If we are loading from an internal RAM, not an argument
       if (!Argument::classof(memVal)) {          
-        cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
+        // cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
 
-        if (!contains_key(instr, hcs.memoryMapping)) {
-          cout << "Memory mapping does not contain " << valueString(instr) << endl;
-          cout << "Mapping size = " << hcs.memoryMapping.size() << endl;
-          for (auto mm : hcs.memoryMapping) {
-            cout << "\t" << valueString(mm.first) << " -> " << valueString(mm.second) << endl;
-          }
+        // if (!contains_key(instr, hcs.memoryMapping)) {
+        //   cout << "Memory mapping does not contain " << valueString(instr) << endl;
+        //   cout << "Mapping size = " << hcs.memoryMapping.size() << endl;
+        //   for (auto mm : hcs.memoryMapping) {
+        //     cout << "\t" << valueString(mm.first) << " -> " << valueString(mm.second) << endl;
+        //   }
 
-        }
-        assert(contains_key(instr, hcs.memoryMapping));
-        Value* op = map_find(instr, hcs.memoryMapping);
+        // }
+        // assert(contains_key(instr, hcs.memoryMapping));
+        // Value* op = map_find(instr, hcs.memoryMapping);
 
-        assert(contains_key(op, hcs.memSpecs));
-        MemorySpec spec = map_find(op, hcs.memSpecs);
-        modName = spec.modSpec.name;
+        // assert(contains_key(op, hcs.memSpecs));
+        // MemorySpec spec = map_find(op, hcs.memSpecs);
+        // modName = spec.modSpec.name;
 
-        int dataWidth = spec.width;
-        int inputWidth = getValueBitWidth(instr);
+        // int dataWidth = spec.width;
+        // int inputWidth = getValueBitWidth(instr);
 
-        assert(dataWidth == inputWidth);
-            
+        // assert(dataWidth == inputWidth);
+
+        modName = "register";
+
+        int dataWidth = getValueBitWidth(instr->getOperand(0));
+        modParams = {{"WIDTH", to_string(dataWidth)}};
+        
         unitName = memSrc;
 
         wiring = {{"raddr", {true, 32, "raddr_" + unitName + "_reg"}}, {"wen", {true, 1, "wen_" + unitName + "_reg"}}, {"waddr", {true, 32, "waddr_" + unitName + "_reg"}}, {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}}};

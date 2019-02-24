@@ -1517,22 +1517,6 @@ namespace DHLS {
   // Q: Can stalls be phrased as connects + data dependencies?
   // A: Phrase stall on ready as: connect wire to ready and then
   //    make that wire a dependency of other codes?
-  void implementRVCompoundRead(llvm::Function* readFifo,
-                               ExecutionConstraints& exec,
-                               const HardwareConstraints& hcs) {
-    auto eb = mkBB("entry_block", readFifo);
-    IRBuilder<> b(eb);
-    b.CreateRet(nullptr);
-  }
-
-  void implementRVCompoundWrite(llvm::Function* readFifo,
-                                ExecutionConstraints& exec,
-                                const HardwareConstraints& hcs) {
-    auto eb = mkBB("entry_block", readFifo);
-    IRBuilder<> b(eb);
-    b.CreateRet(nullptr);
-  }
-  
   void implementRVFifoRead(llvm::Function* readFifo, ExecutionConstraints& exec) {
     auto out = readFifoVal(readFifo);
     //getArg(readFifo, 0);
@@ -1945,6 +1929,22 @@ namespace DHLS {
     auto val = mkInt(10, width);
     b.CreateRet(val);
 
+  }
+
+  void implementRVCompoundRead(llvm::Function* readFifo,
+                               ExecutionConstraints& exec,
+                               const HardwareConstraints& hcs) {
+    auto eb = mkBB("entry_block", readFifo);
+    IRBuilder<> b(eb);
+    b.CreateRet(nullptr);
+  }
+
+  void implementRVCompoundWrite(llvm::Function* readFifo,
+                                ExecutionConstraints& exec,
+                                const HardwareConstraints& hcs) {
+    auto eb = mkBB("entry_block", readFifo);
+    IRBuilder<> b(eb);
+    b.CreateRet(nullptr);
   }
   
 }
