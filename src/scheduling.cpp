@@ -1980,9 +1980,6 @@ namespace DHLS {
     auto readValid = b.CreateCall(readValidF, {readMod});
     auto stallUntilValid = b.CreateCall(stallF, {readValid});
     
-    // auto setValid1 = b.CreateCall(setValidF, {out, mkInt(1, 1)});
-    // auto setValid0 = b.CreateCall(setValidF, {out, mkInt(0, 1)});
-    // auto writeValue = b.CreateCall(writeDataF, {out, data});
     auto dataValue = b.CreateCall(readDataF, {readMod});
     b.CreateRet(dataValue);
     
@@ -2004,17 +2001,50 @@ namespace DHLS {
     auto eb = mkBB("entry_block", axiWrite);
     IRBuilder<> b(eb);
 
-    auto data = getArg(axiWrite, 2);
+    //auto data = getArg(axiWrite, 2);
     auto inType = data->getType();
     int width = getTypeBitWidth(inType);
 
     cout << "axi read width = " << width << endl;
 
-    auto readMod = getArg(axiWrite, 0);
-    auto writeDataF = writePort("write_data", width, inType);
+    auto writeMod = getArg(axiWrite, 0);
 
-    b.CreateCall(writeDataF, {readMod, data});
+    auto writeDataF = writePort("write_data", width, inType);
+    auto writeAddrF = writePort("write_addr", 5, writeMod->getType());
+    auto setStartWriteF = writePort("start_write", 1, writeMod->getType());
+
+    auto readValidF = readPort("valid", 1, writeMod->getType());
+    auto readReadyF = readPort("ready", 1, writeMod->getType());
+    
+    auto stallF = stallFunction();
+
+    auto readReady = b.CreateCall(readReadyF, {writeMod});
+    auto stallUntilReady = b.CreateCall(stallF, {readReady});
+
+    auto waddr = getArg(axiWrite, 1);
+    auto wdata = getArg(axiWrite, 2);
+
+    auto setStartWrite = b.CreateCall(setStartWriteF, {writeMod, mkInt(1, 1)});
+    auto setWriteAddr = b.CreateCall(writeAddrF, {writeMod, waddr});
+    auto setWriteData = b.CreateCall(writeDataF, {writeMod, wdata});
+
+    auto readValid = b.CreateCall(readValidF, {writeMod});
+    auto stallUntilValid = b.CreateCall(stallF, {readValid});
+    
+    // b.CreateCall(writeDataF, {writeMod, data});
     b.CreateRet(nullptr);
+
+    exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
+
+    exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setStartWrite));
+    exec.addConstraint(instrStart(setStartWrite) == instrStart(setWriteAddr));
+    exec.addConstraint(instrStart(setStartWrite) == instrStart(setWriteData));
+    //exec.addConstraint(instrStart(setWriteData) == instrEnd(setWriteData));
+    
+    exec.addConstraint(instrEnd(setStartWrite) + 1 == instrStart(stallUntilValid));
+    exec.addConstraint(instrStart(readValid) == instrStart(stallUntilValid));
+    
+    addDataConstraints(axiWrite, exec);
   }
   
 }

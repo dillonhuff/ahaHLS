@@ -205,6 +205,8 @@ module axi_write_handler(input clk,
          
       end else if (start_write) begin
 
+         $display("starting write to %d", write_addr);
+         
          s_axil_wvalid <= 1;
          s_axil_awvalid <= 1;
 
@@ -216,6 +218,7 @@ module axi_write_handler(input clk,
 
       end else if (s_axil_bvalid && (!s_axil_bresp)) begin
          $display("s_axil_bvalid = %d", s_axil_bvalid);
+         $display("write is done and valid");
          
          ready_reg <= 1;
          valid_reg <= 1;

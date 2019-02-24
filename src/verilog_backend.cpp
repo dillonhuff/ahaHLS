@@ -966,6 +966,7 @@ namespace DHLS {
       return parens(to_string(tpWidth) + "'d" + iStr);
       
     } else {
+      cout << "Getting name of value " << valueString(val) << " of type " << typeString(val->getType()) << endl;
       assert(ConstantFP::classof(val));
 
       ConstantFP* fpVal = dyn_cast<ConstantFP>(val);
