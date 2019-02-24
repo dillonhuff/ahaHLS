@@ -1026,27 +1026,46 @@ namespace DHLS {
 
     SMDiagnostic Err;
     LLVMContext Context;
-    std::unique_ptr<Module> Mod = loadModule(Context, Err, "blur_lb");
+    setGlobalLLVMContext(&Context);
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "blur_lb");
+    setGlobalLLVMModule(Mod.get());
 
-    HardwareConstraints hcs;
-    hcs.setLatency(STORE_OP, 3);
-    hcs.setLatency(LOAD_OP, 1);
-    hcs.setLatency(CMP_OP, 0);
-    hcs.setLatency(BR_OP, 0);
-    hcs.setLatency(ADD_OP, 0);
+    // HardwareConstraints hcs;
+    // hcs.setLatency(STORE_OP, 3);
+    // hcs.setLatency(LOAD_OP, 1);
+    // hcs.setLatency(CMP_OP, 0);
+    // hcs.setLatency(BR_OP, 0);
+    // hcs.setLatency(ADD_OP, 0);
+    // HardwareConstraints hcs = standardConstraints();
 
-    Function* f = Mod->getFunction("blur_lb");
+    Function* f = getFunctionByDemangledName(Mod.get(), "blur_lb"); //Mod->getFunction("blur_lb");
     assert(f != nullptr);
+    getArg(f, 0)->setName("ram");
     
-    Schedule s = scheduleFunction(f, hcs);
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read")] = implementRAMRead0;
+    interfaces.functionTemplates[string("write")] = implementRAMWrite0;
+    
+    HardwareConstraints hcs = standardConstraints();
+    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
+    hcs.typeSpecs["class.RAM_3"] = ram3SpecFunc;    
+
+    Schedule s = scheduleInterface(f, hcs, interfaces);
+
+    // Schedule s = scheduleInter
+    //Schedule s = scheduleFunction(f, hcs);
 
     STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 8}};
-    auto arch = buildMicroArchitecture(f, graph, layout);
+    //map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 8}};
+    map<llvm::Value*, int> layout;
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    //auto arch = buildMicroArchitecture(f, graph, layout);
 
     VerilogDebugInfo info;
     noAddsTakeXInputs(arch, info);
