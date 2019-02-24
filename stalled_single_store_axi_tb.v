@@ -217,7 +217,19 @@ module test();
                            .read_addr(reader_read_addr),
                            .start_read(reader_start_read),
                            .ready(reader_ready),
-                           .valid(reader_valid));
+                           .valid(reader_valid),
+
+                           .s_axil_araddr(s_axil_araddr),
+
+                           .s_axil_arvalid(s_axil_arvalid),
+                           .s_axil_arready(s_axil_arready),
+
+                           .s_axil_rdata(s_axil_rdata),
+                           .s_axil_rresp(s_axil_rresp),
+
+                           .s_axil_rvalid(s_axil_rvalid),
+                           .s_axil_rready(s_axil_rready));
+                           
 
    wire [31: 0] writer_write_data;
    wire [4 : 0] writer_write_addr;
