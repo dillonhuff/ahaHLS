@@ -2203,9 +2203,9 @@ namespace DHLS {
     for (auto bb : basicBlockNos) {
       cs.setBasicBlockNo(bb.first, bb.second);
     }
-    if (options.globalStall) {
-      cs.setGlobalStall(wire(1, "global_stall"));
-    }
+    // if (options.globalStall) {
+    //   cs.setGlobalStall(wire(1, "global_stall"));
+    // }
 
     MicroArchitecture arch(cs, options, stg, unitAssignment, memMap, names, pipelines, hcs);
 
@@ -2379,7 +2379,7 @@ namespace DHLS {
     vector<Port> outerPorts;
 
     vector<std::string> outerPortStrings;
-    if (arch.archOptions.memInterface == MEM_INTERFACE_DIRECT) {
+    //if (arch.archOptions.memInterface == MEM_INTERFACE_DIRECT) {
 
       outerPorts = allPorts;
 
@@ -2389,123 +2389,123 @@ namespace DHLS {
       }
       
       
-    } else if (arch.archOptions.memInterface == MEM_INTERFACE_AXI4_LITE) {
-      outerPorts.push_back(inputPort(1, "clk"));
-      outerPorts.push_back(inputPort(1, "rst"));
-      outerPorts.push_back(outputPort(1, "valid"));
+    // } else if (arch.archOptions.memInterface == MEM_INTERFACE_AXI4_LITE) {
+    //   outerPorts.push_back(inputPort(1, "clk"));
+    //   outerPorts.push_back(inputPort(1, "rst"));
+    //   outerPorts.push_back(outputPort(1, "valid"));
 
-      outerPorts.push_back(outputPort(3, "s_axil_awprot"));
-      outerPorts.push_back(outputPort(3, "s_axil_arprot"));
+    //   outerPorts.push_back(outputPort(3, "s_axil_awprot"));
+    //   outerPorts.push_back(outputPort(3, "s_axil_arprot"));
 
-      outerPorts.push_back(inputPort(1, "s_axil_arready"));
-      outerPorts.push_back(inputPort(1, "s_axil_rvalid"));
-      outerPorts.push_back(inputPort(2, "s_axil_rresp"));
-      outerPorts.push_back(inputPort(32, "s_axil_rdata"));
+    //   outerPorts.push_back(inputPort(1, "s_axil_arready"));
+    //   outerPorts.push_back(inputPort(1, "s_axil_rvalid"));
+    //   outerPorts.push_back(inputPort(2, "s_axil_rresp"));
+    //   outerPorts.push_back(inputPort(32, "s_axil_rdata"));
 
-      outerPorts.push_back(outputPort(32, "s_axil_araddr"));
-      outerPorts.push_back(outputPort(1, "s_axil_arvalid"));
+    //   outerPorts.push_back(outputPort(32, "s_axil_araddr"));
+    //   outerPorts.push_back(outputPort(1, "s_axil_arvalid"));
 
-      outerPorts.push_back(outputPort(32, "s_axil_awaddr"));
-      outerPorts.push_back(outputPort(1, "s_axil_awvalid"));
-      outerPorts.push_back(inputPort(1, "s_axil_awready"));            
+    //   outerPorts.push_back(outputPort(32, "s_axil_awaddr"));
+    //   outerPorts.push_back(outputPort(1, "s_axil_awvalid"));
+    //   outerPorts.push_back(inputPort(1, "s_axil_awready"));            
 
-      outerPorts.push_back(outputPort(5, "s_axil_wstrb"));
-      outerPorts.push_back(outputPort(32, "s_axil_wdata"));            
-      outerPorts.push_back(outputPort(1, "s_axil_wvalid"));            
+    //   outerPorts.push_back(outputPort(5, "s_axil_wstrb"));
+    //   outerPorts.push_back(outputPort(32, "s_axil_wdata"));            
+    //   outerPorts.push_back(outputPort(1, "s_axil_wvalid"));            
 
-      outerPorts.push_back(inputPort(1, "s_axil_wready"));
-      outerPorts.push_back(inputPort(1, "s_axil_wresp"));                        
-      outerPorts.push_back(inputPort(1, "s_axil_vvalid"));                        
+    //   outerPorts.push_back(inputPort(1, "s_axil_wready"));
+    //   outerPorts.push_back(inputPort(1, "s_axil_wresp"));                        
+    //   outerPorts.push_back(inputPort(1, "s_axil_vvalid"));                        
 
-      outerPorts.push_back(outputPort(1, "s_axil_bready"));
-      outerPorts.push_back(inputPort(1, "s_axil_bresp"));
+    //   outerPorts.push_back(outputPort(1, "s_axil_bready"));
+    //   outerPorts.push_back(inputPort(1, "s_axil_bresp"));
 
-      outerPorts.push_back(inputPort(1, "s_axil_bvalid"));
-      outerPorts.push_back(outputPort(1, "s_axil_rready"));
+    //   outerPorts.push_back(inputPort(1, "s_axil_bvalid"));
+    //   outerPorts.push_back(outputPort(1, "s_axil_rready"));
 
-      portConns.insert({"valid", "valid"});
-      portConns.insert({"clk", "clk"});
-      portConns.insert({"rst", "rst"});
-      portConns.insert({"raddr_0", "raddr_0"});
-      portConns.insert({"rdata_0", "rdata_0"});
-      portConns.insert({"waddr_0", "waddr_0"});
-      portConns.insert({"wdata_0", "wdata_0"});
-      portConns.insert({"wen_0", "wen_0"});
-      portConns.insert({"ren_0", "ren_0"});      
+    //   portConns.insert({"valid", "valid"});
+    //   portConns.insert({"clk", "clk"});
+    //   portConns.insert({"rst", "rst"});
+    //   portConns.insert({"raddr_0", "raddr_0"});
+    //   portConns.insert({"rdata_0", "rdata_0"});
+    //   portConns.insert({"waddr_0", "waddr_0"});
+    //   portConns.insert({"wdata_0", "wdata_0"});
+    //   portConns.insert({"wen_0", "wen_0"});
+    //   portConns.insert({"ren_0", "ren_0"});      
 
-      portConns.insert({"global_stall", "global_stall"});
+    //   portConns.insert({"global_stall", "global_stall"});
 
-      std::map<string, string> rhConns;
-      rhConns.insert({"clk", "clk"});
-      rhConns.insert({"rst", "rst"});
+    //   std::map<string, string> rhConns;
+    //   rhConns.insert({"clk", "clk"});
+    //   rhConns.insert({"rst", "rst"});
 
-      rhConns.insert({"read_data", "rdata_0"});
-      rhConns.insert({"read_addr", "raddr_0"});
-      rhConns.insert({"start_read", "ren_0"});
+    //   rhConns.insert({"read_data", "rdata_0"});
+    //   rhConns.insert({"read_addr", "raddr_0"});
+    //   rhConns.insert({"start_read", "ren_0"});
 
-      rhConns.insert({"s_axil_rready", "s_axil_rready"});
-      rhConns.insert({"s_axil_arvalid", "s_axil_arvalid"});
-      rhConns.insert({"s_axil_araddr", "s_axil_araddr"});
-      rhConns.insert({"s_axil_arready", "s_axil_arready"});
-      rhConns.insert({"s_axil_rvalid", "s_axil_rvalid"});
-      rhConns.insert({"s_axil_rresp", "s_axil_rresp"});
-      rhConns.insert({"s_axil_rready", "s_axil_rready"});
-      rhConns.insert({"s_axil_rdata", "s_axil_rdata"});                    
-      rhConns.insert({"valid", "read_valid"});
-      ModuleInstance readHandler("axi_read_handler", "read_handler", rhConns);
+    //   rhConns.insert({"s_axil_rready", "s_axil_rready"});
+    //   rhConns.insert({"s_axil_arvalid", "s_axil_arvalid"});
+    //   rhConns.insert({"s_axil_araddr", "s_axil_araddr"});
+    //   rhConns.insert({"s_axil_arready", "s_axil_arready"});
+    //   rhConns.insert({"s_axil_rvalid", "s_axil_rvalid"});
+    //   rhConns.insert({"s_axil_rresp", "s_axil_rresp"});
+    //   rhConns.insert({"s_axil_rready", "s_axil_rready"});
+    //   rhConns.insert({"s_axil_rdata", "s_axil_rdata"});                    
+    //   rhConns.insert({"valid", "read_valid"});
+    //   ModuleInstance readHandler("axi_read_handler", "read_handler", rhConns);
 
-      std::map<string, string> whConns;
-      whConns.insert({"clk", "clk"});
-      whConns.insert({"rst", "rst"});
+    //   std::map<string, string> whConns;
+    //   whConns.insert({"clk", "clk"});
+    //   whConns.insert({"rst", "rst"});
 
-      whConns.insert({"s_axil_awvalid", "s_axil_awvalid"});
-      whConns.insert({"s_axil_wvalid", "s_axil_wvalid"});
+    //   whConns.insert({"s_axil_awvalid", "s_axil_awvalid"});
+    //   whConns.insert({"s_axil_wvalid", "s_axil_wvalid"});
 
-      whConns.insert({"s_axil_wdata", "s_axil_wdata"});
-      whConns.insert({"s_axil_awaddr", "s_axil_awaddr"});
+    //   whConns.insert({"s_axil_wdata", "s_axil_wdata"});
+    //   whConns.insert({"s_axil_awaddr", "s_axil_awaddr"});
 
-      whConns.insert({"s_axil_bvalid", "s_axil_bvalid"});
-      whConns.insert({"s_axil_bresp", "s_axil_bresp"});
+    //   whConns.insert({"s_axil_bvalid", "s_axil_bvalid"});
+    //   whConns.insert({"s_axil_bresp", "s_axil_bresp"});
 
-      whConns.insert({"s_axil_wstrb", "s_axil_wstrb"});
-      whConns.insert({"s_axil_bready", "s_axil_bready"});
+    //   whConns.insert({"s_axil_wstrb", "s_axil_wstrb"});
+    //   whConns.insert({"s_axil_bready", "s_axil_bready"});
 
-      whConns.insert({"write_addr", "waddr_0"});
-      whConns.insert({"write_data", "wdata_0"});      
-      whConns.insert({"start_write", "wen_0"});
-      whConns.insert({"ready", "write_ready"});
-      whConns.insert({"valid", "write_valid"});
+    //   whConns.insert({"write_addr", "waddr_0"});
+    //   whConns.insert({"write_data", "wdata_0"});      
+    //   whConns.insert({"start_write", "wen_0"});
+    //   whConns.insert({"ready", "write_ready"});
+    //   whConns.insert({"valid", "write_valid"});
 
-      ModuleInstance writeHandler("axi_write_handler", "write_handler", whConns);
+    //   ModuleInstance writeHandler("axi_write_handler", "write_handler", whConns);
 
-      std::map<string, string> smConns;
-      smConns.insert({"clk", "clk"});
-      smConns.insert({"rst", "rst"});
-      smConns.insert({"start_read", "ren_0"});
-      smConns.insert({"start_write", "wen_0"});
-      smConns.insert({"read_finished", "read_valid"});
-      smConns.insert({"write_finished", "write_valid"});
-      smConns.insert({"should_stall", "global_stall"});
-      ModuleInstance stallManager("axi_stall_manager", "stall_manager", smConns);
+    //   std::map<string, string> smConns;
+    //   smConns.insert({"clk", "clk"});
+    //   smConns.insert({"rst", "rst"});
+    //   smConns.insert({"start_read", "ren_0"});
+    //   smConns.insert({"start_write", "wen_0"});
+    //   smConns.insert({"read_finished", "read_valid"});
+    //   smConns.insert({"write_finished", "write_valid"});
+    //   smConns.insert({"should_stall", "global_stall"});
+    //   ModuleInstance stallManager("axi_stall_manager", "stall_manager", smConns);
 
-      comps.instances.push_back(readHandler);
-      comps.instances.push_back(writeHandler);
-      comps.instances.push_back(stallManager);
+    //   comps.instances.push_back(readHandler);
+    //   comps.instances.push_back(writeHandler);
+    //   comps.instances.push_back(stallManager);
 
-      comps.debugWires.push_back({false, 1, "read_valid"});
-      comps.debugWires.push_back({false, 1, "write_ready"});
-      comps.debugWires.push_back({false, 1, "write_valid"});            
-      comps.debugWires.push_back({false, 1, "ren_0"});
-      comps.debugWires.push_back({false, 5, "raddr_0"});
-      comps.debugWires.push_back({false, 5, "waddr_0"});
-      comps.debugWires.push_back({false, 1, "wen_0"});      
-      comps.debugWires.push_back({false, 32, "rdata_0"});
-      comps.debugWires.push_back({false, 32, "wdata_0"});
-      comps.debugWires.push_back({false, 1, "global_stall"});
+    //   comps.debugWires.push_back({false, 1, "read_valid"});
+    //   comps.debugWires.push_back({false, 1, "write_ready"});
+    //   comps.debugWires.push_back({false, 1, "write_valid"});            
+    //   comps.debugWires.push_back({false, 1, "ren_0"});
+    //   comps.debugWires.push_back({false, 5, "raddr_0"});
+    //   comps.debugWires.push_back({false, 5, "waddr_0"});
+    //   comps.debugWires.push_back({false, 1, "wen_0"});      
+    //   comps.debugWires.push_back({false, 32, "rdata_0"});
+    //   comps.debugWires.push_back({false, 32, "wdata_0"});
+    //   comps.debugWires.push_back({false, 1, "global_stall"});
 
-    } else {
-      assert(false);
-    }
+    // } else {
+    //   assert(false);
+    // }
 
     for (auto pt : outerPorts) {
       outerPortStrings.push_back(pt.toString());
