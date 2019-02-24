@@ -338,15 +338,6 @@ namespace DHLS {
 
       if (!Argument::classof(memVal)) {
         cout << "&&&& Memory unit Using unit " << memSrc << " for " << instructionString(instr) << endl;
-        //Value* op = map_find(instr, hcs.memoryMapping);
-
-        // assert(contains_key(op, hcs.memSpecs));
-        // MemorySpec spec = map_find(op, hcs.memSpecs);
-        // modName = spec.modSpec.name;
-        //int dataWidth = spec.width;
-
-        //int inputWidth = getValueBitWidth(instr->getOperand(0));
-
         modName = "register";
 
         int dataWidth = getValueBitWidth(instr->getOperand(0));
@@ -370,8 +361,6 @@ namespace DHLS {
         isExternal = true;
 
         int inputWidth = getValueBitWidth(instr->getOperand(0));
-
-            
         // These names need to match names created in the portlist. So
         // maybe this should be used to create the port list? Generate the
         // names here and then write ports for them?
@@ -396,28 +385,6 @@ namespace DHLS {
 
       // If we are loading from an internal RAM, not an argument
       if (!Argument::classof(memVal)) {          
-        // cout << "Using unit " << memSrc << " for " << instructionString(instr) << endl;
-
-        // if (!contains_key(instr, hcs.memoryMapping)) {
-        //   cout << "Memory mapping does not contain " << valueString(instr) << endl;
-        //   cout << "Mapping size = " << hcs.memoryMapping.size() << endl;
-        //   for (auto mm : hcs.memoryMapping) {
-        //     cout << "\t" << valueString(mm.first) << " -> " << valueString(mm.second) << endl;
-        //   }
-
-        // }
-        // assert(contains_key(instr, hcs.memoryMapping));
-        // Value* op = map_find(instr, hcs.memoryMapping);
-
-        // assert(contains_key(op, hcs.memSpecs));
-        // MemorySpec spec = map_find(op, hcs.memSpecs);
-        // modName = spec.modSpec.name;
-
-        // int dataWidth = spec.width;
-        // int inputWidth = getValueBitWidth(instr);
-
-        // assert(dataWidth == inputWidth);
-
         modName = "register";
 
         int dataWidth = getValueBitWidth(instr->getOperand(0));
@@ -2188,7 +2155,7 @@ namespace DHLS {
   buildMicroArchitecture(llvm::Function* f,
                          const STG& stg,
                          std::map<llvm::Value*, int>& memMap,
-                         const ArchOptions& options,
+                         //const ArchOptions& options,
                          HardwareConstraints& hcs) {
     
     map<BasicBlock*, int> basicBlockNos = numberBasicBlocks(f);
@@ -2203,11 +2170,8 @@ namespace DHLS {
     for (auto bb : basicBlockNos) {
       cs.setBasicBlockNo(bb.first, bb.second);
     }
-    // if (options.globalStall) {
-    //   cs.setGlobalStall(wire(1, "global_stall"));
-    // }
 
-    MicroArchitecture arch(cs, options, stg, unitAssignment, memMap, names, pipelines, hcs);
+    MicroArchitecture arch(cs, stg, unitAssignment, memMap, names, pipelines, hcs);
 
     assert(arch.stg.opStates.size() == stg.opStates.size());
     assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
@@ -2218,7 +2182,7 @@ namespace DHLS {
   buildMicroArchitecture(llvm::Function* f,
                          const STG& stg,
                          std::map<std::string, int>& memoryMap,
-                         const ArchOptions& options,
+                         //const ArchOptions& options,
                          HardwareConstraints& hcs) {
 
     map<llvm::Value*, int> memMap;
@@ -2230,44 +2194,44 @@ namespace DHLS {
       memMap[dyn_cast<Value>(&arg)] = map_find(name, memoryMap);
     }
 
-    return buildMicroArchitecture(f, stg, memMap, options, hcs);
+    return buildMicroArchitecture(f, stg, memMap, hcs);
   }
 
-  MicroArchitecture
-  buildMicroArchitecture(llvm::Function* f,
-                         const STG& stg,
-                         std::map<std::string, int>& memoryMap,
-                         HardwareConstraints& hcs) {
-    ArchOptions options;
-    return buildMicroArchitecture(f, stg, memoryMap, options, hcs);
-  }  
+  // MicroArchitecture
+  // buildMicroArchitecture(llvm::Function* f,
+  //                        const STG& stg,
+  //                        std::map<std::string, int>& memoryMap,
+  //                        HardwareConstraints& hcs) {
+  //   //ArchOptions options;
+  //   return buildMicroArchitecture(f, stg, memoryMap, hcs);
+  // }  
 
-  MicroArchitecture
-  buildMicroArchitecture(llvm::Function* f,
-                         const STG& stg,
-                         std::map<std::string, int>& memoryMap,
-                         const ArchOptions& options) {
-    HardwareConstraints hcs;
-    return buildMicroArchitecture(f, stg, memoryMap, options, hcs);
-  }
-  
   MicroArchitecture
   buildMicroArchitecture(llvm::Function* f,
                          const STG& stg,
                          std::map<std::string, int>& memoryMap) {
-    ArchOptions options;
+                         //const ArchOptions& options) {
     HardwareConstraints hcs;
-    return buildMicroArchitecture(f, stg, memoryMap, options, hcs);
+    return buildMicroArchitecture(f, stg, memoryMap, hcs);
   }
+  
+  // MicroArchitecture
+  // buildMicroArchitecture(llvm::Function* f,
+  //                        const STG& stg,
+  //                        std::map<std::string, int>& memoryMap) {
+  //   //ArchOptions options;
+  //   HardwareConstraints hcs;
+  //   return buildMicroArchitecture(f, stg, memoryMap, hcs);
+  // }
 
-  MicroArchitecture
-  buildMicroArchitecture(llvm::Function* f,
-                         const STG& stg,
-                         std::map<llvm::Value*, int>& memoryMap) {
-    ArchOptions options;
-    HardwareConstraints hcs;
-    return buildMicroArchitecture(f, stg, memoryMap, options, hcs);
-  }
+  // MicroArchitecture
+  // buildMicroArchitecture(llvm::Function* f,
+  //                        const STG& stg,
+  //                        std::map<llvm::Value*, int>& memoryMap) {
+  //   //ArchOptions options;
+  //   HardwareConstraints hcs;
+  //   return buildMicroArchitecture(f, stg, memoryMap, options, hcs);
+  // }
   
   void emitVerilog(llvm::Function* f,
                    const STG& stg,

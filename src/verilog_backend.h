@@ -329,7 +329,7 @@ namespace DHLS {
 
     // TODO: Remove the need for global AXI stalls, just build that
     // example via interface functions
-    ArchOptions archOptions;
+    //ArchOptions archOptions;
     STG stg;
     std::map<llvm::Instruction*, FunctionalUnit> unitAssignment;
     std::map<llvm::Value*, int> memoryMap;
@@ -340,7 +340,7 @@ namespace DHLS {
     HardwareConstraints hcs;
 
     MicroArchitecture(const ControlState& cs_,
-                      const ArchOptions& archOptions_,
+                      //const ArchOptions& archOptions_,
                       const STG& stg_,
                       const std::map<llvm::Instruction*, FunctionalUnit>& unitAssignment_,
                       const std::map<llvm::Value*, int>& memoryMap_,
@@ -348,7 +348,7 @@ namespace DHLS {
                       const std::vector<ElaboratedPipeline>& pipelines_,
                       const HardwareConstraints& hcs_) :
       cs(cs_),
-      archOptions(archOptions_),
+      //archOptions(archOptions_),
       stg(stg_),
       unitAssignment(unitAssignment_),
       memoryMap(memoryMap_),
@@ -527,21 +527,21 @@ namespace DHLS {
   buildMicroArchitecture(llvm::Function* f,
                          const STG& stg,
                          std::map<std::string, int>& memoryMap,
-                         const ArchOptions& options,
+                         //const ArchOptions& options,
                          HardwareConstraints& hcs);
 
   MicroArchitecture
   buildMicroArchitecture(llvm::Function* f,
                          const STG& stg,
                          std::map<llvm::Value*, int>& memoryMap,
-                         const ArchOptions& options,
+                         //const ArchOptions& options,
                          HardwareConstraints& hcs);
   
   MicroArchitecture
   buildMicroArchitecture(llvm::Function* f,
                          const STG& stg,
-                         std::map<std::string, int>& memoryMap,
-                         const ArchOptions& options);
+                         std::map<std::string, int>& memoryMap);
+                         //const ArchOptions& options);
 
   MicroArchitecture
   buildMicroArchitecture(llvm::Function* f,
