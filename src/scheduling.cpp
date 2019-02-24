@@ -2002,7 +2002,11 @@ namespace DHLS {
     IRBuilder<> b(eb);
 
     //auto data = getArg(axiWrite, 2);
-    auto inType = data->getType();
+
+    auto waddr = getArg(axiWrite, 1);
+    auto wdata = getArg(axiWrite, 2);
+
+    auto inType = wdata->getType();
     int width = getTypeBitWidth(inType);
 
     cout << "axi read width = " << width << endl;
@@ -2021,9 +2025,6 @@ namespace DHLS {
     auto readReady = b.CreateCall(readReadyF, {writeMod});
     auto stallUntilReady = b.CreateCall(stallF, {readReady});
 
-    auto waddr = getArg(axiWrite, 1);
-    auto wdata = getArg(axiWrite, 2);
-
     auto setStartWrite = b.CreateCall(setStartWriteF, {writeMod, mkInt(1, 1)});
     auto setWriteAddr = b.CreateCall(writeAddrF, {writeMod, waddr});
     auto setWriteData = b.CreateCall(writeDataF, {writeMod, wdata});
@@ -2039,7 +2040,6 @@ namespace DHLS {
     exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setStartWrite));
     exec.addConstraint(instrStart(setStartWrite) == instrStart(setWriteAddr));
     exec.addConstraint(instrStart(setStartWrite) == instrStart(setWriteData));
-    //exec.addConstraint(instrStart(setWriteData) == instrEnd(setWriteData));
     
     exec.addConstraint(instrEnd(setStartWrite) + 1 == instrStart(stallUntilValid));
     exec.addConstraint(instrStart(readValid) == instrStart(stallUntilValid));
