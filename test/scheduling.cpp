@@ -1998,6 +1998,9 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("mem_16_test"));
   }
 
+  // Critical issue: How to add pipelining constraints
+  // before scheduling so that the scheduler is aware of II
+  // constraints?
   TEST_CASE("Pipeline with resource constraints") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
