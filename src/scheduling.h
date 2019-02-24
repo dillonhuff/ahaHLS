@@ -1537,5 +1537,13 @@ namespace DHLS {
   void implementBusGet(llvm::Function* busGet,
                        ExecutionConstraints& exec,
                        const HardwareConstraints& hcs);
+
+  void implementAXIRead(llvm::Function* axiRead,
+                        ExecutionConstraints& exec);
+
+  void implementAXIWrite(llvm::Function* axiWrite,
+                         ExecutionConstraints& exec);
   
 }
+
+

@@ -1272,19 +1272,22 @@ namespace DHLS {
     hcs.typeSpecs["class.RAM_3"] = ram3SpecFunc;    
     
     InterfaceFunctions interfaces;
-    interfaces.functionTemplates[string("read_0")] = implementRAMRead0;
-    interfaces.functionTemplates[string("read_1")] = implementRAMRead1;
-    interfaces.functionTemplates[string("read_2")] = implementRAMRead2;
-    interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
-    
-    // interfaces.functionTemplates[string("read")] = implementRAMRead0;
-    // interfaces.functionTemplates[string("write")] = implementRAMWrite0;
+    interfaces.functionTemplates[string("read")] = implementAXIRead;
+    interfaces.functionTemplates[string("write")] = implementAXIWrite;
     
     Schedule s = scheduleInterface(f, hcs, interfaces);
     STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
     graph.print(cout);
+
+    VerilogDebugInfo info;
+    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+
+    emitVerilog("stalled_single_store_axi", graph, hcs, info);
+
+    REQUIRE(runIVerilogTB("stalled_single_store_axi"));
 
     // ArchOptions options;
     // options.globalStall = true;

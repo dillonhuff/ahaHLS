@@ -19,6 +19,8 @@ namespace DHLS {
   }
 
   std::string valueString(Value* const iptr) {
+    assert(iptr != nullptr);
+    
     std::string str;
     llvm::raw_string_ostream ss(str);
     ss << *iptr;

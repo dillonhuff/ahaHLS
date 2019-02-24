@@ -1949,5 +1949,20 @@ namespace DHLS {
     IRBuilder<> b(eb);
     b.CreateRet(nullptr);
   }
+
+  void implementAXIRead(llvm::Function* axiRead,
+                        ExecutionConstraints& exec) {
+    auto eb = mkBB("entry_block", axiRead);
+    IRBuilder<> b(eb);
+    b.CreateRet(nullptr);
+
+  }
+
+  void implementAXIWrite(llvm::Function* axiWrite,
+                         ExecutionConstraints& exec) {
+    auto eb = mkBB("entry_block", axiWrite);
+    IRBuilder<> b(eb);
+    b.CreateRet(nullptr);
+  }
   
 }
