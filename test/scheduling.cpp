@@ -1252,6 +1252,7 @@ namespace DHLS {
   }
 
   TEST_CASE("AXI based memory transfer") {
+
     SMDiagnostic Err;
     LLVMContext Context;
     std::unique_ptr<Module> Mod =
@@ -1292,6 +1293,47 @@ namespace DHLS {
     emitVerilog(f, arch, info);
 
     REQUIRE(runIVerilogTB("stalled_single_store_axi"));
+    
+    // SMDiagnostic Err;
+    // LLVMContext Context;
+    // std::unique_ptr<Module> Mod =
+    //   loadModule(Context, Err, "stalled_single_store_axi");
+
+    // Function* f = Mod->getFunction("stalled_single_store_axi");
+
+    // HardwareConstraints hcs;
+    // hcs.setLatency(STORE_OP, 3);
+    // hcs.setLatency(LOAD_OP, 1);
+    // hcs.setLatency(CMP_OP, 0);
+    // hcs.setLatency(BR_OP, 0);
+    // hcs.setLatency(ADD_OP, 0);
+
+    // hcs.setCount(ADD_OP, 1);
+    
+    // //map<string, int> layout = {{"a", 0}, {"b", 1}};
+    // map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 1}};
+
+    // Schedule s = scheduleFunction(f, hcs);
+    // STG graph = buildSTG(s, f);
+
+    // cout << "STG Is" << endl;
+    // graph.print(cout);
+
+    // ArchOptions options;
+    // options.globalStall = true;
+    // options.setMemInterface(MEM_INTERFACE_AXI4_LITE);
+
+    // auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+
+    // VerilogDebugInfo info;
+    // noAddsTakeXInputs(arch, info);
+    // noMulsTakeXInputs(arch, info);
+    // noPhiOutputsXWhenUsed(arch, info);
+    // noStoredValuesXWhenUsed(arch, info);
+
+    // emitVerilog(f, arch, info);
+
+    // REQUIRE(runIVerilogTB("stalled_single_store_axi"));
   }
 
   // Random Thought: Test if an access pattern maps onto a cache type

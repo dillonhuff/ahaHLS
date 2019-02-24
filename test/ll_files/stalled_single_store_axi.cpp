@@ -16,6 +16,7 @@ class axi_writer {
 public:
   int read(const int addr);
 };
+
 //int* __restrict a, int* __restrict b) {
 void stalled_single_store_axi(axi_reader* reader,
                               axi_writer* writer) {
