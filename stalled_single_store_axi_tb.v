@@ -206,9 +206,35 @@ module test();
        .s_axil_rvalid(s_axil_rvalid),
        .s_axil_rready(s_axil_rready));
 
+   wire [31: 0] writer_write_data;
+   wire [4 : 0] writer_write_addr;
+   wire         writer_start_write;
+   wire         writer_ready;
+   wire         writer_valid;
+   
+   axi_read_handler reader(.clk(clk), .rst(rst));
+   
+   axi_write_handler writer(.clk(clk), .rst(rst),
+                            .write_data(writer_write_data),
+                            .write_addr(writer_write_addr),
+                            .start_write(writer_start_writer),
+                            .ready(writer_ready),
+                            .valid(writer_valid),
+
+                            .s_axil_awvalid(s_axil_awvalid),
+                            .s_axil_wvalid(s_axil_wvaild),
+                            .s_axil_wdata(s_axil_wdata),
+                            .s_axil_awaddr(s_axil_awaddr));
+
    stalled_single_store_axi ss(.clk(clk),
                                .rst(rst),
-                               .valid(valid));
+                               .valid(valid),
+                               
+                               .writer_write_data(writer_write_data),
+                               .writer_write_addr(writer_write_addr),
+                               .writer_start_write(writer_start_writer),
+                               .writer_ready(writer_ready),
+                               .writer_valid(writer_valid));
    
 
                                // .s_axil_awprot(s_axil_awprot),
