@@ -276,7 +276,7 @@ module test();
                             .valid(writer_valid),
 
                             .s_axil_awvalid(s_axil_awvalid),
-                            .s_axil_wvalid(s_axil_wvaild),
+                            .s_axil_wvalid(s_axil_wvalid),
                             .s_axil_wdata(s_axil_wdata),
                             .s_axil_awaddr(s_axil_awaddr),
                             
