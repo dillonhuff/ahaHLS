@@ -272,6 +272,30 @@ namespace DHLS {
     return arch;
   }
 
+  ModuleSpec axiWriterSpec(llvm::StructType* tp) {
+    map<string, string> modParams;
+    map<string, Port> ports{{"write_data", inputPort(32, "write_data")},
+        {"write_addr", inputPort(5, "write_addr")},
+          {"valid", outputPort(1, "valid")},
+            {"ready", outputPort(1, "ready")},
+              {"start_write", inputPort(1, "start_write")}};
+
+    map<string, int> defaults{{"start_write", 0}};
+    return {modParams, "axi_write_handler", ports, defaults};
+  }
+
+  ModuleSpec axiReaderSpec(llvm::StructType* tp) {
+    map<string, string> modParams;
+    map<string, Port> ports{{"read_data", outputPort(32, "read_data")},
+        {"read_addr", inputPort(5, "read_addr")},
+          {"valid", outputPort(1, "valid")},
+            {"ready", outputPort(1, "ready")},
+              {"start_read", inputPort(1, "start_read")}};
+    
+    map<string, int> defaults{{"start_read", 0}};
+    return {modParams, "axi_read_handler", ports, defaults};
+  }
+  
   ModuleSpec ramSpecFunc(llvm::StructType* tp) {
     auto elems = tp->elements();
     assert(elems.size() == 1);
@@ -1267,9 +1291,8 @@ namespace DHLS {
     HardwareConstraints hcs = standardConstraints();
     hcs.setCount(ADD_OP, 1);
 
-    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
-    hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
-    hcs.typeSpecs["class.RAM_3"] = ram3SpecFunc;    
+    hcs.typeSpecs["class.axi_writer"] = axiWriterSpec;
+    hcs.typeSpecs["class.axi_reader"] = axiReaderSpec;
     
     InterfaceFunctions interfaces;
     interfaces.functionTemplates[string("read")] = implementAXIRead;
