@@ -1025,9 +1025,9 @@ namespace DHLS {
     return condStr;
   }
   
-  void instructionVerilog(std::ostream& out,
-                          ControlFlowPosition pos,
-                          MicroArchitecture& arch) {
+  std::map<std::string, std::string>
+  instructionPortAssignments(ControlFlowPosition pos,
+                             MicroArchitecture& arch) {
 
     //cout << "Generating code for " << valueString(pos.instr) << endl;
 
@@ -1208,6 +1208,16 @@ namespace DHLS {
       assert(false);
     }
 
+    return assignments;
+  }
+    
+
+  void instructionVerilog(std::ostream& out,
+                          ControlFlowPosition pos,
+                          MicroArchitecture& arch) {
+
+    auto assignments = instructionPortAssignments(pos, arch);
+    
     for (auto asg : assignments) {
       out << tab(4) << asg.first << " = " << asg.second << ";" << endl;
     }
@@ -1613,6 +1623,7 @@ namespace DHLS {
         if (!isPipelineState(state, pipelines)) {
 
           out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
+          std::set<string> usedPorts;
           for (auto instrG : instrsAtState) {
             Instruction* instr = instrG;
 
@@ -1639,7 +1650,13 @@ namespace DHLS {
             if (stallConds.size() > 0) {
               out << tab(4) << "if (" << andStrings(stallConds) << ") begin" << endl;
             }
-            instructionVerilog(out, position(state, instr), arch);
+            auto pos = position(state, instr);
+            auto assigns = instructionPortAssignments(pos, arch);
+            for (auto asg : assigns) {
+              cout << "Using port " << asg.first << " in state " << state << endl;
+              usedPorts.insert(asg.first);
+            }
+            instructionVerilog(out, pos, arch);
 
             if (stallConds.size() > 0) {            
               out << tab(4) << "end" << endl;
@@ -1647,6 +1664,16 @@ namespace DHLS {
 
           }
 
+          for (auto def : unit.module.defaultValues) {
+            string name = def.first;
+            string ptName = map_find(name, unit.portWires).name;
+            if (unit.isExternal()) {
+              ptName += "_reg";
+            }
+            if (!elem(ptName, usedPorts)) {
+              out << tab(3) << ptName << " = " << def.second << ";" << endl;
+            }
+          }
           out << "\t\tend else ";
           if (i == (numInstrs - 1)) {
             out << "begin " << endl;

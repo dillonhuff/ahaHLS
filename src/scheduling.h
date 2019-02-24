@@ -554,11 +554,11 @@ namespace DHLS {
     return out;
   }
 
-  class GuardedInstruction {
-  public:
-    llvm::Instruction* instruction;
-    //Condition cond;
-  };
+  // class GuardedInstruction {
+  // public:
+  //   llvm::Instruction* instruction;
+  //   //Condition cond;
+  // };
 
   //std::ostream& operator<<(std::ostream& out, const Instruction*& t);
 
@@ -682,7 +682,7 @@ namespace DHLS {
       for (auto st : opStates) {
         out << "\t" << st.first << std::endl;
         for (auto instr : st.second) {
-          out << instr << std::endl;
+          out << valueString(instr) << std::endl;
         }
       }
 

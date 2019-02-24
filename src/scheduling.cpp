@@ -1250,7 +1250,7 @@ namespace DHLS {
     for (auto var : sched.instrTimes) {
       for (auto state : var.second) {
         //BasicBlock* containerBB = var.first->getParent();
-        map_insert(g.opStates, state, {var.first});
+        map_insert(g.opStates, state, var.first);
               //Condition(map_find(containerBB, blockGuards))});
       }
     }
@@ -1993,6 +1993,7 @@ namespace DHLS {
 
     exec.addConstraint(instrEnd(setStartRead) + 1 == instrStart(stallUntilValid));
     exec.addConstraint(instrStart(readValid) == instrStart(stallUntilValid));
+    exec.addConstraint(instrStart(dataValue) == instrStart(stallUntilValid));
 
     addDataConstraints(axiRead, exec);
   }
