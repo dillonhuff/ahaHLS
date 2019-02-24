@@ -4494,7 +4494,7 @@ namespace DHLS {
     setAllAllocaMemTypes(hcs, f, registerSpec(width));
 
     // TODO: Change this!
-    hcs.typeSpecs["class.ac_channel"] =
+    hcs.typeSpecs["class.Fifo"] =
       [width](StructType* tp) { return fifoSpec(width, 32); };
 
     Schedule s = scheduleInterface(f, hcs, interfaces);
