@@ -206,13 +206,24 @@ module test();
        .s_axil_rvalid(s_axil_rvalid),
        .s_axil_rready(s_axil_rready));
 
+   wire [31: 0] reader_read_data;
+   wire [4 : 0] reader_read_addr;
+   wire         reader_start_read;
+   wire         reader_ready;
+   wire         reader_valid;
+   
+   axi_read_handler reader(.clk(clk), .rst(rst),
+                           .read_data(reader_read_data),
+                           .read_addr(reader_read_addr),
+                           .start_read(reader_start_read),
+                           .ready(reader_ready),
+                           .valid(reader_valid));
+
    wire [31: 0] writer_write_data;
    wire [4 : 0] writer_write_addr;
    wire         writer_start_write;
    wire         writer_ready;
    wire         writer_valid;
-   
-   axi_read_handler reader(.clk(clk), .rst(rst));
    
    axi_write_handler writer(.clk(clk), .rst(rst),
                             .write_data(writer_write_data),
@@ -224,11 +235,22 @@ module test();
                             .s_axil_awvalid(s_axil_awvalid),
                             .s_axil_wvalid(s_axil_wvaild),
                             .s_axil_wdata(s_axil_wdata),
-                            .s_axil_awaddr(s_axil_awaddr));
+                            .s_axil_awaddr(s_axil_awaddr),
+                            
+                            .s_axil_bvalid(s_axil_bvalid),
+                            .s_axil_bresp(s_axil_bresp),
+                            .s_axil_wstrb(s_axil_wstrb),
+                            .s_axil_bready(s_axil_bready));
 
    stalled_single_store_axi ss(.clk(clk),
                                .rst(rst),
                                .valid(valid),
+
+                               .reader_read_data(reader_read_data),
+                               .reader_read_addr(reader_read_addr),
+                               .reader_start_read(reader_start_read),
+                               .reader_ready(reader_ready),
+                               .reader_valid(reader_valid),
                                
                                .writer_write_data(writer_write_data),
                                .writer_write_addr(writer_write_addr),
