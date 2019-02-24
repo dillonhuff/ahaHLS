@@ -560,7 +560,7 @@ namespace DHLS {
     //Condition cond;
   };
 
-  std::ostream& operator<<(std::ostream& out, const GuardedInstruction& t);
+  //std::ostream& operator<<(std::ostream& out, const Instruction*& t);
 
   typedef int StateId;
 
@@ -601,7 +601,7 @@ namespace DHLS {
   public:
 
     Schedule sched;
-    std::map<StateId, std::vector<GuardedInstruction> > opStates;
+    std::map<StateId, std::vector<Instruction*> > opStates;
     std::map<StateId, std::vector<StateTransition> > opTransitions;
     std::vector<Pipeline> pipelines;
 
@@ -635,9 +635,9 @@ namespace DHLS {
       return dbhc::map_find(instr, sched.instrTimes).back();
     }
     
-    std::vector<GuardedInstruction>
+    std::vector<Instruction*>
     instructionsFinishingAt(const StateId id) const {
-      std::vector<GuardedInstruction> instrs;
+      std::vector<Instruction*> instrs;
       for (auto st : dbhc::map_find(id, opStates)) {
         llvm::Instruction* instr = st.instruction;
         if (id == dbhc::map_find(instr, sched.instrTimes).back()) {
@@ -647,9 +647,9 @@ namespace DHLS {
       return instrs;
     }
 
-    std::vector<GuardedInstruction>
+    std::vector<Instruction*>
     instructionsStartingAt(const StateId id) const {
-      std::vector<GuardedInstruction> instrs;
+      std::vector<Instruction*> instrs;
       for (auto st : dbhc::map_find(id, opStates)) {
         llvm::Instruction* instr = st.instruction;
         if (id == dbhc::map_find(instr, sched.instrTimes).front()) {

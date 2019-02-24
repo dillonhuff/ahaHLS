@@ -31,14 +31,14 @@ namespace DHLS {
                        ScalarEvolution& sc,
                        SchedulingProblem& p);
   
-  std::ostream& operator<<(std::ostream& out, const GuardedInstruction& t) {
-    std::string str;
-    llvm::raw_string_ostream ss(str);
-    ss << *(t.instruction);
-    //out << "\t\t" << ss.str() << " if " << t.cond << " in " << (t.instruction)->getParent()->getName().str() << std::endl;
-    out << "\t\t" << ss.str() << " in " << (t.instruction)->getParent()->getName().str() << std::endl;
-    return out;
-  }
+  // std::ostream& operator<<(std::ostream& out, const Instruction*& t) {
+  //   std::string str;
+  //   llvm::raw_string_ostream ss(str);
+  //   ss << *(t.instruction);
+  //   //out << "\t\t" << ss.str() << " if " << t.cond << " in " << (t.instruction)->getParent()->getName().str() << std::endl;
+  //   out << "\t\t" << ss.str() << " in " << (t.instruction)->getParent()->getName().str() << std::endl;
+  //   return out;
+  // }
   
   
   HardwareConstraints standardConstraints() {
@@ -1294,8 +1294,8 @@ namespace DHLS {
 
     // Compute transitions
     for (auto st : g.opStates) {
-      map<BasicBlock*, vector<GuardedInstruction> > endingInstructions;
-      map<BasicBlock*, vector<GuardedInstruction> > inProgressInstructions;
+      map<BasicBlock*, vector<Instruction*> > endingInstructions;
+      map<BasicBlock*, vector<Instruction*> > inProgressInstructions;
       std::set<BasicBlock*> blocksInState;
       
       for (auto instrG : st.second) {
