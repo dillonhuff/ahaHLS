@@ -918,7 +918,8 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("loop_add_4_copy"));
   }
 
-  TestBenchSpec buildTB(map<string, vector<int> >& memoryInit,
+  TestBenchSpec buildTB(std::string name,
+                        map<string, vector<int> >& memoryInit,
                         map<string, vector<int> >& memoryExpected,
                         map<string, int>& testLayout) {
     TestBenchSpec tb;
@@ -926,7 +927,7 @@ namespace DHLS {
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 200;
-    tb.name = "blur_no_lb";
+    tb.name = name; //"blur_no_lb";
 
     tb.settableWires.insert("ram_debug_addr");
     tb.settableWires.insert("ram_debug_write_addr");
@@ -1016,7 +1017,7 @@ namespace DHLS {
       cout << "\t" << val << endl;
     }
 
-    TestBenchSpec tb = buildTB(memoryInit, memoryExpected, testLayout);
+    TestBenchSpec tb = buildTB("blur_no_lb", memoryInit, memoryExpected, testLayout);
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("blur_no_lb"));
@@ -1043,6 +1044,7 @@ namespace DHLS {
     getArg(f, 0)->setName("ram");
     
     InterfaceFunctions interfaces;
+    
     interfaces.functionTemplates[string("read")] = implementRAMRead0;
     interfaces.functionTemplates[string("write")] = implementRAMWrite0;
     
@@ -1082,7 +1084,8 @@ namespace DHLS {
 
     addAlwaysBlock({"clk"}, "if (rst) begin num_clocks_after_reset <= 0; end else begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", info);
 
-    emitVerilog(f, arch, info);
+    //emitVerilog(f, arch, info);
+    emitVerilog("blur_lb", graph, hcs); //, arch, info);
 
     // Testbench specification
 
@@ -1095,7 +1098,8 @@ namespace DHLS {
       map_insert(memoryExpected, string("b"), (ma[i - 1] + ma[i] + ma[i + 1]));
     }
 
-    TestBenchSpec tb = buildTB(memoryInit, memoryExpected, testLayout);
+    TestBenchSpec tb = buildTB("blur_lb", memoryInit, memoryExpected, testLayout);
+    tb.useModSpecs = true;
 
     // TestBenchSpec tb;
     // tb.memoryInit = memoryInit;
@@ -1116,30 +1120,58 @@ namespace DHLS {
   TEST_CASE("Matrix vector multiply") {
     SMDiagnostic Err;
     LLVMContext Context;
-    std::unique_ptr<Module> Mod = loadModule(Context, Err, "mvmul");
+    setGlobalLLVMContext(&Context);
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "mvmul");
+    setGlobalLLVMModule(Mod.get());
 
-    HardwareConstraints hcs;
-    hcs.setLatency(STORE_OP, 3);
-    hcs.setLatency(LOAD_OP, 1);
-    hcs.setLatency(CMP_OP, 0);
-    hcs.setLatency(BR_OP, 0);
-    hcs.setLatency(ADD_OP, 0);
-    hcs.setLatency(MUL_OP, 0);
+    // HardwareConstraints hcs;
+    // hcs.setLatency(STORE_OP, 3);
+    // hcs.setLatency(LOAD_OP, 1);
+    // hcs.setLatency(CMP_OP, 0);
+    // hcs.setLatency(BR_OP, 0);
+    // hcs.setLatency(ADD_OP, 0);
+    // hcs.setLatency(MUL_OP, 0);
 
-    Function* f = Mod->getFunction("mvmul");
-    assert(f != nullptr);
+    // Function* f = Mod->getFunction("mvmul");
+    // assert(f != nullptr);
     
-    Schedule s = scheduleFunction(f, hcs);
+    // Schedule s = scheduleFunction(f, hcs);
 
+    Function* f = getFunctionByDemangledName(Mod.get(), "mvmul");
+    assert(f != nullptr);
+    getArg(f, 0)->setName("ram");
+    
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read_0")] = implementRAMRead0;
+    interfaces.functionTemplates[string("read_1")] = implementRAMRead1;
+    interfaces.functionTemplates[string("read_2")] = implementRAMRead2;
+    interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
+    
+    // interfaces.functionTemplates[string("read")] = implementRAMRead0;
+    // interfaces.functionTemplates[string("write")] = implementRAMWrite0;
+    
+    HardwareConstraints hcs = standardConstraints();
+    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
+    hcs.typeSpecs["class.RAM_3"] = ram3SpecFunc;    
+
+    Schedule s = scheduleInterface(f, hcs, interfaces);
+    
     STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
     graph.print(cout);
 
+    emitVerilog("mvmul", graph, hcs);
+
     // 3 x 3
     map<string, int> testLayout = {{"a", 0}, {"b", 9}, {"c", 12}};
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 9}, {getArg(f, 2), 12}};
-    auto arch = buildMicroArchitecture(f, graph, layout);
+    map<llvm::Value*, int> layout; // = //{{getArg(f, 0), 0}, {getArg(f, 1), 9}, {getArg(f, 2), 12}};
+      //auto arch = buildMicroArchitecture(f, graph, layout);
+
+      //map<llvm::Value*, int> layout;
+    ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
 
     VerilogDebugInfo info;
     noAddsTakeXInputs(arch, info);
@@ -1147,7 +1179,7 @@ namespace DHLS {
     noPhiOutputsXWhenUsed(arch, info);
     noStoredValuesXWhenUsed(arch, info);
 
-    emitVerilog(f, arch, info);
+    //emitVerilog(f, arch, info);
 
     map<string, vector<int> > memoryInit{{"a", {6, 1, 2, 3, 7, 5, 5, 2, 9}},
         {"b", {9, 3, 7}}};
@@ -1167,12 +1199,14 @@ namespace DHLS {
     for (auto val : map_find(string("c"), memoryExpected)) {
       cout << "\t" << val << endl;
     }
-
-    TestBenchSpec tb;
-    tb.memoryInit = memoryInit;
-    tb.memoryExpected = memoryExpected;
-    tb.runCycles = 100;
-    tb.name = "mvmul";
+    
+    TestBenchSpec tb = buildTB("mvmul", memoryInit, memoryExpected, testLayout);
+    tb.useModSpecs = true;
+    // TestBenchSpec tb;
+    // tb.memoryInit = memoryInit;
+    // tb.memoryExpected = memoryExpected;
+    // tb.runCycles = 100;
+    // tb.name = "mvmul";
     emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("mvmul"));
