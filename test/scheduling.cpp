@@ -632,7 +632,7 @@ namespace DHLS {
     for (auto st : graph.opStates) {
       map<OperationType, int> opCounts;
       for (auto instrG : st.second) {
-        Instruction* instr = instrG.instruction;
+        Instruction* instr = instrG;
         OperationType tp = opType(instr);
         if (contains_key(tp, opCounts)) {
           opCounts[tp] = opCounts[tp] + 1;
@@ -1404,7 +1404,7 @@ namespace DHLS {
     for (auto st : graph.opStates) {
       std::set<Instruction*> alreadyDone;
       for (auto instrG : st.second) {
-        auto instr = instrG.instruction;
+        auto instr = instrG;
         if (elem(instr, alreadyDone)) {
           cout << "Duplicate instruction " << instructionString(instr)
                << " in state " << st.first << endl;
@@ -2952,7 +2952,7 @@ namespace DHLS {
       int numStores = 0;
 
       for (auto instrG : graph.instructionsStartingAt(st.first)) {
-        Instruction* instr = instrG.instruction;
+        Instruction* instr = instrG;
         if (isBuiltinFifoRead(instr)) {
           numReads++;
         }

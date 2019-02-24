@@ -1300,7 +1300,7 @@ namespace DHLS {
       
       for (auto instrG : st.second) {
 
-        Instruction* instr = instrG.instruction;
+        Instruction* instr = instrG; //instruction;
         BasicBlock* parent = instr->getParent();
         blocksInState.insert(parent);
         
@@ -1320,9 +1320,9 @@ namespace DHLS {
         Condition cond;
         if (contains_key(bb, endingInstructions)) {
           for (auto ist : map_find(bb, endingInstructions)) {
-            if (TerminatorInst::classof(ist.instruction)) {
+            if (TerminatorInst::classof(ist)) { //.instruction)) {
               terminatorFinishing = true;
-              instr = ist.instruction;
+              instr = ist; //.instruction;
               cond = Condition(); //ist.cond;
             }
           }

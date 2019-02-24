@@ -184,12 +184,12 @@ namespace DHLS {
     StateId stateId;
 
     std::vector<std::map<llvm::Instruction*, Wire> > pipelineRegisters;
-    GuardedInstruction exitBranch;
+    Instruction* exitBranch;
     
     ElaboratedPipeline(const Pipeline& p_) : p(p_) {}
 
     llvm::BranchInst* getExitBranch() const {
-      llvm::Instruction* repeat = exitBranch.instruction;
+      llvm::Instruction* repeat = exitBranch;
       assert(llvm::BranchInst::classof(repeat));
       llvm::BranchInst* pipelineB = llvm::dyn_cast<llvm::BranchInst>(repeat);
 
@@ -203,11 +203,11 @@ namespace DHLS {
     }
 
     llvm::BasicBlock* getEntryBlock() const {
-      return (exitBranch.instruction)->getParent();
+      return (exitBranch)->getParent();
     }
     
     llvm::Value* getExitCondition() const {
-      llvm::Instruction* repeat = exitBranch.instruction;
+      llvm::Instruction* repeat = exitBranch;
       assert(llvm::BranchInst::classof(repeat));
       llvm::BranchInst* pipelineB = llvm::dyn_cast<llvm::BranchInst>(repeat);
 

@@ -609,7 +609,7 @@ namespace DHLS {
 
     llvm::Function* getFunction() const {
       auto& opSt = *(std::begin(opStates));
-      return (opSt.second)[0].instruction->getParent()->getParent();
+      return (opSt.second)[0]->getParent()->getParent();
     }
     
     StateTransitionGraph(const StateTransitionGraph& other) {
@@ -639,7 +639,7 @@ namespace DHLS {
     instructionsFinishingAt(const StateId id) const {
       std::vector<Instruction*> instrs;
       for (auto st : dbhc::map_find(id, opStates)) {
-        llvm::Instruction* instr = st.instruction;
+        llvm::Instruction* instr = st; //.instruction;
         if (id == dbhc::map_find(instr, sched.instrTimes).back()) {
           instrs.push_back(st);
         }
@@ -651,7 +651,7 @@ namespace DHLS {
     instructionsStartingAt(const StateId id) const {
       std::vector<Instruction*> instrs;
       for (auto st : dbhc::map_find(id, opStates)) {
-        llvm::Instruction* instr = st.instruction;
+        llvm::Instruction* instr = st; //.instruction;
         if (id == dbhc::map_find(instr, sched.instrTimes).front()) {
           instrs.push_back(st);
         }

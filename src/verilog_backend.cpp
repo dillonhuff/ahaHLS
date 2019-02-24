@@ -144,12 +144,12 @@ namespace DHLS {
 
   }
 
-  int numMemOps(const std::vector<GuardedInstruction>& instrs) {
+  int numMemOps(const std::vector<Instruction*>& instrs) {
     int ind = 0;
     for (auto instr : instrs) {
-      if (StoreInst::classof(instr.instruction) ||
-          LoadInst::classof(instr.instruction) ||
-          GetElementPtrInst::classof(instr.instruction)) {
+      if (StoreInst::classof(instr) ||
+          LoadInst::classof(instr) ||
+          GetElementPtrInst::classof(instr)) {
         ind++;
       }
     }
@@ -703,7 +703,7 @@ namespace DHLS {
     
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
 
-        Instruction* instr = instrG.instruction;
+        Instruction* instr = instrG;
 
         auto rStr = to_string(resSuffix);
         if (!hcs.isLimitedResource(opType(instr))) {
@@ -729,7 +729,7 @@ namespace DHLS {
     int resSuffix = 0;
     for (auto state : stg.opStates) {
       for (auto instrG : state.second) {
-        Instruction* instr = instrG.instruction;
+        Instruction* instr = instrG;
 
         // TODO: Replace with hasOutput?
         if (StoreInst::classof(instr) ||
@@ -806,7 +806,7 @@ namespace DHLS {
                           MicroArchitecture& arch) {
     for (auto st : p.p.getStates()) {
       for (auto instrG : arch.stg.instructionsFinishingAt(st)) {
-        if (instrG.instruction == instr) {
+        if (instrG == instr) {
           return true;
         }
       }
@@ -1301,7 +1301,7 @@ namespace DHLS {
     auto lastI = lastInstructionInState(state, arch);
     auto pos = position(state, lastI);
     for (auto instrG : arch.stg.instructionsFinishingAt(state)) {
-      Instruction* instr = instrG.instruction;
+      Instruction* instr = instrG;
 
       if (hasOutput(instr)) {
 
@@ -1351,15 +1351,15 @@ namespace DHLS {
 
     for (auto instrG : map_find(state, arch.stg.opStates)) {
       if (last == nullptr) {
-        last = instrG.instruction;
+        last = instrG;
         lastBB = last->getParent();
       }
 
-      assert(instrG.instruction->getParent() == lastBB);
+      assert(instrG->getParent() == lastBB);
 
       OrderedBasicBlock obb(lastBB);
-      if (obb.dominates(last, instrG.instruction)) {
-        last = instrG.instruction;
+      if (obb.dominates(last, instrG)) {
+        last = instrG;
       }
     }
 
@@ -1439,10 +1439,10 @@ namespace DHLS {
           vector<string> stallConds;
           for (auto instr : arch.stg.instructionsStartingAt(state)) {
 
-            if (isBuiltinStallCall(instr.instruction)) {
+            if (isBuiltinStallCall(instr)) {
 
-              cout << "Getting builtin stall cond for " << instr.instruction->getOperand(0) << endl;
-              string cond = outputName(instr.instruction->getOperand(0),
+              cout << "Getting builtin stall cond for " << instr->getOperand(0) << endl;
+              string cond = outputName(instr->getOperand(0),
                                        pos,
                                        arch);
 
@@ -1503,7 +1503,7 @@ namespace DHLS {
   }
 
   void emitConditionalInstruction(std::ostream& out,
-                                  GuardedInstruction& instrG,
+                                  Instruction* instrG,
                                   const StateId state,
                                   ElaboratedPipeline& p,
                                   const int i,
@@ -1514,7 +1514,7 @@ namespace DHLS {
     out << "\talways @(*) begin" << endl;
 
     out << tab(2) << "if (" << atState(state, arch) << ") begin" << endl;
-    auto pos = pipelinePosition(instrG.instruction, state, i);
+    auto pos = pipelinePosition(instrG, state, i);
 
     instructionVerilog(out, pos, arch);
 
@@ -1547,7 +1547,7 @@ namespace DHLS {
   class UnitController {
   public:
     FunctionalUnit unit;
-    std::map<StateId, std::vector<GuardedInstruction> > instructions;
+    std::map<StateId, std::vector<Instruction*> > instructions;
   };
 
   // TODO: Experiment with adding defaults to all functional unit inputs
@@ -1562,7 +1562,7 @@ namespace DHLS {
       if (!isPipelineState(state.first, pipelines)) {
         for (auto instrG : arch.stg.instructionsStartingAt(state.first)) {
 
-          Instruction* instr = instrG.instruction;
+          Instruction* instr = instrG;
 
           FunctionalUnit unit = map_find(instr, arch.unitAssignment);
           bool alreadyIn = false;
@@ -1575,7 +1575,7 @@ namespace DHLS {
           }
 
           if (!alreadyIn) {
-            map<StateId, vector<GuardedInstruction> > instrs;
+            map<StateId, vector<Instruction*> > instrs;
             instrs[state.first] = {instrG};
             assignment.push_back({unit, instrs});
           }
@@ -1614,7 +1614,7 @@ namespace DHLS {
 
           out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
           for (auto instrG : instrsAtState) {
-            Instruction* instr = instrG.instruction;
+            Instruction* instr = instrG;
 
             out << tab(4) << "// " << instructionString(instr) << endl;
 
@@ -1625,10 +1625,10 @@ namespace DHLS {
             if (!isBuiltinStallCall(instr)) {
               for (auto instrK : arch.stg.instructionsStartingAt(state)) {
                 //cout << "Instruction = " << valueString(instrK.instruction) << endl;
-                if (isBuiltinStallCall(instrK.instruction)) {
+                if (isBuiltinStallCall(instrK)) {
 
-                  auto stallPos = position(state, instrK.instruction);
-                  string cond = outputName(instrK.instruction->getOperand(0),
+                  auto stallPos = position(state, instrK);
+                  string cond = outputName(instrK->getOperand(0),
                                            stallPos,
                                            arch);
 
@@ -1849,7 +1849,7 @@ namespace DHLS {
 
         set<Instruction*> instructionsFinishing;
         for (auto instrG : arch.stg.instructionsFinishingAt(p.stateForStage(i))) {
-          instructionsFinishing.insert(instrG.instruction);
+          instructionsFinishing.insert(instrG);
         }
         
         for (auto instrS : nameMap) {
@@ -1979,7 +1979,7 @@ namespace DHLS {
         }
 
         for (auto instrG : stg.instructionsFinishingAt(st)) {
-          Instruction* i = instrG.instruction;
+          Instruction* i = instrG;
           if (hasOutput(i)) {          
             regs[i] = Wire(true, 32, string("pipeline_") + i->getOpcodeName() + iStr + "_" + jStr + "_" + to_string(regNum));
             pastValues.insert(i);
@@ -1992,7 +1992,7 @@ namespace DHLS {
 
       bool foundTerm = false;
       for (auto instrG : stg.instructionsFinishingAt(p.getStates().back())) {
-        if (BranchInst::classof(instrG.instruction)) {
+        if (BranchInst::classof(instrG)) {
           foundTerm = true;
           ep.exitBranch = instrG;
           break;
@@ -2098,9 +2098,9 @@ namespace DHLS {
     for (auto st : arch.stg.opStates) {
       if (st.second.size() > 0) {
 
-        map<BasicBlock*, GuardedInstruction> instructionsForBlocks;
+        map<BasicBlock*, Instruction*> instructionsForBlocks;
         for (auto instrG : st.second) {
-          Instruction* instr = instrG.instruction;
+          Instruction* instr = instrG;
           BasicBlock* bb = instr->getParent();
           if (!contains_key(bb, instructionsForBlocks) && TerminatorInst::classof(instr)) {
             instructionsForBlocks.insert({bb, instrG});
@@ -2864,7 +2864,7 @@ namespace DHLS {
                                VerilogDebugInfo& debugInfo) {
     for (auto st : arch.stg.opStates) {
       for (auto instrG : arch.stg.instructionsStartingAt(st.first)) {
-        auto instr = instrG.instruction;
+        auto instr = instrG;
         if (StoreInst::classof(instr)) {
           FunctionalUnit unit = map_find(instr, arch.unitAssignment);
           StateId activeState = st.first;
@@ -2883,7 +2883,7 @@ namespace DHLS {
                                VerilogDebugInfo& debugInfo) {
     for (auto st : arch.stg.opStates) {
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
-        auto instr = instrG.instruction;
+        auto instr = instrG;
         if (LoadInst::classof(instr)) {
 
           FunctionalUnit unit = map_find(instr, arch.unitAssignment);
@@ -2905,7 +2905,7 @@ namespace DHLS {
                                 VerilogDebugInfo& debugInfo) {
     for (auto st : arch.stg.opStates) {
       for (auto instrG : arch.stg.instructionsStartingAt(st.first)) {
-        auto instr = instrG.instruction;
+        auto instr = instrG;
         if (LoadInst::classof(instr)) {
           FunctionalUnit unit = map_find(instr, arch.unitAssignment);
           StateId activeState = st.first;
@@ -2952,7 +2952,7 @@ namespace DHLS {
                              VerilogDebugInfo& debugInfo) {
     for (auto st : arch.stg.opStates) {
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
-        auto instr = instrG.instruction;
+        auto instr = instrG;
         if (PHINode::classof(instr)) {
           FunctionalUnit unit = map_find(instr, arch.unitAssignment);
           StateId activeState = st.first;
@@ -2974,7 +2974,7 @@ namespace DHLS {
                     VerilogDebugInfo& debugInfo) {
     for (auto st : arch.stg.opStates) {
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
-        auto instr = instrG.instruction;
+        auto instr = instrG;
         if (isBuiltinFifoRead(instr)) {
           StateId activeState = st.first;
           string iStr = instructionString(instr);
@@ -2997,7 +2997,7 @@ namespace DHLS {
                      VerilogDebugInfo& debugInfo) {
     for (auto st : arch.stg.opStates) {
       for (auto instrG : arch.stg.instructionsStartingAt(st.first)) {
-        auto instr = instrG.instruction;
+        auto instr = instrG;
         if (isBuiltinFifoWrite(instr)) {
           StateId activeState = st.first;
           string iStr = instructionString(instr);
@@ -3022,7 +3022,7 @@ namespace DHLS {
     
     for (auto st : arch.stg.opStates) {
       for (auto instrG : arch.stg.instructionsStartingAt(st.first)) {
-        auto instr = instrG.instruction;
+        auto instr = instrG;
         if (BinaryOperator::classof(instr)) {
           FunctionalUnit unit = map_find(instr, arch.unitAssignment);
           if (unit.getModName() == opName) {
@@ -3055,7 +3055,7 @@ namespace DHLS {
     
     for (auto st : arch.stg.opStates) {
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
-        auto instr = instrG.instruction;
+        auto instr = instrG;
         if (BinaryOperator::classof(instr)) {
           FunctionalUnit unit = map_find(instr, arch.unitAssignment);
           if (unit.getModName() == opName) {
@@ -3082,7 +3082,7 @@ namespace DHLS {
     
     for (auto st : arch.stg.opStates) {
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
-        auto instr = instrG.instruction;
+        auto instr = instrG;
         if (CmpInst::classof(instr)) {
           FunctionalUnit unit = map_find(instr, arch.unitAssignment);
           if (unit.getModName() == opName) {
