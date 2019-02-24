@@ -523,25 +523,23 @@ namespace DHLS {
                          std::map<std::string, int>& memoryMap,
                          HardwareConstraints& hcs);
   
-  MicroArchitecture
-  buildMicroArchitecture(llvm::Function* f,
-                         const STG& stg,
-                         std::map<std::string, int>& memoryMap,
-                         //const ArchOptions& options,
-                         HardwareConstraints& hcs);
+  // MicroArchitecture
+  // buildMicroArchitecture(llvm::Function* f,
+  //                        const STG& stg,
+  //                        std::map<std::string, int>& memoryMap,
+  //                        HardwareConstraints& hcs);
 
   MicroArchitecture
   buildMicroArchitecture(llvm::Function* f,
                          const STG& stg,
                          std::map<llvm::Value*, int>& memoryMap,
-                         //const ArchOptions& options,
                          HardwareConstraints& hcs);
   
-  MicroArchitecture
-  buildMicroArchitecture(llvm::Function* f,
-                         const STG& stg,
-                         std::map<std::string, int>& memoryMap);
-                         //const ArchOptions& options);
+  // MicroArchitecture
+  // buildMicroArchitecture(llvm::Function* f,
+  //                        const STG& stg,
+  //                        std::map<std::string, int>& memoryMap);
+  //                        //const ArchOptions& options);
 
   MicroArchitecture
   buildMicroArchitecture(llvm::Function* f,
