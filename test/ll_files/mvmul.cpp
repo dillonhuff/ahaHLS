@@ -10,7 +10,7 @@ void mvmul(RAM_3<int, 32>* ram) {
     //c[i] = 0;
     for (int j = 0; j < 3; j++) {
       //c[i] += a[i*3 + j] * b[j];
-      ram->write_0(c + i, ram->read_0(a + i*3 + j) * ram->read_1(b + j));
+      ram->write_0(c + i, ram->read_0(c + i) + ram->read_1(a + i*3 + j) * ram->read_2(b + j));
     }
   }
 }
