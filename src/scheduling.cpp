@@ -1955,39 +1955,46 @@ namespace DHLS {
     auto eb = mkBB("entry_block", axiRead);
     IRBuilder<> b(eb);
 
+    auto readMod = getArg(axiRead, 0);
+
     auto outType = axiRead->getReturnType();
     int width = getTypeBitWidth(outType);
 
     cout << "axi read width = " << width << endl;
-    // assert(false);
 
-    auto readMod = getArg(axiRead, 0);
-
-    // auto out = getArg(axiRead, 0); //getArg(writeFifo, 0);
-    // auto data = getArg(writeFifo, 1);
-
-    // auto tp = out->getType();
-    // int width = getValueBitWidth(getArg(writeFifo, 1));
-
-    // auto writeDataF = writePort("in_data", width, tp);
     auto readDataF = readPort("read_data", width, outType);
+    auto writeRaddrF = writePort("read_addr", 5, readMod->getType());
+    auto writeStartReadF = writePort("start_read", 1, readMod->getType());
 
-    // auto setValidF = writePort("write_valid", 1, tp);
-    // auto stallF = stallFunction();
+    auto readValidF = readPort("valid", 1, readMod->getType());    
+    auto readReadyF = readPort("ready", 1, readMod->getType());
+    
+    auto stallF = stallFunction();
 
-    // auto readReady = b.CreateCall(readReadyF, {out});
-    // auto stallUntilReady = b.CreateCall(stallF, {readReady});
+    auto readReady = b.CreateCall(readReadyF, {readMod});
+    auto stallUntilReady = b.CreateCall(stallF, {readReady});
+
+    auto setStartRead = b.CreateCall(writeStartReadF, {readMod, mkInt(1, 1)});
+    auto writeAddr = b.CreateCall(writeRaddrF, {readMod, getArg(axiRead, 1)});
+
+    auto readValid = b.CreateCall(readValidF, {readMod});
+    auto stallUntilValid = b.CreateCall(stallF, {readValid});
+    
     // auto setValid1 = b.CreateCall(setValidF, {out, mkInt(1, 1)});
     // auto setValid0 = b.CreateCall(setValidF, {out, mkInt(0, 1)});
     // auto writeValue = b.CreateCall(writeDataF, {out, data});
     auto dataValue = b.CreateCall(readDataF, {readMod});
     b.CreateRet(dataValue);
     
-    // exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
-    // exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
-    // exec.addConstraint(instrStart(setValid1) == instrStart(writeValue));
-    // exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+    exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
 
+    exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setStartRead));
+    exec.addConstraint(instrStart(setStartRead) == instrStart(writeAddr));
+
+    exec.addConstraint(instrEnd(setStartRead) + 1 == instrStart(stallUntilValid));
+    exec.addConstraint(instrStart(readValid) == instrStart(stallUntilValid));
+
+    addDataConstraints(axiRead, exec);
   }
 
   void implementAXIWrite(llvm::Function* axiWrite,

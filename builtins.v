@@ -266,6 +266,8 @@ module axi_read_handler(input clk,
          s_axil_rready <= 0;
          
       end else if (start_read) begin
+         $display("starting read to %d", read_addr);
+         
          valid <= 0;
          ready <= 0;
 

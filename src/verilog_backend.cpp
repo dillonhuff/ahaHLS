@@ -601,6 +601,7 @@ namespace DHLS {
 
         modName = modSpec.name;
         unitName = fuPtr->getName();
+        defaults = modSpec.defaultValues;
 
         // All internal functional units must have names
         //        if (unitName == "") {

@@ -22,6 +22,8 @@ module test();
    // Not used
    wire[2:0]            s_axil_arprot;
 
+   wire [31:0]          global_state_dbg;
+
    wire [ADDR_WIDTH-1:0] s_axil_awaddr;
 
    wire [DATA_WIDTH-1:0] s_axil_wdata;
@@ -236,6 +238,11 @@ module test();
    wire         writer_start_write;
    wire         writer_ready;
    wire         writer_valid;
+
+   always @(posedge clk) begin
+      $display("global state = %d, reader_start_read = %d", global_state_dbg, reader_start_read);
+      
+   end
    
    axi_write_handler writer(.clk(clk), .rst(rst),
                             .write_data(writer_write_data),
@@ -257,6 +264,8 @@ module test();
    stalled_single_store_axi ss(.clk(clk),
                                .rst(rst),
                                .valid(valid),
+
+                               .global_state_dbg(global_state_dbg),
 
                                .reader_read_data(reader_read_data),
                                .reader_read_addr(reader_read_addr),
