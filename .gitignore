@@ -111,3 +111,14 @@ channel_add*
 li_loop*
 _Z15add_10_templatePN4DHLS4FifoIiLi32EEES2_.v
 _Z7if_elseP5RAM_2IiLi16EE.v
+.#complex_num.v
+_Z15loop_add_4_copyP5RAM_2IiLi16EE.v
+_Z5mvmulP5RAM_2IiLi32EE.v
+_Z5mvmulP5RAM_3IiLi32EE.v
+_Z7blur_lbP3RAMIiLi16EE.v
+complex_num
+complex_num.v
+compound_fifo.v
+histogram.v
+reduce_4
+reduce_4_tb.v
