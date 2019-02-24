@@ -918,6 +918,57 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("loop_add_4_copy"));
   }
 
+  TestBenchSpec buildTB(map<string, vector<int> >& memoryInit,
+                        map<string, vector<int> >& memoryExpected,
+                        map<string, int>& testLayout) {
+    TestBenchSpec tb;
+    tb.useModSpecs = true;
+    tb.memoryInit = memoryInit;
+    tb.memoryExpected = memoryExpected;
+    tb.runCycles = 200;
+    tb.name = "blur_no_lb";
+
+    tb.settableWires.insert("ram_debug_addr");
+    tb.settableWires.insert("ram_debug_write_addr");
+    tb.settableWires.insert("ram_debug_write_data");
+    tb.settableWires.insert("ram_debug_write_en");
+
+    int startSetMemCycle = 1;
+    for (auto exp : memoryInit) {
+      int offset = map_find(exp.first, testLayout);
+      for (int i = 0; i < (int) exp.second.size(); i++) {
+        int val = exp.second[i];
+
+        map_insert(tb.actionsOnCycles, startSetMemCycle, "ram_debug_write_addr <= " + to_string(offset) + ";");
+        map_insert(tb.actionsOnCycles, startSetMemCycle, "ram_debug_write_data <= " + to_string(val) + ";");
+        map_insert(tb.actionsOnCycles, startSetMemCycle, string("ram_debug_write_en <= 1;"));
+
+        offset++;
+        startSetMemCycle++;
+      }
+    }
+
+    map_insert(tb.actionsOnCycles, startSetMemCycle, string("ram_debug_write_en <= 0;"));
+
+    int startRunCycle = startSetMemCycle + 10; 
+    map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+    map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+
+    int checkMemCycle = 150;
+    for (auto exp : memoryExpected) {
+      int offset = map_find(exp.first, testLayout);
+      for (int i = 0; i < (int) exp.second.size(); i++) {
+        int val = exp.second[i];
+        map_insert(tb.actionsInCycles, checkMemCycle, "ram_debug_addr = " + to_string(offset) + ";");
+        map_insert(tb.actionsInCycles, checkMemCycle, assertString("ram_debug_data === " + to_string(val)));
+        offset++;
+        checkMemCycle++;
+      }
+    }
+
+    return tb;
+  }
+
   TEST_CASE("Blur without linebuffering") {
 
     SMDiagnostic Err;
@@ -965,51 +1016,7 @@ namespace DHLS {
       cout << "\t" << val << endl;
     }
 
-    TestBenchSpec tb;
-    tb.useModSpecs = true;
-    tb.memoryInit = memoryInit;
-    tb.memoryExpected = memoryExpected;
-    tb.runCycles = 200;
-    tb.name = "blur_no_lb";
-
-    tb.settableWires.insert("ram_debug_addr");
-    tb.settableWires.insert("ram_debug_write_addr");
-    tb.settableWires.insert("ram_debug_write_data");
-    tb.settableWires.insert("ram_debug_write_en");
-
-    int startSetMemCycle = 1;
-    for (auto exp : memoryInit) {
-      int offset = map_find(exp.first, testLayout);
-      for (int i = 0; i < (int) exp.second.size(); i++) {
-        int val = exp.second[i];
-
-        map_insert(tb.actionsOnCycles, startSetMemCycle, "ram_debug_write_addr <= " + to_string(offset) + ";");
-        map_insert(tb.actionsOnCycles, startSetMemCycle, "ram_debug_write_data <= " + to_string(val) + ";");
-        map_insert(tb.actionsOnCycles, startSetMemCycle, string("ram_debug_write_en <= 1;"));
-
-        offset++;
-        startSetMemCycle++;
-      }
-    }
-
-    map_insert(tb.actionsOnCycles, startSetMemCycle, string("ram_debug_write_en <= 0;"));
-
-    int startRunCycle = startSetMemCycle + 10; 
-    map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
-    map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
-
-    int checkMemCycle = 150;
-    for (auto exp : memoryExpected) {
-      int offset = map_find(exp.first, testLayout);
-      for (int i = 0; i < (int) exp.second.size(); i++) {
-        int val = exp.second[i];
-        map_insert(tb.actionsInCycles, checkMemCycle, "ram_debug_addr = " + to_string(offset) + ";");
-        map_insert(tb.actionsInCycles, checkMemCycle, assertString("ram_debug_data === " + to_string(val)));
-        offset++;
-        checkMemCycle++;
-      }
-    }
-
+    TestBenchSpec tb = buildTB(memoryInit, memoryExpected, testLayout);
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("blur_no_lb"));
@@ -1069,16 +1076,18 @@ namespace DHLS {
       map_insert(memoryExpected, string("b"), (ma[i - 1] + ma[i] + ma[i + 1]));
     }
 
-    TestBenchSpec tb;
-    tb.memoryInit = memoryInit;
-    tb.memoryExpected = memoryExpected;
-    tb.runCycles = 40;
-    tb.name = "blur_lb";
+    TestBenchSpec tb = buildTB(memoryInit, memoryExpected, testLayout);
+
+    // TestBenchSpec tb;
+    // tb.memoryInit = memoryInit;
+    // tb.memoryExpected = memoryExpected;
+    // tb.runCycles = 40;
+    // tb.name = "blur_lb";
     
-    cout << "Expected values" << endl;
-    for (auto val : map_find(string("b"), memoryExpected)) {
-      cout << "\t" << val << endl;
-    }
+    // cout << "Expected values" << endl;
+    // for (auto val : map_find(string("b"), memoryExpected)) {
+    //   cout << "\t" << val << endl;
+    // }
 
     emitVerilogTestBench(tb, arch, testLayout);
 
@@ -4400,7 +4409,7 @@ namespace DHLS {
     HardwareConstraints hcs = standardConstraints();
     // TODO: Make pointers to primitives registers of their width by default
     hcs.memoryMapping = memoryOpLocations(f);
-    int width = 64;
+    // int width = 64;
     //setAllAllocaMemTypes(hcs, f, registerSpec(width));
     
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
