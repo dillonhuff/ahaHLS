@@ -259,25 +259,25 @@ namespace DHLS {
         const int depth_) : name(name_), width(width_), depth(depth_) {}
   };
 
-  enum MemInterface {
-    MEM_INTERFACE_DIRECT,
-    MEM_INTERFACE_AXI4_LITE,
-  };
+  // enum MemInterface {
+  //   MEM_INTERFACE_DIRECT,
+  //   MEM_INTERFACE_AXI4_LITE,
+  // };
 
-  class ArchOptions {
-  public:
-    bool globalStall;
-    MemInterface memInterface;
+  // class ArchOptions {
+  // public:
+  //   bool globalStall;
+  //   MemInterface memInterface;
 
-    ArchOptions() : globalStall(false), memInterface(MEM_INTERFACE_DIRECT) {}
+  //   ArchOptions() : globalStall(false), memInterface(MEM_INTERFACE_DIRECT) {}
 
-    void setMemInterface(const MemInterface fresh) {
-      memInterface = fresh;
-      if (memInterface != MEM_INTERFACE_DIRECT) {
-        globalStall = true;
-      }
-    }
-  };
+  //   void setMemInterface(const MemInterface fresh) {
+  //     memInterface = fresh;
+  //     if (memInterface != MEM_INTERFACE_DIRECT) {
+  //       globalStall = true;
+  //     }
+  //   }
+  // };
 
   class ControlState {
     Wire globalState;
