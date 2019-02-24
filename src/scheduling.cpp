@@ -207,7 +207,8 @@ namespace DHLS {
       }
 
       // If no spec is given use default
-      latency = 1; //getLatency(STORE_OP);
+      // TODO: Need to set defaults for internal loads vs external
+      latency = getLatency(STORE_OP);
     } else if (LoadInst::classof(iptr)) {
 
       if (contains_key(iptr, memoryMapping)) {
@@ -218,7 +219,8 @@ namespace DHLS {
       }
 
       // If no spec for the memory being read, revert to default
-      latency = 0; //getLatency(LOAD_OP);
+      // TODO: Need to set defaults for internal loads vs external      
+      latency = getLatency(LOAD_OP);
     } else if (CmpInst::classof(iptr)) {
       latency = getLatency(CMP_OP);
     } else if (BranchInst::classof(iptr)) {

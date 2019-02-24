@@ -2434,7 +2434,7 @@ namespace DHLS {
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
 
-    //setAllAllocaMemTypes(hcs, f, registerSpec(32));
+    setAllAllocaMemTypes(hcs, f, registerSpec(32));
 
     hcs.setCount(MUL_OP, 2);
 
@@ -2773,7 +2773,7 @@ namespace DHLS {
     // for (auto mm : hcs.memoryMapping) {
     //   cout << "\t" << valueString(mm.first) << " -> " << valueString(mm.second) << endl;
     // }
-    //setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    setAllAllocaMemTypes(hcs, f, registerSpec(width));
 
     hcs.setCount(MUL_OP, 4);
 
@@ -4056,7 +4056,8 @@ namespace DHLS {
     int width = 32;
     HardwareConstraints hcs = standardConstraints();
     hcs.memoryMapping = memoryOpLocations(f);
-    //setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    // Set registers
+    setAllAllocaMemTypes(hcs, f, registerSpec(width));
     hcs.typeSpecs["class.ac_channel"] =
       [width](StructType* tp) { return fifoSpec(width, 32); };
     
@@ -4158,7 +4159,7 @@ namespace DHLS {
     int width = 32;
     HardwareConstraints hcs = standardConstraints();
     hcs.memoryMapping = memoryOpLocations(f);
-    //setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    setAllAllocaMemTypes(hcs, f, registerSpec(width));
     hcs.typeSpecs["class.ac_channel"] =
       [width](StructType* tp) { return fifoSpec(width, 32); };
     
@@ -4300,7 +4301,7 @@ namespace DHLS {
     int width = 32;
     HardwareConstraints hcs = standardConstraints();
     hcs.memoryMapping = memoryOpLocations(f);
-    //setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    setAllAllocaMemTypes(hcs, f, registerSpec(width));
     hcs.typeSpecs["class.ac_channel"] =
       [width](StructType* tp) { return fifoSpec(width, 32); };
 
