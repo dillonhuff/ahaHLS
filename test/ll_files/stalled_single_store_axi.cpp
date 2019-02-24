@@ -1,7 +1,7 @@
 #define a 0
 #define b 1
 
-class axi_reader {
+class axi_writer {
   int addr;
   int data;
   
@@ -9,7 +9,7 @@ public:
   void write(const int addr, const int data);
 };
 
-class axi_writer {
+class axi_reader {
   int addr;
   int data;
   
