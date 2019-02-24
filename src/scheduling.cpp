@@ -198,6 +198,7 @@ namespace DHLS {
     if (ReturnInst::classof(iptr)) {
       latency = 0;
     } else if (StoreInst::classof(iptr)) {
+      // MemoryMapping should instead use the 
       if (contains_key(iptr, memoryMapping)) {
         Value* dest = map_find(iptr, memoryMapping);
         if (contains_key(dest, memSpecs)) {
@@ -206,7 +207,7 @@ namespace DHLS {
       }
 
       // If no spec is given use default
-      latency = getLatency(STORE_OP);
+      latency = 1; //getLatency(STORE_OP);
     } else if (LoadInst::classof(iptr)) {
 
       if (contains_key(iptr, memoryMapping)) {
@@ -217,7 +218,7 @@ namespace DHLS {
       }
 
       // If no spec for the memory being read, revert to default
-      latency = getLatency(LOAD_OP);
+      latency = 0; //getLatency(LOAD_OP);
     } else if (CmpInst::classof(iptr)) {
       latency = getLatency(CMP_OP);
     } else if (BranchInst::classof(iptr)) {
