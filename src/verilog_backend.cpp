@@ -2224,14 +2224,14 @@ namespace DHLS {
   //   return buildMicroArchitecture(f, stg, memoryMap, hcs);
   // }
 
-  // MicroArchitecture
-  // buildMicroArchitecture(llvm::Function* f,
-  //                        const STG& stg,
-  //                        std::map<llvm::Value*, int>& memoryMap) {
-  //   //ArchOptions options;
-  //   HardwareConstraints hcs;
-  //   return buildMicroArchitecture(f, stg, memoryMap, options, hcs);
-  // }
+  MicroArchitecture
+  buildMicroArchitecture(llvm::Function* f,
+                         const STG& stg,
+                         std::map<llvm::Value*, int>& memoryMap) {
+    //ArchOptions options;
+    HardwareConstraints hcs;
+    return buildMicroArchitecture(f, stg, memoryMap, hcs);
+  }
   
   void emitVerilog(llvm::Function* f,
                    const STG& stg,

@@ -70,9 +70,8 @@ int main() {
   cout << "STG is " << endl;
   graph.print(cout);
     
-  map<llvm::Value*, int> layout = {};
-  ArchOptions options;
-  auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+  map<std::string, int> layout = {};
+  auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
   VerilogDebugInfo info;
   addNoXChecks(arch, info);

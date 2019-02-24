@@ -262,7 +262,7 @@ namespace DHLS {
     
     map<llvm::Value*, int> layout = {};
     ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     VerilogDebugInfo info;
     //addNoXChecks(arch, info);
@@ -396,7 +396,7 @@ namespace DHLS {
 
     map<llvm::Value*, int> layout = {};
     ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     VerilogDebugInfo info;
     emitVerilog("single_store", f, arch, info);
@@ -438,7 +438,7 @@ namespace DHLS {
 
     map<llvm::Value*, int> layout = {};
     ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     VerilogDebugInfo info;
     emitVerilog("plus", f, arch, info);
@@ -476,7 +476,7 @@ namespace DHLS {
 
     map<llvm::Value*, int> layout = {};
     ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     VerilogDebugInfo info;
     emitVerilog("if_else", f, arch, info);
@@ -491,7 +491,7 @@ namespace DHLS {
     auto f = graph.getFunction();
     map<llvm::Value*, int> layout = {};
     ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     //addNoXChecks(arch, info);
     emitVerilog(name, f, arch, info);
@@ -888,7 +888,7 @@ namespace DHLS {
 
     map<llvm::Value*, int> layout = {};
     ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     VerilogDebugInfo info;
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
@@ -1025,7 +1025,7 @@ namespace DHLS {
     
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}}; //, {getArg(f, 1), 8}};
     ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     map<string, int> testLayout = {{"a", 0}, {"b", 8}};
     map<string, vector<int> > memoryInit{{"a", {0, 1, 2, 3, 7, 5, 5, 2}}};
@@ -1090,7 +1090,7 @@ namespace DHLS {
     //map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 8}};
     map<llvm::Value*, int> layout;
     ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
     //auto arch = buildMicroArchitecture(f, graph, layout);
 
     VerilogDebugInfo info;
@@ -1195,7 +1195,7 @@ namespace DHLS {
 
       //map<llvm::Value*, int> layout;
     ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     VerilogDebugInfo info;
     noAddsTakeXInputs(arch, info);
@@ -1680,7 +1680,7 @@ namespace DHLS {
     //map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
     map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 10}};
     ArchOptions options;
-    auto arch = buildMicroArchitecture(srUser, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -1784,7 +1784,7 @@ namespace DHLS {
     map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 10}};
 
     ArchOptions options;
-    auto arch = buildMicroArchitecture(srUser, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
 
     VerilogDebugInfo info;
     //addNoXChecks(arch, info);
@@ -2056,7 +2056,7 @@ namespace DHLS {
     map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 1}};
     map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 1}};
     ArchOptions options;
-    auto arch = buildMicroArchitecture(srUser, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -2547,7 +2547,7 @@ namespace DHLS {
                                      {getArg(f, 2), 6},
                                      {getArg(f, 3), 10}};
     ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -2634,7 +2634,7 @@ namespace DHLS {
     
     map<llvm::Value*, int> layout = {};
     ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -2699,7 +2699,7 @@ namespace DHLS {
     
     map<llvm::Value*, int> layout = {};
     ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -2954,7 +2954,6 @@ namespace DHLS {
     auto arch = buildMicroArchitecture(f,
                                        graph,
                                        layout,
-                                       options,
                                        hcs);
 
     VerilogDebugInfo info;
@@ -3200,7 +3199,7 @@ namespace DHLS {
     
     map<llvm::Value*, int> layout = {};
     ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -3337,7 +3336,6 @@ namespace DHLS {
     auto arch = buildMicroArchitecture(f,
                                        graph,
                                        layout,
-                                       options,
                                        hcs);
 
     VerilogDebugInfo info;
@@ -3429,7 +3427,6 @@ namespace DHLS {
     auto arch = buildMicroArchitecture(f,
                                        graph,
                                        layout,
-                                       options,
                                        hcs);
 
     VerilogDebugInfo info;
@@ -3547,7 +3544,6 @@ namespace DHLS {
     auto arch = buildMicroArchitecture(f,
                                        graph,
                                        layout,
-                                       options,
                                        hcs);
 
     VerilogDebugInfo info;
@@ -3792,7 +3788,6 @@ namespace DHLS {
     auto arch = buildMicroArchitecture(f,
                                        graph,
                                        layout,
-                                       options,
                                        hcs);
 
     VerilogDebugInfo info;
@@ -3920,7 +3915,6 @@ namespace DHLS {
     auto arch = buildMicroArchitecture(srUser,
                                        graph,
                                        layout,
-                                       options,
                                        hcs);
 
     VerilogDebugInfo info;
@@ -4062,7 +4056,7 @@ namespace DHLS {
     
     map<llvm::Value*, int> layout = {};
     ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -4175,7 +4169,7 @@ namespace DHLS {
     
     map<llvm::Value*, int> layout = {};
     ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -4275,7 +4269,7 @@ namespace DHLS {
     
     map<llvm::Value*, int> layout = {};
     ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -4417,7 +4411,7 @@ namespace DHLS {
     
     map<llvm::Value*, int> layout = {};
     ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, options, hcs);
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     VerilogDebugInfo info;
     //addNoXChecks(arch, info);
