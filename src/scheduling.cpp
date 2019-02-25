@@ -2071,6 +2071,9 @@ namespace DHLS {
     return modSpec;
   }
 
+  // Next step: Write a unit test that just reads a stencil from an AxiStream,
+  // writes it to a temporary, and then writes that temporary to a different
+  // stream
   void implementStencilCall(llvm::Function* stencilCall,
                             ExecutionConstraints& exec) {
     auto eb = mkBB("entry_block", stencilCall);

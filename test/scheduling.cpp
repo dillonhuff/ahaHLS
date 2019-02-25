@@ -4581,6 +4581,50 @@ namespace DHLS {
     //REQUIRE(runIVerilogTB("compound_fifo"));
   }
 
+  TEST_CASE("Read and write from stencil stream") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "stencil_stream_rw");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "stencil_stream_rw");
+    //getArg(f, 0)->setName("ram");
+
+    cout << "llvm function" << endl;
+    cout << valueString(f) << endl;
+
+    deleteLLVMLifetimeCalls(f);
+    
+    // assert(false);
+    
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("operator")] = implementStencilCall;
+    // interfaces.functionTemplates[string("read")] = implementRVFifoRead;
+    // interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef;
+    
+    HardwareConstraints hcs = standardConstraints();
+    hcs.typeSpecs["class.hls_stream_AxiPackedStencil_uint16_t_1_1__"] =
+      [](StructType* axiStencil) { return streamAxiPackedStencilSpec(16, 1, 1); };
+    hcs.typeSpecs["class.Stencil_uint16_t_1_1_"] =
+      [](StructType* axiStencil) { return stencilSpec(16, 1, 1); };
+    hcs.typeSpecs["class.PackedStencil_uint16_t_1_1_"] =
+      [](StructType* axiStencil) { return packedStencilSpec(16, 1, 1); };
+    hcs.typeSpecs["class.AxiPackedStencil_uint16_t_1_1_"] =
+      [](StructType* axiStencil) { return axiPackedStencilSpec(16, 1, 1); };
+
+    Schedule s = scheduleInterface(f, hcs, interfaces);
+    STG graph = buildSTG(s, f);
+    
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    emitVerilog("stencil_stream_rw", graph, hcs);
+
+    REQUIRE(runIVerilogTB("stencil_stream_rw"));
+  }
+  
   // Now there is an issue with port accesses. The operator(x, y) function that I use
   // in the stencils to get and set values returns a pointer to one of its elements.
   // This corresponds to a bundle of fields that can be set. It is set by
