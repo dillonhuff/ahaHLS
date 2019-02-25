@@ -420,6 +420,25 @@ namespace DHLS {
     FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
     return unit;
   }
+
+  FunctionalUnit structFunctionalUnit(StructType* allocatedType,
+                                      AllocaInstruction* instr,
+                                      HardwareConstraints& hcs) {
+    string modName = "add";
+
+    string unitName = "....DUMMY_UNIT_NAME";
+    auto rStr = unitName;
+    map<string, string> modParams;
+    bool isExternal = false;
+
+    map<string, Wire> wiring;
+    map<string, Wire> outWires;
+    map<string, int> defaults;
+
+    FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
+
+    return unit;
+  }
   
   FunctionalUnit createUnit(std::string unitName,
                             map<Value*, std::string>& memNames,
@@ -600,6 +619,7 @@ namespace DHLS {
       Type* allocatedType = allocInst->getType()->getElementType();
       if (StructType::classof(allocatedType)) {
         cout << "Allocating struct of type " << typeString(allocatedType) << endl;
+        return structFunctionalUnit(dyn_cast<StructType>(allocatedType), allocInst, hcs);
       }
     } else if (BitCastInst::classof(instr)) {
       // TODO: Add test case that uses casts
