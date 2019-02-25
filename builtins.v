@@ -1456,10 +1456,27 @@ module Stencil(input clk);
 endmodule
 
 module HLS_stream(input clk, input rst,
-                  output [VALUE_WIDTH*NROWS*NCOLS - 1 : 0] data_bus,
+                  output [DATA_WIDTH - 1 : 0] data_bus,
                   output last_bus);
 
    parameter VALUE_WIDTH = 16;
    parameter NROWS = 2;
-   parameter NCOLS = 2;   
+   parameter NCOLS = 2;
+   parameter DATA_WIDTH = VALUE_WIDTH*NROWS*NCOLS;
+   
+
+   // Holds 
+   fifo #(.WIDTH(DATA_WIDTH), .DEPTH(32))
+   stencil_stream(.clk(clk),
+                  .rst(rst));
+
+            // input                  read_valid,
+            // output                 read_ready,
+
+            // input                  write_valid,
+            // output                 write_ready,
+            
+            // input [WIDTH - 1 : 0]  in_data,
+            // output [WIDTH - 1 : 0] out_data);
+   
 endmodule
