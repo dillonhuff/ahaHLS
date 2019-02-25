@@ -430,7 +430,8 @@ namespace DHLS {
     if (instr->getName() != "") {
       unitName = instr->getName();
     } else {
-      assert(false);
+      unitName = sanitizeFormatForVerilogId(valueString(instr));      
+      //assert(false);
     }
 
     assert(hcs.hasArgumentSpec(instr));
