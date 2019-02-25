@@ -947,7 +947,6 @@ namespace DHLS {
               std::map<string, vector<int> >& memoryInit,
               std::map<string, int>& testLayout) {
 
-    tb.settableWires.insert(name + "_debug_addr");
     tb.settableWires.insert(name + "_debug_write_addr");
     tb.settableWires.insert(name + "_debug_write_data");
     tb.settableWires.insert(name + "_debug_write_en");
@@ -967,6 +966,26 @@ namespace DHLS {
     }
 
     map_insert(tb.actionsOnCycles, startSetMemCycle, name + string("_debug_write_en <= 0;"));
+  }
+
+  void checkRAM(TestBenchSpec& tb,
+                int checkMemCycle,
+                const std::string name,
+                std::map<string, vector<int> >& memoryExpected,
+                std::map<string, int>& testLayout) {
+
+    tb.settableWires.insert(name + "_debug_addr");
+        
+    for (auto exp : memoryExpected) {
+      int offset = map_find(exp.first, testLayout);
+      for (int i = 0; i < (int) exp.second.size(); i++) {
+        int val = exp.second[i];
+        map_insert(tb.actionsInCycles, checkMemCycle, name + "_debug_addr = " + to_string(offset) + ";");
+        map_insert(tb.actionsInCycles, checkMemCycle, assertString(name + "_debug_data === " + to_string(val)));
+        offset++;
+        checkMemCycle++;
+      }
+    }
   }
   
   TestBenchSpec buildTB(std::string name,
@@ -988,16 +1007,7 @@ namespace DHLS {
     map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
 
     int checkMemCycle = 150;
-    for (auto exp : memoryExpected) {
-      int offset = map_find(exp.first, testLayout);
-      for (int i = 0; i < (int) exp.second.size(); i++) {
-        int val = exp.second[i];
-        map_insert(tb.actionsInCycles, checkMemCycle, "ram_debug_addr = " + to_string(offset) + ";");
-        map_insert(tb.actionsInCycles, checkMemCycle, assertString("ram_debug_data === " + to_string(val)));
-        offset++;
-        checkMemCycle++;
-      }
-    }
+    checkRAM(tb, checkMemCycle, "ram", memoryExpected, testLayout);
 
     return tb;
   }
@@ -1407,8 +1417,8 @@ namespace DHLS {
     graph.print(cout);
 
     // 3 x 3
-    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 1}};
-    map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 1}};
+    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 0}};
+    map<llvm::Value*, int> layout; // = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 1}};
     auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
 
     VerilogDebugInfo info;
@@ -1420,16 +1430,28 @@ namespace DHLS {
     map<string, vector<int> > memoryInit{{"arg_0", {6}}};
     map<string, vector<int> > memoryExpected{{"arg_1", {11}}};
 
-    TestBenchSpec tb = buildTB("using_shift_register", memoryInit, memoryExpected, testLayout);
-    tb.useModSpecs = true;
-    emitVerilogTestBench(tb, arch, testLayout);
-    
-    // TestBenchSpec tb;
-    // tb.memoryInit = memoryInit;
-    // tb.memoryExpected = memoryExpected;
-    // tb.runCycles = 10;
-    // tb.name = "using_shift_register";
+    // TestBenchSpec tb = buildTB("using_shift_register", memoryInit, memoryExpected, testLayout);
+    // tb.useModSpecs = true;
     // emitVerilogTestBench(tb, arch, testLayout);
+    
+    TestBenchSpec tb;
+    tb.memoryInit = memoryInit;
+    tb.memoryExpected = memoryExpected;
+    tb.runCycles = 10;
+    tb.name = "using_shift_register";
+    tb.useModSpecs = true;
+    
+    int startSetMemCycle = 1;
+    setRAM(tb, 1, "arg_0", memoryInit, testLayout);
+
+    int startRunCycle = startSetMemCycle + 10; 
+    map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+    map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+
+    int checkMemCycle = 20;
+    checkRAM(tb, checkMemCycle, "arg_1", memoryExpected, testLayout);
+
+    emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("using_shift_register"));
   }
