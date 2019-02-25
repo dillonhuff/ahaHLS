@@ -4652,6 +4652,7 @@ namespace DHLS {
     // assert(false);
     
     InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("operator")] = implementStencilCall;
     // interfaces.functionTemplates[string("read")] = implementRVFifoRead;
     // interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef;
     
@@ -4678,7 +4679,7 @@ namespace DHLS {
 
     emitVerilog("vhls_target", graph, hcs);
 
-    // REQUIRE(runIVerilogTB("vhls_target")); // Run tb
+    REQUIRE(runIVerilogTB("vhls_target")); // Run tb
   }
 
 }

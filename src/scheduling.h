@@ -1551,10 +1551,12 @@ namespace DHLS {
   ModuleSpec busSpec(llvm::StructType* tp);
 
   ModuleSpec streamAxiPackedStencilSpec(const int valueWidth, const int nRows, const int nCols);
-
   ModuleSpec packedStencilSpec(const int valueWidth, const int nRows, const int nCols);
   ModuleSpec axiPackedStencilSpec(const int valueWidth, const int nRows, const int nCols);
   ModuleSpec stencilSpec(const int valueWidth, const int nRows, const int nCols);
+
+  void implementStencilCall(llvm::Function* stencilCall,
+                            ExecutionConstraints& exec);
   
 }
 

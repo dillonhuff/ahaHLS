@@ -281,6 +281,8 @@ namespace DHLS {
       modName = "andOp";
     } else if (instr->getOpcode() == Instruction::Or) {
       modName = "orOp";
+    } else if (instr->getOpcode() == Instruction::Shl) {
+      modName = "shlOp";
     } else {
       assert(false);
     }

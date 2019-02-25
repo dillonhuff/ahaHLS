@@ -2045,26 +2045,33 @@ namespace DHLS {
 
   ModuleSpec streamAxiPackedStencilSpec(const int valueWidth, const int nRows, const int nCols) {
     ModuleSpec modSpec;
-    modSpec.name = "class.hls_stream_AxiPackedStencil_uint16_t_1_1__";
+    modSpec.name = "hls_stream_AxiPackedStencil_uint16_t_1_1__";
     return modSpec;
   }
 
   ModuleSpec packedStencilSpec(const int valueWidth, const int nRows, const int nCols) {
     ModuleSpec modSpec;
-    modSpec.name = "class.PackedStencil_uint16_t_1_1_";
+    modSpec.name = "PackedStencil_uint16_t_1_1_";
     return modSpec;
   }
 
   ModuleSpec axiPackedStencilSpec(const int valueWidth, const int nRows, const int nCols) {
     ModuleSpec modSpec;
-    modSpec.name = "class.AxiPackedStencil_uint16_t_1_1_";
+    modSpec.name = "AxiPackedStencil_uint16_t_1_1_";
     return modSpec;
   }
 
   ModuleSpec stencilSpec(const int valueWidth, const int nRows, const int nCols) {
     ModuleSpec modSpec;
-    modSpec.name = "class.Stencil_uint16_t_1_1_";
+    modSpec.name = "Stencil_uint16_t_1_1_";
     return modSpec;
+  }
+
+  void implementStencilCall(llvm::Function* stencilCall,
+                            ExecutionConstraints& exec) {
+    auto eb = mkBB("entry_block", stencilCall);
+    IRBuilder<> b(eb);
+    b.CreateRet(mkInt(5, 16));
   }
   
 }
