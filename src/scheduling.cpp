@@ -45,7 +45,7 @@ namespace DHLS {
     hcs.setLatency(ZEXT_OP, 0);
     hcs.setLatency(AND_OP, 0);
     hcs.setLatency(OR_OP, 0);
-    
+    hcs.setLatency(SHL_OP, 3);    
     return hcs;
   }
 
@@ -156,6 +156,8 @@ namespace DHLS {
         return AND_OP;
       } else if (opCode == Instruction::Or) {
         return OR_OP;        
+      } else if (opCode == Instruction::Shl) {
+        return SHL_OP;
       } else {
         assert(false);
       }
@@ -232,7 +234,10 @@ namespace DHLS {
         latency = getLatency(AND_OP);
       } else if (opCode == Instruction::Or) {
         latency = getLatency(OR_OP);
+      } else if (opCode == Instruction::Shl) {
+        latency = getLatency(SHL_OP);
       } else {
+        cout << "Error: Unknown instruction " << valueString(iptr) << endl;
         assert(false);
       }
     } else if (GetElementPtrInst::classof(iptr)) {
@@ -2033,8 +2038,32 @@ namespace DHLS {
   //    3. 
   ModuleSpec busSpec(llvm::StructType* tp) {
     ModuleSpec modSpec;
-    Type* innerArrayType();
+    //Type* innerArrayType();
     modSpec.name = "bus_of_some_random_type";
+    return modSpec;
+  }
+
+  ModuleSpec streamAxiPackedStencilSpec(const int valueWidth, const int nRows, const int nCols) {
+    ModuleSpec modSpec;
+    modSpec.name = "class.hls_stream_AxiPackedStencil_uint16_t_1_1__";
+    return modSpec;
+  }
+
+  ModuleSpec packedStencilSpec(const int valueWidth, const int nRows, const int nCols) {
+    ModuleSpec modSpec;
+    modSpec.name = "class.PackedStencil_uint16_t_1_1_";
+    return modSpec;
+  }
+
+  ModuleSpec axiPackedStencilSpec(const int valueWidth, const int nRows, const int nCols) {
+    ModuleSpec modSpec;
+    modSpec.name = "class.AxiPackedStencil_uint16_t_1_1_";
+    return modSpec;
+  }
+
+  ModuleSpec stencilSpec(const int valueWidth, const int nRows, const int nCols) {
+    ModuleSpec modSpec;
+    modSpec.name = "class.Stencil_uint16_t_1_1_";
     return modSpec;
   }
   

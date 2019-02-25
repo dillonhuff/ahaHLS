@@ -4651,27 +4651,32 @@ namespace DHLS {
     
     // assert(false);
     
-    // InterfaceFunctions interfaces;
+    InterfaceFunctions interfaces;
     // interfaces.functionTemplates[string("read")] = implementRVFifoRead;
     // interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef;
     
-    // HardwareConstraints hcs = standardConstraints();
+    HardwareConstraints hcs = standardConstraints();
+    hcs.typeSpecs["class.hls_stream_AxiPackedStencil_uint16_t_1_1__"] =
+      [](StructType* axiStencil) { return streamAxiPackedStencilSpec(16, 1, 1); };
+    hcs.typeSpecs["class.Stencil_uint16_t_1_1_"] =
+      [](StructType* axiStencil) { return stencilSpec(16, 1, 1); };
+    hcs.typeSpecs["class.PackedStencil_uint16_t_1_1_"] =
+      [](StructType* axiStencil) { return packedStencilSpec(16, 1, 1); };
+    hcs.typeSpecs["class.AxiPackedStencil_uint16_t_1_1_"] =
+      [](StructType* axiStencil) { return axiPackedStencilSpec(16, 1, 1); };
+
     // // TODO: Make pointers to primitives registers of their width by default
     // hcs.memoryMapping = memoryOpLocations(f);
     // int width = 64;
     // setAllAllocaMemTypes(hcs, f, registerSpec(width));
 
-    // // TODO: Change this!
-    // hcs.typeSpecs["class.ac_channel"] =
-    //   [width](StructType* tp) { return fifoSpec(width, 32); };
-
-    // Schedule s = scheduleInterface(f, hcs, interfaces);
-    // STG graph = buildSTG(s, f);
+    Schedule s = scheduleInterface(f, hcs, interfaces);
+    STG graph = buildSTG(s, f);
     
-    // cout << "STG Is" << endl;
-    // graph.print(cout);
+    cout << "STG Is" << endl;
+    graph.print(cout);
 
-    // emitVerilog("vhls_target", graph, hcs);
+    emitVerilog("vhls_target", graph, hcs);
 
     // REQUIRE(runIVerilogTB("vhls_target")); // Run tb
   }
