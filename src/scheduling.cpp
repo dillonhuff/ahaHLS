@@ -2027,6 +2027,10 @@ namespace DHLS {
 
   // Q: Should the bus specification be an interface to Values of type
   //    T, or values of type T*? Should you read by value from a bus?
+  // Q: What cases do I want to think about?
+  // A: 1. Register banks
+  //    2. Banked memories
+  //    3. 
   ModuleSpec busSpec(llvm::StructType* tp) {
     ModuleSpec modSpec;
     Type* innerArrayType();
