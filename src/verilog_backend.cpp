@@ -594,11 +594,11 @@ namespace DHLS {
 
         // No action
       }
-    } else if (AllocaInst::classof(instr) ||
-               BitCastInst::classof(instr)) {
-
-      // TODO: Add test case that uses real function calls and casts
-      // No action for these instruction types (YET)
+    } else if (AllocaInst::classof(instr)) {
+      cout << "Alloca instruction = " << valueString(instr) << endl;
+    } else if (BitCastInst::classof(instr)) {
+      // TODO: Add test case that uses casts
+      // No action for this instruction type (YET)
     } else if (SExtInst::classof(instr)) {
       modName = "sext";
       wiring = {{"in", {true, 32, "sgt_in0_" + rStr}}};
