@@ -2050,7 +2050,7 @@ namespace DHLS {
     ModuleSpec modSpec;
     modSpec.name = "HLS_stream";
     modSpec.hasClock = true;
-    modSpec.hasRst = true;    
+    modSpec.hasRst = true;
     return modSpec;
   }
 
