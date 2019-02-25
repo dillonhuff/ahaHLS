@@ -4590,7 +4590,8 @@ namespace DHLS {
     setGlobalLLVMModule(Mod.get());
 
     Function* f = getFunctionByDemangledName(Mod.get(), "stencil_stream_rw");
-    //getArg(f, 0)->setName("ram");
+    getArg(f, 0)->setName("in");
+    getArg(f, 1)->setName("out");
 
     cout << "llvm function" << endl;
     cout << valueString(f) << endl;
@@ -4622,6 +4623,24 @@ namespace DHLS {
 
     emitVerilog("stencil_stream_rw", graph, hcs);
 
+    map<llvm::Value*, int> layout = {};
+    // ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 40;
+    tb.maxCycles = 50;
+    tb.name = "stencil_stream_rw";
+    tb.useModSpecs = true;
+    // tb.settableWires.insert(in0Name + "_in_data");
+    // tb.settableWires.insert(in0Name + "_write_valid");
+    // tb.settableWires.insert(outName + "_read_valid");    
+    // map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
+    emitVerilogTestBench(tb, arch, testLayout);
+    
     REQUIRE(runIVerilogTB("stencil_stream_rw"));
   }
   
