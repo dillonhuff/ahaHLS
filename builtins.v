@@ -1457,7 +1457,13 @@ endmodule
 
 module HLS_stream(input clk, input rst,
                   output [DATA_WIDTH - 1 : 0] data_bus,
-                  output last_bus);
+                  output                      last_bus,
+
+                  input read_valid,
+                  output read_ready,
+                  
+                  input write_valid,
+                  output write_ready);
 
    parameter VALUE_WIDTH = 16;
    parameter NROWS = 2;

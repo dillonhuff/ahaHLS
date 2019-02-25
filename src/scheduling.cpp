@@ -2054,8 +2054,16 @@ namespace DHLS {
 
     int dataBusWidth = valueWidth*nRows*nCols;
     int lastBusWidth = 1;
+
+    // Unpacked data outputs
     modSpec.ports.insert({"data_bus", outputPort(dataBusWidth, "data_bus")});
     modSpec.ports.insert({"last_bus", outputPort(lastBusWidth, "last_bus")});
+
+    // Control ports
+    modSpec.ports.insert({"write_valid", inputPort(1, "write_valid")});
+    modSpec.ports.insert({"write_ready", outputPort(1, "write_ready")});
+    modSpec.ports.insert({"read_valid", inputPort(1, "read_valid")});
+    modSpec.ports.insert({"read_ready", outputPort(1, "read_ready")});
 
     modSpec.params.insert({"VALUE_WIDTH", to_string(valueWidth)});
     modSpec.params.insert({"NROWS", to_string(nRows)});
