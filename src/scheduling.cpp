@@ -2002,7 +2002,6 @@ namespace DHLS {
     auto readValid = b.CreateCall(readValidF, {writeMod});
     auto stallUntilValid = b.CreateCall(stallF, {readValid});
     
-    // b.CreateCall(writeDataF, {writeMod, data});
     b.CreateRet(nullptr);
 
     exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
