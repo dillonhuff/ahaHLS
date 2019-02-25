@@ -2746,7 +2746,9 @@ namespace DHLS {
           }
 
           conns.insert({"clk", "clk"});
-          conns.insert({"rst", "rst"});
+          if (s.hasReset()) {
+            conns.insert({"rst", "rst"});
+          }
           ModuleInstance arg{s.name, instName, conns};
           comps.instances.push_back(arg);
         }

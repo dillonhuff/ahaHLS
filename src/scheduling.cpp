@@ -1861,8 +1861,11 @@ namespace DHLS {
       {"read_ready", outputPort(1, "read_ready")},
       {"write_ready", outputPort(1, "write_ready")}
     };
-    
-    return {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "fifo", fifoPorts};
+
+    ModuleSpec modSpec = {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "fifo", fifoPorts};
+    modSpec.hasClock = true;
+    modSpec.hasRst = true;
+    return modSpec;
   }
 
 
@@ -2047,6 +2050,7 @@ namespace DHLS {
     ModuleSpec modSpec;
     modSpec.name = "HLS_stream";
     modSpec.hasClock = true;
+    modSpec.hasRst = true;    
     return modSpec;
   }
 

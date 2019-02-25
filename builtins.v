@@ -1455,5 +1455,5 @@ endmodule // AxiPackedStencil
 module Stencil(input clk);
 endmodule
 
-module HLS_stream(input clk);
+module HLS_stream(input clk, input rst);
 endmodule
