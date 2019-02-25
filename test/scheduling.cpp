@@ -1344,9 +1344,12 @@ namespace DHLS {
     setGlobalLLVMContext(&context);
     
     auto mod = llvm::make_unique<Module>("shift register test", context);
+    setGlobalLLVMModule(mod.get());
 
-    std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo(),
-        Type::getInt32Ty(context)->getPointerTo()};
+    // std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo(),
+    //     Type::getInt32Ty(context)->getPointerTo()};
+    std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
+        sramType(32, 16)->getPointerTo()};
     FunctionType *tp =
       FunctionType::get(Type::getVoidTy(context), inputs, false);
     Function *srUser =
@@ -1388,12 +1391,16 @@ namespace DHLS {
     map<string, vector<int> > memoryInit{{"arg_0", {6}}};
     map<string, vector<int> > memoryExpected{{"arg_1", {11}}};
 
-    TestBenchSpec tb;
-    tb.memoryInit = memoryInit;
-    tb.memoryExpected = memoryExpected;
-    tb.runCycles = 10;
-    tb.name = "using_shift_register";
+    TestBenchSpec tb = buildTB("using_shift_register", memoryInit, memoryExpected, testLayout);
+    tb.useModSpecs = true;
     emitVerilogTestBench(tb, arch, testLayout);
+    
+    // TestBenchSpec tb;
+    // tb.memoryInit = memoryInit;
+    // tb.memoryExpected = memoryExpected;
+    // tb.runCycles = 10;
+    // tb.name = "using_shift_register";
+    // emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("using_shift_register"));
   }
