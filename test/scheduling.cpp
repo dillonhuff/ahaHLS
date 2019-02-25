@@ -4679,7 +4679,7 @@ namespace DHLS {
 
     emitVerilog("vhls_target", graph, hcs);
 
-    REQUIRE(runIVerilogTB("vhls_target")); // Run tb
+    REQUIRE(runIVerilogTB("vhls_target"));
   }
 
 }

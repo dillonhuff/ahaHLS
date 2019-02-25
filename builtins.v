@@ -17,6 +17,12 @@ module sext(input [31:0]  in, output [63:0] out);
    assign out = {32'b0, in};
 endmodule
 
+module shlOp(input [WIDTH - 1:0]  in, input [$clog2(WIDTH) - 1 : 0] amount, output [WIDTH - 1:0] out);
+
+   parameter WIDTH = 32;
+   assign out = in << amount;
+endmodule
+
 module add(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [WIDTH - 1:0] out);
    parameter WIDTH = 1;
    
@@ -1439,3 +1445,4 @@ module fadd(
               .input_b_ack(b_ack));
    
 endmodule
+
