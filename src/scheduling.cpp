@@ -2033,8 +2033,8 @@ namespace DHLS {
   //    3. 
   ModuleSpec busSpec(llvm::StructType* tp) {
     ModuleSpec modSpec;
+    Type* innerArrayType();
     modSpec.name = "bus_of_some_random_type";
-    //Type* innerArrayType();
     return modSpec;
   }
   

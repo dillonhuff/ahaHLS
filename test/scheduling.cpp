@@ -4647,7 +4647,8 @@ namespace DHLS {
     cout << "llvm function" << endl;
     cout << valueString(f) << endl;
 
-
+    deleteLLVMLifetimeCalls(f);
+    
     // assert(false);
     
     // InterfaceFunctions interfaces;
