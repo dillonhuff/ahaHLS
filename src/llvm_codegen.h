@@ -11,6 +11,9 @@
 
 namespace DHLS {
 
+  llvm::Type* voidType();
+  llvm::StructType* sramType(const int width, const int depth);
+
   void setGlobalLLVMContext(llvm::LLVMContext* contextPtr);
   llvm::LLVMContext& getGlobalLLVMContext();
 
@@ -96,6 +99,70 @@ namespace DHLS {
   }
 
   static inline
+  llvm::Function* ramLoadFunction(llvm::Value* ram) {
+    auto name = "ram.read.32.16";
+
+    int width = 32;
+    int depth = 16;
+    auto& m = getGlobalLLVMModule();
+    llvm::Function* fifoRead = m.getFunction(name);
+
+    if (fifoRead != nullptr) {
+      return fifoRead;
+    }
+
+    llvm::FunctionType *tp =
+      llvm::FunctionType::get(intType(width), {sramType(width, depth)->getPointerTo(), intType(width)}, false);
+
+    auto c = m.getOrInsertFunction(name, tp);
+
+    assert(llvm::Function::classof(c));
+
+    return llvm::dyn_cast<llvm::Function>(c);
+  }
+
+  static inline
+  llvm::Function* ramStoreFunction(llvm::Value* ram) {
+    auto name = "ram.write.32.16";
+
+    int width = 32;
+    int depth = 16;
+    auto& m = getGlobalLLVMModule();
+    llvm::Function* ramStore = m.getFunction(name);
+
+    if (ramStore != nullptr) {
+      return ramStore;
+    }
+
+    llvm::FunctionType *tp =
+      llvm::FunctionType::get(voidType(), {sramType(width, depth)->getPointerTo(), intType(width), intType(width)}, false);
+
+    auto c = m.getOrInsertFunction(name, tp);
+
+    assert(llvm::Function::classof(c));
+
+    return llvm::dyn_cast<llvm::Function>(c);
+  }
+  
+  static inline
+  llvm::Instruction* loadRAMVal(llvm::IRBuilder<>& builder,
+                       llvm::Value* ram,
+                       llvm::Value* addr,
+                       const std::string name = "") {
+    llvm::Function* ramLoadF = ramLoadFunction(ram);
+    return builder.CreateCall(ramLoadF, {ram, addr});
+  }
+
+  static inline
+  llvm::Instruction* storeRAMVal(llvm::IRBuilder<>& builder,
+                                 llvm::Value* ram,
+                                 llvm::Value* addr,
+                                 llvm::Value* value) {
+    auto ramStoreF = ramStoreFunction(ram);
+    return builder.CreateCall(ramStoreF, {ram, addr, value});
+  }
+  
+  static inline
   llvm::Instruction* storeVal(llvm::IRBuilder<>& builder,
                         llvm::Value* buffer,
                         llvm::Value* offset,
@@ -156,17 +223,6 @@ namespace DHLS {
   }
 
   static inline
-  llvm::StructType* sramType(const int width, const int depth) {
-    std::string name = "SRAM_" + std::to_string(width) + "_" + std::to_string(depth);
-    llvm::StructType* tp = getGlobalLLVMModule().getTypeByName(name);
-    if (tp == nullptr) {
-      tp = llvm::StructType::create(getGlobalLLVMContext(), name);
-    }
-                               
-    return tp;
-  }
-  
-  static inline
   llvm::StructType* wireType(const int width) {
     llvm::StructType* tp =
       llvm::StructType::create(getGlobalLLVMContext(),
@@ -207,10 +263,6 @@ namespace DHLS {
   llvm::Function* fifoRead(const int width) {
     return fifoRead(width, &getGlobalLLVMModule());
   }  
-
-  static inline llvm::Type* voidType() {
-    return llvm::Type::getVoidTy(getGlobalLLVMContext());
-  }
 
   static inline
   llvm::Function* fifoWrite(const int width, llvm::Module* m) {

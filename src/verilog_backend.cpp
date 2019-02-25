@@ -591,7 +591,8 @@ namespace DHLS {
           StructType* structT = dyn_cast<StructType>(fuDerefTp);
 
           cout << "Struct name = " << string(structT->getName()) << endl;
-          
+
+          assert(hcs.hasArgumentSpec(fuPtr));
           modSpec = map_find(string(structT->getName()), hcs.typeSpecs)(structT);
         }
 

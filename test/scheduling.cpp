@@ -941,6 +941,34 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("loop_add_4_copy"));
   }
 
+  void setRAM(TestBenchSpec& tb,
+              int startSetMemCycle,
+              const std::string name,
+              std::map<string, vector<int> >& memoryInit,
+              std::map<string, int>& testLayout) {
+
+    tb.settableWires.insert(name + "_debug_addr");
+    tb.settableWires.insert(name + "_debug_write_addr");
+    tb.settableWires.insert(name + "_debug_write_data");
+    tb.settableWires.insert(name + "_debug_write_en");
+    
+    for (auto exp : memoryInit) {
+      int offset = map_find(exp.first, testLayout);
+      for (int i = 0; i < (int) exp.second.size(); i++) {
+        int val = exp.second[i];
+
+        map_insert(tb.actionsOnCycles, startSetMemCycle, name + "_debug_write_addr <= " + to_string(offset) + ";");
+        map_insert(tb.actionsOnCycles, startSetMemCycle, name + "_debug_write_data <= " + to_string(val) + ";");
+        map_insert(tb.actionsOnCycles, startSetMemCycle, name + string("_debug_write_en <= 1;"));
+
+        offset++;
+        startSetMemCycle++;
+      }
+    }
+
+    map_insert(tb.actionsOnCycles, startSetMemCycle, name + string("_debug_write_en <= 0;"));
+  }
+  
   TestBenchSpec buildTB(std::string name,
                         map<string, vector<int> >& memoryInit,
                         map<string, vector<int> >& memoryExpected,
@@ -950,29 +978,10 @@ namespace DHLS {
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 200;
-    tb.name = name; //"blur_no_lb";
-
-    tb.settableWires.insert("ram_debug_addr");
-    tb.settableWires.insert("ram_debug_write_addr");
-    tb.settableWires.insert("ram_debug_write_data");
-    tb.settableWires.insert("ram_debug_write_en");
+    tb.name = name;
 
     int startSetMemCycle = 1;
-    for (auto exp : memoryInit) {
-      int offset = map_find(exp.first, testLayout);
-      for (int i = 0; i < (int) exp.second.size(); i++) {
-        int val = exp.second[i];
-
-        map_insert(tb.actionsOnCycles, startSetMemCycle, "ram_debug_write_addr <= " + to_string(offset) + ";");
-        map_insert(tb.actionsOnCycles, startSetMemCycle, "ram_debug_write_data <= " + to_string(val) + ";");
-        map_insert(tb.actionsOnCycles, startSetMemCycle, string("ram_debug_write_en <= 1;"));
-
-        offset++;
-        startSetMemCycle++;
-      }
-    }
-
-    map_insert(tb.actionsOnCycles, startSetMemCycle, string("ram_debug_write_en <= 0;"));
+    setRAM(tb, 1, "ram", memoryInit, testLayout);
 
     int startRunCycle = startSetMemCycle + 10; 
     map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
@@ -1361,17 +1370,36 @@ namespace DHLS {
       argId++;
     }
 
+    cout << "Function = " << valueString(srUser) << endl;
+
     auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
     ConstantInt* zero = mkInt("0", 32);
     ConstantInt* five = mkInt("5", 32);        
     IRBuilder<> builder(entryBlock);
-    auto ldA = loadVal(builder, getArg(srUser, 0), zero);
+    auto ldA = loadRAMVal(builder, getArg(srUser, 0), zero);
     auto plus = builder.CreateAdd(ldA, five);
-    storeVal(builder, getArg(srUser, 1), zero, plus);
+    storeRAMVal(builder, getArg(srUser, 1), zero, plus);
     builder.CreateRet(nullptr);
 
+    cout << "LLVM Function" << endl;
+    cout << valueString(srUser) << endl;
+
     HardwareConstraints hcs = standardConstraints();
-    Schedule s = scheduleFunction(srUser, hcs);
+    hcs.typeSpecs[string("SRAM_32_16")] =
+      [](StructType* tp) { return ramSpec(32, 16); };
+    InterfaceFunctions interfaces;
+    Function* ramRead = ramLoadFunction(getArg(srUser, 0));
+    interfaces.addFunction(ramRead);
+    implementRAMRead0(ramRead,
+                      interfaces.getConstraints(ramRead));
+
+    Function* ramWrite = ramStoreFunction(getArg(srUser, 1));
+    interfaces.addFunction(ramWrite);
+    implementRAMWrite0(ramWrite,
+                       interfaces.getConstraints(ramWrite));
+    
+    Schedule s = scheduleInterface(srUser, hcs, interfaces);
+    //Schedule s = scheduleFunction(srUser, hcs);
 
     STG graph = buildSTG(s, srUser);
 
@@ -1381,12 +1409,13 @@ namespace DHLS {
     // 3 x 3
     map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 1}};
     map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 1}};
-    auto arch = buildMicroArchitecture(srUser, graph, layout);
+    auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
 
     VerilogDebugInfo info;
-    addNoXChecks(arch, info);
+    emitVerilog("using_shift_register", graph, hcs, info);
+    // addNoXChecks(arch, info);
 
-    emitVerilog(srUser, arch, info);
+    // emitVerilog(srUser, arch, info);
 
     map<string, vector<int> > memoryInit{{"arg_0", {6}}};
     map<string, vector<int> > memoryExpected{{"arg_1", {11}}};

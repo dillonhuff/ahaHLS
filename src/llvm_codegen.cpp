@@ -27,4 +27,20 @@ namespace DHLS {
     return *globalMod;
   }
 
+  llvm::StructType* sramType(const int width, const int depth) {
+    std::string name = "SRAM_" + std::to_string(width) + "_" + std::to_string(depth);
+    llvm::StructType* tp = getGlobalLLVMModule().getTypeByName(name);
+    if (tp == nullptr) {
+      tp = llvm::StructType::create(getGlobalLLVMContext(), name);
+    }
+                               
+    return tp;
+  }
+  
+
+  llvm::Type* voidType() {
+    return llvm::Type::getVoidTy(getGlobalLLVMContext());
+  }
+
+  
 }
