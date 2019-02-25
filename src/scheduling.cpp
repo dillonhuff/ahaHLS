@@ -2045,25 +2045,25 @@ namespace DHLS {
 
   ModuleSpec streamAxiPackedStencilSpec(const int valueWidth, const int nRows, const int nCols) {
     ModuleSpec modSpec;
-    modSpec.name = "hls_stream_AxiPackedStencil_uint16_t_1_1__";
+    modSpec.name = "HLS_stream";
     return modSpec;
   }
 
   ModuleSpec packedStencilSpec(const int valueWidth, const int nRows, const int nCols) {
     ModuleSpec modSpec;
-    modSpec.name = "PackedStencil_uint16_t_1_1_";
+    modSpec.name = "PackedStencil";
     return modSpec;
   }
 
   ModuleSpec axiPackedStencilSpec(const int valueWidth, const int nRows, const int nCols) {
     ModuleSpec modSpec;
-    modSpec.name = "AxiPackedStencil_uint16_t_1_1_";
+    modSpec.name = "AxiPackedStencil";
     return modSpec;
   }
 
   ModuleSpec stencilSpec(const int valueWidth, const int nRows, const int nCols) {
     ModuleSpec modSpec;
-    modSpec.name = "Stencil_uint16_t_1_1_";
+    modSpec.name = "Stencil";
     return modSpec;
   }
 
