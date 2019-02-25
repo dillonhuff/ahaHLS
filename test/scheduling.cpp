@@ -4506,11 +4506,10 @@ namespace DHLS {
     };
     
     int width = 64;
-    //setAllAllocaMemTypes(hcs, f, registerSpec(width));
-
-    // TODO: Change this!
     hcs.typeSpecs["class.Fifo"] =
       [width](StructType* tp) { return fifoSpec(width, 32); };
+    hcs.typeSpecs["class.Bus"] =
+      [width](StructType* tp) { assert(false); return fifoSpec(width, 32); };
 
     Schedule s = scheduleInterface(f, hcs, interfaces);
     STG graph = buildSTG(s, f);

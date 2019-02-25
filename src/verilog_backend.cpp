@@ -530,17 +530,11 @@ namespace DHLS {
       outWires = {{"out", {false, w0, "sel_out_" + rStr}}};
             
     } else if (CallInst::classof(instr)) {
-      // if (isBuiltinFifoWrite(instr)) {
-      //   assert(false);
-      // } else if (isBuiltinFifoRead(instr)) {
-      //   assert(false);
-      // } else
 
       if (isBuiltinPortCall(instr)) {
         // No action
 
         auto fuPtr = instr->getOperand(0);
-        //assert(contains_key(fuPtr, hcs.modSpecs));        
 
         if (Argument::classof(fuPtr)) {
           isExternal = true;
@@ -570,9 +564,6 @@ namespace DHLS {
         unitName = fuPtr->getName();
         defaults = modSpec.defaultValues;
 
-        // All internal functional units must have names
-        //        if (unitName == "") {
-        //assert(Argument::classof(fuPtr));
         if (Argument::classof(fuPtr) && (unitName == "")) {
           int i = 0;
           bool foundArg = false;
