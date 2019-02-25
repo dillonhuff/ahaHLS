@@ -1768,6 +1768,10 @@ namespace DHLS {
         wireConns.insert({"clk", "clk"});
       }
 
+      if (unit.module.isSequential()) {
+        wireConns.insert({"clk", "clk"});
+      }
+
       string modName = unit.getModName();
       auto params = unit.getParams();
       string instName = unit.instName;

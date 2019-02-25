@@ -1446,14 +1446,14 @@ module fadd(
    
 endmodule
 
-module PackedStencil();
+module PackedStencil(input clk);
 endmodule // PackedStencil
 
-module AxiPackedStencil();
+module AxiPackedStencil(input clk);
 endmodule // AxiPackedStencil
 
-module Stencil();
+module Stencil(input clk);
 endmodule
 
-module HLS_stream();
+module HLS_stream(input clk);
 endmodule
