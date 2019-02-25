@@ -188,6 +188,8 @@ namespace DHLS {
     
   };
 
+  std::ostream& operator<<(std::ostream& out, const ModuleSpec& m);
+
   class MemorySpec {
   public:
     int readLatency;
@@ -1543,7 +1545,8 @@ namespace DHLS {
 
   void implementAXIWrite(llvm::Function* axiWrite,
                          ExecutionConstraints& exec);
-  
+
+  ModuleSpec busSpec(llvm::StructType* tp);
 }
 
 

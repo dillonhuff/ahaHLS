@@ -2015,5 +2015,22 @@ namespace DHLS {
     
     addDataConstraints(axiWrite, exec);
   }
+
+  std::ostream& operator<<(std::ostream& out, const ModuleSpec& m) {
+    out << "module_spec " << m.name << endl;
+    out << tab(1) << "ports" << endl;
+    for (auto pt : m.ports) {
+      out << tab(2) << pt.first << " -> " << pt.second.name << endl;
+    }
+    return out;
+  }
+
+  // Q: Should the bus specification be an interface to Values of type
+  //    T, or values of type T*? Should you read by value from a bus?
+  ModuleSpec busSpec(llvm::StructType* tp) {
+    ModuleSpec modSpec;
+    Type* innerArrayType();
+    return modSpec;
+  }
   
 }

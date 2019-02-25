@@ -3668,7 +3668,8 @@ namespace DHLS {
       {"input_b_stb", 0},
       {"rst", 0}
     };
-    
+
+    //
     //setAllAllocaMemTypes(hcs, f, registerSpec(width));
     hcs.typeSpecs[fpuType->getName()] =
       [adderPorts, defaults](StructType* fp) { return ModuleSpec({}, "adder", adderPorts, defaults); };
@@ -4508,8 +4509,8 @@ namespace DHLS {
     int width = 64;
     hcs.typeSpecs["class.Fifo"] =
       [width](StructType* tp) { return fifoSpec(width, 32); };
-    hcs.typeSpecs["class.Bus"] =
-      [width](StructType* tp) { assert(false); return fifoSpec(width, 32); };
+    hcs.typeSpecs["class.bus"] =
+      [width](StructType* tp) { return busSpec(tp); };
 
     Schedule s = scheduleInterface(f, hcs, interfaces);
     STG graph = buildSTG(s, f);

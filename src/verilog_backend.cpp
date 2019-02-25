@@ -422,20 +422,36 @@ namespace DHLS {
   }
 
   FunctionalUnit structFunctionalUnit(StructType* allocatedType,
-                                      AllocaInstruction* instr,
+                                      AllocaInst* instr,
                                       HardwareConstraints& hcs) {
-    string modName = "add";
+    //string modName = "add";
 
-    string unitName = "....DUMMY_UNIT_NAME";
-    auto rStr = unitName;
-    map<string, string> modParams;
+    string unitName;
+    if (instr->getName() != "") {
+      unitName = instr->getName();
+    } else {
+      assert(false);
+    }
+
+    assert(hcs.hasArgumentSpec(instr));
+
+    ModuleSpec mSpec = hcs.getArgumentSpec(instr);
+
+    cout << "Module spec for " << valueString(instr) << " = " << mSpec << endl;
+    //map<string, string> modParams;
     bool isExternal = false;
 
     map<string, Wire> wiring;
-    map<string, Wire> outWires;
-    map<string, int> defaults;
+    map<string, Wire> outWires;    
+    for (auto pt : mSpec.ports) {
+      if (pt.second.input()) {
+        wiring.insert({pt.first, {true, pt.second.width, unitName + "_" + pt.second.name}});
+      } else {
+        outWires.insert({pt.first, {false, pt.second.width, unitName + "_" + pt.second.name}});            
+      }
+    }
 
-    FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
+    FunctionalUnit unit = {mSpec, unitName, wiring, outWires, isExternal};
 
     return unit;
   }
@@ -1650,6 +1666,8 @@ namespace DHLS {
 
           for (auto def : unit.module.defaultValues) {
             string name = def.first;
+            assert(contains_key(name, unit.portWires));
+            
             string ptName = map_find(name, unit.portWires).name;
             if (unit.isExternal()) {
               ptName += "_reg";
