@@ -153,12 +153,13 @@ namespace DHLS {
   class ModuleSpec {
   public:
     bool hasClock;
+    bool hasRst;    
     std::map<std::string, std::string> params;
     std::string name;
     std::map<std::string, Port> ports;
     std::map<std::string, int> defaultValues;
 
-    ModuleSpec() : hasClock(false) {
+    ModuleSpec() : hasClock(false), hasRst(false) {
     }
 
     ModuleSpec(const std::map<std::string, std::string>& params_,
@@ -166,6 +167,7 @@ namespace DHLS {
                const std::map<std::string, Port>& ports_,
                const std::map<std::string, int>& defaultValues_) :
       hasClock(false),
+      hasRst(false),
       params(params_),
       name(name_),
       ports(ports_),
@@ -177,6 +179,7 @@ namespace DHLS {
                const std::string name_,
                const std::map<std::string, Port>& ports_) :
       hasClock(false),
+      hasRst(false),
       params(params_),
       name(name_),
       ports(ports_),
@@ -185,6 +188,7 @@ namespace DHLS {
     ModuleSpec(const std::map<std::string, std::string>& params_,
                const std::string name_) :
       hasClock(false),
+      hasRst(false),
       params(params_),
       name(name_),
       ports({}),
@@ -192,6 +196,10 @@ namespace DHLS {
 
     bool isSequential() const {
       return hasClock;
+    }
+
+    bool hasReset() const {
+      return hasRst;
     }
     
   };
