@@ -2051,6 +2051,15 @@ namespace DHLS {
     modSpec.name = "HLS_stream";
     modSpec.hasClock = true;
     modSpec.hasRst = true;
+
+    int dataBusWidth = valueWidth*nRows*nCols;
+    int lastBusWidth = 1;
+    modSpec.ports.insert({"data_bus", outputPort(dataBusWidth, "data_bus")});
+    modSpec.ports.insert({"last_bus", outputPort(lastBusWidth, "last_bus")});
+
+    modSpec.params.insert({"VALUE_WIDTH", to_string(valueWidth)});
+    modSpec.params.insert({"NROWS", to_string(nRows)});
+    modSpec.params.insert({"NCOLS", to_string(nCols)});        
     return modSpec;
   }
 

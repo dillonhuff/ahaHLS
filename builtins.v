@@ -1455,5 +1455,11 @@ endmodule // AxiPackedStencil
 module Stencil(input clk);
 endmodule
 
-module HLS_stream(input clk, input rst);
+module HLS_stream(input clk, input rst,
+                  output [VALUE_WIDTH*NROWS*NCOLS - 1 : 0] data_bus,
+                  output last_bus);
+
+   parameter VALUE_WIDTH = 16;
+   parameter NROWS = 2;
+   parameter NCOLS = 2;   
 endmodule
