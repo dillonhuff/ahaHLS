@@ -596,6 +596,11 @@ namespace DHLS {
       }
     } else if (AllocaInst::classof(instr)) {
       cout << "Alloca instruction = " << valueString(instr) << endl;
+      AllocaInst* allocInst = dyn_cast<AllocaInst>(instr);
+      Type* allocatedType = allocInst->getType()->getElementType();
+      if (StructType::classof(allocatedType)) {
+        cout << "Allocating struct of type " << typeString(allocatedType) << endl;
+      }
     } else if (BitCastInst::classof(instr)) {
       // TODO: Add test case that uses casts
       // No action for this instruction type (YET)
