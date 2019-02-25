@@ -1474,14 +1474,12 @@ module HLS_stream(input clk, input rst,
    // Holds 
    fifo #(.WIDTH(DATA_WIDTH), .DEPTH(32))
    stencil_stream(.clk(clk),
-                  .rst(rst));
+                  .rst(rst),
+                  .read_ready(ready_ready),
+                  .read_valid(read_valid),
+                  .write_ready(write_ready),
+                  .write_valid(write_valid));
 
-            // input                  read_valid,
-            // output                 read_ready,
-
-            // input                  write_valid,
-            // output                 write_ready,
-            
             // input [WIDTH - 1 : 0]  in_data,
             // output [WIDTH - 1 : 0] out_data);
    
