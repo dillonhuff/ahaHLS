@@ -2070,7 +2070,10 @@ namespace DHLS {
 
     modSpec.params.insert({"VALUE_WIDTH", to_string(valueWidth)});
     modSpec.params.insert({"NROWS", to_string(nRows)});
-    modSpec.params.insert({"NCOLS", to_string(nCols)});        
+    modSpec.params.insert({"NCOLS", to_string(nCols)});
+
+    modSpec.defaultValues["write_valid"] = 0;
+    modSpec.defaultValues["read_valid"] = 0;
     return modSpec;
   }
 

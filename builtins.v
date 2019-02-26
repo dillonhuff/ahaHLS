@@ -1472,8 +1472,17 @@ module HLS_stream(input clk, input rst,
    parameter NROWS = 2;
    parameter NCOLS = 2;
    parameter DATA_WIDTH = VALUE_WIDTH*NROWS*NCOLS;
-   
 
+   always @(posedge clk) begin
+      if (write_valid) begin
+         $display("Writing %d", {in_data_bus, in_last_bus});
+      end
+   end   
+
+   always @(posedge clk) begin
+      $display("read ready = %d", read_ready);
+   end   
+   
    wire [DATA_WIDTH + 1 - 1 : 0]              data_out;
 
    assign last_bus = data_out[0];
@@ -1482,11 +1491,12 @@ module HLS_stream(input clk, input rst,
    fifo #(.WIDTH(DATA_WIDTH + 1), .DEPTH(32))
    stencil_stream(.clk(clk),
                   .rst(rst),
-                  .read_ready(ready_ready),
+                  .read_ready(read_ready),
                   .read_valid(read_valid),
                   .write_ready(write_ready),
                   .write_valid(write_valid),
-                  .in_data({in_data_bus, in_valid_bus}));
+                  .in_data({in_data_bus, in_last_bus}),
+                  .out_data(data_out));
 
             // input [WIDTH - 1 : 0]  in_data,
             // output [WIDTH - 1 : 0] out_data);
