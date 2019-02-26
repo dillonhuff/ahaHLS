@@ -1449,7 +1449,18 @@ endmodule
 module PackedStencil(input clk);
 endmodule // PackedStencil
 
-module AxiPackedStencil(input clk);
+module AxiPackedStencil(input clk,
+                  output [DATA_WIDTH - 1 : 0] data_bus,
+                  output                      last_bus,
+
+                  input [DATA_WIDTH - 1 : 0] in_data_bus,
+                  input                      in_last_bus);
+
+   parameter VALUE_WIDTH = 16;
+   parameter NROWS = 2;
+   parameter NCOLS = 2;
+   parameter DATA_WIDTH = VALUE_WIDTH*NROWS*NCOLS;
+   
 endmodule // AxiPackedStencil
 
 module Stencil(input clk);

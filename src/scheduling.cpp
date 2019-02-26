@@ -2172,12 +2172,13 @@ namespace DHLS {
     assert(PointerType::classof(inDataPtr->getType()));
 
     auto streamTp = dyn_cast<PointerType>(stream->getType())->getElementType();
+    auto dataTp = dyn_cast<PointerType>(inDataPtr->getType())->getElementType();
 
     // TODO: Compute this from the input type
     int width = 16;
 
-    // auto writeDataF = writePort("in_data_bus", width, streamTp);
-    // auto writeLastF = writePort("in_last_bus", 1, streamTp);    
+    auto readDataF = readPort("in_data_bus", width, streamTp);
+    auto readLastF = readPort("in_last_bus", 1, streamTp);    
     auto readReadyF = readPort("read_ready", 1, streamTp);
     auto setValidF = writePort("read_valid", 1, streamTp);
     auto stallF = stallFunction();
@@ -2186,6 +2187,12 @@ namespace DHLS {
     auto stallUntilReady = b.CreateCall(stallF, {readReady});
     auto setValid1 = b.CreateCall(setValidF, {stream, mkInt(1, 1)});
     auto setValid0 = b.CreateCall(setValidF, {stream, mkInt(0, 1)});
+
+    // Data read process:
+    // 1. Read data out of ready-valid channel ports
+    // 2. Write it to the target stencil
+    auto readData = b.CreateCall(readDataF, {stream});
+    auto readLast = b.CreateCall(readLastF, {stream});    
       
     b.CreateRet(nullptr);
     
