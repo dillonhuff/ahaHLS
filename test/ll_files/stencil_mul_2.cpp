@@ -1,6 +1,6 @@
 #include "gen_classes.h"
 
-void vhls_target(
+void stencil_mul_2(
 hls_stream_AxiPackedStencil_uint16_t_1_1__ &arg_0,
 hls_stream_AxiPackedStencil_uint16_t_1_1__ &arg_1)
 {
@@ -33,7 +33,7 @@ hls_stream_AxiPackedStencil_uint16_t_1_1__ &arg_1)
    AxiPackedStencil_uint16_t_1_1_ _hw_input_stencil;
 
 
-_hw_input_stencil.write(0, 0, 0, 0);
+_hw_input_stencil.set(0, 0, 0, 0);
    // produce hw_input.stencil
 // reading stream hw_input.stencil.stream
    _hw_input_stencil = _hw_input_stencil_stream_to_mult.read();
@@ -42,13 +42,13 @@ _hw_input_stencil.write(0, 0, 0, 0);
 // realize stencil or stencil update mult.stencil
    AxiPackedStencil_uint16_t_1_1_ _mult_stencil;
 
-_mult_stencil.write(0, 0, 0, 0);
+_mult_stencil.set(0, 0, 0, 0);
    // produce mult.stencil
-   uint16_t _277 = _hw_input_stencil(0, 0);
+ uint16_t _277 = _hw_input_stencil.get(0, 0, 0);
    uint16_t _278 = (uint16_t)(2);
    uint16_t _279 = _277 * _278;
    // Providing stencil or stencil update mult.stencil
-_mult_stencil.write(_279, 0, 0);
+_mult_stencil.set(_279, 0, 0);
    // consume mult.stencil
    // Dag output kernel
 AxiPackedStencil_uint16_t_1_1_ _mult_stencil_packed = _mult_stencil;
