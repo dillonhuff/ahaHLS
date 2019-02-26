@@ -4736,6 +4736,7 @@ namespace DHLS {
     interfaces.functionTemplates[string("read")] = implementStencilRead;    
     interfaces.functionTemplates[string("set")] = implementStencilSet;
     interfaces.functionTemplates[string("get")] = implementStencilGet;            
+    interfaces.functionTemplates[string("set_last")] = implementStencilSetLast;
     interfaces.functionTemplates[string("AxiPackedStencil_uint16_t_1_1_")] =
       implementStencilConstructor;
 

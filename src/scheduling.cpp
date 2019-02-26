@@ -2106,9 +2106,12 @@ namespace DHLS {
     modSpec.ports["set_col"] = inputPort(clog2(width), "set_col");    
     modSpec.ports["set_en"] = inputPort(1, "set_en");        
 
+    modSpec.ports["set_last_en"] = inputPort(1, "set_last_en");
+    modSpec.ports["set_last_value"] = inputPort(1, "set_last_value");
+
     modSpec.defaultValues["set_data"] = 0;
     modSpec.defaultValues["set_en"] = 0;    
-
+    modSpec.defaultValues["set_last_en"] = 0;    
     return modSpec;
   }
 
@@ -2249,6 +2252,34 @@ namespace DHLS {
     b.CreateRet(nullptr);
   }
 
+  void implementStencilSetLast(llvm::Function* stencilCall,
+                               ExecutionConstraints& exec) {
+    assert(stencilCall->getReturnType() == voidType());    
+    assert(stencilCall->arg_size() == 2);
+
+    auto stencil = getArg(stencilCall, 0);
+    auto value = getArg(stencilCall, 1);
+
+    assert(PointerType::classof(stencil->getType()));    
+
+    auto stencilTp = dyn_cast<PointerType>(stencil->getType())->getElementType();
+    
+    auto eb = mkBB("entry_block", stencilCall);
+    IRBuilder<> b(eb);
+    auto setValueF = writePort("set_last_value", 1, stencilTp);
+    auto setEnF = writePort("set_last_en", 1, stencilTp);
+
+    auto setEn = b.CreateCall(setEnF, {stencil, mkInt(1, 1)});    
+    auto setValue = b.CreateCall(setValueF, {stencil, value});
+
+    auto ret = b.CreateRet(nullptr);
+    
+    exec.add(instrStart(setValue) == instrStart(setEn));
+    exec.add(instrEnd(ret) == instrStart(setValue) + 1);
+
+    addDataConstraints(stencilCall, exec);
+  }
+  
   void implementStencilSet(llvm::Function* stencilCall,
                            ExecutionConstraints& exec) {
     assert(stencilCall->getReturnType() == voidType());    
@@ -2276,8 +2307,7 @@ namespace DHLS {
     auto setRow = b.CreateCall(setRowF, {stencil, ind0});
     auto setCol = b.CreateCall(setColF, {stencil, ind1});
     auto setEn = b.CreateCall(setEnF, {stencil, mkInt(1, 1)});    
-    //auto setValue = b.CreateCall(writeValueF, {stencil, value});
-    auto setValue = b.CreateCall(writeValueF, {stencil, mkInt(28, dataWidth)});
+    auto setValue = b.CreateCall(writeValueF, {stencil, value});
 
     auto ret = b.CreateRet(nullptr);
     

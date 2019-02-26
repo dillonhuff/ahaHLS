@@ -1461,6 +1461,9 @@ module AxiPackedStencil(input clk,
 
                         input                              set_data,
 
+                        input                              set_last_en,
+                        input                              set_last_value,
+
                         input [VALUE_WIDTH - 1 : 0]        set_value,
                         input [$clog2(DATA_WIDTH) - 1 : 0] set_row,
                         input [$clog2(DATA_WIDTH) - 1 : 0] set_col,
@@ -1477,6 +1480,11 @@ module AxiPackedStencil(input clk,
 
    reg [DATA_WIDTH + 1 - 1 : 0]                     data;
 
+   always @(posedge clk) begin
+      if (set_last_en) begin
+         data[0] <= set_last_value;
+      end
+   end
 
    always @(posedge clk) begin
       if (set_en) begin
@@ -1492,11 +1500,13 @@ module AxiPackedStencil(input clk,
    // TODO: Fix this indexing problem. Should be a proper variable select
    // and eventually should probably be another module
    always @(*) begin
-      for (i = 0 ; i < NROWS*NCOLS; i=i+1) begin
-         if ((i == get_row)) begin
-            get_value = data[i*VALUE_WIDTH + 1 +: VALUE_WIDTH + 1];
-         end
-      end
+      get_value = data[VALUE_WIDTH + 1 - 1 : 1];
+      
+      // for (i = 0 ; i < NROWS*NCOLS; i=i+1) begin
+      //    if ((i == get_row)) begin
+      //       get_value = data[i*VALUE_WIDTH + 1 +: VALUE_WIDTH + 1];
+      //    end
+      // end
    end
 
    
