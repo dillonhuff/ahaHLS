@@ -1501,6 +1501,8 @@ module AxiPackedStencil(input clk,
    // and eventually should probably be another module
    always @(*) begin
       get_value = data[VALUE_WIDTH + 1 - 1 : 1];
+      $display("get_value = %d", get_value);
+      
       
       // for (i = 0 ; i < NROWS*NCOLS; i=i+1) begin
       //    if ((i == get_row)) begin
