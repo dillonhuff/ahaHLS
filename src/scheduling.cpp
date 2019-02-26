@@ -2259,6 +2259,16 @@ namespace DHLS {
                                    ExecutionConstraints& exec) {
     assert(stencilCall->getReturnType() == voidType());
 
+    if (stencilCall->arg_size() == 1) {
+      auto eb = mkBB("entry_block", stencilCall);
+      IRBuilder<> b(eb);
+      b.CreateRet(nullptr);
+      return;
+    }
+
+    cout << "# of args = " << stencilCall->arg_size() << " to " << valueString(stencilCall) << endl;
+    assert(stencilCall->arg_size() == 2);
+
     auto eb = mkBB("entry_block", stencilCall);
     IRBuilder<> b(eb);
 

@@ -4718,6 +4718,8 @@ namespace DHLS {
     interfaces.functionTemplates[string("read")] = implementStencilRead;    
     interfaces.functionTemplates[string("set")] = implementStencilSet;
     interfaces.functionTemplates[string("get")] = implementStencilGet;            
+    interfaces.functionTemplates[string("AxiPackedStencil_uint16_t_1_1_")] =
+      implementStencilConstructor;
 
     HardwareConstraints hcs = standardConstraints();
     hcs.typeSpecs["class.hls_stream_AxiPackedStencil_uint16_t_1_1__"] =
