@@ -2257,7 +2257,53 @@ namespace DHLS {
 
   void implementStencilConstructor(llvm::Function* stencilCall,
                                    ExecutionConstraints& exec) {
-    assert(false);
+    assert(stencilCall->getReturnType() == voidType());
+
+    auto eb = mkBB("entry_block", stencilCall);
+    IRBuilder<> b(eb);
+
+    auto target = getArg(stencilCall, 0);
+    auto source = getArg(stencilCall, 1);
+
+    assert(PointerType::classof(target->getType()));    
+    assert(PointerType::classof(source->getType()));
+
+    auto targetTp = dyn_cast<PointerType>(target->getType())->getElementType();
+    auto sourceTp = dyn_cast<PointerType>(source->getType())->getElementType();
+
+    assert(targetTp == sourceTp);
+
+    // TODO: Compute this from the input type
+    int width = 16;
+
+    auto readDataF = readPort("data_bus", width, sourceTp);
+    auto readLastF = readPort("last_bus", 1, sourceTp);
+
+    auto writeDataToStencilF = writePort("in_data_bus", width, targetTp);
+    auto writeLastToStencilF = writePort("in_last_bus", 1, targetTp);
+    auto setStencilF = writePort("set_data", 1, targetTp);        
+    
+    // Data read process:
+    // 1. Read data out of ready-valid channel ports
+    // 2. Write it to the target stencil
+    auto readData = b.CreateCall(readDataF, {source});
+    auto readLast = b.CreateCall(readLastF, {source});
+
+    auto writeDataToStencil = b.CreateCall(writeDataToStencilF, {target, readData});
+    auto writeLastToStencil = b.CreateCall(writeLastToStencilF, {target, readLast});
+    auto setStencil = b.CreateCall(setStencilF, {target, mkInt(1, 1)});    
+      
+    b.CreateRet(nullptr);
+    
+    exec.add(instrStart(setStencil) == instrStart(readData));
+    exec.add(instrStart(setStencil) == instrStart(readLast));    
+
+    exec.add(instrStart(setStencil) == instrStart(writeDataToStencil));
+    exec.add(instrStart(setStencil) == instrStart(writeLastToStencil));
+
+    addDataConstraints(stencilCall, exec);
+    
+    b.CreateRet(nullptr);
   }
   
   
