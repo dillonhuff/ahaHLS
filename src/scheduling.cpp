@@ -2107,15 +2107,90 @@ namespace DHLS {
 
   void implementStencilWrite(llvm::Function* stencilCall,
                              ExecutionConstraints& exec) {
+    assert(stencilCall->getReturnType() == voidType());
+
     auto eb = mkBB("entry_block", stencilCall);
     IRBuilder<> b(eb);
+
+    auto stream = getArg(stencilCall, 0);
+    auto inDataPtr = getArg(stencilCall, 1);
+
+    assert(PointerType::classof(stream->getType()));    
+    assert(PointerType::classof(inDataPtr->getType()));
+
+    auto streamTp = dyn_cast<PointerType>(stream->getType())->getElementType();
+
+    // TODO: Compute this from the input type
+    int width = 16;
+
+    // auto dataPtrTp = dyn_cast<PointerType>(dataPtr->getType());
+
+    //auto tp = out->getType();
+    
+    //int width = getTypeBitWidth(dataPtrTp->getElementType()); //getValueBitWidth(getArg(stencilCall, 1));
+
+    //cout << "Data width of " << typeString(dataPtrTp) << " = " << width << endl;
+
+    auto writeDataF = writePort("in_data_bus", width, streamTp);
+    auto writeLastF = writePort("in_last_bus", 1, streamTp);    
+    auto readReadyF = readPort("write_ready", 1, streamTp);
+    auto setValidF = writePort("write_valid", 1, streamTp);
+    auto stallF = stallFunction();
+
+    auto readReady = b.CreateCall(readReadyF, {stream});
+    auto stallUntilReady = b.CreateCall(stallF, {readReady});
+    auto setValid1 = b.CreateCall(setValidF, {stream, mkInt(1, 1)});
+    auto setValid0 = b.CreateCall(setValidF, {stream, mkInt(0, 1)});
+    //auto data = b.CreateLoad(dataPtr);
+    //auto writeValue = b.CreateCall(writeDataF, {out, data});
+      
     b.CreateRet(nullptr);
+    
+    exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
+    exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
+    // exec.addConstraint(instrStart(setValid1) == instrStart(writeValue));
+    // exec.addConstraint(instrEnd(data) == instrStart(data));
+    // exec.addConstraint(instrEnd(data) == instrStart(writeValue));    
+    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+    addDataConstraints(stencilCall, exec);
   }
 
   void implementStencilRead(llvm::Function* stencilCall,
                             ExecutionConstraints& exec) {
+    assert(stencilCall->getReturnType() == voidType());
+
     auto eb = mkBB("entry_block", stencilCall);
     IRBuilder<> b(eb);
+
+    auto stream = getArg(stencilCall, 1);
+    auto inDataPtr = getArg(stencilCall, 0);
+
+    assert(PointerType::classof(stream->getType()));    
+    assert(PointerType::classof(inDataPtr->getType()));
+
+    auto streamTp = dyn_cast<PointerType>(stream->getType())->getElementType();
+
+    // TODO: Compute this from the input type
+    int width = 16;
+
+    // auto writeDataF = writePort("in_data_bus", width, streamTp);
+    // auto writeLastF = writePort("in_last_bus", 1, streamTp);    
+    auto readReadyF = readPort("read_ready", 1, streamTp);
+    auto setValidF = writePort("read_valid", 1, streamTp);
+    auto stallF = stallFunction();
+
+    auto readReady = b.CreateCall(readReadyF, {stream});
+    auto stallUntilReady = b.CreateCall(stallF, {readReady});
+    auto setValid1 = b.CreateCall(setValidF, {stream, mkInt(1, 1)});
+    auto setValid0 = b.CreateCall(setValidF, {stream, mkInt(0, 1)});
+      
+    b.CreateRet(nullptr);
+    
+    exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
+    exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
+    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+    addDataConstraints(stencilCall, exec);
+    
     b.CreateRet(nullptr);
   }
   
