@@ -2131,17 +2131,10 @@ namespace DHLS {
     assert(PointerType::classof(inDataPtr->getType()));
 
     auto streamTp = dyn_cast<PointerType>(stream->getType())->getElementType();
+    auto dataTp = dyn_cast<PointerType>(inDataPtr->getType())->getElementType();
 
     // TODO: Compute this from the input type
     int width = 16;
-
-    // auto dataPtrTp = dyn_cast<PointerType>(dataPtr->getType());
-
-    //auto tp = out->getType();
-    
-    //int width = getTypeBitWidth(dataPtrTp->getElementType()); //getValueBitWidth(getArg(stencilCall, 1));
-
-    //cout << "Data width of " << typeString(dataPtrTp) << " = " << width << endl;
 
     //auto writeDataF = writePort("in_data_bus", width, streamTp);
     // auto writeLastF = writePort("in_last_bus", 1, streamTp);    
