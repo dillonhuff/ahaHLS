@@ -2104,5 +2104,19 @@ namespace DHLS {
     IRBuilder<> b(eb);
     b.CreateRet(mkInt(5, 16));
   }
+
+  void implementStencilWrite(llvm::Function* stencilCall,
+                             ExecutionConstraints& exec) {
+    auto eb = mkBB("entry_block", stencilCall);
+    IRBuilder<> b(eb);
+    b.CreateRet(nullptr);
+  }
+
+  void implementStencilRead(llvm::Function* stencilCall,
+                            ExecutionConstraints& exec) {
+    auto eb = mkBB("entry_block", stencilCall);
+    IRBuilder<> b(eb);
+    b.CreateRet(nullptr);
+  }
   
 }

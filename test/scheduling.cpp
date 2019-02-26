@@ -4601,7 +4601,8 @@ namespace DHLS {
     // assert(false);
     
     InterfaceFunctions interfaces;
-    interfaces.functionTemplates[string("operator")] = implementStencilCall;
+    interfaces.functionTemplates[string("write")] = implementStencilWrite;
+    interfaces.functionTemplates[string("read")] = implementStencilRead;    
     // interfaces.functionTemplates[string("read")] = implementRVFifoRead;
     // interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef;
     
