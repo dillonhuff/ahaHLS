@@ -903,6 +903,10 @@ namespace DHLS {
     } else if (isBuiltinPortRead(instr0)) {
       auto portName = getPortName(instr0);
       //cout << "looking for " << portName << endl;
+      if (!contains_key(string(portName), unit0Src.outWires)) {
+        cout << "looking for " << portName << " for instruction " << valueString(instr0) << endl;
+        assert(false);
+      }
       return map_find(string(portName), unit0Src.outWires).name;
     } else {
       if (!(unit0Src.outWires.size() == 1)) {

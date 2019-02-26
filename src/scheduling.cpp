@@ -2097,8 +2097,18 @@ namespace DHLS {
     modSpec.ports["data_bus"] = outputPort(width, "data_bus");
     modSpec.ports["last_bus"] = outputPort(1, "last_bus");
 
+    modSpec.ports["get_value"] = outputPort(width, "get_value");
+    modSpec.ports["get_row"] = inputPort(clog2(width), "get_row");    
+    modSpec.ports["get_col"] = inputPort(clog2(width), "get_col");    
+
+    modSpec.ports["set_value"] = inputPort(width, "set_value");
+    modSpec.ports["set_row"] = inputPort(clog2(width), "set_row");    
+    modSpec.ports["set_col"] = inputPort(clog2(width), "set_col");    
+    modSpec.ports["set_en"] = inputPort(1, "set_en");        
+
     modSpec.defaultValues["set_data"] = 0;
-    
+    modSpec.defaultValues["set_en"] = 0;    
+
     return modSpec;
   }
 
@@ -2241,18 +2251,75 @@ namespace DHLS {
 
   void implementStencilSet(llvm::Function* stencilCall,
                            ExecutionConstraints& exec) {
+    assert(stencilCall->getReturnType() == voidType());    
+    assert(stencilCall->arg_size() == 5);
+
+    auto stencil = getArg(stencilCall, 0);
+    auto value = getArg(stencilCall, 1);
+    auto ind0 = getArg(stencilCall, 2);
+    auto ind1 = getArg(stencilCall, 3);
+    auto ind2 = getArg(stencilCall, 4);
+
+    assert(PointerType::classof(stencil->getType()));    
+
+    auto stencilTp = dyn_cast<PointerType>(stencil->getType())->getElementType();
+    
+    int dataWidth = getValueBitWidth(value);
+
     auto eb = mkBB("entry_block", stencilCall);
     IRBuilder<> b(eb);
-    b.CreateRet(nullptr);
+    auto writeValueF = writePort("set_value", dataWidth, stencilTp);
+    auto setRowF = writePort("set_row", clog2(dataWidth), stencilTp);
+    auto setColF = writePort("set_col", clog2(dataWidth), stencilTp);
+    auto setEnF = writePort("set_en", 1, stencilTp);
+
+    auto setRow = b.CreateCall(setRowF, {stencil, ind0});
+    auto setCol = b.CreateCall(setColF, {stencil, ind1});
+    auto setEn = b.CreateCall(setEnF, {stencil, mkInt(1, 1)});    
+    //auto setValue = b.CreateCall(writeValueF, {stencil, value});
+    auto setValue = b.CreateCall(writeValueF, {stencil, mkInt(28, dataWidth)});
+
+    auto ret = b.CreateRet(nullptr);
+    
+    exec.add(instrStart(setCol) == instrStart(setRow));
+    exec.add(instrStart(setCol) == instrStart(setEn));    
+    exec.add(instrEnd(setCol) == instrStart(setValue));
+    exec.add(instrEnd(ret) == instrStart(setValue) + 1);
+
+    addDataConstraints(stencilCall, exec);
   }
 
   void implementStencilGet(llvm::Function* stencilCall,
                            ExecutionConstraints& exec) {
+    assert(stencilCall->arg_size() == 4);
+
+    auto stencil = getArg(stencilCall, 0);
+    auto ind0 = getArg(stencilCall, 1);
+    auto ind1 = getArg(stencilCall, 2);
+    auto ind2 = getArg(stencilCall, 3);
+
+    assert(PointerType::classof(stencil->getType()));    
+
+    auto stencilTp = dyn_cast<PointerType>(stencil->getType())->getElementType();
+    
+    int dataWidth = 16;
+
     auto eb = mkBB("entry_block", stencilCall);
     IRBuilder<> b(eb);
+    auto readValueF = readPort("get_value", dataWidth, stencilTp);
+    auto setRowF = writePort("get_row", clog2(dataWidth), stencilTp);
+    auto setColF = writePort("get_col", clog2(dataWidth), stencilTp);
 
-    int width = 16;
-    b.CreateRet(mkInt(123, width));
+    auto setRow = b.CreateCall(setRowF, {stencil, ind0});
+    auto setCol = b.CreateCall(setColF, {stencil, ind1});
+    auto readValue = b.CreateCall(readValueF, {stencil});
+
+    auto ret = b.CreateRet(readValue);
+    
+    exec.add(instrStart(setCol) == instrStart(setRow));
+    exec.add(instrEnd(ret) == instrStart(readValue));
+    exec.add(instrEnd(ret) == instrStart(setRow));
+    addDataConstraints(stencilCall, exec);
   }
 
   void implementStencilConstructor(llvm::Function* stencilCall,

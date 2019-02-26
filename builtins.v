@@ -20,6 +20,9 @@ endmodule
 module shlOp(input [WIDTH - 1:0]  in0, input [$clog2(WIDTH) - 1 : 0] in1, output [WIDTH - 1:0] out);
 
    parameter WIDTH = 32;
+   always @(*) begin
+      $display("shl in0 = %d, in1 = %d, result = %d", in0, in1, out);
+   end
    assign out = in0 << in1;
 endmodule
 
@@ -1450,13 +1453,22 @@ module PackedStencil(input clk);
 endmodule // PackedStencil
 
 module AxiPackedStencil(input clk,
-                        output [DATA_WIDTH - 1 : 0] data_bus,
-                        output                      last_bus,
+                        output [DATA_WIDTH - 1 : 0]        data_bus,
+                        output                             last_bus,
 
-                        input [DATA_WIDTH - 1 : 0]  in_data_bus,
-                        input                       in_last_bus,
+                        input [DATA_WIDTH - 1 : 0]         in_data_bus,
+                        input                              in_last_bus,
 
-                        input                       set_data);
+                        input                              set_data,
+
+                        input [VALUE_WIDTH - 1 : 0]        set_value,
+                        input [$clog2(DATA_WIDTH) - 1 : 0] set_row,
+                        input [$clog2(DATA_WIDTH) - 1 : 0] set_col,
+                        input                              set_en,
+
+                        output reg [VALUE_WIDTH - 1 : 0]   get_value,
+                        input [$clog2(DATA_WIDTH) - 1 : 0] get_row,
+                        input [$clog2(DATA_WIDTH) - 1 : 0] get_col);
 
    parameter VALUE_WIDTH = 16;
    parameter NROWS = 2;
@@ -1465,6 +1477,29 @@ module AxiPackedStencil(input clk,
 
    reg [DATA_WIDTH + 1 - 1 : 0]                     data;
 
+
+   always @(posedge clk) begin
+      if (set_en) begin
+         $display("set_row   = %d", get_row);      
+         $display("set_col   = %d", set_col);
+         $display("set_val   = %d", set_value);         
+         data[VALUE_WIDTH + 1 - 1 : 1] <= set_value;
+      end
+   end
+
+   integer                                          i;
+   integer                                          found;
+   // TODO: Fix this indexing problem. Should be a proper variable select
+   // and eventually should probably be another module
+   always @(*) begin
+      for (i = 0 ; i < NROWS*NCOLS; i=i+1) begin
+         if ((i == get_row)) begin
+            get_value = data[i*VALUE_WIDTH + 1 +: VALUE_WIDTH + 1];
+         end
+      end
+   end
+
+   
    always @(posedge clk) begin
       //$display("data_bus = %d", data_bus);
       
