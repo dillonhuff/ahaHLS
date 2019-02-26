@@ -4624,9 +4624,11 @@ namespace DHLS {
     emitVerilog("stencil_stream_rw", graph, hcs);
 
     map<llvm::Value*, int> layout = {};
-    // ArchOptions options;
     auto arch = buildMicroArchitecture(f, graph, layout, hcs);
-    
+
+    auto in = dyn_cast<Argument>(getArg(f, 0));
+    auto out = dyn_cast<Argument>(getArg(f, 1));    
+
     TestBenchSpec tb;
     map<string, int> testLayout = {};
     tb.memoryInit = {};
@@ -4635,10 +4637,18 @@ namespace DHLS {
     tb.maxCycles = 50;
     tb.name = "stencil_stream_rw";
     tb.useModSpecs = true;
-    // tb.settableWires.insert(in0Name + "_in_data");
-    // tb.settableWires.insert(in0Name + "_write_valid");
-    // tb.settableWires.insert(outName + "_read_valid");    
-    // map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
+    tb.settablePort(in, "in_data_bus");
+    tb.settablePort(in, "in_last_bus");    
+    tb.settablePort(in, "write_valid");
+    tb.settablePort(out, "read_valid");    
+    map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
+
+    tb.setArgPort(in, "in_data_bus", 2, "16'd28");
+    tb.setArgPort(in, "in_last_bus", 2, "1'b1");
+    tb.setArgPort(in, "write_valid", 2, "1'b1");    
+
+    tb.setArgPort(in, "write_valid", 3, "1'b0");
+    
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("stencil_stream_rw"));

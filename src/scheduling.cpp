@@ -2059,6 +2059,9 @@ namespace DHLS {
     modSpec.ports.insert({"data_bus", outputPort(dataBusWidth, "data_bus")});
     modSpec.ports.insert({"last_bus", outputPort(lastBusWidth, "last_bus")});
 
+    modSpec.ports.insert({"in_data_bus", outputPort(dataBusWidth, "in_data_bus")});
+    modSpec.ports.insert({"in_last_bus", outputPort(lastBusWidth, "in_last_bus")});
+    
     // Control ports
     modSpec.ports.insert({"write_valid", inputPort(1, "write_valid")});
     modSpec.ports.insert({"write_ready", outputPort(1, "write_ready")});

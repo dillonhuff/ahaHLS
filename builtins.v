@@ -1459,11 +1459,14 @@ module HLS_stream(input clk, input rst,
                   output [DATA_WIDTH - 1 : 0] data_bus,
                   output                      last_bus,
 
-                  input read_valid,
-                  output read_ready,
+                  input [DATA_WIDTH - 1 : 0] in_data_bus,
+                  input                      in_last_bus,
                   
-                  input write_valid,
-                  output write_ready);
+                  input                       read_valid,
+                  output                      read_ready,
+                  
+                  input                       write_valid,
+                  output                      write_ready);
 
    parameter VALUE_WIDTH = 16;
    parameter NROWS = 2;
@@ -1471,14 +1474,19 @@ module HLS_stream(input clk, input rst,
    parameter DATA_WIDTH = VALUE_WIDTH*NROWS*NCOLS;
    
 
+   wire [DATA_WIDTH + 1 - 1 : 0]              data_out;
+
+   assign last_bus = data_out[0];
+   assign data_bus = data_out[DATA_WIDTH + 1 - 1 : 1];
    // Holds 
-   fifo #(.WIDTH(DATA_WIDTH), .DEPTH(32))
+   fifo #(.WIDTH(DATA_WIDTH + 1), .DEPTH(32))
    stencil_stream(.clk(clk),
                   .rst(rst),
                   .read_ready(ready_ready),
                   .read_valid(read_valid),
                   .write_ready(write_ready),
-                  .write_valid(write_valid));
+                  .write_valid(write_valid),
+                  .in_data({in_data_bus, in_valid_bus}));
 
             // input [WIDTH - 1 : 0]  in_data,
             // output [WIDTH - 1 : 0] out_data);
