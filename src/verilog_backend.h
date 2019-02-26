@@ -157,6 +157,11 @@ namespace DHLS {
     }
 
     std::string inputWire(const std::string& name) const {
+      if (!dbhc::contains_key(name, portWires)) {
+        std::cout << "Error: No wire named " << name << std::endl;
+        assert(false);
+      }
+      
       auto n = dbhc::map_find(name, portWires).name;
       if (isExternal()) {
         return n + "_reg";

@@ -2059,8 +2059,8 @@ namespace DHLS {
     modSpec.ports.insert({"data_bus", outputPort(dataBusWidth, "data_bus")});
     modSpec.ports.insert({"last_bus", outputPort(lastBusWidth, "last_bus")});
 
-    modSpec.ports.insert({"in_data_bus", outputPort(dataBusWidth, "in_data_bus")});
-    modSpec.ports.insert({"in_last_bus", outputPort(lastBusWidth, "in_last_bus")});
+    modSpec.ports.insert({"in_data_bus", inputPort(dataBusWidth, "in_data_bus")});
+    modSpec.ports.insert({"in_last_bus", inputPort(lastBusWidth, "in_last_bus")});
     
     // Control ports
     modSpec.ports.insert({"write_valid", inputPort(1, "write_valid")});
@@ -2094,6 +2094,8 @@ namespace DHLS {
     modSpec.ports["in_data_bus"] = inputPort(width, "in_data_bus");
     modSpec.ports["in_last_bus"] = inputPort(1, "in_last_bus");
     modSpec.ports["set_data"] = inputPort(1, "set_data");
+    modSpec.ports["data_bus"] = outputPort(width, "data_bus");
+    modSpec.ports["last_bus"] = outputPort(1, "last_bus");
 
     modSpec.defaultValues["set_data"] = 0;
     
@@ -2136,16 +2138,26 @@ namespace DHLS {
     // TODO: Compute this from the input type
     int width = 16;
 
-    //auto writeDataF = writePort("in_data_bus", width, streamTp);
-    // auto writeLastF = writePort("in_last_bus", 1, streamTp);    
+    auto writeDataF = writePort("in_data_bus", width, streamTp);
+    auto writeLastF = writePort("in_last_bus", 1, streamTp);    
+
     auto readReadyF = readPort("write_ready", 1, streamTp);
     auto setValidF = writePort("write_valid", 1, streamTp);
     auto stallF = stallFunction();
+
+    auto readStencilDataF = readPort("data_bus", width, dataTp);
+    auto readStencilLastF = readPort("last_bus", 1, dataTp);    
 
     auto readReady = b.CreateCall(readReadyF, {stream});
     auto stallUntilReady = b.CreateCall(stallF, {readReady});
     auto setValid1 = b.CreateCall(setValidF, {stream, mkInt(1, 1)});
     auto setValid0 = b.CreateCall(setValidF, {stream, mkInt(0, 1)});
+
+    auto readStencilLast = b.CreateCall(readStencilLastF, {inDataPtr});
+    auto readStencilData = b.CreateCall(readStencilDataF, {inDataPtr});    
+
+    auto writeData = b.CreateCall(writeDataF, {stream, readStencilData});
+    auto writeLast = b.CreateCall(writeLastF, {stream, readStencilLast});    
     //auto data = b.CreateLoad(dataPtr);
     //auto writeValue = b.CreateCall(writeDataF, {out, data});
       
@@ -2153,7 +2165,12 @@ namespace DHLS {
     
     exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
     exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
-    // exec.addConstraint(instrStart(setValid1) == instrStart(writeValue));
+    exec.addConstraint(instrStart(setValid1) == instrStart(writeData));
+    exec.addConstraint(instrStart(setValid1) == instrStart(writeLast));
+
+    exec.addConstraint(instrStart(setValid1) == instrStart(readStencilData));
+    exec.addConstraint(instrStart(setValid1) == instrStart(readStencilLast));    
+    
     // exec.addConstraint(instrEnd(data) == instrStart(data));
     // exec.addConstraint(instrEnd(data) == instrStart(writeValue));    
     exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
