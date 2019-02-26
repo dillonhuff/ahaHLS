@@ -2238,5 +2238,27 @@ namespace DHLS {
     
     b.CreateRet(nullptr);
   }
+
+  void implementStencilSet(llvm::Function* stencilCall,
+                           ExecutionConstraints& exec) {
+    auto eb = mkBB("entry_block", stencilCall);
+    IRBuilder<> b(eb);
+    b.CreateRet(nullptr);
+  }
+
+  void implementStencilGet(llvm::Function* stencilCall,
+                           ExecutionConstraints& exec) {
+    auto eb = mkBB("entry_block", stencilCall);
+    IRBuilder<> b(eb);
+
+    int width = 16;
+    b.CreateRet(mkInt(123, width));
+  }
+
+  void implementStencilConstructor(llvm::Function* stencilCall,
+                                   ExecutionConstraints& exec) {
+    assert(false);
+  }
+  
   
 }

@@ -1466,7 +1466,7 @@ module AxiPackedStencil(input clk,
    reg [DATA_WIDTH + 1 - 1 : 0]                     data;
 
    always @(posedge clk) begin
-      //$display("set_data = %d", set_data);
+      $display("data_bus = %d", data_bus);
       
       if (set_data == 1) begin
          $display("Set AxiPackedStencil %d, %d to data", in_data_bus, in_last_bus);

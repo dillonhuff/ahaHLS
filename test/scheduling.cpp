@@ -4628,7 +4628,9 @@ namespace DHLS {
     
     InterfaceFunctions interfaces;
     interfaces.functionTemplates[string("write")] = implementStencilWrite;
-    interfaces.functionTemplates[string("read")] = implementStencilRead;    
+    interfaces.functionTemplates[string("read")] = implementStencilRead;
+    interfaces.functionTemplates[string("AxiPackedStencil_uint16_t_1_1_")] =
+      implementStencilConstructor;
     
     HardwareConstraints hcs = standardConstraints();
     hcs.typeSpecs["class.hls_stream_AxiPackedStencil_uint16_t_1_1__"] =
@@ -4641,9 +4643,11 @@ namespace DHLS {
       [](StructType* axiStencil) { return axiPackedStencilSpec(16, 1, 1); };
 
     ExecutionConstraints exec;
-    Instruction* readC = findCall(0, f->getEntryBlock());
-    Instruction* writeC = findCall(1, f->getEntryBlock());
-    exec.add(instrEnd(readC) < instrStart(writeC));
+    Instruction* c0 = findCall(0, f->getEntryBlock());
+    Instruction* c1 = findCall(1, f->getEntryBlock());
+    Instruction* c2 = findCall(2, f->getEntryBlock());    
+    exec.add(instrEnd(c0) < instrStart(c1));
+    exec.add(instrEnd(c1) < instrStart(c2));    
     set<BasicBlock*> toPipeline;
     Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
     STG graph = buildSTG(s, f);
@@ -4712,7 +4716,9 @@ namespace DHLS {
     InterfaceFunctions interfaces;
     interfaces.functionTemplates[string("write")] = implementStencilWrite;
     interfaces.functionTemplates[string("read")] = implementStencilRead;    
-    
+    interfaces.functionTemplates[string("set")] = implementStencilSet;
+    interfaces.functionTemplates[string("get")] = implementStencilGet;            
+
     HardwareConstraints hcs = standardConstraints();
     hcs.typeSpecs["class.hls_stream_AxiPackedStencil_uint16_t_1_1__"] =
       [](StructType* axiStencil) { return streamAxiPackedStencilSpec(16, 1, 1); };
@@ -4735,7 +4741,11 @@ namespace DHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    emitVerilog("stencil_mul_2", graph, hcs);
+    VerilogDebugInfo info;
+    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+
+    emitVerilog("stencil_mul_2", graph, hcs, info);
 
     map<llvm::Value*, int> layout = {};
     auto arch = buildMicroArchitecture(f, graph, layout, hcs);
@@ -4747,8 +4757,8 @@ namespace DHLS {
     map<string, int> testLayout = {};
     tb.memoryInit = {};
     tb.memoryExpected = {};
-    tb.runCycles = 40;
-    tb.maxCycles = 50;
+    tb.runCycles = 400;
+    tb.maxCycles = 500;
     tb.name = "stencil_mul_2";
     tb.useModSpecs = true;
     tb.settablePort(in, "in_data_bus");
@@ -4761,19 +4771,34 @@ namespace DHLS {
     tb.setArgPort(in, "write_valid", 0, "1'b0");        
     
     tb.setArgPort(in, "in_data_bus", 2, "16'd28");
-    tb.setArgPort(in, "in_last_bus", 2, "1'b1");
+    tb.setArgPort(in, "in_last_bus", 2, "1'b0");
     tb.setArgPort(in, "write_valid", 2, "1'b1");    
 
-    tb.setArgPort(in, "write_valid", 3, "1'b0");
+    tb.setArgPort(in, "in_data_bus", 3, "16'd10");
+    tb.setArgPort(in, "in_last_bus", 3, "1'b0");
+    tb.setArgPort(in, "write_valid", 3, "1'b1");    
 
-    tb.setArgPort(out, "read_valid", 20, "1'b1");
-    tb.setArgPort(out, "read_valid", 21, "1'b0");
+    tb.setArgPort(in, "in_data_bus", 4, "16'd7");
+    tb.setArgPort(in, "in_last_bus", 4, "1'b0");
+    tb.setArgPort(in, "write_valid", 4, "1'b1");    
 
-    map_insert(tb.actionsOnCycles, 21, assertString("valid === 1"));
-    map_insert(tb.actionsOnCycles, 21, assertString(string(out->getName()) + "_data_bus === 16'd28"));
+    tb.setArgPort(in, "in_data_bus", 5, "16'd3");
+    tb.setArgPort(in, "in_last_bus", 5, "1'b1");
+    tb.setArgPort(in, "write_valid", 5, "1'b1");    
+    
+    tb.setArgPort(in, "write_valid", 6, "1'b0");
+
+    tb.setArgPort(out, "read_valid", 402, "1'b1");
+    tb.setArgPort(out, "read_valid", 403, "1'b0");
+
+    //map_insert(tb.actionsOnCycles, 403, string("$display(\"global_state_dbg == %d\", global_state);"));
+    
+    map_insert(tb.actionsOnCycles, 350, assertString("valid === 1"));
+    map_insert(tb.actionsOnCycles, 403, assertString("valid === 1"));
+    map_insert(tb.actionsOnCycles, 403, assertString(string(out->getName()) + "_data_bus === 16'd28"));
     emitVerilogTestBench(tb, arch, testLayout);
     
-    REQUIRE(runIVerilogTB("stencil_stream_mul_2"));
+    REQUIRE(runIVerilogTB("stencil_mul_2"));
   }
   
   // Now there is an issue with port accesses. The operator(x, y) function that I use

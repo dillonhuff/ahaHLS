@@ -1579,7 +1579,16 @@ namespace DHLS {
 
   void implementStencilRead(llvm::Function* stencilCall,
                             ExecutionConstraints& exec);
-  
+
+  void implementStencilSet(llvm::Function* stencilCall,
+                           ExecutionConstraints& exec);
+
+  void implementStencilGet(llvm::Function* stencilCall,
+                           ExecutionConstraints& exec);
+
+  void implementStencilConstructor(llvm::Function* stencilCall,
+                                   ExecutionConstraints& exec);
+
 }
 
 
