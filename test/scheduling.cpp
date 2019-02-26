@@ -4648,7 +4648,12 @@ namespace DHLS {
     tb.setArgPort(in, "write_valid", 2, "1'b1");    
 
     tb.setArgPort(in, "write_valid", 3, "1'b0");
-    
+
+    tb.setArgPort(out, "read_valid", 20, "1'b1");
+    tb.setArgPort(out, "read_valid", 21, "1'b0");
+
+    map_insert(tb.actionsOnCycles, 21, assertString("valid === 1"));
+    map_insert(tb.actionsOnCycles, 21, assertString(string(out->getName()) + "_data_bus === 16'd28"));
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("stencil_stream_rw"));
