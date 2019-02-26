@@ -11,9 +11,15 @@ class AxiPackedStencil_uint16_t_1_1_ {
 	uint16_t other_elems[1*1 + 20];
 	uint16_t elems[1*1];
   public:
-	void set_last(const int);
+
 	AxiPackedStencil_uint16_t_1_1_();
-	uint16_t operator()(const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	AxiPackedStencil_uint16_t_1_1_(const AxiPackedStencil_uint16_t_1_1_&);
+  //AxiPackedStencil_uint16_t_1_1_(const AxiPackedStencil_uint16_t_1_1_&&);
+  //AxiPackedStencil_uint16_t_1_1_& operator=(const AxiPackedStencil_uint16_t_1_1_&);
+  
+	void set_last(const int);
+  //AxiPackedStencil_uint16_t_1_1_();
+  //uint16_t operator()(const size_t e0=0, const size_t e1=0, const size_t e2=0);
 	uint16_t get(const size_t e0=0, const size_t e1=0, const size_t e2=0);  
 	void set(uint16_t, const size_t e0=0, const size_t e1=0, const size_t e2=0);  
 	operator PackedStencil_uint16_t_1_1_();
