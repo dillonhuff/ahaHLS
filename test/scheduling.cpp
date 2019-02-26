@@ -4686,7 +4686,7 @@ namespace DHLS {
     tb.setArgPort(out, "read_valid", 21, "1'b0");
 
     map_insert(tb.actionsOnCycles, 21, assertString("valid === 1"));
-    //map_insert(tb.actionsOnCycles, 21, assertString(string(out->getName()) + "_data_bus === 16'd28"));
+    map_insert(tb.actionsOnCycles, 21, assertString(string(out->getName()) + "_data_bus === 16'd28"));
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("stencil_stream_rw"));

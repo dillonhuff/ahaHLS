@@ -1479,9 +1479,9 @@ module HLS_stream(input clk, input rst,
       end
    end   
 
-   always @(posedge clk) begin
-      $display("read ready = %d", read_ready);
-   end   
+   // always @(posedge clk) begin
+   //    $display("read ready = %d", read_ready);
+   // end   
    
    wire [DATA_WIDTH + 1 - 1 : 0]              data_out;
 
