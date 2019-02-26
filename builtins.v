@@ -1450,16 +1450,31 @@ module PackedStencil(input clk);
 endmodule // PackedStencil
 
 module AxiPackedStencil(input clk,
-                  output [DATA_WIDTH - 1 : 0] data_bus,
-                  output                      last_bus,
+                        output [DATA_WIDTH - 1 : 0] data_bus,
+                        output                      last_bus,
 
-                  input [DATA_WIDTH - 1 : 0] in_data_bus,
-                  input                      in_last_bus);
+                        input [DATA_WIDTH - 1 : 0]  in_data_bus,
+                        input                       in_last_bus,
+
+                        input                       set_data);
 
    parameter VALUE_WIDTH = 16;
    parameter NROWS = 2;
    parameter NCOLS = 2;
    parameter DATA_WIDTH = VALUE_WIDTH*NROWS*NCOLS;
+
+   reg [DATA_WIDTH + 1 - 1 : 0]                     data;
+
+   always @(posedge clk) begin
+      if (set_data) begin
+         $display("AxiPackedStencil %d, %d to data", in_data_bus, in_last_bus);
+         
+         data <= {in_data_bus, in_last_bus};
+      end
+   end
+
+   assign last_bus = in_data_bus[0];
+   assign data_bus = in_data_bus[DATA_WIDTH + 1 - 1 : 1];
    
 endmodule // AxiPackedStencil
 

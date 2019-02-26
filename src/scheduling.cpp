@@ -2087,7 +2087,16 @@ namespace DHLS {
   ModuleSpec axiPackedStencilSpec(const int valueWidth, const int nRows, const int nCols) {
     ModuleSpec modSpec;
     modSpec.name = "AxiPackedStencil";
-    modSpec.hasClock = true;    
+    modSpec.hasClock = true;
+
+    // TODO: Compute this
+    int width = 16;
+    modSpec.ports["in_data_bus"] = inputPort(width, "in_data_bus");
+    modSpec.ports["in_last_bus"] = inputPort(1, "in_last_bus");
+    modSpec.ports["set_data"] = inputPort(1, "set_data");
+
+    modSpec.defaultValues["set_data"] = 0;
+    
     return modSpec;
   }
 
@@ -2134,8 +2143,8 @@ namespace DHLS {
 
     //cout << "Data width of " << typeString(dataPtrTp) << " = " << width << endl;
 
-    auto writeDataF = writePort("in_data_bus", width, streamTp);
-    auto writeLastF = writePort("in_last_bus", 1, streamTp);    
+    //auto writeDataF = writePort("in_data_bus", width, streamTp);
+    // auto writeLastF = writePort("in_last_bus", 1, streamTp);    
     auto readReadyF = readPort("write_ready", 1, streamTp);
     auto setValidF = writePort("write_valid", 1, streamTp);
     auto stallF = stallFunction();
@@ -2177,8 +2186,13 @@ namespace DHLS {
     // TODO: Compute this from the input type
     int width = 16;
 
-    auto readDataF = readPort("in_data_bus", width, streamTp);
-    auto readLastF = readPort("in_last_bus", 1, streamTp);    
+    auto readDataF = readPort("data_bus", width, streamTp);
+    auto readLastF = readPort("last_bus", 1, streamTp);
+
+    auto writeDataToStencilF = writePort("in_data_bus", width, dataTp);
+    auto writeLastToStencilF = writePort("in_last_bus", 1, dataTp);
+    auto setStencilF = writePort("set_data", 1, dataTp);        
+    
     auto readReadyF = readPort("read_ready", 1, streamTp);
     auto setValidF = writePort("read_valid", 1, streamTp);
     auto stallF = stallFunction();
@@ -2192,13 +2206,24 @@ namespace DHLS {
     // 1. Read data out of ready-valid channel ports
     // 2. Write it to the target stencil
     auto readData = b.CreateCall(readDataF, {stream});
-    auto readLast = b.CreateCall(readLastF, {stream});    
+    auto readLast = b.CreateCall(readLastF, {stream});
+    auto writeDataToStencil = b.CreateCall(writeDataToStencilF, {inDataPtr, readData});
+    auto writeLastToStencil = b.CreateCall(writeLastToStencilF, {inDataPtr, readLast});
+    auto setStencil = b.CreateCall(setStencilF, {inDataPtr, mkInt(1, 1)});
       
     b.CreateRet(nullptr);
     
     exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
     exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
     exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+
+    exec.add(instrStart(setValid0) == instrStart(readData));
+    exec.add(instrStart(setValid0) == instrStart(readLast));    
+
+    exec.add(instrStart(setValid0) == instrStart(writeDataToStencil));
+    exec.add(instrStart(setValid0) == instrStart(writeLastToStencil));
+    exec.add(instrStart(setValid0) == instrStart(setStencil));        
+
     addDataConstraints(stencilCall, exec);
     
     b.CreateRet(nullptr);
