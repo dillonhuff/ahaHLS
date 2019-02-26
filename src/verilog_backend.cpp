@@ -477,6 +477,9 @@ namespace DHLS {
     map<string, Wire> outWires;
     map<string, int> defaults;
     //cout << "Creating a unit for " << valueString(instr) << endl;
+
+    bool hasRst = false; //modSpec.hasReset();
+    bool hasClock = false; //modSpec.isSequential();        
     
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
       return createMemUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
@@ -602,6 +605,8 @@ namespace DHLS {
         modName = modSpec.name;
         unitName = fuPtr->getName();
         defaults = modSpec.defaultValues;
+        hasRst = modSpec.hasReset();
+        hasClock = modSpec.isSequential();        
 
         if (Argument::classof(fuPtr) && (unitName == "")) {
           int i = 0;
@@ -661,7 +666,12 @@ namespace DHLS {
       assert(false);
     }
 
-    FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
+    ModuleSpec modSpec = {modParams, modName, {}, defaults};
+    modSpec.hasRst = hasRst;
+    modSpec.hasClock = hasClock;
+
+
+    FunctionalUnit unit = {modSpec, unitName, wiring, outWires, isExternal};
 
     return unit;
   }
