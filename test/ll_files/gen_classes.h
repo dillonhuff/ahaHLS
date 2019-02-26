@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include <vector>
+#include <cstdlib>
 
 class AxiPackedStencil_uint16_t_1_1_;
 

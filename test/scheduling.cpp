@@ -4696,6 +4696,24 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("stencil_stream_rw"));
   }
 
+  void sequentialCalls(llvm::Function* f,
+                       ExecutionConstraints& exec) {
+    for (auto& bb : f->getBasicBlockList()) {
+      Instruction* first = nullptr;
+      Instruction* second = nullptr;
+      for (auto& instrP : bb) {
+        auto instr = &instrP;
+        if (CallInst::classof(instr)) {
+          first = second;
+          second = instr;
+          if ((second != nullptr) && (first != nullptr)) {
+            exec.addConstraint(instrEnd(first) < instrStart(second));
+          }
+        }
+      }
+    }
+  }
+  
   TEST_CASE("Read in stencil stream and multiply by 2") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -4732,6 +4750,7 @@ namespace DHLS {
       [](StructType* axiStencil) { return axiPackedStencilSpec(16, 1, 1); };
 
     ExecutionConstraints exec;
+    sequentialCalls(f, exec);
     // Note: Need to impose order constraints on all calls to reads / writes
     // Instruction* readC = findCall(0, f->getEntryBlock());
     // Instruction* writeC = findCall(1, f->getEntryBlock());
@@ -4793,8 +4812,6 @@ namespace DHLS {
     tb.setArgPort(out, "read_valid", 402, "1'b1");
     tb.setArgPort(out, "read_valid", 403, "1'b0");
 
-    //map_insert(tb.actionsOnCycles, 403, string("$display(\"global_state_dbg == %d\", global_state);"));
-    
     map_insert(tb.actionsOnCycles, 350, assertString("valid === 1"));
     map_insert(tb.actionsOnCycles, 403, assertString("valid === 1"));
     map_insert(tb.actionsOnCycles, 403, assertString(string(out->getName()) + "_data_bus === 16'd28"));
