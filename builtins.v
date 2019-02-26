@@ -1472,8 +1472,8 @@ module AxiPackedStencil(input clk,
       end
    end
 
-   assign last_bus = in_data_bus[0];
-   assign data_bus = in_data_bus[DATA_WIDTH + 1 - 1 : 1];
+   assign last_bus = data[0];
+   assign data_bus = data[DATA_WIDTH + 1 - 1 : 1];
    
 endmodule // AxiPackedStencil
 
@@ -1501,6 +1501,8 @@ module HLS_stream(input clk, input rst,
    always @(posedge clk) begin
       if (write_valid) begin
          $display("Writing %d", {in_data_bus, in_last_bus});
+         $display("in_data_bus == %d", in_data_bus);
+         $display("in_last_bus == %d", in_last_bus);         
       end
    end   
 
