@@ -4950,6 +4950,8 @@ namespace DHLS {
     interfaces.functionTemplates[string("set_last")] = implementStencilSetLast;
     interfaces.functionTemplates[string("AxiPackedStencil_uint16_t_1_1_")] =
       implementStencilConstructor;
+    interfaces.functionTemplates[string("copy")] =
+      implementStencilConstructor;
 
     HardwareConstraints hcs = standardConstraints();
     hcs.typeSpecs["class.hls_stream_AxiPackedStencil_uint16_t_1_1__"] =

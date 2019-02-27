@@ -35,7 +35,8 @@ hls_stream_AxiPackedStencil_uint16_t_1_1__ &arg_1) {
           _hw_input_stencil.set(0, 0, 0, 0);
           // produce hw_input.stencil
           // reading stream hw_input.stencil.stream
-          _hw_input_stencil = _hw_input_stencil_stream_to_mult.read();
+          //_hw_input_stencil = _hw_input_stencil_stream_to_mult.read();
+          _hw_input_stencil.copy(_hw_input_stencil_stream_to_mult.read());
 
           // consume hw_input.stencil
           // realize stencil or stencil update mult.stencil
