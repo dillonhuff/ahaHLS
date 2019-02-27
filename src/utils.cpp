@@ -39,7 +39,7 @@ namespace DHLS {
   int getValueBitWidth(Value* const instr) {
     Type* tp = instr->getType();
 
-    cout << "Getting bit width for " << valueString(instr) << endl;
+    //cout << "Getting bit width for " << valueString(instr) << endl;
     
     return getTypeBitWidth(tp);
   }

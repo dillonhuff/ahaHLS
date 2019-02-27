@@ -440,7 +440,7 @@ namespace DHLS {
 
     ModuleSpec mSpec = hcs.getArgumentSpec(instr);
 
-    cout << "Module spec for " << valueString(instr) << " = " << mSpec << endl;
+    //cout << "Module spec for " << valueString(instr) << " = " << mSpec << endl;
     //map<string, string> modParams;
     bool isExternal = false;
 
@@ -1469,7 +1469,7 @@ namespace DHLS {
 
             if (isBuiltinStallCall(instr)) {
 
-              cout << "Getting builtin stall cond for " << instr->getOperand(0) << endl;
+              //cout << "Getting builtin stall cond for " << instr->getOperand(0) << endl;
               string cond = outputName(instr->getOperand(0),
                                        pos,
                                        arch);
@@ -1671,7 +1671,7 @@ namespace DHLS {
             auto pos = position(state, instr);
             auto assigns = instructionPortAssignments(pos, arch);
             for (auto asg : assigns) {
-              cout << "Using port " << asg.first << " in state " << state << endl;
+              //cout << "Using port " << asg.first << " in state " << state << endl;
               usedPorts.insert(asg.first);
             }
             instructionVerilog(out, pos, arch);
