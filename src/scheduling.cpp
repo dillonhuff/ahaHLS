@@ -54,7 +54,8 @@ namespace DHLS {
 
   z3::expr toZ3(z3::context& c,
                 const LinearExpression& expr);
-  
+
+  // This is the real schedule function
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
                             std::set<BasicBlock*>& toPipeline,
