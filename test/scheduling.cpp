@@ -4801,6 +4801,111 @@ namespace DHLS {
     
     REQUIRE(runIVerilogTB("stencil_stream_mul"));
   }
+
+  TEST_CASE("Read in stencils and copy them to another stencil") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "stencil_copy");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "stencil_copy");
+    getArg(f, 0)->setName("arg_0");
+    getArg(f, 1)->setName("arg_1");
+
+    cout << "llvm function" << endl;
+    cout << valueString(f) << endl;
+
+    deleteLLVMLifetimeCalls(f);
+    
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("write")] = implementStencilWrite;
+    interfaces.functionTemplates[string("read")] = implementStencilRead;    
+    interfaces.functionTemplates[string("set")] = implementStencilSet;
+    interfaces.functionTemplates[string("get")] = implementStencilGet;            
+    interfaces.functionTemplates[string("set_last")] = implementStencilSetLast;
+    interfaces.functionTemplates[string("AxiPackedStencil_uint16_t_1_1_")] =
+      implementStencilConstructor;
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.typeSpecs["class.hls_stream_AxiPackedStencil_uint16_t_1_1__"] =
+      [](StructType* axiStencil) { return streamAxiPackedStencilSpec(16, 1, 1); };
+    hcs.typeSpecs["class.Stencil_uint16_t_1_1_"] =
+      [](StructType* axiStencil) { return stencilSpec(16, 1, 1); };
+    hcs.typeSpecs["class.PackedStencil_uint16_t_1_1_"] =
+      [](StructType* axiStencil) { return packedStencilSpec(16, 1, 1); };
+    hcs.typeSpecs["class.AxiPackedStencil_uint16_t_1_1_"] =
+      [](StructType* axiStencil) { return axiPackedStencilSpec(16, 1, 1); };
+
+    ExecutionConstraints exec;
+    sequentialCalls(f, exec);
+
+    set<BasicBlock*> toPipeline;
+    Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
+    STG graph = buildSTG(s, f);
+    
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    VerilogDebugInfo info;
+    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+
+    emitVerilog("stencil_copy", graph, hcs, info);
+
+    map<llvm::Value*, int> layout = {};
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+
+    auto in = dyn_cast<Argument>(getArg(f, 0));
+    auto out = dyn_cast<Argument>(getArg(f, 1));    
+
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 400;
+    tb.maxCycles = 500;
+    tb.name = "stencil_copy";
+    tb.useModSpecs = true;
+    tb.settablePort(in, "in_data_bus");
+    tb.settablePort(in, "in_last_bus");    
+    tb.settablePort(in, "write_valid");
+    tb.settablePort(out, "read_valid");    
+
+    map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+    tb.setArgPort(out, "read_valid", 0, "1'b0");
+    tb.setArgPort(in, "write_valid", 0, "1'b0");        
+    
+    tb.setArgPort(in, "in_data_bus", 2, "16'd28");
+    tb.setArgPort(in, "in_last_bus", 2, "1'b0");
+    tb.setArgPort(in, "write_valid", 2, "1'b1");    
+
+    tb.setArgPort(in, "in_data_bus", 3, "16'd10");
+    tb.setArgPort(in, "in_last_bus", 3, "1'b0");
+    tb.setArgPort(in, "write_valid", 3, "1'b1");    
+
+    tb.setArgPort(in, "in_data_bus", 4, "16'd7");
+    tb.setArgPort(in, "in_last_bus", 4, "1'b0");
+    tb.setArgPort(in, "write_valid", 4, "1'b1");    
+
+    tb.setArgPort(in, "in_data_bus", 5, "16'd3");
+    tb.setArgPort(in, "in_last_bus", 5, "1'b1");
+    tb.setArgPort(in, "write_valid", 5, "1'b1");    
+    
+    tb.setArgPort(in, "write_valid", 6, "1'b0");
+
+    tb.setArgPort(out, "read_valid", 402, "1'b1");
+    tb.setArgPort(out, "read_valid", 403, "1'b0");
+
+    map_insert(tb.actionsOnCycles, 350, assertString("valid === 1"));
+
+    map_insert(tb.actionsOnCycles, 403, assertString("valid === 1"));
+    map_insert(tb.actionsOnCycles, 403, assertString(string(out->getName()) + "_data_bus === 16'd56"));
+    emitVerilogTestBench(tb, arch, testLayout);
+    
+    REQUIRE(runIVerilogTB("stencil_copy"));
+  }
   
   TEST_CASE("Read in stencil stream and multiply by 2") {
     SMDiagnostic Err;
@@ -4900,7 +5005,7 @@ namespace DHLS {
 
     map_insert(tb.actionsOnCycles, 350, assertString("valid === 1"));
     map_insert(tb.actionsOnCycles, 403, assertString("valid === 1"));
-    map_insert(tb.actionsOnCycles, 403, assertString(string(out->getName()) + "_data_bus === 16'd28"));
+    map_insert(tb.actionsOnCycles, 403, assertString(string(out->getName()) + "_data_bus === 16'd56"));
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("stencil_mul_2"));
