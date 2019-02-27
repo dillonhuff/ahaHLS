@@ -5213,7 +5213,6 @@ namespace DHLS {
     
     map_insert(tb.actionsOnCycles, 350, assertString("valid === 1"));
     map_insert(tb.actionsOnCycles, 403, assertString("valid === 1"));
-    //map_insert(tb.actionsOnCycles, 403, assertString(string(out->getName()) + "_data_bus === 16'd56"));
 
     emitVerilogTestBench(tb, arch, testLayout);
     

@@ -1,4 +1,6 @@
-`define assert(signal, value) if ((signal) !== (value)) begin $display("ASSERTION FAILED in %m: signal != value"); $finish(1); end
+`define assert(signal, value)
+
+//if ((signal) !== (value)) begin $display("ASSERTION FAILED in %m: signal != value"); $finish(1); end
 
 module load();
 endmodule // load
@@ -21,7 +23,7 @@ module shlOp(input [WIDTH - 1:0]  in0, input [$clog2(WIDTH) - 1 : 0] in1, output
 
    parameter WIDTH = 32;
    always @(*) begin
-      $display("shl in0 = %d, in1 = %d, result = %d", in0, in1, out);
+      //$display("shl in0 = %d, in1 = %d, result = %d", in0, in1, out);
    end
    assign out = in0 << in1;
 endmodule
@@ -210,11 +212,11 @@ module axi_write_handler(input clk,
          s_axil_wvalid <= 0;
          s_axil_awvalid <= 0;
 
-         $display("Reset");
+         //$display("Reset");
          
       end else if (start_write) begin
 
-         $display("starting write to %d", write_addr);
+         //$display("starting write to %d", write_addr);
          
          s_axil_wvalid <= 1;
          s_axil_awvalid <= 1;
@@ -226,8 +228,8 @@ module axi_write_handler(input clk,
          valid_reg <= 0;
 
       end else if (s_axil_bvalid && (!s_axil_bresp)) begin
-         $display("s_axil_bvalid = %d", s_axil_bvalid);
-         $display("write is done and valid");
+         //$display("s_axil_bvalid = %d", s_axil_bvalid);
+         //$display("write is done and valid");
          
          ready_reg <= 1;
          valid_reg <= 1;
@@ -265,11 +267,11 @@ module axi_read_handler(input clk,
    parameter STRB_WIDTH = (DATA_WIDTH/8);
 
    always @(posedge clk) begin
-      $display("&&&&&&");
-      $display("s_axil_rvalid   === %d", s_axil_rvalid);
-      $display("s_axil_rresp    === %d", s_axil_rresp);
-      $display("s_axil_arready  === %d", s_axil_arready);      
-      $display("======");
+      // $display("&&&&&&");
+      // $display("s_axil_rvalid   === %d", s_axil_rvalid);
+      // $display("s_axil_rresp    === %d", s_axil_rresp);
+      // $display("s_axil_arready  === %d", s_axil_arready);      
+      // $display("======");
 
       if (rst) begin
          ready <= 1;
@@ -278,7 +280,7 @@ module axi_read_handler(input clk,
          s_axil_rready <= 0;
          
       end else if (start_read) begin
-         $display("starting read to %d", read_addr);
+         //$display("starting read to %d", read_addr);
          
          valid <= 0;
          ready <= 0;
@@ -288,7 +290,7 @@ module axi_read_handler(input clk,
          s_axil_araddr <= {read_addr, 2'b0};
          
       end else if (s_axil_arready && s_axil_rvalid && (s_axil_rresp == 0)) begin
-         $display("Setting read output valid, data = %d", s_axil_rdata);
+         //$display("Setting read output valid, data = %d", s_axil_rdata);
          
          read_data <= s_axil_rdata;
          valid <= 1;
@@ -320,15 +322,15 @@ module axi_stall_manager(input clk,
          writing <= 0;
       end else begin
 
-         $display("start write  = %d", start_write);
-         $display("writing      = %d", writing);         
-         $display("should stall = %d", should_stall);         
+         // $display("start write  = %d", start_write);
+         // $display("writing      = %d", writing);         
+         // $display("should stall = %d", should_stall);         
          if (start_read) begin
             reading <= 1;
          end
 
          if (start_write) begin
-            $display("writing...");
+//            $display("writing...");
             writing <= 1;
          end
 
@@ -337,7 +339,7 @@ module axi_stall_manager(input clk,
          end
          
          if (write_finished) begin
-            $display("write finished");
+//            $display("write finished");
 
             writing <= 0;
          end
@@ -396,8 +398,8 @@ module fifo(input clk,
       if (!rst) begin
          if (write_valid) begin
 
-            $display("writing %d to address %d", in_data, write_addr);
-            $display("write_addr = %b, next_write_addr = %b, depth = %b", write_addr, next_write_addr, DEPTH);            
+//            $display("writing %d to address %d", in_data, write_addr);
+//            $display("write_addr = %b, next_write_addr = %b, depth = %b", write_addr, next_write_addr, DEPTH);            
             
             `assert(write_ready, 1'd1)
 
@@ -419,13 +421,13 @@ module fifo(input clk,
          if (read_valid) begin
             `assert(read_ready, 1'd1)
 
-            $display("reading %d, from address %d", ram[read_addr], read_addr);            
+//            $display("reading %d, from address %d", ram[read_addr], read_addr);            
 
             // Wraparound
             read_addr <= next_read_addr;
 
             if (!empty && (next_read_addr == write_addr) && !write_valid) begin
-               $display("FIFO empty: next_read_addr = %d, write_addr = %d", next_read_addr, write_addr);
+//               $display("FIFO empty: next_read_addr = %d, write_addr = %d", next_read_addr, write_addr);
                empty <= 1;
             end
          end
@@ -456,7 +458,7 @@ module fifo(input clk,
       if (rst) begin
          empty <= 1;
 
-         $display("reseting");
+//         $display("reseting");
          write_addr <= 0;
          read_addr <= 0;
 
@@ -489,7 +491,7 @@ module phi( last_block, s, in, out);
       end
     end
     if (found == 0) begin
-      $display("Error: last_block: %b not in s : %b",last_block, s);
+//      $display("Error: last_block: %b not in s : %b",last_block, s);
       out_reg <= {{WIDTH}{1'bx}};
     end
   end
@@ -1488,9 +1490,9 @@ module AxiPackedStencil(input clk,
 
    always @(posedge clk) begin
       if (set_en) begin
-         $display("set_row   = %d", get_row);      
-         $display("set_col   = %d", set_col);
-         $display("set_val   = %d", set_value);         
+         // $display("set_row   = %d", get_row);      
+         // $display("set_col   = %d", set_col);
+         // $display("set_val   = %d", set_value);         
          data[VALUE_WIDTH + 1 - 1 : 1] <= set_value;
       end
    end
@@ -1501,7 +1503,7 @@ module AxiPackedStencil(input clk,
    // and eventually should probably be another module
    always @(*) begin
       get_value = data[VALUE_WIDTH + 1 - 1 : 1];
-      $display("get_value = %d", get_value);
+//      $display("get_value = %d", get_value);
       
       
       // for (i = 0 ; i < NROWS*NCOLS; i=i+1) begin
@@ -1516,7 +1518,7 @@ module AxiPackedStencil(input clk,
       //$display("data_bus = %d", data_bus);
       
       if (set_data == 1) begin
-         $display("Set AxiPackedStencil %d, %d to data", in_data_bus, in_last_bus);
+         //$display("Set AxiPackedStencil %d, %d to data", in_data_bus, in_last_bus);
          data <= {in_data_bus, in_last_bus};
       end
    end
@@ -1549,9 +1551,9 @@ module HLS_stream(input clk, input rst,
 
    always @(posedge clk) begin
       if (write_valid) begin
-         $display("Writing %d", {in_data_bus, in_last_bus});
-         $display("in_data_bus == %d", in_data_bus);
-         $display("in_last_bus == %d", in_last_bus);         
+         // $display("Writing %d", {in_data_bus, in_last_bus});
+         // $display("in_data_bus == %d", in_data_bus);
+         // $display("in_last_bus == %d", in_last_bus);         
       end
    end   
 
