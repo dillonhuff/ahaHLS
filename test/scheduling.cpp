@@ -38,6 +38,7 @@ namespace DHLS {
           return &f;
         }
       }
+
     }
 
     assert(false);
@@ -4714,6 +4715,93 @@ namespace DHLS {
     }
   }
   
+  TEST_CASE("Read mult by 2 and write from stencil stream") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "stencil_stream_mul");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "stencil_stream_mul");
+    getArg(f, 0)->setName("in");
+    getArg(f, 1)->setName("out");
+
+    cout << "llvm function" << endl;
+    cout << valueString(f) << endl;
+
+    deleteLLVMLifetimeCalls(f);
+
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("write")] = implementStencilWrite;
+    interfaces.functionTemplates[string("read")] = implementStencilRead;    
+    interfaces.functionTemplates[string("set")] = implementStencilSet;
+    interfaces.functionTemplates[string("get")] = implementStencilGet;            
+    interfaces.functionTemplates[string("set_last")] = implementStencilSetLast;
+    interfaces.functionTemplates[string("AxiPackedStencil_uint16_t_1_1_")] =
+      implementStencilConstructor;
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.typeSpecs["class.hls_stream_AxiPackedStencil_uint16_t_1_1__"] =
+      [](StructType* axiStencil) { return streamAxiPackedStencilSpec(16, 1, 1); };
+    hcs.typeSpecs["class.Stencil_uint16_t_1_1_"] =
+      [](StructType* axiStencil) { return stencilSpec(16, 1, 1); };
+    hcs.typeSpecs["class.PackedStencil_uint16_t_1_1_"] =
+      [](StructType* axiStencil) { return packedStencilSpec(16, 1, 1); };
+    hcs.typeSpecs["class.AxiPackedStencil_uint16_t_1_1_"] =
+      [](StructType* axiStencil) { return axiPackedStencilSpec(16, 1, 1); };
+
+    ExecutionConstraints exec;
+    sequentialCalls(f, exec);
+    set<BasicBlock*> toPipeline;
+    Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
+    STG graph = buildSTG(s, f);
+    
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    emitVerilog("stencil_stream_mul", graph, hcs);
+
+    map<llvm::Value*, int> layout = {};
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+
+    auto in = dyn_cast<Argument>(getArg(f, 0));
+    auto out = dyn_cast<Argument>(getArg(f, 1));    
+
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 40;
+    tb.maxCycles = 50;
+    tb.name = "stencil_stream_mul";
+    tb.useModSpecs = true;
+    tb.settablePort(in, "in_data_bus");
+    tb.settablePort(in, "in_last_bus");    
+    tb.settablePort(in, "write_valid");
+    tb.settablePort(out, "read_valid");    
+
+    map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+    tb.setArgPort(out, "read_valid", 0, "1'b0");
+    tb.setArgPort(in, "write_valid", 0, "1'b0");        
+    
+    tb.setArgPort(in, "in_data_bus", 2, "16'd28");
+    tb.setArgPort(in, "in_last_bus", 2, "1'b1");
+    tb.setArgPort(in, "write_valid", 2, "1'b1");    
+
+    tb.setArgPort(in, "write_valid", 3, "1'b0");
+
+    tb.setArgPort(out, "read_valid", 20, "1'b1");
+    tb.setArgPort(out, "read_valid", 21, "1'b0");
+
+    map_insert(tb.actionsOnCycles, 21, assertString("valid === 1"));
+    map_insert(tb.actionsOnCycles, 21, assertString(string(out->getName()) + "_data_bus === 16'd56"));
+    map_insert(tb.actionsOnCycles, 21, assertString(string(out->getName()) + "_last_bus === 1'b1"));    
+    emitVerilogTestBench(tb, arch, testLayout);
+    
+    REQUIRE(runIVerilogTB("stencil_stream_mul"));
+  }
+  
   TEST_CASE("Read in stencil stream and multiply by 2") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -4752,10 +4840,7 @@ namespace DHLS {
 
     ExecutionConstraints exec;
     sequentialCalls(f, exec);
-    // Note: Need to impose order constraints on all calls to reads / writes
-    // Instruction* readC = findCall(0, f->getEntryBlock());
-    // Instruction* writeC = findCall(1, f->getEntryBlock());
-    // exec.add(instrEnd(readC) < instrStart(writeC));
+
     set<BasicBlock*> toPipeline;
     Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
     STG graph = buildSTG(s, f);
