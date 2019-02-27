@@ -5022,10 +5022,28 @@ namespace DHLS {
 
     tb.setArgPort(out, "read_valid", 402, "1'b1");
     tb.setArgPort(out, "read_valid", 403, "1'b0");
+    map_insert(tb.actionsOnCycles, 403, assertString(string(out->getName()) + "_data_bus === 16'd56"));
+    map_insert(tb.actionsOnCycles, 403, assertString(string(out->getName()) + "_last_bus === 1'b0"));
 
+    tb.setArgPort(out, "read_valid", 404, "1'b1");
+    tb.setArgPort(out, "read_valid", 405, "1'b0");
+    map_insert(tb.actionsOnCycles, 405, assertString(string(out->getName()) + "_data_bus === 16'd20"));
+    map_insert(tb.actionsOnCycles, 405, assertString(string(out->getName()) + "_last_bus === 1'b0"));
+
+    tb.setArgPort(out, "read_valid", 406, "1'b1");
+    tb.setArgPort(out, "read_valid", 407, "1'b0");
+    map_insert(tb.actionsOnCycles, 407, assertString(string(out->getName()) + "_data_bus === 16'd14"));
+    map_insert(tb.actionsOnCycles, 407, assertString(string(out->getName()) + "_last_bus === 1'b0"));
+
+    tb.setArgPort(out, "read_valid", 408, "1'b1");
+    tb.setArgPort(out, "read_valid", 409, "1'b0");
+    map_insert(tb.actionsOnCycles, 409, assertString(string(out->getName()) + "_data_bus === 16'd6"));
+    map_insert(tb.actionsOnCycles, 409, assertString(string(out->getName()) + "_last_bus === 1'b1"));
+    
     map_insert(tb.actionsOnCycles, 350, assertString("valid === 1"));
     map_insert(tb.actionsOnCycles, 403, assertString("valid === 1"));
-    map_insert(tb.actionsOnCycles, 403, assertString(string(out->getName()) + "_data_bus === 16'd56"));
+    //map_insert(tb.actionsOnCycles, 403, assertString(string(out->getName()) + "_data_bus === 16'd56"));
+
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("stencil_mul_2"));
