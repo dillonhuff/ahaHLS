@@ -21,7 +21,9 @@ class AxiPackedStencil_uint16_t_1_1_ {
   //AxiPackedStencil_uint16_t_1_1_();
   //uint16_t operator()(const size_t e0=0, const size_t e1=0, const size_t e2=0);
 	uint16_t get(const size_t e0=0, const size_t e1=0, const size_t e2=0);  
-	void set(uint16_t, const size_t e0=0, const size_t e1=0, const size_t e2=0);  
+	void set(uint16_t, const size_t e0=0, const size_t e1=0, const size_t e2=0);
+
+  void copy(const AxiPackedStencil_uint16_t_1_1_& in);
 	operator PackedStencil_uint16_t_1_1_();
 	operator Stencil_uint16_t_1_1_();
 };
