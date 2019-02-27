@@ -5116,14 +5116,18 @@ namespace DHLS {
     cout << valueString(f) << endl;
 
     deleteLLVMLifetimeCalls(f);
-    
-    // assert(false);
-    
+
     InterfaceFunctions interfaces;
-    interfaces.functionTemplates[string("operator")] = implementStencilCall;
-    // interfaces.functionTemplates[string("read")] = implementRVFifoRead;
-    // interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef;
-    
+    interfaces.functionTemplates[string("write")] = implementStencilWrite;
+    interfaces.functionTemplates[string("read")] = implementStencilRead;    
+    interfaces.functionTemplates[string("set")] = implementStencilSet;
+    interfaces.functionTemplates[string("get")] = implementStencilGet;            
+    interfaces.functionTemplates[string("set_last")] = implementStencilSetLast;
+    interfaces.functionTemplates[string("AxiPackedStencil_uint16_t_1_1_")] =
+      implementStencilConstructor;
+    interfaces.functionTemplates[string("copy")] =
+      implementStencilConstructor;
+
     HardwareConstraints hcs = standardConstraints();
     hcs.typeSpecs["class.hls_stream_AxiPackedStencil_uint16_t_1_1__"] =
       [](StructType* axiStencil) { return streamAxiPackedStencilSpec(16, 1, 1); };
@@ -5134,12 +5138,11 @@ namespace DHLS {
     hcs.typeSpecs["class.AxiPackedStencil_uint16_t_1_1_"] =
       [](StructType* axiStencil) { return axiPackedStencilSpec(16, 1, 1); };
 
-    // // TODO: Make pointers to primitives registers of their width by default
-    // hcs.memoryMapping = memoryOpLocations(f);
-    // int width = 64;
-    // setAllAllocaMemTypes(hcs, f, registerSpec(width));
+    ExecutionConstraints exec;
+    sequentialCalls(f, exec);
+    set<BasicBlock*> toPipeline;    
 
-    Schedule s = scheduleInterface(f, hcs, interfaces);
+    Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
     STG graph = buildSTG(s, f);
     
     cout << "STG Is" << endl;
@@ -5147,7 +5150,74 @@ namespace DHLS {
 
     emitVerilog("vhls_target", graph, hcs);
 
-    //REQUIRE(runIVerilogTB("vhls_target"));
+    map<llvm::Value*, int> layout = {};
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+
+    auto in = dyn_cast<Argument>(getArg(f, 0));
+    auto out = dyn_cast<Argument>(getArg(f, 1));    
+
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 400;
+    tb.maxCycles = 500;
+    tb.name = "vhls_target";
+    tb.useModSpecs = true;
+    tb.settablePort(in, "in_data_bus");
+    tb.settablePort(in, "in_last_bus");    
+    tb.settablePort(in, "write_valid");
+    tb.settablePort(out, "read_valid");    
+
+    map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+    tb.setArgPort(out, "read_valid", 0, "1'b0");
+    tb.setArgPort(in, "write_valid", 0, "1'b0");        
+    
+    tb.setArgPort(in, "in_data_bus", 2, "16'd28");
+    tb.setArgPort(in, "in_last_bus", 2, "1'b0");
+    tb.setArgPort(in, "write_valid", 2, "1'b1");    
+
+    tb.setArgPort(in, "in_data_bus", 3, "16'd10");
+    tb.setArgPort(in, "in_last_bus", 3, "1'b0");
+    tb.setArgPort(in, "write_valid", 3, "1'b1");    
+
+    tb.setArgPort(in, "in_data_bus", 4, "16'd7");
+    tb.setArgPort(in, "in_last_bus", 4, "1'b0");
+    tb.setArgPort(in, "write_valid", 4, "1'b1");    
+
+    tb.setArgPort(in, "in_data_bus", 5, "16'd3");
+    tb.setArgPort(in, "in_last_bus", 5, "1'b1");
+    tb.setArgPort(in, "write_valid", 5, "1'b1");    
+    
+    tb.setArgPort(in, "write_valid", 6, "1'b0");
+
+    tb.setArgPort(out, "read_valid", 402, "1'b1");
+    tb.setArgPort(out, "read_valid", 403, "1'b0");
+    map_insert(tb.actionsOnCycles, 403, assertString(string(out->getName()) + "_data_bus === 16'd56"));
+    map_insert(tb.actionsOnCycles, 403, assertString(string(out->getName()) + "_last_bus === 1'b0"));
+
+    tb.setArgPort(out, "read_valid", 404, "1'b1");
+    tb.setArgPort(out, "read_valid", 405, "1'b0");
+    map_insert(tb.actionsOnCycles, 405, assertString(string(out->getName()) + "_data_bus === 16'd20"));
+    map_insert(tb.actionsOnCycles, 405, assertString(string(out->getName()) + "_last_bus === 1'b0"));
+
+    tb.setArgPort(out, "read_valid", 406, "1'b1");
+    tb.setArgPort(out, "read_valid", 407, "1'b0");
+    map_insert(tb.actionsOnCycles, 407, assertString(string(out->getName()) + "_data_bus === 16'd14"));
+    map_insert(tb.actionsOnCycles, 407, assertString(string(out->getName()) + "_last_bus === 1'b0"));
+
+    tb.setArgPort(out, "read_valid", 408, "1'b1");
+    tb.setArgPort(out, "read_valid", 409, "1'b0");
+    map_insert(tb.actionsOnCycles, 409, assertString(string(out->getName()) + "_data_bus === 16'd6"));
+    map_insert(tb.actionsOnCycles, 409, assertString(string(out->getName()) + "_last_bus === 1'b1"));
+    
+    map_insert(tb.actionsOnCycles, 350, assertString("valid === 1"));
+    map_insert(tb.actionsOnCycles, 403, assertString("valid === 1"));
+    //map_insert(tb.actionsOnCycles, 403, assertString(string(out->getName()) + "_data_bus === 16'd56"));
+
+    emitVerilogTestBench(tb, arch, testLayout);
+    
+    REQUIRE(runIVerilogTB("vhls_target"));
   }
 
 }
