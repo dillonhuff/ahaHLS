@@ -2572,16 +2572,6 @@ namespace DHLS {
       }
     }
 
-    if (hasRAM && !tb.useModSpecs) {
-
-      comps.debugWires.push_back({true, 5, "dbg_wr_addr"});
-      comps.debugWires.push_back({true, 32, "dbg_wr_data"});
-      comps.debugWires.push_back({true, 1, "dbg_wr_en"});
-
-      comps.debugWires.push_back({true, 5, "dbg_addr"});    
-      comps.debugWires.push_back({false, 32, "dbg_data"});
-
-    }
 
     comps.delayBlocks.push_back({3, "clk_reg = !clk_reg;"});
 
@@ -2601,7 +2591,24 @@ namespace DHLS {
     
     addAlwaysBlock({"clk"}, "total_cycles <= total_cycles + 1;", comps);
 
+    comps.initStmts.push_back("#1 clk_reg = 0;");
+    comps.initStmts.push_back("#1 rst_reg = 1;");
+    comps.initStmts.push_back("#1 total_cycles = 0;");
+    comps.initStmts.push_back("#1 max_cycles = " + to_string(tb.maxCycles) + ";");
+    comps.initStmts.push_back("#1 num_clocks_after_reset = 0;");
+    
     if (hasRAM && !tb.useModSpecs) {
+
+      comps.debugWires.push_back({true, 5, "dbg_wr_addr"});
+      comps.debugWires.push_back({true, 32, "dbg_wr_data"});
+      comps.debugWires.push_back({true, 1, "dbg_wr_en"});
+
+      comps.debugWires.push_back({true, 5, "dbg_addr"});    
+      comps.debugWires.push_back({false, 32, "dbg_data"});
+
+    // }
+
+    // if (hasRAM && !tb.useModSpecs) {
       addAlwaysBlock({"clk"}, "if (total_cycles >= max_cycles) begin if (valid == 1 && in_check_mem_phase) begin $display(\"Passed\"); $finish(); end else begin $display(\"valid == %d. Ran out of cycles, finishing.\", valid); $finish(); end end", comps);
       addAlwaysBlock({"clk"}, "if (!in_set_mem_phase) begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", comps);
 
@@ -2618,31 +2625,6 @@ namespace DHLS {
     } else {
       addAlwaysBlock({"clk"}, "if (total_cycles >= max_cycles) begin $display(\"Passed\"); $finish(); end", comps);
     }
-
-    // if (hasRAM && !tb.useModSpecs) {
-    //   addAlwaysBlock({"clk"}, "if (!in_set_mem_phase) begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", comps);
-
-    //   addAlwaysBlock({"clk"}, "if (in_set_mem_phase) begin clocks_in_set_mem_phase <= clocks_in_set_mem_phase + 1; end ", comps);
-    // }
-    
-    comps.initStmts.push_back("#1 clk_reg = 0;");
-    comps.initStmts.push_back("#1 rst_reg = 1;");
-    comps.initStmts.push_back("#1 total_cycles = 0;");
-
-    // if (hasRAM && !tb.useModSpecs) {
-    //   comps.initStmts.push_back("#1 in_set_mem_phase = 1;");
-    //   comps.initStmts.push_back("#1 in_check_mem_phase = 0;");
-    //   comps.initStmts.push_back("#1 in_run_phase = 0;");
-    // }
-
-    comps.initStmts.push_back("#1 max_cycles = " + to_string(tb.maxCycles) + ";");
-    comps.initStmts.push_back("#1 num_clocks_after_reset = 0;");
-
-    // if (hasRAM && !tb.useModSpecs) {
-    //   comps.initStmts.push_back("#1 clocks_in_set_mem_phase = 0;");
-    //   comps.initStmts.push_back("#1 clocks_in_run_phase = 0;");        
-    //   comps.initStmts.push_back("#1 clocks_in_check_mem_phase = 0;");
-    // }
 
     if (hasRAM && !tb.useModSpecs) {
       map<string, string> ramConnections{{"clk", "clk"}, {"rst", "rst"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}, {"debug_write_addr", "dbg_wr_addr"}, {"debug_write_data", "dbg_wr_data"}, {"debug_write_en", "dbg_wr_en"}};    
