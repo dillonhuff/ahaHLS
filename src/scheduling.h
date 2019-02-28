@@ -1591,7 +1591,12 @@ namespace DHLS {
 
   void implementStencilSetLast(llvm::Function* stencilCall,
                                ExecutionConstraints& exec);
-  
+
+  void implementRawAXIWrite(llvm::Function* axiWrite,
+                            ExecutionConstraints& exec);
+
+  void implementRawAXIRead(llvm::Function* axiWrite,
+                           ExecutionConstraints& exec);  
 }
 
 

@@ -834,49 +834,6 @@ namespace DHLS {
               }
             }
             
-            // Check RAR dependence
-            // if (isBuiltinFifoRead(&instr) && isBuiltinFifoRead(&otherInstr)) {
-
-            //   Value* load0 = instr.getOperand(0);
-            //   Value* load1 = otherInstr.getOperand(0);
-              
-            //   AliasResult aliasRes = aliasAnalysis.alias(load0, load1);
-            //   if (aliasRes != NoAlias) {
-
-            //     //FifoInterface fifoTp = hdc.getFifoType(instr.getOperand(0));
-            //     // if (fifoTp == FIFO_RV) {
-            //     //   exe.addConstraint(instrEnd(&instr) <= instrStart(&otherInstr));
-            //     //   //p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
-            //     // } else {
-            //     //   assert(fifoTp == FIFO_TIMED);
-            //     //   //p.addConstraint(p.instrEnd(&instr) < p.instrStart(&otherInstr));
-            //     //   exe.addConstraint(instrEnd(&instr) < instrStart(&otherInstr));
-            //     // }
-            //   }
-            // }
-
-            // // Check WAW dependence
-            // if (isBuiltinFifoWrite(&instr) && isBuiltinFifoWrite(&otherInstr)) {
-            //   Value* store0 = instr.getOperand(1);
-            //   Value* store1 = otherInstr.getOperand(1);
-              
-            //   AliasResult aliasRes = aliasAnalysis.alias(store0, store1);
-            //   if (aliasRes != NoAlias) {
-
-            //     FifoInterface fifoTp = hdc.getFifoType(instr.getOperand(1));
-            //     if (fifoTp == FIFO_RV) {
-            //       //p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
-            //       exe.addConstraint(instrEnd(&instr) <= instrStart(&otherInstr));
-            //     } else {
-            //       assert(fifoTp == FIFO_TIMED);
-            //       //p.addConstraint(p.instrEnd(&instr) < p.instrStart(&otherInstr));
-            //       exe.addConstraint(instrEnd(&instr) < instrStart(&otherInstr));
-            //     }
-
-            //   }
-            // }
-
-            
             // Check dependences between RAM operations
             // Check RAW dependence
             if (StoreInst::classof(&instr) && LoadInst::classof(&otherInstr)) {
@@ -2025,6 +1982,105 @@ namespace DHLS {
     addDataConstraints(axiWrite, exec);
   }
 
+  void implementRawAXIWrite(llvm::Function* axiWrite,
+                            ExecutionConstraints& exec) {
+    auto eb = mkBB("entry_block", axiWrite);
+    IRBuilder<> b(eb);
+
+    //auto data = getArg(axiWrite, 2);
+
+    // auto waddr = getArg(axiWrite, 1);
+    // auto wdata = getArg(axiWrite, 2);
+
+    // auto inType = wdata->getType();
+    // int width = getTypeBitWidth(inType);
+
+    // cout << "axi read width = " << width << endl;
+
+    // auto writeMod = getArg(axiWrite, 0);
+
+    // auto writeDataF = writePort("write_data", width, inType);
+    // auto writeAddrF = writePort("write_addr", 5, writeMod->getType());
+    // auto setStartWriteF = writePort("start_write", 1, writeMod->getType());
+
+    // auto readValidF = readPort("valid", 1, writeMod->getType());
+    // auto readReadyF = readPort("ready", 1, writeMod->getType());
+    
+    // auto stallF = stallFunction();
+
+    // auto readReady = b.CreateCall(readReadyF, {writeMod});
+    // auto stallUntilReady = b.CreateCall(stallF, {readReady});
+
+    // auto setStartWrite = b.CreateCall(setStartWriteF, {writeMod, mkInt(1, 1)});
+    // auto setWriteAddr = b.CreateCall(writeAddrF, {writeMod, waddr});
+    // auto setWriteData = b.CreateCall(writeDataF, {writeMod, wdata});
+
+    // auto readValid = b.CreateCall(readValidF, {writeMod});
+    // auto stallUntilValid = b.CreateCall(stallF, {readValid});
+    
+    b.CreateRet(nullptr);
+
+    // exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
+
+    // exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setStartWrite));
+    // exec.addConstraint(instrStart(setStartWrite) == instrStart(setWriteAddr));
+    // exec.addConstraint(instrStart(setStartWrite) == instrStart(setWriteData));
+    
+    // exec.addConstraint(instrEnd(setStartWrite) + 1 == instrStart(stallUntilValid));
+    // exec.addConstraint(instrStart(readValid) == instrStart(stallUntilValid));
+    
+    addDataConstraints(axiWrite, exec);
+
+  }
+
+  void implementRawAXIRead(llvm::Function* axiRead,
+                           ExecutionConstraints& exec) {
+    auto eb = mkBB("entry_block", axiRead);
+    IRBuilder<> b(eb);
+
+    // auto readMod = getArg(axiRead, 0);
+
+    // auto outType = axiRead->getReturnType();
+    // int width = getTypeBitWidth(outType);
+
+    // cout << "axi read width = " << width << endl;
+
+    // auto readDataF = readPort("read_data", width, outType);
+    // auto writeRaddrF = writePort("read_addr", 5, readMod->getType());
+    // auto writeStartReadF = writePort("start_read", 1, readMod->getType());
+
+    // auto readValidF = readPort("valid", 1, readMod->getType());    
+    // auto readReadyF = readPort("ready", 1, readMod->getType());
+    
+    // auto stallF = stallFunction();
+
+    // auto readReady = b.CreateCall(readReadyF, {readMod});
+    // auto stallUntilReady = b.CreateCall(stallF, {readReady});
+
+    // auto setStartRead = b.CreateCall(writeStartReadF, {readMod, mkInt(1, 1)});
+    // auto writeAddr = b.CreateCall(writeRaddrF, {readMod, getArg(axiRead, 1)});
+
+    // auto readValid = b.CreateCall(readValidF, {readMod});
+    // auto stallUntilValid = b.CreateCall(stallF, {readValid});
+    
+    // auto dataValue = b.CreateCall(readDataF, {readMod});
+
+    auto dataValue = mkInt(0, 32); //b.CreateCall(readDataF, {readMod});    
+    b.CreateRet(dataValue);
+    
+    // exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
+
+    // exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setStartRead));
+    // exec.addConstraint(instrStart(setStartRead) == instrStart(writeAddr));
+
+    // exec.addConstraint(instrEnd(setStartRead) + 1 == instrStart(stallUntilValid));
+    // exec.addConstraint(instrStart(readValid) == instrStart(stallUntilValid));
+    // exec.addConstraint(instrStart(dataValue) == instrStart(stallUntilValid));
+
+    addDataConstraints(axiRead, exec);
+
+  }
+  
   std::ostream& operator<<(std::ostream& out, const ModuleSpec& m) {
     out << "module_spec " << m.name << endl;
     out << tab(1) << "ports" << endl;

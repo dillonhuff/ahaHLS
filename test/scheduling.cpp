@@ -41,6 +41,7 @@ namespace DHLS {
 
     }
 
+    cout << "Error: Could not find " << name << endl;
     assert(false);
   }
 
@@ -310,6 +311,18 @@ namespace DHLS {
     
     map<string, int> defaults{{"start_read", 0}};
     return {modParams, "axi_read_handler", ports, defaults};
+  }
+
+  ModuleSpec axiRamSpec(llvm::StructType* tp) {
+    map<string, string> modParams;
+    map<string, Port> ports{{"read_data", outputPort(32, "read_data")},
+        {"read_addr", inputPort(5, "read_addr")},
+          {"valid", outputPort(1, "valid")},
+            {"ready", outputPort(1, "ready")},
+              {"start_read", inputPort(1, "start_read")}};
+    
+    map<string, int> defaults{{"start_read", 0}};
+    return {modParams, "axil_ram", ports, defaults};
   }
   
   ModuleSpec ramSpecFunc(llvm::StructType* tp) {
@@ -1284,6 +1297,49 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("stalled_single_store_axi"));
   }
 
+  TEST_CASE("AXI raw memory transfer") {
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    std::unique_ptr<Module> Mod =
+      loadCppModule(Context, Err, "raw_axi_wr");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "raw_axi_wr");
+    getArg(f, 0)->setName("ram");
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.typeSpecs["class.axi_ram"] = axiRamSpec;
+    
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read")] = implementRawAXIRead;
+    interfaces.functionTemplates[string("write")] = implementRawAXIWrite;
+    
+    Schedule s = scheduleInterface(f, hcs, interfaces);
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    VerilogDebugInfo info;
+    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+
+    emitVerilog("raw_axi_wr", graph, hcs, info);
+
+    // map<string, int> layout;
+    // auto arch = buildMicroArchitecture(f, graph, layout, hcs);    
+
+    // map<string, int> testLayout;
+    // TestBenchSpec tb;
+    // tb.runCycles = 60;
+    // tb.name = "brighter";
+    // emitVerilogTestBench(tb, arch, testLayout);
+    
+    // REQUIRE(runIVerilogTB("raw_axi_wr"));
+  }
+  
   // Random Thought: Test if an access pattern maps onto a cache type
   // by checking whether the recurrence that describes the loop pattern
   // is equivalent to the recurrence that describes the cache access pattern
