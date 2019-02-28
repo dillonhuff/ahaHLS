@@ -2606,9 +2606,6 @@ namespace DHLS {
       comps.debugWires.push_back({true, 5, "dbg_addr"});    
       comps.debugWires.push_back({false, 32, "dbg_data"});
 
-    // }
-
-    // if (hasRAM && !tb.useModSpecs) {
       addAlwaysBlock({"clk"}, "if (total_cycles >= max_cycles) begin if (valid == 1 && in_check_mem_phase) begin $display(\"Passed\"); $finish(); end else begin $display(\"valid == %d. Ran out of cycles, finishing.\", valid); $finish(); end end", comps);
       addAlwaysBlock({"clk"}, "if (!in_set_mem_phase) begin num_clocks_after_reset <= num_clocks_after_reset + 1; end", comps);
 
@@ -2642,9 +2639,9 @@ namespace DHLS {
       }
     
       comps.instances.push_back({ramName, "ram", ramConnections});
-    }
+    // }
     
-    if (hasRAM && !tb.useModSpecs) {
+    // if (hasRAM && !tb.useModSpecs) {
       int cyclesInRun = tb.runCycles;
 
       addAlwaysBlock({"clk"}, "if (in_check_mem_phase) begin if (!valid) begin $display(\"Failed: Checking memory, but the module is not done running\"); $finish(); end end", comps);
