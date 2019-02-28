@@ -1490,9 +1490,9 @@ module AxiPackedStencil(input clk,
 
    always @(posedge clk) begin
       if (set_en) begin
-         // $display("set_row   = %d", get_row);      
-         // $display("set_col   = %d", set_col);
-         // $display("set_val   = %d", set_value);         
+         $display("set_row   = %d", get_row);      
+         $display("set_col   = %d", set_col);
+         $display("set_val   = %d", set_value);         
          data[VALUE_WIDTH + 1 - 1 : 1] <= set_value;
       end
    end
@@ -1551,9 +1551,9 @@ module HLS_stream(input clk, input rst,
 
    always @(posedge clk) begin
       if (write_valid) begin
-         // $display("Writing %d", {in_data_bus, in_last_bus});
-         // $display("in_data_bus == %d", in_data_bus);
-         // $display("in_last_bus == %d", in_last_bus);         
+         $display("Writing %d", {in_data_bus, in_last_bus});
+         $display("in_data_bus == %d", in_data_bus);
+         $display("in_last_bus == %d", in_last_bus);         
       end
    end   
 
@@ -1579,4 +1579,51 @@ module HLS_stream(input clk, input rst,
             // input [WIDTH - 1 : 0]  in_data,
             // output [WIDTH - 1 : 0] out_data);
    
+endmodule
+
+module Linebuffer_2_1(input clk,
+                      input                        rst,
+
+                      input [DATA_WIDTH - 1 : 0]   in_data,
+                      input                        write_valid,
+                      output reg                       write_ready,
+                      
+
+                      input [2*DATA_WIDTH - 1 : 0] out_data,
+                      output                       read_ready
+                      );
+
+   parameter DATA_WIDTH = 32;
+   
+   reg [DATA_WIDTH - 1 : 0]                      d0;
+   reg [DATA_WIDTH - 1 : 0]                      d1;
+
+   reg                                           d0_valid;
+   reg                                           d1_valid;
+   
+
+   // More recently input items are higher further along in the stream
+   assign out_data = {d0, d1};
+   assign read_ready = d0_valid & d1_valid;
+
+   always @(posedge clk) begin
+      if (rst) begin
+         d0_valid <= 0;
+         d1_valid <= 0;
+         
+         write_ready <= 1;
+         // read_ready <= 0;
+         
+      end else begin
+         if (write_valid) begin
+            d0 <= in_data;
+            d0_valid <= 1;
+            
+            d1 <= d0;
+            d1_valid <= d0;            
+
+         end
+      end
+   end
+
 endmodule

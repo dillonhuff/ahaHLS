@@ -2290,7 +2290,7 @@ namespace DHLS {
     auto value = getArg(stencilCall, 1);
     auto ind0 = getArg(stencilCall, 2);
     auto ind1 = getArg(stencilCall, 3);
-    auto ind2 = getArg(stencilCall, 4);
+    //auto ind2 = getArg(stencilCall, 4);
 
     assert(PointerType::classof(stencil->getType()));    
 
@@ -2327,7 +2327,7 @@ namespace DHLS {
     auto stencil = getArg(stencilCall, 0);
     auto ind0 = getArg(stencilCall, 1);
     auto ind1 = getArg(stencilCall, 2);
-    auto ind2 = getArg(stencilCall, 3);
+    //auto ind2 = getArg(stencilCall, 3);
 
     assert(PointerType::classof(stencil->getType()));    
 
