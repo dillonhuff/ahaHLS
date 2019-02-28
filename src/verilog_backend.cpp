@@ -2547,16 +2547,6 @@ namespace DHLS {
     
     VerilogComponents comps;
 
-    // if (hasRAM && !tb.useModSpecs) {
-    //   comps.debugWires.push_back({true, 1, "in_set_mem_phase"});
-    //   comps.debugWires.push_back({true, 1, "in_run_phase"});
-    //   comps.debugWires.push_back({true, 1, "in_check_mem_phase"});
-
-    //   comps.debugWires.push_back({true, 32, "clocks_in_set_mem_phase"});
-    //   comps.debugWires.push_back({true, 32, "clocks_in_run_phase"});
-    //   comps.debugWires.push_back({true, 32, "clocks_in_check_mem_phase"});
-    // }
-
     comps.debugWires.push_back({true, 32, "num_clocks_after_reset"});
     comps.debugWires.push_back({true, 32, "total_cycles"});
     comps.debugWires.push_back({true, 32, "max_cycles"});
@@ -2626,12 +2616,7 @@ namespace DHLS {
       comps.initStmts.push_back("#1 clocks_in_set_mem_phase = 0;");
       comps.initStmts.push_back("#1 clocks_in_run_phase = 0;");        
       comps.initStmts.push_back("#1 clocks_in_check_mem_phase = 0;");
-      
-    } else {
-      addAlwaysBlock({"clk"}, "if (total_cycles >= max_cycles) begin $display(\"Passed\"); $finish(); end", comps);
-    }
 
-    if (hasRAM && !tb.useModSpecs) {
       map<string, string> ramConnections{{"clk", "clk"}, {"rst", "rst"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}, {"debug_write_addr", "dbg_wr_addr"}, {"debug_write_data", "dbg_wr_data"}, {"debug_write_en", "dbg_wr_en"}};    
       for (int i = 0; i < arch.numReadPorts(); i++) {
         auto iStr = to_string(i);
@@ -2647,9 +2632,9 @@ namespace DHLS {
       }
     
       comps.instances.push_back({ramName, "ram", ramConnections});
-    // }
+      // }
     
-    // if (hasRAM && !tb.useModSpecs) {
+      // if (hasRAM && !tb.useModSpecs) {
       int cyclesInRun = tb.runCycles;
 
       addAlwaysBlock({"clk"}, "if (in_check_mem_phase) begin if (!valid) begin $display(\"Failed: Checking memory, but the module is not done running\"); $finish(); end end", comps);
@@ -2710,7 +2695,91 @@ namespace DHLS {
         str += "end";
         addAlwaysBlock({"clk"}, str, comps);
       }
+      
+    } else {
+      addAlwaysBlock({"clk"}, "if (total_cycles >= max_cycles) begin $display(\"Passed\"); $finish(); end", comps);
     }
+
+    // if (hasRAM && !tb.useModSpecs) {
+    //   map<string, string> ramConnections{{"clk", "clk"}, {"rst", "rst"}, {"debug_addr", "dbg_addr"}, {"debug_data", "dbg_data"}, {"debug_write_addr", "dbg_wr_addr"}, {"debug_write_data", "dbg_wr_data"}, {"debug_write_en", "dbg_wr_en"}};    
+    //   for (int i = 0; i < arch.numReadPorts(); i++) {
+    //     auto iStr = to_string(i);
+    //     ramConnections.insert({"raddr_" + iStr, "raddr_" + to_string(i)});
+    //     ramConnections.insert({"rdata_" + iStr, "rdata_" + to_string(i)});
+    //   }
+
+    //   for (int i = 0; i < arch.numWritePorts(); i++) {
+    //     auto iStr = to_string(i);
+    //     ramConnections.insert({"waddr_" + iStr, "waddr_" + to_string(i)});
+    //     ramConnections.insert({"wdata_" + iStr, "wdata_" + to_string(i)});
+    //     ramConnections.insert({"wen_" + iStr, "wen_" + to_string(i)});
+    //   }
+    
+    //   comps.instances.push_back({ramName, "ram", ramConnections});
+    // // }
+    
+    // // if (hasRAM && !tb.useModSpecs) {
+    //   int cyclesInRun = tb.runCycles;
+
+    //   addAlwaysBlock({"clk"}, "if (in_check_mem_phase) begin if (!valid) begin $display(\"Failed: Checking memory, but the module is not done running\"); $finish(); end end", comps);
+
+    //   addAlwaysBlock({"clk"}, "if (clocks_in_run_phase == (" + to_string(cyclesInRun - 1) + ")) begin in_check_mem_phase <= 1; in_run_phase <= 0; end ", comps);
+
+    //   addAlwaysBlock({"clk"}, "if (in_run_phase) begin clocks_in_run_phase <= clocks_in_run_phase + 1; end", comps);
+
+    //   addAlwaysBlock({"clk"}, "if (in_check_mem_phase) begin clocks_in_check_mem_phase <= clocks_in_check_mem_phase + 1; end", comps);    
+
+    //   int setNum = 0;
+    //   for (auto memName : tb.memoryInit) {
+    //     for (int i = 0; i < (int) memName.second.size(); i++) {
+    //       // TODO: Add memory layout info
+    //       assert(contains_key(memName.first, layout));
+
+    //       addAlwaysBlock({"clk"}, "if (in_set_mem_phase && clocks_in_set_mem_phase == " + to_string(setNum) + ") begin dbg_wr_en <= 1; dbg_wr_addr <= " + to_string(map_find(memName.first, layout) + i) + "; dbg_wr_data <= " + to_string(memName.second[i]) + "; end", comps);
+
+    //       setNum++;
+        
+    //     }
+    //   }
+
+    //   int cyclesInSetMem = setNum;
+    //   addAlwaysBlock({"clk"}, "if (clocks_in_set_mem_phase == (" + to_string(cyclesInSetMem) + ")) begin in_run_phase <= 1; rst_reg <= 0; dbg_wr_en <= 0; in_set_mem_phase <= 0; end", comps);
+
+    //   addAlwaysBlock({"clk"}, "if (!in_set_mem_phase) begin dbg_wr_en <= 0; end", comps);
+    
+    //   int checkNum = 0;
+    //   int lastNum = -1;
+    
+    //   for (auto memName : tb.memoryExpected) {
+    //     for (int i = 0; i < (int) memName.second.size(); i++) {
+    //       // TODO: Add memory layout info
+    //       assert(contains_key(memName.first, layout));
+
+    //       addAlwaysBlock({"clk"}, "if (in_check_mem_phase && clocks_in_check_mem_phase == " + to_string(checkNum) + ") begin dbg_addr <= " + to_string(map_find(memName.first, layout) + i) + "; end", comps);
+
+    //       string str = "if (in_check_mem_phase && clocks_in_check_mem_phase == " + to_string(checkNum) + ") begin ";
+    //       if (lastNum >= 0) {
+    //         str += "$display(\"mem[%d] == %d\", dbg_addr, dbg_data);";
+
+    //         str += "  if (dbg_data == " + to_string(memName.second[lastNum]) + ") begin $display(\"Correct.\"); end else begin $display(\"Assert failed\"); $finish(); end ";
+    //       }
+    //       str += "end";
+
+    //       addAlwaysBlock({"clk"}, str, comps);
+
+    //       lastNum = checkNum;
+    //       checkNum++;
+    //     }
+
+    //     // Final code to check last value
+    //     string str = "if (in_check_mem_phase && clocks_in_check_mem_phase == " + to_string(checkNum) + ") begin ";
+    //     str += "$display(\"mem[%d] == %d\", dbg_addr, dbg_data);";
+
+    //     str += "  if (dbg_data == " + to_string(memName.second[lastNum]) + ") begin $display(\"Correct.\"); end else begin $display(\"Assert failed\"); $finish(); end ";
+    //     str += "end";
+    //     addAlwaysBlock({"clk"}, str, comps);
+    //   }
+    // }
 
     // Add module instances for arguments to function
 
