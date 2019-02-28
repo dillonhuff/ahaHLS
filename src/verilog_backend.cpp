@@ -2541,12 +2541,8 @@ namespace DHLS {
     bool hasRAM = layout.size() > 0;
 
     string ramName = "noRam";
-    // if (hasRAM && !tb.useModSpecs) {
-    //   ramName = emitTestRAM(out, tb, arch, layout);
-    // }
-    
-    VerilogComponents comps;
 
+    VerilogComponents comps;
     comps.debugWires.push_back({true, 32, "num_clocks_after_reset"});
     comps.debugWires.push_back({true, 32, "total_cycles"});
     comps.debugWires.push_back({true, 32, "max_cycles"});
@@ -2716,14 +2712,14 @@ namespace DHLS {
       comps.debugAssigns.push_back({"rst", "rst_reg"});      
 
       for (int i = 0; i < (int) f->arg_size(); i++) {
-        //if (contains_key(getArg(f, i), arch.hcs.modSpecs)) {
+
         if (arch.hcs.hasArgumentSpec(getArg(f, i)) ||
             contains_key(getArg(f, i), arch.hcs.modSpecs)) {
           cout << valueString(getArg(f, i)) << "is modspeced" << endl;
 
           ModuleSpec s;
           if (arch.hcs.hasArgumentSpec(getArg(f, i))) {
-            s = arch.hcs.getArgumentSpec(getArg(f, i)); //map_find(getArg(f, i), arch.hcs.modSpecs);
+            s = arch.hcs.getArgumentSpec(getArg(f, i));
           } else {
             s = map_find(getArg(f, i), arch.hcs.modSpecs);            
           }
