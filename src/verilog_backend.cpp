@@ -2547,15 +2547,15 @@ namespace DHLS {
     
     VerilogComponents comps;
 
-    if (hasRAM && !tb.useModSpecs) {
-      comps.debugWires.push_back({true, 1, "in_set_mem_phase"});
-      comps.debugWires.push_back({true, 1, "in_run_phase"});
-      comps.debugWires.push_back({true, 1, "in_check_mem_phase"});
+    // if (hasRAM && !tb.useModSpecs) {
+    //   comps.debugWires.push_back({true, 1, "in_set_mem_phase"});
+    //   comps.debugWires.push_back({true, 1, "in_run_phase"});
+    //   comps.debugWires.push_back({true, 1, "in_check_mem_phase"});
 
-      comps.debugWires.push_back({true, 32, "clocks_in_set_mem_phase"});
-      comps.debugWires.push_back({true, 32, "clocks_in_run_phase"});
-      comps.debugWires.push_back({true, 32, "clocks_in_check_mem_phase"});
-    }
+    //   comps.debugWires.push_back({true, 32, "clocks_in_set_mem_phase"});
+    //   comps.debugWires.push_back({true, 32, "clocks_in_run_phase"});
+    //   comps.debugWires.push_back({true, 32, "clocks_in_check_mem_phase"});
+    // }
 
     comps.debugWires.push_back({true, 32, "num_clocks_after_reset"});
     comps.debugWires.push_back({true, 32, "total_cycles"});
@@ -2599,6 +2599,14 @@ namespace DHLS {
     
     if (hasRAM && !tb.useModSpecs) {
 
+      comps.debugWires.push_back({true, 1, "in_set_mem_phase"});
+      comps.debugWires.push_back({true, 1, "in_run_phase"});
+      comps.debugWires.push_back({true, 1, "in_check_mem_phase"});
+
+      comps.debugWires.push_back({true, 32, "clocks_in_set_mem_phase"});
+      comps.debugWires.push_back({true, 32, "clocks_in_run_phase"});
+      comps.debugWires.push_back({true, 32, "clocks_in_check_mem_phase"});
+      
       comps.debugWires.push_back({true, 5, "dbg_wr_addr"});
       comps.debugWires.push_back({true, 32, "dbg_wr_data"});
       comps.debugWires.push_back({true, 1, "dbg_wr_en"});
