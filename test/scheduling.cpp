@@ -46,15 +46,15 @@ namespace DHLS {
   }
 
   std::string demangledClassName(const std::string& demangledName) {
-    cout << "Getting class from = " << demangledName << endl;
+    //cout << "Getting class from = " << demangledName << endl;
     string nextNamespace = takeUntil("::", demangledName);
-    cout << "namespace = " << nextNamespace << endl;
+    //cout << "namespace = " << nextNamespace << endl;
     string remainder = drop("::", demangledName);
-    cout << "remainder = " << remainder << endl;
+    //cout << "remainder = " << remainder << endl;
 
     string funcDecl = drop("::", remainder);
     string funcName = takeUntil("(", funcDecl);
-    cout << "FuncName = " << funcName << endl;
+    //cout << "FuncName = " << funcName << endl;
     assert(false);
   }
 
@@ -1437,21 +1437,9 @@ namespace DHLS {
     auto mod = llvm::make_unique<Module>("shift register test", context);
     setGlobalLLVMModule(mod.get());
 
-    // std::vector<Type *> inputs{Type::getInt32Ty(context)->getPointerTo(),
-    //     Type::getInt32Ty(context)->getPointerTo()};
     std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
         sramType(32, 16)->getPointerTo()};
-    // FunctionType *tp =
-    //   FunctionType::get(Type::getVoidTy(context), inputs, false);
     Function* srUser = mkFunc(inputs, voidType(), "using_shift_register");
-    // Function *srUser =
-    //   Function::Create(tp, Function::ExternalLinkage, "using_shift_register", mod.get());
-
-    // int argId = 0;
-    // for (auto &Arg : srUser->args()) {
-    //   Arg.setName("arg_" + to_string(argId));
-    //   argId++;
-    // }
 
     cout << "Function = " << valueString(srUser) << endl;
 
@@ -1541,11 +1529,6 @@ namespace DHLS {
     std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
         sramType(32, 16)->getPointerTo()};
     Function* srUser = mkFunc(inputs, "accum_loop", mod.get());
-    // int argId = 0;
-    // for (auto &Arg : srUser->args()) {
-    //   Arg.setName("arg_" + to_string(argId));
-    //   argId++;
-    // }
 
     auto entryBlock = mkBB("entry_block", srUser);
     auto loopBlock = mkBB("loop_block", srUser);
@@ -2089,19 +2072,20 @@ namespace DHLS {
     setGlobalLLVMContext(&context);
     
     auto mod = llvm::make_unique<Module>("16 bit mem test", context);
-
+    setGlobalLLVMModule(mod.get());
     std::vector<Type *> inputs{Type::getInt16Ty(context)->getPointerTo(),
         Type::getInt16Ty(context)->getPointerTo()};
-    FunctionType *tp =
-      FunctionType::get(Type::getVoidTy(context), inputs, false);
-    Function *srUser =
-      Function::Create(tp, Function::ExternalLinkage, "mem_16_test", mod.get());
+    Function *srUser = mkFunc(inputs, voidType(), "mem_16_test");    
+    // FunctionType *tp =
+    //   FunctionType::get(Type::getVoidTy(context), inputs, false);
+    // Function *srUser =
+    //   Function::Create(tp, Function::ExternalLinkage, "mem_16_test", mod.get());
 
-    int argId = 0;
-    for (auto &Arg : srUser->args()) {
-      Arg.setName("arg_" + to_string(argId));
-      argId++;
-    }
+    // int argId = 0;
+    // for (auto &Arg : srUser->args()) {
+    //   Arg.setName("arg_" + to_string(argId));
+    //   argId++;
+    // }
 
     int ramWidth = 16;
     int ramDepth = 8;

@@ -296,16 +296,16 @@ namespace DHLS {
   }
 
   std::string demangledFuncName(const std::string& demangledName) {
-    cout << "Getting function from = " << demangledName << endl;
+    //cout << "Getting function from = " << demangledName << endl;
     string nextNamespace = takeUntil("::", demangledName);
-    cout << "namespace = " << nextNamespace << endl;
+    //cout << "namespace = " << nextNamespace << endl;
     string remainder = drop("::", demangledName);
-    cout << "remainder = " << remainder << endl;
+    //cout << "remainder = " << remainder << endl;
 
     string funcDecl = drop("::", remainder);
-    cout << "FuncDecl = " << funcDecl << endl;
+    //cout << "FuncDecl = " << funcDecl << endl;
     string funcName = takeUntil("(", funcDecl);
-    cout << "FuncName = " << funcName << endl;
+    //cout << "FuncName = " << funcName << endl;
 
     return funcName;
   }
