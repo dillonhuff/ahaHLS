@@ -1441,16 +1441,17 @@ namespace DHLS {
     //     Type::getInt32Ty(context)->getPointerTo()};
     std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
         sramType(32, 16)->getPointerTo()};
-    FunctionType *tp =
-      FunctionType::get(Type::getVoidTy(context), inputs, false);
-    Function *srUser =
-      Function::Create(tp, Function::ExternalLinkage, "using_shift_register", mod.get());
+    // FunctionType *tp =
+    //   FunctionType::get(Type::getVoidTy(context), inputs, false);
+    Function* srUser = mkFunc(inputs, voidType(), "using_shift_register");
+    // Function *srUser =
+    //   Function::Create(tp, Function::ExternalLinkage, "using_shift_register", mod.get());
 
-    int argId = 0;
-    for (auto &Arg : srUser->args()) {
-      Arg.setName("arg_" + to_string(argId));
-      argId++;
-    }
+    // int argId = 0;
+    // for (auto &Arg : srUser->args()) {
+    //   Arg.setName("arg_" + to_string(argId));
+    //   argId++;
+    // }
 
     cout << "Function = " << valueString(srUser) << endl;
 
@@ -1537,17 +1538,14 @@ namespace DHLS {
     auto mod = llvm::make_unique<Module>("simple LLVM accumulate loop", context);
     setGlobalLLVMModule(mod.get());
 
-    // std::vector<Type *> inputs{intType(32)->getPointerTo(),
-    //     intType(32)->getPointerTo()};
     std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
         sramType(32, 16)->getPointerTo()};
-    //intType(32)->getPointerTo()};
     Function* srUser = mkFunc(inputs, "accum_loop", mod.get());
-    int argId = 0;
-    for (auto &Arg : srUser->args()) {
-      Arg.setName("arg_" + to_string(argId));
-      argId++;
-    }
+    // int argId = 0;
+    // for (auto &Arg : srUser->args()) {
+    //   Arg.setName("arg_" + to_string(argId));
+    //   argId++;
+    // }
 
     auto entryBlock = mkBB("entry_block", srUser);
     auto loopBlock = mkBB("loop_block", srUser);
@@ -1558,7 +1556,6 @@ namespace DHLS {
     ConstantInt* one = mkInt("1", 32);    
 
     IRBuilder<> builder(entryBlock);
-    //auto ldA = builder.CreateLoad(dyn_cast<Value>(srUser->arg_begin()));
     auto ldA = loadRAMVal(builder, dyn_cast<Value>(getArg(srUser, 0)), zero);
     builder.CreateBr(loopBlock);
 
