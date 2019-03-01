@@ -1535,10 +1535,19 @@ namespace DHLS {
     setGlobalLLVMContext(&context);
 
     auto mod = llvm::make_unique<Module>("simple LLVM accumulate loop", context);
+    setGlobalLLVMModule(mod.get());
 
-    std::vector<Type *> inputs{intType(32)->getPointerTo(),
-        intType(32)->getPointerTo()};
+    // std::vector<Type *> inputs{intType(32)->getPointerTo(),
+    //     intType(32)->getPointerTo()};
+    std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
+        sramType(32, 16)->getPointerTo()};
+    //intType(32)->getPointerTo()};
     Function* srUser = mkFunc(inputs, "accum_loop", mod.get());
+    int argId = 0;
+    for (auto &Arg : srUser->args()) {
+      Arg.setName("arg_" + to_string(argId));
+      argId++;
+    }
 
     auto entryBlock = mkBB("entry_block", srUser);
     auto loopBlock = mkBB("loop_block", srUser);
@@ -1549,8 +1558,8 @@ namespace DHLS {
     ConstantInt* one = mkInt("1", 32);    
 
     IRBuilder<> builder(entryBlock);
-    auto ldA = builder.CreateLoad(dyn_cast<Value>(srUser->arg_begin()));
-
+    //auto ldA = builder.CreateLoad(dyn_cast<Value>(srUser->arg_begin()));
+    auto ldA = loadRAMVal(builder, dyn_cast<Value>(getArg(srUser, 0)), zero);
     builder.CreateBr(loopBlock);
 
     IRBuilder<> loopBuilder(loopBlock);
@@ -1570,22 +1579,35 @@ namespace DHLS {
     loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
 
     IRBuilder<> exitBuilder(exitBlock);
-    exitBuilder.CreateStore(nextSum, dyn_cast<Value>(srUser->arg_begin() + 1));
+    //exitBuilder.CreateStore(nextSum, dyn_cast<Value>(srUser->arg_begin() + 1));
+    storeRAMVal(exitBuilder, dyn_cast<Value>(getArg(srUser, 1)), mkInt(15, 32), nextSum);
     exitBuilder.CreateRet(nullptr);
 
     cout << valueString(srUser) << endl;
 
     HardwareConstraints hcs = standardConstraints();
-    Schedule s = scheduleFunction(srUser, hcs);
+    hcs.typeSpecs[string("SRAM_32_16")] =
+      [](StructType* tp) { return ramSpec(32, 16); };
+    InterfaceFunctions interfaces;
+    Function* ramRead = ramLoadFunction(getArg(srUser, 0));
+    interfaces.addFunction(ramRead);
+    implementRAMRead0(ramRead,
+                      interfaces.getConstraints(ramRead));
 
+    Function* ramWrite = ramStoreFunction(getArg(srUser, 1));
+    interfaces.addFunction(ramWrite);
+    implementRAMWrite0(ramWrite,
+                       interfaces.getConstraints(ramWrite));
+    
+    Schedule s = scheduleInterface(srUser, hcs, interfaces);
     STG graph = buildSTG(s, srUser);
 
     cout << "STG Is" << endl;
     graph.print(cout);
 
     map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 15}};
-    map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 15}};
-    auto arch = buildMicroArchitecture(srUser, graph, layout);
+    map<llvm::Value*, int> layout; // = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 15}};
+    auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -1601,6 +1623,17 @@ namespace DHLS {
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 10;
     tb.name = "accum_loop";
+    tb.useModSpecs = true;
+    int startSetMemCycle = 1;
+    setRAM(tb, 1, "arg_0", memoryInit, testLayout);
+
+    int startRunCycle = startSetMemCycle + 10; 
+    map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+    map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+
+    int checkMemCycle = 40;
+    checkRAM(tb, checkMemCycle, "arg_1", memoryExpected, testLayout);
+
     emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("accum_loop"));
