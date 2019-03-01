@@ -1470,7 +1470,6 @@ namespace DHLS {
                        interfaces.getConstraints(ramWrite));
     
     Schedule s = scheduleInterface(srUser, hcs, interfaces);
-    //Schedule s = scheduleFunction(srUser, hcs);
 
     STG graph = buildSTG(s, srUser);
 
@@ -1479,22 +1478,15 @@ namespace DHLS {
 
     // 3 x 3
     map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 0}};
-    map<llvm::Value*, int> layout; // = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 1}};
+    map<llvm::Value*, int> layout;
     auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
 
     VerilogDebugInfo info;
     emitVerilog("using_shift_register", graph, hcs, info);
-    // addNoXChecks(arch, info);
-
-    // emitVerilog(srUser, arch, info);
 
     map<string, vector<int> > memoryInit{{"arg_0", {6}}};
     map<string, vector<int> > memoryExpected{{"arg_1", {11}}};
 
-    // TestBenchSpec tb = buildTB("using_shift_register", memoryInit, memoryExpected, testLayout);
-    // tb.useModSpecs = true;
-    // emitVerilogTestBench(tb, arch, testLayout);
-    
     TestBenchSpec tb;
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
@@ -1624,9 +1616,11 @@ namespace DHLS {
     setGlobalLLVMContext(&context);
 
     auto mod = llvm::make_unique<Module>("simple LLVM 1D stencil", context);
-
-    std::vector<Type *> inputs{intType(32)->getPointerTo(),
-        intType(32)->getPointerTo()};
+    setGlobalLLVMModule(mod.get());
+    // std::vector<Type *> inputs{intType(32)->getPointerTo(),
+    //     intType(32)->getPointerTo()};
+    std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
+        sramType(32, 16)->getPointerTo()};
     Function* srUser = mkFunc(inputs, "one_d_stencil", mod.get());
 
     auto entryBlock = mkBB("entry_block", srUser);
@@ -1652,16 +1646,16 @@ namespace DHLS {
     indPhi->addIncoming(one, entryBlock);
     indPhi->addIncoming(nextInd, loopBlock);
 
-    auto ai = loadVal(loopBuilder, getArg(srUser, 0), indPhi);
-    auto aip1 = loadVal(loopBuilder, getArg(srUser, 0), indPhiP1);
-    auto aim1 = loadVal(loopBuilder, getArg(srUser, 0), indPhiM1);
+    auto ai = loadRAMVal(loopBuilder, getArg(srUser, 0), indPhi);
+    auto aip1 = loadRAMVal(loopBuilder, getArg(srUser, 0), indPhiP1);
+    auto aim1 = loadRAMVal(loopBuilder, getArg(srUser, 0), indPhiM1);
     
     auto inputSum = loopBuilder.CreateAdd(aim1, loopBuilder.CreateAdd(ai, aip1), "stencil_accum");
 
-    storeVal(loopBuilder,
-             getArg(srUser, 1),
-             loopBuilder.CreateSub(indPhi, one),
-             inputSum);
+    storeRAMVal(loopBuilder,
+                getArg(srUser, 1),
+                loopBuilder.CreateSub(indPhi, one),
+                inputSum);
 
     loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
 
@@ -1672,16 +1666,31 @@ namespace DHLS {
     cout << valueString(srUser) << endl;
 
     HardwareConstraints hcs = standardConstraints();
-    Schedule s = scheduleFunction(srUser, hcs);
+    hcs.typeSpecs[string("SRAM_32_16")] =
+      [](StructType* tp) { return ramSpec(32, 16); };
+    InterfaceFunctions interfaces;
+    Function* ramRead = ramLoadFunction(getArg(srUser, 0));
+    interfaces.addFunction(ramRead);
+    implementRAMRead0(ramRead,
+                      interfaces.getConstraints(ramRead));
+
+    Function* ramWrite = ramStoreFunction(getArg(srUser, 1));
+    interfaces.addFunction(ramWrite);
+    implementRAMWrite0(ramWrite,
+                       interfaces.getConstraints(ramWrite));
+    
+    Schedule s = scheduleInterface(srUser, hcs, interfaces);
 
     STG graph = buildSTG(s, srUser);
 
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 10}};
-    map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 10}};
-    auto arch = buildMicroArchitecture(srUser, graph, layout);
+    //map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 10}};
+    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 0}};
+    //map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 10}};
+    map<llvm::Value*, int> layout;
+    auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -1695,8 +1704,20 @@ namespace DHLS {
     TestBenchSpec tb;
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
-    tb.runCycles = 30;
+    tb.runCycles = 40;
     tb.name = "one_d_stencil";
+    emitVerilogTestBench(tb, arch, testLayout);
+    tb.useModSpecs = true;
+    int startSetMemCycle = 1;
+    setRAM(tb, 1, "arg_0", memoryInit, testLayout);
+
+    int startRunCycle = startSetMemCycle + 10; 
+    map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+    map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+
+    int checkMemCycle = 50;
+    checkRAM(tb, checkMemCycle, "arg_1", memoryExpected, testLayout);
+
     emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("one_d_stencil"));
@@ -2076,16 +2097,6 @@ namespace DHLS {
     std::vector<Type *> inputs{Type::getInt16Ty(context)->getPointerTo(),
         Type::getInt16Ty(context)->getPointerTo()};
     Function *srUser = mkFunc(inputs, voidType(), "mem_16_test");    
-    // FunctionType *tp =
-    //   FunctionType::get(Type::getVoidTy(context), inputs, false);
-    // Function *srUser =
-    //   Function::Create(tp, Function::ExternalLinkage, "mem_16_test", mod.get());
-
-    // int argId = 0;
-    // for (auto &Arg : srUser->args()) {
-    //   Arg.setName("arg_" + to_string(argId));
-    //   argId++;
-    // }
 
     int ramWidth = 16;
     int ramDepth = 8;
