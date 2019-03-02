@@ -1649,6 +1649,9 @@ namespace DHLS {
     // Inline the constraints
     Value* finalRetVal = nullptr;
 
+    cout << "Function called is" << endl;
+    cout << valueString(called) << endl;
+
     // Real procedure should be to replace all references to start(toInline),
     // end(toInline) in the receiver function with references to start(funcMarker)
     // end(funcMarker), and in the constraints internally replace all references
