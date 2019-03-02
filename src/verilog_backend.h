@@ -287,7 +287,7 @@ namespace DHLS {
   class ControlState {
     Wire globalState;
     Wire lastBB;
-    std::vector<Wire> globalStall;
+    //std::vector<Wire> globalStall;
     std::map<llvm::BasicBlock*, int> basicBlockNos;
 
   public:
@@ -305,23 +305,23 @@ namespace DHLS {
       return dbhc::map_find(bb, basicBlockNos);
     }
 
-    void setGlobalStall(const Wire w) {
-      globalStall.push_back(w);
-    }
+    // void setGlobalStall(const Wire w) {
+    //   globalStall.push_back(w);
+    // }
 
     Wire getGlobalState() const {
       return globalState;
     }
 
-    Wire getGlobalStall() const {
-      assert(hasGlobalStall());
-      return globalStall[0];
-    }
+    // Wire getGlobalStall() const {
+    //   assert(hasGlobalStall());
+    //   return globalStall[0];
+    // }
 
-    bool hasGlobalStall() const {
-      assert(globalStall.size() <= 1);
-      return globalStall.size() > 0;
-    }
+    // bool hasGlobalStall() const {
+    //   assert(globalStall.size() <= 1);
+    //   return globalStall.size() > 0;
+    // }
 
     Wire getLastBB() const {
       return lastBB;
@@ -365,9 +365,9 @@ namespace DHLS {
             std::to_string(cs.getBasicBlockNo(&(stg.getFunction()->getEntryBlock())))});
     }
 
-    bool hasGlobalStall() const {
-      return cs.hasGlobalStall();
-    }
+    // bool hasGlobalStall() const {
+    //   return cs.hasGlobalStall();
+    // }
 
     ElaboratedPipeline getPipeline(const StateId state) const {
       assert(DHLS::isPipelineState(state, pipelines));

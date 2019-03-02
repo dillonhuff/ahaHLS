@@ -1512,9 +1512,9 @@ namespace DHLS {
                        map<Instruction*, Wire>& names,
                        const std::vector<ElaboratedPipeline>& pipelines) {
 
-    if (arch.hasGlobalStall()) {
-      out << tab(2) << "if (!global_stall) begin" << endl;
-    }
+    // if (arch.hasGlobalStall()) {
+    //   out << tab(2) << "if (!global_stall) begin" << endl;
+    // }
 
     for (auto state : stg.opTransitions) {
 
@@ -1522,9 +1522,9 @@ namespace DHLS {
 
     }
 
-    if (arch.hasGlobalStall()) {
-      out << tab(2) << "end" << endl;
-    }
+    // if (arch.hasGlobalStall()) {
+    //   out << tab(2) << "end" << endl;
+    // }
     
     out << "\t\tend" << endl;
 
@@ -2141,9 +2141,9 @@ namespace DHLS {
                       MicroArchitecture& arch) {
     out << "\talways @(posedge clk) begin" << endl;
 
-    if (arch.hasGlobalStall()) {
-      out << tab(2) << "if (!global_stall) begin" << endl;
-    }
+    // if (arch.hasGlobalStall()) {
+    //   out << tab(2) << "if (!global_stall) begin" << endl;
+    // }
 
     out << "\t\tif (rst) begin" << endl;
     out << "\t\t\tlast_BB_reg <= " << arch.cs.getBasicBlockNo(&(f->getEntryBlock())) << ";" << endl;
@@ -2192,9 +2192,9 @@ namespace DHLS {
 
     out << "\t\tend" << endl;
 
-    if (arch.hasGlobalStall()) {
-      out << tab(2) << "end" << endl;
-    }
+    // if (arch.hasGlobalStall()) {
+    //   out << tab(2) << "end" << endl;
+    // }
 
     out << "\tend" << endl;
   }
@@ -2338,10 +2338,10 @@ namespace DHLS {
       allPorts.push_back(outputDebugPort(w.width, w.name));
     }
 
-    if (arch.hasGlobalStall()) {
-      Wire stallVar = arch.cs.getGlobalStall();
-      allPorts.push_back(inputPort(stallVar.width, stallVar.name));
-    }
+    // if (arch.hasGlobalStall()) {
+    //   Wire stallVar = arch.cs.getGlobalStall();
+    //   allPorts.push_back(inputPort(stallVar.width, stallVar.name));
+    // }
     
     vector<string> portStrings;
     for (auto pt : allPorts) {
