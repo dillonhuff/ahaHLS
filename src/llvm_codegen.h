@@ -99,11 +99,10 @@ namespace DHLS {
   }
 
   static inline
-  llvm::Function* ramLoadFunction(llvm::Value* ram) {
+  llvm::Function* ramLoadFunction(const int width, const int depth) {
+    // TODO: Add tostring
     auto name = "ram.read.32.16";
 
-    int width = 32;
-    int depth = 16;
     auto& m = getGlobalLLVMModule();
     llvm::Function* fifoRead = m.getFunction(name);
 
@@ -122,11 +121,17 @@ namespace DHLS {
   }
 
   static inline
-  llvm::Function* ramStoreFunction(llvm::Value* ram) {
-    auto name = "ram.write.32.16";
+  llvm::Function* ramLoadFunction(llvm::Value* ram) {
+    // TODO: Compute these values
+    return ramLoadFunction(32, 16);
+  }  
 
-    int width = 32;
-    int depth = 16;
+  static inline
+  llvm::Function* ramStoreFunction(const int width, const int depth) {
+
+    // TODO: Add tostring
+    auto name = "ram.write.32.16";
+        
     auto& m = getGlobalLLVMModule();
     llvm::Function* ramStore = m.getFunction(name);
 
@@ -142,6 +147,12 @@ namespace DHLS {
     assert(llvm::Function::classof(c));
 
     return llvm::dyn_cast<llvm::Function>(c);
+  }
+
+  static inline
+  llvm::Function* ramStoreFunction(llvm::Value* ram) {
+    // TODO: Compute these values
+    return ramStoreFunction(32, 16);
   }
   
   static inline
