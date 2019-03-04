@@ -2771,6 +2771,9 @@ namespace DHLS {
 
     addInputPort(ports, 1, "s_axil_rready");
     
+    addInputPort(ports, 1, "debug_wr_en");
+    addInputPort(ports, addrWidth, "debug_wr_addr");
+    addInputPort(ports, dataWidth, "debug_wr_data");        
 
     map<string, int> defaults{{"s_axil_arvalid", 0},
         {"s_axil_awvalid", 0},

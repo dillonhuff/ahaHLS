@@ -1067,6 +1067,14 @@ namespace DHLS {
     TestBenchSpec tb = buildTB("raw_axi_wr", memoryInit, memoryExpected, testLayout);
     map_insert(tb.actionsOnCycles, 50, assertString("valid === 1"));
 
+    tb.settableWires.insert("ram_debug_wr_en");
+    tb.settableWires.insert("ram_debug_wr_addr");
+    tb.settableWires.insert("ram_debug_wr_data");        
+    map_insert(tb.actionsInCycles, 1, string("ram_debug_wr_en = 1;"));
+    map_insert(tb.actionsInCycles, 1, string("ram_debug_wr_addr = 0;"));
+    map_insert(tb.actionsInCycles, 1, string("ram_debug_wr_data = 12;"));
+    map_insert(tb.actionsInCycles, 2, string("ram_debug_wr_en = 0;"));
+
     auto arch = buildMicroArchitecture(f, graph, layout, hcs);    
     emitVerilogTestBench(tb, arch, testLayout);
     
