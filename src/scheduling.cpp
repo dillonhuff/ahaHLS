@@ -2081,15 +2081,23 @@ namespace DHLS {
 
     // Set address data and wait for slave to be ready for read address
     auto addrVal = getArg(axiRead, 1);
-    
+
+    // State placeholder, replace with start of basic block?
+    auto rdStart = b.CreateCall(readDataF, {readMod});
+
     auto setAddr = b.CreateCall(writeAddrF, {readMod, addrVal});
     auto setAddrValid = b.CreateCall(arValidF, {readMod, mkInt(1, 1)});
     exec.add(instrStart(setAddr) == instrStart(setAddrValid));
+    exec.add(instrStart(setAddr) == instrEnd(rdStart) + 1);
     
     auto stallUntilReadAddrReady =
       stallOnPort(b, readMod, 1, "s_axil_arready", exec);
     exec.add(instrEnd(stallUntilReadAddrReady) > instrStart(setAddr));
 
+    auto stallUntilReadRespReady =
+      stallOnPort(b, readMod, 1, "s_axil_rvalid", exec);
+    exec.add(instrStart(stallUntilReadRespReady) > instrEnd(stallUntilReadAddrReady));
+    
     // auto readAddrReady = b.CreateCall(readAReadyF, {readMod});
     // auto stallUntilReadAddrReady = b.CreateCall(stallF, readAddrReady);
 
@@ -2101,9 +2109,8 @@ namespace DHLS {
     // exec.add(instrStart(readValid) == instrStart(stallUntilReadResponseValid));
 
     auto dataValue = b.CreateCall(readDataF, {readMod});
+    exec.add(instrStart(dataValue) > instrEnd(stallUntilReadRespReady));
     b.CreateRet(dataValue);
-    
-    
 
     //exec.addConstraint(instrStart(readAddrReady) == stallUntilReadAddrReady);    
 
