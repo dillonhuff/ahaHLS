@@ -2015,7 +2015,7 @@ namespace DHLS {
     int dataWidth = getTypeBitWidth(inType);
     int addrWidth = 32;
 
-    auto wAddr = writePort(b, addrWidth, "s_axil_awaddr");
+    auto wAddr = writePort(b, readMod, addrWidth, "s_axil_awaddr");
     b.CreateRet(nullptr);
 
     addDataConstraints(axiWrite, exec);
