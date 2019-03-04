@@ -2695,7 +2695,7 @@ namespace DHLS {
     addInputPort(ports, 3, "s_axil_awprot");
     addInputPort(ports, 1, "s_axil_awvalid");
 
-    addOutputPort(ports, 1, "s_axil_awvalid");    
+    addOutputPort(ports, 1, "s_axil_awready");    
 
     addInputPort(ports, dataWidth, "s_axil_wdata");            
     addInputPort(ports, strbWidth, "s_axil_wstrb");
@@ -2719,7 +2719,10 @@ namespace DHLS {
     addInputPort(ports, 1, "s_axil_rready");
     
 
-    map<string, int> defaults; //{{"s_axil_", 0}};
+    map<string, int> defaults{{"s_axil_arvalid", 0},
+        {"s_axil_awvalid", 0},
+          {"s_axil_wvalid", 0}};
+    
     ModuleSpec mSpec = {modParams, "axil_ram", ports, defaults};
     mSpec.hasClock = true;
     mSpec.hasRst = true;
