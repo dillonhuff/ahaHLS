@@ -33,7 +33,8 @@ int main() {
   implementRAMWrite0(ramWrite,
                      interfaces.getConstraints(ramWrite));
 
-  Schedule s = scheduleInterface(ramWrite, hcs, interfaces);
+  set<BasicBlock*> toPipeline;
+  Schedule s = scheduleInterface(ramWrite, hcs, interfaces, toPipeline, interfaces.getConstraints(ramWrite));
 
   STG graph = buildSTG(s, ramWrite);
 

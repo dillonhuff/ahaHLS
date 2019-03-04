@@ -14,6 +14,28 @@ using namespace std;
 
 namespace DHLS {
 
+  int getArgNum(Argument* arg) {
+    int index = 0;
+    Function* f = arg->getParent();
+    for (auto& nextArg : f->args()) {
+      if (arg == &nextArg) {
+        return index;
+      }
+      index++;
+    }
+    assert(false);
+  }
+  
+  std::string valueArgName(Argument* arg) {
+    string name = arg->getName();
+    if (name == "") {
+      int num = getArgNum(arg);
+      return "arg_" + to_string(num);
+    } else {
+      return name;
+    }
+  }
+  
   bool needsTempStorage(llvm::Instruction* const instr,
                         MicroArchitecture& arch);
 
@@ -106,8 +128,17 @@ namespace DHLS {
         }
 
       }
+    }
 
-
+    // Add value parameters to architecture
+    for (auto& arg : arch.stg.getFunction()->args()) {
+      if (!PointerType::classof(arg.getType())) {
+        Type* tp = arg.getType();
+        assert(IntegerType::classof(tp));
+        auto iTp = dyn_cast<IntegerType>(tp);
+        string name = valueArgName(&arg);
+        pts.push_back(inputPort(getTypeBitWidth(iTp), name));
+      }
     }
 
     return pts;
@@ -965,9 +996,14 @@ namespace DHLS {
 
 
     } else if (Argument::classof(val)) {
-      assert(contains_key(val, arch.memoryMap));
+      if (PointerType::classof(val->getType())) {
+        assert(contains_key(val, arch.memoryMap));
       
-      return to_string(map_find(val, arch.memoryMap));
+        return to_string(map_find(val, arch.memoryMap));
+      } else {
+        cout << "Value argument of type " << typeString(val->getType()) << endl;
+        return valueArgName(dyn_cast<Argument>(val));
+      }
     } else if (ConstantInt::classof(val)) {
       
       auto valC = dyn_cast<ConstantInt>(val);
