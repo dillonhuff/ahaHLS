@@ -1065,6 +1065,7 @@ namespace DHLS {
     map<string, int> testLayout;
     map<Value*, int> layout;    
     TestBenchSpec tb = buildTB("raw_axi_wr", memoryInit, memoryExpected, testLayout);
+    map_insert(tb.actionsOnCycles, 50, assertString("valid === 1"));
 
     auto arch = buildMicroArchitecture(f, graph, layout, hcs);    
     emitVerilogTestBench(tb, arch, testLayout);

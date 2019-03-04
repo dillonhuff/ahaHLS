@@ -2079,9 +2079,16 @@ namespace DHLS {
 
     cout << "Creating rawAXIRead definition" << endl;
 
-    // Wait for slave to be ready for read address
+    // Set address data and wait for slave to be ready for read address
+    auto addrVal = getArg(axiRead, 1);
+    
+    auto setAddr = b.CreateCall(writeAddrF, {readMod, addrVal});
+    auto setAddrValid = b.CreateCall(arValidF, {readMod, mkInt(1, 1)});
+    exec.add(instrStart(setAddr) == instrStart(setAddrValid));
+    
     auto stallUntilReadAddrReady =
       stallOnPort(b, readMod, 1, "s_axil_arready", exec);
+    exec.add(instrEnd(stallUntilReadAddrReady) > instrStart(setAddr));
 
     // auto readAddrReady = b.CreateCall(readAReadyF, {readMod});
     // auto stallUntilReadAddrReady = b.CreateCall(stallF, readAddrReady);
@@ -2092,6 +2099,11 @@ namespace DHLS {
     // auto stallUntilReadResponseValid = b.CreateCall(stallF, readValid);
 
     // exec.add(instrStart(readValid) == instrStart(stallUntilReadResponseValid));
+
+    auto dataValue = b.CreateCall(readDataF, {readMod});
+    b.CreateRet(dataValue);
+    
+    
 
     //exec.addConstraint(instrStart(readAddrReady) == stallUntilReadAddrReady);    
 
@@ -2105,10 +2117,6 @@ namespace DHLS {
     // auto stallUntilValid = b.CreateCall(stallF, {readValid});
     
     // auto dataValue = b.CreateCall(readDataF, {readMod});
-
-    auto dataValue = b.CreateCall(readDataF, {readMod});
-    b.CreateRet(dataValue);
-    
     // exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
 
     // exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setStartRead));

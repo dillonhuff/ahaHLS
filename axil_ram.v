@@ -168,7 +168,7 @@ always @(posedge clk) begin
     end
 
     s_axil_bresp_reg <= s_axil_bresp_next;
-   $display("setting memory with valid address %d, addr = %d", s_axil_awaddr_valid, s_axil_awaddr);
+   //$display("setting memory with valid address %d, addr = %d", s_axil_awaddr_valid, s_axil_awaddr);
 
     for (i = 0; i < WORD_WIDTH; i = i + 1) begin
 
@@ -179,6 +179,10 @@ always @(posedge clk) begin
     end
 end
 
+   always @(posedge clk) begin
+      $display("s_axil_arready = %d", s_axil_arready);         
+      $display("s_axil_arvalid = %d", s_axil_arvalid);   
+   end
 always @* begin
     mem_rd_en = 1'b0;
 
@@ -187,7 +191,6 @@ always @* begin
     s_axil_rvalid_next = s_axil_rvalid_reg && !s_axil_rready;
 
    // $display("======================");
-   // $display("s_axil_arvalid = %d", s_axil_arvalid);   
    // $display("s_axil_rvalid  = %d", s_axil_rvalid);
    // $display("s_axil_arready = %d", s_axil_arready);
    // $display("&&&&&&&&&&&&&&&&&&&&&&");
@@ -199,7 +202,7 @@ always @* begin
         s_axil_rresp_next = 2'b00;
         s_axil_rvalid_next = 1'b1;
 
-       //$display("s_axil_arready_next = %d", s_axil_arready_next);       
+       $display("s_axil_arready_next = %d", s_axil_arready_next);       
         mem_rd_en = 1'b1;
     end
 end
@@ -215,12 +218,12 @@ always @(posedge clk) begin
         s_axil_rresp_reg <= s_axil_rresp_next;
         s_axil_rvalid_reg <= s_axil_rvalid_next;
     end
-   $display("raddr address %d", s_axil_araddr);
-   $display("s_axil_araddr_valid %d", s_axil_araddr_valid);   
+   // $display("raddr address %d", s_axil_araddr);
+   // $display("s_axil_araddr_valid %d", s_axil_araddr_valid);   
 
     if (mem_rd_en) begin
        
-       $display("setting rdata with address %d", s_axil_araddr_valid);
+       $display("setting rdata with address %d, to value %d", s_axil_araddr_valid, mem[s_axil_araddr_valid]);
        
         s_axil_rdata_reg <= mem[s_axil_araddr_valid];
     end
