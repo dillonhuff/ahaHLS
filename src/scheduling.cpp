@@ -1985,57 +1985,6 @@ namespace DHLS {
     addDataConstraints(axiWrite, exec);
   }
 
-  void implementRawAXIWrite(llvm::Function* axiWrite,
-                            ExecutionConstraints& exec) {
-    auto eb = mkBB("entry_block", axiWrite);
-    IRBuilder<> b(eb);
-
-    //auto data = getArg(axiWrite, 2);
-
-    // auto waddr = getArg(axiWrite, 1);
-    // auto wdata = getArg(axiWrite, 2);
-
-    // auto inType = wdata->getType();
-    // int width = getTypeBitWidth(inType);
-
-    // cout << "axi read width = " << width << endl;
-
-    // auto writeMod = getArg(axiWrite, 0);
-
-    // auto writeDataF = writePort("write_data", width, inType);
-    // auto writeAddrF = writePort("write_addr", 5, writeMod->getType());
-    // auto setStartWriteF = writePort("start_write", 1, writeMod->getType());
-
-    // auto readValidF = readPort("valid", 1, writeMod->getType());
-    // auto readReadyF = readPort("ready", 1, writeMod->getType());
-    
-    // auto stallF = stallFunction();
-
-    // auto readReady = b.CreateCall(readReadyF, {writeMod});
-    // auto stallUntilReady = b.CreateCall(stallF, {readReady});
-
-    // auto setStartWrite = b.CreateCall(setStartWriteF, {writeMod, mkInt(1, 1)});
-    // auto setWriteAddr = b.CreateCall(writeAddrF, {writeMod, waddr});
-    // auto setWriteData = b.CreateCall(writeDataF, {writeMod, wdata});
-
-    // auto readValid = b.CreateCall(readValidF, {writeMod});
-    // auto stallUntilValid = b.CreateCall(stallF, {readValid});
-    
-    b.CreateRet(nullptr);
-
-    // exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
-
-    // exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setStartWrite));
-    // exec.addConstraint(instrStart(setStartWrite) == instrStart(setWriteAddr));
-    // exec.addConstraint(instrStart(setStartWrite) == instrStart(setWriteData));
-    
-    // exec.addConstraint(instrEnd(setStartWrite) + 1 == instrStart(stallUntilValid));
-    // exec.addConstraint(instrStart(readValid) == instrStart(stallUntilValid));
-    
-    addDataConstraints(axiWrite, exec);
-
-  }
-
   Instruction* stallOnPort(IRBuilder<>& b,
                            Value* const readMod,
                            const int width,
@@ -2050,7 +1999,29 @@ namespace DHLS {
     exec.add(instrStart(readAddrReady) == instrStart(stallUntilReadAddrReady));
     return stallUntilReadAddrReady;
   }
-  
+
+  // TODO: Implement address shifting / strobe?
+  void implementRawAXIWrite(llvm::Function* axiWrite,
+                            ExecutionConstraints& exec) {
+    auto eb = mkBB("entry_block", axiWrite);
+    IRBuilder<> b(eb);
+
+    auto readMod = getArg(axiWrite, 0);
+    cout << "ReadMod = " << valueString(readMod) << endl;
+    
+    auto axiTp = getPointedToType(readMod->getType());
+
+    auto inType = getArg(axiWrite, 2)->getType();
+    int dataWidth = getTypeBitWidth(inType);
+    int addrWidth = 32;
+
+    auto wAddr = writePort(b, addrWidth, "s_axil_awaddr");
+    b.CreateRet(nullptr);
+
+    addDataConstraints(axiWrite, exec);
+
+  }
+
   void implementRawAXIRead(llvm::Function* axiRead,
                            ExecutionConstraints& exec) {
     auto eb = mkBB("entry_block", axiRead);
@@ -2098,40 +2069,9 @@ namespace DHLS {
       stallOnPort(b, readMod, 1, "s_axil_rvalid", exec);
     exec.add(instrStart(stallUntilReadRespReady) == instrStart(stallUntilReadAddrReady));
     
-    // auto readAddrReady = b.CreateCall(readAReadyF, {readMod});
-    // auto stallUntilReadAddrReady = b.CreateCall(stallF, readAddrReady);
-
-    // // Wait for slave to produce read response
-    // auto readResponseReady = b.CreateCall(writeRReadyF, {readMod, mkInt(1, 1)});
-    // auto readValid = b.CreateCall(rValidF, {readMod});
-    // auto stallUntilReadResponseValid = b.CreateCall(stallF, readValid);
-
-    // exec.add(instrStart(readValid) == instrStart(stallUntilReadResponseValid));
-
     auto dataValue = b.CreateCall(readDataF, {readMod});
     exec.add(instrStart(dataValue) == instrEnd(stallUntilReadRespReady));
-    b.CreateRet(mkInt(23, dataWidth));
-
-    //exec.addConstraint(instrStart(readAddrReady) == stallUntilReadAddrReady);    
-
-    // auto readReady = b.CreateCall(readReadyF, {readMod});
-    // auto stallUntilReady = b.CreateCall(stallF, {readReady});
-
-    // auto setStartRead = b.CreateCall(writeStartReadF, {readMod, mkInt(1, 1)});
-    // auto writeAddr = b.CreateCall(writeRaddrF, {readMod, getArg(axiRead, 1)});
-
-    // auto readValid = b.CreateCall(readValidF, {readMod});
-    // auto stallUntilValid = b.CreateCall(stallF, {readValid});
-    
-    // auto dataValue = b.CreateCall(readDataF, {readMod});
-    // exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
-
-    // exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setStartRead));
-    // exec.addConstraint(instrStart(setStartRead) == instrStart(writeAddr));
-
-    // exec.addConstraint(instrEnd(setStartRead) + 1 == instrStart(stallUntilValid));
-    // exec.addConstraint(instrStart(readValid) == instrStart(stallUntilValid));
-    // exec.addConstraint(instrStart(dataValue) == instrStart(stallUntilValid));
+    b.CreateRet(dataValue);
 
     addDataConstraints(axiRead, exec);
 
