@@ -2096,7 +2096,7 @@ namespace DHLS {
 
     auto stallUntilReadRespReady =
       stallOnPort(b, readMod, 1, "s_axil_rvalid", exec);
-    exec.add(instrStart(stallUntilReadRespReady) > instrEnd(stallUntilReadAddrReady));
+    exec.add(instrStart(stallUntilReadRespReady) == instrStart(stallUntilReadAddrReady));
     
     // auto readAddrReady = b.CreateCall(readAReadyF, {readMod});
     // auto stallUntilReadAddrReady = b.CreateCall(stallF, readAddrReady);
@@ -2110,7 +2110,7 @@ namespace DHLS {
 
     auto dataValue = b.CreateCall(readDataF, {readMod});
     exec.add(instrStart(dataValue) > instrEnd(stallUntilReadRespReady));
-    b.CreateRet(dataValue);
+    b.CreateRet(mkInt(23, dataWidth));
 
     //exec.addConstraint(instrStart(readAddrReady) == stallUntilReadAddrReady);    
 
@@ -2777,7 +2777,8 @@ namespace DHLS {
 
     map<string, int> defaults{{"s_axil_arvalid", 0},
         {"s_axil_awvalid", 0},
-          {"s_axil_wvalid", 0}};
+          {"s_axil_wvalid", 0},
+            {"s_axil_rready", 1}};
     
     ModuleSpec mSpec = {modParams, "axil_ram", ports, defaults};
     mSpec.hasClock = true;

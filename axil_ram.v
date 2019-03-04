@@ -181,7 +181,8 @@ end
 
    always @(posedge clk) begin
       $display("s_axil_arready = %d", s_axil_arready);         
-      $display("s_axil_arvalid = %d", s_axil_arvalid);   
+      $display("s_axil_arvalid = %d", s_axil_arvalid);
+      $display("s_axil_rvalid = %d", s_axil_rvalid);         
    end
 always @* begin
     mem_rd_en = 1'b0;
