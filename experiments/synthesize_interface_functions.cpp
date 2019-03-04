@@ -23,6 +23,7 @@ int main() {
   hcs.typeSpecs[string("SRAM_32_16")] =
     [](StructType* tp) { return ramSpec(32, 16); };
   InterfaceFunctions interfaces;
+  
   Function* ramRead = ramLoadFunction(32, 16);
   interfaces.addFunction(ramRead);
   implementRAMRead0(ramRead,
@@ -34,17 +35,37 @@ int main() {
                      interfaces.getConstraints(ramWrite));
 
   set<BasicBlock*> toPipeline;
-  Schedule s = scheduleInterface(ramWrite, hcs, interfaces, toPipeline, interfaces.getConstraints(ramWrite));
 
-  STG graph = buildSTG(s, ramWrite);
+  // Emit write
+  {
+    Schedule s = scheduleInterface(ramWrite, hcs, interfaces, toPipeline, interfaces.getConstraints(ramWrite));
 
-  cout << "STG Is" << endl;
-  graph.print(cout);
+    STG graph = buildSTG(s, ramWrite);
 
-  map<llvm::Value*, int> layout;
-  auto arch = buildMicroArchitecture(ramWrite, graph, layout, hcs);
+    cout << "STG Is" << endl;
+    graph.print(cout);
 
-  VerilogDebugInfo info;
-  emitVerilog("ram_write", graph, hcs, info);
+    map<llvm::Value*, int> layout;
+    auto arch = buildMicroArchitecture(ramWrite, graph, layout, hcs);
 
+    VerilogDebugInfo info;
+    emitVerilog("ram_write", graph, hcs, info);
+  }
+  
+  // Emit read
+  {
+    Schedule s = scheduleInterface(ramRead, hcs, interfaces, toPipeline, interfaces.getConstraints(ramRead));
+
+    STG graph = buildSTG(s, ramRead);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<llvm::Value*, int> layout;
+    auto arch = buildMicroArchitecture(ramRead, graph, layout, hcs);
+
+    VerilogDebugInfo info;
+    emitVerilog("ram_read", graph, hcs, info);
+  }
+  
 }
