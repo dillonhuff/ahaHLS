@@ -1631,7 +1631,8 @@ namespace DHLS {
   Schedule scheduleInterface(llvm::Function* f,
                              HardwareConstraints& hcs,
                              InterfaceFunctions& interfaces);
-  
+
+  ModuleSpec axiRamSpec(llvm::StructType* tp);  
 }
 
 

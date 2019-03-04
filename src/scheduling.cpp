@@ -2041,14 +2041,14 @@ namespace DHLS {
     auto eb = mkBB("entry_block", axiRead);
     IRBuilder<> b(eb);
 
-    // auto readMod = getArg(axiRead, 0);
+    auto readMod = getArg(axiRead, 0);
 
-    // auto outType = axiRead->getReturnType();
-    // int width = getTypeBitWidth(outType);
+    auto outType = axiRead->getReturnType();
+    int width = getTypeBitWidth(outType);
 
-    // cout << "axi read width = " << width << endl;
+    cout << "axi read width = " << width << endl;
 
-    // auto readDataF = readPort("read_data", width, outType);
+    auto readDataF = readPort("s_axil_rdata", width, outType);
     // auto writeRaddrF = writePort("read_addr", 5, readMod->getType());
     // auto writeStartReadF = writePort("start_read", 1, readMod->getType());
 
@@ -2068,7 +2068,7 @@ namespace DHLS {
     
     // auto dataValue = b.CreateCall(readDataF, {readMod});
 
-    auto dataValue = mkInt(0, 32); //b.CreateCall(readDataF, {readMod});    
+    auto dataValue = b.CreateCall(readDataF, {readMod});
     b.CreateRet(dataValue);
     
     // exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
@@ -2668,6 +2668,62 @@ namespace DHLS {
                              InterfaceFunctions& interfaces) {
     set<BasicBlock*> toPipeline;
     return scheduleInterface(f, hcs, interfaces, toPipeline);
+  }
+
+  void addInputPort(map<string, Port>& ports,
+                    const int width,
+                    const std::string name) {
+    ports.insert({name, inputPort(width, name)});
+  }
+
+  void addOutputPort(map<string, Port>& ports,
+                     const int width,
+                     const std::string name) {
+    ports.insert({name, outputPort(width, name)});
+  }
+  
+  ModuleSpec axiRamSpec(llvm::StructType* tp) {
+    int addrWidth = 16;
+    int dataWidth = 32;    
+    int strbWidth = 32 / 8;
+    
+    map<string, string> modParams{{"ADDR_WIDTH", to_string(addrWidth)},
+        {"DATA_WIDTH", to_string(dataWidth)}};
+    
+    map<string, Port> ports;
+    addInputPort(ports, addrWidth, "s_axil_awaddr");
+    addInputPort(ports, 3, "s_axil_awprot");
+    addInputPort(ports, 1, "s_axil_awvalid");
+
+    addOutputPort(ports, 1, "s_axil_awvalid");    
+
+    addInputPort(ports, dataWidth, "s_axil_wdata");            
+    addInputPort(ports, strbWidth, "s_axil_wstrb");
+    addInputPort(ports, 1, "s_axil_wvalid");
+
+    addOutputPort(ports, 1, "s_axil_wready");
+    addOutputPort(ports, 2, "s_axil_bresp");                
+    addOutputPort(ports, 1, "s_axil_bvalid");
+
+    addInputPort(ports, 1, "s_axil_bready");
+
+    addInputPort(ports, addrWidth, "s_axil_araddr");
+    addInputPort(ports, 3, "s_axil_arprot");
+    addInputPort(ports, 1, "s_axil_arvalid");
+
+    addOutputPort(ports, 1, "s_axil_arready");
+    addOutputPort(ports, dataWidth, "s_axil_rdata");
+    addOutputPort(ports, 2, "s_axil_rresp");
+    addOutputPort(ports, 1, "s_axil_rvalid");
+
+    addInputPort(ports, 1, "s_axil_rready");
+    
+
+    map<string, int> defaults; //{{"s_axil_", 0}};
+    ModuleSpec mSpec = {modParams, "axil_ram", ports, defaults};
+    mSpec.hasClock = true;
+    mSpec.hasRst = true;
+    return mSpec;
   }
   
 }

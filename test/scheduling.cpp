@@ -82,18 +82,6 @@ namespace DHLS {
     return {modParams, "axi_read_handler", ports, defaults};
   }
 
-  ModuleSpec axiRamSpec(llvm::StructType* tp) {
-    map<string, string> modParams;
-    map<string, Port> ports{{"read_data", outputPort(32, "read_data")},
-        {"read_addr", inputPort(5, "read_addr")},
-          {"valid", outputPort(1, "valid")},
-            {"ready", outputPort(1, "ready")},
-              {"start_read", inputPort(1, "start_read")}};
-    
-    map<string, int> defaults{{"start_read", 0}};
-    return {modParams, "axil_ram", ports, defaults};
-  }
-  
   ModuleSpec ramSpecFunc(llvm::StructType* tp) {
     auto elems = tp->elements();
     assert(elems.size() == 1);
@@ -154,7 +142,6 @@ namespace DHLS {
   //    Test case using a ready-valid interface together with pipelining
   //    Test case that builds a linebuffer from LLVM
   //    Test case with struct (compound type) passed via channel (or used by value)
-  //    Test case with many instances of a template class
   TEST_CASE("Schedule a single store operation") {
     SMDiagnostic err;
     LLVMContext context;
@@ -908,7 +895,6 @@ namespace DHLS {
     emitVerilog("blur_lb", graph, hcs); //, arch, info);
 
     // Testbench specification
-
     map<string, int> testLayout = {{"a", 0}, {"b", 8}};
     map<string, vector<int> > memoryInit{{"a", {0, 1, 2, 3, 7, 5, 5, 2}}};
     map<string, vector<int> > memoryExpected{{"b", {}}};
@@ -920,17 +906,6 @@ namespace DHLS {
 
     TestBenchSpec tb = buildTB("blur_lb", memoryInit, memoryExpected, testLayout);
     tb.useModSpecs = true;
-
-    // TestBenchSpec tb;
-    // tb.memoryInit = memoryInit;
-    // tb.memoryExpected = memoryExpected;
-    // tb.runCycles = 40;
-    // tb.name = "blur_lb";
-    
-    // cout << "Expected values" << endl;
-    // for (auto val : map_find(string("b"), memoryExpected)) {
-    //   cout << "\t" << val << endl;
-    // }
 
     emitVerilogTestBench(tb, arch, testLayout);
 
@@ -1077,16 +1052,7 @@ namespace DHLS {
 
     emitVerilog("raw_axi_wr", graph, hcs, info);
 
-    // map<string, int> layout;
-    // auto arch = buildMicroArchitecture(f, graph, layout, hcs);    
-
-    // map<string, int> testLayout;
-    // TestBenchSpec tb;
-    // tb.runCycles = 60;
-    // tb.name = "brighter";
-    // emitVerilogTestBench(tb, arch, testLayout);
-    
-    // REQUIRE(runIVerilogTB("raw_axi_wr"));
+    //REQUIRE(runIVerilogTB("raw_axi_wr"));
   }
   
   // Random Thought: Test if an access pattern maps onto a cache type
@@ -1327,7 +1293,7 @@ namespace DHLS {
     graph.print(cout);
 
     map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 15}};
-    map<llvm::Value*, int> layout; // = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 15}};
+    map<llvm::Value*, int> layout;
     auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
 
     VerilogDebugInfo info;
