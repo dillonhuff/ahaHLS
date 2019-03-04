@@ -26,11 +26,11 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_5();
-
-	add call_10();
+	add call_8();
 
 	add call_13();
+
+	add call_5();
 
 	// End Functional Units
 
@@ -176,6 +176,13 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 			arg_0_input_b_stb_reg = 0;
 			arg_0_rst_reg = 0;
 		end else 		if ((global_state == 3)) begin 
+				//   call void @builtin_write_port_input_b_stb(%builtin_fadd* %arg_0, i1 true)
+				if (arg_0_input_b_ack) begin
+				arg_0_input_b_stb_reg = -(1'd1);
+				end
+				//   %1 = call i1 @builtin_read_port_input_b_ack(%builtin_fadd* %arg_0)
+				if (arg_0_input_b_ack) begin
+				end
 				//   call void @builtin_write_port_input_a_stb(%builtin_fadd* %arg_0, i1 false)
 				if (arg_0_input_b_ack) begin
 				arg_0_input_a_stb_reg = (1'd0);
@@ -183,13 +190,6 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 				//   call void @builtin_write_port_input_b(%builtin_fadd* %arg_0, i32 %arg_2)
 				if (arg_0_input_b_ack) begin
 				arg_0_input_b_reg = arg_2;
-				end
-				//   call void @builtin_write_port_input_b_stb(%builtin_fadd* %arg_0, i1 true)
-				if (arg_0_input_b_ack) begin
-				arg_0_input_b_stb_reg = -(1'd1);
-				end
-				//   %1 = call i1 @builtin_read_port_input_b_ack(%builtin_fadd* %arg_0)
-				if (arg_0_input_b_ack) begin
 				end
 			arg_0_input_a_reg = 0;
 			arg_0_rst_reg = 0;

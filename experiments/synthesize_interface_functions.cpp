@@ -257,5 +257,38 @@ int main() {
     VerilogDebugInfo info;
     emitVerilog("fpu_add", graph, hcs, info);
   }
+
+  {
+
+    std::string name = "class.axi_ram";
+    llvm::StructType* tp = getGlobalLLVMModule().getTypeByName(name);
+    if (tp == nullptr) {
+      tp = llvm::StructType::create(getGlobalLLVMContext(), name);
+    }
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.typeSpecs[tp->getName()] = axiRamSpec;
+    
+    InterfaceFunctions interfaces;
+    Function* axiRead = mkFunc({tp->getPointerTo(), intType(32)}, intType(32), "axi_read");
+    
+    interfaces.addFunction(axiRead);
+    implementRawAXIRead(axiRead, interfaces.getConstraints(axiRead));
+    
+    Schedule s = scheduleInterface(axiRead, hcs, interfaces, toPipeline, interfaces.getConstraints(axiRead));
+    STG graph = buildSTG(s, axiRead);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<Value*, int> layout;    
+    auto arch = buildMicroArchitecture(axiRead, graph, layout, hcs);
+
+    VerilogDebugInfo info;
+    emitVerilog("axi_read", graph, hcs, info);
+
+
+    
+  }
   
 }
