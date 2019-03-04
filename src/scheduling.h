@@ -1632,7 +1632,10 @@ namespace DHLS {
                              HardwareConstraints& hcs,
                              InterfaceFunctions& interfaces);
 
-  ModuleSpec axiRamSpec(llvm::StructType* tp);  
+  ModuleSpec axiRamSpec(llvm::StructType* tp);
+
+
+  ModuleSpec fifoSpec32(StructType* tp);  
 }
 
 

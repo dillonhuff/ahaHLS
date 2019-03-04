@@ -2397,10 +2397,6 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("sys_array_1_2"));
   }
 
-  ModuleSpec fifoSpec32(StructType* tp) {
-    return fifoSpec(32, 16);
-  }
-
   TEST_CASE("Builtin FIFO as argument to function") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
