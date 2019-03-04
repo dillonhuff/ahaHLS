@@ -122,3 +122,7 @@ compound_fifo.v
 histogram.v
 reduce_4
 reduce_4_tb.v
+stencil_stream_rw*
+stencil_mul_2*
+stencil_stream_mul*
+stencil_copy*
