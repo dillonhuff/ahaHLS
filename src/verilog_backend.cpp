@@ -2117,6 +2117,27 @@ namespace DHLS {
     
   }
 
+
+  void emitVerilog(const std::string& name,
+                   STG& graph,
+                   HardwareConstraints& hcs,
+                   VerilogDebugInfo& info) {
+    auto f = graph.getFunction();
+    map<llvm::Value*, int> layout = {};
+    // ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+
+    //addNoXChecks(arch, info);
+    emitVerilog(name, f, arch, info);
+  }
+
+  void emitVerilog(const std::string& name,
+                   STG& graph,
+                   HardwareConstraints& hcs) {
+    VerilogDebugInfo info;
+    emitVerilog(name, graph, hcs, info);
+  }
+  
   void emitVerilog(llvm::Function* f,
                    const STG& stg,
                    std::map<std::string, int>& memoryMap) {
@@ -3091,5 +3112,40 @@ namespace DHLS {
   void TestBenchSpec::settablePort(llvm::Argument* arg, std::string port) {
     settableWires.insert(argName(arg) + "_" + port);
   }
+
+  MicroArchitecture synthesizeVerilog(llvm::Function* f,
+                                      InterfaceFunctions& interfaces,
+                                      HardwareConstraints& hcs) {
+    ExecutionConstraints exec;
+    inlineWireCalls(f, exec, interfaces);
+    addDataConstraints(f, exec);
+
+    cout << "LLVM function after inlining reads" << endl;
+    cout << valueString(f) << endl;
+
+    set<BasicBlock*> toPipeline;
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    exec.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG is " << endl;
+    graph.print(cout);
+    
+    map<llvm::Value*, int> layout = {};
+    //ArchOptions options;
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+
+    VerilogDebugInfo info;
+    //addNoXChecks(arch, info);
+
+    emitVerilog(f, arch, info);
+
+    return arch;
+  }
+
   
 }

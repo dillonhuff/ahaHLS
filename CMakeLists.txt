@@ -42,3 +42,7 @@ target_link_libraries(make-bindings dhls ${llvm_libs})
 SET(ALL_REDUCE_4_FILES experiments/synthesize_reduce_4.cpp)
 add_executable(synthesize-reduce-4 ${ALL_REDUCE_4_FILES})
 target_link_libraries(synthesize-reduce-4 dhls ${llvm_libs})
+
+SET(ALL_INTERFACE_FUNCTION_FILES experiments/synthesize_interface_functions.cpp)
+add_executable(synthesize-interface-functions ${ALL_INTERFACE_FUNCTION_FILES})
+target_link_libraries(synthesize-interface-functions dhls ${llvm_libs})

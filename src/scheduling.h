@@ -1596,7 +1596,42 @@ namespace DHLS {
                             ExecutionConstraints& exec);
 
   void implementRawAXIRead(llvm::Function* axiWrite,
-                           ExecutionConstraints& exec);  
+                           ExecutionConstraints& exec);
+
+
+  ModuleSpec ramSpec(const int width,
+                     const int depth,
+                     const int numReadPorts,
+                     const int numWritePorts);
+  
+  ModuleSpec ramSpec(const int width, const int depth);
+
+  void implementRAMRead0(Function* ramRead0, ExecutionConstraints& exec);
+  void implementRAMRead1(Function* ramRead1, ExecutionConstraints& exec);
+  void implementRAMRead2(Function* ramRead1, ExecutionConstraints& exec);
+  void implementRAMWrite0(Function* ramWrite0, ExecutionConstraints& exec);
+
+  Schedule scheduleInterface(llvm::Function* f,
+                             HardwareConstraints& hcs,
+                             InterfaceFunctions& interfaces,
+                             std::set<BasicBlock*>& toPipeline,
+                             ExecutionConstraints& exec);
+  
+  Schedule scheduleInterface(llvm::Function* f,
+                             HardwareConstraints& hcs,
+                             InterfaceFunctions& interfaces,
+                             std::set<BasicBlock*>& toPipeline);
+  
+  Schedule scheduleInterface(llvm::Function* f,
+                             HardwareConstraints& hcs,
+                             InterfaceFunctions& interfaces,
+                             std::set<BasicBlock*>& toPipeline,
+                             ExecutionConstraints& exec);
+  
+  Schedule scheduleInterface(llvm::Function* f,
+                             HardwareConstraints& hcs,
+                             InterfaceFunctions& interfaces);
+  
 }
 
 

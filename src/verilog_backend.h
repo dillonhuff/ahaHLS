@@ -486,6 +486,15 @@ namespace DHLS {
     addAlwaysBlock({"clk"}, assertString(condition), info); 
   }
 
+
+  void emitVerilog(const std::string& name,
+                   STG& graph,
+                   HardwareConstraints& hcs,
+                   VerilogDebugInfo& info);
+
+  void emitVerilog(const std::string& name,
+                   STG& graph,
+                   HardwareConstraints& hcs);
   
   void emitVerilog(llvm::Function* f,
                    MicroArchitecture& arch,
@@ -594,5 +603,9 @@ namespace DHLS {
                    llvm::Function* f,
                    MicroArchitecture& arch,
                    const VerilogDebugInfo& debugInfo);
+
+  MicroArchitecture synthesizeVerilog(llvm::Function* f,
+                                      InterfaceFunctions& interfaces,
+                                      HardwareConstraints& hcs);
   
 }
