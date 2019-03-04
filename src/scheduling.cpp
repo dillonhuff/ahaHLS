@@ -2042,20 +2042,25 @@ namespace DHLS {
     IRBuilder<> b(eb);
 
     auto readMod = getArg(axiRead, 0);
-
-    auto outType = axiRead->getReturnType();
-    int width = getTypeBitWidth(outType);
-
-    cout << "axi read width = " << width << endl;
-
-    auto readDataF = readPort("s_axil_rdata", width, outType);
-    // auto writeRaddrF = writePort("read_addr", 5, readMod->getType());
-    // auto writeStartReadF = writePort("start_read", 1, readMod->getType());
-
-    // auto readValidF = readPort("valid", 1, readMod->getType());    
-    // auto readReadyF = readPort("ready", 1, readMod->getType());
+    auto axiTp = readMod->getType();
     
-    // auto stallF = stallFunction();
+    auto outType = axiRead->getReturnType();
+    int dataWidth = getTypeBitWidth(outType);
+    int addrWidth = 32;
+
+    cout << "axi read width = " << dataWidth << endl;
+
+    auto readDataF = readPort("s_axil_rdata", dataWidth, axiTp);
+    auto writeAddrF = writePort("s_axil_araddr", addrWidth, axiTp);
+
+    auto arValidF = writePort("s_axil_arvalid", 1, axiTp);
+    auto rValidF = readPort("s_axil_rvalid", 1, axiTp);
+
+    auto writeRReadyF = writePort("s_axil_rready", 1, axiTp);
+    auto readAReadyF = readPort("s_axil_arready", 1, axiTp);
+
+    auto readRResp = readPort("s_axil_rresp", 2, axiTp);
+    auto stallF = stallFunction();
 
     // auto readReady = b.CreateCall(readReadyF, {readMod});
     // auto stallUntilReady = b.CreateCall(stallF, {readReady});
