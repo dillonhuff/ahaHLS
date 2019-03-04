@@ -1066,14 +1066,19 @@ namespace DHLS {
     map<Value*, int> layout;    
     TestBenchSpec tb = buildTB("raw_axi_wr", memoryInit, memoryExpected, testLayout);
     map_insert(tb.actionsOnCycles, 50, assertString("valid === 1"));
-
+    map_insert(tb.actionsOnCycles, 50, assertString("ram_debug_data === 24"));
+    
     tb.settableWires.insert("ram_debug_wr_en");
     tb.settableWires.insert("ram_debug_wr_addr");
-    tb.settableWires.insert("ram_debug_wr_data");        
+    tb.settableWires.insert("ram_debug_wr_data");
+    tb.settableWires.insert("ram_debug_addr");            
     map_insert(tb.actionsInCycles, 1, string("ram_debug_wr_en = 1;"));
     map_insert(tb.actionsInCycles, 1, string("ram_debug_wr_addr = 0;"));
     map_insert(tb.actionsInCycles, 1, string("ram_debug_wr_data = 12;"));
     map_insert(tb.actionsInCycles, 2, string("ram_debug_wr_en = 0;"));
+
+    map_insert(tb.actionsInCycles, 49, string("ram_debug_addr = 1;"));
+    map_insert(tb.actionsInCycles, 50, string("ram_debug_addr = 1;"));
 
     auto arch = buildMicroArchitecture(f, graph, layout, hcs);    
     emitVerilogTestBench(tb, arch, testLayout);

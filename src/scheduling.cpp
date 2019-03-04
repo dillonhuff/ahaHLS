@@ -2109,7 +2109,7 @@ namespace DHLS {
     // exec.add(instrStart(readValid) == instrStart(stallUntilReadResponseValid));
 
     auto dataValue = b.CreateCall(readDataF, {readMod});
-    exec.add(instrStart(dataValue) > instrEnd(stallUntilReadRespReady));
+    exec.add(instrStart(dataValue) == instrEnd(stallUntilReadRespReady));
     b.CreateRet(mkInt(23, dataWidth));
 
     //exec.addConstraint(instrStart(readAddrReady) == stallUntilReadAddrReady);    
@@ -2770,7 +2770,9 @@ namespace DHLS {
     addOutputPort(ports, 1, "s_axil_rvalid");
 
     addInputPort(ports, 1, "s_axil_rready");
-    
+
+    addOutputPort(ports, dataWidth, "debug_data");        
+    addInputPort(ports, addrWidth, "debug_addr");    
     addInputPort(ports, 1, "debug_wr_en");
     addInputPort(ports, addrWidth, "debug_wr_addr");
     addInputPort(ports, dataWidth, "debug_wr_data");        
