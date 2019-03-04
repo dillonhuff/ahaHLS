@@ -327,5 +327,10 @@ namespace DHLS {
   std::string ifStr(const std::string s) {
     return "if " + parens(s);
   }
+
+  Type* getPointedToType(llvm::Type* tp) {
+    assert(PointerType::classof(tp));
+    return dyn_cast<PointerType>(tp)->getElementType();
+  }
   
 }

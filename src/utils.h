@@ -196,4 +196,6 @@ namespace DHLS {
 
   bool matchesCall(std::string str, llvm::Instruction* const iptr);
 
+  llvm::Type* getPointedToType(llvm::Type* tp);
+
 }

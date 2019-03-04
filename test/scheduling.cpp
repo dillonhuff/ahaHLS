@@ -712,6 +712,10 @@ namespace DHLS {
               std::map<string, vector<int> >& memoryInit,
               std::map<string, int>& testLayout) {
 
+    if (memoryInit.size() == 0) {
+      return;
+    }
+
     tb.settableWires.insert(name + "_debug_write_addr");
     tb.settableWires.insert(name + "_debug_write_data");
     tb.settableWires.insert(name + "_debug_write_en");
@@ -738,6 +742,10 @@ namespace DHLS {
                 const std::string name,
                 std::map<string, vector<int> >& memoryExpected,
                 std::map<string, int>& testLayout) {
+
+    if (memoryExpected.size() == 0) {
+      return;
+    }
 
     tb.settableWires.insert(name + "_debug_addr");
         
@@ -1017,7 +1025,7 @@ namespace DHLS {
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
 
     emitVerilog("stalled_single_store_axi", graph, hcs, info);
-
+    
     REQUIRE(runIVerilogTB("stalled_single_store_axi"));
   }
 
@@ -1052,7 +1060,16 @@ namespace DHLS {
 
     emitVerilog("raw_axi_wr", graph, hcs, info);
 
-    //REQUIRE(runIVerilogTB("raw_axi_wr"));
+    map<string, vector<int> > memoryInit;
+    map<string, vector<int> > memoryExpected;
+    map<string, int> testLayout;
+    map<Value*, int> layout;    
+    TestBenchSpec tb = buildTB("raw_axi_wr", memoryInit, memoryExpected, testLayout);
+
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);    
+    emitVerilogTestBench(tb, arch, testLayout);
+    
+    REQUIRE(runIVerilogTB("raw_axi_wr"));
   }
   
   // Random Thought: Test if an access pattern maps onto a cache type

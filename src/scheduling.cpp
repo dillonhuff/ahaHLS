@@ -2036,14 +2036,31 @@ namespace DHLS {
 
   }
 
+  Instruction* stallOnPort(IRBuilder<>& b,
+                           Value* const readMod,
+                           const int width,
+                           const std::string portName,
+                           ExecutionConstraints& exec) {
+    auto modType = getPointedToType(readMod->getType());
+    auto stallF = stallFunction();
+    auto readAReadyF = readPort(portName, width, modType);
+    
+    auto readAddrReady = b.CreateCall(readAReadyF, {readMod});
+    auto stallUntilReadAddrReady = b.CreateCall(stallF, readAddrReady);
+    exec.add(instrStart(readAddrReady) == instrStart(stallUntilReadAddrReady));
+    return stallUntilReadAddrReady;
+  }
+  
   void implementRawAXIRead(llvm::Function* axiRead,
                            ExecutionConstraints& exec) {
     auto eb = mkBB("entry_block", axiRead);
     IRBuilder<> b(eb);
 
     auto readMod = getArg(axiRead, 0);
-    auto axiTp = readMod->getType();
+    cout << "ReadMod = " << valueString(readMod) << endl;
     
+    auto axiTp = getPointedToType(readMod->getType());
+
     auto outType = axiRead->getReturnType();
     int dataWidth = getTypeBitWidth(outType);
     int addrWidth = 32;
@@ -2057,10 +2074,26 @@ namespace DHLS {
     auto rValidF = readPort("s_axil_rvalid", 1, axiTp);
 
     auto writeRReadyF = writePort("s_axil_rready", 1, axiTp);
-    auto readAReadyF = readPort("s_axil_arready", 1, axiTp);
 
     auto readRResp = readPort("s_axil_rresp", 2, axiTp);
-    auto stallF = stallFunction();
+
+    cout << "Creating rawAXIRead definition" << endl;
+
+    // Wait for slave to be ready for read address
+    auto stallUntilReadAddrReady =
+      stallOnPort(b, readMod, 1, "s_axil_arready", exec);
+
+    // auto readAddrReady = b.CreateCall(readAReadyF, {readMod});
+    // auto stallUntilReadAddrReady = b.CreateCall(stallF, readAddrReady);
+
+    // // Wait for slave to produce read response
+    // auto readResponseReady = b.CreateCall(writeRReadyF, {readMod, mkInt(1, 1)});
+    // auto readValid = b.CreateCall(rValidF, {readMod});
+    // auto stallUntilReadResponseValid = b.CreateCall(stallF, readValid);
+
+    // exec.add(instrStart(readValid) == instrStart(stallUntilReadResponseValid));
+
+    //exec.addConstraint(instrStart(readAddrReady) == stallUntilReadAddrReady);    
 
     // auto readReady = b.CreateCall(readReadyF, {readMod});
     // auto stallUntilReady = b.CreateCall(stallF, {readReady});
