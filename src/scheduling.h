@@ -1194,12 +1194,7 @@ namespace DHLS {
     virtual void replaceAction(ExecutionAction& toReplace,
                                ExecutionAction& replacement) = 0;
     
-    // virtual void replaceStart(Instruction* const toReplace,
-    //                           Instruction* const replacement) = 0;
-    // virtual void replaceEnd(Instruction* const toReplace,
-    //                         Instruction* const replacement) = 0;
-
-    virtual bool references(Instruction* instr) const = 0;
+    //virtual bool references(Instruction* instr) const = 0;
     virtual ExecutionConstraint* clone() const = 0;
     virtual void print(std::ostream& out) const = 0;    
     virtual ~ExecutionConstraint() {}
@@ -1251,28 +1246,6 @@ namespace DHLS {
       after(after_),
       restriction(restriction_) {}
 
-    // virtual void replaceStart(Instruction* const toReplace,
-    //                           Instruction* const replacement) override {
-    //   if (before.isStart()) {
-    //     before.replaceInstruction(toReplace, replacement);
-    //   }
-    //   if (after.isStart()) {
-    //     after.replaceInstruction(toReplace, replacement);
-    //   }
-    // }
-
-    // virtual void replaceEnd(Instruction* const toReplace,
-    //                         Instruction* const replacement) override {
-    //   if (before.isEnd) {
-    //     before.replaceInstruction(toReplace, replacement);
-    //   }
-
-    //   if (after.isEnd) {
-    //     after.replaceInstruction(toReplace, replacement);
-    //   }
-      
-    // }
-    
     virtual ExecutionConstraintType type() const override {
       return CONSTRAINT_TYPE_ORDERED;
     }
@@ -1287,18 +1260,6 @@ namespace DHLS {
       return new Ordered(beforeCpy, afterCpy, restriction);
     }
     
-    virtual bool references(Instruction* instr) const override {
-      if (before.action.isInstruction() && (before.action.getInstruction() == instr)) {
-        return true;
-      }
-
-      if (after.action.isInstruction() && (after.action.getInstruction() == instr)) {
-        return true;
-      }
-
-      return false;
-    }
-
     virtual void replaceAction(ExecutionAction& toReplace,
                                ExecutionAction& replacement) override {
       before.replaceAction(toReplace, replacement);
