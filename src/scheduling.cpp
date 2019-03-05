@@ -758,7 +758,7 @@ namespace DHLS {
   // Solution to binding: Assume always unique, then modify program later
   // to reflect resource constraints?
 
-  // I also need to think about how to convert the readport, writeport API
+  // I also need to think about how to convert the readport, writeport APIxo
   // description in a function in to sequential code snippets that can be
   // used to drive a simulated model of a program.
   void
@@ -950,7 +950,7 @@ namespace DHLS {
             int rawDD = rawOperandDD(&instrA, &instrB, domTree);
             if (rawDD > 0) {
               p.addConstraint(p.instrEnd(&instrA) < II*rawDD + p.instrStart(&instrB));
-              //exe.addConstraint(instrEnd(&instrA) < II*rawDD + instrStart(&instrB));
+              //exe.addConstraint(new ILPConstraint(instrEnd(&instrA) < II*rawDD + instrStart(&instrB)));
             }
 
             if (StoreInst::classof(&instrA) &&
