@@ -282,23 +282,6 @@ namespace DHLS {
 
   OperationType opType(llvm::Instruction* const iptr);
 
-  // enum FifoInterface {
-  //   FIFO_TIMED,
-  //   FIFO_RV,
-  // };
-
-  // class FifoSpec {
-  // public:
-  //   int readDelay;
-  //   int writeDelay;
-  //   FifoInterface interface;
-
-  //   FifoSpec() : readDelay(0), writeDelay(0), interface(FIFO_RV) {}
-    
-  //   FifoSpec(const int rd_, const int wd_, const FifoInterface interface_) :
-  //     readDelay(rd_), writeDelay(wd_), interface(interface_) {}
-  // };
-  
   class HardwareConstraints {
 
     std::map<OperationType, int> latencies;
@@ -573,14 +556,6 @@ namespace DHLS {
 
     return out;
   }
-
-  // class GuardedInstruction {
-  // public:
-  //   llvm::Instruction* instruction;
-  //   //Condition cond;
-  // };
-
-  //std::ostream& operator<<(std::ostream& out, const Instruction*& t);
 
   typedef int StateId;
 
@@ -1219,10 +1194,10 @@ namespace DHLS {
     virtual void replaceAction(ExecutionAction& toReplace,
                                ExecutionAction& replacement) = 0;
     
-    virtual void replaceStart(Instruction* const toReplace,
-                              Instruction* const replacement) = 0;
-    virtual void replaceEnd(Instruction* const toReplace,
-                            Instruction* const replacement) = 0;
+    // virtual void replaceStart(Instruction* const toReplace,
+    //                           Instruction* const replacement) = 0;
+    // virtual void replaceEnd(Instruction* const toReplace,
+    //                         Instruction* const replacement) = 0;
 
     virtual bool references(Instruction* instr) const = 0;
     virtual ExecutionConstraint* clone() const = 0;
@@ -1276,27 +1251,27 @@ namespace DHLS {
       after(after_),
       restriction(restriction_) {}
 
-    virtual void replaceStart(Instruction* const toReplace,
-                              Instruction* const replacement) override {
-      if (before.isStart()) {
-        before.replaceInstruction(toReplace, replacement);
-      }
-      if (after.isStart()) {
-        after.replaceInstruction(toReplace, replacement);
-      }
-    }
+    // virtual void replaceStart(Instruction* const toReplace,
+    //                           Instruction* const replacement) override {
+    //   if (before.isStart()) {
+    //     before.replaceInstruction(toReplace, replacement);
+    //   }
+    //   if (after.isStart()) {
+    //     after.replaceInstruction(toReplace, replacement);
+    //   }
+    // }
 
-    virtual void replaceEnd(Instruction* const toReplace,
-                            Instruction* const replacement) override {
-      if (before.isEnd) {
-        before.replaceInstruction(toReplace, replacement);
-      }
+    // virtual void replaceEnd(Instruction* const toReplace,
+    //                         Instruction* const replacement) override {
+    //   if (before.isEnd) {
+    //     before.replaceInstruction(toReplace, replacement);
+    //   }
 
-      if (after.isEnd) {
-        after.replaceInstruction(toReplace, replacement);
-      }
+    //   if (after.isEnd) {
+    //     after.replaceInstruction(toReplace, replacement);
+    //   }
       
-    }
+    // }
     
     virtual ExecutionConstraintType type() const override {
       return CONSTRAINT_TYPE_ORDERED;
