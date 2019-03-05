@@ -715,33 +715,35 @@ namespace DHLS {
   
   HardwareConstraints standardConstraints();
 
-  class LinearExpression {
-    std::map<std::string, int> vars;
+  template<typename T>
+  class LinearExpr {
+    //std::map<std::string, int> vars;
+    std::map<T, int> vars;
     int c;
 
   public:
 
-    LinearExpression(const std::string var_) :
+    LinearExpr(const T var_) :
       vars({{var_, 1}}), c(0) {}
 
-    LinearExpression(int c_) :
+    LinearExpr(int c_) :
       vars({}), c(c_) {}
     
-    LinearExpression(std::map<std::string, int>& vars_, const int c_) :
+    LinearExpr(std::map<T, int>& vars_, const int c_) :
       vars(vars_), c(c_) {}
 
-    LinearExpression() : vars({}), c(0) {}
+    LinearExpr() : vars({}), c(0) {}
 
-    LinearExpression scalarMul(const int k) const {
-      std::map<std::string, int> mulVars;
+    LinearExpr<T> scalarMul(const int k) const {
+      std::map<T, int> mulVars;
       for (auto v : vars) {
         mulVars.insert({v.first, k*v.second});
       }
       return {mulVars, k*getCoeff()};
     }
     
-    LinearExpression sub(const LinearExpression& right) const {
-      std::map<std::string, int> subVars;
+    LinearExpr<T> sub(const LinearExpr<T>& right) const {
+      std::map<T, int> subVars;
       auto rightVars = right.getVars();
       for (auto v : vars) {
         if (dbhc::contains_key(v.first, rightVars)) {
@@ -760,8 +762,8 @@ namespace DHLS {
       return {subVars, c - right.getCoeff()};
     }
 
-    LinearExpression add(const LinearExpression& right) const {
-      std::map<std::string, int> addVars;
+    LinearExpr<T> add(const LinearExpr<T>& right) const {
+      std::map<T, int> addVars;
       auto rightVars = right.getVars();
       for (auto v : vars) {
         if (dbhc::contains_key(v.first, rightVars)) {
@@ -784,15 +786,17 @@ namespace DHLS {
       return c;
     }
 
-    std::map<std::string, int> getVars() const {
+    std::map<T, int> getVars() const {
       return vars;
     }
 
-    int getValue(const std::string& var) {
+    int getValue(const T& var) {
       assert(dbhc::contains_key(var, vars));
       return dbhc::map_find(var, vars);
     }
   };
+
+  typedef LinearExpr<std::string> LinearExpression;
 
   static inline
   std::ostream& operator<<(std::ostream& out, const LinearExpression expr) {
@@ -1181,7 +1185,8 @@ namespace DHLS {
 
   enum ExecutionConstraintType {
     CONSTRAINT_TYPE_ORDERED,
-    CONSTRAINT_TYPE_STALL,    
+    CONSTRAINT_TYPE_STALL,
+    CONSTRAINT_TYPE_ILP,        
   };
 
   class ExecutionConstraint {
@@ -1194,7 +1199,6 @@ namespace DHLS {
     virtual void replaceAction(ExecutionAction& toReplace,
                                ExecutionAction& replacement) = 0;
     
-    //virtual bool references(Instruction* instr) const = 0;
     virtual ExecutionConstraint* clone() const = 0;
     virtual void print(std::ostream& out) const = 0;    
     virtual ~ExecutionConstraint() {}
