@@ -981,95 +981,95 @@ namespace DHLS {
     return left.scalarMul(c);
   }
   
-  static inline
-  LinearConstraint
-  operator>=(const LinearExpression left, const LinearExpression right) {
+  template<typename T> static inline
+  LinearCon<T>
+  operator>=(const LinearExpr<T> left, const LinearExpr<T> right) {
     return {left - right, CMP_GTEZ};
   }
 
-  static inline
-  LinearConstraint
-  operator>=(const LinearExpression left, const int right) {
-    return {left - LinearExpression(right), CMP_GTEZ};
+  template<typename T> static inline
+  LinearCon<T>
+  operator>=(const LinearExpr<T> left, const int right) {
+    return {left - LinearExpr<T>(right), CMP_GTEZ};
   }
 
-  static inline
-  LinearConstraint
-  operator>=(const int left, const LinearExpression right) {
-    return {LinearExpression(left) - right, CMP_GTEZ};
+  template<typename T> static inline
+  LinearCon<T>
+  operator>=(const int left, const LinearExpr<T> right) {
+    return {LinearExpr<T>(left) - right, CMP_GTEZ};
   }
 
-  static inline
-  LinearConstraint
-  operator<=(const LinearExpression left, const LinearExpression right) {
+  template<typename T> static inline
+  LinearCon<T>
+  operator<=(const LinearExpr<T> left, const LinearExpr<T> right) {
     return {left - right, CMP_LTEZ};
   }
 
-  static inline
-  LinearConstraint
-  operator<=(const LinearExpression left, const int right) {
-    return {left - LinearExpression(right), CMP_LTEZ};
+  template<typename T> static inline
+  LinearCon<T>
+  operator<=(const LinearExpr<T> left, const int right) {
+    return {left - LinearExpr<T>(right), CMP_LTEZ};
   }
 
-  static inline
-  LinearConstraint
-  operator<=(const int left, const LinearExpression right) {
-    return {LinearExpression(left) - right, CMP_LTEZ};
+  template<typename T> static inline
+  LinearCon<T>
+  operator<=(const int left, const LinearExpr<T> right) {
+    return {LinearExpr<T>(left) - right, CMP_LTEZ};
   }
 
-  static inline
-  LinearConstraint
-  operator==(const LinearExpression left, const LinearExpression right) {
+  template<typename T> static inline
+  LinearCon<T>
+  operator==(const LinearExpr<T> left, const LinearExpr<T> right) {
     return {left - right, CMP_EQZ};
   }
 
-  static inline
-  LinearConstraint
-  operator==(const LinearExpression left, const int right) {
-    return {left - LinearExpression(right), CMP_EQZ};
+  template<typename T> static inline
+  LinearCon<T>
+  operator==(const LinearExpr<T> left, const int right) {
+    return {left - LinearExpr<T>(right), CMP_EQZ};
   }
 
-  static inline
-  LinearConstraint
-  operator==(const int left, const LinearExpression right) {
-    return {LinearExpression(left) - right, CMP_EQZ};
+  template<typename T> static inline
+  LinearCon<T>
+  operator==(const int left, const LinearExpr<T> right) {
+    return {LinearExpr<T>(left) - right, CMP_EQZ};
   }
 
   // ---
-  static inline
-  LinearConstraint
-  operator<(const LinearExpression left, const LinearExpression right) {
+  template<typename T> static inline
+  LinearCon<T>
+  operator<(const LinearExpr<T> left, const LinearExpr<T> right) {
     return {left - right, CMP_LTZ};
   }
 
-  static inline
-  LinearConstraint
-  operator<(const LinearExpression left, const int right) {
-    return {left - LinearExpression(right), CMP_LTZ};
+  template<typename T> static inline
+  LinearCon<T>
+  operator<(const LinearExpr<T> left, const int right) {
+    return {left - LinearExpr<T>(right), CMP_LTZ};
   }
 
-  static inline
-  LinearConstraint
-  operator>(const int left, const LinearExpression right) {
-    return {LinearExpression(left) - right, CMP_GTZ};
+  template<typename T> static inline
+  LinearCon<T>
+  operator>(const int left, const LinearExpr<T> right) {
+    return {LinearExpr<T>(left) - right, CMP_GTZ};
   }
 
-  static inline
-  LinearConstraint
-  operator>(const LinearExpression left, const LinearExpression right) {
+  template<typename T> static inline
+  LinearCon<T>
+  operator>(const LinearExpr<T> left, const LinearExpr<T> right) {
     return {left - right, CMP_GTZ};
   }
 
-  static inline
-  LinearConstraint
-  operator>(const LinearExpression left, const int right) {
-    return {left - LinearExpression(right), CMP_GTZ};
+  template<typename T> static inline
+  LinearCon<T>
+  operator>(const LinearExpr<T> left, const int right) {
+    return {left - LinearExpr<T>(right), CMP_GTZ};
   }
 
-  static inline
-  LinearConstraint
-  operator<(const int left, const LinearExpression right) {
-    return {LinearExpression(left) - right, CMP_LTZ};
+  template<typename T> static inline
+  LinearCon<T>
+  operator<(const int left, const LinearExpr<T> right) {
+    return {LinearExpr<T>(left) - right, CMP_LTZ};
   }
   
   Schedule buildFromModel(SchedulingProblem& p);
