@@ -2035,7 +2035,7 @@ namespace DHLS {
     exec.addConstraint(instrStart(wAddr) == instrStart(wAWValid));
     exec.addConstraint(instrStart(wDataValid0) == instrStart(wAWValid));
     exec.addConstraint(instrStart(wDataValid0) == instrStart(wData0));        
-    exec.addConstraint(instrStart(stallOnWriteDataReady) > instrEnd(wAWValid));    
+    exec.addConstraint(instrStart(stallOnWriteDataReady) > instrEnd(wAWValid));
 
     auto wAWValid0 = writePort(b, readMod, 1, "s_axil_awvalid", mkInt(1, 1));
     auto wData = writePort(b, readMod, dataWidth, "s_axil_wdata", inData);
