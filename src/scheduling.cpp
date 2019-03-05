@@ -2000,6 +2000,16 @@ namespace DHLS {
     return stallUntilReadAddrReady;
   }
 
+  Instruction* writePort(IRBuilder<>& b,
+                         Value* const writeMod,
+                         const int width,
+                         const std::string name,
+                         Value* const toWrite) {
+    auto writeF = writePort(name, width, getPointedToType(writeMod->getType()));
+    auto writeInstr = b.CreateCall(writeF, {writeMod, toWrite});
+    return writeInstr;
+  }
+
   // TODO: Implement address shifting / strobe?
   void implementRawAXIWrite(llvm::Function* axiWrite,
                             ExecutionConstraints& exec) {
@@ -2009,14 +2019,31 @@ namespace DHLS {
     auto readMod = getArg(axiWrite, 0);
     cout << "ReadMod = " << valueString(readMod) << endl;
     
-    auto axiTp = getPointedToType(readMod->getType());
-
     auto inType = getArg(axiWrite, 2)->getType();
     int dataWidth = getTypeBitWidth(inType);
     int addrWidth = 32;
 
-    auto wAddr = writePort(b, readMod, addrWidth, "s_axil_awaddr");
-    auto wAWValid = writePort(b, readMod, 1, "s_axil_awvalid");
+    auto inAddr = getArg(axiWrite, 1);
+    auto inData = getArg(axiWrite, 2);    
+
+    auto wAddr = writePort(b, readMod, addrWidth, "s_axil_awaddr", inAddr);
+    auto wAWValid = writePort(b, readMod, 1, "s_axil_awvalid", mkInt(1, 1));
+    auto wDataValid0 = writePort(b, readMod, 1, "s_axil_wvalid", mkInt(1, 1));
+    auto wData0 = writePort(b, readMod, dataWidth, "s_axil_wdata", inData);
+    auto stallOnWriteDataReady = stallOnPort(b, readMod, 1, "s_axil_wready", exec);
+    
+    exec.addConstraint(instrStart(wAddr) == instrStart(wAWValid));
+    exec.addConstraint(instrStart(wDataValid0) == instrStart(wAWValid));
+    exec.addConstraint(instrStart(wDataValid0) == instrStart(wData0));        
+    exec.addConstraint(instrStart(stallOnWriteDataReady) > instrEnd(wAWValid));    
+
+    auto wAWValid0 = writePort(b, readMod, 1, "s_axil_awvalid", mkInt(1, 1));
+    auto wData = writePort(b, readMod, dataWidth, "s_axil_wdata", inData);
+    auto wDataValid = writePort(b, readMod, 1, "s_axil_wvalid", mkInt(1, 1));
+    exec.addConstraint(instrEnd(stallOnWriteDataReady) == instrStart(wData));
+    exec.addConstraint(instrEnd(stallOnWriteDataReady) == instrStart(wDataValid));
+    exec.addConstraint(instrEnd(stallOnWriteDataReady) == instrStart(wAWValid0));
+
     b.CreateRet(nullptr);
 
     addDataConstraints(axiWrite, exec);
