@@ -798,8 +798,9 @@ namespace DHLS {
 
   typedef LinearExpr<std::string> LinearExpression;
 
+  template<typename T>
   static inline
-  std::ostream& operator<<(std::ostream& out, const LinearExpression expr) {
+  std::ostream& operator<<(std::ostream& out, const LinearExpr<T> expr) {
     auto vars = expr.getVars();
     for (auto v : vars) {
       out << v.second << "*" << v.first << " + ";
@@ -1304,6 +1305,60 @@ namespace DHLS {
     }
   };
 
+  class ILPConstraint : public ExecutionConstraint {
+  public:
+    LinearCon<ExecutionAction> constraint;
+
+    ILPConstraint(const LinearCon<ExecutionAction>& constraint_) :
+      constraint(constraint_) {}
+
+    virtual ExecutionConstraintType type() const override {
+      return CONSTRAINT_TYPE_ILP;
+    }
+
+    virtual void print(std::ostream& out) const override {
+      assert(false);
+      // out << constraint << endl;
+    }
+    
+    virtual ExecutionConstraint* clone() const override {
+      LinearCon<ExecutionAction> cpy = constraint;
+      return new ILPConstraint(cpy);
+      // InstructionTime beforeCpy(before);
+      // InstructionTime afterCpy(after);      
+      // return new Ordered(beforeCpy, afterCpy, restriction);
+    }
+    
+    virtual void replaceAction(ExecutionAction& toReplace,
+                               ExecutionAction& replacement) override {
+      assert(false);
+      // before.replaceAction(toReplace, replacement);
+      // after.replaceAction(toReplace, replacement);      
+    }
+    
+    virtual void replaceInstruction(Instruction* const toReplace,
+                                    Instruction* const replacement) override {
+      assert(false);
+      // before.replaceInstruction(toReplace, replacement);
+      // after.replaceInstruction(toReplace, replacement);      
+    }
+    
+    virtual void addSelfTo(SchedulingProblem& p, Function* f) override {
+      assert(false);
+      // LinearExpression aTime = toLinearExpression(after, p);
+      // LinearExpression bTime = toLinearExpression(before, p);
+      // if (restriction == ORDER_RESTRICTION_SIMULTANEOUS) {
+      //   p.addConstraint(bTime == aTime);
+      // } else if (restriction == ORDER_RESTRICTION_BEFORE) {
+      //   p.addConstraint(bTime < aTime);
+      // } else if (restriction == ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS) {
+      //   p.addConstraint(bTime <= aTime);        
+      // } else {
+      //   assert(false);
+      // }
+    }
+  };
+  
   static inline
   Ordered* operator<(InstructionTime before, InstructionTime after) {
     return new Ordered(before, after, ORDER_RESTRICTION_BEFORE);
