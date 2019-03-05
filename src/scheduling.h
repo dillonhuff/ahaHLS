@@ -817,11 +817,14 @@ namespace DHLS {
     CMP_EQZ
   };
 
-  class LinearConstraint {
+  template<typename T>
+  class LinearCon {
   public:
-    LinearExpression expr;
+    LinearExpr<T> expr;
     ZCondition cond;
   };
+
+  typedef LinearCon<std::string> LinearConstraint;
 
   static inline
   std::string toString(const ZCondition cond) {
@@ -950,21 +953,31 @@ namespace DHLS {
     }
   };
 
+  template<typename T>
   static inline
-  LinearExpression
-  operator-(const LinearExpression left, const LinearExpression right) {
+  LinearExpr<T>
+  operator-(const LinearExpr<T> left, const LinearExpr<T> right) {
     return left.sub(right);
   }
 
+  template<typename T>  
   static inline
-  LinearExpression
-  operator+(const LinearExpression left, const LinearExpression right) {
+  LinearExpr<T>
+  operator+(const LinearExpr<T> left, const LinearExpr<T> right) {
     return left.add(right);
   }
 
+  template<typename T>  
   static inline
-  LinearExpression
-  operator*(const LinearExpression left, const int c) {
+  LinearExpr<T>
+  operator+(const LinearExpr<T> left, const int right) {
+    return left.add(LinearExpr<T>(right));
+  }
+  
+  template<typename T>  
+  static inline
+  LinearExpr<T>
+  operator*(const LinearExpr<T> left, const int c) {
     return left.scalarMul(c);
   }
   
@@ -1316,7 +1329,7 @@ namespace DHLS {
     std::vector<ExecutionConstraint*> constraints;
 
     std::vector<ExecutionConstraint*>
-    //    constraintsOnStart(llvm::Instruction* const instr) const {
+
     constraintsOnStart(ExecutionAction instr) const {    
       std::vector<ExecutionConstraint*> on;      
       for (auto c : constraints) {
@@ -1327,11 +1340,6 @@ namespace DHLS {
               (oc->after.action == instr)) {
             on.push_back(c);
           }
-
-          // else if (oc->before.isStart() &&
-          //            (oc->before.action == instr)) {
-          //   on.push_back(c);
-          // }
 
         } else {
           std::cout << "No constraint on stalls yet" << std::endl;
@@ -1379,7 +1387,6 @@ namespace DHLS {
     void addConstraints(SchedulingProblem& p,
                         Function* f) {
       for (auto c : constraints) {
-        //std::cout << "Adding constraint " << *c << " to problem" << std::endl;
         c->addSelfTo(p, f);
       }
     }
