@@ -118,8 +118,6 @@ namespace DHLS {
   // Q: System TODOs:
   // A: Remove useless address fields from registers (allow custom memory interfaces)
   //    Move test layout into testbenchspec
-  //    Incorporate fifoSpecs in to scheduling constraints automatically instead of
-  //      of setting them in HardwareConstraints?
   //    Add some simple examples to the README
   //    Convert ptr to builtin codes to RAM templates
   //    Shrink registers to reduce area costs
@@ -3155,7 +3153,6 @@ namespace DHLS {
     HardwareConstraints hcs = standardConstraints();
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
-    //setAllAllocaMemTypes(hcs, f, registerSpec(width));
     hcs.typeSpecs[tp->getName()] =
       [width](StructType* tp) { return wireSpec(width); };
 
@@ -3247,7 +3244,6 @@ namespace DHLS {
     HardwareConstraints hcs = standardConstraints();
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
-    //setAllAllocaMemTypes(hcs, f, registerSpec(width));
     hcs.typeSpecs["builtin_fifo_32"] =
       [width](StructType* tp) { return wireSpec(width); };
 
@@ -3363,7 +3359,6 @@ namespace DHLS {
     HardwareConstraints hcs = standardConstraints();
     // TODO: Do this by default
     hcs.memoryMapping = memoryOpLocations(f);
-    //setAllAllocaMemTypes(hcs, f, registerSpec(width));
     hcs.typeSpecs["builtin_fifo_32"] =
       [width](StructType* tp) { return wireSpec(width); };
     
@@ -3607,8 +3602,6 @@ namespace DHLS {
       {"rst", 0}
     };
 
-    //
-    //setAllAllocaMemTypes(hcs, f, registerSpec(width));
     hcs.typeSpecs[fpuType->getName()] =
       [adderPorts, defaults](StructType* fp) { return ModuleSpec({}, "adder", adderPorts, defaults); };
     hcs.typeSpecs["builtin_fifo_32"] =
@@ -4353,8 +4346,6 @@ namespace DHLS {
     HardwareConstraints hcs = standardConstraints();
     // TODO: Make pointers to primitives registers of their width by default
     hcs.memoryMapping = memoryOpLocations(f);
-    // int width = 64;
-    //setAllAllocaMemTypes(hcs, f, registerSpec(width));
     
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;

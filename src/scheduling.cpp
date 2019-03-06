@@ -2518,64 +2518,14 @@ namespace DHLS {
     return ramSpec(width, depth, 1, 1);
   }
 
-
-  void implementRAMRead0(Function* ramRead0, ExecutionConstraints& exec) {
-    int addrWidth = getValueBitWidth(getArg(ramRead0, 1));
-    int width = getTypeBitWidth(ramRead0->getReturnType());
-    auto sramTp = getArg(ramRead0, 0)->getType();
-
-    auto waddr0F = writePort("raddr_0", addrWidth, sramTp);
-    auto rdata0F = readPort("rdata_0", width, sramTp);
-
-    auto sram = getArg(ramRead0, 0);
-    auto addr = getArg(ramRead0, 1);
-
-    auto bb = mkBB("entry_block", ramRead0);
-    IRBuilder<> eb(bb);
-    auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
-    auto readData = eb.CreateCall(rdata0F, {sram});
-    eb.CreateRet(readData);
-
-    exec.add(instrStart(setAddr) + 1 == instrStart(readData));
-
-    addDataConstraints(ramRead0, exec);
-    
-    cout << "-- # of constraints on read function = " << exec.constraints.size() << endl;
-    for (auto c : exec.constraints) {
-      cout << tab(1) << *c << endl;
-    }
-
-  }
-
-  void implementRAMRead1(Function* ramRead1, ExecutionConstraints& exec) {
+  void implementRAMRead(Function* ramRead1, ExecutionConstraints& exec, const int portNo) {
     int addrWidth = getValueBitWidth(getArg(ramRead1, 1));
     int width = getTypeBitWidth(ramRead1->getReturnType());
     auto sramTp = getArg(ramRead1, 0)->getType();
 
-    auto waddr0F = writePort("raddr_1", addrWidth, sramTp);
-    auto rdata0F = readPort("rdata_1", width, sramTp);
-
-    auto sram = getArg(ramRead1, 0);
-    auto addr = getArg(ramRead1, 1);
-
-    auto bb = mkBB("entry_block", ramRead1);
-    IRBuilder<> eb(bb);
-    auto setAddr = eb.CreateCall(waddr0F, {sram, addr});
-    auto readData = eb.CreateCall(rdata0F, {sram});
-    eb.CreateRet(readData);
-
-    exec.add(instrStart(setAddr) + 1 == instrStart(readData));
-
-    addDataConstraints(ramRead1, exec);
-  }
-
-  void implementRAMRead2(Function* ramRead1, ExecutionConstraints& exec) {
-    int addrWidth = getValueBitWidth(getArg(ramRead1, 1));
-    int width = getTypeBitWidth(ramRead1->getReturnType());
-    auto sramTp = getArg(ramRead1, 0)->getType();
-
-    auto waddr0F = writePort("raddr_2", addrWidth, sramTp);
-    auto rdata0F = readPort("rdata_2", width, sramTp);
+    string iStr = to_string(portNo);
+    auto waddr0F = writePort("raddr_" + iStr, addrWidth, sramTp);
+    auto rdata0F = readPort("rdata_" + iStr, width, sramTp);
 
     auto sram = getArg(ramRead1, 0);
     auto addr = getArg(ramRead1, 1);
@@ -2591,6 +2541,18 @@ namespace DHLS {
     addDataConstraints(ramRead1, exec);
   }
   
+  void implementRAMRead0(Function* ramRead0, ExecutionConstraints& exec) {
+    return implementRAMRead(ramRead0, exec, 0);
+  }
+
+  void implementRAMRead1(Function* ramRead1, ExecutionConstraints& exec) {
+    return implementRAMRead(ramRead1, exec, 1);    
+  }
+
+  void implementRAMRead2(Function* ramRead1, ExecutionConstraints& exec) {
+    return implementRAMRead(ramRead1, exec, 2);
+  }
+
   void implementRAMWrite0(Function* ramWrite0, ExecutionConstraints& exec) {
     int addrWidth = getValueBitWidth(getArg(ramWrite0, 1));
     int width = getValueBitWidth(getArg(ramWrite0, 2));
@@ -2648,7 +2610,6 @@ namespace DHLS {
                              InterfaceFunctions& interfaces,
                              std::set<BasicBlock*>& toPipeline,
                              ExecutionConstraints& exec) {
-
 
     cout << "Before inlining" << endl;
     cout << valueString(f) << endl;
