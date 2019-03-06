@@ -134,6 +134,7 @@ int main() {
     Function* fadd =
       mkFunc({fpuType->getPointerTo(), intType(width), intType(width)}, intType(width), "jd_fadd");
     interfaces.addFunction(fadd);
+
     {
       ExecutionConstraints& exec = interfaces.getConstraints(fadd);
       auto entryBlock = mkBB("entry_block", fadd);
@@ -161,14 +162,16 @@ int main() {
       // Wait until next cycle
       auto rst1 = b.CreateCall(writeRst, {fpu, mkInt(0, 1)});
 
-      exec.endsBeforeStarts(rst0, rst1);
+      exec.add(instrEnd(rst0) < instrStart(rst1));
+      //exec.endsBeforeStarts(rst0, rst1);
 
       auto wA = b.CreateCall(writeA, {fpu, a});
       auto wAStb = b.CreateCall(writeAStb, {fpu, mkInt(1, 1)});
 
       exec.add(instrEnd(rst1) < instrStart(wA));
       //exec.startSameTime(rst1, wA);    
-      exec.startSameTime(wA, wAStb);    
+      //exec.startSameTime(wA, wAStb);
+      exec.add(instrStart(wA) == instrStart(wAStb));
 
       // Wait for input_a_ack == 1, and then wait 1 more cycle
       auto aAck = b.CreateCall(readAAck, {fpu});
@@ -193,16 +196,21 @@ int main() {
       
       // A / B stall
       exec.addConstraint(instrStart(aAck) == instrEnd(wAStb));
-      exec.startsBeforeStarts(aAck, wAStb0);
+      //exec.startsBeforeStarts(aAck, wAStb0);
+      exec.add(instrStart(aAck) < instrStart(wAStb0));
       exec.addConstraint(instrStart(stallUntilAAck) == instrEnd(aAck));
 
       
-      exec.startSameTime(wA, wAStb);
+      //exec.startSameTime(wA, wAStb);
+      exec.add(instrStart(wA) == instrStart(wAStb));
 
       exec.addConstraint(instrStart(bAck) == instrEnd(wBStb));
-      exec.endsBeforeStarts(bAck, wBStb0);
+      //exec.endsBeforeStarts(bAck, wBStb0);
+      exec.add(instrEnd(bAck) < instrStart(wBStb0));
+
       exec.addConstraint(instrStart(stallUntilBAck) == instrEnd(bAck));
-      exec.startSameTime(wB, wBStb);    
+      //exec.startSameTime(wB, wBStb);
+      exec.add(instrStart(wB) == instrStart(wBStb));    
 
       // Wait for A to be written before writing b
       exec.addConstraint(instrEnd(aAck) < instrStart(wB));
@@ -210,9 +218,11 @@ int main() {
       // Wait for b to be acknowledged before reading Z
       exec.addConstraint(instrEnd(bAck) < instrStart(val));
 
-      exec.startSameTime(val, zStb);
+      //exec.startSameTime(val, zStb);
+      exec.add(instrStart(val) == instrStart(zStb));
 
-      exec.startSameTime(stallUntilZStb, zStb);
+      //exec.startSameTime(stallUntilZStb, zStb);
+      exec.add(instrStart(stallUntilZStb) == instrStart(zStb));
       addDataConstraints(fadd, exec);
     }
 

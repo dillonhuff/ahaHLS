@@ -1395,52 +1395,11 @@ namespace DHLS {
   public:
     std::vector<ExecutionConstraint*> constraints;
 
-    std::vector<ExecutionConstraint*>
-
-    constraintsOnStart(ExecutionAction instr) const {    
-      std::vector<ExecutionConstraint*> on;      
-      for (auto c : constraints) {
-        if (c->type() == CONSTRAINT_TYPE_ORDERED) {
-          Ordered* oc = static_cast<Ordered*>(c);
-
-          if (oc->after.isStart() &&
-              (oc->after.action == instr)) {
-            on.push_back(c);
-          }
-
-        } else {
-          std::cout << "No constraint on stalls yet" << std::endl;
-          assert(false);
-        }
-      }
-      return on;
-    }
-
     void remove(ExecutionConstraint* c) {
       assert(dbhc::elem(c, constraints));
 
       dbhc::remove(c, constraints);
       delete c;
-    }
-
-    std::vector<ExecutionConstraint*>
-    constraintsOnEnd(ExecutionAction instr) const {
-      std::vector<ExecutionConstraint*> on;
-      for (auto c : constraints) {
-        if (c->type() == CONSTRAINT_TYPE_ORDERED) {
-          Ordered* oc = static_cast<Ordered*>(c);
-
-          if (oc->after.isEnd &&
-              (oc->after.action == instr)) {
-
-            on.push_back(c);
-          }
-        } else {
-          std::cout << "No constraint on stalls yet" << std::endl;
-          assert(false);
-        }
-      }
-      return on;
     }
     
     void addConstraint(ExecutionConstraint* c) {
@@ -1458,25 +1417,25 @@ namespace DHLS {
       }
     }
 
-    void startsBeforeStarts(Instruction* const before,
-                            Instruction* const after) {
-      constraints.push_back(new Ordered(instrStart(before), instrStart(after), ORDER_RESTRICTION_BEFORE));
-    }
+    // void startsBeforeStarts(Instruction* const before,
+    //                         Instruction* const after) {
+    //   constraints.push_back(new Ordered(instrStart(before), instrStart(after), ORDER_RESTRICTION_BEFORE));
+    // }
     
-    void endsBeforeStarts(Instruction* const before,
-                          Instruction* const after) {
-      constraints.push_back(new Ordered(instrEnd(before), instrStart(after), ORDER_RESTRICTION_BEFORE));
-    }
+    // void endsBeforeStarts(Instruction* const before,
+    //                       Instruction* const after) {
+    //   constraints.push_back(new Ordered(instrEnd(before), instrStart(after), ORDER_RESTRICTION_BEFORE));
+    // }
 
-    void startsBeforeEnds(Instruction* const before,
-                          Instruction* const after) {
-      constraints.push_back(new Ordered(instrStart(before), instrEnd(after), ORDER_RESTRICTION_BEFORE));
-    }
+    // void startsBeforeEnds(Instruction* const before,
+    //                       Instruction* const after) {
+    //   constraints.push_back(new Ordered(instrStart(before), instrEnd(after), ORDER_RESTRICTION_BEFORE));
+    // }
     
-    void startSameTime(Instruction* const before,
-                       Instruction* const after) {
-      constraints.push_back(new Ordered(instrStart(before), instrStart(after), ORDER_RESTRICTION_SIMULTANEOUS));
-    }
+    // void startSameTime(Instruction* const before,
+    //                    Instruction* const after) {
+    //   constraints.push_back(new Ordered(instrStart(before), instrStart(after), ORDER_RESTRICTION_SIMULTANEOUS));
+    // }
     
     ~ExecutionConstraints() {
       for (auto c : constraints) {
