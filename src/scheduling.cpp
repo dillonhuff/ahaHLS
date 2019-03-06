@@ -2004,6 +2004,7 @@ namespace DHLS {
     auto inAddr = getArg(axiWrite, 1);
     auto inData = getArg(axiWrite, 2);    
 
+    auto wBready1 = writePort(b, readMod, 1, "s_axil_bready", mkInt(1, 1));
     auto wAddr = writePort(b, readMod, addrWidth, "s_axil_awaddr", inAddr);
     auto wAWValid = writePort(b, readMod, 1, "s_axil_awvalid", mkInt(1, 1));
     auto wDataValid0 = writePort(b, readMod, 1, "s_axil_wvalid", mkInt(1, 1));
@@ -2011,6 +2012,7 @@ namespace DHLS {
     auto stallOnWriteDataReady = stallOnPort(b, readMod, 1, "s_axil_wready", exec);
     
     exec.addConstraint(instrStart(wAddr) == instrStart(wAWValid));
+    exec.addConstraint(instrStart(wBready1) == instrStart(wAWValid));
     exec.addConstraint(instrStart(wDataValid0) == instrStart(wAWValid));
     exec.addConstraint(instrStart(wDataValid0) == instrStart(wData0));        
     exec.addConstraint(instrStart(stallOnWriteDataReady) > instrEnd(wAWValid));
@@ -2681,7 +2683,8 @@ namespace DHLS {
     map<string, int> defaults{{"s_axil_arvalid", 0},
         {"s_axil_awvalid", 0},
           {"s_axil_wvalid", 0},
-            {"s_axil_rready", 1}};
+            {"s_axil_wstrb", (1 << 5) - 1},          
+              {"s_axil_rready", 1}};
     
     ModuleSpec mSpec = {modParams, "axil_ram", ports, defaults};
     mSpec.hasClock = true;
