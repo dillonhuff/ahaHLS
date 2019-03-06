@@ -2025,7 +2025,10 @@ namespace DHLS {
     exec.addConstraint(instrEnd(stallOnWriteDataReady) == instrStart(wDataValid));
     exec.addConstraint(instrEnd(stallOnWriteDataReady) == instrStart(wAWValid0));
 
-    b.CreateRet(nullptr);
+    auto ret = b.CreateRet(nullptr);
+
+    // TODO: Remove via instruction masking
+    exec.addConstraint(instrStart(ret) == instrEnd(stallOnWriteDataReady) + 1);
 
     addDataConstraints(axiWrite, exec);
 

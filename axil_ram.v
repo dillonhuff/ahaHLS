@@ -152,7 +152,7 @@ always @* begin
         s_axil_bresp_next = 2'b00;
         s_axil_bvalid_next = 1'b1;
 
-       //$display("mem_wr_enabled");
+       $display("mem_wr_enabled");
        
 
         mem_wr_en = 1'b1;
