@@ -1304,72 +1304,6 @@ namespace DHLS {
       }
     }
   };
-
-  class PipelineConstraint : public ExecutionConstraint {
-  public:
-    EventTime before;
-    EventTime after;
-    int DD;
-    LinearExpr<std::string> II;
-    OrderRestriction restriction;
-    
-    PipelineConstraint(EventTime before_,
-                       EventTime after_,
-                       int DD_,
-                       LinearExpr<std::string> II_,
-                       OrderRestriction restriction_) :
-      before(before_),
-      after(after_),
-      DD(DD_),
-      II(II_),
-      restriction(restriction_)
-    {}
-
-    virtual ExecutionConstraintType type() const override {
-      return CONSTRAINT_TYPE_ILP;
-    }
-
-    virtual void print(std::ostream& out) const override {
-      assert(false);
-      // out << constraint << endl;
-    }
-    
-    virtual ExecutionConstraint* clone() const override {
-      return new PipelineConstraint(before, after, DD, II, restriction);
-      // InstructionTime beforeCpy(before);
-      // InstructionTime afterCpy(after);      
-      // return new Ordered(beforeCpy, afterCpy, restriction);
-    }
-    
-    virtual void replaceAction(ExecutionAction& toReplace,
-                               ExecutionAction& replacement) override {
-      assert(false);
-      // before.replaceAction(toReplace, replacement);
-      // after.replaceAction(toReplace, replacement);      
-    }
-    
-    virtual void replaceInstruction(Instruction* const toReplace,
-                                    Instruction* const replacement) override {
-      assert(false);
-      // before.replaceInstruction(toReplace, replacement);
-      // after.replaceInstruction(toReplace, replacement);      
-    }
-    
-    virtual void addSelfTo(SchedulingProblem& p, Function* f) override {
-      assert(false);
-      // LinearExpression aTime = toLinearExpression(after, p);
-      // LinearExpression bTime = toLinearExpression(before, p);
-      // if (restriction == ORDER_RESTRICTION_SIMULTANEOUS) {
-      //   p.addConstraint(bTime == aTime);
-      // } else if (restriction == ORDER_RESTRICTION_BEFORE) {
-      //   p.addConstraint(bTime < aTime);
-      // } else if (restriction == ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS) {
-      //   p.addConstraint(bTime <= aTime);        
-      // } else {
-      //   assert(false);
-      // }
-    }
-  };
   
   static inline
   Ordered* operator<(InstructionTime before, InstructionTime after) {
@@ -1417,26 +1351,6 @@ namespace DHLS {
       }
     }
 
-    // void startsBeforeStarts(Instruction* const before,
-    //                         Instruction* const after) {
-    //   constraints.push_back(new Ordered(instrStart(before), instrStart(after), ORDER_RESTRICTION_BEFORE));
-    // }
-    
-    // void endsBeforeStarts(Instruction* const before,
-    //                       Instruction* const after) {
-    //   constraints.push_back(new Ordered(instrEnd(before), instrStart(after), ORDER_RESTRICTION_BEFORE));
-    // }
-
-    // void startsBeforeEnds(Instruction* const before,
-    //                       Instruction* const after) {
-    //   constraints.push_back(new Ordered(instrStart(before), instrEnd(after), ORDER_RESTRICTION_BEFORE));
-    // }
-    
-    // void startSameTime(Instruction* const before,
-    //                    Instruction* const after) {
-    //   constraints.push_back(new Ordered(instrStart(before), instrStart(after), ORDER_RESTRICTION_SIMULTANEOUS));
-    // }
-    
     ~ExecutionConstraints() {
       for (auto c : constraints) {
         delete c;

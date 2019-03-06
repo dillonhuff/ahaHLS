@@ -1071,7 +1071,7 @@ namespace DHLS {
     tb.settableWires.insert("ram_debug_wr_en");
     tb.settableWires.insert("ram_debug_wr_addr");
     tb.settableWires.insert("ram_debug_wr_data");
-    tb.settableWires.insert("ram_debug_addr");            
+    tb.settableWires.insert("ram_debug_addr");
     map_insert(tb.actionsInCycles, 1, string("ram_debug_wr_en = 1;"));
     map_insert(tb.actionsInCycles, 1, string("ram_debug_wr_addr = 0;"));
     map_insert(tb.actionsInCycles, 1, string("ram_debug_wr_data = 12;"));
@@ -1080,101 +1080,100 @@ namespace DHLS {
     map_insert(tb.actionsInCycles, 49, string("ram_debug_addr = 1;"));
     map_insert(tb.actionsInCycles, 50, string("ram_debug_addr = 1;"));
 
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);    
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
     emitVerilogTestBench(tb, arch, testLayout);
     
     //REQUIRE(runIVerilogTB("raw_axi_wr"));
   }
   
-  // Random Thought: Test if an access pattern maps onto a cache type
-  // by checking whether the recurrence that describes the loop pattern
-  // is equivalent to the recurrence that describes the cache access pattern
-  TEST_CASE("Schedule 1D Halide App (Brighter)") {
-    SMDiagnostic Err;
-    LLVMContext Context;
-    //std::unique_ptr<Module> Mod = loadModule(Context, Err, "brighter");
-    std::unique_ptr<Module> Mod = loadLLFile(Context, Err, "brighter");
+  // // Random Thought: Test if an access pattern maps onto a cache type
+  // // by checking whether the recurrence that describes the loop pattern
+  // // is equivalent to the recurrence that describes the cache access pattern
+  // TEST_CASE("Schedule 1D Halide App (Brighter)") {
+  //   SMDiagnostic Err;
+  //   LLVMContext Context;
+  //   //std::unique_ptr<Module> Mod = loadModule(Context, Err, "brighter");
+  //   std::unique_ptr<Module> Mod = loadLLFile(Context, Err, "brighter");
 
-    HardwareConstraints hcs;
-    hcs.setLatency(STORE_OP, 3);
-    hcs.setLatency(LOAD_OP, 1);
-    hcs.setLatency(CMP_OP, 0);
-    hcs.setLatency(BR_OP, 0);
-    hcs.setLatency(ADD_OP, 0);
-    hcs.setLatency(SUB_OP, 0);    
-    hcs.setLatency(MUL_OP, 0);
-    hcs.setLatency(SEXT_OP, 0);
+  //   HardwareConstraints hcs;
+  //   hcs.setLatency(STORE_OP, 3);
+  //   hcs.setLatency(LOAD_OP, 1);
+  //   hcs.setLatency(CMP_OP, 0);
+  //   hcs.setLatency(BR_OP, 0);
+  //   hcs.setLatency(ADD_OP, 0);
+  //   hcs.setLatency(SUB_OP, 0);    
+  //   hcs.setLatency(MUL_OP, 0);
+  //   hcs.setLatency(SEXT_OP, 0);
 
-    Function* f = Mod->getFunction("brighter");
-    assert(f != nullptr);
+  //   Function* f = Mod->getFunction("brighter");
+  //   assert(f != nullptr);
     
-    Schedule s = scheduleFunction(f, hcs);
+  //   Schedule s = scheduleFunction(f, hcs);
 
-    STG graph = buildSTG(s, f);
+  //   STG graph = buildSTG(s, f);
 
-    cout << "STG Is" << endl;
-    graph.print(cout);
+  //   cout << "STG Is" << endl;
+  //   graph.print(cout);
 
-    bool noDuplicates = true;
-    for (auto st : graph.opStates) {
-      std::set<Instruction*> alreadyDone;
-      for (auto instrG : st.second) {
-        auto instr = instrG;
-        if (elem(instr, alreadyDone)) {
-          cout << "Duplicate instruction " << instructionString(instr)
-               << " in state " << st.first << endl;
-          noDuplicates = false;
-        } else {
-          alreadyDone.insert(instr);
-        }
-      }
-    }
+  //   bool noDuplicates = true;
+  //   for (auto st : graph.opStates) {
+  //     std::set<Instruction*> alreadyDone;
+  //     for (auto instrG : st.second) {
+  //       auto instr = instrG;
+  //       if (elem(instr, alreadyDone)) {
+  //         cout << "Duplicate instruction " << instructionString(instr)
+  //              << " in state " << st.first << endl;
+  //         noDuplicates = false;
+  //       } else {
+  //         alreadyDone.insert(instr);
+  //       }
+  //     }
+  //   }
 
-    REQUIRE(noDuplicates);
+  //   REQUIRE(noDuplicates);
 
-    // 3 x 3
-    map<string, int> testLayout = {{"input", 0}, {"input1", 10}, {"brighter", 20}};
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}, {getArg(f, 2), 20}};    
+  //   // 3 x 3
+  //   map<string, int> testLayout = {{"input", 0}, {"input1", 10}, {"brighter", 20}};
+  //   map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 10}, {getArg(f, 2), 20}};    
 
-    auto arch = buildMicroArchitecture(f, graph, layout);
+  //   auto arch = buildMicroArchitecture(f, graph, layout);
 
-    VerilogDebugInfo info;
-    noAddsTakeXInputs(arch, info);
-    noMulsTakeXInputs(arch, info);
-    noPhiOutputsXWhenUsed(arch, info);
-    noLoadedValuesXWhenUsed(arch, info);
-    noLoadAddressesXWhenUsed(arch, info);    
-    noStoredValuesXWhenUsed(arch, info);
+  //   VerilogDebugInfo info;
+  //   noAddsTakeXInputs(arch, info);
+  //   noMulsTakeXInputs(arch, info);
+  //   noPhiOutputsXWhenUsed(arch, info);
+  //   noLoadedValuesXWhenUsed(arch, info);
+  //   noLoadAddressesXWhenUsed(arch, info);    
+  //   noStoredValuesXWhenUsed(arch, info);
 
-    emitVerilog(f, arch, info);
+  //   emitVerilog(f, arch, info);
 
-    map<string, vector<int> > memoryInit{{"input", {6, 1, 2, 3, 7, 5, 5, 2, 9, 3}},
-        {"input1", {129, 34, 13, 5, 5, 9, 51, 49, 46, 95}}};
-    map<string, vector<int> > memoryExpected{{"brighter", {}}};
+  //   map<string, vector<int> > memoryInit{{"input", {6, 1, 2, 3, 7, 5, 5, 2, 9, 3}},
+  //       {"input1", {129, 34, 13, 5, 5, 9, 51, 49, 46, 95}}};
+  //   map<string, vector<int> > memoryExpected{{"brighter", {}}};
 
-    auto input = map_find(string("input"), memoryInit);
-    auto input0 = map_find(string("input1"), memoryInit);
-    for (int i = 0; i < 10; i++) {
-      int res = input[i] + input0[i];
-      map_insert(memoryExpected, string("brighter"), res);
-    }
+  //   auto input = map_find(string("input"), memoryInit);
+  //   auto input0 = map_find(string("input1"), memoryInit);
+  //   for (int i = 0; i < 10; i++) {
+  //     int res = input[i] + input0[i];
+  //     map_insert(memoryExpected, string("brighter"), res);
+  //   }
 
 
-    cout << "Expected values" << endl;
-    for (auto val : map_find(string("brighter"), memoryExpected)) {
-      cout << "\t" << val << endl;
-    }
+  //   cout << "Expected values" << endl;
+  //   for (auto val : map_find(string("brighter"), memoryExpected)) {
+  //     cout << "\t" << val << endl;
+  //   }
 
-    TestBenchSpec tb;
-    tb.memoryInit = memoryInit;
-    tb.memoryExpected = memoryExpected;
-    tb.runCycles = 60;
-    tb.name = "brighter";
-    emitVerilogTestBench(tb, arch, testLayout);
+  //   TestBenchSpec tb;
+  //   tb.memoryInit = memoryInit;
+  //   tb.memoryExpected = memoryExpected;
+  //   tb.runCycles = 60;
+  //   tb.name = "brighter";
+  //   emitVerilogTestBench(tb, arch, testLayout);
 
-    REQUIRE(runIVerilogTB("brighter"));
-    
-  }
+  //   REQUIRE(runIVerilogTB("brighter"));
+  // }
 
   TEST_CASE("Building a simple function directly in LLVM") {
     LLVMContext context;
@@ -1474,9 +1473,12 @@ namespace DHLS {
     setGlobalLLVMContext(&context);
 
     auto mod = llvm::make_unique<Module>("program that uses a register", context);
+    setGlobalLLVMModule(mod.get());
 
-    std::vector<Type *> inputs{intType(32)->getPointerTo(),
-        intType(32)->getPointerTo()};
+    // std::vector<Type *> inputs{intType(32)->getPointerTo(),
+    //     intType(32)->getPointerTo()};
+    std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
+        sramType(32, 16)->getPointerTo()};
     Function* srUser = mkFunc(inputs, "one_register", mod.get());
 
     auto entryBlock = mkBB("entry_block", srUser);
@@ -1485,24 +1487,42 @@ namespace DHLS {
 
     IRBuilder<> builder(entryBlock);
     auto reg = builder.CreateAlloca(intType(32), nullptr, "dhsreg");
-    auto ldA = loadVal(builder, getArg(srUser, 0), zero);
+    auto ldA = loadRAMVal(builder, getArg(srUser, 0), zero);
 
     auto gpr = builder.CreateGEP(reg, zero);
 
     builder.CreateStore(ldA, gpr);
     
     auto v = builder.CreateLoad(gpr);
-    storeVal(builder, getArg(srUser, 1), zero, v);
+    storeRAMVal(builder, getArg(srUser, 1), zero, v);
     builder.CreateRet(nullptr);
 
     cout << "LLVM Function" << endl;
     cout << valueString(srUser) << endl;
 
     HardwareConstraints hcs = standardConstraints();
-    hcs.memoryMapping = memoryOpLocations(srUser);
+    hcs.typeSpecs[string("SRAM_32_16")] =
+      [](StructType* tp) { return ramSpec(32, 16); };
+    InterfaceFunctions interfaces;
+    Function* ramRead = ramLoadFunction(getArg(srUser, 0));
+    interfaces.addFunction(ramRead);
+    implementRAMRead0(ramRead,
+                      interfaces.getConstraints(ramRead));
+
+    Function* ramWrite = ramStoreFunction(getArg(srUser, 1));
+    interfaces.addFunction(ramWrite);
+    implementRAMWrite0(ramWrite,
+                       interfaces.getConstraints(ramWrite));
+    
+    Schedule s = scheduleInterface(srUser, hcs, interfaces);
+    
+    // HardwareConstraints hcs = standardConstraints();
+    // InterfaceFunctions interfaces;
+    
+    //hcs.memoryMapping = memoryOpLocations(srUser);
     //setAllAllocaMemTypes(hcs, srUser, registerSpec(32));
 
-    Schedule s = scheduleFunction(srUser, hcs);
+    // Schedule s = scheduleFunction(srUser, hcs);
 
     STG graph = buildSTG(s, srUser);
 
@@ -1510,7 +1530,7 @@ namespace DHLS {
     graph.print(cout);
 
     //map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
-    map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 10}};
+    map<llvm::Value*, int> layout; // = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 10}};
     // ArchOptions options;
     auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
 
@@ -1524,11 +1544,23 @@ namespace DHLS {
     map<string, vector<int> > memoryExpected{{"arg_1", {6}}};
 
     TestBenchSpec tb;
-    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 10}};    
+    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 0}};    
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 30;
     tb.name = "one_register";
+    tb.useModSpecs = true;
+
+    int startSetMemCycle = 1;
+    setRAM(tb, 1, "arg_0", memoryInit, testLayout);
+
+    int startRunCycle = startSetMemCycle + 10; 
+    map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+    map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+
+    int checkMemCycle = 50;
+    checkRAM(tb, checkMemCycle, "arg_1", memoryExpected, testLayout);
+
     emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("one_register"));
