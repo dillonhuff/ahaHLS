@@ -2054,11 +2054,6 @@ namespace DHLS {
     auto writeAddrF = writePort("s_axil_araddr", addrWidth, axiTp);
 
     auto arValidF = writePort("s_axil_arvalid", 1, axiTp);
-    //auto rValidF = readPort("s_axil_rvalid", 1, axiTp);
-
-    // auto writeRReadyF = writePort("s_axil_rready", 1, axiTp);
-
-    // auto readRResp = readPort("s_axil_rresp", 2, axiTp);
 
     cout << "Creating rawAXIRead definition" << endl;
 
