@@ -1305,12 +1305,25 @@ namespace DHLS {
     }
   };
 
-  class ILPConstraint : public ExecutionConstraint {
+  class PipelineConstraint : public ExecutionConstraint {
   public:
-    LinearCon<ExecutionAction> constraint;
-
-    ILPConstraint(const LinearCon<ExecutionAction>& constraint_) :
-      constraint(constraint_) {}
+    EventTime before;
+    EventTime after;
+    int DD;
+    LinearExpr<std::string> II;
+    OrderRestriction restriction;
+    
+    PipelineConstraint(EventTime before_,
+                       EventTime after_,
+                       int DD_,
+                       LinearExpr<std::string> II_,
+                       OrderRestriction restriction_) :
+      before(before_),
+      after(after_),
+      DD(DD_),
+      II(II_),
+      restriction(restriction_)
+    {}
 
     virtual ExecutionConstraintType type() const override {
       return CONSTRAINT_TYPE_ILP;
@@ -1322,8 +1335,7 @@ namespace DHLS {
     }
     
     virtual ExecutionConstraint* clone() const override {
-      LinearCon<ExecutionAction> cpy = constraint;
-      return new ILPConstraint(cpy);
+      return new PipelineConstraint(before, after, DD, II, restriction);
       // InstructionTime beforeCpy(before);
       // InstructionTime afterCpy(after);      
       // return new Ordered(beforeCpy, afterCpy, restriction);
