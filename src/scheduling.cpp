@@ -2002,10 +2002,11 @@ namespace DHLS {
     int addrWidth = 32;
 
     auto inAddr = getArg(axiWrite, 1);
+    auto addrValShifted = b.CreateShl(inAddr, mkInt(2, 32));    
     auto inData = getArg(axiWrite, 2);    
-
+    
     auto wBready1 = writePort(b, readMod, 1, "s_axil_bready", mkInt(1, 1));
-    auto wAddr = writePort(b, readMod, addrWidth, "s_axil_awaddr", inAddr);
+    auto wAddr = writePort(b, readMod, addrWidth, "s_axil_awaddr", addrValShifted);
     auto wAWValid = writePort(b, readMod, 1, "s_axil_awvalid", mkInt(1, 1));
     auto wDataValid0 = writePort(b, readMod, 1, "s_axil_wvalid", mkInt(1, 1));
     auto wData0 = writePort(b, readMod, dataWidth, "s_axil_wdata", inData);
@@ -2064,7 +2065,8 @@ namespace DHLS {
     // State placeholder, replace with start of basic block?
     auto rdStart = b.CreateCall(readDataF, {readMod});
 
-    auto setAddr = b.CreateCall(writeAddrF, {readMod, addrVal});
+    auto addrValShifted = b.CreateShl(addrVal, mkInt(2, 32));
+    auto setAddr = b.CreateCall(writeAddrF, {readMod, addrValShifted});
     auto setAddrValid = b.CreateCall(arValidF, {readMod, mkInt(1, 1)});
     exec.add(instrStart(setAddr) == instrStart(setAddrValid));
     exec.add(instrStart(setAddr) == instrEnd(rdStart) + 1);
