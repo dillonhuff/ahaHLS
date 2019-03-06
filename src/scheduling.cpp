@@ -1373,12 +1373,6 @@ namespace DHLS {
     return buildSTG(sched, entryBlock, blockSet);
   }
 
-  // TODO: Add real compiler analysis to compute this
-  int dependenceDistance(Instruction* const iptr,
-                         Instruction* const jptr) {
-    return 0;
-  }
-
   Type* readOutputType(llvm::Function* readFifo) {
     if (readFifo->getReturnType() == Type::getVoidTy(getGlobalLLVMContext())) {
       auto zArg = getArg(readFifo, 0);
@@ -2578,17 +2572,11 @@ namespace DHLS {
     exec.add(instrStart(setAddr) == instrStart(setData));
     exec.add(instrStart(setAddr) == instrStart(setEn1));
 
-    //exec.add(instrEnd(setEn1) + 1 == instrStart(setEn0));
-
     // TODO: Replace start(ret) with end(inlineMarker)?
     exec.add(instrStart(setAddr) + 3 == instrStart(ret));
 
     addDataConstraints(ramWrite0, exec);
 
-    // cout << "-- Constraints on write function" << endl;
-    // for (auto c : exec.constraints) {
-    //   cout << tab(1) << *c << endl;
-    // }
   }
 
   Schedule scheduleInterface(llvm::Function* f,
