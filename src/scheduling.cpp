@@ -1629,7 +1629,8 @@ namespace DHLS {
 
     map<BasicBlock*, BasicBlock*> oldBlocksToClones;
 
-    if (called->getBasicBlockList().size() == 1) {
+    bool oneBlock = called->getBasicBlockList().size() == 1;
+    if (oneBlock) {
       // Just inline in to a new block
       oldBlocksToClones[&(*begin(called->getBasicBlockList()))] =
         toInline->getParent();
@@ -1639,7 +1640,7 @@ namespace DHLS {
         oldBlocksToClones[&bb] = newBB;
       }
     }
-    
+
     map<Instruction*, Instruction*> oldInstrsToClones;
     vector<Instruction*> inlinedInstrs;
     // Inline the constraints
@@ -1649,18 +1650,25 @@ namespace DHLS {
     cout << valueString(called) << endl;
 
     // What changes need to be made?
-    // 1. We need to support mapping from old basic blocks to new ones?
     // 2. We need to support copying basic blocks in to the new structure
     // 3. We need to support replacing all referenced values (already do?)
     // 4. We need to support iterating over all new phi instructions
     //    and replacing their edges
     for (auto& bb : called->getBasicBlockList()) {
+      BasicBlock* replacementBlock = map_find(&bb, oldBlocksToClones);
+      
       for (auto& instr : bb) {
         if (!ReturnInst::classof(&instr)) {
           Instruction* clone = instr.clone();
           oldInstrsToClones[&instr] = clone;
           replaceValues(argsToValues, oldInstrsToClones, clone);
-          clone->insertBefore(toInline);
+
+          if (oneBlock) {
+            clone->insertBefore(toInline);
+          } else {
+            replacementBlock->getInstList().push_back(clone);
+          }
+
           inlinedInstrs.push_back(clone);
 
         } else {
@@ -1681,6 +1689,9 @@ namespace DHLS {
       }
     }
 
+    cout << "After instruction inlining, before constraint inlining" << endl;
+    cout << valueString(f) << endl;
+
     // Replace the inline start and end times with marker action noops
     ExecutionAction inlineAction(toInline);
     ExecutionAction inlineMarkerAction(sanitizeFormatForVerilogId(valueString(toInline)));
@@ -1688,11 +1699,15 @@ namespace DHLS {
     // Need to fit the basic block start and end time in to the execution
     // constraints
     //BasicBlock* bb = toInline->getParent();
-    BasicBlock* entry = map_find(called->getEntryBlock(), oldBlocksToClones);
+    BasicBlock* entry = map_find(&(called->getEntryBlock()), oldBlocksToClones);
     exec.add(start(entry) <= actionStart(inlineMarkerAction));
 
-    BasicBlock* exit = map_find(called->getExitBlocks(), oldBlocksToClones);
-    exec.add(actionEnd(inlineMarkerAction) <= end(bb));    
+    for (auto& bb : called->getBasicBlockList()) {
+      if (ReturnInst::classof(bb.getTerminator())) {
+        BasicBlock* exit = map_find(&bb, oldBlocksToClones);
+        exec.add(actionEnd(inlineMarkerAction) <= end(exit));
+      }
+    }
 
     for (auto c : exec.constraints) {
       c->replaceAction(inlineAction, inlineMarkerAction);
