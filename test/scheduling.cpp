@@ -4985,4 +4985,70 @@ namespace DHLS {
     REQUIRE(runIVerilogTB("vhls_target"));
   }
 
+  TEST_CASE("Median filter implementation") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<Module> Mod = loadLLFile(Context, Err, "median_filter");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "median_filter");
+    //getArg(f, 0)->setName("ram");
+
+    cout << "llvm function" << endl;
+    cout << valueString(f) << endl;
+
+    deleteLLVMLifetimeCalls(f);
+
+    // InterfaceFunctions interfaces;
+    // interfaces.functionTemplates[string("write")] = implementStencilWrite;
+    // interfaces.functionTemplates[string("read")] = implementStencilRead;    
+    // interfaces.functionTemplates[string("set")] = implementStencilSet;
+    // interfaces.functionTemplates[string("get")] = implementStencilGet;            
+    // interfaces.functionTemplates[string("set_last")] = implementStencilSetLast;
+    // interfaces.functionTemplates[string("AxiPackedStencil_uint16_t_1_1_")] =
+    //   implementStencilConstructor;
+    // interfaces.functionTemplates[string("copy")] =
+    //   implementStencilConstructor;
+
+    // HardwareConstraints hcs = standardConstraints();
+    // hcs.typeSpecs["class.hls_stream_AxiPackedStencil_uint16_t_1_1__"] =
+    //   [](StructType* axiStencil) { return streamAxiPackedStencilSpec(16, 1, 1); };
+    // hcs.typeSpecs["class.Stencil_uint16_t_1_1_"] =
+    //   [](StructType* axiStencil) { return stencilSpec(16, 1, 1); };
+    // hcs.typeSpecs["class.PackedStencil_uint16_t_1_1_"] =
+    //   [](StructType* axiStencil) { return packedStencilSpec(16, 1, 1); };
+    // hcs.typeSpecs["class.AxiPackedStencil_uint16_t_1_1_"] =
+    //   [](StructType* axiStencil) { return axiPackedStencilSpec(16, 1, 1); };
+
+    // ExecutionConstraints exec;
+    // sequentialCalls(f, exec);
+    // set<BasicBlock*> toPipeline;    
+
+    // Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
+    // STG graph = buildSTG(s, f);
+    
+    // cout << "STG Is" << endl;
+    // graph.print(cout);
+
+    // emitVerilog("median_filter", graph, hcs);
+
+    // map<llvm::Value*, int> layout = {};
+    // auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+
+    // auto in = dyn_cast<Argument>(getArg(f, 0));
+    // auto out = dyn_cast<Argument>(getArg(f, 1));    
+
+    // TestBenchSpec tb;
+    // map<string, int> testLayout = {};
+    // tb.memoryInit = {};
+    // tb.memoryExpected = {};
+    // tb.runCycles = 400;
+    // tb.maxCycles = 500;
+    // tb.name = "median_filter";
+    // tb.useModSpecs = true;
+
+  }
+
 }
