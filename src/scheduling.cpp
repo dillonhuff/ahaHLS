@@ -2696,5 +2696,39 @@ namespace DHLS {
   ModuleSpec fifoSpec32(StructType* tp) {
     return fifoSpec(32, 16);
   }
+
+  ModuleSpec medianFilterSpec() {
+
+    int addrWidth = 16;
+    int dataWidth = 32;
+    int pixelDataWidth = 8;
+    
+    map<string, string> modParams;
+    
+    map<string, Port> ports;
+    addInputPort(ports, dataWidth, "word0");
+    addInputPort(ports, dataWidth, "word1");
+    addInputPort(ports, dataWidth, "word2");        
+
+    addOutputPort(ports, pixelDataWidth, "pixel1");    
+    addOutputPort(ports, pixelDataWidth, "pixel2");
+    addOutputPort(ports, pixelDataWidth, "pixel3");
+    addOutputPort(ports, pixelDataWidth, "pixel4");
+    
+    map<string, int> defaults{};
+    
+    ModuleSpec mSpec = {modParams, "median", ports, defaults};
+    mSpec.hasClock = true;
+    mSpec.hasRst = true;
+    return mSpec;
+
+  }
+
+  void implementRunMedian(llvm::Function* f, ExecutionConstraints& exec) {
+    auto bb = mkBB("entry_block", f);
+    IRBuilder<> eb(bb);
+    
+    auto ret = eb.CreateRet(nullptr);
+  }
   
 }

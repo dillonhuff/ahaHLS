@@ -1521,8 +1521,12 @@ namespace DHLS {
 
   ModuleSpec axiRamSpec(llvm::StructType* tp);
 
+  ModuleSpec fifoSpec32(llvm::StructType* tp);
 
-  ModuleSpec fifoSpec32(StructType* tp);  
+  ModuleSpec medianFilterSpec();
+
+  void implementRunMedian(llvm::Function* f, ExecutionConstraints& exec);
+
 }
 
 
