@@ -1630,11 +1630,15 @@ namespace DHLS {
     map<BasicBlock*, BasicBlock*> oldBlocksToClones;
 
     bool oneBlock = called->getBasicBlockList().size() == 1;
+    BasicBlock* preCall = nullptr;
+    BasicBlock* atCall = nullptr;
     if (oneBlock) {
       // Just inline in to a new block
       oldBlocksToClones[&(*begin(called->getBasicBlockList()))] =
         toInline->getParent();
     } else {
+      preCall = toInline->getParent();
+      atCall = toInline->getParent()->splitBasicBlock(toInline);
       for (auto& bb : called->getBasicBlockList()) {
         auto newBB = mkBB(bb.getName(), f);
         oldBlocksToClones[&bb] = newBB;
@@ -1689,6 +1693,12 @@ namespace DHLS {
       }
     }
 
+    // TODO: Add new constraint edges (replace destinations of branches)
+    // Q: What edges need to be added?
+    // A: 1. Edge from original basic block containing toInline to
+    //       the entry of the inlined function
+    //    2. Edge from every inlined block that contains a return instruction
+    //       to the split block from the inlined call?
     cout << "After instruction inlining, before constraint inlining" << endl;
     cout << valueString(f) << endl;
 
