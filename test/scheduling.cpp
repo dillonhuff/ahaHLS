@@ -5029,7 +5029,7 @@ namespace DHLS {
     // auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     // auto in = dyn_cast<Argument>(getArg(f, 0));
-    // auto out = dyn_cast<Argument>(getArg(f, 1));    
+    // auto out = dyn_cast<Argument>(getArg(f, 1));
 
     // TestBenchSpec tb;
     // map<string, int> testLayout = {};

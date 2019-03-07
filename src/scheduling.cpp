@@ -2709,6 +2709,7 @@ namespace DHLS {
     addInputPort(ports, dataWidth, "word0");
     addInputPort(ports, dataWidth, "word1");
     addInputPort(ports, dataWidth, "word2");        
+    addInputPort(ports, 1, "rst_n");        
 
     addOutputPort(ports, pixelDataWidth, "pixel1");    
     addOutputPort(ports, pixelDataWidth, "pixel2");
@@ -2719,7 +2720,6 @@ namespace DHLS {
     
     ModuleSpec mSpec = {modParams, "median", ports, defaults};
     mSpec.hasClock = true;
-    mSpec.hasRst = true;
     return mSpec;
 
   }
@@ -2727,11 +2727,24 @@ namespace DHLS {
   void implementRunMedian(llvm::Function* f, ExecutionConstraints& exec) {
     auto bb = mkBB("entry_block", f);
     IRBuilder<> b(bb);
+
     // call implementRVFIFORead / write to get function implementations?
+
+    // Q: What should the functionality be here?
+    // A: Call reset and then loop over the design?
+    //    How to implement the loop I guess as a phi?
+    //    I can worry about details once I have a simple example working
+    
     auto filterMod = getArg(f, 0);
     auto outFifo = getArg(f, 4);
+
+    auto setRst1 = writePort(b, filterMod, 1, "rst_n", mkInt(1, 1));
+    auto setRst0 = writePort(b, filterMod, 1, "rst_n", mkInt(0, 1));
+
+    exec.add(instrEnd(setRst1) < instrStart(setRst0));
+
     writePort(b, outFifo, 32, "in_data", mkInt(14, 32));
     b.CreateRet(nullptr);
   }
-  
+
 }
