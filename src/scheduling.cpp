@@ -1622,9 +1622,23 @@ namespace DHLS {
     }
 
     cout << "# of basic blocks = " << called->getBasicBlockList().size() << endl;
-    assert(called->getBasicBlockList().size() == 1);
+
+    //assert(called->getBasicBlockList().size() == 1);
 
     cout << "Built value list" << endl;
+
+    map<BasicBlock*, BasicBlock*> oldBlocksToClones;
+
+    if (called->getBasicBlockList().size() == 1) {
+      // Just inline in to a new block
+      oldBlocksToClones[&(*begin(called->getBasicBlockList()))] =
+        toInline->getParent();
+    } else {
+      for (auto& bb : called->getBasicBlockList()) {
+        auto newBB = mkBB(bb.getName(), f);
+        oldBlocksToClones[&bb] = newBB;
+      }
+    }
     
     map<Instruction*, Instruction*> oldInstrsToClones;
     vector<Instruction*> inlinedInstrs;
@@ -1634,10 +1648,12 @@ namespace DHLS {
     cout << "Function called is" << endl;
     cout << valueString(called) << endl;
 
-    // Real procedure should be to replace all references to start(toInline),
-    // end(toInline) in the receiver function with references to start(funcMarker)
-    // end(funcMarker), and in the constraints internally replace all references
-    // to start(ret), end(ret) with end(funcMarker)
+    // What changes need to be made?
+    // 1. We need to support mapping from old basic blocks to new ones?
+    // 2. We need to support copying basic blocks in to the new structure
+    // 3. We need to support replacing all referenced values (already do?)
+    // 4. We need to support iterating over all new phi instructions
+    //    and replacing their edges
     for (auto& bb : called->getBasicBlockList()) {
       for (auto& instr : bb) {
         if (!ReturnInst::classof(&instr)) {
@@ -1671,8 +1687,11 @@ namespace DHLS {
 
     // Need to fit the basic block start and end time in to the execution
     // constraints
-    BasicBlock* bb = toInline->getParent();
-    exec.add(start(bb) <= actionStart(inlineMarkerAction));
+    //BasicBlock* bb = toInline->getParent();
+    BasicBlock* entry = map_find(called->getEntryBlock(), oldBlocksToClones);
+    exec.add(start(entry) <= actionStart(inlineMarkerAction));
+
+    BasicBlock* exit = map_find(called->getExitBlocks(), oldBlocksToClones);
     exec.add(actionEnd(inlineMarkerAction) <= end(bb));    
 
     for (auto c : exec.constraints) {
