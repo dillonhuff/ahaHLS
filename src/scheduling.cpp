@@ -2726,9 +2726,12 @@ namespace DHLS {
 
   void implementRunMedian(llvm::Function* f, ExecutionConstraints& exec) {
     auto bb = mkBB("entry_block", f);
-    IRBuilder<> eb(bb);
-    
-    auto ret = eb.CreateRet(nullptr);
+    IRBuilder<> b(bb);
+    // call implementRVFIFORead / write to get function implementations?
+    auto filterMod = getArg(f, 0);
+    auto outFifo = getArg(f, 4);
+    writePort(b, outFifo, 32, "in_data", mkInt(14, 32));
+    b.CreateRet(nullptr);
   }
   
 }
