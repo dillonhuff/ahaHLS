@@ -1803,17 +1803,15 @@ namespace DHLS {
     // Remove old call
     toInline->eraseFromParent();
 
-    // cout << "Inlining constraints" << endl;
     cout << "Iterating over constraints" << endl;
     
     for (auto c : constraintsToInline.constraints) {
-      //c->replaceAction(inlineAction, inlineMarkerAction);
 
       if (c->type() == CONSTRAINT_TYPE_ORDERED) {
         Ordered* oc = static_cast<Ordered*>(c->clone());
 
-        // cout << "Before = " << oc->before << endl;
-        // cout << "After  = " << oc->after << endl;        
+        cout << "Before = " << oc->before << endl;
+        cout << "After  = " << oc->after << endl;        
 
         // start(inline_ret) -> end(inlineMarker)
         // end(inline_ret) -> end(inlineMarker)
