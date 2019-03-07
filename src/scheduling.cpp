@@ -1609,15 +1609,19 @@ namespace DHLS {
 
     cout << "Inlining " << valueString(toInline) << endl;
     cout << "# of operands = " << toInline->getNumOperands() << endl;
-    
+
     map<Value*, Value*> argsToValues;
     Function* called = toInline->getCalledFunction();
+
+    cout << "Function def " << valueString(called) << endl;    
+    
     for (int i = 0; i < (int) toInline->getNumOperands() - 1; i++) {
       cout << "i = " << i << endl;
       cout << "Operand " << i << " = " << valueString(toInline->getOperand(i)) << endl;
       argsToValues[getArg(called, i)] = toInline->getOperand(i);
     }
 
+    cout << "# of basic blocks = " << called->getBasicBlockList().size() << endl;
     assert(called->getBasicBlockList().size() == 1);
 
     cout << "Built value list" << endl;
@@ -2741,12 +2745,12 @@ namespace DHLS {
     auto in3Fifo = getArg(f, 3);        
     auto outFifo = getArg(f, 4);
 
+    auto channelType = getPointedToType(in1Fifo->getType());
+
     auto setRst1 = writePort(b, filterMod, 1, "rst_n", mkInt(1, 1));
     auto setRst0 = writePort(b, filterMod, 1, "rst_n", mkInt(0, 1));
 
     exec.add(instrEnd(setRst1) < instrStart(setRst0));
-
-    writePort(b, outFifo, 32, "in_data", mkInt(14, 32));
 
     auto exitBB = mkBB("exit_block", f);
     IRBuilder<> eb(exitBB);
@@ -2762,8 +2766,14 @@ namespace DHLS {
     int pixelsPerCycle = (channelWidth * numChannels) / pixelWidth;
     int numReads = numPixels / pixelsPerCycle;
 
+    InterfaceFunctions interfaces;
+    Function* readChannel =
+      mkFunc({channelType->getPointerTo()}, intType(32), "read_channel");
+    interfaces.addFunction(readChannel);
+    implementRVFifoRead(readChannel, interfaces.getConstraints(readChannel));
+
     BasicBlock* loop =
-      sivLoop(f, b, exitBB, numReads, [](IRBuilder<>& b, Value* i) {
+      sivLoop(f, bb, exitBB, numReads, [readChannel, in1Fifo, in2Fifo, in3Fifo](IRBuilder<>& b, Value* i) {
           // Read from each channel
           auto c1 = b.CreateCall(readChannel, {in1Fifo});
           auto c2 = b.CreateCall(readChannel, {in2Fifo});

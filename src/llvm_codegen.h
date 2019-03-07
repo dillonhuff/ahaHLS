@@ -66,13 +66,6 @@ namespace DHLS {
     return srUser;
   }
 
-  // static inline
-  // llvm::Function* mkFunc(std::vector<llvm::Type*>& inputs,
-  //                        llvm::Type* outputType,
-  //                        const std::string& funcName) {
-  //   return mkFunc(inputs, outputType, funcName, &getGlobalLLVMModule());
-  // }  
-
   static inline
   llvm::Function* mkFunc(std::vector<llvm::Type*> inputs,
                          llvm::Type* outputType,
@@ -212,6 +205,18 @@ namespace DHLS {
     return loopBlock;
   }
 
+  template<typename F>
+  llvm::BasicBlock* sivLoop(llvm::Function* f,
+                            llvm::BasicBlock* entryBlock,
+                            llvm::BasicBlock* exitBlock,
+                            int numIters,
+                            F builderFunc) {
+
+    auto startInd = mkInt(0, 32);
+    auto endInd = mkInt(numIters, 32);    
+    return sivLoop(f, entryBlock, exitBlock, startInd, endInd, builderFunc);
+  }
+  
   static inline
   llvm::Value* loadReg(llvm::IRBuilder<>& builder, llvm::Value* val) {
     return loadVal(builder, val, mkInt(0, 32));
