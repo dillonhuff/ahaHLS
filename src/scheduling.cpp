@@ -1677,14 +1677,21 @@ namespace DHLS {
 
         } else {
 
+          if (!oneBlock) {
+            IRBuilder<> brB(replacementBlock);
+            auto brOut = brB.CreateBr(atCall);
+            //replacementBlock->getInstList().push_back(brOut);
+            cout << "New replacement return block" << endl;
+            cout << valueString(replacementBlock) << endl;
+          }
           if (instr.getNumOperands() > 0) {
             assert(instr.getNumOperands() == 1);
 
             Value* retVal = instr.getOperand(0);
 
             if (Instruction::classof(retVal)) {
-
-              finalRetVal = map_find(dyn_cast<Instruction>(retVal), oldInstrsToClones);
+              finalRetVal =
+                map_find(dyn_cast<Instruction>(retVal), oldInstrsToClones);
             } else {
               finalRetVal = retVal;
             }
@@ -1693,12 +1700,37 @@ namespace DHLS {
       }
     }
 
+    cout << "After instruction inlining, before branch changes" << endl;
+    cout << valueString(f) << endl;
+    
     // TODO: Add new constraint edges (replace destinations of branches)
     // Q: What edges need to be added?
     // A: 1. Edge from original basic block containing toInline to
     //       the entry of the inlined function
     //    2. Edge from every inlined block that contains a return instruction
     //       to the split block from the inlined call?
+    if (!oneBlock) {
+      for (auto& bb : f->getBasicBlockList()) {
+        cout << "setting successors for " << valueString(&bb) << endl;
+        auto term = bb.getTerminator();
+        assert(term != nullptr);
+        if (BranchInst::classof(term)) {
+          BranchInst* br = dyn_cast<BranchInst>(term);
+          for (int i = 0; i < (int) br->getNumSuccessors(); i++) {
+            BasicBlock* successor = br->getSuccessor(i);
+            if (contains_key(successor, oldBlocksToClones)) {
+              BasicBlock* newSuccessor = map_find(successor, oldBlocksToClones);
+              br->setSuccessor(i, newSuccessor);
+            }
+          }
+        }
+
+        cout << "done" << endl;
+      }
+    }
+
+    // TODO: Replace phi instruction successors
+
     cout << "After instruction inlining, before constraint inlining" << endl;
     cout << valueString(f) << endl;
 
@@ -2823,7 +2855,8 @@ namespace DHLS {
           auto c2 = b.CreateCall(readChannel, {in2Fifo});
           auto c3 = b.CreateCall(readChannel, {in3Fifo});
         });
-    
+
+    b.CreateBr(loop);    
   }
 
 }
