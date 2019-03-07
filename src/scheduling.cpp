@@ -1710,6 +1710,13 @@ namespace DHLS {
     //    2. Edge from every inlined block that contains a return instruction
     //       to the split block from the inlined call?
     if (!oneBlock) {
+      auto preCallTerm = preCall->getTerminator();
+      assert(BranchInst::classof(preCallTerm));
+      auto preBr = dyn_cast<BranchInst>(preCallTerm);
+      assert(!preBr->isConditional());
+
+      preBr->setSuccessor(0, map_find(&(called->getEntryBlock()), oldBlocksToClones));
+      
       for (auto& bb : f->getBasicBlockList()) {
         cout << "setting successors for " << valueString(&bb) << endl;
         auto term = bb.getTerminator();
