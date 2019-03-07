@@ -1740,16 +1740,18 @@ namespace DHLS {
     cout << valueString(f) << endl;
     
     // Set phi instruction successors
-    for (auto bbs : oldBlocksToClones) {
-      BasicBlock* inlinedBlock = bbs.second;
-      for (auto& instrR : *inlinedBlock) {
-        if (PHINode::classof(&instrR)) {
-          auto phi = dyn_cast<PHINode>(&instrR);
-          for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
-            BasicBlock* incoming = phi->getIncomingBlock(i);
-            BasicBlock* newIncoming =
-              map_find(incoming, oldBlocksToClones);
-            phi->setIncomingBlock(i, newIncoming);
+    if (!oneBlock) {
+      for (auto bbs : oldBlocksToClones) {
+        BasicBlock* inlinedBlock = bbs.second;
+        for (auto& instrR : *inlinedBlock) {
+          if (PHINode::classof(&instrR)) {
+            auto phi = dyn_cast<PHINode>(&instrR);
+            for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
+              BasicBlock* incoming = phi->getIncomingBlock(i);
+              BasicBlock* newIncoming =
+                map_find(incoming, oldBlocksToClones);
+              phi->setIncomingBlock(i, newIncoming);
+            }
           }
         }
       }
@@ -2881,7 +2883,9 @@ namespace DHLS {
           auto c3 = b.CreateCall(readChannel, {in3Fifo});
         });
 
-    b.CreateBr(loop);    
+    b.CreateBr(loop);
+
+    inlineWireCalls(f, exec, interfaces);
   }
 
 }

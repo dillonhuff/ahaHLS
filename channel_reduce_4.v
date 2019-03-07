@@ -43,10 +43,6 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [0:0] val
 
 	br_dummy br_unit();
 
-	add alloca_2();
-
-	add bitcast_3();
-
 	add call_17();
 
 	reg [63:0] phi_in_phi_5;
@@ -70,9 +66,13 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [0:0] val
 	wire [0:0] cmp_out_icmp_8;
 	eq #(.WIDTH(32)) icmp_8(.in0(cmp_in0_icmp_8), .in1(cmp_in1_icmp_8), .out(cmp_out_icmp_8));
 
-	add call_19();
+	add alloca_2();
+
+	add bitcast_3();
 
 	add call_10();
+
+	add call_19();
 
 	// End Functional Units
 
@@ -365,10 +365,10 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [0:0] val
 				if (out_write_ready) begin
 				end
 		end else 		if ((global_state == 7)) begin 
-				//   call void @builtin_write_port_write_valid(%class.ac_channel* %out, i1 true)
-				out_write_valid_reg = -(1'd1);
 				//   call void @builtin_write_port_in_data(%class.ac_channel* %out, i32 %4)
 				out_in_data_reg = rdata_ram_0;
+				//   call void @builtin_write_port_write_valid(%class.ac_channel* %out, i1 true)
+				out_write_valid_reg = -(1'd1);
 		end else 		if ((global_state == 8)) begin 
 				//   call void @builtin_write_port_write_valid(%class.ac_channel* %out, i1 false)
 				out_write_valid_reg = (1'd0);
