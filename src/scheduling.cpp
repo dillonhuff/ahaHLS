@@ -2736,6 +2736,9 @@ namespace DHLS {
     //    I can worry about details once I have a simple example working
     
     auto filterMod = getArg(f, 0);
+    auto in1Fifo = getArg(f, 1);
+    auto in2Fifo = getArg(f, 2);
+    auto in3Fifo = getArg(f, 3);        
     auto outFifo = getArg(f, 4);
 
     auto setRst1 = writePort(b, filterMod, 1, "rst_n", mkInt(1, 1));
@@ -2744,7 +2747,29 @@ namespace DHLS {
     exec.add(instrEnd(setRst1) < instrStart(setRst0));
 
     writePort(b, outFifo, 32, "in_data", mkInt(14, 32));
-    b.CreateRet(nullptr);
+
+    auto exitBB = mkBB("exit_block", f);
+    IRBuilder<> eb(exitBB);
+    eb.CreateRet(nullptr);
+
+    // Create loop structure
+    int imgWidth = 320;
+    int imgHeight = 320;
+    int numPixels = imgWidth * imgHeight;
+    int channelWidth = 32;
+    int numChannels = 3;
+    int pixelWidth = 8;
+    int pixelsPerCycle = (channelWidth * numChannels) / pixelWidth;
+    int numReads = numPixels / pixelsPerCycle;
+
+    BasicBlock* loop =
+      sivLoop(f, b, exitBB, numReads, [](IRBuilder<>& b, Value* i) {
+          // Read from each channel
+          auto c1 = b.CreateCall(readChannel, {in1Fifo});
+          auto c2 = b.CreateCall(readChannel, {in2Fifo});
+          auto c3 = b.CreateCall(readChannel, {in3Fifo});
+        });
+    
   }
 
 }
