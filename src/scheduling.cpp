@@ -1640,7 +1640,7 @@ namespace DHLS {
       preCall = toInline->getParent();
       atCall = toInline->getParent()->splitBasicBlock(toInline);
       for (auto& bb : called->getBasicBlockList()) {
-        auto newBB = mkBB(bb.getName(), f);
+        auto newBB = mkBB(string(bb.getName()) + "_il", f);
         oldBlocksToClones[&bb] = newBB;
       }
     }
@@ -1679,10 +1679,10 @@ namespace DHLS {
 
           if (!oneBlock) {
             IRBuilder<> brB(replacementBlock);
-            auto brOut = brB.CreateBr(atCall);
-            //replacementBlock->getInstList().push_back(brOut);
-            cout << "New replacement return block" << endl;
-            cout << valueString(replacementBlock) << endl;
+            brB.CreateBr(atCall);
+
+            // cout << "New replacement return block" << endl;
+            // cout << valueString(replacementBlock) << endl;
           }
           if (instr.getNumOperands() > 0) {
             assert(instr.getNumOperands() == 1);
@@ -1736,7 +1736,25 @@ namespace DHLS {
       }
     }
 
-    // TODO: Replace phi instruction successors
+    cout << "After instruction inlining, before phi changes" << endl;
+    cout << valueString(f) << endl;
+    
+    // Set phi instruction successors
+    for (auto bbs : oldBlocksToClones) {
+      BasicBlock* inlinedBlock = bbs.second;
+      for (auto& instrR : *inlinedBlock) {
+        if (PHINode::classof(&instrR)) {
+          auto phi = dyn_cast<PHINode>(&instrR);
+          for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
+            BasicBlock* incoming = phi->getIncomingBlock(i);
+            BasicBlock* newIncoming =
+              map_find(incoming, oldBlocksToClones);
+            phi->setIncomingBlock(i, newIncoming);
+          }
+        }
+      }
+    }
+
 
     cout << "After instruction inlining, before constraint inlining" << endl;
     cout << valueString(f) << endl;
