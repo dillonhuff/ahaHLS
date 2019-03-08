@@ -953,7 +953,7 @@ namespace DHLS {
                          ControlFlowPosition& currentPosition,
                          MicroArchitecture& arch) {
 
-    //cout << "Getting name of " << valueString(val) << endl;
+    cout << "Getting name of " << valueString(val) << endl;
     if (Instruction::classof(val)) {
 
       // Pointers to allocations (RAMs) always have a base
