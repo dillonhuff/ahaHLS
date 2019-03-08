@@ -5010,9 +5010,9 @@ namespace DHLS {
 
     InterfaceFunctions interfaces;
     interfaces.functionTemplates[string("read")] =
-      [](Function* f, ExecutionConstraints& exe) { implementWireRead(f); }; //implementRVFifoRead;
+      [](Function* f, ExecutionConstraints& exe) { implementWireRead(f); };
     interfaces.functionTemplates[string("write")] =
-      [](Function* f, ExecutionConstraints& exe) { implementWireWrite(f); }; //implementRVFifoRead;/implementWireWrite; //implementRVFifoWriteRef;
+      [](Function* f, ExecutionConstraints& exe) { implementWireWrite(f); };
     interfaces.functionTemplates[string("run_median")] = implementRunMedian;
 
     HardwareConstraints hcs = standardConstraints();
@@ -5039,7 +5039,6 @@ namespace DHLS {
     map<Function*, SchedulingProblem> constraints{{f, p}};
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
     
-    //Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
     STG graph = buildSTG(s, f);
     
     cout << "STG Is" << endl;
@@ -5050,8 +5049,10 @@ namespace DHLS {
     map<llvm::Value*, int> layout = {};
     auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
-    auto in = dyn_cast<Argument>(getArg(f, 0));
-    auto out = dyn_cast<Argument>(getArg(f, 1));
+    auto in0 = dyn_cast<Argument>(getArg(f, 0));
+    auto in1 = dyn_cast<Argument>(getArg(f, 1));
+    auto in2 = dyn_cast<Argument>(getArg(f, 2));
+    auto out = dyn_cast<Argument>(getArg(f, 3));
 
     TestBenchSpec tb;
     map<string, int> testLayout = {};
