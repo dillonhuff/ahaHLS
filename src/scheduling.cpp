@@ -1595,6 +1595,7 @@ namespace DHLS {
   findReplacement(//Instruction* instr,
                   ExecutionAction& toReplace,
                   std::map<Instruction*, Instruction*>& oldInstrsToClones,
+                  std::map<BasicBlock*, BasicBlock*>& oldBlocksToClones,
                   ExecutionAction& functionAction) {
     if (toReplace.type() == EXECUTION_ACTION_INSTRUCTION) {
       auto instr = toReplace.getInstruction();
@@ -1603,7 +1604,12 @@ namespace DHLS {
       }
 
       return map_find(instr, oldInstrsToClones);
+    } else if (toReplace.type() == EXECUTION_ACTION_BASIC_BLOCK) {
+      return map_find(toReplace.getBasicBlock(), oldBlocksToClones);
+    } else if (toReplace.type() == EXECUTION_ACTION_TAG) {
+      return ExecutionAction(toReplace.getName() + "_il");
     } else {
+      cout << "Unsupported ExecutionAction " << toReplace << endl;
       assert(false);
     }
   }
@@ -1613,7 +1619,7 @@ namespace DHLS {
                            map<Instruction*, Instruction*>& oldInstrsToClones,
                            map<BasicBlock*, BasicBlock*>& oldBlocksToClones,
                            ExecutionAction& inlineMarkerAction) {
-    ExecutionAction bRep = findReplacement(oc->before.action, oldInstrsToClones, inlineMarkerAction);
+    ExecutionAction bRep = findReplacement(oc->before.action, oldInstrsToClones, oldBlocksToClones, inlineMarkerAction);
     if (oc->before.action.isInstruction()) {
       auto beforeInstr = oc->before.getInstr();
       
@@ -1631,7 +1637,7 @@ namespace DHLS {
                           map<Instruction*, Instruction*>& oldInstrsToClones,
                           map<BasicBlock*, BasicBlock*>& oldBlocksToClones,
                           ExecutionAction& inlineMarkerAction) {
-    ExecutionAction bRep = findReplacement(oc->after.action, oldInstrsToClones, inlineMarkerAction);
+    ExecutionAction bRep = findReplacement(oc->after.action, oldInstrsToClones, oldBlocksToClones, inlineMarkerAction);
     if (oc->after.action.isInstruction()) {
       auto afterInstr = oc->after.getInstr();
       
