@@ -2904,6 +2904,7 @@ namespace DHLS {
     addOutputPort(ports, pixelDataWidth, "pixel2");
     addOutputPort(ports, pixelDataWidth, "pixel3");
     addOutputPort(ports, pixelDataWidth, "pixel4");
+    addOutputPort(ports, 4*pixelDataWidth, "median_word");    
     
     map<string, int> defaults{};
     
@@ -2930,6 +2931,7 @@ namespace DHLS {
     auto in3Fifo = getArg(f, 3);        
     auto outFifo = getArg(f, 4);
 
+    auto filterTp = getPointedToType(filterMod->getType());
     auto channelType = getPointedToType(in1Fifo->getType());
 
     auto setRst1 = writePort(b, filterMod, 1, "rst_n", mkInt(1, 1));
@@ -2957,12 +2959,24 @@ namespace DHLS {
     interfaces.addFunction(readChannel);
     implementRVFifoRead(readChannel, interfaces.getConstraints(readChannel));
 
+    Function* writeChannel =
+      mkFunc({intType(32), channelType->getPointerTo()}, voidType(), "write_channel");
+    interfaces.addFunction(writeChannel);
+    //implementRVFifoWriteRef(writeChannel, interfaces.getConstraints(writeChannel));
+    implementRVFifoWrite(writeChannel, interfaces.getConstraints(writeChannel));
+
+    auto readMedianOut = readPort("median_word", 32, filterTp);
+
     BasicBlock* loop =
-      sivLoop(f, bb, exitBB, numReads, [readChannel, in1Fifo, in2Fifo, in3Fifo](IRBuilder<>& b, Value* i) {
+      sivLoop(f, bb, exitBB, numReads, [writeChannel, filterMod, filterTp, readMedianOut, readChannel, in1Fifo, in2Fifo, in3Fifo, outFifo](IRBuilder<>& b, Value* i) {
           // Read from each channel
           b.CreateCall(readChannel, {in1Fifo});
           b.CreateCall(readChannel, {in2Fifo});
           b.CreateCall(readChannel, {in3Fifo});
+          //auto reg = b.CreateAlloca(intType(32));
+          auto output = b.CreateCall(readMedianOut, {filterMod});
+          //storeReg(b, reg, output);
+          b.CreateCall(writeChannel, {output, outFifo});
         });
 
     b.CreateBr(loop);
