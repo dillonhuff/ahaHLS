@@ -409,7 +409,10 @@ namespace DHLS {
     std::string name;
 
     std::map<int, std::vector<std::string> > actionsOnCycles;
-    std::map<int, std::vector<std::string> > actionsInCycles;    
+    std::map<int, std::vector<std::string> > actionsInCycles;
+
+    std::vector<std::string> actionsOnConditions;
+
     std::set<std::string> settableWires;
 
     bool useModSpecs;
@@ -419,6 +422,11 @@ namespace DHLS {
       settableWires.insert("clk");
       settableWires.insert("rst");
       useModSpecs = false;
+    }
+
+    void actionOnCondition(const std::string& condition,
+                           const std::string& action) {
+      actionsOnConditions.push_back("if " + parens(condition) + " begin " + action + " end ");
     }
 
     void setArgPort(llvm::Argument* arg, std::string port, int cycleNo, std::string value);

@@ -2602,6 +2602,11 @@ namespace DHLS {
     string ramName = "noRam";
 
     VerilogComponents comps;
+    for (auto action : tb.actionsOnConditions) {
+      cout << "Adding action " << action << endl;
+      addAlwaysBlock({"clk"}, action, comps);
+    }
+
     comps.debugWires.push_back({true, 32, "num_clocks_after_reset"});
     comps.debugWires.push_back({true, 32, "total_cycles"});
     comps.debugWires.push_back({true, 32, "max_cycles"});

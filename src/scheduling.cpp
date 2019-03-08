@@ -2945,8 +2945,10 @@ namespace DHLS {
 
     auto setRst1 = writePort(b, filterMod, 1, "rst_n", mkInt(1, 1));
     auto setRst0 = writePort(b, filterMod, 1, "rst_n", mkInt(0, 1));
+    auto setRst1Last = writePort(b, filterMod, 1, "rst_n", mkInt(1, 1));    
 
     exec.add(instrEnd(setRst1) < instrStart(setRst0));
+    exec.add(instrEnd(setRst0) < instrStart(setRst1Last));
 
     auto exitBB = mkBB("exit_block", f);
     IRBuilder<> eb(exitBB);

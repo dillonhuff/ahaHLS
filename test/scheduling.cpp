@@ -5052,18 +5052,37 @@ namespace DHLS {
     auto in0 = dyn_cast<Argument>(getArg(f, 0));
     auto in1 = dyn_cast<Argument>(getArg(f, 1));
     auto in2 = dyn_cast<Argument>(getArg(f, 2));
-    auto out = dyn_cast<Argument>(getArg(f, 3));
+    // auto out = dyn_cast<Argument>(getArg(f, 3));
 
     TestBenchSpec tb;
     map<string, int> testLayout = {};
     tb.memoryInit = {};
     tb.memoryExpected = {};
     tb.runCycles = 400;
-    tb.maxCycles = 500;
+    tb.maxCycles = 100;
     tb.name = "median_filter";
     tb.useModSpecs = true;
-    emitVerilogTestBench(tb, arch, testLayout);
+    tb.settablePort(in0, "in_data");
+    tb.settablePort(in1, "in_data");
+    tb.settablePort(in2, "in_data");        
+    //tb.actionOnCondition("(total_cycles % 100) == 0", "$display(\"median_word = %d\", out_in_data);");
+
+    tb.actionOnCondition("1", "$display(\"median_word = %d\", out_in_data);");
+    tb.actionOnCondition("1", "$display(\"in0_out_data = %d\", in0_out_data);");  
+    tb.actionOnCondition("1", "$display(\"in1_out_data = %d\", in1_out_data);");
+    tb.actionOnCondition("1", "$display(\"in2_out_data = %d\", in2_out_data);");
+
+    map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
     
+    tb.setArgPort(in0, "in_data", 1, "{8'd2, 8'd5, 8'd9, 8'd16}");
+    tb.setArgPort(in1, "in_data", 1, "{8'd2, 8'd5, 8'd9, 8'd16}");
+    tb.setArgPort(in2, "in_data", 1, "{8'd2, 8'd5, 8'd9, 8'd16}");    
+
+    map_insert(tb.actionsOnCycles, 9000, assertString("valid === 1"));
+    map_insert(tb.actionsOnCycles, 9001, assertString("valid === 1"));
+
+
+    emitVerilogTestBench(tb, arch, testLayout);
     REQUIRE(runIVerilogTest("median_filter_tb.v", "median_filter", " median_filter.v builtins.v median.v dff_3_pipe.v node.v pixel_network.v state_machine.v common_network.v"));
 
   }
