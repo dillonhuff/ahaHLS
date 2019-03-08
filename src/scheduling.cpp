@@ -2888,7 +2888,7 @@ namespace DHLS {
 
   ModuleSpec medianFilterSpec() {
 
-    int addrWidth = 16;
+    //int addrWidth = 16;
     int dataWidth = 32;
     int pixelDataWidth = 8;
     
@@ -2957,13 +2957,15 @@ namespace DHLS {
     Function* readChannel =
       mkFunc({channelType->getPointerTo()}, intType(32), "read_channel");
     interfaces.addFunction(readChannel);
-    implementRVFifoRead(readChannel, interfaces.getConstraints(readChannel));
+    //implementRVFifoRead(readChannel, interfaces.getConstraints(readChannel));
+    implementWireRead(readChannel); //, interfaces.getConstraints(readChannel));
 
     Function* writeChannel =
       mkFunc({intType(32), channelType->getPointerTo()}, voidType(), "write_channel");
     interfaces.addFunction(writeChannel);
     //implementRVFifoWriteRef(writeChannel, interfaces.getConstraints(writeChannel));
-    implementRVFifoWrite(writeChannel, interfaces.getConstraints(writeChannel));
+    //implementRVFifoWrite(writeChannel, interfaces.getConstraints(writeChannel));
+    implementWireWrite(writeChannel); //, interfaces.getConstraints(writeChannel));
 
     auto readMedianOut = readPort("median_word", 32, filterTp);
 
