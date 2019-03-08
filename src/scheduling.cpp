@@ -1592,14 +1592,20 @@ namespace DHLS {
   }
 
   ExecutionAction
-  findReplacement(Instruction* instr,
+  findReplacement(//Instruction* instr,
+                  ExecutionAction& toReplace,
                   std::map<Instruction*, Instruction*>& oldInstrsToClones,
                   ExecutionAction& functionAction) {
-    if (ReturnInst::classof(instr)) {
-      return functionAction;
-    }
+    if (toReplace.type() == EXECUTION_ACTION_INSTRUCTION) {
+      auto instr = toReplace.getInstruction();
+      if (ReturnInst::classof(instr)) {
+        return functionAction;
+      }
 
-    return map_find(instr, oldInstrsToClones);
+      return map_find(instr, oldInstrsToClones);
+    } else {
+      assert(false);
+    }
   }
 
   // TODO: Unique naming for inlined markers
@@ -1607,28 +1613,36 @@ namespace DHLS {
                            map<Instruction*, Instruction*>& oldInstrsToClones,
                            map<BasicBlock*, BasicBlock*>& oldBlocksToClones,
                            ExecutionAction& inlineMarkerAction) {
-    auto beforeInstr = oc->before.getInstr();
-    ExecutionAction bRep = findReplacement(beforeInstr, oldInstrsToClones, inlineMarkerAction);
-    oc->before.replaceAction(oc->before.action, bRep);
-    if (ReturnInst::classof(beforeInstr)) {
-      if (oc->before.isStart()) {
-        oc->before.isEnd = true;
+    ExecutionAction bRep = findReplacement(oc->before.action, oldInstrsToClones, inlineMarkerAction);
+    if (oc->before.action.isInstruction()) {
+      auto beforeInstr = oc->before.getInstr();
+      
+      if (ReturnInst::classof(beforeInstr)) {
+        if (oc->before.isStart()) {
+          oc->before.isEnd = true;
+        }
       }
     }
+    
+    oc->before.replaceAction(oc->before.action, bRep);
   }
 
   void replaceActionAfter(Ordered* oc,
                           map<Instruction*, Instruction*>& oldInstrsToClones,
                           map<BasicBlock*, BasicBlock*>& oldBlocksToClones,
                           ExecutionAction& inlineMarkerAction) {
-    auto afterInstr = oc->after.getInstr();
-    ExecutionAction bRep = findReplacement(afterInstr, oldInstrsToClones, inlineMarkerAction);
-    oc->after.replaceAction(oc->after.action, bRep);
-    if (ReturnInst::classof(afterInstr)) {
-      if (oc->after.isStart()) {
-        oc->after.isEnd = true;
+    ExecutionAction bRep = findReplacement(oc->after.action, oldInstrsToClones, inlineMarkerAction);
+    if (oc->after.action.isInstruction()) {
+      auto afterInstr = oc->after.getInstr();
+      
+      if (ReturnInst::classof(afterInstr)) {
+        if (oc->after.isStart()) {
+          oc->after.isEnd = true;
+        }
       }
     }
+    
+    oc->after.replaceAction(oc->after.action, bRep);
   }
   
   // Note: There is really no need for a ret instruction either, it
