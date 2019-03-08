@@ -5065,7 +5065,6 @@ namespace DHLS {
     tb.settablePort(in0, "in_data");
     tb.settablePort(in1, "in_data");
     tb.settablePort(in2, "in_data");        
-    //tb.actionOnCondition("(total_cycles % 100) == 0", "$display(\"median_word = %d\", out_in_data);");
 
     tb.actionOnCondition("1", "$display(\"median_word = %d\", out_in_data);");
     tb.actionOnCondition("1", "$display(\"in0_out_data = %d\", in0_out_data);");  
