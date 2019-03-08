@@ -2900,10 +2900,10 @@ namespace DHLS {
     addInputPort(ports, dataWidth, "word2");        
     addInputPort(ports, 1, "rst_n");        
 
-    addOutputPort(ports, pixelDataWidth, "pixel1");    
-    addOutputPort(ports, pixelDataWidth, "pixel2");
-    addOutputPort(ports, pixelDataWidth, "pixel3");
-    addOutputPort(ports, pixelDataWidth, "pixel4");
+    // addOutputPort(ports, pixelDataWidth, "pixel1");    
+    // addOutputPort(ports, pixelDataWidth, "pixel2");
+    // addOutputPort(ports, pixelDataWidth, "pixel3");
+    // addOutputPort(ports, pixelDataWidth, "pixel4");
     addOutputPort(ports, 4*pixelDataWidth, "median_word");    
     
     map<string, int> defaults{};

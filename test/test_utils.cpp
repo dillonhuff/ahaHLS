@@ -99,9 +99,11 @@ namespace DHLS {
   }
 
   bool runIVerilogTest(const std::string& mainName,
-                       const std::string& exeName) {
+                       const std::string& exeName,
+                       const std::string& otherFiles) {
 
-    string genCmd = "iverilog -g2005 -o " + exeName + " " + mainName + string(" ") + " RAM.v RAM2.v RAM3.v axil_ram.v delay.v builtins.v";
+    //string genCmd = "iverilog -g2005 -o " + exeName + " " + mainName + string(" ") + 
+    string genCmd = "iverilog -g2005 -o " + exeName + " " + mainName + string(" ") + otherFiles;    
 
     bool compiled = runCmd(genCmd);
 
@@ -136,5 +138,10 @@ namespace DHLS {
 
     return lastLine == "Passed";
   }
-  
+
+  bool runIVerilogTest(const std::string& mainName,
+                       const std::string& exeName) {
+    std::string otherFiles = " RAM.v RAM2.v RAM3.v axil_ram.v delay.v builtins.v";
+    return runIVerilogTest(mainName, exeName, otherFiles);
+  }  
 }

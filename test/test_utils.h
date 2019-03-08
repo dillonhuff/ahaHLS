@@ -28,4 +28,9 @@ namespace DHLS {
   bool runIVerilogTest(const std::string& mainName,
                        const std::string& exeName);
 
+  bool runIVerilogTest(const std::string& mainName,
+                       const std::string& exeName,
+                       const std::string& otherFiles);
+  
+
 }
