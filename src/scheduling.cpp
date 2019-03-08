@@ -2972,9 +2972,14 @@ namespace DHLS {
     BasicBlock* loop =
       sivLoop(f, bb, exitBB, numReads, [writeChannel, filterMod, filterTp, readMedianOut, readChannel, in1Fifo, in2Fifo, in3Fifo, outFifo](IRBuilder<>& b, Value* i) {
           // Read from each channel
-          b.CreateCall(readChannel, {in1Fifo});
-          b.CreateCall(readChannel, {in2Fifo});
-          b.CreateCall(readChannel, {in3Fifo});
+          auto r1 = b.CreateCall(readChannel, {in1Fifo});
+          auto r2 = b.CreateCall(readChannel, {in2Fifo});
+          auto r3 = b.CreateCall(readChannel, {in3Fifo});
+
+          writePort(b, filterMod, 32, "word0", r1);
+          writePort(b, filterMod, 32, "word1", r2);
+          writePort(b, filterMod, 32, "word2", r3);                    
+
           //auto reg = b.CreateAlloca(intType(32));
           auto output = b.CreateCall(readMedianOut, {filterMod});
           //storeReg(b, reg, output);
