@@ -5061,7 +5061,7 @@ namespace DHLS {
     tb.useModSpecs = true;
     emitVerilogTestBench(tb, arch, testLayout);
     
-    REQUIRE(runIVerilogTest("median_filter.v", "median_filter", " builtins.v median.v dff_3_pipe.v node.v pixel_network.v state_machine.v common_network.v"));
+    REQUIRE(runIVerilogTest("median_filter_tb.v", "median_filter", " median_filter.v builtins.v median.v dff_3_pipe.v node.v pixel_network.v state_machine.v common_network.v"));
 
   }
 
