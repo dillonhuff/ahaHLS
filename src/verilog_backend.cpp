@@ -1671,6 +1671,8 @@ namespace DHLS {
       bool isExternal = unit.isExternal();
 
       for (auto stInstrG : controller.instructions) {
+        cout << "In state " << stInstrG.first << endl;
+        
         StateId state = stInstrG.first;
         auto instrsAtState = stInstrG.second;
 

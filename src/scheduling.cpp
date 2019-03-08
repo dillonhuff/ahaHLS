@@ -1574,20 +1574,32 @@ namespace DHLS {
     exec.addConstraint(instrStart(setValid1) == instrStart(writeValue));
     exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
   }
+
+  Value* valueReplacement(Value* opI,
+                          map<Value*, Value*>& argsToValues,
+                          map<Instruction*, Instruction*>& oldInstrsToClones) {
+    if (contains_key(opI, argsToValues)) {
+      return map_find(opI, argsToValues);
+    } else if (Instruction::classof(opI)) {
+      auto opII = dyn_cast<Instruction>(opI);
+      if (contains_key(opII, oldInstrsToClones)) {
+        return map_find(opII, oldInstrsToClones);
+      } else {
+        return opI;
+      }
+    }
+
+    return opI;
+
+  }
   
   void replaceValues(map<Value*, Value*>& argsToValues,
                      map<Instruction*, Instruction*>& oldInstrsToClones,
                      Instruction* const clone) {
     for (int i = 0; i < (int) clone->getNumOperands(); i++) {
       Value* opI = clone->getOperand(i);
-      if (contains_key(opI, argsToValues)) {
-        clone->setOperand(i, map_find(opI, argsToValues));
-      } else if (Instruction::classof(opI)) {
-        auto opII = dyn_cast<Instruction>(opI);
-        if (contains_key(opII, oldInstrsToClones)) {
-          clone->setOperand(i, map_find(opII, oldInstrsToClones));
-        }
-      }
+      Value* newOpI = valueReplacement(opI, argsToValues, oldInstrsToClones);
+      clone->setOperand(i, newOpI);
     }
   }
 
@@ -1833,7 +1845,12 @@ namespace DHLS {
               BasicBlock* incoming = phi->getIncomingBlock(i);
               BasicBlock* newIncoming =
                 map_find(incoming, oldBlocksToClones);
+
               phi->setIncomingBlock(i, newIncoming);
+
+              Value* oldValue = phi->getIncomingValue(i);
+              Value* newValue = valueReplacement(oldValue, argsToValues, oldInstrsToClones);
+              phi->setIncomingValue(i, newValue);
             }
           }
         }
