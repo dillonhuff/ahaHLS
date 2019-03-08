@@ -104,7 +104,7 @@ namespace DHLS {
       AAResults& a = getAnalysis<AAResultsWrapperPass>().getAAResults();
       ScalarEvolution& sc = getAnalysis<ScalarEvolutionWrapperPass>().getSE();
 
-      errs() << "Scheduling " << "\n" << valueString(&F) << "\n";
+      //errs() << "Scheduling " << "\n" << valueString(&F) << "\n";
       if (!contains_key(&F, functionConstraints)) {
         schedule = scheduleFunction(&F,
                                     hdc,
@@ -1602,6 +1602,69 @@ namespace DHLS {
     return map_find(instr, oldInstrsToClones);
   }
 
+  // TODO: Unique naming for inlined markers
+  void replaceActionBefore(Ordered* oc,
+                           map<Instruction*, Instruction*>& oldInstrsToClones,
+                           map<BasicBlock*, BasicBlock*>& oldBlocksToClones,
+                           ExecutionAction& inlineMarkerAction) {
+    auto beforeInstr = oc->before.getInstr();
+    ExecutionAction bRep = findReplacement(beforeInstr, oldInstrsToClones, inlineMarkerAction);
+    oc->before.replaceAction(oc->before.action, bRep);
+    if (ReturnInst::classof(beforeInstr)) {
+      if (oc->before.isStart()) {
+        oc->before.isEnd = true;
+      }
+    }
+  }
+
+  void replaceActionAfter(Ordered* oc,
+                          map<Instruction*, Instruction*>& oldInstrsToClones,
+                          map<BasicBlock*, BasicBlock*>& oldBlocksToClones,
+                          ExecutionAction& inlineMarkerAction) {
+    auto afterInstr = oc->after.getInstr();
+    ExecutionAction bRep = findReplacement(afterInstr, oldInstrsToClones, inlineMarkerAction);
+    oc->after.replaceAction(oc->after.action, bRep);
+    if (ReturnInst::classof(afterInstr)) {
+      if (oc->after.isStart()) {
+        oc->after.isEnd = true;
+      }
+    }
+  }
+  
+  // Note: There is really no need for a ret instruction either, it
+  // can be interpreted however we want using functional units.
+  // The last question is about branch instructions. Should they
+  // still be allowed to exist, or should they also be changed to
+  // some sort of distinguished control path instruction?
+  // Perhaps branches should be implemented as operations on the
+  // module for the control path, but the control path module
+  // itself should be synthesized from specifications generated
+  // from earlier analysis passes? Maybe the scheduling problem should
+  // be generalized to decision variables about when control path
+  // variables have certain values?
+  // How does this control path versatility mix with optimizations
+  // like pipelining that change the structure of the datapath?
+  // The scheduler needs to know something about how data is passed between
+  // functional units. One way to do this is to allow the user to explicitly
+  // instantiate wires and storage data structures that pass data, another
+  // is to allow the HLS tool itself to determine a mapping from abstract data
+  // objects on to storage. Perhaps the idea of a "store" which can receive
+  // input data is essential as a builtin in order to express this concept?
+
+  // Maybe *conditioned* wire reads and writes are the basic abstraction, where
+  // the conditions are outputs of the control path? and writes can also
+  // be to inputs of the control path?
+
+  // Currently the scheduler only knows about task parallelism, but perhaps in
+  // order to do pipelining and task splitting correctly the scheduler also
+  // needs to know about storage elements like FIFOs and RAMs? Or at least
+  // it needs to know something about what is being produced by functional units?
+
+  // Is it the same to say "this output wire needs to be connected to this input
+  // wire at this time" and "this output value needs to get to this input wire
+  // eventually?" ?? Can difference logic schedulers convey this distinction
+  // or is it implicit in the FSM construcion done after the finite state machine
+  // is created?
   void inlineFunctionWithConstraints(Function* const f,
                                      ExecutionConstraints& exec,
                                      CallInst* const toInline,
@@ -1613,7 +1676,7 @@ namespace DHLS {
     map<Value*, Value*> argsToValues;
     Function* called = toInline->getCalledFunction();
 
-    cout << "Function def " << valueString(called) << endl;    
+    //cout << "Function def " << valueString(called) << endl;    
     
     for (int i = 0; i < (int) toInline->getNumOperands() - 1; i++) {
       cout << "i = " << i << endl;
@@ -1650,8 +1713,8 @@ namespace DHLS {
     // Inline the constraints
     Value* finalRetVal = nullptr;
 
-    cout << "Function called is" << endl;
-    cout << valueString(called) << endl;
+    // cout << "Function called is" << endl;
+    // cout << valueString(called) << endl;
 
     // What changes need to be made?
     // 2. We need to support copying basic blocks in to the new structure
@@ -1700,8 +1763,8 @@ namespace DHLS {
       }
     }
 
-    cout << "After instruction inlining, before branch changes" << endl;
-    cout << valueString(f) << endl;
+    // cout << "After instruction inlining, before branch changes" << endl;
+    // cout << valueString(f) << endl;
     
     // TODO: Add new constraint edges (replace destinations of branches)
     // Q: What edges need to be added?
@@ -1736,8 +1799,8 @@ namespace DHLS {
       }
     }
 
-    cout << "After instruction inlining, before phi changes" << endl;
-    cout << valueString(f) << endl;
+    // cout << "After instruction inlining, before phi changes" << endl;
+    // cout << valueString(f) << endl;
     
     // Set phi instruction successors
     if (!oneBlock) {
@@ -1758,8 +1821,8 @@ namespace DHLS {
     }
 
 
-    cout << "After instruction inlining, before constraint inlining" << endl;
-    cout << valueString(f) << endl;
+    // cout << "After instruction inlining, before constraint inlining" << endl;
+    // cout << valueString(f) << endl;
 
     // Replace the inline start and end times with marker action noops
     ExecutionAction inlineAction(toInline);
@@ -1810,31 +1873,15 @@ namespace DHLS {
       if (c->type() == CONSTRAINT_TYPE_ORDERED) {
         Ordered* oc = static_cast<Ordered*>(c->clone());
 
-        cout << "Before = " << oc->before << endl;
-        cout << "After  = " << oc->after << endl;        
+        // cout << "Before = " << oc->before << endl;
+        // cout << "After  = " << oc->after << endl;        
 
         // start(inline_ret) -> end(inlineMarker)
         // end(inline_ret) -> end(inlineMarker)
         // Assumption is start(inline_ret) == end(inline_ret), since ret
         // takes no time
-        auto beforeInstr = oc->before.getInstr();
-        ExecutionAction bRep = findReplacement(beforeInstr, oldInstrsToClones, inlineMarkerAction);
-        oc->before.replaceAction(oc->before.action, bRep);
-        if (ReturnInst::classof(beforeInstr)) {
-          if (oc->before.isStart()) {
-            oc->before.isEnd = true;
-          }
-        }
-
-        auto afterInstr = oc->after.getInstr();
-        ExecutionAction aRep = findReplacement(afterInstr, oldInstrsToClones, inlineMarkerAction);
-        oc->after.replaceAction(oc->after.action, aRep);
-        if (ReturnInst::classof(afterInstr)) {
-          if (oc->after.isStart()) {
-            oc->after.isEnd = true;
-          }
-        }
-
+        replaceActionBefore(oc, oldInstrsToClones, oldBlocksToClones, inlineMarkerAction);
+        replaceActionAfter(oc, oldInstrsToClones, oldBlocksToClones, inlineMarkerAction);
         exec.addConstraint(oc);
       } else {
         assert(false);
@@ -2876,9 +2923,9 @@ namespace DHLS {
     BasicBlock* loop =
       sivLoop(f, bb, exitBB, numReads, [readChannel, in1Fifo, in2Fifo, in3Fifo](IRBuilder<>& b, Value* i) {
           // Read from each channel
-          auto c1 = b.CreateCall(readChannel, {in1Fifo});
-          auto c2 = b.CreateCall(readChannel, {in2Fifo});
-          auto c3 = b.CreateCall(readChannel, {in3Fifo});
+          b.CreateCall(readChannel, {in1Fifo});
+          b.CreateCall(readChannel, {in2Fifo});
+          b.CreateCall(readChannel, {in3Fifo});
         });
 
     b.CreateBr(loop);
