@@ -1627,3 +1627,11 @@ module Linebuffer_2_1(input clk,
    end
 
 endmodule
+
+module hls_wire(input [WIDTH - 1 : 0] in_data,
+                output [WIDTH - 1 : 0] out_data);
+
+   parameter WIDTH = 16;
+   
+   assign out_data = in_data;
+endmodule

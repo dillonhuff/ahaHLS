@@ -5009,15 +5009,17 @@ namespace DHLS {
     deleteLLVMLifetimeCalls(f);
 
     InterfaceFunctions interfaces;
-    interfaces.functionTemplates[string("read")] = implementRVFifoRead;
-    interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef;
+    interfaces.functionTemplates[string("read")] =
+      [](Function* f, ExecutionConstraints& exe) { implementWireRead(f); }; //implementRVFifoRead;
+    interfaces.functionTemplates[string("write")] =
+      [](Function* f, ExecutionConstraints& exe) { implementWireWrite(f); }; //implementRVFifoRead;/implementWireWrite; //implementRVFifoWriteRef;
     interfaces.functionTemplates[string("run_median")] = implementRunMedian;
 
     HardwareConstraints hcs = standardConstraints();
     hcs.typeSpecs["class.median"] =
       [](StructType* axiStencil) { return medianFilterSpec(); };
     hcs.typeSpecs["class.ac_channel"] =
-      [](StructType* tp) { return fifoSpec(32, 32); };
+      [](StructType* tp) { return wireSpec(32); };
     
     ExecutionConstraints exec;
     // sequentialCalls(f, exec);

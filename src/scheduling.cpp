@@ -2002,7 +2002,11 @@ namespace DHLS {
       {"in_data", inputPort(width, "in_data")},
       {"out_data", outputPort(width, "out_data")}};
     
-    return {{{"WIDTH", to_string(width)}}, "wire", wirePorts};
+    ModuleSpec mspec = {{{"WIDTH", to_string(width)}}, "hls_wire", wirePorts};
+    mspec.hasClock = false;
+    mspec.hasRst = false;
+
+    return mspec;
   }
 
   void implementWireRead(Function* readFifo) {
@@ -2696,7 +2700,12 @@ namespace DHLS {
     if (numReadPorts > 1) {
       name += to_string(numReadPorts);
     }
-    return {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, name, ramPorts};
+
+    
+    ModuleSpec mSpec = {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, name, ramPorts};
+
+    mSpec.hasClock = true;
+    return mSpec;
   }
   
   ModuleSpec ramSpec(const int width, const int depth) {

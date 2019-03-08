@@ -2806,7 +2806,9 @@ namespace DHLS {
             }
           }
 
-          conns.insert({"clk", "clk"});
+          if (s.isSequential()) {
+            conns.insert({"clk", "clk"});
+          }
           if (s.hasReset()) {
             conns.insert({"rst", "rst"});
           }
