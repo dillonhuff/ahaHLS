@@ -4995,6 +4995,12 @@ namespace DHLS {
     setGlobalLLVMModule(Mod.get());
 
     Function* f = getFunctionByDemangledName(Mod.get(), "median_filter");
+    int argId = 0;    
+    for (auto &Arg : f->args()) {
+      f->addParamAttr(argId, llvm::Attribute::NoAlias);
+      argId++;
+    }
+
     //getArg(f, 0)->setName("ram");
 
     cout << "llvm function" << endl;
@@ -5016,8 +5022,22 @@ namespace DHLS {
     ExecutionConstraints exec;
     // sequentialCalls(f, exec);
 
-    set<BasicBlock*> toPipeline;    
-    Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
+    set<BasicBlock*> toPipeline;
+
+    addDataConstraints(f, exec);
+    inlineWireCalls(f, exec, interfaces);
+
+    cout << "After inlining" << endl;
+    cout << valueString(f) << endl;
+
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    p.setObjective(p.blockEnd(exitBlock(f)) - p.blockStart(&(f->getEntryBlock())));
+    exec.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+    
+    //Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
     STG graph = buildSTG(s, f);
     
     cout << "STG Is" << endl;
@@ -5025,20 +5045,23 @@ namespace DHLS {
 
     emitVerilog("median_filter", graph, hcs);
 
-    // map<llvm::Value*, int> layout = {};
-    // auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    map<llvm::Value*, int> layout = {};
+    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
-    // auto in = dyn_cast<Argument>(getArg(f, 0));
-    // auto out = dyn_cast<Argument>(getArg(f, 1));
+    auto in = dyn_cast<Argument>(getArg(f, 0));
+    auto out = dyn_cast<Argument>(getArg(f, 1));
 
-    // TestBenchSpec tb;
-    // map<string, int> testLayout = {};
-    // tb.memoryInit = {};
-    // tb.memoryExpected = {};
-    // tb.runCycles = 400;
-    // tb.maxCycles = 500;
-    // tb.name = "median_filter";
-    // tb.useModSpecs = true;
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 400;
+    tb.maxCycles = 500;
+    tb.name = "median_filter";
+    tb.useModSpecs = true;
+    emitVerilogTestBench(tb, arch, testLayout);
+    
+    REQUIRE(runIVerilogTB("median_filter"));
 
   }
 

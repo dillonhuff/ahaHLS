@@ -42,5 +42,15 @@ namespace DHLS {
     return llvm::Type::getVoidTy(getGlobalLLVMContext());
   }
 
+  llvm::BasicBlock* exitBlock(llvm::Function* const f) {
+    for (auto& bb : f->getBasicBlockList()) {
+      auto term = bb.getTerminator();
+
+      if (ReturnInst::classof(term)) {
+        return &bb;
+      }
+    }
+    assert(false);
+  }
   
 }

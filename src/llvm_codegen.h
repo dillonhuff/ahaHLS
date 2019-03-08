@@ -437,5 +437,7 @@ namespace DHLS {
 
     return llvm::dyn_cast<llvm::Function>(c);
   }
+
+  llvm::BasicBlock* exitBlock(llvm::Function* const f);
   
 }
