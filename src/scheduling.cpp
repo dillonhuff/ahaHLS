@@ -2980,9 +2980,7 @@ namespace DHLS {
           writePort(b, filterMod, 32, "word1", r2);
           writePort(b, filterMod, 32, "word2", r3);                    
 
-          //auto reg = b.CreateAlloca(intType(32));
           auto output = b.CreateCall(readMedianOut, {filterMod});
-          //storeReg(b, reg, output);
           b.CreateCall(writeChannel, {output, outFifo});
         });
 
