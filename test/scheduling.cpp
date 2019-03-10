@@ -5183,7 +5183,7 @@ namespace DHLS {
 
 
     emitVerilogTestBench(tb, arch, testLayout);
-    REQUIRE(runIVerilogTest("count_packets_tb.v", "count_packets", " builtins.v"));
+    REQUIRE(runIVerilogTest("count_packets_tb.v", "count_packets", " builtins.v count_packets.v"));
 
   }
 }

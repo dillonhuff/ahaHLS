@@ -3002,18 +3002,28 @@ namespace DHLS {
 
   ModuleSpec ipReceiverSpec() {
     ModuleSpec m;
+    m.name = "ip_receiver";
+    
     return m;
   }
 
   ModuleSpec counterSpec() {
     ModuleSpec m;
+    m.name = "counter";
     return m;
   }
 
   void implementIncrement(llvm::Function* f, ExecutionConstraints& exec) {
+    auto bb = mkBB("entry_block", f);
+    IRBuilder<> b(bb);
+    b.CreateRet(nullptr);
   }
   
   void implementGetAddrsRV(llvm::Function* f, ExecutionConstraints& exec) {
+    auto bb = mkBB("entry_block", f);
+    IRBuilder<> b(bb);
+    
+    b.CreateRet(mkInt(3, 64));
   }
   
 }
