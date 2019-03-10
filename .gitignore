@@ -126,3 +126,5 @@ stencil_stream_rw*
 stencil_mul_2*
 stencil_stream_mul*
 stencil_copy*
+median_filter*
+raw_axi_wr*
