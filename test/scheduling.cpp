@@ -5058,18 +5058,18 @@ namespace DHLS {
     map<string, int> testLayout = {};
     tb.memoryInit = {};
     tb.memoryExpected = {};
-    tb.runCycles = 400;
-    tb.maxCycles = 100;
+    tb.runCycles = 9500;
+    tb.maxCycles = 10000;
     tb.name = "median_filter";
     tb.useModSpecs = true;
     tb.settablePort(in0, "in_data");
     tb.settablePort(in1, "in_data");
     tb.settablePort(in2, "in_data");        
 
-    tb.actionOnCondition("1", "$display(\"median_word = %d\", out_in_data);");
-    tb.actionOnCondition("1", "$display(\"in0_out_data = %d\", in0_out_data);");  
-    tb.actionOnCondition("1", "$display(\"in1_out_data = %d\", in1_out_data);");
-    tb.actionOnCondition("1", "$display(\"in2_out_data = %d\", in2_out_data);");
+    // tb.actionOnCondition("1", "$display(\"median_word = %d\", out_in_data);");
+    // tb.actionOnCondition("1", "$display(\"in0_out_data = %d\", in0_out_data);");
+    // tb.actionOnCondition("1", "$display(\"in1_out_data = %d\", in1_out_data);");
+    // tb.actionOnCondition("1", "$display(\"in2_out_data = %d\", in2_out_data);");
 
     map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
     

@@ -46,3 +46,7 @@ target_link_libraries(synthesize-reduce-4 dhls ${llvm_libs})
 SET(ALL_INTERFACE_FUNCTION_FILES experiments/synthesize_interface_functions.cpp)
 add_executable(synthesize-interface-functions ${ALL_INTERFACE_FUNCTION_FILES})
 target_link_libraries(synthesize-interface-functions dhls ${llvm_libs})
+
+SET(ALL_PARSER_FILES experiments/parser.cpp)
+add_executable(parser ${ALL_PARSER_FILES})
+# target_link_libraries(parser dhls ${llvm_libs})
