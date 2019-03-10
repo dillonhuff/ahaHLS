@@ -3002,7 +3002,7 @@ namespace DHLS {
 
   ModuleSpec ipReceiverSpec() {
     ModuleSpec m;
-    m.name = "ip_receiver";
+    m.name = "ip_eth_rx";
     
     return m;
   }
