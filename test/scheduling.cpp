@@ -5116,7 +5116,7 @@ namespace DHLS {
       [](Function* f, ExecutionConstraints& exe) { implementGetAddrsRV(f, exe); };
 
     HardwareConstraints hcs = standardConstraints();
-    hcs.typeSpecs["class.couner"] =
+    hcs.typeSpecs["class.counter"] =
       [](StructType* axiStencil) { return counterSpec(); };
     hcs.typeSpecs["class.ip_receiver"] =
       [](StructType* tp) { return ipReceiverSpec(); };

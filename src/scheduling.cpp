@@ -2181,6 +2181,15 @@ namespace DHLS {
     return writeInstr;
   }
 
+  Instruction* readPort(IRBuilder<>& b,
+                        Value* const readMod,
+                        const int width,
+                        const std::string name) {
+    auto readF = readPort(name, width, getPointedToType(readMod->getType()));
+    auto readInstr = b.CreateCall(readF, {readMod});
+    return readInstr;
+  }
+  
   // TODO: Implement address shifting / strobe?
   void implementRawAXIWrite(llvm::Function* axiWrite,
                             ExecutionConstraints& exec) {
@@ -3011,7 +3020,11 @@ namespace DHLS {
 
   ModuleSpec counterSpec() {
     ModuleSpec m;
-    m.name = "counter";
+    m.name = "register";
+    addInputPort(m.ports, 1, "wen");
+    addInputPort(m.ports, 32, "wdata");
+    addInputPort(m.ports, 32, "waddr");        
+    addOutputPort(m.ports, 32, "rdata");
     m.hasClock = true;
     m.hasRst = true;
     return m;
@@ -3020,7 +3033,17 @@ namespace DHLS {
   void implementIncrement(llvm::Function* f, ExecutionConstraints& exec) {
     auto bb = mkBB("entry_block", f);
     IRBuilder<> b(bb);
+
+    auto counterMod = getArg(f, 0);
+
+    auto curVal = readPort(b, counterMod, 32, "rdata");
+    auto setWen = writePort(b, counterMod, 1, "wen", mkInt(1, 1));
+    auto setData = writePort(b, counterMod, 32, "wdata", b.CreateAdd(curVal, mkInt(1, 32)));
+
     b.CreateRet(nullptr);
+
+    exec.add(instrStart(curVal) == instrStart(setWen));
+    exec.add(instrStart(curVal) == instrStart(setData));
   }
   
   void implementGetAddrsRV(llvm::Function* f, ExecutionConstraints& exec) {
