@@ -3003,6 +3003,8 @@ namespace DHLS {
   ModuleSpec ipReceiverSpec() {
     ModuleSpec m;
     m.name = "ip_eth_rx";
+    m.hasClock = true;
+    m.hasRst = true;
     
     return m;
   }
@@ -3010,6 +3012,8 @@ namespace DHLS {
   ModuleSpec counterSpec() {
     ModuleSpec m;
     m.name = "counter";
+    m.hasClock = true;
+    m.hasRst = true;
     return m;
   }
 
