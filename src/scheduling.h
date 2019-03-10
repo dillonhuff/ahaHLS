@@ -1527,6 +1527,11 @@ namespace DHLS {
 
   void implementRunMedian(llvm::Function* f, ExecutionConstraints& exec);
 
+  ModuleSpec ipReceiverSpec();
+  ModuleSpec counterSpec();
+
+  void implementIncrement(llvm::Function* f, ExecutionConstraints& exec);
+  void implementGetAddrsRV(llvm::Function* f, ExecutionConstraints& exec);
 }
 
 

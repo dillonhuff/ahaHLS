@@ -3000,4 +3000,20 @@ namespace DHLS {
     inlineWireCalls(f, exec, interfaces);
   }
 
+  ModuleSpec ipReceiverSpec() {
+    ModuleSpec m;
+    return m;
+  }
+
+  ModuleSpec counterSpec() {
+    ModuleSpec m;
+    return m;
+  }
+
+  void implementIncrement(llvm::Function* f, ExecutionConstraints& exec) {
+  }
+  
+  void implementGetAddrsRV(llvm::Function* f, ExecutionConstraints& exec) {
+  }
+  
 }

@@ -4995,10 +4995,11 @@ namespace DHLS {
     setGlobalLLVMModule(Mod.get());
 
     Function* f = getFunctionByDemangledName(Mod.get(), "median_filter");
-    int argId = 0;    
-    for (auto &Arg : f->args()) {
+    //int argId = 0;    
+    //for (auto &Arg : f->args()) {
+    for (int argId = 0; argId < (int) f->arg_size(); argId++) {
       f->addParamAttr(argId, llvm::Attribute::NoAlias);
-      argId++;
+    //argId++;
     }
 
     //getArg(f, 0)->setName("ram");
@@ -5109,17 +5110,16 @@ namespace DHLS {
     deleteLLVMLifetimeCalls(f);
 
     InterfaceFunctions interfaces;
-    interfaces.functionTemplates[string("read")] =
-      [](Function* f, ExecutionConstraints& exe) { implementWireRead(f); };
-    interfaces.functionTemplates[string("write")] =
-      [](Function* f, ExecutionConstraints& exe) { implementWireWrite(f); };
-    interfaces.functionTemplates[string("run_median")] = implementRunMedian;
+    interfaces.functionTemplates[string("increment")] =
+      [](Function* f, ExecutionConstraints& exe) { implementIncrement(f, exe); };
+    interfaces.functionTemplates[string("get_addrs")] =
+      [](Function* f, ExecutionConstraints& exe) { implementGetAddrsRV(f, exe); };
 
     HardwareConstraints hcs = standardConstraints();
-    hcs.typeSpecs["class.median"] =
-      [](StructType* axiStencil) { return medianFilterSpec(); };
-    hcs.typeSpecs["class.ac_channel"] =
-      [](StructType* tp) { return wireSpec(32); };
+    hcs.typeSpecs["class.couner"] =
+      [](StructType* axiStencil) { return counterSpec(); };
+    hcs.typeSpecs["class.ip_receiver"] =
+      [](StructType* tp) { return ipReceiverSpec(); };
     
     ExecutionConstraints exec;
     // sequentialCalls(f, exec);
@@ -5183,8 +5183,7 @@ namespace DHLS {
 
 
     emitVerilogTestBench(tb, arch, testLayout);
-    REQUIRE(runIVerilogTest("count_packets_tb.v", "count_packets", " builtins.v");
+    REQUIRE(runIVerilogTest("count_packets_tb.v", "count_packets", " builtins.v"));
 
   }
-  
 }
