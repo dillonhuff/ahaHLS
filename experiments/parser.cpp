@@ -1,8 +1,11 @@
-#include <cassert>
-#include <vector>
-#include <string>
-#include <iostream>
+#include "algorithm.h"
 
+// #include <cassert>
+// #include <vector>
+// #include <string>
+// #include <iostream>
+
+using namespace dbhc;
 using namespace std;
 
 class Token {
@@ -31,7 +34,7 @@ public:
   }
 
   bool atEnd() const {
-    return pos == (((int) ts.size()) - 1);
+    return pos == ((int) ts.size());
   }
   
 };
@@ -40,18 +43,8 @@ bool isWhitespace(const char c) {
   return isspace(c);
 }
 
-Token parse_token(TokenState& state) {
-  string tok = "";
-  while (!state.atEnd() && !isWhitespace(state.peekChar())) {
-    tok += state.parseChar();
-  }
-
-  cout << "tok = " << tok << endl;
-  return tok;
-}
-
 template<typename F>
-Token consumeUntil(TokenState& state, F shouldContinue) {
+Token consumeWhile(TokenState& state, F shouldContinue) {
   string tok = "";
   while (!state.atEnd() && shouldContinue(state.peekChar())) {
     tok += state.parseChar();
@@ -59,8 +52,34 @@ Token consumeUntil(TokenState& state, F shouldContinue) {
   return tok;
 }
 
+bool oneCharToken(const char c) {
+  vector<char> chars = {'{', '}', ';'};
+  return elem(c, chars);
+}
+
+Token parse_token(TokenState& state) {
+  if (isalnum(state.peekChar())) {
+    return consumeWhile(state, [](const char c) { return !isWhitespace(c); });
+  } else if (oneCharToken(state.peekChar())) {
+    char res = state.parseChar();
+    string r;
+    r += res;
+    return Token(r);
+  } else {
+    assert(false);
+  }
+  // string tok = "";
+  
+  // while (!state.atEnd() && !isWhitespace(state.peekChar())) {
+  //   tok += state.parseChar();
+  // }
+
+  // cout << "tok = " << tok << endl;
+  // return tok;
+}
+
 Token consumeWhitespace(TokenState& state) {
-  return consumeUntil(state, [](const char c) { return isWhitespace(c); });
+  return consumeWhile(state, isWhitespace);
 }
 
 std::vector<Token> tokenize(const std::string& classCode) {
@@ -76,6 +95,7 @@ std::vector<Token> tokenize(const std::string& classCode) {
     }
 
     Token t = parse_token(state);
+    cout << "Next char after token = " << state.peekChar() << endl;    
     tokens.push_back(t);
   }
 
