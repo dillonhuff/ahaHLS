@@ -178,10 +178,33 @@ Token consumeWhile(TokenState& state, F shouldContinue) {
 bool isUnderscore(const char c) { return c == '_'; }
 bool isAlphaNum(const char c) { return isalnum(c); }
 
+maybe<Token> parseStr(const std::string target, TokenState& chars) {
+  string str = "";
+  for (int i = 0; i < (int) target.size(); i++) {
+    char next = chars.parseChar();
+    if (target[i] == next) {
+      str += next;
+    } else {
+      return maybe<Token>();
+    }
+  }
+  
+  return maybe<Token>(Token(str));
+}
+
+std::function<maybe<Token>(TokenState& chars)> mkParseStr(const std::string str) {
+  return [str](TokenState& state) { return parseStr(str, state); };
+}
+
 Token parse_token(TokenState& state) {
   if (isalnum(state.peekChar())) {
     return consumeWhile(state, [](const char c) { return isAlphaNum(c) || isUnderscore(c); });
   } else if (oneCharToken(state.peekChar())) {
+    maybe<Token> result = tryParse<Token>(mkParseStr("=="), state);
+    if (result.has_value()) {
+      return result.get_value();
+    }
+
     char res = state.parseChar();
     string r;
     r += res;
@@ -447,7 +470,7 @@ maybe<Statement*> parseFunctionCall(ParseState<Token>& tokens) {
     return maybe<Statement*>();
   }
 
-  cout << "parsing funcall" << endl;
+  cout << "parsing funcall " << tokens.remainder() << endl;
   vector<Expression*> callArgs =
     sepBtwn<Expression*, Token>(parseExpression, parseComma, tokens);
 
@@ -560,6 +583,33 @@ int main() {
   }
 
   {
+    string test = "x == 8";
+
+    vector<Token> tokens = tokenize(test);
+    cout << "Tokens" << endl;
+    for (auto t : tokens) {
+      cout << "\t" << t.getStr() << endl;
+    }
+
+    assert(tokens.size() == 3);
+    assert(tokens[1].getStr() == "==");
+  }
+
+  {
+    string test = "x = 8 == 7";
+
+    vector<Token> tokens = tokenize(test);
+    cout << "Tokens" << endl;
+    for (auto t : tokens) {
+      cout << "\t" << t.getStr() << endl;
+    }
+
+    assert(tokens.size() == 5);
+    assert(tokens[1].getStr() == "=");
+    assert(tokens[3].getStr() == "==");    
+  }
+  
+  {
     string test = "(8 - x) * 4 + 7";
 
     vector<Token> tokens = tokenize(test);
@@ -630,6 +680,17 @@ int main() {
 
     delete tp.get_value();
   }
+
+  // {
+  //   std::string str = "add_constraint(start(set_wen) == start(set_wdata));";
+  //   ParseState<Token> st(tokenize(str));
+  //   auto tp = parseStatement(st);
+  //   assert(tp.has_value());
+
+  //   assert(st.atEnd());
+
+  //   delete tp.get_value();
+  // }
   
   cout << "Done with statement tests" << endl;
 
