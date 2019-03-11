@@ -1,10 +1,10 @@
 class ram {
 
-  input32 wdata;
-  input5 waddr;
-  input wen;
+  input<32> wdata;
+  input<5> waddr;
+  input<1> wen;
 
-  void write(bit5 addr, bit32 data) {
+  void write(bit<5> addr, bit<32> data) {
   set_wen:
     set_port(wen, 1);
   set_wdata:

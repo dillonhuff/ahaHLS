@@ -10,8 +10,20 @@ using namespace std;
 enum TokenType {
   TOKEN_TYPE_ID,
   TOKEN_TYPE_NUM,
-  TOKEN_TYPE_SYMBOL  
+  TOKEN_TYPE_SYMBOL,
+  TOKEN_TYPE_KEYWORD,  
 };
+
+
+bool oneCharToken(const char c) {
+  vector<char> chars = {'{', '}', ';', ')', '(', ',', '[', ']', ':', '-', '*', '+', '=', '>', '<'};
+  return elem(c, chars);
+}
+
+bool isKeyword(const std::string& str) {
+  vector<string> keywords{"void", "bit", "port"};
+  return elem(str, keywords);
+}
 
 class Token {
   std::string str;
@@ -19,12 +31,24 @@ class Token {
   
 public:
 
-  Token(const std::string& str_) : str(str_), tp(TOKEN_TYPE_ID) {}
+  Token() {}
+  
+  Token(const std::string& str_) : str(str_), tp(TOKEN_TYPE_ID) {
+    if (isKeyword(str)) {
+      tp = TOKEN_TYPE_KEYWORD;
+    }
+
+    if (isdigit(str[0])) {
+      tp = TOKEN_TYPE_NUM;
+    }
+  }
+  Token(const std::string& str_,
+        const TokenType tp_) : str(str_), tp(tp_) {}
 
   TokenType type() const { return tp; }
   
   bool isId() const { return type() == TOKEN_TYPE_ID; }
-
+  bool isNum() const { return type() == TOKEN_TYPE_NUM; }
   std::string getStr() const { return str; }
 };
 
@@ -79,6 +103,18 @@ bool isWhitespace(const char c) {
   return isspace(c);
 }
 
+template<typename OutType, typename TokenType, typename Parser>
+maybe<OutType> tryParse(Parser p, ParseState<TokenType>& tokens) {
+  int lastPos = tokens.currentPos();
+  maybe<OutType> val = p(tokens);
+  if (val.has_value()) {
+    return val;
+  }
+
+  tokens.setPos(lastPos);
+
+  return maybe<OutType>();
+}
 
 template<typename OutType, typename TokenType, typename StatementParser, typename SepParser>
 std::vector<OutType>
@@ -93,6 +129,23 @@ sepBy(StatementParser stmt, SepParser sep, ParseState<TokenType>& tokens) {
   return stmts;
 }
 
+template<typename OutType, typename SepType, typename TokenType, typename StatementParser, typename SepParser>
+std::vector<OutType>
+sepBtwn(StatementParser stmt, SepParser sep, ParseState<TokenType>& tokens) {
+  std::vector<OutType> stmts;
+  
+  while (true) {
+    OutType nextStmt = stmt(tokens);
+    stmts.push_back(nextStmt);
+    auto nextSep = tryParse<SepType>(sep, tokens);
+    if (!nextSep.has_value()) {
+      break;
+    }
+  }
+
+  return stmts;
+}
+
 template<typename F>
 Token consumeWhile(TokenState& state, F shouldContinue) {
   string tok = "";
@@ -100,11 +153,6 @@ Token consumeWhile(TokenState& state, F shouldContinue) {
     tok += state.parseChar();
   }
   return tok;
-}
-
-bool oneCharToken(const char c) {
-  vector<char> chars = {'{', '}', ';', ')', '(', ',', '[', ']', ':', '-', '*', '+', '=', '>', '<'};
-  return elem(c, chars);
 }
 
 bool isUnderscore(const char c) { return c == '_'; }
@@ -117,7 +165,7 @@ Token parse_token(TokenState& state) {
     char res = state.parseChar();
     string r;
     r += res;
-    return Token(r);
+    return Token(r, TOKEN_TYPE_SYMBOL);
   } else {
     cout << "Cannot parse " << state.remainder() << endl;
     assert(false);
@@ -156,8 +204,21 @@ std::vector<Token> tokenize(const std::string& classCode) {
 class Type {
 };
 
+class TemplateType : public Type {
+};
+
+class StructType : public Type {
+};
+
 class Expression {
   
+};
+
+class IntegerExpr : public Expression {
+  std::string digits;
+  
+public:
+  IntegerExpr(const std::string& digits_) : digits(digits_) {}
 };
 
 class Statement {
@@ -188,27 +249,48 @@ void parseStmtEnd(ParseState<Token>& tokens) {
   assert(tokens.parseChar() == Token(";"));
 }
 
+maybe<Token> parseComma(ParseState<Token>& tokens) {
+  Token t = tokens.parseChar();
+  if (t.getStr() == ",") {
+    return t;
+  }
+
+  return maybe<Token>();
+}
+
+Expression* parseExpression(ParseState<Token>& tokens) {
+  cout << "Expressions = " << tokens.remainder() << endl;
+  assert(tokens.peekChar().isNum());
+  return new IntegerExpr(tokens.parseChar().getStr());
+}
+
 maybe<Type*> parseType(ParseState<Token>& tokens) {
   if (tokens.peekChar().isId()) {
-    if (!tokens.peekChar(1).isId()) {
+    
+    cout << tokens.peekChar() << " is id" << endl;    
+
+    Token tpName = tokens.parseChar();
+
+    cout << tokens.peekChar() << " is id ? " << tokens.peekChar().isId() << endl;
+    if (tokens.peekChar().isId()) {
       tokens.parseChar();
-      return new Type();
+      return new StructType();
+    }
+
+    if (tokens.peekChar() == Token("<")) {
+      tokens.parseChar();
+      vector<Expression*> expr =
+        sepBtwn<Expression*, Token>(parseExpression, parseComma, tokens);
+
+      cout << "remainder after getting expressions = " << tokens.remainder() << endl;
+      assert(tokens.peekChar() == Token(">"));
+      tokens.parseChar();
+
+      // TODO: Add templates
+      return new TemplateType();
     }
   }
   return maybe<Type*>();
-}
-
-template<typename OutType, typename TokenType, typename Parser>
-maybe<OutType> tryParse(Parser p, ParseState<TokenType>& tokens) {
-  int lastPos = tokens.currentPos();
-  maybe<OutType> val = p(tokens);
-  if (val.has_value()) {
-    return val;
-  }
-
-  tokens.setPos(lastPos);
-
-  return maybe<OutType>();
 }
 
 Statement* parseStatement(ParseState<Token>& tokens) {
@@ -298,20 +380,31 @@ int main() {
   }
 
   {
-    ifstream t("./experiments/ram_iclass.cpp");
-    std::string str((std::istreambuf_iterator<char>(t)),
-                    std::istreambuf_iterator<char>());
+    std::string str = "input<23>";
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseType(st);
+    assert(tp.has_value());
 
-    auto tokens = tokenize(str);
-    cout << "Tokens" << endl;
-    for (auto t : tokens) {
-      cout << "\t" << t.getStr() << endl;
-    }
+    assert(st.atEnd());
 
-    ParserModule mod = parse(tokens);
-    cout << mod << endl;
-
-    assert(mod.getStatements().size() == 1);
+    delete tp.get_value();
   }
+
+  // {
+  //   ifstream t("./experiments/ram_iclass.cpp");
+  //   std::string str((std::istreambuf_iterator<char>(t)),
+  //                   std::istreambuf_iterator<char>());
+
+  //   auto tokens = tokenize(str);
+  //   cout << "Tokens" << endl;
+  //   for (auto t : tokens) {
+  //     cout << "\t" << t.getStr() << endl;
+  //   }
+
+  //   ParserModule mod = parse(tokens);
+  //   cout << mod << endl;
+
+  //   assert(mod.getStatements().size() == 1);
+  // }
   
 }

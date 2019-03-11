@@ -3023,7 +3023,7 @@ namespace DHLS {
     m.name = "register";
     addInputPort(m.ports, 1, "wen");
     addInputPort(m.ports, 32, "wdata");
-    addInputPort(m.ports, 32, "waddr");        
+    addInputPort(m.ports, 32, "waddr");
     addOutputPort(m.ports, 32, "rdata");
     m.hasClock = true;
     m.hasRst = true;
