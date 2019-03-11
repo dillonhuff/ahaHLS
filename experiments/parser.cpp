@@ -606,7 +606,7 @@ int main() {
 
     assert(tokens.size() == 5);
     assert(tokens[1].getStr() == "=");
-    assert(tokens[3].getStr() == "==");    
+    assert(tokens[3].getStr() == "==");
   }
   
   {
@@ -681,16 +681,16 @@ int main() {
     delete tp.get_value();
   }
 
-  // {
-  //   std::string str = "add_constraint(start(set_wen) == start(set_wdata));";
-  //   ParseState<Token> st(tokenize(str));
-  //   auto tp = parseStatement(st);
-  //   assert(tp.has_value());
+  {
+    std::string str = "add_constraint(start(set_wen) == start(set_wdata));";
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+    assert(tp.has_value());
 
-  //   assert(st.atEnd());
+    assert(st.atEnd());
 
-  //   delete tp.get_value();
-  // }
+    delete tp.get_value();
+  }
   
   cout << "Done with statement tests" << endl;
 
