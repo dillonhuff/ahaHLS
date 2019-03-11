@@ -228,6 +228,11 @@ class Expression {
   
 };
 
+class Identifier : public Expression {
+public:
+  
+};
+
 class TemplateType : public Type {
 public:
   std::vector<Expression*> exprs;
@@ -298,7 +303,21 @@ maybe<Token> parseComma(ParseState<Token>& tokens) {
   return maybe<Token>();
 }
 
+maybe<Identifier*> parseId(ParseState<Token>& tokens) {
+  Token t = tokens.parseChar();
+  if (t.isId()) {
+    return new Identifier();
+  }
+
+  return maybe<Identifier*>();
+}
+
 Expression* parseExpression(ParseState<Token>& tokens) {
+  auto id = tryParse<Identifier*>(parseId, tokens);
+  if (id.has_value()) {
+    return id.get_value();
+  }
+
   cout << "Expressions = " << tokens.remainder() << endl;
   assert(tokens.peekChar().isNum());
   return new IntegerExpr(tokens.parseChar().getStr());
@@ -417,6 +436,34 @@ maybe<Token> parseLabel(ParseState<Token>& tokens) {
   return t;
 }
 
+maybe<Statement*> parseFunctionCall(ParseState<Token>& tokens) {
+  Token t = tokens.parseChar();
+  if (!t.isId()) {
+    return maybe<Statement*>();
+  }
+
+  Token paren = tokens.parseChar();
+  if (paren != Token("(")) {
+    return maybe<Statement*>();
+  }
+
+  cout << "parsing funcall" << endl;
+  vector<Expression*> callArgs =
+    sepBtwn<Expression*, Token>(parseExpression, parseComma, tokens);
+
+  paren = tokens.parseChar();
+  if (paren != Token(")")) {
+    return maybe<Statement*>();
+  }
+
+  Token semi = tokens.parseChar();
+  if (semi != Token(";")) {
+    return maybe<Statement*>();
+  }
+
+  return new Statement();
+}
+
 maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
 
   // Try to parse a label?
@@ -452,6 +499,13 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
       tokens.parseChar();
       return new Statement();
     }
+  }
+
+  // Try to parse function declaration
+  auto call = tryParse<Statement*>(parseFunctionCall, tokens);
+
+  if (call.has_value()) {
+    return call;
   }
 
   cout << "Cannot parse statement " << tokens.remainder() << endl;
@@ -557,6 +611,17 @@ int main() {
 
   {
     std::string str = "input<23> wdata;";
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+
+  {
+    std::string str = "set_wdata: set_port(wen, 1);";
     ParseState<Token> st(tokenize(str));
     auto tp = parseStatement(st);
     assert(tp.has_value());
