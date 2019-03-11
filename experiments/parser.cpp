@@ -61,6 +61,10 @@ bool operator==(const Token& a, const Token& b) {
   return a.getStr() == b.getStr();
 }
 
+bool operator!=(const Token& a, const Token& b) {
+  return !(a == b);
+}
+
 template<typename T>
 class ParseState {
   std::vector<T> ts;
@@ -399,7 +403,24 @@ maybe<Statement*> parseFuncDecl(ParseState<Token>& tokens) {
 
 }
 
+maybe<Token> parseLabel(ParseState<Token>& tokens) {
+  Token t = tokens.parseChar();
+  if (!t.isId()) {
+    return maybe<Token>();
+  }
+
+  Token semi = tokens.parseChar();
+  if (semi != Token(":")) {
+    return maybe<Token>();
+  }
+
+  return t;
+}
+
 maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
+
+  // Try to parse a label?
+  auto label = tryParse<Token>(parseLabel, tokens);
 
   cout << "Parsing statement " << tokens.remainder() << endl;
   if (tokens.peekChar() == Token("class")) {
@@ -432,17 +453,10 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
       return new Statement();
     }
   }
-  
-  return maybe<Statement*>();
-  // maybe<Type*> tp = tryParse<Type*>(parseType, tokens);
-  // if (tp.has_value()) {
-  //   Token name = tokens.parseChar();
-  //   cout << "Name = " << name << endl;
-  //   return new Statement();
-  // }
 
-  // cout << "Error: Could not parse statement: " << tokens.remainder() << endl;
-  // assert(false);
+  cout << "Cannot parse statement " << tokens.remainder() << endl;
+
+  return maybe<Statement*>();
 }
 
 ParserModule parse(const std::vector<Token>& tokens) {
