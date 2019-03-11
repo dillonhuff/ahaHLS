@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/dillonhuff/DHLS.svg?branch=master)](https://travis-ci.org/dillonhuff/DHLS)
+[![Build Status](https://travis-ci.org/dillonhuff/ahaHLS.svg?branch=master)](https://travis-ci.org/dillonhuff/ahaHLS)
 
 # A Basic High Level Synthesis System Using LLVM
 
