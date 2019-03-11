@@ -255,6 +255,8 @@ public:
   
 };
 
+maybe<Statement*> parseStatement(ParseState<Token>& tokens);
+
 class ArgumentDecl {
 public:
   
@@ -320,7 +322,6 @@ maybe<Type*> parseType(ParseState<Token>& tokens) {
       assert(tokens.peekChar() == Token(">"));
       tokens.parseChar();
 
-      // TODO: Add templates
       return new TemplateType(exprs);
     }
   }
@@ -333,6 +334,25 @@ maybe<Type*> parseType(ParseState<Token>& tokens) {
   return maybe<Type*>();
 }
 
+maybe<ArgumentDecl*> parseArgDeclMaybe(ParseState<Token>& tokens) {
+  cout << "Parsing arg declaration = " << tokens.remainder() << endl;
+  maybe<Type*> tp = parseType(tokens);
+
+  if (!tp.has_value()) {
+    return maybe<ArgumentDecl*>();
+  }
+  //assert(tp.has_value());
+
+  Token argName = tokens.parseChar();
+
+  if (!argName.isId()) {
+    return maybe<ArgumentDecl*>();
+  }
+  //assert(argName.isId());
+
+  return new ArgumentDecl();
+}
+
 ArgumentDecl* parseArgDecl(ParseState<Token>& tokens) {
   cout << "Parsing arg declaration = " << tokens.remainder() << endl;
   maybe<Type*> tp = parseType(tokens);
@@ -342,6 +362,41 @@ ArgumentDecl* parseArgDecl(ParseState<Token>& tokens) {
   assert(argName.isId());
 
   return new ArgumentDecl();
+}
+
+maybe<Statement*> parseFuncDecl(ParseState<Token>& tokens) {
+  maybe<Type*> tp = tryParse<Type*>(parseType, tokens);
+  if (!tp.has_value()) {
+    return maybe<Statement*>();
+  }
+
+  // Create function declaration
+  Token funcName = tokens.parseChar();
+
+  if (!funcName.isId()) {
+    return maybe<Statement*>();
+  }
+
+  if (tokens.peekChar() == Token("(")) {
+    assert(tokens.parseChar() == Token("("));
+
+    vector<ArgumentDecl*> classStmts =
+      sepBtwn<ArgumentDecl*, Token>(parseArgDecl, parseComma, tokens);
+
+    assert(tokens.parseChar() == Token(")"));
+
+    assert(tokens.parseChar() == Token("{"));
+
+    vector<Statement*> funcStmts =
+      many<Statement*>(parseStatement, tokens);
+
+    assert(tokens.parseChar() == Token("}"));
+    
+    return new Statement();
+  }
+
+  return maybe<Statement*>();
+
 }
 
 maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
@@ -361,30 +416,21 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
     return new Statement();
   }
 
-  maybe<Type*> tp = tryParse<Type*>(parseType, tokens);
-  // Create function declaration
-  if (tp.has_value()) {
-    Token funcName = tokens.parseChar();
+  maybe<Statement*> funcDecl =
+    tryParse<Statement*>(parseFuncDecl, tokens);
 
-    if (!funcName.isId()) {
-      return maybe<Statement*>();
+  if (funcDecl.has_value()) {
+    return funcDecl;
+  }
+
+  // Should do: tryParse function declaration
+  // Then: tryParse member declaration
+  auto decl = tryParse<ArgumentDecl*>(parseArgDeclMaybe, tokens);
+  if (decl.has_value()) {
+    if (tokens.peekChar() == Token(";")) {
+      tokens.parseChar();
+      return new Statement();
     }
-
-    assert(tokens.parseChar() == Token("("));
-
-    vector<ArgumentDecl*> classStmts =
-      sepBtwn<ArgumentDecl*, Token>(parseArgDecl, parseComma, tokens);
-
-    assert(tokens.parseChar() == Token(")"));
-
-    assert(tokens.parseChar() == Token("{"));
-
-    vector<Statement*> funcStmts =
-      many<Statement*>(parseStatement, tokens);
-
-    assert(tokens.parseChar() == Token("}"));
-    
-    return new Statement();
   }
   
   return maybe<Statement*>();
@@ -402,8 +448,8 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
 ParserModule parse(const std::vector<Token>& tokens) {
   ParseState<Token> pm(tokens);
   ParserModule m;
-  // vector<Statement*> stmts =
-  //   sepBy<Statement*>(parseStatement, parseStmtEnd, pm);
+  vector<Statement*> stmts =
+    many<Statement*>(parseStatement, pm);
   
   return m;
 }
@@ -495,21 +541,35 @@ int main() {
     delete tp.get_value();
   }
 
-  // {
-  //   ifstream t("./experiments/ram_iclass.cpp");
-  //   std::string str((std::istreambuf_iterator<char>(t)),
-  //                   std::istreambuf_iterator<char>());
+  {
+    std::string str = "input<23> wdata;";
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+    assert(tp.has_value());
 
-  //   auto tokens = tokenize(str);
-  //   cout << "Tokens" << endl;
-  //   for (auto t : tokens) {
-  //     cout << "\t" << t.getStr() << endl;
-  //   }
+    assert(st.atEnd());
 
-  //   ParserModule mod = parse(tokens);
-  //   cout << mod << endl;
+    delete tp.get_value();
+  }
+  
+  cout << "Done with statement tests" << endl;
 
-  //   assert(mod.getStatements().size() == 1);
-  // }
+  {
+    ifstream t("./experiments/ram_iclass.cpp");
+    std::string str((std::istreambuf_iterator<char>(t)),
+                    std::istreambuf_iterator<char>());
+
+    auto tokens = tokenize(str);
+    cout << "Tokens" << endl;
+    for (auto t : tokens) {
+      cout << "\t" << t.getStr() << endl;
+    }
+
+    ParserModule mod = parse(tokens);
+
+    cout << mod << endl;
+
+    assert(mod.getStatements().size() == 1);
+  }
   
 }
