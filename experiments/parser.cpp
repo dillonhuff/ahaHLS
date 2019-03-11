@@ -21,7 +21,7 @@ bool oneCharToken(const char c) {
 }
 
 bool isKeyword(const std::string& str) {
-  vector<string> keywords{"void", "bit", "port"};
+  vector<string> keywords{"void"};
   return elem(str, keywords);
 }
 
@@ -101,6 +101,22 @@ typedef ParseState<char> TokenState;
 
 bool isWhitespace(const char c) {
   return isspace(c);
+}
+
+template<typename OutType, typename TokenType, typename Parser>
+std::vector<OutType> many(Parser p, ParseState<TokenType>& tokens) {
+  std::vector<OutType> stmts;
+
+  while (true) {
+    auto res = p(tokens);
+    if (!res.has_value()) {
+      break;
+    }
+
+    stmts.push_back(res.get_value());
+  }
+
+  return stmts;
 }
 
 template<typename OutType, typename TokenType, typename Parser>
@@ -204,14 +220,27 @@ std::vector<Token> tokenize(const std::string& classCode) {
 class Type {
 };
 
+class Expression {
+  
+};
+
 class TemplateType : public Type {
+public:
+  std::vector<Expression*> exprs;
+
+  TemplateType(const std::vector<Expression*>& exprs_) : exprs(exprs_) {}
+
+  ~TemplateType() {
+    for (auto e : exprs) {
+      delete e;
+    }
+  }
 };
 
 class StructType : public Type {
 };
 
-class Expression {
-  
+class VoidType : public Type {
 };
 
 class IntegerExpr : public Expression {
@@ -222,6 +251,11 @@ public:
 };
 
 class Statement {
+public:
+  
+};
+
+class ArgumentDecl {
 public:
   
 };
@@ -279,7 +313,7 @@ maybe<Type*> parseType(ParseState<Token>& tokens) {
 
     if (tokens.peekChar() == Token("<")) {
       tokens.parseChar();
-      vector<Expression*> expr =
+      vector<Expression*> exprs =
         sepBtwn<Expression*, Token>(parseExpression, parseComma, tokens);
 
       cout << "remainder after getting expressions = " << tokens.remainder() << endl;
@@ -287,13 +321,32 @@ maybe<Type*> parseType(ParseState<Token>& tokens) {
       tokens.parseChar();
 
       // TODO: Add templates
-      return new TemplateType();
+      return new TemplateType(exprs);
     }
   }
+
+  if (tokens.peekChar() == Token("void")) {
+    tokens.parseChar();
+    return new VoidType();
+  }
+
   return maybe<Type*>();
 }
 
-Statement* parseStatement(ParseState<Token>& tokens) {
+ArgumentDecl* parseArgDecl(ParseState<Token>& tokens) {
+  cout << "Parsing arg declaration = " << tokens.remainder() << endl;
+  maybe<Type*> tp = parseType(tokens);
+  assert(tp.has_value());
+  Token argName = tokens.parseChar();
+
+  assert(argName.isId());
+
+  return new ArgumentDecl();
+}
+
+maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
+
+  cout << "Parsing statement " << tokens.remainder() << endl;
   if (tokens.peekChar() == Token("class")) {
     tokens.parseChar();
     Token name = tokens.parseChar();
@@ -301,7 +354,7 @@ Statement* parseStatement(ParseState<Token>& tokens) {
     assert(tokens.parseChar() == Token("{"));
 
     vector<Statement*> classStmts =
-      sepBy<Statement*>(parseStatement, parseStmtEnd, tokens);
+      many<Statement*>(parseStatement, tokens);
 
     assert(tokens.parseChar() == Token("}"));
 
@@ -309,21 +362,48 @@ Statement* parseStatement(ParseState<Token>& tokens) {
   }
 
   maybe<Type*> tp = tryParse<Type*>(parseType, tokens);
+  // Create function declaration
   if (tp.has_value()) {
-    Token name = tokens.parseChar();
-    cout << "Name = " << name << endl;
+    Token funcName = tokens.parseChar();
+
+    if (!funcName.isId()) {
+      return maybe<Statement*>();
+    }
+
+    assert(tokens.parseChar() == Token("("));
+
+    vector<ArgumentDecl*> classStmts =
+      sepBtwn<ArgumentDecl*, Token>(parseArgDecl, parseComma, tokens);
+
+    assert(tokens.parseChar() == Token(")"));
+
+    assert(tokens.parseChar() == Token("{"));
+
+    vector<Statement*> funcStmts =
+      many<Statement*>(parseStatement, tokens);
+
+    assert(tokens.parseChar() == Token("}"));
+    
     return new Statement();
   }
+  
+  return maybe<Statement*>();
+  // maybe<Type*> tp = tryParse<Type*>(parseType, tokens);
+  // if (tp.has_value()) {
+  //   Token name = tokens.parseChar();
+  //   cout << "Name = " << name << endl;
+  //   return new Statement();
+  // }
 
-  cout << "Error: Could not parse statement: " << tokens.remainder() << endl;
-  assert(false);
+  // cout << "Error: Could not parse statement: " << tokens.remainder() << endl;
+  // assert(false);
 }
 
 ParserModule parse(const std::vector<Token>& tokens) {
   ParseState<Token> pm(tokens);
   ParserModule m;
-  vector<Statement*> stmts =
-    sepBy<Statement*>(parseStatement, parseStmtEnd, pm);
+  // vector<Statement*> stmts =
+  //   sepBy<Statement*>(parseStatement, parseStmtEnd, pm);
   
   return m;
 }
@@ -383,6 +463,31 @@ int main() {
     std::string str = "input<23>";
     ParseState<Token> st(tokenize(str));
     auto tp = parseType(st);
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+
+  {
+    std::string str = "void";
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseType(st);
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+
+    cout << "Passed parse void" << endl;
+  }
+  
+  {
+    std::string str = "void write(bit<5> addr, bit<32> data) {}";
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+
     assert(tp.has_value());
 
     assert(st.atEnd());
