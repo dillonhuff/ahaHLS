@@ -3,6 +3,7 @@
 #include <fstream>
 #include <streambuf>
 #include <sstream>
+#include <functional>
 
 using namespace dbhc;
 using namespace std;
