@@ -124,6 +124,7 @@ namespace DHLS {
   //    Remove modspecs
   //    Remove internal RAM code
   //    Add full paths for interface classes
+  //    Remove llvm::Function argument from buildMicroArchitecture, it is included in STG
 
   // NOTE: The code for testbenches is getting really complicated. Some of that
   // is automatic testbench generation, but some of it is just the hodgepodge of
@@ -5151,9 +5152,6 @@ namespace DHLS {
 
     auto receiver = dyn_cast<Argument>(getArg(f, 0));
     auto counter = dyn_cast<Argument>(getArg(f, 1));    
-    // auto in1 = dyn_cast<Argument>(getArg(f, 1));
-    // auto in2 = dyn_cast<Argument>(getArg(f, 2));
-    // auto out = dyn_cast<Argument>(getArg(f, 3));
 
     TestBenchSpec tb;
     map<string, int> testLayout = {};
