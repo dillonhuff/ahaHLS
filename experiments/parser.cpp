@@ -105,7 +105,7 @@ public:
 typedef ParseState<char> TokenState;
 
 bool isBinop(const Token t) {
-  vector<string> binopStrings{"=", "==", "+", "*", "-", "/", "^", "%", "&&", "||"};
+  vector<string> binopStrings{"=", "==", "+", "*", "-", "/", "^", "%", "&&", "||", "<=", ">="};
   return elem(t.getStr(), binopStrings);
 }
 bool isWhitespace(const char c) {
@@ -815,5 +815,23 @@ int main() {
 
     assert(mod.getStatements().size() == 1);
   }
+
+  // {
+  //   ifstream t("./experiments/eth_axi_tx.cpp");
+  //   std::string str((std::istreambuf_iterator<char>(t)),
+  //                   std::istreambuf_iterator<char>());
+
+  //   auto tokens = tokenize(str);
+  //   cout << "Tokens" << endl;
+  //   for (auto t : tokens) {
+  //     cout << "\t" << t.getStr() << endl;
+  //   }
+
+  //   ParserModule mod = parse(tokens);
+
+  //   cout << mod << endl;
+
+  //   assert(mod.getStatements().size() == 1);
+  // }
   
 }
