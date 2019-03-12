@@ -441,9 +441,9 @@ maybe<Type*> parseBaseType(ParseState<Token>& tokens) {
 
     Token tpName = tokens.parseChar();
 
-    cout << tokens.peekChar() << " is id ? " << tokens.peekChar().isId() << endl;
+    //cout << tokens.peekChar() << " is id ? " << tokens.peekChar().isId() << endl;
     //if (tokens.peekChar().isId()) {
-    if (tokens.peekChar() != Token("<")) {
+    if (tokens.atEnd() || (tokens.peekChar() != Token("<"))) {
       return new StructType();
     }
 
@@ -803,7 +803,7 @@ int main() {
   }
 
   {
-    std::string str = "input<23>";
+    std::string str = "input_23";
     ParseState<Token> st(tokenize(str));
     auto tp = parseType(st);
     assert(tp.has_value());
@@ -827,7 +827,7 @@ int main() {
   }
   
   {
-    std::string str = "void write(bit<5> addr, bit<32> data) {}";
+    std::string str = "void write(bit_5 addr, bit_32 data) {}";
     ParseState<Token> st(tokenize(str));
     auto tp = parseStatement(st);
 
@@ -839,7 +839,7 @@ int main() {
   }
 
   {
-    std::string str = "void write_packet(bit<5> addr, fifo* payload) {}";
+    std::string str = "void write_packet(bit_5 addr, fifo* payload) {}";
     ParseState<Token> st(tokenize(str));
     auto tp = parseStatement(st);
 
@@ -851,7 +851,7 @@ int main() {
   }
   
   {
-    std::string str = "input<23> wdata;";
+    std::string str = "input_23 wdata;";
     ParseState<Token> st(tokenize(str));
     auto tp = parseStatement(st);
     assert(tp.has_value());
@@ -940,7 +940,7 @@ int main() {
   }
 
   {
-    std::string str = "read_ready: bit<1> is_ready = read_port(s_eth_hdr_ready);";
+    std::string str = "read_ready: bit_1 is_ready = read_port(s_eth_hdr_ready);";
 
     ParseState<Token> st(tokenize(str));
     auto tp = parseStatement(st);
