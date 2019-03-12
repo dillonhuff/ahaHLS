@@ -104,6 +104,10 @@ public:
 
 typedef ParseState<char> TokenState;
 
+bool isBinop(const Token t) {
+  vector<string> binopStrings{"=", "==", "+", "*", "-", "/", "^", "%", "&&", "||"};
+  return elem(t.getStr(), binopStrings);
+}
 bool isWhitespace(const char c) {
   return isspace(c);
 }
@@ -300,6 +304,8 @@ class ParserModule {
   
 public:
 
+  ParserModule(const std::vector<Statement*>& stmts_) : stmts(stmts_) {}
+
   std::vector<Statement*> getStatements() const { return stmts; }
 
   ~ParserModule() {
@@ -336,8 +342,15 @@ maybe<Identifier*> parseId(ParseState<Token>& tokens) {
   return maybe<Identifier*>();
 }
 
+maybe<Expression*> parseFunctionCall(ParseState<Token>& tokens);
+
 maybe<Expression*> parsePrimitiveExpressionMaybe(ParseState<Token>& tokens) {
-  cout << "-- Parsing expression " << tokens.remainder() << endl;
+  cout << "-- Parsing primitive expression " << tokens.remainder() << endl;
+
+  auto fCall = tryParse<Expression*>(parseFunctionCall, tokens);
+  if (fCall.has_value()) {
+    return fCall;
+  }
 
   // Try parsing a function call
   // If that does not work try to parse an identifier
@@ -352,8 +365,47 @@ maybe<Expression*> parsePrimitiveExpressionMaybe(ParseState<Token>& tokens) {
   return new IntegerExpr(tokens.parseChar().getStr());
 }
 
+Expression* parseExpression(ParseState<Token>& tokens);
+
+maybe<Expression*> parseFunctionCall(ParseState<Token>& tokens) {
+  Token t = tokens.parseChar();
+  if (!t.isId()) {
+    return maybe<Expression*>();
+  }
+
+  Token paren = tokens.parseChar();
+  if (paren != Token("(")) {
+    return maybe<Expression*>();
+  }
+
+  cout << "parsing funcall " << tokens.remainder() << endl;
+  vector<Expression*> callArgs =
+    sepBtwn<Expression*, Token>(parseExpression, parseComma, tokens);
+
+  paren = tokens.parseChar();
+  if (paren != Token(")")) {
+    return maybe<Expression*>();
+  }
+
+  return new Expression();
+}
+
 maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
-  return parsePrimitiveExpressionMaybe(tokens);
+  cout << "-- Parsing expression " << tokens.remainder() << endl;
+  
+  auto pExpr = parsePrimitiveExpressionMaybe(tokens);
+  if (!pExpr.has_value()) {
+    return pExpr;
+  }
+
+  if (!isBinop(tokens.peekChar())) {
+    return pExpr;
+  }
+
+  Token binop = tokens.parseChar();
+  auto rest = parseExpressionMaybe(tokens);
+
+  return rest;
 }
 
 Expression* parseExpression(ParseState<Token>& tokens) {
@@ -478,29 +530,6 @@ maybe<Token> parseLabel(ParseState<Token>& tokens) {
   return t;
 }
 
-maybe<Expression*> parseFunctionCall(ParseState<Token>& tokens) {
-  Token t = tokens.parseChar();
-  if (!t.isId()) {
-    return maybe<Expression*>();
-  }
-
-  Token paren = tokens.parseChar();
-  if (paren != Token("(")) {
-    return maybe<Expression*>();
-  }
-
-  cout << "parsing funcall " << tokens.remainder() << endl;
-  vector<Expression*> callArgs =
-    sepBtwn<Expression*, Token>(parseExpression, parseComma, tokens);
-
-  paren = tokens.parseChar();
-  if (paren != Token(")")) {
-    return maybe<Expression*>();
-  }
-
-  return new Expression();
-}
-
 maybe<Statement*> parseFunctionCallStmt(ParseState<Token>& tokens) {
   maybe<Expression*> p = parseFunctionCall(tokens);
   if (!p.has_value()) {
@@ -531,7 +560,8 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
       many<Statement*>(parseStatement, tokens);
 
     assert(tokens.parseChar() == Token("}"));
-
+    assert(tokens.parseChar() == Token(";"));
+    
     return new Statement();
   }
 
@@ -566,9 +596,10 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
 
 ParserModule parse(const std::vector<Token>& tokens) {
   ParseState<Token> pm(tokens);
-  ParserModule m;
   vector<Statement*> stmts =
     many<Statement*>(parseStatement, pm);
+
+  ParserModule m(stmts);
   
   return m;
 }
@@ -721,7 +752,41 @@ int main() {
   }
 
   {
+    std::string str = "start(set_wen) == start(set_wdata)";
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseExpressionMaybe(st);
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+  
+  {
     std::string str = "add_constraint(start(set_wen) == start(set_wdata));";
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+
+  {
+
+    std::string str = "start(set_wdata) + 3 == end(set_waddr)";
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseExpressionMaybe(st);
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+
+  {
+    std::string str = "class ram {};";
     ParseState<Token> st(tokenize(str));
     auto tp = parseStatement(st);
     assert(tp.has_value());
