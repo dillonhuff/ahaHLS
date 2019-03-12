@@ -408,7 +408,7 @@ maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
     return pExpr;
   }
 
-  if (!isBinop(tokens.peekChar())) {
+  if (tokens.atEnd() || !isBinop(tokens.peekChar())) {
     return pExpr;
   }
 
@@ -465,7 +465,7 @@ maybe<Type*> parseType(ParseState<Token>& tokens) {
   auto tp = parseBaseType(tokens);
 
   // Check if its a pointer
-  if (tokens.peekChar() == Token("*")) {
+  if (!tokens.atEnd() && (tokens.peekChar() == Token("*"))) {
     tokens.parseChar();
   }
 
