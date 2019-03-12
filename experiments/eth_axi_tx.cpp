@@ -36,8 +36,8 @@ public:
     add_constraint(start(write_valid) == start(write_type));
   }
 
-  void write_bytes(bit<8> data,
-                   bit<1> last) {
+  void write_byte(bit<8> data,
+                  bit<1> last) {
   read_ready: bit<1> is_ready = read_port(s_eth_hdr_ready);
   stall_on_ready: stall(is_ready);
 
@@ -54,3 +54,16 @@ public:
   }
 
 };
+
+void write_packet(bit<48> dest_mac,
+                  bit<48> src_mac,
+                  bit<16> type,
+                  fifo* payload,
+                  sint<32> payload_size,
+                  eth_axis_tx* transmitter) {
+  transmitter->write_header(dest_mac, src_mac, type);
+  for (sint<32> i = 0; i < payload_size; i++) {
+    bit<1> is_last = i == (payload_size - 1);
+    transmitter->write_byte(payload->read(), is_last);
+  }
+}
