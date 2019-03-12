@@ -78,10 +78,16 @@ public:
   int currentPos() const { return pos; }
   void setPos(const int position) { pos = position; }
 
-  T peekChar(const int offset) const { return ts[pos + offset]; }  
+  T peekChar(const int offset) const {
+    assert(((int) ts.size()) > (pos + offset));
+    return ts[pos + offset];
+  }
+  
   T peekChar() const { return peekChar(0); }
 
   T parseChar() {
+    assert(((int) ts.size()) > pos);
+
     T next = ts[pos];
     pos++;
     return next;
@@ -89,6 +95,10 @@ public:
 
   bool atEnd() const {
     return pos == ((int) ts.size());
+  }
+
+  int remainderSize() const {
+    return ((int) ts.size()) - pos;
   }
 
   std::string remainder() const {
@@ -417,7 +427,7 @@ Expression* parseExpression(ParseState<Token>& tokens) {
   assert(false);
 }
 
-maybe<Type*> parseType(ParseState<Token>& tokens) {
+maybe<Type*> parseBaseType(ParseState<Token>& tokens) {
   if (tokens.peekChar().isId()) {
     
     cout << tokens.peekChar() << " is id" << endl;    
@@ -425,8 +435,8 @@ maybe<Type*> parseType(ParseState<Token>& tokens) {
     Token tpName = tokens.parseChar();
 
     cout << tokens.peekChar() << " is id ? " << tokens.peekChar().isId() << endl;
-    if (tokens.peekChar().isId()) {
-      //tokens.parseChar();
+    //if (tokens.peekChar().isId()) {
+    if (tokens.peekChar() != Token("<")) {
       return new StructType();
     }
 
@@ -451,8 +461,20 @@ maybe<Type*> parseType(ParseState<Token>& tokens) {
   return maybe<Type*>();
 }
 
+maybe<Type*> parseType(ParseState<Token>& tokens) {
+  auto tp = parseBaseType(tokens);
+
+  // Check if its a pointer
+  if (tokens.peekChar() == Token("*")) {
+    tokens.parseChar();
+  }
+
+  return tp;
+}
+
 maybe<ArgumentDecl*> parseArgDeclMaybe(ParseState<Token>& tokens) {
   cout << "Parsing arg declaration = " << tokens.remainder() << endl;
+  cout << "Remaining tokens = " << tokens.remainderSize() << endl;
   maybe<Type*> tp = parseType(tokens);
 
   if (!tp.has_value()) {
@@ -492,17 +514,6 @@ maybe<ArgumentDecl*> parseArgDeclMaybe(ParseState<Token>& tokens) {
 
   return new ArgumentDecl();
 }
-
-// maybe<ArgumentDecl*> parseArgDecl(ParseState<Token>& tokens) {
-//   cout << "Parsing arg declaration = " << tokens.remainder() << endl;
-//   maybe<Type*> tp = parseType(tokens);
-//   assert(tp.has_value());
-//   Token argName = tokens.parseChar();
-
-//   assert(argName.isId());
-
-//   return new ArgumentDecl();
-// }
 
 ArgumentDecl* parseArgDecl(ParseState<Token>& tokens) {
   auto d = parseArgDeclMaybe(tokens);
@@ -576,6 +587,19 @@ maybe<Statement*> parseFunctionCallStmt(ParseState<Token>& tokens) {
   return new Statement();
 }
 
+maybe<Statement*> parseAssignStmt(ParseState<Token>& tokens) {
+  cout << "Parsing assign = " << tokens.remainder() << endl;
+  cout << "Remaining tokens = " << tokens.remainderSize() << endl;
+  
+  auto tp = parseType(tokens);
+  if (!tp.has_value()) {
+    return maybe<Statement*>();
+  }
+
+  cout << "Error at " << tokens.remainder() << endl;
+  assert(false);
+}
+
 maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
 
   // Try to parse a label?
@@ -619,6 +643,11 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
 
   if (call.has_value()) {
     return call;
+  }
+
+  auto assign = parseAssignStmt(tokens);
+  if (assign.has_value()) {
+    return assign;
   }
 
   cout << "Cannot parse statement " << tokens.remainder() << endl;
@@ -750,6 +779,18 @@ int main() {
     delete tp.get_value();
   }
 
+  {
+    std::string str = "void write_packet(bit<5> addr, fifo* payload) {}";
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+  
   {
     std::string str = "input<23> wdata;";
     ParseState<Token> st(tokenize(str));

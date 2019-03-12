@@ -49,8 +49,8 @@ public:
 
     add_constraint(end(stall_on_ready) < start(write_valid));
 
-    add_constraint(start(write_valid) == start(write_last));        
-    add_constraint(start(write_valid) == start(write_data));        
+    add_constraint(start(write_valid) == start(write_last));
+    add_constraint(start(write_valid) == start(write_data));
   }
 
 };
