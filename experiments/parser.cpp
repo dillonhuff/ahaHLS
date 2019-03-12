@@ -227,6 +227,11 @@ Token parse_token(TokenState& state) {
       return result.get_value();
     }
 
+    result = tryParse<Token>(mkParseStr("->"), state);
+    if (result.has_value()) {
+      return result.get_value();
+    }
+    
     char res = state.parseChar();
     string r;
     r += res;
