@@ -62,8 +62,4 @@ void write_packet(bit_48 dest_mac,
                   sint_32 payload_size,
                   eth_axis_tx* transmitter) {
   transmitter->write_header(dest_mac, src_mac, type);
-  for (sint<32> i = 0; i < payload_size; i++) {
-    bit_1 is_last = i == (payload_size - 1);
-    transmitter->write_byte(payload->read(), is_last);
-  }
 }

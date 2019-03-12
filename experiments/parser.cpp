@@ -119,7 +119,7 @@ public:
 typedef ParseState<char> TokenState;
 
 bool isBinop(const Token t) {
-  vector<string> binopStrings{"=", "==", "+", "*", "-", "/", "^", "%", "&&", "||", "<=", ">="};
+  vector<string> binopStrings{"=", "==", "+", "*", "-", "/", "^", "%", "&&", "||", "<=", ">=", "<", ">"};
   return elem(t.getStr(), binopStrings);
 }
 bool isWhitespace(const char c) {
@@ -721,7 +721,7 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
   int posBefore = tokens.currentPos();
   //cout << "posBefore = " << posBefore << endl;
   auto decl = tryParse<ArgumentDecl*>(parseArgDeclMaybe, tokens);
-  int posAfter = tokens.currentPos();
+  //int posAfter = tokens.currentPos();
   //cout << "posAfter = " << posAfter << endl;
 
   //assert(posBefore == posAfter);
@@ -1055,7 +1055,12 @@ int main() {
 
     cout << mod << endl;
 
-    assert(mod.getStatements().size() == 1);
+    assert(mod.getStatements().size() == 2);
   }
+
+  // for (sint<32> i = 0; i < payload_size; i++) {
+  //   bit_1 is_last = i == (payload_size - 1);
+  //   transmitter->write_byte(payload->read(), is_last);
+  // }
   
 }
