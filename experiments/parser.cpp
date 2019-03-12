@@ -22,7 +22,7 @@ bool oneCharToken(const char c) {
 }
 
 bool isKeyword(const std::string& str) {
-  vector<string> keywords{"void"};
+  vector<string> keywords{"void", "for"};
   return elem(str, keywords);
 }
 
@@ -79,7 +79,8 @@ public:
   void setPos(const int position) { pos = position; }
 
   bool nextCharIs(const Token t) const {
-    return peekChar() == t;
+    
+    return !atEnd() && (peekChar() == t);
   }
 
   T peekChar(const int offset) const {
@@ -179,6 +180,36 @@ sepBtwn(StatementParser stmt, SepParser sep, ParseState<TokenType>& tokens) {
   while (true) {
     OutType nextStmt = stmt(tokens);
     stmts.push_back(nextStmt);
+    auto nextSep = tryParse<SepType>(sep, tokens);
+    if (!nextSep.has_value()) {
+      break;
+    }
+  }
+
+  return stmts;
+}
+
+template<typename OutType, typename SepType, typename TokenType, typename StatementParser, typename SepParser>
+std::vector<OutType>
+sepBtwn0(StatementParser stmt, SepParser sep, ParseState<TokenType>& tokens) {
+  std::vector<OutType> stmts;
+
+  maybe<OutType> nextStmt = stmt(tokens);
+  if (!nextStmt.has_value()) {
+    return {};
+  } else {
+    stmts.push_back(nextStmt.get_value());
+  }
+
+  auto nextSep = tryParse<SepType>(sep, tokens);
+  if (!nextSep.has_value()) {
+    return stmts;
+  }
+  
+  while (true) {
+    maybe<OutType> nextStmt = stmt(tokens);
+    assert(nextStmt.has_value());
+    stmts.push_back(nextStmt.get_value());
     auto nextSep = tryParse<SepType>(sep, tokens);
     if (!nextSep.has_value()) {
       break;
@@ -378,6 +409,7 @@ maybe<Expression*> parseMethodCall(ParseState<Token>& tokens) {
     return maybe<Expression*>();
   }
 
+  cout << "-- In method call, parsing function call " << tokens.remainder() << endl;
   maybe<Expression*> fCall = parseFunctionCall(tokens);
   if (fCall.has_value()) {
     return new Expression();
@@ -386,9 +418,27 @@ maybe<Expression*> parseMethodCall(ParseState<Token>& tokens) {
   return maybe<Expression*>();
 }
 
+Expression* parseExpression(ParseState<Token>& tokens);
+maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens);
+
 maybe<Expression*> parsePrimitiveExpressionMaybe(ParseState<Token>& tokens) {
   //cout << "-- Parsing primitive expression " << tokens.remainder() << endl;
 
+  if (tokens.nextCharIs(Token("("))) {
+    tokens.parseChar();
+
+    cout << "Inside parens " << tokens.remainder() << endl;
+    auto inner = parseExpressionMaybe(tokens);
+    if (inner.has_value()) {
+      if (tokens.nextCharIs(Token(")"))) {
+        tokens.parseChar();
+        return new Expression();
+      }
+    }
+    return maybe<Expression*>();
+  }
+
+  
   auto fCall = tryParse<Expression*>(parseFunctionCall, tokens);
   if (fCall.has_value()) {
     return fCall;
@@ -416,8 +466,6 @@ maybe<Expression*> parsePrimitiveExpressionMaybe(ParseState<Token>& tokens) {
   return maybe<Expression*>();
 }
 
-Expression* parseExpression(ParseState<Token>& tokens);
-
 maybe<Expression*> parseFunctionCall(ParseState<Token>& tokens) {
   Token t = tokens.parseChar();
   if (!t.isId()) {
@@ -431,7 +479,7 @@ maybe<Expression*> parseFunctionCall(ParseState<Token>& tokens) {
 
   //cout << "parsing funcall " << tokens.remainder() << endl;
   vector<Expression*> callArgs =
-    sepBtwn<Expression*, Token>(parseExpression, parseComma, tokens);
+    sepBtwn0<Expression*, Token>(parseExpressionMaybe, parseComma, tokens);
 
   paren = tokens.parseChar();
   if (paren != Token(")")) {
@@ -640,12 +688,14 @@ maybe<Statement*> parseAssignStmt(ParseState<Token>& tokens) {
   cout << "Starting parse assign \" " << tokens.remainder() << "\"" << endl;
   //cout << "Remaining tokens = " << tokens.remainderSize() << endl;
   
-  auto tp = parseType(tokens);
+  //auto tp = tryParse<Type*>(parseType, tokens);
   //cout << "Found type = " << tp.has_value() << endl;
   //cout << "Remainder after type = " << tokens.remainder() << endl;
-  if (!tp.has_value()) {
-    return maybe<Statement*>();
-  }
+  // if (!tp.has_value()) {
+  //   return maybe<Statement*>();
+  // }
+
+  //cout << "After type remainder is \"" << tokens.remainder() << "\"" << endl;  
 
   if (tokens.atEnd()) {
     return maybe<Statement*>();
@@ -657,6 +707,8 @@ maybe<Statement*> parseAssignStmt(ParseState<Token>& tokens) {
   }
   tokens.parseChar();
 
+  cout << "After name remainder is \"" << tokens.remainder() << "\"" << endl;
+
   if (!tokens.nextCharIs(Token("="))) {
     return maybe<Statement*>();
   }
@@ -665,13 +717,80 @@ maybe<Statement*> parseAssignStmt(ParseState<Token>& tokens) {
   cout << "Remaining after eq is " << tokens.remainder() << endl;
   auto r = parseExpressionMaybe(tokens);
   if (!r.has_value()) {
+    cout << "No expr" << endl;
     return maybe<Statement*>();
   }
 
-  //cout << "Remaining after expr is " << tokens.remainder() << endl;  
-  assert(tokens.parseChar() == Token(";"));
+  cout << "Remaining after expr is " << tokens.remainder() << endl;
+  // Token delim = tokens.parseChar();
+  // assert((delim == Token(";")) || (delim == Token("")));
 
   return new Statement();
+}
+maybe<Statement*> parseForLoop(ParseState<Token>& tokens) {
+
+  cout << "Parsing for loop " << tokens.remainder() << endl;
+
+  if (!tokens.nextCharIs(Token("for"))) {
+    return maybe<Statement*>();
+  }
+  tokens.parseChar();
+
+  cout << "for loop decl " << tokens.remainder() << endl;  
+
+  if (!tokens.nextCharIs(Token("("))) {
+    return maybe<Statement*>();
+  }
+  tokens.parseChar();
+
+  cout << "Getting for init " << tokens.remainder() << endl;
+  
+  auto init = parseStatement(tokens);
+  if (!init.has_value()) {
+    return maybe<Statement*>();
+  }
+
+  cout << "Getting for test " << tokens.remainder() << endl;
+
+  // if (!tokens.nextCharIs(Token(";"))) {
+  //   return maybe<Statement*>();
+  // }
+  // tokens.parseChar();
+
+  auto test = parseExpressionMaybe(tokens);
+  if (!test.has_value()) {
+    return maybe<Statement*>();
+  }
+  
+  if (!tokens.nextCharIs(Token(";"))) {
+    return maybe<Statement*>();
+  }
+  tokens.parseChar();
+
+  auto update = parseStatement(tokens);
+  if (!update.has_value()) {
+    return maybe<Statement*>();
+  }
+  
+  if (!tokens.nextCharIs(Token(")"))) {
+    return maybe<Statement*>();
+  }
+  tokens.parseChar();
+
+  if (!tokens.nextCharIs(Token("{"))) {
+    return maybe<Statement*>();
+  }
+  tokens.parseChar();
+
+  auto stmts = many<Statement*>(parseStatement, tokens);
+
+  if (!tokens.nextCharIs(Token("}"))) {
+    return maybe<Statement*>();
+  }
+  tokens.parseChar();
+
+  return new Statement();
+  
 }
 
 maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
@@ -684,7 +803,15 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
   // Try to parse a label?
   auto label = tryParse<Token>(parseLabel, tokens);
 
+
   cout << "Statement after label " << tokens.remainder() << endl;
+
+  // Try to parse for loop
+  auto forStmt = tryParse<Statement*>(parseForLoop, tokens);
+  if (forStmt.has_value()) {
+    return forStmt;
+  }
+  
   if (tokens.peekChar() == Token("class")) {
     tokens.parseChar();
     Token name = tokens.parseChar();
@@ -711,6 +838,9 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
 
   auto assign = tryParse<Statement*>(parseAssignStmt, tokens);
   if (assign.has_value()) {
+    if (tokens.nextCharIs(Token(";"))) {
+      tokens.parseChar();
+    }
     return assign;
   }
 
@@ -930,6 +1060,19 @@ int main() {
   }
 
   {
+    std::string str = "read()";
+    cout << "TEST CASE " << str << endl;
+    
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseExpressionMaybe(st);
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+  
+  {
     std::string str = "start(set_wen)";
     ParseState<Token> st(tokenize(str));
     auto tp = parseFunctionCall(st);
@@ -986,7 +1129,7 @@ int main() {
   }
 
   {
-    std::string str = "read_ready: bit_1 is_ready = read_port(s_eth_hdr_ready);";
+    std::string str = "read_ready: is_ready = read_port(s_eth_hdr_ready);";
 
     ParseState<Token> st(tokenize(str));
     auto tp = parseStatement(st);
@@ -1008,8 +1151,77 @@ int main() {
 
     delete tp.get_value();
   }
+
+  {
+    std::string str = "transmitter->write_byte(payload->read(), is_last)";
+    cout << "TEST CASE " << str << endl;
+    
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseExpressionMaybe(st);
+    assert(tp.has_value());
+
+    cout << "Remaining state = " << st.remainder() << endl;
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+  
   {
     std::string str = "transmitter->write_header(dest_mac, src_mac, type);";
+
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+
+  {
+
+    std::string str = "i = i + 1";
+    cout << "TEST CASE << " << str << endl;
+    
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+
+  {
+    std::string str = "for (i = 0; i < payload_size; i = i + 1) {}";
+
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+  
+  {
+    std::string str = "for (i = 0; i < payload_size; i = i + 1) {"
+      "bit_1 is_last;"
+      "transmitter->write_byte(payload->read(), is_last);}";
+
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+
+  {
+    std::string str = "for (i = 0; i < payload_size; i = i + 1) {"
+      "is_last = i == (payload_size - 1);"
+      "}";
 
     ParseState<Token> st(tokenize(str));
     auto tp = parseStatement(st);
@@ -1057,10 +1269,5 @@ int main() {
 
     assert(mod.getStatements().size() == 2);
   }
-
-  // for (sint<32> i = 0; i < payload_size; i++) {
-  //   bit_1 is_last = i == (payload_size - 1);
-  //   transmitter->write_byte(payload->read(), is_last);
-  // }
   
 }

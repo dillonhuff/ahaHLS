@@ -18,7 +18,8 @@ public:
   void write_header(bit_48 dest_mac,
                     bit_48 src_mac,
                     bit_16 type) {
-  read_ready: bit_1 is_ready = read_port(s_eth_hdr_ready);
+    bit_1 is_ready;
+  read_ready: is_ready = read_port(s_eth_hdr_ready);
   stall_on_ready: stall(is_ready);
 
     add_constraint(start(read_ready) == start(stall_on_ready));
@@ -38,7 +39,8 @@ public:
 
   void write_byte(bit_8 data,
                   bit_1 last) {
-  read_ready: bit_1 is_ready = read_port(s_eth_hdr_ready);
+    bit_1 is_ready;    
+  read_ready: is_ready = read_port(s_eth_hdr_ready);
   stall_on_ready: stall(is_ready);
 
     add_constraint(start(read_ready) == start(stall_on_ready));
@@ -62,4 +64,12 @@ void write_packet(bit_48 dest_mac,
                   sint_32 payload_size,
                   eth_axis_tx* transmitter) {
   transmitter->write_header(dest_mac, src_mac, type);
+
+
+  sint_32 i;
+  for (i = 0; i < payload_size; i = i + 1) {
+    bit_1 is_last;
+    is_last = i == (payload_size - 1);
+    transmitter->write_byte(payload->read(), is_last);
+  }
 }
