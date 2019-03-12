@@ -78,6 +78,10 @@ public:
   int currentPos() const { return pos; }
   void setPos(const int position) { pos = position; }
 
+  bool nextCharIs(const Token t) const {
+    return peekChar() == t;
+  }
+
   T peekChar(const int offset) const {
     assert(((int) ts.size()) > (pos + offset));
     return ts[pos + offset];
@@ -604,6 +608,7 @@ maybe<Statement*> parseAssignStmt(ParseState<Token>& tokens) {
   
   auto tp = parseType(tokens);
   cout << "Found type = " << tp.has_value() << endl;
+  cout << "Remainder after type = " << tokens.remainder() << endl;
   if (!tp.has_value()) {
     return maybe<Statement*>();
   }
@@ -612,17 +617,27 @@ maybe<Statement*> parseAssignStmt(ParseState<Token>& tokens) {
     return maybe<Statement*>();
   }
 
-  Token t = tokens.peekChar();
-  if (!t.isId()) {
+  Token id = tokens.peekChar();
+  if (!id.isId()) {
+    return maybe<Statement*>();
+  }
+  tokens.parseChar();
+
+  if (!tokens.nextCharIs(Token("="))) {
+    return maybe<Statement*>();
+  }
+  tokens.parseChar();
+
+  cout << "Remaining after eq is " << tokens.remainder() << endl;
+  auto r = parseExpressionMaybe(tokens);
+  if (!r.has_value()) {
     return maybe<Statement*>();
   }
 
-  if (!tokens.nextCharIs("=")) {
-    return maybe<Statement*>();
-  }
+  cout << "Remaining after expr is " << tokens.remainder() << endl;  
+  assert(tokens.parseChar() == Token(";"));
 
-  cout << "Error at " << tokens.remainder() << endl;
-  assert(false);
+  return new Statement();
 }
 
 maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
