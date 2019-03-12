@@ -145,7 +145,7 @@ std::vector<OutType> many(Parser p, ParseState<TokenType>& tokens) {
 template<typename OutType, typename TokenType, typename Parser>
 maybe<OutType> tryParse(Parser p, ParseState<TokenType>& tokens) {
   int lastPos = tokens.currentPos();
-  cout << "lastPos = " << lastPos << endl;
+  //cout << "lastPos = " << lastPos << endl;
   
   maybe<OutType> val = p(tokens);
   if (val.has_value()) {
@@ -154,7 +154,7 @@ maybe<OutType> tryParse(Parser p, ParseState<TokenType>& tokens) {
 
   tokens.setPos(lastPos);
 
-  cout << "try failed, now pos = " << tokens.currentPos() << endl;
+  //cout << "try failed, now pos = " << tokens.currentPos() << endl;
   return maybe<OutType>();
 }
 
@@ -342,7 +342,7 @@ std::ostream& operator<<(std::ostream& out, const ParserModule& mod) {
 }
 
 void parseStmtEnd(ParseState<Token>& tokens) {
-  cout << "Statement end token == " << tokens.peekChar() << endl;
+  //cout << "Statement end token == " << tokens.peekChar() << endl;
   assert(tokens.parseChar() == Token(";"));
 }
 
@@ -387,14 +387,14 @@ maybe<Expression*> parseMethodCall(ParseState<Token>& tokens) {
 }
 
 maybe<Expression*> parsePrimitiveExpressionMaybe(ParseState<Token>& tokens) {
-  cout << "-- Parsing primitive expression " << tokens.remainder() << endl;
+  //cout << "-- Parsing primitive expression " << tokens.remainder() << endl;
 
   auto fCall = tryParse<Expression*>(parseFunctionCall, tokens);
   if (fCall.has_value()) {
     return fCall;
   }
 
-  cout << "---- Trying to parse method call " << tokens.remainder() << endl;
+  //cout << "---- Trying to parse method call " << tokens.remainder() << endl;
   auto mCall = tryParse<Expression*>(parseMethodCall, tokens);
   if (mCall.has_value()) {
     return mCall;
@@ -408,9 +408,8 @@ maybe<Expression*> parsePrimitiveExpressionMaybe(ParseState<Token>& tokens) {
     return id.get_value();
   }
 
-  cout << "Expressions = " << tokens.remainder() << endl;
+  //cout << "Expressions = " << tokens.remainder() << endl;
   if (!tokens.atEnd() && tokens.peekChar().isNum()) {
-    tokens.parseChar();
     return new IntegerExpr(tokens.parseChar().getStr());
   }
 
@@ -430,7 +429,7 @@ maybe<Expression*> parseFunctionCall(ParseState<Token>& tokens) {
     return maybe<Expression*>();
   }
 
-  cout << "parsing funcall " << tokens.remainder() << endl;
+  //cout << "parsing funcall " << tokens.remainder() << endl;
   vector<Expression*> callArgs =
     sepBtwn<Expression*, Token>(parseExpression, parseComma, tokens);
 
@@ -443,7 +442,7 @@ maybe<Expression*> parseFunctionCall(ParseState<Token>& tokens) {
 }
 
 maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
-  cout << "-- Parsing expression " << tokens.remainder() << endl;
+  //cout << "-- Parsing expression " << tokens.remainder() << endl;
   
   auto pExpr = parsePrimitiveExpressionMaybe(tokens);
   if (!pExpr.has_value()) {
@@ -472,7 +471,7 @@ Expression* parseExpression(ParseState<Token>& tokens) {
 maybe<Type*> parseBaseType(ParseState<Token>& tokens) {
   if (tokens.peekChar().isId()) {
     
-    cout << tokens.peekChar() << " is id" << endl;    
+    //cout << tokens.peekChar() << " is id" << endl;    
 
     Token tpName = tokens.parseChar();
 
@@ -487,7 +486,7 @@ maybe<Type*> parseBaseType(ParseState<Token>& tokens) {
       vector<Expression*> exprs =
         sepBtwn<Expression*, Token>(parseExpression, parseComma, tokens);
 
-      cout << "remainder after getting expressions = " << tokens.remainder() << endl;
+      //cout << "remainder after getting expressions = " << tokens.remainder() << endl;
       assert(tokens.peekChar() == Token(">"));
       tokens.parseChar();
 
@@ -515,8 +514,8 @@ maybe<Type*> parseType(ParseState<Token>& tokens) {
 }
 
 maybe<ArgumentDecl*> parseArgDeclMaybe(ParseState<Token>& tokens) {
-  cout << "Parsing arg declaration = " << tokens.remainder() << endl;
-  cout << "Remaining tokens = " << tokens.remainderSize() << endl;
+  // cout << "Parsing arg declaration = " << tokens.remainder() << endl;
+  // cout << "Remaining tokens = " << tokens.remainderSize() << endl;
   maybe<Type*> tp = parseType(tokens);
 
   if (!tp.has_value()) {
@@ -524,7 +523,7 @@ maybe<ArgumentDecl*> parseArgDeclMaybe(ParseState<Token>& tokens) {
   }
 
 
-  cout << "After parsing type = " << tokens.remainder() << endl;
+  //cout << "After parsing type = " << tokens.remainder() << endl;
 
   Token argName = tokens.parseChar();
 
@@ -532,14 +531,14 @@ maybe<ArgumentDecl*> parseArgDeclMaybe(ParseState<Token>& tokens) {
     return maybe<ArgumentDecl*>();
   }
 
-  cout << "After parsing expression = " << tokens.remainder() << endl;
+  //cout << "After parsing expression = " << tokens.remainder() << endl;
     
   if (tokens.peekChar() == Token("[")) {
     tokens.parseChar();
 
     auto e = parseExpressionMaybe(tokens);
 
-    cout << "After parsing expression = " << tokens.remainder() << endl;
+    //cout << "After parsing expression = " << tokens.remainder() << endl;
     if (!e.has_value()) {
       return maybe<ArgumentDecl*>();
     }
@@ -638,12 +637,12 @@ maybe<Statement*> parseFunctionCallStmt(ParseState<Token>& tokens) {
 }
 
 maybe<Statement*> parseAssignStmt(ParseState<Token>& tokens) {
-  cout << "Parsing assign = " << tokens.remainder() << endl;
-  cout << "Remaining tokens = " << tokens.remainderSize() << endl;
+  cout << "Starting parse assign \" " << tokens.remainder() << "\"" << endl;
+  //cout << "Remaining tokens = " << tokens.remainderSize() << endl;
   
   auto tp = parseType(tokens);
-  cout << "Found type = " << tp.has_value() << endl;
-  cout << "Remainder after type = " << tokens.remainder() << endl;
+  //cout << "Found type = " << tp.has_value() << endl;
+  //cout << "Remainder after type = " << tokens.remainder() << endl;
   if (!tp.has_value()) {
     return maybe<Statement*>();
   }
@@ -669,13 +668,15 @@ maybe<Statement*> parseAssignStmt(ParseState<Token>& tokens) {
     return maybe<Statement*>();
   }
 
-  cout << "Remaining after expr is " << tokens.remainder() << endl;  
+  //cout << "Remaining after expr is " << tokens.remainder() << endl;  
   assert(tokens.parseChar() == Token(";"));
 
   return new Statement();
 }
 
 maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
+  cout << "Starting to parse statement " << tokens.remainder() << endl;
+  
   if (tokens.atEnd()) {
     return maybe<Statement*>();
   }
@@ -708,13 +709,20 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
 
   cout << "Statement after trying funcDecl " << tokens.remainder() << endl;  
 
+  auto assign = tryParse<Statement*>(parseAssignStmt, tokens);
+  if (assign.has_value()) {
+    return assign;
+  }
+
+  cout << "Statement after assign " << tokens.remainder() << endl;
+
   // Should do: tryParse function declaration
   // Then: tryParse member declaration
   int posBefore = tokens.currentPos();
-  cout << "posBefore = " << posBefore << endl;
+  //cout << "posBefore = " << posBefore << endl;
   auto decl = tryParse<ArgumentDecl*>(parseArgDeclMaybe, tokens);
   int posAfter = tokens.currentPos();
-  cout << "posAfter = " << posAfter << endl;
+  //cout << "posAfter = " << posAfter << endl;
 
   //assert(posBefore == posAfter);
   
@@ -728,25 +736,23 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
   // TODO: Wrap in try
   tokens.setPos(posBefore);
 
-  cout << "Statement after trying argDecl " << tokens.remainder() << endl;    
+  //cout << "&& Statement after trying argDecl " << tokens.remainder() << endl;    
 
   // Try to parse function declaration
   //auto call = tryParse<Statement*>(parseFunctionCallStmt, tokens);
 
   auto call = tryParse<Expression*>(parseExpressionMaybe, tokens);
+
+  //cout << "&& Statement after trying expression " << tokens.remainder() << endl;      
+
   if (call.has_value() && tokens.nextCharIs(Token(";"))) {
     tokens.parseChar();
     return new Statement();
   }
 
-  cout << "Statement after trying functionCall " << tokens.remainder() << endl;      
+  //cout << "Statement after trying expression " << tokens.remainder() << endl;      
 
-  auto assign = parseAssignStmt(tokens);
-  if (assign.has_value()) {
-    return assign;
-  }
-
-  cout << "Cannot parse statement " << tokens.remainder() << endl;
+  //cout << "Cannot parse statement " << tokens.remainder() << endl;
 
   return maybe<Statement*>();
 }
@@ -888,7 +894,10 @@ int main() {
   }
   
   {
+
     std::string str = "input_23 wdata;";
+    cout << "TEST CASE: " << str << endl;
+    
     ParseState<Token> st(tokenize(str));
     auto tp = parseStatement(st);
     assert(tp.has_value());
