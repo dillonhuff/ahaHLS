@@ -426,7 +426,7 @@ maybe<Type*> parseType(ParseState<Token>& tokens) {
 
     cout << tokens.peekChar() << " is id ? " << tokens.peekChar().isId() << endl;
     if (tokens.peekChar().isId()) {
-      tokens.parseChar();
+      //tokens.parseChar();
       return new StructType();
     }
 
@@ -458,27 +458,59 @@ maybe<ArgumentDecl*> parseArgDeclMaybe(ParseState<Token>& tokens) {
   if (!tp.has_value()) {
     return maybe<ArgumentDecl*>();
   }
-  //assert(tp.has_value());
+
+
+  cout << "After parsing type = " << tokens.remainder() << endl;
 
   Token argName = tokens.parseChar();
 
   if (!argName.isId()) {
     return maybe<ArgumentDecl*>();
   }
-  //assert(argName.isId());
+
+  cout << "After parsing expression = " << tokens.remainder() << endl;
+    
+  if (tokens.peekChar() == Token("[")) {
+    tokens.parseChar();
+
+    auto e = parseExpressionMaybe(tokens);
+
+    cout << "After parsing expression = " << tokens.remainder() << endl;
+    if (!e.has_value()) {
+      return maybe<ArgumentDecl*>();
+    }
+
+    if (tokens.peekChar() == Token("]")) {
+      tokens.parseChar();
+
+      return new ArgumentDecl();
+    } else {
+      return maybe<ArgumentDecl*>();      
+    }
+    
+  }
 
   return new ArgumentDecl();
 }
 
+// maybe<ArgumentDecl*> parseArgDecl(ParseState<Token>& tokens) {
+//   cout << "Parsing arg declaration = " << tokens.remainder() << endl;
+//   maybe<Type*> tp = parseType(tokens);
+//   assert(tp.has_value());
+//   Token argName = tokens.parseChar();
+
+//   assert(argName.isId());
+
+//   return new ArgumentDecl();
+// }
+
 ArgumentDecl* parseArgDecl(ParseState<Token>& tokens) {
-  cout << "Parsing arg declaration = " << tokens.remainder() << endl;
-  maybe<Type*> tp = parseType(tokens);
-  assert(tp.has_value());
-  Token argName = tokens.parseChar();
+  auto d = parseArgDeclMaybe(tokens);
+  if (d.has_value()) {
+    return d.get_value();
+  }
 
-  assert(argName.isId());
-
-  return new ArgumentDecl();
+  assert(false);
 }
 
 maybe<Statement*> parseFuncDecl(ParseState<Token>& tokens) {
@@ -730,6 +762,17 @@ int main() {
   }
 
   {
+    std::string str = "input wdata[23]";
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseArgDeclMaybe(st);
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+  
+  {
     std::string str = "set_wdata: set_port(wen, 1);";
     ParseState<Token> st(tokenize(str));
     auto tp = parseStatement(st);
@@ -816,22 +859,22 @@ int main() {
     assert(mod.getStatements().size() == 1);
   }
 
-  // {
-  //   ifstream t("./experiments/eth_axi_tx.cpp");
-  //   std::string str((std::istreambuf_iterator<char>(t)),
-  //                   std::istreambuf_iterator<char>());
+  {
+    ifstream t("./experiments/eth_axi_tx.cpp");
+    std::string str((std::istreambuf_iterator<char>(t)),
+                    std::istreambuf_iterator<char>());
 
-  //   auto tokens = tokenize(str);
-  //   cout << "Tokens" << endl;
-  //   for (auto t : tokens) {
-  //     cout << "\t" << t.getStr() << endl;
-  //   }
+    auto tokens = tokenize(str);
+    cout << "Tokens" << endl;
+    for (auto t : tokens) {
+      cout << "\t" << t.getStr() << endl;
+    }
 
-  //   ParserModule mod = parse(tokens);
+    ParserModule mod = parse(tokens);
 
-  //   cout << mod << endl;
+    cout << mod << endl;
 
-  //   assert(mod.getStatements().size() == 1);
-  // }
+    assert(mod.getStatements().size() == 1);
+  }
   
 }
