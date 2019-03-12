@@ -141,6 +141,8 @@ std::vector<OutType> many(Parser p, ParseState<TokenType>& tokens) {
 template<typename OutType, typename TokenType, typename Parser>
 maybe<OutType> tryParse(Parser p, ParseState<TokenType>& tokens) {
   int lastPos = tokens.currentPos();
+  cout << "lastPos = " << lastPos << endl;
+  
   maybe<OutType> val = p(tokens);
   if (val.has_value()) {
     return val;
@@ -148,6 +150,7 @@ maybe<OutType> tryParse(Parser p, ParseState<TokenType>& tokens) {
 
   tokens.setPos(lastPos);
 
+  cout << "try failed, now pos = " << tokens.currentPos() << endl;
   return maybe<OutType>();
 }
 
@@ -560,11 +563,19 @@ maybe<Statement*> parseFuncDecl(ParseState<Token>& tokens) {
 }
 
 maybe<Token> parseLabel(ParseState<Token>& tokens) {
+  if (tokens.atEnd()) {
+    return maybe<Token>();
+  }
+
   Token t = tokens.parseChar();
   if (!t.isId()) {
     return maybe<Token>();
   }
 
+  if (tokens.atEnd()) {
+    return maybe<Token>();
+  }
+  
   Token semi = tokens.parseChar();
   if (semi != Token(":")) {
     return maybe<Token>();
@@ -592,6 +603,7 @@ maybe<Statement*> parseAssignStmt(ParseState<Token>& tokens) {
   cout << "Remaining tokens = " << tokens.remainderSize() << endl;
   
   auto tp = parseType(tokens);
+  cout << "Found type = " << tp.has_value() << endl;
   if (!tp.has_value()) {
     return maybe<Statement*>();
   }
@@ -601,11 +613,14 @@ maybe<Statement*> parseAssignStmt(ParseState<Token>& tokens) {
 }
 
 maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
-
+  if (tokens.atEnd()) {
+    return maybe<Statement*>();
+  }
+  
   // Try to parse a label?
   auto label = tryParse<Token>(parseLabel, tokens);
 
-  cout << "Parsing statement " << tokens.remainder() << endl;
+  cout << "Statement after label " << tokens.remainder() << endl;
   if (tokens.peekChar() == Token("class")) {
     tokens.parseChar();
     Token name = tokens.parseChar();
@@ -628,9 +643,18 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
     return funcDecl;
   }
 
+  cout << "Statement after trying funcDecl " << tokens.remainder() << endl;  
+
   // Should do: tryParse function declaration
   // Then: tryParse member declaration
+  int posBefore = tokens.currentPos();
+  cout << "posBefore = " << posBefore << endl;
   auto decl = tryParse<ArgumentDecl*>(parseArgDeclMaybe, tokens);
+  int posAfter = tokens.currentPos();
+  cout << "posAfter = " << posAfter << endl;
+
+  //assert(posBefore == posAfter);
+  
   if (decl.has_value()) {
     if (tokens.peekChar() == Token(";")) {
       tokens.parseChar();
@@ -638,12 +662,19 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
     }
   }
 
+  // TODO: Wrap in try
+  tokens.setPos(posBefore);
+
+  cout << "Statement after trying argDecl " << tokens.remainder() << endl;    
+
   // Try to parse function declaration
   auto call = tryParse<Statement*>(parseFunctionCallStmt, tokens);
 
   if (call.has_value()) {
     return call;
   }
+
+  cout << "Statement after trying functionCall " << tokens.remainder() << endl;      
 
   auto assign = parseAssignStmt(tokens);
   if (assign.has_value()) {
@@ -871,6 +902,18 @@ int main() {
 
   {
     std::string str = "class ram {};";
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+
+  {
+    std::string str = "read_ready: bit<1> is_ready = read_port(s_eth_hdr_ready);";
+
     ParseState<Token> st(tokenize(str));
     auto tp = parseStatement(st);
     assert(tp.has_value());
