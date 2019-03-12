@@ -336,7 +336,12 @@ maybe<Identifier*> parseId(ParseState<Token>& tokens) {
   return maybe<Identifier*>();
 }
 
-Expression* parseExpression(ParseState<Token>& tokens) {
+maybe<Expression*> parsePrimitiveExpressionMaybe(ParseState<Token>& tokens) {
+  cout << "-- Parsing expression " << tokens.remainder() << endl;
+
+  // Try parsing a function call
+  // If that does not work try to parse an identifier
+  // If that does not work try parsing a parenthesis
   auto id = tryParse<Identifier*>(parseId, tokens);
   if (id.has_value()) {
     return id.get_value();
@@ -345,6 +350,19 @@ Expression* parseExpression(ParseState<Token>& tokens) {
   cout << "Expressions = " << tokens.remainder() << endl;
   assert(tokens.peekChar().isNum());
   return new IntegerExpr(tokens.parseChar().getStr());
+}
+
+maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
+  return parsePrimitiveExpressionMaybe(tokens);
+}
+
+Expression* parseExpression(ParseState<Token>& tokens) {
+  auto res = parseExpressionMaybe(tokens);
+  if (res.has_value()) {
+    return res.get_value();
+  }
+
+  assert(false);
 }
 
 maybe<Type*> parseType(ParseState<Token>& tokens) {
@@ -460,15 +478,15 @@ maybe<Token> parseLabel(ParseState<Token>& tokens) {
   return t;
 }
 
-maybe<Statement*> parseFunctionCall(ParseState<Token>& tokens) {
+maybe<Expression*> parseFunctionCall(ParseState<Token>& tokens) {
   Token t = tokens.parseChar();
   if (!t.isId()) {
-    return maybe<Statement*>();
+    return maybe<Expression*>();
   }
 
   Token paren = tokens.parseChar();
   if (paren != Token("(")) {
-    return maybe<Statement*>();
+    return maybe<Expression*>();
   }
 
   cout << "parsing funcall " << tokens.remainder() << endl;
@@ -477,6 +495,15 @@ maybe<Statement*> parseFunctionCall(ParseState<Token>& tokens) {
 
   paren = tokens.parseChar();
   if (paren != Token(")")) {
+    return maybe<Expression*>();
+  }
+
+  return new Expression();
+}
+
+maybe<Statement*> parseFunctionCallStmt(ParseState<Token>& tokens) {
+  maybe<Expression*> p = parseFunctionCall(tokens);
+  if (!p.has_value()) {
     return maybe<Statement*>();
   }
 
@@ -526,7 +553,7 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
   }
 
   // Try to parse function declaration
-  auto call = tryParse<Statement*>(parseFunctionCall, tokens);
+  auto call = tryParse<Statement*>(parseFunctionCallStmt, tokens);
 
   if (call.has_value()) {
     return call;
@@ -675,6 +702,17 @@ int main() {
     std::string str = "set_wdata: set_port(wen, 1);";
     ParseState<Token> st(tokenize(str));
     auto tp = parseStatement(st);
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+
+  {
+    std::string str = "start(set_wen)";
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseFunctionCall(st);
     assert(tp.has_value());
 
     assert(st.atEnd());

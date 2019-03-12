@@ -41,7 +41,7 @@ public:
   read_ready: bit<1> is_ready = read_port(s_eth_hdr_ready);
   stall_on_ready: stall(is_ready);
 
-    add_constraint(start(read_ready) == start(stall_on_ready));    
+    add_constraint(start(read_ready) == start(stall_on_ready));
 
   write_valid: write_port(s_eth_payload_tvalid, 1);
   write_last: write_port(s_eth_payload_tlast, last);
