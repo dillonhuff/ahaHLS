@@ -608,6 +608,19 @@ maybe<Statement*> parseAssignStmt(ParseState<Token>& tokens) {
     return maybe<Statement*>();
   }
 
+  if (tokens.atEnd()) {
+    return maybe<Statement*>();
+  }
+
+  Token t = tokens.peekChar();
+  if (!t.isId()) {
+    return maybe<Statement*>();
+  }
+
+  if (!tokens.nextCharIs("=")) {
+    return maybe<Statement*>();
+  }
+
   cout << "Error at " << tokens.remainder() << endl;
   assert(false);
 }
