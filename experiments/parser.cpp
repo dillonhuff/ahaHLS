@@ -386,12 +386,26 @@ public:
   IntegerExpr(const std::string& digits_) : digits(digits_) {}
 };
 
+enum StatementKind {
+  STATEMENT_KIND_CLASS_DECL,
+  STATEMENT_KIND_FUNCTION_DECL,
+  STATEMENT_KIND_ASSIGN,
+  STATEMENT_KIND_FOR
+};
+
 class Statement {
 public:
   Token label;
 
   void setLabel(const Token l) {
     label = l;
+  }
+
+  virtual StatementKind getKind() const {
+    assert(false);
+  }
+
+  virtual ~Statement() {
   }
 
 };
@@ -403,6 +417,15 @@ public:
 
   ClassDecl(Token name_, std::vector<Statement*>& body_) :
     name(name_), body(body_) {}
+
+  static bool classof(const Statement* const stmt) {
+    return stmt->getKind() == STATEMENT_KIND_CLASS_DECL;
+  }
+
+  virtual StatementKind getKind() const {
+    return STATEMENT_KIND_CLASS_DECL;
+  }
+  
 };
 
 class AssignStmt : public Statement {
@@ -464,6 +487,15 @@ public:
     name(name_),
     args(args_),
     body(body_) {}
+
+  static bool classof(const Statement* const stmt) {
+    return stmt->getKind() == STATEMENT_KIND_FUNCTION_DECL;
+  }
+  
+  virtual StatementKind getKind() const {
+    return STATEMENT_KIND_FUNCTION_DECL;
+  }
+  
 
 };
 
@@ -787,7 +819,7 @@ maybe<Statement*> parseFunctionCallStmt(ParseState<Token>& tokens) {
 }
 
 maybe<Statement*> parseAssignStmt(ParseState<Token>& tokens) {
-  cout << "Starting parse assign \" " << tokens.remainder() << "\"" << endl;
+  //cout << "Starting parse assign \" " << tokens.remainder() << "\"" << endl;
 
   if (tokens.atEnd()) {
     return maybe<Statement*>();
@@ -799,21 +831,21 @@ maybe<Statement*> parseAssignStmt(ParseState<Token>& tokens) {
   }
   tokens.parseChar();
 
-  cout << "After name remainder is \"" << tokens.remainder() << "\"" << endl;
+  //cout << "After name remainder is \"" << tokens.remainder() << "\"" << endl;
 
   if (!tokens.nextCharIs(Token("="))) {
     return maybe<Statement*>();
   }
   tokens.parseChar();
 
-  cout << "Remaining after eq is " << tokens.remainder() << endl;
+  //cout << "Remaining after eq is " << tokens.remainder() << endl;
   auto r = parseExpressionMaybe(tokens);
   if (!r.has_value()) {
     cout << "No expr" << endl;
     return maybe<Statement*>();
   }
 
-  cout << "Remaining after expr is " << tokens.remainder() << endl;
+  //cout << "Remaining after expr is " << tokens.remainder() << endl;
   // Token delim = tokens.parseChar();
   // assert((delim == Token(";")) || (delim == Token("")));
 
@@ -822,28 +854,28 @@ maybe<Statement*> parseAssignStmt(ParseState<Token>& tokens) {
 }
 maybe<Statement*> parseForLoop(ParseState<Token>& tokens) {
 
-  cout << "Parsing for loop " << tokens.remainder() << endl;
+  //cout << "Parsing for loop " << tokens.remainder() << endl;
 
   if (!tokens.nextCharIs(Token("for"))) {
     return maybe<Statement*>();
   }
   tokens.parseChar();
 
-  cout << "for loop decl " << tokens.remainder() << endl;  
+  //cout << "for loop decl " << tokens.remainder() << endl;  
 
   if (!tokens.nextCharIs(Token("("))) {
     return maybe<Statement*>();
   }
   tokens.parseChar();
 
-  cout << "Getting for init " << tokens.remainder() << endl;
+  //cout << "Getting for init " << tokens.remainder() << endl;
   
   auto init = parseStatement(tokens);
   if (!init.has_value()) {
     return maybe<Statement*>();
   }
 
-  cout << "Getting for test " << tokens.remainder() << endl;
+  //cout << "Getting for test " << tokens.remainder() << endl;
 
   auto test = parseExpressionMaybe(tokens);
   if (!test.has_value()) {
@@ -911,7 +943,7 @@ maybe<Statement*> parseStatementNoLabel(ParseState<Token>& tokens) {
     return funcDecl;
   }
 
-  cout << "Statement after trying funcDecl " << tokens.remainder() << endl;  
+  //cout << "Statement after trying funcDecl " << tokens.remainder() << endl;  
 
   auto assign = tryParse<Statement*>(parseAssignStmt, tokens);
   if (assign.has_value()) {
@@ -921,7 +953,7 @@ maybe<Statement*> parseStatementNoLabel(ParseState<Token>& tokens) {
     return assign;
   }
 
-  cout << "Statement after assign " << tokens.remainder() << endl;
+  //cout << "Statement after assign " << tokens.remainder() << endl;
 
   // Should do: tryParse function declaration
   // Then: tryParse member declaration
@@ -949,7 +981,7 @@ maybe<Statement*> parseStatementNoLabel(ParseState<Token>& tokens) {
 }
 
 maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
-  cout << "Starting to parse statement " << tokens.remainder() << endl;
+  //cout << "Starting to parse statement " << tokens.remainder() << endl;
   
   if (tokens.atEnd()) {
     return maybe<Statement*>();
@@ -957,7 +989,7 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
   
   // Try to parse a label?
   auto label = tryParse<Token>(parseLabel, tokens);
-  cout << "Statement after label " << tokens.remainder() << endl;
+  //cout << "Statement after label " << tokens.remainder() << endl;
   
   auto stmt = parseStatementNoLabel(tokens);
 
@@ -979,10 +1011,11 @@ ParserModule parse(const std::vector<Token>& tokens) {
   return m;
 }
 
-class SynthCppClass {
-};
 
 class SynthCppFunction {
+};
+
+class SynthCppClass {
 };
 
 class SynthCppModule {
@@ -991,21 +1024,36 @@ public:
 
   llvm::LLVMContext context;
   unique_ptr<llvm::Module> mod;
+  std::vector<SynthCppClass*> classes;
+  std::vector<SynthCppFunction*> functions;
   
   SynthCppModule(ParserModule& parseRes) {
     mod = llvm::make_unique<Module>("synth_cpp", context);
     setGlobalLLVMContext(&context);
     setGlobalLLVMModule(mod.get());
 
-    
+    // Also need: storage for clases and functions,
+    // storage for module specifications and hardware
+    // constraints.
+
+    for (auto stmt : parseRes.getStatements()) {
+      // Note: Part of the virtue of <classname>::classof(obj) instead of obj->type() == CLASS_ENUM
+      // is that it does not force the user to remember names of enums! Name reduction strikes again
+      if (ClassDecl::classof(stmt)) {
+        // TODO: Actually add parsing
+        classes.push_back(new SynthCppClass());
+      } else if (FunctionDecl::classof(stmt)) {
+        functions.push_back(new SynthCppFunction);
+      }
+    }
   }
 
   std::vector<SynthCppClass*> getClasses() const {
-    return {};
+    return classes;
   }
 
   std::vector<SynthCppFunction*> getFunctions() const {
-    return {};
+    return functions;
   }
 
 };
