@@ -979,9 +979,41 @@ ParserModule parse(const std::vector<Token>& tokens) {
   return m;
 }
 
+class SynthCppClass {
+};
+
+class SynthCppFunction {
+};
+
+class SynthCppModule {
+
+public:
+
+  llvm::LLVMContext context;
+  unique_ptr<llvm::Module> mod;
+  
+  SynthCppModule(ParserModule& parseRes) {
+    mod = llvm::make_unique<Module>("synth_cpp", context);
+    setGlobalLLVMContext(&context);
+    setGlobalLLVMModule(mod.get());
+
+    
+  }
+
+  std::vector<SynthCppClass*> getClasses() const {
+    return {};
+  }
+
+  std::vector<SynthCppFunction*> getFunctions() const {
+    return {};
+  }
+
+};
+
 void compileIR(ParserModule& parseMod, llvm::Module* mod) {
   
 }
+
 
 int main() {
   {
@@ -1335,14 +1367,9 @@ int main() {
 
     cout << parseMod << endl;
 
-    assert(parseMod.getStatements().size() == 1);
+    assert(parseMod.getStatements().size() == 2);
 
-    // Emit code for module
-    SynthCppModule scppMod;
-    LLVMContext context;
-    setGlobalLLVMContext(&context);
-    auto mod = llvm::make_unique<Module>("simple LLVM accumulate loop", context);
-    compileIR(parseMod, mod.get());
+    SynthCppModule scppMod(parseMod);
 
     assert(scppMod.getClasses().size() == 1);
     assert(scppMod.getFunctions().size() == 1);    
