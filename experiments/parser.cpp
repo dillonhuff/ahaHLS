@@ -1039,8 +1039,9 @@ public:
     for (auto stmt : parseRes.getStatements()) {
       // Note: Part of the virtue of <classname>::classof(obj) instead of obj->type() == CLASS_ENUM
       // is that it does not force the user to remember names of enums! Name reduction strikes again
+
+      // TODO: Actually add parsing
       if (ClassDecl::classof(stmt)) {
-        // TODO: Actually add parsing
         classes.push_back(new SynthCppClass());
       } else if (FunctionDecl::classof(stmt)) {
         functions.push_back(new SynthCppFunction);
