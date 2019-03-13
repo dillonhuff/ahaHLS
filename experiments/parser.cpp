@@ -1101,6 +1101,40 @@ llvm::Type* llvmPointerFor(SynthCppType* const tp) {
   return structType(static_cast<SynthCppStructType* const>(tp)->getName())->getPointerTo();
 }
 
+bool isPrimitiveStruct(SynthCppStructType*  const st) {
+  string name = st->getName();
+  return hasPrefix(name, "bit_") || hasPrefix(name, "sint_") || hasPrefix(name, "uint_");
+}
+
+int getWidth(SynthCppStructType* tp) {
+  assert(isPrimitiveStruct(tp));
+  string name = tp->getName();
+  if (hasPrefix(name, "bit_")) {
+    return stoi(name.substr(4));
+  } else if (hasPrefix(name, "sint_")) {
+    return stoi(name.substr(5));
+  } else {
+    assert(hasPrefix(name, "uint_"));
+    return stoi(name.substr(5));    
+  }
+}
+
+llvm::Type* llvmTypeFor(SynthCppType* const tp) {
+  if (SynthCppPointerType::classof(tp)) {
+    return llvmPointerFor(static_cast<SynthCppPointerType* const>(tp)->getElementType());
+  } else {
+    assert(SynthCppStructType::classof(tp));
+    auto st = static_cast<SynthCppStructType* const>(tp);
+    if (isPrimitiveStruct(st)) {
+      int width = getWidth(st);
+      return intType(width);
+    } else {
+      Type* argTp = structType(st->getName());
+      return argTp;
+    }
+  }
+}
+
 class SynthCppClass {
 };
 
@@ -1146,17 +1180,8 @@ public:
         vector<Type*> inputTypes;
         for (auto argDecl : fd->args) {
           cout << "\targ = " << argDecl->name << endl;
-          if (SynthCppStructType::classof(argDecl->tp)) {
-            Type* argTp = structType(static_cast<SynthCppStructType*>(argDecl->tp)->getName());
-            cout << "Adding struct = " << typeString(argTp) << endl;
-            inputTypes.push_back(argTp);
-          } else {
-            assert(SynthCppPointerType::classof(argDecl->tp));
-            Type* argTp = llvmPointerFor(static_cast<SynthCppPointerType*>(argDecl->tp)->getElementType());
-            cout << "Adding pointer = " << typeString(argTp) << endl;
-            inputTypes.push_back(argTp);
-            
-          }
+          Type* argTp = llvmTypeFor(argDecl->tp);
+          inputTypes.push_back(argTp);
         }
 
         auto sf = new SynthCppFunction();
@@ -1183,12 +1208,21 @@ public:
 
   void genLLVM(IRBuilder<>& b, Expression* const stmt) {
   }
+
+  void genLLVM(IRBuilder<>& b, ArgumentDecl* const decl) {
+    string valName = decl->name.getStr();
+    Type* tp = llvmTypeFor(decl->tp);
+    b.CreateAlloca(tp, nullptr, valName);
+  }
   
   void genLLVM(IRBuilder<>& b, Statement* const stmt) {
     if (ExpressionStmt::classof(stmt)) {
       auto es = static_cast<ExpressionStmt* const>(stmt);
       Expression* e = es->expr;
       genLLVM(b, e);
+    } else if (ArgumentDecl::classof(stmt)) {
+      auto decl = static_cast<ArgumentDecl* const>(stmt);
+      genLLVM(b, decl);
     } else {
       // Add support for variable declarations, assignments, and for loops
       cout << "No support for code generation for statement" << endl;

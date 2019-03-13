@@ -1,16 +1,16 @@
-module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data, output [0:0] valid);
+module median_filter_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [31:0] out_in_data, input [31:0] out_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] in0_in_data, input [31:0] in0_out_data);
 
-	reg [31:0] in0_in_data_reg;
+	reg [0:0] valid_reg;
+	reg [31:0] out_in_data_reg;
 	reg [31:0] in1_in_data_reg;
 	reg [31:0] in2_in_data_reg;
-	reg [31:0] out_in_data_reg;
-	reg [0:0] valid_reg;
+	reg [31:0] in0_in_data_reg;
 
-	assign in0_in_data = in0_in_data_reg;
+	assign valid = valid_reg;
+	assign out_in_data = out_in_data_reg;
 	assign in1_in_data = in1_in_data_reg;
 	assign in2_in_data = in2_in_data_reg;
-	assign out_in_data = out_in_data_reg;
-	assign valid = valid_reg;
+	assign in0_in_data = in0_in_data_reg;
 
 	// Start debug wires and ports
 
@@ -24,13 +24,6 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	// End debug wires and ports
 
 	// Start Functional Units
-	reg [31:0] add_in0_add_6;
-	reg [31:0] add_in1_add_6;
-	wire [31:0] add_out_add_6;
-	add #(.WIDTH(32)) add_add_6(.in0(add_in0_add_6), .in1(add_in1_add_6), .out(add_out_add_6));
-
-	br_dummy br_unit();
-
 	reg [0:0] m_rst_n;
 	reg [31:0] m_word0;
 	reg [31:0] m_word1;
@@ -38,21 +31,28 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	wire [31:0] m_median_word;
 	median m(.clk(clk), .median_word(m_median_word), .rst_n(m_rst_n), .word0(m_word0), .word1(m_word1), .word2(m_word2));
 
-	reg [63:0] phi_in_phi_9;
-	reg [31:0] phi_last_block_phi_9;
-	reg [63:0] phi_s_phi_9;
-	wire [31:0] phi_out_phi_9;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_9(.in(phi_in_phi_9), .last_block(phi_last_block_phi_9), .out(phi_out_phi_9), .s(phi_s_phi_9));
+	reg [63:0] phi_in_phi_10;
+	reg [31:0] phi_last_block_phi_10;
+	reg [63:0] phi_s_phi_10;
+	wire [31:0] phi_out_phi_10;
+	phi #(.NB_PAIR(2), .WIDTH(32)) phi_10(.in(phi_in_phi_10), .last_block(phi_last_block_phi_10), .out(phi_out_phi_10), .s(phi_s_phi_10));
 
-	reg [31:0] cmp_in0_icmp_15;
-	reg [31:0] cmp_in1_icmp_15;
-	wire [0:0] cmp_out_icmp_15;
-	ne #(.WIDTH(32)) icmp_15(.in0(cmp_in0_icmp_15), .in1(cmp_in1_icmp_15), .out(cmp_out_icmp_15));
+	reg [31:0] add_in0_add_14;
+	reg [31:0] add_in1_add_14;
+	wire [31:0] add_out_add_14;
+	add #(.WIDTH(32)) add_add_14(.in0(add_in0_add_14), .in1(add_in1_add_14), .out(add_out_add_14));
+
+	reg [31:0] cmp_in0_icmp_16;
+	reg [31:0] cmp_in1_icmp_16;
+	wire [0:0] cmp_out_icmp_16;
+	ne #(.WIDTH(32)) icmp_16(.in0(cmp_in0_icmp_16), .in1(cmp_in1_icmp_16), .out(cmp_out_icmp_16));
+
+	br_dummy br_unit();
 
 	// End Functional Units
 
 	// Start instruction result storage
-	reg [31:0] add_tmp_0;
+	reg [31:0] add_tmp_4;
 	// End instruction result storage
 
 	// Start pipeline variables
@@ -151,15 +151,15 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 			if ((global_state == 4)) begin 
 				// Next state transition logic
 				// Condition = (  %8 = icmp ne i32 %3, 8533)
-				if ((cmp_out_icmp_15)) begin
+				if ((cmp_out_icmp_16)) begin
 					global_state <= 4;
 				end
 				// Condition = (!(  %8 = icmp ne i32 %3, 8533))
-				if (!(cmp_out_icmp_15)) begin
+				if (!(cmp_out_icmp_16)) begin
 					global_state <= 5;
 				end
 				// Store data computed at the stage
-					add_tmp_0 <= add_out_add_6;
+					add_tmp_4 <= add_out_add_14;
 			end
 			if ((global_state == 5)) begin 
 				// Next state transition logic
@@ -200,11 +200,11 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 				//   call void @builtin_write_port_rst_n(%class.median* %m, i1 true)
 				m_rst_n = -(1'd1);
 		end else 		if ((global_state == 4)) begin 
+				//   %7 = call i32 @builtin_read_port_median_word(%class.median* %m)
 				//   call void @builtin_write_port_word1(%class.median* %m, i32 %5)
 				m_word1 = in1_out_data;
 				//   call void @builtin_write_port_word2(%class.median* %m, i32 %6)
 				m_word2 = in2_out_data;
-				//   %7 = call i32 @builtin_read_port_median_word(%class.median* %m)
 				//   call void @builtin_write_port_word0(%class.median* %m, i32 %4)
 				m_word0 = in0_out_data;
 		end else begin 
@@ -213,16 +213,8 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	end
 	always @(*) begin
 		if ((global_state == 4)) begin 
-				//   %3 = add i32 %2, 1
-				add_in0_add_6 = phi_out_phi_9;
-				add_in1_add_6 = (32'd1);
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 4)) begin 
-				//   %4 = call i32 @builtin_read_port_out_data(%class.ac_channel* %in0)
+				//   call void @builtin_write_port_in_data(%class.ac_channel* %out, i32 %7)
+				out_in_data_reg = m_median_word;
 		end else begin 
 			// Default values
 		end
@@ -230,9 +222,9 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	always @(*) begin
 		if ((global_state == 4)) begin 
 				//   %2 = phi i32 [ 0, %entry_block_il ], [ %3, %_il ]
-				phi_in_phi_9 = {(32'd0), add_tmp_0};
-				phi_last_block_phi_9 = last_BB_reg;
-				phi_s_phi_9 = {32'd2, 32'd4};
+				phi_in_phi_10 = {(32'd0), add_tmp_4};
+				phi_last_block_phi_10 = last_BB_reg;
+				phi_s_phi_10 = {32'd2, 32'd4};
 		end else begin 
 			// Default values
 		end
@@ -253,8 +245,16 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	end
 	always @(*) begin
 		if ((global_state == 4)) begin 
-				//   call void @builtin_write_port_in_data(%class.ac_channel* %out, i32 %7)
-				out_in_data_reg = m_median_word;
+				//   %3 = add i32 %2, 1
+				add_in0_add_14 = phi_out_phi_10;
+				add_in1_add_14 = (32'd1);
+		end else begin 
+			// Default values
+		end
+	end
+	always @(*) begin
+		if ((global_state == 4)) begin 
+				//   %4 = call i32 @builtin_read_port_out_data(%class.ac_channel* %in0)
 		end else begin 
 			// Default values
 		end
@@ -262,8 +262,8 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	always @(*) begin
 		if ((global_state == 4)) begin 
 				//   %8 = icmp ne i32 %3, 8533
-				cmp_in0_icmp_15 = add_out_add_6;
-				cmp_in1_icmp_15 = (32'd8533);
+				cmp_in0_icmp_16 = add_out_add_14;
+				cmp_in1_icmp_16 = (32'd8533);
 		end else begin 
 			// Default values
 		end
@@ -279,7 +279,7 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	end
 endmodule
 
-module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data, output [0:0] valid);
+module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [31:0] out_in_data, input [31:0] out_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] in0_in_data, input [31:0] in0_out_data);
 
 
 	initial begin

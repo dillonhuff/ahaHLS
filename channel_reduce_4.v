@@ -43,30 +43,17 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 
 	add call_6();
 
+	reg [31:0] add_in0_add_7;
+	reg [31:0] add_in1_add_7;
+	wire [31:0] add_out_add_7;
+	add #(.WIDTH(32)) add_add_7(.in0(add_in0_add_7), .in1(add_in1_add_7), .out(add_out_add_7));
+
+	reg [31:0] cmp_in0_icmp_8;
+	reg [31:0] cmp_in1_icmp_8;
+	wire [0:0] cmp_out_icmp_8;
+	eq #(.WIDTH(32)) icmp_8(.in0(cmp_in0_icmp_8), .in1(cmp_in1_icmp_8), .out(cmp_out_icmp_8));
+
 	br_dummy br_unit();
-
-	add call_19();
-
-	reg [63:0] phi_in_phi_7;
-	reg [31:0] phi_last_block_phi_7;
-	reg [63:0] phi_s_phi_7;
-	wire [31:0] phi_out_phi_7;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_7(.in(phi_in_phi_7), .last_block(phi_last_block_phi_7), .out(phi_out_phi_7), .s(phi_s_phi_7));
-
-	reg [31:0] add_in0_add_14;
-	reg [31:0] add_in1_add_14;
-	wire [31:0] add_out_add_14;
-	add #(.WIDTH(32)) add_add_14(.in0(add_in0_add_14), .in1(add_in1_add_14), .out(add_out_add_14));
-
-	reg [31:0] add_in0_add_9;
-	reg [31:0] add_in1_add_9;
-	wire [31:0] add_out_add_9;
-	add #(.WIDTH(32)) add_add_9(.in0(add_in0_add_9), .in1(add_in1_add_9), .out(add_out_add_9));
-
-	reg [31:0] cmp_in0_icmp_10;
-	reg [31:0] cmp_in1_icmp_10;
-	wire [0:0] cmp_out_icmp_10;
-	eq #(.WIDTH(32)) icmp_10(.in0(cmp_in0_icmp_10), .in1(cmp_in1_icmp_10), .out(cmp_out_icmp_10));
 
 	add alloca_0();
 
@@ -74,12 +61,25 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 
 	add call_2();
 
+	add call_19();
+
+	reg [63:0] phi_in_phi_9;
+	reg [31:0] phi_last_block_phi_9;
+	reg [63:0] phi_s_phi_9;
+	wire [31:0] phi_out_phi_9;
+	phi #(.NB_PAIR(2), .WIDTH(32)) phi_9(.in(phi_in_phi_9), .last_block(phi_last_block_phi_9), .out(phi_out_phi_9), .s(phi_s_phi_9));
+
+	reg [31:0] add_in0_add_15;
+	reg [31:0] add_in1_add_15;
+	wire [31:0] add_out_add_15;
+	add #(.WIDTH(32)) add_add_15(.in0(add_in0_add_15), .in1(add_in1_add_15), .out(add_out_add_15));
+
 	// End Functional Units
 
 	// Start instruction result storage
-	reg [31:0] load_tmp_2;
-	reg [31:0] add_tmp_3;
-	reg [0:0] icmp_tmp_4;
+	reg [31:0] add_tmp_1;
+	reg [0:0] icmp_tmp_2;
+	reg [31:0] load_tmp_4;
 	// End instruction result storage
 
 	// Start pipeline variables
@@ -169,9 +169,9 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 				end
 				end
 				// Store data computed at the stage
-					load_tmp_2 <= rdata_ram_0;
-					add_tmp_3 <= add_out_add_9;
-					icmp_tmp_4 <= cmp_out_icmp_10;
+					add_tmp_1 <= add_out_add_7;
+					icmp_tmp_2 <= cmp_out_icmp_8;
+					load_tmp_4 <= rdata_ram_0;
 			end
 			if ((global_state == 3)) begin 
 				// Next state transition logic
@@ -194,11 +194,11 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 			if ((global_state == 5)) begin 
 				// Next state transition logic
 				// Condition = (  %exitcond = icmp eq i32 %10, 4)
-				if ((icmp_tmp_4)) begin
+				if ((icmp_tmp_2)) begin
 					global_state <= 6;
 				end
 				// Condition = (!(  %exitcond = icmp eq i32 %10, 4))
-				if (!(icmp_tmp_4)) begin
+				if (!(icmp_tmp_2)) begin
 					global_state <= 2;
 				end
 				// Store data computed at the stage
@@ -275,7 +275,7 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 		end else 		if ((global_state == 4)) begin 
 				//   store i32 %9, i32* %sum, align 4, !tbaa !2
 				waddr_ram_0_reg = 0;
-				wdata_ram_0_reg = add_out_add_14;
+				wdata_ram_0_reg = add_out_add_15;
 				wen_ram_0_reg = 1;
 		end else 		if ((global_state == 7)) begin 
 				//   %4 = load i32, i32* %sum
@@ -309,22 +309,10 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	end
 	always @(*) begin
 		if ((global_state == 2)) begin 
-				//   %i.01 = phi i32 [ 0, %0 ], [ %10, %5 ]
-				if (in_read_ready) begin
-				phi_in_phi_7 = {(32'd0), add_tmp_3};
-				phi_last_block_phi_7 = last_BB_reg;
-				phi_s_phi_7 = {32'd0, 32'd2};
-				end
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 2)) begin 
 				//   %10 = add nuw nsw i32 %i.01, 1
 				if (in_read_ready) begin
-				add_in0_add_9 = phi_out_phi_7;
-				add_in1_add_9 = (32'd1);
+				add_in0_add_7 = phi_out_phi_9;
+				add_in1_add_7 = (32'd1);
 				end
 		end else begin 
 			// Default values
@@ -334,8 +322,20 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 		if ((global_state == 2)) begin 
 				//   %exitcond = icmp eq i32 %10, 4
 				if (in_read_ready) begin
-				cmp_in0_icmp_10 = add_out_add_9;
-				cmp_in1_icmp_10 = (32'd4);
+				cmp_in0_icmp_8 = add_out_add_7;
+				cmp_in1_icmp_8 = (32'd4);
+				end
+		end else begin 
+			// Default values
+		end
+	end
+	always @(*) begin
+		if ((global_state == 2)) begin 
+				//   %i.01 = phi i32 [ 0, %0 ], [ %10, %5 ]
+				if (in_read_ready) begin
+				phi_in_phi_9 = {(32'd0), add_tmp_1};
+				phi_last_block_phi_9 = last_BB_reg;
+				phi_s_phi_9 = {32'd0, 32'd2};
 				end
 		end else begin 
 			// Default values
@@ -344,8 +344,8 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	always @(*) begin
 		if ((global_state == 4)) begin 
 				//   %9 = add nsw i32 %8, %7
-				add_in0_add_14 = load_tmp_2;
-				add_in1_add_14 = in_out_data;
+				add_in0_add_15 = load_tmp_4;
+				add_in1_add_15 = in_out_data;
 		end else begin 
 			// Default values
 		end
