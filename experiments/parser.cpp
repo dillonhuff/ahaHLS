@@ -344,7 +344,8 @@ public:
 
 enum SynthCppTypeKind {
   SYNTH_CPP_TYPE_KIND_STRUCT,
-  SYNTH_CPP_TYPE_KIND_VOID
+  SYNTH_CPP_TYPE_KIND_VOID,
+  SYNTH_CPP_TYPE_KIND_POINTER,  
 };
 class SynthCppType {
 public:
@@ -388,6 +389,19 @@ public:
   static bool classof(const SynthCppType* const tp) { return tp->getKind() == SYNTH_CPP_TYPE_KIND_VOID; }
   
   virtual SynthCppTypeKind getKind() const { return SYNTH_CPP_TYPE_KIND_VOID; }
+};
+
+class SynthCppPointerType : public SynthCppType {
+public:
+
+  SynthCppType* elementType;
+  SynthCppPointerType(SynthCppType* elem_) : elementType(elem_) {}
+
+  SynthCppType* getElementType() { return elementType; }
+
+  static bool classof(const SynthCppType* const tp) { return tp->getKind() == SYNTH_CPP_TYPE_KIND_POINTER; }
+  
+  virtual SynthCppTypeKind getKind() const { return SYNTH_CPP_TYPE_KIND_POINTER; }
 };
 
 class BinopExpr : public Expression {
@@ -711,6 +725,7 @@ maybe<SynthCppType*> parseType(ParseState<Token>& tokens) {
   // Check if its a pointer
   if (!tokens.atEnd() && (tokens.peekChar() == Token("*"))) {
     tokens.parseChar();
+    return new SynthCppPointerType(tp.get_value());
   }
 
   return tp;
@@ -1044,6 +1059,11 @@ public:
   }
 };
 
+llvm::Type* llvmPointerFor(SynthCppType* const tp) {
+  assert(SynthCppStructType::classof(tp));
+  return structType(static_cast<SynthCppStructType* const>(tp)->getName())->getPointerTo();
+}
+
 class SynthCppClass {
 };
 
@@ -1089,11 +1109,17 @@ public:
         vector<Type*> inputTypes;
         for (auto argDecl : fd->args) {
           cout << "\targ = " << argDecl->name << endl;
-          assert(SynthCppStructType::classof(argDecl->tp));
-          // TODO: Update for integers?
-          Type* argTp = structType(static_cast<SynthCppStructType*>(argDecl->tp)->getName());
-          cout << "Adding struct = " << typeString(argTp) << endl;
-          inputTypes.push_back(argTp);
+          if (SynthCppStructType::classof(argDecl->tp)) {
+            Type* argTp = structType(static_cast<SynthCppStructType*>(argDecl->tp)->getName());
+            cout << "Adding struct = " << typeString(argTp) << endl;
+            inputTypes.push_back(argTp);
+          } else {
+            assert(SynthCppPointerType::classof(argDecl->tp));
+            Type* argTp = llvmPointerFor(static_cast<SynthCppPointerType*>(argDecl->tp)->getElementType());
+            cout << "Adding pointer = " << typeString(argTp) << endl;
+            inputTypes.push_back(argTp);
+            
+          }
         }
 
         auto sf = new SynthCppFunction();
