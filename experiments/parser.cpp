@@ -1493,10 +1493,10 @@ int main() {
                     std::istreambuf_iterator<char>());
 
     auto tokens = tokenize(str);
-    cout << "Tokens" << endl;
-    for (auto t : tokens) {
-      cout << "\t" << t.getStr() << endl;
-    }
+    // cout << "Tokens" << endl;
+    // for (auto t : tokens) {
+    //   cout << "\t" << t.getStr() << endl;
+    // }
 
     ParserModule mod = parse(tokens);
 
