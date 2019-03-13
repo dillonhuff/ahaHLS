@@ -131,3 +131,4 @@ raw_axi_wr*
 vhls_target*
 parser
 count_packets*
+*.json
