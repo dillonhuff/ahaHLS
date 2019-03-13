@@ -379,9 +379,34 @@ public:
 
 maybe<Statement*> parseStatement(ParseState<Token>& tokens);
 
-class ArgumentDecl {
+class ArgumentDecl : public Statement {
 public:
-  
+
+  Type* tp;
+  Token name;
+  Expression* arraySize;
+
+  ArgumentDecl(Type* tp_, Token name_) : tp(tp_), name(name_), arraySize(nullptr) {}
+  ArgumentDecl(Type* tp_, Token name_, Expression* arraySize_) :
+    tp(tp_), name(name_), arraySize(arraySize_) {}  
+};
+
+class FunctionDecl : public Statement {
+public:
+  Type* returnType;
+  Token name;
+  std::vector<ArgumentDecl*> args;
+  std::vector<Statement*> body;
+
+  FunctionDecl(Type* returnType_,
+               Token name_,
+               std::vector<ArgumentDecl*>& args_,
+               std::vector<Statement*>& body_) :
+    returnType(returnType_),
+    name(name_),
+    args(args_),
+    body(body_) {}
+
 };
 
 class ParserModule {
@@ -613,14 +638,14 @@ maybe<ArgumentDecl*> parseArgDeclMaybe(ParseState<Token>& tokens) {
     if (tokens.peekChar() == Token("]")) {
       tokens.parseChar();
 
-      return new ArgumentDecl();
+      return new ArgumentDecl(tp.get_value(), argName, e.get_value());
     } else {
       return maybe<ArgumentDecl*>();      
     }
     
   }
 
-  return new ArgumentDecl();
+  return new ArgumentDecl(tp.get_value(), argName);
 }
 
 ArgumentDecl* parseArgDecl(ParseState<Token>& tokens) {
@@ -660,7 +685,7 @@ maybe<Statement*> parseFuncDecl(ParseState<Token>& tokens) {
 
     assert(tokens.parseChar() == Token("}"));
     
-    return new Statement();
+    return new FunctionDecl(tp.get_value(), funcName, classStmts, funcStmts);
   }
 
   return maybe<Statement*>();
@@ -770,11 +795,6 @@ maybe<Statement*> parseForLoop(ParseState<Token>& tokens) {
   }
 
   cout << "Getting for test " << tokens.remainder() << endl;
-
-  // if (!tokens.nextCharIs(Token(";"))) {
-  //   return maybe<Statement*>();
-  // }
-  // tokens.parseChar();
 
   auto test = parseExpressionMaybe(tokens);
   if (!test.has_value()) {
