@@ -132,3 +132,4 @@ vhls_target*
 parser
 count_packets*
 *.json
+synthesize-interface-functions
