@@ -5,9 +5,11 @@
 #include <sstream>
 #include <functional>
 
+#include "llvm_codegen.h"
 #include "verilog_backend.h"
 
 using namespace dbhc;
+using namespace DHLS;
 using namespace std;
 
 enum TokenType {
@@ -977,6 +979,10 @@ ParserModule parse(const std::vector<Token>& tokens) {
   return m;
 }
 
+void compileIR(ParserModule& parseMod, llvm::Module* mod) {
+  
+}
+
 int main() {
   {
     string test = "class ip_header { };";
@@ -1325,11 +1331,21 @@ int main() {
       cout << "\t" << t.getStr() << endl;
     }
 
-    ParserModule mod = parse(tokens);
+    ParserModule parseMod = parse(tokens);
 
-    cout << mod << endl;
+    cout << parseMod << endl;
 
-    assert(mod.getStatements().size() == 1);
+    assert(parseMod.getStatements().size() == 1);
+
+    // Emit code for module
+    SynthCppModule scppMod;
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+    auto mod = llvm::make_unique<Module>("simple LLVM accumulate loop", context);
+    compileIR(parseMod, mod.get());
+
+    assert(scppMod.getClasses().size() == 1);
+    assert(scppMod.getFunctions().size() == 1);    
   }
 
   {

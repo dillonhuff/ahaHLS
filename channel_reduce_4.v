@@ -43,12 +43,6 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 
 	add call_6();
 
-	add alloca_0();
-
-	add bitcast_1();
-
-	add call_2();
-
 	br_dummy br_unit();
 
 	add call_19();
@@ -73,6 +67,12 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	reg [31:0] cmp_in1_icmp_10;
 	wire [0:0] cmp_out_icmp_10;
 	eq #(.WIDTH(32)) icmp_10(.in0(cmp_in0_icmp_10), .in1(cmp_in1_icmp_10), .out(cmp_out_icmp_10));
+
+	add alloca_0();
+
+	add bitcast_1();
+
+	add call_2();
 
 	// End Functional Units
 
