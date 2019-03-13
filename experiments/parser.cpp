@@ -1013,6 +1013,14 @@ ParserModule parse(const std::vector<Token>& tokens) {
 
 
 class SynthCppFunction {
+public:
+  Token nameToken;
+  llvm::Function* func;
+  llvm::Function* llvmFunction() { return func; }
+
+  std::string getName() const {
+    return nameToken.getStr();
+  }
 };
 
 class SynthCppClass {
@@ -1020,14 +1028,21 @@ class SynthCppClass {
 
 class SynthCppModule {
 
+  HardwareConstraints hcs;
+  InterfaceFunctions interfaces;
+  
 public:
 
   llvm::LLVMContext context;
   unique_ptr<llvm::Module> mod;
   std::vector<SynthCppClass*> classes;
   std::vector<SynthCppFunction*> functions;
+  // Note: Maybe this should be in SynthCppFunction
+  std::set<BasicBlock*> blocksToPipeline;
+
   
   SynthCppModule(ParserModule& parseRes) {
+    hcs = standardConstraints();
     mod = llvm::make_unique<Module>("synth_cpp", context);
     setGlobalLLVMContext(&context);
     setGlobalLLVMModule(mod.get());
@@ -1044,11 +1059,46 @@ public:
       if (ClassDecl::classof(stmt)) {
         classes.push_back(new SynthCppClass());
       } else if (FunctionDecl::classof(stmt)) {
-        functions.push_back(new SynthCppFunction);
+        auto fd = static_cast<FunctionDecl*>(stmt);
+        vector<Type*> inputTypes;
+
+        auto sf = new SynthCppFunction();
+        sf->nameToken = fd->name;
+        llvm::Function* f = mkFunc(inputTypes, voidType(), sf->getName());
+        auto bb = mkBB("entry_block", f);
+        IRBuilder<> b(bb);
+        b.CreateRet(nullptr);
+        
+        sf->func = f;
+
+        functions.push_back(sf);
       }
     }
   }
 
+  SynthCppFunction* getFunction(const std::string& name) {
+    for (auto f : functions) {
+      cout << "f name = " << f->getName() << endl;
+      cout << "name   = " << name << endl;
+      if (f->getName() == name) {
+        return f;
+      }
+    }
+    assert(false);
+  }
+
+  HardwareConstraints& getHardwareConstraints() {
+    return hcs;
+  }
+
+  InterfaceFunctions& getInterfaceFunctions() {
+    return interfaces;
+  }
+
+  std::set<BasicBlock*>& getBlocksToPipeline() {
+    return blocksToPipeline;
+  }
+  
   std::vector<SynthCppClass*> getClasses() const {
     return classes;
   }
@@ -1063,6 +1113,17 @@ void compileIR(ParserModule& parseMod, llvm::Module* mod) {
   
 }
 
+
+void synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
+  SynthCppFunction* f = scppMod.getFunction(funcName);
+
+  // Q: How do we pass the hardware constraints on f in to the synthesis flow?
+  Schedule s = scheduleInterface(f->llvmFunction(), scppMod.getHardwareConstraints(), scppMod.getInterfaceFunctions(), scppMod.getBlocksToPipeline());
+  STG graph = buildSTG(s, f->llvmFunction());
+
+  cout << "STG is" << endl;
+  graph.print(cout);
+}
 
 int main() {
   {
@@ -1421,7 +1482,9 @@ int main() {
     SynthCppModule scppMod(parseMod);
 
     assert(scppMod.getClasses().size() == 1);
-    assert(scppMod.getFunctions().size() == 1);    
+    assert(scppMod.getFunctions().size() == 1);
+
+    synthesizeVerilog(scppMod, "filter_ram");
   }
 
   {
