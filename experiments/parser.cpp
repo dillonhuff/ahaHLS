@@ -309,9 +309,36 @@ class Expression {
   
 };
 
-class Identifier : public Expression {
+class FunctionCall : public Expression {
+public:
+  Token funcName;
+  std::vector<Expression*> args;
+
+  FunctionCall(const Token funcName_,
+               const std::vector<Expression*>& args_) :
+    funcName(funcName_), args(args_) {}
+
+};
+
+class MethodCall : public Expression {
+
 public:
   
+  Token callerName;
+  FunctionCall* called;
+
+  MethodCall(const Token callerName_,
+             FunctionCall* called_) :
+    callerName(callerName_), called(called_) {}
+
+};
+
+class Identifier : public Expression {
+public:
+
+  Token name;
+  
+  Identifier(const Token name_) : name(name_) {}
 };
 
 class TemplateType : public Type {
@@ -328,6 +355,11 @@ public:
 };
 
 class StructType : public Type {
+public:
+
+  Token name;
+
+  StructType(const Token name_) : name(name_) {}
 };
 
 class VoidType : public Type {
@@ -389,13 +421,13 @@ maybe<Token> parseComma(ParseState<Token>& tokens) {
 maybe<Identifier*> parseId(ParseState<Token>& tokens) {
   Token t = tokens.parseChar();
   if (t.isId()) {
-    return new Identifier();
+    return new Identifier(t);
   }
 
   return maybe<Identifier*>();
 }
 
-maybe<Expression*> parseFunctionCall(ParseState<Token>& tokens);
+maybe<FunctionCall*> parseFunctionCall(ParseState<Token>& tokens);
 
 maybe<Expression*> parseMethodCall(ParseState<Token>& tokens) {
   Token t = tokens.parseChar();
@@ -410,9 +442,9 @@ maybe<Expression*> parseMethodCall(ParseState<Token>& tokens) {
   }
 
   cout << "-- In method call, parsing function call " << tokens.remainder() << endl;
-  maybe<Expression*> fCall = parseFunctionCall(tokens);
+  maybe<FunctionCall*> fCall = parseFunctionCall(tokens);
   if (fCall.has_value()) {
-    return new Expression();
+    return new MethodCall(paren, fCall.get_value());
   }
 
   return maybe<Expression*>();
@@ -432,16 +464,16 @@ maybe<Expression*> parsePrimitiveExpressionMaybe(ParseState<Token>& tokens) {
     if (inner.has_value()) {
       if (tokens.nextCharIs(Token(")"))) {
         tokens.parseChar();
-        return new Expression();
+        return inner;
       }
     }
     return maybe<Expression*>();
   }
 
   
-  auto fCall = tryParse<Expression*>(parseFunctionCall, tokens);
+  auto fCall = tryParse<FunctionCall*>(parseFunctionCall, tokens);
   if (fCall.has_value()) {
-    return fCall;
+    return fCall.get_value();
   }
 
   //cout << "---- Trying to parse method call " << tokens.remainder() << endl;
@@ -466,15 +498,15 @@ maybe<Expression*> parsePrimitiveExpressionMaybe(ParseState<Token>& tokens) {
   return maybe<Expression*>();
 }
 
-maybe<Expression*> parseFunctionCall(ParseState<Token>& tokens) {
+maybe<FunctionCall*> parseFunctionCall(ParseState<Token>& tokens) {
   Token t = tokens.parseChar();
   if (!t.isId()) {
-    return maybe<Expression*>();
+    return maybe<FunctionCall*>();
   }
 
   Token paren = tokens.parseChar();
   if (paren != Token("(")) {
-    return maybe<Expression*>();
+    return maybe<FunctionCall*>();
   }
 
   //cout << "parsing funcall " << tokens.remainder() << endl;
@@ -483,10 +515,10 @@ maybe<Expression*> parseFunctionCall(ParseState<Token>& tokens) {
 
   paren = tokens.parseChar();
   if (paren != Token(")")) {
-    return maybe<Expression*>();
+    return maybe<FunctionCall*>();
   }
 
-  return new Expression();
+  return new FunctionCall(t, callArgs);
 }
 
 maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
@@ -523,23 +555,10 @@ maybe<Type*> parseBaseType(ParseState<Token>& tokens) {
 
     Token tpName = tokens.parseChar();
 
-    //cout << tokens.peekChar() << " is id ? " << tokens.peekChar().isId() << endl;
-    //if (tokens.peekChar().isId()) {
     if (tokens.atEnd() || (tokens.peekChar() != Token("<"))) {
-      return new StructType();
+      return new StructType(tpName);
     }
 
-    if (tokens.peekChar() == Token("<")) {
-      tokens.parseChar();
-      vector<Expression*> exprs =
-        sepBtwn<Expression*, Token>(parseExpression, parseComma, tokens);
-
-      //cout << "remainder after getting expressions = " << tokens.remainder() << endl;
-      assert(tokens.peekChar() == Token(">"));
-      tokens.parseChar();
-
-      return new TemplateType(exprs);
-    }
   }
 
   if (tokens.peekChar() == Token("void")) {
@@ -671,7 +690,7 @@ maybe<Token> parseLabel(ParseState<Token>& tokens) {
 }
 
 maybe<Statement*> parseFunctionCallStmt(ParseState<Token>& tokens) {
-  maybe<Expression*> p = parseFunctionCall(tokens);
+  maybe<FunctionCall*> p = parseFunctionCall(tokens);
   if (!p.has_value()) {
     return maybe<Statement*>();
   }
@@ -867,9 +886,6 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
   tokens.setPos(posBefore);
 
   //cout << "&& Statement after trying argDecl " << tokens.remainder() << endl;    
-
-  // Try to parse function declaration
-  //auto call = tryParse<Statement*>(parseFunctionCallStmt, tokens);
 
   auto call = tryParse<Expression*>(parseExpressionMaybe, tokens);
 
