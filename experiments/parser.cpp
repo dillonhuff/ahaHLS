@@ -365,6 +365,16 @@ public:
 class VoidType : public Type {
 };
 
+class BinopExpr : public Expression {
+public:
+  Expression* lhs;
+  Token op;
+  Expression* rhs;
+  
+  BinopExpr(Expression* lhs_, Token op_, Expression* rhs_) :
+    lhs(lhs_), op(op_), rhs(rhs_) {}
+};
+
 class IntegerExpr : public Expression {
   std::string digits;
   
@@ -375,6 +385,15 @@ public:
 class Statement {
 public:
   
+};
+
+class ClassDecl : public Statement {
+public:
+  Token name;
+  std::vector<Statement*> body;
+
+  ClassDecl(Token name_, std::vector<Statement*>& body_) :
+    name(name_), body(body_) {}
 };
 
 class AssignStmt : public Statement {
@@ -591,7 +610,7 @@ maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
   Token binop = tokens.parseChar();
   auto rest = parseExpressionMaybe(tokens);
 
-  return rest;
+  return new BinopExpr(pExpr.get_value(), binop, rest.get_value());
 }
 
 Expression* parseExpression(ParseState<Token>& tokens) {
@@ -883,8 +902,9 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
 
     assert(tokens.parseChar() == Token("}"));
     assert(tokens.parseChar() == Token(";"));
-    
-    return new Statement();
+
+    return new ClassDecl(name, classStmts);
+    //return new Statement();
   }
 
   maybe<Statement*> funcDecl =
@@ -909,37 +929,24 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
   // Should do: tryParse function declaration
   // Then: tryParse member declaration
   int posBefore = tokens.currentPos();
-  //cout << "posBefore = " << posBefore << endl;
   auto decl = tryParse<ArgumentDecl*>(parseArgDeclMaybe, tokens);
-  //int posAfter = tokens.currentPos();
-  //cout << "posAfter = " << posAfter << endl;
-
-  //assert(posBefore == posAfter);
   
   if (decl.has_value()) {
     if (tokens.peekChar() == Token(";")) {
       tokens.parseChar();
-      return new Statement();
+      return decl.get_value();
     }
   }
 
-  // TODO: Wrap in try
   tokens.setPos(posBefore);
-
-  //cout << "&& Statement after trying argDecl " << tokens.remainder() << endl;    
 
   auto call = tryParse<Expression*>(parseExpressionMaybe, tokens);
 
-  //cout << "&& Statement after trying expression " << tokens.remainder() << endl;      
-
   if (call.has_value() && tokens.nextCharIs(Token(";"))) {
     tokens.parseChar();
-    return new Statement();
+    return new ExpressionStmt(call.get_value());
   }
 
-  //cout << "Statement after trying expression " << tokens.remainder() << endl;      
-
-  //cout << "Cannot parse statement " << tokens.remainder() << endl;
 
   return maybe<Statement*>();
 }
