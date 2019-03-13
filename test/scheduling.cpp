@@ -82,39 +82,6 @@ namespace DHLS {
     return {modParams, "axi_read_handler", ports, defaults};
   }
 
-  ModuleSpec ramSpecFunc(llvm::StructType* tp) {
-    auto elems = tp->elements();
-    assert(elems.size() == 1);
-
-    Type* internalArray = elems[0];
-    assert(ArrayType::classof(internalArray));
-
-    ArrayType* arrTp = dyn_cast<ArrayType>(internalArray);
-    return ramSpec(getTypeBitWidth(arrTp->getElementType()), arrTp->getNumElements(), 1, 1);
-  }
-
-  ModuleSpec ram2SpecFunc(llvm::StructType* tp) {
-    auto elems = tp->elements();
-    assert(elems.size() == 1);
-
-    Type* internalArray = elems[0];
-    assert(ArrayType::classof(internalArray));
-
-    ArrayType* arrTp = dyn_cast<ArrayType>(internalArray);
-    return ramSpec(getTypeBitWidth(arrTp->getElementType()), arrTp->getNumElements(), 2, 1);
-  }
-
-  ModuleSpec ram3SpecFunc(llvm::StructType* tp) {
-    auto elems = tp->elements();
-    assert(elems.size() == 1);
-
-    Type* internalArray = elems[0];
-    assert(ArrayType::classof(internalArray));
-
-    ArrayType* arrTp = dyn_cast<ArrayType>(internalArray);
-    return ramSpec(getTypeBitWidth(arrTp->getElementType()), arrTp->getNumElements(), 3, 1);
-  }
-  
   // Q: System TODOs:
   // A: Remove useless address fields from registers (allow custom memory interfaces)
   //    Move test layout into testbenchspec

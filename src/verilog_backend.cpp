@@ -134,7 +134,10 @@ namespace DHLS {
     for (auto& arg : arch.stg.getFunction()->args()) {
       if (!PointerType::classof(arg.getType())) {
         Type* tp = arg.getType();
-        assert(IntegerType::classof(tp));
+        if (!IntegerType::classof(tp)) {
+          cout << "Error: non integer type passed by value = " << typeString(tp) << endl;
+          assert(IntegerType::classof(tp));
+        }
         auto iTp = dyn_cast<IntegerType>(tp);
         string name = valueArgName(&arg);
         pts.push_back(inputPort(getTypeBitWidth(iTp), name));

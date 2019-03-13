@@ -304,7 +304,16 @@ namespace DHLS {
   static inline
   llvm::Function* fifoWrite(const int width) {
     return fifoWrite(width, &getGlobalLLVMModule());
-  }  
+  }
+
+  static inline llvm::StructType* structType(const std::string name) {
+    auto n = getGlobalLLVMModule().getTypeByName(name);
+    if (n == nullptr) {
+      return llvm::StructType::create(getGlobalLLVMContext(), name);
+    }
+
+    return n;
+  }
   
   static inline
   llvm::Function* writePort(const std::string& portName,

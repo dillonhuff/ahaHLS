@@ -1532,6 +1532,11 @@ namespace DHLS {
 
   void implementIncrement(llvm::Function* f, ExecutionConstraints& exec);
   void implementGetAddrsRV(llvm::Function* f, ExecutionConstraints& exec);
+
+  ModuleSpec ramSpecFunc(llvm::StructType* tp);
+  ModuleSpec ram2SpecFunc(llvm::StructType* tp);
+  ModuleSpec ram3SpecFunc(llvm::StructType* tp);
+
 }
 
 

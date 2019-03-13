@@ -306,9 +306,6 @@ std::vector<Token> tokenize(const std::string& classCode) {
   return tokens;
 }
 
-class SynthCppType {
-};
-
 class Expression {
   
 };
@@ -345,6 +342,19 @@ public:
   Identifier(const Token name_) : name(name_) {}
 };
 
+enum SynthCppTypeKind {
+  SYNTH_CPP_TYPE_KIND_STRUCT,
+  SYNTH_CPP_TYPE_KIND_VOID
+};
+class SynthCppType {
+public:
+
+  virtual SynthCppTypeKind getKind() const { assert(false); }
+
+  virtual ~SynthCppType() {
+  }
+};
+
 class TemplateType : public SynthCppType {
 public:
   std::vector<Expression*> exprs;
@@ -364,9 +374,20 @@ public:
   Token name;
 
   SynthCppStructType(const Token name_) : name(name_) {}
+
+  std::string getName() const { return name.getStr(); }
+
+  virtual SynthCppTypeKind getKind() const { return SYNTH_CPP_TYPE_KIND_STRUCT; }
+
+  static bool classof(const SynthCppType* const tp) { return tp->getKind() == SYNTH_CPP_TYPE_KIND_STRUCT; }
 };
 
 class VoidType : public SynthCppType {
+public:
+
+  static bool classof(const SynthCppType* const tp) { return tp->getKind() == SYNTH_CPP_TYPE_KIND_VOID; }
+  
+  virtual SynthCppTypeKind getKind() const { return SYNTH_CPP_TYPE_KIND_VOID; }
 };
 
 class BinopExpr : public Expression {
@@ -1043,6 +1064,8 @@ public:
   
   SynthCppModule(ParserModule& parseRes) {
     hcs = standardConstraints();
+    hcs.typeSpecs["ram"] = ramSpecFunc;
+    
     mod = llvm::make_unique<Module>("synth_cpp", context);
     setGlobalLLVMContext(&context);
     setGlobalLLVMModule(mod.get());
@@ -1050,6 +1073,9 @@ public:
     // Also need: storage for clases and functions,
     // storage for module specifications and hardware
     // constraints.
+
+    // TODO: If we eventually have parametric classes, we will need to
+    // build the type mapping for them?
 
     for (auto stmt : parseRes.getStatements()) {
       // Note: Part of the virtue of <classname>::classof(obj) instead of obj->type() == CLASS_ENUM
@@ -1061,9 +1087,19 @@ public:
       } else if (FunctionDecl::classof(stmt)) {
         auto fd = static_cast<FunctionDecl*>(stmt);
         vector<Type*> inputTypes;
+        for (auto argDecl : fd->args) {
+          cout << "\targ = " << argDecl->name << endl;
+          assert(SynthCppStructType::classof(argDecl->tp));
+          // TODO: Update for integers?
+          Type* argTp = structType(static_cast<SynthCppStructType*>(argDecl->tp)->getName());
+          cout << "Adding struct = " << typeString(argTp) << endl;
+          inputTypes.push_back(argTp);
+        }
 
         auto sf = new SynthCppFunction();
         sf->nameToken = fd->name;
+
+        // Add return type
         llvm::Function* f = mkFunc(inputTypes, voidType(), sf->getName());
         auto bb = mkBB("entry_block", f);
         IRBuilder<> b(bb);
@@ -1123,6 +1159,8 @@ void synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
 
   cout << "STG is" << endl;
   graph.print(cout);
+  map<Value*, int> layout;
+  emitVerilog(f->llvmFunction(), graph, layout);
 }
 
 int main() {
