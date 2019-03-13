@@ -384,7 +384,12 @@ public:
 
 class Statement {
 public:
-  
+  Token label;
+
+  void setLabel(const Token l) {
+    label = l;
+  }
+
 };
 
 class ClassDecl : public Statement {
@@ -872,19 +877,7 @@ maybe<Statement*> parseForLoop(ParseState<Token>& tokens) {
   
 }
 
-maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
-  cout << "Starting to parse statement " << tokens.remainder() << endl;
-  
-  if (tokens.atEnd()) {
-    return maybe<Statement*>();
-  }
-  
-  // Try to parse a label?
-  auto label = tryParse<Token>(parseLabel, tokens);
-
-
-  cout << "Statement after label " << tokens.remainder() << endl;
-
+maybe<Statement*> parseStatementNoLabel(ParseState<Token>& tokens) {
   // Try to parse for loop
   auto forStmt = tryParse<Statement*>(parseForLoop, tokens);
   if (forStmt.has_value()) {
@@ -949,6 +942,27 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
 
 
   return maybe<Statement*>();
+}
+
+maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
+  cout << "Starting to parse statement " << tokens.remainder() << endl;
+  
+  if (tokens.atEnd()) {
+    return maybe<Statement*>();
+  }
+  
+  // Try to parse a label?
+  auto label = tryParse<Token>(parseLabel, tokens);
+  cout << "Statement after label " << tokens.remainder() << endl;
+  
+  auto stmt = parseStatementNoLabel(tokens);
+
+  if (label.has_value()) {
+    auto stmtV = stmt.get_value();
+    stmtV->setLabel(label.get_value());
+    return stmtV;
+  }
+  return stmt;
 }
 
 ParserModule parse(const std::vector<Token>& tokens) {
