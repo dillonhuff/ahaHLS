@@ -424,8 +424,10 @@ public:
 enum StatementKind {
   STATEMENT_KIND_CLASS_DECL,
   STATEMENT_KIND_FUNCTION_DECL,
+  STATEMENT_KIND_ARG_DECL,  
   STATEMENT_KIND_ASSIGN,
-  STATEMENT_KIND_FOR
+  STATEMENT_KIND_FOR,
+  STATEMENT_KIND_EXPRESSION
 };
 
 class Statement {
@@ -469,6 +471,15 @@ public:
   Expression* expr;
 
   AssignStmt(Token var_, Expression* expr_) : var(var_), expr(expr_) {}
+
+  static bool classof(const Statement* const stmt) {
+    return stmt->getKind() == STATEMENT_KIND_ASSIGN;
+  }
+
+  virtual StatementKind getKind() const {
+    return STATEMENT_KIND_ASSIGN;
+  }
+  
 };
 
 class ForStmt : public Statement {
@@ -483,6 +494,14 @@ public:
           Statement* update_,
           std::vector<Statement*>& stmts_) :
   init(init_), exitTest(exitTest_), update(update_), stmts(stmts_) {}
+
+  static bool classof(const Statement* const stmt) {
+    return stmt->getKind() == STATEMENT_KIND_FOR;
+  }
+
+  virtual StatementKind getKind() const {
+    return STATEMENT_KIND_FOR;
+  }
   
 };
 
@@ -491,6 +510,15 @@ public:
   Expression* expr;
 
   ExpressionStmt(Expression* expr_) : expr(expr_) {}
+
+  static bool classof(const Statement* const stmt) {
+    return stmt->getKind() == STATEMENT_KIND_EXPRESSION;
+  }
+
+  virtual StatementKind getKind() const {
+    return STATEMENT_KIND_EXPRESSION;
+  }
+  
 };
 
 maybe<Statement*> parseStatement(ParseState<Token>& tokens);
@@ -504,7 +532,16 @@ public:
 
   ArgumentDecl(SynthCppType* tp_, Token name_) : tp(tp_), name(name_), arraySize(nullptr) {}
   ArgumentDecl(SynthCppType* tp_, Token name_, Expression* arraySize_) :
-    tp(tp_), name(name_), arraySize(arraySize_) {}  
+    tp(tp_), name(name_), arraySize(arraySize_) {}
+
+  static bool classof(const Statement* const stmt) {
+    return stmt->getKind() == STATEMENT_KIND_ARG_DECL;
+  }
+
+  virtual StatementKind getKind() const {
+    return STATEMENT_KIND_ARG_DECL;
+  }
+  
 };
 
 class FunctionDecl : public Statement {
@@ -1129,12 +1166,32 @@ public:
         llvm::Function* f = mkFunc(inputTypes, voidType(), sf->getName());
         auto bb = mkBB("entry_block", f);
         IRBuilder<> b(bb);
+        // Now need to iterate over all statements in the body creating labels that map to starts and ends of statements
+        // and also adding code for each statement to the resulting function, f.
+        for (auto stmt : fd->body) {
+          genLLVM(b, stmt);
+          cout << "Statement" << endl;
+        }
         b.CreateRet(nullptr);
         
         sf->func = f;
 
         functions.push_back(sf);
       }
+    }
+  }
+
+  void genLLVM(IRBuilder<>& b, Expression* const stmt) {
+  }
+  
+  void genLLVM(IRBuilder<>& b, Statement* const stmt) {
+    if (ExpressionStmt::classof(stmt)) {
+      auto es = static_cast<ExpressionStmt* const>(stmt);
+      Expression* e = es->expr;
+      genLLVM(b, e);
+    } else {
+      // Add support for variable declarations, assignments, and for loops
+      cout << "No support for code generation for statement" << endl;
     }
   }
 
