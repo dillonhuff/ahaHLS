@@ -1152,8 +1152,19 @@ public:
   // Note: Maybe this should be in SynthCppFunction
   std::set<BasicBlock*> blocksToPipeline;
 
+  SynthCppFunction* activeFunction;
+
+  int globalNum;
+
+  std::string uniqueNumString() {
+    auto s = std::to_string(globalNum);
+    globalNum++;
+    return s;
+  }
+
   
   SynthCppModule(ParserModule& parseRes) {
+    globalNum = 0;
     hcs = standardConstraints();
     hcs.typeSpecs["ram"] = ramSpecFunc;
     
@@ -1193,25 +1204,35 @@ public:
         IRBuilder<> b(bb);
         // Now need to iterate over all statements in the body creating labels that map to starts and ends of statements
         // and also adding code for each statement to the resulting function, f.
+        sf->func = f;        
+        activeFunction = sf;
         for (auto stmt : fd->body) {
           genLLVM(b, stmt);
           cout << "Statement" << endl;
         }
-        b.CreateRet(nullptr);
-        
-        sf->func = f;
+
 
         functions.push_back(sf);
       }
     }
   }
 
-  void genLLVM(IRBuilder<>& b, Expression* const stmt) {
+  void genLLVM(IRBuilder<>& b, Expression* const e) {
+    
   }
 
+  void genLLVM(IRBuilder<>& b, ForStmt* const stmt) {
+    auto loopInitTest = mkBB( "for_blk_init_test_" + uniqueNumString(), activeFunction->llvmFunction());
+    b.CreateBr(loopInitTest);
+    // Actually schedule loop
+    IRBuilder<> loopBuilder(loopInitTest);
+    loopBuilder.CreateRet(nullptr);
+  }
+  
   void genLLVM(IRBuilder<>& b, ArgumentDecl* const decl) {
     string valName = decl->name.getStr();
     Type* tp = llvmTypeFor(decl->tp);
+    // TODO: add to name map?
     b.CreateAlloca(tp, nullptr, valName);
   }
   
@@ -1223,6 +1244,9 @@ public:
     } else if (ArgumentDecl::classof(stmt)) {
       auto decl = static_cast<ArgumentDecl* const>(stmt);
       genLLVM(b, decl);
+    } else if (ForStmt::classof(stmt)) {
+      auto loop = static_cast<ForStmt* const>(stmt);
+      genLLVM(b, loop);
     } else {
       // Add support for variable declarations, assignments, and for loops
       cout << "No support for code generation for statement" << endl;
