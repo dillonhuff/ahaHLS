@@ -49,4 +49,4 @@ target_link_libraries(synthesize-interface-functions dhls ${llvm_libs})
 
 SET(ALL_PARSER_FILES experiments/parser.cpp)
 add_executable(parser ${ALL_PARSER_FILES})
-# target_link_libraries(parser dhls ${llvm_libs})
+target_link_libraries(parser dhls ${llvm_libs})

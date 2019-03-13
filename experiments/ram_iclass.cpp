@@ -17,4 +17,16 @@ class ram {
     add_constraint(start(set_wdata) + 3 == end(set_waddr));
   }
 
+  bit_32 read(bit_5 addr) {
+  set_addr:
+    set_port(raddr, addr);
+
+    bit_32 res;
+
+  read_data:
+    res = read_port(rdata);
+
+    add_constraint(start(read_data) - 1 == end(set_addr));
+  }
+
 };

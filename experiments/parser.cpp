@@ -5,6 +5,8 @@
 #include <sstream>
 #include <functional>
 
+#include "verilog_backend.h"
+
 using namespace dbhc;
 using namespace std;
 
@@ -302,7 +304,7 @@ std::vector<Token> tokenize(const std::string& classCode) {
   return tokens;
 }
 
-class Type {
+class SynthCppType {
 };
 
 class Expression {
@@ -341,7 +343,7 @@ public:
   Identifier(const Token name_) : name(name_) {}
 };
 
-class TemplateType : public Type {
+class TemplateType : public SynthCppType {
 public:
   std::vector<Expression*> exprs;
 
@@ -354,15 +356,15 @@ public:
   }
 };
 
-class StructType : public Type {
+class SynthCppStructType : public SynthCppType {
 public:
 
   Token name;
 
-  StructType(const Token name_) : name(name_) {}
+  SynthCppStructType(const Token name_) : name(name_) {}
 };
 
-class VoidType : public Type {
+class VoidType : public SynthCppType {
 };
 
 class BinopExpr : public Expression {
@@ -436,23 +438,23 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens);
 class ArgumentDecl : public Statement {
 public:
 
-  Type* tp;
+  SynthCppType* tp;
   Token name;
   Expression* arraySize;
 
-  ArgumentDecl(Type* tp_, Token name_) : tp(tp_), name(name_), arraySize(nullptr) {}
-  ArgumentDecl(Type* tp_, Token name_, Expression* arraySize_) :
+  ArgumentDecl(SynthCppType* tp_, Token name_) : tp(tp_), name(name_), arraySize(nullptr) {}
+  ArgumentDecl(SynthCppType* tp_, Token name_, Expression* arraySize_) :
     tp(tp_), name(name_), arraySize(arraySize_) {}  
 };
 
 class FunctionDecl : public Statement {
 public:
-  Type* returnType;
+  SynthCppType* returnType;
   Token name;
   std::vector<ArgumentDecl*> args;
   std::vector<Statement*> body;
 
-  FunctionDecl(Type* returnType_,
+  FunctionDecl(SynthCppType* returnType_,
                Token name_,
                std::vector<ArgumentDecl*>& args_,
                std::vector<Statement*>& body_) :
@@ -627,7 +629,7 @@ Expression* parseExpression(ParseState<Token>& tokens) {
   assert(false);
 }
 
-maybe<Type*> parseBaseType(ParseState<Token>& tokens) {
+maybe<SynthCppType*> parseBaseType(ParseState<Token>& tokens) {
   if (tokens.peekChar().isId()) {
     
     //cout << tokens.peekChar() << " is id" << endl;    
@@ -635,7 +637,7 @@ maybe<Type*> parseBaseType(ParseState<Token>& tokens) {
     Token tpName = tokens.parseChar();
 
     if (tokens.atEnd() || (tokens.peekChar() != Token("<"))) {
-      return new StructType(tpName);
+      return new SynthCppStructType(tpName);
     }
 
   }
@@ -645,10 +647,10 @@ maybe<Type*> parseBaseType(ParseState<Token>& tokens) {
     return new VoidType();
   }
 
-  return maybe<Type*>();
+  return maybe<SynthCppType*>();
 }
 
-maybe<Type*> parseType(ParseState<Token>& tokens) {
+maybe<SynthCppType*> parseType(ParseState<Token>& tokens) {
   auto tp = parseBaseType(tokens);
 
   // Check if its a pointer
@@ -662,7 +664,7 @@ maybe<Type*> parseType(ParseState<Token>& tokens) {
 maybe<ArgumentDecl*> parseArgDeclMaybe(ParseState<Token>& tokens) {
   // cout << "Parsing arg declaration = " << tokens.remainder() << endl;
   // cout << "Remaining tokens = " << tokens.remainderSize() << endl;
-  maybe<Type*> tp = parseType(tokens);
+  maybe<SynthCppType*> tp = parseType(tokens);
 
   if (!tp.has_value()) {
     return maybe<ArgumentDecl*>();
@@ -712,7 +714,7 @@ ArgumentDecl* parseArgDecl(ParseState<Token>& tokens) {
 }
 
 maybe<Statement*> parseFuncDecl(ParseState<Token>& tokens) {
-  maybe<Type*> tp = tryParse<Type*>(parseType, tokens);
+  maybe<SynthCppType*> tp = tryParse<SynthCppType*>(parseType, tokens);
   if (!tp.has_value()) {
     return maybe<Statement*>();
   }
@@ -1347,5 +1349,5 @@ int main() {
 
     assert(mod.getStatements().size() == 2);
   }
-  
+
 }
