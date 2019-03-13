@@ -377,6 +377,36 @@ public:
   
 };
 
+class AssignStmt : public Statement {
+public:
+  Token var;
+  Expression* expr;
+
+  AssignStmt(Token var_, Expression* expr_) : var(var_), expr(expr_) {}
+};
+
+class ForStmt : public Statement {
+public:
+  Statement* init;
+  Expression* exitTest;
+  Statement* update;
+  std::vector<Statement*> stmts;
+
+  ForStmt(Statement* init_,
+          Expression* exitTest_,
+          Statement* update_,
+          std::vector<Statement*>& stmts_) :
+  init(init_), exitTest(exitTest_), update(update_), stmts(stmts_) {}
+  
+};
+
+class ExpressionStmt : public Statement {
+public:
+  Expression* expr;
+
+  ExpressionStmt(Expression* expr_) : expr(expr_) {}
+};
+
 maybe<Statement*> parseStatement(ParseState<Token>& tokens);
 
 class ArgumentDecl : public Statement {
@@ -725,21 +755,11 @@ maybe<Statement*> parseFunctionCallStmt(ParseState<Token>& tokens) {
     return maybe<Statement*>();
   }
 
-  return new Statement();
+  return new ExpressionStmt(static_cast<FunctionCall*>(p.get_value()));
 }
 
 maybe<Statement*> parseAssignStmt(ParseState<Token>& tokens) {
   cout << "Starting parse assign \" " << tokens.remainder() << "\"" << endl;
-  //cout << "Remaining tokens = " << tokens.remainderSize() << endl;
-  
-  //auto tp = tryParse<Type*>(parseType, tokens);
-  //cout << "Found type = " << tp.has_value() << endl;
-  //cout << "Remainder after type = " << tokens.remainder() << endl;
-  // if (!tp.has_value()) {
-  //   return maybe<Statement*>();
-  // }
-
-  //cout << "After type remainder is \"" << tokens.remainder() << "\"" << endl;  
 
   if (tokens.atEnd()) {
     return maybe<Statement*>();
@@ -769,7 +789,8 @@ maybe<Statement*> parseAssignStmt(ParseState<Token>& tokens) {
   // Token delim = tokens.parseChar();
   // assert((delim == Token(";")) || (delim == Token("")));
 
-  return new Statement();
+  return new AssignStmt(id, r.get_value());
+  //return new Statement();
 }
 maybe<Statement*> parseForLoop(ParseState<Token>& tokens) {
 
@@ -828,7 +849,7 @@ maybe<Statement*> parseForLoop(ParseState<Token>& tokens) {
   }
   tokens.parseChar();
 
-  return new Statement();
+  return new ForStmt(init.get_value(), test.get_value(), update.get_value(), stmts);
   
 }
 
