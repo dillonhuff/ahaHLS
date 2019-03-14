@@ -306,7 +306,20 @@ std::vector<Token> tokenize(const std::string& classCode) {
   return tokens;
 }
 
+enum ExpressionKind {
+  EXPRESSION_KIND_IDENTIFIER,
+  EXPRESSION_KIND_NUM,
+  EXPRESSION_KIND_METHOD_CALL,
+  EXPRESSION_KIND_FUNCTION_CALL,
+  EXPRESSION_KIND_BINOP,
+};
+
 class Expression {
+public:
+
+  virtual ExpressionKind getKind() const = 0;
+
+  virtual ~Expression() {}
   
 };
 
@@ -319,6 +332,9 @@ public:
                const std::vector<Expression*>& args_) :
     funcName(funcName_), args(args_) {}
 
+  virtual ExpressionKind getKind() const {
+    return EXPRESSION_KIND_FUNCTION_CALL;
+  }
 };
 
 class MethodCall : public Expression {
@@ -332,6 +348,14 @@ public:
              FunctionCall* called_) :
     callerName(callerName_), called(called_) {}
 
+  virtual ExpressionKind getKind() const {
+    return EXPRESSION_KIND_METHOD_CALL;
+  }
+
+  static bool classof(Expression* e) {
+    return e->getKind() == EXPRESSION_KIND_METHOD_CALL;
+  }
+  
 };
 
 class Identifier : public Expression {
@@ -340,6 +364,15 @@ public:
   Token name;
   
   Identifier(const Token name_) : name(name_) {}
+
+  virtual ExpressionKind getKind() const {
+    return EXPRESSION_KIND_IDENTIFIER;
+  }
+
+  static bool classof(Expression* e) {
+    return e->getKind() == EXPRESSION_KIND_IDENTIFIER;
+  }
+  
 };
 
 enum SynthCppTypeKind {
@@ -412,6 +445,15 @@ public:
   
   BinopExpr(Expression* lhs_, Token op_, Expression* rhs_) :
     lhs(lhs_), op(op_), rhs(rhs_) {}
+
+  virtual ExpressionKind getKind() const {
+    return EXPRESSION_KIND_BINOP;
+  }
+
+  static bool classof(Expression* e) {
+    return e->getKind() == EXPRESSION_KIND_BINOP;
+  }
+  
 };
 
 class IntegerExpr : public Expression {
@@ -419,6 +461,11 @@ class IntegerExpr : public Expression {
   
 public:
   IntegerExpr(const std::string& digits_) : digits(digits_) {}
+
+  virtual ExpressionKind getKind() const {
+    return EXPRESSION_KIND_NUM;
+  }
+  
 };
 
 enum StatementKind {
@@ -1205,6 +1252,13 @@ public:
         llvm::Function* f = mkFunc(inputTypes, voidType(), sf->getName());
         auto bb = mkBB("entry_block", f);
         IRBuilder<> b(bb);
+
+        for (auto argDecl : fd->args) {
+          cout << "\targ = " << argDecl->name << endl;
+          auto val = b.CreateAlloca(intType(32));          
+          setValue(argDecl->name, val);
+        }
+        
         // Now need to iterate over all statements in the body creating labels that map to starts and ends of statements
         // and also adding code for each statement to the resulting function, f.
         sf->func = f;        
@@ -1222,8 +1276,44 @@ public:
     }
   }
 
-  void genLLVM(IRBuilder<>& b, Expression* const e) {
-    
+  map<std::string, llvm::Value*> valueMap;
+  
+  llvm::Value* getValueFor(Token t) {
+    cout << "Getting value for " << t.getStr() << endl;
+    assert(contains_key(t.getStr(), valueMap));
+    return map_find(t.getStr(), valueMap);
+  }
+
+  void setValue(Token t, llvm::Value* v) {
+    valueMap[t.getStr()] = v;
+    assert(contains_key(t.getStr(), valueMap));    
+  }
+  
+  llvm::Value* genLLVM(IRBuilder<>& b, Expression* const e) {
+    if (Identifier::classof(e)) {
+      Identifier* id = static_cast<Identifier* const>(e);
+      auto val = b.CreateAlloca(intType(32));
+      setValue(id->name, val);
+      return val;
+    } else if (BinopExpr::classof(e)) {
+      BinopExpr* be = static_cast<BinopExpr* const>(e);
+      auto l = genLLVM(b, be->lhs);
+      auto r = genLLVM(b, be->rhs);
+
+      auto fresh = b.CreateAlloca(l->getType());
+      auto bCall = mkFunc({l->getType(), r->getType(), r->getType()}, voidType(), "binop");
+      auto res = b.CreateCall(bCall, {l, r, fresh});
+
+      return res->getOperand(2);
+
+    } else if (MethodCall::classof(e)) {
+      // Dummy code
+      auto fresh = b.CreateAlloca(intType(32)->getPointerTo(), nullptr, "silly_call_" + uniqueNumString());
+      return fresh;
+    } else {
+      cout << "Unsupported expression in LLVM codegen" << endl;
+      assert(false);      
+    }
   }
 
   void genLLVM(IRBuilder<>& b, ForStmt* const stmt) {
@@ -1238,10 +1328,11 @@ public:
     string valName = decl->name.getStr();
     Type* tp = llvmTypeFor(decl->tp);
     // TODO: add to name map?
-    b.CreateAlloca(tp, nullptr, valName);
+    auto n = b.CreateAlloca(tp, nullptr, valName);
+    setValue(decl->name, n);
   }
 
-  void genLLVM(IRBuilder<>& b, AssignStmt* const decl) {
+  void genLLVM(IRBuilder<>& b, AssignStmt* const stmt) {
     // Assign should really take in a LHS, not a token
 
     // Q: How do I want to lookup values of variable names?
@@ -1265,6 +1356,26 @@ public:
     // The ability to safely bind a pointer to a value in a function argument list feels blasphemous,
     // but I suppose it does make sense in this language semantics? It is not really a pointer it is
     // a port list?
+
+    // Note: Should really be an expression
+    Token t = stmt->var;
+    Expression* newVal = stmt->expr;
+
+    Value* v = genLLVM(b, newVal);
+    Value* tV = getValueFor(t);
+
+    genSetCode(b, tV, v);
+  }
+
+  void genSetCode(IRBuilder<>& b, Value* receiver, Value* value) {
+    // Check types?
+    Type* rType = receiver->getType();
+    Type* vType = value->getType();
+
+    cout << "rType = " << typeString(rType) << endl;
+    cout << "vType = " << typeString(vType) << endl;
+
+    assert(rType == vType);
   }
   
   void genLLVM(IRBuilder<>& b, Statement* const stmt) {
