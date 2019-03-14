@@ -12,7 +12,7 @@ using namespace std;
 
 // Pull zip file for z3 via travis? https://github.com/Z3Prover/z3/releases/download/z3-4.8.4/z3-4.8.4.d6df51951f4c-x64-ubuntu-14.04.zip
 
-namespace DHLS {
+namespace ahaHLS {
 
   int getArgNum(Argument* arg) {
     int index = 0;

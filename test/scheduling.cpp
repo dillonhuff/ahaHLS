@@ -12,7 +12,7 @@ using namespace dbhc;
 using namespace llvm;
 using namespace std;
 
-namespace DHLS {
+namespace ahaHLS {
 
 
   // TODO: Replace with a real parser
@@ -3772,7 +3772,7 @@ namespace DHLS {
     // to module specs?
     int width = 32;
     HardwareConstraints hcs = standardConstraints();
-    hcs.typeSpecs["class.DHLS::Fifo"] =
+    hcs.typeSpecs["class.ahaHLS::Fifo"] =
       [width](StructType* tp) { return fifoSpec(width, 32); };
     
 

@@ -7,7 +7,7 @@
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/IR/Module.h>
 
-using namespace DHLS;
+using namespace ahaHLS;
 using namespace llvm;
 using namespace std;
 

@@ -6,7 +6,7 @@
 
 #include <llvm/IR/Instructions.h>
 
-namespace DHLS {
+namespace ahaHLS {
 
   std::string typeString(llvm::Type* const tptr);
   std::string instructionString(llvm::Instruction* const iptr);

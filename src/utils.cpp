@@ -8,7 +8,7 @@
 using namespace llvm;
 using namespace std;
 
-namespace DHLS {
+namespace ahaHLS {
 
   std::string instructionString(Instruction* const iptr) {
     std::string str;

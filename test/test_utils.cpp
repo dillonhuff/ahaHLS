@@ -6,7 +6,7 @@
 using namespace std;
 using namespace llvm;
 
-namespace DHLS {
+namespace ahaHLS {
 
 
   int createLLFile(const std::string& moduleName) {

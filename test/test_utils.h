@@ -5,7 +5,7 @@
 
 #include <llvm/IR/Module.h>
 
-namespace DHLS {
+namespace ahaHLS {
 
   int createLLFile(const std::string& moduleName);
 

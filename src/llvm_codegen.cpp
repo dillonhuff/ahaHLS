@@ -2,7 +2,7 @@
 
 using namespace llvm;
 
-namespace DHLS {
+namespace ahaHLS {
 
   static LLVMContext* context;
   static Module* globalMod;

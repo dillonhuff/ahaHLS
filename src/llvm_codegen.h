@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-namespace DHLS {
+namespace ahaHLS {
 
   llvm::Type* voidType();
   llvm::StructType* sramType(const int width, const int depth);

@@ -9,7 +9,7 @@
 #include "verilog_backend.h"
 
 using namespace dbhc;
-using namespace DHLS;
+using namespace ahaHLS;
 using namespace std;
 
 enum TokenType {

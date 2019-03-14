@@ -9,7 +9,7 @@
 using namespace llvm;
 using namespace std;
 
-namespace DHLS {
+namespace ahaHLS {
 
   enum ExecutionActionType {
     EXECUTION_ACTION_INSTRUCTION,

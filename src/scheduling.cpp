@@ -21,7 +21,7 @@ using namespace llvm;
 using namespace std;
 using namespace z3;
 
-namespace DHLS {
+namespace ahaHLS {
 
   void
   addMemoryConstraints(llvm::Function* f,

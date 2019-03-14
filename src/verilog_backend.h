@@ -4,7 +4,7 @@
 
 #include "scheduling.h"
 
-namespace DHLS {
+namespace ahaHLS {
 
   bool hasOutput(llvm::Instruction* instr);
 
@@ -370,8 +370,8 @@ namespace DHLS {
     // }
 
     ElaboratedPipeline getPipeline(const StateId state) const {
-      assert(DHLS::isPipelineState(state, pipelines));
-      return DHLS::getPipeline(state, pipelines);
+      assert(ahaHLS::isPipelineState(state, pipelines));
+      return ahaHLS::getPipeline(state, pipelines);
     }
 
     int numFUsWithName(const std::string& name) const {
@@ -395,7 +395,7 @@ namespace DHLS {
     }
     
     bool isPipelineState(const StateId id) const {
-      return DHLS::isPipelineState(id, pipelines);
+      return ahaHLS::isPipelineState(id, pipelines);
     }
 
   };

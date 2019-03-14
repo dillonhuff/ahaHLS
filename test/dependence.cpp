@@ -17,7 +17,7 @@
 using namespace llvm;
 using namespace std;
 
-namespace DHLS {
+namespace ahaHLS {
 
   TEST_CASE("Computing dependence distances via loop vectorizer") {
     LLVMContext context;

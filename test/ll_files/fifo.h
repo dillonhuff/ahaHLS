@@ -2,7 +2,7 @@
 
 #include <cassert>
 
-namespace DHLS {
+namespace ahaHLS {
 
   template<typename T, int depth>
   class Fifo {
