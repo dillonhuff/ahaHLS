@@ -32,8 +32,7 @@ class ram {
 };
 
 void filter_ram(ram* mem) {
-  sint_32 i;
   bit_32 a;
-  a = ram->read(i) + ram->read(i + 1);
-  ram->write(i + 10);
+  a = ram->read(0) + ram->read(1);
+  ram->write(10);
 }

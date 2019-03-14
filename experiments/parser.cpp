@@ -1138,6 +1138,9 @@ llvm::Type* llvmTypeFor(SynthCppType* const tp) {
 class SynthCppClass {
 };
 
+// Idea: Caller constraints that inline in to each user of a function?
+// For each called user function check if caller constraints are satisified
+// and if not propagate them up the stack? A form of type checking I suppose?
 class SynthCppModule {
 
   HardwareConstraints hcs;
@@ -1206,10 +1209,12 @@ public:
         // and also adding code for each statement to the resulting function, f.
         sf->func = f;        
         activeFunction = sf;
+        cout << "# of statements = " << fd->body.size() << endl;
         for (auto stmt : fd->body) {
-          genLLVM(b, stmt);
           cout << "Statement" << endl;
+          genLLVM(b, stmt);
         }
+        b.CreateRet(nullptr);
 
 
         functions.push_back(sf);
@@ -1234,6 +1239,32 @@ public:
     Type* tp = llvmTypeFor(decl->tp);
     // TODO: add to name map?
     b.CreateAlloca(tp, nullptr, valName);
+  }
+
+  void genLLVM(IRBuilder<>& b, AssignStmt* const decl) {
+    // Assign should really take in a LHS, not a token
+
+    // Q: How do I want to lookup values of variable names?
+    // Q: What am I confused about?
+    // A: How to generate PHI nodes
+    //    What types should be usable in assignments?
+    //    What should names in a program represent?
+    //     - Currently pass by value means that the fields of the underlying
+    //       module being passed are connected to the user modules interfaces
+    //       and the user module then uses those ports to copy the module (copy is implementation defined)
+    //       to a local module of the same type?
+    //       Q: So in a + b are the two arguments (of type bit_32) passed by value?
+    //       Q: How do you pass by value without dereferencing a pointer? Or do you dereference the pointer?
+
+    // Note: In this passing system "pass by value" and "pass by reference" produce the same port list.
+    // From the callers point of view the set of ports created is the same, though perhaps the timing
+    // constraints on values connected to those ports will be different depending on how long the copy
+    // constructor takes to run. So should the LLVM convention include pass by value anywhere?
+    // Maybe in all but the top level function the generated code should force the user to pass by
+    // reference and create their own copies where needed?
+    // The ability to safely bind a pointer to a value in a function argument list feels blasphemous,
+    // but I suppose it does make sense in this language semantics? It is not really a pointer it is
+    // a port list?
   }
   
   void genLLVM(IRBuilder<>& b, Statement* const stmt) {
