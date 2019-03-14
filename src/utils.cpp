@@ -1,7 +1,9 @@
 #include "utils.h"
 
+
 #include <iostream>
 #include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
 #include <cxxabi.h>
 #include <sstream>
 
@@ -332,5 +334,49 @@ namespace ahaHLS {
     assert(PointerType::classof(tp));
     return dyn_cast<PointerType>(tp)->getElementType();
   }
+
+  // TODO: Replace with a real parser
+  std::string extractFunctionName(const std::string& name) {
+    string funcName = "";
+    int i = 0;
+    while (i < (int) name.size()) {
+      if (name[i] == '(') {
+        break;
+      }
+      funcName += name[i];
+      i++;
+    }
+    return funcName;
+  }
+  
+  llvm::Function*
+  getFunctionByDemangledName(llvm::Module* mod, const std::string& name) {
+    for (auto& f : mod->functions()) {
+      if (canDemangle(f.getName())) {
+        cout << demangle(f.getName()) << endl;
+        if (extractFunctionName(demangle(f.getName())) == name) {
+          return &f;
+        }
+      }
+
+    }
+
+    cout << "Error: Could not find " << name << endl;
+    assert(false);
+  }
+
+  std::string demangledClassName(const std::string& demangledName) {
+    //cout << "Getting class from = " << demangledName << endl;
+    string nextNamespace = takeUntil("::", demangledName);
+    //cout << "namespace = " << nextNamespace << endl;
+    string remainder = drop("::", demangledName);
+    //cout << "remainder = " << remainder << endl;
+
+    string funcDecl = drop("::", remainder);
+    string funcName = takeUntil("(", funcDecl);
+    //cout << "FuncName = " << funcName << endl;
+    assert(false);
+  }
+
   
 }

@@ -14,50 +14,6 @@ using namespace std;
 
 namespace ahaHLS {
 
-
-  // TODO: Replace with a real parser
-  std::string extractFunctionName(const std::string& name) {
-    string funcName = "";
-    int i = 0;
-    while (i < (int) name.size()) {
-      if (name[i] == '(') {
-        break;
-      }
-      funcName += name[i];
-      i++;
-    }
-    return funcName;
-  }
-  
-  llvm::Function*
-  getFunctionByDemangledName(llvm::Module* mod, const std::string& name) {
-    for (auto& f : mod->functions()) {
-      if (canDemangle(f.getName())) {
-        cout << demangle(f.getName()) << endl;
-        if (extractFunctionName(demangle(f.getName())) == name) {
-          return &f;
-        }
-      }
-
-    }
-
-    cout << "Error: Could not find " << name << endl;
-    assert(false);
-  }
-
-  std::string demangledClassName(const std::string& demangledName) {
-    //cout << "Getting class from = " << demangledName << endl;
-    string nextNamespace = takeUntil("::", demangledName);
-    //cout << "namespace = " << nextNamespace << endl;
-    string remainder = drop("::", demangledName);
-    //cout << "remainder = " << remainder << endl;
-
-    string funcDecl = drop("::", remainder);
-    string funcName = takeUntil("(", funcDecl);
-    //cout << "FuncName = " << funcName << endl;
-    assert(false);
-  }
-
   ModuleSpec axiWriterSpec(llvm::StructType* tp) {
     map<string, string> modParams;
     map<string, Port> ports{{"write_data", inputPort(32, "write_data")},
@@ -150,7 +106,7 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     VerilogDebugInfo info;
-    emitVerilog("single_store", f, arch, info);
+    emitVerilog("single_store", arch, info);
     //emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("single_store"));
@@ -192,7 +148,7 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     VerilogDebugInfo info;
-    emitVerilog("plus", f, arch, info);
+    emitVerilog("plus", arch, info);
     
     REQUIRE(runIVerilogTB("plus"));
   }
@@ -230,7 +186,7 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     VerilogDebugInfo info;
-    emitVerilog("if_else", f, arch, info);
+    emitVerilog("if_else", arch, info);
     
     REQUIRE(runIVerilogTB("if_else"));
   }
@@ -624,7 +580,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
-    emitVerilog("loop_add_4_6_iters", f, arch, info);
+    emitVerilog("loop_add_4_6_iters", arch, info);
 
     REQUIRE(runIVerilogTB("loop_add_4_6_iters"));
   }
@@ -3798,7 +3754,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog("add_10_template", f, arch, info);
+    emitVerilog("add_10_template", arch, info);
     
     string in0Name =
       getArg(f, 0)->getName() == "" ? "arg_0" : getArg(f, 0)->getName();
@@ -3911,7 +3867,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog("add_10_channel", f, arch, info);
+    emitVerilog("add_10_channel", arch, info);
     
     string in0Name =
       getArg(f, 0)->getName() == "" ? "arg_0" : getArg(f, 0)->getName();
@@ -4011,7 +3967,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog("channel_add", f, arch, info);
+    emitVerilog("channel_add", arch, info);
 
     string in0Name =
       getArg(f, 0)->getName() == "" ? "arg_0" : getArg(f, 0)->getName();
@@ -4153,7 +4109,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     //addNoXChecks(arch, info);
 
-    emitVerilog("channel_reduce_4", f, arch, info);
+    emitVerilog("channel_reduce_4", arch, info);
     
     string in0Name =
       getArg(f, 0)->getName() == "" ? "arg_0" : getArg(f, 0)->getName();

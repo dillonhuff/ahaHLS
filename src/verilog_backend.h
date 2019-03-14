@@ -545,24 +545,12 @@ namespace ahaHLS {
                          std::map<std::string, int>& memoryMap,
                          HardwareConstraints& hcs);
   
-  // MicroArchitecture
-  // buildMicroArchitecture(llvm::Function* f,
-  //                        const STG& stg,
-  //                        std::map<std::string, int>& memoryMap,
-  //                        HardwareConstraints& hcs);
-
   MicroArchitecture
   buildMicroArchitecture(llvm::Function* f,
                          const STG& stg,
                          std::map<llvm::Value*, int>& memoryMap,
                          HardwareConstraints& hcs);
   
-  // MicroArchitecture
-  // buildMicroArchitecture(llvm::Function* f,
-  //                        const STG& stg,
-  //                        std::map<std::string, int>& memoryMap);
-  //                        //const ArchOptions& options);
-
   MicroArchitecture
   buildMicroArchitecture(llvm::Function* f,
                          const STG& stg,
@@ -608,7 +596,6 @@ namespace ahaHLS {
   std::string floatBits(const float f);
 
   void emitVerilog(const std::string& fn,
-                   llvm::Function* f,
                    MicroArchitecture& arch,
                    const VerilogDebugInfo& debugInfo);
 

@@ -2169,7 +2169,7 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(f, graph, layout, hcs);
 
     //addNoXChecks(arch, info);
-    emitVerilog(name, f, arch, info);
+    emitVerilog(name, arch, info);
   }
 
   void emitVerilog(const std::string& name,
@@ -2379,13 +2379,14 @@ namespace ahaHLS {
     cout << valueString(f) << endl;
     
     string fn = f->getName();
-    emitVerilog(fn, f, arch, debugInfo);
+    emitVerilog(fn, arch, debugInfo);
   }
 
   void emitVerilog(const std::string& fn,
-                   llvm::Function* f,
                    MicroArchitecture& arch,
                    const VerilogDebugInfo& debugInfo) {
+
+    auto f = arch.stg.getFunction();
 
     cout << "Emitting verilog for" << endl;
     cout << valueString(f) << endl;

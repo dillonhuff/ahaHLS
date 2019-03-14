@@ -198,4 +198,7 @@ namespace ahaHLS {
 
   llvm::Type* getPointedToType(llvm::Type* tp);
 
+  llvm::Function*
+  getFunctionByDemangledName(llvm::Module* mod, const std::string& name);
+  
 }
