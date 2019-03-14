@@ -2272,12 +2272,12 @@ namespace ahaHLS {
 
   // TODO: Remove f, it can be retrieved from STG
   MicroArchitecture
-  buildMicroArchitecture(llvm::Function* f,
+  buildMicroArchitecture(llvm::Function* fpl,
                          const STG& stg,
                          std::map<llvm::Value*, int>& memMap,
-                         //const ArchOptions& options,
                          HardwareConstraints& hcs) {
-    
+
+    auto f = stg.getFunction();
     map<BasicBlock*, int> basicBlockNos = numberBasicBlocks(f);
     map<Instruction*, Wire> names = createInstrNames(stg);
     vector<ElaboratedPipeline> pipelines =
@@ -2317,15 +2317,6 @@ namespace ahaHLS {
     return buildMicroArchitecture(f, stg, memMap, hcs);
   }
 
-  // MicroArchitecture
-  // buildMicroArchitecture(llvm::Function* f,
-  //                        const STG& stg,
-  //                        std::map<std::string, int>& memoryMap,
-  //                        HardwareConstraints& hcs) {
-  //   //ArchOptions options;
-  //   return buildMicroArchitecture(f, stg, memoryMap, hcs);
-  // }  
-
   MicroArchitecture
   buildMicroArchitecture(llvm::Function* f,
                          const STG& stg,
@@ -2334,15 +2325,6 @@ namespace ahaHLS {
     HardwareConstraints hcs;
     return buildMicroArchitecture(f, stg, memoryMap, hcs);
   }
-  
-  // MicroArchitecture
-  // buildMicroArchitecture(llvm::Function* f,
-  //                        const STG& stg,
-  //                        std::map<std::string, int>& memoryMap) {
-  //   //ArchOptions options;
-  //   HardwareConstraints hcs;
-  //   return buildMicroArchitecture(f, stg, memoryMap, hcs);
-  // }
 
   MicroArchitecture
   buildMicroArchitecture(llvm::Function* f,
