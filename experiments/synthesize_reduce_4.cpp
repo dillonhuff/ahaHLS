@@ -76,5 +76,5 @@ int main() {
   VerilogDebugInfo info;
   addNoXChecks(arch, info);
 
-  emitVerilog(f, arch, info);
+  emitVerilog(arch, info);
 }

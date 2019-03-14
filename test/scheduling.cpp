@@ -1163,7 +1163,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog(srUser, arch, info);
+    emitVerilog(arch, info);
 
     // Create testing infrastructure
     map<string, vector<int> > memoryInit{{"arg_0", {6}}};
@@ -1274,7 +1274,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog(srUser, arch, info);
+    emitVerilog(arch, info);
 
     // Create testing infrastructure
     map<string, vector<int> > memoryInit{{"arg_0", {6, 5, 1, 2, 9, 8, 4}}};
@@ -1371,7 +1371,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog(srUser, arch, info);
+    emitVerilog(arch, info);
 
     // Create testing infrastructure
     map<string, vector<int> > memoryInit{{"arg_0", {6}}};
@@ -1487,7 +1487,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     //addNoXChecks(arch, info);
 
-    emitVerilog(srUser, arch, info);
+    emitVerilog(arch, info);
 
     // Create testing infrastructure
     map<string, vector<int> > memoryInit{{"arg_0", {19}}};
@@ -1562,7 +1562,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     // Create testing infrastructure
     SECTION("Taking true path") {
@@ -1667,7 +1667,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     // Create testing infrastructure
     SECTION("Taking false, true path") {
@@ -1750,7 +1750,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog(srUser, arch, info);
+    emitVerilog(arch, info);
 
     map<string, vector<int> > memoryInit{{"arg_0", {(1 << 16) - 1}}};
     map<string, vector<int> > memoryExpected{{"arg_1", {4}}};
@@ -1826,7 +1826,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     // Create testing infrastructure
     map<string, vector<int> > memoryInit{{"arg_0", {6, 4, 5, 2, 1}}};
@@ -1905,7 +1905,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     // Create testing infrastructure
     map<string, vector<int> > memoryInit{{"arg_0", {6, 4, 5, 2, 1}}};
@@ -1979,7 +1979,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     // Create testing infrastructure
     map<string, vector<int> > memoryInit{{"arg_0", {6, 4, 5, 2, 1}}};
@@ -2048,7 +2048,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     // Create testing infrastructure
     map<string, vector<int> > memoryInit{{"arg_0", {6, 4, 5, 2, 1}}};
@@ -2120,7 +2120,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     // Create testing infrastructure
     map<string, vector<int> > memoryInit{{"arg_0", {6, 4, 5, 2, 1, 8, 0, 2, 9, 6}}};
@@ -2244,7 +2244,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     // Create testing infrastructure
     map<string, int> testLayout =
@@ -2327,7 +2327,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     REQUIRE(runIVerilogTB("fifo_user"));
   }
@@ -2392,7 +2392,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     REQUIRE(runIVerilogTB("fifo_read_delay"));
   }
@@ -2649,7 +2649,7 @@ namespace ahaHLS {
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
     
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     REQUIRE(runIVerilogTB("sys_array_2x2"));
   }
@@ -2741,7 +2741,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     // Create testing infrastructure
     SECTION("Taking true, true path") {
@@ -2892,7 +2892,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     REQUIRE(runIVerilogTB("fifo_in_loop"));
   }
@@ -2927,7 +2927,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
 
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     // Create testing infrastructure
     map<string, vector<int> > memoryInit{{"in", {4, 8, 6, 12, 3, 1, 3, 1, 5, 2, 5, 2, 5, 2, 7}}};
@@ -3030,7 +3030,7 @@ namespace ahaHLS {
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
     
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     REQUIRE(runIVerilogTB("timed_wire_reduce"));
   }
@@ -3120,7 +3120,7 @@ namespace ahaHLS {
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
     
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     float af = 3.0;
     float bf = 4.0;
@@ -3236,7 +3236,7 @@ namespace ahaHLS {
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
     
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     TestBenchSpec tb;
     map<string, int> testLayout = {};
@@ -3488,7 +3488,7 @@ namespace ahaHLS {
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
     
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     float af = 3.0;
     float bf = 4.0;
@@ -3612,7 +3612,7 @@ namespace ahaHLS {
 
     VerilogDebugInfo info;
     // addNoXChecks(arch, info);
-    emitVerilog(srUser, arch, info);
+    emitVerilog(arch, info);
     
     REQUIRE(runIVerilogTB("dynamic_arch_sram_class"));
   }

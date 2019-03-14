@@ -1335,7 +1335,7 @@ void synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
   cout << "STG is" << endl;
   graph.print(cout);
   map<Value*, int> layout;
-  emitVerilog(f->llvmFunction(), graph, layout);
+  emitVerilog(graph, layout);
 }
 
 int main() {

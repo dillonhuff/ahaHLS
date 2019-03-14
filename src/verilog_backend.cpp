@@ -2179,22 +2179,20 @@ namespace ahaHLS {
     emitVerilog(name, graph, hcs, info);
   }
   
-  void emitVerilog(llvm::Function* f,
-                   const STG& stg,
+  void emitVerilog(const STG& stg,
                    std::map<std::string, int>& memoryMap) {
     VerilogDebugInfo info;
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
-    emitVerilog(f, stg, memoryMap, info);
+    emitVerilog(stg, memoryMap, info);
   }
 
-  void emitVerilog(llvm::Function* f,
-                   const STG& stg,
+  void emitVerilog(const STG& stg,
                    std::map<llvm::Value*, int>& memoryMap) {
     VerilogDebugInfo info;
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
-    emitVerilog(f, stg, memoryMap, info);
+    emitVerilog(stg, memoryMap, info);
   }
   
   void emitLastBBCode(std::ostream& out,
@@ -2355,19 +2353,17 @@ namespace ahaHLS {
     return buildMicroArchitecture(f, stg, memoryMap, hcs);
   }
   
-  void emitVerilog(llvm::Function* f,
-                   const STG& stg,
+  void emitVerilog(const STG& stg,
                    std::map<std::string, int>& memoryMap,
                    const VerilogDebugInfo& debugInfo) {
-    auto arch = buildMicroArchitecture(f, stg, memoryMap);
+    auto arch = buildMicroArchitecture(stg.getFunction(), stg, memoryMap);
     emitVerilog(arch, debugInfo);
   }
 
-  void emitVerilog(llvm::Function* f,
-                   const STG& stg,
+  void emitVerilog(const STG& stg,
                    std::map<llvm::Value*, int>& memoryMap,
                    const VerilogDebugInfo& debugInfo) {
-    auto arch = buildMicroArchitecture(f, stg, memoryMap);
+    auto arch = buildMicroArchitecture(stg.getFunction(), stg, memoryMap);
     emitVerilog(arch, debugInfo);
   }
   
@@ -2499,7 +2495,7 @@ namespace ahaHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    emitVerilog(f, graph, memoryMap);
+    emitVerilog(graph, memoryMap);
   }
 
   void synthesizeVerilog(llvm::Function* f,
@@ -2511,7 +2507,7 @@ namespace ahaHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    emitVerilog(f, graph, memoryMap);
+    emitVerilog(graph, memoryMap);
   }
 
   std::string emitTestRAM(std::ostream& out,
