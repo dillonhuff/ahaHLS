@@ -534,25 +534,21 @@ namespace ahaHLS {
                          std::map<llvm::Value*, int>& memoryMap);
   
   MicroArchitecture
-  buildMicroArchitecture(llvm::Function* f,
-                         const STG& stg,
+  buildMicroArchitecture(const STG& stg,
                          std::map<std::string, int>& memoryMap);
 
   MicroArchitecture
-  buildMicroArchitecture(llvm::Function* f,
-                         const STG& stg,
+  buildMicroArchitecture(const STG& stg,
                          std::map<std::string, int>& memoryMap,
                          HardwareConstraints& hcs);
   
   MicroArchitecture
-  buildMicroArchitecture(llvm::Function* f,
-                         const STG& stg,
+  buildMicroArchitecture(const STG& stg,
                          std::map<llvm::Value*, int>& memoryMap,
                          HardwareConstraints& hcs);
   
   MicroArchitecture
-  buildMicroArchitecture(llvm::Function* f,
-                         const STG& stg,
+  buildMicroArchitecture(const STG& stg,
                          std::map<llvm::Value*, int>& memoryMap);
   
   void noPhiOutputsXWhenUsed(const MicroArchitecture& arch,

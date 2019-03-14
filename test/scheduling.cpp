@@ -103,7 +103,7 @@ namespace ahaHLS {
 
     map<llvm::Value*, int> layout = {};
     //ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     emitVerilog("single_store", arch, info);
@@ -145,7 +145,7 @@ namespace ahaHLS {
 
     map<llvm::Value*, int> layout = {};
     //ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     emitVerilog("plus", arch, info);
@@ -183,7 +183,7 @@ namespace ahaHLS {
 
     map<llvm::Value*, int> layout = {};
     //ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     emitVerilog("if_else", arch, info);
@@ -575,7 +575,7 @@ namespace ahaHLS {
 
     map<llvm::Value*, int> layout = {};
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
@@ -739,7 +739,7 @@ namespace ahaHLS {
     
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}}; //, {getArg(f, 1), 8}};
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     map<string, int> testLayout = {{"a", 0}, {"b", 8}};
     map<string, vector<int> > memoryInit{{"a", {0, 1, 2, 3, 7, 5, 5, 2}}};
@@ -804,8 +804,8 @@ namespace ahaHLS {
     //map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 8}};
     map<llvm::Value*, int> layout;
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
-    //auto arch = buildMicroArchitecture(f, graph, layout);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
+    //auto arch = buildMicroArchitecture(graph, layout);
 
     VerilogDebugInfo info;
     noAddsTakeXInputs(arch, info);
@@ -878,7 +878,7 @@ namespace ahaHLS {
     map<string, int> testLayout = {{"a", 0}, {"b", 9}, {"c", 12}};
     map<llvm::Value*, int> layout;
 
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     noAddsTakeXInputs(arch, info);
@@ -1003,7 +1003,7 @@ namespace ahaHLS {
     map_insert(tb.actionsInCycles, 49, string("ram_debug_addr = 0;"));
     map_insert(tb.actionsInCycles, 50, string("ram_debug_addr = 0;"));
 
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("raw_axi_wr"));
@@ -1058,7 +1058,7 @@ namespace ahaHLS {
     // 3 x 3
     map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 0}};
     map<llvm::Value*, int> layout;
-    auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     emitVerilog("using_shift_register", graph, hcs, info);
@@ -1158,7 +1158,7 @@ namespace ahaHLS {
 
     map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 15}};
     map<llvm::Value*, int> layout;
-    auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -1269,7 +1269,7 @@ namespace ahaHLS {
     map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 0}};
     //map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 10}};
     map<llvm::Value*, int> layout;
-    auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -1366,7 +1366,7 @@ namespace ahaHLS {
     //map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
     map<llvm::Value*, int> layout; // = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 10}};
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -1482,7 +1482,7 @@ namespace ahaHLS {
     map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 10}};
 
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     //addNoXChecks(arch, info);
@@ -1557,7 +1557,7 @@ namespace ahaHLS {
 
     map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
 
-    auto arch = buildMicroArchitecture(f, graph, layout);
+    auto arch = buildMicroArchitecture(graph, layout);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -1662,7 +1662,7 @@ namespace ahaHLS {
 
     map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}, {"arg_2", 15}};
 
-    auto arch = buildMicroArchitecture(f, graph, layout);
+    auto arch = buildMicroArchitecture(graph, layout);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -1745,7 +1745,7 @@ namespace ahaHLS {
     map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 1}};
     map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 1}};
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(srUser, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -1821,7 +1821,7 @@ namespace ahaHLS {
 
     map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 15}};
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 15}};
-    auto arch = buildMicroArchitecture(f, graph, layout);
+    auto arch = buildMicroArchitecture(graph, layout);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -1900,7 +1900,7 @@ namespace ahaHLS {
 
     map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 15}};
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 15}};
-    auto arch = buildMicroArchitecture(f, graph, layout);
+    auto arch = buildMicroArchitecture(graph, layout);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -1974,7 +1974,7 @@ namespace ahaHLS {
 
     map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 15}};
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 15}};
-    auto arch = buildMicroArchitecture(f, graph, layout);
+    auto arch = buildMicroArchitecture(graph, layout);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -2043,7 +2043,7 @@ namespace ahaHLS {
 
     map<string, int> testLayout = {{"arg_0", 0}};
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}};
-    auto arch = buildMicroArchitecture(f, graph, layout);
+    auto arch = buildMicroArchitecture(graph, layout);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -2115,7 +2115,7 @@ namespace ahaHLS {
     
     map<string, int> testLayout = {{"arg_0", 0}};
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}};
-    auto arch = buildMicroArchitecture(f, graph, layout);
+    auto arch = buildMicroArchitecture(graph, layout);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -2239,7 +2239,7 @@ namespace ahaHLS {
                                      {getArg(f, 2), 6},
                                      {getArg(f, 3), 10}};
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -2322,7 +2322,7 @@ namespace ahaHLS {
     
     map<llvm::Value*, int> layout = {};
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -2387,7 +2387,7 @@ namespace ahaHLS {
     
     map<llvm::Value*, int> layout = {};
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -2639,8 +2639,7 @@ namespace ahaHLS {
 
     map<Value*, int> layout;
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(f,
-                                       graph,
+    auto arch = buildMicroArchitecture(graph,
                                        layout,
                                        hcs);
 
@@ -2736,7 +2735,7 @@ namespace ahaHLS {
 
     map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
 
-    auto arch = buildMicroArchitecture(f, graph, layout);
+    auto arch = buildMicroArchitecture(graph, layout);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -2887,7 +2886,7 @@ namespace ahaHLS {
     
     map<llvm::Value*, int> layout = {};
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -2922,7 +2921,7 @@ namespace ahaHLS {
 
     map<string, int> testLayout = {{"in", 0}, {"out", 17}};
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 17}};
-    auto arch = buildMicroArchitecture(f, graph, layout);
+    auto arch = buildMicroArchitecture(graph, layout);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -3020,8 +3019,7 @@ namespace ahaHLS {
 
     map<Value*, int> layout;
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(f,
-                                       graph,
+    auto arch = buildMicroArchitecture(graph,
                                        layout,
                                        hcs);
 
@@ -3110,8 +3108,7 @@ namespace ahaHLS {
 
     map<Value*, int> layout;
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(f,
-                                       graph,
+    auto arch = buildMicroArchitecture(graph,
                                        layout,
                                        hcs);
 
@@ -3226,8 +3223,7 @@ namespace ahaHLS {
 
     map<Value*, int> layout;
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(f,
-                                       graph,
+    auto arch = buildMicroArchitecture(graph,
                                        layout,
                                        hcs);
 
@@ -3478,8 +3474,7 @@ namespace ahaHLS {
     
     map<Value*, int> layout;
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(f,
-                                       graph,
+    auto arch = buildMicroArchitecture(graph,
                                        layout,
                                        hcs);
 
@@ -3605,8 +3600,7 @@ namespace ahaHLS {
 
     map<Value*, int> layout;
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(srUser,
-                                       graph,
+    auto arch = buildMicroArchitecture(graph,
                                        layout,
                                        hcs);
 
@@ -3749,7 +3743,7 @@ namespace ahaHLS {
     
     map<llvm::Value*, int> layout = {};
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -3862,7 +3856,7 @@ namespace ahaHLS {
     
     map<llvm::Value*, int> layout = {};
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -3962,7 +3956,7 @@ namespace ahaHLS {
     
     map<llvm::Value*, int> layout = {};
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -4104,7 +4098,7 @@ namespace ahaHLS {
     
     map<llvm::Value*, int> layout = {};
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     //addNoXChecks(arch, info);
@@ -4350,7 +4344,7 @@ namespace ahaHLS {
     emitVerilog("stencil_stream_rw", graph, hcs);
 
     map<llvm::Value*, int> layout = {};
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     auto in = dyn_cast<Argument>(getArg(f, 0));
     auto out = dyn_cast<Argument>(getArg(f, 1));    
@@ -4454,7 +4448,7 @@ namespace ahaHLS {
     emitVerilog("stencil_stream_mul", graph, hcs);
 
     map<llvm::Value*, int> layout = {};
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     auto in = dyn_cast<Argument>(getArg(f, 0));
     auto out = dyn_cast<Argument>(getArg(f, 1));    
@@ -4548,7 +4542,7 @@ namespace ahaHLS {
     emitVerilog("stencil_copy", graph, hcs, info);
 
     map<llvm::Value*, int> layout = {};
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     auto in = dyn_cast<Argument>(getArg(f, 0));
     auto out = dyn_cast<Argument>(getArg(f, 1));    
@@ -4671,7 +4665,7 @@ namespace ahaHLS {
     emitVerilog("stencil_mul_2", graph, hcs, info);
 
     map<llvm::Value*, int> layout = {};
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     auto in = dyn_cast<Argument>(getArg(f, 0));
     auto out = dyn_cast<Argument>(getArg(f, 1));    
@@ -4842,7 +4836,7 @@ namespace ahaHLS {
     emitVerilog("vhls_target", graph, hcs);
 
     map<llvm::Value*, int> layout = {};
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     auto in = dyn_cast<Argument>(getArg(f, 0));
     auto out = dyn_cast<Argument>(getArg(f, 1));    
@@ -4972,7 +4966,7 @@ namespace ahaHLS {
     emitVerilog("median_filter", graph, hcs);
 
     map<llvm::Value*, int> layout = {};
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     auto in0 = dyn_cast<Argument>(getArg(f, 0));
     auto in1 = dyn_cast<Argument>(getArg(f, 1));
@@ -5071,7 +5065,7 @@ namespace ahaHLS {
     emitVerilog("count_packets", graph, hcs);
 
     map<llvm::Value*, int> layout = {};
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     auto receiver = dyn_cast<Argument>(getArg(f, 0));
     auto counter = dyn_cast<Argument>(getArg(f, 1));    

@@ -2163,10 +2163,9 @@ namespace ahaHLS {
                    STG& graph,
                    HardwareConstraints& hcs,
                    VerilogDebugInfo& info) {
-    auto f = graph.getFunction();
     map<llvm::Value*, int> layout = {};
     // ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     //addNoXChecks(arch, info);
     emitVerilog(name, arch, info);
@@ -2272,8 +2271,7 @@ namespace ahaHLS {
 
   // TODO: Remove f, it can be retrieved from STG
   MicroArchitecture
-  buildMicroArchitecture(llvm::Function* fpl,
-                         const STG& stg,
+  buildMicroArchitecture(const STG& stg,
                          std::map<llvm::Value*, int>& memMap,
                          HardwareConstraints& hcs) {
 
@@ -2299,13 +2297,13 @@ namespace ahaHLS {
   }  
 
   MicroArchitecture
-  buildMicroArchitecture(llvm::Function* f,
-                         const STG& stg,
+  buildMicroArchitecture(const STG& stg,
                          std::map<std::string, int>& memoryMap,
                          //const ArchOptions& options,
                          HardwareConstraints& hcs) {
 
     map<llvm::Value*, int> memMap;
+    auto f = stg.getFunction();
     for (int i = 0; i < (int) f->arg_size(); i++) {
       auto& arg = *(f->arg_begin() + i);
       string name = arg.getName();
@@ -2314,38 +2312,36 @@ namespace ahaHLS {
       memMap[dyn_cast<Value>(&arg)] = map_find(name, memoryMap);
     }
 
-    return buildMicroArchitecture(f, stg, memMap, hcs);
+    return buildMicroArchitecture(stg, memMap, hcs);
   }
 
   MicroArchitecture
-  buildMicroArchitecture(llvm::Function* f,
-                         const STG& stg,
+  buildMicroArchitecture(const STG& stg,
                          std::map<std::string, int>& memoryMap) {
                          //const ArchOptions& options) {
     HardwareConstraints hcs;
-    return buildMicroArchitecture(f, stg, memoryMap, hcs);
+    return buildMicroArchitecture(stg, memoryMap, hcs);
   }
 
   MicroArchitecture
-  buildMicroArchitecture(llvm::Function* f,
-                         const STG& stg,
+  buildMicroArchitecture(const STG& stg,
                          std::map<llvm::Value*, int>& memoryMap) {
     //ArchOptions options;
     HardwareConstraints hcs;
-    return buildMicroArchitecture(f, stg, memoryMap, hcs);
+    return buildMicroArchitecture(stg, memoryMap, hcs);
   }
   
   void emitVerilog(const STG& stg,
                    std::map<std::string, int>& memoryMap,
                    const VerilogDebugInfo& debugInfo) {
-    auto arch = buildMicroArchitecture(stg.getFunction(), stg, memoryMap);
+    auto arch = buildMicroArchitecture(stg, memoryMap);
     emitVerilog(arch, debugInfo);
   }
 
   void emitVerilog(const STG& stg,
                    std::map<llvm::Value*, int>& memoryMap,
                    const VerilogDebugInfo& debugInfo) {
-    auto arch = buildMicroArchitecture(stg.getFunction(), stg, memoryMap);
+    auto arch = buildMicroArchitecture(stg, memoryMap);
     emitVerilog(arch, debugInfo);
   }
   
@@ -3164,7 +3160,7 @@ namespace ahaHLS {
     
     map<llvm::Value*, int> layout = {};
     //ArchOptions options;
-    auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     //addNoXChecks(arch, info);

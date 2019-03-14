@@ -47,7 +47,7 @@ int main() {
     graph.print(cout);
 
     map<llvm::Value*, int> layout;
-    auto arch = buildMicroArchitecture(ramWrite, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     emitVerilog("ram_write", graph, hcs, info);
@@ -63,7 +63,7 @@ int main() {
     graph.print(cout);
 
     map<llvm::Value*, int> layout;
-    auto arch = buildMicroArchitecture(ramRead, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     emitVerilog("ram_read", graph, hcs, info);
@@ -99,7 +99,7 @@ int main() {
       graph.print(cout);
 
       map<llvm::Value*, int> layout;
-      auto arch = buildMicroArchitecture(readFifo, graph, layout, hcs);
+      auto arch = buildMicroArchitecture(graph, layout, hcs);
 
       VerilogDebugInfo info;
       emitVerilog("fifo_read", graph, hcs, info);
@@ -114,7 +114,7 @@ int main() {
       graph.print(cout);
 
       map<llvm::Value*, int> layout;
-      auto arch = buildMicroArchitecture(writeFifo, graph, layout, hcs);
+      auto arch = buildMicroArchitecture(graph, layout, hcs);
 
       VerilogDebugInfo info;
       emitVerilog("fifo_write", graph, hcs, info);
@@ -262,7 +262,7 @@ int main() {
     graph.print(cout);
 
     map<llvm::Value*, int> layout;
-    auto arch = buildMicroArchitecture(fadd, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     emitVerilog("fpu_add", graph, hcs, info);
@@ -292,7 +292,7 @@ int main() {
     graph.print(cout);
 
     map<Value*, int> layout;    
-    auto arch = buildMicroArchitecture(axiRead, graph, layout, hcs);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     emitVerilog("axi_read", graph, hcs, info);

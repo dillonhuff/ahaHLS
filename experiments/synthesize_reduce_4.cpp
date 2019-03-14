@@ -71,7 +71,7 @@ int main() {
   graph.print(cout);
     
   map<std::string, int> layout = {};
-  auto arch = buildMicroArchitecture(f, graph, layout, hcs);
+  auto arch = buildMicroArchitecture(graph, layout, hcs);
 
   VerilogDebugInfo info;
   addNoXChecks(arch, info);
