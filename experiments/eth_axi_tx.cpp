@@ -60,9 +60,9 @@ public:
 void write_packet(bit_48 dest_mac,
                   bit_48 src_mac,
                   bit_16 type,
-                  fifo* payload,
+                  fifo& payload,
                   sint_32 payload_size,
-                  eth_axis_tx* transmitter) {
+                  eth_axis_tx& transmitter) {
   transmitter->write_header(dest_mac, src_mac, type);
 
 

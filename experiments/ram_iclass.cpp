@@ -31,7 +31,7 @@ class ram {
 
 };
 
-void filter_ram(ram* mem) {
+void filter_ram(ram& mem) {
   bit_32 a;
   a = ram->read(0) + ram->read(1);
   ram->write(10);

@@ -21,7 +21,7 @@ enum TokenType {
 
 
 bool oneCharToken(const char c) {
-  vector<char> chars = {'{', '}', ';', ')', '(', ',', '[', ']', ':', '-', '*', '+', '=', '>', '<'};
+  vector<char> chars = {'{', '}', ';', ')', '(', ',', '[', ']', ':', '-', '&', '+', '=', '>', '<', '*'};
   return elem(c, chars);
 }
 
@@ -124,7 +124,7 @@ public:
 typedef ParseState<char> TokenState;
 
 bool isBinop(const Token t) {
-  vector<string> binopStrings{"=", "==", "+", "*", "-", "/", "^", "%", "&&", "||", "<=", ">=", "<", ">"};
+  vector<string> binopStrings{"=", "==", "+", "&", "-", "/", "^", "%", "&&", "||", "<=", ">=", "<", ">"};
   return elem(t.getStr(), binopStrings);
 }
 bool isWhitespace(const char c) {
@@ -760,7 +760,7 @@ maybe<SynthCppType*> parseType(ParseState<Token>& tokens) {
   auto tp = parseBaseType(tokens);
 
   // Check if its a pointer
-  if (!tokens.atEnd() && (tokens.peekChar() == Token("*"))) {
+  if (!tokens.atEnd() && (tokens.peekChar() == Token("&"))) {
     tokens.parseChar();
     return new SynthCppPointerType(tp.get_value());
   }
@@ -1453,7 +1453,7 @@ int main() {
   }
 
   {
-    std::string str = "void write_packet(bit_5 addr, fifo* payload) {}";
+    std::string str = "void write_packet(bit_5 addr, fifo& payload) {}";
     ParseState<Token> st(tokenize(str));
     auto tp = parseStatement(st);
 

@@ -264,30 +264,10 @@ namespace ahaHLS {
         const int depth_) : name(name_), width(width_), depth(depth_) {}
   };
 
-  // enum MemInterface {
-  //   MEM_INTERFACE_DIRECT,
-  //   MEM_INTERFACE_AXI4_LITE,
-  // };
-
-  // class ArchOptions {
-  // public:
-  //   bool globalStall;
-  //   MemInterface memInterface;
-
-  //   ArchOptions() : globalStall(false), memInterface(MEM_INTERFACE_DIRECT) {}
-
-  //   void setMemInterface(const MemInterface fresh) {
-  //     memInterface = fresh;
-  //     if (memInterface != MEM_INTERFACE_DIRECT) {
-  //       globalStall = true;
-  //     }
-  //   }
-  // };
-
   class ControlState {
     Wire globalState;
     Wire lastBB;
-    //std::vector<Wire> globalStall;
+
     std::map<llvm::BasicBlock*, int> basicBlockNos;
 
   public:
@@ -305,23 +285,9 @@ namespace ahaHLS {
       return dbhc::map_find(bb, basicBlockNos);
     }
 
-    // void setGlobalStall(const Wire w) {
-    //   globalStall.push_back(w);
-    // }
-
     Wire getGlobalState() const {
       return globalState;
     }
-
-    // Wire getGlobalStall() const {
-    //   assert(hasGlobalStall());
-    //   return globalStall[0];
-    // }
-
-    // bool hasGlobalStall() const {
-    //   assert(globalStall.size() <= 1);
-    //   return globalStall.size() > 0;
-    // }
 
     Wire getLastBB() const {
       return lastBB;
@@ -332,9 +298,6 @@ namespace ahaHLS {
   public:
     ControlState cs;
 
-    // TODO: Remove the need for global AXI stalls, just build that
-    // example via interface functions
-    //ArchOptions archOptions;
     STG stg;
     std::map<llvm::Instruction*, FunctionalUnit> unitAssignment;
     std::map<llvm::Value*, int> memoryMap;
