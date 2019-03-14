@@ -34,8 +34,6 @@ class ram {
 void filter_ram(ram* mem) {
   sint_32 i;
   bit_32 a;
-  for (i = 0; i < 10; i = i + 1) {
-    a = ram->read(i) + ram->read(i + 1);
-    ram->write(i + 10);
-  }
+  a = ram->read(i) + ram->read(i + 1);
+  ram->write(i + 10);
 }

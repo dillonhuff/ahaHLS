@@ -1247,6 +1247,9 @@ public:
     } else if (ForStmt::classof(stmt)) {
       auto loop = static_cast<ForStmt* const>(stmt);
       genLLVM(b, loop);
+    } else if (AssignStmt::classof(stmt)) {
+      auto asg = static_cast<AssignStmt* const>(stmt);
+      genLLVM(b, asg);
     } else {
       // Add support for variable declarations, assignments, and for loops
       cout << "No support for code generation for statement" << endl;
