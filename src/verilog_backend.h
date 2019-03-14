@@ -504,8 +504,7 @@ namespace ahaHLS {
                    STG& graph,
                    HardwareConstraints& hcs);
   
-  void emitVerilog(llvm::Function* f,
-                   MicroArchitecture& arch,
+  void emitVerilog(MicroArchitecture& arch,
                    const VerilogDebugInfo& debugInfo);
   
   void emitVerilog(llvm::Function* f,
@@ -518,6 +517,10 @@ namespace ahaHLS {
 
   void emitVerilog(llvm::Function* f,
                    const STG& stg,
+                   std::map<llvm::Value*, int>& memoryMap,
+                   const VerilogDebugInfo& debugInfo);
+
+  void emitVerilog(const STG& stg,
                    std::map<llvm::Value*, int>& memoryMap,
                    const VerilogDebugInfo& debugInfo);
   

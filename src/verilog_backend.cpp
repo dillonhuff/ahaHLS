@@ -2360,7 +2360,7 @@ namespace ahaHLS {
                    std::map<std::string, int>& memoryMap,
                    const VerilogDebugInfo& debugInfo) {
     auto arch = buildMicroArchitecture(f, stg, memoryMap);
-    emitVerilog(f, arch, debugInfo);
+    emitVerilog(arch, debugInfo);
   }
 
   void emitVerilog(llvm::Function* f,
@@ -2368,13 +2368,13 @@ namespace ahaHLS {
                    std::map<llvm::Value*, int>& memoryMap,
                    const VerilogDebugInfo& debugInfo) {
     auto arch = buildMicroArchitecture(f, stg, memoryMap);
-    emitVerilog(f, arch, debugInfo);
+    emitVerilog(arch, debugInfo);
   }
   
-  void emitVerilog(llvm::Function* f,
-                   MicroArchitecture& arch,
+  void emitVerilog(MicroArchitecture& arch,
                    const VerilogDebugInfo& debugInfo) {
 
+    auto f = arch.stg.getFunction();
     cout << "Emitting verilog for" << endl;
     cout << valueString(f) << endl;
     
@@ -3191,7 +3191,7 @@ namespace ahaHLS {
     VerilogDebugInfo info;
     //addNoXChecks(arch, info);
 
-    emitVerilog(f, arch, info);
+    emitVerilog(arch, info);
 
     return arch;
   }
