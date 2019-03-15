@@ -2072,4 +2072,13 @@ int main() {
   // A: How to generate code for interface methods, whether that code generation
   //    can be done efficiently.
 
+  // Q: Now what needs to be done?
+  // A: Need to separate constraint handling from llvm code generation and add
+  //    code to push constraints to the correct ExecutionConstraints data structure.
+  //    Also need to build stub for read_port and write_port that generates the
+  //    correct builtin
+  //    Remove duplication from mkFunc
+  // Meta: I am really tired on this plane, what could I do to continue to work
+  // that will not take a huge mental load?
+
 }
