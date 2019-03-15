@@ -335,6 +335,11 @@ public:
   virtual ExpressionKind getKind() const {
     return EXPRESSION_KIND_FUNCTION_CALL;
   }
+
+  static bool classof(Expression* e) {
+    return e->getKind() == EXPRESSION_KIND_FUNCTION_CALL;
+  }
+  
 };
 
 class MethodCall : public Expression {
@@ -1316,6 +1321,12 @@ public:
             
             auto bb = mkBB("entry_block", f);
             IRBuilder<> b(bb);
+
+            for (auto stmt : methodFuncDecl->body) {
+              cout << "Statement" << endl;
+              genLLVM(b, stmt);
+            }
+            
             b.CreateRet(nullptr);
             c->methods[sf->getName()] = sf;
           } else {
@@ -1421,6 +1432,28 @@ public:
 
       return res->getOperand(2);
 
+    } else if (FunctionCall::classof(e)) {
+      auto called = sc<FunctionCall>(e);
+      SynthCppFunction* calledFunc = getFunction(called->funcName.getStr());
+
+      // Generate llvm for each argument
+      vector<Value*> args;
+
+      Value* retVal = nullptr;
+      // Add return value
+      if (!VoidType::classof(calledFunc->returnType())) {
+        retVal = b.CreateAlloca(llvmTypeFor(calledFunc->returnType()), nullptr, "ret_val_" + uniqueNumString());
+        args.push_back(retVal);
+      }
+
+      for (auto arg : called->args) {
+        args.push_back(genLLVM(b, arg));
+      }
+
+      b.CreateCall(calledFunc->llvmFunction(), args);
+      
+      return retVal;
+      
     } else if (MethodCall::classof(e)) {
       // Dummy code
       auto methodCall =
@@ -1549,6 +1582,8 @@ public:
   }
 
   SynthCppFunction* getFunction(const std::string& name) {
+    cout << "Getting function for " << name << endl;
+    
     for (auto f : functions) {
       cout << "f name = " << f->getName() << endl;
       cout << "name   = " << name << endl;
@@ -1978,5 +2013,9 @@ int main() {
 
     assert(mod.getStatements().size() == 2);
   }
+
+  // Q: What are the new issues?
+  // A: How to generate code for interface methods, whether that code generation
+  //    can be done efficiently.
 
 }
