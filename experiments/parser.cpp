@@ -674,16 +674,16 @@ maybe<Expression*> parseMethodCall(ParseState<Token>& tokens) {
     return maybe<Expression*>();
   }
 
-  Token paren = tokens.parseChar();
-  if ((paren != Token("->")) &&
-      (paren != Token("."))) {
+  Token delim = tokens.parseChar();
+  if ((delim != Token("->")) &&
+      (delim != Token("."))) {
     return maybe<Expression*>();
   }
 
   cout << "-- In method call, parsing function call " << tokens.remainder() << endl;
   maybe<FunctionCall*> fCall = parseFunctionCall(tokens);
   if (fCall.has_value()) {
-    return new MethodCall(paren, fCall.get_value());
+    return new MethodCall(t, fCall.get_value());
   }
 
   return maybe<Expression*>();
@@ -1204,6 +1204,17 @@ ResultType* sc(InputType* tp) {
   return static_cast<ResultType*>(tp);
 }
 
+vector<Type*> functionInputs(FunctionDecl* fd) {
+  vector<Type*> inputTypes;
+  for (auto argDecl : fd->args) {
+    cout << "\targ = " << argDecl->name << endl;
+    Type* argTp = llvmTypeFor(argDecl->tp);
+    inputTypes.push_back(argTp);
+  }
+
+  return inputTypes;
+}
+
 // Idea: Caller constraints that inline in to each user of a function?
 // For each called user function check if caller constraints are satisified
 // and if not propagate them up the stack? A form of type checking I suppose?
@@ -1225,12 +1236,17 @@ public:
 
   int globalNum;
 
+  std::map<std::string, SynthCppType*> activeSymtab;
+
   std::string uniqueNumString() {
     auto s = std::to_string(globalNum);
     globalNum++;
     return s;
   }
 
+  std::map<std::string, SynthCppType*>& activeSymbolTable() {
+    return activeSymtab;
+  }
   
   SynthCppModule(ParserModule& parseRes) {
     globalNum = 0;
@@ -1259,23 +1275,31 @@ public:
           if (ArgumentDecl::classof(st)) {
             auto decl = sc<ArgumentDecl>(st);
             c->memberVars[decl->name.getStr()] = decl->tp;
+          } else if (FunctionDecl::classof(st)) {
+            auto methodFuncDecl = sc<FunctionDecl>(st);
+            vector<Type*> tps =
+              functionInputs(methodFuncDecl);
+            SynthCppFunction* sf = new SynthCppFunction();
+            sf->nameToken = methodFuncDecl->name;
+            auto f = mkFunc(tps, voidType(), sf->getName());
+            sf->func = f;
+            
+            auto bb = mkBB("entry_block", f);
+            IRBuilder<> b(bb);
+            b.CreateRet(nullptr);
+            c->methods[sf->getName()] = sf;
+          } else {
+            assert(false);
           }
-          // Need to add class member variables
         }
         classes.push_back(c);
       } else if (FunctionDecl::classof(stmt)) {
         auto fd = static_cast<FunctionDecl*>(stmt);
-        vector<Type*> inputTypes;
-        for (auto argDecl : fd->args) {
-          cout << "\targ = " << argDecl->name << endl;
-          Type* argTp = llvmTypeFor(argDecl->tp);
-          inputTypes.push_back(argTp);
-        }
-
+        vector<Type*> inputTypes = functionInputs(fd);
         auto sf = new SynthCppFunction();
         sf->nameToken = fd->name;
 
-        // Add return type
+        // Add return type as first argument
         llvm::Function* f = mkFunc(inputTypes, voidType(), sf->getName());
         auto bb = mkBB("entry_block", f);
         IRBuilder<> b(bb);
@@ -1342,7 +1366,7 @@ public:
       // Should really be an expression
       Token caller = methodCall->callerName;
       FunctionCall* called = methodCall->called;
-      //SynthCppClass* cs = getClass(caller);
+      SynthCppClass* cs = getClass(caller);
       //SynthCppFunction* llvmCalled = cs->getMethod(called->funcName);
 
       // Generate llvm for each argument
@@ -1361,10 +1385,20 @@ public:
     }
   }
 
-  SynthCppClass* getClass(const Token c) {
-    // for (auto c : classes) {
+  SynthCppType* getTypeForId(const Token id) {
+    return map_find(id.getStr(), activeSymbolTable());
+  }
+
+  SynthCppClass* getClass(const Token id) {
+    string idName = id.getStr();
+    cout << "Getting class for " << idName << endl;
+    SynthCppType* tp = getTypeForId(id);
+
+    assert(SynthCppStructType::classof(tp));
+    
+    for (auto c : classes) {
       
-    // }
+    }
 
     assert(false);
   }
