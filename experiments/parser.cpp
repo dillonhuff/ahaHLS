@@ -383,8 +383,10 @@ public:
 enum SynthCppTypeKind {
   SYNTH_CPP_TYPE_KIND_STRUCT,
   SYNTH_CPP_TYPE_KIND_VOID,
-  SYNTH_CPP_TYPE_KIND_POINTER,  
+  SYNTH_CPP_TYPE_KIND_POINTER,
+  SYNTH_CPP_TYPE_KIND_LABEL,  
 };
+
 class SynthCppType {
 public:
 
@@ -419,6 +421,15 @@ public:
   virtual SynthCppTypeKind getKind() const { return SYNTH_CPP_TYPE_KIND_STRUCT; }
 
   static bool classof(const SynthCppType* const tp) { return tp->getKind() == SYNTH_CPP_TYPE_KIND_STRUCT; }
+};
+
+class LabelType : public SynthCppType {
+public:
+  static bool classof(const SynthCppType* const tp) {
+    return tp->getKind() == SYNTH_CPP_TYPE_KIND_LABEL;
+  }
+
+  virtual SynthCppTypeKind getKind() const { return SYNTH_CPP_TYPE_KIND_LABEL; }  
 };
 
 class VoidType : public SynthCppType {
