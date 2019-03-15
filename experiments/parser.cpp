@@ -457,13 +457,18 @@ public:
 };
 
 class IntegerExpr : public Expression {
+public:
+  
   std::string digits;
   
-public:
   IntegerExpr(const std::string& digits_) : digits(digits_) {}
 
   virtual ExpressionKind getKind() const {
     return EXPRESSION_KIND_NUM;
+  }
+
+  static bool classof(Expression* e) {
+    return e->getKind() == EXPRESSION_KIND_NUM;
   }
   
 };
@@ -1183,7 +1188,21 @@ llvm::Type* llvmTypeFor(SynthCppType* const tp) {
 }
 
 class SynthCppClass {
+public:
+
+  Token name;
+  std::map<std::string, SynthCppType*> memberVars;
+  std::map<std::string, SynthCppFunction*> methods;
+
+  SynthCppFunction* getMethod(const Token name) {
+    assert(false);
+  }
 };
+
+template<typename ResultType, typename InputType>
+ResultType* sc(InputType* tp) {
+  return static_cast<ResultType*>(tp);
+}
 
 // Idea: Caller constraints that inline in to each user of a function?
 // For each called user function check if caller constraints are satisified
@@ -1230,12 +1249,20 @@ public:
     // build the type mapping for them?
 
     for (auto stmt : parseRes.getStatements()) {
-      // Note: Part of the virtue of <classname>::classof(obj) instead of obj->type() == CLASS_ENUM
-      // is that it does not force the user to remember names of enums! Name reduction strikes again
 
-      // TODO: Actually add parsing
       if (ClassDecl::classof(stmt)) {
-        classes.push_back(new SynthCppClass());
+        ClassDecl* decl = static_cast<ClassDecl* const>(stmt);
+
+        SynthCppClass* c = new SynthCppClass();
+        c->name = decl->name;
+        for (auto st : decl->body) {
+          if (ArgumentDecl::classof(st)) {
+            auto decl = sc<ArgumentDecl>(st);
+            c->memberVars[decl->name.getStr()] = decl->tp;
+          }
+          // Need to add class member variables
+        }
+        classes.push_back(c);
       } else if (FunctionDecl::classof(stmt)) {
         auto fd = static_cast<FunctionDecl*>(stmt);
         vector<Type*> inputTypes;
@@ -1255,7 +1282,7 @@ public:
 
         for (auto argDecl : fd->args) {
           cout << "\targ = " << argDecl->name << endl;
-          auto val = b.CreateAlloca(intType(32));          
+          auto val = b.CreateAlloca(intType(32));
           setValue(argDecl->name, val);
         }
         
@@ -1300,7 +1327,7 @@ public:
       auto l = genLLVM(b, be->lhs);
       auto r = genLLVM(b, be->rhs);
 
-      auto fresh = b.CreateAlloca(l->getType());
+      auto fresh = b.CreateAlloca(getPointedToType(l->getType()));
       auto bCall = mkFunc({l->getType(), r->getType(), r->getType()}, voidType(), "binop");
       auto res = b.CreateCall(bCall, {l, r, fresh});
 
@@ -1308,12 +1335,38 @@ public:
 
     } else if (MethodCall::classof(e)) {
       // Dummy code
-      auto fresh = b.CreateAlloca(intType(32)->getPointerTo(), nullptr, "silly_call_" + uniqueNumString());
+      auto fresh = b.CreateAlloca(intType(32), nullptr, "silly_call_" + uniqueNumString());
+      auto methodCall =
+        static_cast<MethodCall* const>(e);
+
+      // Should really be an expression
+      Token caller = methodCall->callerName;
+      FunctionCall* called = methodCall->called;
+      //SynthCppClass* cs = getClass(caller);
+      //SynthCppFunction* llvmCalled = cs->getMethod(called->funcName);
+
+      // Generate llvm for each argument
+      for (auto arg : called->args) {
+        genLLVM(b, arg);
+      }
       return fresh;
+    } else if (IntegerExpr::classof(e)) {
+      IntegerExpr* i = static_cast<IntegerExpr* const>(e);
+      string digits = i->digits;
+      auto val = stoi(digits);
+      return mkInt(val, 32);
     } else {
       cout << "Unsupported expression in LLVM codegen" << endl;
       assert(false);      
     }
+  }
+
+  SynthCppClass* getClass(const Token c) {
+    // for (auto c : classes) {
+      
+    // }
+
+    assert(false);
   }
 
   void genLLVM(IRBuilder<>& b, ForStmt* const stmt) {
@@ -1369,9 +1422,12 @@ public:
 
   void genSetCode(IRBuilder<>& b, Value* receiver, Value* value) {
     // Check types?
+    
     Type* rType = receiver->getType();
     Type* vType = value->getType();
 
+    cout << "receiver = " << valueString(receiver) << endl;
+    cout << "value    = " << valueString(value) << endl;    
     cout << "rType = " << typeString(rType) << endl;
     cout << "vType = " << typeString(vType) << endl;
 
