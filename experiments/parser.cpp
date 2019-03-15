@@ -1281,13 +1281,6 @@ public:
     setGlobalLLVMContext(&context);
     setGlobalLLVMModule(mod.get());
 
-    // Also need: storage for clases and functions,
-    // storage for module specifications and hardware
-    // constraints.
-
-    // TODO: If we eventually have parametric classes, we will need to
-    // build the type mapping for them?
-
     for (auto stmt : parseRes.getStatements()) {
 
       if (ClassDecl::classof(stmt)) {
@@ -1304,8 +1297,17 @@ public:
             c->memberVars[decl->name.getStr()] = decl->tp;
           } else if (FunctionDecl::classof(st)) {
             auto methodFuncDecl = sc<FunctionDecl>(st);
-            vector<Type*> tps =
+            vector<Type*> argTps =
               functionInputs(methodFuncDecl);
+            vector<Type*> tps;
+            if (!VoidType::classof(methodFuncDecl->returnType)) {
+              tps.push_back(llvmTypeFor(methodFuncDecl->returnType));
+            }
+
+            tps.push_back(llvmTypeFor(new SynthCppPointerType(new SynthCppStructType(c->name))));
+            for (auto a : argTps) {
+              tps.push_back(a);
+            }
             SynthCppFunction* sf = new SynthCppFunction();
             sf->nameToken = methodFuncDecl->name;
             auto f = mkFunc(tps, voidType(), sf->getName());
@@ -1367,6 +1369,13 @@ public:
         functions.push_back(sf);
 
         activeSymtab = nullptr;        
+      }
+    }
+
+    for (auto c : classes) {
+      for (auto m : c->methods) {
+        cout << "Adding interface method " << m.second->nameToken << endl;
+        interfaces.addFunction(m.second->llvmFunction());
       }
     }
   }
@@ -1490,27 +1499,6 @@ public:
   }
 
   void genLLVM(IRBuilder<>& b, AssignStmt* const stmt) {
-    // Q: How do I want to lookup values of variable names?
-    // Q: What am I confused about?
-    // A: How to generate PHI nodes
-    //    What types should be usable in assignments?
-    //    What should names in a program represent?
-    //     - Currently pass by value means that the fields of the underlying
-    //       module being passed are connected to the user modules interfaces
-    //       and the user module then uses those ports to copy the module (copy is implementation defined)
-    //       to a local module of the same type?
-    //       Q: So in a + b are the two arguments (of type bit_32) passed by value?
-    //       Q: How do you pass by value without dereferencing a pointer? Or do you dereference the pointer?
-
-    // Note: In this passing system "pass by value" and "pass by reference" produce the same port list.
-    // From the callers point of view the set of ports created is the same, though perhaps the timing
-    // constraints on values connected to those ports will be different depending on how long the copy
-    // constructor takes to run. So should the LLVM convention include pass by value anywhere?
-    // Maybe in all but the top level function the generated code should force the user to pass by
-    // reference and create their own copies where needed?
-    // The ability to safely bind a pointer to a value in a function argument list feels blasphemous,
-    // but I suppose it does make sense in this language semantics? It is not really a pointer it is
-    // a port list?
 
     // Note: Should really be an expression
     Token t = stmt->var;
@@ -1536,7 +1524,7 @@ public:
     assert(rType == vType);
 
     auto assignFunc =
-      mkFunc({rType, vType}, voidType(), "assign_" + typeString(rType) + "_" + typeString(vType));
+      mkFunc({rType, vType}, voidType(), "assign_" + typeString(rType));
     b.CreateCall(assignFunc, {receiver, value});
   }
   
