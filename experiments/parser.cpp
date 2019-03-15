@@ -1141,6 +1141,8 @@ class SynthCppFunction {
 public:
   Token nameToken;
   llvm::Function* func;
+  std::map<std::string, SynthCppType*> types;
+  
   llvm::Function* llvmFunction() { return func; }
 
   std::string getName() const {
@@ -1236,7 +1238,7 @@ public:
 
   int globalNum;
 
-  std::map<std::string, SynthCppType*> activeSymtab;
+  std::map<std::string, SynthCppType*>* activeSymtab;
 
   std::string uniqueNumString() {
     auto s = std::to_string(globalNum);
@@ -1245,7 +1247,8 @@ public:
   }
 
   std::map<std::string, SynthCppType*>& activeSymbolTable() {
-    return activeSymtab;
+    assert(activeSymtab != nullptr);
+    return *activeSymtab;
   }
   
   SynthCppModule(ParserModule& parseRes) {
@@ -1271,6 +1274,9 @@ public:
 
         SynthCppClass* c = new SynthCppClass();
         c->name = decl->name;
+        activeSymtab = &(c->memberVars);
+        assert(activeSymtab != nullptr);
+        
         for (auto st : decl->body) {
           if (ArgumentDecl::classof(st)) {
             auto decl = sc<ArgumentDecl>(st);
@@ -1293,7 +1299,11 @@ public:
           }
         }
         classes.push_back(c);
+
+        activeSymtab = nullptr;
+        
       } else if (FunctionDecl::classof(stmt)) {
+        activeSymtab = ;
         auto fd = static_cast<FunctionDecl*>(stmt);
         vector<Type*> inputTypes = functionInputs(fd);
         auto sf = new SynthCppFunction();
@@ -1394,6 +1404,8 @@ public:
     cout << "Getting class for " << idName << endl;
     SynthCppType* tp = getTypeForId(id);
 
+    cout << "Got type for " << idName << endl;
+    
     assert(SynthCppStructType::classof(tp));
     
     for (auto c : classes) {
