@@ -1336,11 +1336,20 @@ public:
         auto bb = mkBB("entry_block", f);
         IRBuilder<> b(bb);
 
+        int argNum = 0;
         for (auto argDecl : fd->args) {
           cout << "\targ = " << argDecl->name << endl;
-          sf->symtab[argDecl->name.getStr()] = argDecl->tp;
-          auto val = b.CreateAlloca(intType(32));
-          setValue(argDecl->name, val);
+
+          // Create local copy if argument is passed by value
+          sf->symtab[argDecl->name.getStr()] = argDecl->tp;          
+          if (!SynthCppPointerType::classof(argDecl->tp)) {
+            auto val = b.CreateAlloca(llvmTypeFor(argDecl->tp));
+            setValue(argDecl->name, val);
+          } else {
+            setValue(argDecl->name, getArg(f, argNum));
+          }
+
+          argNum++;
         }
         
         // Now need to iterate over all statements in the body creating labels
