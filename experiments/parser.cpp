@@ -1142,25 +1142,6 @@ ParserModule parse(const std::vector<Token>& tokens) {
 }
 
 
-class SynthCppFunction {
-public:
-  Token nameToken;
-  llvm::Function* func;
-  std::map<std::string, SynthCppType*> symtab;
-  SynthCppType* retType;
-
-  SynthCppType* returnType() {
-    assert(retType != nullptr);
-    return retType;
-  }
-  
-  llvm::Function* llvmFunction() { return func; }
-
-  std::string getName() const {
-    return nameToken.getStr();
-  }
-};
-
 llvm::Type* llvmPointerFor(SynthCppType* const tp) {
   assert(SynthCppStructType::classof(tp));
   return structType(static_cast<SynthCppStructType* const>(tp)->getName())->getPointerTo();
@@ -1187,6 +1168,8 @@ int getWidth(SynthCppStructType* tp) {
 llvm::Type* llvmTypeFor(SynthCppType* const tp) {
   if (SynthCppPointerType::classof(tp)) {
     return llvmPointerFor(static_cast<SynthCppPointerType* const>(tp)->getElementType());
+  } else if (VoidType::classof(tp)) {
+    return voidType();
   } else {
     assert(SynthCppStructType::classof(tp));
     auto st = static_cast<SynthCppStructType* const>(tp);
@@ -1198,6 +1181,34 @@ llvm::Type* llvmTypeFor(SynthCppType* const tp) {
       return argTp;
     }
   }
+}
+
+class SynthCppFunction {
+public:
+  Token nameToken;
+  llvm::Function* func;
+  std::map<std::string, SynthCppType*> symtab;
+  SynthCppType* retType;
+
+  SynthCppType* returnType() {
+    assert(retType != nullptr);
+    return retType;
+  }
+  
+  llvm::Function* llvmFunction() { return func; }
+
+  std::string getName() const {
+    return nameToken.getStr();
+  }
+};
+
+SynthCppFunction* builtinStub(std::string name, std::vector<llvm::Type*>& args, SynthCppType* retType) {
+  SynthCppFunction* stub = new SynthCppFunction();
+  stub->nameToken = Token(name);
+  stub->retType = retType;
+  stub->func = mkFunc(args, llvmTypeFor(retType), name);
+  
+  return stub;
 }
 
 class SynthCppClass {
@@ -1487,7 +1498,13 @@ public:
       IntegerExpr* i = static_cast<IntegerExpr* const>(e);
       string digits = i->digits;
       auto val = stoi(digits);
-      return mkInt(val, 32);
+      auto constStorage = b.CreateAlloca(intType(32), nullptr, "const_val_" + uniqueNumString());
+      vector<Type*> ins = {intType(32)->getPointerTo(), intType(32)};
+
+      vector<Value*> args = {constStorage, mkInt(val, 32)};
+      b.CreateCall(mkFunc(ins, voidType(), "set_const"), args);
+      return constStorage;
+      //return mkInt(val, 32);
     } else {
       cout << "Unsupported expression in LLVM codegen" << endl;
       assert(false);      
@@ -1583,6 +1600,43 @@ public:
 
   SynthCppFunction* getFunction(const std::string& name) {
     cout << "Getting function for " << name << endl;
+
+    // TODO: Generalize to work for any width input
+    if (name == "set_port") {
+      vector<Type*> inputs =
+        {intType(32)->getPointerTo(), intType(32)->getPointerTo()};
+      SynthCppFunction* stb = builtinStub("set_port", inputs, new VoidType());
+      return stb;
+    }
+
+    if (name == "add_constraint") {
+      vector<Type*> inputs =
+        {intType(32)->getPointerTo()};
+      SynthCppFunction* stb = builtinStub("add_constraint", inputs, new VoidType());
+      return stb;
+    }
+
+
+    if (name == "start") {
+      vector<Type*> inputs =
+        {intType(32)->getPointerTo()};
+      SynthCppFunction* stb = builtinStub("start", inputs, new SynthCppStructType(Token("bit_32")));
+      return stb;
+    }
+
+    if (name == "end") {
+      vector<Type*> inputs =
+        {intType(32)->getPointerTo()};
+      SynthCppFunction* stb = builtinStub("end", inputs, new SynthCppStructType(Token("bit_32")));
+      return stb;
+    }
+
+    if (name == "read_port") {
+      vector<Type*> inputs =
+        {intType(32)->getPointerTo()};
+      SynthCppFunction* stb = builtinStub("read_port", inputs, new SynthCppStructType(Token("bit_32")));
+      return stb;
+    }
     
     for (auto f : functions) {
       cout << "f name = " << f->getName() << endl;
