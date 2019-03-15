@@ -1141,7 +1141,13 @@ class SynthCppFunction {
 public:
   Token nameToken;
   llvm::Function* func;
-  std::map<std::string, SynthCppType*> types;
+  std::map<std::string, SynthCppType*> symtab;
+  SynthCppType* retType;
+
+  SynthCppType* returnType() {
+    assert(retType != nullptr);
+    return retType;
+  }
   
   llvm::Function* llvmFunction() { return func; }
 
@@ -1197,7 +1203,8 @@ public:
   std::map<std::string, SynthCppFunction*> methods;
 
   SynthCppFunction* getMethod(const Token name) {
-    assert(false);
+    cout << "Getting method for " << name << endl;
+    return map_find(name.getStr(), methods);
   }
 };
 
@@ -1215,6 +1222,20 @@ vector<Type*> functionInputs(FunctionDecl* fd) {
   }
 
   return inputTypes;
+}
+
+SynthCppStructType* extractBaseStructType(SynthCppType* tp) {
+  if (SynthCppStructType::classof(tp)) {
+    return sc<SynthCppStructType>(tp);
+  }
+
+  assert(SynthCppPointerType::classof(tp));
+  auto pTp = sc<SynthCppPointerType>(tp);
+  auto underlying = pTp->getElementType();
+
+  assert(SynthCppStructType::classof(underlying));
+
+  return sc<SynthCppStructType>(underlying);
 }
 
 // Idea: Caller constraints that inline in to each user of a function?
@@ -1289,6 +1310,7 @@ public:
             sf->nameToken = methodFuncDecl->name;
             auto f = mkFunc(tps, voidType(), sf->getName());
             sf->func = f;
+            sf->retType = methodFuncDecl->returnType;
             
             auto bb = mkBB("entry_block", f);
             IRBuilder<> b(bb);
@@ -1303,11 +1325,11 @@ public:
         activeSymtab = nullptr;
         
       } else if (FunctionDecl::classof(stmt)) {
-        activeSymtab = ;
         auto fd = static_cast<FunctionDecl*>(stmt);
         vector<Type*> inputTypes = functionInputs(fd);
         auto sf = new SynthCppFunction();
         sf->nameToken = fd->name;
+        activeSymtab = &(sf->symtab);
 
         // Add return type as first argument
         llvm::Function* f = mkFunc(inputTypes, voidType(), sf->getName());
@@ -1316,11 +1338,13 @@ public:
 
         for (auto argDecl : fd->args) {
           cout << "\targ = " << argDecl->name << endl;
+          sf->symtab[argDecl->name.getStr()] = argDecl->tp;
           auto val = b.CreateAlloca(intType(32));
           setValue(argDecl->name, val);
         }
         
-        // Now need to iterate over all statements in the body creating labels that map to starts and ends of statements
+        // Now need to iterate over all statements in the body creating labels
+        // that map to starts and ends of statements
         // and also adding code for each statement to the resulting function, f.
         sf->func = f;        
         activeFunction = sf;
@@ -1331,8 +1355,9 @@ public:
         }
         b.CreateRet(nullptr);
 
-
         functions.push_back(sf);
+
+        activeSymtab = nullptr;        
       }
     }
   }
@@ -1361,6 +1386,8 @@ public:
       auto l = genLLVM(b, be->lhs);
       auto r = genLLVM(b, be->rhs);
 
+      cout << "left     = " << valueString(l) << endl;
+      cout << "left tp  = " << typeString(l->getType()) << endl;      
       auto fresh = b.CreateAlloca(getPointedToType(l->getType()));
       auto bCall = mkFunc({l->getType(), r->getType(), r->getType()}, voidType(), "binop");
       auto res = b.CreateCall(bCall, {l, r, fresh});
@@ -1369,7 +1396,6 @@ public:
 
     } else if (MethodCall::classof(e)) {
       // Dummy code
-      auto fresh = b.CreateAlloca(intType(32), nullptr, "silly_call_" + uniqueNumString());
       auto methodCall =
         static_cast<MethodCall* const>(e);
 
@@ -1377,13 +1403,26 @@ public:
       Token caller = methodCall->callerName;
       FunctionCall* called = methodCall->called;
       SynthCppClass* cs = getClass(caller);
-      //SynthCppFunction* llvmCalled = cs->getMethod(called->funcName);
+      SynthCppFunction* calledFunc = cs->getMethod(called->funcName);
 
       // Generate llvm for each argument
-      for (auto arg : called->args) {
-        genLLVM(b, arg);
+      vector<Value*> args;
+
+      Value* retVal = nullptr;
+      // Add return value
+      if (!VoidType::classof(calledFunc->returnType())) {
+        retVal = b.CreateAlloca(llvmTypeFor(calledFunc->returnType()), nullptr, "ret_val_" + uniqueNumString());
+        args.push_back(retVal);
       }
-      return fresh;
+
+      args.push_back(getValueFor(caller));
+      for (auto arg : called->args) {
+        args.push_back(genLLVM(b, arg));
+      }
+
+      b.CreateCall(calledFunc->llvmFunction(), args);
+      
+      return retVal;
     } else if (IntegerExpr::classof(e)) {
       IntegerExpr* i = static_cast<IntegerExpr* const>(e);
       string digits = i->digits;
@@ -1405,11 +1444,12 @@ public:
     SynthCppType* tp = getTypeForId(id);
 
     cout << "Got type for " << idName << endl;
-    
-    assert(SynthCppStructType::classof(tp));
-    
+
+    auto classType = extractBaseStructType(tp);
     for (auto c : classes) {
-      
+      if (c->name == classType->name) {
+        return c;
+      }
     }
 
     assert(false);
