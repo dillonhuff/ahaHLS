@@ -1363,6 +1363,10 @@ public:
   }
 
   map<std::string, llvm::Value*> valueMap;
+
+  bool hasValue(Token t) const {
+    return contains_key(t.getStr(), valueMap);
+  }
   
   llvm::Value* getValueFor(Token t) {
     cout << "Getting value for " << t.getStr() << endl;
@@ -1377,10 +1381,15 @@ public:
   
   llvm::Value* genLLVM(IRBuilder<>& b, Expression* const e) {
     if (Identifier::classof(e)) {
+
       Identifier* id = static_cast<Identifier* const>(e);
-      auto val = b.CreateAlloca(intType(32));
-      setValue(id->name, val);
-      return val;
+      if (!hasValue(id->name)) {      
+        auto val = b.CreateAlloca(intType(32));
+        setValue(id->name, val);
+        return val;        
+      }
+
+      return getValueFor(id->name);
     } else if (BinopExpr::classof(e)) {
       BinopExpr* be = static_cast<BinopExpr* const>(e);
       auto l = genLLVM(b, be->lhs);
@@ -1472,8 +1481,6 @@ public:
   }
 
   void genLLVM(IRBuilder<>& b, AssignStmt* const stmt) {
-    // Assign should really take in a LHS, not a token
-
     // Q: How do I want to lookup values of variable names?
     // Q: What am I confused about?
     // A: How to generate PHI nodes
@@ -1518,6 +1525,10 @@ public:
     cout << "vType = " << typeString(vType) << endl;
 
     assert(rType == vType);
+
+    auto assignFunc =
+      mkFunc({rType, vType}, voidType(), "assign_" + typeString(rType) + "_" + typeString(vType));
+    b.CreateCall(assignFunc, {receiver, value});
   }
   
   void genLLVM(IRBuilder<>& b, Statement* const stmt) {
