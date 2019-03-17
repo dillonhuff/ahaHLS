@@ -1009,6 +1009,89 @@ namespace ahaHLS {
     REQUIRE(runIVerilogTB("raw_axi_wr"));
   }
 
+  TEST_CASE("AXI memory transfer with multiple reads and writes") {
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    std::unique_ptr<Module> Mod =
+      loadCppModule(Context, Err, "axi_multi_transfer");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "axi_multi_transfer");
+    getArg(f, 0)->setName("ram");
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.typeSpecs["class.axi_ram"] = axiRamSpec;
+    
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read")] = implementRawAXIRead;
+    interfaces.functionTemplates[string("write")] = implementRawAXIWrite;
+    
+    Schedule s = scheduleInterface(f, hcs, interfaces);
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    VerilogDebugInfo info;
+    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+
+    emitVerilog("axi_multi_transfer", graph, hcs, info);
+
+    map<string, vector<int> > memoryInit;
+    map<string, vector<int> > memoryExpected;
+    map<string, int> testLayout;
+    map<Value*, int> layout;    
+    TestBenchSpec tb = buildTB("axi_multi_transfer", memoryInit, memoryExpected, testLayout);
+    map_insert(tb.actionsOnCycles, 50, assertString("valid === 1"));
+    
+    tb.settableWires.insert("ram_debug_wr_en");
+    tb.settableWires.insert("ram_debug_wr_addr");
+    tb.settableWires.insert("ram_debug_wr_data");
+    tb.settableWires.insert("ram_debug_addr");
+    map_insert(tb.actionsInCycles, 1, string("ram_debug_wr_en = 1;"));
+
+    map_insert(tb.actionsInCycles, 1, string("ram_debug_wr_addr = 0;"));
+    map_insert(tb.actionsInCycles, 1, string("ram_debug_wr_data = 12;"));
+
+    map_insert(tb.actionsInCycles, 2, string("ram_debug_wr_addr = 1;"));
+    map_insert(tb.actionsInCycles, 2, string("ram_debug_wr_data = 7;"));
+
+    map_insert(tb.actionsInCycles, 3, string("ram_debug_wr_addr = 2;"));
+    map_insert(tb.actionsInCycles, 3, string("ram_debug_wr_data = 8;"));
+
+    map_insert(tb.actionsInCycles, 4, string("ram_debug_wr_addr = 3;"));
+    map_insert(tb.actionsInCycles, 4, string("ram_debug_wr_data = 14;"));
+
+    map_insert(tb.actionsInCycles, 5, string("ram_debug_wr_addr = 4;"));
+    map_insert(tb.actionsInCycles, 5, string("ram_debug_wr_data = -12;"));
+    
+    map_insert(tb.actionsInCycles, 6, string("ram_debug_wr_en = 0;"));
+
+    //map_insert(tb.actionsInCycles, 49, string("ram_debug_addr = 0;"));
+    map_insert(tb.actionsInCycles, 50, string("ram_debug_addr = 5;"));
+    map_insert(tb.actionsOnCycles, 50, assertString("ram_debug_data === 12 + 34"));
+
+    map_insert(tb.actionsInCycles, 51, string("ram_debug_addr = 6;"));
+    map_insert(tb.actionsOnCycles, 51, assertString("ram_debug_data === 7 + 34"));
+
+    map_insert(tb.actionsInCycles, 52, string("ram_debug_addr = 7;"));
+    map_insert(tb.actionsOnCycles, 52, assertString("ram_debug_data === 8 + 34"));
+
+    map_insert(tb.actionsInCycles, 53, string("ram_debug_addr = 8;"));
+    map_insert(tb.actionsOnCycles, 53, assertString("ram_debug_data === 14 + 34"));
+
+    map_insert(tb.actionsInCycles, 54, string("ram_debug_addr = 9;"));
+    map_insert(tb.actionsOnCycles, 54, assertString("ram_debug_data === -12 + 34"));
+    
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
+    emitVerilogTestBench(tb, arch, testLayout);
+    
+    REQUIRE(runIVerilogTB("axi_multi_transfer"));
+  }
+  
   TEST_CASE("Building a simple function directly in LLVM") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
