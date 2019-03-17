@@ -50,9 +50,16 @@ namespace ahaHLS {
                          llvm::Type* outputType,
                          const std::string& funcName,
                          llvm::Module* mod) {
+
+    llvm::Function* resF = mod->getFunction(funcName);
+
+    if (resF != nullptr) {
+      return resF;
+    }
+
     llvm::FunctionType *tp =
       llvm::FunctionType::get(outputType, inputs, false);
-    
+
     llvm::Function *srUser =
       llvm::Function::Create(tp, llvm::Function::ExternalLinkage, funcName, mod);
 
