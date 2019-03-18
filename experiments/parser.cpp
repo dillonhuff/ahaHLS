@@ -1204,6 +1204,10 @@ public:
   bool hasReturnType() {
     return retType != nullptr;
   }
+
+  bool hasReturnValue() {
+    return (retType != nullptr) && (!VoidType::classof(retType));
+  }
   
   SynthCppType* returnType() {
     assert(retType != nullptr);
@@ -1360,7 +1364,12 @@ public:
                           vector<ArgumentDecl*>& args,
                           Function* f,
                           int argOffset) {
-    int argNum = argOffset;
+
+    cout << "f = " << endl;
+    cout << valueString(f) << endl;
+    cout << "argOffset = " << argOffset << endl;
+    //int argNum = argOffset;
+    int argNum = 0;    
     for (auto argDecl : args) {
       cout << "\targ = " << argDecl->name << endl;
 
@@ -1372,7 +1381,7 @@ public:
       symtab[argDecl->name.getStr()] = argDecl->tp;
       if (!SynthCppPointerType::classof(argDecl->tp)) {
         auto val = b.CreateAlloca(llvmTypeFor(argDecl->tp));
-        genLLVMCopyTo(b, val, getArg(f, argNum));
+        genLLVMCopyTo(b, val, getArg(f, argNum + argOffset));
         setValue(argDecl->name, val);
       } else {
         setValue(argDecl->name, getArg(f, argNum));
@@ -1433,7 +1442,7 @@ public:
             auto bb = mkBB("entry_block", f);
             IRBuilder<> b(bb);
 
-            bool hasReturn = sf->hasReturnType();
+            bool hasReturn = sf->hasReturnValue();
             setArgumentSymbols(b, sf->symtab, methodFuncDecl->args, f, 1 + (hasReturn ? 1 : 0));
             
             for (auto stmt : methodFuncDecl->body) {
@@ -1468,7 +1477,7 @@ public:
         auto bb = mkBB("entry_block", f);
         IRBuilder<> b(bb);
 
-        bool hasReturn = sf->hasReturnType();
+        bool hasReturn = sf->hasReturnValue();
         setArgumentSymbols(b, sf->symtab, fd->args, f, hasReturn ? 1 : 0);
 
         // Now need to iterate over all statements in the body creating labels
