@@ -1220,28 +1220,16 @@ namespace ahaHLS {
       assignments.insert({addUnit.portWires["sel"].name, condName});            
 
     } else if (CallInst::classof(instr)) {
-      // if (isBuiltinFifoCall(instr)) {
-
-      //   if (isBuiltinFifoWrite(instr)) {
-      //     assert(false);
-          
-      //   } else if (isBuiltinFifoRead(instr)) {
-      //     assert(false);
-
-      //   } else {
-      //     assert(false);
-      //   }
-      // } else
 
       if (isBuiltinPortWrite(instr)) {
         //cout << "Operand 0 = " << valueString(instr->getOperand(0)) << endl;
-          //assert(contains_key(instr->getOperand(0), arch.hcs.modSpecs));
+        //assert(contains_key(instr->getOperand(0), arch.hcs.modSpecs));
 
-          std::string portName = getPortName(instr);
-          //cout << "Port name = " << portName << endl;
-          string val = outputName(instr->getOperand(1), pos, arch);
+        std::string portName = getPortName(instr);
+        cout << "Port name = " << portName << endl;
+        string val = outputName(instr->getOperand(1), pos, arch);
 
-          assignments.insert({addUnit.inputWire(portName), val});
+        assignments.insert({addUnit.inputWire(portName), val});
 
       } else if (isBuiltinPortRead(instr)) {
 

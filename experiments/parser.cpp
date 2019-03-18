@@ -1527,6 +1527,8 @@ public:
             cout << valueString(sf->llvmFunction()) << endl;
             c->methods[sf->getName()] = sf;
 
+            setAllAllocaMemTypes(hcs, f, registerSpec(32));
+            
             activeFunction = nullptr;            
           } else {
             assert(false);
@@ -1590,6 +1592,9 @@ public:
         functions.push_back(sf);
         activeFunction = nullptr;        
 
+        setAllAllocaMemTypes(hcs, f, registerSpec(32));
+            
+        
         //activeSymtab = nullptr;
         cgs.symtab.popTable();
       }
@@ -1918,6 +1923,10 @@ void synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
   cout << valueString(f->llvmFunction()) << endl;
   Schedule s = scheduleInterface(f->llvmFunction(), scppMod.getHardwareConstraints(), scppMod.getInterfaceFunctions(), scppMod.getBlocksToPipeline());
   STG graph = buildSTG(s, f->llvmFunction());
+
+  // TODO: Generate these automatically, or change generation code
+  // to treat LLVM i<N> as builtin?
+  setAllAllocaMemTypes(scppMod.getHardwareConstraints(), f->llvmFunction(), registerSpec(32));  
 
   cout << "STG is" << endl;
   graph.print(cout);

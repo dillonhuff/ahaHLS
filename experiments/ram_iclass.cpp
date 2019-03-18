@@ -4,6 +4,9 @@ class ram {
   input_5 waddr;
   input_1 wen;
 
+  input_5 raddr;
+  output_32 rdata;  
+
   void write(bit_5 addr, bit_32 data) {
   set_wen:
     set_port(wen, 1);
