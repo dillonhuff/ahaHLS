@@ -1251,7 +1251,11 @@ vector<Type*> functionInputs(FunctionDecl* fd) {
   for (auto argDecl : fd->args) {
     cout << "\targ = " << argDecl->name << endl;
     Type* argTp = llvmTypeFor(argDecl->tp);
-    inputTypes.push_back(argTp);
+    if (SynthCppPointerType::classof(argDecl->tp)) {
+      inputTypes.push_back(argTp);
+    } else {
+      inputTypes.push_back(argTp->getPointerTo());
+    }
   }
 
   return inputTypes;
@@ -1338,6 +1342,32 @@ public:
     return s;
   }
 
+  void setArgumentSymbols(IRBuilder<>& b,
+                          map<string, SynthCppType*>& symtab,
+                          vector<ArgumentDecl*>& args,
+                          Function* f) {
+    int argNum = 0;
+    for (auto argDecl : args) {
+      cout << "\targ = " << argDecl->name << endl;
+
+      // Create local copy if argument is passed by value
+      // For arguments originally passed by pointer:
+      // - Add the underlying type to the value map (setValue)
+      // For arguments originally passed by value
+      // - Create internal copy
+      symtab[argDecl->name.getStr()] = argDecl->tp;
+      if (!SynthCppPointerType::classof(argDecl->tp)) {
+        auto val = b.CreateAlloca(llvmTypeFor(argDecl->tp));
+        setValue(argDecl->name, val);
+      } else {
+        setValue(argDecl->name, getArg(f, argNum));
+      }
+
+      argNum++;
+    }
+  }
+
+  
   // std::map<std::string, SynthCppType*>& activeSymbolTable() {
   //   assert(activeSymtab != nullptr);
   //   return *activeSymtab;
@@ -1368,6 +1398,10 @@ public:
             auto decl = sc<ArgumentDecl>(st);
             c->memberVars[decl->name.getStr()] = decl->tp;
           } else if (FunctionDecl::classof(st)) {
+
+            // I would like to be able to generate method
+            // and function code with the same generator so
+            // that I dont end up with argument duplication
             auto methodFuncDecl = sc<FunctionDecl>(st);
             vector<Type*> argTps =
               functionInputs(methodFuncDecl);
@@ -1385,16 +1419,21 @@ public:
             auto f = mkFunc(tps, voidType(), sf->getName());
             sf->func = f;
             sf->retType = methodFuncDecl->returnType;
-            
+
             auto bb = mkBB("entry_block", f);
             IRBuilder<> b(bb);
 
+            setArgumentSymbols(b, sf->symtab, methodFuncDecl->args, f);
+            
             for (auto stmt : methodFuncDecl->body) {
               cout << "Statement" << endl;
               genLLVM(b, stmt);
             }
             
             b.CreateRet(nullptr);
+
+            cout << "Just generated code for method " << endl;
+            cout << valueString(sf->llvmFunction()) << endl;
             c->methods[sf->getName()] = sf;
           } else {
             assert(false);
@@ -1418,22 +1457,8 @@ public:
         auto bb = mkBB("entry_block", f);
         IRBuilder<> b(bb);
 
-        int argNum = 0;
-        for (auto argDecl : fd->args) {
-          cout << "\targ = " << argDecl->name << endl;
+        setArgumentSymbols(b, sf->symtab, fd->args, f);
 
-          // Create local copy if argument is passed by value
-          sf->symtab[argDecl->name.getStr()] = argDecl->tp;          
-          if (!SynthCppPointerType::classof(argDecl->tp)) {
-            auto val = b.CreateAlloca(llvmTypeFor(argDecl->tp));
-            setValue(argDecl->name, val);
-          } else {
-            setValue(argDecl->name, getArg(f, argNum));
-          }
-
-          argNum++;
-        }
-        
         // Now need to iterate over all statements in the body creating labels
         // that map to starts and ends of statements
         // and also adding code for each statement to the resulting function, f.
@@ -2161,13 +2186,12 @@ int main() {
   // Meta: I am really tired on this plane, what could I do to continue to work
   // that will not take a huge mental load?
 
-  // Problem: Need to build symbol tables that can layer one scope on
-  // top of another, like a symbol table tree to push and pop scopes onto
-  
   // Problem: Need to add labels and create a mapping from labels to the statements
   // that they reference
 
   // Problem: Constraints do not currently get translated in to anything. The code
   // generator needs an internal mapping from label names to generated code locations
+
+  // Problem: Arguments passed by value do not seem to get found by the symbol table?
 
 }
