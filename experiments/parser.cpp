@@ -1283,6 +1283,18 @@ public:
     tableStack.pop_back();
   }
 
+  SynthCppType* getType(const std::string& str) {
+    int depth = ((int) tableStack.size()) - 1;
+
+    for (int i = depth; i >= 0; i--) {
+      if (contains_key(str, *(tableStack.at(i)))) {
+        return map_find(str, *(tableStack.at(i)));
+      }
+    }
+    
+    assert(false);
+  }
+  
 };
 
 class CodeGenState {
@@ -1291,6 +1303,8 @@ public:
   SynthCppClass* activeClass;
   SynthCppFunction* activeFunction;
   int globalNum;
+
+  SymbolTable symtab;
 
   //std::map<std::string, SynthCppType*>* activeSymtab;
   
@@ -1313,11 +1327,10 @@ public:
   // Note: Maybe this should be in SynthCppFunction
   std::set<BasicBlock*> blocksToPipeline;
 
+  CodeGenState cgs;
   SynthCppFunction* activeFunction;
-
   int globalNum;
-
-  std::map<std::string, SynthCppType*>* activeSymtab;
+  // std::map<std::string, SynthCppType*>* activeSymtab;
 
   std::string uniqueNumString() {
     auto s = std::to_string(globalNum);
@@ -1325,10 +1338,10 @@ public:
     return s;
   }
 
-  std::map<std::string, SynthCppType*>& activeSymbolTable() {
-    assert(activeSymtab != nullptr);
-    return *activeSymtab;
-  }
+  // std::map<std::string, SynthCppType*>& activeSymbolTable() {
+  //   assert(activeSymtab != nullptr);
+  //   return *activeSymtab;
+  // }
   
   SynthCppModule(ParserModule& parseRes) {
     globalNum = 0;
@@ -1346,8 +1359,9 @@ public:
 
         SynthCppClass* c = new SynthCppClass();
         c->name = decl->name;
-        activeSymtab = &(c->memberVars);
-        assert(activeSymtab != nullptr);
+        //activeSymtab = &(c->memberVars);
+        cgs.symtab.pushTable(&(c->memberVars));
+        //assert(activeSymtab != nullptr);
         
         for (auto st : decl->body) {
           if (ArgumentDecl::classof(st)) {
@@ -1388,14 +1402,16 @@ public:
         }
         classes.push_back(c);
 
-        activeSymtab = nullptr;
+        //activeSymtab = nullptr;
+        cgs.symtab.popTable();
         
       } else if (FunctionDecl::classof(stmt)) {
         auto fd = static_cast<FunctionDecl*>(stmt);
         vector<Type*> inputTypes = functionInputs(fd);
         auto sf = new SynthCppFunction();
         sf->nameToken = fd->name;
-        activeSymtab = &(sf->symtab);
+        //activeSymtab = &(sf->symtab);
+        cgs.symtab.pushTable(&(sf->symtab));
 
         // Add return type as first argument
         llvm::Function* f = mkFunc(inputTypes, voidType(), sf->getName());
@@ -1432,7 +1448,8 @@ public:
 
         functions.push_back(sf);
 
-        activeSymtab = nullptr;        
+        //activeSymtab = nullptr;
+        cgs.symtab.popTable();
       }
     }
 
@@ -1573,7 +1590,7 @@ public:
   }
 
   SynthCppType* getTypeForId(const Token id) {
-    return map_find(id.getStr(), activeSymbolTable());
+    return cgs.symtab.getType(id.getStr()); //map_find(id.getStr(), activeSymbolTable());
   }
 
   SynthCppClass* getClass(const Token id) {
