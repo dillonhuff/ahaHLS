@@ -1450,12 +1450,24 @@ public:
       cout << "left tp  = " << typeString(l->getType()) << endl;      
       auto fresh = b.CreateAlloca(getPointedToType(l->getType()));
       auto bCall = mkFunc({l->getType(), r->getType(), r->getType()}, voidType(), "binop");
-      auto res = b.CreateCall(bCall, {l, r, fresh});
+      auto res = b.CreateCall(bCall, {fresh, l, r});
 
-      return res->getOperand(2);
+      return res->getOperand(0);
 
     } else if (FunctionCall::classof(e)) {
       auto called = sc<FunctionCall>(e);
+
+      string name = called->funcName.getStr();
+      if (name == "add_constraint") {
+        // TODO: Add constraint to active execonstraints
+        return nullptr;
+      }
+
+      if (name == "set_port") {
+        // TODO: Generate the correct port setting statement
+        assert(false);
+      }
+      
       SynthCppFunction* calledFunc = getFunction(called->funcName.getStr());
 
       // Generate llvm for each argument
@@ -1690,6 +1702,8 @@ void synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
   SynthCppFunction* f = scppMod.getFunction(funcName);
 
   // Q: How do we pass the hardware constraints on f in to the synthesis flow?
+  cout << "Scheduling function" << endl;
+  cout << valueString(f->llvmFunction()) << endl;
   Schedule s = scheduleInterface(f->llvmFunction(), scppMod.getHardwareConstraints(), scppMod.getInterfaceFunctions(), scppMod.getBlocksToPipeline());
   STG graph = buildSTG(s, f->llvmFunction());
 
@@ -2091,5 +2105,14 @@ int main() {
   //    Remove duplication from mkFunc
   // Meta: I am really tired on this plane, what could I do to continue to work
   // that will not take a huge mental load?
+
+  // Problem: Need to build symbol tables that can layer one scope on
+  // top of another, like a symbol table tree to push and pop scopes onto
+  
+  // Problem: Need to add labels and create a mapping from labels to the statements
+  // that they reference
+
+  // Problem: Constraints do not currently get translated in to anything. The code
+  // generator needs an internal mapping from label names to generated code locations
 
 }
