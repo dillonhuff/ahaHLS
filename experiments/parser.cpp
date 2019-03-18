@@ -1318,8 +1318,17 @@ public:
 
   SymbolTable symtab;
 
-  //std::map<std::string, SynthCppType*>* activeSymtab;
-  
+  void pushClassContext(SynthCppClass* ac) {
+    activeClass = ac;
+  }
+
+  void popClassContext() {
+    activeClass = nullptr;
+  }
+
+  SynthCppClass* getActiveClass() {
+    return activeClass;
+  }
 };
 
 // Idea: Caller constraints that inline in to each user of a function?
@@ -1393,6 +1402,8 @@ public:
 
   
   SynthCppModule(ParserModule& parseRes) {
+    activeFunction = nullptr;
+
     globalNum = 0;
     hcs = standardConstraints();
     hcs.typeSpecs["ram"] = ramSpecFunc;
@@ -1408,9 +1419,8 @@ public:
 
         SynthCppClass* c = new SynthCppClass();
         c->name = decl->name;
-        //activeSymtab = &(c->memberVars);
         cgs.symtab.pushTable(&(c->memberVars));
-        //assert(activeSymtab != nullptr);
+        cgs.pushClassContext(c);
         
         for (auto st : decl->body) {
           if (ArgumentDecl::classof(st)) {
@@ -1434,6 +1444,7 @@ public:
               tps.push_back(a);
             }
             SynthCppFunction* sf = new SynthCppFunction();
+            activeFunction = sf;
             sf->nameToken = methodFuncDecl->name;
             auto f = mkFunc(tps, voidType(), sf->getName());
             sf->func = f;
@@ -1455,14 +1466,16 @@ public:
             cout << "Just generated code for method " << endl;
             cout << valueString(sf->llvmFunction()) << endl;
             c->methods[sf->getName()] = sf;
+
+            activeFunction = nullptr;            
           } else {
             assert(false);
           }
         }
         classes.push_back(c);
 
-        //activeSymtab = nullptr;
         cgs.symtab.popTable();
+        cgs.popClassContext();
         
       } else if (FunctionDecl::classof(stmt)) {
         auto fd = static_cast<FunctionDecl*>(stmt);
@@ -1493,6 +1506,7 @@ public:
         b.CreateRet(nullptr);
 
         functions.push_back(sf);
+        activeFunction = nullptr;        
 
         //activeSymtab = nullptr;
         cgs.symtab.popTable();
@@ -1565,8 +1579,23 @@ public:
         Expression* valueExpr = called->args[1];
         auto vExpr = genLLVM(b, valueExpr);
         // TODO: Get llvm type of containing class
-        auto f = writePort(labelId->name.getStr(), getValueBitWidth(vExpr), intType(32));
-        return b.CreateCall(f, {vExpr});
+
+        SynthCppClass* sExpr = cgs.getActiveClass();
+        SynthCppType* classTp = new SynthCppStructType(sExpr->name);
+        Type* structType = llvmTypeFor(classTp);
+        auto f = writePort(labelId->name.getStr(), getValueBitWidth(vExpr), structType->getPointerTo());
+
+        assert(activeFunction != nullptr);
+        assert(activeFunction->llvmFunction() != nullptr);
+
+        cout << "Active function = " << activeFunction->nameToken << endl;
+        cout << valueString(activeFunction->llvmFunction()) << endl;
+
+        int thisOffset = 0;
+        if (activeFunction->hasReturnValue()) {
+          thisOffset = 1;
+        }
+        return b.CreateCall(f, {getArg(activeFunction->llvmFunction(), thisOffset), vExpr});
       }
       
       SynthCppFunction* calledFunc = getFunction(called->funcName.getStr());
@@ -2212,7 +2241,5 @@ int main() {
 
   // Problem: Constraints do not currently get translated in to anything. The code
   // generator needs an internal mapping from label names to generated code locations
-
-  // Problem: Arguments passed by value do not seem to get found by the symbol table?
 
 }
