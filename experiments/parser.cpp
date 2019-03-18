@@ -500,9 +500,15 @@ enum StatementKind {
 
 class Statement {
 public:
+  bool hasL;
   Token label;
 
+  Statement() : hasL(false) {}
+
+  bool hasLabel() const { return hasL; }
+
   void setLabel(const Token l) {
+    hasL = true;
     label = l;
   }
 
@@ -986,12 +992,7 @@ maybe<Statement*> parseAssignStmt(ParseState<Token>& tokens) {
     return maybe<Statement*>();
   }
 
-  //cout << "Remaining after expr is " << tokens.remainder() << endl;
-  // Token delim = tokens.parseChar();
-  // assert((delim == Token(";")) || (delim == Token("")));
-
   return new AssignStmt(id, r.get_value());
-  //return new Statement();
 }
 maybe<Statement*> parseForLoop(ParseState<Token>& tokens) {
 
@@ -1074,7 +1075,6 @@ maybe<Statement*> parseStatementNoLabel(ParseState<Token>& tokens) {
     assert(tokens.parseChar() == Token(";"));
 
     return new ClassDecl(name, classStmts);
-    //return new Statement();
   }
 
   maybe<Statement*> funcDecl =
@@ -1130,7 +1130,6 @@ maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
   
   // Try to parse a label?
   auto label = tryParse<Token>(parseLabel, tokens);
-  //cout << "Statement after label " << tokens.remainder() << endl;
   
   auto stmt = parseStatementNoLabel(tokens);
 
@@ -1843,6 +1842,11 @@ public:
       // Add support for variable declarations, assignments, and for loops
       cout << "No support for code generation for statement" << endl;
     }
+
+    if (stmt->hasLabel()) {
+      cout << "Label = " << stmt->label << endl;
+    }
+    
   }
 
   SynthCppFunction* getFunction(const std::string& name) {
