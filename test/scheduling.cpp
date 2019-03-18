@@ -4465,24 +4465,6 @@ namespace ahaHLS {
     REQUIRE(runIVerilogTB("stencil_stream_rw"));
   }
 
-  void sequentialCalls(llvm::Function* f,
-                       ExecutionConstraints& exec) {
-    for (auto& bb : f->getBasicBlockList()) {
-      Instruction* first = nullptr;
-      Instruction* second = nullptr;
-      for (auto& instrP : bb) {
-        auto instr = &instrP;
-        if (CallInst::classof(instr)) {
-          first = second;
-          second = instr;
-          if ((second != nullptr) && (first != nullptr)) {
-            exec.addConstraint(instrEnd(first) < instrStart(second));
-          }
-        }
-      }
-    }
-  }
-  
   TEST_CASE("Read mult by 2 and write from stencil stream") {
     SMDiagnostic Err;
     LLVMContext Context;

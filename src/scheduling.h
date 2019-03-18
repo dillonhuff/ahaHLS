@@ -1548,6 +1548,9 @@ namespace ahaHLS {
   void addOutputPort(map<string, Port>& ports,
                      const int width,
                      const std::string name);
+
+  void sequentialCalls(llvm::Function* f,
+                       ExecutionConstraints& exec);
   
 }
 

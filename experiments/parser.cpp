@@ -1200,6 +1200,7 @@ public:
   llvm::Function* func;
   std::map<std::string, SynthCppType*> symtab;
   SynthCppType* retType;
+  ExecutionConstraints* constraints;
 
   bool hasReturnType() {
     return retType != nullptr;
@@ -1571,8 +1572,11 @@ public:
 
         // Add return type as first argument
         llvm::Function* f = mkFunc(inputTypes, voidType(), sf->getName());
-        interfaces.addFunction(m.second->llvmFunction());      
-        
+
+        // Add this function to the interface functions
+        interfaces.addFunction(f);
+        sf->constraints = &interfaces.getConstraints(f);
+
         auto bb = mkBB("entry_block", f);
         IRBuilder<> b(bb);
 
@@ -1591,13 +1595,14 @@ public:
         }
         b.CreateRet(nullptr);
 
+        // Set all calls to be sequential by default
+        sequentialCalls(f, interfaces.getConstraints(f));
+
         functions.push_back(sf);
         activeFunction = nullptr;        
 
         setAllAllocaMemTypes(hcs, f, registerSpec(32));
-            
         
-        //activeSymtab = nullptr;
         cgs.symtab.popTable();
       }
     }
@@ -1923,7 +1928,7 @@ void synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
   // Q: How do we pass the hardware constraints on f in to the synthesis flow?
   cout << "Scheduling function" << endl;
   cout << valueString(f->llvmFunction()) << endl;
-  Schedule s = scheduleInterface(f->llvmFunction(), scppMod.getHardwareConstraints(), scppMod.getInterfaceFunctions(), scppMod.getBlocksToPipeline());
+  Schedule s = scheduleInterface(f->llvmFunction(), scppMod.getHardwareConstraints(), scppMod.getInterfaceFunctions(), scppMod.getBlocksToPipeline(), scppMod.getInterfaceFunctions().getConstraints(f->llvmFunction()));
   STG graph = buildSTG(s, f->llvmFunction());
 
   // TODO: Generate these automatically, or change generation code

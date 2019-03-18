@@ -2842,7 +2842,7 @@ namespace ahaHLS {
   void addOutputPort(map<string, Port>& ports,
                      const int width,
                      const std::string name) {
-    ports.insert({name, outputPort(width, name)});
+   ports.insert({name, outputPort(width, name)});
   }
   
   ModuleSpec axiRamSpec(llvm::StructType* tp) {
@@ -3085,6 +3085,23 @@ namespace ahaHLS {
     ArrayType* arrTp = dyn_cast<ArrayType>(internalArray);
     return ramSpec(getTypeBitWidth(arrTp->getElementType()), arrTp->getNumElements(), 3, 1);
   }
-  
+
+  void sequentialCalls(llvm::Function* f,
+                       ExecutionConstraints& exec) {
+    for (auto& bb : f->getBasicBlockList()) {
+      Instruction* first = nullptr;
+      Instruction* second = nullptr;
+      for (auto& instrP : bb) {
+        auto instr = &instrP;
+        if (CallInst::classof(instr)) {
+          first = second;
+          second = instr;
+          if ((second != nullptr) && (first != nullptr)) {
+            exec.addConstraint(instrEnd(first) < instrStart(second));
+          }
+        }
+      }
+    }
+  }
   
 }
