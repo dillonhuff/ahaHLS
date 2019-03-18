@@ -1845,6 +1845,10 @@ public:
 
     if (stmt->hasLabel()) {
       cout << "Label = " << stmt->label << endl;
+
+      // How do I tag statement starts and ends with a label?
+      // Crude: Track the active block in CodeGenState and just attach
+      // the start and end to the last instruction?
     }
     
   }
