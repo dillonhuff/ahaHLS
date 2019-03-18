@@ -1541,6 +1541,14 @@ namespace ahaHLS {
   ModuleSpec ram2SpecFunc(llvm::StructType* tp);
   ModuleSpec ram3SpecFunc(llvm::StructType* tp);
 
+  void addInputPort(map<string, Port>& ports,
+                    const int width,
+                    const std::string name);
+
+  void addOutputPort(map<string, Port>& ports,
+                     const int width,
+                     const std::string name);
+  
 }
 
 

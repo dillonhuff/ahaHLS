@@ -1256,6 +1256,65 @@ ResultType* extract(InputType* tp) {
   return sc<ResultType>(tp);
 }
 
+template<typename ResultType, typename InputType>
+maybe<ResultType*> extractM(InputType* tp) {
+  if (ResultType::classof(tp)) {
+    return sc<ResultType>(tp);
+  }
+
+  return maybe<ResultType*>();
+}
+
+bool isInputPort(SynthCppType* const tp) {
+  auto ps = extractM<SynthCppStructType>(tp);
+  if (!ps.has_value()) {
+    return false;
+  }
+
+  string name = ps.get_value()->getName();
+  if (hasPrefix(name, "input_")) {
+    return true;
+  }
+
+  return false;
+}
+
+bool isOutputPort(SynthCppType* const tp) {
+  auto ps = extractM<SynthCppStructType>(tp);
+  if (!ps.has_value()) {
+    return false;
+  }
+
+  string name = ps.get_value()->getName();
+  if (hasPrefix(name, "output_")) {
+    return true;
+  }
+
+  return false;
+}
+
+bool isPortType(SynthCppType* const tp) {
+  return isOutputPort(tp) || isInputPort(tp);
+}
+
+int portWidth(SynthCppType* const tp) {
+  assert(isPortType(tp));
+  auto portStruct = extract<SynthCppStructType>(tp);
+
+  string name = portStruct->getName();
+  if (isInputPort(tp)) {
+    string prefix = "input_";
+    string width = name.substr(prefix.size());
+    return stoi(width);
+  } else {
+    assert(isOutputPort(tp));
+
+    string prefix = "output_";
+    string width = name.substr(prefix.size());
+    return stoi(width);
+  }
+}
+
 vector<Type*> functionInputs(FunctionDecl* fd) {
   vector<Type*> inputTypes;
   for (auto argDecl : fd->args) {
@@ -1408,7 +1467,6 @@ public:
 
     globalNum = 0;
     hcs = standardConstraints();
-    hcs.typeSpecs["ram"] = ramSpecFunc;
     
     mod = llvm::make_unique<Module>("synth_cpp", context);
     setGlobalLLVMContext(&context);
@@ -1476,11 +1534,24 @@ public:
         }
         classes.push_back(c);
 
+        // TODO: Wrap this up in to a function
         // Add interface class module spec to hardware constraints
         ModuleSpec cSpec;
         cSpec.name = c->getName();
         cSpec.hasClock = true;
         cSpec.hasRst = true;
+
+        for (auto vTp : c->memberVars) {
+          auto tp = vTp.second;
+          if (isPortType(tp)) {
+            if (isOutputPort(tp)) {
+              addOutputPort(cSpec.ports, portWidth(tp), vTp.first);
+            } else {
+              assert(isInputPort(tp));
+              addInputPort(cSpec.ports, portWidth(tp), vTp.first);
+            }
+          }
+        }
         cout << "class has name " << c->getName() << endl;
         hcs.typeSpecs[c->getName()] = [cSpec](StructType* tp) { return cSpec; };
         hcs.hasTypeSpec(c->getName());
