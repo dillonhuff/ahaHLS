@@ -1342,6 +1342,13 @@ public:
     return s;
   }
 
+  void genLLVMCopyTo(IRBuilder<>& b,
+                     llvm::Value* receiver,
+                     llvm::Value* source) {
+    
+    b.CreateCall(mkFunc({receiver->getType(), source->getType()}, voidType(), "copy_" + typeString(receiver->getType())), {receiver, source});
+  }
+  
   void setArgumentSymbols(IRBuilder<>& b,
                           map<string, SynthCppType*>& symtab,
                           vector<ArgumentDecl*>& args,
@@ -1358,6 +1365,7 @@ public:
       symtab[argDecl->name.getStr()] = argDecl->tp;
       if (!SynthCppPointerType::classof(argDecl->tp)) {
         auto val = b.CreateAlloca(llvmTypeFor(argDecl->tp));
+        genLLVMCopyTo(b, val, getArg(f, argNum));
         setValue(argDecl->name, val);
       } else {
         setValue(argDecl->name, getArg(f, argNum));
