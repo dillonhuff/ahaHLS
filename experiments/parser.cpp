@@ -1571,6 +1571,8 @@ public:
 
         // Add return type as first argument
         llvm::Function* f = mkFunc(inputTypes, voidType(), sf->getName());
+        interfaces.addFunction(m.second->llvmFunction());      
+        
         auto bb = mkBB("entry_block", f);
         IRBuilder<> b(bb);
 
@@ -1926,7 +1928,7 @@ void synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
 
   // TODO: Generate these automatically, or change generation code
   // to treat LLVM i<N> as builtin?
-  setAllAllocaMemTypes(scppMod.getHardwareConstraints(), f->llvmFunction(), registerSpec(32));  
+  setAllAllocaMemTypes(scppMod.getHardwareConstraints(), f->llvmFunction(), registerSpec(32));
 
   cout << "STG is" << endl;
   graph.print(cout);
