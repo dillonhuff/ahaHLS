@@ -1201,6 +1201,10 @@ public:
   std::map<std::string, SynthCppType*> symtab;
   SynthCppType* retType;
 
+  bool hasReturnType() {
+    return retType != nullptr;
+  }
+  
   SynthCppType* returnType() {
     assert(retType != nullptr);
     return retType;
@@ -1348,12 +1352,15 @@ public:
     
     b.CreateCall(mkFunc({receiver->getType(), source->getType()}, voidType(), "copy_" + typeString(receiver->getType())), {receiver, source});
   }
-  
+
+  // argNum could be 1 if the function being synthesized is actually a
+  // method
   void setArgumentSymbols(IRBuilder<>& b,
                           map<string, SynthCppType*>& symtab,
                           vector<ArgumentDecl*>& args,
-                          Function* f) {
-    int argNum = 0;
+                          Function* f,
+                          int argOffset) {
+    int argNum = argOffset;
     for (auto argDecl : args) {
       cout << "\targ = " << argDecl->name << endl;
 
@@ -1375,11 +1382,6 @@ public:
     }
   }
 
-  
-  // std::map<std::string, SynthCppType*>& activeSymbolTable() {
-  //   assert(activeSymtab != nullptr);
-  //   return *activeSymtab;
-  // }
   
   SynthCppModule(ParserModule& parseRes) {
     globalNum = 0;
@@ -1431,7 +1433,8 @@ public:
             auto bb = mkBB("entry_block", f);
             IRBuilder<> b(bb);
 
-            setArgumentSymbols(b, sf->symtab, methodFuncDecl->args, f);
+            bool hasReturn = sf->hasReturnType();
+            setArgumentSymbols(b, sf->symtab, methodFuncDecl->args, f, 1 + (hasReturn ? 1 : 0));
             
             for (auto stmt : methodFuncDecl->body) {
               cout << "Statement" << endl;
@@ -1465,7 +1468,8 @@ public:
         auto bb = mkBB("entry_block", f);
         IRBuilder<> b(bb);
 
-        setArgumentSymbols(b, sf->symtab, fd->args, f);
+        bool hasReturn = sf->hasReturnType();
+        setArgumentSymbols(b, sf->symtab, fd->args, f, hasReturn ? 1 : 0);
 
         // Now need to iterate over all statements in the body creating labels
         // that map to starts and ends of statements
