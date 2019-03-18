@@ -343,29 +343,11 @@ namespace ahaHLS {
                                   intType(width)},
                               false);
     
-    // llvm::FunctionType *tp =
-    //   llvm::FunctionType::get(intType(width), {fifoType(width)->getPointerTo()}, false);
-
     auto c = m.getOrInsertFunction(name, tp);
 
     assert(llvm::Function::classof(c));
 
     return llvm::dyn_cast<llvm::Function>(c);
-    
-    // llvm::FunctionType *tp =
-    //   llvm::FunctionType::get(llvm::Type::getVoidTy(getGlobalLLVMContext()),
-    //                           {argType,
-    //                               intType(width)},
-    //                           false);
-
-    // auto c = getGlobalLLVMModule().getOrInsertFunction(name, tp);
-
-    // if (!llvm::Function::classof(c)) {
-    //   std::cout << "c = " << valueString(c) << std::endl;
-    //   assert(false);
-    // }
-
-    // return llvm::dyn_cast<llvm::Function>(c);
   }
 
   static inline

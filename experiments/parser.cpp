@@ -1240,6 +1240,12 @@ ResultType* sc(InputType* tp) {
   return static_cast<ResultType*>(tp);
 }
 
+template<typename ResultType, typename InputType>
+ResultType* extract(InputType* tp) {
+  assert(ResultType::classof(tp));
+  return sc<ResultType>(tp);
+}
+
 vector<Type*> functionInputs(FunctionDecl* fd) {
   vector<Type*> inputTypes;
   for (auto argDecl : fd->args) {
@@ -1264,6 +1270,31 @@ SynthCppStructType* extractBaseStructType(SynthCppType* tp) {
 
   return sc<SynthCppStructType>(underlying);
 }
+
+class SymbolTable {
+public:
+  std::vector<std::map<std::string, SynthCppType*>* > tableStack;
+
+  void pushTable(std::map<std::string, SynthCppType*>* table) {
+    tableStack.push_back(table);
+  }
+
+  void popTable() {
+    tableStack.pop_back();
+  }
+
+};
+
+class CodeGenState {
+public:
+
+  SynthCppClass* activeClass;
+  SynthCppFunction* activeFunction;
+  int globalNum;
+
+  //std::map<std::string, SynthCppType*>* activeSymtab;
+  
+};
 
 // Idea: Caller constraints that inline in to each user of a function?
 // For each called user function check if caller constraints are satisified
@@ -1464,8 +1495,15 @@ public:
       }
 
       if (name == "set_port") {
-        // TODO: Generate the correct port setting statement
-        assert(false);
+        // TODO: Generate the correct port setting function
+        Expression* labelExpr = called->args[0];
+
+        Identifier* labelId = extract<Identifier>(labelExpr);
+        Expression* valueExpr = called->args[1];
+        auto vExpr = genLLVM(b, valueExpr);
+        // TODO: Get llvm type of containing class
+        auto f = writePort(labelId->name.getStr(), getValueBitWidth(vExpr), intType(32));
+        return b.CreateCall(f, {vExpr});
       }
       
       SynthCppFunction* calledFunc = getFunction(called->funcName.getStr());
