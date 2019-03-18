@@ -298,6 +298,10 @@ namespace ahaHLS {
       return dbhc::map_find(op, latencies);
     }
 
+    bool hasTypeSpec(const std::string& typeName) {
+      return dbhc::contains_key(typeName, typeSpecs);
+    }
+    
     bool hasArgumentSpec(llvm::Value* const arg) {
       llvm::Type* tp = arg->getType();
       if (llvm::PointerType::classof(tp)) {

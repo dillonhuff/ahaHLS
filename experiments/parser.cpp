@@ -1237,6 +1237,8 @@ public:
   std::map<std::string, SynthCppType*> memberVars;
   std::map<std::string, SynthCppFunction*> methods;
 
+  std::string getName() { return name.getStr(); }
+  
   SynthCppFunction* getMethod(const Token name) {
     cout << "Getting method for " << name << endl;
     return map_find(name.getStr(), methods);
@@ -1473,6 +1475,15 @@ public:
           }
         }
         classes.push_back(c);
+
+        // Add interface class module spec to hardware constraints
+        ModuleSpec cSpec;
+        cSpec.name = c->getName();
+        cSpec.hasClock = true;
+        cSpec.hasRst = true;
+        cout << "class has name " << c->getName() << endl;
+        hcs.typeSpecs[c->getName()] = [cSpec](StructType* tp) { return cSpec; };
+        hcs.hasTypeSpec(c->getName());
 
         cgs.symtab.popTable();
         cgs.popClassContext();
@@ -1839,8 +1850,12 @@ void synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
 
   cout << "STG is" << endl;
   graph.print(cout);
-  map<Value*, int> layout;
-  emitVerilog(graph, layout);
+
+  map<Value*, int> layout;  
+  auto arch = buildMicroArchitecture(graph, layout, scppMod.getHardwareConstraints());
+
+  VerilogDebugInfo info;
+  emitVerilog(arch, info);
 }
 
 int main() {

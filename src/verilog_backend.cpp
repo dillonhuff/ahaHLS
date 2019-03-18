@@ -632,7 +632,13 @@ namespace ahaHLS {
 
           cout << "Struct name = " << string(structT->getName()) << endl;
 
-          assert(hcs.hasArgumentSpec(fuPtr));
+          if (!hcs.hasArgumentSpec(fuPtr)) {
+            cout << "Error: No spec... possible choices" << endl;
+            for (auto spec : hcs.typeSpecs) {
+              cout << tab(1) << spec.first << endl;
+            }
+            assert(hcs.hasArgumentSpec(fuPtr));
+          }
           modSpec = map_find(string(structT->getName()), hcs.typeSpecs)(structT);
         }
 
