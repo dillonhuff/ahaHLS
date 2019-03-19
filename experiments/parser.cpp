@@ -12,6 +12,26 @@ using namespace dbhc;
 using namespace ahaHLS;
 using namespace std;
 
+template<typename ResultType, typename InputType>
+ResultType* sc(InputType* tp) {
+  return static_cast<ResultType*>(tp);
+}
+
+template<typename ResultType, typename InputType>
+ResultType* extract(InputType* tp) {
+  assert(ResultType::classof(tp));
+  return sc<ResultType>(tp);
+}
+
+template<typename ResultType, typename InputType>
+maybe<ResultType*> extractM(InputType* tp) {
+  if (ResultType::classof(tp)) {
+    return sc<ResultType>(tp);
+  }
+
+  return maybe<ResultType*>();
+}
+
 enum TokenType {
   TOKEN_TYPE_ID,
   TOKEN_TYPE_NUM,
@@ -726,6 +746,10 @@ maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens);
 maybe<Expression*> parsePrimitiveExpressionMaybe(ParseState<Token>& tokens) {
   //cout << "-- Parsing primitive expression " << tokens.remainder() << endl;
 
+  if (tokens.atEnd()) {
+    return maybe<Expression*>();
+  }
+  
   if (tokens.nextCharIs(Token("("))) {
     tokens.parseChar();
 
@@ -792,21 +816,73 @@ maybe<FunctionCall*> parseFunctionCall(ParseState<Token>& tokens) {
 }
 
 maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
-  //cout << "-- Parsing expression " << tokens.remainder() << endl;
+  cout << "-- Parsing expression " << tokens.remainder() << endl;
+
+  vector<Expression*> exprs;
+  vector<Token> binops;
+
+  while (true) {
+    auto pExpr = parsePrimitiveExpressionMaybe(tokens);
+    if (!pExpr.has_value()) {
+      break;
+    }
+
+    exprs.push_back(pExpr.get_value());    
+    
+    if (tokens.atEnd() || !isBinop(tokens.peekChar())) {
+      break;
+    }
+
+    Token binop = tokens.parseChar();
+    binops.push_back(binop);
+    auto rest = parseExpressionMaybe(tokens);
+    exprs.push_back(rest.get_value());
+  }
+
+  cout << "Got " << exprs.size() << " expressions" << endl;
+
+  if (exprs.size() == 0) {
+    cout << "No expression at " << tokens.remainder() << endl;
+    return maybe<Expression*>();
+  }
+
+  assert(exprs.size() == (binops.size() + 1));
+
+  if (binops.size() == 0) {
+    cout << "returning expression, remainder = " << tokens.remainder() << endl;
+    return exprs[0];
+  }
   
-  auto pExpr = parsePrimitiveExpressionMaybe(tokens);
-  if (!pExpr.has_value()) {
-    return pExpr;
+  BinopExpr* top = sc<BinopExpr>(exprs[0]);
+  for (int i = 0; i < ((int) binops.size()); i++) {
+    top = new BinopExpr(top, binops[i], exprs[i + 1]);
   }
 
-  if (tokens.atEnd() || !isBinop(tokens.peekChar())) {
-    return pExpr;
-  }
+  return top;
+  
+  // BinopExpr* last = sc<BinopExpr>(exprs[((int) binops.size()) - 1]);
+  // for (int i = ((int) binops.size()) - 1; i >= 1; i--) {
+  //   last = new BinopExpr(exprs[i - 1], binops[i], last);
+  // }
 
-  Token binop = tokens.parseChar();
-  auto rest = parseExpressionMaybe(tokens);
+  // cout << "Returning expression" << endl;
+  // return last;
 
-  return new BinopExpr(pExpr.get_value(), binop, rest.get_value());
+  // auto pExpr = parsePrimitiveExpressionMaybe(tokens);
+  // if (!pExpr.has_value()) {
+  //   return pExpr;
+  // }
+
+  // if (tokens.atEnd() || !isBinop(tokens.peekChar())) {
+  //   return pExpr;
+  // }
+
+  // Token binop = tokens.parseChar();
+  // auto rest = parseExpressionMaybe(tokens);
+  
+  //return new BinopExpr(pExpr.get_value(), binop, rest.get_value());
+
+  // assert(false);
 }
 
 Expression* parseExpression(ParseState<Token>& tokens) {
@@ -1253,26 +1329,6 @@ public:
     return map_find(name.getStr(), methods);
   }
 };
-
-template<typename ResultType, typename InputType>
-ResultType* sc(InputType* tp) {
-  return static_cast<ResultType*>(tp);
-}
-
-template<typename ResultType, typename InputType>
-ResultType* extract(InputType* tp) {
-  assert(ResultType::classof(tp));
-  return sc<ResultType>(tp);
-}
-
-template<typename ResultType, typename InputType>
-maybe<ResultType*> extractM(InputType* tp) {
-  if (ResultType::classof(tp)) {
-    return sc<ResultType>(tp);
-  }
-
-  return maybe<ResultType*>();
-}
 
 bool isInputPort(SynthCppType* const tp) {
   auto ps = extractM<SynthCppStructType>(tp);
@@ -2195,27 +2251,37 @@ int main() {
 
     assert(st.atEnd());
 
+    cout << "done with read" << endl;
+    
     delete tp.get_value();
   }
   
   {
     std::string str = "start(set_wen)";
+    cout << "TEST CASE " << str << endl;
+    
     ParseState<Token> st(tokenize(str));
     auto tp = parseFunctionCall(st);
     assert(tp.has_value());
 
     assert(st.atEnd());
 
+    cout << "done with " << str << endl;
     delete tp.get_value();
   }
 
   {
     std::string str = "start(set_wen) == start(set_wdata)";
+
+    cout << "TEST CASE " << str << endl;
+    
     ParseState<Token> st(tokenize(str));
     auto tp = parseExpressionMaybe(st);
     assert(tp.has_value());
 
     assert(st.atEnd());
+
+    cout << "done with " << str << endl;    
 
     delete tp.get_value();
   }
@@ -2234,6 +2300,7 @@ int main() {
   {
 
     std::string str = "start(set_wdata) + 3 == end(set_waddr)";
+    cout << "TEST CASE " << str << endl;
     ParseState<Token> st(tokenize(str));
     auto tp = parseExpressionMaybe(st);
     assert(tp.has_value());
@@ -2268,7 +2335,8 @@ int main() {
   
   {
     std::string str = "transmitter->write_header(dest_mac, src_mac, type)";
-
+    cout << "TEST CASE " << str << endl;
+    
     ParseState<Token> st(tokenize(str));
     auto tp = parseExpressionMaybe(st);
     assert(tp.has_value());
