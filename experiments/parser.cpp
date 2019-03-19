@@ -1507,8 +1507,10 @@ public:
             activeFunction = sf;
             sf->nameToken = methodFuncDecl->name;
             auto f = mkFunc(tps, voidType(), sf->getName());
+            interfaces.addFunction(f);
             sf->func = f;
             sf->retType = methodFuncDecl->returnType;
+            sf->constraints = &(interfaces.getConstraints(f));
 
             auto bb = mkBB("entry_block", f);
             IRBuilder<> b(bb);
@@ -1630,6 +1632,10 @@ public:
     valueMap[t.getStr()] = v;
     assert(contains_key(t.getStr(), valueMap));    
   }
+
+  ExecutionConstraint* parseConstraint(Expression* const e) {
+    assert(false);
+  }
   
   llvm::Value* genLLVM(IRBuilder<>& b, Expression* const e) {
     if (Identifier::classof(e)) {
@@ -1661,6 +1667,12 @@ public:
       string name = called->funcName.getStr();
       if (name == "add_constraint") {
         // TODO: Add constraint to active execonstraints
+        ExecutionConstraints& exe =
+          getInterfaceFunctions().getConstraints(activeFunction->llvmFunction());
+
+        ExecutionConstraint* c =
+          parseConstraint(called->args[0]);
+        exe.add(c);
         return nullptr;
       }
 
@@ -1868,6 +1880,7 @@ public:
       vector<Type*> inputs =
         {intType(32)->getPointerTo()};
       SynthCppFunction* stb = builtinStub("add_constraint", inputs, new VoidType());
+      
       return stb;
     }
 
