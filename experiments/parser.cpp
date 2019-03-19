@@ -57,6 +57,11 @@ public:
   std::string getStr() const { return str; }
 };
 
+bool isComparator(Token op) {
+  vector<string> comps = {"==", ">", "<", "*", ">=", "<="};
+  return elem(op.getStr(), comps);
+}
+
 std::ostream& operator<<(std::ostream& out, const Token& t) {
   out << t.getStr();
   return out;
@@ -369,6 +374,8 @@ public:
   Token name;
   
   Identifier(const Token name_) : name(name_) {}
+
+  std::string getName() const { return name.getStr(); }
 
   virtual ExpressionKind getKind() const {
     return EXPRESSION_KIND_IDENTIFIER;
@@ -1634,22 +1641,36 @@ public:
     valueMap[t.getStr()] = v;
     assert(contains_key(t.getStr(), valueMap));    
   }
-
-  ExecutionAction parseExecutionAction(Expression* const e) {
-    assert(false);
-  }
   
   EventTime parseEventTime(Expression* const e) {
     auto mBop = extractM<BinopExpr>(e);
     if (mBop.has_value()) {
       auto bop = mBop.get_value();
       Token op = bop->op;
-      ExecutionAction action = parseExecutionAction(bop->lhs);
+      EventTime tm = parseEventTime(bop->lhs);
+      cout << "Integer rhs type = " << bop->rhs->getKind() << endl;
       IntegerExpr* val = extract<IntegerExpr>(bop->rhs);
-      EventTime res{action, false, val->getInt()};
-      return res;
+
+      return tm + val->getInt();
     } else {
-      assert(false);
+      cout << "Call type = " << e->getKind() << endl;      
+      auto labelCall = extract<FunctionCall>(e);
+      string name = labelCall->funcName.getStr();
+      cout << "name = " << name << endl;
+      assert((name == "start") || (name == "end"));
+
+      Expression* arg0 = labelCall->args.at(0);
+      cout << "arg0Kind = " << arg0->getKind() << endl;
+      auto arg0Id = extract<Identifier>(arg0);
+      string arg0Name = arg0Id->getName();
+
+      cout << "got arg0 name = " << arg0Name << endl;
+      if (name == "start") {
+        return {ExecutionAction(arg0Name), false, 0};
+      } else {
+        assert(name == "end");
+        return {ExecutionAction(arg0Name), true, 0};        
+      }
     }
   }
 
@@ -1657,6 +1678,7 @@ public:
     BinopExpr* bop = extract<BinopExpr>(e);
     Token op = bop->op;
     cout << "Parsing binop = " << op << endl;
+    assert(isComparator(op));
 
     Expression* lhs = bop->lhs;
     EventTime lhsTime = parseEventTime(lhs);
