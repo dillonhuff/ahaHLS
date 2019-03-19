@@ -479,6 +479,8 @@ public:
   
   IntegerExpr(const std::string& digits_) : digits(digits_) {}
 
+  int getInt() const { return stoi(digits); }
+
   virtual ExpressionKind getKind() const {
     return EXPRESSION_KIND_NUM;
   }
@@ -1633,8 +1635,41 @@ public:
     assert(contains_key(t.getStr(), valueMap));    
   }
 
-  ExecutionConstraint* parseConstraint(Expression* const e) {
+  ExecutionAction parseExecutionAction(Expression* const e) {
     assert(false);
+  }
+  
+  EventTime parseEventTime(Expression* const e) {
+    auto mBop = extractM<BinopExpr>(e);
+    if (mBop.has_value()) {
+      auto bop = mBop.get_value();
+      Token op = bop->op;
+      ExecutionAction action = parseExecutionAction(bop->lhs);
+      IntegerExpr* val = extract<IntegerExpr>(bop->rhs);
+      EventTime res{action, false, val->getInt()};
+      return res;
+    } else {
+      assert(false);
+    }
+  }
+
+  ExecutionConstraint* parseConstraint(Expression* const e) {
+    BinopExpr* bop = extract<BinopExpr>(e);
+    Token op = bop->op;
+    cout << "Parsing binop = " << op << endl;
+
+    Expression* lhs = bop->lhs;
+    EventTime lhsTime = parseEventTime(lhs);
+    Expression* rhs = bop->rhs;
+    EventTime rhsTime = parseEventTime(rhs);
+
+    if (op.getStr() == "==") {
+      return lhsTime == rhsTime;
+    } else if (op.getStr() == "<") {
+      return lhsTime < rhsTime;
+    } else {
+      assert(false);
+    }
   }
   
   llvm::Value* genLLVM(IRBuilder<>& b, Expression* const e) {
