@@ -2276,6 +2276,9 @@ namespace ahaHLS {
       stallOnPort(b, readMod, 1, "s_axil_arready", exec);
     exec.add(instrEnd(stallUntilReadAddrReady) > instrStart(setAddr));
 
+    auto setReadReady = writePort(b, readMod, 1, "s_axil_rready", mkInt(1, 1));
+    exec.add(instrEnd(stallUntilReadAddrReady) == instrStart(setReadReady));
+
     auto stallUntilReadRespReady =
       stallOnPort(b, readMod, 1, "s_axil_rvalid", exec);
     exec.add(instrStart(stallUntilReadRespReady) == instrStart(stallUntilReadAddrReady));
