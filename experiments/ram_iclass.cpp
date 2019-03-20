@@ -1,19 +1,19 @@
-class ram {
+class RAM {
 
-  input_32 wdata;
-  input_5 waddr;
-  input_1 wen;
+  input_32 wdata_0;
+  input_5 waddr_0;
+  input_1 wen_0;
 
-  input_5 raddr;
-  output_32 rdata;  
+  input_5 raddr_0;
+  output_32 rdata_0;  
 
   void write(bit_5 addr, bit_32 data) {
   set_wen:
-    set_port(wen, 1);
+    set_port(wen_0, 1);
   set_wdata:
-    set_port(wdata, data);
+    set_port(wdata_0, data);
   set_waddr:
-    set_port(waddr, addr);
+    set_port(waddr_0, addr);
 
   ret: return;
 
@@ -24,19 +24,19 @@ class ram {
 
   bit_32 read(bit_5 addr) {
   set_addr:
-    set_port(raddr, addr);
+    set_port(raddr_0, addr);
 
     bit_32 res;
 
   read_data:
-    res = read_port(rdata);
+    res = read_port(rdata_0);
 
     add_constraint(end(set_addr) + 1 == start(read_data));
   }
 
 };
 
-void filter_ram(ram& mem) {
+void filter_ram(RAM& mem) {
   bit_32 a;
   a = mem->read(0) + mem->read(1);
   mem->write(10, a);

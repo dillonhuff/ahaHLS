@@ -2198,7 +2198,8 @@ void compileIR(ParserModule& parseMod, llvm::Module* mod) {
 }
 
 
-void synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
+MicroArchitecture
+synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
   SynthCppFunction* f = scppMod.getFunction(funcName);
 
   // Q: How do we pass the hardware constraints on f in to the synthesis flow?
@@ -2233,6 +2234,8 @@ void synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
 
   VerilogDebugInfo info;
   emitVerilog(arch, info);
+
+  return arch;
 }
 
 int main() {
@@ -2621,8 +2624,21 @@ int main() {
         func.second.constraints.size() << endl;
     }
     
-    synthesizeVerilog(scppMod, "filter_ram");
-    assert(runIVerilogTest("filter_ram_tb.v", "filter_ram", " builtins.v filter_ram.v"));
+    auto arch = synthesizeVerilog(scppMod, "filter_ram");
+
+    map<llvm::Value*, int> layout = {};
+    
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 30;
+    tb.maxCycles = 100;
+    tb.name = "filter_ram";
+    tb.useModSpecs = true;
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    assert(runIVerilogTest("filter_ram_tb.v", "filter_ram", " builtins.v filter_ram.v RAM.v delay.v"));
   }
 
   {
