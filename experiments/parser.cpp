@@ -2069,6 +2069,18 @@ public:
       auto es = static_cast<ExpressionStmt* const>(stmt);
       Expression* e = es->expr;
       genLLVM(b, e);
+
+
+      if (stmt->hasLabel()) {
+        Token l = stmt->label;
+        cout << "Label = " << stmt->label << endl;
+        BasicBlock* blk = &(activeFunction->llvmFunction()->getEntryBlock());
+        cout << "Block for label = " << valueString(blk) << endl;
+        Instruction* last = &(blk->back());
+
+        cout << "Last instruction" << valueString(last) << endl;
+      }
+      
     } else if (ArgumentDecl::classof(stmt)) {
       auto decl = static_cast<ArgumentDecl* const>(stmt);
       genLLVM(b, decl);
@@ -2085,7 +2097,6 @@ public:
 
     if (stmt->hasLabel()) {
       cout << "Label = " << stmt->label << endl;
-
       // How do I tag statement starts and ends with a label?
       // Crude: Track the active block in CodeGenState and just attach
       // the start and end to the last instruction?
