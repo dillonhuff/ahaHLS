@@ -766,7 +766,7 @@ maybe<Expression*> parseMethodCall(ParseState<Token>& tokens) {
     return maybe<Expression*>();
   }
 
-  cout << "-- In method call, parsing function call " << tokens.remainder() << endl;
+  //cout << "-- In method call, parsing function call " << tokens.remainder() << endl;
   maybe<FunctionCall*> fCall = parseFunctionCall(tokens);
   if (fCall.has_value()) {
     return new MethodCall(t, fCall.get_value());
@@ -788,7 +788,7 @@ maybe<Expression*> parsePrimitiveExpressionMaybe(ParseState<Token>& tokens) {
   if (tokens.nextCharIs(Token("("))) {
     tokens.parseChar();
 
-    cout << "Inside parens " << tokens.remainder() << endl;
+    //cout << "Inside parens " << tokens.remainder() << endl;
     auto inner = parseExpressionMaybe(tokens);
     if (inner.has_value()) {
       if (tokens.nextCharIs(Token(")"))) {
@@ -1323,7 +1323,7 @@ maybe<Statement*> parseStatementNoLabel(ParseState<Token>& tokens) {
 }
 
 maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
-  cout << "Starting to parse statement " << tokens.remainder() << endl;
+  //cout << "Starting to parse statement " << tokens.remainder() << endl;
   
   if (tokens.atEnd()) {
     return maybe<Statement*>();
@@ -2610,12 +2610,12 @@ int main() {
 
     cout << parseMod << endl;
 
-    assert(parseMod.getStatements().size() == 2);
+    assert(parseMod.getStatements().size() == 5);
 
     SynthCppModule scppMod(parseMod);
 
-    assert(scppMod.getClasses().size() == 1);
-    assert(scppMod.getFunctions().size() == 1);
+    assert(scppMod.getClasses().size() == 3);
+    assert(scppMod.getFunctions().size() == 2);
 
     cout << "Before synthesize verilog: # of interface functions = " << scppMod.getInterfaceFunctions().constraints.size() << endl;
     for (auto func : scppMod.getInterfaceFunctions().constraints) {

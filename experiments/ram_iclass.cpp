@@ -1,3 +1,27 @@
+class bit_5 {
+  input_5 data_in;
+  input_1 write_en;
+
+  output_5 data_out;
+
+  void set(bit_5 fresh_value) {
+  set_en: set_port(write_en, 1);
+  set_data: set_port(data_in, fresh_value);
+
+  ret: return;
+
+    add_constraint(start(set_en) == start(set_data));
+    add_constraint(start(set_en) == start(ret));
+  }
+};
+
+class bit_32 {
+};
+
+void plus_bit_32(bit_32& sum, bit_32& x, bit_32& y) {
+  
+}
+
 class RAM {
 
   input_5 debug_addr;
@@ -45,6 +69,6 @@ class RAM {
 
 void filter_ram(RAM& mem) {
   bit_32 a;
-  a = mem.read(0) + mem.read(1);
+  plus_bit_32(a, mem.read(0), mem.read(1));
   mem.write(10, a);
 }
