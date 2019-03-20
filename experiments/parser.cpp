@@ -2636,6 +2636,7 @@ int main() {
     tb.maxCycles = 100;
     tb.name = "filter_ram";
     tb.useModSpecs = true;
+    
     emitVerilogTestBench(tb, arch, testLayout);
 
     assert(runIVerilogTest("filter_ram_tb.v", "filter_ram", " builtins.v filter_ram.v RAM.v delay.v"));

@@ -5,7 +5,7 @@ class RAM {
   input_1 wen_0;
 
   input_5 raddr_0;
-  output_32 rdata_0;  
+  output_32 rdata_0;
 
   void write(bit_5 addr, bit_32 data) {
   set_wen:
