@@ -46,7 +46,7 @@ bool oneCharToken(const char c) {
 }
 
 bool isKeyword(const std::string& str) {
-  vector<string> keywords{"void", "for"};
+  vector<string> keywords{"void", "for", "return"};
   return elem(str, keywords);
 }
 
@@ -1788,12 +1788,6 @@ public:
       }
     }
 
-    // for (auto c : classes) {
-    //   for (auto m : c->methods) {
-    //     cout << "Adding interface method " << m.second->nameToken << endl;
-    //     interfaces.addFunction(m.second->llvmFunction());
-    //   }
-    // }
   }
 
   map<std::string, llvm::Value*> valueMap;
