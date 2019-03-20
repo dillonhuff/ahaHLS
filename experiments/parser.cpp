@@ -818,47 +818,63 @@ maybe<FunctionCall*> parseFunctionCall(ParseState<Token>& tokens) {
 maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
   cout << "-- Parsing expression " << tokens.remainder() << endl;
 
-  vector<Expression*> exprs;
-  vector<Token> binops;
+  // vector<Expression*> exprs;
+  // vector<Token> binops;
 
+  vector<Token> operatorStack;
+  vector<Expression*> postfixString;
+  
   while (true) {
     auto pExpr = parsePrimitiveExpressionMaybe(tokens);
     if (!pExpr.has_value()) {
       break;
     }
 
-    exprs.push_back(pExpr.get_value());    
+    postfixString.push_back(pExpr.get_value());
     
     if (tokens.atEnd() || !isBinop(tokens.peekChar())) {
       break;
     }
 
     Token binop = tokens.parseChar();
-    binops.push_back(binop);
-    auto rest = parseExpressionMaybe(tokens);
+    if ((operatorStack.size() == 0) ||
+        ) {
+      operatorStack.push_back(binop);
+    }
+    //auto rest = parseExpressionMaybe(tokens);
     exprs.push_back(rest.get_value());
   }
 
-  cout << "Got " << exprs.size() << " expressions" << endl;
+  // Pop and print all operators on the stack
 
-  if (exprs.size() == 0) {
-    cout << "No expression at " << tokens.remainder() << endl;
-    return maybe<Expression*>();
-  }
+  assert(false);
 
-  assert(exprs.size() == (binops.size() + 1));
+  // if (output == nullptr) {
+  //   return maybe<Expression*>();
+  // }
 
-  if (binops.size() == 0) {
-    cout << "returning expression, remainder = " << tokens.remainder() << endl;
-    return exprs[0];
-  }
+  // return output;
+
+  // cout << "Got " << exprs.size() << " expressions" << endl;
+
+  // if (exprs.size() == 0) {
+  //   cout << "No expression at " << tokens.remainder() << endl;
+  //   return maybe<Expression*>();
+  // }
+
+  // assert(exprs.size() == (binops.size() + 1));
+
+  // if (binops.size() == 0) {
+  //   cout << "returning expression, remainder = " << tokens.remainder() << endl;
+  //   return exprs[0];
+  // }
   
-  BinopExpr* top = sc<BinopExpr>(exprs[0]);
-  for (int i = 0; i < ((int) binops.size()); i++) {
-    top = new BinopExpr(top, binops[i], exprs[i + 1]);
-  }
+  // BinopExpr* top = sc<BinopExpr>(exprs[0]);
+  // for (int i = 0; i < ((int) binops.size()); i++) {
+  //   top = new BinopExpr(top, binops[i], exprs[i + 1]);
+  // }
 
-  return top;
+  // return top;
   
   // BinopExpr* last = sc<BinopExpr>(exprs[((int) binops.size()) - 1]);
   // for (int i = ((int) binops.size()) - 1; i >= 1; i--) {
@@ -2281,7 +2297,7 @@ int main() {
 
     assert(st.atEnd());
 
-    cout << "done with " << str << endl;    
+    cout << "done with " << str << endl;
 
     delete tp.get_value();
   }
@@ -2307,6 +2323,14 @@ int main() {
 
     assert(st.atEnd());
 
+    auto be = extractM<BinopExpr>(tp.get_value());
+    assert(be.has_value());
+    cout << "be op = " << be.get_value()->op << endl;
+    
+    assert(be.get_value()->op == Token("=="));
+
+    cout << "done with " << str << endl;
+    
     delete tp.get_value();
   }
 
