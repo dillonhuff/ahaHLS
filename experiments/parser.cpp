@@ -2610,12 +2610,12 @@ int main() {
 
     cout << parseMod << endl;
 
-    assert(parseMod.getStatements().size() == 5);
+    assert(parseMod.getStatements().size() == 2);
 
     SynthCppModule scppMod(parseMod);
 
-    assert(scppMod.getClasses().size() == 3);
-    assert(scppMod.getFunctions().size() == 2);
+    assert(scppMod.getClasses().size() == 1);
+    assert(scppMod.getFunctions().size() == 1);
 
     cout << "Before synthesize verilog: # of interface functions = " << scppMod.getInterfaceFunctions().constraints.size() << endl;
     for (auto func : scppMod.getInterfaceFunctions().constraints) {
@@ -2711,5 +2711,11 @@ int main() {
   // Possible first try: Really do everything through interface classes
   // (and interface functions). Build an i32 and i64 interface class, and build
   // binops for each one? Or remove iX iY forms and use bit classes?
+
+  // Note: There needs to be some notion of what kinds of data can bind
+  // to a input_X value and what kinds of data output_X can bind to
+  // Q: What is the syntax of this binding in C++? What is the hardware meaning
+  //    of this binding and how do users tell the code about it?
+  // Note: Maybe all we do is connect ports?
 
 }
