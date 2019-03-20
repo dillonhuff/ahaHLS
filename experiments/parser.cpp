@@ -2627,7 +2627,9 @@ int main() {
     auto arch = synthesizeVerilog(scppMod, "filter_ram");
 
     map<llvm::Value*, int> layout = {};
-    
+
+    auto in =
+      sc<Argument>(getArg(scppMod.getFunction("filter_ram")->llvmFunction(), 0));
     TestBenchSpec tb;
     map<string, int> testLayout = {};
     tb.memoryInit = {};
@@ -2636,7 +2638,21 @@ int main() {
     tb.maxCycles = 100;
     tb.name = "filter_ram";
     tb.useModSpecs = true;
-    
+    tb.settablePort(in, "debug_addr");
+    tb.settablePort(in, "debug_write_addr");
+    tb.settablePort(in, "debug_write_data");
+    tb.settablePort(in, "debug_write_en");            
+
+    tb.setArgPort(in, "debug_write_addr", 1, "0");
+    tb.setArgPort(in, "debug_write_data", 1, "6");
+    tb.setArgPort(in, "debug_write_en", 1, "1");    
+
+    tb.setArgPort(in, "debug_write_addr", 2, "0");
+    tb.setArgPort(in, "debug_write_data", 2, "8");
+    tb.setArgPort(in, "debug_write_en", 2, "1");    
+
+    tb.setArgPort(in, "debug_write_en", 3, "0");        
+
     emitVerilogTestBench(tb, arch, testLayout);
 
     assert(runIVerilogTest("filter_ram_tb.v", "filter_ram", " builtins.v filter_ram.v RAM.v delay.v"));

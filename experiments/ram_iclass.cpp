@@ -1,5 +1,12 @@
 class RAM {
 
+  input_5 debug_addr;
+  output_32 debug_data;
+
+  input_5 debug_write_addr;
+  input_32 debug_write_data;
+  input_1 debug_write_en;  
+
   input_32 wdata_0;
   input_5 waddr_0;
   input_1 wen_0;
