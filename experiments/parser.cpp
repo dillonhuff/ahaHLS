@@ -7,6 +7,7 @@
 
 #include "llvm_codegen.h"
 #include "verilog_backend.h"
+#include "test_utils.h"
 
 using namespace dbhc;
 using namespace ahaHLS;
@@ -46,7 +47,7 @@ bool oneCharToken(const char c) {
 }
 
 bool isKeyword(const std::string& str) {
-  vector<string> keywords{"void", "for", "return"};
+  vector<string> keywords{"void", "for"}; //, "return"};
   return elem(str, keywords);
 }
 
@@ -1322,7 +1323,7 @@ maybe<Statement*> parseStatementNoLabel(ParseState<Token>& tokens) {
 }
 
 maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
-  //cout << "Starting to parse statement " << tokens.remainder() << endl;
+  cout << "Starting to parse statement " << tokens.remainder() << endl;
   
   if (tokens.atEnd()) {
     return maybe<Statement*>();
@@ -2621,6 +2622,7 @@ int main() {
     }
     
     synthesizeVerilog(scppMod, "filter_ram");
+    assert(runIVerilogTest("filter_ram_tb.v", "filter_ram", " builtins.v filter_ram.v"));
   }
 
   {

@@ -20,7 +20,8 @@ INCLUDE_DIRECTORIES(./src/)
 SET(CPP_FILES ./src/scheduling.cpp
               ./src/verilog_backend.cpp
               ./src/llvm_codegen.cpp
-              ./src/utils.cpp)
+              ./src/utils.cpp
+              ./src/test_utils.cpp)              
 
 llvm_map_components_to_libnames(llvm_libs support core irreader passes)
 
@@ -29,8 +30,8 @@ target_link_libraries(ahahls ${llvm_libs} z3)
 
 # Test executables
 SET(ALL_TEST_FILES ./test/scheduling.cpp
-                   ./test/dependence.cpp
-                   ./test/test_utils.cpp)
+                   ./test/dependence.cpp)
+
 
 add_executable(all-tests ${ALL_TEST_FILES})
 target_link_libraries(all-tests ahahls ${llvm_libs})
