@@ -1903,10 +1903,11 @@ namespace ahaHLS {
     // Remove old call
     toInline->eraseFromParent();
 
-    cout << "Iterating over constraints" << endl;
+    //cout << "Iterating over constraints, # of constraints = " << constraintsToInline.constraints.size() << endl;
     
     for (auto c : constraintsToInline.constraints) {
 
+      //cout << tab(1) << "Inlining " << *c << endl;
       if (c->type() == CONSTRAINT_TYPE_ORDERED) {
         Ordered* oc = static_cast<Ordered*>(c->clone());
 
@@ -2817,6 +2818,10 @@ namespace ahaHLS {
     cout << "After inlining" << endl;
     cout << valueString(f) << endl;
 
+    cout << "Constraints after inlining" << endl;
+    for (auto c : exec.constraints) {
+      cout << tab(1) << *c << endl;
+    }
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
     exec.addConstraints(p, f);
 

@@ -17,7 +17,7 @@ class ram {
 
     add_constraint(start(set_wen) == start(set_wdata));
     add_constraint(start(set_wen) == start(set_waddr));
-    add_constraint(start(set_wdata) + 3 == end(set_waddr));
+
   }
 
   bit_32 read(bit_5 addr) {

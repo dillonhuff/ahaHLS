@@ -77,6 +77,10 @@ public:
   std::string getStr() const { return str; }
 };
 
+bool operator<(const Token l, const Token r) {
+  return l.getStr() < r.getStr();
+}
+
 bool isComparator(Token op) {
   vector<string> comps = {"==", ">", "<", "*", ">=", "<="};
   return elem(op.getStr(), comps);
@@ -1588,7 +1592,7 @@ public:
   CodeGenState cgs;
   SynthCppFunction* activeFunction;
   int globalNum;
-  // std::map<std::string, SynthCppType*>* activeSymtab;
+  std::map<Token, Instruction*> labelsToInstructions;
 
   std::string uniqueNumString() {
     auto s = std::to_string(globalNum);
@@ -1784,12 +1788,12 @@ public:
       }
     }
 
-    for (auto c : classes) {
-      for (auto m : c->methods) {
-        cout << "Adding interface method " << m.second->nameToken << endl;
-        interfaces.addFunction(m.second->llvmFunction());
-      }
-    }
+    // for (auto c : classes) {
+    //   for (auto m : c->methods) {
+    //     cout << "Adding interface method " << m.second->nameToken << endl;
+    //     interfaces.addFunction(m.second->llvmFunction());
+    //   }
+    // }
   }
 
   map<std::string, llvm::Value*> valueMap;
@@ -1833,14 +1837,17 @@ public:
 
       cout << "got arg0 name = " << arg0Name << endl;
 
+      Instruction* instrLabel = map_find(Token(arg0Name), labelsToInstructions);
+      cout << "Instruction labeled = " << valueString(instrLabel) << endl;
+      
       // TODO: Translate the argument name (which should
       // be a label) in to a source code location, and then
       // make the execution action for the instruction being used
       if (name == "start") {
-        return {ExecutionAction(arg0Name), false, 0};
+        return {ExecutionAction(instrLabel), false, 0};
       } else {
         assert(name == "end");
-        return {ExecutionAction(arg0Name), true, 0};        
+        return {ExecutionAction(instrLabel), true, 0};
       }
     }
   }
@@ -1900,18 +1907,18 @@ public:
 
         ExecutionConstraint* c =
           parseConstraint(called->args[0]);
+
+        cout << "Adding constraint " << *c << endl;
         exe.add(c);
         return nullptr;
       }
 
       if (name == "set_port") {
-        // TODO: Generate the correct port setting function
         Expression* labelExpr = called->args[0];
 
         Identifier* labelId = extract<Identifier>(labelExpr);
         Expression* valueExpr = called->args[1];
         auto vExpr = genLLVM(b, valueExpr);
-        // TODO: Get llvm type of containing class
 
         SynthCppClass* sExpr = cgs.getActiveClass();
         SynthCppType* classTp = new SynthCppStructType(sExpr->name);
@@ -1921,8 +1928,8 @@ public:
         assert(activeFunction != nullptr);
         assert(activeFunction->llvmFunction() != nullptr);
 
-        cout << "Active function = " << activeFunction->nameToken << endl;
-        cout << valueString(activeFunction->llvmFunction()) << endl;
+        // cout << "Active function = " << activeFunction->nameToken << endl;
+        // cout << valueString(activeFunction->llvmFunction()) << endl;
 
         int thisOffset = 0;
         if (activeFunction->hasReturnValue()) {
@@ -1930,7 +1937,7 @@ public:
         }
         return b.CreateCall(f, {getArg(activeFunction->llvmFunction(), thisOffset), vExpr});
       }
-      
+
       SynthCppFunction* calledFunc = getFunction(called->funcName.getStr());
 
       // Generate llvm for each argument
@@ -2041,6 +2048,18 @@ public:
     Expression* newVal = stmt->expr;
 
     Value* v = genLLVM(b, newVal);
+
+    if (stmt->hasLabel()) {
+      Token l = stmt->label;
+      cout << "Label on assign = " << stmt->label << endl;
+      BasicBlock* blk = &(activeFunction->llvmFunction()->getEntryBlock());
+      cout << "Block for label = " << valueString(blk) << endl;
+      Instruction* last = &(blk->back());
+
+      cout << "Last instruction" << valueString(last) << endl;
+      labelsToInstructions[stmt->label] = last;
+    }
+
     Value* tV = getValueFor(t);
 
     genSetCode(b, tV, v);
@@ -2079,6 +2098,7 @@ public:
         Instruction* last = &(blk->back());
 
         cout << "Last instruction" << valueString(last) << endl;
+        labelsToInstructions[stmt->label] = last;
       }
       
     } else if (ArgumentDecl::classof(stmt)) {
@@ -2090,6 +2110,7 @@ public:
     } else if (AssignStmt::classof(stmt)) {
       auto asg = static_cast<AssignStmt* const>(stmt);
       genLLVM(b, asg);
+      
     } else {
       // Add support for variable declarations, assignments, and for loops
       cout << "No support for code generation for statement" << endl;
@@ -2188,7 +2209,21 @@ void synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
   // Q: How do we pass the hardware constraints on f in to the synthesis flow?
   cout << "Scheduling function" << endl;
   cout << valueString(f->llvmFunction()) << endl;
-  Schedule s = scheduleInterface(f->llvmFunction(), scppMod.getHardwareConstraints(), scppMod.getInterfaceFunctions(), scppMod.getBlocksToPipeline(), scppMod.getInterfaceFunctions().getConstraints(f->llvmFunction()));
+
+  cout << "In synthesize verilog: # of interface functions = " << scppMod.getInterfaceFunctions().constraints.size() << endl;
+  for (auto func : scppMod.getInterfaceFunctions().constraints) {
+    cout << tab(1) << "# of constraints on " <<
+      string(func.first->getName()) << " = " <<
+      func.second.constraints.size() << endl;
+  }
+    
+  Schedule s =
+    scheduleInterface(f->llvmFunction(),
+                      scppMod.getHardwareConstraints(),
+                      scppMod.getInterfaceFunctions(),
+                      scppMod.getBlocksToPipeline(),
+                      scppMod.getInterfaceFunctions().getConstraints(f->llvmFunction()));
+
   STG graph = buildSTG(s, f->llvmFunction());
 
   // TODO: Generate these automatically, or change generation code
@@ -2584,6 +2619,13 @@ int main() {
     assert(scppMod.getClasses().size() == 1);
     assert(scppMod.getFunctions().size() == 1);
 
+    cout << "Before synthesize verilog: # of interface functions = " << scppMod.getInterfaceFunctions().constraints.size() << endl;
+    for (auto func : scppMod.getInterfaceFunctions().constraints) {
+      cout << tab(1) << "# of constraints on " <<
+        string(func.first->getName()) << " = " <<
+        func.second.constraints.size() << endl;
+    }
+    
     synthesizeVerilog(scppMod, "filter_ram");
   }
 

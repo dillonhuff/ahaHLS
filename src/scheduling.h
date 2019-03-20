@@ -1333,6 +1333,14 @@ namespace ahaHLS {
   public:
     std::vector<ExecutionConstraint*> constraints;
 
+    ExecutionConstraints() {}
+
+    ExecutionConstraints(const ExecutionConstraints& other) {
+      for (auto c : other.constraints) {
+        addConstraint(c->clone());
+      }
+    }
+
     void remove(ExecutionConstraint* c) {
       assert(dbhc::elem(c, constraints));
 
