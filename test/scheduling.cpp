@@ -1066,7 +1066,7 @@ namespace ahaHLS {
     map_insert(tb.actionsInCycles, 4, string("ram_debug_wr_data = 14;"));
 
     map_insert(tb.actionsInCycles, 5, string("ram_debug_wr_addr = 4;"));
-    map_insert(tb.actionsInCycles, 5, string("ram_debug_wr_data = -12;"));
+    map_insert(tb.actionsInCycles, 5, string("ram_debug_wr_data = 12;"));
     
     map_insert(tb.actionsInCycles, 6, string("ram_debug_wr_en = 0;"));
 
@@ -1084,7 +1084,7 @@ namespace ahaHLS {
     map_insert(tb.actionsOnCycles, 53, assertString("ram_debug_data === 14 + 34"));
 
     map_insert(tb.actionsInCycles, 54, string("ram_debug_addr = 9;"));
-    map_insert(tb.actionsOnCycles, 54, assertString("ram_debug_data === -12 + 34"));
+    map_insert(tb.actionsOnCycles, 54, assertString("ram_debug_data === 12 + 34"));
     
     auto arch = buildMicroArchitecture(graph, layout, hcs);
     emitVerilogTestBench(tb, arch, testLayout);

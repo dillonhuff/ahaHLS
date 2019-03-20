@@ -45,6 +45,6 @@ class RAM {
 
 void filter_ram(RAM& mem) {
   bit_32 a;
-  plus_bit_32(a, mem.read(0), mem.read(1));
+  a = mem.read(0) + mem.read(1);
   mem.write(10, a);
 }
