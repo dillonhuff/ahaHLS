@@ -31,7 +31,7 @@ class ram {
   read_data:
     res = read_port(rdata);
 
-    add_constraint(start(read_data) + 1 == end(set_addr));
+    add_constraint(end(set_addr) + 1 == start(read_data));
   }
 
 };
