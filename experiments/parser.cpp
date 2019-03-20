@@ -42,7 +42,7 @@ enum TokenType {
 
 
 bool oneCharToken(const char c) {
-  vector<char> chars = {'{', '}', ';', ')', '(', ',', '[', ']', ':', '-', '&', '+', '=', '>', '<', '*'};
+  vector<char> chars = {'{', '}', ';', ')', '(', ',', '[', ']', ':', '-', '&', '+', '=', '>', '<', '*', '.'};
   return elem(c, chars);
 }
 
@@ -2695,13 +2695,21 @@ int main() {
   // Meta: I am really tired on this plane, what could I do to continue to work
   // that will not take a huge mental load?
 
-  // Problem: Need to add labels and create a mapping from labels to the statements
-  // that they reference
-
-  // Problem: Constraints do not currently get translated in to anything. The code
-  // generator needs an internal mapping from label names to generated code locations
-
   // Random thought: Have the user write timing diagrams in text as
   // the API of the call?
+
+  // Problem: Binary operations do not get mapped to specific ops
+  // Problem: Binary operation functions do not get mapped to any port list
+  // Problem: Primitive types should really be templatized
+  // Problem: readPort returns a value instead of receiving a pointer
+  // Problem: writePort takes in a value instead of a pointer for its value
+  // Problem: read port calls do not get mapped to read intrinsics
+  // Problem: set_const is not compiled to anything, and I dont know how I want
+  //          to represent constants
+  // Problem: Copy is not compiled to anything
+
+  // Possible first try: Really do everything through interface classes
+  // (and interface functions). Build an i32 and i64 interface class, and build
+  // binops for each one? Or remove iX iY forms and use bit classes?
 
 }
