@@ -2651,8 +2651,14 @@ int main() {
     tb.setArgPort(in, "debug_write_data", 2, "8");
     tb.setArgPort(in, "debug_write_en", 2, "1");    
 
-    tb.setArgPort(in, "debug_write_en", 3, "0");        
+    tb.setArgPort(in, "debug_write_en", 3, "0");
+    map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
 
+    map_insert(tb.actionsOnCycles, 18, assertString("valid === 1"));
+    
+    tb.setArgPort(in, "debug_addr", 19, "8");
+    map_insert(tb.actionsOnCycles, 19, assertString("arg_0_debug_data === (8 + 6)"));
+    
     emitVerilogTestBench(tb, arch, testLayout);
 
     assert(runIVerilogTest("filter_ram_tb.v", "filter_ram", " builtins.v filter_ram.v RAM.v delay.v"));
