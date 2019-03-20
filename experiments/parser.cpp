@@ -344,9 +344,18 @@ public:
 
   virtual ExpressionKind getKind() const = 0;
 
+  virtual void print(std::ostream& out) const {
+    assert(false);
+  }
+
   virtual ~Expression() {}
   
 };
+
+std::ostream& operator<<(std::ostream& out, const Expression& e) {
+  e.print(out);
+  return out;
+}
 
 class FunctionCall : public Expression {
 public:
@@ -364,6 +373,11 @@ public:
   static bool classof(Expression* e) {
     return e->getKind() == EXPRESSION_KIND_FUNCTION_CALL;
   }
+
+  virtual void print(std::ostream& out) const {
+    out << funcName << "(" << "INSERT_ARGS)";
+  }
+  
   
 };
 
@@ -385,6 +399,10 @@ public:
   static bool classof(Expression* e) {
     return e->getKind() == EXPRESSION_KIND_METHOD_CALL;
   }
+
+  virtual void print(std::ostream& out) const {
+    out << callerName << "->" << *called;
+  }
   
 };
 
@@ -403,6 +421,10 @@ public:
 
   static bool classof(Expression* e) {
     return e->getKind() == EXPRESSION_KIND_IDENTIFIER;
+  }
+
+  virtual void print(std::ostream& out) const {
+    out << getName();
   }
   
 };
@@ -496,6 +518,10 @@ public:
   static bool classof(Expression* e) {
     return e->getKind() == EXPRESSION_KIND_BINOP;
   }
+
+  virtual void print(std::ostream& out) const {
+    out << "(" << *lhs << " " << op << " " << *rhs << ")";
+  }
   
 };
 
@@ -508,6 +534,10 @@ public:
 
   int getInt() const { return stoi(digits); }
 
+  virtual void print(std::ostream& out) const {
+    out << digits;
+  }
+  
   virtual ExpressionKind getKind() const {
     return EXPRESSION_KIND_NUM;
   }
@@ -815,6 +845,28 @@ maybe<FunctionCall*> parseFunctionCall(ParseState<Token>& tokens) {
   return new FunctionCall(t, callArgs);
 }
 
+int precedence(Token op) {
+  map<string, int> prec{{"+", 100}, {"==", 99}, {"-", 100}};
+  assert(contains_key(op.getStr(), prec));
+  return map_find(op.getStr(), prec);
+}
+
+Expression* popOperand(vector<Expression*>& postfixString) {
+  assert(postfixString.size() > 0);
+
+  Expression* top = postfixString.back();
+  postfixString.pop_back();
+  
+  auto idM = extractM<Identifier>(top);
+  if (idM.has_value() && isBinop(idM.get_value()->getName())) {
+    auto rhs = popOperand(postfixString);
+    auto lhs = popOperand(postfixString);
+    return new BinopExpr(lhs, idM.get_value()->getName(), rhs);
+  }
+
+  return top;
+}
+
 maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
   cout << "-- Parsing expression " << tokens.remainder() << endl;
 
@@ -826,6 +878,7 @@ maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
   
   while (true) {
     auto pExpr = parsePrimitiveExpressionMaybe(tokens);
+    cout << "After primitive expr = " << tokens.remainder() << endl;
     if (!pExpr.has_value()) {
       break;
     }
@@ -837,18 +890,60 @@ maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
     }
 
     Token binop = tokens.parseChar();
-    if ((operatorStack.size() == 0) ||
-        ) {
+    if (!isBinop(binop)) {
+      break;
+    }
+
+    cout << "Adding binop " << binop << endl;
+    if (operatorStack.size() == 0) {
+      cout << tab(1) << "Op stack empty " << binop << endl;      
+      operatorStack.push_back(binop);
+    } else if (precedence(binop) > precedence(operatorStack.back())) {
+      cout << tab(1) << "Op has higher precedence " << binop << endl;      
+      operatorStack.push_back(binop);
+    } else {
+      while (true) {
+        Token topOp = operatorStack.back();
+        operatorStack.pop_back();
+
+        cout << "Popping " << topOp << " from op stack" << endl;
+
+        postfixString.push_back(new Identifier(topOp));
+        
+        if ((operatorStack.size() == 0) ||
+            (precedence(binop) > precedence(operatorStack.back()))) {
+          break;
+        }
+      }
+
       operatorStack.push_back(binop);
     }
-    //auto rest = parseExpressionMaybe(tokens);
-    exprs.push_back(rest.get_value());
   }
 
   // Pop and print all operators on the stack
+  cout << "Adding ops" << endl;
+  // Reverse order of this?
+  for (auto op : operatorStack) {
+    cout << tab(1) << "Popping operator " << op << endl;
+    postfixString.push_back(new Identifier(op));
+  }
 
-  assert(false);
+  if (postfixString.size() == 0) {
+    return maybe<Expression*>();
+  }
 
+  cout << "Building final value" << endl;
+  cout << "Postfix string" << endl;
+  for (auto s : postfixString) {
+    cout << tab(1) << *s << endl;
+  }
+
+  Expression* final = popOperand(postfixString);
+  assert(postfixString.size() == 0);
+  assert(final != nullptr);
+
+  cout << "Returning expression " << *final << endl;
+  return final;
   // if (output == nullptr) {
   //   return maybe<Expression*>();
   // }
@@ -2513,5 +2608,8 @@ int main() {
 
   // Problem: Constraints do not currently get translated in to anything. The code
   // generator needs an internal mapping from label names to generated code locations
+
+  // Random thought: Have the user write timing diagrams in text as
+  // the API of the call?
 
 }
