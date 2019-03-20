@@ -868,7 +868,7 @@ Expression* popOperand(vector<Expression*>& postfixString) {
 }
 
 maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
-  cout << "-- Parsing expression " << tokens.remainder() << endl;
+  //cout << "-- Parsing expression " << tokens.remainder() << endl;
 
   // vector<Expression*> exprs;
   // vector<Token> binops;
@@ -878,7 +878,7 @@ maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
   
   while (true) {
     auto pExpr = parsePrimitiveExpressionMaybe(tokens);
-    cout << "After primitive expr = " << tokens.remainder() << endl;
+    //cout << "After primitive expr = " << tokens.remainder() << endl;
     if (!pExpr.has_value()) {
       break;
     }
@@ -894,19 +894,19 @@ maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
       break;
     }
 
-    cout << "Adding binop " << binop << endl;
+    //cout << "Adding binop " << binop << endl;
     if (operatorStack.size() == 0) {
-      cout << tab(1) << "Op stack empty " << binop << endl;      
+      //cout << tab(1) << "Op stack empty " << binop << endl;      
       operatorStack.push_back(binop);
     } else if (precedence(binop) > precedence(operatorStack.back())) {
-      cout << tab(1) << "Op has higher precedence " << binop << endl;      
+      //cout << tab(1) << "Op has higher precedence " << binop << endl;      
       operatorStack.push_back(binop);
     } else {
       while (true) {
         Token topOp = operatorStack.back();
         operatorStack.pop_back();
 
-        cout << "Popping " << topOp << " from op stack" << endl;
+        //cout << "Popping " << topOp << " from op stack" << endl;
 
         postfixString.push_back(new Identifier(topOp));
         
@@ -921,10 +921,10 @@ maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
   }
 
   // Pop and print all operators on the stack
-  cout << "Adding ops" << endl;
+  //cout << "Adding ops" << endl;
   // Reverse order of this?
   for (auto op : operatorStack) {
-    cout << tab(1) << "Popping operator " << op << endl;
+    //cout << tab(1) << "Popping operator " << op << endl;
     postfixString.push_back(new Identifier(op));
   }
 
@@ -932,17 +932,17 @@ maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
     return maybe<Expression*>();
   }
 
-  cout << "Building final value" << endl;
-  cout << "Postfix string" << endl;
-  for (auto s : postfixString) {
-    cout << tab(1) << *s << endl;
-  }
+  //cout << "Building final value" << endl;
+  //cout << "Postfix string" << endl;
+  // for (auto s : postfixString) {
+  //   cout << tab(1) << *s << endl;
+  // }
 
   Expression* final = popOperand(postfixString);
   assert(postfixString.size() == 0);
   assert(final != nullptr);
 
-  cout << "Returning expression " << *final << endl;
+  //cout << "Returning expression " << *final << endl;
   return final;
   // if (output == nullptr) {
   //   return maybe<Expression*>();
