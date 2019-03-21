@@ -133,3 +133,5 @@ parser
 count_packets*
 *.json
 synthesize-interface-functions
+axi_multi_transfer*
+filter_ram*

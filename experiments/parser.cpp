@@ -283,14 +283,25 @@ std::function<maybe<Token>(TokenState& chars)> mkParseStr(const std::string str)
   return [str](TokenState& state) { return parseStr(str, state); };
 }
 
+Token consumeWhitespace(TokenState& state) {
+  return consumeWhile(state, isWhitespace);
+}
+
 Token parse_token(TokenState& state) {
   // Parse comment
-  auto result = tryParse<Token>(mkParseStr("//"), state);
-  if (result.has_value()) {
-    while (!state.atEnd() && !(state.peekChar() == '\n')) {
+  while (true) {
+    auto result = tryParse<Token>(mkParseStr("//"), state);
+    if (result.has_value()) {
+      while (!state.atEnd() && !(state.peekChar() == '\n')) {
+        state.parseChar();
+      }
       state.parseChar();
+
+      consumeWhitespace(state);      
+    } else {
+      break;
     }
-    state.parseChar();
+
   }
 
   if (isalnum(state.peekChar())) {
@@ -315,10 +326,6 @@ Token parse_token(TokenState& state) {
     assert(false);
   }
 
-}
-
-Token consumeWhitespace(TokenState& state) {
-  return consumeWhile(state, isWhitespace);
 }
 
 std::vector<Token> tokenize(const std::string& classCode) {
