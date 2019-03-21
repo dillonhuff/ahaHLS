@@ -1,3 +1,21 @@
+class bit_32_adder {
+  input_32 in0;
+  input_32 in1;
+  output_32 out;
+
+  bit_32 add(bit_32 x, bit_32 y) {
+  set_x: set_port(in0, x);
+  set_y: set_port(in1, y);
+
+    bit_32 res;
+    res = read_port(out);
+  ret: return;
+
+    add_constraint(start(set_x) == start(set_y));
+    add_constraint(start(set_x) == start(ret));    
+  }
+};
+
 class RAM {
 
   input_5 debug_addr;
