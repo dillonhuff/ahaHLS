@@ -66,7 +66,7 @@ class RAM {
 void filter_ram(RAM& mem) {
   bit_32 a;
   adder_bit_32 adder;
-  //a = adder.add(mem.read(0), mem.read(1));
-  a = mem.read(0) + mem.read(1);
+  a = adder.add(mem.read(0), mem.read(1));
+  //a = mem.read(0) + mem.read(1);
   mem.write(10, a);
 }
