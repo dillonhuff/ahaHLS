@@ -136,6 +136,10 @@ initial begin
     // end
 end
 
+   always @(posedge clk) begin
+      //$display("s_axil_bvalid = ", s_axil_bvalid);
+   end
+
 always @* begin
     mem_wr_en = 1'b0;
 

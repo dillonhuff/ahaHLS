@@ -2228,12 +2228,20 @@ namespace ahaHLS {
     exec.addConstraint(instrEnd(stallOnWriteDataReady) == instrStart(wDataValid));
     exec.addConstraint(instrEnd(stallOnWriteDataReady) == instrStart(wAWValid0));
 
+    auto stallOnBValid = stallOnPort(b, readMod, 1, "s_axil_bvalid", exec);
+    exec.addConstraint(instrEnd(stallOnWriteDataReady) <= instrStart(stallOnBValid));
+
     auto ret = b.CreateRet(nullptr);
 
-    // TODO: Remove via instruction masking
-    exec.addConstraint(instrStart(ret) == instrEnd(stallOnWriteDataReady) + 1);
+    exec.addConstraint(instrStart(ret) == instrEnd(stallOnBValid));
+
+    cout << "# of user defined constraints on AXI write = " << exec.constraints.size() << endl;
 
     addDataConstraints(axiWrite, exec);
+
+    cout << "Total # of constraints on AXI write = " << exec.constraints.size() << endl;
+    cout << "axilRawRead = " << endl;
+    cout << valueString(axiWrite) << endl;
 
   }
 
@@ -2287,7 +2295,13 @@ namespace ahaHLS {
     exec.add(instrStart(dataValue) == instrEnd(stallUntilReadRespReady));
     b.CreateRet(dataValue);
 
+    cout << "# of user defined constraints on AXI read = " << exec.constraints.size() << endl;
+
     addDataConstraints(axiRead, exec);
+
+    cout << "Total # of constraints on AXI read = " << exec.constraints.size() << endl;
+    cout << "axilRawRead = " << endl;
+    cout << valueString(axiRead) << endl;
 
   }
   

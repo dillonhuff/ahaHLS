@@ -1,24 +1,24 @@
-module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] out_in_data, output [0:0] out_read_valid, output [0:0] out_rst, output [31:0] out_write_valid, input [31:0] out_out_data, input [0:0] out_read_ready, input [0:0] out_write_ready, output [0:0] valid, output [31:0] in_in_data, output [0:0] in_read_valid, output [0:0] in_rst, output [31:0] in_write_valid, input [31:0] in_out_data, input [0:0] in_read_ready, input [0:0] in_write_ready);
+module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [31:0] in_in_data, output [0:0] in_read_valid, output [0:0] in_rst, output [31:0] in_write_valid, input [31:0] in_out_data, input [0:0] in_read_ready, input [0:0] in_write_ready, output [31:0] out_in_data, output [0:0] out_read_valid, output [0:0] out_rst, output [31:0] out_write_valid, input [31:0] out_out_data, input [0:0] out_read_ready, input [0:0] out_write_ready);
 
-	reg [31:0] out_in_data_reg;
-	reg [0:0] out_read_valid_reg;
-	reg [0:0] out_rst_reg;
-	reg [31:0] out_write_valid_reg;
 	reg [0:0] valid_reg;
 	reg [31:0] in_in_data_reg;
 	reg [0:0] in_read_valid_reg;
 	reg [0:0] in_rst_reg;
 	reg [31:0] in_write_valid_reg;
+	reg [31:0] out_in_data_reg;
+	reg [0:0] out_read_valid_reg;
+	reg [0:0] out_rst_reg;
+	reg [31:0] out_write_valid_reg;
 
-	assign out_in_data = out_in_data_reg;
-	assign out_read_valid = out_read_valid_reg;
-	assign out_rst = out_rst_reg;
-	assign out_write_valid = out_write_valid_reg;
 	assign valid = valid_reg;
 	assign in_in_data = in_in_data_reg;
 	assign in_read_valid = in_read_valid_reg;
 	assign in_rst = in_rst_reg;
 	assign in_write_valid = in_write_valid_reg;
+	assign out_in_data = out_in_data_reg;
+	assign out_read_valid = out_read_valid_reg;
+	assign out_rst = out_rst_reg;
+	assign out_write_valid = out_write_valid_reg;
 
 	// Start debug wires and ports
 
@@ -32,13 +32,13 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_18();
+	add call_17();
 
-	add alloca_0();
-
-	add bitcast_1();
-
-	add call_2();
+	reg [63:0] phi_in_phi_5;
+	reg [31:0] phi_last_block_phi_5;
+	reg [63:0] phi_s_phi_5;
+	wire [31:0] phi_out_phi_5;
+	phi #(.NB_PAIR(2), .WIDTH(32)) phi_5(.in(phi_in_phi_5), .last_block(phi_last_block_phi_5), .out(phi_out_phi_5), .s(phi_s_phi_5));
 
 	reg [31:0] raddr_ram_0_reg;
 	reg [31:0] waddr_ram_0_reg;
@@ -47,20 +47,18 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	wire [31:0] rdata_ram_0;
 	register #(.WIDTH(32)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
 
-	br_dummy br_unit();
-
-	add call_19();
-
-	reg [63:0] phi_in_phi_5;
-	reg [31:0] phi_last_block_phi_5;
-	reg [63:0] phi_s_phi_5;
-	wire [31:0] phi_out_phi_5;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_5(.in(phi_in_phi_5), .last_block(phi_last_block_phi_5), .out(phi_out_phi_5), .s(phi_s_phi_5));
-
 	reg [31:0] add_in0_add_12;
 	reg [31:0] add_in1_add_12;
 	wire [31:0] add_out_add_12;
 	add #(.WIDTH(32)) add_add_12(.in0(add_in0_add_12), .in1(add_in1_add_12), .out(add_out_add_12));
+
+	add call_0();
+
+	br_dummy br_unit();
+
+	add alloca_2();
+
+	add bitcast_3();
 
 	reg [31:0] add_in0_add_7;
 	reg [31:0] add_in1_add_7;
@@ -73,6 +71,8 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	eq #(.WIDTH(32)) icmp_8(.in0(cmp_in0_icmp_8), .in1(cmp_in1_icmp_8), .out(cmp_out_icmp_8));
 
 	add call_10();
+
+	add call_19();
 
 	// End Functional Units
 
@@ -242,20 +242,6 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 
 	always @(*) begin
 		if ((global_state == 0)) begin 
-				//   %sum = alloca i32, align 4
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %1 = bitcast i32* %sum to i8*
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
 				//   call void @llvm.lifetime.start.p0i8(i64 4, i8* %1) #14
 		end else begin 
 			// Default values
@@ -280,6 +266,20 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 		end else 		if ((global_state == 7)) begin 
 				//   %4 = load i32, i32* %sum
 				raddr_ram_0_reg = 0;
+		end else begin 
+			// Default values
+		end
+	end
+	always @(*) begin
+		if ((global_state == 0)) begin 
+				//   %sum = alloca i32, align 4
+		end else begin 
+			// Default values
+		end
+	end
+	always @(*) begin
+		if ((global_state == 0)) begin 
+				//   %1 = bitcast i32* %sum to i8*
 		end else begin 
 			// Default values
 		end
@@ -352,6 +352,15 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	end
 	always @(*) begin
 		if ((global_state == 6)) begin 
+				//   call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %1) #14
+				if (out_write_ready) begin
+				end
+		end else begin 
+			// Default values
+		end
+	end
+	always @(*) begin
+		if ((global_state == 6)) begin 
 				//   %3 = call i1 @builtin_read_port_write_ready(%class.ac_channel* %out)
 				if (out_write_ready) begin
 				end
@@ -375,15 +384,6 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 		end
 	end
 	always @(*) begin
-		if ((global_state == 6)) begin 
-				//   call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %1) #14
-				if (out_write_ready) begin
-				end
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
 		if ((global_state == 8)) begin 
 				//   ret void
 				valid_reg = 1;
@@ -394,7 +394,7 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	end
 endmodule
 
-module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_data, output [0:0] out_read_valid, output [0:0] out_rst, output [31:0] out_write_valid, input [31:0] out_out_data, input [0:0] out_read_ready, input [0:0] out_write_ready, output [0:0] valid, output [31:0] in_in_data, output [0:0] in_read_valid, output [0:0] in_rst, output [31:0] in_write_valid, input [31:0] in_out_data, input [0:0] in_read_ready, input [0:0] in_write_ready);
+module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [31:0] in_in_data, output [0:0] in_read_valid, output [0:0] in_rst, output [31:0] in_write_valid, input [31:0] in_out_data, input [0:0] in_read_ready, input [0:0] in_write_ready, output [31:0] out_in_data, output [0:0] out_read_valid, output [0:0] out_rst, output [31:0] out_write_valid, input [31:0] out_out_data, input [0:0] out_read_ready, input [0:0] out_write_ready);
 
 
 	initial begin
