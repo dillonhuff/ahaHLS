@@ -137,7 +137,7 @@ initial begin
 end
 
    always @(posedge clk) begin
-      //$display("s_axil_bvalid = ", s_axil_bvalid);
+      //$display("s_axil_awready = ", s_axil_awready);
    end
 
 always @* begin

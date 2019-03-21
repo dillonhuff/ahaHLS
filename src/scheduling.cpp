@@ -2207,25 +2207,26 @@ namespace ahaHLS {
     auto inAddr = getArg(axiWrite, 1);
     auto addrValShifted = b.CreateShl(inAddr, mkInt(2, 32));    
     auto inData = getArg(axiWrite, 2);    
-    
+
+    // We are ready to accept a response
     auto wBready1 = writePort(b, readMod, 1, "s_axil_bready", mkInt(1, 1));
+
+    // Set the address we want to write
     auto wAddr = writePort(b, readMod, addrWidth, "s_axil_awaddr", addrValShifted);
     auto wAWValid = writePort(b, readMod, 1, "s_axil_awvalid", mkInt(1, 1));
-
-    auto stallOnAWValid = stallOnPort(b, readMod, 1, "s_axil_awready", exec);
-    
     auto wDataValid0 = writePort(b, readMod, 1, "s_axil_wvalid", mkInt(1, 1));
     auto wData0 = writePort(b, readMod, dataWidth, "s_axil_wdata", inData);
 
-    exec.addConstraint(instrStart(wAddr) < instrStart(stallOnAWValid));
-    exec.addConstraint(instrEnd(stallOnAWValid) <= instrStart(wDataValid0));
-    
     auto stallOnWriteDataReady = stallOnPort(b, readMod, 1, "s_axil_wready", exec);
+    auto stallOnAWValid = stallOnPort(b, readMod, 1, "s_axil_awready", exec);
+
+    exec.addConstraint(instrStart(wAddr) < instrStart(stallOnAWValid));
     
     exec.addConstraint(instrStart(wAddr) == instrStart(wAWValid));
+    exec.addConstraint(instrStart(wAddr) == instrStart(wData0));    
     exec.addConstraint(instrStart(wBready1) == instrStart(wAWValid));
 
-    // exec.addConstraint(instrStart(wDataValid0) == instrStart(wAWValid));
+    exec.addConstraint(instrStart(wDataValid0) == instrStart(wAWValid));
     exec.addConstraint(instrStart(wDataValid0) == instrStart(wData0));        
     exec.addConstraint(instrStart(stallOnWriteDataReady) > instrEnd(wAWValid));
 
