@@ -2203,6 +2203,7 @@ namespace ahaHLS {
     auto inType = getArg(axiWrite, 2)->getType();
     int dataWidth = getTypeBitWidth(inType);
     int addrWidth = 32;
+    int strbWidth = dataWidth / 8;
 
     auto inAddr = getArg(axiWrite, 1);
     auto addrValShifted = b.CreateShl(inAddr, mkInt(2, 32));    
@@ -2216,6 +2217,7 @@ namespace ahaHLS {
     auto wAWValid = writePort(b, readMod, 1, "s_axil_awvalid", mkInt(1, 1));
     auto wDataValid0 = writePort(b, readMod, 1, "s_axil_wvalid", mkInt(1, 1));
     auto wData0 = writePort(b, readMod, dataWidth, "s_axil_wdata", inData);
+    auto wStrb = writePort(b, readMod, strbWidth, "s_axil_wstrb", mkInt(15, strbWidth));
 
     auto stallOnWriteDataReady = stallOnPort(b, readMod, 1, "s_axil_wready", exec);
     auto stallOnAWValid = stallOnPort(b, readMod, 1, "s_axil_awready", exec);
@@ -2223,7 +2225,8 @@ namespace ahaHLS {
     exec.addConstraint(instrStart(wAddr) < instrStart(stallOnAWValid));
     
     exec.addConstraint(instrStart(wAddr) == instrStart(wAWValid));
-    exec.addConstraint(instrStart(wAddr) == instrStart(wData0));    
+    exec.addConstraint(instrStart(wAddr) == instrStart(wData0));
+    exec.addConstraint(instrStart(wAddr) == instrStart(wStrb));        
     exec.addConstraint(instrStart(wBready1) == instrStart(wAWValid));
 
     exec.addConstraint(instrStart(wDataValid0) == instrStart(wAWValid));
