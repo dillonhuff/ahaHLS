@@ -559,7 +559,8 @@ enum StatementKind {
   STATEMENT_KIND_ARG_DECL,  
   STATEMENT_KIND_ASSIGN,
   STATEMENT_KIND_FOR,
-  STATEMENT_KIND_EXPRESSION
+  STATEMENT_KIND_EXPRESSION,
+  STATEMENT_KIND_RETURN
 };
 
 class Statement {
@@ -568,6 +569,10 @@ public:
   Token label;
 
   Statement() : hasL(false) {}
+
+  virtual void print(std::ostream& out) const {
+    assert(false);
+  }
 
   bool hasLabel() const { return hasL; }
 
@@ -585,6 +590,11 @@ public:
 
 };
 
+std::ostream& operator<<(std::ostream& out, const Statement& stmt) {
+  stmt.print(out);
+  return out;
+}
+
 class ClassDecl : public Statement {
 public:
   Token name;
@@ -599,6 +609,10 @@ public:
 
   virtual StatementKind getKind() const {
     return STATEMENT_KIND_CLASS_DECL;
+  }
+
+  virtual void print(std::ostream& out) const {
+    out << "class " << name << "{ INSERT_BODY; }";
   }
   
 };
@@ -616,6 +630,10 @@ public:
 
   virtual StatementKind getKind() const {
     return STATEMENT_KIND_ASSIGN;
+  }
+
+  virtual void print(std::ostream& out) const {
+    out << var << " = " << *expr;
   }
   
 };
@@ -640,6 +658,10 @@ public:
   virtual StatementKind getKind() const {
     return STATEMENT_KIND_FOR;
   }
+
+  virtual void print(std::ostream& out) const {
+    out << "for (INSERT) { INSERT; }";
+  }
   
 };
 
@@ -656,7 +678,10 @@ public:
   virtual StatementKind getKind() const {
     return STATEMENT_KIND_EXPRESSION;
   }
-  
+
+  virtual void print(std::ostream& out) const {
+    out << *expr;
+  }
 };
 
 maybe<Statement*> parseStatement(ParseState<Token>& tokens);
@@ -672,12 +697,36 @@ public:
   ArgumentDecl(SynthCppType* tp_, Token name_, Expression* arraySize_) :
     tp(tp_), name(name_), arraySize(arraySize_) {}
 
+  virtual void print(std::ostream& out) const {
+    out << "ARGDECL " << name;
+  }
+  
   static bool classof(const Statement* const stmt) {
     return stmt->getKind() == STATEMENT_KIND_ARG_DECL;
   }
 
   virtual StatementKind getKind() const {
     return STATEMENT_KIND_ARG_DECL;
+  }
+  
+};
+
+class ReturnStmt : public Statement {
+public:
+  Expression* returnVal;
+
+  ReturnStmt() : returnVal(nullptr) {}
+
+  static bool classof(const Statement* const stmt) {
+    return stmt->getKind() == STATEMENT_KIND_RETURN;
+  }
+
+  virtual StatementKind getKind() const {
+    return STATEMENT_KIND_RETURN;
+  }
+
+  virtual void print(std::ostream& out) const {
+    out << "return " << *returnVal;
   }
   
 };
@@ -2363,9 +2412,26 @@ int main() {
 
     delete tp.get_value();
   }
+
+  {
+    std::string str = "return readValue;";
+    cout << "TEST CASE: " << str << endl;
+    
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+    assert(tp.has_value());
+
+    cout << "Statement = " << *(tp.get_value()) << endl;
+    assert(st.atEnd());
+
+    auto rStmt = extractM<ReturnStmt>(tp.get_value());
+
+    assert(rStmt.has_value());
+
+    delete tp.get_value();
+  }
   
   {
-
     std::string str = "input_23 wdata;";
     cout << "TEST CASE: " << str << endl;
     
