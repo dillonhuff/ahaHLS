@@ -10,8 +10,10 @@ class bit_32_adder {
     bit_32 res;
     res = read_port(out);
 
+  ret: return res;
+
     add_constraint(start(set_x) == start(set_y));
-    add_constraint(start(set_x) + 1 == start(set_y));
+    add_constraint(start(set_x) == start(ret));
   }
 };
 

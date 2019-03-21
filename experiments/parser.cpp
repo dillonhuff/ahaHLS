@@ -47,7 +47,7 @@ bool oneCharToken(const char c) {
 }
 
 bool isKeyword(const std::string& str) {
-  vector<string> keywords{"void", "for"}; //, "return"};
+  vector<string> keywords{"void", "for", "return"};
   return elem(str, keywords);
 }
 
@@ -284,6 +284,15 @@ std::function<maybe<Token>(TokenState& chars)> mkParseStr(const std::string str)
 }
 
 Token parse_token(TokenState& state) {
+  // Parse comment
+  auto result = tryParse<Token>(mkParseStr("//"), state);
+  if (result.has_value()) {
+    while (!state.atEnd() && !(state.peekChar() == '\n')) {
+      state.parseChar();
+    }
+    state.parseChar();
+  }
+
   if (isalnum(state.peekChar())) {
     return consumeWhile(state, [](const char c) { return isAlphaNum(c) || isUnderscore(c); });
   } else if (oneCharToken(state.peekChar())) {
@@ -302,7 +311,7 @@ Token parse_token(TokenState& state) {
     r += res;
     return Token(r, TOKEN_TYPE_SYMBOL);
   } else {
-    cout << "Cannot parse " << state.remainder() << endl;
+    cout << "Cannot tokenize " << state.remainder() << endl;
     assert(false);
   }
 
@@ -2137,6 +2146,28 @@ public:
     genSetCode(b, tV, v);
   }
 
+  void genLLVM(IRBuilder<>& b, ReturnStmt* const stmt) {
+
+    Expression* retVal = stmt->returnVal;
+    Value* v = nullptr;
+    if (retVal != nullptr) {
+      v = genLLVM(b, retVal);
+    }
+    b.CreateRet(v);
+    
+    if (stmt->hasLabel()) {
+      Token l = stmt->label;
+      cout << "Label on assign = " << stmt->label << endl;
+      BasicBlock* blk = &(activeFunction->llvmFunction()->getEntryBlock());
+      cout << "Block for label = " << valueString(blk) << endl;
+      Instruction* last = &(blk->back());
+
+      cout << "Last instruction" << valueString(last) << endl;
+      labelsToInstructions[stmt->label] = last;
+    }
+
+  }
+  
   void genSetCode(IRBuilder<>& b, Value* receiver, Value* value) {
     // Check types?
     
@@ -2183,6 +2214,8 @@ public:
       auto asg = static_cast<AssignStmt* const>(stmt);
       genLLVM(b, asg);
       
+    } else if (ReturnStmt::classof(stmt)) {
+      genLLVM(b, sc<ReturnStmt>(stmt));
     } else {
       // Add support for variable declarations, assignments, and for loops
       cout << "No support for code generation for statement" << endl;
@@ -2475,6 +2508,18 @@ int main() {
 
   {
     std::string str = "input wdata[23]";
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseArgDeclMaybe(st);
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+
+  {
+    std::string str = "// Hello this is a comment\ninput wdata[23]";
+    //std::string str = "input wdata[23]";    
     ParseState<Token> st(tokenize(str));
     auto tp = parseArgDeclMaybe(st);
     assert(tp.has_value());
