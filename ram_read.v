@@ -112,10 +112,21 @@ module ram_read_inner(input [0:0] clk, input [0:0] rst, output [3:0] arg_0_debug
 		if ((global_state == 0)) begin 
 				//   call void @builtin_write_port_raddr_0(%SRAM_32_16* %0, i32 %1)
 				arg_0_raddr_0_reg = arg_1;
+			arg_0_waddr_0_reg = 0;
+			arg_0_wdata_0_reg = 0;
+			arg_0_wen_0_reg = 0;
 		end else 		if ((global_state == 1)) begin 
 				//   %2 = call i32 @builtin_read_port_rdata_0(%SRAM_32_16* %0)
+			arg_0_raddr_0_reg = 0;
+			arg_0_waddr_0_reg = 0;
+			arg_0_wdata_0_reg = 0;
+			arg_0_wen_0_reg = 0;
 		end else begin 
 			// Default values
+				arg_0_raddr_0_reg = 0;
+				arg_0_waddr_0_reg = 0;
+				arg_0_wdata_0_reg = 0;
+				arg_0_wen_0_reg = 0;
 		end
 	end
 	always @(*) begin

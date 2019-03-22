@@ -128,14 +128,19 @@ module ram_write_inner(input [0:0] clk, input [0:0] rst, output [3:0] arg_0_debu
 
 	always @(*) begin
 		if ((global_state == 0)) begin 
-				//   call void @builtin_write_port_wen_0(%SRAM_32_16* %0, i1 true)
-				arg_0_wen_0_reg = -(1'd1);
 				//   call void @builtin_write_port_waddr_0(%SRAM_32_16* %0, i32 %1)
 				arg_0_waddr_0_reg = arg_1;
 				//   call void @builtin_write_port_wdata_0(%SRAM_32_16* %0, i32 %2)
 				arg_0_wdata_0_reg = arg_2;
+				//   call void @builtin_write_port_wen_0(%SRAM_32_16* %0, i1 true)
+				arg_0_wen_0_reg = -(1'd1);
+			arg_0_raddr_0_reg = 0;
 		end else begin 
 			// Default values
+				arg_0_raddr_0_reg = 0;
+				arg_0_waddr_0_reg = 0;
+				arg_0_wdata_0_reg = 0;
+				arg_0_wen_0_reg = 0;
 		end
 	end
 	always @(*) begin

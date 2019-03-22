@@ -32,16 +32,16 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [0:0] val
 	// End debug wires and ports
 
 	// Start Functional Units
+	add alloca_0();
+
+	add bitcast_1();
+
 	reg [31:0] raddr_ram_0_reg;
 	reg [31:0] waddr_ram_0_reg;
 	reg [31:0] wdata_ram_0_reg;
 	reg [0:0] wen_ram_0_reg;
 	wire [31:0] rdata_ram_0;
 	register #(.WIDTH(32)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
-
-	add alloca_0();
-
-	add bitcast_1();
 
 	add call_2();
 
@@ -70,9 +70,9 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [0:0] val
 	wire [0:0] cmp_out_icmp_8;
 	eq #(.WIDTH(32)) icmp_8(.in0(cmp_in0_icmp_8), .in1(cmp_in1_icmp_8), .out(cmp_out_icmp_8));
 
-	add call_19();
-
 	add call_10();
+
+	add call_19();
 
 	// End Functional Units
 
@@ -365,10 +365,10 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [0:0] val
 				if (out_write_ready) begin
 				end
 		end else 		if ((global_state == 7)) begin 
-				//   call void @builtin_write_port_write_valid(%class.ac_channel* %out, i1 true)
-				out_write_valid_reg = -(1'd1);
 				//   call void @builtin_write_port_in_data(%class.ac_channel* %out, i32 %4)
 				out_in_data_reg = rdata_ram_0;
+				//   call void @builtin_write_port_write_valid(%class.ac_channel* %out, i1 true)
+				out_write_valid_reg = -(1'd1);
 		end else 		if ((global_state == 8)) begin 
 				//   call void @builtin_write_port_write_valid(%class.ac_channel* %out, i1 false)
 				out_write_valid_reg = (1'd0);

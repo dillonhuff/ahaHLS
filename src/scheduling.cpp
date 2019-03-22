@@ -2710,6 +2710,8 @@ namespace ahaHLS {
 
     int addrWidth = clog2(depth);
 
+    map<string, int> defaults;
+    
     map<string, Port> ramPorts = {
       {"rst", inputPort(1, "rst")}
     };
@@ -2718,13 +2720,18 @@ namespace ahaHLS {
       auto iStr = to_string(i);
       ramPorts["raddr_" + iStr] = inputPort(addrWidth, "raddr_" + iStr);
       ramPorts["rdata_" + iStr] = outputPort(width, "rdata_" + iStr);
+      defaults.insert({"raddr_" + iStr, 0});
     }
 
     for (int i = 0; i < numWritePorts; i++) {
       auto iStr = to_string(i);
       ramPorts["waddr_" + iStr] = inputPort(addrWidth, "waddr_" + iStr);
       ramPorts["wdata_" + iStr] = inputPort(width, "wdata_" + iStr);
-      ramPorts["wen_" + iStr] = inputPort(1, "wen_" + iStr);      
+      ramPorts["wen_" + iStr] = inputPort(1, "wen_" + iStr);
+
+      defaults.insert({"waddr_" + iStr, 0});
+      defaults.insert({"wdata_" + iStr, 0});
+      defaults.insert({"wen_" + iStr, 0});            
     }
 
     ramPorts["debug_addr"] = inputPort(addrWidth, "debug_addr");
@@ -2740,8 +2747,8 @@ namespace ahaHLS {
       name += to_string(numReadPorts);
     }
 
-    
-    ModuleSpec mSpec = {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, name, ramPorts};
+
+    ModuleSpec mSpec = {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, name, ramPorts, defaults};
 
     mSpec.hasClock = true;
     return mSpec;
