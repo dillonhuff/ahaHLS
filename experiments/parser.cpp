@@ -454,7 +454,8 @@ enum SynthCppTypeKind {
   SYNTH_CPP_TYPE_KIND_STRUCT,
   SYNTH_CPP_TYPE_KIND_VOID,
   SYNTH_CPP_TYPE_KIND_POINTER,
-  SYNTH_CPP_TYPE_KIND_LABEL,  
+  SYNTH_CPP_TYPE_KIND_LABEL,
+  SYNTH_CPP_TYPE_KIND_DATA
 };
 
 class SynthCppType {
@@ -502,14 +503,6 @@ public:
   virtual SynthCppTypeKind getKind() const { return SYNTH_CPP_TYPE_KIND_LABEL; }  
 };
 
-class VoidType : public SynthCppType {
-public:
-
-  static bool classof(const SynthCppType* const tp) { return tp->getKind() == SYNTH_CPP_TYPE_KIND_VOID; }
-  
-  virtual SynthCppTypeKind getKind() const { return SYNTH_CPP_TYPE_KIND_VOID; }
-};
-
 class SynthCppPointerType : public SynthCppType {
 public:
 
@@ -521,6 +514,27 @@ public:
   static bool classof(const SynthCppType* const tp) { return tp->getKind() == SYNTH_CPP_TYPE_KIND_POINTER; }
   
   virtual SynthCppTypeKind getKind() const { return SYNTH_CPP_TYPE_KIND_POINTER; }
+};
+
+class SynthCppDataType : public SynthCppType {
+public:
+
+  int width;
+  SynthCppDataType(int width_) : width(width_) {}
+  SynthCppDataType() : width(-1) {}
+
+  static bool classof(const SynthCppType* const tp) { return tp->getKind() == SYNTH_CPP_TYPE_KIND_DATA; }
+  
+  virtual SynthCppTypeKind getKind() const { return SYNTH_CPP_TYPE_KIND_DATA; }
+  
+};
+
+class VoidType : public SynthCppDataType {
+public:
+
+  static bool classof(const SynthCppType* const tp) { return tp->getKind() == SYNTH_CPP_TYPE_KIND_VOID; }
+  
+  virtual SynthCppTypeKind getKind() const { return SYNTH_CPP_TYPE_KIND_VOID; }
 };
 
 class BinopExpr : public Expression {
