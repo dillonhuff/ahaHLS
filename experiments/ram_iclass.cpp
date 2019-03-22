@@ -70,6 +70,7 @@ class reg_bit_32 {
 
   bit_32 read() {
     bit_32 val;
+
   read_port: val = read_port(current);
 
   ret: return val;
@@ -89,11 +90,13 @@ class reg_bit_32 {
 };
 
 void filter_ram(RAM& mem) {
-  //bit_32 a;
+  const_bit_32_0 c0;
+  const_bit_32_1 c1;
+  const_bit_32_10 c10;
+
   reg_bit_32 a;
   adder_bit_32 adder;
-  a.write(adder.add(mem.read(0), mem.read(1)));
-  //a = adder.add(mem.read(0), mem.read(1));
-  //a = mem.read(0) + mem.read(1);
-  mem.write(10, a.read());
+
+  a.write(adder.add(mem.read(c0.value()), mem.read(c1.value())));
+  mem.write(c10.value(), a.read());
 }

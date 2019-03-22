@@ -1178,7 +1178,7 @@ maybe<Statement*> parseFuncDecl(ParseState<Token>& tokens) {
     assert(tokens.parseChar() == Token("("));
 
     vector<ArgumentDecl*> classStmts =
-      sepBtwn<ArgumentDecl*, Token>(parseArgDecl, parseComma, tokens);
+      sepBtwn0<ArgumentDecl*, Token>(parseArgDeclMaybe, parseComma, tokens);
 
     assert(tokens.parseChar() == Token(")"));
 
@@ -1637,7 +1637,8 @@ public:
         return map_find(str, *(tableStack.at(i)));
       }
     }
-    
+
+    cout << "Error: Cannot find type for " << str << endl;
     assert(false);
   }
   
