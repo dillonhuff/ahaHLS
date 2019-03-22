@@ -2295,11 +2295,12 @@ public:
     cout << "rType = " << typeString(rType) << endl;
     cout << "vType = " << typeString(vType) << endl;
 
-    assert(rType == vType);
+    assert(rType == vType->getPointerTo());
 
-    auto assignFunc =
-      mkFunc({rType, vType}, voidType(), "assign_" + typeString(rType));
-    b.CreateCall(assignFunc, {receiver, value});
+    b.CreateStore(value, receiver);
+    // auto assignFunc =
+    //   mkFunc({rType, vType}, voidType(), "assign_" + typeString(rType));
+    // b.CreateCall(assignFunc, {receiver, value});
   }
   
   void genLLVM(IRBuilder<>& b, Statement* const stmt) {
