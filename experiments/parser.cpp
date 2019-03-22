@@ -2905,4 +2905,14 @@ int main() {
   //    of this binding and how do users tell the code about it?
   // Note: Maybe all we do is connect ports?
 
+  // Now Im also worried about getting semantics right in time.
+
+  // TODO: Order toothbrush / shaver
+  //       Get some sort of code generation working
+  //       Change the internal definition of read / write ports?
+  //       How far do I want to go with this kind of module instance
+  //       based code generation?
+  // Idea: Start with a register iclass and figure out read and write
+  //       semantics from there?
+
 }
