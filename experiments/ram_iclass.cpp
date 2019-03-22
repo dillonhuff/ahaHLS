@@ -34,7 +34,7 @@ class reg_bit_32 {
 
   ret: return val;
 
-    add_constraint(start(read_current) == start(ret));
+    //add_constraint(start(read_current) == end(ret));
   }
 
   void write_reg(bit_32 val) {
@@ -124,6 +124,6 @@ void filter_ram(RAM& mem) {
   reg_bit_32 a;
   adder_bit_32 adder;
 
-  a.write_reg(adder.add(mem.read(c0.value_0()), mem.read(c1.value_1())));
-  mem.write(c10.value_10(), a.read_reg());
+  //a.write_reg(adder.add(mem.read(c0.value_0()), mem.read(c1.value_1())));
+  mem.write(c10.value_10(), a.read_reg()); //c10.value_10(), a.read_reg());
 }
