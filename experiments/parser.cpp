@@ -787,6 +787,8 @@ public:
     args(args_),
     body(body_) {}
 
+  std::string getName() const { return name.getStr(); }
+
   static bool classof(const Statement* const stmt) {
     return stmt->getKind() == STATEMENT_KIND_FUNCTION_DECL;
   }
@@ -1639,9 +1641,9 @@ vector<Type*> functionInputs(FunctionDecl* fd) {
     if (!SynthCppPointerType::classof(argDecl->tp)) {
       assert(SynthCppDataType::classof(argDecl->tp));
       inputTypes.push_back(argTp);
+    } else {
+      inputTypes.push_back(argTp);
     }
-    
-    inputTypes.push_back(argTp);
     // if (SynthCppPointerType::classof(argDecl->tp)) {
     //   inputTypes.push_back(argTp);
     // } else {
@@ -1783,7 +1785,8 @@ public:
       symtab[argDecl->name.getStr()] = argDecl->tp;
       if (!SynthCppPointerType::classof(argDecl->tp)) {
         auto val = b.CreateAlloca(llvmTypeFor(argDecl->tp));
-        genLLVMCopyTo(b, val, getArg(f, argNum + argOffset));
+        b.CreateStore(getArg(f, argNum + argOffset), val);
+        //genLLVMCopyTo(b, val, getArg(f, argNum + argOffset));
         setValue(argDecl->name, val);
       } else {
         setValue(argDecl->name, getArg(f, argNum));
@@ -1826,8 +1829,15 @@ public:
             auto methodFuncDecl = sc<FunctionDecl>(st);
             vector<Type*> argTps =
               functionInputs(methodFuncDecl);
+
+            cout << "Method " << methodFuncDecl->getName() << " has arg types before return value and this:" << endl;
+            for (auto a : argTps) {
+              cout << tab(1) << typeString(a) << endl;
+            }
+            
             vector<Type*> tps;
             if (!VoidType::classof(methodFuncDecl->returnType)) {
+              cout << "Method " << methodFuncDecl->getName() << " does not have void return type" << endl;
               tps.push_back(llvmTypeFor(methodFuncDecl->returnType));
             }
 
@@ -1835,9 +1845,15 @@ public:
             for (auto a : argTps) {
               tps.push_back(a);
             }
+
+            cout << "Method " << methodFuncDecl->getName() << " has arg types" << endl;
+            for (auto a : tps) {
+              cout << tab(1) << typeString(a) << endl;
+            }
             SynthCppFunction* sf = new SynthCppFunction();
             activeFunction = sf;
             sf->nameToken = methodFuncDecl->name;
+            // Change voidType to the function output type
             auto f = mkFunc(tps, voidType(), sf->getName());
             interfaces.addFunction(f);
             sf->func = f;
@@ -2023,13 +2039,16 @@ public:
     if (Identifier::classof(e)) {
 
       Identifier* id = static_cast<Identifier* const>(e);
-      if (!hasValue(id->name)) {      
+      if (!hasValue(id->name)) {
+        assert(false);
+
+        cout << "Id has no value = " << id->name << endl;
         auto val = b.CreateAlloca(intType(32));
         setValue(id->name, val);
         return val;        
       }
 
-      return getValueFor(id->name);
+      return loadReg(b, getValueFor(id->name));
     } else if (BinopExpr::classof(e)) {
       BinopExpr* be = static_cast<BinopExpr* const>(e);
       auto l = genLLVM(b, be->lhs);
@@ -2167,12 +2186,13 @@ public:
       IntegerExpr* i = static_cast<IntegerExpr* const>(e);
       string digits = i->digits;
       auto val = stoi(digits);
-      auto constStorage = b.CreateAlloca(intType(32), nullptr, "const_val_" + uniqueNumString());
-      vector<Type*> ins = {intType(32)->getPointerTo(), intType(32)};
+      return mkInt(val, 32);
+      // auto constStorage = b.CreateAlloca(intType(32), nullptr, "const_val_" + uniqueNumString());
+      // vector<Type*> ins = {intType(32)->getPointerTo(), intType(32)};
 
-      vector<Value*> args = {constStorage, mkInt(val, 32)};
-      b.CreateCall(mkFunc(ins, voidType(), "set_const"), args);
-      return constStorage;
+      // vector<Value*> args = {constStorage, mkInt(val, 32)};
+      // b.CreateCall(mkFunc(ins, voidType(), "set_const"), args);
+      // return constStorage;
       //return mkInt(val, 32);
     } else {
       cout << "Unsupported expression in LLVM codegen" << endl;
