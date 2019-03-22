@@ -1991,6 +1991,11 @@ namespace ahaHLS {
       {"write_ready", outputPort(1, "write_ready")}
     };
 
+    map<string, int> defaults;
+    defaults.insert({"read_valid", 0});
+    defaults.insert({"write_valid", 0});    
+    defaults.insert({"in_data", 0});
+
     ModuleSpec modSpec = {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "fifo", fifoPorts};
     modSpec.hasClock = true;
     modSpec.hasRst = true;
