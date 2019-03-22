@@ -2036,6 +2036,35 @@ public:
         return b.CreateCall(f, {getArg(activeFunction->llvmFunction(), thisOffset), vExpr});
       }
 
+      if (name == "read_port") {
+        Expression* labelExpr = called->args[0];
+
+        cout << "read port: " << *labelExpr << endl;
+
+        Identifier* labelId = extract<Identifier>(labelExpr);
+
+        // TODO: Replace with more general
+        int outWidth = 32;
+
+        SynthCppClass* sExpr = cgs.getActiveClass();
+        SynthCppType* classTp = new SynthCppStructType(sExpr->name);
+        Type* structType = llvmTypeFor(classTp);
+        auto f =
+          readPort(labelId->name.getStr(), outWidth, structType->getPointerTo());
+
+        assert(activeFunction != nullptr);
+        assert(activeFunction->llvmFunction() != nullptr);
+
+        cout << "Active function = " << activeFunction->nameToken << endl;
+        cout << valueString(activeFunction->llvmFunction()) << endl;
+
+        int thisOffset = 0;
+        if (activeFunction->hasReturnValue()) {
+          thisOffset = 1;
+        }
+        return b.CreateCall(f, {getArg(activeFunction->llvmFunction(), thisOffset)});
+      }
+      
       SynthCppFunction* calledFunc = getFunction(called->funcName.getStr());
 
       // Generate llvm for each argument

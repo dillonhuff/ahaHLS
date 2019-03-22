@@ -1,30 +1,3 @@
-
-class reg_bit_32 {
-  input_32 in;
-  input_1 en;
-  output_32 current;
-
-  bit_32 read_reg() {
-    bit_32 val;
-
-  read_port: val = read_port(current);
-
-  ret: return val;
-
-    add_constraint(start(read_port) == start(ret));
-  }
-
-  void write_reg(bit_32 val) {
-  set_en:set_port(en, 1);
-  set_in:set_port(in, val);
-
-  ret: return;
-
-    add_constraint(start(set_en) == start(set_in));
-    add_constraint(end(set_en) + 1 == start(ret));
-  }
-};
-
 class const_bit_32_0 {
   output_32 out;
 
@@ -46,6 +19,33 @@ class const_bit_32_10 {
 
   bit_32 value_10() {
     return read_port(out);
+  }
+};
+
+class reg_bit_32 {
+  input_32 in;
+  input_1 en;
+  output_32 current;
+
+  bit_32 read_reg() {
+    bit_32 val;
+
+  read_current: val = read_port(current);
+
+  ret: return val;
+
+    add_constraint(start(read_current) == start(ret));
+  }
+
+  void write_reg(bit_32 val) {
+    const_bit_32_1 c;
+  set_en:set_port(en, c.value_1());
+  set_in:set_port(in, val);
+
+  ret: return;
+
+    add_constraint(start(set_en) == start(set_in));
+    add_constraint(end(set_en) + 1 == start(ret));
   }
 };
 
@@ -86,8 +86,10 @@ class RAM {
   output_32 rdata_0;
 
   void write(bit_5 addr, bit_32 data) {
+    const_bit_32_1 c;
+    
   set_wen:
-    set_port(wen_0, 1);
+    set_port(wen_0, c.value_1());
   set_wdata:
     set_port(wdata_0, data);
   set_waddr:
