@@ -1099,6 +1099,17 @@ Expression* parseExpression(ParseState<Token>& tokens) {
   assert(false);
 }
 
+int getDataWidth(const std::string& name) {
+  if (hasPrefix(name, "bit_")) {
+    return stoi(name.substr(4));
+  } else if (hasPrefix(name, "sint_")) {
+    return stoi(name.substr(5));
+  } else {
+    assert(hasPrefix(name, "uint_"));
+    return stoi(name.substr(5)); 
+  }
+}
+
 maybe<SynthCppType*> parseBaseType(ParseState<Token>& tokens) {
   if (tokens.peekChar().isId()) {
     
@@ -1107,6 +1118,12 @@ maybe<SynthCppType*> parseBaseType(ParseState<Token>& tokens) {
     Token tpName = tokens.parseChar();
 
     if (tokens.atEnd() || (tokens.peekChar() != Token("<"))) {
+      string name = tpName.getStr();
+      if (hasPrefix(name, "bit_") || hasPrefix(name, "sint_") || hasPrefix(name, "uint_")) {
+        int width = getDataWidth(name);
+        return new SynthCppBitsType(width);
+      }
+
       return new SynthCppStructType(tpName);
     }
 
