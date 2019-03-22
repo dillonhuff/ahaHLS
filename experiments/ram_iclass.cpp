@@ -63,10 +63,37 @@ class RAM {
 
 };
 
+class reg_bit_32 {
+  input_32 in;
+  input_1 en;
+  output_32 current;
+
+  bit_32 read() {
+    bit_32 val;
+  read_port: val = read_port(current);
+
+  ret: return val;
+
+    add_constraint(start(read_port) == start(ret));
+  }
+
+  void write(bit_32 val) {
+  set_en:set_port(en, 1);
+  set_in:set_port(in, val);
+
+  ret: return;
+
+    add_constraint(start(set_en) == start(set_in));
+    add_constraint(end(set_en) + 1 == start(ret));
+  }
+};
+
 void filter_ram(RAM& mem) {
-  bit_32 a;
+  //bit_32 a;
+  reg_bit_32 a;
   adder_bit_32 adder;
-  a = adder.add(mem.read(0), mem.read(1));
+  a.write(adder.add(mem.read(0), mem.read(1)));
+  //a = adder.add(mem.read(0), mem.read(1));
   //a = mem.read(0) + mem.read(1);
-  mem.write(10, a);
+  mem.write(10, a.read());
 }
