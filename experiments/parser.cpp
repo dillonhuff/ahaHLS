@@ -1629,6 +1629,10 @@ public:
     tableStack.pop_back();
   }
 
+  void setType(const std::string& name, SynthCppType* tp) {
+    tableStack.back()->insert({name, tp});
+  }
+
   SynthCppType* getType(const std::string& str) {
     int depth = ((int) tableStack.size()) - 1;
 
@@ -1639,6 +1643,12 @@ public:
     }
 
     cout << "Error: Cannot find type for " << str << endl;
+    for (auto ts : tableStack) {
+      cout << tab(1) << "Table stack" << endl;
+      for (auto str : *ts) {
+        cout << tab(2) << "symbol = " << str.first << endl;
+      }
+    }
     assert(false);
   }
   
@@ -1680,7 +1690,6 @@ public:
   unique_ptr<llvm::Module> mod;
   std::vector<SynthCppClass*> classes;
   std::vector<SynthCppFunction*> functions;
-  // Note: Maybe this should be in SynthCppFunction
   std::set<BasicBlock*> blocksToPipeline;
 
   CodeGenState cgs;
@@ -2126,6 +2135,7 @@ public:
     string valName = decl->name.getStr();
     Type* tp = llvmTypeFor(decl->tp);
     // TODO: add to name map?
+    cgs.symtab.setType(valName, decl->tp);
     auto n = b.CreateAlloca(tp, nullptr, valName);
     setValue(decl->name, n);
   }
