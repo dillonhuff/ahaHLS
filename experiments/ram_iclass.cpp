@@ -68,7 +68,7 @@ class reg_bit_32 {
   input_1 en;
   output_32 current;
 
-  bit_32 read() {
+  bit_32 read_reg() {
     bit_32 val;
 
   read_port: val = read_port(current);
@@ -78,7 +78,7 @@ class reg_bit_32 {
     add_constraint(start(read_port) == start(ret));
   }
 
-  void write(bit_32 val) {
+  void write_reg(bit_32 val) {
   set_en:set_port(en, 1);
   set_in:set_port(in, val);
 
@@ -92,7 +92,7 @@ class reg_bit_32 {
 class const_bit_32_0 {
   output_32 out;
 
-  bit_32 value() {
+  bit_32 value_0() {
     return read_port(out);
   }
 };
@@ -100,7 +100,7 @@ class const_bit_32_0 {
 class const_bit_32_1 {
   output_32 out;
 
-  bit_32 value() {
+  bit_32 value_1() {
     return read_port(out);
   }
 };
@@ -108,7 +108,7 @@ class const_bit_32_1 {
 class const_bit_32_10 {
   output_32 out;
 
-  bit_32 value() {
+  bit_32 value_10() {
     return read_port(out);
   }
 };
@@ -121,6 +121,6 @@ void filter_ram(RAM& mem) {
   reg_bit_32 a;
   adder_bit_32 adder;
 
-  // a.write(adder.add(mem.read(c0.value()), mem.read(c1.value())));
-  mem.write(c10.value(), a.read());
+  a.write_reg(adder.add(mem.read(c0.value_0()), mem.read(c1.value_1())));
+  mem.write(c10.value_10(), a.read_reg());
 }
