@@ -1,3 +1,54 @@
+
+class reg_bit_32 {
+  input_32 in;
+  input_1 en;
+  output_32 current;
+
+  bit_32 read_reg() {
+    bit_32 val;
+
+  read_port: val = read_port(current);
+
+  ret: return val;
+
+    add_constraint(start(read_port) == start(ret));
+  }
+
+  void write_reg(bit_32 val) {
+  set_en:set_port(en, 1);
+  set_in:set_port(in, val);
+
+  ret: return;
+
+    add_constraint(start(set_en) == start(set_in));
+    add_constraint(end(set_en) + 1 == start(ret));
+  }
+};
+
+class const_bit_32_0 {
+  output_32 out;
+
+  bit_32 value_0() {
+    return read_port(out);
+  }
+};
+
+class const_bit_32_1 {
+  output_32 out;
+
+  bit_32 value_1() {
+    return read_port(out);
+  }
+};
+
+class const_bit_32_10 {
+  output_32 out;
+
+  bit_32 value_10() {
+    return read_port(out);
+  }
+};
+
 class adder_bit_32 {
   input_32 in0;
   input_32 in1;
@@ -61,56 +112,6 @@ class RAM {
     add_constraint(end(set_addr) + 1 == start(read_data));
   }
 
-};
-
-class reg_bit_32 {
-  input_32 in;
-  input_1 en;
-  output_32 current;
-
-  bit_32 read_reg() {
-    bit_32 val;
-
-  read_port: val = read_port(current);
-
-  ret: return val;
-
-    add_constraint(start(read_port) == start(ret));
-  }
-
-  void write_reg(bit_32 val) {
-  set_en:set_port(en, 1);
-  set_in:set_port(in, val);
-
-  ret: return;
-
-    add_constraint(start(set_en) == start(set_in));
-    add_constraint(end(set_en) + 1 == start(ret));
-  }
-};
-
-class const_bit_32_0 {
-  output_32 out;
-
-  bit_32 value_0() {
-    return read_port(out);
-  }
-};
-
-class const_bit_32_1 {
-  output_32 out;
-
-  bit_32 value_1() {
-    return read_port(out);
-  }
-};
-
-class const_bit_32_10 {
-  output_32 out;
-
-  bit_32 value_10() {
-    return read_port(out);
-  }
 };
 
 void filter_ram(RAM& mem) {

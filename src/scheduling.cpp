@@ -341,8 +341,8 @@ namespace ahaHLS {
     context c;
     optimize s(c);
 
-    cout << "Constraints" << endl;
-    cout << s << endl;
+    // cout << "Constraints" << endl;
+    // cout << s << endl;
     if (p.optimize) {
       cout << "Objective function = " << p.objectiveFunction << endl;
       optimize::handle h = s.minimize(toZ3(c, p.objectiveFunction));
@@ -2847,10 +2847,10 @@ namespace ahaHLS {
     cout << "After inlining" << endl;
     cout << valueString(f) << endl;
 
-    cout << "Constraints after inlining" << endl;
-    for (auto c : exec.constraints) {
-      cout << tab(1) << *c << endl;
-    }
+    // cout << "Constraints after inlining" << endl;
+    // for (auto c : exec.constraints) {
+    //   cout << tab(1) << *c << endl;
+    // }
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
     exec.addConstraints(p, f);
 

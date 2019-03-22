@@ -2805,7 +2805,7 @@ int main() {
     tb.setArgPort(in, "debug_write_data", 1, "6");
     tb.setArgPort(in, "debug_write_en", 1, "1");    
 
-    tb.setArgPort(in, "debug_write_addr", 2, "0");
+    tb.setArgPort(in, "debug_write_addr", 2, "1");
     tb.setArgPort(in, "debug_write_data", 2, "8");
     tb.setArgPort(in, "debug_write_en", 2, "1");    
 
@@ -2819,7 +2819,7 @@ int main() {
     
     emitVerilogTestBench(tb, arch, testLayout);
 
-    assert(runIVerilogTest("filter_ram_tb.v", "filter_ram", " builtins.v filter_ram.v RAM.v delay.v"));
+    assert(runIVerilogTest("filter_ram_tb.v", "filter_ram", " builtins.v filter_ram.v RAM.v delay.v ram_primitives.v"));
   }
 
   {
