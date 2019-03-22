@@ -2810,8 +2810,6 @@ int main() {
 
     map<llvm::Value*, int> layout = {};
 
-    // auto in =
-    //   sc<Argument>(getArg(scppMod.getFunction("store_to_reg")->llvmFunction(), 0));
     TestBenchSpec tb;
     map<string, int> testLayout = {};
     tb.memoryInit = {};
@@ -2820,25 +2818,7 @@ int main() {
     tb.maxCycles = 100;
     tb.name = "store_to_reg";
     tb.useModSpecs = true;
-    // tb.settablePort(in, "debug_addr");
-    // tb.settablePort(in, "debug_write_addr");
-    // tb.settablePort(in, "debug_write_data");
-    // tb.settablePort(in, "debug_write_en");            
-
-    // tb.setArgPort(in, "debug_write_addr", 1, "0");
-    // tb.setArgPort(in, "debug_write_data", 1, "6");
-    // tb.setArgPort(in, "debug_write_en", 1, "1");    
-
-    // tb.setArgPort(in, "debug_write_addr", 2, "1");
-    // tb.setArgPort(in, "debug_write_data", 2, "8");
-    // tb.setArgPort(in, "debug_write_en", 2, "1");    
-
-    // tb.setArgPort(in, "debug_write_en", 3, "0");
     map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
-
-    // map_insert(tb.actionsOnCycles, 18, assertString("valid === 1"));
-    
-    // tb.setArgPort(in, "debug_addr", 19, "8");
     map_insert(tb.actionsOnCycles, 19, assertString("arg_0_out === (15)"));
     
     emitVerilogTestBench(tb, arch, testLayout);
