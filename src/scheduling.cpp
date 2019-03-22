@@ -1996,7 +1996,7 @@ namespace ahaHLS {
     defaults.insert({"write_valid", 0});    
     defaults.insert({"in_data", 0});
 
-    ModuleSpec modSpec = {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "fifo", fifoPorts};
+    ModuleSpec modSpec = {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "fifo", fifoPorts, defaults};
     modSpec.hasClock = true;
     modSpec.hasRst = true;
     return modSpec;

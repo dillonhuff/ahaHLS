@@ -118,16 +118,25 @@ module fifo_write_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_1_in
 				//   %2 = call i1 @builtin_read_port_write_ready(%builtin_fifo_32* %1)
 				if (arg_1_write_ready) begin
 				end
+			arg_1_in_data_reg = 0;
+			arg_1_read_valid_reg = 0;
+			arg_1_write_valid_reg = 0;
 		end else 		if ((global_state == 1)) begin 
 				//   call void @builtin_write_port_write_valid(%builtin_fifo_32* %1, i1 true)
 				arg_1_write_valid_reg = -(1'd1);
 				//   call void @builtin_write_port_in_data(%builtin_fifo_32* %1, i32 %0)
 				arg_1_in_data_reg = arg_0;
+			arg_1_read_valid_reg = 0;
 		end else 		if ((global_state == 2)) begin 
 				//   call void @builtin_write_port_write_valid(%builtin_fifo_32* %1, i1 false)
 				arg_1_write_valid_reg = (1'd0);
+			arg_1_in_data_reg = 0;
+			arg_1_read_valid_reg = 0;
 		end else begin 
 			// Default values
+				arg_1_in_data_reg = 0;
+				arg_1_read_valid_reg = 0;
+				arg_1_write_valid_reg = 0;
 		end
 	end
 	always @(*) begin

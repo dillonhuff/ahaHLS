@@ -46,14 +46,14 @@ module axi_read_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_debu
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_6();
-
-	add call_9();
-
 	reg [31:0] shl_in0_shl_1;
 	reg [31:0] shl_in1_shl_1;
 	wire [31:0] shl_out_shl_1;
 	shlOp #(.WIDTH(32)) shl_shl_1(.in0(shl_in0_shl_1), .in1(shl_in1_shl_1), .out(shl_out_shl_1));
+
+	add call_5();
+
+	add call_8();
 
 	// End Functional Units
 
@@ -153,18 +153,15 @@ module axi_read_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_debu
 			arg_0_s_axil_wstrb_reg = 31;
 			arg_0_s_axil_wvalid_reg = 0;
 		end else 		if ((global_state == 1)) begin 
-				//   call void @builtin_write_port_s_axil_arvalid(%class.axi_ram* %arg_0, i1 true)
-				arg_0_s_axil_arvalid_reg = -(1'd1);
 				//   call void @builtin_write_port_s_axil_araddr(%class.axi_ram* %arg_0, i32 %1)
 				arg_0_s_axil_araddr_reg = shl_tmp_1;
+				//   call void @builtin_write_port_s_axil_arvalid(%class.axi_ram* %arg_0, i1 true)
+				arg_0_s_axil_arvalid_reg = -(1'd1);
 			arg_0_s_axil_awvalid_reg = 0;
 			arg_0_s_axil_rready_reg = 1;
 			arg_0_s_axil_wstrb_reg = 31;
 			arg_0_s_axil_wvalid_reg = 0;
 		end else 		if ((global_state == 2)) begin 
-				//   %4 = call i32 @builtin_read_port_s_axil_rdata(%class.axi_ram* %arg_0)
-				if (arg_0_s_axil_arready && arg_0_s_axil_rvalid) begin
-				end
 				//   %2 = call i1 @builtin_read_port_s_axil_arready(%class.axi_ram* %arg_0)
 				if (arg_0_s_axil_arready && arg_0_s_axil_rvalid) begin
 				end
@@ -173,6 +170,9 @@ module axi_read_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_debu
 				arg_0_s_axil_rready_reg = -(1'd1);
 				end
 				//   %3 = call i1 @builtin_read_port_s_axil_rvalid(%class.axi_ram* %arg_0)
+				if (arg_0_s_axil_arready && arg_0_s_axil_rvalid) begin
+				end
+				//   %4 = call i32 @builtin_read_port_s_axil_rdata(%class.axi_ram* %arg_0)
 				if (arg_0_s_axil_arready && arg_0_s_axil_rvalid) begin
 				end
 			arg_0_s_axil_arvalid_reg = 0;

@@ -118,15 +118,25 @@ module fifo_read_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_
 				//   %1 = call i1 @builtin_read_port_read_ready(%builtin_fifo_32* %0)
 				if (arg_0_read_ready) begin
 				end
+			arg_0_in_data_reg = 0;
+			arg_0_read_valid_reg = 0;
+			arg_0_write_valid_reg = 0;
 		end else 		if ((global_state == 1)) begin 
 				//   call void @builtin_write_port_read_valid(%builtin_fifo_32* %0, i1 true)
 				arg_0_read_valid_reg = -(1'd1);
+			arg_0_in_data_reg = 0;
+			arg_0_write_valid_reg = 0;
 		end else 		if ((global_state == 2)) begin 
 				//   call void @builtin_write_port_read_valid(%builtin_fifo_32* %0, i1 false)
 				arg_0_read_valid_reg = (1'd0);
 				//   %2 = call i32 @builtin_read_port_out_data(%builtin_fifo_32* %0)
+			arg_0_in_data_reg = 0;
+			arg_0_write_valid_reg = 0;
 		end else begin 
 			// Default values
+				arg_0_in_data_reg = 0;
+				arg_0_read_valid_reg = 0;
+				arg_0_write_valid_reg = 0;
 		end
 	end
 	always @(*) begin
