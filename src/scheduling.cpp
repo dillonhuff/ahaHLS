@@ -1708,7 +1708,7 @@ namespace ahaHLS {
     map<Value*, Value*> argsToValues;
     Function* called = toInline->getCalledFunction();
 
-    //cout << "Function def " << valueString(called) << endl;    
+    cout << "Function def " << valueString(called) << endl;    
     
     for (int i = 0; i < (int) toInline->getNumOperands() - 1; i++) {
       cout << "i = " << i << endl;

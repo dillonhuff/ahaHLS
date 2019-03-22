@@ -89,6 +89,30 @@ class reg_bit_32 {
   }
 };
 
+class const_bit_32_0 {
+  output_32 out;
+
+  bit_32 value() {
+    return read_port(out);
+  }
+};
+
+class const_bit_32_1 {
+  output_32 out;
+
+  bit_32 value() {
+    return read_port(out);
+  }
+};
+
+class const_bit_32_10 {
+  output_32 out;
+
+  bit_32 value() {
+    return read_port(out);
+  }
+};
+
 void filter_ram(RAM& mem) {
   const_bit_32_0 c0;
   const_bit_32_1 c1;
@@ -97,6 +121,6 @@ void filter_ram(RAM& mem) {
   reg_bit_32 a;
   adder_bit_32 adder;
 
-  a.write(adder.add(mem.read(c0.value()), mem.read(c1.value())));
+  // a.write(adder.add(mem.read(c0.value()), mem.read(c1.value())));
   mem.write(c10.value(), a.read());
 }
