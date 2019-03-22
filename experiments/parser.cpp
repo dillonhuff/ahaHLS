@@ -455,7 +455,7 @@ enum SynthCppTypeKind {
   SYNTH_CPP_TYPE_KIND_VOID,
   SYNTH_CPP_TYPE_KIND_POINTER,
   SYNTH_CPP_TYPE_KIND_LABEL,
-  SYNTH_CPP_TYPE_KIND_DATA
+  SYNTH_CPP_TYPE_KIND_BITS
 };
 
 class SynthCppType {
@@ -519,13 +519,22 @@ public:
 class SynthCppDataType : public SynthCppType {
 public:
 
-  int width;
-  SynthCppDataType(int width_) : width(width_) {}
-  SynthCppDataType() : width(-1) {}
+  static bool classof(const SynthCppType* const tp) { return (tp->getKind() == SYNTH_CPP_TYPE_KIND_BITS) ||
+      (tp->getKind() == SYNTH_CPP_TYPE_KIND_VOID); }
+};
 
-  static bool classof(const SynthCppType* const tp) { return tp->getKind() == SYNTH_CPP_TYPE_KIND_DATA; }
+class SynthCppBitsType : public SynthCppDataType {
+public:
+
+  int width;
+
+  SynthCppBitsType(const int width_) : width(width_) {}
+
+  int getWidth() const { return width; }
+
+  static bool classof(const SynthCppType* const tp) { return (tp->getKind() == SYNTH_CPP_TYPE_KIND_BITS); }
   
-  virtual SynthCppTypeKind getKind() const { return SYNTH_CPP_TYPE_KIND_DATA; }
+  virtual SynthCppTypeKind getKind() const { return SYNTH_CPP_TYPE_KIND_BITS; }
   
 };
 
@@ -1487,16 +1496,18 @@ llvm::Type* llvmTypeFor(SynthCppType* const tp) {
     return llvmPointerFor(static_cast<SynthCppPointerType* const>(tp)->getElementType());
   } else if (VoidType::classof(tp)) {
     return voidType();
+  } else if (SynthCppBitsType::classof(tp)) {
+    return intType(extract<SynthCppBitsType>(tp)->getWidth());
   } else {
     assert(SynthCppStructType::classof(tp));
     auto st = static_cast<SynthCppStructType* const>(tp);
-    if (isPrimitiveStruct(st)) {
-      int width = getWidth(st);
-      return intType(width);
-    } else {
+    // if (isPrimitiveStruct(st)) {
+    //   int width = getWidth(st);
+
+    // } else {
       Type* argTp = structType(st->getName());
       return argTp;
-    }
+      //}
   }
 }
 
@@ -1607,11 +1618,18 @@ vector<Type*> functionInputs(FunctionDecl* fd) {
   for (auto argDecl : fd->args) {
     cout << "\targ = " << argDecl->name << endl;
     Type* argTp = llvmTypeFor(argDecl->tp);
-    if (SynthCppPointerType::classof(argDecl->tp)) {
+
+    if (!SynthCppPointerType::classof(argDecl->tp)) {
+      assert(SynthCppDataType::classof(argDecl->tp));
       inputTypes.push_back(argTp);
-    } else {
-      inputTypes.push_back(argTp->getPointerTo());
     }
+    
+    inputTypes.push_back(argTp);
+    // if (SynthCppPointerType::classof(argDecl->tp)) {
+    //   inputTypes.push_back(argTp);
+    // } else {
+    //   inputTypes.push_back(argTp->getPointerTo());
+    // }
   }
 
   return inputTypes;
