@@ -111,19 +111,13 @@ class RAM {
   read_data:
     res = read_port(rdata_0);
 
+    return res;
+
     add_constraint(end(set_addr) + 1 == start(read_data));
   }
 
 };
 
 void filter_ram(RAM& mem) {
-  const_bit_32_0 c0;
-  const_bit_32_1 c1;
-  const_bit_32_10 c10;
-
-  reg_bit_32 a;
-  adder_bit_32 adder;
-
-  //a.write_reg(adder.add(mem.read(c0.value_0()), mem.read(c1.value_1())));
-  mem.write(c10.value_10(), a.read_reg()); //c10.value_10(), a.read_reg());
+  mem.write(10, mem.read(0) + mem.read(1));
 }

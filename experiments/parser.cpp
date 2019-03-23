@@ -1836,10 +1836,10 @@ public:
             }
             
             vector<Type*> tps;
-            if (!VoidType::classof(methodFuncDecl->returnType)) {
-              cout << "Method " << methodFuncDecl->getName() << " does not have void return type" << endl;
-              tps.push_back(llvmTypeFor(methodFuncDecl->returnType));
-            }
+            // if (!VoidType::classof(methodFuncDecl->returnType)) {
+            //   cout << "Method " << methodFuncDecl->getName() << " does not have void return type" << endl;
+            //   tps.push_back(llvmTypeFor(methodFuncDecl->returnType));
+            // }
 
             tps.push_back(llvmTypeFor(new SynthCppPointerType(new SynthCppStructType(c->name))));
             for (auto a : argTps) {
@@ -1854,7 +1854,7 @@ public:
             activeFunction = sf;
             sf->nameToken = methodFuncDecl->name;
             // Change voidType to the function output type
-            auto f = mkFunc(tps, voidType(), sf->getName());
+            auto f = mkFunc(tps, llvmTypeFor(methodFuncDecl->returnType), sf->getName());
             interfaces.addFunction(f);
             sf->func = f;
             sf->retType = methodFuncDecl->returnType;
@@ -1863,7 +1863,7 @@ public:
             auto bb = mkBB("entry_block", f);
             IRBuilder<> b(bb);
 
-            bool hasReturn = sf->hasReturnValue();
+            bool hasReturn = false; //sf->hasReturnValue();
             setArgumentSymbols(b, sf->symtab, methodFuncDecl->args, f, 1 + (hasReturn ? 1 : 0));
             
             for (auto stmt : methodFuncDecl->body) {
@@ -1920,7 +1920,7 @@ public:
         cgs.symtab.pushTable(&(sf->symtab));
 
         // Add return type as first argument
-        llvm::Function* f = mkFunc(inputTypes, voidType(), sf->getName());
+        llvm::Function* f = mkFunc(inputTypes, llvmTypeFor(fd->returnType), sf->getName());
 
         // Add this function to the interface functions
         interfaces.addFunction(f);
@@ -1929,8 +1929,8 @@ public:
         auto bb = mkBB("entry_block", f);
         IRBuilder<> b(bb);
 
-        bool hasReturn = sf->hasReturnValue();
-        setArgumentSymbols(b, sf->symtab, fd->args, f, hasReturn ? 1 : 0);
+        //bool hasReturn = sf->hasReturnValue();
+        setArgumentSymbols(b, sf->symtab, fd->args, f, 0);
 
         // Now need to iterate over all statements in the body creating labels
         // that map to starts and ends of statements
@@ -2055,12 +2055,23 @@ public:
       auto r = genLLVM(b, be->rhs);
 
       cout << "left     = " << valueString(l) << endl;
-      cout << "left tp  = " << typeString(l->getType()) << endl;      
-      auto fresh = b.CreateAlloca(getPointedToType(l->getType()));
-      auto bCall = mkFunc({l->getType(), r->getType(), r->getType()}, voidType(), "binop");
-      auto res = b.CreateCall(bCall, {fresh, l, r});
+      cout << "left tp  = " << typeString(l->getType()) << endl;
 
-      return res->getOperand(0);
+      assert(!PointerType::classof(l->getType()));
+      assert(!PointerType::classof(r->getType()));
+      assert(l->getType() == r->getType());
+
+      if (be->op.getStr() == "+") {
+        return b.CreateAdd(l, r);
+      } else {
+        cout << "Error: Unsupported binop: " << be->op << endl;
+        assert(false);
+      }
+      //auto fresh = b.CreateAlloca(getPointedToType(l->getType()));
+      //auto bCall = mkFunc({l->getType(), r->getType(), r->getType()}, voidType(), "binop");
+      //auto res = b.CreateCall(bCall, {fresh, l, r});
+
+      //return res->getOperand(0);
 
     } else if (FunctionCall::classof(e)) {
       auto called = sc<FunctionCall>(e);
@@ -2098,9 +2109,9 @@ public:
         // cout << valueString(activeFunction->llvmFunction()) << endl;
 
         int thisOffset = 0;
-        if (activeFunction->hasReturnValue()) {
-          thisOffset = 1;
-        }
+        // if (activeFunction->hasReturnValue()) {
+        //   thisOffset = 1;
+        // }
         return b.CreateCall(f, {getArg(activeFunction->llvmFunction(), thisOffset), vExpr});
       }
 
@@ -2127,9 +2138,9 @@ public:
         cout << valueString(activeFunction->llvmFunction()) << endl;
 
         int thisOffset = 0;
-        if (activeFunction->hasReturnValue()) {
-          thisOffset = 1;
-        }
+        // if (activeFunction->hasReturnValue()) {
+        //   thisOffset = 1;
+        // }
         return b.CreateCall(f, {getArg(activeFunction->llvmFunction(), thisOffset)});
       }
       
@@ -2138,21 +2149,21 @@ public:
       // Generate llvm for each argument
       vector<Value*> args;
 
-      Value* retVal = nullptr;
-      // Add return value
-      if (!VoidType::classof(calledFunc->returnType())) {
-        retVal = b.CreateAlloca(llvmTypeFor(calledFunc->returnType()), nullptr, "ret_val_" + uniqueNumString());
-        args.push_back(retVal);
-      }
+      // Value* retVal = nullptr;
+      // // Add return value
+      // if (!VoidType::classof(calledFunc->returnType())) {
+      //   retVal = b.CreateAlloca(llvmTypeFor(calledFunc->returnType()), nullptr, "ret_val_" + uniqueNumString());
+      //   args.push_back(retVal);
+      // }
 
       for (auto arg : called->args) {
         args.push_back(genLLVM(b, arg));
       }
 
-      b.CreateCall(calledFunc->llvmFunction(), args);
-      
-      return retVal;
-      
+      // b.CreateCall(calledFunc->llvmFunction(), args);
+      // return retVal;
+
+      return b.CreateCall(calledFunc->llvmFunction(), args);      
     } else if (MethodCall::classof(e)) {
       // Dummy code
       auto methodCall =
@@ -2167,21 +2178,23 @@ public:
       // Generate llvm for each argument
       vector<Value*> args;
 
-      Value* retVal = nullptr;
-      // Add return value
-      if (!VoidType::classof(calledFunc->returnType())) {
-        retVal = b.CreateAlloca(llvmTypeFor(calledFunc->returnType()), nullptr, "ret_val_" + uniqueNumString());
-        args.push_back(retVal);
-      }
+      // Value* retVal = nullptr;
+      // // Add return value
+      // if (!VoidType::classof(calledFunc->returnType())) {
+      //   retVal = b.CreateAlloca(llvmTypeFor(calledFunc->returnType()), nullptr, "ret_val_" + uniqueNumString());
+      //   args.push_back(retVal);
+      // }
 
       args.push_back(getValueFor(caller));
       for (auto arg : called->args) {
         args.push_back(genLLVM(b, arg));
       }
 
-      b.CreateCall(calledFunc->llvmFunction(), args);
-      
-      return retVal;
+      // b.CreateCall(calledFunc->llvmFunction(), args);
+      // return retVal;
+
+      return b.CreateCall(calledFunc->llvmFunction(), args);
+
     } else if (IntegerExpr::classof(e)) {
       IntegerExpr* i = static_cast<IntegerExpr* const>(e);
       string digits = i->digits;
