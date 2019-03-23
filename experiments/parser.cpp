@@ -2067,11 +2067,6 @@ public:
         cout << "Error: Unsupported binop: " << be->op << endl;
         assert(false);
       }
-      //auto fresh = b.CreateAlloca(getPointedToType(l->getType()));
-      //auto bCall = mkFunc({l->getType(), r->getType(), r->getType()}, voidType(), "binop");
-      //auto res = b.CreateCall(bCall, {fresh, l, r});
-
-      //return res->getOperand(0);
 
     } else if (FunctionCall::classof(e)) {
       auto called = sc<FunctionCall>(e);
@@ -2948,7 +2943,7 @@ int main() {
     map<string, int> testLayout = {};
     tb.memoryInit = {};
     tb.memoryExpected = {};
-    tb.runCycles = 30;
+    tb.runCycles = 70;
     tb.maxCycles = 100;
     tb.name = "filter_ram";
     tb.useModSpecs = true;
@@ -2968,10 +2963,10 @@ int main() {
     tb.setArgPort(in, "debug_write_en", 3, "0");
     map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
 
-    map_insert(tb.actionsOnCycles, 18, assertString("valid === 1"));
+    map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
     
-    tb.setArgPort(in, "debug_addr", 19, "8");
-    map_insert(tb.actionsOnCycles, 19, assertString("arg_0_debug_data === (8 + 6)"));
+    tb.setArgPort(in, "debug_addr", 76, "8");
+    map_insert(tb.actionsOnCycles, 76, assertString("arg_0_debug_data === (8 + 6)"));
     
     emitVerilogTestBench(tb, arch, testLayout);
 
