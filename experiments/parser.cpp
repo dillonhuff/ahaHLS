@@ -3030,10 +3030,6 @@ int main() {
   // Now Im also worried about getting semantics right in time.
 
   // TODO: Order toothbrush / shaver
-  //       Get some sort of code generation working
-  //       Change the internal definition of read / write ports?
-  //       How far do I want to go with this kind of module instance
-  //       based code generation?
   // Idea: Start with a register iclass and figure out read and write
   //       port mappings from there?
   //       Also: Use load and store and just set register values in HCS?
