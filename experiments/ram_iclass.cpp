@@ -39,7 +39,7 @@ class reg_bit_32 {
 
   void write_reg(bit_32 val) {
     const_bit_32_1 c;
-  set_en:set_port(en, c.value_1());
+  set_en:set_port(en, 1);
   set_in:set_port(in, val);
 
   ret: return;
@@ -89,7 +89,7 @@ class RAM {
     const_bit_32_1 c;
     
   set_wen:
-    set_port(wen_0, c.value_1());
+    set_port(wen_0, 1);
   set_wdata:
     set_port(wdata_0, data);
   set_waddr:

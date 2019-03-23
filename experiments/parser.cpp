@@ -2965,7 +2965,7 @@ int main() {
 
     map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
     
-    tb.setArgPort(in, "debug_addr", 76, "8");
+    tb.setArgPort(in, "debug_addr", 76, "10");
     map_insert(tb.actionsOnCycles, 76, assertString("arg_0_debug_data === (8 + 6)"));
     
     emitVerilogTestBench(tb, arch, testLayout);
