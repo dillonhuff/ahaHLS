@@ -18,11 +18,12 @@ public:
   void write_header(bit_48 dest_mac,
                     bit_48 src_mac,
                     bit_16 type) {
-    bit_1 is_ready;
-  read_ready: is_ready = read_port(s_eth_hdr_ready);
-  stall_on_ready: stall(is_ready);
+    //bit_1 is_ready;
+    //read_ready: is_ready = read_port(s_eth_hdr_ready);
+    //stall_on_ready: stall(is_ready);
+  stall_on_ready: stall(read_port(s_eth_hdr_ready));
 
-    add_constraint(start(read_ready) == start(stall_on_ready));
+    //add_constraint(start(read_ready) == start(stall_on_ready));
 
   write_valid: write_port(s_eth_hdr_valid, 1);
   write_src: write_port(s_eth_dest_mac, dest_mac);
@@ -39,11 +40,13 @@ public:
 
   void write_byte(bit_8 data,
                   bit_1 last) {
-    bit_1 is_ready;    
-  read_ready: is_ready = read_port(s_eth_hdr_ready);
-  stall_on_ready: stall(is_ready);
+  //   bit_1 is_ready;    
+  // read_ready: is_ready = read_port(s_eth_hdr_ready);
+  // stall_on_ready: stall(is_ready);
 
-    add_constraint(start(read_ready) == start(stall_on_ready));
+  //   add_constraint(start(read_ready) == start(stall_on_ready));
+
+  stall_on_ready: stall(read_port(s_eth_payload_axis_tready));
 
   write_valid: write_port(s_eth_payload_axis_tvalid, 1);
   write_last: write_port(s_eth_payload_axis_tlast, last);
