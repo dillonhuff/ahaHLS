@@ -201,7 +201,7 @@ namespace ahaHLS {
 
       // If no spec is given use default
       // TODO: Need to set defaults for internal loads vs external
-      latency = 0; //getLatency(STORE_OP);
+      latency = getLatency(STORE_OP);
     } else if (LoadInst::classof(iptr)) {
 
       if (contains_key(iptr, memoryMapping)) {
@@ -213,7 +213,7 @@ namespace ahaHLS {
 
       // If no spec for the memory being read, revert to default
       // TODO: Need to set defaults for internal loads vs external      
-      latency = 0; //getLatency(LOAD_OP);
+      latency = getLatency(LOAD_OP);
     } else if (CmpInst::classof(iptr)) {
       latency = getLatency(CMP_OP);
     } else if (BranchInst::classof(iptr)) {
