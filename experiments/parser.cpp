@@ -3128,15 +3128,15 @@ int main() {
       map<string, int> testLayout = {};
       tb.memoryInit = {};
       tb.memoryExpected = {};
-      tb.runCycles = 700;
-      tb.maxCycles = 1000;
+      tb.runCycles = 200;
+      tb.maxCycles = 300;
       tb.name = "write_one_byte_packet";
       tb.useModSpecs = true;
       tb.settablePort(tx, "m_axis_tready");
       map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
 
       map_insert(tb.actionsInCycles, 0, string("arg_4_m_axis_tready = 1;"));
-      map_insert(tb.actionsOnCycles, 700, assertString("valid === 1"));
+      map_insert(tb.actionsOnCycles, 200, assertString("valid === 1"));
     
       //tb.setArgPort(in, "debug_addr", 76, "10");
 
