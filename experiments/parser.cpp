@@ -3107,46 +3107,16 @@ int main() {
     
     assert(mod.getStatements().size() >= 1);
 
-    SynthCppModule scppMod(mod);    
-    auto arch = synthesizeVerilog(scppMod, "write_header_func");
+    {
+      SynthCppModule scppMod(mod);    
+      auto arch = synthesizeVerilog(scppMod, "write_header_func");
+    }
 
-    // map<llvm::Value*, int> layout = {};
+    {
+      SynthCppModule scppMod(mod);    
+      auto arch = synthesizeVerilog(scppMod, "write_byte_func");
+    }
 
-    // auto in =
-    //   sc<Argument>(getArg(scppMod.getFunction("write_header")->llvmFunction(), 0));
-    // TestBenchSpec tb;
-    // map<string, int> testLayout = {};
-    // tb.memoryInit = {};
-    // tb.memoryExpected = {};
-    // tb.runCycles = 70;
-    // tb.maxCycles = 100;
-    // tb.name = "write_header";
-    // tb.useModSpecs = true;
-    // tb.settablePort(in, "debug_addr");
-    // tb.settablePort(in, "debug_write_addr");
-    // tb.settablePort(in, "debug_write_data");
-    // tb.settablePort(in, "debug_write_en");            
-
-    // tb.setArgPort(in, "debug_write_addr", 1, "0");
-    // tb.setArgPort(in, "debug_write_data", 1, "6");
-    // tb.setArgPort(in, "debug_write_en", 1, "1");    
-
-    // tb.setArgPort(in, "debug_write_addr", 2, "1");
-    // tb.setArgPort(in, "debug_write_data", 2, "8");
-    // tb.setArgPort(in, "debug_write_en", 2, "1");    
-
-    // tb.setArgPort(in, "debug_write_en", 3, "0");
-    // map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
-
-    // map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
-    
-    // tb.setArgPort(in, "debug_addr", 76, "10");
-    // map_insert(tb.actionsOnCycles, 76, assertString("arg_0_debug_data === (8 + 6)"));
-    
-    // emitVerilogTestBench(tb, arch, testLayout);
-
-    // assert(runIVerilogTest("write_header_tb.v", "write_header", " builtins.v write_header.v RAM.v delay.v ram_primitives.v"));
-    
   }
 
   // Q: What are the new issues?
