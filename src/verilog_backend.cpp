@@ -1825,7 +1825,8 @@ namespace ahaHLS {
       // TODO: Put sequential vs combinational distincion in module description
       if ((unit.getModName() == "RAM") ||
           (unit.getModName() == "register") ||
-          (unit.getModName() == "adder")) {
+          (unit.getModName() == "adder") ||
+          (unit.getModName() == "reg_passthrough")) {
         wireConns.insert({"clk", "clk"});
         wireConns.insert({"rst", "rst"});
       }
