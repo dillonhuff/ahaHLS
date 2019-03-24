@@ -13,6 +13,45 @@ using namespace dbhc;
 using namespace ahaHLS;
 using namespace std;
 
+MemorySpec pss(const int width) {
+  return {0, 0, 1, 1, width, 1, false, {{{"width", std::to_string(width)}}, "register_passthrough"}};
+}
+  
+
+Schedule scheduleInterfaceZeroReg(llvm::Function* f,
+                                  HardwareConstraints& hcs,
+                                  InterfaceFunctions& interfaces,
+                                  std::set<BasicBlock*>& toPipeline,
+                                  ExecutionConstraints& exec) {
+
+  cout << "Before inlining" << endl;
+  cout << valueString(f) << endl;
+
+  addDataConstraints(f, exec);
+  inlineWireCalls(f, exec, interfaces);
+
+  cout << "After inlining" << endl;
+  cout << valueString(f) << endl;
+
+  setAllAllocaMemTypes(hcs, f, pss(32));
+  
+  hcs.memoryMapping =
+    memoryOpLocations(f);
+  
+  // cout << "Constraints after inlining" << endl;
+  // for (auto c : exec.constraints) {
+  //   cout << tab(1) << *c << endl;
+  // }
+  SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+  exec.addConstraints(p, f);
+
+  map<Function*, SchedulingProblem> constraints{{f, p}};
+  Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+
+  return s;
+}
+
+
 template<typename ResultType, typename InputType>
 ResultType* sc(InputType* tp) {
   return static_cast<ResultType*>(tp);
@@ -2314,10 +2353,6 @@ public:
     setValue(decl->name, n);
   }
 
-  MemorySpec pss(const int width) {
-    return {0, 0, 1, 1, width, 1, false, {{{"width", std::to_string(width)}}, "register"}};
-  }
-  
   void genLLVM(IRBuilder<>& b, AssignStmt* const stmt) {
 
     // Note: Should really be an expression
@@ -2527,11 +2562,11 @@ synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
 
   
   Schedule s =
-    scheduleInterface(f->llvmFunction(),
-                      scppMod.getHardwareConstraints(),
-                      scppMod.getInterfaceFunctions(),
-                      scppMod.getBlocksToPipeline(),
-                      scppMod.getInterfaceFunctions().getConstraints(f->llvmFunction()));
+    scheduleInterfaceZeroReg(f->llvmFunction(),
+                             scppMod.getHardwareConstraints(),
+                             scppMod.getInterfaceFunctions(),
+                             scppMod.getBlocksToPipeline(),
+                             scppMod.getInterfaceFunctions().getConstraints(f->llvmFunction()));
 
   STG graph = buildSTG(s, f->llvmFunction());
 
