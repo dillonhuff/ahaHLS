@@ -488,7 +488,16 @@ public:
 
   virtual ~SynthCppType() {
   }
+
+  virtual void print(std::ostream& out) const {
+    assert(false);
+  }
 };
+
+std::ostream& operator<<(std::ostream& out, const SynthCppType& tp) {
+  tp.print(out);
+  return out;
+}
 
 class TemplateType : public SynthCppType {
 public:
@@ -512,9 +521,14 @@ public:
 
   std::string getName() const { return name.getStr(); }
 
-  virtual SynthCppTypeKind getKind() const { return SYNTH_CPP_TYPE_KIND_STRUCT; }
+  virtual SynthCppTypeKind getKind() const override { return SYNTH_CPP_TYPE_KIND_STRUCT; }
 
   static bool classof(const SynthCppType* const tp) { return tp->getKind() == SYNTH_CPP_TYPE_KIND_STRUCT; }
+
+  virtual void print(std::ostream& out) const override {
+    out << name;
+  }
+  
 };
 
 class LabelType : public SynthCppType {
@@ -1603,6 +1617,26 @@ public:
     cout << "Getting method for " << name << endl;
     return map_find(name.getStr(), methods);
   }
+
+  int getPortWidth(Token vName) {
+    for (auto v : memberVars) {
+      cout << "Checking member var " << v.first << endl;
+      if (v.first == vName.getStr()) {
+        cout << "Found member variable " << v.first << " with type " << *(v.second) << endl;
+        assert(SynthCppStructType::classof(v.second));
+        string name = sc<SynthCppStructType>(v.second)->getName();
+        assert(hasPrefix(name, "input_") || (hasPrefix(name, "output_")));
+        if (hasPrefix(name, "input_")) {
+          return stoi(name.substr(string("input_").size()));
+        } else {
+          return stoi(name.substr(string("output_").size()));          
+        }
+      }
+    }
+
+    cout << "Error: No member named " << vName << " in " << name << endl;
+    assert(false);
+  }
 };
 
 bool isInputPort(SynthCppType* const tp) {
@@ -2108,7 +2142,7 @@ public:
         return nullptr;
       }
 
-      if (name == "set_port") {
+      if ((name == "set_port") || (name == "write_port")) {
         Expression* labelExpr = called->args[0];
 
         Identifier* labelId = extract<Identifier>(labelExpr);
@@ -2133,6 +2167,14 @@ public:
         return b.CreateCall(f, {getArg(activeFunction->llvmFunction(), thisOffset), vExpr});
       }
 
+      if (name == "stall") {
+
+        Expression* valueExpr = called->args[0];
+        auto vExpr = genLLVM(b, valueExpr);
+        
+        return b.CreateCall(stallFunction(), {vExpr});
+      }
+
       if (name == "read_port") {
         Expression* labelExpr = called->args[0];
 
@@ -2141,7 +2183,7 @@ public:
         Identifier* labelId = extract<Identifier>(labelExpr);
 
         // TODO: Replace with more general
-        int outWidth = 32;
+        int outWidth = cgs.activeClass->getPortWidth(labelId->getName());
 
         SynthCppClass* sExpr = cgs.getActiveClass();
         SynthCppType* classTp = new SynthCppStructType(sExpr->name);
@@ -3011,7 +3053,7 @@ int main() {
     assert(mod.getStatements().size() >= 1);
 
     SynthCppModule scppMod(mod);    
-    auto arch = synthesizeVerilog(scppMod, "write_header");
+    auto arch = synthesizeVerilog(scppMod, "write_header_func");
 
     // map<llvm::Value*, int> layout = {};
 

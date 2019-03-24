@@ -57,10 +57,10 @@ public:
 
 };
 
-void write_header(bit_48 dest_mac,
-                  bit_48 src_mac,
-                  bit_16 type,
-                  eth_axis_tx& transmitter) {
+void write_header_func(bit_48 dest_mac,
+                       bit_48 src_mac,
+                       bit_16 type,
+                       eth_axis_tx& transmitter) {
   transmitter.write_header(dest_mac, src_mac, type);
 }
 
