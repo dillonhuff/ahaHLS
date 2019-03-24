@@ -366,7 +366,7 @@ module register(input clk, input rst, input [WIDTH - 1:0] raddr, input [WIDTH - 
       //$display("on clock data = %d", data);      
    end
    
-   assign rdata = data;
+   assign rdata = wen ? wdata : data;
    
 endmodule
 
