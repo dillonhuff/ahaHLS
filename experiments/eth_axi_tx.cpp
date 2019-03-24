@@ -22,19 +22,19 @@ public:
   read_ready: is_ready = read_port(s_eth_hdr_ready);
   stall_on_ready: stall(is_ready);
 
-    add_constraint(start(read_ready) == start(stall_on_ready));
+    //add_constraint(start(read_ready) == start(stall_on_ready));
 
   write_valid: write_port(s_eth_hdr_valid, 1);
-  write_src: write_port(s_eth_hdr_dest_mac, dest_mac);
-  write_dest: write_port(s_eth_hdr_src_mac, src_mac);
-  write_type: write_port(s_eth_hdr_type, type);
+  write_src: write_port(s_eth_dest_mac, dest_mac);
+  write_dest: write_port(s_eth_src_mac, src_mac);
+  write_type: write_port(s_eth_type, type);
 
-    add_constraint(end(stall_on_ready) < start(write_valid));
+    // add_constraint(end(stall_on_ready) < start(write_valid));
 
-    add_constraint(start(write_valid) == start(write_src));
-    add_constraint(start(write_valid) == start(write_dest));
-    add_constraint(start(write_valid) == start(write_src));
-    add_constraint(start(write_valid) == start(write_type));
+    // add_constraint(start(write_valid) == start(write_src));
+    // add_constraint(start(write_valid) == start(write_dest));
+    // add_constraint(start(write_valid) == start(write_src));
+    // add_constraint(start(write_valid) == start(write_type));
   }
 
   void write_byte(bit_8 data,
