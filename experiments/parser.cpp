@@ -3122,22 +3122,24 @@ int main() {
       auto arch = synthesizeVerilog(scppMod, "write_one_byte_packet");
       map<llvm::Value*, int> layout = {};
 
-      // auto in =
-      //   sc<Argument>(getArg(scppMod.getFunction("write_one_byte_packet")->llvmFunction(), 0));
+      auto tx =
+        sc<Argument>(getArg(scppMod.getFunction("write_one_byte_packet")->llvmFunction(), 4));
       TestBenchSpec tb;
       map<string, int> testLayout = {};
       tb.memoryInit = {};
       tb.memoryExpected = {};
-      tb.runCycles = 70;
-      tb.maxCycles = 100;
+      tb.runCycles = 700;
+      tb.maxCycles = 1000;
       tb.name = "write_one_byte_packet";
       tb.useModSpecs = true;
+      tb.settablePort(tx, "m_axis_tready");
       map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
 
-      map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
+      map_insert(tb.actionsInCycles, 0, string("arg_4_m_axis_tready = 1;"));
+      map_insert(tb.actionsOnCycles, 700, assertString("valid === 1"));
     
       //tb.setArgPort(in, "debug_addr", 76, "10");
-      //map_insert(tb.actionsOnCycles, 76, assertString("arg_0_debug_data === (8 + 6)"));
+
     
       emitVerilogTestBench(tb, arch, testLayout);
 

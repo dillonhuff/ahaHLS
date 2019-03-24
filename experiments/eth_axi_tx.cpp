@@ -15,6 +15,8 @@ public:
 
   output_1 busy;
 
+  input_1  m_axis_tready;
+
   void write_header(bit_48 dest_mac,
                     bit_48 src_mac,
                     bit_16 type) {
@@ -47,7 +49,6 @@ public:
   //   add_constraint(start(read_ready) == start(stall_on_ready));
 
   stall_on_ready: stall(read_port(s_eth_payload_axis_tready));
-
   write_valid: write_port(s_eth_payload_axis_tvalid, 1);
   write_last: write_port(s_eth_payload_axis_tlast, last);
   write_data: write_port(s_eth_payload_axis_tdata, data);

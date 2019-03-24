@@ -112,6 +112,12 @@ assign s_eth_payload_axis_tready = s_eth_payload_axis_tready_reg;
 
 assign busy = busy_reg;
 
+   always @(posedge clk) begin
+      $display("transmitter busy  ? %d", busy);
+      $display("transmitter state ? %d", state_reg);
+      $display("frame_ptr_reg = %d", frame_ptr_reg);
+   end
+
 always @* begin
     state_next = STATE_IDLE;
 
