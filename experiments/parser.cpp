@@ -14,7 +14,7 @@ using namespace ahaHLS;
 using namespace std;
 
 MemorySpec pss(const int width) {
-  return {0, 0, 1, 1, width, 1, false, {{{"width", std::to_string(width)}}, "register_passthrough"}};
+  return {0, 0, 1, 1, width, 1, false, {{{"width", std::to_string(width)}}, "reg_passthrough"}};
 }
   
 
@@ -34,10 +34,14 @@ Schedule scheduleInterfaceZeroReg(llvm::Function* f,
   cout << valueString(f) << endl;
 
   setAllAllocaMemTypes(hcs, f, pss(32));
-  
   hcs.memoryMapping =
     memoryOpLocations(f);
-  
+
+  cout << "Hardware memory storage names" << endl;
+  for (auto mspec : hcs.memSpecs) {
+    cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
+  }
+
   // cout << "Constraints after inlining" << endl;
   // for (auto c : exec.constraints) {
   //   cout << tab(1) << *c << endl;

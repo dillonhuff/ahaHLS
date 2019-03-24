@@ -356,6 +356,11 @@ namespace ahaHLS {
                                int& writeNum,
                                llvm::Instruction* instr) {
 
+    cout << "Hardware memory storage names in createMemUnit" << endl;
+    for (auto mspec : hcs.memSpecs) {
+      cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
+    }
+    
     assert(LoadInst::classof(instr) || StoreInst::classof(instr));
     string modName = "add";
 
@@ -374,7 +379,11 @@ namespace ahaHLS {
 
       if (!Argument::classof(memVal)) {
         cout << "&&&& Memory unit Using unit " << memSrc << " for " << instructionString(instr) << endl;
-        modName = "register";
+        if (contains_key(memVal, hcs.memSpecs)) {
+          modName = map_find(memVal, hcs.memSpecs).modSpec.name;
+        } else {
+          modName = "register";
+        }
 
         int dataWidth = getValueBitWidth(instr->getOperand(0));
         modParams = {{"WIDTH", to_string(dataWidth)}};
@@ -420,8 +429,16 @@ namespace ahaHLS {
       string memSrc = memName(instr, memSrcs, memNames);
 
       // If we are loading from an internal RAM, not an argument
-      if (!Argument::classof(memVal)) {          
-        modName = "register";
+      if (!Argument::classof(memVal)) {
+        if (contains_key(memVal, hcs.memSpecs)) {
+          string name = map_find(memVal, hcs.memSpecs).modSpec.name;
+          cout << "Setting " << valueString(memVal) << " to " << name << endl;
+          modName = name;
+        } else {
+          modName = "register";
+        }
+        
+        //modName = "register";
 
         int dataWidth = getValueBitWidth(instr->getOperand(0));
         modParams = {{"WIDTH", to_string(dataWidth)}};

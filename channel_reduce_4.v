@@ -32,6 +32,8 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	// End debug wires and ports
 
 	// Start Functional Units
+	add call_18();
+
 	reg [31:0] raddr_ram_0_reg;
 	reg [31:0] waddr_ram_0_reg;
 	reg [31:0] wdata_ram_0_reg;
@@ -39,15 +41,9 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	wire [31:0] rdata_ram_0;
 	register #(.WIDTH(32)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
 
-	add call_18();
-
 	add call_6();
 
-	add alloca_0();
-
-	add bitcast_1();
-
-	add call_2();
+	add call_0();
 
 	br_dummy br_unit();
 
@@ -73,6 +69,10 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	reg [31:0] cmp_in1_icmp_10;
 	wire [0:0] cmp_out_icmp_10;
 	eq #(.WIDTH(32)) icmp_10(.in0(cmp_in0_icmp_10), .in1(cmp_in1_icmp_10), .out(cmp_out_icmp_10));
+
+	add alloca_2();
+
+	add bitcast_3();
 
 	// End Functional Units
 
@@ -242,20 +242,6 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 
 	always @(*) begin
 		if ((global_state == 0)) begin 
-				//   %sum = alloca i32, align 4
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %1 = bitcast i32* %sum to i8*
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
 				//   call void @llvm.lifetime.start.p0i8(i64 4, i8* %1) #14
 		end else begin 
 			// Default values
@@ -280,6 +266,20 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 		end else 		if ((global_state == 7)) begin 
 				//   %4 = load i32, i32* %sum
 				raddr_ram_0_reg = 0;
+		end else begin 
+			// Default values
+		end
+	end
+	always @(*) begin
+		if ((global_state == 0)) begin 
+				//   %sum = alloca i32, align 4
+		end else begin 
+			// Default values
+		end
+	end
+	always @(*) begin
+		if ((global_state == 0)) begin 
+				//   %1 = bitcast i32* %sum to i8*
 		end else begin 
 			// Default values
 		end
