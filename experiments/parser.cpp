@@ -3048,6 +3048,7 @@ int main() {
     
     emitVerilogTestBench(tb, arch, testLayout);
 
+    // Need to figure out how to inline register specifications
     assert(runIVerilogTest("filter_ram_tb.v", "filter_ram", " builtins.v filter_ram.v RAM.v delay.v ram_primitives.v"));
   }
 
