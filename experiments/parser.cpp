@@ -1934,7 +1934,7 @@ public:
             cout << valueString(sf->llvmFunction()) << endl;
             c->methods[sf->getName()] = sf;
 
-            setAllAllocaMemTypes(hcs, f, registerSpec(32));
+            //setAllAllocaMemTypes(hcs, f, registerSpec(32));
             
             activeFunction = nullptr;            
           } else {
@@ -2007,11 +2007,11 @@ public:
         functions.push_back(sf);
         activeFunction = nullptr;        
 
-        setAllAllocaMemTypes(hcs, f, registerSpec(32));
-        
+        //setAllAllocaMemTypes(hcs, f, registerSpec(32));
         cgs.symtab.popTable();
       }
     }
+
 
   }
 
@@ -2308,9 +2308,16 @@ public:
     // TODO: add to name map?
     cgs.symtab.setType(valName, decl->tp);
     auto n = b.CreateAlloca(tp, nullptr, valName);
+    // Add to constraints?
+    int width = getTypeBitWidth(tp);
+    setMemSpec(n, getHardwareConstraints(), {0, 0, 1, 1, width, 1, false, {{{"width", std::to_string(width)}}, "register"}});
     setValue(decl->name, n);
   }
 
+  MemorySpec pss(const int width) {
+    return {0, 0, 1, 1, width, 1, false, {{{"width", std::to_string(width)}}, "register"}};
+  }
+  
   void genLLVM(IRBuilder<>& b, AssignStmt* const stmt) {
 
     // Note: Should really be an expression
@@ -2512,7 +2519,13 @@ synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
       string(func.first->getName()) << " = " <<
       func.second.constraints.size() << endl;
   }
-    
+
+  // setAllAllocaMemTypes(scppMod.getHardwareConstraints(), f, pss(32));
+  
+  // scppMod.getHardwareConstraints().memoryMapping =
+  //   memoryOpLocations(f->llvmFunction());        
+
+  
   Schedule s =
     scheduleInterface(f->llvmFunction(),
                       scppMod.getHardwareConstraints(),
