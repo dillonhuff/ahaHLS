@@ -254,12 +254,16 @@ sepBtwn0(StatementParser stmt, SepParser sep, ParseState<TokenType>& tokens) {
 }
 
 template<typename F>
-Token consumeWhile(TokenState& state, F shouldContinue) {
+maybe<Token> consumeWhile(TokenState& state, F shouldContinue) {
   string tok = "";
   while (!state.atEnd() && shouldContinue(state.peekChar())) {
     tok += state.parseChar();
   }
-  return tok;
+  if (tok.size() > 0) {
+    return Token(tok);
+  } else {
+    return maybe<Token>();
+  }
 }
 
 bool isUnderscore(const char c) { return c == '_'; }
@@ -268,6 +272,10 @@ bool isAlphaNum(const char c) { return isalnum(c); }
 maybe<Token> parseStr(const std::string target, TokenState& chars) {
   string str = "";
   for (int i = 0; i < (int) target.size(); i++) {
+    if (chars.atEnd()) {
+      return maybe<Token>();
+    }
+
     char next = chars.parseChar();
     if (target[i] == next) {
       str += next;
@@ -283,29 +291,44 @@ std::function<maybe<Token>(TokenState& chars)> mkParseStr(const std::string str)
   return [str](TokenState& state) { return parseStr(str, state); };
 }
 
-Token consumeWhitespace(TokenState& state) {
-  return consumeWhile(state, isWhitespace);
+maybe<Token> parseComment(TokenState& state) {
+  // Parse any number of comment lines and whitespace
+  auto result = tryParse<Token>(mkParseStr("//"), state);
+  if (result.has_value()) {
+    while (!state.atEnd() && !(state.peekChar() == '\n')) {
+      state.parseChar();
+    }
+
+    if (!state.atEnd()) {
+      cout << "Parsing end char" << endl;
+      state.parseChar();
+    }
+
+    return Token("//");
+
+  } else {
+    return maybe<Token>();
+  }
+
+}
+
+void consumeWhitespace(TokenState& state) {
+  while (true) {
+    auto commentM = tryParse<Token>(parseComment, state);
+    if (!commentM.has_value()) {
+      auto ws = consumeWhile(state, isWhitespace);
+      if (!ws.has_value()) {
+        return;
+      }
+    }
+  }
 }
 
 Token parse_token(TokenState& state) {
-  // Parse comment
-  while (true) {
-    auto result = tryParse<Token>(mkParseStr("//"), state);
-    if (result.has_value()) {
-      while (!state.atEnd() && !(state.peekChar() == '\n')) {
-        state.parseChar();
-      }
-      state.parseChar();
-
-      consumeWhitespace(state);      
-    } else {
-      break;
-    }
-
-  }
-
   if (isalnum(state.peekChar())) {
-    return consumeWhile(state, [](const char c) { return isAlphaNum(c) || isUnderscore(c); });
+    auto res = consumeWhile(state, [](const char c) { return isAlphaNum(c) || isUnderscore(c); });
+    assert(res.has_value());
+    return res.get_value();
   } else if (oneCharToken(state.peekChar())) {
     maybe<Token> result = tryParse<Token>(mkParseStr("=="), state);
     if (result.has_value()) {
@@ -2979,16 +3002,12 @@ int main() {
                     std::istreambuf_iterator<char>());
 
     auto tokens = tokenize(str);
-    // cout << "Tokens" << endl;
-    // for (auto t : tokens) {
-    //   cout << "\t" << t.getStr() << endl;
-    // }
+    // ParserModule mod = parse(tokens);
 
-    ParserModule mod = parse(tokens);
+    // cout << "Ethernet mod" << endl;
+    // cout << mod << endl;
 
-    cout << mod << endl;
-
-    assert(mod.getStatements().size() == 2);
+    // assert(mod.getStatements().size() == 2);
   }
 
   // Q: What are the new issues?
