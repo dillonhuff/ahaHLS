@@ -367,7 +367,25 @@ module register(input clk, input rst, input [WIDTH - 1:0] raddr, input [WIDTH - 
    end
    
    assign rdata = data;
- //wen ? wdata : data;
+   
+endmodule
+
+module reg_passthrough(input clk, input rst, input [WIDTH - 1:0] raddr, input [WIDTH - 1:0] waddr, input wen, input ren, input [WIDTH - 1:0] wdata, output [WIDTH - 1:0] rdata);
+
+   parameter WIDTH = 32;
+
+   reg [31:0] data;
+
+   always @(posedge clk) begin
+      if (wen) begin
+         data <= wdata;
+         //$display("writing %d to register", wdata);
+      end
+
+      //$display("on clock data = %d", data);      
+   end
+   
+   assign rdata = wen ? wdata : data;
    
 endmodule
 
