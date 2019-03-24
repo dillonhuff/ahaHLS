@@ -3117,6 +3117,35 @@ int main() {
       auto arch = synthesizeVerilog(scppMod, "write_byte_func");
     }
 
+    {
+      SynthCppModule scppMod(mod);    
+      auto arch = synthesizeVerilog(scppMod, "write_one_byte_packet");
+      map<llvm::Value*, int> layout = {};
+
+      // auto in =
+      //   sc<Argument>(getArg(scppMod.getFunction("write_one_byte_packet")->llvmFunction(), 0));
+      TestBenchSpec tb;
+      map<string, int> testLayout = {};
+      tb.memoryInit = {};
+      tb.memoryExpected = {};
+      tb.runCycles = 70;
+      tb.maxCycles = 100;
+      tb.name = "write_one_byte_packet";
+      tb.useModSpecs = true;
+      map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+
+      map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
+    
+      //tb.setArgPort(in, "debug_addr", 76, "10");
+      //map_insert(tb.actionsOnCycles, 76, assertString("arg_0_debug_data === (8 + 6)"));
+    
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      // Need to figure out how to inline register specifications
+      assert(runIVerilogTest("write_one_byte_packet_tb.v", "write_one_byte_packet", " builtins.v write_one_byte_packet.v RAM.v delay.v ram_primitives.v eth_axis_tx.v"));
+      
+    }
+
   }
 
   // Q: What are the new issues?
