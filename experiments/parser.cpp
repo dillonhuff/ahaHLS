@@ -3146,6 +3146,15 @@ int main() {
 
       auto tx =
         sc<Argument>(getArg(scppMod.getFunction("write_one_byte_packet")->llvmFunction(), 4));
+      auto dest_mac =
+        sc<Argument>(getArg(scppMod.getFunction("write_one_byte_packet")->llvmFunction(), 0));
+      auto src_mac =
+        sc<Argument>(getArg(scppMod.getFunction("write_one_byte_packet")->llvmFunction(), 1));
+      auto type =
+        sc<Argument>(getArg(scppMod.getFunction("write_one_byte_packet")->llvmFunction(), 2));
+      auto payload =
+        sc<Argument>(getArg(scppMod.getFunction("write_one_byte_packet")->llvmFunction(), 3));
+
       TestBenchSpec tb;
       map<string, int> testLayout = {};
       tb.memoryInit = {};
@@ -3155,13 +3164,18 @@ int main() {
       tb.name = "write_one_byte_packet";
       tb.useModSpecs = true;
       tb.settablePort(tx, "m_axis_tready");
+      tb.settablePort(dest_mac, "in_data");
+      tb.settablePort(src_mac, "in_data");
+      tb.settablePort(type, "in_data");
+      tb.settablePort(payload, "in_data");                  
       map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
-
+      map_insert(tb.actionsInCycles, 1, string("arg_0_in_data <= 25;"));
+      map_insert(tb.actionsInCycles, 1, string("arg_1_in_data <= 13;"));
+      map_insert(tb.actionsInCycles, 1, string("arg_2_in_data <= 8;"));
+      map_insert(tb.actionsInCycles, 1, string("arg_3_in_data <= 49;"));
+      
       map_insert(tb.actionsInCycles, 0, string("arg_4_m_axis_tready = 1;"));
       map_insert(tb.actionsOnCycles, 200, assertString("valid === 1"));
-    
-      //tb.setArgPort(in, "debug_addr", 76, "10");
-
     
       emitVerilogTestBench(tb, arch, testLayout);
 

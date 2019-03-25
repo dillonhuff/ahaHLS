@@ -117,6 +117,9 @@ assign busy = busy_reg;
       $display("transmitter hdr ready  ? %d", s_eth_hdr_ready);      
       $display("transmitter state ? %d", state_reg);
       $display("frame_ptr_reg = %d", frame_ptr_reg);
+      if (m_axis_tvalid) begin
+         $display("Outputting valid data = %d", m_axis_tdata);
+      end
    end
 
 always @* begin
