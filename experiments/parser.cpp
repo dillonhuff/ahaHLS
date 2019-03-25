@@ -449,6 +449,8 @@ public:
                const std::vector<Expression*>& args_) :
     funcName(funcName_), args(args_) {}
 
+  std::string getName() const { return funcName.getStr(); }
+
   virtual ExpressionKind getKind() const {
     return EXPRESSION_KIND_FUNCTION_CALL;
   }
@@ -1823,6 +1825,19 @@ public:
   }
 };
 
+pair<string, int> extractDefault(Statement* stmt) {
+  auto eStmt = extract<ExpressionStmt>(stmt);
+  auto expr = eStmt->expr;
+  FunctionCall* writeCall = extract<FunctionCall>(expr);
+  assert(writeCall->getName() == "write_port");
+  Expression* portId = writeCall->args[0];
+  Identifier* id = extract<Identifier>(portId);
+  Expression* portVal = writeCall->args[1];
+  IntegerExpr* val = extract<IntegerExpr>(portVal);
+
+  return {id->getName(), val->getInt()};
+}
+
 // Idea: Caller constraints that inline in to each user of a function?
 // For each called user function check if caller constraints are satisified
 // and if not propagate them up the stack? A form of type checking I suppose?
@@ -1907,6 +1922,7 @@ public:
 
       if (ClassDecl::classof(stmt)) {
         ClassDecl* decl = static_cast<ClassDecl* const>(stmt);
+        ModuleSpec cSpec;
 
         SynthCppClass* c = new SynthCppClass();
         c->name = decl->name;
@@ -1923,59 +1939,66 @@ public:
             // and function code with the same generator so
             // that I dont end up with argument duplication
             auto methodFuncDecl = sc<FunctionDecl>(st);
-            vector<Type*> argTps =
-              functionInputs(methodFuncDecl);
+            if (methodFuncDecl->getName() == "defaults") {
+              for (auto stmt : methodFuncDecl->body) {
+                pair<string, int> defaultValue = extractDefault(stmt);
+                cSpec.defaultValues.insert(defaultValue);
+              }
+            } else {
+              vector<Type*> argTps =
+                functionInputs(methodFuncDecl);
 
-            cout << "Method " << methodFuncDecl->getName() << " has arg types before return value and this:" << endl;
-            for (auto a : argTps) {
-              cout << tab(1) << typeString(a) << endl;
-            }
+              cout << "Method " << methodFuncDecl->getName() << " has arg types before return value and this:" << endl;
+              for (auto a : argTps) {
+                cout << tab(1) << typeString(a) << endl;
+              }
             
-            vector<Type*> tps;
-            // if (!VoidType::classof(methodFuncDecl->returnType)) {
-            //   cout << "Method " << methodFuncDecl->getName() << " does not have void return type" << endl;
-            //   tps.push_back(llvmTypeFor(methodFuncDecl->returnType));
-            // }
+              vector<Type*> tps;
+              // if (!VoidType::classof(methodFuncDecl->returnType)) {
+              //   cout << "Method " << methodFuncDecl->getName() << " does not have void return type" << endl;
+              //   tps.push_back(llvmTypeFor(methodFuncDecl->returnType));
+              // }
 
-            tps.push_back(llvmTypeFor(new SynthCppPointerType(new SynthCppStructType(c->name))));
-            for (auto a : argTps) {
-              tps.push_back(a);
-            }
+              tps.push_back(llvmTypeFor(new SynthCppPointerType(new SynthCppStructType(c->name))));
+              for (auto a : argTps) {
+                tps.push_back(a);
+              }
 
-            cout << "Method " << methodFuncDecl->getName() << " has arg types" << endl;
-            for (auto a : tps) {
-              cout << tab(1) << typeString(a) << endl;
-            }
-            SynthCppFunction* sf = new SynthCppFunction();
-            activeFunction = sf;
-            sf->nameToken = methodFuncDecl->name;
-            // Change voidType to the function output type
-            auto f = mkFunc(tps, llvmTypeFor(methodFuncDecl->returnType), sf->getName());
-            interfaces.addFunction(f);
-            sf->func = f;
-            sf->retType = methodFuncDecl->returnType;
-            sf->constraints = &(interfaces.getConstraints(f));
+              cout << "Method " << methodFuncDecl->getName() << " has arg types" << endl;
+              for (auto a : tps) {
+                cout << tab(1) << typeString(a) << endl;
+              }
+              SynthCppFunction* sf = new SynthCppFunction();
+              activeFunction = sf;
+              sf->nameToken = methodFuncDecl->name;
+              // Change voidType to the function output type
+              auto f = mkFunc(tps, llvmTypeFor(methodFuncDecl->returnType), sf->getName());
+              interfaces.addFunction(f);
+              sf->func = f;
+              sf->retType = methodFuncDecl->returnType;
+              sf->constraints = &(interfaces.getConstraints(f));
 
-            auto bb = mkBB("entry_block", f);
-            IRBuilder<> b(bb);
+              auto bb = mkBB("entry_block", f);
+              IRBuilder<> b(bb);
 
-            bool hasReturn = false; //sf->hasReturnValue();
-            setArgumentSymbols(b, sf->symtab, methodFuncDecl->args, f, 1 + (hasReturn ? 1 : 0));
+              bool hasReturn = false; //sf->hasReturnValue();
+              setArgumentSymbols(b, sf->symtab, methodFuncDecl->args, f, 1 + (hasReturn ? 1 : 0));
             
-            for (auto stmt : methodFuncDecl->body) {
-              cout << "Statement" << endl;
-              genLLVM(b, stmt);
+              for (auto stmt : methodFuncDecl->body) {
+                cout << "Statement" << endl;
+                genLLVM(b, stmt);
+              }
+            
+              b.CreateRet(nullptr);
+
+              cout << "Just generated code for method " << endl;
+              cout << valueString(sf->llvmFunction()) << endl;
+              c->methods[sf->getName()] = sf;
+
+              //setAllAllocaMemTypes(hcs, f, registerSpec(32));
+            
+              activeFunction = nullptr;
             }
-            
-            b.CreateRet(nullptr);
-
-            cout << "Just generated code for method " << endl;
-            cout << valueString(sf->llvmFunction()) << endl;
-            c->methods[sf->getName()] = sf;
-
-            //setAllAllocaMemTypes(hcs, f, registerSpec(32));
-            
-            activeFunction = nullptr;            
           } else {
             assert(false);
           }
@@ -1984,7 +2007,6 @@ public:
 
         // TODO: Wrap this up in to a function
         // Add interface class module spec to hardware constraints
-        ModuleSpec cSpec;
         cSpec.name = c->getName();
         cSpec.hasClock = true;
         cSpec.hasRst = true;

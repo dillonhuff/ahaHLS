@@ -17,6 +17,11 @@ public:
 
   input_1  m_axis_tready;
 
+  void defaults() {
+    write_port(s_eth_hdr_valid, 0);
+    write_port(s_eth_payload_axis_tvalid, 0);
+  }
+
   void write_header(bit_48 dest_mac,
                     bit_48 src_mac,
                     bit_16 type) {
