@@ -2809,6 +2809,12 @@ namespace ahaHLS {
           }
           ModuleInstance arg{s.name, instName, conns};
           comps.instances.push_back(arg);
+        } else if (IntegerType::classof(getArg(f, i)->getType())) {
+          string modName = "hls_wire";
+          map<string, string> conns;
+          string instName = "arg_" + to_string(i);
+          ModuleInstance arg(modName, {{"WIDTH", to_string(getValueBitWidth(getArg(f, i)))}}, instName, conns);
+          comps.instances.push_back(arg);
         }
       }
     }
