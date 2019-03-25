@@ -30,9 +30,9 @@ namespace ahaHLS {
     string name = arg->getName();
     if (name == "") {
       int num = getArgNum(arg);
-      return "arg_" + to_string(num);
+      return "arg_" + to_string(num) + "_out_data";
     } else {
-      return name;
+      return name + "_out_data";
     }
   }
   
@@ -140,6 +140,7 @@ namespace ahaHLS {
         }
         auto iTp = dyn_cast<IntegerType>(tp);
         string name = valueArgName(&arg);
+        cout << "Integer port name = " << name << endl;
         pts.push_back(inputPort(getTypeBitWidth(iTp), name));
       }
     }
@@ -2811,8 +2812,29 @@ namespace ahaHLS {
           comps.instances.push_back(arg);
         } else if (IntegerType::classof(getArg(f, i)->getType())) {
           string modName = "hls_wire";
-          map<string, string> conns;
           string instName = "arg_" + to_string(i);
+          
+          map<string, string> conns;
+          int width = getValueBitWidth(getArg(f, i));
+          map<string, Port> ports{{"in_data", inputPort(width, "in_data")}, {"out_data", outputPort(width, "out_data")}};
+          for (auto p : ports) {
+            if (p.first != "rst") {
+              Wire w;
+              string wireName = instName + "_" + p.second.name;
+              if (!elem(wireName, tb.settableWires)) {
+                w = wire(p.second.width, wireName);
+                comps.debugWires.push_back(w);
+              } else {
+                cout << "Settable wire " << p.first << endl;
+                w = reg(p.second.width, wireName);
+                comps.debugWires.push_back(w);
+              }
+              conns[p.first] = w.name;
+            } else {
+              conns[p.first] = "rst";
+            }
+          }
+          
           ModuleInstance arg(modName, {{"WIDTH", to_string(getValueBitWidth(getArg(f, i)))}}, instName, conns);
           comps.instances.push_back(arg);
         }
