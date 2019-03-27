@@ -1636,6 +1636,13 @@ public:
   }
 };
 
+std::ostream& operator<<(std::ostream& out, const SynthCppFunction& f) {
+  out << " " << f.getName() << "(ARGS) {" << endl;
+  out << "}" << endl;
+
+  return out;
+}
+
 SynthCppFunction* builtinStub(std::string name, std::vector<llvm::Type*>& args, SynthCppType* retType) {
   SynthCppFunction* stub = new SynthCppFunction();
   stub->nameToken = Token(name);
@@ -1652,7 +1659,7 @@ public:
   std::map<std::string, SynthCppType*> memberVars;
   std::map<std::string, SynthCppFunction*> methods;
 
-  std::string getName() { return name.getStr(); }
+  std::string getName() const { return name.getStr(); }
   
   SynthCppFunction* getMethod(const Token name) {
     cout << "Getting method for " << name << endl;
@@ -1679,6 +1686,16 @@ public:
     assert(false);
   }
 };
+
+std::ostream& operator<<(std::ostream& out, const SynthCppClass& mod) {
+  out << "class " << mod.getName() << "{" << endl;
+  for (auto v : mod.methods) {
+    out << tab(1) << v.first << " : " << *(v.second) << ";" << endl;
+  }
+  out << "};" << endl;
+
+  return out;
+}
 
 bool isInputPort(SynthCppType* const tp) {
   auto ps = extractM<SynthCppStructType>(tp);
@@ -2204,6 +2221,8 @@ public:
       }
 
       if ((name == "set_port") || (name == "write_port")) {
+        assert(called->args.size() == 2);
+        
         Expression* labelExpr = called->args[0];
 
         Identifier* labelId = extract<Identifier>(labelExpr);
@@ -2237,6 +2256,8 @@ public:
       }
 
       if (name == "read_port") {
+        assert(called->args.size() == 1);
+        
         Expression* labelExpr = called->args[0];
 
         cout << "read port: " << *labelExpr << endl;
@@ -2335,9 +2356,20 @@ public:
   }
 
   SynthCppType* getTypeForId(const Token id) {
-    return cgs.symtab.getType(id.getStr()); //map_find(id.getStr(), activeSymbolTable());
+    return cgs.symtab.getType(id.getStr());
   }
 
+  SynthCppClass* getClassByName(const Token id) {
+    for (auto c : classes) {
+      if (c->getName() == id.getStr()) {
+        return c;
+      }
+    }
+
+    cout << "Error: Cannot find class with name " << id << endl;
+    assert(false);
+  }
+  
   SynthCppClass* getClass(const Token id) {
     string idName = id.getStr();
     cout << "Getting class for " << idName << endl;
@@ -2556,11 +2588,6 @@ public:
   }
 
 };
-
-void compileIR(ParserModule& parseMod, llvm::Module* mod) {
-  
-}
-
 
 MicroArchitecture
 synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
@@ -3186,6 +3213,24 @@ int main() {
 
   }
 
+  {
+    ifstream t("./experiments/fadd.cpp");
+    std::string str((std::istreambuf_iterator<char>(t)),
+                    std::istreambuf_iterator<char>());
+
+    auto tokens = tokenize(str);
+    ParserModule mod = parse(tokens);
+    
+    SynthCppModule scppMod(mod);
+
+    cout << "-- Float adder" << endl;
+    SynthCppClass* c = scppMod.getClassByName(Token("adder"));
+    cout << *c << endl;
+    cout << "-- End of adder" << endl;
+
+    auto arch = synthesizeVerilog(scppMod, "fadd");
+  }
+  
   // Q: What are the new issues?
   // A: How to generate code for interface methods, whether that code generation
   //    can be done efficiently.
@@ -3202,19 +3247,7 @@ int main() {
   // Random thought: Have the user write timing diagrams in text as
   // the API of the call?
 
-  // Problem: Binary operations do not get mapped to specific ops
-  // Problem: Binary operation functions do not get mapped to any port list
   // Problem: Primitive types should really be templatized
-  // Problem: readPort returns a value instead of receiving a pointer
-  // Problem: writePort takes in a value instead of a pointer for its value
-  // Problem: read port calls do not get mapped to read intrinsics
-  // Problem: set_const is not compiled to anything, and I dont know how I want
-  //          to represent constants
-  // Problem: Copy is not compiled to anything
-
-  // Possible first try: Really do everything through interface classes
-  // (and interface functions). Build an i32 and i64 interface class, and build
-  // binops for each one? Or remove iX iY forms and use bit classes?
 
   // Note: There needs to be some notion of what kinds of data can bind
   // to a input_X value and what kinds of data output_X can bind to
