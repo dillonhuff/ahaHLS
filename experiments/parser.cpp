@@ -1044,9 +1044,6 @@ Expression* popOperand(vector<Expression*>& postfixString) {
 maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
   //cout << "-- Parsing expression " << tokens.remainder() << endl;
 
-  // vector<Expression*> exprs;
-  // vector<Token> binops;
-
   vector<Token> operatorStack;
   vector<Expression*> postfixString;
   
@@ -1118,56 +1115,6 @@ maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
 
   //cout << "Returning expression " << *final << endl;
   return final;
-  // if (output == nullptr) {
-  //   return maybe<Expression*>();
-  // }
-
-  // return output;
-
-  // cout << "Got " << exprs.size() << " expressions" << endl;
-
-  // if (exprs.size() == 0) {
-  //   cout << "No expression at " << tokens.remainder() << endl;
-  //   return maybe<Expression*>();
-  // }
-
-  // assert(exprs.size() == (binops.size() + 1));
-
-  // if (binops.size() == 0) {
-  //   cout << "returning expression, remainder = " << tokens.remainder() << endl;
-  //   return exprs[0];
-  // }
-  
-  // BinopExpr* top = sc<BinopExpr>(exprs[0]);
-  // for (int i = 0; i < ((int) binops.size()); i++) {
-  //   top = new BinopExpr(top, binops[i], exprs[i + 1]);
-  // }
-
-  // return top;
-  
-  // BinopExpr* last = sc<BinopExpr>(exprs[((int) binops.size()) - 1]);
-  // for (int i = ((int) binops.size()) - 1; i >= 1; i--) {
-  //   last = new BinopExpr(exprs[i - 1], binops[i], last);
-  // }
-
-  // cout << "Returning expression" << endl;
-  // return last;
-
-  // auto pExpr = parsePrimitiveExpressionMaybe(tokens);
-  // if (!pExpr.has_value()) {
-  //   return pExpr;
-  // }
-
-  // if (tokens.atEnd() || !isBinop(tokens.peekChar())) {
-  //   return pExpr;
-  // }
-
-  // Token binop = tokens.parseChar();
-  // auto rest = parseExpressionMaybe(tokens);
-  
-  //return new BinopExpr(pExpr.get_value(), binop, rest.get_value());
-
-  // assert(false);
 }
 
 Expression* parseExpression(ParseState<Token>& tokens) {
@@ -2077,7 +2024,12 @@ public:
           cout << "Statement" << endl;
           genLLVM(b, stmt);
         }
-        b.CreateRet(nullptr);
+
+        BasicBlock* activeBlock =
+          &(activeFunction->llvmFunction()->getEntryBlock());
+        if (activeBlock->getTerminator() == nullptr) {
+          b.CreateRet(nullptr);          
+        }
 
         // Set all calls to be sequential by default
         sequentialCalls(f, interfaces.getConstraints(f));
@@ -2241,9 +2193,6 @@ public:
         // cout << valueString(activeFunction->llvmFunction()) << endl;
 
         int thisOffset = 0;
-        // if (activeFunction->hasReturnValue()) {
-        //   thisOffset = 1;
-        // }
         return b.CreateCall(f, {getArg(activeFunction->llvmFunction(), thisOffset), vExpr});
       }
 
@@ -2418,6 +2367,8 @@ public:
     if (stmt->hasLabel()) {
       Token l = stmt->label;
       cout << "Label on assign = " << stmt->label << endl;
+
+      // TODO: Remove this hack and replace with something more general
       BasicBlock* blk = &(activeFunction->llvmFunction()->getEntryBlock());
       cout << "Block for label = " << valueString(blk) << endl;
       Instruction* last = &(blk->back());
@@ -3228,7 +3179,39 @@ int main() {
     cout << *c << endl;
     cout << "-- End of adder" << endl;
 
-    auto arch = synthesizeVerilog(scppMod, "fadd");
+    auto arch = synthesizeVerilog(scppMod, "fadd_32");
+
+    map<llvm::Value*, int> layout = {};
+
+    auto in0 =
+      sc<Argument>(getArg(scppMod.getFunction("fadd_32")->llvmFunction(), 0));
+    auto in1 =
+      sc<Argument>(getArg(scppMod.getFunction("fadd_32")->llvmFunction(), 1));
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 200;
+    tb.maxCycles = 300;
+    tb.name = "fadd_32";
+    tb.useModSpecs = true;
+    tb.settablePort(in0, "in_data");
+    tb.settablePort(in1, "in_data");
+    // tb.settablePort(src_mac, "in_data");
+    // tb.settablePort(type, "in_data");
+    // tb.settablePort(payload, "in_data");                  
+    // map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+    // map_insert(tb.actionsInCycles, 1, string("arg_0_in_data <= 25;"));
+    // map_insert(tb.actionsInCycles, 1, string("arg_1_in_data <= 13;"));
+    // map_insert(tb.actionsInCycles, 1, string("arg_2_in_data <= 8;"));
+    // map_insert(tb.actionsInCycles, 1, string("arg_3_in_data <= 49;"));
+      
+    map_insert(tb.actionsOnCycles, 200, assertString("valid === 1"));
+    
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    // Need to figure out how to inline register specifications
+    assert(runIVerilogTest("fadd_32_tb.v", "fadd_32", " builtins.v fadd_32.v"));
   }
   
   // Q: What are the new issues?
