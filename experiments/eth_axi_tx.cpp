@@ -41,7 +41,6 @@ public:
 
     add_constraint(start(write_valid) == start(write_src));
     add_constraint(start(write_valid) == start(write_dest));
-    add_constraint(start(write_valid) == start(write_src));
     add_constraint(start(write_valid) == start(write_type));
   }
 
@@ -88,18 +87,18 @@ void write_one_byte_packet(bit_48 dest_mac,
   transmitter.write_byte(payload, 1);
 }
 
-// void write_packet(bit_48 dest_mac,
-//                   bit_48 src_mac,
-//                   bit_16 type,
-//                   fifo& payload,
-//                   sint_32 payload_size,
-//                   eth_axis_tx& transmitter) {
-//   transmitter->write_header(dest_mac, src_mac, type);
+void write_packet(bit_48 dest_mac,
+                  bit_48 src_mac,
+                  bit_16 type,
+                  fifo& payload,
+                  sint_32 payload_size,
+                  eth_axis_tx& transmitter) {
+  transmitter->write_header(dest_mac, src_mac, type);
 
-//   sint_32 i;
-//   for (i = 0; i < payload_size; i = i + 1) {
-//     bit_1 is_last;
-//     is_last = i == (payload_size - 1);
-//     transmitter->write_byte(payload->read(), is_last);
-//   }
-// }
+  sint_32 i;
+  for (i = 0; i < payload_size; i = i + 1) {
+    bit_1 is_last;
+    is_last = i == (payload_size - 1);
+    transmitter->write_byte(payload->read(), is_last);
+  }
+}

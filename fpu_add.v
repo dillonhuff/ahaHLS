@@ -1,4 +1,4 @@
-module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input_a, output [0:0] arg_0_input_a_stb, output [31:0] arg_0_input_b, output [0:0] arg_0_input_b_stb, output [0:0] arg_0_rst, input [0:0] arg_0_input_a_ack, input [0:0] arg_0_input_b_ack, input [31:0] arg_0_output_z, input [0:0] arg_0_output_z_stb, output [0:0] valid, input [31:0] arg_1, input [31:0] arg_2);
+module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input_a, output [0:0] arg_0_input_a_stb, output [31:0] arg_0_input_b, output [0:0] arg_0_input_b_stb, output [0:0] arg_0_rst, input [0:0] arg_0_input_a_ack, input [0:0] arg_0_input_b_ack, input [31:0] arg_0_output_z, input [0:0] arg_0_output_z_stb, output [0:0] valid, input [31:0] arg_1_out_data, input [31:0] arg_2_out_data);
 
 	reg [31:0] arg_0_input_a_reg;
 	reg [0:0] arg_0_input_a_stb_reg;
@@ -163,7 +163,7 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 		end else 		if ((global_state == 2)) begin 
 				//   call void @builtin_write_port_input_a(%builtin_fadd* %arg_0, i32 %arg_1)
 				if (arg_0_input_a_ack) begin
-				arg_0_input_a_reg = arg_1;
+				arg_0_input_a_reg = arg_1_out_data;
 				end
 				//   call void @builtin_write_port_input_a_stb(%builtin_fadd* %arg_0, i1 true)
 				if (arg_0_input_a_ack) begin
@@ -182,7 +182,7 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 				end
 				//   call void @builtin_write_port_input_b(%builtin_fadd* %arg_0, i32 %arg_2)
 				if (arg_0_input_b_ack) begin
-				arg_0_input_b_reg = arg_2;
+				arg_0_input_b_reg = arg_2_out_data;
 				end
 				//   call void @builtin_write_port_input_b_stb(%builtin_fadd* %arg_0, i1 true)
 				if (arg_0_input_b_ack) begin
@@ -251,7 +251,7 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 	end
 endmodule
 
-module fpu_add(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input_a, output [0:0] arg_0_input_a_stb, output [31:0] arg_0_input_b, output [0:0] arg_0_input_b_stb, output [0:0] arg_0_rst, input [0:0] arg_0_input_a_ack, input [0:0] arg_0_input_b_ack, input [31:0] arg_0_output_z, input [0:0] arg_0_output_z_stb, output [0:0] valid, input [31:0] arg_1, input [31:0] arg_2);
+module fpu_add(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input_a, output [0:0] arg_0_input_a_stb, output [31:0] arg_0_input_b, output [0:0] arg_0_input_b_stb, output [0:0] arg_0_rst, input [0:0] arg_0_input_a_ack, input [0:0] arg_0_input_b_ack, input [31:0] arg_0_output_z, input [0:0] arg_0_output_z_stb, output [0:0] valid, input [31:0] arg_1_out_data, input [31:0] arg_2_out_data);
 
 
 	initial begin
@@ -260,6 +260,6 @@ module fpu_add(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input_a, ou
 
 
 
-	fpu_add_inner inner(.arg_0_input_a(arg_0_input_a), .arg_0_input_a_ack(arg_0_input_a_ack), .arg_0_input_a_stb(arg_0_input_a_stb), .arg_0_input_b(arg_0_input_b), .arg_0_input_b_ack(arg_0_input_b_ack), .arg_0_input_b_stb(arg_0_input_b_stb), .arg_0_output_z(arg_0_output_z), .arg_0_output_z_stb(arg_0_output_z_stb), .arg_0_rst(arg_0_rst), .arg_1(arg_1), .arg_2(arg_2), .clk(clk), .rst(rst), .valid(valid));
+	fpu_add_inner inner(.arg_0_input_a(arg_0_input_a), .arg_0_input_a_ack(arg_0_input_a_ack), .arg_0_input_a_stb(arg_0_input_a_stb), .arg_0_input_b(arg_0_input_b), .arg_0_input_b_ack(arg_0_input_b_ack), .arg_0_input_b_stb(arg_0_input_b_stb), .arg_0_output_z(arg_0_output_z), .arg_0_output_z_stb(arg_0_output_z_stb), .arg_0_rst(arg_0_rst), .arg_1_out_data(arg_1_out_data), .arg_2_out_data(arg_2_out_data), .clk(clk), .rst(rst), .valid(valid));
 
 endmodule

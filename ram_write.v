@@ -1,4 +1,4 @@
-module ram_write_inner(input [0:0] clk, input [0:0] rst, output [3:0] arg_0_debug_addr, output [3:0] arg_0_debug_write_addr, output [31:0] arg_0_debug_write_data, output [0:0] arg_0_debug_write_en, output [3:0] arg_0_raddr_0, output [0:0] arg_0_rst, output [3:0] arg_0_waddr_0, output [31:0] arg_0_wdata_0, output [0:0] arg_0_wen_0, input [31:0] arg_0_debug_data, input [31:0] arg_0_rdata_0, output [0:0] valid, input [31:0] arg_1, input [31:0] arg_2);
+module ram_write_inner(input [0:0] clk, input [0:0] rst, output [3:0] arg_0_debug_addr, output [3:0] arg_0_debug_write_addr, output [31:0] arg_0_debug_write_data, output [0:0] arg_0_debug_write_en, output [3:0] arg_0_raddr_0, output [0:0] arg_0_rst, output [3:0] arg_0_waddr_0, output [31:0] arg_0_wdata_0, output [0:0] arg_0_wen_0, input [31:0] arg_0_debug_data, input [31:0] arg_0_rdata_0, output [0:0] valid, input [31:0] arg_1_out_data, input [31:0] arg_2_out_data);
 
 	reg [3:0] arg_0_debug_addr_reg;
 	reg [3:0] arg_0_debug_write_addr_reg;
@@ -129,9 +129,9 @@ module ram_write_inner(input [0:0] clk, input [0:0] rst, output [3:0] arg_0_debu
 	always @(*) begin
 		if ((global_state == 0)) begin 
 				//   call void @builtin_write_port_waddr_0(%SRAM_32_16* %0, i32 %1)
-				arg_0_waddr_0_reg = arg_1;
+				arg_0_waddr_0_reg = arg_1_out_data;
 				//   call void @builtin_write_port_wdata_0(%SRAM_32_16* %0, i32 %2)
-				arg_0_wdata_0_reg = arg_2;
+				arg_0_wdata_0_reg = arg_2_out_data;
 				//   call void @builtin_write_port_wen_0(%SRAM_32_16* %0, i1 true)
 				arg_0_wen_0_reg = -(1'd1);
 			arg_0_raddr_0_reg = 0;
@@ -154,7 +154,7 @@ module ram_write_inner(input [0:0] clk, input [0:0] rst, output [3:0] arg_0_debu
 	end
 endmodule
 
-module ram_write(input [0:0] clk, input [0:0] rst, output [3:0] arg_0_debug_addr, output [3:0] arg_0_debug_write_addr, output [31:0] arg_0_debug_write_data, output [0:0] arg_0_debug_write_en, output [3:0] arg_0_raddr_0, output [0:0] arg_0_rst, output [3:0] arg_0_waddr_0, output [31:0] arg_0_wdata_0, output [0:0] arg_0_wen_0, input [31:0] arg_0_debug_data, input [31:0] arg_0_rdata_0, output [0:0] valid, input [31:0] arg_1, input [31:0] arg_2);
+module ram_write(input [0:0] clk, input [0:0] rst, output [3:0] arg_0_debug_addr, output [3:0] arg_0_debug_write_addr, output [31:0] arg_0_debug_write_data, output [0:0] arg_0_debug_write_en, output [3:0] arg_0_raddr_0, output [0:0] arg_0_rst, output [3:0] arg_0_waddr_0, output [31:0] arg_0_wdata_0, output [0:0] arg_0_wen_0, input [31:0] arg_0_debug_data, input [31:0] arg_0_rdata_0, output [0:0] valid, input [31:0] arg_1_out_data, input [31:0] arg_2_out_data);
 
 
 	initial begin
@@ -163,6 +163,6 @@ module ram_write(input [0:0] clk, input [0:0] rst, output [3:0] arg_0_debug_addr
 
 
 
-	ram_write_inner inner(.arg_0_debug_addr(arg_0_debug_addr), .arg_0_debug_data(arg_0_debug_data), .arg_0_debug_write_addr(arg_0_debug_write_addr), .arg_0_debug_write_data(arg_0_debug_write_data), .arg_0_debug_write_en(arg_0_debug_write_en), .arg_0_raddr_0(arg_0_raddr_0), .arg_0_rdata_0(arg_0_rdata_0), .arg_0_rst(arg_0_rst), .arg_0_waddr_0(arg_0_waddr_0), .arg_0_wdata_0(arg_0_wdata_0), .arg_0_wen_0(arg_0_wen_0), .arg_1(arg_1), .arg_2(arg_2), .clk(clk), .rst(rst), .valid(valid));
+	ram_write_inner inner(.arg_0_debug_addr(arg_0_debug_addr), .arg_0_debug_data(arg_0_debug_data), .arg_0_debug_write_addr(arg_0_debug_write_addr), .arg_0_debug_write_data(arg_0_debug_write_data), .arg_0_debug_write_en(arg_0_debug_write_en), .arg_0_raddr_0(arg_0_raddr_0), .arg_0_rdata_0(arg_0_rdata_0), .arg_0_rst(arg_0_rst), .arg_0_waddr_0(arg_0_waddr_0), .arg_0_wdata_0(arg_0_wdata_0), .arg_0_wen_0(arg_0_wen_0), .arg_1_out_data(arg_1_out_data), .arg_2_out_data(arg_2_out_data), .clk(clk), .rst(rst), .valid(valid));
 
 endmodule

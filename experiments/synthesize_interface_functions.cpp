@@ -296,9 +296,40 @@ int main() {
 
     VerilogDebugInfo info;
     emitVerilog("axi_read", graph, hcs, info);
+  }
 
+  {
 
+    std::string name = "class.median_filter";
+    llvm::StructType* tp = getGlobalLLVMModule().getTypeByName(name);
+    if (tp == nullptr) {
+      tp = llvm::StructType::create(getGlobalLLVMContext(), name);
+    }
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.typeSpecs[tp->getName()] = [](StructType*) { return medianFilterSpec(); };
+    int width = 32;
+    hcs.typeSpecs["builtin_fifo_32"] =
+      [width](StructType* tp) { return wireSpec(width); };
     
+    InterfaceFunctions interfaces;
+    auto f32Tp = fifoType(32)->getPointerTo();
+    Function* meadianFilter = mkFunc({tp->getPointerTo(), f32Tp, f32Tp, f32Tp, f32Tp}, voidType(), "run_median");
+    
+    interfaces.addFunction(meadianFilter);
+    implementRunMedian(meadianFilter, interfaces.getConstraints(meadianFilter));
+    
+    Schedule s = scheduleInterface(meadianFilter, hcs, interfaces, toPipeline, interfaces.getConstraints(meadianFilter));
+    STG graph = buildSTG(s, meadianFilter);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<Value*, int> layout;    
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+    VerilogDebugInfo info;
+    emitVerilog("run_median", graph, hcs, info);
   }
   
 }

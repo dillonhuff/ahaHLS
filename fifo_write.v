@@ -1,4 +1,4 @@
-module fifo_write_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_1_in_data, output [0:0] arg_1_read_valid, output [0:0] arg_1_rst, output [31:0] arg_1_write_valid, input [31:0] arg_1_out_data, input [0:0] arg_1_read_ready, input [0:0] arg_1_write_ready, output [0:0] valid, input [31:0] arg_0);
+module fifo_write_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_1_in_data, output [0:0] arg_1_read_valid, output [0:0] arg_1_rst, output [31:0] arg_1_write_valid, input [31:0] arg_1_out_data, input [0:0] arg_1_read_ready, input [0:0] arg_1_write_ready, output [0:0] valid, input [31:0] arg_0_out_data);
 
 	reg [31:0] arg_1_in_data_reg;
 	reg [0:0] arg_1_read_valid_reg;
@@ -125,7 +125,7 @@ module fifo_write_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_1_in
 				//   call void @builtin_write_port_write_valid(%builtin_fifo_32* %1, i1 true)
 				arg_1_write_valid_reg = -(1'd1);
 				//   call void @builtin_write_port_in_data(%builtin_fifo_32* %1, i32 %0)
-				arg_1_in_data_reg = arg_0;
+				arg_1_in_data_reg = arg_0_out_data;
 			arg_1_read_valid_reg = 0;
 		end else 		if ((global_state == 2)) begin 
 				//   call void @builtin_write_port_write_valid(%builtin_fifo_32* %1, i1 false)
@@ -157,7 +157,7 @@ module fifo_write_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_1_in
 	end
 endmodule
 
-module fifo_write(input [0:0] clk, input [0:0] rst, output [31:0] arg_1_in_data, output [0:0] arg_1_read_valid, output [0:0] arg_1_rst, output [31:0] arg_1_write_valid, input [31:0] arg_1_out_data, input [0:0] arg_1_read_ready, input [0:0] arg_1_write_ready, output [0:0] valid, input [31:0] arg_0);
+module fifo_write(input [0:0] clk, input [0:0] rst, output [31:0] arg_1_in_data, output [0:0] arg_1_read_valid, output [0:0] arg_1_rst, output [31:0] arg_1_write_valid, input [31:0] arg_1_out_data, input [0:0] arg_1_read_ready, input [0:0] arg_1_write_ready, output [0:0] valid, input [31:0] arg_0_out_data);
 
 
 	initial begin
@@ -166,6 +166,6 @@ module fifo_write(input [0:0] clk, input [0:0] rst, output [31:0] arg_1_in_data,
 
 
 
-	fifo_write_inner inner(.arg_0(arg_0), .arg_1_in_data(arg_1_in_data), .arg_1_out_data(arg_1_out_data), .arg_1_read_ready(arg_1_read_ready), .arg_1_read_valid(arg_1_read_valid), .arg_1_rst(arg_1_rst), .arg_1_write_ready(arg_1_write_ready), .arg_1_write_valid(arg_1_write_valid), .clk(clk), .rst(rst), .valid(valid));
+	fifo_write_inner inner(.arg_0_out_data(arg_0_out_data), .arg_1_in_data(arg_1_in_data), .arg_1_out_data(arg_1_out_data), .arg_1_read_ready(arg_1_read_ready), .arg_1_read_valid(arg_1_read_valid), .arg_1_rst(arg_1_rst), .arg_1_write_ready(arg_1_write_ready), .arg_1_write_valid(arg_1_write_valid), .clk(clk), .rst(rst), .valid(valid));
 
 endmodule
