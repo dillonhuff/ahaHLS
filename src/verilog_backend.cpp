@@ -1187,8 +1187,6 @@ namespace ahaHLS {
     } else if (PHINode::classof(instr)) {
       PHINode* phi = dyn_cast<PHINode>(instr);
 
-      //int w0 = getValueBitWidth(phi);
-
       string input = "{";
       string s = "{";      
 
@@ -1199,10 +1197,6 @@ namespace ahaHLS {
         Value* v0 = phi->getIncomingValue(i);
 
         string val0Name = outputName(v0, pos, arch);
-
-        // if (ConstantInt::classof(v0)) {
-        //   val0Name = to_string(w0) + "'d" + val0Name;
-        // }
 
         input += val0Name;
         s += "32'd" + to_string(b0Val);
@@ -1240,8 +1234,6 @@ namespace ahaHLS {
     } else if (CallInst::classof(instr)) {
 
       if (isBuiltinPortWrite(instr)) {
-        //cout << "Operand 0 = " << valueString(instr->getOperand(0)) << endl;
-        //assert(contains_key(instr->getOperand(0), arch.hcs.modSpecs));
 
         std::string portName = getPortName(instr);
         cout << "Port name = " << portName << endl;
@@ -1563,20 +1555,12 @@ namespace ahaHLS {
                        map<Instruction*, Wire>& names,
                        const std::vector<ElaboratedPipeline>& pipelines) {
 
-    // if (arch.hasGlobalStall()) {
-    //   out << tab(2) << "if (!global_stall) begin" << endl;
-    // }
-
     for (auto state : stg.opTransitions) {
 
       emitPipelineStateCode(out, state.first, state.second, arch);
 
     }
 
-    // if (arch.hasGlobalStall()) {
-    //   out << tab(2) << "end" << endl;
-    // }
-    
     out << "\t\tend" << endl;
 
   }
@@ -2033,10 +2017,6 @@ namespace ahaHLS {
         out << "\t" << validVar << ";" << endl;
       }
 
-      // for (auto lastBBVar : p.lastBBs) {
-      //   out << "\t" << lastBBVar << ";" << endl;
-      // }
-      
       out << "\t// Start stage registers" << endl;
       for (auto stage : p.pipelineRegisters) {
         out << "\t// Start stage" << endl;
