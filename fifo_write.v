@@ -76,6 +76,7 @@ module fifo_write_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_1_in
 		if (rst) begin
 			global_state <= 0;
 		end else begin
+			// Control code
 			if ((global_state == 0)) begin 
 				// Next state transition logic
 				// Condition = True
@@ -85,7 +86,6 @@ module fifo_write_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_1_in
 					global_state <= 1;
 				end
 				end
-				// Store data computed at the stage
 			end
 			if ((global_state == 1)) begin 
 				// Next state transition logic
@@ -94,7 +94,6 @@ module fifo_write_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_1_in
 				if (1) begin
 					global_state <= 2;
 				end
-				// Store data computed at the stage
 			end
 			if ((global_state == 2)) begin 
 				// Next state transition logic
@@ -103,6 +102,19 @@ module fifo_write_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_1_in
 				if (1) begin
 					global_state <= 2;
 				end
+			end
+
+			// Temporary storage code
+			if ((global_state == 0)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+			end
+			if ((global_state == 1)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+			end
+			if ((global_state == 2)) begin 
+				// Temporary storage
 				// Store data computed at the stage
 			end
 		end

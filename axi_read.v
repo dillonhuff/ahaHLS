@@ -46,14 +46,14 @@ module axi_read_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_debu
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_5();
-
-	add call_8();
-
 	reg [31:0] shl_in0_shl_1;
 	reg [31:0] shl_in1_shl_1;
 	wire [31:0] shl_out_shl_1;
 	shlOp #(.WIDTH(32)) shl_shl_1(.in0(shl_in0_shl_1), .in1(shl_in1_shl_1), .out(shl_out_shl_1));
+
+	add call_5();
+
+	add call_8();
 
 	// End Functional Units
 
@@ -106,6 +106,7 @@ module axi_read_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_debu
 		if (rst) begin
 			global_state <= 0;
 		end else begin
+			// Control code
 			if ((global_state == 0)) begin 
 				// Next state transition logic
 				// Condition = True
@@ -113,8 +114,6 @@ module axi_read_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_debu
 				if (1) begin
 					global_state <= 1;
 				end
-				// Store data computed at the stage
-					shl_tmp_1 <= shl_out_shl_1;
 			end
 			if ((global_state == 1)) begin 
 				// Next state transition logic
@@ -123,7 +122,6 @@ module axi_read_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_debu
 				if (1) begin
 					global_state <= 2;
 				end
-				// Store data computed at the stage
 			end
 			if ((global_state == 2)) begin 
 				// Next state transition logic
@@ -134,6 +132,20 @@ module axi_read_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_debu
 					global_state <= 2;
 				end
 				end
+			end
+
+			// Temporary storage code
+			if ((global_state == 0)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+					shl_tmp_1 <= shl_out_shl_1;
+			end
+			if ((global_state == 1)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+			end
+			if ((global_state == 2)) begin 
+				// Temporary storage
 				// Store data computed at the stage
 			end
 		end

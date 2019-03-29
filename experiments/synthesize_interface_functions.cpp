@@ -300,6 +300,36 @@ int main() {
 
   {
 
+    std::string name = "class.axi_ram";
+    llvm::StructType* tp = getGlobalLLVMModule().getTypeByName(name);
+    if (tp == nullptr) {
+      tp = llvm::StructType::create(getGlobalLLVMContext(), name);
+    }
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.typeSpecs[tp->getName()] = axiRamSpec;
+    
+    InterfaceFunctions interfaces;
+    Function* axiWrite = mkFunc({tp->getPointerTo(), intType(32), intType(32)}, voidType(), "axi_write");
+    
+    interfaces.addFunction(axiWrite);
+    implementRawAXIWrite(axiWrite, interfaces.getConstraints(axiWrite));
+    
+    Schedule s = scheduleInterface(axiWrite, hcs, interfaces, toPipeline, interfaces.getConstraints(axiWrite));
+    STG graph = buildSTG(s, axiWrite);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<Value*, int> layout;    
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+    VerilogDebugInfo info;
+    emitVerilog("axi_write", graph, hcs, info);
+  }
+  
+  {
+
     std::string name = "class.median_filter";
     llvm::StructType* tp = getGlobalLLVMModule().getTypeByName(name);
     if (tp == nullptr) {

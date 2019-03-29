@@ -35,6 +35,11 @@ namespace ahaHLS {
   //    is stateOf(start(blk)) if activeBlock == container(br blk)
   //       stateOf(start(blk0)) if activeBlock == container(br c blk0, blk1) and c
   //       stateOf(start(blk1)) if activeBlock == container(br c blk0, blk1) and !c
+  //    Active block is set by branch instructions themselves?
+  //    Maybe: Have passthrough register for active block, have branches set the
+  //           active block when they execute?
+  //           Q: What about pipelined designs?
+  //           A: Multiple active blocks, but only one frontier...
 
   void
   addMemoryConstraints(llvm::Function* f,
