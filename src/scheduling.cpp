@@ -23,6 +23,19 @@ using namespace z3;
 
 namespace ahaHLS {
 
+  // Maybe instructions in the STG opStates should be grouped by
+  // their basic block
+  // Also: Transitions in the STG should be grouped by their active block
+  // Only one block can be executing at a time, so only one block can be
+  // active on the transition
+  // Q: Can we infer opTransitions from the values of branches and the raw
+  //    schedule?
+  // A: I think the answer is yes. Each transition is just
+  //    the default numerically next state if no branches execute, or
+  //    is stateOf(start(blk)) if activeBlock == container(br blk)
+  //       stateOf(start(blk0)) if activeBlock == container(br c blk0, blk1) and c
+  //       stateOf(start(blk1)) if activeBlock == container(br c blk0, blk1) and !c
+
   void
   addMemoryConstraints(llvm::Function* f,
                        HardwareConstraints& hdc,
