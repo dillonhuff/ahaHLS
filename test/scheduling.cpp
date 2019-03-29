@@ -47,7 +47,6 @@ namespace ahaHLS {
   //    Remove modspecs
   //    Remove internal RAM code
   //    Add full paths for interface classes
-  //    Remove llvm::Function argument from buildMicroArchitecture, it is included in STG
 
   // NOTE: The code for testbenches is getting really complicated. Some of that
   // is automatic testbench generation, but some of it is just the hodgepodge of

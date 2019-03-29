@@ -2213,13 +2213,8 @@ namespace ahaHLS {
                       MicroArchitecture& arch) {
     out << "\talways @(posedge clk) begin" << endl;
 
-    // if (arch.hasGlobalStall()) {
-    //   out << tab(2) << "if (!global_stall) begin" << endl;
-    // }
-
     out << "\t\tif (rst) begin" << endl;
     out << "\t\t\tlast_BB_reg <= " << arch.cs.getBasicBlockNo(&(f->getEntryBlock())) << ";" << endl;
-      //map_find(&(f->getEntryBlock()), arch.basicBlockNos) << ";" << endl;
     out << "\t\tend else begin" << endl;
 
     for (auto st : arch.stg.opStates) {
@@ -2264,10 +2259,6 @@ namespace ahaHLS {
 
     out << "\t\tend" << endl;
 
-    // if (arch.hasGlobalStall()) {
-    //   out << tab(2) << "end" << endl;
-    // }
-
     out << "\tend" << endl;
   }
 
@@ -2282,7 +2273,6 @@ namespace ahaHLS {
     out << "\t\tend else begin" << endl;
   }
 
-  // TODO: Remove f, it can be retrieved from STG
   MicroArchitecture
   buildMicroArchitecture(const STG& stg,
                          std::map<llvm::Value*, int>& memMap,
@@ -2312,7 +2302,6 @@ namespace ahaHLS {
   MicroArchitecture
   buildMicroArchitecture(const STG& stg,
                          std::map<std::string, int>& memoryMap,
-                         //const ArchOptions& options,
                          HardwareConstraints& hcs) {
 
     map<llvm::Value*, int> memMap;
@@ -2331,7 +2320,7 @@ namespace ahaHLS {
   MicroArchitecture
   buildMicroArchitecture(const STG& stg,
                          std::map<std::string, int>& memoryMap) {
-                         //const ArchOptions& options) {
+
     HardwareConstraints hcs;
     return buildMicroArchitecture(stg, memoryMap, hcs);
   }
@@ -2339,7 +2328,7 @@ namespace ahaHLS {
   MicroArchitecture
   buildMicroArchitecture(const STG& stg,
                          std::map<llvm::Value*, int>& memoryMap) {
-    //ArchOptions options;
+
     HardwareConstraints hcs;
     return buildMicroArchitecture(stg, memoryMap, hcs);
   }
@@ -2378,8 +2367,6 @@ namespace ahaHLS {
     cout << "Emitting verilog for" << endl;
     cout << valueString(f) << endl;
     
-    // string fn = f->getName();
-    
     // This is a very flawed way to handle memory ports. For a few reasons
     //   1. It does not know anything about read / write port widths
     //   2. It does not know anything about read / write port resource limits
@@ -2387,11 +2374,6 @@ namespace ahaHLS {
     for (auto w : debugInfo.wiresToWatch) {
       allPorts.push_back(outputDebugPort(w.width, w.name));
     }
-
-    // if (arch.hasGlobalStall()) {
-    //   Wire stallVar = arch.cs.getGlobalStall();
-    //   allPorts.push_back(inputPort(stallVar.width, stallVar.name));
-    // }
     
     vector<string> portStrings;
     for (auto pt : allPorts) {
