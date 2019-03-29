@@ -135,3 +135,11 @@ count_packets*
 synthesize-interface-functions
 axi_multi_transfer*
 filter_ram*
+write_one_byte_packet*
+fadd_32*
+store_to_reg*
+test/ll_files/iclass.h
+test/ll_files/intuitive.cpp
+test/ll_files/intuitive.v
+test/ll_files/ip_counter.cpp
+test/ll_files/ip_counter_sw.cpp
