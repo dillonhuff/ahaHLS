@@ -1561,8 +1561,6 @@ namespace ahaHLS {
 
     }
 
-    out << "\t\tend" << endl;
-
   }
 
   void emitConditionalInstruction(std::ostream& out,
@@ -2400,7 +2398,7 @@ namespace ahaHLS {
     emitResetCode(out, arch);
 
     emitControlCode(out, arch, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
-
+    out << "\t\tend" << endl; // This closes and end statement in emitResetCode
     out << "\tend" << endl;
     out << endl << endl;
 
