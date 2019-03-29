@@ -1437,6 +1437,31 @@ namespace ahaHLS {
     return last;
   }
 
+  void emitTempStorageCode(std::ostream& out,
+                           const StateId state,
+                           const std::vector<StateTransition>& destinations,
+                           MicroArchitecture& arch) {
+
+    // auto& pipelines = arch.pipelines;
+
+    out << tab(3) << "if (" << atState(state, arch) << ") begin " << endl;    
+    out << "\t\t\t\t// Temporary storage" << endl;
+
+    // ControlFlowPosition pos = position(state, lastInstructionInState(state, arch));
+    
+    // if (isPipelineState(state, pipelines)) {
+    //   auto p = getPipeline(state, pipelines);
+    //   pos = pipelinePosition(p.getExitBranch(), state, p.numStages() - 1);
+    // }
+    
+    emitTempStorage(out,
+                    state,
+                    arch);
+    
+    out << "\t\t\tend" << endl;
+    
+  }
+  
   void emitPipelineStateCode(std::ostream& out,
                              const StateId state,
                              const std::vector<StateTransition>& destinations,
@@ -1540,27 +1565,25 @@ namespace ahaHLS {
     }
 
 
-    emitTempStorage(out,
-                    state,
-                    arch);
-    
     out << "\t\t\tend" << endl;
     
   }
   
   void emitControlCode(std::ostream& out,
-                       MicroArchitecture& arch,
-                       const STG& stg,
-                       map<Instruction*, FunctionalUnit>& unitAssignment,
-                       map<Instruction*, Wire>& names,
-                       const std::vector<ElaboratedPipeline>& pipelines) {
+                       MicroArchitecture& arch) {
 
-    for (auto state : stg.opTransitions) {
-
+    out << tab(3) << "// Control code" << endl;
+    for (auto state : arch.stg.opTransitions) {
       emitPipelineStateCode(out, state.first, state.second, arch);
-
     }
 
+    out << endl;
+
+    out << tab(3) << "// Temporary storage code" << endl;    
+    for (auto state : arch.stg.opTransitions) {
+      emitTempStorageCode(out, state.first, state.second, arch);
+    }
+    
   }
 
   void emitConditionalInstruction(std::ostream& out,
@@ -2397,7 +2420,7 @@ namespace ahaHLS {
 
     emitResetCode(out, arch);
 
-    emitControlCode(out, arch, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
+    emitControlCode(out, arch); //, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
     out << "\t\tend" << endl; // This closes and end statement in emitResetCode
     out << "\tend" << endl;
     out << endl << endl;

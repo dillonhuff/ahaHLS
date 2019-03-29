@@ -1,16 +1,16 @@
-module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data, output [0:0] valid);
+module median_filter_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data);
 
+	reg [0:0] valid_reg;
 	reg [31:0] in0_in_data_reg;
 	reg [31:0] in1_in_data_reg;
 	reg [31:0] in2_in_data_reg;
 	reg [31:0] out_in_data_reg;
-	reg [0:0] valid_reg;
 
+	assign valid = valid_reg;
 	assign in0_in_data = in0_in_data_reg;
 	assign in1_in_data = in1_in_data_reg;
 	assign in2_in_data = in2_in_data_reg;
 	assign out_in_data = out_in_data_reg;
-	assign valid = valid_reg;
 
 	// Start debug wires and ports
 
@@ -24,14 +24,14 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	// End debug wires and ports
 
 	// Start Functional Units
-	br_dummy br_unit();
-
 	reg [0:0] m_rst_n;
 	reg [31:0] m_word0;
 	reg [31:0] m_word1;
 	reg [31:0] m_word2;
 	wire [31:0] m_median_word;
 	median m(.clk(clk), .median_word(m_median_word), .rst_n(m_rst_n), .word0(m_word0), .word1(m_word1), .word2(m_word2));
+
+	br_dummy br_unit();
 
 	reg [63:0] phi_in_phi_6;
 	reg [31:0] phi_last_block_phi_6;
@@ -112,6 +112,7 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 		if (rst) begin
 			global_state <= 0;
 		end else begin
+			// Control code
 			if ((global_state == 0)) begin 
 				// Next state transition logic
 				// Condition = True
@@ -119,7 +120,6 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 				if (1) begin
 					global_state <= 1;
 				end
-				// Store data computed at the stage
 			end
 			if ((global_state == 1)) begin 
 				// Next state transition logic
@@ -128,7 +128,6 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 				if (1) begin
 					global_state <= 2;
 				end
-				// Store data computed at the stage
 			end
 			if ((global_state == 2)) begin 
 				// Next state transition logic
@@ -137,7 +136,6 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 				if (1) begin
 					global_state <= 3;
 				end
-				// Store data computed at the stage
 			end
 			if ((global_state == 3)) begin 
 				// Next state transition logic
@@ -146,7 +144,6 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 				if (1) begin
 					global_state <= 4;
 				end
-				// Store data computed at the stage
 			end
 			if ((global_state == 4)) begin 
 				// Next state transition logic
@@ -158,8 +155,6 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 				if (!(cmp_out_icmp_16)) begin
 					global_state <= 5;
 				end
-				// Store data computed at the stage
-					add_tmp_1 <= add_out_add_7;
 			end
 			if ((global_state == 5)) begin 
 				// Next state transition logic
@@ -168,7 +163,6 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 				if (1) begin
 					global_state <= 6;
 				end
-				// Store data computed at the stage
 			end
 			if ((global_state == 6)) begin 
 				// Next state transition logic
@@ -177,6 +171,36 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 				if (1) begin
 					global_state <= 6;
 				end
+			end
+
+			// Temporary storage code
+			if ((global_state == 0)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+			end
+			if ((global_state == 1)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+			end
+			if ((global_state == 2)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+			end
+			if ((global_state == 3)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+			end
+			if ((global_state == 4)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+					add_tmp_1 <= add_out_add_7;
+			end
+			if ((global_state == 5)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+			end
+			if ((global_state == 6)) begin 
+				// Temporary storage
 				// Store data computed at the stage
 			end
 		end
@@ -279,7 +303,7 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	end
 endmodule
 
-module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data, output [0:0] valid);
+module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data);
 
 
 	initial begin

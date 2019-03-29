@@ -32,14 +32,14 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	// End debug wires and ports
 
 	// Start Functional Units
+	add call_18();
+
 	reg [31:0] raddr_ram_0_reg;
 	reg [31:0] waddr_ram_0_reg;
 	reg [31:0] wdata_ram_0_reg;
 	reg [0:0] wen_ram_0_reg;
 	wire [31:0] rdata_ram_0;
 	register #(.WIDTH(32)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
-
-	add call_18();
 
 	add alloca_0();
 
@@ -141,6 +141,7 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 		if (rst) begin
 			global_state <= 0;
 		end else begin
+			// Control code
 			if ((global_state == 0)) begin 
 				// Next state transition logic
 				// Condition = True
@@ -148,7 +149,6 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 				if (1) begin
 					global_state <= 1;
 				end
-				// Store data computed at the stage
 			end
 			if ((global_state == 1)) begin 
 				// Next state transition logic
@@ -157,7 +157,6 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 				if (1) begin
 					global_state <= 2;
 				end
-				// Store data computed at the stage
 			end
 			if ((global_state == 2)) begin 
 				// Next state transition logic
@@ -168,10 +167,6 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 					global_state <= 3;
 				end
 				end
-				// Store data computed at the stage
-					load_tmp_1 <= rdata_ram_0;
-					add_tmp_2 <= add_out_add_7;
-					icmp_tmp_3 <= cmp_out_icmp_8;
 			end
 			if ((global_state == 3)) begin 
 				// Next state transition logic
@@ -180,7 +175,6 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 				if (1) begin
 					global_state <= 4;
 				end
-				// Store data computed at the stage
 			end
 			if ((global_state == 4)) begin 
 				// Next state transition logic
@@ -189,7 +183,6 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 				if (1) begin
 					global_state <= 5;
 				end
-				// Store data computed at the stage
 			end
 			if ((global_state == 5)) begin 
 				// Next state transition logic
@@ -201,7 +194,6 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 				if (!(icmp_tmp_3)) begin
 					global_state <= 2;
 				end
-				// Store data computed at the stage
 			end
 			if ((global_state == 6)) begin 
 				// Next state transition logic
@@ -212,7 +204,6 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 					global_state <= 7;
 				end
 				end
-				// Store data computed at the stage
 			end
 			if ((global_state == 7)) begin 
 				// Next state transition logic
@@ -221,7 +212,6 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 				if (1) begin
 					global_state <= 8;
 				end
-				// Store data computed at the stage
 			end
 			if ((global_state == 8)) begin 
 				// Next state transition logic
@@ -230,6 +220,46 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 				if (1) begin
 					global_state <= 8;
 				end
+			end
+
+			// Temporary storage code
+			if ((global_state == 0)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+			end
+			if ((global_state == 1)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+			end
+			if ((global_state == 2)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+					load_tmp_1 <= rdata_ram_0;
+					add_tmp_2 <= add_out_add_7;
+					icmp_tmp_3 <= cmp_out_icmp_8;
+			end
+			if ((global_state == 3)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+			end
+			if ((global_state == 4)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+			end
+			if ((global_state == 5)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+			end
+			if ((global_state == 6)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+			end
+			if ((global_state == 7)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+			end
+			if ((global_state == 8)) begin 
+				// Temporary storage
 				// Store data computed at the stage
 			end
 		end
