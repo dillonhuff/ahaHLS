@@ -43,12 +43,12 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 	wire [7:0] rdata_ram_0;
 	reg_passthrough #(.WIDTH(8)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
 
-	reg [31:0] base_addr_getelementptr_2;
-	reg [31:0] gep_add_in1_getelementptr_2;
-	wire [31:0] getelementptr_out_getelementptr_2;
-	getelementptr_1 getelementptr_2(.base_addr(base_addr_getelementptr_2), .in1(gep_add_in1_getelementptr_2), .out(getelementptr_out_getelementptr_2));
+	add alloca_2();
 
-	add alloca_3();
+	reg [31:0] base_addr_getelementptr_3;
+	reg [31:0] gep_add_in1_getelementptr_3;
+	wire [31:0] getelementptr_out_getelementptr_3;
+	getelementptr_1 getelementptr_3(.base_addr(base_addr_getelementptr_3), .in1(gep_add_in1_getelementptr_3), .out(getelementptr_out_getelementptr_3));
 
 	reg [31:0] raddr_ram_2_reg;
 	reg [31:0] waddr_ram_2_reg;
@@ -142,6 +142,7 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 		if (rst) begin
 			global_state <= 0;
 		end else begin
+			// Control code
 			if ((global_state == 0)) begin 
 				// Next state transition logic
 				// Condition = True
@@ -151,9 +152,6 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 					global_state <= 1;
 				end
 				end
-				// Store data computed at the stage
-					load_tmp_6 <= rdata_ram_7;
-					load_tmp_8 <= rdata_ram_6;
 			end
 			if ((global_state == 1)) begin 
 				// Next state transition logic
@@ -162,6 +160,17 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 				if (1) begin
 					global_state <= 1;
 				end
+			end
+
+			// Temporary storage code
+			if ((global_state == 0)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+					load_tmp_6 <= rdata_ram_7;
+					load_tmp_8 <= rdata_ram_6;
+			end
+			if ((global_state == 1)) begin 
+				// Temporary storage
 				// Store data computed at the stage
 			end
 		end
@@ -191,18 +200,7 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 				end
 				//   %3 = load i8, i8* %2
 				if (arg_2_s_eth_payload_axis_tready) begin
-				raddr_ram_0_reg = getelementptr_out_getelementptr_2;
-				end
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %2 = getelementptr i8, i8* %0, i32 0
-				if (arg_2_s_eth_payload_axis_tready) begin
-				base_addr_getelementptr_2 = 0;
-				gep_add_in1_getelementptr_2 = (32'd0);
+				raddr_ram_0_reg = getelementptr_out_getelementptr_3;
 				end
 		end else begin 
 			// Default values
@@ -212,6 +210,17 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 		if ((global_state == 0)) begin 
 				//   %1 = alloca i1
 				if (arg_2_s_eth_payload_axis_tready) begin
+				end
+		end else begin 
+			// Default values
+		end
+	end
+	always @(*) begin
+		if ((global_state == 0)) begin 
+				//   %2 = getelementptr i8, i8* %0, i32 0
+				if (arg_2_s_eth_payload_axis_tready) begin
+				base_addr_getelementptr_3 = 0;
+				gep_add_in1_getelementptr_3 = (32'd0);
 				end
 		end else begin 
 			// Default values
@@ -246,7 +255,7 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
-				//   %6 = alloca i8
+				//   %7 = alloca i1
 				if (arg_2_s_eth_payload_axis_tready) begin
 				end
 		end else begin 
@@ -255,7 +264,7 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
-				//   %7 = alloca i1
+				//   %6 = alloca i8
 				if (arg_2_s_eth_payload_axis_tready) begin
 				end
 		end else begin 
@@ -299,8 +308,14 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 				//   %8 = call i1 @builtin_read_port_s_eth_payload_axis_tready(%eth_axis_tx* %arg_2)
 				if (arg_2_s_eth_payload_axis_tready) begin
 				end
+			arg_2_s_eth_dest_mac_reg = 0;
 			arg_2_s_eth_hdr_valid_reg = 0;
+			arg_2_s_eth_payload_axis_tdata_reg = 0;
+			arg_2_s_eth_payload_axis_tlast_reg = 0;
+			arg_2_s_eth_payload_axis_tuser_reg = 0;
 			arg_2_s_eth_payload_axis_tvalid_reg = 0;
+			arg_2_s_eth_src_mac_reg = 0;
+			arg_2_s_eth_type_reg = 0;
 		end else 		if ((global_state == 1)) begin 
 				//   call void @builtin_write_port_s_eth_payload_axis_tvalid(%eth_axis_tx* %arg_2, i32 1)
 				arg_2_s_eth_payload_axis_tvalid_reg = (32'd1);
@@ -308,11 +323,21 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 				arg_2_s_eth_payload_axis_tlast_reg = load_tmp_6;
 				//   call void @builtin_write_port_s_eth_payload_axis_tdata(%eth_axis_tx* %arg_2, i8 %12)
 				arg_2_s_eth_payload_axis_tdata_reg = load_tmp_8;
+			arg_2_s_eth_dest_mac_reg = 0;
 			arg_2_s_eth_hdr_valid_reg = 0;
+			arg_2_s_eth_payload_axis_tuser_reg = 0;
+			arg_2_s_eth_src_mac_reg = 0;
+			arg_2_s_eth_type_reg = 0;
 		end else begin 
 			// Default values
+				arg_2_s_eth_dest_mac_reg = 0;
 				arg_2_s_eth_hdr_valid_reg = 0;
+				arg_2_s_eth_payload_axis_tdata_reg = 0;
+				arg_2_s_eth_payload_axis_tlast_reg = 0;
+				arg_2_s_eth_payload_axis_tuser_reg = 0;
 				arg_2_s_eth_payload_axis_tvalid_reg = 0;
+				arg_2_s_eth_src_mac_reg = 0;
+				arg_2_s_eth_type_reg = 0;
 		end
 	end
 	always @(*) begin
