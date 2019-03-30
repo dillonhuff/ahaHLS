@@ -1,13 +1,13 @@
-module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data, input [31:0] in0_out_data, output [0:0] valid, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data);
+module median_filter_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data);
 
-	reg [31:0] in0_in_data_reg;
 	reg [0:0] valid_reg;
+	reg [31:0] in0_in_data_reg;
 	reg [31:0] in1_in_data_reg;
 	reg [31:0] in2_in_data_reg;
 	reg [31:0] out_in_data_reg;
 
-	assign in0_in_data = in0_in_data_reg;
 	assign valid = valid_reg;
+	assign in0_in_data = in0_in_data_reg;
 	assign in1_in_data = in1_in_data_reg;
 	assign in2_in_data = in2_in_data_reg;
 	assign out_in_data = out_in_data_reg;
@@ -235,24 +235,18 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 			// Default values
 		end
 	end
+// No controller needed, just assigning to only used values
 	always @(*) begin
-		if ((global_state == 4)) begin 
 				//   %2 = phi i32 [ 0, %entry_block_il ], [ %3, %_il ]
 				phi_in_phi_6 = {(32'd0), add_tmp_1};
 				phi_last_block_phi_6 = last_BB_reg;
 				phi_s_phi_6 = {32'd2, 32'd4};
-		end else begin 
-			// Default values
-		end
 	end
+// No controller needed, just assigning to only used values
 	always @(*) begin
-		if ((global_state == 4)) begin 
 				//   %3 = add i32 %2, 1
 				add_in0_add_7 = phi_out_phi_6;
 				add_in1_add_7 = (32'd1);
-		end else begin 
-			// Default values
-		end
 	end
 	always @(*) begin
 		if ((global_state == 4)) begin 
@@ -283,14 +277,11 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 			// Default values
 		end
 	end
+// No controller needed, just assigning to only used values
 	always @(*) begin
-		if ((global_state == 4)) begin 
 				//   %8 = icmp ne i32 %3, 8533
 				cmp_in0_icmp_16 = add_out_add_7;
 				cmp_in1_icmp_16 = (32'd8533);
-		end else begin 
-			// Default values
-		end
 	end
 	always @(*) begin
 		if ((global_state == 6)) begin 
@@ -303,7 +294,7 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	end
 endmodule
 
-module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data, input [31:0] in0_out_data, output [0:0] valid, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data);
+module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data);
 
 
 	initial begin

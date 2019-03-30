@@ -1692,105 +1692,137 @@ namespace ahaHLS {
 
       if (usedInExactlyOneState(controller) && stateless(controller.unit)) {
         cout << "Can replace normal unit controller with assign" << endl;
-      }
+        out << tab(1) << "// No controller needed, just assigning to only used values" << endl;
 
-      out << "\talways @(*) begin" << endl;        
-
-      int i = 0;
-      int numInstrs = 0;
-      for (auto stInstrG : controller.instructions) {
-        StateId state = stInstrG.first;
-
-        if (!isPipelineState(state, pipelines)) {
-          numInstrs++;
-        }
-      }
-      bool isExternal = unit.isExternal();
-
-      for (auto stInstrG : controller.instructions) {
-        cout << "In state " << stInstrG.first << endl;
+        // Note: This whole block will only produce
+        // one set of combinational assigns
+        out << tab(1) << "always @(*) begin" << endl;
+        for (auto stInstrG : controller.instructions) {
+          cout << "In state " << stInstrG.first << endl;
         
-        StateId state = stInstrG.first;
-        auto instrsAtState = stInstrG.second;
+          StateId state = stInstrG.first;
+          auto instrsAtState = stInstrG.second;
 
-        if (!isPipelineState(state, pipelines)) {
+          if (!isPipelineState(state, pipelines)) {
 
-          out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
-          std::set<string> usedPorts;
-          for (auto instrG : instrsAtState) {
-            Instruction* instr = instrG;
+            std::set<string> usedPorts;
+            for (auto instrG : instrsAtState) {
+              Instruction* instr = instrG;
 
-            out << tab(4) << "// " << instructionString(instr) << endl;
+              out << tab(4) << "// " << instructionString(instr) << endl;
 
-            // TODO: Extract stall calculation
-            vector<std::string> stallConds;
+              auto pos = position(state, instr);
+              auto assigns = instructionPortAssignments(pos, arch);
+              for (auto asg : assigns) {
+                usedPorts.insert(asg.first);
+              }
+              instructionVerilog(out, pos, arch);
 
-            // Stalls do not get stalled by themselves
-            if (!isBuiltinStallCall(instr)) {
-              for (auto instrK : arch.stg.instructionsStartingAt(state)) {
-                //cout << "Instruction = " << valueString(instrK.instruction) << endl;
-                if (isBuiltinStallCall(instrK)) {
+            }
+          }
+        }
+        out << tab(1) << "end" << endl;
 
-                  auto stallPos = position(state, instrK);
-                  string cond = outputName(instrK->getOperand(0),
-                                           stallPos,
-                                           arch);
+      } else {
 
-                  stallConds.push_back(cond);
+        out << "\talways @(*) begin" << endl;        
+
+        int i = 0;
+        int numInstrs = 0;
+        for (auto stInstrG : controller.instructions) {
+          StateId state = stInstrG.first;
+
+          if (!isPipelineState(state, pipelines)) {
+            numInstrs++;
+          }
+        }
+        bool isExternal = unit.isExternal();
+
+        for (auto stInstrG : controller.instructions) {
+          cout << "In state " << stInstrG.first << endl;
+        
+          StateId state = stInstrG.first;
+          auto instrsAtState = stInstrG.second;
+
+          if (!isPipelineState(state, pipelines)) {
+
+            out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
+            std::set<string> usedPorts;
+            for (auto instrG : instrsAtState) {
+              Instruction* instr = instrG;
+
+              out << tab(4) << "// " << instructionString(instr) << endl;
+
+              // TODO: Extract stall calculation
+              vector<std::string> stallConds;
+
+              // Stalls do not get stalled by themselves
+              if (!isBuiltinStallCall(instr)) {
+                for (auto instrK : arch.stg.instructionsStartingAt(state)) {
+                  //cout << "Instruction = " << valueString(instrK.instruction) << endl;
+                  if (isBuiltinStallCall(instrK)) {
+
+                    auto stallPos = position(state, instrK);
+                    string cond = outputName(instrK->getOperand(0),
+                                             stallPos,
+                                             arch);
+
+                    stallConds.push_back(cond);
+                  }
                 }
               }
-            }
-            if (stallConds.size() > 0) {
-              out << tab(4) << "if (" << andStrings(stallConds) << ") begin" << endl;
-            }
-            auto pos = position(state, instr);
-            auto assigns = instructionPortAssignments(pos, arch);
-            for (auto asg : assigns) {
-              //cout << "Using port " << asg.first << " in state " << state << endl;
-              usedPorts.insert(asg.first);
-            }
-            instructionVerilog(out, pos, arch);
+              if (stallConds.size() > 0) {
+                out << tab(4) << "if (" << andStrings(stallConds) << ") begin" << endl;
+              }
+              auto pos = position(state, instr);
+              auto assigns = instructionPortAssignments(pos, arch);
+              for (auto asg : assigns) {
+                //cout << "Using port " << asg.first << " in state " << state << endl;
+                usedPorts.insert(asg.first);
+              }
+              instructionVerilog(out, pos, arch);
 
-            if (stallConds.size() > 0) {            
-              out << tab(4) << "end" << endl;
+              if (stallConds.size() > 0) {            
+                out << tab(4) << "end" << endl;
+              }
+
             }
 
-          }
-
-          for (auto def : unit.module.defaultValues) {
-            string name = def.first;
-            assert(contains_key(name, unit.portWires));
+            for (auto def : unit.module.defaultValues) {
+              string name = def.first;
+              assert(contains_key(name, unit.portWires));
             
-            string ptName = map_find(name, unit.portWires).name;
-            if (unit.isExternal()) {
-              ptName += "_reg";
+              string ptName = map_find(name, unit.portWires).name;
+              if (unit.isExternal()) {
+                ptName += "_reg";
+              }
+              if (!elem(ptName, usedPorts)) {
+                out << tab(3) << ptName << " = " << def.second << ";" << endl;
+              }
             }
-            if (!elem(ptName, usedPorts)) {
-              out << tab(3) << ptName << " = " << def.second << ";" << endl;
+            out << "\t\tend else ";
+            if (i == (numInstrs - 1)) {
+              out << "begin " << endl;
             }
-          }
-          out << "\t\tend else ";
-          if (i == (numInstrs - 1)) {
-            out << "begin " << endl;
+
+            i++;
           }
 
-          i++;
         }
 
-      }
-
-      out << "\t\t\t// Default values" << endl;
-      for (auto wd : unit.module.defaultValues) {
-        if (isExternal) {
-          out << tab(4) << unit.portWires[wd.first].name << "_reg = " << wd.second << ";" << endl;
-        } else {
-          out << tab(4) << unit.portWires[wd.first].name << " = " << wd.second << ";" << endl;
+        out << "\t\t\t// Default values" << endl;
+        for (auto wd : unit.module.defaultValues) {
+          if (isExternal) {
+            out << tab(4) << unit.portWires[wd.first].name << "_reg = " << wd.second << ";" << endl;
+          } else {
+            out << tab(4) << unit.portWires[wd.first].name << " = " << wd.second << ";" << endl;
+          }
         }
-      }
       
-      out << "\t\tend" << endl;
+        out << "\t\tend" << endl;
 
-      out << "\tend" << endl;
+        out << "\tend" << endl;
+      }
       
     }
 
