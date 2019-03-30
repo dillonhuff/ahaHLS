@@ -402,7 +402,11 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [0:0] val
 			// Default values
 				valid_reg = 0;
 		end
-	end
+	end // always @ begin
+
+   always @(posedge clk) begin
+      $display("rdata_ram_0 = %d", rdata_ram_0);
+   end
 endmodule
 
 module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [31:0] out_in_data, output [0:0] out_read_valid, output [0:0] out_rst, output [31:0] out_write_valid, input [31:0] out_out_data, input [0:0] out_read_ready, input [0:0] out_write_ready, output [31:0] in_in_data, output [0:0] in_read_valid, output [0:0] in_rst, output [31:0] in_write_valid, input [31:0] in_out_data, input [0:0] in_read_ready, input [0:0] in_write_ready);
