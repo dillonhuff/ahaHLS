@@ -234,9 +234,15 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [0:0] val
 			if ((global_state == 2)) begin 
 				// Temporary storage
 				// Store data computed at the stage
+
+				if (in_read_ready) begin 
+
+                           
 					load_tmp_0 <= rdata_ram_0;
 					add_tmp_1 <= add_out_add_6;
 					icmp_tmp_2 <= cmp_out_icmp_7;
+
+				end                                   
 			end
 			if ((global_state == 3)) begin 
 				// Temporary storage
@@ -340,6 +346,9 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [0:0] val
 		end else 		if ((global_state == 4)) begin 
 				//   call void @builtin_write_port_read_valid(%class.ac_channel* %in, i1 false)
 				in_read_valid_reg = (1'd0);
+
+                   $display("reading from input");
+                   
 				//   %7 = call i32 @builtin_read_port_out_data(%class.ac_channel* %in)
 			in_in_data_reg = 0;
 			in_write_valid_reg = 0;
@@ -405,7 +414,21 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [0:0] val
 	end // always @ begin
 
    always @(posedge clk) begin
-      $display("rdata_ram_0 = %d", rdata_ram_0);
+      //$display("rdata_ram_0 = %d", rdata_ram_0);
+      //$display("load_tmp_0 = %d", load_tmp_0);
+
+      if (global_state === 2) begin
+         $display("-- In global state 2, gs = %d", global_state);
+         
+         $display("in_out_data = %d", in_out_data);
+
+         $display("cmp_in0_icmp_7 = %d", cmp_in0_icmp_7);
+         $display("cmp_in1_icmp_7 = %d", cmp_in1_icmp_7);
+      end
+	// reg [31:0] cmp_in0_icmp_7;
+	// reg [31:0] cmp_in1_icmp_7;
+	// wire [0:0] cmp_out_icmp_7;
+      
    end
 endmodule
 
