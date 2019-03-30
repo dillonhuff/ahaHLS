@@ -226,6 +226,7 @@ namespace ahaHLS {
   
   static inline
   llvm::Value* loadReg(llvm::IRBuilder<>& builder, llvm::Value* val) {
+    assert(llvm::PointerType::classof(val->getType()));
     return builder.CreateLoad(val);
     //return loadVal(builder, val, mkInt(0, 32));
   }
