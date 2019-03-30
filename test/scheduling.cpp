@@ -5142,24 +5142,6 @@ namespace ahaHLS {
     tb.maxCycles = 10000;
     tb.name = "count_packets";
     tb.useModSpecs = true;
-    // tb.settablePort(in0, "in_data");
-    // tb.settablePort(in1, "in_data");
-    // tb.settablePort(in2, "in_data");        
-
-    // // tb.actionOnCondition("1", "$display(\"median_word = %d\", out_in_data);");
-    // // tb.actionOnCondition("1", "$display(\"in0_out_data = %d\", in0_out_data);");
-    // // tb.actionOnCondition("1", "$display(\"in1_out_data = %d\", in1_out_data);");
-    // // tb.actionOnCondition("1", "$display(\"in2_out_data = %d\", in2_out_data);");
-
-    // map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
-    
-    // tb.setArgPort(in0, "in_data", 1, "{8'd2, 8'd5, 8'd9, 8'd16}");
-    // tb.setArgPort(in1, "in_data", 1, "{8'd2, 8'd5, 8'd9, 8'd16}");
-    // tb.setArgPort(in2, "in_data", 1, "{8'd2, 8'd5, 8'd9, 8'd16}");    
-
-    // map_insert(tb.actionsOnCycles, 9000, assertString("valid === 1"));
-    // map_insert(tb.actionsOnCycles, 9001, assertString("valid === 1"));
-
 
     emitVerilogTestBench(tb, arch, testLayout);
     REQUIRE(runIVerilogTest("count_packets_tb.v", "count_packets", " builtins.v count_packets.v ip_eth_rx.v"));

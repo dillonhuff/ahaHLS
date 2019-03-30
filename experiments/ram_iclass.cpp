@@ -29,7 +29,7 @@ class RAM {
     add_constraint(start(set_wen) + 3 == end(ret));
   }
 
-  bit_32 read(bit_5 addr) {
+  bit_32 read(bit_5& addr) {
   set_addr:
     set_port(raddr_0, addr);
 

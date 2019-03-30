@@ -451,7 +451,7 @@ public:
 
   std::string getName() const { return funcName.getStr(); }
 
-  virtual ExpressionKind getKind() const {
+  virtual ExpressionKind getKind() const override {
     return EXPRESSION_KIND_FUNCTION_CALL;
   }
 
@@ -459,7 +459,7 @@ public:
     return e->getKind() == EXPRESSION_KIND_FUNCTION_CALL;
   }
 
-  virtual void print(std::ostream& out) const {
+  virtual void print(std::ostream& out) const override {
     out << funcName << "(" << "INSERT_ARGS)";
   }
   
@@ -477,7 +477,7 @@ public:
              FunctionCall* called_) :
     callerName(callerName_), called(called_) {}
 
-  virtual ExpressionKind getKind() const {
+  virtual ExpressionKind getKind() const override {
     return EXPRESSION_KIND_METHOD_CALL;
   }
 
@@ -485,7 +485,7 @@ public:
     return e->getKind() == EXPRESSION_KIND_METHOD_CALL;
   }
 
-  virtual void print(std::ostream& out) const {
+  virtual void print(std::ostream& out) const override {
     out << callerName << "->" << *called;
   }
   
@@ -500,7 +500,7 @@ public:
 
   std::string getName() const { return name.getStr(); }
 
-  virtual ExpressionKind getKind() const {
+  virtual ExpressionKind getKind() const override {
     return EXPRESSION_KIND_IDENTIFIER;
   }
 
@@ -508,7 +508,7 @@ public:
     return e->getKind() == EXPRESSION_KIND_IDENTIFIER;
   }
 
-  virtual void print(std::ostream& out) const {
+  virtual void print(std::ostream& out) const override {
     out << getName();
   }
   
@@ -530,9 +530,8 @@ public:
   virtual ~SynthCppType() {
   }
 
-  virtual void print(std::ostream& out) const {
-    assert(false);
-  }
+  virtual void print(std::ostream& out) const = 0;
+
 };
 
 std::ostream& operator<<(std::ostream& out, const SynthCppType& tp) {
@@ -578,7 +577,11 @@ public:
     return tp->getKind() == SYNTH_CPP_TYPE_KIND_LABEL;
   }
 
-  virtual SynthCppTypeKind getKind() const { return SYNTH_CPP_TYPE_KIND_LABEL; }  
+  virtual SynthCppTypeKind getKind() const override { return SYNTH_CPP_TYPE_KIND_LABEL; }
+
+  virtual void print(std::ostream& out) const override {
+    out << "label_type";
+  }
 };
 
 class SynthCppPointerType : public SynthCppType {
@@ -587,11 +590,16 @@ public:
   SynthCppType* elementType;
   SynthCppPointerType(SynthCppType* elem_) : elementType(elem_) {}
 
-  SynthCppType* getElementType() { return elementType; }
+  SynthCppType* getElementType() const { return elementType; }
 
   static bool classof(const SynthCppType* const tp) { return tp->getKind() == SYNTH_CPP_TYPE_KIND_POINTER; }
   
-  virtual SynthCppTypeKind getKind() const { return SYNTH_CPP_TYPE_KIND_POINTER; }
+  virtual SynthCppTypeKind getKind() const override { return SYNTH_CPP_TYPE_KIND_POINTER; }
+
+  virtual void print(std::ostream& out) const override {
+    out << *getElementType() << "&";
+  }
+  
 };
 
 class SynthCppDataType : public SynthCppType {
@@ -599,6 +607,11 @@ public:
 
   static bool classof(const SynthCppType* const tp) { return (tp->getKind() == SYNTH_CPP_TYPE_KIND_BITS) ||
       (tp->getKind() == SYNTH_CPP_TYPE_KIND_VOID); }
+
+  virtual void print(std::ostream& out) const override {
+    out << "data_type";
+  }
+
 };
 
 class SynthCppBitsType : public SynthCppDataType {
@@ -612,7 +625,11 @@ public:
 
   static bool classof(const SynthCppType* const tp) { return (tp->getKind() == SYNTH_CPP_TYPE_KIND_BITS); }
   
-  virtual SynthCppTypeKind getKind() const { return SYNTH_CPP_TYPE_KIND_BITS; }
+  virtual SynthCppTypeKind getKind() const override { return SYNTH_CPP_TYPE_KIND_BITS; }
+
+  virtual void print(std::ostream& out) const override {
+    out << "bits[" << getWidth() << "]";
+  }
   
 };
 
@@ -621,7 +638,12 @@ public:
 
   static bool classof(const SynthCppType* const tp) { return tp->getKind() == SYNTH_CPP_TYPE_KIND_VOID; }
   
-  virtual SynthCppTypeKind getKind() const { return SYNTH_CPP_TYPE_KIND_VOID; }
+  virtual SynthCppTypeKind getKind() const override { return SYNTH_CPP_TYPE_KIND_VOID; }
+
+  virtual void print(std::ostream& out) const override {
+    out << "void";
+  }
+  
 };
 
 class BinopExpr : public Expression {
@@ -1512,10 +1534,15 @@ ParserModule parse(const std::vector<Token>& tokens) {
 }
 
 
-llvm::Type* llvmPointerFor(SynthCppType* const tp) {
-  assert(SynthCppStructType::classof(tp));
-  return structType(static_cast<SynthCppStructType* const>(tp)->getName())->getPointerTo();
-}
+// llvm::Type* llvmPointerFor(SynthCppType* const tp) {
+//   //return llvmTypeFor(tp)->getPointerTo();
+//   // if (SynthCppStructType::classof(tp)) {
+//   //   return structType(static_cast<SynthCppStructType* const>(tp)->getName())->getPointerTo();
+//   // } else {
+//   //   cout << "Getting llvm pointer for " << *tp << endl;
+//   //   assert(false);
+//   // }
+// }
 
 bool isPrimitiveStruct(SynthCppStructType*  const st) {
   string name = st->getName();
@@ -1537,7 +1564,8 @@ int getWidth(SynthCppStructType* tp) {
 
 llvm::Type* llvmTypeFor(SynthCppType* const tp) {
   if (SynthCppPointerType::classof(tp)) {
-    return llvmPointerFor(static_cast<SynthCppPointerType* const>(tp)->getElementType());
+    return llvmTypeFor(sc<SynthCppPointerType>(tp)->getElementType())->getPointerTo();
+    //return llvmPointerFor(static_cast<SynthCppPointerType* const>(tp)->getElementType());
   } else if (VoidType::classof(tp)) {
     return voidType();
   } else if (SynthCppBitsType::classof(tp)) {
@@ -1706,11 +1734,6 @@ vector<Type*> functionInputs(FunctionDecl* fd) {
     } else {
       inputTypes.push_back(argTp);
     }
-    // if (SynthCppPointerType::classof(argDecl->tp)) {
-    //   inputTypes.push_back(argTp);
-    // } else {
-    //   inputTypes.push_back(argTp->getPointerTo());
-    // }
   }
 
   return inputTypes;
@@ -1802,6 +1825,30 @@ pair<string, int> extractDefault(Statement* stmt) {
   return {id->getName(), val->getInt()};
 }
 
+int countTerminators(const BasicBlock& bb) {
+  int numTerminators = 0;
+  for (auto& instr : bb) {
+    if (TerminatorInst::classof(&instr)) {
+      numTerminators++;
+    }
+  }
+
+  return numTerminators;
+}
+
+void sanityCheck(llvm::Function* f) {
+  for (auto& bb : f->getBasicBlockList()) {
+    int numTerminators = countTerminators(bb);
+    if (numTerminators != 1) {
+      cout << "Error: In function " << endl;
+      cout << valueString(f) << endl;
+      cout << "basic block " << endl;
+      cout << valueString(&bb) << " has zero or multiple terminators" << endl;
+      assert(false);
+    }
+  }
+}
+
 // Idea: Caller constraints that inline in to each user of a function?
 // For each called user function check if caller constraints are satisified
 // and if not propagate them up the stack? A form of type checking I suppose?
@@ -1861,10 +1908,9 @@ public:
       if (!SynthCppPointerType::classof(argDecl->tp)) {
         auto val = b.CreateAlloca(llvmTypeFor(argDecl->tp));
         b.CreateStore(getArg(f, argNum + argOffset), val);
-        //genLLVMCopyTo(b, val, getArg(f, argNum + argOffset));
         setValue(argDecl->name, val);
       } else {
-        setValue(argDecl->name, getArg(f, argNum));
+        setValue(argDecl->name, getArg(f, argNum + argOffset));
       }
 
       argNum++;
@@ -1918,11 +1964,6 @@ public:
               }
             
               vector<Type*> tps;
-              // if (!VoidType::classof(methodFuncDecl->returnType)) {
-              //   cout << "Method " << methodFuncDecl->getName() << " does not have void return type" << endl;
-              //   tps.push_back(llvmTypeFor(methodFuncDecl->returnType));
-              // }
-
               tps.push_back(llvmTypeFor(new SynthCppPointerType(new SynthCppStructType(c->name))));
               for (auto a : argTps) {
                 tps.push_back(a);
@@ -1952,13 +1993,21 @@ public:
                 cout << "Statement" << endl;
                 genLLVM(b, stmt);
               }
-            
-              b.CreateRet(nullptr);
+
+              BasicBlock* activeBlock =
+                &(activeFunction->llvmFunction()->getEntryBlock());
+              if (activeBlock->getTerminator() == nullptr) {
+                cout << "Basic block " << valueString(activeBlock) << "has no terminator" << endl;
+              
+                b.CreateRet(nullptr);
+              }
 
               cout << "Just generated code for method " << endl;
               cout << valueString(sf->llvmFunction()) << endl;
               c->methods[sf->getName()] = sf;
 
+              sanityCheck(f);
+              
               //setAllAllocaMemTypes(hcs, f, registerSpec(32));
             
               activeFunction = nullptr;
@@ -2028,16 +2077,18 @@ public:
         BasicBlock* activeBlock =
           &(activeFunction->llvmFunction()->getEntryBlock());
         if (activeBlock->getTerminator() == nullptr) {
-          b.CreateRet(nullptr);          
+          cout << "Basic block " << valueString(activeBlock) << "has no terminator" << endl;
+          b.CreateRet(nullptr);
         }
 
         // Set all calls to be sequential by default
         sequentialCalls(f, interfaces.getConstraints(f));
 
         functions.push_back(sf);
-        activeFunction = nullptr;        
+        activeFunction = nullptr;
 
-        //setAllAllocaMemTypes(hcs, f, registerSpec(32));
+        sanityCheck(f);
+
         cgs.symtab.popTable();
       }
     }
@@ -2179,8 +2230,11 @@ public:
 
         Identifier* labelId = extract<Identifier>(labelExpr);
         Expression* valueExpr = called->args[1];
-        auto vExpr = genLLVM(b, valueExpr);
 
+        cout << "Value expression in write port is " << *valueExpr << endl;
+        auto vExpr = genLLVM(b, valueExpr);
+        cout << "LLVM value for expression is " << valueString(vExpr) << endl;
+        
         SynthCppClass* sExpr = cgs.getActiveClass();
         SynthCppType* classTp = new SynthCppStructType(sExpr->name);
         Type* structType = llvmTypeFor(classTp);
