@@ -569,7 +569,7 @@ namespace ahaHLS {
       if (ret->getReturnValue() != nullptr) {
         auto val = ret->getReturnValue();
         wiring.insert({"return_value", {true, getValueBitWidth(val), "return_value"}});
-        defaults.insert({"return_value", 0});        
+        defaults.insert({"return_value", 0});
       }
       outWires = {};
           
