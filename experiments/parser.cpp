@@ -2283,9 +2283,6 @@ public:
         cout << valueString(activeFunction->llvmFunction()) << endl;
 
         int thisOffset = 0;
-        // if (activeFunction->hasReturnValue()) {
-        //   thisOffset = 1;
-        // }
         return b.CreateCall(f, {getArg(activeFunction->llvmFunction(), thisOffset)});
       }
       
@@ -2294,19 +2291,9 @@ public:
       // Generate llvm for each argument
       vector<Value*> args;
 
-      // Value* retVal = nullptr;
-      // // Add return value
-      // if (!VoidType::classof(calledFunc->returnType())) {
-      //   retVal = b.CreateAlloca(llvmTypeFor(calledFunc->returnType()), nullptr, "ret_val_" + uniqueNumString());
-      //   args.push_back(retVal);
-      // }
-
       for (auto arg : called->args) {
         args.push_back(genLLVM(b, arg));
       }
-
-      // b.CreateCall(calledFunc->llvmFunction(), args);
-      // return retVal;
 
       return b.CreateCall(calledFunc->llvmFunction(), args);      
     } else if (MethodCall::classof(e)) {
