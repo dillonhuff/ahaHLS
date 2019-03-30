@@ -1634,6 +1634,20 @@ namespace ahaHLS {
     std::map<StateId, std::vector<Instruction*> > instructions;
   };
 
+  bool usedInExactlyOneState(UnitController& controller) {
+    int numUses = 0;
+    for (auto st : controller.instructions) {
+      numUses += st.second.size();
+    }
+
+    return numUses == 1;
+  }
+
+  bool stateless(FunctionalUnit& unit) {
+    vector<string> statelessUnits{"add", "sub", "shl", "mul", "phi", "getelementptr_2", "ne", "eq"};
+    return elem(unit.getModName(), statelessUnits);
+  }
+
   // TODO: Experiment with adding defaults to all functional unit inputs
   void emitInstructionCode(std::ostream& out,
                            MicroArchitecture& arch,
@@ -1670,11 +1684,14 @@ namespace ahaHLS {
     }
 
     for (auto controller : assignment) {
-
+      
       FunctionalUnit unit = controller.unit;
-
       if (unit.getModName() == "br_dummy") {
         continue;
+      }
+
+      if (usedInExactlyOneState(controller) && stateless(controller.unit)) {
+        cout << "Can replace normal unit controller with assign" << endl;
       }
 
       out << "\talways @(*) begin" << endl;        
