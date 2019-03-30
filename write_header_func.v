@@ -34,8 +34,6 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 	// End debug wires and ports
 
 	// Start Functional Units
-	add alloca_0();
-
 	reg [31:0] raddr_ram_0_reg;
 	reg [31:0] waddr_ram_0_reg;
 	reg [47:0] wdata_ram_0_reg;
@@ -43,89 +41,61 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 	wire [47:0] rdata_ram_0;
 	reg_passthrough #(.WIDTH(48)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
 
-	add alloca_2();
+	add alloca_1();
 
 	reg [31:0] raddr_ram_1_reg;
 	reg [31:0] waddr_ram_1_reg;
-	reg [47:0] wdata_ram_1_reg;
+	reg [15:0] wdata_ram_1_reg;
 	reg [0:0] wen_ram_1_reg;
-	wire [47:0] rdata_ram_1;
-	reg_passthrough #(.WIDTH(48)) ram_1(.clk(clk), .raddr(raddr_ram_1_reg), .rdata(rdata_ram_1), .rst(rst), .waddr(waddr_ram_1_reg), .wdata(wdata_ram_1_reg), .wen(wen_ram_1_reg));
+	wire [15:0] rdata_ram_1;
+	reg_passthrough #(.WIDTH(16)) ram_1(.clk(clk), .raddr(raddr_ram_1_reg), .rdata(rdata_ram_1), .rst(rst), .waddr(waddr_ram_1_reg), .wdata(wdata_ram_1_reg), .wen(wen_ram_1_reg));
 
-	reg [31:0] base_addr_getelementptr_4;
-	reg [31:0] gep_add_in1_getelementptr_4;
-	wire [31:0] getelementptr_out_getelementptr_4;
-	getelementptr_1 getelementptr_4(.base_addr(base_addr_getelementptr_4), .in1(gep_add_in1_getelementptr_4), .out(getelementptr_out_getelementptr_4));
+	reg [31:0] raddr_ram_2_reg;
+	reg [31:0] waddr_ram_2_reg;
+	reg [47:0] wdata_ram_2_reg;
+	reg [0:0] wen_ram_2_reg;
+	wire [47:0] rdata_ram_2;
+	reg_passthrough #(.WIDTH(48)) ram_2(.clk(clk), .raddr(raddr_ram_2_reg), .rdata(rdata_ram_2), .rst(rst), .waddr(waddr_ram_2_reg), .wdata(wdata_ram_2_reg), .wen(wen_ram_2_reg));
 
 	add alloca_5();
 
-	reg [31:0] raddr_ram_3_reg;
-	reg [31:0] waddr_ram_3_reg;
-	reg [15:0] wdata_ram_3_reg;
-	reg [0:0] wen_ram_3_reg;
-	wire [15:0] rdata_ram_3;
-	reg_passthrough #(.WIDTH(16)) ram_3(.clk(clk), .raddr(raddr_ram_3_reg), .rdata(rdata_ram_3), .rst(rst), .waddr(waddr_ram_3_reg), .wdata(wdata_ram_3_reg), .wen(wen_ram_3_reg));
+	add alloca_7();
 
-	reg [31:0] base_addr_getelementptr_7;
-	reg [31:0] gep_add_in1_getelementptr_7;
-	wire [31:0] getelementptr_out_getelementptr_7;
-	getelementptr_1 getelementptr_7(.base_addr(base_addr_getelementptr_7), .in1(gep_add_in1_getelementptr_7), .out(getelementptr_out_getelementptr_7));
+	add alloca_9();
 
-	reg [31:0] base_addr_getelementptr_10;
-	reg [31:0] gep_add_in1_getelementptr_10;
-	wire [31:0] getelementptr_out_getelementptr_10;
-	getelementptr_1 getelementptr_10(.base_addr(base_addr_getelementptr_10), .in1(gep_add_in1_getelementptr_10), .out(getelementptr_out_getelementptr_10));
+	reg [31:0] raddr_ram_6_reg;
+	reg [31:0] waddr_ram_6_reg;
+	reg [47:0] wdata_ram_6_reg;
+	reg [0:0] wen_ram_6_reg;
+	wire [47:0] rdata_ram_6;
+	reg_passthrough #(.WIDTH(48)) ram_6(.clk(clk), .raddr(raddr_ram_6_reg), .rdata(rdata_ram_6), .rst(rst), .waddr(waddr_ram_6_reg), .wdata(wdata_ram_6_reg), .wen(wen_ram_6_reg));
 
-	add call_13();
+	add alloca_11();
 
-	reg [31:0] base_addr_getelementptr_14;
-	reg [31:0] gep_add_in1_getelementptr_14;
-	wire [31:0] getelementptr_out_getelementptr_14;
-	getelementptr_1 getelementptr_14(.base_addr(base_addr_getelementptr_14), .in1(gep_add_in1_getelementptr_14), .out(getelementptr_out_getelementptr_14));
+	reg [31:0] raddr_ram_7_reg;
+	reg [31:0] waddr_ram_7_reg;
+	reg [47:0] wdata_ram_7_reg;
+	reg [0:0] wen_ram_7_reg;
+	wire [47:0] rdata_ram_7;
+	reg_passthrough #(.WIDTH(48)) ram_7(.clk(clk), .raddr(raddr_ram_7_reg), .rdata(rdata_ram_7), .rst(rst), .waddr(waddr_ram_7_reg), .wdata(wdata_ram_7_reg), .wen(wen_ram_7_reg));
 
-	reg [31:0] raddr_ram_9_reg;
-	reg [31:0] waddr_ram_9_reg;
-	reg [47:0] wdata_ram_9_reg;
-	reg [0:0] wen_ram_9_reg;
-	wire [47:0] rdata_ram_9;
-	reg_passthrough #(.WIDTH(48)) ram_9(.clk(clk), .raddr(raddr_ram_9_reg), .rdata(rdata_ram_9), .rst(rst), .waddr(waddr_ram_9_reg), .wdata(wdata_ram_9_reg), .wen(wen_ram_9_reg));
+	add alloca_13();
 
-	reg [31:0] base_addr_getelementptr_16;
-	reg [31:0] gep_add_in1_getelementptr_16;
-	wire [31:0] getelementptr_out_getelementptr_16;
-	getelementptr_1 getelementptr_16(.base_addr(base_addr_getelementptr_16), .in1(gep_add_in1_getelementptr_16), .out(getelementptr_out_getelementptr_16));
+	reg [31:0] raddr_ram_8_reg;
+	reg [31:0] waddr_ram_8_reg;
+	reg [15:0] wdata_ram_8_reg;
+	reg [0:0] wen_ram_8_reg;
+	wire [15:0] rdata_ram_8;
+	reg_passthrough #(.WIDTH(16)) ram_8(.clk(clk), .raddr(raddr_ram_8_reg), .rdata(rdata_ram_8), .rst(rst), .waddr(waddr_ram_8_reg), .wdata(wdata_ram_8_reg), .wen(wen_ram_8_reg));
 
-	reg [31:0] raddr_ram_11_reg;
-	reg [31:0] waddr_ram_11_reg;
-	reg [47:0] wdata_ram_11_reg;
-	reg [0:0] wen_ram_11_reg;
-	wire [47:0] rdata_ram_11;
-	reg_passthrough #(.WIDTH(48)) ram_11(.clk(clk), .raddr(raddr_ram_11_reg), .rdata(rdata_ram_11), .rst(rst), .waddr(waddr_ram_11_reg), .wdata(wdata_ram_11_reg), .wen(wen_ram_11_reg));
-
-	add alloca_18();
-
-	add alloca_20();
-
-	add alloca_22();
-
-	reg [31:0] raddr_ram_15_reg;
-	reg [31:0] waddr_ram_15_reg;
-	reg [15:0] wdata_ram_15_reg;
-	reg [0:0] wen_ram_15_reg;
-	wire [15:0] rdata_ram_15;
-	reg_passthrough #(.WIDTH(16)) ram_15(.clk(clk), .raddr(raddr_ram_15_reg), .rdata(rdata_ram_15), .rst(rst), .waddr(waddr_ram_15_reg), .wdata(wdata_ram_15_reg), .wen(wen_ram_15_reg));
-
-	reg [31:0] base_addr_getelementptr_24;
-	reg [31:0] gep_add_in1_getelementptr_24;
-	wire [31:0] getelementptr_out_getelementptr_24;
-	getelementptr_1 getelementptr_24(.base_addr(base_addr_getelementptr_24), .in1(gep_add_in1_getelementptr_24), .out(getelementptr_out_getelementptr_24));
+	add call_16();
 
 	// End Functional Units
 
 	// Start instruction result storage
-	reg [47:0] load_tmp_8;
-	reg [47:0] load_tmp_10;
-	reg [15:0] load_tmp_12;
+	reg [47:0] load_tmp_4;
+	reg [47:0] load_tmp_5;
+	reg [15:0] load_tmp_6;
 	// End instruction result storage
 
 	// Start pipeline variables
@@ -195,9 +165,9 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 			if ((global_state == 0)) begin 
 				// Temporary storage
 				// Store data computed at the stage
-					load_tmp_8 <= rdata_ram_9;
-					load_tmp_10 <= rdata_ram_11;
-					load_tmp_12 <= rdata_ram_15;
+					load_tmp_4 <= rdata_ram_6;
+					load_tmp_5 <= rdata_ram_7;
+					load_tmp_6 <= rdata_ram_8;
 			end
 			if ((global_state == 1)) begin 
 				// Temporary storage
@@ -213,60 +183,15 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 
 	always @(*) begin
 		if ((global_state == 0)) begin 
-				//   %0 = alloca i48
-				if (arg_3_s_eth_hdr_ready) begin
-				end
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   store i48 %arg_0, i48* %0
-				if (arg_3_s_eth_hdr_ready) begin
-				waddr_ram_0_reg = 0;
-				wdata_ram_0_reg = arg_0_out_data;
-				wen_ram_0_reg = 1;
-				end
-				//   %4 = load i48, i48* %3
-				if (arg_3_s_eth_hdr_ready) begin
-				raddr_ram_0_reg = getelementptr_out_getelementptr_7;
-				end
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %1 = alloca i48
-				if (arg_3_s_eth_hdr_ready) begin
-				end
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
 				//   store i48 %arg_1, i48* %1
 				if (arg_3_s_eth_hdr_ready) begin
-				waddr_ram_1_reg = 0;
-				wdata_ram_1_reg = arg_1_out_data;
-				wen_ram_1_reg = 1;
+				waddr_ram_0_reg = 0;
+				wdata_ram_0_reg = arg_1_out_data;
+				wen_ram_0_reg = 1;
 				end
-				//   %6 = load i48, i48* %5
+				//   %4 = load i48, i48* %1
 				if (arg_3_s_eth_hdr_ready) begin
-				raddr_ram_1_reg = getelementptr_out_getelementptr_4;
-				end
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %5 = getelementptr i48, i48* %1, i32 0
-				if (arg_3_s_eth_hdr_ready) begin
-				base_addr_getelementptr_4 = 0;
-				gep_add_in1_getelementptr_4 = (32'd0);
+				raddr_ram_0_reg = 0;
 				end
 		end else begin 
 			// Default values
@@ -285,13 +210,13 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 		if ((global_state == 0)) begin 
 				//   store i16 %arg_2, i16* %2
 				if (arg_3_s_eth_hdr_ready) begin
-				waddr_ram_3_reg = 0;
-				wdata_ram_3_reg = arg_2_out_data;
-				wen_ram_3_reg = 1;
+				waddr_ram_1_reg = 0;
+				wdata_ram_1_reg = arg_2_out_data;
+				wen_ram_1_reg = 1;
 				end
-				//   %8 = load i16, i16* %7
+				//   %5 = load i16, i16* %2
 				if (arg_3_s_eth_hdr_ready) begin
-				raddr_ram_3_reg = getelementptr_out_getelementptr_10;
+				raddr_ram_1_reg = 0;
 				end
 		end else begin 
 			// Default values
@@ -299,10 +224,15 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
-				//   %3 = getelementptr i48, i48* %0, i32 0
+				//   %3 = load i48, i48* %0
 				if (arg_3_s_eth_hdr_ready) begin
-				base_addr_getelementptr_7 = 0;
-				gep_add_in1_getelementptr_7 = (32'd0);
+				raddr_ram_2_reg = 0;
+				end
+				//   store i48 %arg_0, i48* %0
+				if (arg_3_s_eth_hdr_ready) begin
+				waddr_ram_2_reg = 0;
+				wdata_ram_2_reg = arg_0_out_data;
+				wen_ram_2_reg = 1;
 				end
 		end else begin 
 			// Default values
@@ -310,10 +240,8 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
-				//   %7 = getelementptr i16, i16* %2, i32 0
+				//   %0 = alloca i48
 				if (arg_3_s_eth_hdr_ready) begin
-				base_addr_getelementptr_10 = 0;
-				gep_add_in1_getelementptr_10 = (32'd0);
 				end
 		end else begin 
 			// Default values
@@ -321,7 +249,91 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
-				//   %12 = call i1 @builtin_read_port_s_eth_hdr_ready(%eth_axis_tx* %arg_3)
+				//   %1 = alloca i48
+				if (arg_3_s_eth_hdr_ready) begin
+				end
+		end else begin 
+			// Default values
+		end
+	end
+	always @(*) begin
+		if ((global_state == 0)) begin 
+				//   %6 = alloca i48
+				if (arg_3_s_eth_hdr_ready) begin
+				end
+		end else begin 
+			// Default values
+		end
+	end
+	always @(*) begin
+		if ((global_state == 0)) begin 
+				//   store i48 %3, i48* %6
+				if (arg_3_s_eth_hdr_ready) begin
+				waddr_ram_6_reg = 0;
+				wdata_ram_6_reg = rdata_ram_2;
+				wen_ram_6_reg = 1;
+				end
+				//   %10 = load i48, i48* %6
+				if (arg_3_s_eth_hdr_ready) begin
+				raddr_ram_6_reg = 0;
+				end
+		end else begin 
+			// Default values
+		end
+	end
+	always @(*) begin
+		if ((global_state == 0)) begin 
+				//   %7 = alloca i48
+				if (arg_3_s_eth_hdr_ready) begin
+				end
+		end else begin 
+			// Default values
+		end
+	end
+	always @(*) begin
+		if ((global_state == 0)) begin 
+				//   store i48 %4, i48* %7
+				if (arg_3_s_eth_hdr_ready) begin
+				waddr_ram_7_reg = 0;
+				wdata_ram_7_reg = rdata_ram_0;
+				wen_ram_7_reg = 1;
+				end
+				//   %11 = load i48, i48* %7
+				if (arg_3_s_eth_hdr_ready) begin
+				raddr_ram_7_reg = 0;
+				end
+		end else begin 
+			// Default values
+		end
+	end
+	always @(*) begin
+		if ((global_state == 0)) begin 
+				//   %8 = alloca i16
+				if (arg_3_s_eth_hdr_ready) begin
+				end
+		end else begin 
+			// Default values
+		end
+	end
+	always @(*) begin
+		if ((global_state == 0)) begin 
+				//   store i16 %5, i16* %8
+				if (arg_3_s_eth_hdr_ready) begin
+				waddr_ram_8_reg = 0;
+				wdata_ram_8_reg = rdata_ram_1;
+				wen_ram_8_reg = 1;
+				end
+				//   %12 = load i16, i16* %8
+				if (arg_3_s_eth_hdr_ready) begin
+				raddr_ram_8_reg = 0;
+				end
+		end else begin 
+			// Default values
+		end
+	end
+	always @(*) begin
+		if ((global_state == 0)) begin 
+				//   %9 = call i1 @builtin_read_port_s_eth_hdr_ready(%eth_axis_tx* %arg_3)
 				if (arg_3_s_eth_hdr_ready) begin
 				end
 			arg_3_s_eth_dest_mac_reg = 0;
@@ -335,12 +347,12 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 		end else 		if ((global_state == 1)) begin 
 				//   call void @builtin_write_port_s_eth_hdr_valid(%eth_axis_tx* %arg_3, i32 1)
 				arg_3_s_eth_hdr_valid_reg = (32'd1);
-				//   call void @builtin_write_port_s_eth_dest_mac(%eth_axis_tx* %arg_3, i48 %14)
-				arg_3_s_eth_dest_mac_reg = load_tmp_8;
-				//   call void @builtin_write_port_s_eth_src_mac(%eth_axis_tx* %arg_3, i48 %16)
-				arg_3_s_eth_src_mac_reg = load_tmp_10;
-				//   call void @builtin_write_port_s_eth_type(%eth_axis_tx* %arg_3, i16 %18)
-				arg_3_s_eth_type_reg = load_tmp_12;
+				//   call void @builtin_write_port_s_eth_dest_mac(%eth_axis_tx* %arg_3, i48 %10)
+				arg_3_s_eth_dest_mac_reg = load_tmp_4;
+				//   call void @builtin_write_port_s_eth_src_mac(%eth_axis_tx* %arg_3, i48 %11)
+				arg_3_s_eth_src_mac_reg = load_tmp_5;
+				//   call void @builtin_write_port_s_eth_type(%eth_axis_tx* %arg_3, i16 %12)
+				arg_3_s_eth_type_reg = load_tmp_6;
 			arg_3_s_eth_payload_axis_tdata_reg = 0;
 			arg_3_s_eth_payload_axis_tlast_reg = 0;
 			arg_3_s_eth_payload_axis_tuser_reg = 0;
@@ -359,115 +371,7 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
-				//   call void @builtin_stall(i1 %12)
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %13 = getelementptr i48, i48* %9, i32 0
-				if (arg_3_s_eth_hdr_ready) begin
-				base_addr_getelementptr_14 = 0;
-				gep_add_in1_getelementptr_14 = (32'd0);
-				end
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %14 = load i48, i48* %13
-				if (arg_3_s_eth_hdr_ready) begin
-				raddr_ram_9_reg = getelementptr_out_getelementptr_14;
-				end
-				//   store i48 %4, i48* %9
-				if (arg_3_s_eth_hdr_ready) begin
-				waddr_ram_9_reg = 0;
-				wdata_ram_9_reg = rdata_ram_0;
-				wen_ram_9_reg = 1;
-				end
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %15 = getelementptr i48, i48* %10, i32 0
-				if (arg_3_s_eth_hdr_ready) begin
-				base_addr_getelementptr_16 = 0;
-				gep_add_in1_getelementptr_16 = (32'd0);
-				end
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %16 = load i48, i48* %15
-				if (arg_3_s_eth_hdr_ready) begin
-				raddr_ram_11_reg = getelementptr_out_getelementptr_16;
-				end
-				//   store i48 %6, i48* %10
-				if (arg_3_s_eth_hdr_ready) begin
-				waddr_ram_11_reg = 0;
-				wdata_ram_11_reg = rdata_ram_1;
-				wen_ram_11_reg = 1;
-				end
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %9 = alloca i48
-				if (arg_3_s_eth_hdr_ready) begin
-				end
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %10 = alloca i48
-				if (arg_3_s_eth_hdr_ready) begin
-				end
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %11 = alloca i16
-				if (arg_3_s_eth_hdr_ready) begin
-				end
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   store i16 %8, i16* %11
-				if (arg_3_s_eth_hdr_ready) begin
-				waddr_ram_15_reg = 0;
-				wdata_ram_15_reg = rdata_ram_3;
-				wen_ram_15_reg = 1;
-				end
-				//   %18 = load i16, i16* %17
-				if (arg_3_s_eth_hdr_ready) begin
-				raddr_ram_15_reg = getelementptr_out_getelementptr_24;
-				end
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %17 = getelementptr i16, i16* %11, i32 0
-				if (arg_3_s_eth_hdr_ready) begin
-				base_addr_getelementptr_24 = 0;
-				gep_add_in1_getelementptr_24 = (32'd0);
-				end
+				//   call void @builtin_stall(i1 %9)
 		end else begin 
 			// Default values
 		end

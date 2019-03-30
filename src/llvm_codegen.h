@@ -226,7 +226,8 @@ namespace ahaHLS {
   
   static inline
   llvm::Value* loadReg(llvm::IRBuilder<>& builder, llvm::Value* val) {
-    return loadVal(builder, val, mkInt(0, 32));
+    return builder.CreateLoad(val);
+    //return loadVal(builder, val, mkInt(0, 32));
   }
 
   static inline
