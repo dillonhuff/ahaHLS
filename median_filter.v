@@ -235,14 +235,14 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 			// Default values
 		end
 	end
-// No controller needed, just assigning to only used values
+	// No controller needed, just assigning to only used values
 	always @(*) begin
 				//   %2 = phi i32 [ 0, %entry_block_il ], [ %3, %_il ]
 				phi_in_phi_6 = {(32'd0), add_tmp_1};
 				phi_last_block_phi_6 = last_BB_reg;
 				phi_s_phi_6 = {32'd2, 32'd4};
 	end
-// No controller needed, just assigning to only used values
+	// No controller needed, just assigning to only used values
 	always @(*) begin
 				//   %3 = add i32 %2, 1
 				add_in0_add_7 = phi_out_phi_6;
@@ -277,7 +277,7 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 			// Default values
 		end
 	end
-// No controller needed, just assigning to only used values
+	// No controller needed, just assigning to only used values
 	always @(*) begin
 				//   %8 = icmp ne i32 %3, 8533
 				cmp_in0_icmp_16 = add_out_add_7;

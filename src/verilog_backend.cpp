@@ -1442,21 +1442,35 @@ namespace ahaHLS {
                            const std::vector<StateTransition>& destinations,
                            MicroArchitecture& arch) {
 
-    // auto& pipelines = arch.pipelines;
-
     out << tab(3) << "if (" << atState(state, arch) << ") begin " << endl;    
     out << "\t\t\t\t// Temporary storage" << endl;
 
-    // ControlFlowPosition pos = position(state, lastInstructionInState(state, arch));
-    
-    // if (isPipelineState(state, pipelines)) {
-    //   auto p = getPipeline(state, pipelines);
-    //   pos = pipelinePosition(p.getExitBranch(), state, p.numStages() - 1);
-    // }
+    vector<std::string> stallConds;
+    // Stalls do not get stalled by themselves
+    for (auto instrK : arch.stg.instructionsStartingAt(state)) {
+      //cout << "Instruction = " << valueString(instrK.instruction) << endl;
+      if (isBuiltinStallCall(instrK)) {
+
+        auto stallPos = position(state, instrK);
+        string cond = outputName(instrK->getOperand(0),
+                                 stallPos,
+                                 arch);
+
+        stallConds.push_back(cond);
+      }
+    }
+
+    if (stallConds.size() > 0) {
+      out << tab(4) << "if (" << andStrings(stallConds) << ") begin" << endl;
+    }
     
     emitTempStorage(out,
                     state,
                     arch);
+
+    if (stallConds.size() > 0) {
+      out << tab(4) << "end" << endl;
+    }
     
     out << "\t\t\tend" << endl;
     
