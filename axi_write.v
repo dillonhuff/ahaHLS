@@ -132,7 +132,9 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 			end
 			if ((global_state == 1)) begin 
 				// Temporary storage
+				if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
 				// Store data computed at the stage
+				end
 			end
 		end
 	end
@@ -201,26 +203,17 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 			// Default values
 		end
 	end
+	// No controller needed, just assigning to only used values
 	always @(*) begin
-		if ((global_state == 1)) begin 
 				//   call void @builtin_stall(i1 %1)
-		end else begin 
-			// Default values
-		end
 	end
+	// No controller needed, just assigning to only used values
 	always @(*) begin
-		if ((global_state == 1)) begin 
 				//   call void @builtin_stall(i1 %2)
-		end else begin 
-			// Default values
-		end
 	end
+	// No controller needed, just assigning to only used values
 	always @(*) begin
-		if ((global_state == 1)) begin 
 				//   call void @builtin_stall(i1 %3)
-		end else begin 
-			// Default values
-		end
 	end
 	always @(*) begin
 		if ((global_state == 1)) begin 

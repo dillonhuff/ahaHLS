@@ -1,15 +1,17 @@
-module fifo_read_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, output [0:0] arg_0_read_valid, output [0:0] arg_0_rst, output [31:0] arg_0_write_valid, input [31:0] arg_0_out_data, input [0:0] arg_0_read_ready, input [0:0] arg_0_write_ready, output [0:0] valid);
+module fifo_read_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, output [0:0] arg_0_read_valid, output [0:0] arg_0_rst, output [31:0] arg_0_write_valid, input [31:0] arg_0_out_data, input [0:0] arg_0_read_ready, input [0:0] arg_0_write_ready, output [31:0] return_value, output [0:0] valid);
 
 	reg [31:0] arg_0_in_data_reg;
 	reg [0:0] arg_0_read_valid_reg;
 	reg [0:0] arg_0_rst_reg;
 	reg [31:0] arg_0_write_valid_reg;
+	reg [31:0] return_value_reg;
 	reg [0:0] valid_reg;
 
 	assign arg_0_in_data = arg_0_in_data_reg;
 	assign arg_0_read_valid = arg_0_read_valid_reg;
 	assign arg_0_rst = arg_0_rst_reg;
 	assign arg_0_write_valid = arg_0_write_valid_reg;
+	assign return_value = return_value_reg;
 	assign valid = valid_reg;
 
 	// Start debug wires and ports
@@ -107,7 +109,9 @@ module fifo_read_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_
 			// Temporary storage code
 			if ((global_state == 0)) begin 
 				// Temporary storage
+				if (arg_0_read_ready) begin
 				// Store data computed at the stage
+				end
 			end
 			if ((global_state == 1)) begin 
 				// Temporary storage
@@ -151,25 +155,24 @@ module fifo_read_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_
 				arg_0_write_valid_reg = 0;
 		end
 	end
+	// No controller needed, just assigning to only used values
 	always @(*) begin
-		if ((global_state == 0)) begin 
 				//   call void @builtin_stall(i1 %1)
-		end else begin 
-			// Default values
-		end
 	end
 	always @(*) begin
 		if ((global_state == 2)) begin 
 				//   ret i32 %2
+				return_value_reg = arg_0_out_data;
 				valid_reg = 1;
 		end else begin 
 			// Default values
+				return_value_reg = 0;
 				valid_reg = 0;
 		end
 	end
 endmodule
 
-module fifo_read(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, output [0:0] arg_0_read_valid, output [0:0] arg_0_rst, output [31:0] arg_0_write_valid, input [31:0] arg_0_out_data, input [0:0] arg_0_read_ready, input [0:0] arg_0_write_ready, output [0:0] valid);
+module fifo_read(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, output [0:0] arg_0_read_valid, output [0:0] arg_0_rst, output [31:0] arg_0_write_valid, input [31:0] arg_0_out_data, input [0:0] arg_0_read_ready, input [0:0] arg_0_write_ready, output [31:0] return_value, output [0:0] valid);
 
 
 	initial begin
@@ -178,6 +181,6 @@ module fifo_read(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, 
 
 
 
-	fifo_read_inner inner(.arg_0_in_data(arg_0_in_data), .arg_0_out_data(arg_0_out_data), .arg_0_read_ready(arg_0_read_ready), .arg_0_read_valid(arg_0_read_valid), .arg_0_rst(arg_0_rst), .arg_0_write_ready(arg_0_write_ready), .arg_0_write_valid(arg_0_write_valid), .clk(clk), .rst(rst), .valid(valid));
+	fifo_read_inner inner(.arg_0_in_data(arg_0_in_data), .arg_0_out_data(arg_0_out_data), .arg_0_read_ready(arg_0_read_ready), .arg_0_read_valid(arg_0_read_valid), .arg_0_rst(arg_0_rst), .arg_0_write_ready(arg_0_write_ready), .arg_0_write_valid(arg_0_write_valid), .clk(clk), .return_value(return_value), .rst(rst), .valid(valid));
 
 endmodule

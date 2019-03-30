@@ -145,9 +145,11 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 			// Temporary storage code
 			if ((global_state == 0)) begin 
 				// Temporary storage
+				if (arg_2_s_eth_payload_axis_tready) begin
 				// Store data computed at the stage
 					load_tmp_3 <= rdata_ram_5;
 					load_tmp_4 <= rdata_ram_4;
+				end
 			end
 			if ((global_state == 1)) begin 
 				// Temporary storage
@@ -161,14 +163,9 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 	// Start pipeline stages
 	// End pipeline instruction code
 
+	// No controller needed, just assigning to only used values
 	always @(*) begin
-		if ((global_state == 0)) begin 
 				//   %0 = alloca i8
-				if (arg_2_s_eth_payload_axis_tready) begin
-				end
-		end else begin 
-			// Default values
-		end
 	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
@@ -202,32 +199,17 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 			// Default values
 		end
 	end
+	// No controller needed, just assigning to only used values
 	always @(*) begin
-		if ((global_state == 0)) begin 
 				//   %1 = alloca i1
-				if (arg_2_s_eth_payload_axis_tready) begin
-				end
-		end else begin 
-			// Default values
-		end
 	end
+	// No controller needed, just assigning to only used values
 	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %4 = alloca i8
-				if (arg_2_s_eth_payload_axis_tready) begin
-				end
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
 				//   %5 = alloca i1
-				if (arg_2_s_eth_payload_axis_tready) begin
-				end
-		end else begin 
-			// Default values
-		end
+	end
+	// No controller needed, just assigning to only used values
+	always @(*) begin
+				//   %4 = alloca i8
 	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
@@ -298,12 +280,9 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 				arg_2_s_eth_type_reg = 0;
 		end
 	end
+	// No controller needed, just assigning to only used values
 	always @(*) begin
-		if ((global_state == 0)) begin 
 				//   call void @builtin_stall(i1 %6)
-		end else begin 
-			// Default values
-		end
 	end
 	always @(*) begin
 		if ((global_state == 1)) begin 

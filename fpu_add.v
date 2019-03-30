@@ -1,10 +1,11 @@
-module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input_a, output [0:0] arg_0_input_a_stb, output [31:0] arg_0_input_b, output [0:0] arg_0_input_b_stb, output [0:0] arg_0_rst, input [0:0] arg_0_input_a_ack, input [0:0] arg_0_input_b_ack, input [31:0] arg_0_output_z, input [0:0] arg_0_output_z_stb, output [0:0] valid, input [31:0] arg_1_out_data, input [31:0] arg_2_out_data);
+module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input_a, output [0:0] arg_0_input_a_stb, output [31:0] arg_0_input_b, output [0:0] arg_0_input_b_stb, output [0:0] arg_0_rst, input [0:0] arg_0_input_a_ack, input [0:0] arg_0_input_b_ack, input [31:0] arg_0_output_z, input [0:0] arg_0_output_z_stb, output [31:0] return_value, output [0:0] valid, input [31:0] arg_1_out_data, input [31:0] arg_2_out_data);
 
 	reg [31:0] arg_0_input_a_reg;
 	reg [0:0] arg_0_input_a_stb_reg;
 	reg [31:0] arg_0_input_b_reg;
 	reg [0:0] arg_0_input_b_stb_reg;
 	reg [0:0] arg_0_rst_reg;
+	reg [31:0] return_value_reg;
 	reg [0:0] valid_reg;
 
 	assign arg_0_input_a = arg_0_input_a_reg;
@@ -12,6 +13,7 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 	assign arg_0_input_b = arg_0_input_b_reg;
 	assign arg_0_input_b_stb = arg_0_input_b_stb_reg;
 	assign arg_0_rst = arg_0_rst_reg;
+	assign return_value = return_value_reg;
 	assign valid = valid_reg;
 
 	// Start debug wires and ports
@@ -145,15 +147,21 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 			end
 			if ((global_state == 2)) begin 
 				// Temporary storage
+				if (arg_0_input_a_ack) begin
 				// Store data computed at the stage
+				end
 			end
 			if ((global_state == 3)) begin 
 				// Temporary storage
+				if (arg_0_input_b_ack) begin
 				// Store data computed at the stage
+				end
 			end
 			if ((global_state == 4)) begin 
 				// Temporary storage
+				if (arg_0_output_z_stb) begin
 				// Store data computed at the stage
+				end
 			end
 		end
 	end
@@ -235,41 +243,34 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 				arg_0_rst_reg = 0;
 		end
 	end
+	// No controller needed, just assigning to only used values
 	always @(*) begin
-		if ((global_state == 2)) begin 
 				//   call void @builtin_stall(i1 %0)
-		end else begin 
-			// Default values
-		end
 	end
+	// No controller needed, just assigning to only used values
 	always @(*) begin
-		if ((global_state == 3)) begin 
 				//   call void @builtin_stall(i1 %1)
-		end else begin 
-			// Default values
-		end
 	end
+	// No controller needed, just assigning to only used values
 	always @(*) begin
-		if ((global_state == 4)) begin 
 				//   call void @builtin_stall(i1 %2)
-		end else begin 
-			// Default values
-		end
 	end
 	always @(*) begin
 		if ((global_state == 4)) begin 
 				//   ret i32 %3
 				if (arg_0_output_z_stb) begin
+				return_value_reg = arg_0_output_z;
 				valid_reg = 1;
 				end
 		end else begin 
 			// Default values
+				return_value_reg = 0;
 				valid_reg = 0;
 		end
 	end
 endmodule
 
-module fpu_add(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input_a, output [0:0] arg_0_input_a_stb, output [31:0] arg_0_input_b, output [0:0] arg_0_input_b_stb, output [0:0] arg_0_rst, input [0:0] arg_0_input_a_ack, input [0:0] arg_0_input_b_ack, input [31:0] arg_0_output_z, input [0:0] arg_0_output_z_stb, output [0:0] valid, input [31:0] arg_1_out_data, input [31:0] arg_2_out_data);
+module fpu_add(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input_a, output [0:0] arg_0_input_a_stb, output [31:0] arg_0_input_b, output [0:0] arg_0_input_b_stb, output [0:0] arg_0_rst, input [0:0] arg_0_input_a_ack, input [0:0] arg_0_input_b_ack, input [31:0] arg_0_output_z, input [0:0] arg_0_output_z_stb, output [31:0] return_value, output [0:0] valid, input [31:0] arg_1_out_data, input [31:0] arg_2_out_data);
 
 
 	initial begin
@@ -278,6 +279,6 @@ module fpu_add(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input_a, ou
 
 
 
-	fpu_add_inner inner(.arg_0_input_a(arg_0_input_a), .arg_0_input_a_ack(arg_0_input_a_ack), .arg_0_input_a_stb(arg_0_input_a_stb), .arg_0_input_b(arg_0_input_b), .arg_0_input_b_ack(arg_0_input_b_ack), .arg_0_input_b_stb(arg_0_input_b_stb), .arg_0_output_z(arg_0_output_z), .arg_0_output_z_stb(arg_0_output_z_stb), .arg_0_rst(arg_0_rst), .arg_1_out_data(arg_1_out_data), .arg_2_out_data(arg_2_out_data), .clk(clk), .rst(rst), .valid(valid));
+	fpu_add_inner inner(.arg_0_input_a(arg_0_input_a), .arg_0_input_a_ack(arg_0_input_a_ack), .arg_0_input_a_stb(arg_0_input_a_stb), .arg_0_input_b(arg_0_input_b), .arg_0_input_b_ack(arg_0_input_b_ack), .arg_0_input_b_stb(arg_0_input_b_stb), .arg_0_output_z(arg_0_output_z), .arg_0_output_z_stb(arg_0_output_z_stb), .arg_0_rst(arg_0_rst), .arg_1_out_data(arg_1_out_data), .arg_2_out_data(arg_2_out_data), .clk(clk), .return_value(return_value), .rst(rst), .valid(valid));
 
 endmodule

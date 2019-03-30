@@ -107,7 +107,9 @@ module fifo_write_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_1_in
 			// Temporary storage code
 			if ((global_state == 0)) begin 
 				// Temporary storage
+				if (arg_1_write_ready) begin
 				// Store data computed at the stage
+				end
 			end
 			if ((global_state == 1)) begin 
 				// Temporary storage
@@ -151,12 +153,9 @@ module fifo_write_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_1_in
 				arg_1_write_valid_reg = 0;
 		end
 	end
+	// No controller needed, just assigning to only used values
 	always @(*) begin
-		if ((global_state == 0)) begin 
 				//   call void @builtin_stall(i1 %2)
-		end else begin 
-			// Default values
-		end
 	end
 	always @(*) begin
 		if ((global_state == 2)) begin 

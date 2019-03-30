@@ -564,6 +564,13 @@ namespace ahaHLS {
 
       defaults.insert({"valid", 0});
       wiring = {{"valid", {true, 1, "valid"}}};
+
+      ReturnInst* ret = dyn_cast<ReturnInst>(instr);
+      if (ret->getReturnValue() != nullptr) {
+        auto val = ret->getReturnValue();
+        wiring.insert({"return_value", {true, getValueBitWidth(val), "return_value"}});
+        defaults.insert({"return_value", 0});        
+      }
       outWires = {};
           
     } else if (CmpInst::classof(instr)) {
@@ -1123,6 +1130,13 @@ namespace ahaHLS {
       assert(addUnit.isExternal());
       
       assignments.insert({addUnit.inputWire("valid"), "1"});
+
+      ReturnInst* ret = dyn_cast<ReturnInst>(instr);
+      Value* val = ret->getReturnValue();
+      if (val != nullptr) {
+        auto valName = outputName(val, pos, arch);
+        assignments.insert({addUnit.inputWire("return_value"), valName});
+      }
     } else if (StoreInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
