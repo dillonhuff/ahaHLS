@@ -31,7 +31,61 @@ void optimizeModuleLLVM(llvm::Module& mod);
 MemorySpec pss(const int width) {
   return {0, 0, 1, 1, width, 1, false, {{{"width", std::to_string(width)}}, "reg_passthrough"}};
 }
-  
+
+bool isPresent(InstructionTime& time, llvm::Function* const f) {
+  ExecutionAction action = time.action;
+  if (action.isTag()) {
+    return true;
+  }
+
+  if (action.isBasicBlock()) {
+    BasicBlock* bb = action.getBasicBlock();
+    for (auto& other : f->getBasicBlockList()) {
+      if (bb == &other) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  if (action.isInstruction()) {
+    Instruction* instr = action.getInstruction();
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& other : bb) {
+        if (instr == &other) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  return false;
+}
+
+void clearExecutionConstraints(llvm::Function* const f,
+                               ExecutionConstraints& exec) {
+  set<ExecutionConstraint*> toRemove;
+  for (auto c : exec.constraints) {
+    if (c->type() == CONSTRAINT_TYPE_ORDERED) {
+      auto oc = static_cast<Ordered*>(c);
+      bool startPresent = isPresent(oc->before, f);
+      bool endPresent = isPresent(oc->after, f);
+
+      if (!startPresent || !endPresent) {
+        toRemove.insert(c);
+      }
+    } else {
+      assert(false);
+    }
+  }
+
+  for (auto r : toRemove) {
+    exec.remove(r);
+  }
+}
 
 Schedule scheduleInterfaceZeroReg(llvm::Function* f,
                                   HardwareConstraints& hcs,
@@ -47,6 +101,7 @@ Schedule scheduleInterfaceZeroReg(llvm::Function* f,
 
   // TODO: Where to put this stuff
   optimizeModuleLLVM(*(f->getParent()));
+  clearExecutionConstraints(f, exec);
   
   cout << "After inlining" << endl;
   cout << valueString(f) << endl;
