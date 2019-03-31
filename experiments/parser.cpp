@@ -2695,6 +2695,7 @@ synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
       if (IntegerType::classof(underlying)) {
         cout << "Should set " << valueString(&arg) << " to be register" << endl;
         scppMod.getHardwareConstraints().modSpecs.insert({&arg, registerModSpec(getTypeBitWidth(underlying))});
+        scppMod.getHardwareConstraints().memSpecs.insert({&arg, registerSpec(getTypeBitWidth(underlying))});
       }
     }
   }
