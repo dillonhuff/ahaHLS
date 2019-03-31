@@ -24,6 +24,10 @@ using namespace dbhc;
 using namespace ahaHLS;
 using namespace std;
 
+class SynthCppModule;
+void optimizeModuleLLVM(SynthCppModule& mod);
+void optimizeModuleLLVM(llvm::Module& mod);
+
 MemorySpec pss(const int width) {
   return {0, 0, 1, 1, width, 1, false, {{{"width", std::to_string(width)}}, "reg_passthrough"}};
 }
@@ -38,6 +42,9 @@ Schedule scheduleInterfaceZeroReg(llvm::Function* f,
   cout << "Before inlining" << endl;
   cout << valueString(f) << endl;
 
+  // TODO: Where to put this stuff
+  optimizeModuleLLVM(*(f->getParent()));
+  
   addDataConstraints(f, exec);
   inlineWireCalls(f, exec, interfaces);
 
@@ -2104,7 +2111,6 @@ public:
       }
     }
 
-
   }
 
   map<std::string, llvm::Value*> valueMap;
@@ -2598,6 +2604,21 @@ public:
 
 };
 
+void optimizeModuleLLVM(llvm::Module& mod) {
+  llvm::legacy::PassManager pm;
+  pm.add(new LoopInfoWrapperPass());
+  pm.add(new AAResultsWrapperPass());
+  pm.add(new TargetLibraryInfoWrapperPass());
+  pm.add(createGVNPass());
+  pm.add(createDeadStoreEliminationPass());
+      
+  pm.run(mod);
+}
+
+void optimizeModuleLLVM(SynthCppModule& scppMod) {
+  optimizeModuleLLVM(*(scppMod.mod.get()));
+}
+
 MicroArchitecture
 synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
   SynthCppFunction* f = scppMod.getFunction(funcName);
@@ -2612,12 +2633,6 @@ synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
       string(func.first->getName()) << " = " <<
       func.second.constraints.size() << endl;
   }
-
-  // setAllAllocaMemTypes(scppMod.getHardwareConstraints(), f, pss(32));
-  
-  // scppMod.getHardwareConstraints().memoryMapping =
-  //   memoryOpLocations(f->llvmFunction());        
-
 
   // Set pointers to primitives to be registers, not memories
   for (auto& arg : f->llvmFunction()->args()) {
@@ -3181,6 +3196,20 @@ int main() {
       SynthCppModule scppMod(mod);    
       auto arch = synthesizeVerilog(scppMod, "write_header_func");
 
+      // llvm::legacy::PassManager pm;
+      // pm.add(new LoopInfoWrapperPass());
+      // pm.add(new AAResultsWrapperPass());
+      // pm.add(new TargetLibraryInfoWrapperPass());
+      // pm.add(createGVNPass());
+      // pm.add(createDeadStoreEliminationPass());
+      // cout << "Before GVN pass" << endl;
+      // cout << valueString(scppMod.getFunction("write_header_func")->llvmFunction()) << endl;
+      
+      // pm.run(*(scppMod.mod.get()));
+
+      // cout << "After GVN" << endl;
+      // cout << valueString(scppMod.getFunction("write_header_func")->llvmFunction()) << endl;
+      
     }
 
     {
