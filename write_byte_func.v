@@ -1,5 +1,10 @@
-module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_2_m_axis_tready, output [47:0] arg_2_s_eth_dest_mac, output [0:0] arg_2_s_eth_hdr_valid, output [7:0] arg_2_s_eth_payload_axis_tdata, output [0:0] arg_2_s_eth_payload_axis_tlast, output [0:0] arg_2_s_eth_payload_axis_tuser, output [0:0] arg_2_s_eth_payload_axis_tvalid, output [47:0] arg_2_s_eth_src_mac, output [15:0] arg_2_s_eth_type, input [0:0] arg_2_busy, input [0:0] arg_2_s_eth_hdr_ready, input [0:0] arg_2_s_eth_payload_axis_tready, output [7:0] arg_0_raddr, output [7:0] arg_0_waddr, output [7:0] arg_0_wdata, output [0:0] arg_0_wen, input [7:0] arg_0_rdata, output [0:0] arg_1_raddr, output [0:0] arg_1_waddr, output [0:0] arg_1_wdata, output [0:0] arg_1_wen, input [0:0] arg_1_rdata, output [0:0] valid);
+module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_1_raddr, output [0:0] arg_1_waddr, output [0:0] arg_1_wdata, output [0:0] arg_1_wen, input [0:0] arg_1_rdata, output [0:0] valid, output [0:0] arg_2_m_axis_tready, output [47:0] arg_2_s_eth_dest_mac, output [0:0] arg_2_s_eth_hdr_valid, output [7:0] arg_2_s_eth_payload_axis_tdata, output [0:0] arg_2_s_eth_payload_axis_tlast, output [0:0] arg_2_s_eth_payload_axis_tuser, output [0:0] arg_2_s_eth_payload_axis_tvalid, output [47:0] arg_2_s_eth_src_mac, output [15:0] arg_2_s_eth_type, input [0:0] arg_2_busy, input [0:0] arg_2_s_eth_hdr_ready, input [0:0] arg_2_s_eth_payload_axis_tready, output [7:0] arg_0_raddr, output [7:0] arg_0_waddr, output [7:0] arg_0_wdata, output [0:0] arg_0_wen, input [7:0] arg_0_rdata);
 
+	reg [0:0] arg_1_raddr_reg;
+	reg [0:0] arg_1_waddr_reg;
+	reg [0:0] arg_1_wdata_reg;
+	reg [0:0] arg_1_wen_reg;
+	reg [0:0] valid_reg;
 	reg [0:0] arg_2_m_axis_tready_reg;
 	reg [47:0] arg_2_s_eth_dest_mac_reg;
 	reg [0:0] arg_2_s_eth_hdr_valid_reg;
@@ -13,12 +18,12 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 	reg [7:0] arg_0_waddr_reg;
 	reg [7:0] arg_0_wdata_reg;
 	reg [0:0] arg_0_wen_reg;
-	reg [0:0] arg_1_raddr_reg;
-	reg [0:0] arg_1_waddr_reg;
-	reg [0:0] arg_1_wdata_reg;
-	reg [0:0] arg_1_wen_reg;
-	reg [0:0] valid_reg;
 
+	assign arg_1_raddr = arg_1_raddr_reg;
+	assign arg_1_waddr = arg_1_waddr_reg;
+	assign arg_1_wdata = arg_1_wdata_reg;
+	assign arg_1_wen = arg_1_wen_reg;
+	assign valid = valid_reg;
 	assign arg_2_m_axis_tready = arg_2_m_axis_tready_reg;
 	assign arg_2_s_eth_dest_mac = arg_2_s_eth_dest_mac_reg;
 	assign arg_2_s_eth_hdr_valid = arg_2_s_eth_hdr_valid_reg;
@@ -32,11 +37,6 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 	assign arg_0_waddr = arg_0_waddr_reg;
 	assign arg_0_wdata = arg_0_wdata_reg;
 	assign arg_0_wen = arg_0_wen_reg;
-	assign arg_1_raddr = arg_1_raddr_reg;
-	assign arg_1_waddr = arg_1_waddr_reg;
-	assign arg_1_wdata = arg_1_wdata_reg;
-	assign arg_1_wen = arg_1_wen_reg;
-	assign valid = valid_reg;
 
 	// Start debug wires and ports
 
@@ -50,25 +50,25 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_1();
+	add alloca_0();
 
 	reg [31:0] raddr_ram_0_reg;
 	reg [31:0] waddr_ram_0_reg;
-	reg [0:0] wdata_ram_0_reg;
+	reg [7:0] wdata_ram_0_reg;
 	reg [0:0] wen_ram_0_reg;
-	wire [0:0] rdata_ram_0;
-	reg_passthrough #(.WIDTH(1)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
+	wire [7:0] rdata_ram_0;
+	reg_passthrough #(.WIDTH(8)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
 
-	reg [31:0] raddr_ram_1_reg;
-	reg [31:0] waddr_ram_1_reg;
-	reg [7:0] wdata_ram_1_reg;
-	reg [0:0] wen_ram_1_reg;
-	wire [7:0] rdata_ram_1;
-	reg_passthrough #(.WIDTH(8)) ram_1(.clk(clk), .raddr(raddr_ram_1_reg), .rdata(rdata_ram_1), .rst(rst), .waddr(waddr_ram_1_reg), .wdata(wdata_ram_1_reg), .wen(wen_ram_1_reg));
+	add alloca_2();
 
-	add alloca_3();
+	reg [31:0] raddr_ram_2_reg;
+	reg [31:0] waddr_ram_2_reg;
+	reg [0:0] wdata_ram_2_reg;
+	reg [0:0] wen_ram_2_reg;
+	wire [0:0] rdata_ram_2;
+	reg_passthrough #(.WIDTH(1)) ram_2(.clk(clk), .raddr(raddr_ram_2_reg), .rdata(rdata_ram_2), .rst(rst), .waddr(waddr_ram_2_reg), .wdata(wdata_ram_2_reg), .wen(wen_ram_2_reg));
 
-	add alloca_5();
+	add call_4();
 
 	// End Functional Units
 
@@ -157,6 +157,26 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 	// Start pipeline stages
 	// End pipeline instruction code
 
+	// No controller needed, just assigning to only used values
+	always @(*) begin
+				//   %1 = alloca i8
+	end
+	always @(*) begin
+		if ((global_state == 0)) begin 
+				//   %2 = load i1, i1* %arg_1
+				if (arg_2_s_eth_payload_axis_tready) begin
+				arg_1_raddr_reg = arg_1_rdata;
+				end
+			arg_1_wen_reg = 0;
+		end else begin 
+			// Default values
+				arg_1_wen_reg = 0;
+		end
+	end
+	// No controller needed, just assigning to only used values
+	always @(*) begin
+				//   %3 = alloca i1
+	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
 				//   %4 = call i1 @builtin_read_port_s_eth_payload_axis_tready(%eth_axis_tx* %arg_2)
@@ -171,12 +191,12 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 			arg_2_s_eth_src_mac_reg = 0;
 			arg_2_s_eth_type_reg = 0;
 		end else 		if ((global_state == 1)) begin 
+				//   call void @builtin_write_port_s_eth_payload_axis_tlast(%eth_axis_tx* %arg_2, i1 %5)
+				arg_2_s_eth_payload_axis_tlast_reg = rdata_ram_2;
+				//   call void @builtin_write_port_s_eth_payload_axis_tdata(%eth_axis_tx* %arg_2, i8 %6)
+				arg_2_s_eth_payload_axis_tdata_reg = rdata_ram_0;
 				//   call void @builtin_write_port_s_eth_payload_axis_tvalid(%eth_axis_tx* %arg_2, i32 1)
 				arg_2_s_eth_payload_axis_tvalid_reg = (32'd1);
-				//   call void @builtin_write_port_s_eth_payload_axis_tlast(%eth_axis_tx* %arg_2, i1 %5)
-				arg_2_s_eth_payload_axis_tlast_reg = rdata_ram_0;
-				//   call void @builtin_write_port_s_eth_payload_axis_tdata(%eth_axis_tx* %arg_2, i8 %6)
-				arg_2_s_eth_payload_axis_tdata_reg = rdata_ram_1;
 			arg_2_s_eth_dest_mac_reg = 0;
 			arg_2_s_eth_hdr_valid_reg = 0;
 			arg_2_s_eth_payload_axis_tuser_reg = 0;
@@ -210,46 +230,26 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 				arg_0_wen_reg = 0;
 		end
 	end
-	// No controller needed, just assigning to only used values
-	always @(*) begin
-				//   %1 = alloca i8
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %2 = load i1, i1* %arg_1
-				if (arg_2_s_eth_payload_axis_tready) begin
-				arg_1_raddr_reg = arg_1_rdata;
-				end
-			arg_1_wen_reg = 0;
-		end else begin 
-			// Default values
-				arg_1_wen_reg = 0;
-		end
-	end
-	// No controller needed, just assigning to only used values
-	always @(*) begin
-				//   %3 = alloca i1
-	end
 	always @(*) begin
 		if ((global_state == 1)) begin 
-				//   %5 = load i1, i1* %3
-				raddr_ram_0_reg = 0;
-				//   store i1 %2, i1* %3
-				waddr_ram_0_reg = 0;
-				wdata_ram_0_reg = arg_1_rdata;
-				wen_ram_0_reg = 1;
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 1)) begin 
-				//   %6 = load i8, i8* %1
-				raddr_ram_1_reg = 0;
 				//   store i8 %0, i8* %1
-				waddr_ram_1_reg = 0;
-				wdata_ram_1_reg = arg_0_rdata;
-				wen_ram_1_reg = 1;
+				waddr_ram_0_reg = 0;
+				wdata_ram_0_reg = arg_0_rdata;
+				wen_ram_0_reg = 1;
+				//   %6 = load i8, i8* %1
+				raddr_ram_0_reg = 0;
+		end else begin 
+			// Default values
+		end
+	end
+	always @(*) begin
+		if ((global_state == 1)) begin 
+				//   store i1 %2, i1* %3
+				waddr_ram_2_reg = 0;
+				wdata_ram_2_reg = arg_1_rdata;
+				wen_ram_2_reg = 1;
+				//   %5 = load i1, i1* %3
+				raddr_ram_2_reg = 0;
 		end else begin 
 			// Default values
 		end
@@ -265,7 +265,7 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 	end
 endmodule
 
-module write_byte_func(input [0:0] clk, input [0:0] rst, output [0:0] arg_2_m_axis_tready, output [47:0] arg_2_s_eth_dest_mac, output [0:0] arg_2_s_eth_hdr_valid, output [7:0] arg_2_s_eth_payload_axis_tdata, output [0:0] arg_2_s_eth_payload_axis_tlast, output [0:0] arg_2_s_eth_payload_axis_tuser, output [0:0] arg_2_s_eth_payload_axis_tvalid, output [47:0] arg_2_s_eth_src_mac, output [15:0] arg_2_s_eth_type, input [0:0] arg_2_busy, input [0:0] arg_2_s_eth_hdr_ready, input [0:0] arg_2_s_eth_payload_axis_tready, output [7:0] arg_0_raddr, output [7:0] arg_0_waddr, output [7:0] arg_0_wdata, output [0:0] arg_0_wen, input [7:0] arg_0_rdata, output [0:0] arg_1_raddr, output [0:0] arg_1_waddr, output [0:0] arg_1_wdata, output [0:0] arg_1_wen, input [0:0] arg_1_rdata, output [0:0] valid);
+module write_byte_func(input [0:0] clk, input [0:0] rst, output [0:0] arg_1_raddr, output [0:0] arg_1_waddr, output [0:0] arg_1_wdata, output [0:0] arg_1_wen, input [0:0] arg_1_rdata, output [0:0] valid, output [0:0] arg_2_m_axis_tready, output [47:0] arg_2_s_eth_dest_mac, output [0:0] arg_2_s_eth_hdr_valid, output [7:0] arg_2_s_eth_payload_axis_tdata, output [0:0] arg_2_s_eth_payload_axis_tlast, output [0:0] arg_2_s_eth_payload_axis_tuser, output [0:0] arg_2_s_eth_payload_axis_tvalid, output [47:0] arg_2_s_eth_src_mac, output [15:0] arg_2_s_eth_type, input [0:0] arg_2_busy, input [0:0] arg_2_s_eth_hdr_ready, input [0:0] arg_2_s_eth_payload_axis_tready, output [7:0] arg_0_raddr, output [7:0] arg_0_waddr, output [7:0] arg_0_wdata, output [0:0] arg_0_wen, input [7:0] arg_0_rdata);
 
 
 	initial begin

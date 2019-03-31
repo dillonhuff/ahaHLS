@@ -42,12 +42,12 @@ Schedule scheduleInterfaceZeroReg(llvm::Function* f,
   cout << "Before inlining" << endl;
   cout << valueString(f) << endl;
 
-  // TODO: Where to put this stuff
-  optimizeModuleLLVM(*(f->getParent()));
-  
   addDataConstraints(f, exec);
   inlineWireCalls(f, exec, interfaces);
 
+  // TODO: Where to put this stuff
+  optimizeModuleLLVM(*(f->getParent()));
+  
   cout << "After inlining" << endl;
   cout << valueString(f) << endl;
 
