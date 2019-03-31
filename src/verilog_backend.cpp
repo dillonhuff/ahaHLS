@@ -475,17 +475,13 @@ namespace ahaHLS {
     return unit;
   }
 
-  FunctionalUnit structFunctionalUnit(StructType* allocatedType,
-                                      AllocaInst* instr,
+  FunctionalUnit structFunctionalUnit(AllocaInst* instr,
                                       HardwareConstraints& hcs) {
-    //string modName = "add";
-
     string unitName;
     if (instr->getName() != "") {
       unitName = instr->getName();
     } else {
       unitName = sanitizeFormatForVerilogId(valueString(instr));      
-      //assert(false);
     }
 
     assert(hcs.hasArgumentSpec(instr));
@@ -709,7 +705,7 @@ namespace ahaHLS {
       Type* allocatedType = allocInst->getType()->getElementType();
       if (StructType::classof(allocatedType)) {
         cout << "Allocating struct of type " << typeString(allocatedType) << endl;
-        return structFunctionalUnit(dyn_cast<StructType>(allocatedType), allocInst, hcs);
+        return structFunctionalUnit(allocInst, hcs);
       }
     } else if (BitCastInst::classof(instr)) {
       // TODO: Add test case that uses casts
