@@ -392,10 +392,10 @@ namespace ahaHLS {
                                int& writeNum,
                                llvm::Instruction* instr) {
 
-    cout << "Hardware memory storage names in createMemUnit" << endl;
-    for (auto mspec : hcs.memSpecs) {
-      cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
-    }
+    // cout << "Hardware memory storage names in createMemUnit" << endl;
+    // for (auto mspec : hcs.memSpecs) {
+    //   cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
+    // }
     
     assert(LoadInst::classof(instr) || StoreInst::classof(instr));
     string modName = "add";

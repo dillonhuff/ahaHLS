@@ -55,10 +55,10 @@ Schedule scheduleInterfaceZeroReg(llvm::Function* f,
   hcs.memoryMapping =
     memoryOpLocations(f);
 
-  cout << "Hardware memory storage names" << endl;
-  for (auto mspec : hcs.memSpecs) {
-    cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
-  }
+  // cout << "Hardware memory storage names" << endl;
+  // for (auto mspec : hcs.memSpecs) {
+  //   cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
+  // }
 
   SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
   exec.addConstraints(p, f);
@@ -2658,10 +2658,10 @@ synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
   // TODO: Generate these automatically, or change generation code
   // to treat LLVM i<N> as builtin?
 
-  cout << "Hardware memory constraints before " << endl;
-  for (auto mspec : scppMod.getHardwareConstraints().memSpecs) {
-    cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
-  }
+  // cout << "Hardware memory constraints before " << endl;
+  // for (auto mspec : scppMod.getHardwareConstraints().memSpecs) {
+  //   cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
+  // }
   
   //setAllAllocaMemTypes(scppMod.getHardwareConstraints(), f->llvmFunction(), registerSpec(32));
 

@@ -58,32 +58,32 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [47:0] a
 	// End debug wires and ports
 
 	// Start Functional Units
-	add alloca_1();
+	add alloca_0();
 
-	reg [31:0] raddr_ram_1_reg;
-	reg [31:0] waddr_ram_1_reg;
-	reg [47:0] wdata_ram_1_reg;
-	reg [0:0] wen_ram_1_reg;
-	wire [47:0] rdata_ram_1;
-	reg_passthrough #(.WIDTH(48)) ram_1(.clk(clk), .raddr(raddr_ram_1_reg), .rdata(rdata_ram_1), .rst(rst), .waddr(waddr_ram_1_reg), .wdata(wdata_ram_1_reg), .wen(wen_ram_1_reg));
+	reg [31:0] raddr_ram_0_reg;
+	reg [31:0] waddr_ram_0_reg;
+	reg [47:0] wdata_ram_0_reg;
+	reg [0:0] wen_ram_0_reg;
+	wire [47:0] rdata_ram_0;
+	reg_passthrough #(.WIDTH(48)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
 
-	add alloca_4();
+	add alloca_3();
 
-	reg [31:0] raddr_ram_4_reg;
-	reg [31:0] waddr_ram_4_reg;
-	reg [15:0] wdata_ram_4_reg;
-	reg [0:0] wen_ram_4_reg;
-	wire [15:0] rdata_ram_4;
-	reg_passthrough #(.WIDTH(16)) ram_4(.clk(clk), .raddr(raddr_ram_4_reg), .rdata(rdata_ram_4), .rst(rst), .waddr(waddr_ram_4_reg), .wdata(wdata_ram_4_reg), .wen(wen_ram_4_reg));
+	reg [31:0] raddr_ram_3_reg;
+	reg [31:0] waddr_ram_3_reg;
+	reg [47:0] wdata_ram_3_reg;
+	reg [0:0] wen_ram_3_reg;
+	wire [47:0] rdata_ram_3;
+	reg_passthrough #(.WIDTH(48)) ram_3(.clk(clk), .raddr(raddr_ram_3_reg), .rdata(rdata_ram_3), .rst(rst), .waddr(waddr_ram_3_reg), .wdata(wdata_ram_3_reg), .wen(wen_ram_3_reg));
 
 	add alloca_5();
 
 	reg [31:0] raddr_ram_5_reg;
 	reg [31:0] waddr_ram_5_reg;
-	reg [47:0] wdata_ram_5_reg;
+	reg [15:0] wdata_ram_5_reg;
 	reg [0:0] wen_ram_5_reg;
-	wire [47:0] rdata_ram_5;
-	reg_passthrough #(.WIDTH(48)) ram_5(.clk(clk), .raddr(raddr_ram_5_reg), .rdata(rdata_ram_5), .rst(rst), .waddr(waddr_ram_5_reg), .wdata(wdata_ram_5_reg), .wen(wen_ram_5_reg));
+	wire [15:0] rdata_ram_5;
+	reg_passthrough #(.WIDTH(16)) ram_5(.clk(clk), .raddr(raddr_ram_5_reg), .rdata(rdata_ram_5), .rst(rst), .waddr(waddr_ram_5_reg), .wdata(wdata_ram_5_reg), .wen(wen_ram_5_reg));
 
 	add call_7();
 
@@ -174,6 +174,10 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [47:0] a
 	// Start pipeline stages
 	// End pipeline instruction code
 
+	// No controller needed, just assigning to only used values
+	always @(*) begin
+				//   %1 = alloca i48
+	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
 				//   %0 = load i48, i48* %arg_0
@@ -186,10 +190,6 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [47:0] a
 				arg_0_wen_reg = 0;
 		end
 	end
-	// No controller needed, just assigning to only used values
-	always @(*) begin
-				//   %1 = alloca i48
-	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
 				//   %2 = load i48, i48* %arg_1
@@ -201,6 +201,10 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [47:0] a
 			// Default values
 				arg_1_wen_reg = 0;
 		end
+	end
+	// No controller needed, just assigning to only used values
+	always @(*) begin
+				//   %3 = alloca i48
 	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
@@ -217,10 +221,6 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [47:0] a
 	// No controller needed, just assigning to only used values
 	always @(*) begin
 				//   %5 = alloca i16
-	end
-	// No controller needed, just assigning to only used values
-	always @(*) begin
-				//   %3 = alloca i48
 	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
@@ -239,11 +239,11 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [47:0] a
 				//   call void @builtin_write_port_s_eth_hdr_valid(%eth_axis_tx* %arg_3, i32 1)
 				arg_3_s_eth_hdr_valid_reg = (32'd1);
 				//   call void @builtin_write_port_s_eth_dest_mac(%eth_axis_tx* %arg_3, i48 %7)
-				arg_3_s_eth_dest_mac_reg = rdata_ram_1;
+				arg_3_s_eth_dest_mac_reg = rdata_ram_0;
 				//   call void @builtin_write_port_s_eth_src_mac(%eth_axis_tx* %arg_3, i48 %8)
-				arg_3_s_eth_src_mac_reg = rdata_ram_5;
+				arg_3_s_eth_src_mac_reg = rdata_ram_3;
 				//   call void @builtin_write_port_s_eth_type(%eth_axis_tx* %arg_3, i16 %9)
-				arg_3_s_eth_type_reg = rdata_ram_4;
+				arg_3_s_eth_type_reg = rdata_ram_5;
 			arg_3_s_eth_payload_axis_tdata_reg = 0;
 			arg_3_s_eth_payload_axis_tlast_reg = 0;
 			arg_3_s_eth_payload_axis_tuser_reg = 0;
@@ -267,23 +267,11 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [47:0] a
 	always @(*) begin
 		if ((global_state == 1)) begin 
 				//   store i48 %0, i48* %1
-				waddr_ram_1_reg = 0;
-				wdata_ram_1_reg = arg_0_rdata;
-				wen_ram_1_reg = 1;
+				waddr_ram_0_reg = 0;
+				wdata_ram_0_reg = arg_0_rdata;
+				wen_ram_0_reg = 1;
 				//   %7 = load i48, i48* %1
-				raddr_ram_1_reg = 0;
-		end else begin 
-			// Default values
-		end
-	end
-	always @(*) begin
-		if ((global_state == 1)) begin 
-				//   store i16 %4, i16* %5
-				waddr_ram_4_reg = 0;
-				wdata_ram_4_reg = arg_2_rdata;
-				wen_ram_4_reg = 1;
-				//   %9 = load i16, i16* %5
-				raddr_ram_4_reg = 0;
+				raddr_ram_0_reg = 0;
 		end else begin 
 			// Default values
 		end
@@ -291,10 +279,22 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [47:0] a
 	always @(*) begin
 		if ((global_state == 1)) begin 
 				//   store i48 %2, i48* %3
-				waddr_ram_5_reg = 0;
-				wdata_ram_5_reg = arg_1_rdata;
-				wen_ram_5_reg = 1;
+				waddr_ram_3_reg = 0;
+				wdata_ram_3_reg = arg_1_rdata;
+				wen_ram_3_reg = 1;
 				//   %8 = load i48, i48* %3
+				raddr_ram_3_reg = 0;
+		end else begin 
+			// Default values
+		end
+	end
+	always @(*) begin
+		if ((global_state == 1)) begin 
+				//   store i16 %4, i16* %5
+				waddr_ram_5_reg = 0;
+				wdata_ram_5_reg = arg_2_rdata;
+				wen_ram_5_reg = 1;
+				//   %9 = load i16, i16* %5
 				raddr_ram_5_reg = 0;
 		end else begin 
 			// Default values
