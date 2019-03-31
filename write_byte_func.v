@@ -34,8 +34,6 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 	// End debug wires and ports
 
 	// Start Functional Units
-	add alloca_0();
-
 	reg [31:0] raddr_ram_0_reg;
 	reg [31:0] waddr_ram_0_reg;
 	reg [7:0] wdata_ram_0_reg;
@@ -43,9 +41,7 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 	wire [7:0] rdata_ram_0;
 	reg_passthrough #(.WIDTH(8)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
 
-	add alloca_2();
-
-	add alloca_3();
+	add alloca_1();
 
 	reg [31:0] raddr_ram_1_reg;
 	reg [31:0] waddr_ram_1_reg;
@@ -53,6 +49,10 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 	reg [0:0] wen_ram_1_reg;
 	wire [0:0] rdata_ram_1;
 	reg_passthrough #(.WIDTH(1)) ram_1(.clk(clk), .raddr(raddr_ram_1_reg), .rdata(rdata_ram_1), .rst(rst), .waddr(waddr_ram_1_reg), .wdata(wdata_ram_1_reg), .wen(wen_ram_1_reg));
+
+	add alloca_3();
+
+	add alloca_4();
 
 	add alloca_7();
 
@@ -163,10 +163,6 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 	// Start pipeline stages
 	// End pipeline instruction code
 
-	// No controller needed, just assigning to only used values
-	always @(*) begin
-				//   %0 = alloca i8
-	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
 				//   store i8 %arg_0, i8* %0
@@ -182,10 +178,6 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 		end else begin 
 			// Default values
 		end
-	end
-	// No controller needed, just assigning to only used values
-	always @(*) begin
-				//   %3 = alloca i8
 	end
 	// No controller needed, just assigning to only used values
 	always @(*) begin
@@ -206,6 +198,14 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 		end else begin 
 			// Default values
 		end
+	end
+	// No controller needed, just assigning to only used values
+	always @(*) begin
+				//   %3 = alloca i8
+	end
+	// No controller needed, just assigning to only used values
+	always @(*) begin
+				//   %0 = alloca i8
 	end
 	// No controller needed, just assigning to only used values
 	always @(*) begin
