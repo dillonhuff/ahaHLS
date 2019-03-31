@@ -66,7 +66,9 @@ namespace ahaHLS {
     int argId = 0;
     for (auto &Arg : srUser->args()) {
       Arg.setName("arg_" + std::to_string(argId));
-      srUser->addParamAttr(argId, llvm::Attribute::NoAlias);
+      if (llvm::PointerType::classof(Arg.getType())) {
+        srUser->addParamAttr(argId, llvm::Attribute::NoAlias);
+      }
       argId++;
     }
 

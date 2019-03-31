@@ -1,5 +1,16 @@
 #include "algorithm.h"
 
+#include <llvm/Bitcode/Bitcodewriter.h>
+
+#include "llvm/Transforms/Scalar/GVN.h"
+#include "llvm/Transforms/Scalar.h"
+#include <llvm/IR/LegacyPassManager.h>
+#include <llvm/Transforms/IPO/PassManagerBuilder.h>
+#include <llvm/Analysis/AliasAnalysis.h>
+#include <llvm/Analysis/LoopInfo.h>
+#include <llvm/Analysis/LoopAccessAnalysis.h>
+#include <llvm/Analysis/ScalarEvolution.h>
+
 #include <fstream>
 #include <streambuf>
 #include <sstream>
@@ -3169,11 +3180,29 @@ int main() {
     {
       SynthCppModule scppMod(mod);    
       auto arch = synthesizeVerilog(scppMod, "write_header_func");
+
     }
 
     {
       SynthCppModule scppMod(mod);    
       auto arch = synthesizeVerilog(scppMod, "write_byte_func");
+ 
+      llvm::legacy::PassManager pm;
+      pm.add(new LoopInfoWrapperPass());
+      pm.add(new AAResultsWrapperPass());
+      pm.add(new TargetLibraryInfoWrapperPass());
+      pm.add(createGVNPass());
+      pm.add(createDeadStoreEliminationPass());
+      cout << "Before GVN pass" << endl;
+      cout << valueString(scppMod.getFunction("write_byte_func")->llvmFunction()) << endl;
+      
+      pm.run(*(scppMod.mod.get()));
+
+      cout << "After GVN" << endl;
+      cout << valueString(scppMod.getFunction("write_byte_func")->llvmFunction()) << endl;
+      // std::error_code EC;
+      // llvm::raw_fd_ostream OS("write_byte_func.ll", EC, llvm::sys::fs::F_None);
+      // WriteBitcodeToFile(*(scppMod.mod.get()), OS);
     }
 
     {
@@ -3249,6 +3278,10 @@ int main() {
     
     SynthCppModule scppMod(mod);
 
+    std::error_code EC;
+    llvm::raw_fd_ostream OS("fadd.bc", EC, llvm::sys::fs::F_None);
+    WriteBitcodeToFile(*(scppMod.mod.get()), OS);
+    
     cout << "-- Float adder" << endl;
     SynthCppClass* c = scppMod.getClassByName(Token("adder"));
     cout << *c << endl;
@@ -3272,21 +3305,13 @@ int main() {
     tb.useModSpecs = true;
     tb.settablePort(in0, "in_data");
     tb.settablePort(in1, "in_data");
-    // tb.settablePort(src_mac, "in_data");
-    // tb.settablePort(type, "in_data");
-    // tb.settablePort(payload, "in_data");                  
-    // map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
-    // map_insert(tb.actionsInCycles, 1, string("arg_0_in_data <= 25;"));
-    // map_insert(tb.actionsInCycles, 1, string("arg_1_in_data <= 13;"));
-    // map_insert(tb.actionsInCycles, 1, string("arg_2_in_data <= 8;"));
-    // map_insert(tb.actionsInCycles, 1, string("arg_3_in_data <= 49;"));
       
     map_insert(tb.actionsOnCycles, 200, assertString("valid === 1"));
     
     emitVerilogTestBench(tb, arch, testLayout);
 
     // Need to figure out how to inline register specifications
-    assert(runIVerilogTest("fadd_32_tb.v", "fadd_32", " builtins.v fadd_32.v"));
+    //assert(runIVerilogTest("fadd_32_tb.v", "fadd_32", " builtins.v fadd_32.v"));
   }
   
   // Q: What are the new issues?

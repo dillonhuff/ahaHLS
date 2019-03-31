@@ -68,8 +68,8 @@ void write_header_func(bit_48& dest_mac,
   transmitter.write_header(dest_mac, src_mac, type);
 }
 
-void write_byte_func(bit_8 data,
-                     bit_1 last,
+void write_byte_func(bit_8& data,
+                     bit_1& last,
                      eth_axis_tx& transmitter) {
   transmitter.write_byte(data, last);
 }
