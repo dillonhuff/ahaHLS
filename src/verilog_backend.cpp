@@ -349,21 +349,9 @@ namespace ahaHLS {
     return modName;
   }
 
-  FunctionalUnit structFunctionalUnit(Value* instr,
-                                      HardwareConstraints& hcs) {
-    string unitName;
-    if (instr->getName() != "") {
-      unitName = instr->getName();
-    } else {
-      unitName = sanitizeFormatForVerilogId(valueString(instr));      
-    }
+  FunctionalUnit functionalUnitForSpec(const std::string unitName,
+                                       const ModuleSpec& mSpec) {
 
-    assert(hcs.hasArgumentSpec(instr));
-
-    ModuleSpec mSpec = hcs.getArgumentSpec(instr);
-
-    //cout << "Module spec for " << valueString(instr) << " = " << mSpec << endl;
-    //map<string, string> modParams;
     bool isExternal = false;
 
     map<string, Wire> wiring;
@@ -379,6 +367,21 @@ namespace ahaHLS {
     FunctionalUnit unit = {mSpec, unitName, wiring, outWires, isExternal};
 
     return unit;
+  }
+  
+  FunctionalUnit structFunctionalUnit(Value* instr,
+                                      HardwareConstraints& hcs) {
+    string unitName;
+    if (instr->getName() != "") {
+      unitName = instr->getName();
+    } else {
+      unitName = sanitizeFormatForVerilogId(valueString(instr));      
+    }
+
+    assert(hcs.hasArgumentSpec(instr));
+
+    ModuleSpec mSpec = hcs.getArgumentSpec(instr);
+    return functionalUnitForSpec(unitName, mSpec);
   }
   
   FunctionalUnit createMemUnit(std::string unitName,
@@ -435,8 +438,16 @@ namespace ahaHLS {
         outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
 
       } else {
-        if (hcs.hasArgumentSpec(memVal)) {
-          assert(false);
+        if (contains_key(memVal, hcs.modSpecs)) {
+          assert(memVal->getName() != "");
+
+          assert(memVal->getName() != "");
+          string name = string(memVal->getName());
+          FunctionalUnit fu =
+            functionalUnitForSpec(name, map_find(memVal, hcs.modSpecs));
+          fu.external = true;
+          return fu;
+
         } else {
           modName = "store";
           isExternal = true;
@@ -487,8 +498,13 @@ namespace ahaHLS {
             
       } else {
 
-        if (hcs.hasArgumentSpec(memVal)) {
-          assert(false);
+        if (contains_key(memVal, hcs.modSpecs)) {
+          assert(memVal->getName() != "");
+          string name = string(memVal->getName());
+          FunctionalUnit fu =
+            functionalUnitForSpec(name, map_find(memVal, hcs.modSpecs));
+          fu.external = true;
+          return fu;
         } else {
           isExternal = true;
         
