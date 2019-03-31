@@ -1,7 +1,5 @@
 #include "algorithm.h"
 
-#include <llvm/Bitcode/Bitcodewriter.h>
-
 #include "llvm/Transforms/Scalar/GVN.h"
 #include "llvm/Transforms/Scalar.h"
 #include <llvm/IR/LegacyPassManager.h>
@@ -3284,9 +3282,6 @@ int main() {
 
       cout << "After GVN" << endl;
       cout << valueString(scppMod.getFunction("write_byte_func")->llvmFunction()) << endl;
-      // std::error_code EC;
-      // llvm::raw_fd_ostream OS("write_byte_func.ll", EC, llvm::sys::fs::F_None);
-      // WriteBitcodeToFile(*(scppMod.mod.get()), OS);
     }
 
     {
@@ -3362,10 +3357,6 @@ int main() {
     
     SynthCppModule scppMod(mod);
 
-    std::error_code EC;
-    llvm::raw_fd_ostream OS("fadd.bc", EC, llvm::sys::fs::F_None);
-    WriteBitcodeToFile(*(scppMod.mod.get()), OS);
-    
     cout << "-- Float adder" << endl;
     SynthCppClass* c = scppMod.getClassByName(Token("adder"));
     cout << *c << endl;

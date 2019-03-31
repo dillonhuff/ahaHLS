@@ -1,5 +1,14 @@
-module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_2_m_axis_tready, output [47:0] arg_2_s_eth_dest_mac, output [0:0] arg_2_s_eth_hdr_valid, output [7:0] arg_2_s_eth_payload_axis_tdata, output [0:0] arg_2_s_eth_payload_axis_tlast, output [0:0] arg_2_s_eth_payload_axis_tuser, output [0:0] arg_2_s_eth_payload_axis_tvalid, output [47:0] arg_2_s_eth_src_mac, output [15:0] arg_2_s_eth_type, input [0:0] arg_2_busy, input [0:0] arg_2_s_eth_hdr_ready, input [0:0] arg_2_s_eth_payload_axis_tready, output [7:0] arg_0_raddr, output [7:0] arg_0_waddr, output [7:0] arg_0_wdata, output [0:0] arg_0_wen, input [7:0] arg_0_rdata, output [0:0] arg_1_raddr, output [0:0] arg_1_waddr, output [0:0] arg_1_wdata, output [0:0] arg_1_wen, input [0:0] arg_1_rdata, output [0:0] valid);
+module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [7:0] arg_0_raddr, output [7:0] arg_0_waddr, output [7:0] arg_0_wdata, output [0:0] arg_0_wen, input [7:0] arg_0_rdata, output [0:0] arg_1_raddr, output [0:0] arg_1_waddr, output [0:0] arg_1_wdata, output [0:0] arg_1_wen, input [0:0] arg_1_rdata, output [0:0] arg_2_m_axis_tready, output [47:0] arg_2_s_eth_dest_mac, output [0:0] arg_2_s_eth_hdr_valid, output [7:0] arg_2_s_eth_payload_axis_tdata, output [0:0] arg_2_s_eth_payload_axis_tlast, output [0:0] arg_2_s_eth_payload_axis_tuser, output [0:0] arg_2_s_eth_payload_axis_tvalid, output [47:0] arg_2_s_eth_src_mac, output [15:0] arg_2_s_eth_type, input [0:0] arg_2_busy, input [0:0] arg_2_s_eth_hdr_ready, input [0:0] arg_2_s_eth_payload_axis_tready);
 
+	reg [0:0] valid_reg;
+	reg [7:0] arg_0_raddr_reg;
+	reg [7:0] arg_0_waddr_reg;
+	reg [7:0] arg_0_wdata_reg;
+	reg [0:0] arg_0_wen_reg;
+	reg [0:0] arg_1_raddr_reg;
+	reg [0:0] arg_1_waddr_reg;
+	reg [0:0] arg_1_wdata_reg;
+	reg [0:0] arg_1_wen_reg;
 	reg [0:0] arg_2_m_axis_tready_reg;
 	reg [47:0] arg_2_s_eth_dest_mac_reg;
 	reg [0:0] arg_2_s_eth_hdr_valid_reg;
@@ -9,16 +18,16 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 	reg [0:0] arg_2_s_eth_payload_axis_tvalid_reg;
 	reg [47:0] arg_2_s_eth_src_mac_reg;
 	reg [15:0] arg_2_s_eth_type_reg;
-	reg [7:0] arg_0_raddr_reg;
-	reg [7:0] arg_0_waddr_reg;
-	reg [7:0] arg_0_wdata_reg;
-	reg [0:0] arg_0_wen_reg;
-	reg [0:0] arg_1_raddr_reg;
-	reg [0:0] arg_1_waddr_reg;
-	reg [0:0] arg_1_wdata_reg;
-	reg [0:0] arg_1_wen_reg;
-	reg [0:0] valid_reg;
 
+	assign valid = valid_reg;
+	assign arg_0_raddr = arg_0_raddr_reg;
+	assign arg_0_waddr = arg_0_waddr_reg;
+	assign arg_0_wdata = arg_0_wdata_reg;
+	assign arg_0_wen = arg_0_wen_reg;
+	assign arg_1_raddr = arg_1_raddr_reg;
+	assign arg_1_waddr = arg_1_waddr_reg;
+	assign arg_1_wdata = arg_1_wdata_reg;
+	assign arg_1_wen = arg_1_wen_reg;
 	assign arg_2_m_axis_tready = arg_2_m_axis_tready_reg;
 	assign arg_2_s_eth_dest_mac = arg_2_s_eth_dest_mac_reg;
 	assign arg_2_s_eth_hdr_valid = arg_2_s_eth_hdr_valid_reg;
@@ -28,15 +37,6 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 	assign arg_2_s_eth_payload_axis_tvalid = arg_2_s_eth_payload_axis_tvalid_reg;
 	assign arg_2_s_eth_src_mac = arg_2_s_eth_src_mac_reg;
 	assign arg_2_s_eth_type = arg_2_s_eth_type_reg;
-	assign arg_0_raddr = arg_0_raddr_reg;
-	assign arg_0_waddr = arg_0_waddr_reg;
-	assign arg_0_wdata = arg_0_wdata_reg;
-	assign arg_0_wen = arg_0_wen_reg;
-	assign arg_1_raddr = arg_1_raddr_reg;
-	assign arg_1_waddr = arg_1_waddr_reg;
-	assign arg_1_wdata = arg_1_wdata_reg;
-	assign arg_1_wen = arg_1_wen_reg;
-	assign valid = valid_reg;
 
 	// Start debug wires and ports
 
@@ -50,7 +50,7 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_1();
+	add call_3();
 
 	// End Functional Units
 
@@ -141,47 +141,6 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 
 	always @(*) begin
 		if ((global_state == 0)) begin 
-				//   %2 = call i1 @builtin_read_port_s_eth_payload_axis_tready(%eth_axis_tx* %arg_2)
-				if (arg_2_s_eth_payload_axis_tready) begin
-				end
-			arg_2_s_eth_dest_mac_reg = 0;
-			arg_2_s_eth_hdr_valid_reg = 0;
-			arg_2_s_eth_payload_axis_tdata_reg = 0;
-			arg_2_s_eth_payload_axis_tlast_reg = 0;
-			arg_2_s_eth_payload_axis_tuser_reg = 0;
-			arg_2_s_eth_payload_axis_tvalid_reg = 0;
-			arg_2_s_eth_src_mac_reg = 0;
-			arg_2_s_eth_type_reg = 0;
-		end else 		if ((global_state == 1)) begin 
-				//   call void @builtin_write_port_s_eth_payload_axis_tvalid(%eth_axis_tx* %arg_2, i32 1)
-				arg_2_s_eth_payload_axis_tvalid_reg = (32'd1);
-				//   call void @builtin_write_port_s_eth_payload_axis_tlast(%eth_axis_tx* %arg_2, i1 %1)
-				arg_2_s_eth_payload_axis_tlast_reg = arg_1_rdata;
-				//   call void @builtin_write_port_s_eth_payload_axis_tdata(%eth_axis_tx* %arg_2, i8 %0)
-				arg_2_s_eth_payload_axis_tdata_reg = arg_0_rdata;
-			arg_2_s_eth_dest_mac_reg = 0;
-			arg_2_s_eth_hdr_valid_reg = 0;
-			arg_2_s_eth_payload_axis_tuser_reg = 0;
-			arg_2_s_eth_src_mac_reg = 0;
-			arg_2_s_eth_type_reg = 0;
-		end else begin 
-			// Default values
-				arg_2_s_eth_dest_mac_reg = 0;
-				arg_2_s_eth_hdr_valid_reg = 0;
-				arg_2_s_eth_payload_axis_tdata_reg = 0;
-				arg_2_s_eth_payload_axis_tlast_reg = 0;
-				arg_2_s_eth_payload_axis_tuser_reg = 0;
-				arg_2_s_eth_payload_axis_tvalid_reg = 0;
-				arg_2_s_eth_src_mac_reg = 0;
-				arg_2_s_eth_type_reg = 0;
-		end
-	end
-	// No controller needed, just assigning to only used values
-	always @(*) begin
-				//   call void @builtin_stall(i1 %2)
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
 				//   %0 = load i8, i8* %arg_0
 				if (arg_2_s_eth_payload_axis_tready) begin
 				arg_0_raddr_reg = arg_0_rdata;
@@ -205,6 +164,47 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 		end
 	end
 	always @(*) begin
+		if ((global_state == 0)) begin 
+				//   %2 = call i1 @builtin_read_port_s_eth_payload_axis_tready(%eth_axis_tx* %arg_2)
+				if (arg_2_s_eth_payload_axis_tready) begin
+				end
+			arg_2_s_eth_dest_mac_reg = 0;
+			arg_2_s_eth_hdr_valid_reg = 0;
+			arg_2_s_eth_payload_axis_tdata_reg = 0;
+			arg_2_s_eth_payload_axis_tlast_reg = 0;
+			arg_2_s_eth_payload_axis_tuser_reg = 0;
+			arg_2_s_eth_payload_axis_tvalid_reg = 0;
+			arg_2_s_eth_src_mac_reg = 0;
+			arg_2_s_eth_type_reg = 0;
+		end else 		if ((global_state == 1)) begin 
+				//   call void @builtin_write_port_s_eth_payload_axis_tlast(%eth_axis_tx* %arg_2, i1 %1)
+				arg_2_s_eth_payload_axis_tlast_reg = arg_1_rdata;
+				//   call void @builtin_write_port_s_eth_payload_axis_tdata(%eth_axis_tx* %arg_2, i8 %0)
+				arg_2_s_eth_payload_axis_tdata_reg = arg_0_rdata;
+				//   call void @builtin_write_port_s_eth_payload_axis_tvalid(%eth_axis_tx* %arg_2, i32 1)
+				arg_2_s_eth_payload_axis_tvalid_reg = (32'd1);
+			arg_2_s_eth_dest_mac_reg = 0;
+			arg_2_s_eth_hdr_valid_reg = 0;
+			arg_2_s_eth_payload_axis_tuser_reg = 0;
+			arg_2_s_eth_src_mac_reg = 0;
+			arg_2_s_eth_type_reg = 0;
+		end else begin 
+			// Default values
+				arg_2_s_eth_dest_mac_reg = 0;
+				arg_2_s_eth_hdr_valid_reg = 0;
+				arg_2_s_eth_payload_axis_tdata_reg = 0;
+				arg_2_s_eth_payload_axis_tlast_reg = 0;
+				arg_2_s_eth_payload_axis_tuser_reg = 0;
+				arg_2_s_eth_payload_axis_tvalid_reg = 0;
+				arg_2_s_eth_src_mac_reg = 0;
+				arg_2_s_eth_type_reg = 0;
+		end
+	end
+	// No controller needed, just assigning to only used values
+	always @(*) begin
+				//   call void @builtin_stall(i1 %2)
+	end
+	always @(*) begin
 		if ((global_state == 1)) begin 
 				//   ret void
 				valid_reg = 1;
@@ -215,7 +215,7 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 	end
 endmodule
 
-module write_byte_func(input [0:0] clk, input [0:0] rst, output [0:0] arg_2_m_axis_tready, output [47:0] arg_2_s_eth_dest_mac, output [0:0] arg_2_s_eth_hdr_valid, output [7:0] arg_2_s_eth_payload_axis_tdata, output [0:0] arg_2_s_eth_payload_axis_tlast, output [0:0] arg_2_s_eth_payload_axis_tuser, output [0:0] arg_2_s_eth_payload_axis_tvalid, output [47:0] arg_2_s_eth_src_mac, output [15:0] arg_2_s_eth_type, input [0:0] arg_2_busy, input [0:0] arg_2_s_eth_hdr_ready, input [0:0] arg_2_s_eth_payload_axis_tready, output [7:0] arg_0_raddr, output [7:0] arg_0_waddr, output [7:0] arg_0_wdata, output [0:0] arg_0_wen, input [7:0] arg_0_rdata, output [0:0] arg_1_raddr, output [0:0] arg_1_waddr, output [0:0] arg_1_wdata, output [0:0] arg_1_wen, input [0:0] arg_1_rdata, output [0:0] valid);
+module write_byte_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [7:0] arg_0_raddr, output [7:0] arg_0_waddr, output [7:0] arg_0_wdata, output [0:0] arg_0_wen, input [7:0] arg_0_rdata, output [0:0] arg_1_raddr, output [0:0] arg_1_waddr, output [0:0] arg_1_wdata, output [0:0] arg_1_wen, input [0:0] arg_1_rdata, output [0:0] arg_2_m_axis_tready, output [47:0] arg_2_s_eth_dest_mac, output [0:0] arg_2_s_eth_hdr_valid, output [7:0] arg_2_s_eth_payload_axis_tdata, output [0:0] arg_2_s_eth_payload_axis_tlast, output [0:0] arg_2_s_eth_payload_axis_tuser, output [0:0] arg_2_s_eth_payload_axis_tvalid, output [47:0] arg_2_s_eth_src_mac, output [15:0] arg_2_s_eth_type, input [0:0] arg_2_busy, input [0:0] arg_2_s_eth_hdr_ready, input [0:0] arg_2_s_eth_payload_axis_tready);
 
 
 	initial begin
