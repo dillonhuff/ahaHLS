@@ -50,13 +50,11 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_3();
+	add call_1();
 
 	// End Functional Units
 
 	// Start instruction result storage
-	reg [7:0] load_tmp_0;
-	reg [0:0] load_tmp_1;
 	// End instruction result storage
 
 	// Start pipeline variables
@@ -127,8 +125,6 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 				// Temporary storage
 				if (arg_2_s_eth_payload_axis_tready) begin
 				// Store data computed at the stage
-					load_tmp_0 <= arg_0_rdata;
-					load_tmp_1 <= arg_1_rdata;
 				end
 			end
 			if ((global_state == 1)) begin 
@@ -143,30 +139,6 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 	// Start pipeline stages
 	// End pipeline instruction code
 
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %0 = load i8, i8* %arg_0
-				if (arg_2_s_eth_payload_axis_tready) begin
-				arg_0_raddr_reg = arg_0_rdata;
-				end
-			arg_0_wen_reg = 0;
-		end else begin 
-			// Default values
-				arg_0_wen_reg = 0;
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %1 = load i1, i1* %arg_1
-				if (arg_2_s_eth_payload_axis_tready) begin
-				arg_1_raddr_reg = arg_1_rdata;
-				end
-			arg_1_wen_reg = 0;
-		end else begin 
-			// Default values
-				arg_1_wen_reg = 0;
-		end
-	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
 				//   %2 = call i1 @builtin_read_port_s_eth_payload_axis_tready(%eth_axis_tx* %arg_2)
@@ -184,9 +156,9 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 				//   call void @builtin_write_port_s_eth_payload_axis_tvalid(%eth_axis_tx* %arg_2, i32 1)
 				arg_2_s_eth_payload_axis_tvalid_reg = (32'd1);
 				//   call void @builtin_write_port_s_eth_payload_axis_tlast(%eth_axis_tx* %arg_2, i1 %1)
-				arg_2_s_eth_payload_axis_tlast_reg = load_tmp_1;
+				arg_2_s_eth_payload_axis_tlast_reg = arg_1_rdata;
 				//   call void @builtin_write_port_s_eth_payload_axis_tdata(%eth_axis_tx* %arg_2, i8 %0)
-				arg_2_s_eth_payload_axis_tdata_reg = load_tmp_0;
+				arg_2_s_eth_payload_axis_tdata_reg = arg_0_rdata;
 			arg_2_s_eth_dest_mac_reg = 0;
 			arg_2_s_eth_hdr_valid_reg = 0;
 			arg_2_s_eth_payload_axis_tuser_reg = 0;
@@ -207,6 +179,26 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 	// No controller needed, just assigning to only used values
 	always @(*) begin
 				//   call void @builtin_stall(i1 %2)
+	end
+	always @(*) begin
+		if ((global_state == 1)) begin 
+				//   %0 = load i8, i8* %arg_0
+				arg_0_raddr_reg = arg_0_rdata;
+			arg_0_wen_reg = 0;
+		end else begin 
+			// Default values
+				arg_0_wen_reg = 0;
+		end
+	end
+	always @(*) begin
+		if ((global_state == 1)) begin 
+				//   %1 = load i1, i1* %arg_1
+				arg_1_raddr_reg = arg_1_rdata;
+			arg_1_wen_reg = 0;
+		end else begin 
+			// Default values
+				arg_1_wen_reg = 0;
+		end
 	end
 	always @(*) begin
 		if ((global_state == 1)) begin 

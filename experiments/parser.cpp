@@ -108,6 +108,21 @@ Schedule scheduleInterfaceZeroReg(llvm::Function* f,
   hcs.memoryMapping =
     memoryOpLocations(f);
 
+  // Single load optimization
+  for (auto& bb : f->getBasicBlockList()) {
+    for (auto& instrR : bb) {
+      auto instr = &instrR;
+      int numUsers = instr->getNumUses();
+
+      if (LoadInst::classof(instr) && (numUsers == 1)) {
+        auto& user = *(instr->uses().begin());
+        assert(Instruction::classof(user));
+        auto userInstr = dyn_cast<Instruction>(user.getUser());
+        exec.add(instrEnd(instr) == instrStart(userInstr));
+      }
+    }
+  }
+
   // cout << "Hardware memory storage names" << endl;
   // for (auto mspec : hcs.memSpecs) {
   //   cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
