@@ -373,10 +373,10 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 			out_read_valid_reg = 0;
 			out_write_valid_reg = 0;
 		end else 		if ((global_state == 7)) begin 
-				//   call void @builtin_write_port_in_data(%class.ac_channel* %out, i32 %4)
-				out_in_data_reg = rdata_ram_0;
 				//   call void @builtin_write_port_write_valid(%class.ac_channel* %out, i1 true)
 				out_write_valid_reg = -(1'd1);
+				//   call void @builtin_write_port_in_data(%class.ac_channel* %out, i32 %4)
+				out_in_data_reg = rdata_ram_0;
 			out_read_valid_reg = 0;
 		end else 		if ((global_state == 8)) begin 
 				//   call void @builtin_write_port_write_valid(%class.ac_channel* %out, i1 false)

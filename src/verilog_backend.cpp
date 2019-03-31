@@ -349,6 +349,38 @@ namespace ahaHLS {
     return modName;
   }
 
+  FunctionalUnit structFunctionalUnit(Value* instr,
+                                      HardwareConstraints& hcs) {
+    string unitName;
+    if (instr->getName() != "") {
+      unitName = instr->getName();
+    } else {
+      unitName = sanitizeFormatForVerilogId(valueString(instr));      
+    }
+
+    assert(hcs.hasArgumentSpec(instr));
+
+    ModuleSpec mSpec = hcs.getArgumentSpec(instr);
+
+    //cout << "Module spec for " << valueString(instr) << " = " << mSpec << endl;
+    //map<string, string> modParams;
+    bool isExternal = false;
+
+    map<string, Wire> wiring;
+    map<string, Wire> outWires;    
+    for (auto pt : mSpec.ports) {
+      if (pt.second.input()) {
+        wiring.insert({pt.first, {true, pt.second.width, unitName + "_" + pt.second.name}});
+      } else {
+        outWires.insert({pt.first, {false, pt.second.width, unitName + "_" + pt.second.name}});            
+      }
+    }
+
+    FunctionalUnit unit = {mSpec, unitName, wiring, outWires, isExternal};
+
+    return unit;
+  }
+  
   FunctionalUnit createMemUnit(std::string unitName,
                                map<Value*, std::string>& memNames,
                                map<Instruction*, Value*>& memSrcs,
@@ -403,23 +435,27 @@ namespace ahaHLS {
         outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
 
       } else {
-        modName = "store";
-        isExternal = true;
+        if (hcs.hasArgumentSpec(memVal)) {
+          assert(false);
+        } else {
+          modName = "store";
+          isExternal = true;
 
-        int inputWidth = getValueBitWidth(instr->getOperand(0));
-        // These names need to match names created in the portlist. So
-        // maybe this should be used to create the port list? Generate the
-        // names here and then write ports for them?
-        string wStr = to_string(writeNum);
+          int inputWidth = getValueBitWidth(instr->getOperand(0));
+          // These names need to match names created in the portlist. So
+          // maybe this should be used to create the port list? Generate the
+          // names here and then write ports for them?
+          string wStr = to_string(writeNum);
 
-        unitName = string(instr->getOpcodeName()) + "_" + wStr;
+          unitName = string(instr->getOpcodeName()) + "_" + wStr;
                                                                         
-        wiring = {{"wen", {true, 1, "wen_" + wStr}}, {"waddr", {true, 32, "waddr_" + wStr}}, {"wdata", {true, inputWidth, "wdata_" + wStr}}};
+          wiring = {{"wen", {true, 1, "wen_" + wStr}}, {"waddr", {true, 32, "waddr_" + wStr}}, {"wdata", {true, inputWidth, "wdata_" + wStr}}};
 
-        outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
-        defaults.insert({"wen", 0});            
+          outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
+          defaults.insert({"wen", 0});            
 
-        writeNum++;
+          writeNum++;
+        }
       }
 
     } else if (LoadInst::classof(instr)) {
@@ -451,22 +487,26 @@ namespace ahaHLS {
             
       } else {
 
-        isExternal = true;
+        if (hcs.hasArgumentSpec(memVal)) {
+          assert(false);
+        } else {
+          isExternal = true;
         
-        modName = "load";
+          modName = "load";
 
-        unitName = string(instr->getOpcodeName()) + "_" + to_string(readNum);
-        int inputWidth = getValueBitWidth(instr);
+          unitName = string(instr->getOpcodeName()) + "_" + to_string(readNum);
+          int inputWidth = getValueBitWidth(instr);
 
-        wiring = {{"raddr", {true, 32, "raddr_" + to_string(readNum)}}, {"ren", {true, 1, "ren_" + to_string(readNum)}}};
+          wiring = {{"raddr", {true, 32, "raddr_" + to_string(readNum)}}, {"ren", {true, 1, "ren_" + to_string(readNum)}}};
 
-        // Note: I think the "_reg not found" error is caused by the default
-        // value of the functional unit not containing the ren default entry?
-        defaults.insert({"ren", 0});
+          // Note: I think the "_reg not found" error is caused by the default
+          // value of the functional unit not containing the ren default entry?
+          defaults.insert({"ren", 0});
 
-        outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(readNum)}}};
+          outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(readNum)}}};
 
-        readNum++;
+          readNum++;
+        }
       }
 
     }
@@ -475,38 +515,6 @@ namespace ahaHLS {
     return unit;
   }
 
-  FunctionalUnit structFunctionalUnit(Value* instr,
-                                      HardwareConstraints& hcs) {
-    string unitName;
-    if (instr->getName() != "") {
-      unitName = instr->getName();
-    } else {
-      unitName = sanitizeFormatForVerilogId(valueString(instr));      
-    }
-
-    assert(hcs.hasArgumentSpec(instr));
-
-    ModuleSpec mSpec = hcs.getArgumentSpec(instr);
-
-    //cout << "Module spec for " << valueString(instr) << " = " << mSpec << endl;
-    //map<string, string> modParams;
-    bool isExternal = false;
-
-    map<string, Wire> wiring;
-    map<string, Wire> outWires;    
-    for (auto pt : mSpec.ports) {
-      if (pt.second.input()) {
-        wiring.insert({pt.first, {true, pt.second.width, unitName + "_" + pt.second.name}});
-      } else {
-        outWires.insert({pt.first, {false, pt.second.width, unitName + "_" + pt.second.name}});            
-      }
-    }
-
-    FunctionalUnit unit = {mSpec, unitName, wiring, outWires, isExternal};
-
-    return unit;
-  }
-  
   FunctionalUnit createUnit(std::string unitName,
                             map<Value*, std::string>& memNames,
                             map<Instruction*, Value*>& memSrcs,
