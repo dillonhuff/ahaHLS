@@ -2781,6 +2781,25 @@ namespace ahaHLS {
     return ramSpec(width, depth, 1, 1);
   }
 
+  ModuleSpec registerModSpec(const int width) {
+    map<string, string> modParams{{"WIDTH", to_string(width)}};
+    
+    map<string, Port> ports;
+    addOutputPort(ports, width, "rdata");
+    addInputPort(ports, width, "raddr");    
+
+    addInputPort(ports, width, "wdata");
+    addInputPort(ports, width, "waddr");    
+    addInputPort(ports, 1, "wen");
+
+    map<string, int> defaults{{"wen", 0}};
+    
+    ModuleSpec mSpec = {modParams, "register", ports, defaults};
+    mSpec.hasClock = true;
+    mSpec.hasRst = true;
+    return mSpec;
+  }
+
   void implementRAMRead(Function* ramRead1, ExecutionConstraints& exec, const int portNo) {
     int addrWidth = getValueBitWidth(getArg(ramRead1, 1));
     int width = getTypeBitWidth(ramRead1->getReturnType());

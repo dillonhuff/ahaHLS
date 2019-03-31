@@ -2607,6 +2607,18 @@ synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
   // scppMod.getHardwareConstraints().memoryMapping =
   //   memoryOpLocations(f->llvmFunction());        
 
+
+  // Set pointers to primitives to be registers, not memories
+  for (auto& arg : f->llvmFunction()->args()) {
+    Type* argTp = arg.getType();
+    if (PointerType::classof(argTp)) {
+      Type* underlying = dyn_cast<PointerType>(argTp)->getElementType();
+      if (IntegerType::classof(underlying)) {
+        cout << "Should set " << valueString(&arg) << " to be register" << endl;
+        scppMod.getHardwareConstraints().modSpecs.insert({&arg, registerModSpec(getTypeBitWidth(underlying))});
+      }
+    }
+  }
   
   Schedule s =
     scheduleInterfaceZeroReg(f->llvmFunction(),

@@ -1035,10 +1035,14 @@ namespace ahaHLS {
           return to_string(map_find(val, arch.memoryMap));
         } else {
           assert(val->getName() != "");
-          assert(false);
+
+          assert(contains_key(val, arch.hcs.modSpecs));
+          ModuleSpec mSpec = map_find(val, arch.hcs.modSpecs);
+          cout << "Module spec for " << valueString(val) << " is " << mSpec << endl;
+          assert(mSpec.name == "register");
           // Pointer arguments that are not included in the memory map
           // are assumed to be registers
-          //return string(val->getName()) + "_out_data";
+          return string(val->getName()) + "_rdata";
         }
       } else {
         cout << "Value argument of type " << typeString(val->getType()) << endl;
@@ -1123,7 +1127,7 @@ namespace ahaHLS {
   instructionPortAssignments(ControlFlowPosition pos,
                              MicroArchitecture& arch) {
 
-    //cout << "Generating code for " << valueString(pos.instr) << endl;
+    cout << "Generating code for " << valueString(pos.instr) << endl;
 
     auto instr = pos.instr;
     auto addUnit = map_find(instr, arch.unitAssignment);
