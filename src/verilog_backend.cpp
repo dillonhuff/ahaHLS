@@ -475,7 +475,7 @@ namespace ahaHLS {
     return unit;
   }
 
-  FunctionalUnit structFunctionalUnit(AllocaInst* instr,
+  FunctionalUnit structFunctionalUnit(Value* instr,
                                       HardwareConstraints& hcs) {
     string unitName;
     if (instr->getName() != "") {
