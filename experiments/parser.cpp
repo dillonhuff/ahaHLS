@@ -2238,6 +2238,7 @@ public:
         SynthCppClass* sExpr = cgs.getActiveClass();
         SynthCppType* classTp = new SynthCppStructType(sExpr->name);
         Type* structType = llvmTypeFor(classTp);
+        auto bitWidth = getValueBitWidth(vExpr);
         auto f = writePort(labelId->name.getStr(), getValueBitWidth(vExpr), structType->getPointerTo());
 
         assert(activeFunction != nullptr);
@@ -2310,20 +2311,20 @@ public:
       // Generate llvm for each argument
       vector<Value*> args;
 
-      // Value* retVal = nullptr;
-      // // Add return value
-      // if (!VoidType::classof(calledFunc->returnType())) {
-      //   retVal = b.CreateAlloca(llvmTypeFor(calledFunc->returnType()), nullptr, "ret_val_" + uniqueNumString());
-      //   args.push_back(retVal);
-      // }
-
       args.push_back(getValueFor(caller));
+      int synthFuncIndex = 0;
+      Function* calledLLVM = calledFunc->llvmFunction();
       for (auto arg : called->args) {
-        args.push_back(genLLVM(b, arg));
+        auto argLLVM = genLLVM(b, arg);
+        auto argParam = getArg(calledLLVM, synthFuncIndex + 1);
+        
+        // Check if the argument being passed was a value
+        if (!PointerType::classof(argLLVM->getType()) &&
+            PointerType::classof(argParam->getType())) {
+          cout << "Argument " << valueString(argLLVM) << " is value but bound type of parameter is " << valueString(getArg(calledLLVM, synthFuncIndex + 1)) << " (pointer), need to create temp first" << endl;
+        }
+        args.push_back(argLLVM);
       }
-
-      // b.CreateCall(calledFunc->llvmFunction(), args);
-      // return retVal;
 
       return b.CreateCall(calledFunc->llvmFunction(), args);
 
