@@ -2322,6 +2322,11 @@ public:
         if (!PointerType::classof(argLLVM->getType()) &&
             PointerType::classof(argParam->getType())) {
           cout << "Argument " << valueString(argLLVM) << " is value but bound type of parameter is " << valueString(getArg(calledLLVM, synthFuncIndex + 1)) << " (pointer), need to create temp first" << endl;
+
+          auto argStorage = b.CreateAlloca(argLLVM->getType());
+          b.CreateStore(argLLVM, argStorage);
+          //storeReg(b, argLLVM, argStorage);
+          argLLVM = argStorage;
         }
         args.push_back(argLLVM);
       }

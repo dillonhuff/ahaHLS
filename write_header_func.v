@@ -34,8 +34,6 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 	// End debug wires and ports
 
 	// Start Functional Units
-	add alloca_0();
-
 	reg [31:0] raddr_ram_0_reg;
 	reg [31:0] waddr_ram_0_reg;
 	reg [47:0] wdata_ram_0_reg;
@@ -57,38 +55,40 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 	wire [15:0] rdata_ram_2;
 	reg_passthrough #(.WIDTH(16)) ram_2(.clk(clk), .raddr(raddr_ram_2_reg), .rdata(rdata_ram_2), .rst(rst), .waddr(waddr_ram_2_reg), .wdata(wdata_ram_2_reg), .wen(wen_ram_2_reg));
 
-	add alloca_4();
+	add alloca_3();
 
-	add alloca_6();
+	reg [31:0] raddr_ram_3_reg;
+	reg [31:0] waddr_ram_3_reg;
+	reg [47:0] wdata_ram_3_reg;
+	reg [0:0] wen_ram_3_reg;
+	wire [47:0] rdata_ram_3;
+	reg_passthrough #(.WIDTH(48)) ram_3(.clk(clk), .raddr(raddr_ram_3_reg), .rdata(rdata_ram_3), .rst(rst), .waddr(waddr_ram_3_reg), .wdata(wdata_ram_3_reg), .wen(wen_ram_3_reg));
 
-	add alloca_9();
+	add alloca_5();
 
-	reg [31:0] raddr_ram_6_reg;
-	reg [31:0] waddr_ram_6_reg;
-	reg [47:0] wdata_ram_6_reg;
-	reg [0:0] wen_ram_6_reg;
-	wire [47:0] rdata_ram_6;
-	reg_passthrough #(.WIDTH(48)) ram_6(.clk(clk), .raddr(raddr_ram_6_reg), .rdata(rdata_ram_6), .rst(rst), .waddr(waddr_ram_6_reg), .wdata(wdata_ram_6_reg), .wen(wen_ram_6_reg));
+	reg [31:0] raddr_ram_4_reg;
+	reg [31:0] waddr_ram_4_reg;
+	reg [47:0] wdata_ram_4_reg;
+	reg [0:0] wen_ram_4_reg;
+	wire [47:0] rdata_ram_4;
+	reg_passthrough #(.WIDTH(48)) ram_4(.clk(clk), .raddr(raddr_ram_4_reg), .rdata(rdata_ram_4), .rst(rst), .waddr(waddr_ram_4_reg), .wdata(wdata_ram_4_reg), .wen(wen_ram_4_reg));
 
-	add alloca_11();
+	add alloca_7();
 
-	reg [31:0] raddr_ram_7_reg;
-	reg [31:0] waddr_ram_7_reg;
-	reg [15:0] wdata_ram_7_reg;
-	reg [0:0] wen_ram_7_reg;
-	wire [15:0] rdata_ram_7;
-	reg_passthrough #(.WIDTH(16)) ram_7(.clk(clk), .raddr(raddr_ram_7_reg), .rdata(rdata_ram_7), .rst(rst), .waddr(waddr_ram_7_reg), .wdata(wdata_ram_7_reg), .wen(wen_ram_7_reg));
+	reg [31:0] raddr_ram_5_reg;
+	reg [31:0] waddr_ram_5_reg;
+	reg [15:0] wdata_ram_5_reg;
+	reg [0:0] wen_ram_5_reg;
+	wire [15:0] rdata_ram_5;
+	reg_passthrough #(.WIDTH(16)) ram_5(.clk(clk), .raddr(raddr_ram_5_reg), .rdata(rdata_ram_5), .rst(rst), .waddr(waddr_ram_5_reg), .wdata(wdata_ram_5_reg), .wen(wen_ram_5_reg));
 
-	add alloca_13();
+	add call_10();
 
-	reg [31:0] raddr_ram_8_reg;
-	reg [31:0] waddr_ram_8_reg;
-	reg [47:0] wdata_ram_8_reg;
-	reg [0:0] wen_ram_8_reg;
-	wire [47:0] rdata_ram_8;
-	reg_passthrough #(.WIDTH(48)) ram_8(.clk(clk), .raddr(raddr_ram_8_reg), .rdata(rdata_ram_8), .rst(rst), .waddr(waddr_ram_8_reg), .wdata(wdata_ram_8_reg), .wen(wen_ram_8_reg));
+	add alloca_14();
 
-	add call_16();
+	add alloca_16();
+
+	add alloca_18();
 
 	// End Functional Units
 
@@ -166,9 +166,9 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 				// Temporary storage
 				if (arg_3_s_eth_hdr_ready) begin
 				// Store data computed at the stage
-					load_tmp_4 <= rdata_ram_8;
-					load_tmp_5 <= rdata_ram_6;
-					load_tmp_6 <= rdata_ram_7;
+					load_tmp_4 <= rdata_ram_3;
+					load_tmp_5 <= rdata_ram_4;
+					load_tmp_6 <= rdata_ram_5;
 				end
 			end
 			if ((global_state == 1)) begin 
@@ -183,21 +183,17 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 	// Start pipeline stages
 	// End pipeline instruction code
 
-	// No controller needed, just assigning to only used values
-	always @(*) begin
-				//   %0 = alloca i48
-	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
+				//   %3 = load i48, i48* %0
+				if (arg_3_s_eth_hdr_ready) begin
+				raddr_ram_0_reg = 0;
+				end
 				//   store i48 %arg_0, i48* %0
 				if (arg_3_s_eth_hdr_ready) begin
 				waddr_ram_0_reg = 0;
 				wdata_ram_0_reg = arg_0_out_data;
 				wen_ram_0_reg = 1;
-				end
-				//   %3 = load i48, i48* %0
-				if (arg_3_s_eth_hdr_ready) begin
-				raddr_ram_0_reg = 0;
 				end
 		end else begin 
 			// Default values
@@ -237,11 +233,23 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 	end
 	// No controller needed, just assigning to only used values
 	always @(*) begin
-				//   %1 = alloca i48
+				//   %6 = alloca i48
 	end
-	// No controller needed, just assigning to only used values
 	always @(*) begin
-				//   %2 = alloca i16
+		if ((global_state == 0)) begin 
+				//   store i48 %3, i48* %6
+				if (arg_3_s_eth_hdr_ready) begin
+				waddr_ram_3_reg = 0;
+				wdata_ram_3_reg = rdata_ram_0;
+				wen_ram_3_reg = 1;
+				end
+				//   %10 = load i48, i48* %6
+				if (arg_3_s_eth_hdr_ready) begin
+				raddr_ram_3_reg = 0;
+				end
+		end else begin 
+			// Default values
+		end
 	end
 	// No controller needed, just assigning to only used values
 	always @(*) begin
@@ -251,13 +259,13 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 		if ((global_state == 0)) begin 
 				//   store i48 %4, i48* %7
 				if (arg_3_s_eth_hdr_ready) begin
-				waddr_ram_6_reg = 0;
-				wdata_ram_6_reg = rdata_ram_1;
-				wen_ram_6_reg = 1;
+				waddr_ram_4_reg = 0;
+				wdata_ram_4_reg = rdata_ram_1;
+				wen_ram_4_reg = 1;
 				end
 				//   %11 = load i48, i48* %7
 				if (arg_3_s_eth_hdr_ready) begin
-				raddr_ram_6_reg = 0;
+				raddr_ram_4_reg = 0;
 				end
 		end else begin 
 			// Default values
@@ -271,33 +279,13 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 		if ((global_state == 0)) begin 
 				//   store i16 %5, i16* %8
 				if (arg_3_s_eth_hdr_ready) begin
-				waddr_ram_7_reg = 0;
-				wdata_ram_7_reg = rdata_ram_2;
-				wen_ram_7_reg = 1;
+				waddr_ram_5_reg = 0;
+				wdata_ram_5_reg = rdata_ram_2;
+				wen_ram_5_reg = 1;
 				end
 				//   %12 = load i16, i16* %8
 				if (arg_3_s_eth_hdr_ready) begin
-				raddr_ram_7_reg = 0;
-				end
-		end else begin 
-			// Default values
-		end
-	end
-	// No controller needed, just assigning to only used values
-	always @(*) begin
-				//   %6 = alloca i48
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   store i48 %3, i48* %6
-				if (arg_3_s_eth_hdr_ready) begin
-				waddr_ram_8_reg = 0;
-				wdata_ram_8_reg = rdata_ram_0;
-				wen_ram_8_reg = 1;
-				end
-				//   %10 = load i48, i48* %6
-				if (arg_3_s_eth_hdr_ready) begin
-				raddr_ram_8_reg = 0;
+				raddr_ram_5_reg = 0;
 				end
 		end else begin 
 			// Default values
@@ -344,6 +332,18 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 	// No controller needed, just assigning to only used values
 	always @(*) begin
 				//   call void @builtin_stall(i1 %9)
+	end
+	// No controller needed, just assigning to only used values
+	always @(*) begin
+				//   %0 = alloca i48
+	end
+	// No controller needed, just assigning to only used values
+	always @(*) begin
+				//   %1 = alloca i48
+	end
+	// No controller needed, just assigning to only used values
+	always @(*) begin
+				//   %2 = alloca i16
 	end
 	always @(*) begin
 		if ((global_state == 1)) begin 
