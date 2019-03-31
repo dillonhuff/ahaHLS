@@ -28,9 +28,9 @@ public:
     write_port(s_eth_payload_axis_tuser, 0);        
   }
 
-  void write_header(bit_48 dest_mac,
-                    bit_48 src_mac,
-                    bit_16 type) {
+  void write_header(bit_48& dest_mac,
+                    bit_48& src_mac,
+                    bit_16& type) {
   stall_on_ready: stall(read_port(s_eth_hdr_ready));
 
   write_valid: write_port(s_eth_hdr_valid, 1);
@@ -45,8 +45,8 @@ public:
     add_constraint(start(write_valid) == start(write_type));
   }
 
-  void write_byte(bit_8 data,
-                  bit_1 last) {
+  void write_byte(bit_8& data,
+                  bit_1& last) {
 
   stall_on_ready: stall(read_port(s_eth_payload_axis_tready));
   write_valid: write_port(s_eth_payload_axis_tvalid, 1);
@@ -61,9 +61,9 @@ public:
 
 };
 
-void write_header_func(bit_48 dest_mac,
-                       bit_48 src_mac,
-                       bit_16 type,
+void write_header_func(bit_48& dest_mac,
+                       bit_48& src_mac,
+                       bit_16& type,
                        eth_axis_tx& transmitter) {
   transmitter.write_header(dest_mac, src_mac, type);
 }
@@ -74,20 +74,20 @@ void write_byte_func(bit_8 data,
   transmitter.write_byte(data, last);
 }
 
-void write_one_byte_packet(bit_48 dest_mac,
-                           bit_48 src_mac,
-                           bit_16 type,
-                           bit_8 payload,
+void write_one_byte_packet(bit_48& dest_mac,
+                           bit_48& src_mac,
+                           bit_16& type,
+                           bit_8& payload,
                            eth_axis_tx& transmitter) {
   transmitter.write_header(dest_mac, src_mac, type);
   transmitter.write_byte(payload, 1);
 }
 
-void write_packet(bit_48 dest_mac,
-                  bit_48 src_mac,
-                  bit_16 type,
+void write_packet(bit_48& dest_mac,
+                  bit_48& src_mac,
+                  bit_16& type,
                   fifo& payload,
-                  sint_32 payload_size,
+                  sint_32& payload_size,
                   eth_axis_tx& transmitter) {
   transmitter->write_header(dest_mac, src_mac, type);
 

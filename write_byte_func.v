@@ -45,14 +45,14 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 
 	add alloca_2();
 
+	add alloca_3();
+
 	reg [31:0] raddr_ram_1_reg;
 	reg [31:0] waddr_ram_1_reg;
 	reg [0:0] wdata_ram_1_reg;
 	reg [0:0] wen_ram_1_reg;
 	wire [0:0] rdata_ram_1;
 	reg_passthrough #(.WIDTH(1)) ram_1(.clk(clk), .raddr(raddr_ram_1_reg), .rdata(rdata_ram_1), .rst(rst), .waddr(waddr_ram_1_reg), .wdata(wdata_ram_1_reg), .wen(wen_ram_1_reg));
-
-	add alloca_6();
 
 	add alloca_7();
 
@@ -187,17 +187,21 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 	always @(*) begin
 				//   %1 = alloca i1
 	end
+	// No controller needed, just assigning to only used values
+	always @(*) begin
+				//   %3 = alloca i8
+	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
-				//   %3 = load i1, i1* %1
-				if (arg_2_s_eth_payload_axis_tready) begin
-				raddr_ram_1_reg = 0;
-				end
 				//   store i1 %arg_1, i1* %1
 				if (arg_2_s_eth_payload_axis_tready) begin
 				waddr_ram_1_reg = 0;
 				wdata_ram_1_reg = arg_1_out_data;
 				wen_ram_1_reg = 1;
+				end
+				//   %4 = load i1, i1* %1
+				if (arg_2_s_eth_payload_axis_tready) begin
+				raddr_ram_1_reg = 0;
 				end
 		end else begin 
 			// Default values
@@ -207,19 +211,15 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 	always @(*) begin
 				//   %5 = alloca i1
 	end
-	// No controller needed, just assigning to only used values
-	always @(*) begin
-				//   %4 = alloca i8
-	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
-				//   store i8 %2, i8* %4
+				//   store i8 %2, i8* %3
 				if (arg_2_s_eth_payload_axis_tready) begin
 				waddr_ram_4_reg = 0;
 				wdata_ram_4_reg = rdata_ram_0;
 				wen_ram_4_reg = 1;
 				end
-				//   %8 = load i8, i8* %4
+				//   %8 = load i8, i8* %3
 				if (arg_2_s_eth_payload_axis_tready) begin
 				raddr_ram_4_reg = 0;
 				end
@@ -229,7 +229,7 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
-				//   store i1 %3, i1* %5
+				//   store i1 %4, i1* %5
 				if (arg_2_s_eth_payload_axis_tready) begin
 				waddr_ram_5_reg = 0;
 				wdata_ram_5_reg = rdata_ram_1;

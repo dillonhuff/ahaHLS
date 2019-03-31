@@ -2317,7 +2317,8 @@ public:
       for (auto arg : called->args) {
         auto argLLVM = genLLVM(b, arg);
         auto argParam = getArg(calledLLVM, synthFuncIndex + 1);
-        
+
+        // TODO: Insert this in function calls as well
         // Check if the argument being passed was a value
         if (!PointerType::classof(argLLVM->getType()) &&
             PointerType::classof(argParam->getType())) {
@@ -2325,7 +2326,6 @@ public:
 
           auto argStorage = b.CreateAlloca(argLLVM->getType());
           b.CreateStore(argLLVM, argStorage);
-          //storeReg(b, argLLVM, argStorage);
           argLLVM = argStorage;
         }
         args.push_back(argLLVM);

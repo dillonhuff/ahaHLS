@@ -748,11 +748,6 @@ namespace ahaHLS {
     std::map<Instruction*, FunctionalUnit> units;
 
     auto memSrcs = memoryOpLocations(stg.getFunction());
-    // map<Value*, std::string> fifoNames;
-    // for (int fifoNum = 0; fifoNum < (int) stg.getFunction()->arg_size(); fifoNum++) {
-    //   auto arg = getArg(stg.getFunction(), fifoNum);
-    //   fifoNames[arg] = "fifo_" + to_string(fifoNum);
-    // }
 
     map<Value*, std::string> memNames;
     int i = 0;
@@ -1031,9 +1026,16 @@ namespace ahaHLS {
 
     } else if (Argument::classof(val)) {
       if (PointerType::classof(val->getType())) {
-        assert(contains_key(val, arch.memoryMap));
+        if (contains_key(val, arch.memoryMap)) {
       
-        return to_string(map_find(val, arch.memoryMap));
+          return to_string(map_find(val, arch.memoryMap));
+        } else {
+          assert(val->getName() != "");
+          assert(false);
+          // Pointer arguments that are not included in the memory map
+          // are assumed to be registers
+          //return string(val->getName()) + "_out_data";
+        }
       } else {
         cout << "Value argument of type " << typeString(val->getType()) << endl;
         return valueArgName(dyn_cast<Argument>(val));
