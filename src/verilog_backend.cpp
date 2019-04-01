@@ -1779,6 +1779,82 @@ namespace ahaHLS {
     }
     return stallConds;    
   }
+
+  void emitVerilogForControllers(std::ostream& out,
+                                 MicroArchitecture& arch,
+                                 const std::vector<PortController>& controllers) {
+    for (auto portController : controllers) {
+
+      UnitController controller = portController.unitController;
+      if (usedInExactlyOneState(controller) && stateless(controller.unit)) {
+
+        out << "\talways @(*) begin" << endl;        
+
+        for (auto stateAndValues : portController.portValues) {
+        
+          StateId state = stateAndValues.first;
+
+          out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
+          for (auto assignmentStall : stateAndValues.second) {
+
+            auto stallConds = assignmentStall.first;
+            out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+            for (auto assign : assignmentStall.second) {
+              out << tab(5) << assign.first << " = " << assign.second << ";" << endl;
+            }
+            out << tab(4) << "end" << endl;
+          }
+        }
+        
+        out << "\t\tend" << endl;
+
+        out << "\tend" << endl;
+        
+      } else {      
+        // Print out the controller
+        out << "\talways @(*) begin" << endl;        
+
+        int i = 0;
+        int numInstrs = portController.portValues.size();
+        for (auto stateAndValues : portController.portValues) {
+        
+          StateId state = stateAndValues.first;
+
+          out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
+          for (auto assignmentStall : stateAndValues.second) {
+
+            auto stallConds = assignmentStall.first;
+            out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+            for (auto assign : assignmentStall.second) {
+              out << tab(5) << assign.first << " = " << assign.second << ";" << endl;
+            }
+            out << tab(4) << "end" << endl;
+          }
+
+          // Print out defaults
+          for (auto& def : portController.defaultValues[state]) {
+            out << tab(3) << def.first << " = " << def.second << ";" << endl;    
+          }
+
+          out << "\t\tend else ";
+          if (i == (numInstrs - 1)) {
+            out << "begin " << endl;
+          }
+
+          i++;
+        }
+
+        out << "\t\t\t// Default values" << endl;
+        for (auto def : portController.statelessDefaults) {
+          out << tab(3) << def.first << " = " << def.second << ";" << endl;
+        }
+        
+        out << "\t\tend" << endl;
+
+        out << "\tend" << endl;
+      }
+    }
+  }
   
   // TODO: Experiment with adding defaults to all functional unit inputs
   void emitInstructionCode(std::ostream& out,
@@ -1823,116 +1899,61 @@ namespace ahaHLS {
         continue;
       }
 
-      // if (usedInExactlyOneState(controller) && stateless(controller.unit)) {
-      //   emitStatelessUnitController(out, controller, arch);
-      // } else {
-
-        PortController portController;
-        portController.unitController = controller;
+      PortController portController;
+      portController.unitController = controller;
         
-        bool isExternal = unit.isExternal();
+      bool isExternal = unit.isExternal();
 
-        for (auto stInstrG : controller.instructions) {
-          StateId state = stInstrG.first;
-          auto instrsAtState = stInstrG.second;
+      for (auto stInstrG : controller.instructions) {
+        StateId state = stInstrG.first;
+        auto instrsAtState = stInstrG.second;
 
-          if (!isPipelineState(state, pipelines)) {
+        if (!isPipelineState(state, pipelines)) {
 
-            std::set<string> usedPorts;
-            for (auto instrG : instrsAtState) {
-              Instruction* instr = instrG;
+          std::set<string> usedPorts;
+          for (auto instrG : instrsAtState) {
+            Instruction* instr = instrG;
 
-              auto stallConds = getStallConds(instr, state, arch);
-              auto pos = position(state, instr);
-              auto assigns = instructionPortAssignments(pos, arch);
+            auto stallConds = getStallConds(instr, state, arch);
+            auto pos = position(state, instr);
+            auto assigns = instructionPortAssignments(pos, arch);
 
-              map_insert(portController.portValues, state, {stallConds, assigns});
-              for (auto asg : assigns) {
-                usedPorts.insert(asg.first);
-              }
-
+            map_insert(portController.portValues, state, {stallConds, assigns});
+            for (auto asg : assigns) {
+              usedPorts.insert(asg.first);
             }
 
-            // Set per-state defaults
-            for (auto def : unit.module.defaultValues) {
-              string name = def.first;
-              assert(contains_key(name, unit.portWires));
+          }
+
+          // Set per-state defaults
+          for (auto def : unit.module.defaultValues) {
+            string name = def.first;
+            assert(contains_key(name, unit.portWires));
             
-              string ptName = map_find(name, unit.portWires).name;
-              if (unit.isExternal()) {
-                ptName += "_reg";
-              }
-              if (!elem(ptName, usedPorts)) {
-                PortAssignments& stateDefaults = portController.defaultValues[state];
-                stateDefaults.insert({ptName, to_string(def.second)});
-              }
+            string ptName = map_find(name, unit.portWires).name;
+            if (unit.isExternal()) {
+              ptName += "_reg";
+            }
+            if (!elem(ptName, usedPorts)) {
+              PortAssignments& stateDefaults = portController.defaultValues[state];
+              stateDefaults.insert({ptName, to_string(def.second)});
             }
           }
-
         }
 
-        for (auto wd : unit.module.defaultValues) {
-          if (isExternal) {
-            portController.statelessDefaults.insert({unit.portWires[wd.first].name + "_reg", to_string(wd.second)});
-          } else {
-            portController.statelessDefaults.insert({unit.portWires[wd.first].name, to_string(wd.second)});            
-          }
-        }
-        controllers.push_back(portController);
-        //      }
-    }
-
-
-    for (auto portController : controllers) {
-
-      UnitController controller = portController.unitController;
-      if (usedInExactlyOneState(controller) && stateless(controller.unit)) {
-        emitStatelessUnitController(out, controller, arch);
-      } else {      
-        // Print out the controller
-        out << "\talways @(*) begin" << endl;        
-
-        int i = 0;
-        int numInstrs = portController.portValues.size();
-        for (auto stateAndValues : portController.portValues) {
-        
-          StateId state = stateAndValues.first;
-
-          cout << "In state " << state << endl;
-          out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
-          for (auto assignmentStall : stateAndValues.second) {
-
-            auto stallConds = assignmentStall.first;
-            out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
-            for (auto assign : assignmentStall.second) {
-              out << tab(5) << assign.first << " = " << assign.second << ";" << endl;
-            }
-            out << tab(4) << "end" << endl;
-          }
-
-          // Print out defaults
-          for (auto& def : portController.defaultValues[state]) {
-            out << tab(3) << def.first << " = " << def.second << ";" << endl;    
-          }
-
-          out << "\t\tend else ";
-          if (i == (numInstrs - 1)) {
-            out << "begin " << endl;
-          }
-
-          i++;
-        }
-
-        out << "\t\t\t// Default values" << endl;
-        for (auto def : portController.statelessDefaults) {
-          out << tab(3) << def.first << " = " << def.second << ";" << endl;
-        }
-        
-        out << "\t\tend" << endl;
-
-        out << "\tend" << endl;
       }
+
+      for (auto wd : unit.module.defaultValues) {
+        if (isExternal) {
+          portController.statelessDefaults.insert({unit.portWires[wd.first].name + "_reg", to_string(wd.second)});
+        } else {
+          portController.statelessDefaults.insert({unit.portWires[wd.first].name, to_string(wd.second)});            
+        }
+      }
+      controllers.push_back(portController);
     }
+
+    emitVerilogForControllers(out, arch, controllers);
   }
   
   void emitPorts(std::ostream& out,
