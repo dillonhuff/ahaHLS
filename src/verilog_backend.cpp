@@ -2002,7 +2002,10 @@ namespace ahaHLS {
       emitVerilogForController(out, arch, portController);
     }
   }
-  
+
+  // Now I have port-by-port controllers. I want to
+  //  1. Add insensitive ports flags to ModuleSpec
+  //  2. Optimize insensitive ports that are assigned in exactly one place
   void emitInstructionCode(std::ostream& out,
                            MicroArchitecture& arch,
                            const std::vector<ElaboratedPipeline>& pipelines) {

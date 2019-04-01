@@ -142,9 +142,9 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 	// controller for arg_2.arg_2_s_eth_payload_axis_tdata_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
-				if (1) begin
-					arg_2_s_eth_payload_axis_tdata_reg = arg_0_rdata;
-				end
+			if (1) begin
+				arg_2_s_eth_payload_axis_tdata_reg = arg_0_rdata;
+			end
 		end else begin
 			arg_2_s_eth_payload_axis_tdata_reg = 0;
 		end
@@ -152,9 +152,9 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 	// controller for arg_2.arg_2_s_eth_payload_axis_tlast_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
-				if (1) begin
-					arg_2_s_eth_payload_axis_tlast_reg = arg_1_rdata;
-				end
+			if (1) begin
+				arg_2_s_eth_payload_axis_tlast_reg = arg_1_rdata;
+			end
 		end else begin
 			arg_2_s_eth_payload_axis_tlast_reg = 0;
 		end
@@ -162,40 +162,55 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 	// controller for arg_2.arg_2_s_eth_payload_axis_tvalid_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
-				if (1) begin
-					arg_2_s_eth_payload_axis_tvalid_reg = (32'd1);
-				end
+			if (1) begin
+				arg_2_s_eth_payload_axis_tvalid_reg = (32'd1);
+			end
 		end else begin
 			arg_2_s_eth_payload_axis_tvalid_reg = 0;
 		end
 	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
 	// controller for arg_0.arg_0_raddr_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
-				if (1) begin
-					arg_0_raddr_reg = arg_0_rdata;
-				end
+			if (1) begin
+				arg_0_raddr_reg = arg_0_rdata;
+			end
 		// No default?
 		end
+	end
+	// Insensitive connections
+	always @(*) begin
 	end
 	// controller for arg_1.arg_1_raddr_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
-				if (1) begin
-					arg_1_raddr_reg = arg_1_rdata;
-				end
+			if (1) begin
+				arg_1_raddr_reg = arg_1_rdata;
+			end
 		// No default?
 		end
+	end
+	// Insensitive connections
+	always @(*) begin
 	end
 	// controller for ret_4.valid_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
-				if (1) begin
-					valid_reg = 1;
-				end
+			if (1) begin
+				valid_reg = 1;
+			end
 		end else begin
 			valid_reg = 0;
 		end
+	end
+	// Insensitive connections
+	always @(*) begin
 	end
 endmodule
 
