@@ -1846,16 +1846,24 @@ namespace ahaHLS {
                   }
                 }
               }
+
               if (stallConds.size() > 0) {
                 out << tab(4) << "if (" << andStrings(stallConds) << ") begin" << endl;
               }
               auto pos = position(state, instr);
               auto assigns = instructionPortAssignments(pos, arch);
+
+              map_insert(portController.portValues, state, {stallConds, assigns});
               for (auto asg : assigns) {
-                //cout << "Using port " << asg.first << " in state " << state << endl;
                 usedPorts.insert(asg.first);
               }
-              instructionVerilog(out, pos, arch);
+
+              for (auto assignmentStall : portController.portValues[state]) {
+                for (auto assign : assignmentStall.second) {
+                  out << tab(5) << assign.first << " = " << assign.second << ";" << endl;
+                }
+              }
+              //instructionVerilog(out, pos, arch);
 
               if (stallConds.size() > 0) {            
                 out << tab(4) << "end" << endl;

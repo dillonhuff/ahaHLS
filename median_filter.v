@@ -24,6 +24,8 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 	// End debug wires and ports
 
 	// Start Functional Units
+	br_dummy br_unit();
+
 	reg [0:0] m_rst_n;
 	reg [31:0] m_word0;
 	reg [31:0] m_word1;
@@ -46,8 +48,6 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 	reg [31:0] cmp_in1_icmp_16;
 	wire [0:0] cmp_out_icmp_16;
 	ne #(.WIDTH(32)) icmp_16(.in0(cmp_in0_icmp_16), .in1(cmp_in1_icmp_16), .out(cmp_out_icmp_16));
-
-	br_dummy br_unit();
 
 	// End Functional Units
 
@@ -216,21 +216,27 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 				//   %m = alloca %class.median, align 4
 		end else 		if ((global_state == 1)) begin 
 				//   call void @builtin_write_port_rst_n(%class.median* %m, i1 true)
-				m_rst_n = -(1'd1);
+					m_rst_n = -(1'd1);
 		end else 		if ((global_state == 2)) begin 
 				//   call void @builtin_write_port_rst_n(%class.median* %m, i1 false)
-				m_rst_n = (1'd0);
+					m_rst_n = (1'd0);
 		end else 		if ((global_state == 3)) begin 
 				//   call void @builtin_write_port_rst_n(%class.median* %m, i1 true)
-				m_rst_n = -(1'd1);
+					m_rst_n = -(1'd1);
 		end else 		if ((global_state == 4)) begin 
 				//   call void @builtin_write_port_word0(%class.median* %m, i32 %4)
-				m_word0 = in0_out_data;
+					m_word0 = in0_out_data;
 				//   call void @builtin_write_port_word1(%class.median* %m, i32 %5)
-				m_word1 = in1_out_data;
+					m_word0 = in0_out_data;
+					m_word1 = in1_out_data;
 				//   call void @builtin_write_port_word2(%class.median* %m, i32 %6)
-				m_word2 = in2_out_data;
+					m_word0 = in0_out_data;
+					m_word1 = in1_out_data;
+					m_word2 = in2_out_data;
 				//   %7 = call i32 @builtin_read_port_median_word(%class.median* %m)
+					m_word0 = in0_out_data;
+					m_word1 = in1_out_data;
+					m_word2 = in2_out_data;
 		end else begin 
 			// Default values
 		end
@@ -272,7 +278,7 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 	always @(*) begin
 		if ((global_state == 4)) begin 
 				//   call void @builtin_write_port_in_data(%class.ac_channel* %out, i32 %7)
-				out_in_data_reg = m_median_word;
+					out_in_data_reg = m_median_word;
 		end else begin 
 			// Default values
 		end
@@ -286,7 +292,7 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 	always @(*) begin
 		if ((global_state == 6)) begin 
 				//   ret void
-				valid_reg = 1;
+					valid_reg = 1;
 		end else begin 
 			// Default values
 				valid_reg = 0;
