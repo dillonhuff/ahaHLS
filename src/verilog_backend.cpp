@@ -1878,60 +1878,65 @@ namespace ahaHLS {
             portController.statelessDefaults.insert({unit.portWires[wd.first].name, to_string(wd.second)});            
           }
         }
-
-
-        // Print out the controller
-        out << "\talways @(*) begin" << endl;        
-        int i = 0;
-        int numInstrs = 0;
-        for (auto stInstrG : controller.instructions) {
-          StateId state = stInstrG.first;
-
-          if (!isPipelineState(state, pipelines)) {
-            numInstrs++;
-          }
-        }
-        for (auto stateAndValues : portController.portValues) {
-        
-          StateId state = stateAndValues.first;
-
-          cout << "In state " << state << endl;
-          out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
-          for (auto assignmentStall : stateAndValues.second) {
-
-            auto stallConds = assignmentStall.first;
-            out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
-            for (auto assign : assignmentStall.second) {
-              out << tab(5) << assign.first << " = " << assign.second << ";" << endl;
-            }
-            out << tab(4) << "end" << endl;
-          }
-
-          // Print out defaults
-          for (auto& def : portController.defaultValues[state]) {
-            out << tab(3) << def.first << " = " << def.second << ";" << endl;    
-          }
-
-          out << "\t\tend else ";
-          if (i == (numInstrs - 1)) {
-            out << "begin " << endl;
-          }
-
-          i++;
-        }
-
-        out << "\t\t\t// Default values" << endl;
-        for (auto def : portController.statelessDefaults) {
-          out << tab(3) << def.first << " = " << def.second << ";" << endl;
-        }
-        
-        out << "\t\tend" << endl;
-
-        out << "\tend" << endl;
+        controllers.push_back(portController);
       }
-      
     }
 
+
+    for (auto portController : controllers) {
+      // Print out the controller
+      out << "\talways @(*) begin" << endl;        
+
+      int i = 0;
+      // int numInstrs = 0;
+      // for (auto stInstrG : controller.instructions) {
+      //   StateId state = stInstrG.first;
+
+      //   if (!isPipelineState(state, pipelines)) {
+      //     numInstrs++;
+      //   }
+      // }
+
+      int numInstrs = portController.portValues.size();
+
+      for (auto stateAndValues : portController.portValues) {
+        
+        StateId state = stateAndValues.first;
+
+        cout << "In state " << state << endl;
+        out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
+        for (auto assignmentStall : stateAndValues.second) {
+
+          auto stallConds = assignmentStall.first;
+          out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+          for (auto assign : assignmentStall.second) {
+            out << tab(5) << assign.first << " = " << assign.second << ";" << endl;
+          }
+          out << tab(4) << "end" << endl;
+        }
+
+        // Print out defaults
+        for (auto& def : portController.defaultValues[state]) {
+          out << tab(3) << def.first << " = " << def.second << ";" << endl;    
+        }
+
+        out << "\t\tend else ";
+        if (i == (numInstrs - 1)) {
+          out << "begin " << endl;
+        }
+
+        i++;
+      }
+
+      out << "\t\t\t// Default values" << endl;
+      for (auto def : portController.statelessDefaults) {
+        out << tab(3) << def.first << " = " << def.second << ";" << endl;
+      }
+        
+      out << "\t\tend" << endl;
+
+      out << "\tend" << endl;
+    }
   }
   
   void emitPorts(std::ostream& out,
