@@ -1845,22 +1845,22 @@ namespace ahaHLS {
         bool isExternal = unit.isExternal();
 
         for (auto stInstrG : controller.instructions) {
-          cout << "In state " << stInstrG.first << endl;
+          //cout << "In state " << stInstrG.first << endl;
         
           StateId state = stInstrG.first;
           auto instrsAtState = stInstrG.second;
 
           if (!isPipelineState(state, pipelines)) {
 
-            out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
+            //out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
             std::set<string> usedPorts;
             for (auto instrG : instrsAtState) {
               Instruction* instr = instrG;
 
-              out << tab(4) << "// " << instructionString(instr) << endl;
+              //out << tab(4) << "// " << instructionString(instr) << endl;
 
               auto stallConds = getStallConds(instr, state, arch);
-              out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+              //out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
               auto pos = position(state, instr);
               auto assigns = instructionPortAssignments(pos, arch);
 
@@ -1869,13 +1869,13 @@ namespace ahaHLS {
                 usedPorts.insert(asg.first);
               }
 
-              for (auto assignmentStall : portController.portValues[state]) {
-                for (auto assign : assignmentStall.second) {
-                  out << tab(5) << assign.first << " = " << assign.second << ";" << endl;
-                }
-              }
+              // for (auto assignmentStall : portController.portValues[state]) {
+              //   for (auto assign : assignmentStall.second) {
+              //     out << tab(5) << assign.first << " = " << assign.second << ";" << endl;
+              //   }
+              // }
 
-              out << tab(4) << "end" << endl;
+              // out << tab(4) << "end" << endl;
             }
 
             // Set per-state defaults
@@ -1893,17 +1893,17 @@ namespace ahaHLS {
               }
             }
 
-            // Print out defaults
-            for (auto& def : portController.defaultValues[state]) {
-              out << tab(3) << def.first << " = " << def.second << ";" << endl;    
-            }
+            // // Print out defaults
+            // for (auto& def : portController.defaultValues[state]) {
+            //   out << tab(3) << def.first << " = " << def.second << ";" << endl;    
+            // }
 
-            out << "\t\tend else ";
-            if (i == (numInstrs - 1)) {
-              out << "begin " << endl;
-            }
+            // out << "\t\tend else ";
+            // if (i == (numInstrs - 1)) {
+            //   out << "begin " << endl;
+            // }
 
-            i++;
+            // i++;
           }
 
         }
@@ -1914,6 +1914,36 @@ namespace ahaHLS {
           } else {
             portController.statelessDefaults.insert({unit.portWires[wd.first].name, to_string(wd.second)});            
           }
+        }
+
+
+        for (auto stateAndValues : portController.portValues) {
+        
+          StateId state = stateAndValues.first;
+
+          cout << "In state " << state << endl;
+          out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
+          for (auto assignmentStall : stateAndValues.second) {
+
+            auto stallConds = assignmentStall.first;
+            out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+            for (auto assign : assignmentStall.second) {
+              out << tab(5) << assign.first << " = " << assign.second << ";" << endl;
+            }
+            out << tab(4) << "end" << endl;
+          }
+
+          // Print out defaults
+          for (auto& def : portController.defaultValues[state]) {
+            out << tab(3) << def.first << " = " << def.second << ";" << endl;    
+          }
+
+          out << "\t\tend else ";
+          if (i == (numInstrs - 1)) {
+            out << "begin " << endl;
+          }
+
+          i++;
         }
 
         out << "\t\t\t// Default values" << endl;
