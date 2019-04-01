@@ -1816,7 +1816,6 @@ namespace ahaHLS {
     }
 
     vector<PortController> controllers;
-    
     for (auto controller : assignment) {
 
       FunctionalUnit unit = controller.unit;
@@ -1831,36 +1830,19 @@ namespace ahaHLS {
         PortController portController;
         portController.unitController = controller;
         
-        out << "\talways @(*) begin" << endl;        
-
-        int i = 0;
-        int numInstrs = 0;
-        for (auto stInstrG : controller.instructions) {
-          StateId state = stInstrG.first;
-
-          if (!isPipelineState(state, pipelines)) {
-            numInstrs++;
-          }
-        }
         bool isExternal = unit.isExternal();
 
         for (auto stInstrG : controller.instructions) {
-          //cout << "In state " << stInstrG.first << endl;
-        
           StateId state = stInstrG.first;
           auto instrsAtState = stInstrG.second;
 
           if (!isPipelineState(state, pipelines)) {
 
-            //out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
             std::set<string> usedPorts;
             for (auto instrG : instrsAtState) {
               Instruction* instr = instrG;
 
-              //out << tab(4) << "// " << instructionString(instr) << endl;
-
               auto stallConds = getStallConds(instr, state, arch);
-              //out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
               auto pos = position(state, instr);
               auto assigns = instructionPortAssignments(pos, arch);
 
@@ -1869,13 +1851,6 @@ namespace ahaHLS {
                 usedPorts.insert(asg.first);
               }
 
-              // for (auto assignmentStall : portController.portValues[state]) {
-              //   for (auto assign : assignmentStall.second) {
-              //     out << tab(5) << assign.first << " = " << assign.second << ";" << endl;
-              //   }
-              // }
-
-              // out << tab(4) << "end" << endl;
             }
 
             // Set per-state defaults
@@ -1892,18 +1867,6 @@ namespace ahaHLS {
                 stateDefaults.insert({ptName, to_string(def.second)});
               }
             }
-
-            // // Print out defaults
-            // for (auto& def : portController.defaultValues[state]) {
-            //   out << tab(3) << def.first << " = " << def.second << ";" << endl;    
-            // }
-
-            // out << "\t\tend else ";
-            // if (i == (numInstrs - 1)) {
-            //   out << "begin " << endl;
-            // }
-
-            // i++;
           }
 
         }
@@ -1917,6 +1880,17 @@ namespace ahaHLS {
         }
 
 
+        // Print out the controller
+        out << "\talways @(*) begin" << endl;        
+        int i = 0;
+        int numInstrs = 0;
+        for (auto stInstrG : controller.instructions) {
+          StateId state = stInstrG.first;
+
+          if (!isPipelineState(state, pipelines)) {
+            numInstrs++;
+          }
+        }
         for (auto stateAndValues : portController.portValues) {
         
           StateId state = stateAndValues.first;
