@@ -1150,8 +1150,6 @@ namespace ahaHLS {
 
     map<string, string> assignments;
 
-    string rS = "_reg";
-        
     if (ReturnInst::classof(instr)) {
       assert(addUnit.isExternal());
       
@@ -1180,7 +1178,7 @@ namespace ahaHLS {
       Value* location = instr->getOperand(0);
       auto locValue = outputName(location, pos, arch);
 
-      assignments.insert({addUnit.inputWire("raddr"), locValue});      
+      assignments.insert({addUnit.inputWire("raddr"), locValue});
 
       if (contains_key(string("ren"), addUnit.portWires)) {
         assignments.insert({addUnit.inputWire("ren"), "1"});
@@ -1715,6 +1713,8 @@ namespace ahaHLS {
     // This is the final form of the port controller for the unit.
     // Each input port on the functional unit has its own independent controller
     map<string, PortValues> inputControllers;
+
+    bool isExternal() const { return unitController.unit.isExternal(); }
   };
 
   void buildInputControllers(PortController& controller) {
@@ -1854,7 +1854,13 @@ namespace ahaHLS {
 
           // Print out defaults
           for (auto& def : portController.defaultValues[state]) {
-            out << tab(3) << def.first << " = " << def.second << ";" << endl;    
+            out << tab(3) << def.first << " = " << def.second << ";" << endl;
+
+            // if (portController.isExternal()) {
+            //   out << tab(3) << def.first << "_reg" << " = " << def.second << ";" << endl;
+            // } else {
+            //   out << tab(3) << def.first << " = " << def.second << ";" << endl;
+            // }
           }
 
           out << "\t\tend else ";
@@ -1867,7 +1873,13 @@ namespace ahaHLS {
 
         out << "\t\t\t// Default values" << endl;
         for (auto def : portController.statelessDefaults) {
-          out << tab(3) << def.first << " = " << def.second << ";" << endl;
+
+          out << tab(3) << def.first << " = " << def.second << ";" << endl;                      
+          // if (portController.isExternal()) {
+          //   out << tab(3) << def.first << "_reg" << " = " << def.second << ";" << endl;
+          // } else {
+          //   out << tab(3) << def.first << " = " << def.second << ";" << endl;            
+          // }
         }
         
         out << "\t\tend" << endl;
@@ -1923,8 +1935,6 @@ namespace ahaHLS {
       PortController portController;
       portController.unitController = controller;
         
-      bool isExternal = unit.isExternal();
-
       for (auto stInstrG : controller.instructions) {
         StateId state = stInstrG.first;
         auto instrsAtState = stInstrG.second;
@@ -1952,7 +1962,7 @@ namespace ahaHLS {
             assert(contains_key(name, unit.portWires));
             
             string ptName = map_find(name, unit.portWires).name;
-            if (unit.isExternal()) {
+            if (portController.isExternal()) {
               ptName += "_reg";
             }
             if (!elem(ptName, usedPorts)) {
@@ -1965,7 +1975,8 @@ namespace ahaHLS {
       }
 
       for (auto wd : unit.module.defaultValues) {
-        if (isExternal) {
+        //portController.statelessDefaults.insert({unit.portWires[wd.first].name, to_string(wd.second)});                    
+        if (portController.isExternal()) {
           portController.statelessDefaults.insert({unit.portWires[wd.first].name + "_reg", to_string(wd.second)});
         } else {
           portController.statelessDefaults.insert({unit.portWires[wd.first].name, to_string(wd.second)});            
