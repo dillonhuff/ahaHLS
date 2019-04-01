@@ -158,6 +158,7 @@ namespace ahaHLS {
     std::string name;
     std::map<std::string, Port> ports;
     std::map<std::string, int> defaultValues;
+    std::set<std::string> insensitivePorts;
 
     ModuleSpec() : hasClock(false), hasRst(false) {
     }
