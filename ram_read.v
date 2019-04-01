@@ -119,37 +119,33 @@ module ram_read_inner(input [0:0] clk, input [0:0] rst, output [3:0] arg_0_debug
 	// Start pipeline stages
 	// End pipeline instruction code
 
+	// controller for arg_0.arg_0_raddr_0_reg
+	// Insensitive connections
 	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   call void @builtin_write_port_raddr_0(%SRAM_32_16* %0, i32 %1)
-				arg_0_raddr_0_reg = arg_1_out_data;
-			arg_0_waddr_0_reg = 0;
-			arg_0_wdata_0_reg = 0;
-			arg_0_wen_0_reg = 0;
-		end else 		if ((global_state == 1)) begin 
-				//   %2 = call i32 @builtin_read_port_rdata_0(%SRAM_32_16* %0)
-			arg_0_raddr_0_reg = 0;
-			arg_0_waddr_0_reg = 0;
-			arg_0_wdata_0_reg = 0;
-			arg_0_wen_0_reg = 0;
-		end else begin 
-			// Default values
-				arg_0_raddr_0_reg = 0;
-				arg_0_waddr_0_reg = 0;
-				arg_0_wdata_0_reg = 0;
-				arg_0_wen_0_reg = 0;
-		end
+		arg_0_raddr_0_reg = valid ? arg_1_out_data : arg_1_out_data;
 	end
+	// controller for ret_2.return_value_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
-				//   ret i32 %2
+			if (1) begin
 				return_value_reg = arg_0_rdata_0;
-				valid_reg = 1;
-		end else begin 
-			// Default values
-				return_value_reg = 0;
-				valid_reg = 0;
+			end
+		end else begin
+			return_value_reg = 0;
 		end
+	end
+	// controller for ret_2.valid_reg
+	always @(*) begin
+		if ((global_state == 1)) begin 
+			if (1) begin
+				valid_reg = 1;
+			end
+		end else begin
+			valid_reg = 0;
+		end
+	end
+	// Insensitive connections
+	always @(*) begin
 	end
 endmodule
 

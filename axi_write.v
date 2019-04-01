@@ -144,87 +144,112 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 	// Start pipeline stages
 	// End pipeline instruction code
 
+	// controller for arg_0.arg_0_s_axil_awaddr_reg
+	// controller for arg_0.arg_0_s_axil_awvalid_reg
 	always @(*) begin
 		if ((global_state == 0)) begin 
-				//   call void @builtin_write_port_s_axil_bready(%class.axi_ram* %arg_0, i1 true)
+			if (1) begin
+				arg_0_s_axil_awvalid_reg = -(1'd1);
+			end
+		end else if ((global_state == 1)) begin 
+			if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
+				arg_0_s_axil_awvalid_reg = -(1'd1);
+			end
+		end else begin
+			arg_0_s_axil_awvalid_reg = 0;
+		end
+	end
+	// controller for arg_0.arg_0_s_axil_bready_reg
+	always @(*) begin
+		if ((global_state == 0)) begin 
+			if (1) begin
 				arg_0_s_axil_bready_reg = -(1'd1);
-				//   call void @builtin_write_port_s_axil_awaddr(%class.axi_ram* %arg_0, i32 %0)
-				arg_0_s_axil_awaddr_reg = shl_out_shl_1;
-				//   call void @builtin_write_port_s_axil_awvalid(%class.axi_ram* %arg_0, i1 true)
-				arg_0_s_axil_awvalid_reg = -(1'd1);
-				//   call void @builtin_write_port_s_axil_wvalid(%class.axi_ram* %arg_0, i1 true)
-				arg_0_s_axil_wvalid_reg = -(1'd1);
-				//   call void @builtin_write_port_s_axil_wdata(%class.axi_ram* %arg_0, i32 %arg_2)
-				arg_0_s_axil_wdata_reg = arg_2_out_data;
-				//   call void @builtin_write_port_s_axil_wstrb(%class.axi_ram* %arg_0, i4 -1)
-				arg_0_s_axil_wstrb_reg = -(4'd1);
-			arg_0_s_axil_arvalid_reg = 0;
-			arg_0_s_axil_rready_reg = 1;
-		end else 		if ((global_state == 1)) begin 
-				//   %1 = call i1 @builtin_read_port_s_axil_wready(%class.axi_ram* %arg_0)
-				if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
-				end
-				//   %2 = call i1 @builtin_read_port_s_axil_awready(%class.axi_ram* %arg_0)
-				if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
-				end
-				//   call void @builtin_write_port_s_axil_awvalid(%class.axi_ram* %arg_0, i1 true)
-				if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
-				arg_0_s_axil_awvalid_reg = -(1'd1);
-				end
-				//   call void @builtin_write_port_s_axil_wdata(%class.axi_ram* %arg_0, i32 %arg_2)
-				if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
-				arg_0_s_axil_wdata_reg = arg_2_out_data;
-				end
-				//   call void @builtin_write_port_s_axil_wvalid(%class.axi_ram* %arg_0, i1 true)
-				if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
-				arg_0_s_axil_wvalid_reg = -(1'd1);
-				end
-				//   %3 = call i1 @builtin_read_port_s_axil_bvalid(%class.axi_ram* %arg_0)
-				if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
-				end
-			arg_0_s_axil_arvalid_reg = 0;
-			arg_0_s_axil_rready_reg = 1;
-			arg_0_s_axil_wstrb_reg = 31;
-		end else begin 
-			// Default values
-				arg_0_s_axil_arvalid_reg = 0;
-				arg_0_s_axil_awvalid_reg = 0;
-				arg_0_s_axil_rready_reg = 1;
-				arg_0_s_axil_wstrb_reg = 31;
-				arg_0_s_axil_wvalid_reg = 0;
+			end
+		// No default?
 		end
 	end
+	// controller for arg_0.arg_0_s_axil_wdata_reg
 	always @(*) begin
 		if ((global_state == 0)) begin 
-				//   %0 = shl i32 %arg_1, 2
-				shl_in0_shl_1 = arg_1_out_data;
-				shl_in1_shl_1 = (32'd2);
-		end else begin 
-			// Default values
+			if (1) begin
+				arg_0_s_axil_wdata_reg = arg_2_out_data;
+			end
+		end else if ((global_state == 1)) begin 
+			if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
+				arg_0_s_axil_wdata_reg = arg_2_out_data;
+			end
 		end
 	end
-	// No controller needed, just assigning to only used values
+	// controller for arg_0.arg_0_s_axil_wstrb_reg
 	always @(*) begin
-				//   call void @builtin_stall(i1 %1)
+		if ((global_state == 0)) begin 
+			if (1) begin
+				arg_0_s_axil_wstrb_reg = -(4'd1);
+			end
+		end else begin
+			arg_0_s_axil_wstrb_reg = 31;
+		end
 	end
-	// No controller needed, just assigning to only used values
+	// controller for arg_0.arg_0_s_axil_wvalid_reg
 	always @(*) begin
-				//   call void @builtin_stall(i1 %2)
+		if ((global_state == 0)) begin 
+			if (1) begin
+				arg_0_s_axil_wvalid_reg = -(1'd1);
+			end
+		end else if ((global_state == 1)) begin 
+			if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
+				arg_0_s_axil_wvalid_reg = -(1'd1);
+			end
+		end else begin
+			arg_0_s_axil_wvalid_reg = 0;
+		end
 	end
-	// No controller needed, just assigning to only used values
+	// Insensitive connections
 	always @(*) begin
-				//   call void @builtin_stall(i1 %3)
+		arg_0_s_axil_awaddr_reg = valid ? shl_out_shl_1 : shl_out_shl_1;
 	end
+	// controller for shl_shl_1.shl_in0_shl_1
+	always @(*) begin
+		if ((global_state == 0)) begin 
+			if (1) begin
+				shl_in0_shl_1 = arg_1_out_data;
+			end
+		// No default?
+		end
+	end
+	// controller for shl_shl_1.shl_in1_shl_1
+	always @(*) begin
+		if ((global_state == 0)) begin 
+			if (1) begin
+				shl_in1_shl_1 = (32'd2);
+			end
+		// No default?
+		end
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// controller for ret_16.valid_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
-				//   ret void
-				if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
+			if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
 				valid_reg = 1;
-				end
-		end else begin 
-			// Default values
-				valid_reg = 0;
+			end
+		end else begin
+			valid_reg = 0;
 		end
+	end
+	// Insensitive connections
+	always @(*) begin
 	end
 endmodule
 

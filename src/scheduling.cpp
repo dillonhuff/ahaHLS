@@ -2025,8 +2025,10 @@ namespace ahaHLS {
     map<string, Port> wirePorts = {
       {"in_data", inputPort(width, "in_data")},
       {"out_data", outputPort(width, "out_data")}};
-    
-    ModuleSpec mspec = {{{"WIDTH", to_string(width)}}, "hls_wire", wirePorts};
+
+    map<string, int> defaults;
+    set<string> insensitive{"in_data"};
+    ModuleSpec mspec = {{{"WIDTH", to_string(width)}}, "hls_wire", wirePorts, defaults, insensitive};
     mspec.hasClock = false;
     mspec.hasRst = false;
 
@@ -3019,15 +3021,13 @@ namespace ahaHLS {
     addInputPort(ports, dataWidth, "word2");        
     addInputPort(ports, 1, "rst_n");        
 
-    // addOutputPort(ports, pixelDataWidth, "pixel1");    
-    // addOutputPort(ports, pixelDataWidth, "pixel2");
-    // addOutputPort(ports, pixelDataWidth, "pixel3");
-    // addOutputPort(ports, pixelDataWidth, "pixel4");
     addOutputPort(ports, 4*pixelDataWidth, "median_word");    
     
     map<string, int> defaults{};
+
+    set<string> insensitive{"word0", "word1", "word2"};
     
-    ModuleSpec mSpec = {modParams, "median", ports, defaults};
+    ModuleSpec mSpec = {modParams, "median", ports, defaults, insensitive};
     mSpec.hasClock = true;
     return mSpec;
 

@@ -129,46 +129,48 @@ module fifo_read_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_
 	// Start pipeline stages
 	// End pipeline instruction code
 
+	// controller for arg_0.arg_0_read_valid_reg
 	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %1 = call i1 @builtin_read_port_read_ready(%builtin_fifo_32* %0)
-				if (arg_0_read_ready) begin
-				end
-			arg_0_in_data_reg = 0;
-			arg_0_read_valid_reg = 0;
-			arg_0_write_valid_reg = 0;
-		end else 		if ((global_state == 1)) begin 
-				//   call void @builtin_write_port_read_valid(%builtin_fifo_32* %0, i1 true)
+		if ((global_state == 1)) begin 
+			if (1) begin
 				arg_0_read_valid_reg = -(1'd1);
-			arg_0_in_data_reg = 0;
-			arg_0_write_valid_reg = 0;
-		end else 		if ((global_state == 2)) begin 
-				//   call void @builtin_write_port_read_valid(%builtin_fifo_32* %0, i1 false)
+			end
+		end else if ((global_state == 2)) begin 
+			if (1) begin
 				arg_0_read_valid_reg = (1'd0);
-				//   %2 = call i32 @builtin_read_port_out_data(%builtin_fifo_32* %0)
-			arg_0_in_data_reg = 0;
-			arg_0_write_valid_reg = 0;
-		end else begin 
-			// Default values
-				arg_0_in_data_reg = 0;
-				arg_0_read_valid_reg = 0;
-				arg_0_write_valid_reg = 0;
+			end
+		end else begin
+			arg_0_read_valid_reg = 0;
 		end
 	end
-	// No controller needed, just assigning to only used values
+	// Insensitive connections
 	always @(*) begin
-				//   call void @builtin_stall(i1 %1)
 	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// controller for ret_5.return_value_reg
 	always @(*) begin
 		if ((global_state == 2)) begin 
-				//   ret i32 %2
+			if (1) begin
 				return_value_reg = arg_0_out_data;
-				valid_reg = 1;
-		end else begin 
-			// Default values
-				return_value_reg = 0;
-				valid_reg = 0;
+			end
+		end else begin
+			return_value_reg = 0;
 		end
+	end
+	// controller for ret_5.valid_reg
+	always @(*) begin
+		if ((global_state == 2)) begin 
+			if (1) begin
+				valid_reg = 1;
+			end
+		end else begin
+			valid_reg = 0;
+		end
+	end
+	// Insensitive connections
+	always @(*) begin
 	end
 endmodule
 

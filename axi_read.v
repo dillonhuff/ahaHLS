@@ -160,79 +160,87 @@ module axi_read_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_debu
 	// Start pipeline stages
 	// End pipeline instruction code
 
+	// controller for arg_0.arg_0_s_axil_araddr_reg
 	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %0 = call i32 @builtin_read_port_s_axil_rdata(%class.axi_ram* %arg_0)
-			arg_0_s_axil_arvalid_reg = 0;
-			arg_0_s_axil_awvalid_reg = 0;
-			arg_0_s_axil_rready_reg = 1;
-			arg_0_s_axil_wstrb_reg = 31;
-			arg_0_s_axil_wvalid_reg = 0;
-		end else 		if ((global_state == 1)) begin 
-				//   call void @builtin_write_port_s_axil_araddr(%class.axi_ram* %arg_0, i32 %1)
+		if ((global_state == 1)) begin 
+			if (1) begin
 				arg_0_s_axil_araddr_reg = shl_tmp_1;
-				//   call void @builtin_write_port_s_axil_arvalid(%class.axi_ram* %arg_0, i1 true)
+			end
+		// No default?
+		end
+	end
+	// controller for arg_0.arg_0_s_axil_arvalid_reg
+	always @(*) begin
+		if ((global_state == 1)) begin 
+			if (1) begin
 				arg_0_s_axil_arvalid_reg = -(1'd1);
-			arg_0_s_axil_awvalid_reg = 0;
-			arg_0_s_axil_rready_reg = 1;
-			arg_0_s_axil_wstrb_reg = 31;
-			arg_0_s_axil_wvalid_reg = 0;
-		end else 		if ((global_state == 2)) begin 
-				//   %2 = call i1 @builtin_read_port_s_axil_arready(%class.axi_ram* %arg_0)
-				if (arg_0_s_axil_arready && arg_0_s_axil_rvalid) begin
-				end
-				//   call void @builtin_write_port_s_axil_rready(%class.axi_ram* %arg_0, i1 true)
-				if (arg_0_s_axil_arready && arg_0_s_axil_rvalid) begin
-				arg_0_s_axil_rready_reg = -(1'd1);
-				end
-				//   %3 = call i1 @builtin_read_port_s_axil_rvalid(%class.axi_ram* %arg_0)
-				if (arg_0_s_axil_arready && arg_0_s_axil_rvalid) begin
-				end
-				//   %4 = call i32 @builtin_read_port_s_axil_rdata(%class.axi_ram* %arg_0)
-				if (arg_0_s_axil_arready && arg_0_s_axil_rvalid) begin
-				end
+			end
+		end else begin
 			arg_0_s_axil_arvalid_reg = 0;
-			arg_0_s_axil_awvalid_reg = 0;
-			arg_0_s_axil_wstrb_reg = 31;
-			arg_0_s_axil_wvalid_reg = 0;
-		end else begin 
-			// Default values
-				arg_0_s_axil_arvalid_reg = 0;
-				arg_0_s_axil_awvalid_reg = 0;
-				arg_0_s_axil_rready_reg = 1;
-				arg_0_s_axil_wstrb_reg = 31;
-				arg_0_s_axil_wvalid_reg = 0;
 		end
 	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				//   %1 = shl i32 %arg_1, 2
-				shl_in0_shl_1 = arg_1_out_data;
-				shl_in1_shl_1 = (32'd2);
-		end else begin 
-			// Default values
-		end
-	end
-	// No controller needed, just assigning to only used values
-	always @(*) begin
-				//   call void @builtin_stall(i1 %2)
-	end
-	// No controller needed, just assigning to only used values
-	always @(*) begin
-				//   call void @builtin_stall(i1 %3)
-	end
+	// controller for arg_0.arg_0_s_axil_rready_reg
 	always @(*) begin
 		if ((global_state == 2)) begin 
-				//   ret i32 %4
-				if (arg_0_s_axil_arready && arg_0_s_axil_rvalid) begin
-				return_value_reg = arg_0_s_axil_rdata;
-				valid_reg = 1;
-				end
-		end else begin 
-			// Default values
-				return_value_reg = 0;
-				valid_reg = 0;
+			if (arg_0_s_axil_arready && arg_0_s_axil_rvalid) begin
+				arg_0_s_axil_rready_reg = -(1'd1);
+			end
+		end else begin
+			arg_0_s_axil_rready_reg = 1;
 		end
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// controller for shl_shl_1.shl_in0_shl_1
+	always @(*) begin
+		if ((global_state == 0)) begin 
+			if (1) begin
+				shl_in0_shl_1 = arg_1_out_data;
+			end
+		// No default?
+		end
+	end
+	// controller for shl_shl_1.shl_in1_shl_1
+	always @(*) begin
+		if ((global_state == 0)) begin 
+			if (1) begin
+				shl_in1_shl_1 = (32'd2);
+			end
+		// No default?
+		end
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// controller for ret_10.return_value_reg
+	always @(*) begin
+		if ((global_state == 2)) begin 
+			if (arg_0_s_axil_arready && arg_0_s_axil_rvalid) begin
+				return_value_reg = arg_0_s_axil_rdata;
+			end
+		end else begin
+			return_value_reg = 0;
+		end
+	end
+	// controller for ret_10.valid_reg
+	always @(*) begin
+		if ((global_state == 2)) begin 
+			if (arg_0_s_axil_arready && arg_0_s_axil_rvalid) begin
+				valid_reg = 1;
+			end
+		end else begin
+			valid_reg = 0;
+		end
+	end
+	// Insensitive connections
+	always @(*) begin
 	end
 endmodule
 

@@ -141,31 +141,35 @@ module ram_write_inner(input [0:0] clk, input [0:0] rst, output [3:0] arg_0_debu
 	// Start pipeline stages
 	// End pipeline instruction code
 
+	// controller for arg_0.arg_0_waddr_0_reg
+	// controller for arg_0.arg_0_wdata_0_reg
+	// controller for arg_0.arg_0_wen_0_reg
 	always @(*) begin
 		if ((global_state == 0)) begin 
-				//   call void @builtin_write_port_waddr_0(%SRAM_32_16* %0, i32 %1)
-				arg_0_waddr_0_reg = arg_1_out_data;
-				//   call void @builtin_write_port_wdata_0(%SRAM_32_16* %0, i32 %2)
-				arg_0_wdata_0_reg = arg_2_out_data;
-				//   call void @builtin_write_port_wen_0(%SRAM_32_16* %0, i1 true)
+			if (1) begin
 				arg_0_wen_0_reg = -(1'd1);
-			arg_0_raddr_0_reg = 0;
-		end else begin 
-			// Default values
-				arg_0_raddr_0_reg = 0;
-				arg_0_waddr_0_reg = 0;
-				arg_0_wdata_0_reg = 0;
-				arg_0_wen_0_reg = 0;
+			end
+		end else begin
+			arg_0_wen_0_reg = 0;
 		end
 	end
+	// Insensitive connections
+	always @(*) begin
+		arg_0_waddr_0_reg = valid ? arg_1_out_data : arg_1_out_data;
+		arg_0_wdata_0_reg = valid ? arg_2_out_data : arg_2_out_data;
+	end
+	// controller for ret_3.valid_reg
 	always @(*) begin
 		if ((global_state == 3)) begin 
-				//   ret void
+			if (1) begin
 				valid_reg = 1;
-		end else begin 
-			// Default values
-				valid_reg = 0;
+			end
+		end else begin
+			valid_reg = 0;
 		end
+	end
+	// Insensitive connections
+	always @(*) begin
 	end
 endmodule
 

@@ -171,102 +171,102 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 	// Start pipeline stages
 	// End pipeline instruction code
 
+	// controller for arg_0.arg_0_input_a_reg
+	always @(*) begin
+		if ((global_state == 2)) begin 
+			if (arg_0_input_a_ack) begin
+				arg_0_input_a_reg = arg_1_out_data;
+			end
+		end else begin
+			arg_0_input_a_reg = 0;
+		end
+	end
+	// controller for arg_0.arg_0_input_a_stb_reg
+	always @(*) begin
+		if ((global_state == 2)) begin 
+			if (arg_0_input_a_ack) begin
+				arg_0_input_a_stb_reg = -(1'd1);
+			end
+		end else if ((global_state == 3)) begin 
+			if (arg_0_input_b_ack) begin
+				arg_0_input_a_stb_reg = (1'd0);
+			end
+		end else begin
+			arg_0_input_a_stb_reg = 0;
+		end
+	end
+	// controller for arg_0.arg_0_input_b_reg
+	always @(*) begin
+		if ((global_state == 3)) begin 
+			if (arg_0_input_b_ack) begin
+				arg_0_input_b_reg = arg_2_out_data;
+			end
+		end else begin
+			arg_0_input_b_reg = 0;
+		end
+	end
+	// controller for arg_0.arg_0_input_b_stb_reg
+	always @(*) begin
+		if ((global_state == 3)) begin 
+			if (arg_0_input_b_ack) begin
+				arg_0_input_b_stb_reg = -(1'd1);
+			end
+		end else if ((global_state == 4)) begin 
+			if (arg_0_output_z_stb) begin
+				arg_0_input_b_stb_reg = (1'd0);
+			end
+		end else begin
+			arg_0_input_b_stb_reg = 0;
+		end
+	end
+	// controller for arg_0.arg_0_rst_reg
 	always @(*) begin
 		if ((global_state == 0)) begin 
-				//   call void @builtin_write_port_rst(%builtin_fadd* %arg_0, i1 true)
+			if (1) begin
 				arg_0_rst_reg = -(1'd1);
-			arg_0_input_a_reg = 0;
-			arg_0_input_a_stb_reg = 0;
-			arg_0_input_b_reg = 0;
-			arg_0_input_b_stb_reg = 0;
-		end else 		if ((global_state == 1)) begin 
-				//   call void @builtin_write_port_rst(%builtin_fadd* %arg_0, i1 false)
+			end
+		end else if ((global_state == 1)) begin 
+			if (1) begin
 				arg_0_rst_reg = (1'd0);
-			arg_0_input_a_reg = 0;
-			arg_0_input_a_stb_reg = 0;
-			arg_0_input_b_reg = 0;
-			arg_0_input_b_stb_reg = 0;
-		end else 		if ((global_state == 2)) begin 
-				//   call void @builtin_write_port_input_a(%builtin_fadd* %arg_0, i32 %arg_1)
-				if (arg_0_input_a_ack) begin
-				arg_0_input_a_reg = arg_1_out_data;
-				end
-				//   call void @builtin_write_port_input_a_stb(%builtin_fadd* %arg_0, i1 true)
-				if (arg_0_input_a_ack) begin
-				arg_0_input_a_stb_reg = -(1'd1);
-				end
-				//   %0 = call i1 @builtin_read_port_input_a_ack(%builtin_fadd* %arg_0)
-				if (arg_0_input_a_ack) begin
-				end
-			arg_0_input_b_reg = 0;
-			arg_0_input_b_stb_reg = 0;
+			end
+		end else begin
 			arg_0_rst_reg = 0;
-		end else 		if ((global_state == 3)) begin 
-				//   call void @builtin_write_port_input_a_stb(%builtin_fadd* %arg_0, i1 false)
-				if (arg_0_input_b_ack) begin
-				arg_0_input_a_stb_reg = (1'd0);
-				end
-				//   call void @builtin_write_port_input_b(%builtin_fadd* %arg_0, i32 %arg_2)
-				if (arg_0_input_b_ack) begin
-				arg_0_input_b_reg = arg_2_out_data;
-				end
-				//   call void @builtin_write_port_input_b_stb(%builtin_fadd* %arg_0, i1 true)
-				if (arg_0_input_b_ack) begin
-				arg_0_input_b_stb_reg = -(1'd1);
-				end
-				//   %1 = call i1 @builtin_read_port_input_b_ack(%builtin_fadd* %arg_0)
-				if (arg_0_input_b_ack) begin
-				end
-			arg_0_input_a_reg = 0;
-			arg_0_rst_reg = 0;
-		end else 		if ((global_state == 4)) begin 
-				//   call void @builtin_write_port_input_b_stb(%builtin_fadd* %arg_0, i1 false)
-				if (arg_0_output_z_stb) begin
-				arg_0_input_b_stb_reg = (1'd0);
-				end
-				//   %2 = call i1 @builtin_read_port_output_z_stb(%builtin_fadd* %arg_0)
-				if (arg_0_output_z_stb) begin
-				end
-				//   %3 = call i32 @builtin_read_port_output_z(%builtin_fadd* %arg_0)
-				if (arg_0_output_z_stb) begin
-				end
-			arg_0_input_a_reg = 0;
-			arg_0_input_a_stb_reg = 0;
-			arg_0_input_b_reg = 0;
-			arg_0_rst_reg = 0;
-		end else begin 
-			// Default values
-				arg_0_input_a_reg = 0;
-				arg_0_input_a_stb_reg = 0;
-				arg_0_input_b_reg = 0;
-				arg_0_input_b_stb_reg = 0;
-				arg_0_rst_reg = 0;
 		end
 	end
-	// No controller needed, just assigning to only used values
+	// Insensitive connections
 	always @(*) begin
-				//   call void @builtin_stall(i1 %0)
 	end
-	// No controller needed, just assigning to only used values
+	// Insensitive connections
 	always @(*) begin
-				//   call void @builtin_stall(i1 %1)
 	end
-	// No controller needed, just assigning to only used values
+	// Insensitive connections
 	always @(*) begin
-				//   call void @builtin_stall(i1 %2)
 	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// controller for ret_15.return_value_reg
 	always @(*) begin
 		if ((global_state == 4)) begin 
-				//   ret i32 %3
-				if (arg_0_output_z_stb) begin
+			if (arg_0_output_z_stb) begin
 				return_value_reg = arg_0_output_z;
-				valid_reg = 1;
-				end
-		end else begin 
-			// Default values
-				return_value_reg = 0;
-				valid_reg = 0;
+			end
+		end else begin
+			return_value_reg = 0;
 		end
+	end
+	// controller for ret_15.valid_reg
+	always @(*) begin
+		if ((global_state == 4)) begin 
+			if (arg_0_output_z_stb) begin
+				valid_reg = 1;
+			end
+		end else begin
+			valid_reg = 0;
+		end
+	end
+	// Insensitive connections
+	always @(*) begin
 	end
 endmodule
 
