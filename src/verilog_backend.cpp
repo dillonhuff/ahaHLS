@@ -1696,7 +1696,7 @@ namespace ahaHLS {
   public:
     UnitController unitController;
     map<StateId, vector<pair<StallConds, PortAssignments> > > portValues;
-    PortAssignments defaultValues;
+    map<StateId, PortAssignments> defaultValues;
   };
 
   bool usedInExactlyOneState(UnitController& controller) {
@@ -1842,7 +1842,6 @@ namespace ahaHLS {
               // Stalls do not get stalled by themselves
               if (!isBuiltinStallCall(instr)) {
                 for (auto instrK : arch.stg.instructionsStartingAt(state)) {
-                  //cout << "Instruction = " << valueString(instrK.instruction) << endl;
                   if (isBuiltinStallCall(instrK)) {
 
                     auto stallPos = position(state, instrK);
@@ -1855,9 +1854,7 @@ namespace ahaHLS {
                 }
               }
 
-              //if (stallConds.size() > 0) {
-                out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
-                //}
+              out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
               auto pos = position(state, instr);
               auto assigns = instructionPortAssignments(pos, arch);
 
@@ -1872,12 +1869,10 @@ namespace ahaHLS {
                 }
               }
 
-              // if (stallConds.size() > 0) {            
-                out << tab(4) << "end" << endl;
-                //}
-
+              out << tab(4) << "end" << endl;
             }
 
+            // Set per-state defaults
             for (auto def : unit.module.defaultValues) {
               string name = def.first;
               assert(contains_key(name, unit.portWires));
@@ -1887,9 +1882,18 @@ namespace ahaHLS {
                 ptName += "_reg";
               }
               if (!elem(ptName, usedPorts)) {
-                out << tab(3) << ptName << " = " << def.second << ";" << endl;
+                PortAssignments& stateDefaults = portController.defaultValues[state];
+                stateDefaults.insert({ptName, to_string(def.second)});
+                
+                //out << tab(3) << ptName << " = " << def.second << ";" << endl;
               }
             }
+
+            // Print out defaults
+            for (auto& def : portController.defaultValues[state]) {
+              out << tab(3) << def.first << " = " << def.second << ";" << endl;    
+            }
+
             out << "\t\tend else ";
             if (i == (numInstrs - 1)) {
               out << "begin " << endl;
