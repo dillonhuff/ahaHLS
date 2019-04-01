@@ -1689,13 +1689,14 @@ namespace ahaHLS {
   };
 
   typedef std::vector<std::string> StallConds;
-  typedef std::map<std::string, std::string> portValues;
+  typedef std::map<std::string, std::string> PortAssignments;
 
-  
+  // Needs to include
   class PortController {
   public:
     UnitController unitController;
     map<StateId, vector<pair<StallConds, PortAssignments> > > portValues;
+    PortAssignments defaultValues;
   };
 
   bool usedInExactlyOneState(UnitController& controller) {
@@ -1783,8 +1784,10 @@ namespace ahaHLS {
 
     }
 
+    vector<PortController> controllers;
+    
     for (auto controller : assignment) {
-      
+
       FunctionalUnit unit = controller.unit;
       if (unit.getModName() == "br_dummy") {
         continue;
@@ -1794,6 +1797,9 @@ namespace ahaHLS {
         emitStatelessUnitController(out, controller, arch);
       } else {
 
+        PortController portController;
+        portController.unitController = controller;
+        
         out << "\talways @(*) begin" << endl;        
 
         int i = 0;
