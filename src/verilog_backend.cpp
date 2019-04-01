@@ -1845,6 +1845,12 @@ namespace ahaHLS {
     return stallConds;    
   }
 
+  bool isInsensitive(const std::string& port,
+                     PortController& portController) {
+    return contains_key(port, portController.insensitivePorts) &&
+      (map_find(port, portController.insensitivePorts) == true);
+  }
+  
   void emitVerilogForController(std::ostream& out,
                                  MicroArchitecture& arch,
                                  PortController& portController) {
@@ -1861,7 +1867,9 @@ namespace ahaHLS {
       
       out << tab(1) << "// controller for " << portController.unitController.unit.instName << "." << port << endl;
 
-      if ((numAssigns == 1) && stateless(portController.unitController.unit)) {
+      if ((numAssigns == 1) &&
+          (stateless(portController.unitController.unit) ||
+           isInsensitive(port, portController))) {
 
         auto stateCondVal = *(begin(vals.portAssignments));
         StallConds stallConds = stateCondVal.second.first;
