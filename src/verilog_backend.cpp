@@ -1838,24 +1838,68 @@ namespace ahaHLS {
       string port = portAndValues.first;
       PortValues vals = portAndValues.second;
 
+      int numAssigns = vals.portAssignments.size();
+      bool hasDefault = portController.hasDefault(port);
+      
       out << tab(1) << "// controller for " << portController.unitController.unit.instName << "." << port << endl;
       out << tab(1) << "always @(*) begin" << endl;
+
+      int i = 0;
       for (auto stateCondVal : vals.portAssignments) {
         StateId state = stateCondVal.first;
         StallConds stallConds = stateCondVal.second.first;
         string portValue = stateCondVal.second.second;
 
-        out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
-        out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
-        out << tab(5) << port << " = " << portValue << ";" << endl;
-        out << tab(4) << "end" << endl;
-        out << tab(2) << "end" << endl;        
+        if (i == 0) {
+          out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
+          out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+          out << tab(5) << port << " = " << portValue << ";" << endl;
+          out << tab(4) << "end" << endl;
+
+          if (i == (numAssigns - 1)) {
+            if (hasDefault) {
+              out << tab(2) << "end else begin" << endl;
+            } else {
+              out << tab(2) << "// No default?" << endl;
+              out << tab(2) << "end" << endl;
+            }
+          } else {
+            out << tab(2) << "end else" << endl;
+          }
+          
+        } else if (i == (numAssigns - 1)) {
+
+          out << ifStr(atState(state, arch)) << " begin " << endl;
+          out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+          out << tab(5) << port << " = " << portValue << ";" << endl;
+          out << tab(4) << "end" << endl;
+
+          if (hasDefault) {
+            out << tab(2) << "end else begin" << endl;
+          } else {
+            out << tab(2) << "// No default?" << endl;
+            out << tab(2) << "end" << endl;
+          }
+          
+        } else {
+
+          out << ifStr(atState(state, arch)) << " begin " << endl;
+          out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+          out << tab(5) << port << " = " << portValue << ";" << endl;
+          out << tab(4) << "end" << endl;
+          out << tab(2) << "end else" << endl;
+          
+        }
+
+        i++;
       }
-      out << tab(2) << "else" << endl;
+
       if (portController.hasDefault(port)) {
         out << tab(3) << port << " = " << portController.defaultValue(port) << ";" << endl;
+        out << tab(2) << "end" << endl;
       }
-      out << tab(2) << "end" << endl;
+
+      out << tab(1) << "end" << endl;
     }
 
 

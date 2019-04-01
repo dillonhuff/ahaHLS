@@ -24,6 +24,8 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	// End debug wires and ports
 
 	// Start Functional Units
+	br_dummy br_unit();
+
 	reg [0:0] m_rst_n;
 	reg [31:0] m_word0;
 	reg [31:0] m_word1;
@@ -31,28 +33,26 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	wire [31:0] m_median_word;
 	median m(.clk(clk), .median_word(m_median_word), .rst_n(m_rst_n), .word0(m_word0), .word1(m_word1), .word2(m_word2));
 
-	br_dummy br_unit();
+	reg [31:0] add_in0_add_6;
+	reg [31:0] add_in1_add_6;
+	wire [31:0] add_out_add_6;
+	add #(.WIDTH(32)) add_add_6(.in0(add_in0_add_6), .in1(add_in1_add_6), .out(add_out_add_6));
 
-	reg [63:0] phi_in_phi_6;
-	reg [31:0] phi_last_block_phi_6;
-	reg [63:0] phi_s_phi_6;
-	wire [31:0] phi_out_phi_6;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_6(.in(phi_in_phi_6), .last_block(phi_last_block_phi_6), .out(phi_out_phi_6), .s(phi_s_phi_6));
+	reg [31:0] cmp_in0_icmp_11;
+	reg [31:0] cmp_in1_icmp_11;
+	wire [0:0] cmp_out_icmp_11;
+	ne #(.WIDTH(32)) icmp_11(.in0(cmp_in0_icmp_11), .in1(cmp_in1_icmp_11), .out(cmp_out_icmp_11));
 
-	reg [31:0] add_in0_add_7;
-	reg [31:0] add_in1_add_7;
-	wire [31:0] add_out_add_7;
-	add #(.WIDTH(32)) add_add_7(.in0(add_in0_add_7), .in1(add_in1_add_7), .out(add_out_add_7));
-
-	reg [31:0] cmp_in0_icmp_16;
-	reg [31:0] cmp_in1_icmp_16;
-	wire [0:0] cmp_out_icmp_16;
-	ne #(.WIDTH(32)) icmp_16(.in0(cmp_in0_icmp_16), .in1(cmp_in1_icmp_16), .out(cmp_out_icmp_16));
+	reg [63:0] phi_in_phi_17;
+	reg [31:0] phi_last_block_phi_17;
+	reg [63:0] phi_s_phi_17;
+	wire [31:0] phi_out_phi_17;
+	phi #(.NB_PAIR(2), .WIDTH(32)) phi_17(.in(phi_in_phi_17), .last_block(phi_last_block_phi_17), .out(phi_out_phi_17), .s(phi_s_phi_17));
 
 	// End Functional Units
 
 	// Start instruction result storage
-	reg [31:0] add_tmp_1;
+	reg [31:0] add_tmp_0;
 	// End instruction result storage
 
 	// Start pipeline variables
@@ -148,11 +148,11 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 			if ((global_state == 4)) begin 
 				// Next state transition logic
 				// Condition = (  %8 = icmp ne i32 %3, 8533)
-				if ((cmp_out_icmp_16)) begin
+				if ((cmp_out_icmp_11)) begin
 					global_state <= 4;
 				end
 				// Condition = (!(  %8 = icmp ne i32 %3, 8533))
-				if (!(cmp_out_icmp_16)) begin
+				if (!(cmp_out_icmp_11)) begin
 					global_state <= 5;
 				end
 			end
@@ -193,7 +193,7 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 			if ((global_state == 4)) begin 
 				// Temporary storage
 				// Store data computed at the stage
-					add_tmp_1 <= add_out_add_7;
+					add_tmp_0 <= add_out_add_6;
 			end
 			if ((global_state == 5)) begin 
 				// Temporary storage
@@ -217,128 +217,128 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 				if (1) begin
 					m_rst_n = -(1'd1);
 				end
-		end
-		if ((global_state == 2)) begin 
+		end else
+if ((global_state == 2)) begin 
 				if (1) begin
 					m_rst_n = (1'd0);
 				end
-		end
-		if ((global_state == 3)) begin 
+		end else
+if ((global_state == 3)) begin 
 				if (1) begin
 					m_rst_n = -(1'd1);
 				end
+		// No default?
 		end
-		else
-		end
+	end
 	// controller for m.m_word0
 	always @(*) begin
 		if ((global_state == 4)) begin 
 				if (1) begin
 					m_word0 = in0_out_data;
 				end
+		// No default?
 		end
-		else
-		end
+	end
 	// controller for m.m_word1
 	always @(*) begin
 		if ((global_state == 4)) begin 
 				if (1) begin
 					m_word1 = in1_out_data;
 				end
+		// No default?
 		end
-		else
-		end
+	end
 	// controller for m.m_word2
 	always @(*) begin
 		if ((global_state == 4)) begin 
 				if (1) begin
 					m_word2 = in2_out_data;
 				end
+		// No default?
 		end
-		else
-		end
-	// controller for phi_6.phi_in_phi_6
+	end
+	// controller for add_add_6.add_in0_add_6
 	always @(*) begin
 		if ((global_state == 4)) begin 
 				if (1) begin
-					phi_in_phi_6 = {(32'd0), add_tmp_1};
+					add_in0_add_6 = phi_out_phi_17;
 				end
+		// No default?
 		end
-		else
-		end
-	// controller for phi_6.phi_last_block_phi_6
+	end
+	// controller for add_add_6.add_in1_add_6
 	always @(*) begin
 		if ((global_state == 4)) begin 
 				if (1) begin
-					phi_last_block_phi_6 = last_BB_reg;
+					add_in1_add_6 = (32'd1);
 				end
+		// No default?
 		end
-		else
-		end
-	// controller for phi_6.phi_s_phi_6
-	always @(*) begin
-		if ((global_state == 4)) begin 
-				if (1) begin
-					phi_s_phi_6 = {32'd2, 32'd4};
-				end
-		end
-		else
-		end
-	// controller for add_add_7.add_in0_add_7
-	always @(*) begin
-		if ((global_state == 4)) begin 
-				if (1) begin
-					add_in0_add_7 = phi_out_phi_6;
-				end
-		end
-		else
-		end
-	// controller for add_add_7.add_in1_add_7
-	always @(*) begin
-		if ((global_state == 4)) begin 
-				if (1) begin
-					add_in1_add_7 = (32'd1);
-				end
-		end
-		else
-		end
+	end
 	// controller for out.out_in_data_reg
 	always @(*) begin
 		if ((global_state == 4)) begin 
 				if (1) begin
 					out_in_data_reg = m_median_word;
 				end
+		// No default?
 		end
-		else
-		end
-	// controller for icmp_16.cmp_in0_icmp_16
+	end
+	// controller for icmp_11.cmp_in0_icmp_11
 	always @(*) begin
 		if ((global_state == 4)) begin 
 				if (1) begin
-					cmp_in0_icmp_16 = add_out_add_7;
+					cmp_in0_icmp_11 = add_out_add_6;
 				end
+		// No default?
 		end
-		else
-		end
-	// controller for icmp_16.cmp_in1_icmp_16
+	end
+	// controller for icmp_11.cmp_in1_icmp_11
 	always @(*) begin
 		if ((global_state == 4)) begin 
 				if (1) begin
-					cmp_in1_icmp_16 = (32'd8533);
+					cmp_in1_icmp_11 = (32'd8533);
 				end
+		// No default?
 		end
-		else
+	end
+	// controller for phi_17.phi_in_phi_17
+	always @(*) begin
+		if ((global_state == 4)) begin 
+				if (1) begin
+					phi_in_phi_17 = {(32'd0), add_tmp_0};
+				end
+		// No default?
 		end
+	end
+	// controller for phi_17.phi_last_block_phi_17
+	always @(*) begin
+		if ((global_state == 4)) begin 
+				if (1) begin
+					phi_last_block_phi_17 = last_BB_reg;
+				end
+		// No default?
+		end
+	end
+	// controller for phi_17.phi_s_phi_17
+	always @(*) begin
+		if ((global_state == 4)) begin 
+				if (1) begin
+					phi_s_phi_17 = {32'd2, 32'd4};
+				end
+		// No default?
+		end
+	end
 	// controller for ret_19.valid_reg
 	always @(*) begin
 		if ((global_state == 6)) begin 
 				if (1) begin
 					valid_reg = 1;
 				end
-		end
-		else
+		end else begin
 			valid_reg = 0;
 		end
+	end
 endmodule
 
 module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data, output [0:0] valid);
