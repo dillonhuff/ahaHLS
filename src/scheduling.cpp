@@ -2768,8 +2768,8 @@ namespace ahaHLS {
       ramPorts["wdata_" + iStr] = inputPort(width, "wdata_" + iStr);
       ramPorts["wen_" + iStr] = inputPort(1, "wen_" + iStr);
 
-      defaults.insert({"waddr_" + iStr, 0});
-      defaults.insert({"wdata_" + iStr, 0});
+      insensitive.insert("waddr_" + iStr); //{"waddr_" + iStr, 0});
+      insensitive.insert("wdata_" + iStr); //{"wdata_" + iStr, 0});
       defaults.insert({"wen_" + iStr, 0});            
     }
 
