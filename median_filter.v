@@ -1,16 +1,16 @@
-module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [0:0] valid, output [31:0] out_in_data, input [31:0] out_out_data);
+module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] out_in_data, input [31:0] out_out_data, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [0:0] valid);
 
+	reg [31:0] out_in_data_reg;
 	reg [31:0] in0_in_data_reg;
 	reg [31:0] in1_in_data_reg;
 	reg [31:0] in2_in_data_reg;
 	reg [0:0] valid_reg;
-	reg [31:0] out_in_data_reg;
 
+	assign out_in_data = out_in_data_reg;
 	assign in0_in_data = in0_in_data_reg;
 	assign in1_in_data = in1_in_data_reg;
 	assign in2_in_data = in2_in_data_reg;
 	assign valid = valid_reg;
-	assign out_in_data = out_in_data_reg;
 
 	// Start debug wires and ports
 
@@ -24,11 +24,6 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	// End debug wires and ports
 
 	// Start Functional Units
-	reg [31:0] add_in0_add_6;
-	reg [31:0] add_in1_add_6;
-	wire [31:0] add_out_add_6;
-	add #(.WIDTH(32)) add_add_6(.in0(add_in0_add_6), .in1(add_in1_add_6), .out(add_out_add_6));
-
 	reg [0:0] m_rst_n;
 	reg [31:0] m_word0;
 	reg [31:0] m_word1;
@@ -36,23 +31,28 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	wire [31:0] m_median_word;
 	median m(.clk(clk), .median_word(m_median_word), .rst_n(m_rst_n), .word0(m_word0), .word1(m_word1), .word2(m_word2));
 
-	reg [63:0] phi_in_phi_10;
-	reg [31:0] phi_last_block_phi_10;
-	reg [63:0] phi_s_phi_10;
-	wire [31:0] phi_out_phi_10;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_10(.in(phi_in_phi_10), .last_block(phi_last_block_phi_10), .out(phi_out_phi_10), .s(phi_s_phi_10));
+	reg [31:0] cmp_in0_icmp_8;
+	reg [31:0] cmp_in1_icmp_8;
+	wire [0:0] cmp_out_icmp_8;
+	ne #(.WIDTH(32)) icmp_8(.in0(cmp_in0_icmp_8), .in1(cmp_in1_icmp_8), .out(cmp_out_icmp_8));
 
 	br_dummy br_unit();
 
-	reg [31:0] cmp_in0_icmp_16;
-	reg [31:0] cmp_in1_icmp_16;
-	wire [0:0] cmp_out_icmp_16;
-	ne #(.WIDTH(32)) icmp_16(.in0(cmp_in0_icmp_16), .in1(cmp_in1_icmp_16), .out(cmp_out_icmp_16));
+	reg [31:0] add_in0_add_10;
+	reg [31:0] add_in1_add_10;
+	wire [31:0] add_out_add_10;
+	add #(.WIDTH(32)) add_add_10(.in0(add_in0_add_10), .in1(add_in1_add_10), .out(add_out_add_10));
+
+	reg [63:0] phi_in_phi_14;
+	reg [31:0] phi_last_block_phi_14;
+	reg [63:0] phi_s_phi_14;
+	wire [31:0] phi_out_phi_14;
+	phi #(.NB_PAIR(2), .WIDTH(32)) phi_14(.in(phi_in_phi_14), .last_block(phi_last_block_phi_14), .out(phi_out_phi_14), .s(phi_s_phi_14));
 
 	// End Functional Units
 
 	// Start instruction result storage
-	reg [31:0] add_tmp_0;
+	reg [31:0] add_tmp_2;
 	// End instruction result storage
 
 	// Start pipeline variables
@@ -148,11 +148,11 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 			if ((global_state == 4)) begin 
 				// Next state transition logic
 				// Condition = (  %8 = icmp ne i32 %3, 8533)
-				if ((cmp_out_icmp_16)) begin
+				if ((cmp_out_icmp_8)) begin
 					global_state <= 4;
 				end
 				// Condition = (!(  %8 = icmp ne i32 %3, 8533))
-				if (!(cmp_out_icmp_16)) begin
+				if (!(cmp_out_icmp_8)) begin
 					global_state <= 5;
 				end
 			end
@@ -193,7 +193,7 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 			if ((global_state == 4)) begin 
 				// Temporary storage
 				// Store data computed at the stage
-					add_tmp_0 <= add_out_add_6;
+					add_tmp_2 <= add_out_add_10;
 			end
 			if ((global_state == 5)) begin 
 				// Temporary storage
@@ -257,31 +257,6 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	// Insensitive connections
 	always @(*) begin
 	end
-	// controller for add_add_6.add_in0_add_6
-	// controller for add_add_6.add_in1_add_6
-	// Insensitive connections
-	always @(*) begin
-		add_in0_add_6 = phi_out_phi_10;
-		add_in1_add_6 = (32'd1);
-	end
-	// Insensitive connections
-	always @(*) begin
-	end
-	// Insensitive connections
-	always @(*) begin
-	end
-	// Insensitive connections
-	always @(*) begin
-	end
-	// controller for phi_10.phi_in_phi_10
-	// controller for phi_10.phi_last_block_phi_10
-	// controller for phi_10.phi_s_phi_10
-	// Insensitive connections
-	always @(*) begin
-		phi_in_phi_10 = {(32'd0), add_tmp_0};
-		phi_last_block_phi_10 = last_BB_reg;
-		phi_s_phi_10 = {32'd2, 32'd4};
-	end
 	// controller for out.out_in_data_reg
 	always @(*) begin
 		if ((global_state == 4)) begin 
@@ -294,12 +269,37 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	// Insensitive connections
 	always @(*) begin
 	end
-	// controller for icmp_16.cmp_in0_icmp_16
-	// controller for icmp_16.cmp_in1_icmp_16
+	// controller for icmp_8.cmp_in0_icmp_8
+	// controller for icmp_8.cmp_in1_icmp_8
 	// Insensitive connections
 	always @(*) begin
-		cmp_in0_icmp_16 = add_out_add_6;
-		cmp_in1_icmp_16 = (32'd8533);
+		cmp_in0_icmp_8 = valid ? add_out_add_10 : add_out_add_10;
+		cmp_in1_icmp_8 = valid ? (32'd8533) : (32'd8533);
+	end
+	// controller for add_add_10.add_in0_add_10
+	// controller for add_add_10.add_in1_add_10
+	// Insensitive connections
+	always @(*) begin
+		add_in0_add_10 = valid ? phi_out_phi_14 : phi_out_phi_14;
+		add_in1_add_10 = valid ? (32'd1) : (32'd1);
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// controller for phi_14.phi_in_phi_14
+	// controller for phi_14.phi_last_block_phi_14
+	// controller for phi_14.phi_s_phi_14
+	// Insensitive connections
+	always @(*) begin
+		phi_in_phi_14 = valid ? {(32'd0), add_tmp_2} : {(32'd0), add_tmp_2};
+		phi_last_block_phi_14 = valid ? last_BB_reg : last_BB_reg;
+		phi_s_phi_14 = valid ? {32'd2, 32'd4} : {32'd2, 32'd4};
 	end
 	// controller for ret_19.valid_reg
 	always @(*) begin
@@ -316,7 +316,7 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	end
 endmodule
 
-module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [0:0] valid, output [31:0] out_in_data, input [31:0] out_out_data);
+module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] out_in_data, input [31:0] out_out_data, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [0:0] valid);
 
 
 	initial begin

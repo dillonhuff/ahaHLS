@@ -1850,10 +1850,14 @@ namespace ahaHLS {
     return contains_key(port, portController.insensitivePorts) &&
       (map_find(port, portController.insensitivePorts) == true);
   }
-  
+
+  // The same value problem is striking again...
+  // The simplified wires really ought to be connected through assigns,
+  // but I cannot get that to work without
   void emitVerilogForController(std::ostream& out,
                                  MicroArchitecture& arch,
-                                 PortController& portController) {
+                                PortController& portController) {
+                                //std::vector<pair<string, string> >& statelessConns) {
 
     UnitController controller = portController.unitController;
 
@@ -1937,15 +1941,15 @@ namespace ahaHLS {
       }
     }
 
+
     // TODO: Replace with assigns
     out << tab(1) << "// Insensitive connections" << endl;
     out << tab(1) << "always @(*) begin" << endl;
     for (auto sc : statelessConns) {
-      out << tab(2) << sc.first << " = " << sc.second << ";" << endl;
+      out << tab(2) << sc.first << " = " << "valid ? " << sc.second << " : " << sc.second << ";" << endl;
     }
     out << tab(1) << "end" << endl;
-
-
+    
     // // Remove later
     // if (usedInExactlyOneState(controller) && stateless(controller.unit)) {
 
@@ -2022,6 +2026,9 @@ namespace ahaHLS {
     for (auto portController : controllers) {
       emitVerilogForController(out, arch, portController);
     }
+
+
+    
   }
 
   // Now I have port-by-port controllers. I want to

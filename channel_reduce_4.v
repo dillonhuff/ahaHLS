@@ -339,23 +339,23 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	// controller for phi_5.phi_s_phi_5
 	// Insensitive connections
 	always @(*) begin
-		phi_in_phi_5 = {(32'd0), add_tmp_2};
-		phi_last_block_phi_5 = last_BB_reg;
-		phi_s_phi_5 = {32'd0, 32'd2};
+		phi_in_phi_5 = valid ? {(32'd0), add_tmp_2} : {(32'd0), add_tmp_2};
+		phi_last_block_phi_5 = valid ? last_BB_reg : last_BB_reg;
+		phi_s_phi_5 = valid ? {32'd0, 32'd2} : {32'd0, 32'd2};
 	end
 	// controller for add_add_7.add_in0_add_7
 	// controller for add_add_7.add_in1_add_7
 	// Insensitive connections
 	always @(*) begin
-		add_in0_add_7 = phi_out_phi_5;
-		add_in1_add_7 = (32'd1);
+		add_in0_add_7 = valid ? phi_out_phi_5 : phi_out_phi_5;
+		add_in1_add_7 = valid ? (32'd1) : (32'd1);
 	end
 	// controller for icmp_8.cmp_in0_icmp_8
 	// controller for icmp_8.cmp_in1_icmp_8
 	// Insensitive connections
 	always @(*) begin
-		cmp_in0_icmp_8 = add_out_add_7;
-		cmp_in1_icmp_8 = (32'd4);
+		cmp_in0_icmp_8 = valid ? add_out_add_7 : add_out_add_7;
+		cmp_in1_icmp_8 = valid ? (32'd4) : (32'd4);
 	end
 	// controller for in.in_read_valid_reg
 	always @(*) begin
@@ -381,8 +381,8 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	// controller for add_add_12.add_in1_add_12
 	// Insensitive connections
 	always @(*) begin
-		add_in0_add_12 = load_tmp_1;
-		add_in1_add_12 = in_out_data;
+		add_in0_add_12 = valid ? load_tmp_1 : load_tmp_1;
+		add_in1_add_12 = valid ? in_out_data : in_out_data;
 	end
 	// controller for out.out_in_data_reg
 	always @(*) begin
