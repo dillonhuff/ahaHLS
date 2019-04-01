@@ -1697,6 +1697,7 @@ namespace ahaHLS {
     UnitController unitController;
     map<StateId, vector<pair<StallConds, PortAssignments> > > portValues;
     map<StateId, PortAssignments> defaultValues;
+    PortAssignments statelessDefaults;    
   };
 
   bool usedInExactlyOneState(UnitController& controller) {
@@ -1884,8 +1885,6 @@ namespace ahaHLS {
               if (!elem(ptName, usedPorts)) {
                 PortAssignments& stateDefaults = portController.defaultValues[state];
                 stateDefaults.insert({ptName, to_string(def.second)});
-                
-                //out << tab(3) << ptName << " = " << def.second << ";" << endl;
               }
             }
 
@@ -1904,15 +1903,26 @@ namespace ahaHLS {
 
         }
 
-        out << "\t\t\t// Default values" << endl;
         for (auto wd : unit.module.defaultValues) {
           if (isExternal) {
-            out << tab(4) << unit.portWires[wd.first].name << "_reg = " << wd.second << ";" << endl;
+            portController.statelessDefaults.insert({unit.portWires[wd.first].name + "_reg", to_string(wd.second)});
           } else {
-            out << tab(4) << unit.portWires[wd.first].name << " = " << wd.second << ";" << endl;
+            portController.statelessDefaults.insert({unit.portWires[wd.first].name, to_string(wd.second)});            
           }
         }
-      
+
+        out << "\t\t\t// Default values" << endl;
+        for (auto def : portController.statelessDefaults) {
+          out << tab(3) << def.first << " = " << def.second << ";" << endl;
+          // if (isExternal) {
+          //   portController.statelessDefaults.insert({unit.portWires[wd.first].name + "_reg = ", to_string(wd.second)});
+          //   out << tab(4) << unit.portWires[wd.first].name << "_reg = " << wd.second << ";" << endl;
+          // } else {
+          //   portController.statelessDefaults.insert({unit.portWires[wd.first].name, to_string(wd.second)});            
+          //   out << tab(4) << unit.portWires[wd.first].name << " = " << wd.second << ";" << endl;
+          // }
+        }
+        
         out << "\t\tend" << endl;
 
         out << "\tend" << endl;
