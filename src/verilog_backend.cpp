@@ -1748,6 +1748,14 @@ namespace ahaHLS {
     }
     out << tab(1) << "end" << endl;
   }
+
+  std::string andCondStr(const std::vector<string>& stallConds) {
+    if (stallConds.size() == 0) {
+      return "1";
+    }
+
+    return andStrings(stallConds);
+  }
   
   // TODO: Experiment with adding defaults to all functional unit inputs
   void emitInstructionCode(std::ostream& out,
@@ -1847,9 +1855,9 @@ namespace ahaHLS {
                 }
               }
 
-              if (stallConds.size() > 0) {
-                out << tab(4) << "if (" << andStrings(stallConds) << ") begin" << endl;
-              }
+              //if (stallConds.size() > 0) {
+                out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+                //}
               auto pos = position(state, instr);
               auto assigns = instructionPortAssignments(pos, arch);
 
@@ -1863,11 +1871,10 @@ namespace ahaHLS {
                   out << tab(5) << assign.first << " = " << assign.second << ";" << endl;
                 }
               }
-              //instructionVerilog(out, pos, arch);
 
-              if (stallConds.size() > 0) {            
+              // if (stallConds.size() > 0) {            
                 out << tab(4) << "end" << endl;
-              }
+                //}
 
             }
 

@@ -1,20 +1,20 @@
-module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] out_in_data, output [0:0] out_read_valid, output [0:0] out_rst, output [31:0] out_write_valid, input [31:0] out_out_data, input [0:0] out_read_ready, input [0:0] out_write_ready, output [0:0] valid, output [31:0] in_in_data, output [0:0] in_read_valid, output [0:0] in_rst, output [31:0] in_write_valid, input [31:0] in_out_data, input [0:0] in_read_ready, input [0:0] in_write_ready);
+module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [31:0] out_in_data, output [0:0] out_read_valid, output [0:0] out_rst, output [31:0] out_write_valid, input [31:0] out_out_data, input [0:0] out_read_ready, input [0:0] out_write_ready, output [31:0] in_in_data, output [0:0] in_read_valid, output [0:0] in_rst, output [31:0] in_write_valid, input [31:0] in_out_data, input [0:0] in_read_ready, input [0:0] in_write_ready);
 
+	reg [0:0] valid_reg;
 	reg [31:0] out_in_data_reg;
 	reg [0:0] out_read_valid_reg;
 	reg [0:0] out_rst_reg;
 	reg [31:0] out_write_valid_reg;
-	reg [0:0] valid_reg;
 	reg [31:0] in_in_data_reg;
 	reg [0:0] in_read_valid_reg;
 	reg [0:0] in_rst_reg;
 	reg [31:0] in_write_valid_reg;
 
+	assign valid = valid_reg;
 	assign out_in_data = out_in_data_reg;
 	assign out_read_valid = out_read_valid_reg;
 	assign out_rst = out_rst_reg;
 	assign out_write_valid = out_write_valid_reg;
-	assign valid = valid_reg;
 	assign in_in_data = in_in_data_reg;
 	assign in_read_valid = in_read_valid_reg;
 	assign in_rst = in_rst_reg;
@@ -32,13 +32,7 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_18();
-
-	add alloca_0();
-
-	add bitcast_1();
-
-	add call_2();
+	add call_17();
 
 	reg [31:0] raddr_ram_0_reg;
 	reg [31:0] waddr_ram_0_reg;
@@ -49,7 +43,11 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 
 	br_dummy br_unit();
 
-	add call_19();
+	add call_1();
+
+	add alloca_2();
+
+	add bitcast_3();
 
 	reg [63:0] phi_in_phi_5;
 	reg [31:0] phi_last_block_phi_5;
@@ -71,6 +69,8 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	reg [31:0] cmp_in1_icmp_8;
 	wire [0:0] cmp_out_icmp_8;
 	eq #(.WIDTH(32)) icmp_8(.in0(cmp_in0_icmp_8), .in1(cmp_in1_icmp_8), .out(cmp_out_icmp_8));
+
+	add call_19();
 
 	add call_10();
 
@@ -274,24 +274,14 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	// Start pipeline stages
 	// End pipeline instruction code
 
-	// No controller needed, just assigning to only used values
-	always @(*) begin
-				//   %sum = alloca i32, align 4
-	end
-	// No controller needed, just assigning to only used values
-	always @(*) begin
-				//   %1 = bitcast i32* %sum to i8*
-	end
-	// No controller needed, just assigning to only used values
-	always @(*) begin
-				//   call void @llvm.lifetime.start.p0i8(i64 4, i8* %1) #14
-	end
 	always @(*) begin
 		if ((global_state == 0)) begin 
 				//   store i32 0, i32* %sum, align 4, !tbaa !2
+				if (1) begin
 					waddr_ram_0_reg = 0;
 					wdata_ram_0_reg = (32'd0);
 					wen_ram_0_reg = 1;
+				end
 		end else 		if ((global_state == 2)) begin 
 				//   %8 = load i32, i32* %sum, align 4, !tbaa !2
 				if (in_read_ready) begin
@@ -299,15 +289,31 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 				end
 		end else 		if ((global_state == 4)) begin 
 				//   store i32 %9, i32* %sum, align 4, !tbaa !2
+				if (1) begin
 					waddr_ram_0_reg = 0;
 					wdata_ram_0_reg = add_out_add_12;
 					wen_ram_0_reg = 1;
+				end
 		end else 		if ((global_state == 7)) begin 
 				//   %4 = load i32, i32* %sum
+				if (1) begin
 					raddr_ram_0_reg = 0;
+				end
 		end else begin 
 			// Default values
 		end
+	end
+	// No controller needed, just assigning to only used values
+	always @(*) begin
+				//   call void @llvm.lifetime.start.p0i8(i64 4, i8* %1) #14
+	end
+	// No controller needed, just assigning to only used values
+	always @(*) begin
+				//   %sum = alloca i32, align 4
+	end
+	// No controller needed, just assigning to only used values
+	always @(*) begin
+				//   %1 = bitcast i32* %sum to i8*
 	end
 	// No controller needed, just assigning to only used values
 	always @(*) begin
@@ -338,14 +344,20 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 			in_write_valid_reg = 0;
 		end else 		if ((global_state == 3)) begin 
 				//   call void @builtin_write_port_read_valid(%class.ac_channel* %in, i1 true)
+				if (1) begin
 					in_read_valid_reg = -(1'd1);
+				end
 			in_in_data_reg = 0;
 			in_write_valid_reg = 0;
 		end else 		if ((global_state == 4)) begin 
 				//   call void @builtin_write_port_read_valid(%class.ac_channel* %in, i1 false)
+				if (1) begin
 					in_read_valid_reg = (1'd0);
+				end
 				//   %7 = call i32 @builtin_read_port_out_data(%class.ac_channel* %in)
+				if (1) begin
 					in_read_valid_reg = (1'd0);
+				end
 			in_in_data_reg = 0;
 			in_write_valid_reg = 0;
 		end else begin 
@@ -365,6 +377,10 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 				add_in0_add_12 = load_tmp_1;
 				add_in1_add_12 = in_out_data;
 	end
+	// No controller needed, just assigning to only used values
+	always @(*) begin
+				//   call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %1) #14
+	end
 	always @(*) begin
 		if ((global_state == 6)) begin 
 				//   %3 = call i1 @builtin_read_port_write_ready(%class.ac_channel* %out)
@@ -375,14 +391,20 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 			out_write_valid_reg = 0;
 		end else 		if ((global_state == 7)) begin 
 				//   call void @builtin_write_port_write_valid(%class.ac_channel* %out, i1 true)
+				if (1) begin
 					out_write_valid_reg = -(1'd1);
+				end
 				//   call void @builtin_write_port_in_data(%class.ac_channel* %out, i32 %4)
+				if (1) begin
 					out_write_valid_reg = -(1'd1);
 					out_in_data_reg = rdata_ram_0;
+				end
 			out_read_valid_reg = 0;
 		end else 		if ((global_state == 8)) begin 
 				//   call void @builtin_write_port_write_valid(%class.ac_channel* %out, i1 false)
+				if (1) begin
 					out_write_valid_reg = (1'd0);
+				end
 			out_in_data_reg = 0;
 			out_read_valid_reg = 0;
 		end else begin 
@@ -396,14 +418,12 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	always @(*) begin
 				//   call void @builtin_stall(i1 %3)
 	end
-	// No controller needed, just assigning to only used values
-	always @(*) begin
-				//   call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %1) #14
-	end
 	always @(*) begin
 		if ((global_state == 8)) begin 
 				//   ret void
+				if (1) begin
 					valid_reg = 1;
+				end
 		end else begin 
 			// Default values
 				valid_reg = 0;
@@ -411,7 +431,7 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	end
 endmodule
 
-module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_data, output [0:0] out_read_valid, output [0:0] out_rst, output [31:0] out_write_valid, input [31:0] out_out_data, input [0:0] out_read_ready, input [0:0] out_write_ready, output [0:0] valid, output [31:0] in_in_data, output [0:0] in_read_valid, output [0:0] in_rst, output [31:0] in_write_valid, input [31:0] in_out_data, input [0:0] in_read_ready, input [0:0] in_write_ready);
+module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [31:0] out_in_data, output [0:0] out_read_valid, output [0:0] out_rst, output [31:0] out_write_valid, input [31:0] out_out_data, input [0:0] out_read_ready, input [0:0] out_write_ready, output [31:0] in_in_data, output [0:0] in_read_valid, output [0:0] in_rst, output [31:0] in_write_valid, input [31:0] in_out_data, input [0:0] in_read_ready, input [0:0] in_write_ready);
 
 
 	initial begin
