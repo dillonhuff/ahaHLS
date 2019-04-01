@@ -1702,6 +1702,42 @@ namespace ahaHLS {
     return elem(unit.getModName(), statelessUnits);
   }
 
+  void emitStatelessUnitController(std::ostream& out,
+                                   UnitController& controller,
+                                   MicroArchitecture& arch) {
+    cout << "Can replace normal unit controller with assign" << endl;
+    out << tab(1) << "// No controller needed, just assigning to only used values" << endl;
+
+    // Note: This whole block will only produce
+    // one set of combinational assigns
+    out << tab(1) << "always @(*) begin" << endl;
+    for (auto stInstrG : controller.instructions) {
+      cout << "In state " << stInstrG.first << endl;
+        
+      StateId state = stInstrG.first;
+      auto instrsAtState = stInstrG.second;
+
+      if (!isPipelineState(state, arch.pipelines)) {
+
+        std::set<string> usedPorts;
+        for (auto instrG : instrsAtState) {
+          Instruction* instr = instrG;
+
+          out << tab(4) << "// " << instructionString(instr) << endl;
+
+          auto pos = position(state, instr);
+          auto assigns = instructionPortAssignments(pos, arch);
+          for (auto asg : assigns) {
+            usedPorts.insert(asg.first);
+          }
+          instructionVerilog(out, pos, arch);
+
+        }
+      }
+    }
+    out << tab(1) << "end" << endl;
+  }
+  
   // TODO: Experiment with adding defaults to all functional unit inputs
   void emitInstructionCode(std::ostream& out,
                            MicroArchitecture& arch,
@@ -1745,37 +1781,7 @@ namespace ahaHLS {
       }
 
       if (usedInExactlyOneState(controller) && stateless(controller.unit)) {
-        cout << "Can replace normal unit controller with assign" << endl;
-        out << tab(1) << "// No controller needed, just assigning to only used values" << endl;
-
-        // Note: This whole block will only produce
-        // one set of combinational assigns
-        out << tab(1) << "always @(*) begin" << endl;
-        for (auto stInstrG : controller.instructions) {
-          cout << "In state " << stInstrG.first << endl;
-        
-          StateId state = stInstrG.first;
-          auto instrsAtState = stInstrG.second;
-
-          if (!isPipelineState(state, pipelines)) {
-
-            std::set<string> usedPorts;
-            for (auto instrG : instrsAtState) {
-              Instruction* instr = instrG;
-
-              out << tab(4) << "// " << instructionString(instr) << endl;
-
-              auto pos = position(state, instr);
-              auto assigns = instructionPortAssignments(pos, arch);
-              for (auto asg : assigns) {
-                usedPorts.insert(asg.first);
-              }
-              instructionVerilog(out, pos, arch);
-
-            }
-          }
-        }
-        out << tab(1) << "end" << endl;
+        emitStatelessUnitController(out, controller, arch);
 
       } else {
 
