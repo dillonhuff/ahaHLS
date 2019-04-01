@@ -1691,13 +1691,30 @@ namespace ahaHLS {
   typedef std::vector<std::string> StallConds;
   typedef std::map<std::string, std::string> PortAssignments;
 
-  // Needs to include
+  // Represents all possible values that can be assigned to
+  // a port, and the cycles at which they are assigned
+  class PortValues {
+  public:
+    // This map should include
+    //  1. States where the port is assigned
+    //  2. States where it is an unused value
+    map<StateId, pair<StallConds, string> > portAssignments;
+  };
+
+  // Need to move to one map from ports to states and the values
+  // they take in each state
   class PortController {
   public:
     UnitController unitController;
     map<StateId, vector<pair<StallConds, PortAssignments> > > portValues;
+
+    // These are defaults for all 
     map<StateId, PortAssignments> defaultValues;
-    PortAssignments statelessDefaults;    
+    PortAssignments statelessDefaults;
+
+    // This is the final form of the port controller for the unit.
+    // Each input port on the functional unit has its own independent controller
+    map<string, PortValues>
   };
 
   bool usedInExactlyOneState(UnitController& controller) {
