@@ -1714,9 +1714,13 @@ namespace ahaHLS {
 
     // This is the final form of the port controller for the unit.
     // Each input port on the functional unit has its own independent controller
-    map<string, PortValues>
+    map<string, PortValues> inputControllers;
   };
 
+  void buildInputControllers(PortController& controller) {
+    
+  }
+  
   bool usedInExactlyOneState(UnitController& controller) {
     int numUses = 0;
     for (auto st : controller.instructions) {
