@@ -1138,7 +1138,12 @@ namespace ahaHLS {
     
     return condStr;
   }
-  
+
+  // I would like for this function to just return instruction port
+  // assignments that include the names of ports as keys, rather
+  // than the names of specific wires connected to each functional unit
+  // port, so that I could save information about whether this assignment
+  // was sensitive to changes or not
   std::map<std::string, std::string>
   instructionPortAssignments(ControlFlowPosition pos,
                              MicroArchitecture& arch) {
