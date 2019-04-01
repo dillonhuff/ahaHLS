@@ -1688,6 +1688,16 @@ namespace ahaHLS {
     std::map<StateId, std::vector<Instruction*> > instructions;
   };
 
+  typedef std::vector<std::string> StallConds;
+  typedef std::map<std::string, std::string> portValues;
+
+  
+  class PortController {
+  public:
+    UnitController unitController;
+    map<StateId, vector<pair<StallConds, PortAssignments> > > portValues;
+  };
+
   bool usedInExactlyOneState(UnitController& controller) {
     int numUses = 0;
     for (auto st : controller.instructions) {
@@ -1782,7 +1792,6 @@ namespace ahaHLS {
 
       if (usedInExactlyOneState(controller) && stateless(controller.unit)) {
         emitStatelessUnitController(out, controller, arch);
-
       } else {
 
         out << "\talways @(*) begin" << endl;        
