@@ -178,6 +178,19 @@ namespace ahaHLS {
 
     ModuleSpec(const std::map<std::string, std::string>& params_,
                const std::string name_,
+               const std::map<std::string, Port>& ports_,
+               const std::map<std::string, int>& defaultValues_,
+               const std::set<std::string>& insensitive_) :
+      hasClock(false),
+      hasRst(false),
+      params(params_),
+      name(name_),
+      ports(ports_),
+      defaultValues(defaultValues_),
+      insensitivePorts(insensitive_) {}
+    
+    ModuleSpec(const std::map<std::string, std::string>& params_,
+               const std::string name_,
                const std::map<std::string, Port>& ports_) :
       hasClock(false),
       hasRst(false),

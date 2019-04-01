@@ -2975,8 +2975,10 @@ namespace ahaHLS {
           {"s_axil_wvalid", 0},
             {"s_axil_wstrb", (1 << 5) - 1},          
               {"s_axil_rready", 1}};
+
+    set<string> insensitivePorts{"s_axil_wdata", "s_axil_awaddr"};
     
-    ModuleSpec mSpec = {modParams, "axil_ram", ports, defaults};
+    ModuleSpec mSpec = {modParams, "axil_ram", ports, defaults, insensitivePorts};
     mSpec.hasClock = true;
     mSpec.hasRst = true;
     return mSpec;
