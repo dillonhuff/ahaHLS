@@ -46,10 +46,10 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 	// End debug wires and ports
 
 	// Start Functional Units
-	reg [31:0] shl_in0_shl_1;
-	reg [31:0] shl_in1_shl_1;
-	wire [31:0] shl_out_shl_1;
-	shlOp #(.WIDTH(32)) shl_shl_1(.in0(shl_in0_shl_1), .in1(shl_in1_shl_1), .out(shl_out_shl_1));
+	reg [31:0] shl_in0_shl_0;
+	reg [31:0] shl_in1_shl_0;
+	wire [31:0] shl_out_shl_0;
+	shlOp #(.WIDTH(32)) shl_shl_0(.in0(shl_in0_shl_0), .in1(shl_in1_shl_0), .out(shl_out_shl_0));
 
 	add call_8();
 
@@ -144,6 +144,27 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 	// Start pipeline stages
 	// End pipeline instruction code
 
+	// controller for shl_shl_0.shl_in0_shl_0
+	always @(*) begin
+		if ((global_state == 0)) begin 
+			if (1) begin
+				shl_in0_shl_0 = arg_1_out_data;
+			end
+		// No default?
+		end
+	end
+	// controller for shl_shl_0.shl_in1_shl_0
+	always @(*) begin
+		if ((global_state == 0)) begin 
+			if (1) begin
+				shl_in1_shl_0 = (32'd2);
+			end
+		// No default?
+		end
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
 	// controller for arg_0.arg_0_s_axil_awaddr_reg
 	// controller for arg_0.arg_0_s_axil_awvalid_reg
 	always @(*) begin
@@ -206,28 +227,7 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 	end
 	// Insensitive connections
 	always @(*) begin
-		arg_0_s_axil_awaddr_reg = valid ? shl_out_shl_1 : shl_out_shl_1;
-	end
-	// controller for shl_shl_1.shl_in0_shl_1
-	always @(*) begin
-		if ((global_state == 0)) begin 
-			if (1) begin
-				shl_in0_shl_1 = arg_1_out_data;
-			end
-		// No default?
-		end
-	end
-	// controller for shl_shl_1.shl_in1_shl_1
-	always @(*) begin
-		if ((global_state == 0)) begin 
-			if (1) begin
-				shl_in1_shl_1 = (32'd2);
-			end
-		// No default?
-		end
-	end
-	// Insensitive connections
-	always @(*) begin
+		arg_0_s_axil_awaddr_reg = valid ? shl_out_shl_0 : shl_out_shl_0;
 	end
 	// Insensitive connections
 	always @(*) begin
