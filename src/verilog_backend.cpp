@@ -1757,6 +1757,28 @@ namespace ahaHLS {
 
     return andStrings(stallConds);
   }
+
+  std::vector<std::string> getStallConds(Instruction* instr,
+                                         const StateId state,
+                                         MicroArchitecture& arch) {
+    vector<std::string> stallConds;
+
+    // Stalls do not get stalled by themselves
+    if (!isBuiltinStallCall(instr)) {
+      for (auto instrK : arch.stg.instructionsStartingAt(state)) {
+        if (isBuiltinStallCall(instrK)) {
+
+          auto stallPos = position(state, instrK);
+          string cond = outputName(instrK->getOperand(0),
+                                   stallPos,
+                                   arch);
+
+          stallConds.push_back(cond);
+        }
+      }
+    }
+    return stallConds;    
+  }
   
   // TODO: Experiment with adding defaults to all functional unit inputs
   void emitInstructionCode(std::ostream& out,
@@ -1837,24 +1859,7 @@ namespace ahaHLS {
 
               out << tab(4) << "// " << instructionString(instr) << endl;
 
-              // TODO: Extract stall calculation
-              vector<std::string> stallConds;
-
-              // Stalls do not get stalled by themselves
-              if (!isBuiltinStallCall(instr)) {
-                for (auto instrK : arch.stg.instructionsStartingAt(state)) {
-                  if (isBuiltinStallCall(instrK)) {
-
-                    auto stallPos = position(state, instrK);
-                    string cond = outputName(instrK->getOperand(0),
-                                             stallPos,
-                                             arch);
-
-                    stallConds.push_back(cond);
-                  }
-                }
-              }
-
+              auto stallConds = getStallConds(instr, state, arch);
               out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
               auto pos = position(state, instr);
               auto assigns = instructionPortAssignments(pos, arch);
@@ -1914,13 +1919,6 @@ namespace ahaHLS {
         out << "\t\t\t// Default values" << endl;
         for (auto def : portController.statelessDefaults) {
           out << tab(3) << def.first << " = " << def.second << ";" << endl;
-          // if (isExternal) {
-          //   portController.statelessDefaults.insert({unit.portWires[wd.first].name + "_reg = ", to_string(wd.second)});
-          //   out << tab(4) << unit.portWires[wd.first].name << "_reg = " << wd.second << ";" << endl;
-          // } else {
-          //   portController.statelessDefaults.insert({unit.portWires[wd.first].name, to_string(wd.second)});            
-          //   out << tab(4) << unit.portWires[wd.first].name << " = " << wd.second << ";" << endl;
-          // }
         }
         
         out << "\t\tend" << endl;
