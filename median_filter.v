@@ -31,6 +31,8 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	wire [31:0] m_median_word;
 	median m(.clk(clk), .median_word(m_median_word), .rst_n(m_rst_n), .word0(m_word0), .word1(m_word1), .word2(m_word2));
 
+	br_dummy br_unit();
+
 	reg [63:0] phi_in_phi_6;
 	reg [31:0] phi_last_block_phi_6;
 	reg [63:0] phi_s_phi_6;
@@ -41,8 +43,6 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	reg [31:0] add_in1_add_7;
 	wire [31:0] add_out_add_7;
 	add #(.WIDTH(32)) add_add_7(.in0(add_in0_add_7), .in1(add_in1_add_7), .out(add_out_add_7));
-
-	br_dummy br_unit();
 
 	reg [31:0] cmp_in0_icmp_16;
 	reg [31:0] cmp_in1_icmp_16;
@@ -214,125 +214,124 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	// controller for m.m_rst_n
 	always @(*) begin
 		if ((global_state == 1)) begin 
-				if (1) begin
-					m_rst_n = -(1'd1);
-				end
+			if (1) begin
+				m_rst_n = -(1'd1);
+			end
 		end else if ((global_state == 2)) begin 
-				if (1) begin
-					m_rst_n = (1'd0);
-				end
+			if (1) begin
+				m_rst_n = (1'd0);
+			end
 		end else if ((global_state == 3)) begin 
-				if (1) begin
-					m_rst_n = -(1'd1);
-				end
-		// No default?
+			if (1) begin
+				m_rst_n = -(1'd1);
+			end
 		end
 	end
 	// controller for m.m_word0
 	always @(*) begin
 		if ((global_state == 4)) begin 
-				if (1) begin
-					m_word0 = in0_out_data;
-				end
+			if (1) begin
+				m_word0 = in0_out_data;
+			end
 		// No default?
 		end
 	end
 	// controller for m.m_word1
 	always @(*) begin
 		if ((global_state == 4)) begin 
-				if (1) begin
-					m_word1 = in1_out_data;
-				end
+			if (1) begin
+				m_word1 = in1_out_data;
+			end
 		// No default?
 		end
 	end
 	// controller for m.m_word2
 	always @(*) begin
 		if ((global_state == 4)) begin 
-				if (1) begin
-					m_word2 = in2_out_data;
-				end
+			if (1) begin
+				m_word2 = in2_out_data;
+			end
 		// No default?
 		end
 	end
 	// controller for phi_6.phi_in_phi_6
 	always @(*) begin
 		if ((global_state == 4)) begin 
-				if (1) begin
-					phi_in_phi_6 = {(32'd0), add_tmp_1};
-				end
+			if (1) begin
+				phi_in_phi_6 = {(32'd0), add_tmp_1};
+			end
 		// No default?
 		end
 	end
 	// controller for phi_6.phi_last_block_phi_6
 	always @(*) begin
 		if ((global_state == 4)) begin 
-				if (1) begin
-					phi_last_block_phi_6 = last_BB_reg;
-				end
+			if (1) begin
+				phi_last_block_phi_6 = last_BB_reg;
+			end
 		// No default?
 		end
 	end
 	// controller for phi_6.phi_s_phi_6
 	always @(*) begin
 		if ((global_state == 4)) begin 
-				if (1) begin
-					phi_s_phi_6 = {32'd2, 32'd4};
-				end
+			if (1) begin
+				phi_s_phi_6 = {32'd2, 32'd4};
+			end
 		// No default?
 		end
 	end
 	// controller for add_add_7.add_in0_add_7
 	always @(*) begin
 		if ((global_state == 4)) begin 
-				if (1) begin
-					add_in0_add_7 = phi_out_phi_6;
-				end
+			if (1) begin
+				add_in0_add_7 = phi_out_phi_6;
+			end
 		// No default?
 		end
 	end
 	// controller for add_add_7.add_in1_add_7
 	always @(*) begin
 		if ((global_state == 4)) begin 
-				if (1) begin
-					add_in1_add_7 = (32'd1);
-				end
+			if (1) begin
+				add_in1_add_7 = (32'd1);
+			end
 		// No default?
 		end
 	end
 	// controller for out.out_in_data_reg
 	always @(*) begin
 		if ((global_state == 4)) begin 
-				if (1) begin
-					out_in_data_reg = m_median_word;
-				end
+			if (1) begin
+				out_in_data_reg = m_median_word;
+			end
 		// No default?
 		end
 	end
 	// controller for icmp_16.cmp_in0_icmp_16
 	always @(*) begin
 		if ((global_state == 4)) begin 
-				if (1) begin
-					cmp_in0_icmp_16 = add_out_add_7;
-				end
+			if (1) begin
+				cmp_in0_icmp_16 = add_out_add_7;
+			end
 		// No default?
 		end
 	end
 	// controller for icmp_16.cmp_in1_icmp_16
 	always @(*) begin
 		if ((global_state == 4)) begin 
-				if (1) begin
-					cmp_in1_icmp_16 = (32'd8533);
-				end
+			if (1) begin
+				cmp_in1_icmp_16 = (32'd8533);
+			end
 		// No default?
 		end
 	end
 	// controller for ret_19.valid_reg
 	always @(*) begin
 		if ((global_state == 6)) begin 
-				if (1) begin
-					valid_reg = 1;
-				end
+			if (1) begin
+				valid_reg = 1;
+			end
 		end else begin
 			valid_reg = 0;
 		end

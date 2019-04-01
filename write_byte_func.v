@@ -139,80 +139,61 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 	// Start pipeline stages
 	// End pipeline instruction code
 
+	// controller for arg_2.arg_2_s_eth_payload_axis_tdata_reg
 	always @(*) begin
-		if ((global_state == 0)) begin 
-				if (arg_2_s_eth_payload_axis_tready) begin
-				end
-			arg_2_s_eth_dest_mac_reg = 0;
-			arg_2_s_eth_hdr_valid_reg = 0;
-			arg_2_s_eth_payload_axis_tdata_reg = 0;
-			arg_2_s_eth_payload_axis_tlast_reg = 0;
-			arg_2_s_eth_payload_axis_tuser_reg = 0;
-			arg_2_s_eth_payload_axis_tvalid_reg = 0;
-			arg_2_s_eth_src_mac_reg = 0;
-			arg_2_s_eth_type_reg = 0;
-		end else 		if ((global_state == 1)) begin 
-				if (1) begin
-					arg_2_s_eth_payload_axis_tvalid_reg = (32'd1);
-				end
-				if (1) begin
-					arg_2_s_eth_payload_axis_tlast_reg = arg_1_rdata;
-				end
+		if ((global_state == 1)) begin 
 				if (1) begin
 					arg_2_s_eth_payload_axis_tdata_reg = arg_0_rdata;
 				end
-			arg_2_s_eth_dest_mac_reg = 0;
-			arg_2_s_eth_hdr_valid_reg = 0;
-			arg_2_s_eth_payload_axis_tuser_reg = 0;
-			arg_2_s_eth_src_mac_reg = 0;
-			arg_2_s_eth_type_reg = 0;
-		end else begin 
-			// Default values
-			arg_2_s_eth_dest_mac_reg = 0;
-			arg_2_s_eth_hdr_valid_reg = 0;
+		end else begin
 			arg_2_s_eth_payload_axis_tdata_reg = 0;
-			arg_2_s_eth_payload_axis_tlast_reg = 0;
-			arg_2_s_eth_payload_axis_tuser_reg = 0;
-			arg_2_s_eth_payload_axis_tvalid_reg = 0;
-			arg_2_s_eth_src_mac_reg = 0;
-			arg_2_s_eth_type_reg = 0;
 		end
 	end
+	// controller for arg_2.arg_2_s_eth_payload_axis_tlast_reg
 	always @(*) begin
-		if ((global_state == 0)) begin 
+		if ((global_state == 1)) begin 
 				if (1) begin
+					arg_2_s_eth_payload_axis_tlast_reg = arg_1_rdata;
 				end
+		end else begin
+			arg_2_s_eth_payload_axis_tlast_reg = 0;
 		end
 	end
+	// controller for arg_2.arg_2_s_eth_payload_axis_tvalid_reg
+	always @(*) begin
+		if ((global_state == 1)) begin 
+				if (1) begin
+					arg_2_s_eth_payload_axis_tvalid_reg = (32'd1);
+				end
+		end else begin
+			arg_2_s_eth_payload_axis_tvalid_reg = 0;
+		end
+	end
+	// controller for arg_0.arg_0_raddr_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
 				if (1) begin
 					arg_0_raddr_reg = arg_0_rdata;
 				end
-			arg_0_wen_reg = 0;
-		end else begin 
-			// Default values
-			arg_0_wen_reg = 0;
+		// No default?
 		end
 	end
+	// controller for arg_1.arg_1_raddr_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
 				if (1) begin
 					arg_1_raddr_reg = arg_1_rdata;
 				end
-			arg_1_wen_reg = 0;
-		end else begin 
-			// Default values
-			arg_1_wen_reg = 0;
+		// No default?
 		end
 	end
+	// controller for ret_4.valid_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
 				if (1) begin
 					valid_reg = 1;
 				end
-		end else begin 
-			// Default values
+		end else begin
 			valid_reg = 0;
 		end
 	end

@@ -1852,9 +1852,9 @@ namespace ahaHLS {
 
         if (i == 0) {
           out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
-          out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
-          out << tab(5) << port << " = " << portValue << ";" << endl;
-          out << tab(4) << "end" << endl;
+          out << tab(3) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+          out << tab(4) << port << " = " << portValue << ";" << endl;
+          out << tab(3) << "end" << endl;
 
           if (i == (numAssigns - 1)) {
             if (hasDefault) {
@@ -1870,9 +1870,9 @@ namespace ahaHLS {
         } else if (i == (numAssigns - 1)) {
 
           out << ifStr(atState(state, arch)) << " begin " << endl;
-          out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
-          out << tab(5) << port << " = " << portValue << ";" << endl;
-          out << tab(4) << "end" << endl;
+          out << tab(3) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+          out << tab(4) << port << " = " << portValue << ";" << endl;
+          out << tab(3) << "end" << endl;
 
           if (hasDefault) {
             out << tab(2) << "end else begin" << endl;
@@ -1883,9 +1883,9 @@ namespace ahaHLS {
         } else {
 
           out << ifStr(atState(state, arch)) << " begin " << endl;
-          out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
-          out << tab(5) << port << " = " << portValue << ";" << endl;
-          out << tab(4) << "end" << endl;
+          out << tab(3) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+          out << tab(4) << port << " = " << portValue << ";" << endl;
+          out << tab(3) << "end" << endl;
           out << tab(2) << "end else ";
           
         }

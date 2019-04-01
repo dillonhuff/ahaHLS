@@ -147,93 +147,80 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [47:0] a
 	// Start pipeline stages
 	// End pipeline instruction code
 
+	// controller for arg_3.arg_3_s_eth_dest_mac_reg
 	always @(*) begin
-		if ((global_state == 0)) begin 
-				if (arg_3_s_eth_hdr_ready) begin
-				end
-			arg_3_s_eth_dest_mac_reg = 0;
-			arg_3_s_eth_hdr_valid_reg = 0;
-			arg_3_s_eth_payload_axis_tdata_reg = 0;
-			arg_3_s_eth_payload_axis_tlast_reg = 0;
-			arg_3_s_eth_payload_axis_tuser_reg = 0;
-			arg_3_s_eth_payload_axis_tvalid_reg = 0;
-			arg_3_s_eth_src_mac_reg = 0;
-			arg_3_s_eth_type_reg = 0;
-		end else 		if ((global_state == 1)) begin 
-				if (1) begin
-					arg_3_s_eth_hdr_valid_reg = (32'd1);
-				end
+		if ((global_state == 1)) begin 
 				if (1) begin
 					arg_3_s_eth_dest_mac_reg = arg_0_rdata;
 				end
+		end else begin
+			arg_3_s_eth_dest_mac_reg = 0;
+		end
+	end
+	// controller for arg_3.arg_3_s_eth_hdr_valid_reg
+	always @(*) begin
+		if ((global_state == 1)) begin 
+				if (1) begin
+					arg_3_s_eth_hdr_valid_reg = (32'd1);
+				end
+		end else begin
+			arg_3_s_eth_hdr_valid_reg = 0;
+		end
+	end
+	// controller for arg_3.arg_3_s_eth_src_mac_reg
+	always @(*) begin
+		if ((global_state == 1)) begin 
 				if (1) begin
 					arg_3_s_eth_src_mac_reg = arg_1_rdata;
 				end
+		end else begin
+			arg_3_s_eth_src_mac_reg = 0;
+		end
+	end
+	// controller for arg_3.arg_3_s_eth_type_reg
+	always @(*) begin
+		if ((global_state == 1)) begin 
 				if (1) begin
 					arg_3_s_eth_type_reg = arg_2_rdata;
 				end
-			arg_3_s_eth_payload_axis_tdata_reg = 0;
-			arg_3_s_eth_payload_axis_tlast_reg = 0;
-			arg_3_s_eth_payload_axis_tuser_reg = 0;
-			arg_3_s_eth_payload_axis_tvalid_reg = 0;
-		end else begin 
-			// Default values
-			arg_3_s_eth_dest_mac_reg = 0;
-			arg_3_s_eth_hdr_valid_reg = 0;
-			arg_3_s_eth_payload_axis_tdata_reg = 0;
-			arg_3_s_eth_payload_axis_tlast_reg = 0;
-			arg_3_s_eth_payload_axis_tuser_reg = 0;
-			arg_3_s_eth_payload_axis_tvalid_reg = 0;
-			arg_3_s_eth_src_mac_reg = 0;
+		end else begin
 			arg_3_s_eth_type_reg = 0;
 		end
 	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				if (1) begin
-				end
-		end
-	end
+	// controller for arg_0.arg_0_raddr_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
 				if (1) begin
 					arg_0_raddr_reg = arg_0_rdata;
 				end
-			arg_0_wen_reg = 0;
-		end else begin 
-			// Default values
-			arg_0_wen_reg = 0;
+		// No default?
 		end
 	end
+	// controller for arg_1.arg_1_raddr_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
 				if (1) begin
 					arg_1_raddr_reg = arg_1_rdata;
 				end
-			arg_1_wen_reg = 0;
-		end else begin 
-			// Default values
-			arg_1_wen_reg = 0;
+		// No default?
 		end
 	end
+	// controller for arg_2.arg_2_raddr_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
 				if (1) begin
 					arg_2_raddr_reg = arg_2_rdata;
 				end
-			arg_2_wen_reg = 0;
-		end else begin 
-			// Default values
-			arg_2_wen_reg = 0;
+		// No default?
 		end
 	end
+	// controller for ret_5.valid_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
 				if (1) begin
 					valid_reg = 1;
 				end
-		end else begin 
-			// Default values
+		end else begin
 			valid_reg = 0;
 		end
 	end
