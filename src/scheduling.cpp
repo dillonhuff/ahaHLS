@@ -2346,6 +2346,19 @@ namespace ahaHLS {
     for (auto pt : m.ports) {
       out << tab(2) << pt.first << " -> " << pt.second.name << endl;
     }
+
+    out << tab(1) << "defaults" << endl;
+    for (auto pt : m.defaultValues) {
+      out << tab(2) << pt.first << " -> " << pt.second << endl;
+    }
+
+
+    out << tab(1) << "insensitive ports" << endl;
+    for (auto pt : m.insensitivePorts) {
+      out << tab(2) << pt << endl;
+    }
+    
+
     return out;
   }
 

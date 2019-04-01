@@ -352,6 +352,7 @@ namespace ahaHLS {
   FunctionalUnit functionalUnitForSpec(const std::string unitName,
                                        const ModuleSpec& mSpec) {
 
+    cout << "Creating functional unit for " << mSpec << endl;
     bool isExternal = false;
 
     map<string, Wire> wiring;
@@ -548,6 +549,8 @@ namespace ahaHLS {
     map<string, Wire> wiring;
     map<string, Wire> outWires;
     map<string, int> defaults;
+    set<string> insensitivePorts;
+    map<string, Port> allPorts;
     //cout << "Creating a unit for " << valueString(instr) << endl;
 
     bool hasRst = false; //modSpec.hasReset();
@@ -690,6 +693,8 @@ namespace ahaHLS {
         modName = modSpec.name;
         unitName = fuPtr->getName();
         defaults = modSpec.defaultValues;
+        insensitivePorts = modSpec.insensitivePorts;
+        allPorts = modSpec.ports; 
         hasRst = modSpec.hasReset();
         hasClock = modSpec.isSequential();        
 
@@ -751,7 +756,7 @@ namespace ahaHLS {
       assert(false);
     }
 
-    ModuleSpec modSpec = {modParams, modName, {}, defaults};
+    ModuleSpec modSpec = {modParams, modName, allPorts, defaults, insensitivePorts};
     modSpec.hasRst = hasRst;
     modSpec.hasClock = hasClock;
 
@@ -806,6 +811,8 @@ namespace ahaHLS {
         string unitName = string(instr->getOpcodeName()) + "_" + rStr;
         auto unit =
           createUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
+
+        cout << "-- Created unit " << unit.instName << endl;
         units[instr] = unit;
 
         resSuffix++;
@@ -1701,6 +1708,7 @@ namespace ahaHLS {
     // This map should include
     //  1. States where the port is assigned
     //  2. States where it is an unused value
+    bool isInsensitive;
     map<StateId, pair<StallConds, string> > portAssignments;
   };
 
@@ -1714,6 +1722,10 @@ namespace ahaHLS {
     // These are defaults for all 
     map<StateId, PortAssignments> defaultValues;
     PortAssignments statelessDefaults;
+
+    // TODO: This information should eventually be carried in the
+    // functional unit itself.
+    map<string, bool> insensitivePorts;
 
     // This is the final form of the port controller for the unit.
     // Each input port on the functional unit has its own independent controller
@@ -1767,41 +1779,41 @@ namespace ahaHLS {
     return elem(unit.getModName(), statelessUnits);
   }
 
-  void emitStatelessUnitController(std::ostream& out,
-                                   UnitController& controller,
-                                   MicroArchitecture& arch) {
-    cout << "Can replace normal unit controller with assign" << endl;
-    out << tab(1) << "// No controller needed, just assigning to only used values" << endl;
+  // void emitStatelessUnitController(std::ostream& out,
+  //                                  UnitController& controller,
+  //                                  MicroArchitecture& arch) {
+  //   cout << "Can replace normal unit controller with assign" << endl;
+  //   out << tab(1) << "// No controller needed, just assigning to only used values" << endl;
 
-    // Note: This whole block will only produce
-    // one set of combinational assigns
-    out << tab(1) << "always @(*) begin" << endl;
-    for (auto stInstrG : controller.instructions) {
-      cout << "In state " << stInstrG.first << endl;
+  //   // Note: This whole block will only produce
+  //   // one set of combinational assigns
+  //   out << tab(1) << "always @(*) begin" << endl;
+  //   for (auto stInstrG : controller.instructions) {
+  //     cout << "In state " << stInstrG.first << endl;
         
-      StateId state = stInstrG.first;
-      auto instrsAtState = stInstrG.second;
+  //     StateId state = stInstrG.first;
+  //     auto instrsAtState = stInstrG.second;
 
-      if (!isPipelineState(state, arch.pipelines)) {
+  //     if (!isPipelineState(state, arch.pipelines)) {
 
-        std::set<string> usedPorts;
-        for (auto instrG : instrsAtState) {
-          Instruction* instr = instrG;
+  //       std::set<string> usedPorts;
+  //       for (auto instrG : instrsAtState) {
+  //         Instruction* instr = instrG;
 
-          out << tab(4) << "// " << instructionString(instr) << endl;
+  //         out << tab(4) << "// " << instructionString(instr) << endl;
 
-          auto pos = position(state, instr);
-          auto assigns = instructionPortAssignments(pos, arch);
-          for (auto asg : assigns) {
-            usedPorts.insert(asg.first);
-          }
-          instructionVerilog(out, pos, arch);
+  //         auto pos = position(state, instr);
+  //         auto assigns = instructionPortAssignments(pos, arch);
+  //         for (auto asg : assigns) {
+  //           usedPorts.insert(asg.first);
+  //         }
+  //         instructionVerilog(out, pos, arch);
 
-        }
-      }
-    }
-    out << tab(1) << "end" << endl;
-  }
+  //       }
+  //     }
+  //   }
+  //   out << tab(1) << "end" << endl;
+  // }
 
   std::string andCondStr(const std::vector<string>& stallConds) {
     if (stallConds.size() == 0) {
@@ -1856,10 +1868,6 @@ namespace ahaHLS {
         string portValue = stateCondVal.second.second;
 
         statelessConns.push_back({port, portValue});        
-        // out << tab(1) << "always @(*) begin" << endl;
-        // out << tab(2) << port << " = " << portValue << ";" << endl;
-        // out << tab(1) << "end" << endl;
-        
       } else {
         out << tab(1) << "always @(*) begin" << endl;
 
@@ -2075,6 +2083,14 @@ namespace ahaHLS {
               usedPorts.insert(asg.first);
             }
 
+          }
+
+          cout << "Unit modspec = " << unit.module << endl;
+          for (auto insensitivePort : unit.module.insensitivePorts) {
+            string ptName = unit.inputWire(insensitivePort);
+            //map_find(name, unit.portWires).name;
+            cout << ptName << " is insensitive" << endl;
+            portController.insensitivePorts[ptName] = true;
           }
 
           // Set per-state defaults

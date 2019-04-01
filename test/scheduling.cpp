@@ -965,7 +965,8 @@ namespace ahaHLS {
 
     HardwareConstraints hcs = standardConstraints();
     hcs.typeSpecs["class.axi_ram"] = axiRamSpec;
-    
+
+    cout << "AXIL spec = " << axiRamSpec(nullptr) << endl;
     InterfaceFunctions interfaces;
     interfaces.functionTemplates[string("read")] = implementRawAXIRead;
     interfaces.functionTemplates[string("write")] = implementRawAXIWrite;
