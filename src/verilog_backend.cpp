@@ -1864,7 +1864,7 @@ namespace ahaHLS {
               out << tab(2) << "end" << endl;
             }
           } else {
-            out << tab(2) << "end else" << endl;
+            out << tab(2) << "end else ";
           }
           
         } else if (i == (numAssigns - 1)) {
@@ -1877,7 +1877,6 @@ namespace ahaHLS {
           if (hasDefault) {
             out << tab(2) << "end else begin" << endl;
           } else {
-            out << tab(2) << "// No default?" << endl;
             out << tab(2) << "end" << endl;
           }
           
@@ -1887,7 +1886,7 @@ namespace ahaHLS {
           out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
           out << tab(5) << port << " = " << portValue << ";" << endl;
           out << tab(4) << "end" << endl;
-          out << tab(2) << "end else" << endl;
+          out << tab(2) << "end else ";
           
         }
 
