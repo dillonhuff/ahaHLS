@@ -1834,6 +1834,7 @@ namespace ahaHLS {
 
     UnitController controller = portController.unitController;
 
+    vector<pair<string, string> > statelessConns;
     for (auto portAndValues : portController.inputControllers) {
       string port = portAndValues.first;
       PortValues vals = portAndValues.second;
@@ -1844,13 +1845,15 @@ namespace ahaHLS {
       out << tab(1) << "// controller for " << portController.unitController.unit.instName << "." << port << endl;
 
       if ((numAssigns == 1) && stateless(portController.unitController.unit)) {
+
         auto stateCondVal = *(begin(vals.portAssignments));
         StallConds stallConds = stateCondVal.second.first;
         string portValue = stateCondVal.second.second;
 
-        out << tab(1) << "always @(*) begin" << endl;
-        out << tab(2) << port << " = " << portValue << ";" << endl;
-        out << tab(1) << "end" << endl;
+        statelessConns.push_back({port, portValue});        
+        // out << tab(1) << "always @(*) begin" << endl;
+        // out << tab(2) << port << " = " << portValue << ";" << endl;
+        // out << tab(1) << "end" << endl;
         
       } else {
         out << tab(1) << "always @(*) begin" << endl;
@@ -1912,6 +1915,14 @@ namespace ahaHLS {
         out << tab(1) << "end" << endl;
       }
     }
+
+    // TODO: Replace with assigns
+    out << tab(1) << "// Insensitive connections" << endl;
+    out << tab(1) << "always @(*) begin" << endl;
+    for (auto sc : statelessConns) {
+      out << tab(2) << sc.first << " = " << sc.second << ";" << endl;
+    }
+    out << tab(1) << "end" << endl;
 
 
     // // Remove later

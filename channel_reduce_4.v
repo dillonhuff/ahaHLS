@@ -274,6 +274,15 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	// Start pipeline stages
 	// End pipeline instruction code
 
+	// Insensitive connections
+	always @(*) begin
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
 	// controller for ram_0.raddr_ram_0_reg
 	always @(*) begin
 		if ((global_state == 2)) begin 
@@ -322,32 +331,30 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 			end
 		end
 	end
+	// Insensitive connections
+	always @(*) begin
+	end
 	// controller for phi_5.phi_in_phi_5
+	// controller for phi_5.phi_last_block_phi_5
+	// controller for phi_5.phi_s_phi_5
+	// Insensitive connections
 	always @(*) begin
 		phi_in_phi_5 = {(32'd0), add_tmp_2};
-	end
-	// controller for phi_5.phi_last_block_phi_5
-	always @(*) begin
 		phi_last_block_phi_5 = last_BB_reg;
-	end
-	// controller for phi_5.phi_s_phi_5
-	always @(*) begin
 		phi_s_phi_5 = {32'd0, 32'd2};
 	end
 	// controller for add_add_7.add_in0_add_7
+	// controller for add_add_7.add_in1_add_7
+	// Insensitive connections
 	always @(*) begin
 		add_in0_add_7 = phi_out_phi_5;
-	end
-	// controller for add_add_7.add_in1_add_7
-	always @(*) begin
 		add_in1_add_7 = (32'd1);
 	end
 	// controller for icmp_8.cmp_in0_icmp_8
+	// controller for icmp_8.cmp_in1_icmp_8
+	// Insensitive connections
 	always @(*) begin
 		cmp_in0_icmp_8 = add_out_add_7;
-	end
-	// controller for icmp_8.cmp_in1_icmp_8
-	always @(*) begin
 		cmp_in1_icmp_8 = (32'd4);
 	end
 	// controller for in.in_read_valid_reg
@@ -364,12 +371,17 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 			in_read_valid_reg = 0;
 		end
 	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
 	// controller for add_add_12.add_in0_add_12
+	// controller for add_add_12.add_in1_add_12
+	// Insensitive connections
 	always @(*) begin
 		add_in0_add_12 = load_tmp_1;
-	end
-	// controller for add_add_12.add_in1_add_12
-	always @(*) begin
 		add_in1_add_12 = in_out_data;
 	end
 	// controller for out.out_in_data_reg
@@ -396,6 +408,15 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 			out_write_valid_reg = 0;
 		end
 	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
 	// controller for ret_24.valid_reg
 	always @(*) begin
 		if ((global_state == 8)) begin 
@@ -405,6 +426,9 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 		end else begin
 			valid_reg = 0;
 		end
+	end
+	// Insensitive connections
+	always @(*) begin
 	end
 endmodule
 
