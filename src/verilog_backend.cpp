@@ -1824,74 +1824,96 @@ namespace ahaHLS {
                                  PortController& portController) {
 
     UnitController controller = portController.unitController;
-      
-    if (usedInExactlyOneState(controller) && stateless(controller.unit)) {
 
-      out << "\talways @(*) begin" << endl;        
+    for (auto portAndValues : portController.inputControllers) {
+      string port = portAndValues.first;
+      PortValues vals = portAndValues.second;
 
-      for (auto stateAndValues : portController.portValues) {
-        
-        StateId state = stateAndValues.first;
-
-        out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
-        for (auto assignmentStall : stateAndValues.second) {
-
-          auto stallConds = assignmentStall.first;
-          out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
-          for (auto assign : assignmentStall.second) {
-            out << tab(5) << assign.first << " = " << assign.second << ";" << endl;
-          }
-          out << tab(4) << "end" << endl;
-        }
-      }
-        
-      out << "\t\tend" << endl;
-
-      out << "\tend" << endl;
-        
-    } else {      
-      // Print out the controller
-      out << "\talways @(*) begin" << endl;        
-
-      int i = 0;
-      int numInstrs = portController.portValues.size();
-      for (auto stateAndValues : portController.portValues) {
-        
-        StateId state = stateAndValues.first;
+      out << tab(1) << "// controller for " << portController.unitController.unit.instName << "." << port << endl;
+      out << tab(1) << "always @(*) begin" << endl;
+      for (auto stateCondVal : vals.portAssignments) {
+        StateId state = stateCondVal.first;
+        StallConds stallConds = stateCondVal.second.first;
+        string portValue = stateCondVal.second.second;
 
         out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
-        for (auto assignmentStall : stateAndValues.second) {
-
-          auto stallConds = assignmentStall.first;
-          out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
-          for (auto assign : assignmentStall.second) {
-            out << tab(5) << assign.first << " = " << assign.second << ";" << endl;
-          }
-          out << tab(4) << "end" << endl;
-        }
-
-        // Print out defaults
-        for (auto& def : portController.defaultValues[state]) {
-          out << tab(3) << def.first << " = " << def.second << ";" << endl;
-        }
-
-        out << "\t\tend else ";
-        if (i == (numInstrs - 1)) {
-          out << "begin " << endl;
-        }
-
-        i++;
+        out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+        out << tab(5) << port << " = " << portValue << ";" << endl;
+        out << tab(4) << "end" << endl;
+        out << tab(2) << "end" << endl;        
       }
-
-      out << "\t\t\t// Default values" << endl;
-      for (auto def : portController.statelessDefaults) {
-        out << tab(3) << def.first << " = " << def.second << ";" << endl;           
-      }
-        
-      out << "\t\tend" << endl;
-
-      out << "\tend" << endl;
+      out << tab(1) << "end" << endl;        
     }
+
+
+    // // Remove later
+    // if (usedInExactlyOneState(controller) && stateless(controller.unit)) {
+
+    //   out << "\talways @(*) begin" << endl;        
+
+    //   for (auto stateAndValues : portController.portValues) {
+        
+    //     StateId state = stateAndValues.first;
+
+    //     out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
+    //     for (auto assignmentStall : stateAndValues.second) {
+
+    //       auto stallConds = assignmentStall.first;
+    //       out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+    //       for (auto assign : assignmentStall.second) {
+    //         out << tab(5) << assign.first << " = " << assign.second << ";" << endl;
+    //       }
+    //       out << tab(4) << "end" << endl;
+    //     }
+    //   }
+        
+    //   out << "\t\tend" << endl;
+
+    //   out << "\tend" << endl;
+        
+    // } else {      
+    //   // Print out the controller
+    //   out << "\talways @(*) begin" << endl;        
+
+    //   int i = 0;
+    //   int numInstrs = portController.portValues.size();
+    //   for (auto stateAndValues : portController.portValues) {
+        
+    //     StateId state = stateAndValues.first;
+
+    //     out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
+    //     for (auto assignmentStall : stateAndValues.second) {
+
+    //       auto stallConds = assignmentStall.first;
+    //       out << tab(4) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+    //       for (auto assign : assignmentStall.second) {
+    //         out << tab(5) << assign.first << " = " << assign.second << ";" << endl;
+    //       }
+    //       out << tab(4) << "end" << endl;
+    //     }
+
+    //     // Print out defaults
+    //     for (auto& def : portController.defaultValues[state]) {
+    //       out << tab(3) << def.first << " = " << def.second << ";" << endl;
+    //     }
+
+    //     out << "\t\tend else ";
+    //     if (i == (numInstrs - 1)) {
+    //       out << "begin " << endl;
+    //     }
+
+    //     i++;
+    //   }
+
+    //   out << "\t\t\t// Default values" << endl;
+    //   for (auto def : portController.statelessDefaults) {
+    //     out << tab(3) << def.first << " = " << def.second << ";" << endl;           
+    //   }
+        
+    //   out << "\t\tend" << endl;
+
+    //   out << "\tend" << endl;
+    // }
   }
   
   void emitVerilogForControllers(std::ostream& out,
