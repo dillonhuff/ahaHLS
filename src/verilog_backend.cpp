@@ -1715,6 +1715,15 @@ namespace ahaHLS {
     map<string, PortValues> inputControllers;
 
     bool isExternal() const { return unitController.unit.isExternal(); }
+
+    string defaultValue(const std::string& port) {
+      return map_find(port, statelessDefaults);
+    }
+
+    bool hasDefault(const std::string& port) {
+      return contains_key(port, statelessDefaults);
+    }
+
   };
 
   void buildInputControllers(PortController& controller) {
@@ -1842,7 +1851,11 @@ namespace ahaHLS {
         out << tab(4) << "end" << endl;
         out << tab(2) << "end" << endl;        
       }
-      out << tab(1) << "end" << endl;        
+      out << tab(2) << "else" << endl;
+      if (portController.hasDefault(port)) {
+        out << tab(3) << port << " = " << portController.defaultValue(port) << ";" << endl;
+      }
+      out << tab(2) << "end" << endl;
     }
 
 

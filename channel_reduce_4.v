@@ -34,18 +34,18 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	// Start Functional Units
 	add call_18();
 
-	add alloca_0();
-
-	add bitcast_1();
-
-	add call_2();
-
 	reg [31:0] raddr_ram_0_reg;
 	reg [31:0] waddr_ram_0_reg;
 	reg [31:0] wdata_ram_0_reg;
 	reg [0:0] wen_ram_0_reg;
 	wire [31:0] rdata_ram_0;
 	register #(.WIDTH(32)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
+
+	add alloca_0();
+
+	add bitcast_1();
+
+	add call_2();
 
 	br_dummy br_unit();
 
@@ -274,183 +274,193 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	// Start pipeline stages
 	// End pipeline instruction code
 
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				if (1) begin
-				end
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				if (1) begin
-				end
-		end
-	end
-	always @(*) begin
-		if ((global_state == 0)) begin 
-				if (1) begin
-				end
-		end
-	end
 	// controller for ram_0.raddr_ram_0_reg
+	always @(*) begin
+		if ((global_state == 2)) begin 
+				if (in_read_ready) begin
+					raddr_ram_0_reg = 0;
+				end
+		end
+		if ((global_state == 7)) begin 
+				if (1) begin
+					raddr_ram_0_reg = 0;
+				end
+		end
+		else
+		end
 	// controller for ram_0.waddr_ram_0_reg
+	always @(*) begin
+		if ((global_state == 0)) begin 
+				if (1) begin
+					waddr_ram_0_reg = 0;
+				end
+		end
+		if ((global_state == 4)) begin 
+				if (1) begin
+					waddr_ram_0_reg = 0;
+				end
+		end
+		else
+		end
 	// controller for ram_0.wdata_ram_0_reg
+	always @(*) begin
+		if ((global_state == 0)) begin 
+				if (1) begin
+					wdata_ram_0_reg = (32'd0);
+				end
+		end
+		if ((global_state == 4)) begin 
+				if (1) begin
+					wdata_ram_0_reg = add_out_add_12;
+				end
+		end
+		else
+		end
 	// controller for ram_0.wen_ram_0_reg
 	always @(*) begin
 		if ((global_state == 0)) begin 
 				if (1) begin
-					waddr_ram_0_reg = 0;
-					wdata_ram_0_reg = (32'd0);
 					wen_ram_0_reg = 1;
 				end
-		end else 		if ((global_state == 2)) begin 
-				if (in_read_ready) begin
-					raddr_ram_0_reg = 0;
-				end
-		end else 		if ((global_state == 4)) begin 
-				if (1) begin
-					waddr_ram_0_reg = 0;
-					wdata_ram_0_reg = add_out_add_12;
-					wen_ram_0_reg = 1;
-				end
-		end else 		if ((global_state == 7)) begin 
-				if (1) begin
-					raddr_ram_0_reg = 0;
-				end
-		end else begin 
-			// Default values
 		end
-	end
+		if ((global_state == 4)) begin 
+				if (1) begin
+					wen_ram_0_reg = 1;
+				end
+		end
+		else
+		end
 	// controller for phi_5.phi_in_phi_5
-	// controller for phi_5.phi_last_block_phi_5
-	// controller for phi_5.phi_s_phi_5
 	always @(*) begin
 		if ((global_state == 2)) begin 
 				if (in_read_ready) begin
 					phi_in_phi_5 = {(32'd0), add_tmp_2};
+				end
+		end
+		else
+		end
+	// controller for phi_5.phi_last_block_phi_5
+	always @(*) begin
+		if ((global_state == 2)) begin 
+				if (in_read_ready) begin
 					phi_last_block_phi_5 = last_BB_reg;
+				end
+		end
+		else
+		end
+	// controller for phi_5.phi_s_phi_5
+	always @(*) begin
+		if ((global_state == 2)) begin 
+				if (in_read_ready) begin
 					phi_s_phi_5 = {32'd0, 32'd2};
 				end
 		end
-	end
+		else
+		end
 	// controller for add_add_7.add_in0_add_7
-	// controller for add_add_7.add_in1_add_7
 	always @(*) begin
 		if ((global_state == 2)) begin 
 				if (in_read_ready) begin
 					add_in0_add_7 = phi_out_phi_5;
+				end
+		end
+		else
+		end
+	// controller for add_add_7.add_in1_add_7
+	always @(*) begin
+		if ((global_state == 2)) begin 
+				if (in_read_ready) begin
 					add_in1_add_7 = (32'd1);
 				end
 		end
-	end
+		else
+		end
 	// controller for icmp_8.cmp_in0_icmp_8
-	// controller for icmp_8.cmp_in1_icmp_8
 	always @(*) begin
 		if ((global_state == 2)) begin 
 				if (in_read_ready) begin
 					cmp_in0_icmp_8 = add_out_add_7;
-					cmp_in1_icmp_8 = (32'd4);
 				end
 		end
-	end
-	// controller for in.in_read_valid_reg
+		else
+		end
+	// controller for icmp_8.cmp_in1_icmp_8
 	always @(*) begin
 		if ((global_state == 2)) begin 
 				if (in_read_ready) begin
+					cmp_in1_icmp_8 = (32'd4);
 				end
-			in_in_data_reg = 0;
-			in_read_valid_reg = 0;
-			in_write_valid_reg = 0;
-		end else 		if ((global_state == 3)) begin 
+		end
+		else
+		end
+	// controller for in.in_read_valid_reg
+	always @(*) begin
+		if ((global_state == 3)) begin 
 				if (1) begin
 					in_read_valid_reg = -(1'd1);
 				end
-			in_in_data_reg = 0;
-			in_write_valid_reg = 0;
-		end else 		if ((global_state == 4)) begin 
+		end
+		if ((global_state == 4)) begin 
 				if (1) begin
 					in_read_valid_reg = (1'd0);
 				end
-				if (1) begin
-				end
-			in_in_data_reg = 0;
-			in_write_valid_reg = 0;
-		end else begin 
-			// Default values
-			in_in_data_reg = 0;
+		end
+		else
 			in_read_valid_reg = 0;
-			in_write_valid_reg = 0;
 		end
-	end
-	always @(*) begin
-		if ((global_state == 2)) begin 
-				if (1) begin
-				end
-		end
-	end
 	// controller for add_add_12.add_in0_add_12
-	// controller for add_add_12.add_in1_add_12
 	always @(*) begin
 		if ((global_state == 4)) begin 
 				if (1) begin
 					add_in0_add_12 = load_tmp_1;
+				end
+		end
+		else
+		end
+	// controller for add_add_12.add_in1_add_12
+	always @(*) begin
+		if ((global_state == 4)) begin 
+				if (1) begin
 					add_in1_add_12 = in_out_data;
 				end
 		end
-	end
+		else
+		end
 	// controller for out.out_in_data_reg
-	// controller for out.out_write_valid_reg
 	always @(*) begin
-		if ((global_state == 6)) begin 
-				if (out_write_ready) begin
-				end
-			out_in_data_reg = 0;
-			out_read_valid_reg = 0;
-			out_write_valid_reg = 0;
-		end else 		if ((global_state == 7)) begin 
-				if (1) begin
-					out_write_valid_reg = -(1'd1);
-				end
+		if ((global_state == 7)) begin 
 				if (1) begin
 					out_in_data_reg = rdata_ram_0;
 				end
-			out_read_valid_reg = 0;
-		end else 		if ((global_state == 8)) begin 
+		end
+		else
+			out_in_data_reg = 0;
+		end
+	// controller for out.out_write_valid_reg
+	always @(*) begin
+		if ((global_state == 7)) begin 
+				if (1) begin
+					out_write_valid_reg = -(1'd1);
+				end
+		end
+		if ((global_state == 8)) begin 
 				if (1) begin
 					out_write_valid_reg = (1'd0);
 				end
-			out_in_data_reg = 0;
-			out_read_valid_reg = 0;
-		end else begin 
-			// Default values
-			out_in_data_reg = 0;
-			out_read_valid_reg = 0;
+		end
+		else
 			out_write_valid_reg = 0;
 		end
-	end
-	always @(*) begin
-		if ((global_state == 6)) begin 
-				if (1) begin
-				end
-		end
-	end
-	always @(*) begin
-		if ((global_state == 6)) begin 
-				if (out_write_ready) begin
-				end
-		end
-	end
 	// controller for ret_24.valid_reg
 	always @(*) begin
 		if ((global_state == 8)) begin 
 				if (1) begin
 					valid_reg = 1;
 				end
-		end else begin 
-			// Default values
+		end
+		else
 			valid_reg = 0;
 		end
-	end
 endmodule
 
 module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_data, output [0:0] out_read_valid, output [0:0] out_rst, output [31:0] out_write_valid, input [31:0] out_out_data, input [0:0] out_read_ready, input [0:0] out_write_ready, output [0:0] valid, output [31:0] in_in_data, output [0:0] in_read_valid, output [0:0] in_rst, output [31:0] in_write_valid, input [31:0] in_out_data, input [0:0] in_read_ready, input [0:0] in_write_ready);
