@@ -32,9 +32,13 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	// End debug wires and ports
 
 	// Start Functional Units
+	add call_18();
+
 	add alloca_0();
 
 	add bitcast_1();
+
+	add call_2();
 
 	reg [31:0] raddr_ram_0_reg;
 	reg [31:0] waddr_ram_0_reg;
@@ -42,10 +46,6 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	reg [0:0] wen_ram_0_reg;
 	wire [31:0] rdata_ram_0;
 	register #(.WIDTH(32)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
-
-	add call_18();
-
-	add call_2();
 
 	br_dummy br_unit();
 
@@ -324,66 +324,31 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	end
 	// controller for phi_5.phi_in_phi_5
 	always @(*) begin
-		if ((global_state == 2)) begin 
-			if (in_read_ready) begin
-				phi_in_phi_5 = {(32'd0), add_tmp_2};
-			end
-		// No default?
-		end
+		phi_in_phi_5 = {(32'd0), add_tmp_2};
 	end
 	// controller for phi_5.phi_last_block_phi_5
 	always @(*) begin
-		if ((global_state == 2)) begin 
-			if (in_read_ready) begin
-				phi_last_block_phi_5 = last_BB_reg;
-			end
-		// No default?
-		end
+		phi_last_block_phi_5 = last_BB_reg;
 	end
 	// controller for phi_5.phi_s_phi_5
 	always @(*) begin
-		if ((global_state == 2)) begin 
-			if (in_read_ready) begin
-				phi_s_phi_5 = {32'd0, 32'd2};
-			end
-		// No default?
-		end
+		phi_s_phi_5 = {32'd0, 32'd2};
 	end
 	// controller for add_add_7.add_in0_add_7
 	always @(*) begin
-		if ((global_state == 2)) begin 
-			if (in_read_ready) begin
-				add_in0_add_7 = phi_out_phi_5;
-			end
-		// No default?
-		end
+		add_in0_add_7 = phi_out_phi_5;
 	end
 	// controller for add_add_7.add_in1_add_7
 	always @(*) begin
-		if ((global_state == 2)) begin 
-			if (in_read_ready) begin
-				add_in1_add_7 = (32'd1);
-			end
-		// No default?
-		end
+		add_in1_add_7 = (32'd1);
 	end
 	// controller for icmp_8.cmp_in0_icmp_8
 	always @(*) begin
-		if ((global_state == 2)) begin 
-			if (in_read_ready) begin
-				cmp_in0_icmp_8 = add_out_add_7;
-			end
-		// No default?
-		end
+		cmp_in0_icmp_8 = add_out_add_7;
 	end
 	// controller for icmp_8.cmp_in1_icmp_8
 	always @(*) begin
-		if ((global_state == 2)) begin 
-			if (in_read_ready) begin
-				cmp_in1_icmp_8 = (32'd4);
-			end
-		// No default?
-		end
+		cmp_in1_icmp_8 = (32'd4);
 	end
 	// controller for in.in_read_valid_reg
 	always @(*) begin
@@ -401,21 +366,11 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	end
 	// controller for add_add_12.add_in0_add_12
 	always @(*) begin
-		if ((global_state == 4)) begin 
-			if (1) begin
-				add_in0_add_12 = load_tmp_1;
-			end
-		// No default?
-		end
+		add_in0_add_12 = load_tmp_1;
 	end
 	// controller for add_add_12.add_in1_add_12
 	always @(*) begin
-		if ((global_state == 4)) begin 
-			if (1) begin
-				add_in1_add_12 = in_out_data;
-			end
-		// No default?
-		end
+		add_in1_add_12 = in_out_data;
 	end
 	// controller for out.out_in_data_reg
 	always @(*) begin
@@ -441,7 +396,7 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 			out_write_valid_reg = 0;
 		end
 	end
-	// controller for ret_23.valid_reg
+	// controller for ret_24.valid_reg
 	always @(*) begin
 		if ((global_state == 8)) begin 
 			if (1) begin
