@@ -59,9 +59,9 @@ public:
     bit_32 i;
     i = 0;
     do {
-      in_word0.write_wire_32(read_port(word0));
-      in_word1.write_wire_32(read_port(word1));
-      in_word2.write_wire_32(read_port(word2));
+      write_port(word0, in_word0.read_wire_32());
+
+      out_pixel1.write_wire_8(read_port(pixel1));
       
       i = i + 1;
     } while (i < 320*320);
