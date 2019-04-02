@@ -172,7 +172,7 @@ bool oneCharToken(const char c) {
 }
 
 bool isKeyword(const std::string& str) {
-  vector<string> keywords{"void", "for", "return"};
+  vector<string> keywords{"void", "for", "return", "do", "while"};
   return elem(str, keywords);
 }
 
@@ -279,7 +279,7 @@ public:
 typedef ParseState<char> TokenState;
 
 bool isBinop(const Token t) {
-  vector<string> binopStrings{"=", "==", "+", "&", "-", "/", "^", "%", "&&", "||", "<=", ">=", "<", ">"};
+  vector<string> binopStrings{"=", "==", "+", "&", "-", "/", "^", "%", "&&", "||", "<=", ">=", "<", ">", "*"};
   return elem(t.getStr(), binopStrings);
 }
 bool isWhitespace(const char c) {
@@ -785,7 +785,8 @@ enum StatementKind {
   STATEMENT_KIND_ASSIGN,
   STATEMENT_KIND_FOR,
   STATEMENT_KIND_EXPRESSION,
-  STATEMENT_KIND_RETURN
+  STATEMENT_KIND_RETURN,
+  STATEMENT_KIND_DO_WHILE,
 };
 
 class Statement {
@@ -1020,6 +1021,15 @@ maybe<Token> parseComma(ParseState<Token>& tokens) {
   return maybe<Token>();
 }
 
+maybe<Token> parseSemicolon(ParseState<Token>& tokens) {
+  Token t = tokens.parseChar();
+  if (t.getStr() == ";") {
+    return t;
+  }
+
+  return maybe<Token>();
+}
+
 maybe<Identifier*> parseId(ParseState<Token>& tokens) {
   Token t = tokens.parseChar();
   if (t.isId()) {
@@ -1128,7 +1138,7 @@ maybe<FunctionCall*> parseFunctionCall(ParseState<Token>& tokens) {
 }
 
 int precedence(Token op) {
-  map<string, int> prec{{"+", 100}, {"==", 99}, {"-", 100}};
+  map<string, int> prec{{"+", 100}, {"==", 99}, {"-", 100}, {"*", 100}, {"<", 99}, {">", 99}};
   assert(contains_key(op.getStr(), prec));
   return map_find(op.getStr(), prec);
 }
@@ -1497,8 +1507,67 @@ maybe<Statement*> parseForLoop(ParseState<Token>& tokens) {
   
 }
 
+class DoWhileLoop : public Statement {
+public:
+  static bool classof(const Statement* const stmt) {
+    return stmt->getKind() == STATEMENT_KIND_DO_WHILE;
+  }
+  
+  virtual StatementKind getKind() const {
+    return STATEMENT_KIND_DO_WHILE;
+  }
+
+};
+
+maybe<Statement*> parseDoWhileLoop(ParseState<Token>& tokens) {
+  //cout << "Parsing do = " << tokens.remainder() << endl;
+  
+  if (tokens.nextCharIs(Token("do"))) {
+    tokens.parseChar();
+
+    if (!tokens.nextCharIs(Token("{"))) {
+      return maybe<Statement*>();
+    }
+    tokens.parseChar();
+
+    auto stmts =
+      sepBtwn0<Statement*, Token>(parseStatement, parseSemicolon, tokens);
+
+    if (!tokens.nextCharIs(Token("}"))) {
+      return maybe<Statement*>();
+    }
+    tokens.parseChar();
+
+    if (!tokens.nextCharIs(Token("while"))) {
+      return maybe<Statement*>();
+    }
+    tokens.parseChar();
+
+    maybe<Expression*> expr = parseExpression(tokens);
+    if (expr.has_value()) {
+
+      if (!tokens.nextCharIs(Token(";"))) {
+        return maybe<Statement*>();
+      }
+      tokens.parseChar();
+      
+      return new DoWhileLoop();
+    }
+
+    return maybe<Statement*>();
+    
+  }
+
+  return maybe<Statement*>();
+}
+  
 maybe<Statement*> parseStatementNoLabel(ParseState<Token>& tokens) {
   // Try to parse for loop
+  auto doStmt = tryParse<Statement*>(parseDoWhileLoop, tokens);
+  if (doStmt.has_value()) {
+    return doStmt;
+  }
+
   auto forStmt = tryParse<Statement*>(parseForLoop, tokens);
   if (forStmt.has_value()) {
     return forStmt;
@@ -2329,7 +2398,7 @@ public:
         SynthCppClass* sExpr = cgs.getActiveClass();
         SynthCppType* classTp = new SynthCppStructType(sExpr->name);
         Type* structType = llvmTypeFor(classTp);
-        auto bitWidth = getValueBitWidth(vExpr);
+        //auto bitWidth = getValueBitWidth(vExpr);
         auto f = writePort(labelId->name.getStr(), getValueBitWidth(vExpr), structType->getPointerTo());
 
         assert(activeFunction != nullptr);
@@ -3070,6 +3139,21 @@ int main() {
 
     delete tp.get_value();
   }
+
+
+  {
+    std::string str = "(i < 320*320)";
+    cout << "TEST CASE " << str << endl;
+    
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseExpressionMaybe(st);
+    assert(tp.has_value());
+
+    cout << "Remaining state = " << st.remainder() << endl;
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
   
   {
     std::string str = "transmitter->write_header(dest_mac, src_mac, type);";
@@ -3127,6 +3211,31 @@ int main() {
     std::string str = "for (i = 0; i < payload_size; i = i + 1) {"
       "is_last = i == (payload_size - 1);"
       "}";
+
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+
+  {
+
+    std::string str = "do { i = i + 1; } while (i);";
+
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+
+  {
+    std::string str = "do { i = i + 1; } while (i < 320*320);";
 
     ParseState<Token> st(tokenize(str));
     auto tp = parseStatement(st);
@@ -3409,6 +3518,22 @@ int main() {
 
     // Need to figure out how to inline register specifications
     //assert(runIVerilogTest("fadd_32_tb.v", "fadd_32", " builtins.v fadd_32.v"));
+  }
+
+  {
+    ifstream t("./experiments/median_filter.cpp");
+    std::string str((std::istreambuf_iterator<char>(t)),
+                    std::istreambuf_iterator<char>());
+
+    auto tokens = tokenize(str);
+    ParserModule mod = parse(tokens);
+    
+    SynthCppModule scppMod(mod);
+
+    SynthCppClass* c = scppMod.getClassByName(Token("median"));
+    cout << *c << endl;
+
+    auto arch = synthesizeVerilog(scppMod, "run_median_func");
   }
   
   // Q: What are the new issues?
