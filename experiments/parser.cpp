@@ -2117,6 +2117,12 @@ public:
               addOutputPort(cSpec.ports, portWidth(tp), vTp.first);
             } else {
               assert(isInputPort(tp));
+
+              // Set non-default values to be insensitive
+              string portName = vTp.first;
+              if (!contains_key(portName, cSpec.defaultValues)) {
+                cSpec.insensitivePorts.insert(portName);
+              }
               addInputPort(cSpec.ports, portWidth(tp), vTp.first);
             }
           }

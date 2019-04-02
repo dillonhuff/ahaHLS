@@ -2026,8 +2026,6 @@ namespace ahaHLS {
     for (auto portController : controllers) {
       emitVerilogForController(out, arch, portController);
     }
-
-
     
   }
 
