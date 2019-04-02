@@ -1,5 +1,17 @@
-module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [0:0] arg_3_m_axis_tready, output [47:0] arg_3_s_eth_dest_mac, output [0:0] arg_3_s_eth_hdr_valid, output [7:0] arg_3_s_eth_payload_axis_tdata, output [0:0] arg_3_s_eth_payload_axis_tlast, output [0:0] arg_3_s_eth_payload_axis_tuser, output [0:0] arg_3_s_eth_payload_axis_tvalid, output [47:0] arg_3_s_eth_src_mac, output [15:0] arg_3_s_eth_type, input [0:0] arg_3_busy, input [0:0] arg_3_s_eth_hdr_ready, input [0:0] arg_3_s_eth_payload_axis_tready, output [15:0] arg_2_raddr, output [15:0] arg_2_waddr, output [15:0] arg_2_wdata, output [0:0] arg_2_wen, input [15:0] arg_2_rdata, output [47:0] arg_1_raddr, output [47:0] arg_1_waddr, output [47:0] arg_1_wdata, output [0:0] arg_1_wen, input [47:0] arg_1_rdata, output [47:0] arg_0_raddr, output [47:0] arg_0_waddr, output [47:0] arg_0_wdata, output [0:0] arg_0_wen, input [47:0] arg_0_rdata);
+module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [47:0] arg_0_raddr, output [47:0] arg_0_waddr, output [47:0] arg_0_wdata, output [0:0] arg_0_wen, input [47:0] arg_0_rdata, output [47:0] arg_1_raddr, output [47:0] arg_1_waddr, output [47:0] arg_1_wdata, output [0:0] arg_1_wen, input [47:0] arg_1_rdata, output [15:0] arg_2_raddr, output [15:0] arg_2_waddr, output [15:0] arg_2_wdata, output [0:0] arg_2_wen, input [15:0] arg_2_rdata, output [0:0] valid, output [0:0] arg_3_m_axis_tready, output [47:0] arg_3_s_eth_dest_mac, output [0:0] arg_3_s_eth_hdr_valid, output [7:0] arg_3_s_eth_payload_axis_tdata, output [0:0] arg_3_s_eth_payload_axis_tlast, output [0:0] arg_3_s_eth_payload_axis_tuser, output [0:0] arg_3_s_eth_payload_axis_tvalid, output [47:0] arg_3_s_eth_src_mac, output [15:0] arg_3_s_eth_type, input [0:0] arg_3_busy, input [0:0] arg_3_s_eth_hdr_ready, input [0:0] arg_3_s_eth_payload_axis_tready);
 
+	reg [47:0] arg_0_raddr_reg;
+	reg [47:0] arg_0_waddr_reg;
+	reg [47:0] arg_0_wdata_reg;
+	reg [0:0] arg_0_wen_reg;
+	reg [47:0] arg_1_raddr_reg;
+	reg [47:0] arg_1_waddr_reg;
+	reg [47:0] arg_1_wdata_reg;
+	reg [0:0] arg_1_wen_reg;
+	reg [15:0] arg_2_raddr_reg;
+	reg [15:0] arg_2_waddr_reg;
+	reg [15:0] arg_2_wdata_reg;
+	reg [0:0] arg_2_wen_reg;
 	reg [0:0] valid_reg;
 	reg [0:0] arg_3_m_axis_tready_reg;
 	reg [47:0] arg_3_s_eth_dest_mac_reg;
@@ -10,19 +22,19 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 	reg [0:0] arg_3_s_eth_payload_axis_tvalid_reg;
 	reg [47:0] arg_3_s_eth_src_mac_reg;
 	reg [15:0] arg_3_s_eth_type_reg;
-	reg [15:0] arg_2_raddr_reg;
-	reg [15:0] arg_2_waddr_reg;
-	reg [15:0] arg_2_wdata_reg;
-	reg [0:0] arg_2_wen_reg;
-	reg [47:0] arg_1_raddr_reg;
-	reg [47:0] arg_1_waddr_reg;
-	reg [47:0] arg_1_wdata_reg;
-	reg [0:0] arg_1_wen_reg;
-	reg [47:0] arg_0_raddr_reg;
-	reg [47:0] arg_0_waddr_reg;
-	reg [47:0] arg_0_wdata_reg;
-	reg [0:0] arg_0_wen_reg;
 
+	assign arg_0_raddr = arg_0_raddr_reg;
+	assign arg_0_waddr = arg_0_waddr_reg;
+	assign arg_0_wdata = arg_0_wdata_reg;
+	assign arg_0_wen = arg_0_wen_reg;
+	assign arg_1_raddr = arg_1_raddr_reg;
+	assign arg_1_waddr = arg_1_waddr_reg;
+	assign arg_1_wdata = arg_1_wdata_reg;
+	assign arg_1_wen = arg_1_wen_reg;
+	assign arg_2_raddr = arg_2_raddr_reg;
+	assign arg_2_waddr = arg_2_waddr_reg;
+	assign arg_2_wdata = arg_2_wdata_reg;
+	assign arg_2_wen = arg_2_wen_reg;
 	assign valid = valid_reg;
 	assign arg_3_m_axis_tready = arg_3_m_axis_tready_reg;
 	assign arg_3_s_eth_dest_mac = arg_3_s_eth_dest_mac_reg;
@@ -33,18 +45,6 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 	assign arg_3_s_eth_payload_axis_tvalid = arg_3_s_eth_payload_axis_tvalid_reg;
 	assign arg_3_s_eth_src_mac = arg_3_s_eth_src_mac_reg;
 	assign arg_3_s_eth_type = arg_3_s_eth_type_reg;
-	assign arg_2_raddr = arg_2_raddr_reg;
-	assign arg_2_waddr = arg_2_waddr_reg;
-	assign arg_2_wdata = arg_2_wdata_reg;
-	assign arg_2_wen = arg_2_wen_reg;
-	assign arg_1_raddr = arg_1_raddr_reg;
-	assign arg_1_waddr = arg_1_waddr_reg;
-	assign arg_1_wdata = arg_1_wdata_reg;
-	assign arg_1_wen = arg_1_wen_reg;
-	assign arg_0_raddr = arg_0_raddr_reg;
-	assign arg_0_waddr = arg_0_waddr_reg;
-	assign arg_0_wdata = arg_0_wdata_reg;
-	assign arg_0_wen = arg_0_wen_reg;
 
 	// Start debug wires and ports
 
@@ -193,24 +193,11 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 	// Insensitive connections
 	always @(*) begin
 	end
-	// controller for ret_2.valid_reg
+	// controller for arg_0.arg_0_raddr_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
 			if (1) begin
-				valid_reg = 1;
-			end
-		end else begin
-			valid_reg = 0;
-		end
-	end
-	// Insensitive connections
-	always @(*) begin
-	end
-	// controller for arg_2.arg_2_raddr_reg
-	always @(*) begin
-		if ((global_state == 1)) begin 
-			if (1) begin
-				arg_2_raddr_reg = arg_2_rdata;
+				arg_0_raddr_reg = arg_0_rdata;
 			end
 		// No default?
 		end
@@ -230,11 +217,11 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 	// Insensitive connections
 	always @(*) begin
 	end
-	// controller for arg_0.arg_0_raddr_reg
+	// controller for arg_2.arg_2_raddr_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
 			if (1) begin
-				arg_0_raddr_reg = arg_0_rdata;
+				arg_2_raddr_reg = arg_2_rdata;
 			end
 		// No default?
 		end
@@ -242,9 +229,22 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] va
 	// Insensitive connections
 	always @(*) begin
 	end
+	// controller for ret_5.valid_reg
+	always @(*) begin
+		if ((global_state == 1)) begin 
+			if (1) begin
+				valid_reg = 1;
+			end
+		end else begin
+			valid_reg = 0;
+		end
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
 endmodule
 
-module write_header_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [0:0] arg_3_m_axis_tready, output [47:0] arg_3_s_eth_dest_mac, output [0:0] arg_3_s_eth_hdr_valid, output [7:0] arg_3_s_eth_payload_axis_tdata, output [0:0] arg_3_s_eth_payload_axis_tlast, output [0:0] arg_3_s_eth_payload_axis_tuser, output [0:0] arg_3_s_eth_payload_axis_tvalid, output [47:0] arg_3_s_eth_src_mac, output [15:0] arg_3_s_eth_type, input [0:0] arg_3_busy, input [0:0] arg_3_s_eth_hdr_ready, input [0:0] arg_3_s_eth_payload_axis_tready, output [15:0] arg_2_raddr, output [15:0] arg_2_waddr, output [15:0] arg_2_wdata, output [0:0] arg_2_wen, input [15:0] arg_2_rdata, output [47:0] arg_1_raddr, output [47:0] arg_1_waddr, output [47:0] arg_1_wdata, output [0:0] arg_1_wen, input [47:0] arg_1_rdata, output [47:0] arg_0_raddr, output [47:0] arg_0_waddr, output [47:0] arg_0_wdata, output [0:0] arg_0_wen, input [47:0] arg_0_rdata);
+module write_header_func(input [0:0] clk, input [0:0] rst, output [47:0] arg_0_raddr, output [47:0] arg_0_waddr, output [47:0] arg_0_wdata, output [0:0] arg_0_wen, input [47:0] arg_0_rdata, output [47:0] arg_1_raddr, output [47:0] arg_1_waddr, output [47:0] arg_1_wdata, output [0:0] arg_1_wen, input [47:0] arg_1_rdata, output [15:0] arg_2_raddr, output [15:0] arg_2_waddr, output [15:0] arg_2_wdata, output [0:0] arg_2_wen, input [15:0] arg_2_rdata, output [0:0] valid, output [0:0] arg_3_m_axis_tready, output [47:0] arg_3_s_eth_dest_mac, output [0:0] arg_3_s_eth_hdr_valid, output [7:0] arg_3_s_eth_payload_axis_tdata, output [0:0] arg_3_s_eth_payload_axis_tlast, output [0:0] arg_3_s_eth_payload_axis_tuser, output [0:0] arg_3_s_eth_payload_axis_tvalid, output [47:0] arg_3_s_eth_src_mac, output [15:0] arg_3_s_eth_type, input [0:0] arg_3_busy, input [0:0] arg_3_s_eth_hdr_ready, input [0:0] arg_3_s_eth_payload_axis_tready);
 
 
 	initial begin

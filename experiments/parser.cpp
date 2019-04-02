@@ -1543,9 +1543,6 @@ maybe<Statement*> parseDoWhileLoop(ParseState<Token>& tokens) {
 
     vector<Statement*> stmts =
       many<Statement*>(parseStatement, tokens);
-    
-    // auto stmts =
-    //   sepBtwn0<Statement*, Token>(parseStatement, parseSemicolon, tokens);
 
     if (!tokens.nextCharIs(Token("}"))) {
       return maybe<Statement*>();
