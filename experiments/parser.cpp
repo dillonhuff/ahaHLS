@@ -546,7 +546,11 @@ public:
   }
 
   virtual void print(std::ostream& out) const override {
-    out << funcName << "(" << "INSERT_ARGS)";
+    out << funcName << "(";
+    for (auto arg : args) {
+      out << *arg << ", ";
+    }
+    out << ")";
   }
   
   
@@ -1537,8 +1541,11 @@ maybe<Statement*> parseDoWhileLoop(ParseState<Token>& tokens) {
     }
     tokens.parseChar();
 
-    auto stmts =
-      sepBtwn0<Statement*, Token>(parseStatement, parseSemicolon, tokens);
+    vector<Statement*> stmts =
+      many<Statement*>(parseStatement, tokens);
+    
+    // auto stmts =
+    //   sepBtwn0<Statement*, Token>(parseStatement, parseSemicolon, tokens);
 
     if (!tokens.nextCharIs(Token("}"))) {
       return maybe<Statement*>();
@@ -3246,6 +3253,40 @@ int main() {
 
   {
     std::string str = "do { i = i + 1; } while (i < 320*320);";
+
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+    assert(tp.has_value());
+
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+
+  {
+    std::string str =
+      "in_word0.write_wire_32(read_port(word0));";
+
+    cout << "TEST CASE: " << str << endl;
+
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+    assert(tp.has_value());
+
+    cout << "Result statement = " << *(tp.get_value()) << endl;
+    assert(st.atEnd());
+
+    delete tp.get_value();
+  }
+  
+  {
+    std::string str =
+    "do {"
+      "in_word0.write_wire_32(read_port(word0));"
+      "i = i + 1;"
+      "} while (i < 320*320);";
+
+    cout << "TEST CASE: " << str << endl;
 
     ParseState<Token> st(tokenize(str));
     auto tp = parseStatement(st);
