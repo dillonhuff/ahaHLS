@@ -1509,6 +1509,13 @@ maybe<Statement*> parseForLoop(ParseState<Token>& tokens) {
 
 class DoWhileLoop : public Statement {
 public:
+
+  Expression* test;
+  vector<Statement*> body;
+  
+  DoWhileLoop(Expression* e_,
+              std::vector<Statement*>& stmts_) : test(e_), body(stmts_) {}
+  
   static bool classof(const Statement* const stmt) {
     return stmt->getKind() == STATEMENT_KIND_DO_WHILE;
   }
@@ -1551,7 +1558,7 @@ maybe<Statement*> parseDoWhileLoop(ParseState<Token>& tokens) {
       }
       tokens.parseChar();
       
-      return new DoWhileLoop();
+      return new DoWhileLoop(expr.get_value(), stmts);
     }
 
     return maybe<Statement*>();
@@ -2625,9 +2632,10 @@ public:
     assert(rType == vType->getPointerTo());
 
     b.CreateStore(value, receiver);
-    // auto assignFunc =
-    //   mkFunc({rType, vType}, voidType(), "assign_" + typeString(rType));
-    // b.CreateCall(assignFunc, {receiver, value});
+  }
+
+  void genLLVM(IRBuilder<>& b, DoWhileLoop* stmt) {
+    cout << "Do while loop" << endl;
   }
   
   void genLLVM(IRBuilder<>& b, Statement* const stmt) {
@@ -2660,6 +2668,8 @@ public:
       
     } else if (ReturnStmt::classof(stmt)) {
       genLLVM(b, sc<ReturnStmt>(stmt));
+    } else if (DoWhileLoop::classof(stmt)) {
+      genLLVM(b, sc<DoWhileLoop>(stmt));
     } else {
       // Add support for variable declarations, assignments, and for loops
       cout << "No support for code generation for statement" << endl;
