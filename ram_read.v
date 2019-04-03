@@ -125,15 +125,6 @@ module ram_read_inner(input [0:0] clk, input [0:0] rst, output [3:0] arg_0_debug
 		arg_0_raddr_0_reg = valid ? arg_1_out_data : arg_1_out_data;
 	end
 	// controller for ret_2.return_value_reg
-	always @(*) begin
-		if ((global_state == 1)) begin 
-			if (1) begin
-				return_value_reg = arg_0_rdata_0;
-			end
-		end else begin
-			return_value_reg = 0;
-		end
-	end
 	// controller for ret_2.valid_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
@@ -146,6 +137,7 @@ module ram_read_inner(input [0:0] clk, input [0:0] rst, output [3:0] arg_0_debug
 	end
 	// Insensitive connections
 	always @(*) begin
+		return_value_reg = valid ? arg_0_rdata_0 : arg_0_rdata_0;
 	end
 endmodule
 

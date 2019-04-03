@@ -246,15 +246,6 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 	always @(*) begin
 	end
 	// controller for ret_15.return_value_reg
-	always @(*) begin
-		if ((global_state == 4)) begin 
-			if (arg_0_output_z_stb) begin
-				return_value_reg = arg_0_output_z;
-			end
-		end else begin
-			return_value_reg = 0;
-		end
-	end
 	// controller for ret_15.valid_reg
 	always @(*) begin
 		if ((global_state == 4)) begin 
@@ -267,6 +258,7 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 	end
 	// Insensitive connections
 	always @(*) begin
+		return_value_reg = valid ? arg_0_output_z : arg_0_output_z;
 	end
 endmodule
 

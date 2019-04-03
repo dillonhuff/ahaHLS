@@ -199,15 +199,6 @@ module axi_read_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_debu
 	always @(*) begin
 	end
 	// controller for ret_10.return_value_reg
-	always @(*) begin
-		if ((global_state == 2)) begin 
-			if (arg_0_s_axil_arready && arg_0_s_axil_rvalid) begin
-				return_value_reg = arg_0_s_axil_rdata;
-			end
-		end else begin
-			return_value_reg = 0;
-		end
-	end
 	// controller for ret_10.valid_reg
 	always @(*) begin
 		if ((global_state == 2)) begin 
@@ -220,6 +211,7 @@ module axi_read_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_debu
 	end
 	// Insensitive connections
 	always @(*) begin
+		return_value_reg = valid ? arg_0_s_axil_rdata : arg_0_s_axil_rdata;
 	end
 endmodule
 

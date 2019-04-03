@@ -593,6 +593,7 @@ namespace ahaHLS {
         auto val = ret->getReturnValue();
         wiring.insert({"return_value", {true, getValueBitWidth(val), "return_value"}});
         defaults.insert({"return_value", 0});
+        insensitivePorts.insert("return_value");
       }
       outWires = {};
           
