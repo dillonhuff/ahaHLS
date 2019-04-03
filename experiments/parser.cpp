@@ -3319,25 +3319,32 @@ int main() {
         string(func.first->getName()) << " = " <<
         func.second.constraints.size() << endl;
     }
+
+    {
+      auto arch = synthesizeVerilog(scppMod, "store_to_reg");
+
+      map<llvm::Value*, int> layout = {};
+
+      TestBenchSpec tb;
+      map<string, int> testLayout = {};
+      tb.memoryInit = {};
+      tb.memoryExpected = {};
+      tb.runCycles = 30;
+      tb.maxCycles = 100;
+      tb.name = "store_to_reg";
+      tb.useModSpecs = true;
+      map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+      map_insert(tb.actionsOnCycles, 19, assertString("arg_0_out === (15)"));
     
-    auto arch = synthesizeVerilog(scppMod, "store_to_reg");
+      emitVerilogTestBench(tb, arch, testLayout);
 
-    map<llvm::Value*, int> layout = {};
+      assert(runIVerilogTest("store_to_reg_tb.v", "store_to_reg", " builtins.v store_to_reg.v RAM.v delay.v ram_primitives.v"));
+    }
 
-    TestBenchSpec tb;
-    map<string, int> testLayout = {};
-    tb.memoryInit = {};
-    tb.memoryExpected = {};
-    tb.runCycles = 30;
-    tb.maxCycles = 100;
-    tb.name = "store_to_reg";
-    tb.useModSpecs = true;
-    map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
-    map_insert(tb.actionsOnCycles, 19, assertString("arg_0_out === (15)"));
-    
-    emitVerilogTestBench(tb, arch, testLayout);
+    {
+      auto arch = synthesizeVerilog(scppMod, "instantiate_reg");
+    }
 
-    assert(runIVerilogTest("store_to_reg_tb.v", "store_to_reg", " builtins.v store_to_reg.v RAM.v delay.v ram_primitives.v"));
   }
   
   {

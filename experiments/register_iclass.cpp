@@ -21,3 +21,9 @@ void store_to_reg(reg_32& reg) {
   reg.write(15);
 }
 
+void instantiate_reg(bit_32& i, bit_32& o) {
+  reg_32 r;
+  r.write(i);
+
+  o = r.read();
+}
