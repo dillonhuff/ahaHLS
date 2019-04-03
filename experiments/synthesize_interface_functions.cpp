@@ -247,11 +247,11 @@ int main() {
       {"input_b_stb", 0},
       {"rst", 0}
     };
-
+    set<string> insensitivePorts{"input_a", "input_b"};
     //
     //setAllAllocaMemTypes(hcs, f, registerSpec(width));
     hcs.typeSpecs[fpuType->getName()] =
-      [adderPorts, defaults](StructType* fp) { return ModuleSpec({}, "adder", adderPorts, defaults); };
+      [adderPorts, defaults, insensitivePorts](StructType* fp) { return ModuleSpec({}, "adder", adderPorts, defaults, insensitivePorts); };
     hcs.typeSpecs["builtin_fifo_32"] =
       [width](StructType* tp) { return wireSpec(width); };
     

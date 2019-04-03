@@ -172,15 +172,6 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 	// End pipeline instruction code
 
 	// controller for arg_0.arg_0_input_a_reg
-	always @(*) begin
-		if ((global_state == 2)) begin 
-			if (arg_0_input_a_ack) begin
-				arg_0_input_a_reg = arg_1_out_data;
-			end
-		end else begin
-			arg_0_input_a_reg = 0;
-		end
-	end
 	// controller for arg_0.arg_0_input_a_stb_reg
 	always @(*) begin
 		if ((global_state == 2)) begin 
@@ -196,15 +187,6 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 		end
 	end
 	// controller for arg_0.arg_0_input_b_reg
-	always @(*) begin
-		if ((global_state == 3)) begin 
-			if (arg_0_input_b_ack) begin
-				arg_0_input_b_reg = arg_2_out_data;
-			end
-		end else begin
-			arg_0_input_b_reg = 0;
-		end
-	end
 	// controller for arg_0.arg_0_input_b_stb_reg
 	always @(*) begin
 		if ((global_state == 3)) begin 
@@ -235,6 +217,8 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 	end
 	// Insensitive connections
 	always @(*) begin
+		arg_0_input_a_reg = valid ? arg_1_out_data : arg_1_out_data;
+		arg_0_input_b_reg = valid ? arg_2_out_data : arg_2_out_data;
 	end
 	// Insensitive connections
 	always @(*) begin
