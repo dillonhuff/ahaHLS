@@ -1775,7 +1775,7 @@ namespace ahaHLS {
   }
 
   bool stateless(FunctionalUnit& unit) {
-    vector<string> statelessUnits{"add", "sub", "shl", "mul", "phi", "getelementptr_2", "ne", "eq"};
+    vector<string> statelessUnits{"add", "sub", "shlOp", "mul", "phi", "getelementptr_2", "ne", "eq"};
     return elem(unit.getModName(), statelessUnits);
   }
 

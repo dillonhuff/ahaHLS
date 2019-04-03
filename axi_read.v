@@ -161,14 +161,6 @@ module axi_read_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_debu
 	// End pipeline instruction code
 
 	// controller for arg_0.arg_0_s_axil_araddr_reg
-	always @(*) begin
-		if ((global_state == 1)) begin 
-			if (1) begin
-				arg_0_s_axil_araddr_reg = shl_tmp_1;
-			end
-		// No default?
-		end
-	end
 	// controller for arg_0.arg_0_s_axil_arvalid_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
@@ -191,27 +183,14 @@ module axi_read_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_debu
 	end
 	// Insensitive connections
 	always @(*) begin
+		arg_0_s_axil_araddr_reg = valid ? shl_tmp_1 : shl_tmp_1;
 	end
 	// controller for shl_shl_1.shl_in0_shl_1
-	always @(*) begin
-		if ((global_state == 0)) begin 
-			if (1) begin
-				shl_in0_shl_1 = arg_1_out_data;
-			end
-		// No default?
-		end
-	end
 	// controller for shl_shl_1.shl_in1_shl_1
-	always @(*) begin
-		if ((global_state == 0)) begin 
-			if (1) begin
-				shl_in1_shl_1 = (32'd2);
-			end
-		// No default?
-		end
-	end
 	// Insensitive connections
 	always @(*) begin
+		shl_in0_shl_1 = valid ? arg_1_out_data : arg_1_out_data;
+		shl_in1_shl_1 = valid ? (32'd2) : (32'd2);
 	end
 	// Insensitive connections
 	always @(*) begin
