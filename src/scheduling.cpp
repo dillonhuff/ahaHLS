@@ -2012,9 +2012,10 @@ namespace ahaHLS {
     map<string, int> defaults;
     defaults.insert({"read_valid", 0});
     defaults.insert({"write_valid", 0});    
-    defaults.insert({"in_data", 0});
+    //defaults.insert({"in_data", 0});
 
-    ModuleSpec modSpec = {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "fifo", fifoPorts, defaults};
+    set<string> insensitivePorts{"in_data"};
+    ModuleSpec modSpec = {{{"WIDTH", to_string(width)}, {"DEPTH", to_string(depth)}}, "fifo", fifoPorts, defaults, insensitivePorts};
     modSpec.hasClock = true;
     modSpec.hasRst = true;
     return modSpec;

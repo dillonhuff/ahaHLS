@@ -128,15 +128,6 @@ module fifo_write_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_1_in
 	// End pipeline instruction code
 
 	// controller for arg_1.arg_1_in_data_reg
-	always @(*) begin
-		if ((global_state == 1)) begin 
-			if (1) begin
-				arg_1_in_data_reg = arg_0_out_data;
-			end
-		end else begin
-			arg_1_in_data_reg = 0;
-		end
-	end
 	// controller for arg_1.arg_1_write_valid_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
@@ -153,6 +144,7 @@ module fifo_write_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_1_in
 	end
 	// Insensitive connections
 	always @(*) begin
+		arg_1_in_data_reg = valid ? arg_0_out_data : arg_0_out_data;
 	end
 	// Insensitive connections
 	always @(*) begin
