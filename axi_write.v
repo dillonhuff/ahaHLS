@@ -46,14 +46,14 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 	// End debug wires and ports
 
 	// Start Functional Units
+	add call_11();
+
 	reg [31:0] shl_in0_shl_1;
 	reg [31:0] shl_in1_shl_1;
 	wire [31:0] shl_out_shl_1;
 	shlOp #(.WIDTH(32)) shl_shl_1(.in0(shl_in0_shl_1), .in1(shl_in1_shl_1), .out(shl_out_shl_1));
 
-	add call_8();
-
-	add call_10();
+	add call_13();
 
 	add call_15();
 
@@ -119,7 +119,7 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 				// Condition = True
 
 				if (1) begin
-				if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin 
+				if (arg_0_s_axil_bvalid && arg_0_s_axil_wready && arg_0_s_axil_awready) begin 
 					global_state <= 1;
 				end
 				end
@@ -132,7 +132,7 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 			end
 			if ((global_state == 1)) begin 
 				// Temporary storage
-				if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
+				if (arg_0_s_axil_bvalid && arg_0_s_axil_wready && arg_0_s_axil_awready) begin
 				// Store data computed at the stage
 				end
 			end
@@ -152,7 +152,7 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 				arg_0_s_axil_awvalid_reg = -(1'd1);
 			end
 		end else if ((global_state == 1)) begin 
-			if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
+			if (arg_0_s_axil_bvalid && arg_0_s_axil_wready && arg_0_s_axil_awready) begin
 				arg_0_s_axil_awvalid_reg = -(1'd1);
 			end
 		end else begin
@@ -175,7 +175,7 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 				arg_0_s_axil_wdata_reg = arg_2_out_data;
 			end
 		end else if ((global_state == 1)) begin 
-			if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
+			if (arg_0_s_axil_bvalid && arg_0_s_axil_wready && arg_0_s_axil_awready) begin
 				arg_0_s_axil_wdata_reg = arg_2_out_data;
 			end
 		end
@@ -197,7 +197,7 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 				arg_0_s_axil_wvalid_reg = -(1'd1);
 			end
 		end else if ((global_state == 1)) begin 
-			if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
+			if (arg_0_s_axil_bvalid && arg_0_s_axil_wready && arg_0_s_axil_awready) begin
 				arg_0_s_axil_wvalid_reg = -(1'd1);
 			end
 		end else begin
@@ -227,7 +227,7 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 	// controller for ret_16.valid_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
-			if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
+			if (arg_0_s_axil_bvalid && arg_0_s_axil_wready && arg_0_s_axil_awready) begin
 				valid_reg = 1;
 			end
 		end else begin

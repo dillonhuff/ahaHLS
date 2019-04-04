@@ -1,9 +1,9 @@
-module fifo_read_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, output [0:0] arg_0_read_valid, output [0:0] arg_0_rst, output [31:0] arg_0_write_valid, input [31:0] arg_0_out_data, input [0:0] arg_0_read_ready, input [0:0] arg_0_write_ready, output [31:0] return_value, output [0:0] valid);
+module fifo_read_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, output [0:0] arg_0_read_valid, output [0:0] arg_0_rst, output [0:0] arg_0_write_valid, input [31:0] arg_0_out_data, input [0:0] arg_0_read_ready, input [0:0] arg_0_write_ready, output [31:0] return_value, output [0:0] valid);
 
 	reg [31:0] arg_0_in_data_reg;
 	reg [0:0] arg_0_read_valid_reg;
 	reg [0:0] arg_0_rst_reg;
-	reg [31:0] arg_0_write_valid_reg;
+	reg [0:0] arg_0_write_valid_reg;
 	reg [31:0] return_value_reg;
 	reg [0:0] valid_reg;
 
@@ -166,7 +166,7 @@ module fifo_read_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_
 	end
 endmodule
 
-module fifo_read(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, output [0:0] arg_0_read_valid, output [0:0] arg_0_rst, output [31:0] arg_0_write_valid, input [31:0] arg_0_out_data, input [0:0] arg_0_read_ready, input [0:0] arg_0_write_ready, output [31:0] return_value, output [0:0] valid);
+module fifo_read(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, output [0:0] arg_0_read_valid, output [0:0] arg_0_rst, output [0:0] arg_0_write_valid, input [31:0] arg_0_out_data, input [0:0] arg_0_read_ready, input [0:0] arg_0_write_ready, output [31:0] return_value, output [0:0] valid);
 
 
 	initial begin
