@@ -46,16 +46,16 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_11();
+	add call_8();
 
 	reg [31:0] shl_in0_shl_1;
 	reg [31:0] shl_in1_shl_1;
 	wire [31:0] shl_out_shl_1;
 	shlOp #(.WIDTH(32)) shl_shl_1(.in0(shl_in0_shl_1), .in1(shl_in1_shl_1), .out(shl_out_shl_1));
 
-	add call_13();
+	add call_11();
 
-	add call_15();
+	add call_13();
 
 	// End Functional Units
 
@@ -169,17 +169,6 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 		end
 	end
 	// controller for arg_0.arg_0_s_axil_wdata_reg
-	always @(*) begin
-		if ((global_state == 0)) begin 
-			if (1) begin
-				arg_0_s_axil_wdata_reg = arg_2_out_data;
-			end
-		end else if ((global_state == 1)) begin 
-			if (arg_0_s_axil_bvalid && arg_0_s_axil_wready && arg_0_s_axil_awready) begin
-				arg_0_s_axil_wdata_reg = arg_2_out_data;
-			end
-		end
-	end
 	// controller for arg_0.arg_0_s_axil_wstrb_reg
 	always @(*) begin
 		if ((global_state == 0)) begin 
@@ -207,6 +196,7 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 	// Insensitive connections
 	always @(*) begin
 		arg_0_s_axil_awaddr_reg = valid ? shl_out_shl_1 : shl_out_shl_1;
+		arg_0_s_axil_wdata_reg = valid ? arg_2_out_data : arg_2_out_data;
 	end
 	// controller for shl_shl_1.shl_in0_shl_1
 	// controller for shl_shl_1.shl_in1_shl_1
@@ -218,13 +208,7 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 	// Insensitive connections
 	always @(*) begin
 	end
-	// Insensitive connections
-	always @(*) begin
-	end
-	// Insensitive connections
-	always @(*) begin
-	end
-	// controller for ret_16.valid_reg
+	// controller for ret_9.valid_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
 			if (arg_0_s_axil_bvalid && arg_0_s_axil_wready && arg_0_s_axil_awready) begin
@@ -233,6 +217,12 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 		end else begin
 			valid_reg = 0;
 		end
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// Insensitive connections
+	always @(*) begin
 	end
 	// Insensitive connections
 	always @(*) begin

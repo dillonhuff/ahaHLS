@@ -1832,11 +1832,20 @@ namespace ahaHLS {
       PortValues vals = portAndValues.second;
 
       int numAssigns = vals.portAssignments.size();
+      bool allAssignsTheSame = numAssigns == 1;
+      string assigns = "";
+
+      set<string> values;
+      for (auto val : vals.portAssignments) {
+        values.insert(val.second.second);
+      }
+      allAssignsTheSame = values.size() == 1;
+      
       bool hasDefault = portController.hasDefault(port);
       
       out << tab(1) << "// controller for " << portController.unitController.unit.instName << "." << port << endl;
 
-      if ((numAssigns == 1) &&
+      if (allAssignsTheSame &&
           (stateless(portController.unitController.unit) ||
            isInsensitive(port, portController))) {
 
