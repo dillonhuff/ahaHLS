@@ -91,6 +91,8 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 			if ((global_state == 0)) begin
 			end
 			if ((global_state == 1)) begin
+			end
+			if ((global_state == 2)) begin
 					last_BB_reg <= 0;
 			end
 		end
@@ -116,7 +118,15 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 				// Condition = True
 
 				if (1) begin
-					global_state <= 1;
+					global_state <= 2;
+				end
+			end
+			if ((global_state == 2)) begin 
+				// Next state transition logic
+				// Condition = True
+
+				if (1) begin
+					global_state <= 2;
 				end
 			end
 
@@ -128,6 +138,10 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 				end
 			end
 			if ((global_state == 1)) begin 
+				// Temporary storage
+				// Store data computed at the stage
+			end
+			if ((global_state == 2)) begin 
 				// Temporary storage
 				// Store data computed at the stage
 			end
@@ -169,9 +183,9 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 	always @(*) begin
 		arg_1_raddr_reg = valid ? arg_1_rdata : arg_1_rdata;
 	end
-	// controller for ret_4.valid_reg
+	// controller for ret_7.valid_reg
 	always @(*) begin
-		if ((global_state == 1)) begin 
+		if ((global_state == 2)) begin 
 			if (1) begin
 				valid_reg = 1;
 			end

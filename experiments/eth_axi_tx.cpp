@@ -33,11 +33,15 @@ public:
   write_dest: write_port(s_eth_src_mac, src_mac);
   write_type: write_port(s_eth_type, type);
 
+  ret: return;
+
     add_constraint(end(stall_on_ready) < start(write_valid));
 
     add_constraint(start(write_valid) == start(write_src));
     add_constraint(start(write_valid) == start(write_dest));
     add_constraint(start(write_valid) == start(write_type));
+
+    add_constraint(end(write_valid) + 1 == start(ret));
   }
 
   void write_byte(bit_8& data,
@@ -48,10 +52,14 @@ public:
   write_last: write_port(s_eth_payload_axis_tlast, last);
   write_data: write_port(s_eth_payload_axis_tdata, data);
 
+  ret: return;
+
     add_constraint(end(stall_on_ready) < start(write_valid));
 
     add_constraint(start(write_valid) == start(write_last));
     add_constraint(start(write_valid) == start(write_data));
+
+    add_constraint(end(write_valid) + 1 == start(ret));
   }
 
 };
