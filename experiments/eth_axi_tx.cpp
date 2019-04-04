@@ -19,12 +19,7 @@ public:
 
   void defaults() {
     write_port(s_eth_hdr_valid, 0);
-    write_port(s_eth_dest_mac, 0);
-    write_port(s_eth_src_mac, 0);
-    write_port(s_eth_type, 0);            
     write_port(s_eth_payload_axis_tvalid, 0);
-    write_port(s_eth_payload_axis_tdata, 0);    
-    write_port(s_eth_payload_axis_tlast, 0);
     write_port(s_eth_payload_axis_tuser, 0);        
   }
 

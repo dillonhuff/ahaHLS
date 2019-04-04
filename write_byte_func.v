@@ -140,25 +140,7 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 	// End pipeline instruction code
 
 	// controller for arg_2.arg_2_s_eth_payload_axis_tdata_reg
-	always @(*) begin
-		if ((global_state == 1)) begin 
-			if (1) begin
-				arg_2_s_eth_payload_axis_tdata_reg = arg_0_rdata;
-			end
-		end else begin
-			arg_2_s_eth_payload_axis_tdata_reg = 0;
-		end
-	end
 	// controller for arg_2.arg_2_s_eth_payload_axis_tlast_reg
-	always @(*) begin
-		if ((global_state == 1)) begin 
-			if (1) begin
-				arg_2_s_eth_payload_axis_tlast_reg = arg_1_rdata;
-			end
-		end else begin
-			arg_2_s_eth_payload_axis_tlast_reg = 0;
-		end
-	end
 	// controller for arg_2.arg_2_s_eth_payload_axis_tvalid_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
@@ -171,6 +153,8 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 	end
 	// Insensitive connections
 	always @(*) begin
+		arg_2_s_eth_payload_axis_tdata_reg = valid ? arg_0_rdata : arg_0_rdata;
+		arg_2_s_eth_payload_axis_tlast_reg = valid ? arg_1_rdata : arg_1_rdata;
 	end
 	// Insensitive connections
 	always @(*) begin
