@@ -2253,7 +2253,6 @@ namespace ahaHLS {
     exec.addConstraint(instrStart(wAddr) == instrStart(wAWValid));
     exec.addConstraint(instrStart(wAddr) == instrStart(wData0));
     exec.addConstraint(instrStart(wAddr) == instrStart(wStrb));        
-    exec.addConstraint(instrStart(wBready1) == instrStart(wAWValid));
 
     exec.addConstraint(instrStart(wDataValid0) == instrStart(wAWValid));
     exec.addConstraint(instrStart(wDataValid0) == instrStart(wData0));        
@@ -2267,11 +2266,15 @@ namespace ahaHLS {
     exec.addConstraint(instrEnd(stallOnWriteDataReady) == instrStart(wAWValid0));
 
     auto stallOnBValid = stallOnPort(b, readMod, 1, "s_axil_bvalid", exec);
-    exec.addConstraint(instrEnd(stallOnWriteDataReady) <= instrStart(stallOnBValid));
+
+    exec.addConstraint(instrEnd(stallOnWriteDataReady) == instrStart(stallOnBValid));
+    exec.addConstraint(instrStart(wBready1) == instrStart(wAWValid));
+
+    //exec.addConstraint(instrStart(wBready1) == instrStart(stallOnBValid));
+    //exec.addConstraint(instrEnd(stallOnWriteDataReady) < instrStart(stallOnBValid));
 
     auto ret = b.CreateRet(nullptr);
 
-    //exec.addConstraint(instrStart(ret) == instrEnd(stallOnBValid));
     exec.addConstraint(instrEnd(stallOnBValid) + 1 == instrStart(ret));
 
     cout << "# of user defined constraints on AXI write = " << exec.constraints.size() << endl;
