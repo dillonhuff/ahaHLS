@@ -98,6 +98,9 @@ reg s_axil_rvalid_reg = 1'b0, s_axil_rvalid_next;
 // (* RAM_STYLE="BLOCK" *)
 reg [DATA_WIDTH-1:0] mem[(2**VALID_ADDR_WIDTH)-1:0];
 
+   integer           i, j;
+
+   
    // Start debug
    always @(posedge clk) begin
       if (debug_wr_en) begin
@@ -122,23 +125,6 @@ assign s_axil_arready = s_axil_arready_reg;
 assign s_axil_rdata = s_axil_rdata_reg;
 assign s_axil_rresp = s_axil_rresp_reg;
 assign s_axil_rvalid = s_axil_rvalid_reg;
-
-integer i, j;
-
-initial begin
-   //mem[0] = 20;
-    // two nested loops for smaller number of iterations per loop
-    // workaround for synthesizer complaints about large loop counts
-    // for (i = 0; i < 2**ADDR_WIDTH; i = i + 2**(ADDR_WIDTH/2)) begin
-    //     for (j = i; j < i + 2**(ADDR_WIDTH/2); j = j + 1) begin
-    //         mem[j] = 20;
-    //     end
-    // end
-end
-
-   always @(posedge clk) begin
-      //$display("s_axil_awready = ", s_axil_awready);
-   end
 
 always @* begin
     mem_wr_en = 1'b0;
@@ -175,22 +161,15 @@ always @(posedge clk) begin
     end
 
     s_axil_bresp_reg <= s_axil_bresp_next;
-   //$display("setting memory with valid address %d, addr = %d", s_axil_awaddr_valid, s_axil_awaddr);
 
     for (i = 0; i < WORD_WIDTH; i = i + 1) begin
 
         if (mem_wr_en && s_axil_wstrb[i]) begin
-           //$display("valid set mem address %d, addr = %d, data = %d, ", s_axil_awaddr_valid, s_axil_awaddr, s_axil_wdata[8*i +: 8]);           
             mem[s_axil_awaddr_valid][8*i +: 8] <= s_axil_wdata[8*i +: 8];
         end
     end
 end
 
-   // always @(posedge clk) begin
-   //    $display("s_axil_arready = %d", s_axil_arready);         
-   //    $display("s_axil_arvalid = %d", s_axil_arvalid);
-   //    $display("s_axil_rvalid = %d", s_axil_rvalid);         
-   // end
 always @* begin
     mem_rd_en = 1'b0;
 
