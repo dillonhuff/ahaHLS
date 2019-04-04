@@ -2268,7 +2268,7 @@ namespace ahaHLS {
     auto stallOnBValid = stallOnPort(b, readMod, 1, "s_axil_bvalid", exec);
 
     exec.addConstraint(instrEnd(stallOnWriteDataReady) == instrStart(stallOnBValid));
-    exec.addConstraint(instrStart(wBready1) == instrStart(wAWValid));
+    // exec.addConstraint(instrStart(wBready1) == instrStart(wAWValid));
 
     //exec.addConstraint(instrStart(wBready1) == instrStart(stallOnBValid));
     //exec.addConstraint(instrEnd(stallOnWriteDataReady) < instrStart(stallOnBValid));
@@ -2999,7 +2999,8 @@ namespace ahaHLS {
         {"s_axil_awvalid", 0},
           {"s_axil_wvalid", 0},
             {"s_axil_wstrb", (1 << 5) - 1},          
-              {"s_axil_rready", 1}};
+              {"s_axil_rready", 1},
+                {"s_axil_bready", 1}};
 
     set<string> insensitivePorts{"s_axil_wdata",
         "s_axil_awaddr",
