@@ -2812,8 +2812,10 @@ namespace ahaHLS {
     addInputPort(ports, 1, "wen");
 
     map<string, int> defaults{{"wen", 0}};
+
+    set<string> insensitivePorts = {"raddr", "waddr", "wdata"};
     
-    ModuleSpec mSpec = {modParams, "register", ports, defaults};
+    ModuleSpec mSpec = {modParams, "register", ports, defaults, insensitivePorts};
     mSpec.hasClock = true;
     mSpec.hasRst = true;
     return mSpec;

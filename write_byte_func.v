@@ -160,28 +160,14 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 	always @(*) begin
 	end
 	// controller for arg_0.arg_0_raddr_reg
-	always @(*) begin
-		if ((global_state == 1)) begin 
-			if (1) begin
-				arg_0_raddr_reg = arg_0_rdata;
-			end
-		// No default?
-		end
-	end
 	// Insensitive connections
 	always @(*) begin
+		arg_0_raddr_reg = valid ? arg_0_rdata : arg_0_rdata;
 	end
 	// controller for arg_1.arg_1_raddr_reg
-	always @(*) begin
-		if ((global_state == 1)) begin 
-			if (1) begin
-				arg_1_raddr_reg = arg_1_rdata;
-			end
-		// No default?
-		end
-	end
 	// Insensitive connections
 	always @(*) begin
+		arg_1_raddr_reg = valid ? arg_1_rdata : arg_1_rdata;
 	end
 	// controller for ret_4.valid_reg
 	always @(*) begin
