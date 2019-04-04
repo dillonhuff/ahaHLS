@@ -134,6 +134,8 @@ module fifo_read_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_
 		if ((global_state == 1)) begin 
 			if (1) begin
 				arg_0_read_valid_reg = -(1'd1);
+			end else begin
+				arg_0_read_valid_reg = 0;
 			end
 		end else if ((global_state == 2)) begin 
 			if (1) begin
@@ -155,6 +157,8 @@ module fifo_read_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_
 		if ((global_state == 2)) begin 
 			if (1) begin
 				valid_reg = 1;
+			end else begin
+				valid_reg = 0;
 			end
 		end else begin
 			valid_reg = 0;

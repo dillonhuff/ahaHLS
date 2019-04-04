@@ -166,6 +166,8 @@ module axi_read_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_debu
 		if ((global_state == 1)) begin 
 			if (1) begin
 				arg_0_s_axil_arvalid_reg = -(1'd1);
+			end else begin
+				arg_0_s_axil_arvalid_reg = 0;
 			end
 		end else begin
 			arg_0_s_axil_arvalid_reg = 0;
@@ -176,6 +178,8 @@ module axi_read_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_debu
 		if ((global_state == 2)) begin 
 			if (arg_0_s_axil_arready && arg_0_s_axil_rvalid) begin
 				arg_0_s_axil_rready_reg = -(1'd1);
+			end else begin
+				arg_0_s_axil_rready_reg = 1;
 			end
 		end else begin
 			arg_0_s_axil_rready_reg = 1;
@@ -198,12 +202,14 @@ module axi_read_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_debu
 	// Insensitive connections
 	always @(*) begin
 	end
-	// controller for ret_9.return_value_reg
-	// controller for ret_9.valid_reg
+	// controller for ret_10.return_value_reg
+	// controller for ret_10.valid_reg
 	always @(*) begin
 		if ((global_state == 2)) begin 
 			if (arg_0_s_axil_arready && arg_0_s_axil_rvalid) begin
 				valid_reg = 1;
+			end else begin
+				valid_reg = 0;
 			end
 		end else begin
 			valid_reg = 0;

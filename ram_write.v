@@ -148,6 +148,8 @@ module ram_write_inner(input [0:0] clk, input [0:0] rst, output [3:0] arg_0_debu
 		if ((global_state == 0)) begin 
 			if (1) begin
 				arg_0_wen_0_reg = -(1'd1);
+			end else begin
+				arg_0_wen_0_reg = 0;
 			end
 		end else begin
 			arg_0_wen_0_reg = 0;
@@ -163,6 +165,8 @@ module ram_write_inner(input [0:0] clk, input [0:0] rst, output [3:0] arg_0_debu
 		if ((global_state == 3)) begin 
 			if (1) begin
 				valid_reg = 1;
+			end else begin
+				valid_reg = 0;
 			end
 		end else begin
 			valid_reg = 0;

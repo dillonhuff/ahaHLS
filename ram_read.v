@@ -130,6 +130,8 @@ module ram_read_inner(input [0:0] clk, input [0:0] rst, output [3:0] arg_0_debug
 		if ((global_state == 1)) begin 
 			if (1) begin
 				valid_reg = 1;
+			end else begin
+				valid_reg = 0;
 			end
 		end else begin
 			valid_reg = 0;

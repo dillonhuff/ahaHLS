@@ -177,6 +177,8 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 		if ((global_state == 2)) begin 
 			if (arg_0_input_a_ack) begin
 				arg_0_input_a_stb_reg = -(1'd1);
+			end else begin
+				arg_0_input_a_stb_reg = 0;
 			end
 		end else if ((global_state == 3)) begin 
 			if (arg_0_input_b_ack) begin
@@ -192,6 +194,8 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 		if ((global_state == 3)) begin 
 			if (arg_0_input_b_ack) begin
 				arg_0_input_b_stb_reg = -(1'd1);
+			end else begin
+				arg_0_input_b_stb_reg = 0;
 			end
 		end else if ((global_state == 4)) begin 
 			if (arg_0_output_z_stb) begin
@@ -206,6 +210,8 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 		if ((global_state == 0)) begin 
 			if (1) begin
 				arg_0_rst_reg = -(1'd1);
+			end else begin
+				arg_0_rst_reg = 0;
 			end
 		end else if ((global_state == 1)) begin 
 			if (1) begin
@@ -235,6 +241,8 @@ module fpu_add_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_input
 		if ((global_state == 4)) begin 
 			if (arg_0_output_z_stb) begin
 				valid_reg = 1;
+			end else begin
+				valid_reg = 0;
 			end
 		end else begin
 			valid_reg = 0;

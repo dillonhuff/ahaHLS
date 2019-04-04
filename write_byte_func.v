@@ -160,6 +160,8 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 		if ((global_state == 1)) begin 
 			if (1) begin
 				arg_2_s_eth_payload_axis_tvalid_reg = (32'd1);
+			end else begin
+				arg_2_s_eth_payload_axis_tvalid_reg = 0;
 			end
 		end else begin
 			arg_2_s_eth_payload_axis_tvalid_reg = 0;
@@ -188,6 +190,8 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 		if ((global_state == 2)) begin 
 			if (1) begin
 				valid_reg = 1;
+			end else begin
+				valid_reg = 0;
 			end
 		end else begin
 			valid_reg = 0;

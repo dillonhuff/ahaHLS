@@ -1816,11 +1816,30 @@ namespace ahaHLS {
       (map_find(port, portController.insensitivePorts) == true);
   }
 
+  void emitStalledOutput(std::ostream& out,
+                         const string& port,
+                         const vector<string>& stallConds,
+                         const string& portValue,
+                         PortController& portController) {
+
+    bool hasDefault = portController.hasDefault(port);
+    
+    out << tab(3) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+    out << tab(4) << port << " = " << portValue << ";" << endl;
+    out << tab(3) << "end else begin" << endl;
+    if (hasDefault) {
+      out << tab(4) << port << " = " << portController.defaultValue(port) << ";" << endl;
+    } else {
+      out << tab(4) << port << " = 0;" << endl;      
+    }
+    out << tab(3) << "end" << endl;    
+  }
+  
   // The same value problem is striking again...
   // The simplified wires really ought to be connected through assigns,
   // but I cannot get that to work without
   void emitVerilogForController(std::ostream& out,
-                                 MicroArchitecture& arch,
+                                MicroArchitecture& arch,
                                 PortController& portController) {
 
     UnitController controller = portController.unitController;
@@ -1864,9 +1883,11 @@ namespace ahaHLS {
 
           if (i == 0) {
             out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
-            out << tab(3) << "if (" << andCondStr(stallConds) << ") begin" << endl;
-            out << tab(4) << port << " = " << portValue << ";" << endl;
-            out << tab(3) << "end" << endl;
+
+            emitStalledOutput(out, port, stallConds, portValue, portController);
+            // out << tab(3) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+            // out << tab(4) << port << " = " << portValue << ";" << endl;
+            // out << tab(3) << "end" << endl;
 
             if (i == (numAssigns - 1)) {
               if (hasDefault) {
@@ -1882,9 +1903,11 @@ namespace ahaHLS {
           } else if (i == (numAssigns - 1)) {
 
             out << ifStr(atState(state, arch)) << " begin " << endl;
-            out << tab(3) << "if (" << andCondStr(stallConds) << ") begin" << endl;
-            out << tab(4) << port << " = " << portValue << ";" << endl;
-            out << tab(3) << "end" << endl;
+
+            emitStalledOutput(out, port, stallConds, portValue, portController);      
+            // out << tab(3) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+            // out << tab(4) << port << " = " << portValue << ";" << endl;
+            // out << tab(3) << "end" << endl;
 
             if (hasDefault) {
               out << tab(2) << "end else begin" << endl;
@@ -1895,9 +1918,12 @@ namespace ahaHLS {
           } else {
 
             out << ifStr(atState(state, arch)) << " begin " << endl;
-            out << tab(3) << "if (" << andCondStr(stallConds) << ") begin" << endl;
-            out << tab(4) << port << " = " << portValue << ";" << endl;
-            out << tab(3) << "end" << endl;
+
+            emitStalledOutput(out, port, stallConds, portValue, portController); 
+            // out << tab(3) << "if (" << andCondStr(stallConds) << ") begin" << endl;
+            // out << tab(4) << port << " = " << portValue << ";" << endl;
+            // out << tab(3) << "end" << endl;
+
             out << tab(2) << "end else ";
           
           }
