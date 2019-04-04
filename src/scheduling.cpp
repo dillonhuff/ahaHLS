@@ -2271,7 +2271,8 @@ namespace ahaHLS {
 
     auto ret = b.CreateRet(nullptr);
 
-    exec.addConstraint(instrStart(ret) == instrEnd(stallOnBValid));
+    //exec.addConstraint(instrStart(ret) == instrEnd(stallOnBValid));
+    exec.addConstraint(instrEnd(stallOnBValid) + 1 == instrStart(ret));
 
     cout << "# of user defined constraints on AXI write = " << exec.constraints.size() << endl;
 

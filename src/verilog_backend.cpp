@@ -1822,7 +1822,6 @@ namespace ahaHLS {
   void emitVerilogForController(std::ostream& out,
                                  MicroArchitecture& arch,
                                 PortController& portController) {
-                                //std::vector<pair<string, string> >& statelessConns) {
 
     UnitController controller = portController.unitController;
 

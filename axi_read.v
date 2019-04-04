@@ -48,14 +48,14 @@ module axi_read_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_debu
 	// End debug wires and ports
 
 	// Start Functional Units
+	add call_5();
+
+	add call_8();
+
 	reg [31:0] shl_in0_shl_1;
 	reg [31:0] shl_in1_shl_1;
 	wire [31:0] shl_out_shl_1;
 	shlOp #(.WIDTH(32)) shl_shl_1(.in0(shl_in0_shl_1), .in1(shl_in1_shl_1), .out(shl_out_shl_1));
-
-	add call_5();
-
-	add call_8();
 
 	// End Functional Units
 
@@ -198,8 +198,8 @@ module axi_read_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_debu
 	// Insensitive connections
 	always @(*) begin
 	end
-	// controller for ret_10.return_value_reg
-	// controller for ret_10.valid_reg
+	// controller for ret_9.return_value_reg
+	// controller for ret_9.valid_reg
 	always @(*) begin
 		if ((global_state == 2)) begin 
 			if (arg_0_s_axil_arready && arg_0_s_axil_rvalid) begin

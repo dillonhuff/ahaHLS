@@ -46,16 +46,16 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_8();
-
-	reg [31:0] shl_in0_shl_1;
-	reg [31:0] shl_in1_shl_1;
-	wire [31:0] shl_out_shl_1;
-	shlOp #(.WIDTH(32)) shl_shl_1(.in0(shl_in0_shl_1), .in1(shl_in1_shl_1), .out(shl_out_shl_1));
+	reg [31:0] shl_in0_shl_0;
+	reg [31:0] shl_in1_shl_0;
+	wire [31:0] shl_out_shl_0;
+	shlOp #(.WIDTH(32)) shl_shl_0(.in0(shl_in0_shl_0), .in1(shl_in1_shl_0), .out(shl_out_shl_0));
 
 	add call_11();
 
-	add call_13();
+	add call_14();
+
+	add call_16();
 
 	// End Functional Units
 
@@ -144,6 +144,13 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 	// Start pipeline stages
 	// End pipeline instruction code
 
+	// controller for shl_shl_0.shl_in0_shl_0
+	// controller for shl_shl_0.shl_in1_shl_0
+	// Insensitive connections
+	always @(*) begin
+		shl_in0_shl_0 = valid ? arg_1_out_data : arg_1_out_data;
+		shl_in1_shl_0 = valid ? (32'd2) : (32'd2);
+	end
 	// controller for arg_0.arg_0_s_axil_awaddr_reg
 	// controller for arg_0.arg_0_s_axil_awvalid_reg
 	always @(*) begin
@@ -195,20 +202,13 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 	end
 	// Insensitive connections
 	always @(*) begin
-		arg_0_s_axil_awaddr_reg = valid ? shl_out_shl_1 : shl_out_shl_1;
+		arg_0_s_axil_awaddr_reg = valid ? shl_out_shl_0 : shl_out_shl_0;
 		arg_0_s_axil_wdata_reg = valid ? arg_2_out_data : arg_2_out_data;
 	end
-	// controller for shl_shl_1.shl_in0_shl_1
-	// controller for shl_shl_1.shl_in1_shl_1
-	// Insensitive connections
-	always @(*) begin
-		shl_in0_shl_1 = valid ? arg_1_out_data : arg_1_out_data;
-		shl_in1_shl_1 = valid ? (32'd2) : (32'd2);
-	end
 	// Insensitive connections
 	always @(*) begin
 	end
-	// controller for ret_9.valid_reg
+	// controller for ret_12.valid_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
 			if (arg_0_s_axil_bvalid && arg_0_s_axil_wready && arg_0_s_axil_awready) begin
