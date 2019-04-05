@@ -2318,6 +2318,9 @@ namespace ahaHLS {
 
     auto addrValShifted = b.CreateShl(addrVal, mkInt(2, 32));
     auto setAddr = b.CreateCall(writeAddrF, {readMod, addrValShifted});
+
+    exec.add(instrStart(addrValShifted) == instrStart(setAddr));
+    
     auto setAddrValid = b.CreateCall(arValidF, {readMod, mkInt(1, 1)});
     exec.add(instrStart(setAddr) == instrStart(setAddrValid));
     exec.add(instrStart(setAddr) == instrEnd(rdStart) + 1);

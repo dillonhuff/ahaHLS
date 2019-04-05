@@ -170,6 +170,8 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 		end else if ((global_state == 1)) begin 
 			if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
 				arg_0_s_axil_awvalid_reg = -(1'd1);
+			end else begin
+				arg_0_s_axil_awvalid_reg = 0;
 			end
 		end else begin
 			arg_0_s_axil_awvalid_reg = 0;
@@ -181,9 +183,10 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 			if (1) begin
 				arg_0_s_axil_bready_reg = -(1'd1);
 			end else begin
-				arg_0_s_axil_bready_reg = 0;
+				arg_0_s_axil_bready_reg = 1;
 			end
-		// No default?
+		end else begin
+			arg_0_s_axil_bready_reg = 1;
 		end
 	end
 	// controller for arg_0.arg_0_s_axil_wdata_reg
@@ -210,6 +213,8 @@ module axi_write_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_0_deb
 		end else if ((global_state == 1)) begin 
 			if (arg_0_s_axil_wready && arg_0_s_axil_awready && arg_0_s_axil_bvalid) begin
 				arg_0_s_axil_wvalid_reg = -(1'd1);
+			end else begin
+				arg_0_s_axil_wvalid_reg = 0;
 			end
 		end else begin
 			arg_0_s_axil_wvalid_reg = 0;

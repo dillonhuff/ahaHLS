@@ -104,8 +104,6 @@ reg [DATA_WIDTH-1:0] mem[(2**VALID_ADDR_WIDTH)-1:0];
    // Start debug
    always @(posedge clk) begin
       if (debug_wr_en) begin
-         //$display("Writing %d to %d", debug_wr_data, debug_wr_addr);
-         
          mem[debug_wr_addr] <= debug_wr_data;
       end
    end
@@ -134,8 +132,6 @@ always @* begin
     s_axil_bresp_next = 2'b00;
     s_axil_bvalid_next = s_axil_bvalid_reg && !s_axil_bready;
 
-   //$display("s_axil_awvalid = %d\n s_axil_wvalid = %d\ns_axil_bvalid = %d\n, s_axil_bready = %d", s_axil_awvalid, s_axil_wvalid, s_axil_bvalid, s_axil_bready);
-   
     if (s_axil_awvalid && s_axil_wvalid && (!s_axil_bvalid || s_axil_bready) && (!s_axil_awready && !s_axil_wready)) begin
         s_axil_awready_next = 1'b1;
         s_axil_wready_next = 1'b1;
@@ -143,7 +139,6 @@ always @* begin
         s_axil_bvalid_next = 1'b1;
 
        $display("mem_wr_enabled");
-       
 
         mem_wr_en = 1'b1;
     end
@@ -177,11 +172,6 @@ always @* begin
     s_axil_rresp_next = 2'b00;
     s_axil_rvalid_next = s_axil_rvalid_reg && !s_axil_rready;
 
-   // $display("======================");
-   // $display("s_axil_rvalid  = %d", s_axil_rvalid);
-   // $display("s_axil_arready = %d", s_axil_arready);
-   // $display("&&&&&&&&&&&&&&&&&&&&&&");
-   
     if (s_axil_arvalid && (!s_axil_rvalid || s_axil_rready) && (!s_axil_arready)) begin
 
        
@@ -205,8 +195,6 @@ always @(posedge clk) begin
         s_axil_rresp_reg <= s_axil_rresp_next;
         s_axil_rvalid_reg <= s_axil_rvalid_next;
     end
-   // $display("raddr address %d", s_axil_araddr);
-   // $display("s_axil_araddr_valid %d", s_axil_araddr_valid);   
 
     if (mem_rd_en) begin
        
