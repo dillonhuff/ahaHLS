@@ -32,6 +32,13 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	// End debug wires and ports
 
 	// Start Functional Units
+	reg [31:0] raddr_ram_0_reg;
+	reg [31:0] waddr_ram_0_reg;
+	reg [31:0] wdata_ram_0_reg;
+	reg [0:0] wen_ram_0_reg;
+	wire [31:0] rdata_ram_0;
+	register #(.WIDTH(32)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
+
 	add call_18();
 
 	add call_6();
@@ -41,13 +48,6 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	add bitcast_1();
 
 	add call_2();
-
-	reg [31:0] raddr_ram_0_reg;
-	reg [31:0] waddr_ram_0_reg;
-	reg [31:0] wdata_ram_0_reg;
-	reg [0:0] wen_ram_0_reg;
-	wire [31:0] rdata_ram_0;
-	register #(.WIDTH(32)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
 
 	br_dummy br_unit();
 
