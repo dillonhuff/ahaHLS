@@ -3003,14 +3003,12 @@ namespace ahaHLS {
           {"s_axil_wvalid", 0},
             {"s_axil_wstrb", (1 << 5) - 1},          
               {"s_axil_rready", 1},
-                {"s_axil_bready", 1},
-                  {"s_axil_awaddr", 0},
-                    {"s_axil_araddr", 0}};
+                {"s_axil_bready", 1}};
 
     set<string> insensitivePorts{"s_axil_wdata",
-        //"s_axil_awaddr",
+        "s_axil_awaddr",
         "s_axil_awprot",
-        //"s_axil_araddr",
+        "s_axil_araddr",
         "s_axil_arprot"};
     
     ModuleSpec mSpec = {modParams, "axil_ram", ports, defaults, insensitivePorts};
