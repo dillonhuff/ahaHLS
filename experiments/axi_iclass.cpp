@@ -40,16 +40,35 @@ class axi_ram {
   input_3 s_axi_awsize;
   input_2 s_axi_awburst;
   input_8 s_axi_awlen;
-  input_32 s_axi_awaddr;
 
+  input_16 s_axi_araddr;
+  input_1 s_axi_arvalid;
+  output_1 s_axi_arready;
+  input_3 s_axi_arsize;
+  input_2 s_axi_arburst;
+  input_8 s_axi_arlen;
+  
   output_1 s_axi_rvalid;
   input_1 s_axi_rready;
   output_32 s_axi_rdata;
+
+  void start_read_burst(bit_3& arsize,
+                        bit_2& arburst,
+                        bit_8& arlen,
+                        bit_16& araddr) {
+    stall(read_port(s_axi_arready));
+
+    write_port(s_axi_arvalid, 1);
+    write_port(s_axi_arsize, arsize);    
+    write_port(s_axi_arburst, arburst);
+    write_port(s_axi_arlen, arlen);
+    write_port(s_axi_araddr, araddr);
+  }
   
-  void start_read_burst(bit_3& awsize,
-                        bit_2& awburst,
-                        bit_8& awlen,
-                        bit_16& awaddr) {
+  void start_write_burst(bit_3& awsize,
+                         bit_2& awburst,
+                         bit_8& awlen,
+                         bit_16& awaddr) {
     stall(read_port(s_axi_awready));
 
     write_port(s_axi_awvalid, 1);
@@ -70,7 +89,6 @@ class axi_ram {
     add_constraint(end(set_ready) + 1 == start(ret));
   }
 
-  
 
 };
 
