@@ -1911,11 +1911,11 @@ namespace ahaHLS {
             emitStalledOutput(out, port, stallConds, portValue, portController);
 
             if (i == (numAssigns - 1)) {
-              if (hasDefault) {
+              //if (hasDefault) {
                 out << tab(2) << "end else begin" << endl;
-              } else {
-                out << tab(2) << "end" << endl;
-              }
+              // } else {
+              //   out << tab(2) << "end" << endl;
+              // }
             } else {
               out << tab(2) << "end else ";
             }
@@ -1926,11 +1926,11 @@ namespace ahaHLS {
 
             emitStalledOutput(out, port, stallConds, portValue, portController);      
 
-            if (hasDefault) {
+            //if (hasDefault) {
               out << tab(2) << "end else begin" << endl;
-            } else {
-              out << tab(2) << "end" << endl;
-            }
+            // } else {
+            //   out << tab(2) << "end" << endl;
+            // }
           
           } else {
 
@@ -1948,6 +1948,10 @@ namespace ahaHLS {
         if (portController.hasDefault(port)) {
           out << tab(3) << port << " = " << portController.defaultValue(port) << ";" << endl;
           out << tab(2) << "end" << endl;
+        } else {
+          out << tab(3) << port << " = " << "0" << ";" << endl;
+          out << tab(2) << "end" << endl;
+          
         }
 
         out << tab(1) << "end" << endl;
