@@ -146,3 +146,6 @@ test/ll_files/ip_counter_sw.cpp
 axi_burst_multi*
 axi_read_burst_func*
 *.bc
+axi_write_burst*
+fadd*
+run_median_func.v
