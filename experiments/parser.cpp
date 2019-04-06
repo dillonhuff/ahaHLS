@@ -2394,13 +2394,27 @@ public:
 
       if (IntegerType::classof(lBaseType) &&
           IntegerType::classof(rBaseType)) {
-        
-      }
+        if (l->getType() != r->getType()) {
+          int lWidth = getTypeBitWidth(lBaseType);
+          int rWidth = getTypeBitWidth(rBaseType);
 
-      assert(l->getType() == r->getType());
+          if (lWidth < rWidth) {
+            l = bd.CreateSExt(l, rBaseType);
+          } else {
+            assert(lWidth > rWidth);
+            r = bd.CreateSExt(r, lBaseType);         
+          }
+        }
+      } else {
+        assert(l->getType() == r->getType());
+      }
 
       if (be->op.getStr() == "+") {
         return bd.CreateAdd(l, r);
+      } else if (be->op.getStr() == "<") {
+        return bd.CreateICmpSLT(l, r);
+      } else if (be->op.getStr() == "*") {
+        return bd.CreateMul(l, r);        
       } else {
         cout << "Error: Unsupported binop: " << be->op << endl;
         assert(false);
