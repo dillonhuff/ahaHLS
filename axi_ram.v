@@ -187,6 +187,11 @@ initial begin
     end
 end
 
+   always @(posedge write_state_next or negedge write_state_next) begin
+      $display("next write = %d", write_state_next);
+      
+   end
+
 always @* begin
     write_state_next = WRITE_STATE_IDLE;
 
@@ -253,8 +258,13 @@ always @* begin
                 end
                 write_count_next = write_count_reg - 1;
                 s_axi_wready_next = 1'b1;
+
+               $display("write_count_reg = %d", write_count_reg);
+               
                 if (write_count_reg > 0) begin
                     write_addr_valid_next = 1'b1;
+
+                   $display("write burst again, count = %d", write_count_reg);     
                     write_state_next = WRITE_STATE_BURST;
                 end else begin
                     write_addr_valid_next = 1'b0;
@@ -263,9 +273,14 @@ always @* begin
                     s_axi_bid_next = write_id_reg;
                     s_axi_bresp_next = 2'b00;
                     s_axi_bvalid_next = 1'b1;
+
+                   $display("write now idle");
+                   
                     write_state_next = WRITE_STATE_IDLE;
                 end
-            end else begin
+            end else begin // if (write_addr_ready)
+
+               $display("write addr not ready, awvalid = %d, awready = %d", s_axi_awvalid, s_axi_awready);
                 write_state_next = WRITE_STATE_BURST;
             end
         end
@@ -280,6 +295,8 @@ always @(posedge clk) begin
         s_axi_wready_reg <= 1'b0;
         s_axi_bvalid_reg <= 1'b0;
     end else begin
+       $display("write_state_next = %d", write_state_next);
+       
         write_state_reg <= write_state_next;
         write_addr_valid_reg <= write_addr_valid_next;
         s_axi_awready_reg <= s_axi_awready_next;
