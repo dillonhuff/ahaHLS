@@ -3330,20 +3330,13 @@ int main() {
     map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
 
     tb.setArgPort(result, "read_valid", 20, "1");
-    tb.setArgPort(result, "read_valid", 21, "1");
-    tb.setArgPort(result, "read_valid", 22, "1");
-    //tb.setArgPort(result, "read_valid", 23, "1");
-    tb.setArgPort(result, "read_valid", 23, "0");
-    tb.setArgPort(result, "read_valid", 24, "0");
+    tb.setArgPort(result, "read_valid", 21, "0");
 
     map_insert(tb.actionsOnCycles, 21, assertString("arg_0_out_data === (34)"));
-    map_insert(tb.actionsOnCycles, 22, assertString("arg_0_out_data === (8)"));      
-    //map_insert(tb.actionsOnCycles, 23, assertString("arg_0_out_data === (12)"));
-    // Check valid ?
 
-    tb.actionOnCondition("1", "$display(\"arg_0_in_data = %d\", arg_0_in_data);");    
-    tb.actionOnCondition("1", "$display(\"arg_0_out_data = %d\", arg_0_out_data);");
-    tb.actionOnCondition("1", "$display(\"arg_1_s_axi_rdata = %d\", arg_1_s_axi_rdata);");
+    // tb.actionOnCondition("1", "$display(\"arg_0_in_data = %d\", arg_0_in_data);");    
+    // tb.actionOnCondition("1", "$display(\"arg_0_out_data = %d\", arg_0_out_data);");
+    // tb.actionOnCondition("1", "$display(\"arg_1_s_axi_rdata = %d\", arg_1_s_axi_rdata);");
     
     emitVerilogTestBench(tb, arch, testLayout);
 

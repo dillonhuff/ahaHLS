@@ -103,14 +103,31 @@ class axi_ram {
     add_constraint(start(read_data) == start(ret));    
   }
 
-  void write_next_beat(bit_32& data) {
+  void write_next_beat(bit_32& data, bit_4& strobe) {
   stall_valid_nb: stall(read_port(s_axi_wready));
   set_wvalid_nb: write_port(s_axi_wvalid, 1);
 
     add_constraint(end(stall_valid_nb) < start(set_wvalid_nb));
 
   set_data_nb: write_port(s_axi_wdata, data);
-  set_strb_nb: write_port(s_axi_wstrb, 31);
+  set_strb_nb: write_port(s_axi_wstrb, strobe);
+
+    add_constraint(start(set_wvalid_nb) == start(set_data_nb));
+    add_constraint(start(set_wvalid_nb) == start(set_strb_nb));
+
+  ret_nb: return;
+
+    add_constraint(end(set_wvalid_nb) + 1 == start(ret_nb));
+  }
+
+  void finish_write_burst() {
+  stall_valid_nb: stall(read_port(s_axi_wready));
+  set_wvalid_nb: write_port(s_axi_wvalid, 1);
+
+    add_constraint(end(stall_valid_nb) < start(set_wvalid_nb));
+
+  set_data_nb: write_port(s_axi_wdata, 0);
+  set_strb_nb: write_port(s_axi_wstrb, 0);
 
     add_constraint(start(set_wvalid_nb) == start(set_data_nb));
     add_constraint(start(set_wvalid_nb) == start(set_strb_nb));
@@ -146,14 +163,15 @@ void axi_read_burst_func(fifo& result,
 
   // Write burst
   ram.start_write_burst(5, 1, 1, 12);
-  ram.write_next_beat(34);  
+  ram.write_next_beat(34, 31);
+  ram.finish_write_burst();
   //ram.write_next_beat(8);
   //ram.write_next_beat(12);
   // ram.write_next_beat(89);    
 
   // Read the burst back
-  //ram.start_read_burst(5, 1, 1, 12);
-  //result.write_fifo(ram.read_next_beat());
+  ram.start_read_burst(5, 1, 1, 12);
+  result.write_fifo(ram.read_next_beat());
   //result.write_fifo(ram.read_next_beat());
   //result.write_fifo(ram.read_next_beat());
 }

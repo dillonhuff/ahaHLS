@@ -167,13 +167,13 @@ assign s_axi_rresp = PIPELINE_OUTPUT ? s_axi_rresp_pipe_reg : s_axi_rresp_reg;
 assign s_axi_rlast = PIPELINE_OUTPUT ? s_axi_rlast_pipe_reg : s_axi_rlast_reg;
 assign s_axi_rvalid = PIPELINE_OUTPUT ? s_axi_rvalid_pipe_reg : s_axi_rvalid_reg;
 
-   always @(posedge clk) begin
-      $display("write state = %d", write_state_reg);
-   end
+   // always @(posedge clk) begin
+   //    $display("write state = %d", write_state_reg);
+   // end
 
-   always @(posedge clk) begin
-      $display("read state  = %d", read_state_reg);
-   end
+   // always @(posedge clk) begin
+   //    $display("read state  = %d", read_state_reg);
+   // end
    
 integer i, j;
 
@@ -294,7 +294,7 @@ always @(posedge clk) begin
         s_axi_wready_reg <= 1'b0;
         s_axi_bvalid_reg <= 1'b0;
     end else begin
-       $display("write_state_next = %d", write_state_next);
+       //$display("write_state_next = %d", write_state_next);
        
         write_state_reg <= write_state_next;
         write_addr_valid_reg <= write_addr_valid_next;
