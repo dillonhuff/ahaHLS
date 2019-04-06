@@ -59,8 +59,9 @@ class axi_ram {
 
   void defaults() {
     write_port(s_axi_awvalid, 0);
+    write_port(s_axi_wvalid, 0);    
     write_port(s_axi_arvalid, 0);
-    write_port(s_axi_rready, 0);        
+    write_port(s_axi_rready, 0);
   }
 
   void start_read_burst(bit_3& arsize,
