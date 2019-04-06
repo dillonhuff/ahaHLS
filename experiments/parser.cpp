@@ -2384,9 +2384,19 @@ public:
 
       cout << "left     = " << valueString(l) << endl;
       cout << "left tp  = " << typeString(l->getType()) << endl;
+      cout << "rght tp  = " << typeString(r->getType()) << endl;
 
       assert(!PointerType::classof(l->getType()));
       assert(!PointerType::classof(r->getType()));
+
+      auto lBaseType = l->getType();
+      auto rBaseType = r->getType();
+
+      if (IntegerType::classof(lBaseType) &&
+          IntegerType::classof(rBaseType)) {
+        
+      }
+
       assert(l->getType() == r->getType());
 
       if (be->op.getStr() == "+") {
