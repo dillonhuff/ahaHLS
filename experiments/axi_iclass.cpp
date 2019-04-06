@@ -25,9 +25,11 @@ class fifo {
   stall_ready: stall(read_port(write_ready));
   set_valid: write_port(write_valid, 1);
   set_data: write_port(in_data, data);
+  ret: return;
 
     add_constraint(end(stall_ready) < start(set_valid));
-    add_constraint(start(set_valid) == start(ret));
+    add_constraint(start(set_valid) == start(set_data));
+    add_constraint(end(set_data) + 1 == start(ret));
   }
 
 };
@@ -127,7 +129,8 @@ void axi_read_burst_func(fifo& result,
   ram.start_write_burst(5, 1, 3, 12);
   ram.write_next_beat(34);  
   ram.write_next_beat(8);
-  ram.write_next_beat(12);  
+  ram.write_next_beat(12);
+  ram.write_next_beat(89);    
 
   // Read the burst back
   ram.start_read_burst(5, 1, 3, 12);

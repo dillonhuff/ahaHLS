@@ -3312,15 +3312,26 @@ int main() {
     map<llvm::Value*, int> layout = {};
 
     TestBenchSpec tb;
+
+
+    auto result =
+      sc<Argument>(getArg(scppMod.getFunction("axi_read_burst_func")->llvmFunction(),
+                          0));
     map<string, int> testLayout = {};
-    tb.memoryInit = {};
-    tb.memoryExpected = {};
     tb.runCycles = 30;
     tb.maxCycles = 60; // No
     tb.name = "axi_read_burst_func";
     tb.useModSpecs = true;
+    tb.settablePort(result, "read_valid");
+
+    tb.setArgPort(result, "read_valid", 0, "0");    
     map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
-    
+
+    tb.setArgPort(result, "read_valid", 20, "1");
+    tb.setArgPort(result, "read_valid", 21, "1");
+    tb.actionOnCondition("1", "$display(\"arg_0_out_data = %d\", arg_0_out_data);");
+    //map_insert(tb.actionsOnCycles, 21, assertString("arg_0_out_data === 34"));
+
     emitVerilogTestBench(tb, arch, testLayout);
 
     assert(runIVerilogTest("axi_read_burst_func_tb.v", "axi_read_burst_func", " builtins.v axi_read_burst_func.v RAM.v delay.v ram_primitives.v axi_ram.v"));
