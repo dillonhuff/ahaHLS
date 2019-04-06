@@ -430,7 +430,7 @@ always @(posedge clk) begin
     s_axi_rlast_reg <= s_axi_rlast_next;
 
     if (mem_rd_en) begin
-       $display("reading %d from addr %d", mem[read_addr_valid], read_addr_valid);
+       $display("reading from axi %d from addr %d", mem[read_addr_valid], read_addr_valid);
        
         s_axi_rdata_reg <= mem[read_addr_valid];
     end

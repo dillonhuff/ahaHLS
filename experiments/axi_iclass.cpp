@@ -158,6 +158,23 @@ class axi_ram {
 
 };
 
+void axi_burst_multi(fifo& result,
+                     axi_ram& ram) {
+  ram.start_write_burst(5, 1, 4, 17);
+  ram.write_next_beat(1, 31);
+  ram.write_next_beat(2, 31);
+  ram.write_next_beat(3, 31);
+  ram.write_next_beat(4, 31);      
+  ram.finish_write_burst();
+
+  // Read the burst back
+  ram.start_read_burst(5, 1, 4, 17);
+  result.write_fifo(ram.read_next_beat());
+  result.write_fifo(ram.read_next_beat());
+  result.write_fifo(ram.read_next_beat());
+  result.write_fifo(ram.read_next_beat());  
+}
+
 void axi_read_burst_func(fifo& result,
                          axi_ram& ram) {
 
@@ -165,13 +182,9 @@ void axi_read_burst_func(fifo& result,
   ram.start_write_burst(5, 1, 1, 12);
   ram.write_next_beat(34, 31);
   ram.finish_write_burst();
-  //ram.write_next_beat(8);
-  //ram.write_next_beat(12);
-  // ram.write_next_beat(89);    
 
   // Read the burst back
   ram.start_read_burst(5, 1, 1, 12);
   result.write_fifo(ram.read_next_beat());
-  //result.write_fifo(ram.read_next_beat());
-  //result.write_fifo(ram.read_next_beat());
 }
+
