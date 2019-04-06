@@ -15,10 +15,14 @@ class fifo {
   bit_32 read_fifo() {
   stall_ready: stall(read_port(read_ready));
   set_valid: write_port(read_valid, 1);
-  ret: return read_port(out_data);
+
+    bit_32 out_val;
+  set_out_rf: out_val = read_port(out_data);
+  ret: return out_val;
 
     add_constraint(end(stall_ready) < start(set_valid));
-    add_constraint(start(set_valid) == start(ret));
+    add_constraint(end(set_valid) + 1 == start(ret));
+    add_constraint(start(set_out_rf) == start(ret));    
   }
 
   void write_fifo(bit_32& data) {
