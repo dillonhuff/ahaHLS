@@ -145,3 +145,4 @@ test/ll_files/ip_counter.cpp
 test/ll_files/ip_counter_sw.cpp
 axi_burst_multi*
 axi_read_burst_func*
+*.bc
