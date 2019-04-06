@@ -188,7 +188,8 @@ void axi_read_burst_func(fifo& result,
   result.write_fifo(ram.read_next_beat());
 }
 
-void axi_write_burst(fifo& inputs,
+void axi_write_burst(fifo& results,
+                     fifo& inputs,
                      bit_8& burst_size,
                      bit_16& start_loc,
                      axi_ram& ram) {

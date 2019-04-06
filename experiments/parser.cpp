@@ -3374,6 +3374,59 @@ int main() {
 
       assert(runIVerilogTest("axi_burst_multi_tb.v", "axi_burst_multi", " builtins.v axi_burst_multi.v RAM.v delay.v ram_primitives.v axi_ram.v"));
     }
+
+    {
+      SynthCppModule scppMod(parseMod);
+      auto arch = synthesizeVerilog(scppMod, "axi_write_burst");
+
+      map<llvm::Value*, int> layout = {};
+      TestBenchSpec tb;
+      auto result =
+        sc<Argument>(getArg(scppMod.getFunction("axi_write_burst")->llvmFunction(),
+                            0));
+      auto input =
+        sc<Argument>(getArg(scppMod.getFunction("axi_write_burst")->llvmFunction(),
+                            1));
+
+      map<string, int> testLayout = {};
+      tb.runCycles = 50;
+      tb.maxCycles = 60; // No
+      tb.name = "axi_write_burst";
+      tb.useModSpecs = true;
+      tb.settablePort(input, "write_valid");
+      tb.settablePort(input, "in_data");            
+      tb.settablePort(result, "read_valid");
+
+      tb.setArgPort(result, "read_valid", 0, "0");
+      map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+      map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
+      map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+
+      int setStartCycle = 5;
+      int burstSize = 5;
+      int burstAddr = 34;
+      for (int i = 0; i < burstSize; i++) {
+        tb.setArgPort(input, "write_valid", setStartCycle + i, "1");
+        tb.setArgPort(input, "in_data", setStartCycle + i, to_string(i));
+      }
+      tb.setArgPort(input, "write_valid", setStartCycle + burstSize, "0");
+      
+      int checkStart = 40;
+      tb.setArgPort(result, "read_valid", checkStart, "1");
+      tb.setArgPort(result, "read_valid", checkStart + 1, "1");
+      tb.setArgPort(result, "read_valid", checkStart + 2, "1");
+      tb.setArgPort(result, "read_valid", checkStart + 3, "1");
+      tb.setArgPort(result, "read_valid", checkStart + 4, "0");      
+
+      map_insert(tb.actionsOnCycles, checkStart + 1, assertString("arg_0_out_data === (1)"));
+      map_insert(tb.actionsOnCycles, checkStart + 2, assertString("arg_0_out_data === (2)"));
+      map_insert(tb.actionsOnCycles, checkStart + 3, assertString("arg_0_out_data === (3)"));
+      map_insert(tb.actionsOnCycles, checkStart + 4, assertString("arg_0_out_data === (4)")); 
+
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      assert(runIVerilogTest("axi_write_burst_tb.v", "axi_write_burst", " builtins.v axi_write_burst.v RAM.v delay.v ram_primitives.v axi_ram.v"));
+    }
     
   }
       

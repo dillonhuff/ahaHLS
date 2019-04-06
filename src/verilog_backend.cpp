@@ -2018,11 +2018,11 @@ namespace ahaHLS {
 
           }
 
-          cout << "Unit modspec = " << unit.module << endl;
+          //cout << "Unit modspec = " << unit.module << endl;
           for (auto insensitivePort : unit.module.insensitivePorts) {
             string ptName = unit.inputWire(insensitivePort);
             //map_find(name, unit.portWires).name;
-            cout << ptName << " is insensitive" << endl;
+            //cout << ptName << " is insensitive" << endl;
             portController.insensitivePorts[ptName] = true;
           }
 
