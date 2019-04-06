@@ -55,6 +55,13 @@ class axi_ram {
   output_1 s_axi_wready;
   input_1 s_axi_wvalid;
   input_32 s_axi_wdata;
+  input_4 s_axi_wstrb;
+
+  void defaults() {
+    write_port(s_axi_awvalid, 0);
+    write_port(s_axi_arvalid, 0);
+    write_port(s_axi_rready, 0);        
+  }
 
   void start_read_burst(bit_3& arsize,
                         bit_2& arburst,
@@ -100,6 +107,7 @@ class axi_ram {
     add_constraint(end(stall_valid) < start(set_ready));
 
   set_data: write_port(s_axi_wdata, data);
+  set_strb: write_port(s_axi_wstrb, 31);
 
     add_constraint(start(set_ready) == start(set_data));
   }

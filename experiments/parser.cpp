@@ -3308,6 +3308,23 @@ int main() {
 
     SynthCppModule scppMod(parseMod);
     auto arch = synthesizeVerilog(scppMod, "axi_read_burst_func");
+
+    map<llvm::Value*, int> layout = {};
+
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 30;
+    tb.maxCycles = 100;
+    tb.name = "axi_read_burst_func";
+    tb.useModSpecs = true;
+    map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+    
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    assert(runIVerilogTest("axi_read_burst_func_tb.v", "axi_read_burst_func", " builtins.v axi_read_burst_func.v RAM.v delay.v ram_primitives.v axi_ram.v"));
+    
   }
       
   {
