@@ -3589,7 +3589,17 @@ int main() {
 
       assert(runIVerilogTest("axi_write_burst_tb.v", "axi_write_burst", " builtins.v axi_write_burst.v RAM.v delay.v ram_primitives.v axi_ram.v"));
     }
-    
+
+    {
+      SynthCppModule scppMod(parseMod);
+      auto arch = synthesizeVerilog(scppMod, "axi_wb");
+    }    
+
+    {
+      SynthCppModule scppMod(parseMod);
+      auto arch = synthesizeVerilog(scppMod, "axi_rb");
+    }    
+
   }
       
   {
