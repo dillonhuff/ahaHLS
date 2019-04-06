@@ -15,11 +15,21 @@ class fifo {
   bit_32 read_fifo() {
   stall_ready: stall(read_port(read_ready));
   set_valid: write_port(read_valid, 1);
-  ret: return read_port(in_data);
+  ret: return read_port(out_data);
 
     add_constraint(end(stall_ready) < start(set_valid));
     add_constraint(start(set_valid) == start(ret));
   }
+
+  void write_fifo(bit_32& data) {
+  stall_ready: stall(read_port(write_ready));
+  set_valid: write_port(write_valid, 1);
+  set_data: write_port(in_data, data);
+
+    add_constraint(end(stall_ready) < start(set_valid));
+    add_constraint(start(set_valid) == start(ret));
+  }
+
 };
 
 class axi_ram {
@@ -43,6 +53,7 @@ class axi_ram {
     stall(read_port(s_axi_awready));
 
     write_port(s_axi_awvalid, 1);
+    write_port(s_axi_awsize, awsize);    
     write_port(s_axi_awburst, awburst);
     write_port(s_axi_awlen, awlen);
     write_port(s_axi_awaddr, awaddr);
@@ -63,6 +74,11 @@ class axi_ram {
 
 };
 
-void axi_read_burst_func() {
-  
+void axi_read_burst_func(fifo& result,
+                         axi_ram& ram) {
+  ram.start_read_burst(3, 1, 5, 12);
+
+  result.write_fifo(ram.read_next_beat());
+  result.write_fifo(ram.read_next_beat());
+  result.write_fifo(ram.read_next_beat());
 }
