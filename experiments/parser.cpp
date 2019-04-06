@@ -3297,6 +3297,20 @@ int main() {
   cout << "Done with statement tests" << endl;
 
   {
+    ifstream t("./experiments/axi_iclass.cpp");
+    std::string str((std::istreambuf_iterator<char>(t)),
+                    std::istreambuf_iterator<char>());
+
+    auto tokens = tokenize(str);
+    ParserModule parseMod = parse(tokens);
+
+    cout << parseMod << endl;
+
+    SynthCppModule scppMod(parseMod);
+    auto arch = synthesizeVerilog(scppMod, "axi_read_burst_func");
+  }
+      
+  {
     ifstream t("./experiments/register_iclass.cpp");
     std::string str((std::istreambuf_iterator<char>(t)),
                     std::istreambuf_iterator<char>());
@@ -3434,21 +3448,6 @@ int main() {
     {
       SynthCppModule scppMod(mod);    
       auto arch = synthesizeVerilog(scppMod, "write_header_func");
-
-      // llvm::legacy::PassManager pm;
-      // pm.add(new LoopInfoWrapperPass());
-      // pm.add(new AAResultsWrapperPass());
-      // pm.add(new TargetLibraryInfoWrapperPass());
-      // pm.add(createGVNPass());
-      // pm.add(createDeadStoreEliminationPass());
-      // cout << "Before GVN pass" << endl;
-      // cout << valueString(scppMod.getFunction("write_header_func")->llvmFunction()) << endl;
-      
-      // pm.run(*(scppMod.mod.get()));
-
-      // cout << "After GVN" << endl;
-      // cout << valueString(scppMod.getFunction("write_header_func")->llvmFunction()) << endl;
-      
     }
 
     {

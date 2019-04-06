@@ -26,7 +26,7 @@ module fifo_read_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_0();
+	add call_1();
 
 	// End Functional Units
 
@@ -129,9 +129,6 @@ module fifo_read_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_
 	// Start pipeline stages
 	// End pipeline instruction code
 
-	// Insensitive connections
-	always @(*) begin
-	end
 	// controller for arg_0.arg_0_read_valid_reg
 	always @(*) begin
 		if ((global_state == 1)) begin 
@@ -149,6 +146,9 @@ module fifo_read_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_
 		end else begin
 			arg_0_read_valid_reg = 0;
 		end
+	end
+	// Insensitive connections
+	always @(*) begin
 	end
 	// Insensitive connections
 	always @(*) begin
