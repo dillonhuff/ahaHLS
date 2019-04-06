@@ -196,7 +196,7 @@ void axi_wb(fifo& inputs,
             bit_8& burst_size,
             bit_16& start_loc,
             axi_ram& ram) {
-  bit_32 burst_no;
+  bit_8 burst_no;
   burst_no = 0;
 
   ram.start_write_burst(5, 1, burst_size, start_loc);
@@ -211,7 +211,7 @@ void axi_rb(fifo& results,
             bit_8& burst_size,
             bit_16& start_loc,
             axi_ram& ram) {
-  bit_32 read_burst_no;
+  bit_8 read_burst_no;
   read_burst_no = 0;
 
   ram.start_read_burst(5, 1, burst_size, start_loc);

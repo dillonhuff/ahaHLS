@@ -597,6 +597,16 @@ namespace ahaHLS {
       }
       outWires = {};
           
+    } else if (TruncInst::classof(instr)) {
+      modName = "trunc";
+
+      int inWidth = getValueBitWidth(instr->getOperand(0));
+      int outWidth = getValueBitWidth(instr);
+
+      modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}};
+      wiring = {{"in", {true, inWidth, "trunc_in_" + rStr}}};
+      outWires = {{"out", {false, outWidth, "trunc_out_" + rStr}}};
+      
     } else if (CmpInst::classof(instr)) {
       CmpInst::Predicate pred = dyn_cast<CmpInst>(instr)->getPredicate();
       modName = cmpName(pred);
@@ -1203,6 +1213,13 @@ namespace ahaHLS {
       if (contains_key(string("ren"), addUnit.portWires)) {
         assignments.insert({addUnit.inputWire("ren"), "1"});
       }
+
+    } else if (TruncInst::classof(instr)) {
+
+      auto arg0 = instr->getOperand(0);
+      auto arg0Name = outputName(arg0, pos, arch);
+
+      assignments.insert({addUnit.portWires["in"].name, arg0Name});
 
     } else if (BinaryOperator::classof(instr) ||
                CmpInst::classof(instr)) {

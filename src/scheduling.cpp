@@ -161,6 +161,8 @@ namespace ahaHLS {
       return BR_OP;
     } else if (PHINode::classof(iptr)) {
       return PHI_OP;
+    } else if (TruncInst::classof(iptr)) {
+      return TRUNC_OP;
     } else if (BinaryOperator::classof(iptr)) {
       auto opCode = iptr->getOpcode();
       if (opCode == Instruction::Add) {
@@ -238,6 +240,8 @@ namespace ahaHLS {
       latency = getLatency(BR_OP);
     } else if (PHINode::classof(iptr)) {
       // Phi instructions are just wiring
+      latency = 0;
+    } else if (TruncInst::classof(iptr)) {
       latency = 0;
     } else if (BinaryOperator::classof(iptr)) {
       auto opCode = iptr->getOpcode();

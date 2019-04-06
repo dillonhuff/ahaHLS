@@ -2104,6 +2104,23 @@ public:
     cgs.builder().CreateCall(mkFunc({receiver->getType(), source->getType()}, voidType(), "copy_" + typeString(receiver->getType())), {receiver, source});
   }
 
+  llvm::Value* bvCastTo(Value* value, Type* const destTp) {
+    int vWidth = getTypeBitWidth(value->getType());
+    int rWidth = getTypeBitWidth(destTp);
+
+    if (vWidth == rWidth) {
+      return value;
+    }
+
+    if (vWidth < rWidth) {
+      return cgs.builder().CreateSExt(value, destTp);
+    }
+
+    assert(vWidth > rWidth);
+    
+    return cgs.builder().CreateTrunc(value, destTp);
+  }
+  
   // argNum could be 1 if the function being synthesized is actually a
   // method
   void setArgumentSymbols(IRBuilder<>& b,
@@ -2748,9 +2765,22 @@ public:
     cout << "rType = " << typeString(rType) << endl;
     cout << "vType = " << typeString(vType) << endl;
 
-    assert(rType == vType->getPointerTo());
+    if (rType == vType->getPointerTo()) {
+      bd.CreateStore(value, receiver);
+    } else {
+      assert(PointerType::classof(rType));
+      auto underlying = dyn_cast<PointerType>(rType)->getElementType();
+      if (isData(underlying) &&
+          isData(vType)) {
 
-    bd.CreateStore(value, receiver);
+        auto valueCast = bvCastTo(value, underlying);
+        assert(rType == valueCast->getType()->getPointerTo());
+        bd.CreateStore(valueCast, receiver);
+      } else {
+        cout << "Error: Incompatible types in assignment, receiver "
+             << valueString(receiver) << ", value " << valueString(value) << endl;
+      }
+    }
   }
 
   void genLLVM(DoWhileLoop* stmt) {

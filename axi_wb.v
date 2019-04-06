@@ -68,42 +68,46 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 	// End debug wires and ports
 
 	// Start Functional Units
+	reg [15:0] phi_in_phi_11;
+	reg [31:0] phi_last_block_phi_11;
+	reg [63:0] phi_s_phi_11;
+	wire [31:0] phi_out_phi_11;
+	phi #(.NB_PAIR(2), .WIDTH(8)) phi_11(.in(phi_in_phi_11), .last_block(phi_last_block_phi_11), .out(phi_out_phi_11), .s(phi_s_phi_11));
+
 	br_dummy br_unit();
 
-	reg [31:0] add_in0_add_11;
-	reg [31:0] add_in1_add_11;
-	wire [31:0] add_out_add_11;
-	add #(.WIDTH(32)) add_add_11(.in0(add_in0_add_11), .in1(add_in1_add_11), .out(add_out_add_11));
+	reg [31:0] sgt_in0_sext_12;
+	wire [63:0] sgt_out_sext_12;
+	sext sext_12(.in(sgt_in0_sext_12), .out(sgt_out_sext_12));
 
-	reg [31:0] sgt_in0_sext_22;
-	wire [63:0] sgt_out_sext_22;
-	sext sext_22(.in(sgt_in0_sext_22), .out(sgt_out_sext_22));
+	reg [31:0] add_in0_add_13;
+	reg [31:0] add_in1_add_13;
+	wire [31:0] add_out_add_13;
+	add #(.WIDTH(32)) add_add_13(.in0(add_in0_add_13), .in1(add_in1_add_13), .out(add_out_add_13));
 
-	reg [31:0] cmp_in0_icmp_23;
-	reg [31:0] cmp_in1_icmp_23;
-	wire [0:0] cmp_out_icmp_23;
-	slt #(.WIDTH(32)) icmp_23(.in0(cmp_in0_icmp_23), .in1(cmp_in1_icmp_23), .out(cmp_out_icmp_23));
+	reg [7:0] cmp_in0_icmp_24;
+	reg [7:0] cmp_in1_icmp_24;
+	wire [0:0] cmp_out_icmp_24;
+	slt #(.WIDTH(8)) icmp_24(.in0(cmp_in0_icmp_24), .in1(cmp_in1_icmp_24), .out(cmp_out_icmp_24));
+
+	reg [31:0] trunc_in_trunc_14;
+	wire [7:0] trunc_out_trunc_14;
+	trunc #(.IN_WIDTH(32), .OUT_WIDTH(8)) trunc_14(.in(trunc_in_trunc_14), .out(trunc_out_trunc_14));
 
 	add call_5();
 
-	add call_13();
+	add call_16();
 
-	add call_18();
+	add call_20();
 
-	reg [63:0] phi_in_phi_14;
-	reg [31:0] phi_last_block_phi_14;
-	reg [63:0] phi_s_phi_14;
-	wire [31:0] phi_out_phi_14;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_14(.in(phi_in_phi_14), .last_block(phi_last_block_phi_14), .out(phi_out_phi_14), .s(phi_s_phi_14));
-
-	add call_26();
+	add call_27();
 
 	// End Functional Units
 
 	// Start instruction result storage
 	reg [7:0] load_tmp_0;
-	reg [31:0] call_tmp_6;
-	reg [31:0] add_tmp_3;
+	reg [7:0] trunc_tmp_6;
+	reg [31:0] call_tmp_8;
 	// End instruction result storage
 
 	// Start pipeline variables
@@ -224,12 +228,12 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 			end
 			if ((global_state == 6)) begin 
 				// Next state transition logic
-				// Condition = (  %9 = icmp slt i32 %7, %8)
-				if ((cmp_out_icmp_23)) begin
+				// Condition = (  %10 = icmp slt i8 %9, %0)
+				if ((cmp_out_icmp_24)) begin
 					global_state <= 1;
 				end
-				// Condition = (!(  %9 = icmp slt i32 %7, %8))
-				if (!(cmp_out_icmp_23)) begin
+				// Condition = (!(  %10 = icmp slt i8 %9, %0))
+				if (!(cmp_out_icmp_24)) begin
 					global_state <= 7;
 				end
 			end
@@ -272,7 +276,7 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 				// Temporary storage
 				if (arg_0_read_ready) begin
 				// Store data computed at the stage
-					add_tmp_3 <= add_out_add_11;
+					trunc_tmp_6 <= trunc_out_trunc_14;
 				end
 			end
 			if ((global_state == 2)) begin 
@@ -282,7 +286,7 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 			if ((global_state == 3)) begin 
 				// Temporary storage
 				// Store data computed at the stage
-					call_tmp_6 <= arg_0_out_data;
+					call_tmp_8 <= arg_0_out_data;
 			end
 			if ((global_state == 4)) begin 
 				// Temporary storage
@@ -350,7 +354,7 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 	always @(*) begin
 		if ((global_state == 5)) begin 
 			if (1) begin
-				arg_3_s_axi_wdata_reg = call_tmp_6;
+				arg_3_s_axi_wdata_reg = call_tmp_8;
 			end else begin
 				arg_3_s_axi_wdata_reg = 0;
 			end
@@ -412,12 +416,47 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 	// Insensitive connections
 	always @(*) begin
 	end
-	// controller for add_add_11.add_in0_add_11
-	// controller for add_add_11.add_in1_add_11
+	// controller for phi_11.phi_in_phi_11
+	// controller for phi_11.phi_last_block_phi_11
+	// controller for phi_11.phi_s_phi_11
 	// Insensitive connections
 	always @(*) begin
-		add_in0_add_11 = valid ? phi_out_phi_14 : phi_out_phi_14;
-		add_in1_add_11 = valid ? (32'd1) : (32'd1);
+		phi_in_phi_11 = valid ? {trunc_tmp_6, (8'd0)} : {trunc_tmp_6, (8'd0)};
+		phi_last_block_phi_11 = valid ? last_BB_reg : last_BB_reg;
+		phi_s_phi_11 = valid ? {32'd1, 32'd0} : {32'd1, 32'd0};
+	end
+	// controller for sext_12.sgt_in0_sext_12
+	always @(*) begin
+		if ((global_state == 1)) begin 
+			if (arg_0_read_ready) begin
+				sgt_in0_sext_12 = phi_out_phi_11;
+			end else begin
+				sgt_in0_sext_12 = 0;
+			end
+		end
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// controller for add_add_13.add_in0_add_13
+	// controller for add_add_13.add_in1_add_13
+	// Insensitive connections
+	always @(*) begin
+		add_in0_add_13 = valid ? sgt_out_sext_12 : sgt_out_sext_12;
+		add_in1_add_13 = valid ? (32'd1) : (32'd1);
+	end
+	// controller for trunc_14.trunc_in_trunc_14
+	always @(*) begin
+		if ((global_state == 1)) begin 
+			if (arg_0_read_ready) begin
+				trunc_in_trunc_14 = add_out_add_13;
+			end else begin
+				trunc_in_trunc_14 = 0;
+			end
+		end
+	end
+	// Insensitive connections
+	always @(*) begin
 	end
 	// controller for arg_0.arg_0_read_valid_reg
 	always @(*) begin
@@ -437,48 +476,26 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 	// Insensitive connections
 	always @(*) begin
 	end
-	// controller for phi_14.phi_in_phi_14
-	// controller for phi_14.phi_last_block_phi_14
-	// controller for phi_14.phi_s_phi_14
-	// Insensitive connections
-	always @(*) begin
-		phi_in_phi_14 = valid ? {add_tmp_3, (32'd0)} : {add_tmp_3, (32'd0)};
-		phi_last_block_phi_14 = valid ? last_BB_reg : last_BB_reg;
-		phi_s_phi_14 = valid ? {32'd1, 32'd0} : {32'd1, 32'd0};
-	end
 	// Insensitive connections
 	always @(*) begin
 	end
-	// controller for sext_22.sgt_in0_sext_22
+	// controller for icmp_24.cmp_in0_icmp_24
 	always @(*) begin
 		if ((global_state == 6)) begin 
 			if (1) begin
-				sgt_in0_sext_22 = load_tmp_0;
+				cmp_in0_icmp_24 = trunc_tmp_6;
 			end else begin
-				sgt_in0_sext_22 = 0;
+				cmp_in0_icmp_24 = 0;
 			end
 		end
 	end
-	// Insensitive connections
-	always @(*) begin
-	end
-	// controller for icmp_23.cmp_in0_icmp_23
+	// controller for icmp_24.cmp_in1_icmp_24
 	always @(*) begin
 		if ((global_state == 6)) begin 
 			if (1) begin
-				cmp_in0_icmp_23 = add_tmp_3;
+				cmp_in1_icmp_24 = load_tmp_0;
 			end else begin
-				cmp_in0_icmp_23 = 0;
-			end
-		end
-	end
-	// controller for icmp_23.cmp_in1_icmp_23
-	always @(*) begin
-		if ((global_state == 6)) begin 
-			if (1) begin
-				cmp_in1_icmp_23 = sgt_out_sext_22;
-			end else begin
-				cmp_in1_icmp_23 = 0;
+				cmp_in1_icmp_24 = 0;
 			end
 		end
 	end
@@ -488,7 +505,7 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 	// Insensitive connections
 	always @(*) begin
 	end
-	// controller for ret_30.valid_reg
+	// controller for ret_31.valid_reg
 	always @(*) begin
 		if ((global_state == 9)) begin 
 			if (1) begin

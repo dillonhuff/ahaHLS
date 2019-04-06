@@ -22,10 +22,16 @@ endmodule
 module shlOp(input [WIDTH - 1:0]  in0, input [$clog2(WIDTH) - 1 : 0] in1, output [WIDTH - 1:0] out);
 
    parameter WIDTH = 32;
-   always @(*) begin
-      //$display("shl in0 = %d, in1 = %d, result = %d", in0, in1, out);
-   end
    assign out = in0 << in1;
+endmodule
+
+module trunc(input [IN_WIDTH - 1:0]  in, output [OUT_WIDTH - 1:0] out);
+
+   parameter IN_WIDTH = 32;
+   parameter OUT_WIDTH = 32;   
+
+   assign out = in[OUT_WIDTH - 1 : 0];
+   
 endmodule
 
 module add(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [WIDTH - 1:0] out);

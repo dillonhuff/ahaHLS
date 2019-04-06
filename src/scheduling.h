@@ -248,6 +248,7 @@ namespace ahaHLS {
   enum OperationType {
     RETURN_OP,
     PHI_OP,
+    TRUNC_OP,
     STORE_OP,
     LOAD_OP,
     ADD_OP,
@@ -272,6 +273,7 @@ namespace ahaHLS {
     return {
       RETURN_OP,
         PHI_OP,
+        TRUNC_OP,
         STORE_OP,
         LOAD_OP,
         ADD_OP,
