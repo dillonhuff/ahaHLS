@@ -1969,7 +1969,11 @@ public:
   CodeGenState() : activeBlock(nullptr) {}
 
   BasicBlock& getActiveBlock() const { return *activeBlock; }
-  void setActiveBlock(BasicBlock* blk) { activeBlock = blk; }
+  void setActiveBlock(BasicBlock* blk) {
+    activeBlock = blk;
+  }
+
+  IRBuilder<> builder() { return IRBuilder<>(activeBlock); }
 
   void pushClassContext(SynthCppClass* ac) {
     activeClass = ac;
@@ -2078,8 +2082,10 @@ public:
       // - Create internal copy
       symtab[argDecl->name.getStr()] = argDecl->tp;
       if (!SynthCppPointerType::classof(argDecl->tp)) {
-        auto val = b.CreateAlloca(llvmTypeFor(argDecl->tp));
-        b.CreateStore(getArg(f, argNum + argOffset), val);
+        //auto val = b.CreateAlloca(llvmTypeFor(argDecl->tp));
+        auto val = cgs.builder().CreateAlloca(llvmTypeFor(argDecl->tp));
+        //b.CreateStore(getArg(f, argNum + argOffset), val);
+        cgs.builder().CreateStore(getArg(f, argNum + argOffset), val);        
         setValue(argDecl->name, val);
       } else {
         setValue(argDecl->name, getArg(f, argNum + argOffset));
@@ -2565,7 +2571,6 @@ public:
   }
 
   void genLLVM(IRBuilder<>& b, ForStmt* const stmt) {
-    //assert(false);
     auto loopInitTest = mkBB( "for_blk_init_test_" + uniqueNumString(), activeFunction->llvmFunction());
     b.CreateBr(loopInitTest);
     // Actually schedule loop
