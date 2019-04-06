@@ -2163,22 +2163,23 @@ public:
               auto bb = mkBB("entry_block", f);
               cgs.setActiveBlock(bb);
               
-              IRBuilder<> b(bb);
+              //IRBuilder<> b(bb);
 
               bool hasReturn = false; //sf->hasReturnValue();
-              setArgumentSymbols(b, sf->symtab, methodFuncDecl->args, f, 1 + (hasReturn ? 1 : 0));
+              auto bd = cgs.builder();
+              setArgumentSymbols(bd, sf->symtab, methodFuncDecl->args, f, 1 + (hasReturn ? 1 : 0));
             
               for (auto stmt : methodFuncDecl->body) {
                 cout << "Statement" << endl;
                 genLLVM(stmt);
               }
 
-              BasicBlock* activeBlock =
-                &(activeFunction->llvmFunction()->getEntryBlock());
+              BasicBlock* activeBlock = &(cgs.getActiveBlock());
+              //&(activeFunction->llvmFunction()->getEntryBlock());
               if (activeBlock->getTerminator() == nullptr) {
                 cout << "Basic block " << valueString(activeBlock) << "has no terminator" << endl;
               
-                b.CreateRet(nullptr);
+                cgs.builder().CreateRet(nullptr);
               }
 
               cout << "Just generated code for method " << endl;
@@ -2245,10 +2246,11 @@ public:
         auto bb = mkBB("entry_block", f);
         cgs.setActiveBlock(bb);
         
-        IRBuilder<> b(bb);
+        //IRBuilder<> b(bb);
 
         //bool hasReturn = sf->hasReturnValue();
-        setArgumentSymbols(b, sf->symtab, fd->args, f, 0);
+        auto bd = cgs.builder();
+        setArgumentSymbols(bd, sf->symtab, fd->args, f, 0);
 
         // Now need to iterate over all statements in the body creating labels
         // that map to starts and ends of statements
@@ -2261,8 +2263,8 @@ public:
           genLLVM(stmt);
         }
 
-        BasicBlock* activeBlock =
-          &(activeFunction->llvmFunction()->getEntryBlock());
+        BasicBlock* activeBlock = &(cgs.getActiveBlock());
+          //&(activeFunction->llvmFunction()->getEntryBlock());
         if (activeBlock->getTerminator() == nullptr) {
           cout << "Basic block " << valueString(activeBlock) << "has no terminator" << endl;
           cgs.builder().CreateRet(nullptr);
@@ -2604,7 +2606,8 @@ public:
       cout << "Label on assign = " << stmt->label << endl;
 
       // TODO: Remove this hack and replace with something more general
-      BasicBlock* blk = &(activeFunction->llvmFunction()->getEntryBlock());
+      //BasicBlock* blk = &(activeFunction->llvmFunction()->getEntryBlock());
+      BasicBlock* blk = &(cgs.getActiveBlock());
       cout << "Block for label = " << valueString(blk) << endl;
       Instruction* last = &(blk->back());
 
@@ -2630,7 +2633,8 @@ public:
     if (stmt->hasLabel()) {
       Token l = stmt->label;
       cout << "Label on assign = " << stmt->label << endl;
-      BasicBlock* blk = &(activeFunction->llvmFunction()->getEntryBlock());
+      //BasicBlock* blk = &(activeFunction->llvmFunction()->getEntryBlock());
+      BasicBlock* blk = &(cgs.getActiveBlock());
       cout << "Block for label = " << valueString(blk) << endl;
       Instruction* last = &(blk->back());
 
@@ -2659,6 +2663,29 @@ public:
 
   void genLLVM(DoWhileLoop* stmt) {
     cout << "Do while loop" << endl;
+    Expression* test = stmt->test;
+    vector<Statement*> stmts = stmt->body;
+
+    auto lastBlock = cgs.builder();
+    auto loopBlock =
+      mkBB("while_loop_" + uniqueNumString(), activeFunction->llvmFunction());
+    lastBlock.CreateBr(loopBlock);
+
+    cgs.setActiveBlock(loopBlock);
+
+    // Create exit block
+    auto nextBlock =
+      mkBB("after_while_" + uniqueNumString(), activeFunction->llvmFunction());
+
+    for (auto stmt : stmts) {
+      genLLVM(stmt);
+    }
+
+    // End of loop
+    auto exitCond = mkInt(1, 1); //genLLVM(test);
+    cgs.builder().CreateCondBr(exitCond, loopBlock, nextBlock);
+    
+    cgs.setActiveBlock(nextBlock);
   }
   
   void genLLVM(Statement* const stmt) {
@@ -2673,7 +2700,8 @@ public:
       if (stmt->hasLabel()) {
         Token l = stmt->label;
         cout << "Label = " << stmt->label << endl;
-        BasicBlock* blk = &(activeFunction->llvmFunction()->getEntryBlock());
+        //BasicBlock* blk = &(activeFunction->llvmFunction()->getEntryBlock());
+        BasicBlock* blk = &(cgs.getActiveBlock());        
         cout << "Block for label = " << valueString(blk) << endl;
         Instruction* last = &(blk->back());
 
@@ -3725,10 +3753,10 @@ int main() {
     
     SynthCppModule scppMod(mod);
 
-    SynthCppClass* c = scppMod.getClassByName(Token("median"));
-    cout << *c << endl;
+    // SynthCppClass* c = scppMod.getClassByName(Token("median"));
+    // cout << *c << endl;
 
-    auto arch = synthesizeVerilog(scppMod, "run_median_func");
+    // auto arch = synthesizeVerilog(scppMod, "run_median_func");
   }
   
   // Q: What are the new issues?
