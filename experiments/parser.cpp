@@ -3324,7 +3324,9 @@ int main() {
     tb.useModSpecs = true;
     tb.settablePort(result, "read_valid");
 
-    tb.setArgPort(result, "read_valid", 0, "0");    
+    tb.setArgPort(result, "read_valid", 0, "0");
+    map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+    map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));        
     map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
 
     tb.setArgPort(result, "read_valid", 20, "1");

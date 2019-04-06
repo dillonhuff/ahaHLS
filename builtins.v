@@ -417,7 +417,7 @@ module fifo(input clk,
       if (!rst) begin
          if (write_valid) begin
 
-//            $display("writing %d to address %d", in_data, write_addr);
+            $display("writing %d to address %d", in_data, write_addr);
 //            $display("write_addr = %b, next_write_addr = %b, depth = %b", write_addr, next_write_addr, DEPTH);            
             
             `assert(write_ready, 1'd1)
