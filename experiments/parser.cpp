@@ -26,27 +26,53 @@ class SynthCppModule;
 void optimizeModuleLLVM(SynthCppModule& mod);
 void optimizeModuleLLVM(llvm::Module& mod);
 
+// Simpler store elimination, since our formulation has no aliasing by
+// construction
 void optimizeStores(llvm::Function* f) {
   bool erased = true;
   while (erased) {
     erased = false;
     for (auto& bb : f->getBasicBlockList()) {
       for (auto& instr : bb) {
-        int numUses = instr.getNumUses();
-        if (AllocaInst::classof(&instr) && (numUses == 1)) {
-          cout << "One user alloca = " << valueString(&instr) << endl;
-          auto& user = *(instr.uses().begin());
-          if (Instruction::classof(user)) {
-            Instruction* userInstr = dyn_cast<Instruction>(user.getUser());
-            cout << tab(1) << "only user = " << valueString(userInstr) << endl;
-            if (StoreInst::classof(userInstr)) {
-              instr.eraseFromParent();
-              userInstr->eraseFromParent();
-              erased = true;
-              break;
+        //int numUses = instr.getNumUses();
+
+        if (AllocaInst::classof(&instr)) {
+          bool allStores = true;
+          for (auto& user : instr.uses()) {
+            if (!StoreInst::classof(user.getUser())) {
+              allStores = false;
             }
           }
+
+          if (allStores) {
+
+            cout << "All uses of " << valueString(&instr) << " are stores" << endl;
+            for (auto& user : instr.uses()) {
+              cout << "Erasing " << valueString(user) << endl;
+              dyn_cast<Instruction>(user.getUser())->eraseFromParent();
+            }
+
+            instr.eraseFromParent();
+            
+            erased = true;
+            break;
+          }
         }
+        
+        // if (AllocaInst::classof(&instr) && (numUses == 1)) {
+        //   cout << "One user alloca = " << valueString(&instr) << endl;
+        //   auto& user = *(instr.uses().begin());
+        //   if (Instruction::classof(user)) {
+        //     Instruction* userInstr = dyn_cast<Instruction>(user.getUser());
+        //     cout << tab(1) << "only user = " << valueString(userInstr) << endl;
+        //     if (StoreInst::classof(userInstr)) {
+        //       instr.eraseFromParent();
+        //       userInstr->eraseFromParent();
+        //       erased = true;
+        //       break;
+        //     }
+        //   }
+        // }
       }
 
       if (erased) {
