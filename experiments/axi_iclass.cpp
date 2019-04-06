@@ -80,11 +80,13 @@ class axi_ram {
   set_burst: write_port(s_axi_awburst, awburst);
   set_len: write_port(s_axi_awlen, awlen);
   set_addr: write_port(s_axi_awaddr, awaddr);
+  set_wv: write_port(s_axi_wvalid, 1);
 
     add_constraint(start(set_v) == start(set_size));
     add_constraint(start(set_v) == start(set_burst));
     add_constraint(start(set_v) == start(set_len));
-    add_constraint(start(set_v) == start(set_addr));            
+    add_constraint(start(set_v) == start(set_addr));
+    add_constraint(start(set_v) == start(set_wv));
   }
 
   bit_32 read_next_beat() {
@@ -102,20 +104,20 @@ class axi_ram {
   }
 
   void write_next_beat(bit_32& data) {
-  stall_valid: stall(read_port(s_axi_wready));
-  set_ready: write_port(s_axi_wvalid, 1);
+  stall_valid_nb: stall(read_port(s_axi_wready));
+  set_wvalid_nb: write_port(s_axi_wvalid, 1);
 
-    add_constraint(end(stall_valid) < start(set_ready));
+    add_constraint(end(stall_valid_nb) < start(set_wvalid_nb));
 
-  set_data: write_port(s_axi_wdata, data);
-  set_strb: write_port(s_axi_wstrb, 31);
+  set_data_nb: write_port(s_axi_wdata, data);
+  set_strb_nb: write_port(s_axi_wstrb, 31);
 
-    add_constraint(start(set_ready) == start(set_data));
-    add_constraint(start(set_ready) == start(set_strb));
+    add_constraint(start(set_wvalid_nb) == start(set_data_nb));
+    add_constraint(start(set_wvalid_nb) == start(set_strb_nb));
 
-  ret: return;
+  ret_nb: return;
 
-    add_constraint(end(set_ready) + 1 == start(ret));
+    add_constraint(end(set_wvalid_nb) + 1 == start(ret_nb));
   }
   
   void start_read_burst(bit_3& arsize,

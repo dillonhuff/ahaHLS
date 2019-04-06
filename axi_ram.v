@@ -200,7 +200,6 @@ always @* begin
     write_addr_ready = 1'b0;
 
     if (s_axi_wready & s_axi_wvalid) begin
-       
         write_addr_ready = 1'b1;
         mem_wr_en = 1'b1;
     end
@@ -274,13 +273,13 @@ always @* begin
                     s_axi_bresp_next = 2'b00;
                     s_axi_bvalid_next = 1'b1;
 
-                   $display("write now idle");
+                   $display("write now idle, awready = %d, wvalid = %d, wready = %d", s_axi_awready, s_axi_wvalid, s_axi_wready);
                    
                     write_state_next = WRITE_STATE_IDLE;
                 end
             end else begin // if (write_addr_ready)
 
-               $display("write addr not ready, awvalid = %d, awready = %d", s_axi_awvalid, s_axi_awready);
+               $display("write addr not ready, awvalid = %d, awready = %d, wvalid = %d, wready = %d", s_axi_awvalid, s_axi_awready, s_axi_wvalid, s_axi_wready);
                 write_state_next = WRITE_STATE_BURST;
             end
         end
