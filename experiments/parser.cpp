@@ -2052,11 +2052,10 @@ public:
     return s;
   }
 
-  void genLLVMCopyTo(IRBuilder<>& b,
-                     llvm::Value* receiver,
+  void genLLVMCopyTo(llvm::Value* receiver,
                      llvm::Value* source) {
     
-    b.CreateCall(mkFunc({receiver->getType(), source->getType()}, voidType(), "copy_" + typeString(receiver->getType())), {receiver, source});
+    cgs.builder().CreateCall(mkFunc({receiver->getType(), source->getType()}, voidType(), "copy_" + typeString(receiver->getType())), {receiver, source});
   }
 
   // argNum could be 1 if the function being synthesized is actually a
@@ -2171,7 +2170,7 @@ public:
             
               for (auto stmt : methodFuncDecl->body) {
                 cout << "Statement" << endl;
-                genLLVM(b, stmt);
+                genLLVM(stmt);
               }
 
               BasicBlock* activeBlock =
@@ -2259,14 +2258,14 @@ public:
         cout << "# of statements = " << fd->body.size() << endl;
         for (auto stmt : fd->body) {
           cout << "Statement" << endl;
-          genLLVM(b, stmt);
+          genLLVM(stmt);
         }
 
         BasicBlock* activeBlock =
           &(activeFunction->llvmFunction()->getEntryBlock());
         if (activeBlock->getTerminator() == nullptr) {
           cout << "Basic block " << valueString(activeBlock) << "has no terminator" << endl;
-          b.CreateRet(nullptr);
+          cgs.builder().CreateRet(nullptr);
         }
 
         // Set all calls to be sequential by default
@@ -2567,27 +2566,32 @@ public:
     assert(false);
   }
 
-  void genLLVM(IRBuilder<>& b, ForStmt* const stmt) {
+  void genLLVM(ForStmt* const stmt) {
+    auto bd = cgs.builder();
+    
     auto loopInitTest = mkBB( "for_blk_init_test_" + uniqueNumString(), activeFunction->llvmFunction());
-    b.CreateBr(loopInitTest);
+    bd.CreateBr(loopInitTest);
     // Actually schedule loop
     IRBuilder<> loopBuilder(loopInitTest);
     loopBuilder.CreateRet(nullptr);
   }
   
-  void genLLVM(IRBuilder<>& b, ArgumentDecl* const decl) {
+  void genLLVM(ArgumentDecl* const decl) {
+    auto bd = cgs.builder();
+    
     string valName = decl->name.getStr();
     Type* tp = llvmTypeFor(decl->tp);
     // TODO: add to name map?
     cgs.symtab.setType(valName, decl->tp);
-    auto n = b.CreateAlloca(tp, nullptr, valName);
+    //auto n = b.CreateAlloca(tp, nullptr, valName);
+    auto n = bd.CreateAlloca(tp, nullptr, valName);
     // Add to constraints?
     int width = getTypeBitWidth(tp);
     setMemSpec(n, getHardwareConstraints(), {0, 0, 1, 1, width, 1, false, {{{"width", std::to_string(width)}}, "register"}});
     setValue(decl->name, n);
   }
 
-  void genLLVM(IRBuilder<>& b, AssignStmt* const stmt) {
+  void genLLVM(AssignStmt* const stmt) {
 
     // Note: Should really be an expression
     Token t = stmt->var;
@@ -2610,17 +2614,18 @@ public:
 
     Value* tV = getValueFor(t);
 
-    genSetCode(b, tV, v);
+    genSetCode(tV, v);
   }
 
-  void genLLVM(IRBuilder<>& b, ReturnStmt* const stmt) {
+  void genLLVM(ReturnStmt* const stmt) {
+    auto bd = cgs.builder();
 
     Expression* retVal = stmt->returnVal;
     Value* v = nullptr;
     if (retVal != nullptr) {
       v = genLLVM(retVal);
     }
-    b.CreateRet(v);
+    bd.CreateRet(v);
     
     if (stmt->hasLabel()) {
       Token l = stmt->label;
@@ -2635,7 +2640,8 @@ public:
 
   }
   
-  void genSetCode(IRBuilder<>& b, Value* receiver, Value* value) {
+  void genSetCode(Value* receiver, Value* value) {
+    auto bd = cgs.builder();
     // Check types?
     
     Type* rType = receiver->getType();
@@ -2648,14 +2654,16 @@ public:
 
     assert(rType == vType->getPointerTo());
 
-    b.CreateStore(value, receiver);
+    bd.CreateStore(value, receiver);
   }
 
-  void genLLVM(IRBuilder<>& b, DoWhileLoop* stmt) {
+  void genLLVM(DoWhileLoop* stmt) {
     cout << "Do while loop" << endl;
   }
   
-  void genLLVM(IRBuilder<>& b, Statement* const stmt) {
+  void genLLVM(Statement* const stmt) {
+    auto bd = cgs.builder();
+    
     if (ExpressionStmt::classof(stmt)) {
       auto es = static_cast<ExpressionStmt* const>(stmt);
       Expression* e = es->expr;
@@ -2675,18 +2683,18 @@ public:
       
     } else if (ArgumentDecl::classof(stmt)) {
       auto decl = static_cast<ArgumentDecl* const>(stmt);
-      genLLVM(b, decl);
+      genLLVM(decl);
     } else if (ForStmt::classof(stmt)) {
       auto loop = static_cast<ForStmt* const>(stmt);
-      genLLVM(b, loop);
+      genLLVM(loop);
     } else if (AssignStmt::classof(stmt)) {
       auto asg = static_cast<AssignStmt* const>(stmt);
-      genLLVM(b, asg);
+      genLLVM(asg);
       
     } else if (ReturnStmt::classof(stmt)) {
-      genLLVM(b, sc<ReturnStmt>(stmt));
+      genLLVM(sc<ReturnStmt>(stmt));
     } else if (DoWhileLoop::classof(stmt)) {
-      genLLVM(b, sc<DoWhileLoop>(stmt));
+      genLLVM(sc<DoWhileLoop>(stmt));
     } else {
       // Add support for variable declarations, assignments, and for loops
       cout << "No support for code generation for statement" << endl;
