@@ -2679,7 +2679,7 @@ public:
     }
 
     // End of loop
-    auto exitCond = mkInt(1, 1); //genLLVM(test);
+    auto exitCond = genLLVM(test);
     cgs.builder().CreateCondBr(exitCond, loopBlock, nextBlock);
     
     cgs.setActiveBlock(nextBlock);
