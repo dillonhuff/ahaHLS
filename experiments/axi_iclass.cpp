@@ -75,11 +75,16 @@ class axi_ram {
                          bit_16& awaddr) {
     stall(read_port(s_axi_awready));
 
-    write_port(s_axi_awvalid, 1);
-    write_port(s_axi_awsize, awsize);    
-    write_port(s_axi_awburst, awburst);
-    write_port(s_axi_awlen, awlen);
-    write_port(s_axi_awaddr, awaddr);
+  set_v: write_port(s_axi_awvalid, 1);
+  set_size: write_port(s_axi_awsize, awsize);    
+  set_burst: write_port(s_axi_awburst, awburst);
+  set_len: write_port(s_axi_awlen, awlen);
+  set_addr: write_port(s_axi_awaddr, awaddr);
+
+    add_constraint(start(set_v) == start(set_size));
+    add_constraint(start(set_v) == start(set_burst));
+    add_constraint(start(set_v) == start(set_len));
+    add_constraint(start(set_v) == start(set_addr));            
   }
 
   bit_32 read_next_beat() {
@@ -119,11 +124,16 @@ class axi_ram {
                         bit_16& araddr) {
     stall(read_port(s_axi_arready));
 
-    write_port(s_axi_arvalid, 1);
-    write_port(s_axi_arsize, arsize);    
-    write_port(s_axi_arburst, arburst);
-    write_port(s_axi_arlen, arlen);
-    write_port(s_axi_araddr, araddr);
+  set_v: write_port(s_axi_arvalid, 1);
+  set_sz: write_port(s_axi_arsize, arsize);    
+  set_burst: write_port(s_axi_arburst, arburst);
+  set_arlen: write_port(s_axi_arlen, arlen);
+  set_addr: write_port(s_axi_araddr, araddr);
+
+    add_constraint(start(set_v) == start(set_sz));
+    add_constraint(start(set_v) == start(set_burst));
+    add_constraint(start(set_v) == start(set_arlen));
+    add_constraint(start(set_v) == start(set_addr));            
   }
   
 
