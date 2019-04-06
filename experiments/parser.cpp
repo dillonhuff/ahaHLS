@@ -3316,7 +3316,7 @@ int main() {
     tb.memoryInit = {};
     tb.memoryExpected = {};
     tb.runCycles = 30;
-    tb.maxCycles = 100;
+    tb.maxCycles = 60; // No
     tb.name = "axi_read_burst_func";
     tb.useModSpecs = true;
     map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));

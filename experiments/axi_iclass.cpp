@@ -95,9 +95,12 @@ class axi_ram {
 
     add_constraint(end(stall_valid) < start(set_ready));
 
-  ret: return read_port(s_axi_rdata);
+    bit_32 data;
+  read_data: data = read_port(s_axi_rdata);
+  ret: return data;
 
     add_constraint(end(set_ready) + 1 == start(ret));
+    add_constraint(start(read_data) == start(ret));    
   }
 
   void write_next_beat(bit_32& data) {
@@ -110,6 +113,7 @@ class axi_ram {
   set_strb: write_port(s_axi_wstrb, 31);
 
     add_constraint(start(set_ready) == start(set_data));
+    add_constraint(start(set_ready) == start(set_strb));    
   }
   
 
@@ -119,13 +123,13 @@ void axi_read_burst_func(fifo& result,
                          axi_ram& ram) {
 
   // Write burst
-  ram.start_write_burst(3, 1, 5, 12);
+  ram.start_write_burst(5, 1, 3, 12);
   ram.write_next_beat(34);  
   ram.write_next_beat(8);
   ram.write_next_beat(12);  
 
   // Read the burst back
-  ram.start_read_burst(3, 1, 5, 12);
+  ram.start_read_burst(5, 1, 3, 12);
   result.write_fifo(ram.read_next_beat());
   result.write_fifo(ram.read_next_beat());
   result.write_fifo(ram.read_next_beat());
