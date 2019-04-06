@@ -3339,9 +3339,11 @@ int main() {
     map_insert(tb.actionsOnCycles, 22, assertString("arg_0_out_data === (8)"));      
     map_insert(tb.actionsOnCycles, 23, assertString("arg_0_out_data === (12)"));
     // Check valid ?
-    
-    tb.actionOnCondition("1", "$display(\"arg_0_out_data = %d\", arg_0_out_data);");
 
+    tb.actionOnCondition("1", "$display(\"arg_0_in_data = %d\", arg_0_in_data);");    
+    tb.actionOnCondition("1", "$display(\"arg_0_out_data = %d\", arg_0_out_data);");
+    tb.actionOnCondition("1", "$display(\"arg_1_s_axi_rdata = %d\", arg_1_s_axi_rdata);");
+    
     emitVerilogTestBench(tb, arch, testLayout);
 
     assert(runIVerilogTest("axi_read_burst_func_tb.v", "axi_read_burst_func", " builtins.v axi_read_burst_func.v RAM.v delay.v ram_primitives.v axi_ram.v"));

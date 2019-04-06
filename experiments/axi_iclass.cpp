@@ -66,19 +66,6 @@ class axi_ram {
     write_port(s_axi_rready, 0);
   }
 
-  void start_read_burst(bit_3& arsize,
-                        bit_2& arburst,
-                        bit_8& arlen,
-                        bit_16& araddr) {
-    stall(read_port(s_axi_arready));
-
-    write_port(s_axi_arvalid, 1);
-    write_port(s_axi_arsize, arsize);    
-    write_port(s_axi_arburst, arburst);
-    write_port(s_axi_arlen, arlen);
-    write_port(s_axi_araddr, araddr);
-  }
-  
   void start_write_burst(bit_3& awsize,
                          bit_2& awburst,
                          bit_8& awlen,
@@ -102,7 +89,7 @@ class axi_ram {
   read_data: data = read_port(s_axi_rdata);
   ret: return data;
 
-    add_constraint(end(set_ready) + 1 == start(ret));
+    add_constraint(end(set_ready) == start(ret));
     add_constraint(start(read_data) == start(ret));    
   }
 
@@ -119,6 +106,19 @@ class axi_ram {
     add_constraint(start(set_ready) == start(set_strb));    
   }
   
+  void start_read_burst(bit_3& arsize,
+                        bit_2& arburst,
+                        bit_8& arlen,
+                        bit_16& araddr) {
+    stall(read_port(s_axi_arready));
+
+    write_port(s_axi_arvalid, 1);
+    write_port(s_axi_arsize, arsize);    
+    write_port(s_axi_arburst, arburst);
+    write_port(s_axi_arlen, arlen);
+    write_port(s_axi_araddr, araddr);
+  }
+  
 
 };
 
@@ -126,15 +126,15 @@ void axi_read_burst_func(fifo& result,
                          axi_ram& ram) {
 
   // Write burst
-  ram.start_write_burst(5, 1, 3, 12);
+  ram.start_write_burst(5, 1, 1, 12);
   ram.write_next_beat(34);  
-  ram.write_next_beat(8);
-  ram.write_next_beat(12);
-  ram.write_next_beat(89);    
+  // ram.write_next_beat(8);
+  // ram.write_next_beat(12);
+  // ram.write_next_beat(89);    
 
   // Read the burst back
-  ram.start_read_burst(5, 1, 3, 12);
+  ram.start_read_burst(5, 1, 1, 12);
   result.write_fifo(ram.read_next_beat());
-  result.write_fifo(ram.read_next_beat());
-  result.write_fifo(ram.read_next_beat());
+  // result.write_fifo(ram.read_next_beat());
+  // result.write_fifo(ram.read_next_beat());
 }
