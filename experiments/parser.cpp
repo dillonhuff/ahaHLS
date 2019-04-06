@@ -2389,6 +2389,19 @@ public:
       assert(false);
     }
   }
+
+  bool isData(Type* const tp) {
+    if (IntegerType::classof(tp)) {
+      return true;
+    }
+
+    if (StructType::classof(tp)) {
+      StructType* stp = dyn_cast<StructType>(tp);
+      return stp->elements().size() > 0;
+    }
+
+    return false;
+  }
   
   llvm::Value* genLLVM(Expression* const e) {
     auto bd = cgs.builder();
@@ -2397,16 +2410,28 @@ public:
 
       Identifier* id = static_cast<Identifier* const>(e);
       if (!hasValue(id->name)) {
+        cout << "Error: Id has no value = " << id->name << endl;        
         assert(false);
-
-        cout << "Id has no value = " << id->name << endl;
-        //auto val = b.CreateAlloca(intType(32));
-        auto val = bd.CreateAlloca(intType(32));
-        setValue(id->name, val);
-        return val;        
       }
 
-      return loadReg(bd, getValueFor(id->name));
+      // Load the register value if we are dealing with an identifier for
+      // a pointer to a piece of data? Load the pointer value
+      // if we are dealing with an identifier for a pointer to a structure?
+
+      Value* v = getValueFor(id->name);
+
+      // TODO: Get SynthCppType instead?
+      Type* tp = v->getType();
+      assert(PointerType::classof(tp));
+      Type* underlying = dyn_cast<PointerType>(tp)->getElementType();
+
+      if (isData(underlying)) {
+        return loadReg(bd, getValueFor(id->name));
+      } else {
+        assert(StructType::classof(underlying));
+        return getValueFor(id->name);
+      }
+
     } else if (BinopExpr::classof(e)) {
       BinopExpr* be = static_cast<BinopExpr* const>(e);
       auto bd = cgs.builder();
