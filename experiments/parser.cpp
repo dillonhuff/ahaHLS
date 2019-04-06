@@ -26,6 +26,36 @@ class SynthCppModule;
 void optimizeModuleLLVM(SynthCppModule& mod);
 void optimizeModuleLLVM(llvm::Module& mod);
 
+void optimizeStores(llvm::Function* f) {
+  bool erased = true;
+  while (erased) {
+    erased = false;
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instr : bb) {
+        int numUses = instr.getNumUses();
+        if (AllocaInst::classof(&instr) && (numUses == 1)) {
+          cout << "One user alloca = " << valueString(&instr) << endl;
+          auto& user = *(instr.uses().begin());
+          if (Instruction::classof(user)) {
+            Instruction* userInstr = dyn_cast<Instruction>(user.getUser());
+            cout << tab(1) << "only user = " << valueString(userInstr) << endl;
+            if (StoreInst::classof(userInstr)) {
+              instr.eraseFromParent();
+              userInstr->eraseFromParent();
+              erased = true;
+              break;
+            }
+          }
+        }
+      }
+
+      if (erased) {
+        break;
+      }
+    }
+  }
+}
+
 MemorySpec pss(const int width) {
   return {0, 0, 1, 1, width, 1, false, {{{"width", std::to_string(width)}}, "reg_passthrough"}};
 }
@@ -99,6 +129,7 @@ Schedule scheduleInterfaceZeroReg(llvm::Function* f,
 
   // TODO: Where to put this stuff
   optimizeModuleLLVM(*(f->getParent()));
+  optimizeStores(f);
   clearExecutionConstraints(f, exec);
   
   cout << "After inlining" << endl;
