@@ -198,8 +198,19 @@ void axi_write_burst(fifo& results,
 
   ram.start_write_burst(5, 1, burst_size, start_loc);
   do {
-    ram.write_next_beat(inputs.read_fifo());
+    ram.write_next_beat(inputs.read_fifo(), 31);
     burst_no = burst_no + 1;
   } while (burst_no < burst_size);
   ram.finish_write_burst();
+
+  
+  bit_32 read_burst_no;
+  read_burst_no = 0;
+
+  ram.start_read_burst(5, 1, burst_size, start_loc);
+  do {
+    results.write_fifo(ram.read_next_beat());
+    read_burst_no = read_burst_no + 1;
+  } while (read_burst_no < burst_size);
+
 }

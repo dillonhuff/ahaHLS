@@ -63,14 +63,14 @@ public:
     bit_32 i;
     i = 0;
     do {
-      write_port(word0, in_word0.read_wire_32());
-      write_port(word1, in_word1.read_wire_32());
-      write_port(word2, in_word2.read_wire_32());      
+      // write_port(word0, in_word0.read_wire_32());
+      // write_port(word1, in_word1.read_wire_32());
+      // write_port(word2, in_word2.read_wire_32());      
 
-      out_pixel1.write_wire_8(read_port(pixel1));
-      out_pixel2.write_wire_8(read_port(pixel2));
-      out_pixel3.write_wire_8(read_port(pixel3));
-      out_pixel4.write_wire_8(read_port(pixel4));      
+      // out_pixel1.write_wire_8(read_port(pixel1));
+      // out_pixel2.write_wire_8(read_port(pixel2));
+      // out_pixel3.write_wire_8(read_port(pixel3));
+      // out_pixel4.write_wire_8(read_port(pixel4));      
 
       i = i + 1;
     } while (i < 320*320);

@@ -1060,6 +1060,13 @@ namespace ahaHLS {
         } else {
           assert(val->getName() != "");
 
+          if (!contains_key(val, arch.hcs.modSpecs)) {
+            cout << "Error: No module spec for " << valueString(val) << endl;
+            for (auto m : arch.hcs.modSpecs) {
+              cout << tab(1) << "Module " << valueString(m.first) << " has spec "
+                   << m.second << endl;
+            }
+          }
           assert(contains_key(val, arch.hcs.modSpecs));
           ModuleSpec mSpec = map_find(val, arch.hcs.modSpecs);
           cout << "Module spec for " << valueString(val) << " is " << mSpec << endl;

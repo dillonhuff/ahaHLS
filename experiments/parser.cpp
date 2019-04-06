@@ -2081,10 +2081,8 @@ public:
       // - Create internal copy
       symtab[argDecl->name.getStr()] = argDecl->tp;
       if (!SynthCppPointerType::classof(argDecl->tp)) {
-        //auto val = b.CreateAlloca(llvmTypeFor(argDecl->tp));
         auto val = cgs.builder().CreateAlloca(llvmTypeFor(argDecl->tp));
-        //b.CreateStore(getArg(f, argNum + argOffset), val);
-        cgs.builder().CreateStore(getArg(f, argNum + argOffset), val);        
+        cgs.builder().CreateStore(getArg(f, argNum + argOffset), val);
         setValue(argDecl->name, val);
       } else {
         setValue(argDecl->name, getArg(f, argNum + argOffset));
@@ -2633,7 +2631,6 @@ public:
     if (stmt->hasLabel()) {
       Token l = stmt->label;
       cout << "Label on assign = " << stmt->label << endl;
-      //BasicBlock* blk = &(activeFunction->llvmFunction()->getEntryBlock());
       BasicBlock* blk = &(cgs.getActiveBlock());
       cout << "Block for label = " << valueString(blk) << endl;
       Instruction* last = &(blk->back());
