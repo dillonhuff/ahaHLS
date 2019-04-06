@@ -58,21 +58,6 @@ void optimizeStores(llvm::Function* f) {
             break;
           }
         }
-        
-        // if (AllocaInst::classof(&instr) && (numUses == 1)) {
-        //   cout << "One user alloca = " << valueString(&instr) << endl;
-        //   auto& user = *(instr.uses().begin());
-        //   if (Instruction::classof(user)) {
-        //     Instruction* userInstr = dyn_cast<Instruction>(user.getUser());
-        //     cout << tab(1) << "only user = " << valueString(userInstr) << endl;
-        //     if (StoreInst::classof(userInstr)) {
-        //       instr.eraseFromParent();
-        //       userInstr->eraseFromParent();
-        //       erased = true;
-        //       break;
-        //     }
-        //   }
-        // }
       }
 
       if (erased) {
@@ -171,7 +156,11 @@ Schedule scheduleInterfaceZeroReg(llvm::Function* f,
       auto instr = &instrR;
       int numUsers = instr->getNumUses();
 
-      if (LoadInst::classof(instr) && (numUsers == 1)) {
+      if ((BinaryOperator::classof(instr) ||
+           UnaryInstruction::classof(instr) ||
+           LoadInst::classof(instr) ||
+           CmpInst::classof(instr))
+          && (numUsers == 1)) {
         auto& user = *(instr->uses().begin());
         assert(Instruction::classof(user));
         auto userInstr = dyn_cast<Instruction>(user.getUser());
