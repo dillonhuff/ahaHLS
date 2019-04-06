@@ -1163,7 +1163,7 @@ namespace ahaHLS {
   instructionPortAssignments(ControlFlowPosition pos,
                              MicroArchitecture& arch) {
 
-    cout << "Generating code for " << valueString(pos.instr) << endl;
+    //cout << "Generating code for " << valueString(pos.instr) << endl;
 
     auto instr = pos.instr;
     auto addUnit = map_find(instr, arch.unitAssignment);
@@ -3114,9 +3114,9 @@ namespace ahaHLS {
     map<string, string > dutConns;
     ModuleInstance dut{tb.name, "dut", dutConns};
     for (auto pt : getPorts(arch)) {
-      cout << "port = " << pt.name << endl;
+      //cout << "port = " << pt.name << endl;
       if (!tb.useModSpecs || (!elem(pt.name, tb.settableWires) || (pt.name == "clk") || (pt.name == "rst"))) {
-        cout << "not settable = " << pt.name << endl;        
+        //cout << "not settable = " << pt.name << endl;        
         dut.portConnections.insert({pt.name, pt.name});
       }
     }
