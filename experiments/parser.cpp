@@ -2360,7 +2360,9 @@ public:
     }
   }
   
-  llvm::Value* genLLVM(IRBuilder<>& b, Expression* const e) {
+  llvm::Value* genLLVM(Expression* const e) {
+    auto bd = cgs.builder();
+    
     if (Identifier::classof(e)) {
 
       Identifier* id = static_cast<Identifier* const>(e);
@@ -2368,16 +2370,18 @@ public:
         assert(false);
 
         cout << "Id has no value = " << id->name << endl;
-        auto val = b.CreateAlloca(intType(32));
+        //auto val = b.CreateAlloca(intType(32));
+        auto val = bd.CreateAlloca(intType(32));
         setValue(id->name, val);
         return val;        
       }
 
-      return loadReg(b, getValueFor(id->name));
+      return loadReg(bd, getValueFor(id->name));
     } else if (BinopExpr::classof(e)) {
       BinopExpr* be = static_cast<BinopExpr* const>(e);
-      auto l = genLLVM(b, be->lhs);
-      auto r = genLLVM(b, be->rhs);
+      auto bd = cgs.builder();
+      auto l = genLLVM(be->lhs);
+      auto r = genLLVM(be->rhs);
 
       cout << "left     = " << valueString(l) << endl;
       cout << "left tp  = " << typeString(l->getType()) << endl;
@@ -2387,7 +2391,7 @@ public:
       assert(l->getType() == r->getType());
 
       if (be->op.getStr() == "+") {
-        return b.CreateAdd(l, r);
+        return bd.CreateAdd(l, r);
       } else {
         cout << "Error: Unsupported binop: " << be->op << endl;
         assert(false);
@@ -2419,7 +2423,7 @@ public:
         Expression* valueExpr = called->args[1];
 
         cout << "Value expression in write port is " << *valueExpr << endl;
-        auto vExpr = genLLVM(b, valueExpr);
+        auto vExpr = genLLVM(valueExpr);
         cout << "LLVM value for expression is " << valueString(vExpr) << endl;
         
         SynthCppClass* sExpr = cgs.getActiveClass();
@@ -2435,15 +2439,15 @@ public:
         // cout << valueString(activeFunction->llvmFunction()) << endl;
 
         int thisOffset = 0;
-        return b.CreateCall(f, {getArg(activeFunction->llvmFunction(), thisOffset), vExpr});
+        return bd.CreateCall(f, {getArg(activeFunction->llvmFunction(), thisOffset), vExpr});
       }
 
       if (name == "stall") {
 
         Expression* valueExpr = called->args[0];
-        auto vExpr = genLLVM(b, valueExpr);
+        auto vExpr = genLLVM(valueExpr);
         
-        return b.CreateCall(stallFunction(), {vExpr});
+        return bd.CreateCall(stallFunction(), {vExpr});
       }
 
       if (name == "read_port") {
@@ -2471,7 +2475,7 @@ public:
         cout << valueString(activeFunction->llvmFunction()) << endl;
 
         int thisOffset = 0;
-        return b.CreateCall(f, {getArg(activeFunction->llvmFunction(), thisOffset)});
+        return bd.CreateCall(f, {getArg(activeFunction->llvmFunction(), thisOffset)});
       }
       
       SynthCppFunction* calledFunc = getFunction(called->funcName.getStr());
@@ -2480,10 +2484,10 @@ public:
       vector<Value*> args;
 
       for (auto arg : called->args) {
-        args.push_back(genLLVM(b, arg));
+        args.push_back(genLLVM(arg));
       }
 
-      return b.CreateCall(calledFunc->llvmFunction(), args);      
+      return bd.CreateCall(calledFunc->llvmFunction(), args);      
     } else if (MethodCall::classof(e)) {
       // Dummy code
       auto methodCall =
@@ -2502,7 +2506,7 @@ public:
       int synthFuncIndex = 0;
       Function* calledLLVM = calledFunc->llvmFunction();
       for (auto arg : called->args) {
-        auto argLLVM = genLLVM(b, arg);
+        auto argLLVM = genLLVM(arg);
         auto argParam = getArg(calledLLVM, synthFuncIndex + 1);
 
         // TODO: Insert this in function calls as well
@@ -2511,27 +2515,20 @@ public:
             PointerType::classof(argParam->getType())) {
           cout << "Argument " << valueString(argLLVM) << " is value but bound type of parameter is " << valueString(getArg(calledLLVM, synthFuncIndex + 1)) << " (pointer), need to create temp first" << endl;
 
-          auto argStorage = b.CreateAlloca(argLLVM->getType());
-          b.CreateStore(argLLVM, argStorage);
+          auto argStorage = bd.CreateAlloca(argLLVM->getType());
+          bd.CreateStore(argLLVM, argStorage);
           argLLVM = argStorage;
         }
         args.push_back(argLLVM);
       }
 
-      return b.CreateCall(calledFunc->llvmFunction(), args);
+      return bd.CreateCall(calledFunc->llvmFunction(), args);
 
     } else if (IntegerExpr::classof(e)) {
       IntegerExpr* i = static_cast<IntegerExpr* const>(e);
       string digits = i->digits;
       auto val = stoi(digits);
       return mkInt(val, 32);
-      // auto constStorage = b.CreateAlloca(intType(32), nullptr, "const_val_" + uniqueNumString());
-      // vector<Type*> ins = {intType(32)->getPointerTo(), intType(32)};
-
-      // vector<Value*> args = {constStorage, mkInt(val, 32)};
-      // b.CreateCall(mkFunc(ins, voidType(), "set_const"), args);
-      // return constStorage;
-      //return mkInt(val, 32);
     } else {
       cout << "Unsupported expression in LLVM codegen" << endl;
       assert(false);      
@@ -2596,7 +2593,7 @@ public:
     Token t = stmt->var;
     Expression* newVal = stmt->expr;
 
-    Value* v = genLLVM(b, newVal);
+    Value* v = genLLVM(newVal);
 
     if (stmt->hasLabel()) {
       Token l = stmt->label;
@@ -2621,7 +2618,7 @@ public:
     Expression* retVal = stmt->returnVal;
     Value* v = nullptr;
     if (retVal != nullptr) {
-      v = genLLVM(b, retVal);
+      v = genLLVM(retVal);
     }
     b.CreateRet(v);
     
@@ -2662,7 +2659,7 @@ public:
     if (ExpressionStmt::classof(stmt)) {
       auto es = static_cast<ExpressionStmt* const>(stmt);
       Expression* e = es->expr;
-      genLLVM(b, e);
+      genLLVM(e);
 
 
       if (stmt->hasLabel()) {
