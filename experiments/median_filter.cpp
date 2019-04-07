@@ -60,10 +60,12 @@ public:
     write_port(rst_n, 0);
     write_port(rst_n, 1);
 
+    write_port(word0, in_word0.read_wire_32());    
+
     bit_32 i;
     i = 0;
     do {
-      // write_port(word0, in_word0.read_wire_32());
+      //write_port(word0, in_word0.read_wire_32());
       // write_port(word1, in_word1.read_wire_32());
       // write_port(word2, in_word2.read_wire_32());      
 
@@ -87,6 +89,6 @@ void run_median_func(median& filter,
                      wire_8& pixel3,
                      wire_8& pixel4) {
 
-  filter.run_on_image(word0, word1, word2,
-                      pixel1, pixel2, pixel3, pixel4);
+  // filter.run_on_image(word0, word1, word2,
+  //                     pixel1, pixel2, pixel3, pixel4);
 }

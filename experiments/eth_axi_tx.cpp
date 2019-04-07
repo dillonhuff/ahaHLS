@@ -1,3 +1,43 @@
+class fifo {
+  input_1 read_valid;
+  output_1 read_ready;
+  input_32 in_data;
+
+  input_1 write_valid;
+  output_1 write_ready;
+  output_32 out_data;
+
+  void defaults() {
+    write_port(read_valid, 0);
+    write_port(write_valid, 0);    
+  }
+
+  bit_32 read_fifo() {
+  stall_ready: stall(read_port(read_ready));
+  set_valid: write_port(read_valid, 1);
+
+    bit_32 out_val;
+  set_out_rf: out_val = read_port(out_data);
+  ret: return out_val;
+
+    add_constraint(end(stall_ready) < start(set_valid));
+    add_constraint(end(set_valid) + 1 == start(ret));
+    add_constraint(start(set_out_rf) == start(ret));    
+  }
+
+  void write_fifo(bit_32& data) {
+  stall_ready: stall(read_port(write_ready));
+  set_valid: write_port(write_valid, 1);
+  set_data: write_port(in_data, data);
+  ret: return;
+
+    add_constraint(end(stall_ready) < start(set_valid));
+    add_constraint(start(set_valid) == start(set_data));
+    add_constraint(end(set_data) + 1 == start(ret));
+  }
+
+};
+
 class eth_axis_tx {
 
 public:
@@ -90,14 +130,14 @@ void write_packet(bit_48& dest_mac,
                   bit_48& src_mac,
                   bit_16& type,
                   fifo& payload,
-                  sint_32& payload_size,
+                  bit_32& payload_size,
                   eth_axis_tx& transmitter) {
   transmitter->write_header(dest_mac, src_mac, type);
 
-  sint_32 i;
+  bit_32 i;
   for (i = 0; i < payload_size; i = i + 1) {
     bit_1 is_last;
     is_last = i == (payload_size - 1);
-    transmitter->write_byte(payload->read(), is_last);
+    transmitter->write_byte(payload->read_fifo(), is_last);
   }
 }

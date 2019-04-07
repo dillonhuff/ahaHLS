@@ -1981,6 +1981,15 @@ public:
     tableStack.back()->insert({name, tp});
   }
 
+  void print(std::ostream& out) {
+    for (auto ts : tableStack) {
+      out << tab(1) << "Table stack" << endl;
+      for (auto str : *ts) {
+        out << tab(2) << "symbol = " << str.first << endl;
+      }
+    }
+  }
+
   SynthCppType* getType(const std::string& str) {
     int depth = ((int) tableStack.size()) - 1;
 
@@ -1991,12 +2000,7 @@ public:
     }
 
     cout << "Error: Cannot find type for " << str << endl;
-    for (auto ts : tableStack) {
-      cout << tab(1) << "Table stack" << endl;
-      for (auto str : *ts) {
-        cout << tab(2) << "symbol = " << str.first << endl;
-      }
-    }
+    print(cout);
     assert(false);
   }
   
@@ -2143,6 +2147,7 @@ public:
       // For arguments originally passed by value
       // - Create internal copy
       symtab[argDecl->name.getStr()] = argDecl->tp;
+      cout << "Setting " << argDecl->name.getStr() << " in symbol table" << endl;
       if (!SynthCppPointerType::classof(argDecl->tp)) {
         auto val = cgs.builder().CreateAlloca(llvmTypeFor(argDecl->tp));
         cgs.builder().CreateStore(getArg(f, argNum + argOffset), val);
@@ -2153,6 +2158,7 @@ public:
 
       argNum++;
     }
+
   }
 
   
@@ -2229,6 +2235,10 @@ public:
               bool hasReturn = false; //sf->hasReturnValue();
               auto bd = cgs.builder();
               setArgumentSymbols(bd, sf->symtab, methodFuncDecl->args, f, 1 + (hasReturn ? 1 : 0));
+              cgs.symtab.pushTable(&(sf->symtab));
+              cout << "After setting argument symbols for "  << string(f->getName()) << endl;
+              cgs.symtab.print(cout);
+              
             
               for (auto stmt : methodFuncDecl->body) {
                 cout << "Statement" << endl;
@@ -2503,6 +2513,10 @@ public:
         return bd.CreateICmpSLT(l, r);
       } else if (be->op.getStr() == "*") {
         return bd.CreateMul(l, r);        
+      } else if (be->op.getStr() == "-") {
+        return bd.CreateSub(l, r);
+      } else if (be->op.getStr() == "==") {
+        return bd.CreateICmpEQ(l, r);
       } else {
         cout << "Error: Unsupported binop: " << be->op << endl;
         assert(false);
@@ -2679,13 +2693,36 @@ public:
   }
 
   void genLLVM(ForStmt* const stmt) {
-    auto bd = cgs.builder();
+    Statement* init = stmt->init;
+    Expression* exitTest = stmt->exitTest;
+    Statement* update = stmt->update;
+    auto stmts = stmt->stmts;
     
-    auto loopInitTest = mkBB( "for_blk_init_test_" + uniqueNumString(), activeFunction->llvmFunction());
-    bd.CreateBr(loopInitTest);
-    // Actually schedule loop
-    IRBuilder<> loopBuilder(loopInitTest);
-    loopBuilder.CreateRet(nullptr);
+    auto bd = cgs.builder();
+
+    // Need entry block to check
+    auto loopTestBlock = mkBB( "for_blk_init_test_" + uniqueNumString(), activeFunction->llvmFunction());
+    auto loopBodyBlock = mkBB( "for_body_" + uniqueNumString(), activeFunction->llvmFunction());
+    auto nextBlock = mkBB( "for_body_" + uniqueNumString(), activeFunction->llvmFunction());    
+
+    genLLVM(init);
+    bd.CreateBr(loopTestBlock);
+
+    cgs.setActiveBlock(loopTestBlock);
+    auto testCond = genLLVM(exitTest);
+    cgs.builder().CreateCondBr(testCond, loopBodyBlock, nextBlock);
+
+    cgs.setActiveBlock(loopBodyBlock);
+    for (auto stmt : stmts) {
+      genLLVM(stmt);
+    }
+    genLLVM(update);
+    cgs.builder().CreateBr(loopTestBlock);
+
+    // Need major work block
+
+    // Need exit block
+    cgs.setActiveBlock(nextBlock);
   }
   
   void genLLVM(ArgumentDecl* const decl) {
