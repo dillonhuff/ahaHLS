@@ -5,7 +5,7 @@ class wire_32 {
 public:
 
   bit_32 read_wire_32() {
-    return read_port(in_wire);
+    return read_port(out_wire);
   }
 
   void write_wire_32(bit_32& value) {
@@ -21,7 +21,7 @@ class wire_8 {
 public:
 
   bit_8 read_wire_8() {
-    return read_port(in_wire);
+    return read_port(out_wire);
   }
 
   void write_wire_8(bit_8& value) {

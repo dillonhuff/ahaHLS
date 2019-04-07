@@ -3943,10 +3943,7 @@ int main() {
     
     SynthCppModule scppMod(mod);
 
-    // SynthCppClass* c = scppMod.getClassByName(Token("median"));
-    // cout << *c << endl;
-
-    // auto arch = synthesizeVerilog(scppMod, "run_median_func");
+    auto arch = synthesizeVerilog(scppMod, "run_median_func");
   }
   
   // Q: What are the new issues?

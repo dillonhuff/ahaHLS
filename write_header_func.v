@@ -58,7 +58,7 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [47:0] a
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_1();
+	add call_0();
 
 	// End Functional Units
 
@@ -161,6 +161,9 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [47:0] a
 	// Start pipeline stages
 	// End pipeline instruction code
 
+	// Insensitive connections
+	always @(*) begin
+	end
 	// controller for arg_3.arg_3_s_eth_dest_mac_reg
 	// controller for arg_3.arg_3_s_eth_hdr_valid_reg
 	always @(*) begin
@@ -181,9 +184,6 @@ module write_header_func_inner(input [0:0] clk, input [0:0] rst, output [47:0] a
 		arg_3_s_eth_dest_mac_reg = valid ? arg_0_rdata : arg_0_rdata;
 		arg_3_s_eth_src_mac_reg = valid ? arg_1_rdata : arg_1_rdata;
 		arg_3_s_eth_type_reg = valid ? arg_2_rdata : arg_2_rdata;
-	end
-	// Insensitive connections
-	always @(*) begin
 	end
 	// controller for arg_0.arg_0_raddr_reg
 	// Insensitive connections
