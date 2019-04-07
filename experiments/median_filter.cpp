@@ -60,22 +60,20 @@ public:
     write_port(rst_n, 0);
     write_port(rst_n, 1);
 
-    write_port(word0, in_word0.read_wire_32());    
-
     bit_32 i;
     i = 0;
     do {
-      //write_port(word0, in_word0.read_wire_32());
-      // write_port(word1, in_word1.read_wire_32());
-      // write_port(word2, in_word2.read_wire_32());      
+      write_port(word0, in_word0.read_wire_32());
+      write_port(word1, in_word1.read_wire_32());
+      write_port(word2, in_word2.read_wire_32());      
 
-      // out_pixel1.write_wire_8(read_port(pixel1));
-      // out_pixel2.write_wire_8(read_port(pixel2));
-      // out_pixel3.write_wire_8(read_port(pixel3));
-      // out_pixel4.write_wire_8(read_port(pixel4));      
+      out_pixel1.write_wire_8(read_port(pixel1));
+      out_pixel2.write_wire_8(read_port(pixel2));
+      out_pixel3.write_wire_8(read_port(pixel3));
+      out_pixel4.write_wire_8(read_port(pixel4));      
 
       i = i + 1;
-    } while (i < 320*320);
+    } while (i < (320 - 2)*(320 - 2));
   }
 };
 
@@ -89,6 +87,6 @@ void run_median_func(median& filter,
                      wire_8& pixel3,
                      wire_8& pixel4) {
 
-  // filter.run_on_image(word0, word1, word2,
-  //                     pixel1, pixel2, pixel3, pixel4);
+  filter.run_on_image(word0, word1, word2,
+                      pixel1, pixel2, pixel3, pixel4);
 }
