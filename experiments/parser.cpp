@@ -850,6 +850,8 @@ public:
     assert(false);
   }
 
+  Token getLabel() const { return label; }
+
   bool hasLabel() const { return hasL; }
 
   void setLabel(const Token l) {
@@ -2095,7 +2097,9 @@ public:
   SynthCppFunction* activeFunction;
   int globalNum;
   std::map<Token, Instruction*> labelsToInstructions;
-
+  std::map<Token, BasicBlock*> labelsToBlockStarts;
+  std::map<Token, BasicBlock*> labelsToBlockEnds;
+  
   std::string uniqueNumString() {
     auto s = std::to_string(globalNum);
     globalNum++;
@@ -2371,7 +2375,37 @@ public:
     valueMap[t.getStr()] = v;
     assert(contains_key(t.getStr(), valueMap));    
   }
-  
+
+  EventTime eventFromLabel(string arg0Name, const string& labelName) {
+    if (contains_key(Token(arg0Name), labelsToInstructions)) {
+      Instruction* instrLabel = map_find(Token(arg0Name), labelsToInstructions);
+      cout << "Instruction labeled = " << valueString(instrLabel) << endl;
+      
+      // TODO: Translate the argument name (which should
+      // be a label) in to a source code location, and then
+      // make the execution action for the instruction being used
+      if (labelName == "start") {
+        return {ExecutionAction(instrLabel), false, 0};
+      } else {
+        assert(labelName == "end");
+        return {ExecutionAction(instrLabel), true, 0};
+      }
+    } else {
+      assert(contains_key(Token(arg0Name), labelsToBlockStarts));
+      assert(contains_key(Token(arg0Name), labelsToBlockEnds));
+
+      if (labelName == "start") {
+        BasicBlock* blkLabel = map_find(Token(arg0Name), labelsToBlockStarts);
+        return {ExecutionAction(blkLabel), false, 0};        
+      } else {
+        assert(labelName == "end");
+
+        BasicBlock* blkLabel = map_find(Token(arg0Name), labelsToBlockEnds);
+        return {ExecutionAction(blkLabel), true, 0};
+      }
+    }
+  }
+
   EventTime parseEventTime(Expression* const e) {
     auto mBop = extractM<BinopExpr>(e);
     if (mBop.has_value()) {
@@ -2396,19 +2430,7 @@ public:
 
       cout << "got arg0 name = " << arg0Name << endl;
 
-      assert(contains_key(Token(arg0Name), labelsToInstructions));
-      Instruction* instrLabel = map_find(Token(arg0Name), labelsToInstructions);
-      cout << "Instruction labeled = " << valueString(instrLabel) << endl;
-      
-      // TODO: Translate the argument name (which should
-      // be a label) in to a source code location, and then
-      // make the execution action for the instruction being used
-      if (name == "start") {
-        return {ExecutionAction(instrLabel), false, 0};
-      } else {
-        assert(name == "end");
-        return {ExecutionAction(instrLabel), true, 0};
-      }
+      return eventFromLabel(arg0Name, name);
     }
   }
 
@@ -2845,6 +2867,12 @@ public:
     cgs.builder().CreateCondBr(exitCond, loopBlock, nextBlock);
     
     cgs.setActiveBlock(nextBlock);
+
+    if (stmt->hasLabel()) {
+      Token label = stmt->getLabel();
+      labelsToBlockStarts[label] = loopBlock;
+      labelsToBlockEnds[label] = loopBlock;
+    }
   }
   
   void genLLVM(Statement* const stmt) {
