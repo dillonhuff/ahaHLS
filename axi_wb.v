@@ -68,19 +68,17 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_2();
+	add call_26();
 
-	add call_12();
+	reg [15:0] phi_in_phi_11;
+	reg [31:0] phi_last_block_phi_11;
+	reg [63:0] phi_s_phi_11;
+	wire [31:0] phi_out_phi_11;
+	phi #(.NB_PAIR(2), .WIDTH(8)) phi_11(.in(phi_in_phi_11), .last_block(phi_last_block_phi_11), .out(phi_out_phi_11), .s(phi_s_phi_11));
 
-	add call_20();
+	add call_13();
 
-	reg [15:0] phi_in_phi_13;
-	reg [31:0] phi_last_block_phi_13;
-	reg [63:0] phi_s_phi_13;
-	wire [31:0] phi_out_phi_13;
-	phi #(.NB_PAIR(2), .WIDTH(8)) phi_13(.in(phi_in_phi_13), .last_block(phi_last_block_phi_13), .out(phi_out_phi_13), .s(phi_s_phi_13));
-
-	add call_27();
+	add call_19();
 
 	br_dummy br_unit();
 
@@ -102,11 +100,13 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_
 	wire [7:0] trunc_out_trunc_16;
 	trunc #(.IN_WIDTH(32), .OUT_WIDTH(8)) trunc_16(.in(trunc_in_trunc_16), .out(trunc_out_trunc_16));
 
+	add call_5();
+
 	// End Functional Units
 
 	// Start instruction result storage
 	reg [31:0] call_tmp_8;
-	reg [7:0] load_tmp_1;
+	reg [7:0] load_tmp_0;
 	reg [7:0] trunc_tmp_7;
 	// End instruction result storage
 
@@ -269,7 +269,7 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_
 				// Temporary storage
 				if (arg_3_s_axi_awready) begin
 				// Store data computed at the stage
-					load_tmp_1 <= arg_1_rdata;
+					load_tmp_0 <= arg_1_rdata;
 				end
 			end
 			if ((global_state == 1)) begin 
@@ -324,6 +324,16 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_
 	// Start pipeline stages
 	// End pipeline instruction code
 
+	// controller for arg_1.arg_1_raddr_reg
+	// Insensitive connections
+	always @(*) begin
+		arg_1_raddr_reg = valid ? arg_1_rdata : arg_1_rdata;
+	end
+	// controller for arg_2.arg_2_raddr_reg
+	// Insensitive connections
+	always @(*) begin
+		arg_2_raddr_reg = valid ? arg_2_rdata : arg_2_rdata;
+	end
 	// controller for arg_3.arg_3_s_axi_awaddr_reg
 	// controller for arg_3.arg_3_s_axi_awburst_reg
 	// controller for arg_3.arg_3_s_axi_awlen_reg
@@ -410,15 +420,14 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_
 	// Insensitive connections
 	always @(*) begin
 	end
-	// controller for arg_1.arg_1_raddr_reg
+	// controller for phi_11.phi_in_phi_11
+	// controller for phi_11.phi_last_block_phi_11
+	// controller for phi_11.phi_s_phi_11
 	// Insensitive connections
 	always @(*) begin
-		arg_1_raddr_reg = valid ? arg_1_rdata : arg_1_rdata;
-	end
-	// controller for arg_2.arg_2_raddr_reg
-	// Insensitive connections
-	always @(*) begin
-		arg_2_raddr_reg = valid ? arg_2_rdata : arg_2_rdata;
+		phi_in_phi_11 = valid ? {trunc_tmp_7, (8'd0)} : {trunc_tmp_7, (8'd0)};
+		phi_last_block_phi_11 = valid ? last_BB_reg : last_BB_reg;
+		phi_s_phi_11 = valid ? {32'd1, 32'd0} : {32'd1, 32'd0};
 	end
 	// controller for arg_0.arg_0_read_valid_reg
 	always @(*) begin
@@ -438,19 +447,10 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_
 	// Insensitive connections
 	always @(*) begin
 	end
-	// controller for phi_13.phi_in_phi_13
-	// controller for phi_13.phi_last_block_phi_13
-	// controller for phi_13.phi_s_phi_13
-	// Insensitive connections
-	always @(*) begin
-		phi_in_phi_13 = valid ? {trunc_tmp_7, (8'd0)} : {trunc_tmp_7, (8'd0)};
-		phi_last_block_phi_13 = valid ? last_BB_reg : last_BB_reg;
-		phi_s_phi_13 = valid ? {32'd1, 32'd0} : {32'd1, 32'd0};
-	end
 	// controller for sext_14.sgt_in0_sext_14
 	// Insensitive connections
 	always @(*) begin
-		sgt_in0_sext_14 = valid ? phi_out_phi_13 : phi_out_phi_13;
+		sgt_in0_sext_14 = valid ? phi_out_phi_11 : phi_out_phi_11;
 	end
 	// controller for add_add_15.add_in0_add_15
 	// controller for add_add_15.add_in1_add_15
@@ -472,7 +472,7 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_
 	// Insensitive connections
 	always @(*) begin
 		cmp_in0_icmp_24 = valid ? trunc_tmp_7 : trunc_tmp_7;
-		cmp_in1_icmp_24 = valid ? load_tmp_1 : load_tmp_1;
+		cmp_in1_icmp_24 = valid ? load_tmp_0 : load_tmp_0;
 	end
 	// Insensitive connections
 	always @(*) begin

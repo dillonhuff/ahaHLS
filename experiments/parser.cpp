@@ -26,6 +26,22 @@ class SynthCppModule;
 void optimizeModuleLLVM(SynthCppModule& mod);
 void optimizeModuleLLVM(llvm::Module& mod);
 
+void setZeroRows(TestBenchSpec& tb, const int cycleNo, const int stencilWidth, const int loadWidth, vector<Argument*> words) {
+  for (int row = 0; row < stencilWidth; row++) {
+    auto word = words[row];
+    string values = "";
+    for (int col = 0; col < loadWidth; col++) {
+      values += "8'd0";
+      if (col != (loadWidth - 1)) {
+        values += ",";
+      }
+    }
+    tb.setArgPort(word, "in_wire", cycleNo,
+                  "{" + values + "}");
+  }
+}
+
+
 // Simpler store elimination, since our formulation has no aliasing by
 // construction
 void optimizeStores(llvm::Function* f) {
@@ -3969,6 +3985,9 @@ int main() {
     }
 
     int get(const int i, const int j) {
+      assert(i < nRows);
+      assert(j < nCols);
+      
       return values[i*nCols + j];
     }
 
@@ -3991,11 +4010,11 @@ int main() {
     auto arch = synthesizeVerilog(scppMod, "run_median_func");
 
     {
-      int imgWidth = 4;
+      int imgWidth = 5;
       Img image(imgWidth, imgWidth);
       for (int i = 0; i < imgWidth; i++) {
         for (int j = 0; j < imgWidth; j++) {
-          image.set(i, j, 10);
+          image.set(i, j, i*imgWidth + j);
         }
       }
 
@@ -4010,8 +4029,8 @@ int main() {
       map<string, int> testLayout = {};
       tb.memoryInit = {};
       tb.memoryExpected = {};
-      tb.runCycles = 100;
-      tb.maxCycles = 200;
+      tb.runCycles = 30;
+      tb.maxCycles = 50;
       tb.name = "run_median_func";
       tb.useModSpecs = true;
 
@@ -4019,43 +4038,59 @@ int main() {
       map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
       map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
     
-      tb.actionOnCondition("1", "$display(\"pixel0 = %d\", arg_4_in_wire);");
-      tb.actionOnCondition("1", "$display(\"pixel1 = %d\", arg_5_in_wire);");
-      tb.actionOnCondition("1", "$display(\"pixel2 = %d\", arg_6_in_wire);");
-      tb.actionOnCondition("1", "$display(\"pixel3 = %d\", arg_7_in_wire);");
+      tb.actionOnCondition("1", "$display(\"pixel1 = %d, pixel2 = %d, pixel3 = %d, pixel4 = %d\", arg_4_in_wire, arg_5_in_wire, arg_6_in_wire, arg_7_in_wire);");
 
       int loadWidth = 4;
-      int startLoadCycle = 2;
+      int startLoadCycle = 3;
       int stencilWidth = 3;
-      for (int i = 0; i < imgWidth - 2; i++) {
-        for (int j = 0; j < imgWidth; j += loadWidth) {
 
+      int activeCycle = startLoadCycle;
+      vector<Argument*> rows{word0, word1, word2};
+
+      //for (int i = 0; i < imgWidth - (stencilWidth - 1); i++) {
+      for (int i = 0; i < imgWidth - 1; i++) {
+
+        // Clear row
+        for (int k = 0; k < 3; k++) {
+          setZeroRows(tb, activeCycle, stencilWidth, loadWidth, rows);
+          activeCycle++;
+        }
+        
+        for (int j = 0; j < imgWidth - (loadWidth - 1); j += loadWidth) {
+        //for (int j = 0; j < imgWidth; j += loadWidth) {
           // Assemble values;
-          vector<Argument*> rows{word0, word1, word2};
           for (int row = 0; row < stencilWidth; row++) {
             auto word = rows[row];
             string values = "";
             for (int col = 0; col < loadWidth; col++) {
-              values += "8'd" + to_string(image.get(i + row, j + col));
-              if (col != (4 - 1)) {
+              if ((i + row) < imgWidth) {
+                values += "8'd" + to_string(image.get(i + row, j + col));
+              } else {
+                values += "8'hff";
+              }
+
+              if (col != (loadWidth - 1)) {
                 values += ",";
               }
             }
-            tb.setArgPort(word, "in_wire", startLoadCycle + i*4 + j,
+            tb.setArgPort(word, "in_wire", activeCycle,
+                          //startLoadCycle + i + (j / loadWidth),
                           "{" + values + "}");
-            // tb.setArgPort(word0, "in_wire", startLoadCycle + i*4 + j,
-            //               to_string(image.get(i, j)));
-            // tb.setArgPort(word1, "in_wire", startLoadCycle + i*4 + j,
-            //               to_string(image.get(i, j)));
-            // tb.setArgPort(word2, "in_wire", startLoadCycle + i*4 + j,
-            //               to_string(image.get(i, j)));
           }
+          activeCycle++;            
+          
+
         }
+
+        // setZeroRows(tb, activeCycle, stencilWidth, loadWidth, rows);
+        // activeCycle++;
       }
-      // tb.actionOnCondition("1", "arg_1_in_wire <= {8'd1, 8'd2, 8'd3, 8'd4};");
-      // tb.actionOnCondition("1", "arg_2_in_wire <= {8'd5, 8'd6, 8'd7, 8'd8};");
-      // tb.actionOnCondition("1", "arg_3_in_wire <= {8'd9, 8'd10, 8'd11, 8'd12};");
-    
+
+      // for (int k = 0; k < 3; k++) {
+      //   setZeroRows(tb, activeCycle, stencilWidth, loadWidth, rows);
+      //   activeCycle++;
+      // }
+      
       tb.settablePort(word0, "in_wire");
       tb.settablePort(word1, "in_wire");
       tb.settablePort(word2, "in_wire");    

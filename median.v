@@ -65,6 +65,11 @@ module median
     output [MEM_ADDR_WIDTH-1:0]   waddr
 );
 
+   // always @(posedge clk) begin
+   //    $display("pixel1 = %d, pixel2 = %d, pixel3 = %d, pixel4 = %d", pixel1, pixel2, pixel3, pixel4);
+      
+   // end
+
     wire [PIXEL_DATA_WIDTH-1:0] x2_y1;
     wire [PIXEL_DATA_WIDTH-1:0] x2_y0;
     wire [PIXEL_DATA_WIDTH-1:0] x2_ym1;
