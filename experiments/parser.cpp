@@ -3944,37 +3944,52 @@ int main() {
     SynthCppModule scppMod(mod);
 
     auto arch = synthesizeVerilog(scppMod, "run_median_func");
+
+    map<llvm::Value*, int> layout = {};
+
+    auto word0 =
+      sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 1));
+
+    auto word1 =
+      sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 2));
+
+    auto word2 =
+      sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 3));
+
+    auto word3 =
+      sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 4));
+    
+    // auto in1 =
+    //   sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 1));
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 200;
+    tb.maxCycles = 300;
+    tb.name = "run_median_func";
+    tb.useModSpecs = true;
+
+    map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+    map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
+    map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+    
+    tb.actionOnCondition("1", "$display(\"pixel0 = %d\", arg_4_in_wire);");
+    
+    tb.actionOnCondition("1", "arg_1_in_wire <= 10;");
+    tb.actionOnCondition("1", "arg_2_in_wire <= 10;");
+    tb.actionOnCondition("1", "arg_3_in_wire <= 10;");
+    tb.actionOnCondition("1", "arg_4_in_wire <= 10;");
+    
+    tb.settablePort(word0, "in_wire");
+    tb.settablePort(word1, "in_wire");
+    tb.settablePort(word2, "in_wire");    
+    tb.settablePort(word3, "in_wire");    
+
+    //map_insert(tb.actionsOnCycles, 200, assertString("valid === 1"));
+    
+    emitVerilogTestBench(tb, arch, testLayout);
+    assert(runIVerilogTest("run_median_func_tb.v", "run_median_func", " builtins.v run_median_func.v RAM.v delay.v ram_primitives.v eth_axis_tx.v median_wires.v median.v state_machine.v node.v common_network.v dff_3_pipe.v pixel_network.v"));
   }
   
-  // Q: What are the new issues?
-  // A: How to generate code for interface methods, whether that code generation
-  //    can be done efficiently.
-
-  // Q: Now what needs to be done?
-  // A: Need to separate constraint handling from llvm code generation and add
-  //    code to push constraints to the correct ExecutionConstraints data structure.
-  //    Also need to build stub for read_port and write_port that generates the
-  //    correct builtin
-  //    Remove duplication from mkFunc
-  // Meta: I am really tired on this plane, what could I do to continue to work
-  // that will not take a huge mental load?
-
-  // Random thought: Have the user write timing diagrams in text as
-  // the API of the call?
-
-  // Problem: Primitive types should really be templatized
-
-  // Note: There needs to be some notion of what kinds of data can bind
-  // to a input_X value and what kinds of data output_X can bind to
-  // Q: What is the syntax of this binding in C++? What is the hardware meaning
-  //    of this binding and how do users tell the code about it?
-  // Note: Maybe all we do is connect ports?
-
-  // Now Im also worried about getting semantics right in time.
-
-  // TODO: Order toothbrush / shaver
-  // Idea: Start with a register iclass and figure out read and write
-  //       port mappings from there?
-  //       Also: Use load and store and just set register values in HCS?
-
 }

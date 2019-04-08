@@ -31,7 +31,7 @@
    -----------------------------------------------------------------------------
    PURPOSE: Top level entity of the Median Filter algorithm datapath.
    ----------------------------------------------------------------------------- */
-//`define DEBUG
+`define DEBUG
 
 module median
 #(
@@ -42,11 +42,12 @@ module median
     parameter IMG_WIDTH  = 320,
     parameter IMG_HEIGHT = 320
 )(
-    input clk, // Clock
-    input rst_n, // Asynchronous reset active low
-    input [31:0] word0,
-    input [31:0] word1,
-    input [31:0] word2,
+    input                         clk, // Clock
+    input                         rst,
+    input                         rst_n, // Asynchronous reset active low
+    input [31:0]                  word0,
+    input [31:0]                  word1,
+    input [31:0]                  word2,
 
     // Test signals
     `ifdef DEBUG
@@ -55,13 +56,13 @@ module median
     output [PIXEL_DATA_WIDTH-1:0] pixel3,
     output [PIXEL_DATA_WIDTH-1:0] pixel4,
     `else
-    output [MEM_DATA_WIDTH-1:0] median_word,
+    output [MEM_DATA_WIDTH-1:0]   median_word,
     `endif
-    output [LUT_ADDR_WIDTH-1:0] raddr_a,
-    output [LUT_ADDR_WIDTH-1:0] raddr_b,
-    output [LUT_ADDR_WIDTH-1:0] raddr_c,
+    output [LUT_ADDR_WIDTH-1:0]   raddr_a,
+    output [LUT_ADDR_WIDTH-1:0]   raddr_b,
+    output [LUT_ADDR_WIDTH-1:0]   raddr_c,
 
-    output [MEM_ADDR_WIDTH-1:0] waddr
+    output [MEM_ADDR_WIDTH-1:0]   waddr
 );
 
     wire [PIXEL_DATA_WIDTH-1:0] x2_y1;

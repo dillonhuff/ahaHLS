@@ -104,8 +104,8 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 
 	// Start instruction result storage
 	reg [7:0] load_tmp_0;
-	reg [7:0] trunc_tmp_5;
 	reg [31:0] call_tmp_8;
+	reg [7:0] trunc_tmp_5;
 	// End instruction result storage
 
 	// Start pipeline variables
