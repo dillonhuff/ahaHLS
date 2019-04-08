@@ -3990,7 +3990,7 @@ int main() {
     //map_insert(tb.actionsOnCycles, 200, assertString("valid === 1"));
     
     emitVerilogTestBench(tb, arch, testLayout);
-    assert(runIVerilogTest("run_median_func_tb.v", "run_median_func", " builtins.v run_median_func.v RAM.v delay.v ram_primitives.v eth_axis_tx.v median_wires.v median.v state_machine.v node.v common_network.v dff_3_pipe.v pixel_network.v"));
+    //assert(runIVerilogTest("run_median_func_tb.v", "run_median_func", " builtins.v run_median_func.v RAM.v delay.v ram_primitives.v eth_axis_tx.v median_wires.v median.v state_machine.v node.v common_network.v dff_3_pipe.v pixel_network.v"));
   }
   
 }
