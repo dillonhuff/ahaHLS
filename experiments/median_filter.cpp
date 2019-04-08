@@ -73,7 +73,7 @@ public:
       out_pixel4.write_wire_8(read_port(pixel4));      
 
       i = i + 1;
-    } while (i < (320 - 2)*(320 - 2));
+    } while (i < ((320 - 2)*(320 - 2)));
   }
 };
 
