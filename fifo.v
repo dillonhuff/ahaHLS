@@ -1,3 +1,4 @@
+
 `define assert(signal, value) if ((signal) !== (value)) begin $display("ASSERTION FAILED in %m: signal != value"); $finish(1); end
 
 `define POSEDGE #1 clk = 0; #1 clk = 0; #1 clk = 1; #1 clk = 1;
