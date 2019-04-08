@@ -60,7 +60,7 @@ public:
   rst_0: write_port(rst_n, 0);
   rst_11: write_port(rst_n, 1);
 
-    bit_32 i;
+    bit_20 i;
     i = 0;
   pixel_loop: do {
       write_port(word0, in_word0.read_wire_32());
@@ -73,7 +73,7 @@ public:
       out_pixel4.write_wire_8(read_port(pixel4));
 
       i = i + 1;
-    } while (i < ((32 - 2)*(32 - 2) + 1));
+    } while (i < ((320 - 2)*(320 - 2) + 1));
 
     add_constraint(start(rst_01) + 1 == start(rst_0));
     add_constraint(start(rst_0) + 1 == start(rst_11));
