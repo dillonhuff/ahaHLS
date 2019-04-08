@@ -41,22 +41,10 @@ module b_fifo(input clk,
    assign next_read_addr = (DEPTH == (read_addr + 1)) ? 0 : read_addr + 1;
    assign next_write_addr = (DEPTH == (write_addr + 1)) ? 0 : write_addr + 1;
 
-   always @(posedge clk) begin
-      if (!rst) begin
-         if (read_valid) begin
-
-//            $display("reading %d, from address %d", ram[read_addr], read_addr);            
-
-            // Wraparound
-            read_addr <= next_read_addr;
-
-            if (!empty && (next_read_addr == write_addr) && !write_valid) begin
-//               $display("FIFO empty: next_read_addr = %d, write_addr = %d", next_read_addr, write_addr);
-               empty <= 1;
-            end
-         end
-      end
-   end
+   // always @(posedge clk) begin
+   //    if (!rst) begin
+   //    end
+   // end
 
    reg [WIDTH - 1 : 0] out_data_reg;
 
@@ -85,7 +73,19 @@ module b_fifo(input clk,
 //         $display("reseting");
          write_addr <= 0;
          read_addr <= 0;
+      end else begin
+         if (read_valid) begin
 
+//            $display("reading %d, from address %d", ram[read_addr], read_addr);            
+
+            // Wraparound
+            read_addr <= next_read_addr;
+
+            if (!empty && (next_read_addr == write_addr) && !write_valid) begin
+//               $display("FIFO empty: next_read_addr = %d, write_addr = %d", next_read_addr, write_addr);
+               empty <= 1;
+            end
+         end
       end
    end
    
