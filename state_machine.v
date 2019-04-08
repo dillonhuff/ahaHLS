@@ -84,21 +84,21 @@ module state_machine
                         raddr_a <= raddr_a + 1'b1;
                         raddr_b <= raddr_b - window_column_counter;
                         raddr_c <= raddr_c - window_column_counter;
-                        window_line_counter = window_line_counter + 1'b1;
+                        window_line_counter <= window_line_counter + 1'b1;
                     end
                     2'b01 :
                     begin
                         raddr_b <= raddr_b + 1'b1;
                         raddr_a <= raddr_a - window_column_counter;
                         raddr_c <= raddr_c - window_column_counter;
-                        window_line_counter = window_line_counter + 1'b1;
+                        window_line_counter <= window_line_counter + 1'b1;
                     end
                     2'b10 :
                     begin
                         raddr_b <= raddr_b - window_column_counter;
                         raddr_a <= raddr_a - window_column_counter;
                         raddr_c <= raddr_c + 1'b1;
-                        window_line_counter = 2'b00;
+                        window_line_counter <= 2'b00;
                     end
                     default :
                     begin
