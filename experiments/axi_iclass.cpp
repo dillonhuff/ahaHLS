@@ -64,6 +64,7 @@ class axi_ram {
   input_4 s_axi_wstrb;
 
   input_1 s_axi_bready;
+  output_1 s_axi_bvalid;
 
   void defaults() {
     write_port(s_axi_awvalid, 0);
