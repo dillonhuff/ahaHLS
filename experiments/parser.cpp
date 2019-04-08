@@ -3956,8 +3956,8 @@ int main() {
     auto word2 =
       sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 3));
 
-    auto word3 =
-      sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 4));
+    // auto word3 =
+    //   sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 4));
     
     // auto in1 =
     //   sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 1));
@@ -3975,16 +3975,17 @@ int main() {
     map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
     
     tb.actionOnCondition("1", "$display(\"pixel0 = %d\", arg_4_in_wire);");
+    tb.actionOnCondition("1", "$display(\"pixel1 = %d\", arg_5_in_wire);");
+    tb.actionOnCondition("1", "$display(\"pixel2 = %d\", arg_6_in_wire);");
+    tb.actionOnCondition("1", "$display(\"pixel3 = %d\", arg_7_in_wire);");
     
-    tb.actionOnCondition("1", "arg_1_in_wire <= 10;");
-    tb.actionOnCondition("1", "arg_2_in_wire <= 10;");
-    tb.actionOnCondition("1", "arg_3_in_wire <= 10;");
-    tb.actionOnCondition("1", "arg_4_in_wire <= 10;");
+    tb.actionOnCondition("1", "arg_1_in_wire <= {8'd1, 8'd2, 8'd3, 8'd4};");
+    tb.actionOnCondition("1", "arg_2_in_wire <= {8'd5, 8'd6, 8'd7, 8'd8};");
+    tb.actionOnCondition("1", "arg_3_in_wire <= {8'd9, 8'd10, 8'd11, 8'd12};");
     
     tb.settablePort(word0, "in_wire");
     tb.settablePort(word1, "in_wire");
     tb.settablePort(word2, "in_wire");    
-    tb.settablePort(word3, "in_wire");    
 
     //map_insert(tb.actionsOnCycles, 200, assertString("valid === 1"));
     

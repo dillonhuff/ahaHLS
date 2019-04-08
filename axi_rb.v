@@ -92,20 +92,20 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 
 	add call_14();
 
+	add call_19();
+
 	reg [15:0] phi_in_phi_15;
 	reg [31:0] phi_last_block_phi_15;
 	reg [63:0] phi_s_phi_15;
 	wire [31:0] phi_out_phi_15;
 	phi #(.NB_PAIR(2), .WIDTH(8)) phi_15(.in(phi_in_phi_15), .last_block(phi_last_block_phi_15), .out(phi_out_phi_15), .s(phi_s_phi_15));
 
-	add call_19();
-
 	// End Functional Units
 
 	// Start instruction result storage
 	reg [7:0] load_tmp_0;
-	reg [31:0] call_tmp_8;
 	reg [7:0] trunc_tmp_5;
+	reg [31:0] call_tmp_8;
 	// End instruction result storage
 
 	// Start pipeline variables
