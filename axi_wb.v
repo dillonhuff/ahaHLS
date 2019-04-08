@@ -68,8 +68,6 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 	// End debug wires and ports
 
 	// Start Functional Units
-	br_dummy br_unit();
-
 	reg [31:0] sgt_in0_sext_11;
 	wire [63:0] sgt_out_sext_11;
 	sext sext_11(.in(sgt_in0_sext_11), .out(sgt_out_sext_11));
@@ -83,6 +81,8 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 	reg [7:0] cmp_in1_icmp_24;
 	wire [0:0] cmp_out_icmp_24;
 	slt #(.WIDTH(8)) icmp_24(.in0(cmp_in0_icmp_24), .in1(cmp_in1_icmp_24), .out(cmp_out_icmp_24));
+
+	br_dummy br_unit();
 
 	reg [31:0] trunc_in_trunc_13;
 	wire [7:0] trunc_out_trunc_13;
@@ -105,8 +105,8 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 	// End Functional Units
 
 	// Start instruction result storage
-	reg [7:0] load_tmp_0;
 	reg [7:0] trunc_tmp_5;
+	reg [7:0] load_tmp_0;
 	reg [31:0] call_tmp_8;
 	// End instruction result storage
 

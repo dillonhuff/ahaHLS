@@ -56,13 +56,13 @@ public:
                     wire_8& out_pixel2,
                     wire_8& out_pixel3,
                     wire_8& out_pixel4) {
-    write_port(rst_n, 1);
-    write_port(rst_n, 0);
-    write_port(rst_n, 1);
+  rst_01: write_port(rst_n, 1);
+  rst_0: write_port(rst_n, 0);
+  rst_11: write_port(rst_n, 1);
 
     bit_32 i;
     i = 0;
-    do {
+  pixel_loop: do {
       write_port(word0, in_word0.read_wire_32());
       write_port(word1, in_word1.read_wire_32());
       write_port(word2, in_word2.read_wire_32());      

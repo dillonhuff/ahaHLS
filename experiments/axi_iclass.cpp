@@ -77,7 +77,7 @@ class axi_ram {
                          bit_2& awburst,
                          bit_8& awlen,
                          bit_16& awaddr) {
-    stall(read_port(s_axi_awready));
+  stall_awready: stall(read_port(s_axi_awready));
 
   set_v: write_port(s_axi_awvalid, 1);
   set_size: write_port(s_axi_awsize, awsize);    
@@ -86,6 +86,8 @@ class axi_ram {
   set_addr: write_port(s_axi_awaddr, awaddr);
   set_wv: write_port(s_axi_wvalid, 1);
 
+    add_constraint(end(stall_awready) == start(set_v));
+    
     add_constraint(start(set_v) == start(set_size));
     add_constraint(start(set_v) == start(set_burst));
     add_constraint(start(set_v) == start(set_len));
@@ -145,7 +147,7 @@ class axi_ram {
                         bit_2& arburst,
                         bit_8& arlen,
                         bit_16& araddr) {
-    stall(read_port(s_axi_arready));
+  stall_arready: stall(read_port(s_axi_arready));
 
   set_v: write_port(s_axi_arvalid, 1);
   set_sz: write_port(s_axi_arsize, arsize);    
@@ -153,6 +155,7 @@ class axi_ram {
   set_arlen: write_port(s_axi_arlen, arlen);
   set_addr: write_port(s_axi_araddr, araddr);
 
+    add_constraint(end(stall_arready) < start(set_v));    
     add_constraint(start(set_v) == start(set_sz));
     add_constraint(start(set_v) == start(set_burst));
     add_constraint(start(set_v) == start(set_arlen));
