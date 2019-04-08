@@ -2381,9 +2381,6 @@ public:
       Instruction* instrLabel = map_find(Token(arg0Name), labelsToInstructions);
       cout << "Instruction labeled = " << valueString(instrLabel) << endl;
       
-      // TODO: Translate the argument name (which should
-      // be a label) in to a source code location, and then
-      // make the execution action for the instruction being used
       if (labelName == "start") {
         return {ExecutionAction(instrLabel), false, 0};
       } else {
@@ -3961,6 +3958,26 @@ int main() {
     //assert(runIVerilogTest("fadd_32_tb.v", "fadd_32", " builtins.v fadd_32.v"));
   }
 
+  class Img {
+    vector<int> values;
+    int nRows, nCols;
+
+  public:
+
+    Img(const int nRows_, const int nCols_) : nRows(nRows_), nCols(nCols_) {
+      values.resize(nRows*nCols);
+    }
+
+    int get(const int i, const int j) {
+      return values[i*nCols + j];
+    }
+
+    void set(const int i, const int j, const int val) {
+      values[i*nCols + j] = val;
+    }
+
+  };
+
   {
     ifstream t("./experiments/median_filter.cpp");
     std::string str((std::istreambuf_iterator<char>(t)),
@@ -3973,52 +3990,81 @@ int main() {
 
     auto arch = synthesizeVerilog(scppMod, "run_median_func");
 
-    map<llvm::Value*, int> layout = {};
+    {
+      int imgWidth = 4;
+      Img image(imgWidth, imgWidth);
+      for (int i = 0; i < imgWidth; i++) {
+        for (int j = 0; j < imgWidth; j++) {
+          image.set(i, j, 10);
+        }
+      }
 
-    auto word0 =
-      sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 1));
+      auto word0 =
+        sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 1));
+      auto word1 =
+        sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 2));
+      auto word2 =
+        sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 3));
 
-    auto word1 =
-      sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 2));
+      TestBenchSpec tb;
+      map<string, int> testLayout = {};
+      tb.memoryInit = {};
+      tb.memoryExpected = {};
+      tb.runCycles = 100;
+      tb.maxCycles = 200;
+      tb.name = "run_median_func";
+      tb.useModSpecs = true;
 
-    auto word2 =
-      sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 3));
-
-    // auto word3 =
-    //   sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 4));
+      map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+      map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
+      map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
     
-    // auto in1 =
-    //   sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 1));
-    TestBenchSpec tb;
-    map<string, int> testLayout = {};
-    tb.memoryInit = {};
-    tb.memoryExpected = {};
-    tb.runCycles = 200;
-    tb.maxCycles = 300;
-    tb.name = "run_median_func";
-    tb.useModSpecs = true;
+      tb.actionOnCondition("1", "$display(\"pixel0 = %d\", arg_4_in_wire);");
+      tb.actionOnCondition("1", "$display(\"pixel1 = %d\", arg_5_in_wire);");
+      tb.actionOnCondition("1", "$display(\"pixel2 = %d\", arg_6_in_wire);");
+      tb.actionOnCondition("1", "$display(\"pixel3 = %d\", arg_7_in_wire);");
 
-    map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
-    map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
-    map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
-    
-    tb.actionOnCondition("1", "$display(\"pixel0 = %d\", arg_4_in_wire);");
-    tb.actionOnCondition("1", "$display(\"pixel1 = %d\", arg_5_in_wire);");
-    tb.actionOnCondition("1", "$display(\"pixel2 = %d\", arg_6_in_wire);");
-    tb.actionOnCondition("1", "$display(\"pixel3 = %d\", arg_7_in_wire);");
-    
-    tb.actionOnCondition("1", "arg_1_in_wire <= {8'd1, 8'd2, 8'd3, 8'd4};");
-    tb.actionOnCondition("1", "arg_2_in_wire <= {8'd5, 8'd6, 8'd7, 8'd8};");
-    tb.actionOnCondition("1", "arg_3_in_wire <= {8'd9, 8'd10, 8'd11, 8'd12};");
-    
-    tb.settablePort(word0, "in_wire");
-    tb.settablePort(word1, "in_wire");
-    tb.settablePort(word2, "in_wire");    
+      int loadWidth = 4;
+      int startLoadCycle = 2;
+      int stencilWidth = 3;
+      for (int i = 0; i < imgWidth - 2; i++) {
+        for (int j = 0; j < imgWidth; j += loadWidth) {
 
-    //map_insert(tb.actionsOnCycles, 200, assertString("valid === 1"));
+          // Assemble values;
+          vector<Argument*> rows{word0, word1, word2};
+          for (int row = 0; row < stencilWidth; row++) {
+            auto word = rows[row];
+            string values = "";
+            for (int col = 0; col < loadWidth; col++) {
+              values += "8'd" + to_string(image.get(i + row, j + col));
+              if (col != (4 - 1)) {
+                values += ",";
+              }
+            }
+            tb.setArgPort(word, "in_wire", startLoadCycle + i*4 + j,
+                          "{" + values + "}");
+            // tb.setArgPort(word0, "in_wire", startLoadCycle + i*4 + j,
+            //               to_string(image.get(i, j)));
+            // tb.setArgPort(word1, "in_wire", startLoadCycle + i*4 + j,
+            //               to_string(image.get(i, j)));
+            // tb.setArgPort(word2, "in_wire", startLoadCycle + i*4 + j,
+            //               to_string(image.get(i, j)));
+          }
+        }
+      }
+      // tb.actionOnCondition("1", "arg_1_in_wire <= {8'd1, 8'd2, 8'd3, 8'd4};");
+      // tb.actionOnCondition("1", "arg_2_in_wire <= {8'd5, 8'd6, 8'd7, 8'd8};");
+      // tb.actionOnCondition("1", "arg_3_in_wire <= {8'd9, 8'd10, 8'd11, 8'd12};");
     
-    emitVerilogTestBench(tb, arch, testLayout);
-    //assert(runIVerilogTest("run_median_func_tb.v", "run_median_func", " builtins.v run_median_func.v RAM.v delay.v ram_primitives.v eth_axis_tx.v median_wires.v median.v state_machine.v node.v common_network.v dff_3_pipe.v pixel_network.v"));
+      tb.settablePort(word0, "in_wire");
+      tb.settablePort(word1, "in_wire");
+      tb.settablePort(word2, "in_wire");    
+
+      //map_insert(tb.actionsOnCycles, 200, assertString("valid === 1"));
+    
+      emitVerilogTestBench(tb, arch, testLayout);
+      assert(runIVerilogTest("run_median_func_tb.v", "run_median_func", " builtins.v run_median_func.v RAM.v delay.v ram_primitives.v eth_axis_tx.v median_wires.v median.v state_machine.v node.v common_network.v dff_3_pipe.v pixel_network.v"));
+    }
   }
   
 }
