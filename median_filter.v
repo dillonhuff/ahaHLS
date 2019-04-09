@@ -24,14 +24,14 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	// End debug wires and ports
 
 	// Start Functional Units
+	br_dummy br_unit();
+
 	reg [0:0] m_rst_n;
 	reg [31:0] m_word0;
 	reg [31:0] m_word1;
 	reg [31:0] m_word2;
 	wire [31:0] m_median_word;
 	median m(.clk(clk), .median_word(m_median_word), .rst_n(m_rst_n), .word0(m_word0), .word1(m_word1), .word2(m_word2));
-
-	br_dummy br_unit();
 
 	reg [63:0] phi_in_phi_6;
 	reg [31:0] phi_last_block_phi_6;
@@ -44,10 +44,10 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	wire [31:0] add_out_add_7;
 	add #(.WIDTH(32)) add_add_7(.in0(add_in0_add_7), .in1(add_in1_add_7), .out(add_out_add_7));
 
-	reg [31:0] cmp_in0_icmp_11;
-	reg [31:0] cmp_in1_icmp_11;
-	wire [0:0] cmp_out_icmp_11;
-	ne #(.WIDTH(32)) icmp_11(.in0(cmp_in0_icmp_11), .in1(cmp_in1_icmp_11), .out(cmp_out_icmp_11));
+	reg [31:0] cmp_in0_icmp_16;
+	reg [31:0] cmp_in1_icmp_16;
+	wire [0:0] cmp_out_icmp_16;
+	ne #(.WIDTH(32)) icmp_16(.in0(cmp_in0_icmp_16), .in1(cmp_in1_icmp_16), .out(cmp_out_icmp_16));
 
 	// End Functional Units
 
@@ -104,37 +104,6 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 		end
 	end
 
-
-	always @(posedge clk) begin
-		if (rst) begin
-			global_state <= 0;
-		end else begin
-			if ((global_state == 0) && 1) begin
-				global_state <= 1;
-			end
-			if ((global_state == 1) && 1) begin
-				global_state <= 2;
-			end
-			if ((global_state == 2) && 1) begin
-				global_state <= 3;
-			end
-			if ((global_state == 3) && 1) begin
-				global_state <= 4;
-			end
-			if ((global_state == 4) && !(cmp_out_icmp_11)) begin
-				global_state <= 5;
-			end
-			if ((global_state == 4) && (cmp_out_icmp_11)) begin
-				global_state <= 4;
-			end
-			if ((global_state == 5) && 1) begin
-				global_state <= 6;
-			end
-			if ((global_state == 6) && 1) begin
-				global_state <= 6;
-			end
-		end
-	end
 
 	always @(posedge clk) begin
 		if (rst) begin
@@ -235,17 +204,17 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	// Insensitive connections
 	always @(*) begin
 	end
-	// controller for icmp_11.cmp_in0_icmp_11
-	// controller for icmp_11.cmp_in1_icmp_11
-	// Insensitive connections
-	always @(*) begin
-		cmp_in0_icmp_11 = valid ? add_out_add_7 : add_out_add_7;
-		cmp_in1_icmp_11 = valid ? (32'd8533) : (32'd8533);
-	end
 	// controller for out.out_in_data_reg
 	// Insensitive connections
 	always @(*) begin
 		out_in_data_reg = valid ? m_median_word : m_median_word;
+	end
+	// controller for icmp_16.cmp_in0_icmp_16
+	// controller for icmp_16.cmp_in1_icmp_16
+	// Insensitive connections
+	always @(*) begin
+		cmp_in0_icmp_16 = valid ? add_out_add_7 : add_out_add_7;
+		cmp_in1_icmp_16 = valid ? (32'd8533) : (32'd8533);
 	end
 	// controller for ret_19.valid_reg
 	always @(*) begin
@@ -262,6 +231,38 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 	// Insensitive connections
 	always @(*) begin
 	end
+	// Register controllers
+	always @(posedge clk) begin
+		if (rst) begin
+			global_state <= 0;
+		end else begin
+			if ((global_state == 0) && 1) begin
+				global_state <= 1;
+			end
+			if ((global_state == 1) && 1) begin
+				global_state <= 2;
+			end
+			if ((global_state == 2) && 1) begin
+				global_state <= 3;
+			end
+			if ((global_state == 3) && 1) begin
+				global_state <= 4;
+			end
+			if ((global_state == 4) && !(cmp_out_icmp_16)) begin
+				global_state <= 5;
+			end
+			if ((global_state == 4) && (cmp_out_icmp_16)) begin
+				global_state <= 4;
+			end
+			if ((global_state == 5) && 1) begin
+				global_state <= 6;
+			end
+			if ((global_state == 6) && 1) begin
+				global_state <= 6;
+			end
+		end
+	end
+
 endmodule
 
 module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data, output [0:0] valid);

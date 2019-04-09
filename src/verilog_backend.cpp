@@ -1751,10 +1751,6 @@ namespace ahaHLS {
 
     // 
     // Emit valid reg controllers
-    for (auto& rc : arch.regControllers) {
-      out << rc.second << endl;
-    }
-    
     out << "\talways @(posedge clk) begin" << endl;
     out << "\t\tif (rst) begin" << endl;
     out << "\t\tend else begin" << endl;
@@ -2803,6 +2799,11 @@ namespace ahaHLS {
     emitPipelineInstructionCode(out, arch.pipelines, arch);
     emitInstructionCode(out, arch, arch.pipelines);
 
+    out << tab(1) << "// Register controllers" << endl;
+    for (auto& rc : arch.regControllers) {
+      out << rc.second << endl;
+    }
+    
     out << "endmodule" << endl << endl;
 
     VerilogComponents comps;
