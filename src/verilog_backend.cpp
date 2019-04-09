@@ -2635,9 +2635,9 @@ namespace ahaHLS {
                       const std::vector<ElaboratedPipeline>& pipelines,
                       MicroArchitecture& arch) {
 
-    RegController rc;
-    rc.regName = "last_BB_reg";
-    rc.resetValue = to_string(arch.cs.getBasicBlockNo(&(f->getEntryBlock())));
+    RegController& rc = arch.getController("last_BB_reg");
+    // rc.regName = "last_BB_reg";
+    // rc.resetValue = to_string(arch.cs.getBasicBlockNo(&(f->getEntryBlock())));
     
     for (auto st : arch.stg.opStates) {
       if (st.second.size() > 0) {
@@ -2674,7 +2674,7 @@ namespace ahaHLS {
       }
     }
 
-    out << rc << endl;
+    //out << rc << endl;
   }
 
   MicroArchitecture
