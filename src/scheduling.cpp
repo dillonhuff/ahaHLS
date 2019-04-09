@@ -875,7 +875,6 @@ namespace ahaHLS {
               // TODO: Add SCEV analysis
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
               if (aliasRes != NoAlias) {
-                //p.addConstraint(p.instrStart(&instr) <= p.instrStart(&otherInstr));
                 exe.addConstraint(instrStart(&instr) <= instrStart(&otherInstr));
               }
             }
@@ -933,7 +932,6 @@ namespace ahaHLS {
             for (auto preI : gp) {
               for (auto nextI : next) {
                 // Change to p.instrStart(preI) + II_unit
-                //p.addConstraint(p.instrStart(preI) + 1 <= p.instrStart(nextI));
                 exe.addConstraint(instrStart(preI) + 1 <= instrStart(nextI));
               }
             }
@@ -972,7 +970,6 @@ namespace ahaHLS {
             int rawDD = rawOperandDD(&instrA, &instrB, domTree);
             if (rawDD > 0) {
               p.addConstraint(p.instrEnd(&instrA) < II*rawDD + p.instrStart(&instrB));
-              //exe.addConstraint(new ILPConstraint(instrEnd(&instrA) < II*rawDD + instrStart(&instrB)));
             }
 
             if (StoreInst::classof(&instrA) &&
@@ -983,7 +980,6 @@ namespace ahaHLS {
                                          sc);
               if (memRawDD > 0) {
                 p.addConstraint(p.instrEnd(&instrA) < II*memRawDD + p.instrStart(&instrB));
-                //exe.addConstraint(instrEnd(&instrA) < II*memRawDD + instrStart(&instrB));
               }
             }
           }

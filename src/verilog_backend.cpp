@@ -14,6 +14,29 @@ using namespace std;
 
 namespace ahaHLS {
 
+  class RegController {
+  public:
+    std::string regName;
+    std::string resetValue;
+    std::map<string, string> values;
+  };
+
+  std::ostream& operator<<(std::ostream& out, const RegController& controller) {
+    out << tab(1) << "always @(posedge clk) begin" << endl;
+    out << tab(2) << "if (rst) begin" << endl;
+    out << tab(3) << controller.regName << " <= " << controller.resetValue << ";" << endl;
+    out << tab(2) << "end else begin" << endl;
+    for (auto val : controller.values) {
+      out << tab(3) << "if (" << val.first << ") begin" << endl;
+      out << tab(4) << controller.regName << " <= " << val.second << ";" << endl;
+      out << tab(3) << "end" << endl;      
+    }
+    out << tab(2) << "end" << endl;
+    out << tab(1) << "end" << endl;
+
+    return out;
+  }
+
   int getArgNum(Argument* arg) {
     int index = 0;
     Function* f = arg->getParent();
@@ -1550,7 +1573,10 @@ namespace ahaHLS {
     out << "\t\t\tend" << endl;
     
   }
-  
+
+  // Want to move toward merging basic blocks in to a single state
+  // and allowing more code to be executed in a cycle. Need to
+  // add the active basic block variable
   void emitPipelineStateCode(std::ostream& out,
                              const StateId state,
                              const std::vector<StateTransition>& destinations,
@@ -2191,7 +2217,7 @@ namespace ahaHLS {
 
   void emitPipelineResetBlock(std::ostream& out,
                               const std::vector<ElaboratedPipeline>& pipelines) {
-    
+
     out << "\t// Start pipeline reset block" << endl;
     out << "\talways @(posedge clk) begin" << endl;
     out << "\t\tif (rst) begin" << endl;
@@ -2520,11 +2546,16 @@ namespace ahaHLS {
                       llvm::Function* f,
                       const std::vector<ElaboratedPipeline>& pipelines,
                       MicroArchitecture& arch) {
-    out << "\talways @(posedge clk) begin" << endl;
 
-    out << "\t\tif (rst) begin" << endl;
-    out << "\t\t\tlast_BB_reg <= " << arch.cs.getBasicBlockNo(&(f->getEntryBlock())) << ";" << endl;
-    out << "\t\tend else begin" << endl;
+    RegController rc;
+    rc.regName = "last_BB_reg";
+    rc.resetValue = to_string(arch.cs.getBasicBlockNo(&(f->getEntryBlock())));
+    
+    //out << "\talways @(posedge clk) begin" << endl;
+
+    //out << "\t\tif (rst) begin" << endl;
+    //out << "\t\t\tlast_BB_reg <= " << arch.cs.getBasicBlockNo(&(f->getEntryBlock())) << ";" << endl;
+    //out << "\t\tend else begin" << endl;
 
     for (auto st : arch.stg.opStates) {
       if (st.second.size() > 0) {
@@ -2546,29 +2577,34 @@ namespace ahaHLS {
             ElaboratedPipeline p = getPipeline(st.first, pipelines);
             auto bbI = *begin(instructionsForBlocks);
 
-            out << tab(3) << ifStr(atState(p.stateId, arch)) << " begin" << endl;
+            //out << tab(3) << ifStr(atState(p.stateId, arch)) << " begin" << endl;
             auto bbNo = arch.cs.getBasicBlockNo(bbI.first);
-            out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
+            //out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
+            rc.values[atState(p.stateId, arch)] = to_string(bbNo);
 
-            out << tab(3) << "end" << endl;
+            //out << tab(3) << "end" << endl;
           }
 
         } else {
-          out << tab(3) << ifStr(atState(st.first, arch)) << " begin" << endl;  
+          //out << tab(3) << ifStr(atState(st.first, arch)) << " begin" << endl;  
           for (auto bbI : instructionsForBlocks) {
 
             auto bbNo = arch.cs.getBasicBlockNo(bbI.first);
-            out << tab(5) << "last_BB_reg <= " << bbNo << ";" << endl;
+            //out << tab(5) << "last_BB_reg <= " << bbNo << ";" << endl;
+
+            rc.values[atState(st.first, arch)] = to_string(bbNo);
 
           }
-          out << tab(3) << "end" << endl;
+          //out << tab(3) << "end" << endl;
         }
       }
     }
 
-    out << "\t\tend" << endl;
+    // out << "\t\tend" << endl;
 
-    out << "\tend" << endl;
+    // out << "\tend" << endl;
+
+    out << rc << endl;
   }
 
   void
