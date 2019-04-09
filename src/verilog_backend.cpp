@@ -2433,7 +2433,9 @@ namespace ahaHLS {
 
       //      for (auto validVar : p.valids) {
       for (int i = 0; i < ((int) p.valids.size()) - 1; i++) {
-        out << "\t\t\t" << p.valids[i + 1].name << " <= " << p.valids[i].name << ";" << endl;
+        arch.getController(p.valids[i + 1].name).values["1"] =
+          p.valids[i].name;
+        //out << "\t\t\t" << p.valids[i + 1].name << " <= " << p.valids[i].name << ";" << endl;
       }
     }
     out << "\t\tend" << endl;
