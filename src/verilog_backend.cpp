@@ -1662,17 +1662,10 @@ namespace ahaHLS {
       emitPipelineStateCode(out, state.first, state.second, arch);
     }
 
-    // out << "\talways @(posedge clk) begin" << endl;
-    // out << "\t\tif (rst) begin" << endl;
-    // out << "\t\tend else begin" << endl;
-    // out << tab(3) << "// Temporary storage code" << endl;    
     for (auto state : arch.stg.opTransitions) {
       emitTempStorageCode(out, state.first, state.second, arch);
     }
 
-    // out << "\t\tend" << endl; // This closes and end statement in emitResetCode
-    // out << "\tend" << endl;
-    // out << endl << endl;
   }
 
   void emitConditionalInstruction(std::ostream& out,
@@ -2188,7 +2181,6 @@ namespace ahaHLS {
 
   void emitPipelineResetBlock(std::ostream& out,
                               MicroArchitecture& arch) {
-                              //const std::vector<ElaboratedPipeline>& pipelines) {
 
     for (auto p : arch.pipelines) {
 
