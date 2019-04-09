@@ -2501,9 +2501,12 @@ namespace ahaHLS {
                       MicroArchitecture& arch) {
 
     RegController& rc = arch.getController("last_BB_reg");
-    // rc.regName = "last_BB_reg";
-    // rc.resetValue = to_string(arch.cs.getBasicBlockNo(&(f->getEntryBlock())));
-    
+
+    // Find each branch instruction
+    // For each branch instruction if the branch goes out to
+    // a block in another state (or its own block) then set the
+    // next block variable, otherwise set the current (combinational) block variable.
+    // 
     for (auto st : arch.stg.opStates) {
       if (st.second.size() > 0) {
 
