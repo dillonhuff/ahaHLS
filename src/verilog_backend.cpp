@@ -1452,6 +1452,7 @@ namespace ahaHLS {
   
   void emitTempStorage(std::ostream& out,
                        const StateId state,
+                       const std::string& cond,
                        MicroArchitecture& arch) {
 
     auto& names = arch.names;
@@ -1484,8 +1485,8 @@ namespace ahaHLS {
         if (needsTempStorage(instr, arch)) {
           auto unit = map_find(instr, unitAssignment);
 
-          //arch.regControllers(instrName).values["1"]
-          out << tab(5) << instrName << " <= " << dataOutput(instr, arch) << ";" << endl;
+          arch.getController(instrName).values[cond] = dataOutput(instr, arch);
+          //out << tab(5) << instrName << " <= " << dataOutput(instr, arch) << ";" << endl;
 
         }
           
@@ -1534,6 +1535,8 @@ namespace ahaHLS {
                            const std::vector<StateTransition>& destinations,
                            MicroArchitecture& arch) {
 
+    vector<string> allConds{atState(state, arch)};
+    
     out << tab(3) << "if (" << atState(state, arch) << ") begin " << endl;    
     out << "\t\t\t\t// Temporary storage" << endl;
 
@@ -1549,6 +1552,7 @@ namespace ahaHLS {
                                  arch);
 
         stallConds.push_back(cond);
+        allConds.push_back(cond);
       }
     }
 
@@ -1558,6 +1562,7 @@ namespace ahaHLS {
     
     emitTempStorage(out,
                     state,
+                    andStrings(allConds),
                     arch);
 
     if (stallConds.size() > 0) {
