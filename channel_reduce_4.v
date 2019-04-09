@@ -45,6 +45,8 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [0:0] val
 	wire [31:0] rdata_ram_0;
 	register #(.WIDTH(32)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
 
+	br_dummy br_unit();
+
 	add call_17();
 
 	reg [63:0] phi_in_phi_5;
@@ -67,8 +69,6 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [0:0] val
 	reg [31:0] cmp_in1_icmp_8;
 	wire [0:0] cmp_out_icmp_8;
 	eq #(.WIDTH(32)) icmp_8(.in0(cmp_in0_icmp_8), .in1(cmp_in1_icmp_8), .out(cmp_out_icmp_8));
-
-	br_dummy br_unit();
 
 	add call_19();
 
@@ -130,87 +130,43 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [0:0] val
 		if (rst) begin
 			global_state <= 0;
 		end else begin
-			// Control code
-			if ((global_state == 0)) begin 
-				// Next state transition logic
-				// Condition = True
-
-				if (1) begin
-					global_state <= 1;
-				end
+			if ((global_state == 0) && 1) begin
+				global_state <= 1;
 			end
-			if ((global_state == 1)) begin 
-				// Next state transition logic
-				// Condition = True
-
-				if (1) begin
-					global_state <= 2;
-				end
+			if ((global_state == 1) && 1) begin
+				global_state <= 2;
 			end
-			if ((global_state == 2)) begin 
-				// Next state transition logic
-				// Condition = True
-
-				if (1) begin
-				if (in_read_ready) begin 
-					global_state <= 3;
-				end
-				end
+			if ((global_state == 2) && 1 && in_read_ready) begin
+				global_state <= 3;
 			end
-			if ((global_state == 3)) begin 
-				// Next state transition logic
-				// Condition = True
-
-				if (1) begin
-					global_state <= 4;
-				end
+			if ((global_state == 3) && 1) begin
+				global_state <= 4;
 			end
-			if ((global_state == 4)) begin 
-				// Next state transition logic
-				// Condition = True
-
-				if (1) begin
-					global_state <= 5;
-				end
+			if ((global_state == 4) && 1) begin
+				global_state <= 5;
 			end
-			if ((global_state == 5)) begin 
-				// Next state transition logic
-				// Condition = (  %exitcond = icmp eq i32 %10, 4)
-				if ((icmp_tmp_3)) begin
-					global_state <= 6;
-				end
-				// Condition = (!(  %exitcond = icmp eq i32 %10, 4))
-				if (!(icmp_tmp_3)) begin
-					global_state <= 2;
-				end
+			if ((global_state == 5) && !(icmp_tmp_3)) begin
+				global_state <= 2;
 			end
-			if ((global_state == 6)) begin 
-				// Next state transition logic
-				// Condition = True
-
-				if (1) begin
-				if (out_write_ready) begin 
-					global_state <= 7;
-				end
-				end
+			if ((global_state == 5) && (icmp_tmp_3)) begin
+				global_state <= 6;
 			end
-			if ((global_state == 7)) begin 
-				// Next state transition logic
-				// Condition = True
-
-				if (1) begin
-					global_state <= 8;
-				end
+			if ((global_state == 6) && 1 && out_write_ready) begin
+				global_state <= 7;
 			end
-			if ((global_state == 8)) begin 
-				// Next state transition logic
-				// Condition = True
-
-				if (1) begin
-					global_state <= 8;
-				end
+			if ((global_state == 7) && 1) begin
+				global_state <= 8;
 			end
+			if ((global_state == 8) && 1) begin
+				global_state <= 8;
+			end
+		end
+	end
 
+
+	always @(posedge clk) begin
+		if (rst) begin
+		end else begin
 			// Temporary storage code
 			if ((global_state == 0)) begin 
 				// Temporary storage

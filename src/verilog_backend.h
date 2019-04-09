@@ -293,7 +293,14 @@ namespace ahaHLS {
       return lastBB;
     }
   };
-  
+
+  class RegController {
+  public:
+    std::string regName;
+    std::string resetValue;
+    std::map<string, string> values;
+  };
+
   class MicroArchitecture {
   public:
     ControlState cs;
@@ -306,6 +313,8 @@ namespace ahaHLS {
 
     std::map<Wire, std::string> resetValues;
     HardwareConstraints hcs;
+
+    std::map<std::string, RegController> regControllers;
 
     MicroArchitecture(const ControlState& cs_,
                       //const ArchOptions& archOptions_,

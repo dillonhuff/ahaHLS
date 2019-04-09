@@ -14,13 +14,6 @@ using namespace std;
 
 namespace ahaHLS {
 
-  class RegController {
-  public:
-    std::string regName;
-    std::string resetValue;
-    std::map<string, string> values;
-  };
-
   std::ostream& operator<<(std::ostream& out, const RegController& controller) {
     out << tab(1) << "always @(posedge clk) begin" << endl;
     out << tab(2) << "if (rst) begin" << endl;
@@ -1580,12 +1573,15 @@ namespace ahaHLS {
   void emitPipelineStateCode(std::ostream& out,
                              const StateId state,
                              const std::vector<StateTransition>& destinations,
-                             MicroArchitecture& arch) {
+                             MicroArchitecture& arch,
+                             RegController& controller) {
 
     auto& pipelines = arch.pipelines;
 
-    out << tab(3) << "if (" << atState(state, arch) << ") begin " << endl;    
-    out << "\t\t\t\t// Next state transition logic" << endl;
+    string atStateCond = atState(state, arch);
+    
+    //out << tab(3) << "if (" << atState(state, arch) << ") begin " << endl;    
+    //out << "\t\t\t\t// Next state transition logic" << endl;
 
     ControlFlowPosition pos = position(state, lastInstructionInState(state, arch));
     
@@ -1599,28 +1595,39 @@ namespace ahaHLS {
 
       for (auto transitionDest : destinations) {
 
+        vector<string> conds{atStateCond};
+        
         if (isPipelineState(transitionDest.dest, pipelines)) {
 
           auto destP = getPipeline(transitionDest.dest, pipelines);
 
-          out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-          out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << ") begin" << endl;
-          out << "\t\t\t\t\tglobal_state <= " << destP.stateId << ";" << endl;
+          // out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
+          // out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << ") begin" << endl;
+          // out << "\t\t\t\t\tglobal_state <= " << destP.stateId << ";" << endl;
 
-          out << "\t\t\t\tend" << endl;
+          // out << "\t\t\t\tend" << endl;
+
+          conds.push_back(verilogForCondition(transitionDest.cond, pos, arch));
+          controller.values[andStrings(conds)] = to_string(destP.stateId);
           
         } else {
           int ind = p.stageForState(state);
           assert(ind == (p.numStages() - 1));
 
-          out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
+          //out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
           // TODO: Check whether true or false on transitionDest.cond
           // causes an exit from the block
           // Rein
-          out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << " && " << pipelineClearOnNextCycleCondition(p) << ") begin" << endl;
+          string pipeCond = verilogForCondition(transitionDest.cond, pos, arch) + " && " + pipelineClearOnNextCycleCondition(p);
+          
+          // out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << " && " << pipelineClearOnNextCycleCondition(p) << ") begin" << endl;
 
-          out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
-          out << "\t\t\t\tend" << endl;
+          // out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
+          // out << "\t\t\t\tend" << endl;
+
+          conds.push_back(pipeCond);
+          controller.values[andStrings(conds)] = to_string(transitionDest.dest);
+          
         }
       }
 
@@ -1629,20 +1636,34 @@ namespace ahaHLS {
 
       for (auto transitionDest : destinations) {
 
+        vector<string> conds{atStateCond};
+        
         if (isPipelineState(transitionDest.dest, pipelines)) {
 
           auto p = getPipeline(transitionDest.dest, pipelines);
 
-          out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-          out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << ") begin" << endl;
-          out << "\t\t\t\t\tglobal_state <= " << p.stateId << ";" << endl;
+          // out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
+          // out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << ") begin" << endl;
+          // out << "\t\t\t\t\tglobal_state <= " << p.stateId << ";" << endl;
 
-          out << "\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;
-          out << "\t\t\t\tend" << endl;
+          // out << "\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;
+          // out << "\t\t\t\tend" << endl;
+
+          if (!contains_key(p.valids.at(0).name, arch.regControllers)) {
+            arch.regControllers[p.valids.at(0).name] = RegController();
+          }
+          RegController& validController =
+            arch.regControllers[p.valids.at(0).name];
+          validController.values[andStrings(conds)] = "1";
           
+          conds.push_back(verilogForCondition(transitionDest.cond, pos, arch));
+          controller.values[andStrings(conds)] = to_string(transitionDest.dest);
+
         } else {
-          out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-          out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << ") begin" << endl;
+          // out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
+          // out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << ") begin" << endl;
+
+          conds.push_back(verilogForCondition(transitionDest.cond, pos, arch));
 
           // TODO: Add multiple stall condition handling, and add stall logic
           // to other cases in control logic
@@ -1657,36 +1678,40 @@ namespace ahaHLS {
                                        pos,
                                        arch);
 
-              cout << "Builtin stall cond = " << cond << endl;
-              stallConds.push_back(cond);
+              // cout << "Builtin stall cond = " << cond << endl;
+              // stallConds.push_back(cond);
+              conds.push_back(cond);
             }
           }
 
 
-          if (stallConds.size() > 0) {
-            out << tab(4) << "if (" << andStrings(stallConds) << ") begin " << endl;
-          }
-          out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
+          // if (stallConds.size() > 0) {
+          //   out << tab(4) << "if (" << andStrings(stallConds) << ") begin " << endl;
+          // }
+          // out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
 
-          if (stallConds.size() > 0) {          
-            out << tab(4) << "end" << endl;
-          }
+          // if (stallConds.size() > 0) {          
+          //   out << tab(4) << "end" << endl;
+          // }
 
-          out << "\t\t\t\tend" << endl;
+          //out << "\t\t\t\tend" << endl;
+
+          controller.values[andStrings(conds)] = to_string(transitionDest.dest);
         }
       }
 
 
     }
 
-
-    out << "\t\t\tend" << endl;
+    //out << "\t\t\tend" << endl;
     
   }
 
   void
   emitResetCode(std::ostream& out,
                 const MicroArchitecture& arch) {
+    assert(arch.resetValues.size() == 1);
+    
     out << "\t\tif (rst) begin" << endl;
     for (auto val : arch.resetValues) {
       out << tab(3) << val.first.name << " <= " << val.second << ";" << endl;
@@ -1698,15 +1723,26 @@ namespace ahaHLS {
   void emitControlCode(std::ostream& out,
                        MicroArchitecture& arch) {
 
-    emitResetCode(out, arch);    
+    RegController reg;
+    reg.regName = "global_state";
+    reg.resetValue = map_find(wire(32, "global_state"), arch.resetValues);
     
-    out << tab(3) << "// Control code" << endl;
+    // out << "\talways @(posedge clk) begin" << endl;
+    // emitResetCode(out, arch);    
+    // out << tab(3) << "// Control code" << endl;
     for (auto state : arch.stg.opTransitions) {
-      emitPipelineStateCode(out, state.first, state.second, arch);
+      emitPipelineStateCode(out, state.first, state.second, arch, reg);
     }
 
-    out << endl;
+    // out << tab(2) << "end" << endl;
+    // out << tab(1) << "end" << endl;
 
+    out << reg << endl;
+    out << endl;
+    
+    out << "\talways @(posedge clk) begin" << endl;
+    out << "\t\tif (rst) begin" << endl;
+    out << "\t\tend else begin" << endl;
     out << tab(3) << "// Temporary storage code" << endl;    
     for (auto state : arch.stg.opTransitions) {
       emitTempStorageCode(out, state.first, state.second, arch);
@@ -2746,10 +2782,6 @@ namespace ahaHLS {
     for (auto p : arch.pipelines) {
       out << "\tassign " << p.inPipe.name << " = global_state == " << p.stateId << ";"<< endl;
     }
-
-    out << "\talways @(posedge clk) begin" << endl;
-
-
 
     emitControlCode(out, arch);
 
