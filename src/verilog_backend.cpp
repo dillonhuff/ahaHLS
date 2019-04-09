@@ -2652,7 +2652,7 @@ namespace ahaHLS {
 
     ofstream out(fn + ".v");
 
-    string fnInner = fn; // + "_inner";
+    string fnInner = fn;
 
     // Emit inner module
     out << "module " << fnInner << "(" + commaListString(portStrings) + ");" << endl;
@@ -2696,33 +2696,6 @@ namespace ahaHLS {
     }
     
     out << "endmodule" << endl << endl;
-
-    // VerilogComponents comps;
-    // map<string, string> portConns;
-    // vector<Port> outerPorts;
-
-    // vector<std::string> outerPortStrings;
-    // outerPorts = allPorts;
-
-    // for (auto pt : outerPorts) {
-    //   portConns.insert({pt.name, pt.name});
-    // }
-      
-    // for (auto pt : outerPorts) {
-    //   outerPortStrings.push_back(pt.toString());
-    // }
-    
-    // ModuleInstance mi(fnInner, "inner", portConns);
-
-
-    // comps.instances.push_back(mi);
-
-    // out << "module " << fn << "(" + commaListString(outerPortStrings) + ");" << endl;
-    // out << endl;
-
-    // emitComponents(out, comps);
-
-    // out << "endmodule" << endl;    
 
     out.close();
   }
