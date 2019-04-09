@@ -1532,8 +1532,8 @@ namespace ahaHLS {
 
     vector<string> allConds{atState(state, arch)};
     
-    out << tab(3) << "if (" << atState(state, arch) << ") begin " << endl;    
-    out << "\t\t\t\t// Temporary storage" << endl;
+    // out << tab(3) << "if (" << atState(state, arch) << ") begin " << endl;    
+    // out << "\t\t\t\t// Temporary storage" << endl;
 
     vector<std::string> stallConds;
     // Stalls do not get stalled by themselves
@@ -1551,20 +1551,20 @@ namespace ahaHLS {
       }
     }
 
-    if (stallConds.size() > 0) {
-      out << tab(4) << "if (" << andStrings(stallConds) << ") begin" << endl;
-    }
+    // if (stallConds.size() > 0) {
+    //   out << tab(4) << "if (" << andStrings(stallConds) << ") begin" << endl;
+    // }
     
     emitTempStorage(out,
                     state,
                     andStrings(allConds),
                     arch);
 
-    if (stallConds.size() > 0) {
-      out << tab(4) << "end" << endl;
-    }
+    // if (stallConds.size() > 0) {
+    //   out << tab(4) << "end" << endl;
+    // }
     
-    out << "\t\t\tend" << endl;
+    // out << "\t\t\tend" << endl;
     
   }
 
@@ -1670,19 +1670,6 @@ namespace ahaHLS {
     
   }
 
-  // void
-  // emitResetCode(std::ostream& out,
-  //               const MicroArchitecture& arch) {
-  //   assert(arch.resetValues.size() == 1);
-    
-  //   out << "\t\tif (rst) begin" << endl;
-  //   for (auto val : arch.resetValues) {
-  //     out << tab(3) << val.first.name << " <= " << val.second << ";" << endl;
-  //   }
-
-  //   out << "\t\tend else begin" << endl;
-  // }
-
   void emitControlCode(std::ostream& out,
                        MicroArchitecture& arch) {
 
@@ -1690,36 +1677,21 @@ namespace ahaHLS {
     arch.getController("global_state").resetValue =
       map_find(wire(32, "global_state"), arch.resetValues);
     
-    // RegController reg;
-    // reg.regName = "global_state";
-    // reg.resetValue = map_find(wire(32, "global_state"), arch.resetValues);
-    
-    // out << "\talways @(posedge clk) begin" << endl;
-    // emitResetCode(out, arch);    
-    // out << tab(3) << "// Control code" << endl;
     for (auto state : arch.stg.opTransitions) {
       emitPipelineStateCode(out, state.first, state.second, arch);
     }
 
-    // out << tab(2) << "end" << endl;
-    // out << tab(1) << "end" << endl;
-
-    // out << reg << endl;
-    // out << endl;
-
-    // 
-    // Emit valid reg controllers
-    out << "\talways @(posedge clk) begin" << endl;
-    out << "\t\tif (rst) begin" << endl;
-    out << "\t\tend else begin" << endl;
-    out << tab(3) << "// Temporary storage code" << endl;    
+    // out << "\talways @(posedge clk) begin" << endl;
+    // out << "\t\tif (rst) begin" << endl;
+    // out << "\t\tend else begin" << endl;
+    // out << tab(3) << "// Temporary storage code" << endl;    
     for (auto state : arch.stg.opTransitions) {
       emitTempStorageCode(out, state.first, state.second, arch);
     }
 
-    out << "\t\tend" << endl; // This closes and end statement in emitResetCode
-    out << "\tend" << endl;
-    out << endl << endl;
+    // out << "\t\tend" << endl; // This closes and end statement in emitResetCode
+    // out << "\tend" << endl;
+    // out << endl << endl;
   }
 
   void emitConditionalInstruction(std::ostream& out,
