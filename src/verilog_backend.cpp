@@ -1484,6 +1484,7 @@ namespace ahaHLS {
         if (needsTempStorage(instr, arch)) {
           auto unit = map_find(instr, unitAssignment);
 
+          //arch.regControllers(instrName).values["1"]
           out << tab(5) << instrName << " <= " << dataOutput(instr, arch) << ";" << endl;
 
         }
@@ -1712,18 +1713,18 @@ namespace ahaHLS {
     
   }
 
-  void
-  emitResetCode(std::ostream& out,
-                const MicroArchitecture& arch) {
-    assert(arch.resetValues.size() == 1);
+  // void
+  // emitResetCode(std::ostream& out,
+  //               const MicroArchitecture& arch) {
+  //   assert(arch.resetValues.size() == 1);
     
-    out << "\t\tif (rst) begin" << endl;
-    for (auto val : arch.resetValues) {
-      out << tab(3) << val.first.name << " <= " << val.second << ";" << endl;
-    }
+  //   out << "\t\tif (rst) begin" << endl;
+  //   for (auto val : arch.resetValues) {
+  //     out << tab(3) << val.first.name << " <= " << val.second << ";" << endl;
+  //   }
 
-    out << "\t\tend else begin" << endl;
-  }
+  //   out << "\t\tend else begin" << endl;
+  // }
 
   void emitControlCode(std::ostream& out,
                        MicroArchitecture& arch) {
