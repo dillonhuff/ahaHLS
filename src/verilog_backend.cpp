@@ -1671,7 +1671,6 @@ namespace ahaHLS {
   void emitConditionalInstruction(std::ostream& out,
                                   Instruction* instrG,
                                   const StateId state,
-                                  ElaboratedPipeline& p,
                                   const int i,
                                   MicroArchitecture& arch) {
 
@@ -1698,9 +1697,8 @@ namespace ahaHLS {
       for (int i = 0; i < (int) p.valids.size(); i++) {
         StateId state = p.p.getStates().at(i);
 
-        // Omit branch code on last stage
         for (auto instrG : arch.stg.instructionsStartingAt(state)) {
-          emitConditionalInstruction(out, instrG, state, p, i, arch);
+          emitConditionalInstruction(out, instrG, state, i, arch);
         }
       }
     }
@@ -2654,7 +2652,7 @@ namespace ahaHLS {
 
     ofstream out(fn + ".v");
 
-    string fnInner = fn + "_inner";
+    string fnInner = fn; // + "_inner";
 
     // Emit inner module
     out << "module " << fnInner << "(" + commaListString(portStrings) + ");" << endl;
@@ -2699,32 +2697,32 @@ namespace ahaHLS {
     
     out << "endmodule" << endl << endl;
 
-    VerilogComponents comps;
-    map<string, string> portConns;
-    vector<Port> outerPorts;
+    // VerilogComponents comps;
+    // map<string, string> portConns;
+    // vector<Port> outerPorts;
 
-    vector<std::string> outerPortStrings;
-    outerPorts = allPorts;
+    // vector<std::string> outerPortStrings;
+    // outerPorts = allPorts;
 
-    for (auto pt : outerPorts) {
-      portConns.insert({pt.name, pt.name});
-    }
+    // for (auto pt : outerPorts) {
+    //   portConns.insert({pt.name, pt.name});
+    // }
       
-    for (auto pt : outerPorts) {
-      outerPortStrings.push_back(pt.toString());
-    }
+    // for (auto pt : outerPorts) {
+    //   outerPortStrings.push_back(pt.toString());
+    // }
     
-    ModuleInstance mi(fnInner, "inner", portConns);
+    // ModuleInstance mi(fnInner, "inner", portConns);
 
 
-    comps.instances.push_back(mi);
+    // comps.instances.push_back(mi);
 
-    out << "module " << fn << "(" + commaListString(outerPortStrings) + ");" << endl;
-    out << endl;
+    // out << "module " << fn << "(" + commaListString(outerPortStrings) + ");" << endl;
+    // out << endl;
 
-    emitComponents(out, comps);
+    // emitComponents(out, comps);
 
-    out << "endmodule" << endl;    
+    // out << "endmodule" << endl;    
 
     out.close();
   }
