@@ -323,8 +323,12 @@ namespace ahaHLS {
     }
 
     RegController& getController(const std::string& name) {
-      assert(dbhc::contains_key(name, regControllers));
-      return regControllers[name];
+      if (dbhc::contains_key(name, regControllers)) {
+        return regControllers[name];
+      } else {
+        addController(name);
+        return regControllers[name];
+      }
     }
 
     MicroArchitecture(const ControlState& cs_,

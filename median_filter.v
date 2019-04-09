@@ -1,16 +1,16 @@
-module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data, output [0:0] valid);
+module median_filter_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data);
 
+	reg [0:0] valid_reg;
 	reg [31:0] in0_in_data_reg;
 	reg [31:0] in1_in_data_reg;
 	reg [31:0] in2_in_data_reg;
 	reg [31:0] out_in_data_reg;
-	reg [0:0] valid_reg;
 
+	assign valid = valid_reg;
 	assign in0_in_data = in0_in_data_reg;
 	assign in1_in_data = in1_in_data_reg;
 	assign in2_in_data = in2_in_data_reg;
 	assign out_in_data = out_in_data_reg;
-	assign valid = valid_reg;
 
 	// Start debug wires and ports
 
@@ -60,13 +60,6 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 
 	reg [31:0] global_state;
 	reg [31:0] last_BB_reg;
-	// Start pipeline reset block
-	always @(posedge clk) begin
-		if (rst) begin
-		end
-	end
-	// End pipeline reset block
-
 	// Start pipeline valid chain block
 	always @(posedge clk) begin
 
@@ -77,11 +70,6 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 
 	always @(posedge clk) begin
 	end
-	// Start pipeline initiation block
-	always @(posedge clk) begin
-	end
-	// End pipeline initiation block
-
 	always @(posedge clk) begin
 		if (rst) begin
 			last_BB_reg <= 0;
@@ -265,7 +253,7 @@ module median_filter_inner(input [0:0] clk, input [0:0] rst, output [31:0] in0_i
 
 endmodule
 
-module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data, output [0:0] valid);
+module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data);
 
 
 	initial begin
