@@ -1683,10 +1683,23 @@ namespace ahaHLS {
     out << "\t\t\tend" << endl;
     
   }
-  
+
+  void
+  emitResetCode(std::ostream& out,
+                const MicroArchitecture& arch) {
+    out << "\t\tif (rst) begin" << endl;
+    for (auto val : arch.resetValues) {
+      out << tab(3) << val.first.name << " <= " << val.second << ";" << endl;
+    }
+
+    out << "\t\tend else begin" << endl;
+  }
+
   void emitControlCode(std::ostream& out,
                        MicroArchitecture& arch) {
 
+    emitResetCode(out, arch);    
+    
     out << tab(3) << "// Control code" << endl;
     for (auto state : arch.stg.opTransitions) {
       emitPipelineStateCode(out, state.first, state.second, arch);
@@ -1698,7 +1711,10 @@ namespace ahaHLS {
     for (auto state : arch.stg.opTransitions) {
       emitTempStorageCode(out, state.first, state.second, arch);
     }
-    
+
+    out << "\t\tend" << endl; // This closes and end statement in emitResetCode
+    out << "\tend" << endl;
+    out << endl << endl;
   }
 
   void emitConditionalInstruction(std::ostream& out,
@@ -2551,12 +2567,6 @@ namespace ahaHLS {
     rc.regName = "last_BB_reg";
     rc.resetValue = to_string(arch.cs.getBasicBlockNo(&(f->getEntryBlock())));
     
-    //out << "\talways @(posedge clk) begin" << endl;
-
-    //out << "\t\tif (rst) begin" << endl;
-    //out << "\t\t\tlast_BB_reg <= " << arch.cs.getBasicBlockNo(&(f->getEntryBlock())) << ";" << endl;
-    //out << "\t\tend else begin" << endl;
-
     for (auto st : arch.stg.opStates) {
       if (st.second.size() > 0) {
 
@@ -2576,46 +2586,23 @@ namespace ahaHLS {
 
             ElaboratedPipeline p = getPipeline(st.first, pipelines);
             auto bbI = *begin(instructionsForBlocks);
-
-            //out << tab(3) << ifStr(atState(p.stateId, arch)) << " begin" << endl;
             auto bbNo = arch.cs.getBasicBlockNo(bbI.first);
-            //out << tab(4) << "last_BB_reg <= " << bbNo << ";" << endl;
-            rc.values[atState(p.stateId, arch)] = to_string(bbNo);
 
-            //out << tab(3) << "end" << endl;
+            rc.values[atState(p.stateId, arch)] = to_string(bbNo);
           }
 
         } else {
-          //out << tab(3) << ifStr(atState(st.first, arch)) << " begin" << endl;  
           for (auto bbI : instructionsForBlocks) {
 
             auto bbNo = arch.cs.getBasicBlockNo(bbI.first);
-            //out << tab(5) << "last_BB_reg <= " << bbNo << ";" << endl;
-
             rc.values[atState(st.first, arch)] = to_string(bbNo);
 
           }
-          //out << tab(3) << "end" << endl;
         }
       }
     }
 
-    // out << "\t\tend" << endl;
-
-    // out << "\tend" << endl;
-
     out << rc << endl;
-  }
-
-  void
-  emitResetCode(std::ostream& out,
-                const MicroArchitecture& arch) {
-    out << "\t\tif (rst) begin" << endl;
-    for (auto val : arch.resetValues) {
-      out << tab(3) << val.first.name << " <= " << val.second << ";" << endl;
-    }
-
-    out << "\t\tend else begin" << endl;
   }
 
   MicroArchitecture
@@ -2762,12 +2749,9 @@ namespace ahaHLS {
 
     out << "\talways @(posedge clk) begin" << endl;
 
-    emitResetCode(out, arch);
 
-    emitControlCode(out, arch); //, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
-    out << "\t\tend" << endl; // This closes and end statement in emitResetCode
-    out << "\tend" << endl;
-    out << endl << endl;
+
+    emitControlCode(out, arch);
 
     emitPipelineInstructionCode(out, arch.pipelines, arch);
     emitInstructionCode(out, arch, arch.pipelines);
