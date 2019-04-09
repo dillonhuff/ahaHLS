@@ -1459,8 +1459,6 @@ namespace ahaHLS {
     auto& pipelines = arch.pipelines;
     auto& unitAssignment = arch.unitAssignment;
     
-    out << "\t\t\t\t// Store data computed at the stage" << endl;
-
     auto lastI = lastInstructionInState(state, arch);
     auto pos = position(state, lastI);
     for (auto instrG : arch.stg.instructionsFinishingAt(state)) {
@@ -1478,7 +1476,6 @@ namespace ahaHLS {
           pos = pipelinePosition(lastI, state, stage);
           if (stage < p.numStages() - 1) {
             instrName = map_find(instr, p.pipelineRegisters[stage + 1]).name;
-            //cout << "Now instrName = " << instrName << endl;
           }
         }
 
@@ -1486,8 +1483,6 @@ namespace ahaHLS {
           auto unit = map_find(instr, unitAssignment);
 
           arch.getController(instrName).values[cond] = dataOutput(instr, arch);
-          //out << tab(5) << instrName << " <= " << dataOutput(instr, arch) << ";" << endl;
-
         }
           
       }
@@ -1608,12 +1603,6 @@ namespace ahaHLS {
 
           auto destP = getPipeline(transitionDest.dest, pipelines);
 
-          // out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-          // out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << ") begin" << endl;
-          // out << "\t\t\t\t\tglobal_state <= " << destP.stateId << ";" << endl;
-
-          // out << "\t\t\t\tend" << endl;
-
           conds.push_back(verilogForCondition(transitionDest.cond, pos, arch));
           controller.values[andStrings(conds)] = to_string(destP.stateId);
           
@@ -1621,17 +1610,8 @@ namespace ahaHLS {
           int ind = p.stageForState(state);
           assert(ind == (p.numStages() - 1));
 
-          //out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-          // TODO: Check whether true or false on transitionDest.cond
-          // causes an exit from the block
-          // Rein
           string pipeCond = verilogForCondition(transitionDest.cond, pos, arch) + " && " + pipelineClearOnNextCycleCondition(p);
           
-          // out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << " && " << pipelineClearOnNextCycleCondition(p) << ") begin" << endl;
-
-          // out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
-          // out << "\t\t\t\tend" << endl;
-
           conds.push_back(pipeCond);
           controller.values[andStrings(conds)] = to_string(transitionDest.dest);
           
@@ -1649,13 +1629,6 @@ namespace ahaHLS {
 
           auto p = getPipeline(transitionDest.dest, pipelines);
 
-          // out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-          // out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << ") begin" << endl;
-          // out << "\t\t\t\t\tglobal_state <= " << p.stateId << ";" << endl;
-
-          // out << "\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;
-          // out << "\t\t\t\tend" << endl;
-
           if (!contains_key(p.valids.at(0).name, arch.regControllers)) {
             arch.regControllers[p.valids.at(0).name] = RegController();
             RegController& validController =            
@@ -1671,9 +1644,6 @@ namespace ahaHLS {
           controller.values[andStrings(conds)] = to_string(p.stateId);
 
         } else {
-          // out << "\t\t\t\t// Condition = " << transitionDest.cond << endl;
-          // out << tab(4) << "if (" << verilogForCondition(transitionDest.cond, pos, arch) << ") begin" << endl;
-
           conds.push_back(verilogForCondition(transitionDest.cond, pos, arch));
 
           // TODO: Add multiple stall condition handling, and add stall logic
@@ -1683,29 +1653,13 @@ namespace ahaHLS {
           for (auto instr : arch.stg.instructionsStartingAt(state)) {
 
             if (isBuiltinStallCall(instr)) {
-
-              //cout << "Getting builtin stall cond for " << instr->getOperand(0) << endl;
               string cond = outputName(instr->getOperand(0),
                                        pos,
                                        arch);
 
-              // cout << "Builtin stall cond = " << cond << endl;
-              // stallConds.push_back(cond);
               conds.push_back(cond);
             }
           }
-
-
-          // if (stallConds.size() > 0) {
-          //   out << tab(4) << "if (" << andStrings(stallConds) << ") begin " << endl;
-          // }
-          // out << "\t\t\t\t\tglobal_state <= " + to_string(transitionDest.dest) + + ";" << endl;
-
-          // if (stallConds.size() > 0) {          
-          //   out << tab(4) << "end" << endl;
-          // }
-
-          //out << "\t\t\t\tend" << endl;
 
           controller.values[andStrings(conds)] = to_string(transitionDest.dest);
         }
@@ -1713,8 +1667,6 @@ namespace ahaHLS {
 
 
     }
-
-    //out << "\t\t\tend" << endl;
     
   }
 
