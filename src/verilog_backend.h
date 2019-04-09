@@ -316,6 +316,17 @@ namespace ahaHLS {
 
     std::map<std::string, RegController> regControllers;
 
+    void addController(const std::string& name) {
+      RegController ctr;
+      ctr.regName = name;
+      regControllers[name] = ctr;
+    }
+
+    RegController& getController(const std::string& name) {
+      assert(dbhc::contains_key(name, regControllers));
+      return regControllers[name];
+    }
+
     MicroArchitecture(const ControlState& cs_,
                       //const ArchOptions& archOptions_,
                       const STG& stg_,

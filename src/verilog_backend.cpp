@@ -1573,9 +1573,10 @@ namespace ahaHLS {
   void emitPipelineStateCode(std::ostream& out,
                              const StateId state,
                              const std::vector<StateTransition>& destinations,
-                             MicroArchitecture& arch,
-                             RegController& controller) {
+                             MicroArchitecture& arch) {
+                             //RegController& controller) {
 
+    auto& controller = arch.getController("global_state");
     auto& pipelines = arch.pipelines;
 
     string atStateCond = atState(state, arch);
@@ -1651,6 +1652,10 @@ namespace ahaHLS {
 
           if (!contains_key(p.valids.at(0).name, arch.regControllers)) {
             arch.regControllers[p.valids.at(0).name] = RegController();
+            RegController& validController =            
+              arch.regControllers[p.valids.at(0).name];
+            validController.resetValue = "0";
+            validController.regName = p.valids.at(0).name;
           }
           RegController& validController =
             arch.regControllers[p.valids.at(0).name];
@@ -1723,22 +1728,32 @@ namespace ahaHLS {
   void emitControlCode(std::ostream& out,
                        MicroArchitecture& arch) {
 
-    RegController reg;
-    reg.regName = "global_state";
-    reg.resetValue = map_find(wire(32, "global_state"), arch.resetValues);
+    arch.addController("global_state");
+    arch.getController("global_state").resetValue =
+      map_find(wire(32, "global_state"), arch.resetValues);
+    
+    // RegController reg;
+    // reg.regName = "global_state";
+    // reg.resetValue = map_find(wire(32, "global_state"), arch.resetValues);
     
     // out << "\talways @(posedge clk) begin" << endl;
     // emitResetCode(out, arch);    
     // out << tab(3) << "// Control code" << endl;
     for (auto state : arch.stg.opTransitions) {
-      emitPipelineStateCode(out, state.first, state.second, arch, reg);
+      emitPipelineStateCode(out, state.first, state.second, arch);
     }
 
     // out << tab(2) << "end" << endl;
     // out << tab(1) << "end" << endl;
 
-    out << reg << endl;
-    out << endl;
+    // out << reg << endl;
+    // out << endl;
+
+    // 
+    // Emit valid reg controllers
+    for (auto& rc : arch.regControllers) {
+      out << rc.second << endl;
+    }
     
     out << "\talways @(posedge clk) begin" << endl;
     out << "\t\tif (rst) begin" << endl;
