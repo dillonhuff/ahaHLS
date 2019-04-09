@@ -319,6 +319,7 @@ namespace ahaHLS {
     void addController(const std::string& name) {
       RegController ctr;
       ctr.regName = name;
+      ctr.resetValue = "0";
       regControllers[name] = ctr;
     }
 

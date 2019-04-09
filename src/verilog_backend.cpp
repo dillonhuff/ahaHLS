@@ -2387,7 +2387,8 @@ namespace ahaHLS {
 
             assert(contains_key(i, nextNameMap));
             Wire next = map_find(i, nextNameMap);
-            out << tab(2) << next.name << " <= " << current.name << ";" << endl;
+            arch.getController(next.name).values["1"] = current.name;
+            //out << tab(2) << next.name << " <= " << current.name << ";" << endl;
           }
         }
         
@@ -2397,7 +2398,9 @@ namespace ahaHLS {
       for (auto instrS : p.pipelineRegisters.back()) {
         Instruction* i = instrS.first;
         if (needsTempStorage(i, arch)) {
-          out << tab(2) << map_find(i, arch.names).name << " <= " << instrS.second.name << ";" << endl;
+          arch.getController(map_find(i, arch.names).name).values["1"] =
+            instrS.second.name;
+          //out << tab(2) << map_find(i, arch.names).name << " <= " << instrS.second.name << ";" << endl;
         }
       }
     }
