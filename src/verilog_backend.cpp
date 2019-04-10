@@ -2051,16 +2051,19 @@ namespace ahaHLS {
   void emitRegisterStorage(std::ostream& out,
                            MicroArchitecture& arch) {
 
-    std::map<Instruction*, Wire>& names = arch.names;
-    out << "\t// Start instruction result storage" << endl;
-    for (auto n : names) {
-      if (needsTempStorage(n.first, arch)) {
-        out << "\treg [" << n.second.width - 1 << ":0] " << n.second.name << ";" << endl;
-      }
+    for (auto& rc : arch.regControllers) {
+      out << tab(1) << rc.second.reg << ";" << endl;
     }
-    out << "\t// End instruction result storage" << endl;
+    // std::map<Instruction*, Wire>& names = arch.names;
+    // out << "\t// Start instruction result storage" << endl;
+    // for (auto n : names) {
+    //   if (needsTempStorage(n.first, arch)) {
+    //     out << "\treg [" << n.second.width - 1 << ":0] " << n.second.name << ";" << endl;
+    //   }
+    // }
+    // out << "\t// End instruction result storage" << endl;
 
-    out << endl;
+    // out << endl;
 
   }
 
@@ -2113,6 +2116,13 @@ namespace ahaHLS {
   }
 
   void emitPipelineRegisterChains(MicroArchitecture& arch) {
+    for (auto p : arch.pipelines) {
+      for (map<Instruction*, Wire>& regMap : p.pipelineRegisters) {
+        for (auto iReg : regMap) {
+          arch.addController(iReg.second.name, iReg.second.width);
+        }
+      }
+    }
     //out << tab(1) << "always @(posedge clk) begin" << endl;
     for (auto p : arch.pipelines) {
 
@@ -2130,7 +2140,7 @@ namespace ahaHLS {
         for (auto instrG : arch.stg.instructionsFinishingAt(p.stateForStage(i))) {
           instructionsFinishing.insert(instrG);
         }
-        
+
         for (auto instrS : nameMap) {
           Instruction* i = instrS.first;
 
@@ -2538,8 +2548,8 @@ namespace ahaHLS {
     emitFunctionalUnits(out, arch.unitAssignment);
     emitRegisterStorage(out, arch);
 
-    emitPipelineVariables(out, arch.pipelines);
-    emitGlobalStateVariables(out, arch);
+    // emitPipelineVariables(out, arch.pipelines);
+    // emitGlobalStateVariables(out, arch);
 
     out << endl;
     for (auto p : arch.pipelines) {
