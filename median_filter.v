@@ -31,23 +31,23 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] out_in_data
 	wire [31:0] m_median_word;
 	median m(.clk(clk), .median_word(m_median_word), .rst_n(m_rst_n), .word0(m_word0), .word1(m_word1), .word2(m_word2));
 
-	reg [63:0] phi_in_phi_6;
-	reg [31:0] phi_last_block_phi_6;
-	reg [63:0] phi_s_phi_6;
-	wire [31:0] phi_out_phi_6;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_6(.in(phi_in_phi_6), .last_block(phi_last_block_phi_6), .out(phi_out_phi_6), .s(phi_s_phi_6));
+	reg [31:0] cmp_in0_icmp_10;
+	reg [31:0] cmp_in1_icmp_10;
+	wire [0:0] cmp_out_icmp_10;
+	ne #(.WIDTH(32)) icmp_10(.in0(cmp_in0_icmp_10), .in1(cmp_in1_icmp_10), .out(cmp_out_icmp_10));
 
 	br_dummy br_unit();
 
-	reg [31:0] cmp_in0_icmp_9;
-	reg [31:0] cmp_in1_icmp_9;
-	wire [0:0] cmp_out_icmp_9;
-	ne #(.WIDTH(32)) icmp_9(.in0(cmp_in0_icmp_9), .in1(cmp_in1_icmp_9), .out(cmp_out_icmp_9));
+	reg [63:0] phi_in_phi_12;
+	reg [31:0] phi_last_block_phi_12;
+	reg [63:0] phi_s_phi_12;
+	wire [31:0] phi_out_phi_12;
+	phi #(.NB_PAIR(2), .WIDTH(32)) phi_12(.in(phi_in_phi_12), .last_block(phi_last_block_phi_12), .out(phi_out_phi_12), .s(phi_s_phi_12));
 
-	reg [31:0] add_in0_add_14;
-	reg [31:0] add_in1_add_14;
-	wire [31:0] add_out_add_14;
-	add #(.WIDTH(32)) add_add_14(.in0(add_in0_add_14), .in1(add_in1_add_14), .out(add_out_add_14));
+	reg [31:0] add_in0_add_13;
+	reg [31:0] add_in1_add_13;
+	wire [31:0] add_out_add_13;
+	add #(.WIDTH(32)) add_add_13(.in0(add_in0_add_13), .in1(add_in1_add_13), .out(add_out_add_13));
 
 	// End Functional Units
 
@@ -94,33 +94,33 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] out_in_data
 		m_word1 = valid ? in1_out_data : in1_out_data;
 		m_word2 = valid ? in2_out_data : in2_out_data;
 	end
-	// controller for phi_6.phi_in_phi_6
-	// controller for phi_6.phi_last_block_phi_6
-	// controller for phi_6.phi_s_phi_6
-	// Insensitive connections
-	always @(*) begin
-		phi_in_phi_6 = valid ? {(32'd0), add_tmp_3} : {(32'd0), add_tmp_3};
-		phi_last_block_phi_6 = valid ? last_BB_reg : last_BB_reg;
-		phi_s_phi_6 = valid ? {32'd2, 32'd4} : {32'd2, 32'd4};
-	end
 	// controller for out.out_in_data_reg
 	// Insensitive connections
 	always @(*) begin
 		out_in_data_reg = valid ? m_median_word : m_median_word;
 	end
-	// controller for icmp_9.cmp_in0_icmp_9
-	// controller for icmp_9.cmp_in1_icmp_9
+	// controller for icmp_10.cmp_in0_icmp_10
+	// controller for icmp_10.cmp_in1_icmp_10
 	// Insensitive connections
 	always @(*) begin
-		cmp_in0_icmp_9 = valid ? add_out_add_14 : add_out_add_14;
-		cmp_in1_icmp_9 = valid ? (32'd8533) : (32'd8533);
+		cmp_in0_icmp_10 = valid ? add_out_add_13 : add_out_add_13;
+		cmp_in1_icmp_10 = valid ? (32'd8533) : (32'd8533);
 	end
-	// controller for add_add_14.add_in0_add_14
-	// controller for add_add_14.add_in1_add_14
+	// controller for phi_12.phi_in_phi_12
+	// controller for phi_12.phi_last_block_phi_12
+	// controller for phi_12.phi_s_phi_12
 	// Insensitive connections
 	always @(*) begin
-		add_in0_add_14 = valid ? phi_out_phi_6 : phi_out_phi_6;
-		add_in1_add_14 = valid ? (32'd1) : (32'd1);
+		phi_in_phi_12 = valid ? {(32'd0), add_tmp_3} : {(32'd0), add_tmp_3};
+		phi_last_block_phi_12 = valid ? last_BB_reg : last_BB_reg;
+		phi_s_phi_12 = valid ? {32'd2, 32'd4} : {32'd2, 32'd4};
+	end
+	// controller for add_add_13.add_in0_add_13
+	// controller for add_add_13.add_in1_add_13
+	// Insensitive connections
+	always @(*) begin
+		add_in0_add_13 = valid ? phi_out_phi_12 : phi_out_phi_12;
+		add_in1_add_13 = valid ? (32'd1) : (32'd1);
 	end
 	// Insensitive connections
 	always @(*) begin
@@ -152,7 +152,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] out_in_data
 			add_tmp_3 <= 0;
 		end else begin
 			if ((global_state == 4)) begin
-				add_tmp_3 <= add_out_add_14;
+				add_tmp_3 <= add_out_add_13;
 			end
 		end
 	end
@@ -173,10 +173,10 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] out_in_data
 			if ((global_state == 3) && 1) begin
 				global_state <= 4;
 			end
-			if ((global_state == 4) && !(cmp_out_icmp_9)) begin
+			if ((global_state == 4) && !(cmp_out_icmp_10)) begin
 				global_state <= 5;
 			end
-			if ((global_state == 4) && (cmp_out_icmp_9)) begin
+			if ((global_state == 4) && (cmp_out_icmp_10)) begin
 				global_state <= 4;
 			end
 			if ((global_state == 5) && 1) begin
