@@ -1595,14 +1595,13 @@ namespace ahaHLS {
 
           if (!contains_key(p.valids.at(0).name, arch.regControllers)) {
             arch.addController(p.valids.at(0).name, p.valids.at(0).width);
-            //arch.regControllers[p.valids.at(0).name] = RegController();
             RegController& validController =            
               arch.regControllers[p.valids.at(0).name];
             validController.resetValue = "0";
-            //validController.reg.name = p.valids.at(0).name;
           }
           RegController& validController =
-            arch.regControllers[p.valids.at(0).name];
+            arch.getController(p.valids.at(0).name);
+            //arch.regControllers[p.valids.at(0).name];
           validController.values[andStrings(conds)] = "1";
           
           conds.push_back(verilogForCondition(transitionDest.cond, pos, arch));

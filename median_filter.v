@@ -24,13 +24,6 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// End debug wires and ports
 
 	// Start Functional Units
-	reg [0:0] m_rst_n;
-	reg [31:0] m_word0;
-	reg [31:0] m_word1;
-	reg [31:0] m_word2;
-	wire [31:0] m_median_word;
-	median m(.clk(clk), .median_word(m_median_word), .rst_n(m_rst_n), .word0(m_word0), .word1(m_word1), .word2(m_word2));
-
 	br_dummy br_unit();
 
 	reg [63:0] phi_in_phi_6;
@@ -38,6 +31,13 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	reg [63:0] phi_s_phi_6;
 	wire [31:0] phi_out_phi_6;
 	phi #(.NB_PAIR(2), .WIDTH(32)) phi_6(.in(phi_in_phi_6), .last_block(phi_last_block_phi_6), .out(phi_out_phi_6), .s(phi_s_phi_6));
+
+	reg [0:0] m_rst_n;
+	reg [31:0] m_word0;
+	reg [31:0] m_word1;
+	reg [31:0] m_word2;
+	wire [31:0] m_median_word;
+	median m(.clk(clk), .median_word(m_median_word), .rst_n(m_rst_n), .word0(m_word0), .word1(m_word1), .word2(m_word2));
 
 	reg [31:0] add_in0_add_7;
 	reg [31:0] add_in1_add_7;
