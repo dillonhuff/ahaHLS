@@ -1594,11 +1594,12 @@ namespace ahaHLS {
           auto p = getPipeline(transitionDest.dest, pipelines);
 
           if (!contains_key(p.valids.at(0).name, arch.regControllers)) {
-            arch.regControllers[p.valids.at(0).name] = RegController();
+            arch.addController(p.valids.at(0).name, p.valids.at(0).width);
+            //arch.regControllers[p.valids.at(0).name] = RegController();
             RegController& validController =            
               arch.regControllers[p.valids.at(0).name];
             validController.resetValue = "0";
-            validController.reg.name = p.valids.at(0).name;
+            //validController.reg.name = p.valids.at(0).name;
           }
           RegController& validController =
             arch.regControllers[p.valids.at(0).name];
