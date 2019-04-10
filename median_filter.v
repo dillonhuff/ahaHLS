@@ -1,15 +1,15 @@
-module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data, output [0:0] valid);
+module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] out_in_data, input [31:0] out_out_data, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [0:0] valid);
 
+	reg [31:0] out_in_data_reg;
 	reg [31:0] in0_in_data_reg;
 	reg [31:0] in1_in_data_reg;
 	reg [31:0] in2_in_data_reg;
-	reg [31:0] out_in_data_reg;
 	reg [0:0] valid_reg;
 
+	assign out_in_data = out_in_data_reg;
 	assign in0_in_data = in0_in_data_reg;
 	assign in1_in_data = in1_in_data_reg;
 	assign in2_in_data = in2_in_data_reg;
-	assign out_in_data = out_in_data_reg;
 	assign valid = valid_reg;
 
 	// Start debug wires and ports
@@ -31,12 +31,12 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data
 	wire [31:0] m_median_word;
 	median m(.clk(clk), .median_word(m_median_word), .rst_n(m_rst_n), .word0(m_word0), .word1(m_word1), .word2(m_word2));
 
-	reg [31:0] add_in0_add_6;
-	reg [31:0] add_in1_add_6;
-	wire [31:0] add_out_add_6;
-	add #(.WIDTH(32)) add_add_6(.in0(add_in0_add_6), .in1(add_in1_add_6), .out(add_out_add_6));
-
 	br_dummy br_unit();
+
+	reg [31:0] add_in0_add_11;
+	reg [31:0] add_in1_add_11;
+	wire [31:0] add_out_add_11;
+	add #(.WIDTH(32)) add_add_11(.in0(add_in0_add_11), .in1(add_in1_add_11), .out(add_out_add_11));
 
 	reg [31:0] cmp_in0_icmp_15;
 	reg [31:0] cmp_in1_icmp_15;
@@ -52,7 +52,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data
 	// End Functional Units
 
 	// Start instruction result storage
-	reg [31:0] add_tmp_0;
+	reg [31:0] add_tmp_1;
 	// End instruction result storage
 
 	// Start pipeline variables
@@ -94,32 +94,32 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data
 		m_word1 = valid ? in1_out_data : in1_out_data;
 		m_word2 = valid ? in2_out_data : in2_out_data;
 	end
-	// controller for add_add_6.add_in0_add_6
-	// controller for add_add_6.add_in1_add_6
-	// Insensitive connections
-	always @(*) begin
-		add_in0_add_6 = valid ? phi_out_phi_17 : phi_out_phi_17;
-		add_in1_add_6 = valid ? (32'd1) : (32'd1);
-	end
-	// Insensitive connections
-	always @(*) begin
-	end
-	// Insensitive connections
-	always @(*) begin
-	end
-	// Insensitive connections
-	always @(*) begin
-	end
 	// controller for out.out_in_data_reg
 	// Insensitive connections
 	always @(*) begin
 		out_in_data_reg = valid ? m_median_word : m_median_word;
 	end
+	// controller for add_add_11.add_in0_add_11
+	// controller for add_add_11.add_in1_add_11
+	// Insensitive connections
+	always @(*) begin
+		add_in0_add_11 = valid ? phi_out_phi_17 : phi_out_phi_17;
+		add_in1_add_11 = valid ? (32'd1) : (32'd1);
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
 	// controller for icmp_15.cmp_in0_icmp_15
 	// controller for icmp_15.cmp_in1_icmp_15
 	// Insensitive connections
 	always @(*) begin
-		cmp_in0_icmp_15 = valid ? add_out_add_6 : add_out_add_6;
+		cmp_in0_icmp_15 = valid ? add_out_add_11 : add_out_add_11;
 		cmp_in1_icmp_15 = valid ? (32'd8533) : (32'd8533);
 	end
 	// controller for phi_17.phi_in_phi_17
@@ -127,7 +127,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data
 	// controller for phi_17.phi_s_phi_17
 	// Insensitive connections
 	always @(*) begin
-		phi_in_phi_17 = valid ? {(32'd0), add_tmp_0} : {(32'd0), add_tmp_0};
+		phi_in_phi_17 = valid ? {(32'd0), add_tmp_1} : {(32'd0), add_tmp_1};
 		phi_last_block_phi_17 = valid ? last_BB_reg : last_BB_reg;
 		phi_s_phi_17 = valid ? {32'd2, 32'd4} : {32'd2, 32'd4};
 	end
@@ -149,10 +149,10 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data
 	// Register controllers
 	always @(posedge clk) begin
 		if (rst) begin
-			add_tmp_0 <= 0;
+			add_tmp_1 <= 0;
 		end else begin
 			if ((global_state == 4)) begin
-				add_tmp_0 <= add_out_add_6;
+				add_tmp_1 <= add_out_add_11;
 			end
 		end
 	end

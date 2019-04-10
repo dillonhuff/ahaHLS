@@ -368,9 +368,9 @@ namespace ahaHLS {
     std::map<std::string, RegController> regControllers;
     std::vector<PortController> portControllers;
     
-    void addController(const std::string& name) {
+    void addController(const std::string& name, const int width) {
       RegController ctr;
-      ctr.reg.name = name;
+      ctr.reg = reg(width, name);
       ctr.resetValue = "0";
       regControllers[name] = ctr;
     }
@@ -379,7 +379,7 @@ namespace ahaHLS {
       if (dbhc::contains_key(name, regControllers)) {
         return regControllers[name];
       } else {
-        addController(name);
+        addController(name, 1);
         return regControllers[name];
       }
     }

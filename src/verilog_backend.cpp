@@ -1636,7 +1636,7 @@ namespace ahaHLS {
 
   void emitControlCode(MicroArchitecture& arch) {
 
-    arch.addController("global_state");
+    arch.addController("global_state", 32);
     arch.getController("global_state").resetValue =
       map_find(wire(32, "global_state"), arch.resetValues);
     
