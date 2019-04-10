@@ -1470,7 +1470,7 @@ namespace ahaHLS {
         if (needsTempStorage(instr, arch)) {
           auto unit = map_find(instr, unitAssignment);
 
-          arch.getController(instrName).values[cond] = dataOutput(instr, arch);
+          arch.getController(instrWire).values[cond] = dataOutput(instr, arch);
         }
           
       }
