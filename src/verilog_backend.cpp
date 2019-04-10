@@ -17,11 +17,11 @@ namespace ahaHLS {
   std::ostream& operator<<(std::ostream& out, const RegController& controller) {
     out << tab(1) << "always @(posedge clk) begin" << endl;
     out << tab(2) << "if (rst) begin" << endl;
-    out << tab(3) << controller.regName << " <= " << controller.resetValue << ";" << endl;
+    out << tab(3) << controller.reg.name << " <= " << controller.resetValue << ";" << endl;
     out << tab(2) << "end else begin" << endl;
     for (auto val : controller.values) {
       out << tab(3) << "if (" << val.first << ") begin" << endl;
-      out << tab(4) << controller.regName << " <= " << val.second << ";" << endl;
+      out << tab(4) << controller.reg.name << " <= " << val.second << ";" << endl;
       out << tab(3) << "end" << endl;      
     }
     out << tab(2) << "end" << endl;
@@ -1598,7 +1598,7 @@ namespace ahaHLS {
             RegController& validController =            
               arch.regControllers[p.valids.at(0).name];
             validController.resetValue = "0";
-            validController.regName = p.valids.at(0).name;
+            validController.reg.name = p.valids.at(0).name;
           }
           RegController& validController =
             arch.regControllers[p.valids.at(0).name];

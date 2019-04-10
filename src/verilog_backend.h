@@ -347,7 +347,7 @@ namespace ahaHLS {
 
   class RegController {
   public:
-    std::string regName;
+    Wire reg;
     std::string resetValue;
     std::map<string, string> values;
   };
@@ -370,7 +370,7 @@ namespace ahaHLS {
     
     void addController(const std::string& name) {
       RegController ctr;
-      ctr.regName = name;
+      ctr.reg.name = name;
       ctr.resetValue = "0";
       regControllers[name] = ctr;
     }
