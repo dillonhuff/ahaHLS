@@ -2160,35 +2160,11 @@ namespace ahaHLS {
   void emitPipelineValidChainBlock(MicroArchitecture& arch) {
     auto pipelines = arch.pipelines;
     
-    // out << "\t// Start pipeline valid chain block" << endl;
-    // out << "\talways @(posedge clk) begin" << endl;
-
-    // for (auto p : pipelines) {
-
-    //   out << tab(1) << "if (" << p.inPipe.name << ") begin";
-    //   out << "\t\t$display(\"// CLK Cycle\");" << endl;
-    //   out << "\t\t$display(\"" << p.inPipe.name << " = %d\", " << p.inPipe.name << ");" << endl;
-    //   for (int i = 0; i < (int) p.valids.size(); i++) {
-    //     out << "\t\t$display(\"" << p.valids[i].name << " = %d\", " << p.valids[i].name << ");" << endl;
-    //   }
-
-    //   out << tab(1) << "end" << endl;
-    // }
-
-    // //out << "\t\tend" << endl;
-    // out << "\tend" << endl;
-    // out << "\t// End pipeline valid chain block" << endl << endl;
-    
-    // out << endl;
-
-    // out << "\t\tif (!rst) begin" << endl;
     for (auto p : pipelines) {
 
-      //      for (auto validVar : p.valids) {
       for (int i = 0; i < ((int) p.valids.size()) - 1; i++) {
         arch.getController(p.valids[i + 1].name).values["1"] =
           p.valids[i].name;
-        //out << "\t\t\t" << p.valids[i + 1].name << " <= " << p.valids[i].name << ";" << endl;
       }
     }
   }
@@ -2514,6 +2490,12 @@ namespace ahaHLS {
     emitVerilog(fn, arch, debugInfo);
   }
 
+  // Now: I want register controllers to include the register
+  // width as well as name, turn the name field in to a wire field?
+  // Once that is done what will be left to do in simplification?
+  // I guess the big thing that will be left will be to convert
+  // condition variable strings in to data structures that can be
+  // emitted as functional units?
   void emitVerilog(const std::string& fn,
                    MicroArchitecture& arch,
                    const VerilogDebugInfo& debugInfo) {
