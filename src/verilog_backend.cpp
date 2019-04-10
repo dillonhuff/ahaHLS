@@ -1437,8 +1437,7 @@ namespace ahaHLS {
     return false;
   }
   
-  void emitTempStorage(std::ostream& out,
-                       const StateId state,
+  void emitTempStorage(const StateId state,
                        const std::string& cond,
                        MicroArchitecture& arch) {
 
@@ -1512,8 +1511,7 @@ namespace ahaHLS {
     return last;
   }
 
-  void emitTempStorageCode(std::ostream& out,
-                           const StateId state,
+  void emitTempStorageCode(const StateId state,
                            const std::vector<StateTransition>& destinations,
                            MicroArchitecture& arch) {
 
@@ -1533,8 +1531,7 @@ namespace ahaHLS {
       }
     }
 
-    emitTempStorage(out,
-                    state,
+    emitTempStorage(state,
                     andStrings(allConds),
                     arch);
     
@@ -1543,8 +1540,7 @@ namespace ahaHLS {
   // Want to move toward merging basic blocks in to a single state
   // and allowing more code to be executed in a cycle. Need to
   // add the active basic block variable
-  void emitPipelineStateCode(std::ostream& out,
-                             const StateId state,
+  void emitPipelineStateCode(const StateId state,
                              const std::vector<StateTransition>& destinations,
                              MicroArchitecture& arch) {
 
@@ -1638,19 +1634,18 @@ namespace ahaHLS {
     
   }
 
-  void emitControlCode(std::ostream& out,
-                       MicroArchitecture& arch) {
+  void emitControlCode(MicroArchitecture& arch) {
 
     arch.addController("global_state");
     arch.getController("global_state").resetValue =
       map_find(wire(32, "global_state"), arch.resetValues);
     
     for (auto state : arch.stg.opTransitions) {
-      emitPipelineStateCode(out, state.first, state.second, arch);
+      emitPipelineStateCode(state.first, state.second, arch);
     }
 
     for (auto state : arch.stg.opTransitions) {
-      emitTempStorageCode(out, state.first, state.second, arch);
+      emitTempStorageCode(state.first, state.second, arch);
     }
 
   }
@@ -2621,9 +2616,7 @@ namespace ahaHLS {
       out << "\tassign " << p.inPipe.name << " = global_state == " << p.stateId << ";"<< endl;
     }
 
-    emitControlCode(out, arch);
-
-    //emitPipelineInstructionCode(out, arch.pipelines, arch);
+    emitControlCode(arch);
     emitInstructionCode(out, arch, arch.pipelines);
 
     out << tab(1) << "// Register controllers" << endl;
