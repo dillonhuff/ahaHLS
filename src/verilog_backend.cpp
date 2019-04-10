@@ -2123,8 +2123,7 @@ namespace ahaHLS {
 
   }
 
-  void emitPipelineResetBlock(std::ostream& out,
-                              MicroArchitecture& arch) {
+  void emitPipelineResetBlock(MicroArchitecture& arch) {
 
     for (auto p : arch.pipelines) {
 
@@ -2135,8 +2134,7 @@ namespace ahaHLS {
   }
 
   void
-  emitPipelineInitiationBlock(std::ostream& out,
-                              MicroArchitecture& arch) {
+  emitPipelineInitiationBlock(MicroArchitecture& arch) {
 
     auto& pipelines = arch.pipelines;
 
@@ -2173,8 +2171,7 @@ namespace ahaHLS {
 
   }
 
-  void emitPipelineRegisterChains(std::ostream& out,
-                                  MicroArchitecture& arch) {
+  void emitPipelineRegisterChains(MicroArchitecture& arch) {
     //out << tab(1) << "always @(posedge clk) begin" << endl;
     for (auto p : arch.pipelines) {
 
@@ -2221,8 +2218,7 @@ namespace ahaHLS {
     //out << tab(1) << "end" << endl;
   }
   
-  void emitPipelineValidChainBlock(std::ostream& out,
-                                   MicroArchitecture& arch) {
+  void emitPipelineValidChainBlock(MicroArchitecture& arch) {
     auto pipelines = arch.pipelines;
     
     // out << "\t// Start pipeline valid chain block" << endl;
@@ -2616,11 +2612,10 @@ namespace ahaHLS {
     emitPipelineVariables(out, arch.pipelines);
     emitGlobalStateVariables(out, arch);
 
-    emitPipelineResetBlock(out, arch);
-    emitPipelineValidChainBlock(out, arch);
-    emitPipelineRegisterChains(out, arch);
-
-    emitPipelineInitiationBlock(out, arch);
+    emitPipelineResetBlock(arch);
+    emitPipelineValidChainBlock(arch);
+    emitPipelineRegisterChains(arch);
+    emitPipelineInitiationBlock(arch);
 
     // TODO: Remove pipelines arch, it is now a field of arch
     emitLastBBCode(out, f, arch.pipelines, arch);
