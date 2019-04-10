@@ -1976,7 +1976,7 @@ namespace ahaHLS {
     // Add output check
     for (auto state : arch.stg.opStates) {
 
-      if (!isPipelineState(state.first, pipelines)) {
+      //if (!isPipelineState(state.first, pipelines)) {
         for (auto instrG : arch.stg.instructionsStartingAt(state.first)) {
 
           Instruction* instr = instrG;
@@ -1998,7 +1998,7 @@ namespace ahaHLS {
           }
 
         }
-      }
+        //}
 
     }
 
@@ -2017,7 +2017,7 @@ namespace ahaHLS {
         StateId state = stInstrG.first;
         auto instrsAtState = stInstrG.second;
 
-        if (!isPipelineState(state, pipelines)) {
+        //if (!isPipelineState(state, pipelines)) {
 
           std::set<string> usedPorts;
           for (auto instrG : instrsAtState) {
@@ -2032,7 +2032,7 @@ namespace ahaHLS {
               usedPorts.insert(asg.first);
             }
 
-          }
+            //}
 
           //cout << "Unit modspec = " << unit.module << endl;
           for (auto insensitivePort : unit.module.insensitivePorts) {
@@ -2687,7 +2687,7 @@ namespace ahaHLS {
 
     emitControlCode(out, arch);
 
-    emitPipelineInstructionCode(out, arch.pipelines, arch);
+    //emitPipelineInstructionCode(out, arch.pipelines, arch);
     emitInstructionCode(out, arch, arch.pipelines);
 
     out << tab(1) << "// Register controllers" << endl;
