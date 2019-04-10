@@ -1767,7 +1767,7 @@ namespace ahaHLS {
       }
       allAssignsTheSame = values.size() == 1;
       
-      bool hasDefault = portController.hasDefault(port);
+      //bool hasDefault = portController.hasDefault(port);
       
       out << tab(1) << "// controller for " << portController.unitController.unit.instName << "." << port << endl;
 
@@ -1836,12 +1836,14 @@ namespace ahaHLS {
 
 
     // TODO: Replace with assigns
-    out << tab(1) << "// Insensitive connections" << endl;
-    out << tab(1) << "always @(*) begin" << endl;
-    for (auto sc : statelessConns) {
-      out << tab(2) << sc.first << " = " << "valid ? " << sc.second << " : " << sc.second << ";" << endl;
+    if (statelessConns.size() > 0) {
+      out << tab(1) << "// Insensitive connections" << endl;
+      out << tab(1) << "always @(*) begin" << endl;
+      for (auto sc : statelessConns) {
+        out << tab(2) << sc.first << " = " << "valid ? " << sc.second << " : " << sc.second << ";" << endl;
+      }
+      out << tab(1) << "end" << endl;
     }
-    out << tab(1) << "end" << endl;
   }
   
   void emitVerilogForControllers(std::ostream& out,
