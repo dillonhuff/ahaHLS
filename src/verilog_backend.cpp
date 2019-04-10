@@ -1875,6 +1875,7 @@ namespace ahaHLS {
       
       out << tab(1) << "// controller for " << portController.unitController.unit.instName << "." << port << endl;
 
+      allAssignsTheSame = false;
       if (allAssignsTheSame &&
           (stateless(portController.unitController.unit) ||
            isInsensitive(port, portController))) {
@@ -2025,6 +2026,10 @@ namespace ahaHLS {
 
             auto stallConds = getStallConds(instr, state, arch);
             auto pos = position(state, instr);
+            if (isPipelineState(state, pipelines)) {
+              int stage = arch.getPipeline(state).stageForState(state);
+              pos = pipelinePosition(instr, state, stage);
+            }
             auto assigns = instructionPortAssignments(pos, arch);
 
             map_insert(portController.portValues, state, {stallConds, assigns});
