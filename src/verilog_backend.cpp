@@ -2331,51 +2331,39 @@ namespace ahaHLS {
   
   void emitLastBBCode(MicroArchitecture& arch) {
 
-    auto& pipelines = arch.pipelines;
     RegController& rc = arch.getController(reg(32, "last_BB_reg"));
 
     // Find each branch instruction
     // For each branch instruction if the branch goes out to
     // a block in another state (or its own block) then set the
-    // next block variable, otherwise set the current (combinational) block variable.
-    // 
+    // next block variable, otherwise set the current (combinational) block
+    // variable.
     for (auto st : arch.stg.opStates) {
       if (st.second.size() > 0) {
 
-        map<BasicBlock*, Instruction*> instructionsForBlocks;
-        for (auto instrG : st.second) {
-          Instruction* instr = instrG;
-          BasicBlock* bb = instr->getParent();
-          if (!contains_key(bb, instructionsForBlocks) && TerminatorInst::classof(instr)) {
-            instructionsForBlocks.insert({bb, instrG});
-          }
-
-        }
-
-        // if (isPipelineState(st.first, pipelines)) {
-        //   if (instructionsForBlocks.size() > 0) {
-        //     assert(instructionsForBlocks.size() == 1);
-
-        //     ElaboratedPipeline p = getPipeline(st.first, pipelines);
-        //     auto bbI = *begin(instructionsForBlocks);
-        //     auto bbNo = arch.cs.getBasicBlockNo(bbI.first);
-
-        //     rc.values[atState(p.stateId, arch)] = to_string(bbNo);
+        // map<BasicBlock*, Instruction*> instructionsForBlocks;
+        // for (auto instrG : st.second) {
+        //   Instruction* instr = instrG;
+        //   BasicBlock* bb = instr->getParent();
+        //   if (!contains_key(bb, instructionsForBlocks) && TerminatorInst::classof(instr)) {
+        //     instructionsForBlocks.insert({bb, instrG});
         //   }
 
-        // } else {
-          for (auto bbI : instructionsForBlocks) {
+        // }
 
-            auto bbNo = arch.cs.getBasicBlockNo(bbI.first);
-            if (isPipelineState(st.first, pipelines)) {
+        //for (auto bbI : instructionsForBlocks) {
+        for (auto instr : arch.stg.instructionsFinishingAt(st.first)) {
+          if (TerminatorInst::classof(instr)) {
+            auto bbNo = arch.cs.getBasicBlockNo(instr->getParent());
+            if (isPipelineState(st.first, arch.pipelines)) {
               ElaboratedPipeline p = getPipeline(st.first, arch.pipelines);
               rc.values[atState(p.stateId, arch)] = to_string(bbNo);
             } else {
               rc.values[atState(st.first, arch)] = to_string(bbNo);              
             }
-
           }
-          //        }
+
+        }
       }
     }
 
