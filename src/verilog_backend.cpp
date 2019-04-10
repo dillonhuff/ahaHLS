@@ -1463,13 +1463,14 @@ namespace ahaHLS {
           pos = pipelinePosition(lastI, state, stage);
           if (stage < p.numStages() - 1) {
             instrName = map_find(instr, p.pipelineRegisters[stage + 1]).name;
+            instrWire = map_find(instr, p.pipelineRegisters[stage + 1]);
           }
         }
 
         if (needsTempStorage(instr, arch)) {
           auto unit = map_find(instr, unitAssignment);
 
-          arch.getController(instrWire).values[cond] = dataOutput(instr, arch);
+          arch.getController(instrName).values[cond] = dataOutput(instr, arch);
         }
           
       }
