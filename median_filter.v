@@ -1,16 +1,16 @@
-module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data, output [0:0] valid);
+module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] out_in_data, input [31:0] out_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data);
 
+	reg [0:0] valid_reg;
 	reg [31:0] in0_in_data_reg;
 	reg [31:0] in1_in_data_reg;
-	reg [31:0] in2_in_data_reg;
 	reg [31:0] out_in_data_reg;
-	reg [0:0] valid_reg;
+	reg [31:0] in2_in_data_reg;
 
+	assign valid = valid_reg;
 	assign in0_in_data = in0_in_data_reg;
 	assign in1_in_data = in1_in_data_reg;
-	assign in2_in_data = in2_in_data_reg;
 	assign out_in_data = out_in_data_reg;
-	assign valid = valid_reg;
+	assign in2_in_data = in2_in_data_reg;
 
 	// Start debug wires and ports
 
@@ -44,10 +44,10 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data
 	wire [31:0] add_out_add_7;
 	add #(.WIDTH(32)) add_add_7(.in0(add_in0_add_7), .in1(add_in1_add_7), .out(add_out_add_7));
 
-	reg [31:0] cmp_in0_icmp_16;
-	reg [31:0] cmp_in1_icmp_16;
-	wire [0:0] cmp_out_icmp_16;
-	ne #(.WIDTH(32)) icmp_16(.in0(cmp_in0_icmp_16), .in1(cmp_in1_icmp_16), .out(cmp_out_icmp_16));
+	reg [31:0] cmp_in0_icmp_13;
+	reg [31:0] cmp_in1_icmp_13;
+	wire [0:0] cmp_out_icmp_13;
+	ne #(.WIDTH(32)) icmp_13(.in0(cmp_in0_icmp_13), .in1(cmp_in1_icmp_13), .out(cmp_out_icmp_13));
 
 	// End Functional Units
 
@@ -121,20 +121,20 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data
 	// Insensitive connections
 	always @(*) begin
 	end
-	// Insensitive connections
-	always @(*) begin
-	end
 	// controller for out.out_in_data_reg
 	// Insensitive connections
 	always @(*) begin
 		out_in_data_reg = valid ? m_median_word : m_median_word;
 	end
-	// controller for icmp_16.cmp_in0_icmp_16
-	// controller for icmp_16.cmp_in1_icmp_16
+	// controller for icmp_13.cmp_in0_icmp_13
+	// controller for icmp_13.cmp_in1_icmp_13
 	// Insensitive connections
 	always @(*) begin
-		cmp_in0_icmp_16 = valid ? add_out_add_7 : add_out_add_7;
-		cmp_in1_icmp_16 = valid ? (32'd8533) : (32'd8533);
+		cmp_in0_icmp_13 = valid ? add_out_add_7 : add_out_add_7;
+		cmp_in1_icmp_13 = valid ? (32'd8533) : (32'd8533);
+	end
+	// Insensitive connections
+	always @(*) begin
 	end
 	// controller for ret_19.valid_reg
 	always @(*) begin
@@ -178,10 +178,10 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data
 			if ((global_state == 3) && 1) begin
 				global_state <= 4;
 			end
-			if ((global_state == 4) && !(cmp_out_icmp_16)) begin
+			if ((global_state == 4) && !(cmp_out_icmp_13)) begin
 				global_state <= 5;
 			end
-			if ((global_state == 4) && (cmp_out_icmp_16)) begin
+			if ((global_state == 4) && (cmp_out_icmp_13)) begin
 				global_state <= 4;
 			end
 			if ((global_state == 5) && 1) begin
