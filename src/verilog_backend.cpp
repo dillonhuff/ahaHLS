@@ -2123,13 +2123,11 @@ namespace ahaHLS {
         }
       }
     }
-    //out << tab(1) << "always @(posedge clk) begin" << endl;
+
     for (auto p : arch.pipelines) {
 
-      //out << tab(2) << "// Pipeline register chain" << endl;
       for (int i = 0; i < ((int) p.pipelineRegisters.size()) - 1; i++) {
 
-        //out << tab(2) << "// Register transfer from stage " << i << " to " << (i + 1) << endl;
         map<Instruction*, Wire> nameMap =
           p.pipelineRegisters[i];
 
@@ -2157,7 +2155,6 @@ namespace ahaHLS {
         
       }
 
-      //out << tab(2) << "// Register transfer from stage " << (p.pipelineRegisters.size() - 1) << " to regular storage" << endl;
       for (auto instrS : p.pipelineRegisters.back()) {
         Instruction* i = instrS.first;
         if (needsTempStorage(i, arch)) {
@@ -2166,7 +2163,6 @@ namespace ahaHLS {
         }
       }
     }
-    //out << tab(1) << "end" << endl;
   }
   
   void emitPipelineValidChainBlock(MicroArchitecture& arch) {
@@ -2179,37 +2175,6 @@ namespace ahaHLS {
           p.valids[i].name;
       }
     }
-  }
-
-  void emitPipelineVariables(std::ostream& out,
-                             const std::vector<ElaboratedPipeline>& pipelines) {
-    out << "\t// Start pipeline variables" << endl;
-    for (auto p : pipelines) {
-      out << "\t// -- Pipeline, II = " << p.p.II() << endl;
-      out << "\t" << p.inPipe << ";" << endl;
-
-      for (auto validVar : p.valids) {
-        out << "\t" << validVar << ";" << endl;
-      }
-
-      out << "\t// Start stage registers" << endl;
-      for (auto stage : p.pipelineRegisters) {
-        out << "\t// Start stage" << endl;
-        for (auto is : stage) {
-          out << "\t" << is.second << ";" << endl;
-        }
-        out << "\t// End stage" << endl;
-      }
-      out << "\t// End stage registers" << endl;      
-    }
-    out << "\t// End pipeline variables" << endl << endl;
-
-  }
-
-  void emitGlobalStateVariables(std::ostream& out,
-                                MicroArchitecture& arch) {
-    out << tab(1) << arch.cs.getGlobalState() << ";" << endl;
-    out << tab(1) << arch.cs.getLastBB() << ";" << endl;    
   }
 
   std::vector<ElaboratedPipeline>
@@ -2547,9 +2512,6 @@ namespace ahaHLS {
     
     emitFunctionalUnits(out, arch.unitAssignment);
     emitRegisterStorage(out, arch);
-
-    // emitPipelineVariables(out, arch.pipelines);
-    // emitGlobalStateVariables(out, arch);
 
     out << endl;
     for (auto p : arch.pipelines) {
