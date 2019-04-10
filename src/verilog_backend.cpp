@@ -1875,7 +1875,7 @@ namespace ahaHLS {
       
       out << tab(1) << "// controller for " << portController.unitController.unit.instName << "." << port << endl;
 
-      allAssignsTheSame = false;
+      //allAssignsTheSame = false;
       if (allAssignsTheSame &&
           (stateless(portController.unitController.unit) ||
            isInsensitive(port, portController))) {
