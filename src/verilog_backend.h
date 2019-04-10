@@ -312,6 +312,8 @@ namespace ahaHLS {
     //  2. States where it is an unused value
     bool isInsensitive;
     map<StateId, pair<StallConds, string> > portAssignments;
+    map<Wire, Wire> portVals;
+    std::string defaultValue;
   };
 
   // Need to move to one map from ports to states and the values
