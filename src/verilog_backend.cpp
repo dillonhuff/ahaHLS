@@ -2352,25 +2352,30 @@ namespace ahaHLS {
 
         }
 
-        if (isPipelineState(st.first, pipelines)) {
-          if (instructionsForBlocks.size() > 0) {
-            assert(instructionsForBlocks.size() == 1);
+        // if (isPipelineState(st.first, pipelines)) {
+        //   if (instructionsForBlocks.size() > 0) {
+        //     assert(instructionsForBlocks.size() == 1);
 
-            ElaboratedPipeline p = getPipeline(st.first, pipelines);
-            auto bbI = *begin(instructionsForBlocks);
-            auto bbNo = arch.cs.getBasicBlockNo(bbI.first);
+        //     ElaboratedPipeline p = getPipeline(st.first, pipelines);
+        //     auto bbI = *begin(instructionsForBlocks);
+        //     auto bbNo = arch.cs.getBasicBlockNo(bbI.first);
 
-            rc.values[atState(p.stateId, arch)] = to_string(bbNo);
-          }
+        //     rc.values[atState(p.stateId, arch)] = to_string(bbNo);
+        //   }
 
-        } else {
+        // } else {
           for (auto bbI : instructionsForBlocks) {
 
             auto bbNo = arch.cs.getBasicBlockNo(bbI.first);
-            rc.values[atState(st.first, arch)] = to_string(bbNo);
+            if (isPipelineState(st.first, pipelines)) {
+              ElaboratedPipeline p = getPipeline(st.first, arch.pipelines);
+              rc.values[atState(p.stateId, arch)] = to_string(bbNo);
+            } else {
+              rc.values[atState(st.first, arch)] = to_string(bbNo);              
+            }
 
           }
-        }
+          //        }
       }
     }
 
@@ -2407,6 +2412,7 @@ namespace ahaHLS {
 
     assert(arch.stg.opStates.size() == stg.opStates.size());
     assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
+
     return arch;
   }  
 
