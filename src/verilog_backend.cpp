@@ -2435,11 +2435,9 @@ namespace ahaHLS {
     emitVerilog(stg, memoryMap, info);
   }
   
-  void emitLastBBCode(std::ostream& out,
-                      llvm::Function* f,
-                      const std::vector<ElaboratedPipeline>& pipelines,
-                      MicroArchitecture& arch) {
+  void emitLastBBCode(MicroArchitecture& arch) {
 
+    auto& pipelines = arch.pipelines;
     RegController& rc = arch.getController("last_BB_reg");
 
     // Find each branch instruction
@@ -2504,6 +2502,12 @@ namespace ahaHLS {
     }
 
     MicroArchitecture arch(cs, stg, unitAssignment, memMap, names, pipelines, hcs);
+
+    emitPipelineResetBlock(arch);
+    emitPipelineValidChainBlock(arch);
+    emitPipelineRegisterChains(arch);
+    emitPipelineInitiationBlock(arch);
+    emitLastBBCode(arch);
 
     assert(arch.stg.opStates.size() == stg.opStates.size());
     assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
@@ -2611,14 +2615,6 @@ namespace ahaHLS {
 
     emitPipelineVariables(out, arch.pipelines);
     emitGlobalStateVariables(out, arch);
-
-    emitPipelineResetBlock(arch);
-    emitPipelineValidChainBlock(arch);
-    emitPipelineRegisterChains(arch);
-    emitPipelineInitiationBlock(arch);
-
-    // TODO: Remove pipelines arch, it is now a field of arch
-    emitLastBBCode(out, f, arch.pipelines, arch);
 
     out << endl;
     for (auto p : arch.pipelines) {
