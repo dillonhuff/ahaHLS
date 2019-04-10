@@ -1650,57 +1650,6 @@ namespace ahaHLS {
 
   }
 
-  class UnitController {
-  public:
-    FunctionalUnit unit;
-    std::map<StateId, std::vector<Instruction*> > instructions;
-  };
-
-  typedef std::vector<std::string> StallConds;
-  typedef std::map<std::string, std::string> PortAssignments;
-
-  // Represents all possible values that can be assigned to
-  // a port, and the cycles at which they are assigned
-  class PortValues {
-  public:
-    // This map should include
-    //  1. States where the port is assigned
-    //  2. States where it is an unused value
-    bool isInsensitive;
-    map<StateId, pair<StallConds, string> > portAssignments;
-  };
-
-  // Need to move to one map from ports to states and the values
-  // they take in each state
-  class PortController {
-  public:
-    UnitController unitController;
-    map<StateId, vector<pair<StallConds, PortAssignments> > > portValues;
-
-    // These are defaults for all 
-    map<StateId, PortAssignments> defaultValues;
-    PortAssignments statelessDefaults;
-
-    // TODO: This information should eventually be carried in the
-    // functional unit itself.
-    map<string, bool> insensitivePorts;
-
-    // This is the final form of the port controller for the unit.
-    // Each input port on the functional unit has its own independent controller
-    map<string, PortValues> inputControllers;
-
-    bool isExternal() const { return unitController.unit.isExternal(); }
-
-    string defaultValue(const std::string& port) {
-      return map_find(port, statelessDefaults);
-    }
-
-    bool hasDefault(const std::string& port) {
-      return contains_key(port, statelessDefaults);
-    }
-
-  };
-
   void buildInputControllers(PortController& controller) {
     for (auto val : controller.portValues) {
       StateId state = val.first;
@@ -1894,48 +1843,41 @@ namespace ahaHLS {
   }
   
   void emitVerilogForControllers(std::ostream& out,
-                                 MicroArchitecture& arch,
-                                 const std::vector<PortController>& controllers) {
+                                 MicroArchitecture& arch) {
+    auto& controllers = arch.portControllers;
     for (auto portController : controllers) {
       emitVerilogForController(out, arch, portController);
     }
     
   }
 
-  // Now I have port-by-port controllers. I want to
-  //  1. Add insensitive ports flags to ModuleSpec
-  //  2. Optimize insensitive ports that are assigned in
-  void emitInstructionCode(std::ostream& out,
-                           MicroArchitecture& arch,
-                           const std::vector<ElaboratedPipeline>& pipelines) {
+  void buildPortControllers(MicroArchitecture& arch) {
 
     vector<UnitController> assignment;
     // Add output check
     for (auto state : arch.stg.opStates) {
 
-      //if (!isPipelineState(state.first, pipelines)) {
-        for (auto instrG : arch.stg.instructionsStartingAt(state.first)) {
+      for (auto instrG : arch.stg.instructionsStartingAt(state.first)) {
 
-          Instruction* instr = instrG;
+        Instruction* instr = instrG;
 
-          FunctionalUnit unit = map_find(instr, arch.unitAssignment);
-          bool alreadyIn = false;
-          for (auto& u : assignment) {
-            if (u.unit.instName == unit.instName) {
-              alreadyIn = true;
-              map_insert(u.instructions, state.first, instrG);
-              break;
-            }
+        FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+        bool alreadyIn = false;
+        for (auto& u : assignment) {
+          if (u.unit.instName == unit.instName) {
+            alreadyIn = true;
+            map_insert(u.instructions, state.first, instrG);
+            break;
           }
-
-          if (!alreadyIn) {
-            map<StateId, vector<Instruction*> > instrs;
-            instrs[state.first] = {instrG};
-            assignment.push_back({unit, instrs});
-          }
-
         }
-        //}
+
+        if (!alreadyIn) {
+          map<StateId, vector<Instruction*> > instrs;
+          instrs[state.first] = {instrG};
+          assignment.push_back({unit, instrs});
+        }
+
+      }
 
     }
 
@@ -1954,32 +1896,26 @@ namespace ahaHLS {
         StateId state = stInstrG.first;
         auto instrsAtState = stInstrG.second;
 
-        //if (!isPipelineState(state, pipelines)) {
+        std::set<string> usedPorts;
+        for (auto instrG : instrsAtState) {
+          Instruction* instr = instrG;
 
-          std::set<string> usedPorts;
-          for (auto instrG : instrsAtState) {
-            Instruction* instr = instrG;
+          auto stallConds = getStallConds(instr, state, arch);
+          auto pos = position(state, instr);
+          if (isPipelineState(state, arch.pipelines)) {
+            int stage = arch.getPipeline(state).stageForState(state);
+            pos = pipelinePosition(instr, state, stage);
+          }
+          auto assigns = instructionPortAssignments(pos, arch);
 
-            auto stallConds = getStallConds(instr, state, arch);
-            auto pos = position(state, instr);
-            if (isPipelineState(state, pipelines)) {
-              int stage = arch.getPipeline(state).stageForState(state);
-              pos = pipelinePosition(instr, state, stage);
-            }
-            auto assigns = instructionPortAssignments(pos, arch);
-
-            map_insert(portController.portValues, state, {stallConds, assigns});
-            for (auto asg : assigns) {
-              usedPorts.insert(asg.first);
-            }
-
-            //}
+          map_insert(portController.portValues, state, {stallConds, assigns});
+          for (auto asg : assigns) {
+            usedPorts.insert(asg.first);
+          }
 
           //cout << "Unit modspec = " << unit.module << endl;
           for (auto insensitivePort : unit.module.insensitivePorts) {
             string ptName = unit.inputWire(insensitivePort);
-            //map_find(name, unit.portWires).name;
-            //cout << ptName << " is insensitive" << endl;
             portController.insensitivePorts[ptName] = true;
           }
 
@@ -2013,7 +1949,15 @@ namespace ahaHLS {
       controllers.push_back(portController);
     }
 
-    emitVerilogForControllers(out, arch, controllers);
+    arch.portControllers = controllers;
+  }
+
+  // Now I have port-by-port controllers. I want to
+  //  1. Add insensitive ports flags to ModuleSpec
+  //  2. Optimize insensitive ports that are assigned in
+  void emitInstructionCode(std::ostream& out,
+                           MicroArchitecture& arch) {
+    emitVerilogForControllers(out, arch);
   }
   
   void emitPorts(std::ostream& out,
@@ -2498,11 +2442,13 @@ namespace ahaHLS {
 
     MicroArchitecture arch(cs, stg, unitAssignment, memMap, names, pipelines, hcs);
 
+    buildPortControllers(arch);
     emitPipelineResetBlock(arch);
     emitPipelineValidChainBlock(arch);
     emitPipelineRegisterChains(arch);
     emitPipelineInitiationBlock(arch);
     emitLastBBCode(arch);
+    emitControlCode(arch);
 
     assert(arch.stg.opStates.size() == stg.opStates.size());
     assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
@@ -2616,8 +2562,7 @@ namespace ahaHLS {
       out << "\tassign " << p.inPipe.name << " = global_state == " << p.stateId << ";"<< endl;
     }
 
-    emitControlCode(arch);
-    emitInstructionCode(out, arch, arch.pipelines);
+    emitInstructionCode(out, arch);
 
     out << tab(1) << "// Register controllers" << endl;
     for (auto& rc : arch.regControllers) {

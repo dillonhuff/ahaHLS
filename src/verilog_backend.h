@@ -294,6 +294,57 @@ namespace ahaHLS {
     }
   };
 
+  class UnitController {
+  public:
+    FunctionalUnit unit;
+    std::map<StateId, std::vector<Instruction*> > instructions;
+  };
+
+  typedef std::vector<std::string> StallConds;
+  typedef std::map<std::string, std::string> PortAssignments;
+
+  // Represents all possible values that can be assigned to
+  // a port, and the cycles at which they are assigned
+  class PortValues {
+  public:
+    // This map should include
+    //  1. States where the port is assigned
+    //  2. States where it is an unused value
+    bool isInsensitive;
+    map<StateId, pair<StallConds, string> > portAssignments;
+  };
+
+  // Need to move to one map from ports to states and the values
+  // they take in each state
+  class PortController {
+  public:
+    UnitController unitController;
+    map<StateId, vector<pair<StallConds, PortAssignments> > > portValues;
+
+    // These are defaults for all 
+    map<StateId, PortAssignments> defaultValues;
+    PortAssignments statelessDefaults;
+
+    // TODO: This information should eventually be carried in the
+    // functional unit itself.
+    map<string, bool> insensitivePorts;
+
+    // This is the final form of the port controller for the unit.
+    // Each input port on the functional unit has its own independent controller
+    map<string, PortValues> inputControllers;
+
+    bool isExternal() const { return unitController.unit.isExternal(); }
+
+    string defaultValue(const std::string& port) {
+      return dbhc::map_find(port, statelessDefaults);
+    }
+
+    bool hasDefault(const std::string& port) {
+      return dbhc::contains_key(port, statelessDefaults);
+    }
+
+  };
+
   class RegController {
   public:
     std::string regName;
@@ -315,7 +366,8 @@ namespace ahaHLS {
     HardwareConstraints hcs;
 
     std::map<std::string, RegController> regControllers;
-
+    std::vector<PortController> portControllers;
+    
     void addController(const std::string& name) {
       RegController ctr;
       ctr.regName = name;
