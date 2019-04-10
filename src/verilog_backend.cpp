@@ -1546,7 +1546,7 @@ namespace ahaHLS {
                              const std::vector<StateTransition>& destinations,
                              MicroArchitecture& arch) {
 
-    auto& controller = arch.getController("global_state");
+    auto& controller = arch.getController(reg(32, "global_state"));
     auto& pipelines = arch.pipelines;
 
     string atStateCond = atState(state, arch);
@@ -2355,7 +2355,7 @@ namespace ahaHLS {
   void emitLastBBCode(MicroArchitecture& arch) {
 
     auto& pipelines = arch.pipelines;
-    RegController& rc = arch.getController("last_BB_reg");
+    RegController& rc = arch.getController(reg(32, "last_BB_reg"));
 
     // Find each branch instruction
     // For each branch instruction if the branch goes out to
