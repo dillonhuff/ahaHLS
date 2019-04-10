@@ -121,10 +121,12 @@ module test();
       #1 clk = 0;
       #1 clk = 1;
 
+      `assert(dbg_data, 32'd12)
+      
       #1 clk = 0;
       #1 clk = 1;
       
-      $display("dbg_data = %d", dbg_data);
+      $display("at end dbg_data = %d", dbg_data);
       
       //`assert(valid, 1'd0)      
       `assert(dbg_data, 32'd12)
