@@ -2361,23 +2361,48 @@ namespace ahaHLS {
 
   }
 
+  FunctionalUnit wireUnit(const std::string& name,
+                          const int width) {
+    ModuleSpec m = wireSpec(width);
+    return functionalUnitForSpec(name, m);
+  }
+
+  PortController& addPortController(const std::string& name,
+                                    const int width,
+                                    MicroArchitecture& arch) {
+    auto unit = wireUnit(name, width);
+    arch.functionalUnits.push_back(unit);
+    PortController c;
+    UnitController uc;
+    uc.unit = unit;
+    c.unitController = uc;
+    arch.portControllers.push_back(c);
+
+    return arch.portController(name);
+  }
+  
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
     Function* f = arch.stg.getFunction();
 
     arch.addController("global_next_block", 32);
+    arch.getController("global_next_block").resetValue =
+      to_string(arch.cs.getBasicBlockNo(&(f->getEntryBlock())));
+
     for (auto& bb : f->getBasicBlockList()) {
       int blkNo = arch.cs.getBasicBlockNo(&bb);
       auto blkString = to_string(blkNo);
-      arch.addController("bb_" + blkString + "_active", 1);
+      string name = "bb_" + blkString + "_active";
+      PortController& activeController = addPortController(name, 1, arch);
 
       TerminatorInst* term = bb.getTerminator();
       if (BranchInst::classof(term)) {
         BranchInst* br = dyn_cast<BranchInst>(term);
-        arch.addController("br_" + blkString + "_happened", 1);
+        string hName = "br_" + blkString + "_happened";
+        auto& happenedController = addPortController(hName, 1, arch);
       }
     }
   }
-  
+
   MicroArchitecture
   buildMicroArchitecture(const STG& stg,
                          std::map<llvm::Value*, int>& memMap,

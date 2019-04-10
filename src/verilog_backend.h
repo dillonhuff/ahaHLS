@@ -368,6 +368,17 @@ namespace ahaHLS {
     std::map<std::string, RegController> regControllers;
     std::vector<PortController> portControllers;
     std::vector<FunctionalUnit> functionalUnits;
+
+    PortController& portController(const std::string& name) {
+      for (auto& c : portControllers) {
+        if (c.unitController.unit.instName == name) {
+          return c;
+        }
+      }
+
+      cout << "Error: Could not find controller for " << name << endl;
+      assert(false);
+    }
     
     void addController(const std::string& name, const int width) {
       RegController ctr;
