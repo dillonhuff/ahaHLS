@@ -1768,8 +1768,6 @@ namespace ahaHLS {
       }
       allAssignsTheSame = values.size() == 1;
       
-      //bool hasDefault = portController.hasDefault(port);
-      
       out << tab(1) << "// controller for " << portController.unitController.unit.instName << "." << port << endl;
 
       if (allAssignsTheSame &&
@@ -2381,6 +2379,13 @@ namespace ahaHLS {
     return arch.portController(name);
   }
   
+
+  std::string wireValue(const std::string& hName,
+                        MicroArchitecture& arch) {
+    auto& pController = arch.portController(hName);
+    return pController.unitController.unit.outputWire("out_data");
+  }
+
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
     Function* f = arch.stg.getFunction();
 
@@ -2398,7 +2403,21 @@ namespace ahaHLS {
       if (BranchInst::classof(term)) {
         BranchInst* br = dyn_cast<BranchInst>(term);
         string hName = "br_" + blkString + "_happened";
+        Wire hWire = wire(1, hName);
         auto& happenedController = addPortController(hName, 1, arch);
+
+        if (!(br->isConditional())) {
+          // For each conditional branch that branches to a block outside
+          // it's state (including loops back to the same block) I need to
+          // add code to update the globa_next_block to be the target?
+
+          // TODO: Need to use the output name of the functional unit for
+          // the wire, not the
+          // name of the functional unit
+          BasicBlock* destBlock = br->getSuccessor(0);
+          arch.getController("global_next_block").values[wireValue(hName, arch)] =
+            to_string(arch.cs.getBasicBlockNo(destBlock));
+        }
       }
     }
   }

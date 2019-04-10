@@ -156,6 +156,16 @@ namespace ahaHLS {
       return module.name;
     }
 
+    std::string outputWire(const std::string& name) const {
+      if (!dbhc::contains_key(name, outWires)) {
+        std::cout << "Error: No wire named " << name << std::endl;
+        assert(false);
+      }
+      
+      auto n = dbhc::map_find(name, outWires).name;
+      return n;
+    }
+
     std::string inputWire(const std::string& name) const {
       if (!dbhc::contains_key(name, portWires)) {
         std::cout << "Error: No wire named " << name << std::endl;
@@ -169,7 +179,7 @@ namespace ahaHLS {
 
       return n;
     }
-
+    
     std::map<std::string, std::string> getParams() const {
       return module.params;
     }
