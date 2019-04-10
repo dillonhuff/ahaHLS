@@ -1363,19 +1363,6 @@ namespace ahaHLS {
     return assignments;
   }
     
-
-  void instructionVerilog(std::ostream& out,
-                          ControlFlowPosition pos,
-                          MicroArchitecture& arch) {
-
-    auto assignments = instructionPortAssignments(pos, arch);
-    
-    for (auto asg : assignments) {
-      out << tab(4) << asg.first << " = " << asg.second << ";" << endl;
-    }
-    
-  }
-
   map<BasicBlock*, int> numberBasicBlocks(Function* const f) {
     map<BasicBlock*, int> basicBlockNos;
 
@@ -1668,43 +1655,6 @@ namespace ahaHLS {
 
   }
 
-  void emitConditionalInstruction(std::ostream& out,
-                                  Instruction* instrG,
-                                  const StateId state,
-                                  const int i,
-                                  MicroArchitecture& arch) {
-
-    out << "\talways @(*) begin" << endl;
-
-    out << tab(2) << "if (" << atState(state, arch) << ") begin" << endl;
-    auto pos = pipelinePosition(instrG, state, i);
-
-    instructionVerilog(out, pos, arch);
-
-    out << "\t\tend" << endl;
-    out << "\tend" << endl;
-  }
-
-  void emitPipelineInstructionCode(std::ostream& out,
-                                   const std::vector<ElaboratedPipeline>& pipelines,
-                                   MicroArchitecture& arch) {
-    
-    out << "\t// Start pipeline instruction code" << endl;
-
-    out << "\t// Start pipeline stages" << endl;
-    for (auto p : pipelines) {
-
-      for (int i = 0; i < (int) p.valids.size(); i++) {
-        StateId state = p.p.getStates().at(i);
-
-        for (auto instrG : arch.stg.instructionsStartingAt(state)) {
-          emitConditionalInstruction(out, instrG, state, i, arch);
-        }
-      }
-    }
-    out << "\t// End pipeline instruction code" << endl << endl;
-  }
-
   class UnitController {
   public:
     FunctionalUnit unit;
@@ -1875,7 +1825,6 @@ namespace ahaHLS {
       
       out << tab(1) << "// controller for " << portController.unitController.unit.instName << "." << port << endl;
 
-      //allAssignsTheSame = false;
       if (allAssignsTheSame &&
           (stateless(portController.unitController.unit) ||
            isInsensitive(port, portController))) {
@@ -1900,11 +1849,7 @@ namespace ahaHLS {
             emitStalledOutput(out, port, stallConds, portValue, portController);
 
             if (i == (numAssigns - 1)) {
-              //if (hasDefault) {
-                out << tab(2) << "end else begin" << endl;
-              // } else {
-              //   out << tab(2) << "end" << endl;
-              // }
+              out << tab(2) << "end else begin" << endl;
             } else {
               out << tab(2) << "end else ";
             }
@@ -1915,11 +1860,7 @@ namespace ahaHLS {
 
             emitStalledOutput(out, port, stallConds, portValue, portController);      
 
-            //if (hasDefault) {
-              out << tab(2) << "end else begin" << endl;
-            // } else {
-            //   out << tab(2) << "end" << endl;
-            // }
+            out << tab(2) << "end else begin" << endl;
           
           } else {
 
@@ -2284,24 +2225,24 @@ namespace ahaHLS {
                                    MicroArchitecture& arch) {
     auto pipelines = arch.pipelines;
     
-    out << "\t// Start pipeline valid chain block" << endl;
-    out << "\talways @(posedge clk) begin" << endl;
+    // out << "\t// Start pipeline valid chain block" << endl;
+    // out << "\talways @(posedge clk) begin" << endl;
 
-    for (auto p : pipelines) {
+    // for (auto p : pipelines) {
 
-      out << tab(1) << "if (" << p.inPipe.name << ") begin";
-      out << "\t\t$display(\"// CLK Cycle\");" << endl;
-      out << "\t\t$display(\"" << p.inPipe.name << " = %d\", " << p.inPipe.name << ");" << endl;
-      for (int i = 0; i < (int) p.valids.size(); i++) {
-        out << "\t\t$display(\"" << p.valids[i].name << " = %d\", " << p.valids[i].name << ");" << endl;
-      }
+    //   out << tab(1) << "if (" << p.inPipe.name << ") begin";
+    //   out << "\t\t$display(\"// CLK Cycle\");" << endl;
+    //   out << "\t\t$display(\"" << p.inPipe.name << " = %d\", " << p.inPipe.name << ");" << endl;
+    //   for (int i = 0; i < (int) p.valids.size(); i++) {
+    //     out << "\t\t$display(\"" << p.valids[i].name << " = %d\", " << p.valids[i].name << ");" << endl;
+    //   }
 
-      out << tab(1) << "end" << endl;
-    }
+    //   out << tab(1) << "end" << endl;
+    // }
 
-    //out << "\t\tend" << endl;
-    out << "\tend" << endl;
-    out << "\t// End pipeline valid chain block" << endl << endl;
+    // //out << "\t\tend" << endl;
+    // out << "\tend" << endl;
+    // out << "\t// End pipeline valid chain block" << endl << endl;
     
     // out << endl;
 
@@ -2545,7 +2486,6 @@ namespace ahaHLS {
       }
     }
 
-    //out << rc << endl;
   }
 
   MicroArchitecture
