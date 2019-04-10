@@ -384,6 +384,16 @@ namespace ahaHLS {
       }
     }
 
+    RegController& getController(const Wire& w) {
+      auto name = w.name;
+      if (dbhc::contains_key(name, regControllers)) {
+        return regControllers[name];
+      } else {
+        addController(name, w.width);
+        return regControllers[name];
+      }
+    }
+    
     MicroArchitecture(const ControlState& cs_,
                       //const ArchOptions& archOptions_,
                       const STG& stg_,

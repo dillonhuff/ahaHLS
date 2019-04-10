@@ -1600,7 +1600,7 @@ namespace ahaHLS {
             validController.resetValue = "0";
           }
           RegController& validController =
-            arch.getController(p.valids.at(0).name);
+            arch.getController(p.valids.at(0));
             //arch.regControllers[p.valids.at(0).name];
           validController.values[andStrings(conds)] = "1";
           
@@ -2067,7 +2067,7 @@ namespace ahaHLS {
     for (auto p : arch.pipelines) {
 
       for (auto validVar : p.valids) {
-        arch.getController(validVar.name).resetValue = "0";
+        arch.getController(validVar).resetValue = "0";
       }
     }
   }
@@ -2100,7 +2100,7 @@ namespace ahaHLS {
       }
 
       RegController& cont =
-        arch.getController(p.valids.at(0).name);
+        arch.getController(p.valids.at(0));
       string atSt = atState(st, arch);
       
       cont.values[andStr(atSt, testCond)] = "0";
@@ -2139,7 +2139,7 @@ namespace ahaHLS {
 
             assert(contains_key(i, nextNameMap));
             Wire next = map_find(i, nextNameMap);
-            arch.getController(next.name).values["1"] = current.name;
+            arch.getController(next).values["1"] = current.name;
           }
         }
         
@@ -2149,7 +2149,7 @@ namespace ahaHLS {
       for (auto instrS : p.pipelineRegisters.back()) {
         Instruction* i = instrS.first;
         if (needsTempStorage(i, arch)) {
-          arch.getController(map_find(i, arch.names).name).values["1"] =
+          arch.getController(map_find(i, arch.names)).values["1"] =
             instrS.second.name;
         }
       }
@@ -2163,7 +2163,7 @@ namespace ahaHLS {
     for (auto p : pipelines) {
 
       for (int i = 0; i < ((int) p.valids.size()) - 1; i++) {
-        arch.getController(p.valids[i + 1].name).values["1"] =
+        arch.getController(p.valids[i + 1]).values["1"] =
           p.valids[i].name;
       }
     }
