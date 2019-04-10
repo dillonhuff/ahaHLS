@@ -367,6 +367,7 @@ namespace ahaHLS {
 
     std::map<std::string, RegController> regControllers;
     std::vector<PortController> portControllers;
+    std::vector<FunctionalUnit> functionalUnits;
     
     void addController(const std::string& name, const int width) {
       RegController ctr;

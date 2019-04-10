@@ -1636,6 +1636,7 @@ namespace ahaHLS {
     
   }
 
+  // TODO: Remove resetValues field?
   void emitControlCode(MicroArchitecture& arch) {
 
     arch.addController("global_state", 32);
@@ -1984,7 +1985,8 @@ namespace ahaHLS {
   }
   
   void emitFunctionalUnits(std::ostream& out,
-                           map<Instruction*, FunctionalUnit>& unitAssignment) {
+                           MicroArchitecture& arch) {
+    //map<Instruction*, FunctionalUnit>& unitAssignment) {
 
     // The issue of how to create builtins also comes up here. Should I have
     // parametric modules I can use for each one?
@@ -1993,8 +1995,9 @@ namespace ahaHLS {
     out << endl << "\t// Start Functional Units" << endl;
     std::set<std::string> alreadyEmitted;
     
-    for (auto iUnit : unitAssignment) {
-      auto unit = iUnit.second;
+    //for (auto iUnit : ) {
+    for (auto unit : arch.functionalUnits) {
+      //auto unit = iUnit.second;
 
       if (elem(unit.instName, alreadyEmitted)) {
         continue;
@@ -2341,17 +2344,6 @@ namespace ahaHLS {
     for (auto st : arch.stg.opStates) {
       if (st.second.size() > 0) {
 
-        // map<BasicBlock*, Instruction*> instructionsForBlocks;
-        // for (auto instrG : st.second) {
-        //   Instruction* instr = instrG;
-        //   BasicBlock* bb = instr->getParent();
-        //   if (!contains_key(bb, instructionsForBlocks) && TerminatorInst::classof(instr)) {
-        //     instructionsForBlocks.insert({bb, instrG});
-        //   }
-
-        // }
-
-        //for (auto bbI : instructionsForBlocks) {
         for (auto instr : arch.stg.instructionsFinishingAt(st.first)) {
           if (TerminatorInst::classof(instr)) {
             auto bbNo = arch.cs.getBasicBlockNo(instr->getParent());
@@ -2369,6 +2361,23 @@ namespace ahaHLS {
 
   }
 
+  void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
+    Function* f = arch.stg.getFunction();
+
+    arch.addController("global_next_block", 32);
+    for (auto& bb : f->getBasicBlockList()) {
+      int blkNo = arch.cs.getBasicBlockNo(&bb);
+      auto blkString = to_string(blkNo);
+      arch.addController("bb_" + blkString + "_active", 1);
+
+      TerminatorInst* term = bb.getTerminator();
+      if (BranchInst::classof(term)) {
+        BranchInst* br = dyn_cast<BranchInst>(term);
+        arch.addController("br_" + blkString + "_happened", 1);
+      }
+    }
+  }
+  
   MicroArchitecture
   buildMicroArchitecture(const STG& stg,
                          std::map<llvm::Value*, int>& memMap,
@@ -2389,6 +2398,9 @@ namespace ahaHLS {
     }
 
     MicroArchitecture arch(cs, stg, unitAssignment, memMap, names, pipelines, hcs);
+    for (auto& unit : unitAssignment) {
+      arch.functionalUnits.push_back(unit.second);
+    }
 
     buildPortControllers(arch);
     emitPipelineResetBlock(arch);
@@ -2397,6 +2409,7 @@ namespace ahaHLS {
     emitPipelineInitiationBlock(arch);
     emitLastBBCode(arch);
     emitControlCode(arch);
+    buildBasicBlockEnableLogic(arch);
 
     assert(arch.stg.opStates.size() == stg.opStates.size());
     assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
@@ -2506,7 +2519,7 @@ namespace ahaHLS {
     emitComponents(out, debugInfo);
     out << endl << tab(1) << "// End debug wires and ports" << endl;
     
-    emitFunctionalUnits(out, arch.unitAssignment);
+    emitFunctionalUnits(out, arch);
     emitRegisterStorage(out, arch);
 
     out << endl;
