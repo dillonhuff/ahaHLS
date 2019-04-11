@@ -1,20 +1,20 @@
-module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [31:0] out_in_data, output [0:0] out_read_valid, output [0:0] out_rst, output [0:0] out_write_valid, input [31:0] out_out_data, input [0:0] out_read_ready, input [0:0] out_write_ready, output [31:0] in_in_data, output [0:0] in_read_valid, output [0:0] in_rst, output [0:0] in_write_valid, input [31:0] in_out_data, input [0:0] in_read_ready, input [0:0] in_write_ready);
+module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_data, output [0:0] out_read_valid, output [0:0] out_rst, output [0:0] out_write_valid, input [31:0] out_out_data, input [0:0] out_read_ready, input [0:0] out_write_ready, output [0:0] valid, output [31:0] in_in_data, output [0:0] in_read_valid, output [0:0] in_rst, output [0:0] in_write_valid, input [31:0] in_out_data, input [0:0] in_read_ready, input [0:0] in_write_ready);
 
-	reg [0:0] valid_reg;
 	reg [31:0] out_in_data_reg;
 	reg [0:0] out_read_valid_reg;
 	reg [0:0] out_rst_reg;
 	reg [0:0] out_write_valid_reg;
+	reg [0:0] valid_reg;
 	reg [31:0] in_in_data_reg;
 	reg [0:0] in_read_valid_reg;
 	reg [0:0] in_rst_reg;
 	reg [0:0] in_write_valid_reg;
 
-	assign valid = valid_reg;
 	assign out_in_data = out_in_data_reg;
 	assign out_read_valid = out_read_valid_reg;
 	assign out_rst = out_rst_reg;
 	assign out_write_valid = out_write_valid_reg;
+	assign valid = valid_reg;
 	assign in_in_data = in_in_data_reg;
 	assign in_read_valid = in_read_valid_reg;
 	assign in_rst = in_rst_reg;
@@ -32,10 +32,6 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// End debug wires and ports
 
 	// Start Functional Units
-	add alloca_0();
-
-	add bitcast_1();
-
 	reg [31:0] raddr_ram_0_reg;
 	reg [31:0] waddr_ram_0_reg;
 	reg [31:0] wdata_ram_0_reg;
@@ -58,11 +54,17 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [0:0] cmp_out_icmp_7;
 	eq #(.WIDTH(32)) icmp_7(.in0(cmp_in0_icmp_7), .in1(cmp_in1_icmp_7), .out(cmp_out_icmp_7));
 
-	add call_3();
-
-	add call_17();
-
 	br_dummy br_unit();
+
+	add call_18();
+
+	add alloca_0();
+
+	add bitcast_1();
+
+	add call_2();
+
+	add call_19();
 
 	reg [63:0] phi_in_phi_8;
 	reg [31:0] phi_last_block_phi_8;
@@ -70,17 +72,15 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [31:0] phi_out_phi_8;
 	phi #(.NB_PAIR(2), .WIDTH(32)) phi_8(.in(phi_in_phi_8), .last_block(phi_last_block_phi_8), .out(phi_out_phi_8), .s(phi_s_phi_8));
 
-	add call_19();
-
 	add call_10();
 
 	reg [0:0] bb_0_active_in_data;
 	wire [0:0] bb_0_active_out_data;
 	hls_wire #(.WIDTH(1)) bb_0_active(.in_data(bb_0_active_in_data), .out_data(bb_0_active_out_data));
 
-	reg [0:0] br_0_happened_in_data;
-	wire [0:0] br_0_happened_out_data;
-	hls_wire #(.WIDTH(1)) br_0_happened(.in_data(br_0_happened_in_data), .out_data(br_0_happened_out_data));
+	reg [0:0] br_0_taken_in_data;
+	wire [0:0] br_0_taken_out_data;
+	hls_wire #(.WIDTH(1)) br_0_taken(.in_data(br_0_taken_in_data), .out_data(br_0_taken_out_data));
 
 	reg [0:0] bb_1_active_in_data;
 	wire [0:0] bb_1_active_out_data;
@@ -90,9 +90,13 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [0:0] bb_2_active_out_data;
 	hls_wire #(.WIDTH(1)) bb_2_active(.in_data(bb_2_active_in_data), .out_data(bb_2_active_out_data));
 
-	reg [0:0] br_2_happened_in_data;
-	wire [0:0] br_2_happened_out_data;
-	hls_wire #(.WIDTH(1)) br_2_happened(.in_data(br_2_happened_in_data), .out_data(br_2_happened_out_data));
+	reg [0:0] br_2_true_taken_in_data;
+	wire [0:0] br_2_true_taken_out_data;
+	hls_wire #(.WIDTH(1)) br_2_true_taken(.in_data(br_2_true_taken_in_data), .out_data(br_2_true_taken_out_data));
+
+	reg [0:0] br_2_false_taken_in_data;
+	wire [0:0] br_2_false_taken_out_data;
+	hls_wire #(.WIDTH(1)) br_2_false_taken(.in_data(br_2_false_taken_in_data), .out_data(br_2_false_taken_out_data));
 
 	// End Functional Units
 
@@ -246,7 +250,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	always @(*) begin
 		out_in_data_reg = valid ? rdata_ram_0 : rdata_ram_0;
 	end
-	// controller for ret_23.valid_reg
+	// controller for ret_24.valid_reg
 	always @(*) begin
 		if ((global_state == 8)) begin 
 			if (1) begin
@@ -273,7 +277,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 		if (rst) begin
 			global_next_block <= 0;
 		end else begin
-			if (br_0_happened_out_data) begin
+			if (br_0_taken_out_data) begin
 				global_next_block <= 2;
 			end
 		end

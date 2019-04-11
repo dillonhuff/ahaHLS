@@ -2402,9 +2402,6 @@ namespace ahaHLS {
       TerminatorInst* term = bb.getTerminator();
       if (BranchInst::classof(term)) {
         BranchInst* br = dyn_cast<BranchInst>(term);
-        string hName = "br_" + blkString + "_happened";
-        Wire hWire = wire(1, hName);
-        auto& happenedController = addPortController(hName, 1, arch);
 
         if (!(br->isConditional())) {
           // For each conditional branch that branches to a block outside
@@ -2414,12 +2411,28 @@ namespace ahaHLS {
           // TODO: Need to use the output name of the functional unit for
           // the wire, not the
           // name of the functional unit
+
+          string hName = "br_" + blkString + "_taken";
+          Wire hWire = wire(1, hName);
+          auto& happenedController = addPortController(hName, 1, arch);
           BasicBlock* destBlock = br->getSuccessor(0);
 
           // TODO: Add atState(....)
           arch.getController("global_next_block").values[wireValue(hName, arch)] =
             to_string(arch.cs.getBasicBlockNo(destBlock));
         } else {
+          Value* condition = br->getOperand(0);
+
+          string tName = "br_" + blkString + "_true_taken";
+          Wire tWire = wire(1, tName);
+          auto& trueController = addPortController(tName, 1, arch);
+
+          string fName = "br_" + blkString + "_false_taken";
+          Wire fWire = wire(1, fName);
+          auto& falseController = addPortController(fName, 1, arch);
+          
+          BasicBlock* destBlock = br->getSuccessor(0);
+          
           // Get the value of the conditional branch instruction,
           // and set the global next block based on it
 
