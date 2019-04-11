@@ -1911,7 +1911,7 @@ namespace ahaHLS {
                                  MicroArchitecture& arch) {
     auto& controllers = arch.portControllers;
     for (auto portController : controllers) {
-      emitVerilogForController(out, arch, portController);
+      emitVerilogForController(out, arch, portController.second);
     }
     
   }
@@ -1946,7 +1946,7 @@ namespace ahaHLS {
 
     }
 
-    vector<PortController> controllers;
+    map<string, PortController> controllers;
     for (auto controller : assignment) {
 
       FunctionalUnit unit = controller.unit;
@@ -2011,7 +2011,7 @@ namespace ahaHLS {
       }
 
       buildInputControllers(portController);
-      controllers.push_back(portController);
+      controllers[portController.functionalUnit().instName] = portController;
     }
 
     arch.portControllers = controllers;
@@ -2436,7 +2436,7 @@ namespace ahaHLS {
     UnitController uc;
     uc.unit = unit;
     c.unitController = uc;
-    arch.portControllers.push_back(c);
+    arch.portControllers[unit.instName] = c;
 
     return arch.portController(name);
   }
@@ -2448,13 +2448,46 @@ namespace ahaHLS {
     return pController.unitController.unit.outputWire("out_data");
   }
 
-  Wire checkEqual(const int value, const Wire w, const MicroArchitecture& arch) {
+  ModuleSpec comparatorSpec(const std::string& name, const int width) {
+    ModuleSpec unit;
+    unit.name = name;
+    unit.hasClock = false;
+    unit.hasRst = false;
+    unit.params = {{"WIDTH", to_string(width)}};
+    unit.ports = {{"in0", inputPort(width, "in0")},
+                  {"in1", inputPort(width, "in1")},
+                  {"out", outputPort(1, "out")}};
+    unit.insensitivePorts = {"in0", "in1"};
+    return unit;
+  }
+  
+  PortController& makeEquals(const int width, MicroArchitecture& arch) {
+    string eqName = arch.uniqueName("eq");
+    ModuleSpec eqSpec = comparatorSpec("eq", width);
+    FunctionalUnit& unit = arch.makeUnit(eqName, eqSpec);
+    assert(unit.instName == eqName);
+    cout << "Adding controller " << unit.instName << endl;
+    
+    arch.addPortController(unit);
+    cout << "After adding controller" << endl;
+    for (auto& c : arch.portControllers) {
+      cout << tab(1) << c.second.functionalUnit().instName << endl;
+    }
+    return arch.portController(unit.instName);
+  }
+
+  Wire checkEqual(const int value, const Wire w, MicroArchitecture& arch) {
     // Create equal functional unit
     // Wire up value and w to the unit
     // return the output of the functional unit
-    //assert(false);
-    return constWire(1, 1);
+
+    Wire valWire = constWire(w.width, value);
+    PortController& controller = makeEquals(w.width, arch);
+    controller.setAlways("in0", valWire);
+    controller.setAlways("in1", w);
+    return controller.functionalUnit().outputWire();
   }
+
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
     Function* f = arch.stg.getFunction();
 
@@ -2467,8 +2500,14 @@ namespace ahaHLS {
       auto blkString = to_string(blkNo);
       string name = "bb_" + blkString + "_active";
       PortController& activeController = addPortController(name, 1, arch);
+
+      assert(activeController.functionalUnit().instName != "");
+
       Wire nextBBIsThisBlock =
         checkEqual(blkNo, reg(32, "global_next_block"), arch);
+      cout << "Getting only input for " << activeController.functionalUnit().instName << endl;
+
+      assert(activeController.functionalUnit().portWires.size() > 0);
       PortValues& vals =
         activeController.inputControllers[activeController.onlyInput().name];
       vals.portVals[constWire(1, 1)] = nextBBIsThisBlock;

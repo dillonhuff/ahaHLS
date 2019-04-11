@@ -185,6 +185,11 @@ namespace ahaHLS {
       return n;
     }
 
+    Wire outputWire() const {
+      assert(outWires.size() == 1);
+      return (std::begin(outWires))->second;
+    }
+    
     std::string inputWire(const std::string& name) const {
       if (!dbhc::contains_key(name, portWires)) {
         std::cout << "Error: No wire named " << name << std::endl;
@@ -198,7 +203,7 @@ namespace ahaHLS {
 
       return n;
     }
-    
+
     std::map<std::string, std::string> getParams() const {
       return module.params;
     }
@@ -285,6 +290,9 @@ namespace ahaHLS {
 
   ElaboratedPipeline getPipeline(const StateId id,
                                  const std::vector<ElaboratedPipeline>& pipelines);
+
+  FunctionalUnit functionalUnitForSpec(const std::string unitName,
+                                       const ModuleSpec& mSpec);
   
   class RAM {
     
@@ -370,6 +378,14 @@ namespace ahaHLS {
     // Each input port on the functional unit has its own independent controller
     map<string, PortValues> inputControllers;
 
+    FunctionalUnit& functionalUnit() {
+      return unitController.unit;
+    }
+
+    void setAlways(const std::string& portName, const Wire value) {
+      inputControllers[functionalUnit().inputWire(portName)].portVals[constWire(1, 1)] = value;
+    }
+
     Wire onlyInput() const {
       const FunctionalUnit& unit = unitController.unit;
       return unit.onlyInput();
@@ -408,18 +424,41 @@ namespace ahaHLS {
     HardwareConstraints hcs;
 
     std::map<std::string, RegController> regControllers;
-    std::vector<PortController> portControllers;
+    std::map<std::string, PortController> portControllers;
     std::vector<FunctionalUnit> functionalUnits;
 
-    PortController& portController(const std::string& name) {
-      for (auto& c : portControllers) {
-        if (c.unitController.unit.instName == name) {
-          return c;
-        }
-      }
+    int uniqueNum;
+    
+    std::string uniqueName(const std::string& prefix) {
+      std::string name = prefix + "_" + std::to_string(uniqueNum);
+      uniqueNum++;
+      return name;
+    }
 
-      cout << "Error: Could not find controller for " << name << endl;
-      assert(false);
+    FunctionalUnit& makeUnit(std::string name, ModuleSpec& mSpec) {
+      functionalUnits.push_back(functionalUnitForSpec(name, mSpec));
+      return functionalUnits.back();
+    }
+
+    PortController& addPortController(FunctionalUnit& unit) {
+      PortController c;
+      c.unitController.unit = unit;
+      portControllers[unit.instName] = c;
+
+      return portControllers[unit.instName];
+    }
+    
+    PortController& portController(const std::string& name) {
+      assert(dbhc::contains_key(name, portControllers));
+      return portControllers[name];
+      // for (auto& c : portControllers) {
+      //   if (c.unitController.unit.instName == name) {
+      //     return c.second;
+      //   }
+      // }
+
+      // cout << "Error: Could not find controller for " << name << endl;
+      // assert(false);
     }
     
     void addController(const std::string& name, const int width) {
@@ -463,7 +502,8 @@ namespace ahaHLS {
       memoryMap(memoryMap_),
       names(names_),
       pipelines(pipelines_),
-      hcs(hcs_) {
+      hcs(hcs_),
+      uniqueNum(0) {
 
       resetValues.insert({Wire(true, 32, "global_state"),
             std::to_string(cs.getBasicBlockNo(&(stg.getFunction()->getEntryBlock())))});
