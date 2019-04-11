@@ -1743,6 +1743,62 @@ namespace ahaHLS {
     }
     out << tab(3) << "end" << endl;    
   }
+
+  void emitVerilogForWireAssigns(std::ostream& out,
+                                 MicroArchitecture& arch,
+                                 const std::string& port,
+                                 PortController& portController) {
+
+    auto& portValues = portController.inputControllers[port];
+    
+    // Check that legacy data structure is not used here.
+    // TOOD: Eventually remove portAssignments altogether
+    assert(portValues.portAssignments.size() == 0);
+
+    int numAssigns = portValues.portVals.size();
+    
+    out << tab(1) << "always @(*) begin" << endl;
+    int i = 0;
+    for (auto condAndVal : portValues.portVals) {
+      Wire cond = condAndVal.first;
+      Wire value = condAndVal.second;
+      if (i == 0) {
+        out << tab(2) << ifStr(cond.valueString()) << " begin " << endl;
+
+        out << tab(3) << port << " = " << value.valueString() << ";" << endl;
+        if (i == (numAssigns - 1)) {
+          out << tab(2) << "end else begin" << endl;
+        } else {
+          out << tab(2) << "end else ";
+        }
+          
+      } else if (i == (numAssigns - 1)) {
+
+        out << ifStr(cond.valueString()) << " begin " << endl;
+        out << tab(3) << port << " = " << value.valueString() << ";" << endl;
+        out << tab(2) << "end else begin" << endl;
+          
+      } else {
+
+        out << ifStr(cond.valueString()) << " begin " << endl;
+        out << tab(3) << port << " = " << value.valueString() << ";" << endl;        
+        out << tab(2) << "end else ";
+      }
+
+      i++;
+    }
+
+    if (portController.hasDefault(port)) {
+      out << tab(3) << port << " = " << portController.defaultValue(port) << ";" << endl;
+      out << tab(2) << "end" << endl;
+    } else {
+      out << tab(3) << port << " = " << "0" << ";" << endl;
+      out << tab(2) << "end" << endl;
+          
+    }
+    
+    out << tab(1) << "end" << endl;
+  }
   
   // The same value problem is striking again...
   // The simplified wires really ought to be connected through assigns,
@@ -1835,6 +1891,8 @@ namespace ahaHLS {
 
           out << tab(1) << "end" << endl;
         }
+      } else {
+        emitVerilogForWireAssigns(out, arch, port, portController);
       }
     }
 
