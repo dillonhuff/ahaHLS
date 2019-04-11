@@ -20,15 +20,21 @@ namespace ahaHLS {
     bool registered;
     int width;
     std::string name;
+    bool isConst;
+    int constVal;
 
-    Wire() {}
+    Wire() : isConst(false) {}
     Wire(const int width_, const std::string& name_) : 
-      registered(false), width(width_), name(name_) {}
+      registered(false), width(width_), name(name_), isConst(false) {}
 
+    Wire(const int width_, const int value_) : 
+      registered(false), width(width_), name(""), isConst(true) {}
+    
     Wire(const bool registered_, const int width_, const std::string& name_) : 
-      registered(registered_), width(width_), name(name_) {}
+      registered(registered_), width(width_), name(name_), isConst(false) {}
 
     std::string toString() const {
+      assert(!isConst);
       return std::string(registered ? "reg" : "wire") + " [" + std::to_string(width - 1) + ":0] " + name;
     }
   };
@@ -41,6 +47,11 @@ namespace ahaHLS {
   static inline
   Wire reg(const int width, const std::string& name) {
     return {true, width, name};
+  }
+
+  static inline
+  Wire constWire(const int width, const int value) {
+    return {width, value};
   }
   
   Port wireToOutputPort(const Wire w);
@@ -184,6 +195,12 @@ namespace ahaHLS {
       return module.params;
     }
 
+    Wire onlyInput() const {
+      assert(portWires.size() == 1);
+
+      return (*begin(portWires)).second;
+    }
+    
     std::string onlyOutputVar() const {
       assert(outWires.size() == 1);
 
@@ -344,6 +361,11 @@ namespace ahaHLS {
     // This is the final form of the port controller for the unit.
     // Each input port on the functional unit has its own independent controller
     map<string, PortValues> inputControllers;
+
+    Wire onlyInput() const {
+      const FunctionalUnit& unit = unitController.unit;
+      return unit.onlyInput();
+    }
 
     bool isExternal() const { return unitController.unit.isExternal(); }
 

@@ -1758,81 +1758,85 @@ namespace ahaHLS {
       string port = portAndValues.first;
       PortValues vals = portAndValues.second;
 
-      int numAssigns = vals.portAssignments.size();
-      bool allAssignsTheSame = numAssigns == 1;
-      string assigns = "";
+      assert((vals.portAssignments.size() == 0) ||
+             (vals.portVals.size() == 0));
 
-      set<string> values;
-      for (auto val : vals.portAssignments) {
-        values.insert(val.second.second);
-      }
-      allAssignsTheSame = values.size() == 1;
+      if (vals.portVals.size() == 0) {
+        int numAssigns = vals.portAssignments.size();
+        bool allAssignsTheSame = numAssigns == 1;
+        string assigns = "";
+
+        set<string> values;
+        for (auto val : vals.portAssignments) {
+          values.insert(val.second.second);
+        }
+        allAssignsTheSame = values.size() == 1;
       
-      out << tab(1) << "// controller for " << portController.unitController.unit.instName << "." << port << endl;
+        out << tab(1) << "// controller for " << portController.unitController.unit.instName << "." << port << endl;
 
-      if (allAssignsTheSame &&
-          (stateless(portController.unitController.unit) ||
-           isInsensitive(port, portController))) {
+        if (allAssignsTheSame &&
+            (stateless(portController.unitController.unit) ||
+             isInsensitive(port, portController))) {
 
-        auto stateCondVal = *(begin(vals.portAssignments));
-        StallConds stallConds = stateCondVal.second.first;
-        string portValue = stateCondVal.second.second;
-
-        statelessConns.push_back({port, portValue});        
-      } else {
-        out << tab(1) << "always @(*) begin" << endl;
-
-        int i = 0;
-        for (auto stateCondVal : vals.portAssignments) {
-          StateId state = stateCondVal.first;
+          auto stateCondVal = *(begin(vals.portAssignments));
           StallConds stallConds = stateCondVal.second.first;
           string portValue = stateCondVal.second.second;
 
-          if (i == 0) {
-            out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
+          statelessConns.push_back({port, portValue});        
+        } else {
+          out << tab(1) << "always @(*) begin" << endl;
 
-            emitStalledOutput(out, port, stallConds, portValue, portController);
+          int i = 0;
+          for (auto stateCondVal : vals.portAssignments) {
+            StateId state = stateCondVal.first;
+            StallConds stallConds = stateCondVal.second.first;
+            string portValue = stateCondVal.second.second;
 
-            if (i == (numAssigns - 1)) {
+            if (i == 0) {
+              out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
+
+              emitStalledOutput(out, port, stallConds, portValue, portController);
+
+              if (i == (numAssigns - 1)) {
+                out << tab(2) << "end else begin" << endl;
+              } else {
+                out << tab(2) << "end else ";
+              }
+          
+            } else if (i == (numAssigns - 1)) {
+
+              out << ifStr(atState(state, arch)) << " begin " << endl;
+
+              emitStalledOutput(out, port, stallConds, portValue, portController);      
+
               out << tab(2) << "end else begin" << endl;
+          
             } else {
+
+              out << ifStr(atState(state, arch)) << " begin " << endl;
+
+              emitStalledOutput(out, port, stallConds, portValue, portController); 
+
               out << tab(2) << "end else ";
+          
             }
-          
-          } else if (i == (numAssigns - 1)) {
 
-            out << ifStr(atState(state, arch)) << " begin " << endl;
+            i++;
+          }
 
-            emitStalledOutput(out, port, stallConds, portValue, portController);      
-
-            out << tab(2) << "end else begin" << endl;
-          
+          if (portController.hasDefault(port)) {
+            out << tab(3) << port << " = " << portController.defaultValue(port) << ";" << endl;
+            out << tab(2) << "end" << endl;
           } else {
-
-            out << ifStr(atState(state, arch)) << " begin " << endl;
-
-            emitStalledOutput(out, port, stallConds, portValue, portController); 
-
-            out << tab(2) << "end else ";
+            out << tab(3) << port << " = " << "0" << ";" << endl;
+            out << tab(2) << "end" << endl;
           
           }
 
-          i++;
+          out << tab(1) << "end" << endl;
         }
-
-        if (portController.hasDefault(port)) {
-          out << tab(3) << port << " = " << portController.defaultValue(port) << ";" << endl;
-          out << tab(2) << "end" << endl;
-        } else {
-          out << tab(3) << port << " = " << "0" << ";" << endl;
-          out << tab(2) << "end" << endl;
-          
-        }
-
-        out << tab(1) << "end" << endl;
       }
     }
-
 
     // TODO: Replace with assigns
     if (statelessConns.size() > 0) {
@@ -2386,6 +2390,13 @@ namespace ahaHLS {
     return pController.unitController.unit.outputWire("out_data");
   }
 
+  Wire checkEqual(const int value, const Wire w, const MicroArchitecture& arch) {
+    // Create equal functional unit
+    // Wire up value and w to the unit
+    // return the output of the functional unit
+    //assert(false);
+    return constWire(1, 1);
+  }
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
     Function* f = arch.stg.getFunction();
 
@@ -2398,52 +2409,61 @@ namespace ahaHLS {
       auto blkString = to_string(blkNo);
       string name = "bb_" + blkString + "_active";
       PortController& activeController = addPortController(name, 1, arch);
+      Wire nextBBIsThisBlock =
+        checkEqual(blkNo, reg(32, "global_next_block"), arch);
+      PortValues& vals =
+        activeController.inputControllers[activeController.onlyInput().name];
+      vals.portVals[constWire(1, 1)] = nextBBIsThisBlock;
+      // activeController.inputControllers[activeController.onlyInput()].portVals["1"] =
+      //   nextBBIsThisBlock;
 
-      TerminatorInst* term = bb.getTerminator();
-      if (BranchInst::classof(term)) {
-        BranchInst* br = dyn_cast<BranchInst>(term);
+      // TerminatorInst* term = bb.getTerminator();
+      // if (BranchInst::classof(term)) {
+      //   BranchInst* br = dyn_cast<BranchInst>(term);
 
-        if (!(br->isConditional())) {
-          // For each conditional branch that branches to a block outside
-          // it's state (including loops back to the same block) I need to
-          // add code to update the globa_next_block to be the target?
+      //   if (!(br->isConditional())) {
+      //     // For each conditional branch that branches to a block outside
+      //     // it's state (including loops back to the same block) I need to
+      //     // add code to update the globa_next_block to be the target?
 
-          // TODO: Need to use the output name of the functional unit for
-          // the wire, not the
-          // name of the functional unit
+      //     // TODO: Need to use the output name of the functional unit for
+      //     // the wire, not the
+      //     // name of the functional unit
 
-          string hName = "br_" + blkString + "_taken";
-          Wire hWire = wire(1, hName);
-          auto& happenedController = addPortController(hName, 1, arch);
-          BasicBlock* destBlock = br->getSuccessor(0);
+      //     string hName = "br_" + blkString + "_taken";
+      //     Wire hWire = wire(1, hName);
+      //     auto& happenedController = addPortController(hName, 1, arch);
+      //     BasicBlock* destBlock = br->getSuccessor(0);
 
-          // TODO: Add atState(....)
-          arch.getController("global_next_block").values[wireValue(hName, arch)] =
-            to_string(arch.cs.getBasicBlockNo(destBlock));
-        } else {
-          Value* condition = br->getOperand(0);
+      //     // TODO: Add atState(....)
+      //     arch.getController("global_next_block").values[wireValue(hName, arch)] =
+      //       to_string(arch.cs.getBasicBlockNo(destBlock));
+      //   } else {
+      //     Value* condition = br->getOperand(0);
 
-          string tName = "br_" + blkString + "_true_taken";
-          Wire tWire = wire(1, tName);
-          auto& trueController = addPortController(tName, 1, arch);
+      //     // Really I need to set the next active block
 
-          string fName = "br_" + blkString + "_false_taken";
-          Wire fWire = wire(1, fName);
-          auto& falseController = addPortController(fName, 1, arch);
+      //     string tName = "br_" + blkString + "_true_taken";
+      //     Wire tWire = wire(1, tName);
+      //     auto& trueController = addPortController(tName, 1, arch);
+
+      //     string fName = "br_" + blkString + "_false_taken";
+      //     Wire fWire = wire(1, fName);
+      //     auto& falseController = addPortController(fName, 1, arch);
           
-          BasicBlock* destBlock = br->getSuccessor(0);
+      //     BasicBlock* destBlock = br->getSuccessor(0);
           
-          // Get the value of the conditional branch instruction,
-          // and set the global next block based on it
+      //     // Get the value of the conditional branch instruction,
+      //     // and set the global next block based on it
 
-          // Note: The atState function is also odd. When the input state
-          // is a pipeline state it does not check if we (who is we?)
-          // are in the pipeline
-          // it checks whether or not the global state is the pipeline
-          // state and the stage of the pipeline that the state corresponds
-          // to is active
-        }
-      }
+      //     // Note: The atState function is also odd. When the input state
+      //     // is a pipeline state it does not check if we (who is we?)
+      //     // are in the pipeline
+      //     // it checks whether or not the global state is the pipeline
+      //     // state and the stage of the pipeline that the state corresponds
+      //     // to is active
+      //   }
+      // }
     }
   }
 

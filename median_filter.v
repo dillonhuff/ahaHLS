@@ -53,10 +53,6 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	wire [0:0] bb_0_active_out_data;
 	hls_wire #(.WIDTH(1)) bb_0_active(.in_data(bb_0_active_in_data), .out_data(bb_0_active_out_data));
 
-	reg [0:0] br_0_taken_in_data;
-	wire [0:0] br_0_taken_out_data;
-	hls_wire #(.WIDTH(1)) br_0_taken(.in_data(br_0_taken_in_data), .out_data(br_0_taken_out_data));
-
 	reg [0:0] bb_1_active_in_data;
 	wire [0:0] bb_1_active_out_data;
 	hls_wire #(.WIDTH(1)) bb_1_active(.in_data(bb_1_active_in_data), .out_data(bb_1_active_out_data));
@@ -65,29 +61,13 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	wire [0:0] bb_2_active_out_data;
 	hls_wire #(.WIDTH(1)) bb_2_active(.in_data(bb_2_active_in_data), .out_data(bb_2_active_out_data));
 
-	reg [0:0] br_2_taken_in_data;
-	wire [0:0] br_2_taken_out_data;
-	hls_wire #(.WIDTH(1)) br_2_taken(.in_data(br_2_taken_in_data), .out_data(br_2_taken_out_data));
-
 	reg [0:0] bb_3_active_in_data;
 	wire [0:0] bb_3_active_out_data;
 	hls_wire #(.WIDTH(1)) bb_3_active(.in_data(bb_3_active_in_data), .out_data(bb_3_active_out_data));
 
-	reg [0:0] br_3_taken_in_data;
-	wire [0:0] br_3_taken_out_data;
-	hls_wire #(.WIDTH(1)) br_3_taken(.in_data(br_3_taken_in_data), .out_data(br_3_taken_out_data));
-
 	reg [0:0] bb_4_active_in_data;
 	wire [0:0] bb_4_active_out_data;
 	hls_wire #(.WIDTH(1)) bb_4_active(.in_data(bb_4_active_in_data), .out_data(bb_4_active_out_data));
-
-	reg [0:0] br_4_true_taken_in_data;
-	wire [0:0] br_4_true_taken_out_data;
-	hls_wire #(.WIDTH(1)) br_4_true_taken(.in_data(br_4_true_taken_in_data), .out_data(br_4_true_taken_out_data));
-
-	reg [0:0] br_4_false_taken_in_data;
-	wire [0:0] br_4_false_taken_out_data;
-	hls_wire #(.WIDTH(1)) br_4_false_taken(.in_data(br_4_false_taken_in_data), .out_data(br_4_false_taken_out_data));
 
 	// End Functional Units
 
@@ -184,15 +164,6 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		if (rst) begin
 			global_next_block <= 0;
 		end else begin
-			if (br_0_taken_out_data) begin
-				global_next_block <= 2;
-			end
-			if (br_2_taken_out_data) begin
-				global_next_block <= 4;
-			end
-			if (br_3_taken_out_data) begin
-				global_next_block <= 1;
-			end
 		end
 	end
 
