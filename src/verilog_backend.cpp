@@ -2415,8 +2415,20 @@ namespace ahaHLS {
           // the wire, not the
           // name of the functional unit
           BasicBlock* destBlock = br->getSuccessor(0);
+
+          // TODO: Add atState(....)
           arch.getController("global_next_block").values[wireValue(hName, arch)] =
             to_string(arch.cs.getBasicBlockNo(destBlock));
+        } else {
+          // Get the value of the conditional branch instruction,
+          // and set the global next block based on it
+
+          // Note: The atState function is also odd. When the input state
+          // is a pipeline state it does not check if we (who is we?)
+          // are in the pipeline
+          // it checks whether or not the global state is the pipeline
+          // state and the stage of the pipeline that the state corresponds
+          // to is active
         }
       }
     }
