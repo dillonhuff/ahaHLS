@@ -1862,17 +1862,13 @@ namespace ahaHLS {
             } else if (i == (numAssigns - 1)) {
 
               out << ifStr(atState(state, arch)) << " begin " << endl;
-
-              emitStalledOutput(out, port, stallConds, portValue, portController);      
-
+              emitStalledOutput(out, port, stallConds, portValue, portController);
               out << tab(2) << "end else begin" << endl;
           
             } else {
 
               out << ifStr(atState(state, arch)) << " begin " << endl;
-
-              emitStalledOutput(out, port, stallConds, portValue, portController); 
-
+              emitStalledOutput(out, port, stallConds, portValue, portController);
               out << tab(2) << "end else ";
           
             }
@@ -2469,10 +2465,10 @@ namespace ahaHLS {
     cout << "Adding controller " << unit.instName << endl;
     
     arch.addPortController(unit);
-    cout << "After adding controller" << endl;
-    for (auto& c : arch.portControllers) {
-      cout << tab(1) << c.second.functionalUnit().instName << endl;
-    }
+    // cout << "After adding controller" << endl;
+    // for (auto& c : arch.portControllers) {
+    //   cout << tab(1) << c.second.functionalUnit().instName << endl;
+    // }
     return arch.portController(unit.instName);
   }
 
