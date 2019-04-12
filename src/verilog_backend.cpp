@@ -2590,15 +2590,7 @@ namespace ahaHLS {
         BranchInst* br = dyn_cast<BranchInst>(term);
 
         if (!(br->isConditional())) {
-          // For each conditional branch that branches to a block outside
-          // it's state (including loops back to the same block) I need to
-          // add code to update the globa_next_block to be the target?
-
-          // TODO: Need to use the output name of the functional unit for
-          // the wire, not the
-          // name of the functional unit
-
-          string hName = "br_" + blkString + "_taken";
+          string hName = "br_" + blkString + "_happened";
           Wire hWire = wire(1, hName);
           auto& happenedController = addPortController(hName, 1, arch);
           // The value of this happened is?
@@ -2608,13 +2600,40 @@ namespace ahaHLS {
           happenedController.setCond("in_data", checkNotWire(atContainerBlock, arch), constWire(1, 0));
           BasicBlock* destBlock = br->getSuccessor(0);
 
-          // TODO: Add atState(....)
           arch.getController("global_next_block").values[wireValue(hName, arch)] =
             to_string(arch.cs.getBasicBlockNo(destBlock));
-
-          
         } else {
-          // Value* condition = br->getOperand(0);
+
+          string hName = "br_" + blkString + "_happened";
+          Wire hWire = wire(1, hName);
+          auto& happenedController = addPortController(hName, 1, arch);
+          // The value of this happened is?
+          Wire atContainerBlock =
+            checkEqual(blkNo, arch.cs.getGlobalState(), arch);
+          happenedController.setCond("in_data", atContainerBlock, constWire(1, 1));
+          happenedController.setCond("in_data", checkNotWire(atContainerBlock, arch), constWire(1, 0));
+
+          Value* condition = br->getOperand(0);
+
+          ControlFlowPosition pos =
+            position(arch.stg.instructionEndState(br), br);
+
+          // TODO: Convert outputName to wire
+          string condValue = outputName(condition, pos, arch);
+
+          Wire trueTaken = wire(1, condValue);
+          Wire falseTaken = checkNotWire(trueTaken, arch);
+
+          BasicBlock* trueSucc = br->getSuccessor(0);
+          int trueBlkNo = arch.cs.getBasicBlockNo(trueSucc);
+
+          BasicBlock* falseSucc = br->getSuccessor(1);
+          int falseBlkNo = arch.cs.getBasicBlockNo(falseSucc);
+
+          arch.getController("global_next_block").values[trueTaken.valueString()] =
+            to_string(trueBlkNo);
+          arch.getController("global_next_block").values[falseTaken.valueString()] =
+            to_string(falseBlkNo);
 
           // // Really I need to set the next active block
 
