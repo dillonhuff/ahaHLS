@@ -2447,6 +2447,19 @@ namespace ahaHLS {
     unit.insensitivePorts = {"in0", "in1"};
     return unit;
   }
+
+  ModuleSpec binopSpec(const std::string& name, const int width) {
+    ModuleSpec unit;
+    unit.name = name;
+    unit.hasClock = false;
+    unit.hasRst = false;
+    unit.params = {{"WIDTH", to_string(width)}};
+    unit.ports = {{"in0", inputPort(width, "in0")},
+                  {"in1", inputPort(width, "in1")},
+                  {"out", outputPort(width, "out")}};
+    unit.insensitivePorts = {"in0", "in1"};
+    return unit;
+  }
   
   PortController& makeEquals(const int width, MicroArchitecture& arch) {
     string eqName = arch.uniqueName("eq");
@@ -2463,11 +2476,23 @@ namespace ahaHLS {
     return arch.portController(unit.instName);
   }
 
-  Wire checkEqual(const int value, const Wire w, MicroArchitecture& arch) {
-    // Create equal functional unit
-    // Wire up value and w to the unit
-    // return the output of the functional unit
+  PortController& makeAnd(const int width, MicroArchitecture& arch) {
+    string eqName = arch.uniqueName("andOp");
+    ModuleSpec eqSpec = binopSpec("andOp", width);
+    FunctionalUnit& unit = arch.makeUnit(eqName, eqSpec);
 
+    assert(unit.instName == eqName);
+    cout << "Adding controller " << unit.instName << endl;
+    
+    arch.addPortController(unit);
+    // cout << "After adding controller" << endl;
+    // for (auto& c : arch.portControllers) {
+    //   cout << tab(1) << c.second.functionalUnit().instName << endl;
+    // }
+    return arch.portController(unit.instName);
+  }
+  
+  Wire checkEqual(const int value, const Wire w, MicroArchitecture& arch) {
     Wire valWire = constWire(w.width, value);
     PortController& controller = makeEquals(w.width, arch);
     controller.setAlways("in0", valWire);
@@ -2477,6 +2502,16 @@ namespace ahaHLS {
     return controller.functionalUnit().outputWire();
   }
 
+  Wire checkAnd(const Wire in0, const Wire in1, MicroArchitecture& arch) {
+    assert(in0.width == in1.width);
+    PortController& controller = makeAnd(in0.width, arch);
+    controller.setAlways("in0", in0);
+    controller.setAlways("in1", in1);
+
+    cout << "Creating equals functional unit = " << controller.functionalUnit() << endl;
+    return controller.functionalUnit().outputWire();
+  }
+  
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
     Function* f = arch.stg.getFunction();
 
@@ -3179,7 +3214,8 @@ namespace ahaHLS {
     if (arch.isPipelineState(state)) {
       auto p = arch.getPipeline(state);
       int stage = p.stageForState(state);
-      active = parens(p.inPipe.name + " && " + p.valids.at(stage).name);
+      active = checkAnd(p.inPipe, p.valids.at(stage), arch).name;
+      //parens(p.inPipe.name + " && " + p.valids.at(stage).name);
     }
     return active;
   }
