@@ -14,6 +14,14 @@ using namespace std;
 
 namespace ahaHLS {
 
+  std::string andCondStr(const std::vector<string>& stallConds) {
+    if (stallConds.size() == 0) {
+      return "1";
+    }
+
+    return andStrings(stallConds);
+  }
+
   std::ostream& operator<<(std::ostream& out, const RegController& controller) {
     out << tab(1) << "always @(posedge clk) begin" << endl;
     out << tab(2) << "if (rst) begin" << endl;
@@ -1685,9 +1693,14 @@ namespace ahaHLS {
       for (auto& assignment : portValues.portAssignments) {
         // Generate string for this assignment and then make it a wire
         Wire value = wire(32, assignment.second.second);
+        StallConds stallConds = assignment.second.first;
 
         StateId state = assignment.first;
-        string startCond = atState(state, arch);
+        vector<string> conds{atState(state, arch)};
+        for (auto& stallCond : stallConds) {
+          conds.push_back(stallCond);
+        }
+        string startCond = andCondStr(conds);
         Wire condition = wire(32, startCond);
         portValues.portVals.insert({condition, value});
       }
@@ -1709,14 +1722,6 @@ namespace ahaHLS {
   bool stateless(FunctionalUnit& unit) {
     vector<string> statelessUnits{"add", "sub", "shlOp", "mul", "phi", "getelementptr_2", "ne", "eq", "trunc", "sext", "slt"};
     return elem(unit.getModName(), statelessUnits);
-  }
-
-  std::string andCondStr(const std::vector<string>& stallConds) {
-    if (stallConds.size() == 0) {
-      return "1";
-    }
-
-    return andStrings(stallConds);
   }
 
   std::vector<std::string> getStallConds(Instruction* instr,
@@ -1841,75 +1846,75 @@ namespace ahaHLS {
 
       if (vals.portVals.size() == 0) {
         assert(false);
-        int numAssigns = vals.portAssignments.size();
-        bool allAssignsTheSame = numAssigns == 1;
-        string assigns = "";
+        // int numAssigns = vals.portAssignments.size();
+        // bool allAssignsTheSame = numAssigns == 1;
+        // string assigns = "";
 
-        set<string> values;
-        for (auto val : vals.portAssignments) {
-          values.insert(val.second.second);
-        }
-        allAssignsTheSame = values.size() == 1;
+        // set<string> values;
+        // for (auto val : vals.portAssignments) {
+        //   values.insert(val.second.second);
+        // }
+        // allAssignsTheSame = values.size() == 1;
       
-        out << tab(1) << "// controller for " << portController.unitController.unit.instName << "." << port << endl;
+        // out << tab(1) << "// controller for " << portController.unitController.unit.instName << "." << port << endl;
 
-        if (allAssignsTheSame &&
-            (stateless(portController.unitController.unit) ||
-             isInsensitive(port, portController))) {
+        // if (allAssignsTheSame &&
+        //     (stateless(portController.unitController.unit) ||
+        //      isInsensitive(port, portController))) {
 
-          auto stateCondVal = *(begin(vals.portAssignments));
-          StallConds stallConds = stateCondVal.second.first;
-          string portValue = stateCondVal.second.second;
+        //   auto stateCondVal = *(begin(vals.portAssignments));
+        //   StallConds stallConds = stateCondVal.second.first;
+        //   string portValue = stateCondVal.second.second;
 
-          statelessConns.push_back({port, portValue});        
-        } else {
-          out << tab(1) << "always @(*) begin" << endl;
+        //   statelessConns.push_back({port, portValue});        
+        // } else {
+        //   out << tab(1) << "always @(*) begin" << endl;
 
-          int i = 0;
-          for (auto stateCondVal : vals.portAssignments) {
-            StateId state = stateCondVal.first;
-            StallConds stallConds = stateCondVal.second.first;
-            string portValue = stateCondVal.second.second;
+        //   int i = 0;
+        //   for (auto stateCondVal : vals.portAssignments) {
+        //     StateId state = stateCondVal.first;
+        //     StallConds stallConds = stateCondVal.second.first;
+        //     string portValue = stateCondVal.second.second;
 
-            if (i == 0) {
-              out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
+        //     if (i == 0) {
+        //       out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
 
-              emitStalledOutput(out, port, stallConds, portValue, portController);
+        //       emitStalledOutput(out, port, stallConds, portValue, portController);
 
-              if (i == (numAssigns - 1)) {
-                out << tab(2) << "end else begin" << endl;
-              } else {
-                out << tab(2) << "end else ";
-              }
+        //       if (i == (numAssigns - 1)) {
+        //         out << tab(2) << "end else begin" << endl;
+        //       } else {
+        //         out << tab(2) << "end else ";
+        //       }
           
-            } else if (i == (numAssigns - 1)) {
+        //     } else if (i == (numAssigns - 1)) {
 
-              out << ifStr(atState(state, arch)) << " begin " << endl;
-              emitStalledOutput(out, port, stallConds, portValue, portController);
-              out << tab(2) << "end else begin" << endl;
+        //       out << ifStr(atState(state, arch)) << " begin " << endl;
+        //       emitStalledOutput(out, port, stallConds, portValue, portController);
+        //       out << tab(2) << "end else begin" << endl;
           
-            } else {
+        //     } else {
 
-              out << ifStr(atState(state, arch)) << " begin " << endl;
-              emitStalledOutput(out, port, stallConds, portValue, portController);
-              out << tab(2) << "end else ";
+        //       out << ifStr(atState(state, arch)) << " begin " << endl;
+        //       emitStalledOutput(out, port, stallConds, portValue, portController);
+        //       out << tab(2) << "end else ";
           
-            }
+        //     }
 
-            i++;
-          }
+        //     i++;
+        //   }
 
-          if (portController.hasDefault(port)) {
-            out << tab(3) << port << " = " << portController.defaultValue(port) << ";" << endl;
-            out << tab(2) << "end" << endl;
-          } else {
-            out << tab(3) << port << " = " << "0" << ";" << endl;
-            out << tab(2) << "end" << endl;
+        //   if (portController.hasDefault(port)) {
+        //     out << tab(3) << port << " = " << portController.defaultValue(port) << ";" << endl;
+        //     out << tab(2) << "end" << endl;
+        //   } else {
+        //     out << tab(3) << port << " = " << "0" << ";" << endl;
+        //     out << tab(2) << "end" << endl;
           
-          }
+        //   }
 
-          out << tab(1) << "end" << endl;
-        }
+        //   out << tab(1) << "end" << endl;
+        // }
       } else {
 
         int numAssigns = vals.portVals.size();
