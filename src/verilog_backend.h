@@ -695,25 +695,25 @@ namespace ahaHLS {
   buildMicroArchitecture(const STG& stg,
                          std::map<llvm::Value*, int>& memoryMap);
   
-  void noPhiOutputsXWhenUsed(const MicroArchitecture& arch,
+  void noPhiOutputsXWhenUsed(MicroArchitecture& arch,
                              VerilogDebugInfo& debugInfo);
 
-  void noAddsTakeXInputs(const MicroArchitecture& arch,
+  void noAddsTakeXInputs(MicroArchitecture& arch,
                          VerilogDebugInfo& debugInfo);
 
-  void noMulsTakeXInputs(const MicroArchitecture& arch,
+  void noMulsTakeXInputs(MicroArchitecture& arch,
                          VerilogDebugInfo& debugInfo);
 
-  void noLoadedValuesXWhenUsed(const MicroArchitecture& arch,
+  void noLoadedValuesXWhenUsed(MicroArchitecture& arch,
                                VerilogDebugInfo& debugInfo);
 
-  void noLoadAddressesXWhenUsed(const MicroArchitecture& arch,
+  void noLoadAddressesXWhenUsed(MicroArchitecture& arch,
                                 VerilogDebugInfo& debugInfo);
   
-  void noStoredValuesXWhenUsed(const MicroArchitecture& arch,
+  void noStoredValuesXWhenUsed(MicroArchitecture& arch,
                                VerilogDebugInfo& debugInfo);
 
-  void addNoXChecks(const MicroArchitecture& arch,
+  void addNoXChecks(MicroArchitecture& arch,
                     VerilogDebugInfo& debugInfo);
 
   // TODO: Move to separate memory analysis file, and eventually
@@ -721,15 +721,15 @@ namespace ahaHLS {
   std::map<llvm::Instruction*, llvm::Value*>
   memoryOpLocations(llvm::Function* f);
 
-  std::string atState(const StateId state, const MicroArchitecture& arch);  
-  std::string notAtState(const StateId state, const MicroArchitecture& arch);
+  std::string atState(const StateId state, MicroArchitecture& arch);  
+  std::string notAtState(const StateId state, MicroArchitecture& arch);
 
   llvm::Instruction* lastInstructionInState(const StateId state,
                                             MicroArchitecture& arch);
 
   void printInstrAtState(llvm::Instruction* instr,
                          StateId st,
-                         const MicroArchitecture& arch,
+                         MicroArchitecture& arch,
                          VerilogDebugInfo& debugInfo);
 
   std::string floatBits(const float f);

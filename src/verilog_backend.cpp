@@ -3103,7 +3103,7 @@ namespace ahaHLS {
     out.close();
   }
 
-  void noStoredValuesXWhenUsed(const MicroArchitecture& arch,
+  void noStoredValuesXWhenUsed(MicroArchitecture& arch,
                                VerilogDebugInfo& debugInfo) {
     for (auto st : arch.stg.opStates) {
       for (auto instrG : arch.stg.instructionsStartingAt(st.first)) {
@@ -3122,7 +3122,7 @@ namespace ahaHLS {
 
   }
 
-  void noLoadedValuesXWhenUsed(const MicroArchitecture& arch,
+  void noLoadedValuesXWhenUsed(MicroArchitecture& arch,
                                VerilogDebugInfo& debugInfo) {
     for (auto st : arch.stg.opStates) {
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
@@ -3144,7 +3144,7 @@ namespace ahaHLS {
 
   }
 
-  void noLoadAddressesXWhenUsed(const MicroArchitecture& arch,
+  void noLoadAddressesXWhenUsed(MicroArchitecture& arch,
                                 VerilogDebugInfo& debugInfo) {
     for (auto st : arch.stg.opStates) {
       for (auto instrG : arch.stg.instructionsStartingAt(st.first)) {
@@ -3165,7 +3165,7 @@ namespace ahaHLS {
   
   void printInstrAtState(Instruction* instr,
                          StateId st,
-                         const MicroArchitecture& arch,
+                         MicroArchitecture& arch,
                          VerilogDebugInfo& debugInfo) {
     auto iStr = sanitizeFormatForVerilog(instructionString(instr));
 
@@ -3177,8 +3177,10 @@ namespace ahaHLS {
     }
   }
 
-  std::string atState(const StateId state, const MicroArchitecture& arch) {
-    string active = parens(arch.cs.getGlobalState().name + " == " + to_string(state));
+  std::string atState(const StateId state, MicroArchitecture& arch) {
+    //string active = parens(arch.cs.getGlobalState().name + " == " + to_string(state));
+    string active = checkEqual(state, arch.cs.getGlobalState(), arch).name;
+    
     if (arch.isPipelineState(state)) {
       auto p = arch.getPipeline(state);
       int stage = p.stageForState(state);
@@ -3187,11 +3189,11 @@ namespace ahaHLS {
     return active;
   }
 
-  std::string notAtState(const StateId state, const MicroArchitecture& arch) {
+  std::string notAtState(const StateId state, MicroArchitecture& arch) {
     return "!" + parens(atState(state, arch));
   }
 
-  void noPhiOutputsXWhenUsed(const MicroArchitecture& arch,
+  void noPhiOutputsXWhenUsed(MicroArchitecture& arch,
                              VerilogDebugInfo& debugInfo) {
     for (auto st : arch.stg.opStates) {
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
@@ -3213,7 +3215,7 @@ namespace ahaHLS {
     }
   }
 
-  void noFifoReadsX(const MicroArchitecture& arch,
+  void noFifoReadsX(MicroArchitecture& arch,
                     VerilogDebugInfo& debugInfo) {
     for (auto st : arch.stg.opStates) {
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
@@ -3236,7 +3238,7 @@ namespace ahaHLS {
     }
   }
 
-  void noFifoWritesX(const MicroArchitecture& arch,
+  void noFifoWritesX(MicroArchitecture& arch,
                      VerilogDebugInfo& debugInfo) {
     for (auto st : arch.stg.opStates) {
       for (auto instrG : arch.stg.instructionsStartingAt(st.first)) {
@@ -3259,7 +3261,7 @@ namespace ahaHLS {
     }
   }
   
-  void noBinopsTakeXInputs(const MicroArchitecture& arch,
+  void noBinopsTakeXInputs(MicroArchitecture& arch,
                            VerilogDebugInfo& debugInfo,
                            const std::string& opName) {
     
@@ -3292,7 +3294,7 @@ namespace ahaHLS {
 
   }  
 
-  void noBinopsProduceXOutputs(const MicroArchitecture& arch,
+  void noBinopsProduceXOutputs(MicroArchitecture& arch,
                                VerilogDebugInfo& debugInfo,
                                const std::string& opName) {
     
@@ -3319,7 +3321,7 @@ namespace ahaHLS {
 
   }  
   
-  void noCompareOpsTakeXInputs(const MicroArchitecture& arch,
+  void noCompareOpsTakeXInputs(MicroArchitecture& arch,
                                VerilogDebugInfo& debugInfo,
                                const std::string& opName) {
     
@@ -3352,12 +3354,12 @@ namespace ahaHLS {
 
   }  
   
-  void noAddsTakeXInputs(const MicroArchitecture& arch,
+  void noAddsTakeXInputs(MicroArchitecture& arch,
                          VerilogDebugInfo& debugInfo) {
     noBinopsTakeXInputs(arch, debugInfo, "add");
   }
 
-  void noMulsTakeXInputs(const MicroArchitecture& arch,
+  void noMulsTakeXInputs(MicroArchitecture& arch,
                          VerilogDebugInfo& debugInfo) {
     noBinopsTakeXInputs(arch, debugInfo, "mul");
   }
@@ -3375,7 +3377,7 @@ namespace ahaHLS {
     out << "endmodule" << endl;
   }
 
-  void addNoXChecks(const MicroArchitecture& arch,
+  void addNoXChecks(MicroArchitecture& arch,
                     VerilogDebugInfo& info) {
     noBinopsTakeXInputs(arch, info, "fadd");
     noBinopsProduceXOutputs(arch, info, "fadd");
