@@ -14,6 +14,12 @@ using namespace std;
 
 namespace ahaHLS {
 
+  Wire checkAnd(const Wire in0, const Wire in1, MicroArchitecture& arch);
+  
+  std::vector<std::string> getStallConds(Instruction* instr,
+                                         const StateId state,
+                                         MicroArchitecture& arch);
+  
   std::string andCondStr(const std::vector<string>& stallConds) {
     if (stallConds.size() == 0) {
       return "1";
@@ -1444,9 +1450,24 @@ namespace ahaHLS {
 
     return false;
   }
-  
+
+  Wire andCondWire(vector<std::string>& allConds,
+                   MicroArchitecture& arch) {
+    if (allConds.size() == 0) {
+      return constWire(1, 1);
+    }
+
+    string w = allConds[0];
+    for (int i = 1; i < (int) allConds.size(); i++) {
+      string right = allConds[i];
+      w = checkAnd(wire(32, w), wire(32, right), arch).name;
+    }
+    return wire(32, w);
+  }
+
   void emitTempStorage(const StateId state,
-                       const std::string& cond,
+                       const vector<std::string>& conds,
+                       //const std::string& cond,
                        MicroArchitecture& arch) {
 
     auto& names = arch.names;
@@ -1478,7 +1499,10 @@ namespace ahaHLS {
         if (needsTempStorage(instr, arch)) {
           auto unit = map_find(instr, unitAssignment);
 
-          arch.getController(instrWire).values[cond] = dataOutput(instr, arch);
+          vector<string> allConds = conds;
+          allConds.push_back(atState(state, arch));
+          Wire cond = andCondWire(allConds, arch);
+          arch.getController(instrWire).values[cond.name] = dataOutput(instr, arch);
         }
           
       }
@@ -1526,7 +1550,7 @@ namespace ahaHLS {
                            MicroArchitecture& arch) {
 
     vector<string> allConds{atState(state, arch)};
-    
+
     // Stalls do not get stalled by themselves
     for (auto instrK : arch.stg.instructionsStartingAt(state)) {
       //cout << "Instruction = " << valueString(instrK.instruction) << endl;
@@ -1542,7 +1566,8 @@ namespace ahaHLS {
     }
 
     emitTempStorage(state,
-                    andStrings(allConds),
+                    //andStrings(allConds),
+                    allConds,
                     arch);
     
   }
@@ -1623,7 +1648,8 @@ namespace ahaHLS {
           // TODO: Add multiple stall condition handling, and add stall logic
           // to other cases in control logic
 
-          vector<string> stallConds;
+          //vector<string> stallConds;
+          
           for (auto instr : arch.stg.instructionsStartingAt(state)) {
 
             if (isBuiltinStallCall(instr)) {
@@ -1752,25 +1778,6 @@ namespace ahaHLS {
       (map_find(port, portController.insensitivePorts) == true);
   }
 
-  void emitStalledOutput(std::ostream& out,
-                         const string& port,
-                         const vector<string>& stallConds,
-                         const string& portValue,
-                         PortController& portController) {
-
-    bool hasDefault = portController.hasDefault(port);
-    
-    out << tab(3) << "if (" << andCondStr(stallConds) << ") begin" << endl;
-    out << tab(4) << port << " = " << portValue << ";" << endl;
-    out << tab(3) << "end else begin" << endl;
-    if (hasDefault) {
-      out << tab(4) << port << " = " << portController.defaultValue(port) << ";" << endl;
-    } else {
-      out << tab(4) << port << " = 0;" << endl;      
-    }
-    out << tab(3) << "end" << endl;    
-  }
-
   void emitVerilogForWireAssigns(std::ostream& out,
                                  MicroArchitecture& arch,
                                  const std::string& port,
@@ -1866,7 +1873,6 @@ namespace ahaHLS {
 
           //auto stateCondVal = *(begin(vals.portVals));
           auto stateCondVal = *(begin(vals.portVals));
-          //StallConds stallConds = stateCondVal.second.first;
           string portValue = stateCondVal.second.valueString();
           statelessConns.push_back({port, portValue});        
         } else {
