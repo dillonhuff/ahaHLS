@@ -1731,9 +1731,11 @@ namespace ahaHLS {
         for (auto& stallCond : stallConds) {
           conds.push_back(stallCond);
         }
-        string startCond = andCondStr(conds);
-        Wire condition = wire(32, startCond);
-        portValues.portVals.insert({condition, value});
+        //string startCond = andCondStr(conds);
+        Wire startCond = andCondWire(conds, arch);
+        //Wire condition = wire(32, startCond);
+        //portValues.portVals.insert({condition, value});
+        portValues.portVals.insert({startCond, value});
       }
 
       // Clear the old data structure
