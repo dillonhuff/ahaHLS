@@ -2800,6 +2800,7 @@ namespace ahaHLS {
     out.close();
   }
 
+  // Timeout?
   void synthesizeVerilog(llvm::Function* f,
                          HardwareConstraints& hdc,
                          std::map<std::string, int>& memoryMap) {
