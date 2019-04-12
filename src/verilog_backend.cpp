@@ -1604,7 +1604,8 @@ namespace ahaHLS {
 
           conds.push_back(verilogForCondition(transitionDest.cond, pos, arch));
           //controller.values[andStrings(conds)] = to_string(destP.stateId);
-          controller.values[andCondStr(conds)] = to_string(destP.stateId);
+          //controller.values[andCondStr(conds)] = to_string(destP.stateId);
+          controller.values[andCondWire(conds, arch).name] = to_string(destP.stateId);
           
         } else {
           int ind = p.stageForState(state);
@@ -1614,7 +1615,8 @@ namespace ahaHLS {
           
           conds.push_back(pipeCond);
           //controller.values[andStrings(conds)] = to_string(transitionDest.dest);
-          controller.values[andCondStr(conds)] = to_string(transitionDest.dest);
+          //controller.values[andCondStr(conds)] = to_string(transitionDest.dest);
+          controller.values[andCondWire(conds, arch).name] = to_string(transitionDest.dest);          
           
         }
       }
