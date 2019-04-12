@@ -1603,7 +1603,8 @@ namespace ahaHLS {
           auto destP = getPipeline(transitionDest.dest, pipelines);
 
           conds.push_back(verilogForCondition(transitionDest.cond, pos, arch));
-          controller.values[andStrings(conds)] = to_string(destP.stateId);
+          //controller.values[andStrings(conds)] = to_string(destP.stateId);
+          controller.values[andCondStr(conds)] = to_string(destP.stateId);
           
         } else {
           int ind = p.stageForState(state);
@@ -1612,7 +1613,8 @@ namespace ahaHLS {
           string pipeCond = verilogForCondition(transitionDest.cond, pos, arch) + " && " + pipelineClearOnNextCycleCondition(p);
           
           conds.push_back(pipeCond);
-          controller.values[andStrings(conds)] = to_string(transitionDest.dest);
+          //controller.values[andStrings(conds)] = to_string(transitionDest.dest);
+          controller.values[andCondStr(conds)] = to_string(transitionDest.dest);
           
         }
       }
@@ -1637,10 +1639,12 @@ namespace ahaHLS {
           RegController& validController =
             arch.getController(p.valids.at(0));
             //arch.regControllers[p.valids.at(0).name];
-          validController.values[andStrings(conds)] = "1";
+          //validController.values[andStrings(conds)] = "1";
+          validController.values[andCondStr(conds)] = "1";
           
           conds.push_back(verilogForCondition(transitionDest.cond, pos, arch));
-          controller.values[andStrings(conds)] = to_string(p.stateId);
+          //controller.values[andStrings(conds)] = to_string(p.stateId);
+          controller.values[andCondStr(conds)] = to_string(p.stateId);
 
         } else {
           conds.push_back(verilogForCondition(transitionDest.cond, pos, arch));
@@ -1661,7 +1665,8 @@ namespace ahaHLS {
             }
           }
 
-          controller.values[andStrings(conds)] = to_string(transitionDest.dest);
+          //controller.values[andStrings(conds)] = to_string(transitionDest.dest);
+          controller.values[andCondStr(conds)] = to_string(transitionDest.dest);
         }
       }
 
