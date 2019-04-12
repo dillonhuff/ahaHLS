@@ -1914,6 +1914,16 @@ namespace ahaHLS {
     
   }
 
+  Wire containerBlockIsActive(Instruction* const instr,
+                              MicroArchitecture& arch) {
+    return constWire(1, 1);
+  }
+  
+  // Here I am calling atState after the mapping of instructions on to
+  // cycles has vanished. By construction the schedule should never
+  // put instructions that could execute simultaneously in the same cycle
+  // on the same functional unit. So really I ought to be able to
+  // 
   void buildPortControllers(MicroArchitecture& arch) {
 
     vector<UnitController> assignment;
@@ -1964,6 +1974,7 @@ namespace ahaHLS {
           Instruction* instr = instrG;
 
           auto stallConds = getStallConds(instr, state, arch);
+          stallConds.push_back(containerBlockIsActive(instr, arch).valueString());
           auto pos = position(state, instr);
           if (isPipelineState(state, arch.pipelines)) {
             int stage = arch.getPipeline(state).stageForState(state);
