@@ -34,6 +34,14 @@ module trunc(input [IN_WIDTH - 1:0]  in, output [OUT_WIDTH - 1:0] out);
    
 endmodule
 
+module notOp(input [WIDTH - 1:0]  in, output [WIDTH - 1:0] out);
+
+   parameter WIDTH = 32;
+
+   assign out = ~in;
+   
+endmodule
+
 module add(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [WIDTH - 1:0] out);
    parameter WIDTH = 1;
    

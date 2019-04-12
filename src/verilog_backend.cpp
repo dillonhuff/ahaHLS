@@ -2461,6 +2461,30 @@ namespace ahaHLS {
     return unit;
   }
   
+  ModuleSpec unopSpec(const std::string& name, const int width) {
+    ModuleSpec unit;
+    unit.name = name;
+    unit.hasClock = false;
+    unit.hasRst = false;
+    unit.params = {{"WIDTH", to_string(width)}};
+    unit.ports = {{"in", inputPort(width, "in0")},
+                  {"out", outputPort(width, "out")}};
+    unit.insensitivePorts = {"in"};
+    return unit;
+  }
+
+  PortController& makeNot(const int width, MicroArchitecture& arch) {
+    string eqName = arch.uniqueName("notOp");
+    ModuleSpec eqSpec = unopSpec("notOp", width);
+    FunctionalUnit& unit = arch.makeUnit(eqName, eqSpec);
+
+    assert(unit.instName == eqName);
+    
+    arch.addPortController(unit);
+    return arch.portController(unit.instName);
+    
+  }
+  
   PortController& makeEquals(const int width, MicroArchitecture& arch) {
     string eqName = arch.uniqueName("eq");
     ModuleSpec eqSpec = comparatorSpec("eq", width);
@@ -2499,6 +2523,13 @@ namespace ahaHLS {
     controller.setAlways("in1", w);
 
     cout << "Creating equals functional unit = " << controller.functionalUnit() << endl;
+    return controller.functionalUnit().outputWire();
+  }
+
+  Wire checkNotWire(const Wire in, MicroArchitecture& arch) {
+    PortController& controller = makeNot(in.width, arch);
+    controller.setAlways("in", in);
+
     return controller.functionalUnit().outputWire();
   }
 
@@ -3207,21 +3238,24 @@ namespace ahaHLS {
     }
   }
 
-  std::string atState(const StateId state, MicroArchitecture& arch) {
-    //string active = parens(arch.cs.getGlobalState().name + " == " + to_string(state));
-    string active = checkEqual(state, arch.cs.getGlobalState(), arch).name;
+  Wire atStateWire(const StateId state, MicroArchitecture& arch) {
+    Wire active = checkEqual(state, arch.cs.getGlobalState(), arch);
     
     if (arch.isPipelineState(state)) {
       auto p = arch.getPipeline(state);
       int stage = p.stageForState(state);
-      active = checkAnd(p.inPipe, p.valids.at(stage), arch).name;
-      //parens(p.inPipe.name + " && " + p.valids.at(stage).name);
+      active = checkAnd(p.inPipe, p.valids.at(stage), arch);
     }
     return active;
   }
 
+  std::string atState(const StateId state, MicroArchitecture& arch) {
+    return atStateWire(state, arch).name;
+  }
+
   std::string notAtState(const StateId state, MicroArchitecture& arch) {
-    return "!" + parens(atState(state, arch));
+    //return "!" + parens(atState(state, arch));
+    return checkNotWire(atStateWire(state, arch), arch).name;
   }
 
   void noPhiOutputsXWhenUsed(MicroArchitecture& arch,
