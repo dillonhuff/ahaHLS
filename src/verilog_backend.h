@@ -378,6 +378,8 @@ namespace ahaHLS {
     // Each input port on the functional unit has its own independent controller
     map<string, PortValues> inputControllers;
 
+    void setCond(const std::string& port, const Wire& condition, const Wire& value);
+
     FunctionalUnit& functionalUnit() {
       return unitController.unit;
     }

@@ -2549,7 +2549,19 @@ namespace ahaHLS {
     //cout << "Creating equals functional unit = " << controller.functionalUnit() << endl;
     return controller.functionalUnit().outputWire();
   }
-  
+
+  void PortController::setCond(const std::string& port, const Wire& condition, const Wire& value) {
+    //cout << "Looking for port " << port << endl;
+    string portName = functionalUnit().inputWire(port);
+
+    // cout << "Input controllers for " << functionalUnit() << endl;
+    // for (auto& ic : inputControllers) {
+    //   cout << tab(1) << ic.first << endl;
+    // }
+    //assert(contains_key(portName, inputControllers));
+    inputControllers[portName].portVals[condition] = value;
+  }
+
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
     Function* f = arch.stg.getFunction();
 
@@ -2567,62 +2579,66 @@ namespace ahaHLS {
 
       Wire nextBBIsThisBlock =
         checkEqual(blkNo, reg(32, "global_next_block"), arch);
-      //cout << "Getting only input for " << activeController.functionalUnit().instName << endl;
 
       assert(activeController.functionalUnit().portWires.size() > 0);
       PortValues& vals =
         activeController.inputControllers[activeController.onlyInput().name];
       vals.portVals[constWire(1, 1)] = nextBBIsThisBlock;
-      // activeController.inputControllers[activeController.onlyInput()].portVals["1"] =
-      //   nextBBIsThisBlock;
 
-      // TerminatorInst* term = bb.getTerminator();
-      // if (BranchInst::classof(term)) {
-      //   BranchInst* br = dyn_cast<BranchInst>(term);
+      TerminatorInst* term = bb.getTerminator();
+      if (BranchInst::classof(term)) {
+        BranchInst* br = dyn_cast<BranchInst>(term);
 
-      //   if (!(br->isConditional())) {
-      //     // For each conditional branch that branches to a block outside
-      //     // it's state (including loops back to the same block) I need to
-      //     // add code to update the globa_next_block to be the target?
+        if (!(br->isConditional())) {
+          // For each conditional branch that branches to a block outside
+          // it's state (including loops back to the same block) I need to
+          // add code to update the globa_next_block to be the target?
 
-      //     // TODO: Need to use the output name of the functional unit for
-      //     // the wire, not the
-      //     // name of the functional unit
+          // TODO: Need to use the output name of the functional unit for
+          // the wire, not the
+          // name of the functional unit
 
-      //     string hName = "br_" + blkString + "_taken";
-      //     Wire hWire = wire(1, hName);
-      //     auto& happenedController = addPortController(hName, 1, arch);
-      //     BasicBlock* destBlock = br->getSuccessor(0);
+          string hName = "br_" + blkString + "_taken";
+          Wire hWire = wire(1, hName);
+          auto& happenedController = addPortController(hName, 1, arch);
+          // The value of this happened is?
+          Wire atContainerBlock =
+            checkEqual(blkNo, arch.cs.getGlobalState(), arch);
+          happenedController.setCond("in_data", atContainerBlock, constWire(1, 1));
+          happenedController.setCond("in_data", checkNotWire(atContainerBlock, arch), constWire(1, 0));
+          BasicBlock* destBlock = br->getSuccessor(0);
 
-      //     // TODO: Add atState(....)
-      //     arch.getController("global_next_block").values[wireValue(hName, arch)] =
-      //       to_string(arch.cs.getBasicBlockNo(destBlock));
-      //   } else {
-      //     Value* condition = br->getOperand(0);
+          // TODO: Add atState(....)
+          arch.getController("global_next_block").values[wireValue(hName, arch)] =
+            to_string(arch.cs.getBasicBlockNo(destBlock));
 
-      //     // Really I need to set the next active block
-
-      //     string tName = "br_" + blkString + "_true_taken";
-      //     Wire tWire = wire(1, tName);
-      //     auto& trueController = addPortController(tName, 1, arch);
-
-      //     string fName = "br_" + blkString + "_false_taken";
-      //     Wire fWire = wire(1, fName);
-      //     auto& falseController = addPortController(fName, 1, arch);
           
-      //     BasicBlock* destBlock = br->getSuccessor(0);
-          
-      //     // Get the value of the conditional branch instruction,
-      //     // and set the global next block based on it
+        } else {
+          // Value* condition = br->getOperand(0);
 
-      //     // Note: The atState function is also odd. When the input state
-      //     // is a pipeline state it does not check if we (who is we?)
-      //     // are in the pipeline
-      //     // it checks whether or not the global state is the pipeline
-      //     // state and the stage of the pipeline that the state corresponds
-      //     // to is active
-      //   }
-      // }
+          // // Really I need to set the next active block
+
+          // string tName = "br_" + blkString + "_true_taken";
+          // Wire tWire = wire(1, tName);
+          // auto& trueController = addPortController(tName, 1, arch);
+
+          // string fName = "br_" + blkString + "_false_taken";
+          // Wire fWire = wire(1, fName);
+          // auto& falseController = addPortController(fName, 1, arch);
+          
+          // BasicBlock* destBlock = br->getSuccessor(0);
+          
+          // // Get the value of the conditional branch instruction,
+          // // and set the global next block based on it
+
+          // // Note: The atState function is also odd. When the input state
+          // // is a pipeline state it does not check if we (who is we?)
+          // // are in the pipeline
+          // // it checks whether or not the global state is the pipeline
+          // // state and the stage of the pipeline that the state corresponds
+          // // to is active
+        }
+      }
     }
   }
 
