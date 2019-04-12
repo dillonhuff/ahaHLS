@@ -1890,6 +1890,7 @@ namespace ahaHLS {
                                  MicroArchitecture& arch) {
     auto& controllers = arch.portControllers;
     for (auto portController : controllers) {
+      cout << "Controller " << portController.first << " for " << portController.second.functionalUnit().instName << endl;
       emitVerilogForController(out, arch, portController.second);
     }
     
@@ -2452,10 +2453,10 @@ namespace ahaHLS {
     cout << "Adding controller " << unit.instName << endl;
     
     arch.addPortController(unit);
-    // cout << "After adding controller" << endl;
-    // for (auto& c : arch.portControllers) {
-    //   cout << tab(1) << c.second.functionalUnit().instName << endl;
-    // }
+    cout << "After adding controller" << endl;
+    for (auto& c : arch.portControllers) {
+      cout << tab(1) << c.second.functionalUnit().instName << endl;
+    }
     return arch.portController(unit.instName);
   }
 
