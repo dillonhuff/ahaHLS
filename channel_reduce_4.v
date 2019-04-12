@@ -83,10 +83,6 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 	wire [0:0] eq_0_out;
 	eq #(.WIDTH(32)) eq_0(.in0(eq_0_in0), .in1(eq_0_in1), .out(eq_0_out));
 
-	reg [0:0] br_0_happened_in_data;
-	wire [0:0] br_0_happened_out_data;
-	hls_wire #(.WIDTH(1)) br_0_happened(.in_data(br_0_happened_in_data), .out_data(br_0_happened_out_data));
-
 	reg [31:0] eq_1_in0;
 	reg [31:0] eq_1_in1;
 	wire [0:0] eq_1_out;
@@ -96,6 +92,10 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 	reg [0:0] andOp_2_in1;
 	wire [0:0] andOp_2_out;
 	andOp #(.WIDTH(1)) andOp_2(.in0(andOp_2_in0), .in1(andOp_2_in1), .out(andOp_2_out));
+
+	reg [0:0] br_0_happened_in_data;
+	wire [0:0] br_0_happened_out_data;
+	hls_wire #(.WIDTH(1)) br_0_happened(.in_data(br_0_happened_in_data), .out_data(br_0_happened_out_data));
 
 	reg [0:0] notOp_3_in0;
 	wire [0:0] notOp_3_out;
@@ -119,10 +119,6 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 	wire [0:0] eq_5_out;
 	eq #(.WIDTH(32)) eq_5(.in0(eq_5_in0), .in1(eq_5_in1), .out(eq_5_out));
 
-	reg [0:0] br_2_happened_in_data;
-	wire [0:0] br_2_happened_out_data;
-	hls_wire #(.WIDTH(1)) br_2_happened(.in_data(br_2_happened_in_data), .out_data(br_2_happened_out_data));
-
 	reg [31:0] eq_6_in0;
 	reg [31:0] eq_6_in1;
 	wire [0:0] eq_6_out;
@@ -132,6 +128,10 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 	reg [0:0] andOp_7_in1;
 	wire [0:0] andOp_7_out;
 	andOp #(.WIDTH(1)) andOp_7(.in0(andOp_7_in0), .in1(andOp_7_in1), .out(andOp_7_out));
+
+	reg [0:0] br_2_happened_in_data;
+	wire [0:0] br_2_happened_out_data;
+	hls_wire #(.WIDTH(1)) br_2_happened(.in_data(br_2_happened_in_data), .out_data(br_2_happened_out_data));
 
 	reg [0:0] notOp_8_in0;
 	wire [0:0] notOp_8_out;

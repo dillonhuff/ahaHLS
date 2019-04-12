@@ -2615,17 +2615,17 @@ namespace ahaHLS {
       if (BranchInst::classof(term)) {
         BranchInst* br = dyn_cast<BranchInst>(term);
 
-        if (!(br->isConditional())) {
-          string hName = "br_" + blkString + "_happened";
-          Wire hWire = wire(1, hName);
-          auto& happenedController = addPortController(hName, 1, arch);
-          // The value of this happened is?
           Wire atContainerBlock =
             containerBlockIsActive(br, arch);
           Wire atBranchState =
             atStateWire(arch.stg.instructionEndState(br), arch);
           Wire atContainerPos =
             checkAnd(atContainerBlock, atBranchState, arch);
+        
+        if (!(br->isConditional())) {
+          string hName = "br_" + blkString + "_happened";
+          Wire hWire = wire(1, hName);
+          auto& happenedController = addPortController(hName, 1, arch);
           
           //checkEqual(blkNo, arch.cs.getGlobalState(), arch);
           happenedController.setCond("in_data", atContainerPos, constWire(1, 1));
@@ -2639,15 +2639,15 @@ namespace ahaHLS {
           string hName = "br_" + blkString + "_happened";
           Wire hWire = wire(1, hName);
           auto& happenedController = addPortController(hName, 1, arch);
-          // The value of this happened is?
+          // // The value of this happened is?
+          // // Wire atContainerBlock =
+          // //   checkEqual(blkNo, arch.cs.get(), arch);
           // Wire atContainerBlock =
-          //   checkEqual(blkNo, arch.cs.get(), arch);
-          Wire atContainerBlock =
-            containerBlockIsActive(br, arch);
-          Wire atBranchState =
-            atStateWire(arch.stg.instructionEndState(br), arch);
-          Wire atContainerPos =
-            checkAnd(atContainerBlock, atBranchState, arch);
+          //   containerBlockIsActive(br, arch);
+          // Wire atBranchState =
+          //   atStateWire(arch.stg.instructionEndState(br), arch);
+          // Wire atContainerPos =
+          //   checkAnd(atContainerBlock, atBranchState, arch);
 
           happenedController.setCond("in_data", atContainerPos, constWire(1, 1));
           happenedController.setCond("in_data", checkNotWire(atContainerPos, arch), constWire(1, 0));
