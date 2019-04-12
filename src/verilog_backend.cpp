@@ -2621,9 +2621,15 @@ namespace ahaHLS {
           auto& happenedController = addPortController(hName, 1, arch);
           // The value of this happened is?
           Wire atContainerBlock =
-            checkEqual(blkNo, arch.cs.getGlobalState(), arch);
-          happenedController.setCond("in_data", atContainerBlock, constWire(1, 1));
-          happenedController.setCond("in_data", checkNotWire(atContainerBlock, arch), constWire(1, 0));
+            containerBlockIsActive(br, arch);
+          Wire atBranchState =
+            atStateWire(arch.stg.instructionEndState(br), arch);
+          Wire atContainerPos =
+            checkAnd(atContainerBlock, atBranchState, arch);
+          
+          //checkEqual(blkNo, arch.cs.getGlobalState(), arch);
+          happenedController.setCond("in_data", atContainerPos, constWire(1, 1));
+          happenedController.setCond("in_data", checkNotWire(atContainerPos, arch), constWire(1, 0));
           BasicBlock* destBlock = br->getSuccessor(0);
 
           arch.getController("global_next_block").values[wireValue(hName, arch)] =
@@ -2634,8 +2640,10 @@ namespace ahaHLS {
           Wire hWire = wire(1, hName);
           auto& happenedController = addPortController(hName, 1, arch);
           // The value of this happened is?
+          // Wire atContainerBlock =
+          //   checkEqual(blkNo, arch.cs.get(), arch);
           Wire atContainerBlock =
-            checkEqual(blkNo, arch.cs.getGlobalState(), arch);
+            containerBlockIsActive(br, arch);
           Wire atBranchState =
             atStateWire(arch.stg.instructionEndState(br), arch);
           Wire atContainerPos =
