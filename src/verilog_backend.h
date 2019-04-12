@@ -441,9 +441,12 @@ namespace ahaHLS {
     }
 
     PortController& addPortController(FunctionalUnit& unit) {
+      int earlierSize = portControllers.size();
       PortController c;
       c.unitController.unit = unit;
       portControllers[unit.instName] = c;
+
+      assert(portControllers.size() == (earlierSize + 1));
 
       return portControllers[unit.instName];
     }

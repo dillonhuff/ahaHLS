@@ -1994,7 +1994,10 @@ namespace ahaHLS {
       controllers[portController.functionalUnit().instName] = portController;
     }
 
-    arch.portControllers = controllers;
+    for (auto pc : controllers) {
+      assert(!contains_key(pc.first, arch.portControllers));
+      arch.portControllers[pc.first] = pc.second;
+    }
   }
 
   // Now I have port-by-port controllers. I want to
