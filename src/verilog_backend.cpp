@@ -1840,6 +1840,7 @@ namespace ahaHLS {
              (vals.portVals.size() == 0));
 
       if (vals.portVals.size() == 0) {
+        assert(false);
         int numAssigns = vals.portAssignments.size();
         bool allAssignsTheSame = numAssigns == 1;
         string assigns = "";
@@ -1910,7 +1911,31 @@ namespace ahaHLS {
           out << tab(1) << "end" << endl;
         }
       } else {
-        emitVerilogForWireAssigns(out, arch, port, portController);
+
+        int numAssigns = vals.portVals.size();
+        bool allAssignsTheSame = numAssigns == 1;
+        string assigns = "";
+
+        set<string> values;
+        for (auto val : vals.portVals) {
+          values.insert(val.second.valueString());
+        }
+        allAssignsTheSame = values.size() == 1;
+      
+        out << tab(1) << "// controller for " << portController.unitController.unit.instName << "." << port << endl;
+
+        if (allAssignsTheSame &&
+            (stateless(portController.unitController.unit) ||
+             isInsensitive(port, portController))) {
+
+          //auto stateCondVal = *(begin(vals.portVals));
+          auto stateCondVal = *(begin(vals.portVals));
+          //StallConds stallConds = stateCondVal.second.first;
+          string portValue = stateCondVal.second.valueString();
+          statelessConns.push_back({port, portValue});        
+        } else {
+          emitVerilogForWireAssigns(out, arch, port, portController);
+        }
       }
     }
 
