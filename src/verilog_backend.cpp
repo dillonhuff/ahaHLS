@@ -382,7 +382,7 @@ namespace ahaHLS {
   FunctionalUnit functionalUnitForSpec(const std::string unitName,
                                        const ModuleSpec& mSpec) {
 
-    cout << "Creating functional unit for " << mSpec << endl;
+    //cout << "Creating functional unit for " << mSpec << endl;
     bool isExternal = false;
 
     map<string, Wire> wiring;
@@ -2124,17 +2124,6 @@ namespace ahaHLS {
     for (auto& rc : arch.regControllers) {
       out << tab(1) << rc.second.reg << ";" << endl;
     }
-    // std::map<Instruction*, Wire>& names = arch.names;
-    // out << "\t// Start instruction result storage" << endl;
-    // for (auto n : names) {
-    //   if (needsTempStorage(n.first, arch)) {
-    //     out << "\treg [" << n.second.width - 1 << ":0] " << n.second.name << ";" << endl;
-    //   }
-    // }
-    // out << "\t// End instruction result storage" << endl;
-
-    // out << endl;
-
   }
 
   void emitPipelineResetBlock(MicroArchitecture& arch) {
