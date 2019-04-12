@@ -1673,6 +1673,8 @@ namespace ahaHLS {
         }
       }
     }
+
+    // Convert to using portVals?
   }
   
   bool usedInExactlyOneState(UnitController& controller) {
@@ -3186,8 +3188,8 @@ namespace ahaHLS {
   }
 
   std::string atState(const StateId state, MicroArchitecture& arch) {
-    //string active = parens(arch.cs.getGlobalState().name + " == " + to_string(state));
-    string active = checkEqual(state, arch.cs.getGlobalState(), arch).name;
+    string active = parens(arch.cs.getGlobalState().name + " == " + to_string(state));
+    //string active = checkEqual(state, arch.cs.getGlobalState(), arch).name;
     
     if (arch.isPipelineState(state)) {
       auto p = arch.getPipeline(state);
