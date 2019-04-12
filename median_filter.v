@@ -24,6 +24,13 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// End debug wires and ports
 
 	// Start Functional Units
+	reg [0:0] m_rst_n;
+	reg [31:0] m_word0;
+	reg [31:0] m_word1;
+	reg [31:0] m_word2;
+	wire [31:0] m_median_word;
+	median m(.clk(clk), .median_word(m_median_word), .rst_n(m_rst_n), .word0(m_word0), .word1(m_word1), .word2(m_word2));
+
 	br_dummy br_unit();
 
 	reg [63:0] phi_in_phi_6;
@@ -32,22 +39,15 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	wire [31:0] phi_out_phi_6;
 	phi #(.NB_PAIR(2), .WIDTH(32)) phi_6(.in(phi_in_phi_6), .last_block(phi_last_block_phi_6), .out(phi_out_phi_6), .s(phi_s_phi_6));
 
-	reg [0:0] m_rst_n;
-	reg [31:0] m_word0;
-	reg [31:0] m_word1;
-	reg [31:0] m_word2;
-	wire [31:0] m_median_word;
-	median m(.clk(clk), .median_word(m_median_word), .rst_n(m_rst_n), .word0(m_word0), .word1(m_word1), .word2(m_word2));
-
 	reg [31:0] add_in0_add_7;
 	reg [31:0] add_in1_add_7;
 	wire [31:0] add_out_add_7;
 	add #(.WIDTH(32)) add_add_7(.in0(add_in0_add_7), .in1(add_in1_add_7), .out(add_out_add_7));
 
-	reg [31:0] cmp_in0_icmp_12;
-	reg [31:0] cmp_in1_icmp_12;
-	wire [0:0] cmp_out_icmp_12;
-	ne #(.WIDTH(32)) icmp_12(.in0(cmp_in0_icmp_12), .in1(cmp_in1_icmp_12), .out(cmp_out_icmp_12));
+	reg [31:0] cmp_in0_icmp_16;
+	reg [31:0] cmp_in1_icmp_16;
+	wire [0:0] cmp_out_icmp_16;
+	ne #(.WIDTH(32)) icmp_16(.in0(cmp_in0_icmp_16), .in1(cmp_in1_icmp_16), .out(cmp_out_icmp_16));
 
 	reg [0:0] bb_0_active_in_data;
 	wire [0:0] bb_0_active_out_data;
@@ -101,12 +101,19 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	reg [31:0] global_state;
 	reg [31:0] last_BB_reg;
 
-	// controller for add_add_7.add_in0_add_7
-	// controller for add_add_7.add_in1_add_7
-	// Insensitive connections
 	always @(*) begin
-		add_in0_add_7 = valid ? phi_out_phi_6 : phi_out_phi_6;
-		add_in1_add_7 = valid ? (32'd1) : (32'd1);
+		if ((global_state == 4)) begin 
+			add_in0_add_7 = phi_out_phi_6;
+		end else begin
+			add_in0_add_7 = 0;
+		end
+	end
+	always @(*) begin
+		if ((global_state == 4)) begin 
+			add_in1_add_7 = (32'd1);
+		end else begin
+			add_in1_add_7 = 0;
+		end
 	end
 	always @(*) begin
 		if (1'd1) begin 
@@ -213,68 +220,83 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 			eq_4_in1 = 0;
 		end
 	end
-	// controller for icmp_12.cmp_in0_icmp_12
-	// controller for icmp_12.cmp_in1_icmp_12
-	// Insensitive connections
 	always @(*) begin
-		cmp_in0_icmp_12 = valid ? add_out_add_7 : add_out_add_7;
-		cmp_in1_icmp_12 = valid ? (32'd8533) : (32'd8533);
+		if ((global_state == 4)) begin 
+			cmp_in0_icmp_16 = add_out_add_7;
+		end else begin
+			cmp_in0_icmp_16 = 0;
+		end
 	end
-	// controller for m.m_rst_n
+	always @(*) begin
+		if ((global_state == 4)) begin 
+			cmp_in1_icmp_16 = (32'd8533);
+		end else begin
+			cmp_in1_icmp_16 = 0;
+		end
+	end
 	always @(*) begin
 		if ((global_state == 1)) begin 
-			if (1) begin
-				m_rst_n = -(1'd1);
-			end else begin
-				m_rst_n = 0;
-			end
+			m_rst_n = -(1'd1);
 		end else if ((global_state == 2)) begin 
-			if (1) begin
-				m_rst_n = (1'd0);
-			end else begin
-				m_rst_n = 0;
-			end
+			m_rst_n = (1'd0);
 		end else if ((global_state == 3)) begin 
-			if (1) begin
-				m_rst_n = -(1'd1);
-			end else begin
-				m_rst_n = 0;
-			end
+			m_rst_n = -(1'd1);
 		end else begin
 			m_rst_n = 0;
 		end
 	end
-	// controller for m.m_word0
-	// controller for m.m_word1
-	// controller for m.m_word2
-	// Insensitive connections
 	always @(*) begin
-		m_word0 = valid ? in0_out_data : in0_out_data;
-		m_word1 = valid ? in1_out_data : in1_out_data;
-		m_word2 = valid ? in2_out_data : in2_out_data;
+		if ((global_state == 4)) begin 
+			m_word0 = in0_out_data;
+		end else begin
+			m_word0 = 0;
+		end
 	end
-	// controller for out.out_in_data_reg
-	// Insensitive connections
 	always @(*) begin
-		out_in_data_reg = valid ? m_median_word : m_median_word;
+		if ((global_state == 4)) begin 
+			m_word1 = in1_out_data;
+		end else begin
+			m_word1 = 0;
+		end
 	end
-	// controller for phi_6.phi_in_phi_6
-	// controller for phi_6.phi_last_block_phi_6
-	// controller for phi_6.phi_s_phi_6
-	// Insensitive connections
 	always @(*) begin
-		phi_in_phi_6 = valid ? {(32'd0), add_tmp_1} : {(32'd0), add_tmp_1};
-		phi_last_block_phi_6 = valid ? last_BB_reg : last_BB_reg;
-		phi_s_phi_6 = valid ? {32'd2, 32'd4} : {32'd2, 32'd4};
+		if ((global_state == 4)) begin 
+			m_word2 = in2_out_data;
+		end else begin
+			m_word2 = 0;
+		end
 	end
-	// controller for ret_19.valid_reg
+	always @(*) begin
+		if ((global_state == 4)) begin 
+			out_in_data_reg = m_median_word;
+		end else begin
+			out_in_data_reg = 0;
+		end
+	end
+	always @(*) begin
+		if ((global_state == 4)) begin 
+			phi_in_phi_6 = {(32'd0), add_tmp_1};
+		end else begin
+			phi_in_phi_6 = 0;
+		end
+	end
+	always @(*) begin
+		if ((global_state == 4)) begin 
+			phi_last_block_phi_6 = last_BB_reg;
+		end else begin
+			phi_last_block_phi_6 = 0;
+		end
+	end
+	always @(*) begin
+		if ((global_state == 4)) begin 
+			phi_s_phi_6 = {32'd2, 32'd4};
+		end else begin
+			phi_s_phi_6 = 0;
+		end
+	end
 	always @(*) begin
 		if ((global_state == 6)) begin 
-			if (1) begin
-				valid_reg = 1;
-			end else begin
-				valid_reg = 0;
-			end
+			valid_reg = 1;
 		end else begin
 			valid_reg = 0;
 		end
@@ -313,10 +335,10 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 			if ((global_state == 3) && 1) begin
 				global_state <= 4;
 			end
-			if ((global_state == 4) && !(cmp_out_icmp_12)) begin
+			if ((global_state == 4) && !(cmp_out_icmp_16)) begin
 				global_state <= 5;
 			end
-			if ((global_state == 4) && (cmp_out_icmp_12)) begin
+			if ((global_state == 4) && (cmp_out_icmp_16)) begin
 				global_state <= 4;
 			end
 			if ((global_state == 5) && 1) begin

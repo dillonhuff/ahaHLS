@@ -1653,7 +1653,8 @@ namespace ahaHLS {
 
   }
 
-  void buildInputControllers(PortController& controller) {
+  void buildInputControllers(PortController& controller,
+                             MicroArchitecture& arch) {
     for (auto val : controller.portValues) {
       StateId state = val.first;
 
@@ -1675,6 +1676,25 @@ namespace ahaHLS {
     }
 
     // Convert to using portVals?
+    for (auto& portAndPortValues : controller.inputControllers) {
+      string portName = portAndPortValues.first;
+      PortValues& portValues = portAndPortValues.second;
+
+      assert(portValues.portVals.size() == 0);
+      
+      for (auto& assignment : portValues.portAssignments) {
+        // Generate string for this assignment and then make it a wire
+        Wire value = wire(32, assignment.second.second);
+
+        StateId state = assignment.first;
+        string startCond = atState(state, arch);
+        Wire condition = wire(32, startCond);
+        portValues.portVals.insert({condition, value});
+      }
+
+      // Clear the old data structure
+      portValues.portAssignments = {};
+    }
   }
   
   bool usedInExactlyOneState(UnitController& controller) {
@@ -2008,7 +2028,7 @@ namespace ahaHLS {
         }
       }
 
-      buildInputControllers(portController);
+      buildInputControllers(portController, arch);
       controllers[portController.functionalUnit().instName] = portController;
     }
 
