@@ -1908,7 +1908,7 @@ namespace ahaHLS {
                                  MicroArchitecture& arch) {
     auto& controllers = arch.portControllers;
     for (auto portController : controllers) {
-      cout << "Controller " << portController.first << " for " << portController.second.functionalUnit().instName << endl;
+      //cout << "Controller " << portController.first << " for " << portController.second.functionalUnit().instName << endl;
       emitVerilogForController(out, arch, portController.second);
     }
     
@@ -2056,15 +2056,15 @@ namespace ahaHLS {
     out << endl << "\t// Start Functional Units" << endl;
     std::set<std::string> alreadyEmitted;
 
-    cout << "# of functional units = " << arch.functionalUnits.size() << endl;
+    //cout << "# of functional units = " << arch.functionalUnits.size() << endl;
 
     for (auto unit : arch.functionalUnits) {
       //auto unit = iUnit.second;
 
-      cout << "Emitting unit " << unit.instName << endl;
+      //cout << "Emitting unit " << unit.instName << endl;
       
       if (elem(unit.instName, alreadyEmitted)) {
-        cout << "Unit " << unit.instName << " already output" << endl;
+        //cout << "Unit " << unit.instName << " already output" << endl;
         continue;
       }
 
@@ -2508,13 +2508,13 @@ namespace ahaHLS {
     ModuleSpec eqSpec = comparatorSpec("eq", width);
     FunctionalUnit& unit = arch.makeUnit(eqName, eqSpec);
     assert(unit.instName == eqName);
-    cout << "Adding controller " << unit.instName << endl;
+    //cout << "Adding controller " << unit.instName << endl;
     
     arch.addPortController(unit);
-    cout << "After adding controller" << endl;
-    for (auto& c : arch.portControllers) {
-      cout << tab(1) << c.second.functionalUnit().instName << endl;
-    }
+    // cout << "After adding controller" << endl;
+    // for (auto& c : arch.portControllers) {
+    //   cout << tab(1) << c.second.functionalUnit().instName << endl;
+    // }
     return arch.portController(unit.instName);
   }
 
@@ -2524,7 +2524,7 @@ namespace ahaHLS {
     FunctionalUnit& unit = arch.makeUnit(eqName, eqSpec);
 
     assert(unit.instName == eqName);
-    cout << "Adding controller " << unit.instName << endl;
+    //cout << "Adding controller " << unit.instName << endl;
     
     arch.addPortController(unit);
     // cout << "After adding controller" << endl;
@@ -2540,7 +2540,7 @@ namespace ahaHLS {
     controller.setAlways("in0", valWire);
     controller.setAlways("in1", w);
 
-    cout << "Creating equals functional unit = " << controller.functionalUnit() << endl;
+    //cout << "Creating equals functional unit = " << controller.functionalUnit() << endl;
     return controller.functionalUnit().outputWire();
   }
 
@@ -2557,7 +2557,7 @@ namespace ahaHLS {
     controller.setAlways("in0", in0);
     controller.setAlways("in1", in1);
 
-    cout << "Creating equals functional unit = " << controller.functionalUnit() << endl;
+    //cout << "Creating equals functional unit = " << controller.functionalUnit() << endl;
     return controller.functionalUnit().outputWire();
   }
   
@@ -2578,7 +2578,7 @@ namespace ahaHLS {
 
       Wire nextBBIsThisBlock =
         checkEqual(blkNo, reg(32, "global_next_block"), arch);
-      cout << "Getting only input for " << activeController.functionalUnit().instName << endl;
+      //cout << "Getting only input for " << activeController.functionalUnit().instName << endl;
 
       assert(activeController.functionalUnit().portWires.size() > 0);
       PortValues& vals =
@@ -2786,7 +2786,7 @@ namespace ahaHLS {
       out << "\tassign " << p.inPipe.name << " = global_state == " << p.stateId << ";"<< endl;
     }
 
-    cout << "Emitting instruction storage" << endl;
+    //cout << "Emitting instruction storage" << endl;
 
     emitInstructionCode(out, arch);
 
@@ -2918,7 +2918,7 @@ namespace ahaHLS {
 
     VerilogComponents comps;
     for (auto action : tb.actionsOnConditions) {
-      cout << "Adding action " << action << endl;
+      //cout << "Adding action " << action << endl;
       addAlwaysBlock({"clk"}, action, comps);
     }
 
@@ -3094,7 +3094,7 @@ namespace ahaHLS {
 
         if (arch.hcs.hasArgumentSpec(getArg(f, i)) ||
             contains_key(getArg(f, i), arch.hcs.modSpecs)) {
-          cout << valueString(getArg(f, i)) << "is modspeced" << endl;
+          //cout << valueString(getArg(f, i)) << "is modspeced" << endl;
 
           ModuleSpec s;
           if (arch.hcs.hasArgumentSpec(getArg(f, i))) {
@@ -3116,7 +3116,7 @@ namespace ahaHLS {
                 w = wire(p.second.width, wireName);
                 comps.debugWires.push_back(w);
               } else {
-                cout << "Settable wire " << p.first << endl;
+                //cout << "Settable wire " << p.first << endl;
                 w = reg(p.second.width, wireName);
                 comps.debugWires.push_back(w);
               }
@@ -3149,7 +3149,7 @@ namespace ahaHLS {
                 w = wire(p.second.width, wireName);
                 comps.debugWires.push_back(w);
               } else {
-                cout << "Settable wire " << p.first << endl;
+                //cout << "Settable wire " << p.first << endl;
                 w = reg(p.second.width, wireName);
                 comps.debugWires.push_back(w);
               }
