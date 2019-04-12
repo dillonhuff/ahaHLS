@@ -1670,7 +1670,8 @@ namespace ahaHLS {
           }
 
           //controller.values[andStrings(conds)] = to_string(transitionDest.dest);
-          controller.values[andCondStr(conds)] = to_string(transitionDest.dest);
+          //controller.values[andCondStr(conds)] = to_string(transitionDest.dest);
+          controller.values[andCondWire(conds, arch).name] = to_string(transitionDest.dest);
         }
       }
 
@@ -1757,7 +1758,7 @@ namespace ahaHLS {
   }
 
   bool stateless(FunctionalUnit& unit) {
-    vector<string> statelessUnits{"add", "sub", "shlOp", "mul", "phi", "getelementptr_2", "ne", "eq", "trunc", "sext", "slt"};
+    vector<string> statelessUnits{"add", "sub", "shlOp", "mul", "phi", "getelementptr_2", "ne", "eq", "trunc", "sext", "slt", "andOp", "notOp"};
     return elem(unit.getModName(), statelessUnits);
   }
 
