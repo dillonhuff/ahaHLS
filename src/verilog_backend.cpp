@@ -1642,11 +1642,13 @@ namespace ahaHLS {
             arch.getController(p.valids.at(0));
             //arch.regControllers[p.valids.at(0).name];
           //validController.values[andStrings(conds)] = "1";
-          validController.values[andCondStr(conds)] = "1";
+          //validController.values[andCondStr(conds)] = "1";
+          validController.values[andCondWire(conds, arch).name] = "1";
           
           conds.push_back(verilogForCondition(transitionDest.cond, pos, arch));
           //controller.values[andStrings(conds)] = to_string(p.stateId);
           controller.values[andCondStr(conds)] = to_string(p.stateId);
+          //controller.values[andCondWire(conds, arch).name] = to_string(p.stateId);
 
         } else {
           conds.push_back(verilogForCondition(transitionDest.cond, pos, arch));
