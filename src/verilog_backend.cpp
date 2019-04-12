@@ -1846,75 +1846,6 @@ namespace ahaHLS {
 
       if (vals.portVals.size() == 0) {
         assert(false);
-        // int numAssigns = vals.portAssignments.size();
-        // bool allAssignsTheSame = numAssigns == 1;
-        // string assigns = "";
-
-        // set<string> values;
-        // for (auto val : vals.portAssignments) {
-        //   values.insert(val.second.second);
-        // }
-        // allAssignsTheSame = values.size() == 1;
-      
-        // out << tab(1) << "// controller for " << portController.unitController.unit.instName << "." << port << endl;
-
-        // if (allAssignsTheSame &&
-        //     (stateless(portController.unitController.unit) ||
-        //      isInsensitive(port, portController))) {
-
-        //   auto stateCondVal = *(begin(vals.portAssignments));
-        //   StallConds stallConds = stateCondVal.second.first;
-        //   string portValue = stateCondVal.second.second;
-
-        //   statelessConns.push_back({port, portValue});        
-        // } else {
-        //   out << tab(1) << "always @(*) begin" << endl;
-
-        //   int i = 0;
-        //   for (auto stateCondVal : vals.portAssignments) {
-        //     StateId state = stateCondVal.first;
-        //     StallConds stallConds = stateCondVal.second.first;
-        //     string portValue = stateCondVal.second.second;
-
-        //     if (i == 0) {
-        //       out << tab(2) << ifStr(atState(state, arch)) << " begin " << endl;
-
-        //       emitStalledOutput(out, port, stallConds, portValue, portController);
-
-        //       if (i == (numAssigns - 1)) {
-        //         out << tab(2) << "end else begin" << endl;
-        //       } else {
-        //         out << tab(2) << "end else ";
-        //       }
-          
-        //     } else if (i == (numAssigns - 1)) {
-
-        //       out << ifStr(atState(state, arch)) << " begin " << endl;
-        //       emitStalledOutput(out, port, stallConds, portValue, portController);
-        //       out << tab(2) << "end else begin" << endl;
-          
-        //     } else {
-
-        //       out << ifStr(atState(state, arch)) << " begin " << endl;
-        //       emitStalledOutput(out, port, stallConds, portValue, portController);
-        //       out << tab(2) << "end else ";
-          
-        //     }
-
-        //     i++;
-        //   }
-
-        //   if (portController.hasDefault(port)) {
-        //     out << tab(3) << port << " = " << portController.defaultValue(port) << ";" << endl;
-        //     out << tab(2) << "end" << endl;
-        //   } else {
-        //     out << tab(3) << port << " = " << "0" << ";" << endl;
-        //     out << tab(2) << "end" << endl;
-          
-        //   }
-
-        //   out << tab(1) << "end" << endl;
-        // }
       } else {
 
         int numAssigns = vals.portVals.size();
@@ -3238,8 +3169,8 @@ namespace ahaHLS {
   }
 
   std::string atState(const StateId state, MicroArchitecture& arch) {
-    string active = parens(arch.cs.getGlobalState().name + " == " + to_string(state));
-    //string active = checkEqual(state, arch.cs.getGlobalState(), arch).name;
+    //string active = parens(arch.cs.getGlobalState().name + " == " + to_string(state));
+    string active = checkEqual(state, arch.cs.getGlobalState(), arch).name;
     
     if (arch.isPipelineState(state)) {
       auto p = arch.getPipeline(state);
