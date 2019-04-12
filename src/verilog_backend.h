@@ -430,6 +430,8 @@ namespace ahaHLS {
     std::vector<FunctionalUnit> functionalUnits;
 
     int uniqueNum;
+
+    Wire isActiveBlockVar(llvm::BasicBlock* bb);
     
     std::string uniqueName(const std::string& prefix) {
       std::string name = prefix + "_" + std::to_string(uniqueNum);

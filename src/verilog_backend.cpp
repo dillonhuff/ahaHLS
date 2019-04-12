@@ -1916,7 +1916,11 @@ namespace ahaHLS {
 
   Wire containerBlockIsActive(Instruction* const instr,
                               MicroArchitecture& arch) {
-    return constWire(1, 1);
+    BasicBlock* bb = instr->getParent();
+    //int blockNo = arch.cs.getBasicBlockNo(bb);
+
+    return arch.isActiveBlockVar(bb);
+    //return constWire(1, 1);
   }
   
   // Here I am calling atState after the mapping of instructions on to
@@ -2573,6 +2577,15 @@ namespace ahaHLS {
     inputControllers[portName].portVals[condition] = value;
   }
 
+
+  
+  Wire MicroArchitecture::isActiveBlockVar(llvm::BasicBlock* bb) {
+    std::string activeUnit =
+      "bb_" + std::to_string(cs.getBasicBlockNo(bb)) + "_active";        
+    return portController(activeUnit).functionalUnit().outputWire();
+    //return Wire(1, "bb_" + std::to_string(cs.getBasicBlockNo(bb)) + "_active");
+  }
+  
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
     Function* f = arch.stg.getFunction();
 
@@ -2632,8 +2645,8 @@ namespace ahaHLS {
           // TODO: Convert outputName to wire
           string condValue = outputName(condition, pos, arch);
 
-          Wire trueTaken = wire(1, condValue);
-          Wire falseTaken = checkNotWire(trueTaken, arch);
+          Wire trueTaken = checkAnd(atContainerBlock, wire(1, condValue), arch);
+          Wire falseTaken = checkAnd(atContainerBlock, checkNotWire(trueTaken, arch), arch);
 
           BasicBlock* trueSucc = br->getSuccessor(0);
           int trueBlkNo = arch.cs.getBasicBlockNo(trueSucc);
@@ -2696,6 +2709,7 @@ namespace ahaHLS {
       arch.functionalUnits.push_back(unit.second);
     }
 
+    buildBasicBlockEnableLogic(arch);    
     buildPortControllers(arch);
     emitPipelineResetBlock(arch);
     emitPipelineValidChainBlock(arch);
@@ -2703,7 +2717,7 @@ namespace ahaHLS {
     emitPipelineInitiationBlock(arch);
     emitLastBBCode(arch);
     emitControlCode(arch);
-    buildBasicBlockEnableLogic(arch);
+
 
     assert(arch.stg.opStates.size() == stg.opStates.size());
     assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
