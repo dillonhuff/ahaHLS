@@ -2050,12 +2050,16 @@ namespace ahaHLS {
     //    32 bit functional units
     out << endl << "\t// Start Functional Units" << endl;
     std::set<std::string> alreadyEmitted;
-    
-    //for (auto iUnit : ) {
+
+    cout << "# of functional units = " << arch.functionalUnits.size() << endl;
+
     for (auto unit : arch.functionalUnits) {
       //auto unit = iUnit.second;
 
+      cout << "Emitting unit " << unit.instName << endl;
+      
       if (elem(unit.instName, alreadyEmitted)) {
+        cout << "Unit " << unit.instName << " already output" << endl;
         continue;
       }
 
@@ -2481,6 +2485,8 @@ namespace ahaHLS {
     PortController& controller = makeEquals(w.width, arch);
     controller.setAlways("in0", valWire);
     controller.setAlways("in1", w);
+
+    cout << "Creating equals functional unit = " << controller.functionalUnit() << endl;
     return controller.functionalUnit().outputWire();
   }
 
@@ -2708,6 +2714,8 @@ namespace ahaHLS {
     for (auto p : arch.pipelines) {
       out << "\tassign " << p.inPipe.name << " = global_state == " << p.stateId << ";"<< endl;
     }
+
+    cout << "Emitting instruction storage" << endl;
 
     emitInstructionCode(out, arch);
 
