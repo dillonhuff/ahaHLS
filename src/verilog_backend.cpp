@@ -14,6 +14,8 @@ using namespace std;
 
 namespace ahaHLS {
 
+  Wire atStateWire(const StateId state, MicroArchitecture& arch);
+  
   Wire checkAnd(const Wire in0, const Wire in1, MicroArchitecture& arch);
   
   std::vector<std::string> getStallConds(Instruction* instr,
@@ -2634,8 +2636,13 @@ namespace ahaHLS {
           // The value of this happened is?
           Wire atContainerBlock =
             checkEqual(blkNo, arch.cs.getGlobalState(), arch);
-          happenedController.setCond("in_data", atContainerBlock, constWire(1, 1));
-          happenedController.setCond("in_data", checkNotWire(atContainerBlock, arch), constWire(1, 0));
+          Wire atBranchState =
+            atStateWire(arch.stg.instructionEndState(br), arch);
+          Wire atContainerPos =
+            checkAnd(atContainerBlock, atBranchState, arch);
+
+          happenedController.setCond("in_data", atContainerPos, constWire(1, 1));
+          happenedController.setCond("in_data", checkNotWire(atContainerPos, arch), constWire(1, 0));
 
           Value* condition = br->getOperand(0);
 
@@ -2645,8 +2652,8 @@ namespace ahaHLS {
           // TODO: Convert outputName to wire
           string condValue = outputName(condition, pos, arch);
 
-          Wire trueTaken = checkAnd(atContainerBlock, wire(1, condValue), arch);
-          Wire falseTaken = checkAnd(atContainerBlock, checkNotWire(trueTaken, arch), arch);
+          Wire trueTaken = checkAnd(atContainerPos, wire(1, condValue), arch);
+          Wire falseTaken = checkAnd(atContainerPos, checkNotWire(wire(1, condValue), arch), arch);
 
           BasicBlock* trueSucc = br->getSuccessor(0);
           int trueBlkNo = arch.cs.getBasicBlockNo(trueSucc);
