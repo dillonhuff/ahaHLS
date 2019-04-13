@@ -1929,10 +1929,7 @@ namespace ahaHLS {
   Wire containerBlockIsActive(Instruction* const instr,
                               MicroArchitecture& arch) {
     BasicBlock* bb = instr->getParent();
-    //int blockNo = arch.cs.getBasicBlockNo(bb);
-
     return arch.isActiveBlockVar(bb);
-    //return constWire(1, 1);
   }
   
   // Here I am calling atState after the mapping of instructions on to
@@ -2594,9 +2591,9 @@ namespace ahaHLS {
   
   Wire MicroArchitecture::isActiveBlockVar(llvm::BasicBlock* bb) {
     std::string activeUnit =
-      "bb_" + std::to_string(cs.getBasicBlockNo(bb)) + "_active";        
+      "bb_" + std::to_string(cs.getBasicBlockNo(bb)) + "_active";
+
     return portController(activeUnit).functionalUnit().outputWire();
-    //return Wire(1, "bb_" + std::to_string(cs.getBasicBlockNo(bb)) + "_active");
   }
   
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
@@ -2616,6 +2613,12 @@ namespace ahaHLS {
 
       Wire nextBBIsThisBlock =
         checkEqual(blkNo, reg(32, "global_next_block"), arch);
+
+      // TODO: Insert code to accomodate jumps to the current block
+      // from basic blocks in the same state. Do this by adding
+      // conditions to the activeController to set the bb_active variable
+      // equal to one if any successor from the same state in the schedule
+      // branched to this block
 
       assert(activeController.functionalUnit().portWires.size() > 0);
       PortValues& vals =
@@ -2641,24 +2644,11 @@ namespace ahaHLS {
           happenedController.setCond("in_data", checkNotWire(atContainerPos, arch), constWire(1, 0));
           
         if (!(br->isConditional())) {
-          // string hName = "br_" + blkString + "_happened";
-          // Wire hWire = wire(1, hName);
-          // auto& happenedController = addPortController(hName, 1, arch);
-          
-          // happenedController.setCond("in_data", atContainerPos, constWire(1, 1));
-          // happenedController.setCond("in_data", checkNotWire(atContainerPos, arch), constWire(1, 0));
           BasicBlock* destBlock = br->getSuccessor(0);
 
           arch.getController("global_next_block").values[wireValue(hName, arch)] =
             to_string(arch.cs.getBasicBlockNo(destBlock));
         } else {
-
-          // string hName = "br_" + blkString + "_happened";
-          // Wire hWire = wire(1, hName);
-          // auto& happenedController = addPortController(hName, 1, arch);
-
-          // happenedController.setCond("in_data", atContainerPos, constWire(1, 1));
-          // happenedController.setCond("in_data", checkNotWire(atContainerPos, arch), constWire(1, 0));
 
           Value* condition = br->getOperand(0);
 
