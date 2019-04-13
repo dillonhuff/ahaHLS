@@ -1488,8 +1488,6 @@ namespace ahaHLS {
     auto& pipelines = arch.pipelines;
     auto& unitAssignment = arch.unitAssignment;
     
-    //auto lastI = lastInstructionInState(state, arch);
-    //auto pos = position(state, lastI, arch);
     for (auto instrG : arch.stg.instructionsFinishingAt(state)) {
       Instruction* instr = instrG;
 
@@ -1598,14 +1596,8 @@ namespace ahaHLS {
 
     string atStateCond = atState(state, arch);
     
-    //ControlFlowPosition pos = position(state, lastInstructionInState(state, arch));
     ControlFlowPosition pos =
       position(state, lastInstructionInState(state, arch), arch);
-    
-    // if (isPipelineState(state, pipelines)) {
-    //   auto p = getPipeline(state, pipelines);
-    //   pos = pipelinePosition(p.getExitBranch(), state, p.numStages() - 1);
-    // }
     
     if (isPipelineState(state, pipelines)) {
       auto p = getPipeline(state, pipelines);
@@ -2694,7 +2686,6 @@ namespace ahaHLS {
       }
     }
 
-    // Insert happened controller values
     for (auto& bb : f->getBasicBlockList()) {
       int blkNo = arch.cs.getBasicBlockNo(&bb);
       auto blkString = to_string(blkNo);

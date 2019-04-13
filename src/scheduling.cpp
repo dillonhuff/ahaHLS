@@ -750,7 +750,12 @@ namespace ahaHLS {
           if (!elem(nextBB, alreadyVisited)) {
 
             //p.s.add(p.blockSink(next) < p.blockSource(nextBB));
-            p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
+
+            if (!elem(next, toPipeline) && !elem(nextBB, toPipeline)) {
+              p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
+            } else {
+              p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
+            }
 
             // next is a predecessor of nextBB
             map_insert(controlPredecessors, nextBB, next);
@@ -760,14 +765,14 @@ namespace ahaHLS {
       }
       
     }
-    std::vector<BasicBlock*> sortedBlocks =
-      topologicalSortOfBlocks(f, controlPredecessors);
+    // std::vector<BasicBlock*> sortedBlocks =
+    //   topologicalSortOfBlocks(f, controlPredecessors);
     
-    for (int i = 0; i < (int) sortedBlocks.size() - 1; i++) {
-      auto next = sortedBlocks[i];
-      auto nextBB = sortedBlocks[i + 1];
-      p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
-    }
+    // for (int i = 0; i < (int) sortedBlocks.size() - 1; i++) {
+    //   auto next = sortedBlocks[i];
+    //   auto nextBB = sortedBlocks[i + 1];
+    //   p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
+    // }
 
 
     ExecutionConstraints exe;
