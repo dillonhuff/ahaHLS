@@ -1604,7 +1604,8 @@ namespace ahaHLS {
       auto p = getPipeline(state, pipelines);
 
       vector<string> conds{atStateCond};
-        
+
+      // Note: This assumes we never jump from pipeline to pipeline
       if (isPipelineState(dest, pipelines)) {
 
         auto destP = getPipeline(dest, pipelines);
@@ -1719,6 +1720,7 @@ namespace ahaHLS {
     // Actually we ought to do this even if we do find terminators
     // because with multiple basic blocks it is possible to end
     // in a non-terminating block even if other blocks have terminators
+    // TODO: Should be for (auto blk : nonTerminatingBlocks(state)) { if active...
     if (!foundTerminator) {
       ControlFlowPosition pos =
         position(state, lastInstructionInState(state, arch), arch);
