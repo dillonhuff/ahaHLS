@@ -1586,6 +1586,7 @@ namespace ahaHLS {
 
   void addStateTransition(const StateId state,
                           const StateId dest,
+                          ControlFlowPosition& pos,
                           Condition& cond,
                           MicroArchitecture& arch) {
 
@@ -1597,8 +1598,8 @@ namespace ahaHLS {
     if (isPipelineState(state, pipelines)) {
 
       // Only one basic block can exist in each state if the state is a pipeline state
-      ControlFlowPosition pos =
-        position(state, lastInstructionInState(state, arch), arch);
+      // ControlFlowPosition pos =
+      //   position(state, lastInstructionInState(state, arch), arch);
       
       auto p = getPipeline(state, pipelines);
 
@@ -1624,14 +1625,8 @@ namespace ahaHLS {
 
     } else {
 
-      // Note: Now we can have multiple basic blocks in a single state,
-      // so there are multiple control flow positions possible. Each
-      // transition could only be produced by one possible
       // ControlFlowPosition pos =
       //   position(state, lastInstructionInState(state, arch), arch);
-
-      ControlFlowPosition pos =
-        position(state, lastInstructionInState(state, arch), arch);
       
       vector<string> conds{atStateCond};
       if (isPipelineState(dest, pipelines)) {
@@ -1681,11 +1676,14 @@ namespace ahaHLS {
                              const std::vector<StateTransition>& destinations,
                              MicroArchitecture& arch) {
 
+    ControlFlowPosition pos =
+      position(state, lastInstructionInState(state, arch), arch);
+    
     for (auto transitionDest : destinations) {
       StateId dest = transitionDest.dest;
       Condition cond = transitionDest.cond;
 
-      addStateTransition(state, dest, cond, arch);
+      addStateTransition(state, dest, pos, cond, arch);
     }    
   }
 
@@ -1986,11 +1984,6 @@ namespace ahaHLS {
           auto stallConds = getStallConds(instr, state, arch);
           stallConds.push_back(containerBlockIsActive(instr, arch).valueString());
           auto pos = position(state, instr, arch);
-          // auto pos = position(state, instr);
-          // if (isPipelineState(state, arch.pipelines)) {
-          //   int stage = arch.getPipeline(state).stageForState(state);
-          //   pos = pipelinePosition(instr, state, stage);
-          // }
           auto assigns = instructionPortAssignments(pos, arch);
 
           map_insert(portController.portValues, state, {stallConds, assigns});
