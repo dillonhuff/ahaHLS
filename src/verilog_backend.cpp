@@ -1595,6 +1595,8 @@ namespace ahaHLS {
     auto& controller = arch.getController(reg(32, "global_state"));
     auto& pipelines = arch.pipelines;
 
+    auto jumpCond = verilogForCondition(cond, pos, arch);
+
     if (isPipelineState(state, pipelines)) {
 
       auto p = getPipeline(state, pipelines);
@@ -1605,14 +1607,16 @@ namespace ahaHLS {
 
         auto destP = getPipeline(dest, pipelines);
 
-        conds.push_back(verilogForCondition(cond, pos, arch));
+        //conds.push_back(verilogForCondition(cond, pos, arch));
+        conds.push_back(jumpCond);
         controller.values[andCondWire(conds, arch).name] = to_string(destP.stateId);
           
       } else {
         int ind = p.stageForState(state);
         assert(ind == (p.numStages() - 1));
 
-        string pipeCond = verilogForCondition(cond, pos, arch) + " && " + pipelineClearOnNextCycleCondition(p);
+        //string pipeCond = verilogForCondition(cond, pos, arch) + " && " + pipelineClearOnNextCycleCondition(p);
+        string pipeCond = jumpCond + " && " + pipelineClearOnNextCycleCondition(p);
           
         conds.push_back(pipeCond);
         controller.values[andCondWire(conds, arch).name] = to_string(dest);          
@@ -1636,11 +1640,13 @@ namespace ahaHLS {
 
         validController.values[andCondWire(conds, arch).name] = "1";
           
-        conds.push_back(verilogForCondition(cond, pos, arch));
+        //conds.push_back(verilogForCondition(cond, pos, arch));
+        conds.push_back(jumpCond);
         controller.values[andCondWire(conds, arch).name] = to_string(p.stateId);
 
       } else {
-        conds.push_back(verilogForCondition(cond, pos, arch));
+        //conds.push_back(verilogForCondition(cond, pos, arch));
+        conds.push_back(jumpCond);
 
         // TODO: Add multiple stall condition handling, and add stall logic
         // to other cases in control logic
@@ -2747,11 +2753,9 @@ namespace ahaHLS {
         BasicBlock* successor = val.first.second;
 
         if (successor == &bb) {
-          cout << "Block has predessesor" << endl;
-          // if ((predecessor != successor) &&
-          //     (arch.stg.blockStartState(successor) == arch.stg.blockEndState(predecessor))) {
+          //cout << "Block has predessesor" << endl;
           if (jumpToSameState(predecessor, successor, arch)) {
-            cout << "Found jump that stays inside single state" << endl;
+            //cout << "Found jump that stays inside single state" << endl;
             nextBBIsThisBlock =
               checkOr(nextBBIsThisBlock, arch.isActiveBlockVar(predecessor), arch);
           }
@@ -2798,7 +2802,7 @@ namespace ahaHLS {
     emitLastBBCode(arch);
     emitControlCode(arch);    
 
-    assert(arch.stg.opStates.size() == stg.opStates.size());
+    //assert(arch.stg.opStates.size() == stg.opStates.size());
     assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
 
     return arch;
