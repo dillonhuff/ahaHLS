@@ -1991,11 +1991,12 @@ namespace ahaHLS {
 
           auto stallConds = getStallConds(instr, state, arch);
           stallConds.push_back(containerBlockIsActive(instr, arch).valueString());
-          auto pos = position(state, instr);
-          if (isPipelineState(state, arch.pipelines)) {
-            int stage = arch.getPipeline(state).stageForState(state);
-            pos = pipelinePosition(instr, state, stage);
-          }
+          auto pos = position(state, instr, arch);
+          // auto pos = position(state, instr);
+          // if (isPipelineState(state, arch.pipelines)) {
+          //   int stage = arch.getPipeline(state).stageForState(state);
+          //   pos = pipelinePosition(instr, state, stage);
+          // }
           auto assigns = instructionPortAssignments(pos, arch);
 
           map_insert(portController.portValues, state, {stallConds, assigns});
@@ -2656,13 +2657,17 @@ namespace ahaHLS {
 
           // Should really make this in to a helper function
           StateId brEndState = arch.stg.instructionEndState(br);
+
           ControlFlowPosition pos =
-            position(brEndState, br);
-          if (isPipelineState(brEndState, arch.pipelines)) {
-            auto p = getPipeline(brEndState, arch.pipelines);
-            int stage = p.stageForState(brEndState);
-            pos = pipelinePosition(br, brEndState, stage);
-          }
+            position(brEndState, br, arch);
+          
+          // ControlFlowPosition pos =
+          //   position(brEndState, br);
+          // if (isPipelineState(brEndState, arch.pipelines)) {
+          //   auto p = getPipeline(brEndState, arch.pipelines);
+          //   int stage = p.stageForState(brEndState);
+          //   pos = pipelinePosition(br, brEndState, stage);
+          // }
 
           // TODO: Convert outputName to wire
           string condValue = outputName(condition, pos, arch);
