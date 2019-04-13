@@ -1711,8 +1711,20 @@ namespace ahaHLS {
         ControlFlowPosition pos =
           position(state, instr, arch);
         addStateTransition(state, dest, pos, cond, arch);
+        foundTerminator = true;
       }
-    }    
+    }
+
+    // Unconditional transition to a different state
+    if (!foundTerminator) {
+      ControlFlowPosition pos =
+        //position(state, arch.stg.pickInstructionAt(state), arch);
+        position(state, lastInstructionInState(state, arch), arch);
+      Condition cond;
+      assert(cond.isTrue());
+      StateId dest = state + 1;
+      addStateTransition(state, dest, pos, cond, arch);
+    }
   }
 
   // TODO: Remove resetValues field?
@@ -2789,8 +2801,7 @@ namespace ahaHLS {
     emitPipelineRegisterChains(arch);
     emitPipelineInitiationBlock(arch);
     emitLastBBCode(arch);
-    emitControlCode(arch);
-
+    emitControlCode(arch);    
 
     assert(arch.stg.opStates.size() == stg.opStates.size());
     assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
