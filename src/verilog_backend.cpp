@@ -2644,14 +2644,6 @@ namespace ahaHLS {
       string name = "bb_" + blkString + "_active";
       addPortController(name, 1, arch);
 
-      // Wire nextBBIsThisBlock =
-      //   checkEqual(blkNo, reg(32, "global_next_block"), arch);
-      // assert(activeController.functionalUnit().portWires.size() > 0);
-
-      // PortValues& vals =
-      //   activeController.inputControllers[activeController.onlyInput().name];
-      // vals.portVals[constWire(1, 1)] = nextBBIsThisBlock;
-
       TerminatorInst* term = bb.getTerminator();
       if (BranchInst::classof(term)) {
         BranchInst* br = dyn_cast<BranchInst>(term);
@@ -2714,6 +2706,10 @@ namespace ahaHLS {
       }
     }
 
+    // There is an extra issue here: what if
+    // the last basic block in the trace that is active
+    // in state S is not a block that does not have its terminator
+    // in state S?
     for (auto& bb : f->getBasicBlockList()) {
       int blkNo = arch.cs.getBasicBlockNo(&bb);
       auto blkString = to_string(blkNo);
