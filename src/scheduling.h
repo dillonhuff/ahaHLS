@@ -611,6 +611,13 @@ namespace ahaHLS {
     int depth() const { return stateDepth; }
     const std::vector<StateId>& getStates() const { return states; }
   };
+
+  class TransitionInfo {
+  public:
+    std::set<BasicBlock*> noTerminatorExitBlocks;
+    std::set<BasicBlock*> branchExitBlocks;
+    std::set<BasicBlock*> returnExitBlocks;
+  };
   
   class StateTransitionGraph {
   public:
@@ -619,6 +626,7 @@ namespace ahaHLS {
     std::map<StateId, std::vector<Instruction*> > opStates;
     std::map<StateId, std::vector<StateTransition> > opTransitions;
     std::vector<Pipeline> pipelines;
+    std::map<StateId, TransitionInfo> transitions;
 
     StateTransitionGraph() {}
 
@@ -642,6 +650,7 @@ namespace ahaHLS {
       opStates = other.opStates;
       opTransitions = other.opTransitions;
       pipelines = other.pipelines;
+      transitions = other.transitions;
 
       assert(sched.numStates() == other.sched.numStates());
       assert(opStates.size() == other.opStates.size());

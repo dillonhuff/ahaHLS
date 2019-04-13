@@ -1162,16 +1162,16 @@ namespace ahaHLS {
                
     STG g(sched);
 
-    map<BasicBlock*, vector<vector<Atom> > > blockGuards;
+    //map<BasicBlock*, vector<vector<Atom> > > blockGuards;
 
     // NOTE: One possible problem is that I only compute
     // path conditions from the entry and not pairwise between
     // blocks, but that should include all possible (non-looped)
     // paths
-    for (auto bbR : blockList) {
-      BasicBlock* target = bbR;
-      blockGuards[target] = {{}};
-    }
+    // for (auto bbR : blockList) {
+    //   BasicBlock* target = bbR;
+    //   blockGuards[target] = {{}};
+    // }
 
     // Make sure pipeline states are included in STG
     for (auto blk : sched.pipelineSchedules) {
@@ -1190,9 +1190,7 @@ namespace ahaHLS {
     // Add instruction mapping to schedule
     for (auto var : sched.instrTimes) {
       for (auto state : var.second) {
-        //BasicBlock* containerBB = var.first->getParent();
         map_insert(g.opStates, state, var.first);
-              //Condition(map_find(containerBB, blockGuards))});
       }
     }
 
@@ -1261,10 +1259,10 @@ namespace ahaHLS {
         Condition cond;
         if (contains_key(bb, endingInstructions)) {
           for (auto ist : map_find(bb, endingInstructions)) {
-            if (TerminatorInst::classof(ist)) { //.instruction)) {
+            if (TerminatorInst::classof(ist)) {
               terminatorFinishing = true;
-              instr = ist; //.instruction;
-              cond = Condition(); //ist.cond;
+              instr = ist;
+              cond = Condition();
             }
           }
         }
