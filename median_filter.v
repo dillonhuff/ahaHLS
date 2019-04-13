@@ -31,6 +31,8 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	wire [31:0] m_median_word;
 	median m(.clk(clk), .median_word(m_median_word), .rst_n(m_rst_n), .word0(m_word0), .word1(m_word1), .word2(m_word2));
 
+	br_dummy br_unit();
+
 	reg [63:0] phi_in_phi_6;
 	reg [31:0] phi_last_block_phi_6;
 	reg [63:0] phi_s_phi_6;
@@ -46,8 +48,6 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	reg [31:0] cmp_in1_icmp_16;
 	wire [0:0] cmp_out_icmp_16;
 	ne #(.WIDTH(32)) icmp_16(.in0(cmp_in0_icmp_16), .in1(cmp_in1_icmp_16), .out(cmp_out_icmp_16));
-
-	br_dummy br_unit();
 
 	reg [0:0] bb_0_active_in_data;
 	wire [0:0] bb_0_active_out_data;

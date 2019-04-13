@@ -944,6 +944,18 @@ namespace ahaHLS {
     return {state, true, stage, instr};
   }
 
+  ControlFlowPosition position(const StateId state,
+                               Instruction* const instr,
+                               MicroArchitecture& arch) {
+    ControlFlowPosition pos = position(state, instr);
+    if (isPipelineState(state, arch.pipelines)) {
+      auto p = getPipeline(state, arch.pipelines);
+      int stage = p.stageForState(state);
+      pos = pipelinePosition(instr, state, stage);
+    }
+    return pos;
+  }
+
   bool producedInPipeline(llvm::Instruction* instr,
                           ElaboratedPipeline& p,
                           MicroArchitecture& arch) {
@@ -1476,8 +1488,8 @@ namespace ahaHLS {
     auto& pipelines = arch.pipelines;
     auto& unitAssignment = arch.unitAssignment;
     
-    auto lastI = lastInstructionInState(state, arch);
-    auto pos = position(state, lastI);
+    //auto lastI = lastInstructionInState(state, arch);
+    //auto pos = position(state, lastI, arch);
     for (auto instrG : arch.stg.instructionsFinishingAt(state)) {
       Instruction* instr = instrG;
 
@@ -1491,7 +1503,7 @@ namespace ahaHLS {
         if (isPipelineState(state, pipelines)) {
           auto p = getPipeline(state, pipelines);
           int stage = p.stageForState(state);
-          pos = pipelinePosition(lastI, state, stage);
+          //pos = pipelinePosition(lastI, state, stage);
           if (stage < p.numStages() - 1) {
             instrName = map_find(instr, p.pipelineRegisters[stage + 1]).name;
             instrWire = map_find(instr, p.pipelineRegisters[stage + 1]);
@@ -2644,6 +2656,7 @@ namespace ahaHLS {
 
           Value* condition = br->getOperand(0);
 
+          // Should really make this in to a helper function
           StateId brEndState = arch.stg.instructionEndState(br);
           ControlFlowPosition pos =
             position(brEndState, br);
