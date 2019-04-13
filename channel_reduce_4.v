@@ -32,7 +32,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_17();
+	add call_18();
 
 	add alloca_0();
 
@@ -49,7 +49,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 
 	br_dummy br_unit();
 
-	add call_18();
+	add call_19();
 
 	reg [63:0] phi_in_phi_5;
 	reg [31:0] phi_last_block_phi_5;

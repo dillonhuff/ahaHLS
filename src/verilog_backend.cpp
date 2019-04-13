@@ -1668,11 +1668,7 @@ namespace ahaHLS {
   // and allowing more code to be executed in a cycle. Need to
   // add the active basic block variable
   void emitPipelineStateCode(const StateId state,
-                             //const std::vector<StateTransition>& destinations,
                              MicroArchitecture& arch) {
-
-    // assert((destinations.size() == 1) ||
-    //        (destinations.size() == 2));
 
     bool foundTerminator = false;
     for (auto instr : arch.stg.instructionsFinishingAt(state)) {
@@ -1686,7 +1682,6 @@ namespace ahaHLS {
         for (int i = 0; i < (int) br->getNumSuccessors(); i++) {
           BasicBlock* bb = br->getSuccessor(i);
           StateId dest = arch.stg.blockStartState(bb);
-          //Condition cond;
 
           Wire condWire;
           if (br->isConditional()) {
@@ -1696,33 +1691,24 @@ namespace ahaHLS {
             string jmpTestName = outputName(jmpTest, pos, arch);
             if (i == 0) {
               condWire = wire(1, jmpTestName);
-              //cond = Condition(br->getOperand(0), false);
             } else {
               condWire = checkNotWire(wire(1, jmpTestName), arch);
-              //condWire = wire(1, verilogForCondition(cond, pos, arch));
-              //cond = Condition(br->getOperand(0), true);
             }
-            //condWire = wire(1, verilogForCondition(cond, pos, arch));              
-
           } else {
-            //assert(cond.isTrue());
             condWire = constWire(1, 1);
           }
           
           addStateTransition(state, dest, pos, condWire, arch);
         }
       } else if (ReturnInst::classof(instr)) {
-        // Condition cond;
-        // assert(cond.isTrue());
 
         StateId dest = state;
         if (arch.stg.sched.hasReturnDefault()) {
           dest = arch.stg.sched.getDefaultReturnState();
         }
+
         ControlFlowPosition pos =
           position(state, instr, arch);
-        //Wire condWire = wire(1, verilogForCondition(cond, pos, arch));
-
         Wire condWire = constWire(1, 1);
         addStateTransition(state, dest, pos, condWire, arch);
         foundTerminator = true;
@@ -1730,6 +1716,9 @@ namespace ahaHLS {
     }
 
     // Unconditional transition to a different state
+    // Actually we ought to do this even if we do find terminators
+    // because with multiple basic blocks it is possible to end
+    // in a non-terminating block even if other blocks have terminators
     if (!foundTerminator) {
       ControlFlowPosition pos =
         position(state, lastInstructionInState(state, arch), arch);
