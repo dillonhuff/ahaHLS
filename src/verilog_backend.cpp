@@ -1558,7 +1558,7 @@ namespace ahaHLS {
   }
 
   void emitTempStorageCode(const StateId state,
-                           const std::vector<StateTransition>& destinations,
+                           //const std::vector<StateTransition>& destinations,
                            MicroArchitecture& arch) {
 
     vector<string> allConds{atState(state, arch)};
@@ -1665,11 +1665,11 @@ namespace ahaHLS {
   // and allowing more code to be executed in a cycle. Need to
   // add the active basic block variable
   void emitPipelineStateCode(const StateId state,
-                             const std::vector<StateTransition>& destinations,
+                             //const std::vector<StateTransition>& destinations,
                              MicroArchitecture& arch) {
 
-    assert((destinations.size() == 1) ||
-           (destinations.size() == 2));
+    // assert((destinations.size() == 1) ||
+    //        (destinations.size() == 2));
 
     bool foundTerminator = false;
     for (auto instr : arch.stg.instructionsFinishingAt(state)) {
@@ -1679,7 +1679,7 @@ namespace ahaHLS {
         
         ControlFlowPosition pos =
           position(state, br, arch);
-        
+
         for (int i = 0; i < (int) br->getNumSuccessors(); i++) {
           BasicBlock* bb = br->getSuccessor(i);
           StateId dest = arch.stg.blockStartState(bb);
@@ -1730,11 +1730,11 @@ namespace ahaHLS {
       map_find(wire(32, "global_state"), arch.resetValues);
     
     for (auto state : arch.stg.opTransitions) {
-      emitPipelineStateCode(state.first, state.second, arch);
+      emitPipelineStateCode(state.first, arch);
     }
 
     for (auto state : arch.stg.opTransitions) {
-      emitTempStorageCode(state.first, state.second, arch);
+      emitTempStorageCode(state.first, arch);
     }
 
   }
