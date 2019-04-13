@@ -2613,7 +2613,18 @@ namespace ahaHLS {
 
     return portController(activeUnit).functionalUnit().outputWire();
   }
-  
+
+  bool jumpToSameState(BasicBlock* const predecessor,
+                       BasicBlock* const successor,
+                       MicroArchitecture& arch) {
+    if ((predecessor != successor) &&
+        (arch.stg.blockStartState(successor) == arch.stg.blockEndState(predecessor))) {
+      return true;
+    }
+
+    return false;
+  }
+
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
     Function* f = arch.stg.getFunction();
 
@@ -2662,9 +2673,11 @@ namespace ahaHLS {
         if (!(br->isConditional())) {
           BasicBlock* destBlock = br->getSuccessor(0);
           edgeTakenWires.insert({{br->getParent(), destBlock}, atContainerPos});
-          
-          arch.getController("global_next_block").values[wireValue(hName, arch)] =
-            to_string(arch.cs.getBasicBlockNo(destBlock));
+
+          if (!jumpToSameState(&bb, destBlock, arch)) {
+            arch.getController("global_next_block").values[wireValue(hName, arch)] =
+              to_string(arch.cs.getBasicBlockNo(destBlock));
+          }
         } else {
 
           Value* condition = br->getOperand(0);
@@ -2687,10 +2700,15 @@ namespace ahaHLS {
           int falseBlkNo = arch.cs.getBasicBlockNo(falseSucc);
           edgeTakenWires.insert({{br->getParent(), falseSucc}, falseTaken});
 
-          arch.getController("global_next_block").values[trueTaken.valueString()] =
-            to_string(trueBlkNo);
-          arch.getController("global_next_block").values[falseTaken.valueString()] =
-            to_string(falseBlkNo);
+          if (!jumpToSameState(&bb, trueSucc, arch)) {
+            arch.getController("global_next_block").values[trueTaken.valueString()] =
+              to_string(trueBlkNo);
+          }
+
+          if (!jumpToSameState(&bb, falseSucc, arch)) {          
+            arch.getController("global_next_block").values[falseTaken.valueString()] =
+              to_string(falseBlkNo);
+          }
 
         }
       }
@@ -2711,8 +2729,9 @@ namespace ahaHLS {
 
         if (successor == &bb) {
           cout << "Block has predessesor" << endl;
-          if ((predecessor != successor) &&
-              (arch.stg.blockStartState(successor) == arch.stg.blockEndState(predecessor))) {
+          // if ((predecessor != successor) &&
+          //     (arch.stg.blockStartState(successor) == arch.stg.blockEndState(predecessor))) {
+          if (jumpToSameState(predecessor, successor, arch)) {
             cout << "Found jump that stays inside single state" << endl;
             nextBBIsThisBlock =
               checkOr(nextBBIsThisBlock, arch.isActiveBlockVar(predecessor), arch);
