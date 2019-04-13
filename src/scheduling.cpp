@@ -1217,16 +1217,26 @@ namespace ahaHLS {
     for (auto& opState : g.opStates) {
 
       set<BasicBlock*> allBlocks;
-      StateId id = opState.first;
+      StateId state = opState.first;
       vector<Instruction*> instrs = opState.second;
       for (auto instr : instrs) {
         BasicBlock* blk = instr->getParent();
         allBlocks.insert(blk);
       }
 
+      for (auto instr : g.instructionsFinishingAt(state)) {
+        if (BranchInst::classof(instr)) {
+          BranchInst* br = dyn_cast<BranchInst>(instr);
+          bool allJumpsToSameState = true;
+          for (int i = 0; i < br->getNumSuccessors(); i++) {
+            
+          }
+        }
+      }
+
       // Create 
       TransitionInfo info;
-      g.transitions[id] = info;
+      g.transitions[state] = info;
     }
 
     // Q: What are the transition possibilities?
