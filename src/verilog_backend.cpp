@@ -15,7 +15,8 @@ using namespace std;
 namespace ahaHLS {
 
   Wire atStateWire(const StateId state, MicroArchitecture& arch);
-  
+
+  Wire checkNotWire(const Wire in, MicroArchitecture& arch);  
   Wire checkAnd(const Wire in0, const Wire in1, MicroArchitecture& arch);
   
   std::vector<std::string> getStallConds(Instruction* instr,
@@ -1685,20 +1686,26 @@ namespace ahaHLS {
         for (int i = 0; i < (int) br->getNumSuccessors(); i++) {
           BasicBlock* bb = br->getSuccessor(i);
           StateId dest = arch.stg.blockStartState(bb);
-          Condition cond;
+          //Condition cond;
 
           Wire condWire;
           if (br->isConditional()) {
             assert((i == 0) || (i == 1));
-            if (i == 0) {
-              cond = Condition(br->getOperand(0), false);
-            } else {
-              cond = Condition(br->getOperand(0), true);
-            }
 
-            condWire = wire(1, verilogForCondition(cond, pos, arch));
+            Value* jmpTest = br->getOperand(0);
+            string jmpTestName = outputName(jmpTest, pos, arch);
+            if (i == 0) {
+              condWire = wire(1, jmpTestName);
+              //cond = Condition(br->getOperand(0), false);
+            } else {
+              condWire = checkNotWire(wire(1, jmpTestName), arch);
+              //condWire = wire(1, verilogForCondition(cond, pos, arch));
+              //cond = Condition(br->getOperand(0), true);
+            }
+            //condWire = wire(1, verilogForCondition(cond, pos, arch));              
+
           } else {
-            assert(cond.isTrue());
+            //assert(cond.isTrue());
             condWire = constWire(1, 1);
           }
           
