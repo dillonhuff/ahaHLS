@@ -2532,19 +2532,25 @@ namespace ahaHLS {
     return arch.portController(unit.instName);
   }
 
+  PortController& makeOr(const int width, MicroArchitecture& arch) {
+    string eqName = arch.uniqueName("orOp");
+    ModuleSpec eqSpec = binopSpec("orOp", width);
+    FunctionalUnit& unit = arch.makeUnit(eqName, eqSpec);
+
+    assert(unit.instName == eqName);
+    
+    arch.addPortController(unit);
+    return arch.portController(unit.instName);
+  }
+  
   PortController& makeAnd(const int width, MicroArchitecture& arch) {
     string eqName = arch.uniqueName("andOp");
     ModuleSpec eqSpec = binopSpec("andOp", width);
     FunctionalUnit& unit = arch.makeUnit(eqName, eqSpec);
 
     assert(unit.instName == eqName);
-    //cout << "Adding controller " << unit.instName << endl;
     
     arch.addPortController(unit);
-    // cout << "After adding controller" << endl;
-    // for (auto& c : arch.portControllers) {
-    //   cout << tab(1) << c.second.functionalUnit().instName << endl;
-    // }
     return arch.portController(unit.instName);
   }
   
@@ -2575,6 +2581,16 @@ namespace ahaHLS {
     return controller.functionalUnit().outputWire();
   }
 
+  Wire checkOr(const Wire in0, const Wire in1, MicroArchitecture& arch) {
+    assert(in0.width == in1.width);
+    PortController& controller = makeOr(in0.width, arch);
+    controller.setAlways("in0", in0);
+    controller.setAlways("in1", in1);
+
+    //cout << "Creating equals functional unit = " << controller.functionalUnit() << endl;
+    return controller.functionalUnit().outputWire();
+  }
+  
   void PortController::setCond(const std::string& port, const Wire& condition, const Wire& value) {
     //cout << "Looking for port " << port << endl;
     string portName = functionalUnit().inputWire(port);
@@ -2697,6 +2713,8 @@ namespace ahaHLS {
           if ((predecessor != successor) &&
               (arch.stg.blockStartState(successor) == arch.stg.blockEndState(predecessor))) {
             cout << "Found jump that stays inside single state" << endl;
+            nextBBIsThisBlock =
+              checkOr(nextBBIsThisBlock, arch.isActiveBlockVar(predecessor), arch);
           }
         }
       }
