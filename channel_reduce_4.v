@@ -32,6 +32,8 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// End debug wires and ports
 
 	// Start Functional Units
+	add alloca_0();
+
 	add call_17();
 
 	reg [63:0] phi_in_phi_5;
@@ -63,8 +65,6 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	eq #(.WIDTH(32)) icmp_8(.in0(cmp_in0_icmp_8), .in1(cmp_in1_icmp_8), .out(cmp_out_icmp_8));
 
 	br_dummy br_unit();
-
-	add alloca_0();
 
 	add bitcast_1();
 

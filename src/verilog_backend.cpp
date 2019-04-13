@@ -1597,10 +1597,6 @@ namespace ahaHLS {
 
     if (isPipelineState(state, pipelines)) {
 
-      // Only one basic block can exist in each state if the state is a pipeline state
-      // ControlFlowPosition pos =
-      //   position(state, lastInstructionInState(state, arch), arch);
-      
       auto p = getPipeline(state, pipelines);
 
       vector<string> conds{atStateCond};
@@ -1624,10 +1620,6 @@ namespace ahaHLS {
       }
 
     } else {
-
-      // ControlFlowPosition pos =
-      //   position(state, lastInstructionInState(state, arch), arch);
-      
       vector<string> conds{atStateCond};
       if (isPipelineState(dest, pipelines)) {
 
@@ -1676,6 +1668,8 @@ namespace ahaHLS {
                              const std::vector<StateTransition>& destinations,
                              MicroArchitecture& arch) {
 
+    assert((destinations.size() == 1) ||
+           (destinations.size() == 2));
     ControlFlowPosition pos =
       position(state, lastInstructionInState(state, arch), arch);
     
