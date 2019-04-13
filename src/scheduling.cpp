@@ -752,7 +752,8 @@ namespace ahaHLS {
             //p.s.add(p.blockSink(next) < p.blockSource(nextBB));
 
             if (!elem(next, toPipeline) && !elem(nextBB, toPipeline)) {
-              p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
+              //p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
+              p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
             } else {
               p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
             }
@@ -765,14 +766,14 @@ namespace ahaHLS {
       }
       
     }
-    // std::vector<BasicBlock*> sortedBlocks =
-    //   topologicalSortOfBlocks(f, controlPredecessors);
+    std::vector<BasicBlock*> sortedBlocks =
+      topologicalSortOfBlocks(f, controlPredecessors);
     
-    // for (int i = 0; i < (int) sortedBlocks.size() - 1; i++) {
-    //   auto next = sortedBlocks[i];
-    //   auto nextBB = sortedBlocks[i + 1];
-    //   p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
-    // }
+    for (int i = 0; i < (int) sortedBlocks.size() - 1; i++) {
+      auto next = sortedBlocks[i];
+      auto nextBB = sortedBlocks[i + 1];
+      p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
+    }
 
 
     ExecutionConstraints exe;
@@ -2241,7 +2242,8 @@ namespace ahaHLS {
     auto inData = getArg(axiWrite, 2);    
 
     // We are ready to accept a response
-    auto wBready1 = writePort(b, readMod, 1, "s_axil_bready", mkInt(1, 1));
+    //auto wBready1 =
+    writePort(b, readMod, 1, "s_axil_bready", mkInt(1, 1));
 
     // Set the address we want to write
     auto wAddr = writePort(b, readMod, addrWidth, "s_axil_awaddr", addrValShifted);

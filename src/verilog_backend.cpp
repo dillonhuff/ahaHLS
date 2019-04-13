@@ -1635,18 +1635,21 @@ namespace ahaHLS {
       // transition could only be produced by one possible
       // ControlFlowPosition pos =
       //   position(state, lastInstructionInState(state, arch), arch);
+
+      ControlFlowPosition pos =
+        position(state, lastInstructionInState(state, arch), arch);
       
       for (auto transitionDest : destinations) {
 
-        Condition& cond = transitionDest.cond;
-        ControlFlowPosition pos =
-          position(state, arch.stg.pickInstructionAt(state), arch);          
-        if (cond.isTrue()) {
-        } else {
-          Value* condVal = cond.clauses[0][0].cond;
-          assert(Instruction::classof(condVal));
-          pos = position(state, dyn_cast<Instruction>(condVal), arch);
-        }
+        // Condition& cond = transitionDest.cond;
+        // ControlFlowPosition pos =
+        //   position(state, arch.stg.pickInstructionAt(state), arch);          
+        // if (cond.isTrue()) {
+        // } else {
+        //   Value* condVal = cond.clauses[0][0].cond;
+        //   assert(Instruction::classof(condVal));
+        //   pos = position(state, dyn_cast<Instruction>(condVal), arch);
+        // }
         
         vector<string> conds{atStateCond};
         
