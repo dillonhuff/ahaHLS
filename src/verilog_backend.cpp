@@ -1587,7 +1587,8 @@ namespace ahaHLS {
   void addStateTransition(const StateId state,
                           const StateId dest,
                           ControlFlowPosition& pos,
-                          Condition& cond,
+                          Wire jumpCondWire,
+                          //Condition& cond,
                           MicroArchitecture& arch) {
 
     string atStateCond = atState(state, arch);
@@ -1595,7 +1596,7 @@ namespace ahaHLS {
     auto& controller = arch.getController(reg(32, "global_state"));
     auto& pipelines = arch.pipelines;
 
-    auto jumpCond = verilogForCondition(cond, pos, arch);
+    auto jumpCond = jumpCondWire.valueString();
 
     if (isPipelineState(state, pipelines)) {
 
@@ -1607,7 +1608,6 @@ namespace ahaHLS {
 
         auto destP = getPipeline(dest, pipelines);
 
-        //conds.push_back(verilogForCondition(cond, pos, arch));
         conds.push_back(jumpCond);
         controller.values[andCondWire(conds, arch).name] = to_string(destP.stateId);
           
@@ -1615,7 +1615,6 @@ namespace ahaHLS {
         int ind = p.stageForState(state);
         assert(ind == (p.numStages() - 1));
 
-        //string pipeCond = verilogForCondition(cond, pos, arch) + " && " + pipelineClearOnNextCycleCondition(p);
         string pipeCond = jumpCond + " && " + pipelineClearOnNextCycleCondition(p);
           
         conds.push_back(pipeCond);
@@ -1640,17 +1639,14 @@ namespace ahaHLS {
 
         validController.values[andCondWire(conds, arch).name] = "1";
           
-        //conds.push_back(verilogForCondition(cond, pos, arch));
         conds.push_back(jumpCond);
         controller.values[andCondWire(conds, arch).name] = to_string(p.stateId);
 
       } else {
-        //conds.push_back(verilogForCondition(cond, pos, arch));
         conds.push_back(jumpCond);
 
         // TODO: Add multiple stall condition handling, and add stall logic
         // to other cases in control logic
-
         for (auto instr : arch.stg.instructionsStartingAt(state)) {
 
           if (isBuiltinStallCall(instr)) {
@@ -1700,7 +1696,9 @@ namespace ahaHLS {
           } else {
             assert(cond.isTrue());
           }
-          addStateTransition(state, dest, pos, cond, arch);
+
+          Wire condWire = wire(1, verilogForCondition(cond, pos, arch));
+          addStateTransition(state, dest, pos, condWire, arch);
         }
       } else if (ReturnInst::classof(instr)) {
         Condition cond;
@@ -1712,7 +1710,8 @@ namespace ahaHLS {
         }
         ControlFlowPosition pos =
           position(state, instr, arch);
-        addStateTransition(state, dest, pos, cond, arch);
+        Wire condWire = wire(1, verilogForCondition(cond, pos, arch));        
+        addStateTransition(state, dest, pos, condWire, arch);
         foundTerminator = true;
       }
     }
@@ -1724,7 +1723,8 @@ namespace ahaHLS {
       Condition cond;
       assert(cond.isTrue());
       StateId dest = state + 1;
-      addStateTransition(state, dest, pos, cond, arch);
+      Wire condWire = wire(1, verilogForCondition(cond, pos, arch));
+      addStateTransition(state, dest, pos, condWire, arch);
     }
   }
 
