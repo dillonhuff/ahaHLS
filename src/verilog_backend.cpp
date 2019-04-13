@@ -1670,8 +1670,6 @@ namespace ahaHLS {
 
     assert((destinations.size() == 1) ||
            (destinations.size() == 2));
-    // ControlFlowPosition pos =
-    //   position(state, lastInstructionInState(state, arch), arch);
 
     bool foundTerminator = false;
     for (auto instr : arch.stg.instructionsFinishingAt(state)) {
@@ -1679,10 +1677,6 @@ namespace ahaHLS {
         foundTerminator = true;
         BranchInst* br = dyn_cast<BranchInst>(instr);
         
-        // for (auto transitionDest : destinations) {
-        //   StateId dest = transitionDest.dest;
-        //   Condition cond = transitionDest.cond;
-
         ControlFlowPosition pos =
           position(state, br, arch);
         
@@ -1720,7 +1714,6 @@ namespace ahaHLS {
     // Unconditional transition to a different state
     if (!foundTerminator) {
       ControlFlowPosition pos =
-        //position(state, arch.stg.pickInstructionAt(state), arch);
         position(state, lastInstructionInState(state, arch), arch);
       Condition cond;
       assert(cond.isTrue());
