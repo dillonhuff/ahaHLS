@@ -1584,6 +1584,96 @@ namespace ahaHLS {
     
   }
 
+  void addStateTransition(const StateId state,
+                          const StateId dest,
+                          Condition& cond,
+                          MicroArchitecture& arch) {
+
+    string atStateCond = atState(state, arch);
+
+    auto& controller = arch.getController(reg(32, "global_state"));
+    auto& pipelines = arch.pipelines;
+
+    if (isPipelineState(state, pipelines)) {
+
+      // Only one basic block can exist in each state if the state is a pipeline state
+      ControlFlowPosition pos =
+        position(state, lastInstructionInState(state, arch), arch);
+      
+      auto p = getPipeline(state, pipelines);
+
+      vector<string> conds{atStateCond};
+        
+      if (isPipelineState(dest, pipelines)) {
+
+        auto destP = getPipeline(dest, pipelines);
+
+        conds.push_back(verilogForCondition(cond, pos, arch));
+        controller.values[andCondWire(conds, arch).name] = to_string(destP.stateId);
+          
+      } else {
+        int ind = p.stageForState(state);
+        assert(ind == (p.numStages() - 1));
+
+        string pipeCond = verilogForCondition(cond, pos, arch) + " && " + pipelineClearOnNextCycleCondition(p);
+          
+        conds.push_back(pipeCond);
+        controller.values[andCondWire(conds, arch).name] = to_string(dest);          
+          
+      }
+
+    } else {
+
+      // Note: Now we can have multiple basic blocks in a single state,
+      // so there are multiple control flow positions possible. Each
+      // transition could only be produced by one possible
+      // ControlFlowPosition pos =
+      //   position(state, lastInstructionInState(state, arch), arch);
+
+      ControlFlowPosition pos =
+        position(state, lastInstructionInState(state, arch), arch);
+      
+      vector<string> conds{atStateCond};
+      if (isPipelineState(dest, pipelines)) {
+
+        auto p = getPipeline(dest, pipelines);
+
+        if (!contains_key(p.valids.at(0).name, arch.regControllers)) {
+          arch.addController(p.valids.at(0).name, p.valids.at(0).width);
+          RegController& validController =            
+            arch.regControllers[p.valids.at(0).name];
+          validController.resetValue = "0";
+        }
+        RegController& validController =
+          arch.getController(p.valids.at(0));
+
+        validController.values[andCondWire(conds, arch).name] = "1";
+          
+        conds.push_back(verilogForCondition(cond, pos, arch));
+        controller.values[andCondWire(conds, arch).name] = to_string(p.stateId);
+
+      } else {
+        conds.push_back(verilogForCondition(cond, pos, arch));
+
+        // TODO: Add multiple stall condition handling, and add stall logic
+        // to other cases in control logic
+
+        for (auto instr : arch.stg.instructionsStartingAt(state)) {
+
+          if (isBuiltinStallCall(instr)) {
+            string cond = outputName(instr->getOperand(0),
+                                     pos,
+                                     arch);
+
+            conds.push_back(cond);
+          }
+        }
+
+        controller.values[andCondWire(conds, arch).name] = to_string(dest);
+      }
+    }
+  }
+  
   // Want to move toward merging basic blocks in to a single state
   // and allowing more code to be executed in a cycle. Need to
   // add the active basic block variable
@@ -1591,97 +1681,12 @@ namespace ahaHLS {
                              const std::vector<StateTransition>& destinations,
                              MicroArchitecture& arch) {
 
-    auto& controller = arch.getController(reg(32, "global_state"));
-    auto& pipelines = arch.pipelines;
-
-    string atStateCond = atState(state, arch);
-
     for (auto transitionDest : destinations) {
       StateId dest = transitionDest.dest;
       Condition cond = transitionDest.cond;
-      
-      if (isPipelineState(state, pipelines)) {
 
-        // Only one basic block can exist in each state if the state is a pipeline state
-        ControlFlowPosition pos =
-          position(state, lastInstructionInState(state, arch), arch);
-      
-        auto p = getPipeline(state, pipelines);
-
-        vector<string> conds{atStateCond};
-        
-        if (isPipelineState(transitionDest.dest, pipelines)) {
-
-          auto destP = getPipeline(transitionDest.dest, pipelines);
-
-          conds.push_back(verilogForCondition(transitionDest.cond, pos, arch));
-          controller.values[andCondWire(conds, arch).name] = to_string(destP.stateId);
-          
-        } else {
-          int ind = p.stageForState(state);
-          assert(ind == (p.numStages() - 1));
-
-          string pipeCond = verilogForCondition(transitionDest.cond, pos, arch) + " && " + pipelineClearOnNextCycleCondition(p);
-          
-          conds.push_back(pipeCond);
-          controller.values[andCondWire(conds, arch).name] = to_string(transitionDest.dest);          
-          
-        }
-
-      } else {
-
-        // Note: Now we can have multiple basic blocks in a single state,
-        // so there are multiple control flow positions possible. Each
-        // transition could only be produced by one possible
-        // ControlFlowPosition pos =
-        //   position(state, lastInstructionInState(state, arch), arch);
-
-        ControlFlowPosition pos =
-          position(state, lastInstructionInState(state, arch), arch);
-      
-        vector<string> conds{atStateCond};
-        if (isPipelineState(dest, pipelines)) {
-
-          auto p = getPipeline(dest, pipelines);
-
-          if (!contains_key(p.valids.at(0).name, arch.regControllers)) {
-            arch.addController(p.valids.at(0).name, p.valids.at(0).width);
-            RegController& validController =            
-              arch.regControllers[p.valids.at(0).name];
-            validController.resetValue = "0";
-          }
-          RegController& validController =
-            arch.getController(p.valids.at(0));
-
-          validController.values[andCondWire(conds, arch).name] = "1";
-          
-          conds.push_back(verilogForCondition(cond, pos, arch));
-          controller.values[andCondWire(conds, arch).name] = to_string(p.stateId);
-
-        } else {
-          conds.push_back(verilogForCondition(cond, pos, arch));
-
-          // TODO: Add multiple stall condition handling, and add stall logic
-          // to other cases in control logic
-
-          for (auto instr : arch.stg.instructionsStartingAt(state)) {
-
-            if (isBuiltinStallCall(instr)) {
-              string cond = outputName(instr->getOperand(0),
-                                       pos,
-                                       arch);
-
-              conds.push_back(cond);
-            }
-          }
-
-          controller.values[andCondWire(conds, arch).name] = to_string(dest);
-        }
-      }
-
-    }
-    //}
-    
+      addStateTransition(state, dest, cond, arch);
+    }    
   }
 
   // TODO: Remove resetValues field?
