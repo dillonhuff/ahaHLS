@@ -1162,17 +1162,6 @@ namespace ahaHLS {
                
     STG g(sched);
 
-    //map<BasicBlock*, vector<vector<Atom> > > blockGuards;
-
-    // NOTE: One possible problem is that I only compute
-    // path conditions from the entry and not pairwise between
-    // blocks, but that should include all possible (non-looped)
-    // paths
-    // for (auto bbR : blockList) {
-    //   BasicBlock* target = bbR;
-    //   blockGuards[target] = {{}};
-    // }
-
     // Make sure pipeline states are included in STG
     for (auto blk : sched.pipelineSchedules) {
       for (auto var : map_find(blk.first, sched.blockTimes)) {
@@ -1213,6 +1202,32 @@ namespace ahaHLS {
       }
     }
 
+    // Build up new transitions data structure.
+    // Terminators that finish (branches and returns) have special status
+    // Also need to figure out the number of states that could finish?
+
+    // Stages:
+    //   1. Get the set of all blocks that execute in the state
+    //   2. Remove all blocks that finish and then (always) branch to blocks in the same state
+    //      because these blocks cannot be terminators.
+    //   3. Isolate all blocks whose terminators finish in this state and who could
+    //      branch to a different state
+    //   4. All remaining blocks must be blocks whose terminators do not finish in
+    //      this state, some instructions from them may be in progress in this state
+    for (auto& opState : g.opStates) {
+
+      set<BasicBlock*> allBlocks;
+      StateId id = opState.first;
+      vector<Instruction*> instrs = opState.second;
+      for (auto instr : instrs) {
+        BasicBlock* blk = instr->getParent();
+        allBlocks.insert(blk);
+      }
+
+      // Create 
+      TransitionInfo info;
+      g.transitions[id] = info;
+    }
 
     // Q: What are the transition possibilities?
     // A: Each state contains instructions from many
