@@ -2684,14 +2684,22 @@ namespace ahaHLS {
       auto blkString = to_string(blkNo);
 
       string name = "bb_" + blkString + "_active";
-      // This is the controller that
       PortController& activeController = arch.portController(name);
-
-      //assert(activeController.functionalUnit().instName != "");
 
       Wire nextBBIsThisBlock =
         checkEqual(blkNo, reg(32, "global_next_block"), arch);
-      assert(activeController.functionalUnit().portWires.size() > 0);
+      for (auto val : edgeTakenWires) {
+        BasicBlock* predecessor = val.first.first;
+        BasicBlock* successor = val.first.second;
+
+        if (successor == &bb) {
+          cout << "Block has predessesor" << endl;
+          if ((predecessor != successor) &&
+              (arch.stg.blockStartState(successor) == arch.stg.blockEndState(predecessor))) {
+            cout << "Found jump that stays inside single state" << endl;
+          }
+        }
+      }
 
       PortValues& vals =
         activeController.inputControllers[activeController.onlyInput().name];

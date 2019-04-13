@@ -649,6 +649,14 @@ namespace ahaHLS {
     StateId instructionEndState(llvm::Instruction* const instr) {
       return dbhc::map_find(instr, sched.instrTimes).back();
     }
+
+    StateId blockStartState(llvm::BasicBlock* const instr) {
+      return dbhc::map_find(instr, sched.blockTimes).front();
+    }
+
+    StateId blockEndState(llvm::BasicBlock* const instr) {
+      return dbhc::map_find(instr, sched.blockTimes).back();
+    }
     
     std::vector<Instruction*>
     instructionsFinishingAt(const StateId id) const {
