@@ -2632,43 +2632,40 @@ namespace ahaHLS {
             atStateWire(arch.stg.instructionEndState(br), arch);
           Wire atContainerPos =
             checkAnd(atContainerBlock, atBranchState, arch);
-        
-        if (!(br->isConditional())) {
+
           string hName = "br_" + blkString + "_happened";
           Wire hWire = wire(1, hName);
           auto& happenedController = addPortController(hName, 1, arch);
           
           happenedController.setCond("in_data", atContainerPos, constWire(1, 1));
           happenedController.setCond("in_data", checkNotWire(atContainerPos, arch), constWire(1, 0));
+          
+        if (!(br->isConditional())) {
+          // string hName = "br_" + blkString + "_happened";
+          // Wire hWire = wire(1, hName);
+          // auto& happenedController = addPortController(hName, 1, arch);
+          
+          // happenedController.setCond("in_data", atContainerPos, constWire(1, 1));
+          // happenedController.setCond("in_data", checkNotWire(atContainerPos, arch), constWire(1, 0));
           BasicBlock* destBlock = br->getSuccessor(0);
 
           arch.getController("global_next_block").values[wireValue(hName, arch)] =
             to_string(arch.cs.getBasicBlockNo(destBlock));
         } else {
 
-          string hName = "br_" + blkString + "_happened";
-          Wire hWire = wire(1, hName);
-          auto& happenedController = addPortController(hName, 1, arch);
+          // string hName = "br_" + blkString + "_happened";
+          // Wire hWire = wire(1, hName);
+          // auto& happenedController = addPortController(hName, 1, arch);
 
-          happenedController.setCond("in_data", atContainerPos, constWire(1, 1));
-          happenedController.setCond("in_data", checkNotWire(atContainerPos, arch), constWire(1, 0));
+          // happenedController.setCond("in_data", atContainerPos, constWire(1, 1));
+          // happenedController.setCond("in_data", checkNotWire(atContainerPos, arch), constWire(1, 0));
 
           Value* condition = br->getOperand(0);
 
-          // Should really make this in to a helper function
           StateId brEndState = arch.stg.instructionEndState(br);
-
           ControlFlowPosition pos =
             position(brEndState, br, arch);
           
-          // ControlFlowPosition pos =
-          //   position(brEndState, br);
-          // if (isPipelineState(brEndState, arch.pipelines)) {
-          //   auto p = getPipeline(brEndState, arch.pipelines);
-          //   int stage = p.stageForState(brEndState);
-          //   pos = pipelinePosition(br, brEndState, stage);
-          // }
-
           // TODO: Convert outputName to wire
           string condValue = outputName(condition, pos, arch);
 
@@ -2696,17 +2693,6 @@ namespace ahaHLS {
           // Wire fWire = wire(1, fName);
           // auto& falseController = addPortController(fName, 1, arch);
           
-          // BasicBlock* destBlock = br->getSuccessor(0);
-          
-          // // Get the value of the conditional branch instruction,
-          // // and set the global next block based on it
-
-          // // Note: The atState function is also odd. When the input state
-          // // is a pipeline state it does not check if we (who is we?)
-          // // are in the pipeline
-          // // it checks whether or not the global state is the pipeline
-          // // state and the stage of the pipeline that the state corresponds
-          // // to is active
         }
       }
     }
