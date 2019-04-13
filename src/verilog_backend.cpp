@@ -1608,8 +1608,6 @@ namespace ahaHLS {
       
         auto p = getPipeline(state, pipelines);
 
-        //for (auto transitionDest : destinations) {
-
         vector<string> conds{atStateCond};
         
         if (isPipelineState(transitionDest.dest, pipelines)) {
@@ -1629,8 +1627,6 @@ namespace ahaHLS {
           controller.values[andCondWire(conds, arch).name] = to_string(transitionDest.dest);          
           
         }
-        //}
-
 
       } else {
 
@@ -1642,29 +1638,7 @@ namespace ahaHLS {
 
         ControlFlowPosition pos =
           position(state, lastInstructionInState(state, arch), arch);
-
       
-        // for (auto transitionDest : destinations) {
-        //   StateId dest = transitionDest.dest;
-        //   Condition cond = transitionDest.cond;
-        
-        // for (auto instr : arch.stg.instructionsFinishingAt(state)) {
-
-        //   if (!TerminatorInst::classof(instr)) {
-        //     continue;
-        //   }
-
-        //   StateId dest;
-        //   Condition cond;
-        //   if (BranchInst::classof(instr)) {
-        //     BranchInst* br = dyn_cast<BranchInst>(instr);
-          
-        //   } else {
-        //     assert(ReturnInst::classof(instr));
-        //     dest = 0;
-        //     assert(cond.isTrue());
-        //   }
-
         vector<string> conds{atStateCond};
         if (isPipelineState(dest, pipelines)) {
 
