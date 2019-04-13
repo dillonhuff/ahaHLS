@@ -1686,6 +1686,8 @@ namespace ahaHLS {
           BasicBlock* bb = br->getSuccessor(i);
           StateId dest = arch.stg.blockStartState(bb);
           Condition cond;
+
+          Wire condWire;
           if (br->isConditional()) {
             assert((i == 0) || (i == 1));
             if (i == 0) {
@@ -1693,11 +1695,13 @@ namespace ahaHLS {
             } else {
               cond = Condition(br->getOperand(0), true);
             }
+
+            condWire = wire(1, verilogForCondition(cond, pos, arch));
           } else {
             assert(cond.isTrue());
+            condWire = constWire(1, 1);
           }
-
-          Wire condWire = wire(1, verilogForCondition(cond, pos, arch));
+          
           addStateTransition(state, dest, pos, condWire, arch);
         }
       } else if (ReturnInst::classof(instr)) {

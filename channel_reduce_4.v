@@ -32,13 +32,9 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_18();
-
 	add alloca_0();
 
-	add bitcast_1();
-
-	add call_2();
+	add call_18();
 
 	reg [31:0] raddr_ram_0_reg;
 	reg [31:0] waddr_ram_0_reg;
@@ -46,6 +42,10 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 	reg [0:0] wen_ram_0_reg;
 	wire [31:0] rdata_ram_0;
 	register #(.WIDTH(32)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
+
+	add bitcast_1();
+
+	add call_2();
 
 	br_dummy br_unit();
 
@@ -923,7 +923,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 	// Insensitive connections
 	always @(*) begin
 		andOp_72_in0 = valid ? eq_71_out : eq_71_out;
-		andOp_72_in1 = valid ? 1 : 1;
+		andOp_72_in1 = valid ? 1'd1 : 1'd1;
 	end
 	// controller for andOp_74.andOp_74_in0
 	// controller for andOp_74.andOp_74_in1
