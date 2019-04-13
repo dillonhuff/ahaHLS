@@ -3088,7 +3088,8 @@ namespace ahaHLS {
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
-
+    s.setDefaultReturnState(0);
+    
     auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
       map_insert(stg.opTransitions, st, {0, cond});
     };
@@ -3177,6 +3178,7 @@ namespace ahaHLS {
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+    s.setDefaultReturnState(0);
 
     auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
       map_insert(stg.opTransitions, st, {0, cond});
@@ -3292,6 +3294,7 @@ namespace ahaHLS {
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+    s.setDefaultReturnState(0);
 
     auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
       map_insert(stg.opTransitions, st, {0, cond});
@@ -3542,7 +3545,7 @@ namespace ahaHLS {
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
-
+    s.setDefaultReturnState(0);
     auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
       map_insert(stg.opTransitions, st, {0, cond});
     };

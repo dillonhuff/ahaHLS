@@ -440,6 +440,23 @@ namespace ahaHLS {
     std::map<llvm::BasicBlock*, std::vector<int> > blockTimes;
     std::map<llvm::BasicBlock*, int> pipelineSchedules;
 
+    int defaultReturnState;
+    bool hasRetDefault;
+
+    Schedule() : hasRetDefault(false) {}
+
+    bool hasReturnDefault() const { return hasRetDefault; }
+
+    void setDefaultReturnState(const int st) {
+      defaultReturnState = st;
+      hasRetDefault = true;
+    }
+
+    int getDefaultReturnState() const {
+      assert(hasReturnDefault());
+      return defaultReturnState;
+    }
+    
     int startTime(llvm::Instruction* const instr) const {
       return dbhc::map_find(instr, instrTimes).front();
     }

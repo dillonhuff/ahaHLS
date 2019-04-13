@@ -1706,8 +1706,10 @@ namespace ahaHLS {
         Condition cond;
         assert(cond.isTrue());
 
-        // TODO: Insert default return behavior
         StateId dest = state;
+        if (arch.stg.sched.hasReturnDefault()) {
+          dest = arch.stg.sched.getDefaultReturnState();
+        }
         ControlFlowPosition pos =
           position(state, instr, arch);
         addStateTransition(state, dest, pos, cond, arch);
