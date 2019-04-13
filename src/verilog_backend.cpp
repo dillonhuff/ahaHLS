@@ -2603,6 +2603,11 @@ namespace ahaHLS {
     arch.getController("global_next_block").resetValue =
       to_string(arch.cs.getBasicBlockNo(&(f->getEntryBlock())));
 
+    // Maybe the thing to do here is to create branch taken
+    // wires in this loop as well. Assign them to the variables
+    // I already have, and then wire them up to port controllers
+    // in a subsequent loop?
+    map<pair<BasicBlock*, BasicBlock*>, Wire> edgeTakenWires;
     for (auto& bb : f->getBasicBlockList()) {
       int blkNo = arch.cs.getBasicBlockNo(&bb);
       auto blkString = to_string(blkNo);
@@ -2638,6 +2643,7 @@ namespace ahaHLS {
 
           string hName = "br_" + blkString + "_happened";
           Wire hWire = wire(1, hName);
+
           auto& happenedController = addPortController(hName, 1, arch);
           
           happenedController.setCond("in_data", atContainerPos, constWire(1, 1));
@@ -2645,7 +2651,8 @@ namespace ahaHLS {
           
         if (!(br->isConditional())) {
           BasicBlock* destBlock = br->getSuccessor(0);
-
+          edgeTakenWires.insert({{br->getParent(), destBlock}, hWire});
+          
           arch.getController("global_next_block").values[wireValue(hName, arch)] =
             to_string(arch.cs.getBasicBlockNo(destBlock));
         } else {
@@ -2664,25 +2671,17 @@ namespace ahaHLS {
 
           BasicBlock* trueSucc = br->getSuccessor(0);
           int trueBlkNo = arch.cs.getBasicBlockNo(trueSucc);
+          edgeTakenWires.insert({{br->getParent(), trueSucc}, trueTaken});
 
           BasicBlock* falseSucc = br->getSuccessor(1);
           int falseBlkNo = arch.cs.getBasicBlockNo(falseSucc);
+          edgeTakenWires.insert({{br->getParent(), falseSucc}, falseTaken});
 
           arch.getController("global_next_block").values[trueTaken.valueString()] =
             to_string(trueBlkNo);
           arch.getController("global_next_block").values[falseTaken.valueString()] =
             to_string(falseBlkNo);
 
-          // // Really I need to set the next active block
-
-          // string tName = "br_" + blkString + "_true_taken";
-          // Wire tWire = wire(1, tName);
-          // auto& trueController = addPortController(tName, 1, arch);
-
-          // string fName = "br_" + blkString + "_false_taken";
-          // Wire fWire = wire(1, fName);
-          // auto& falseController = addPortController(fName, 1, arch);
-          
         }
       }
     }
