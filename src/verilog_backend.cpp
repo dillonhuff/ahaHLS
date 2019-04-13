@@ -1670,14 +1670,48 @@ namespace ahaHLS {
 
     assert((destinations.size() == 1) ||
            (destinations.size() == 2));
-    ControlFlowPosition pos =
-      position(state, lastInstructionInState(state, arch), arch);
-    
-    for (auto transitionDest : destinations) {
-      StateId dest = transitionDest.dest;
-      Condition cond = transitionDest.cond;
+    // ControlFlowPosition pos =
+    //   position(state, lastInstructionInState(state, arch), arch);
 
-      addStateTransition(state, dest, pos, cond, arch);
+    bool foundTerminator = false;
+    for (auto instr : arch.stg.instructionsFinishingAt(state)) {
+      if (BranchInst::classof(instr)) {
+        foundTerminator = true;
+        BranchInst* br = dyn_cast<BranchInst>(instr);
+        
+        // for (auto transitionDest : destinations) {
+        //   StateId dest = transitionDest.dest;
+        //   Condition cond = transitionDest.cond;
+
+        ControlFlowPosition pos =
+          position(state, br, arch);
+        
+        for (int i = 0; i < (int) br->getNumSuccessors(); i++) {
+          BasicBlock* bb = br->getSuccessor(i);
+          StateId dest = arch.stg.blockStartState(bb);
+          Condition cond;
+          if (br->isConditional()) {
+            assert((i == 0) || (i == 1));
+            if (i == 0) {
+              cond = Condition(br->getOperand(0), false);
+            } else {
+              cond = Condition(br->getOperand(0), true);
+            }
+          } else {
+            assert(cond.isTrue());
+          }
+          addStateTransition(state, dest, pos, cond, arch);
+        }
+      } else if (ReturnInst::classof(instr)) {
+        Condition cond;
+        assert(cond.isTrue());
+
+        // TODO: Insert default return behavior
+        StateId dest = state;
+        ControlFlowPosition pos =
+          position(state, instr, arch);
+        addStateTransition(state, dest, pos, cond, arch);
+      }
     }    
   }
 
