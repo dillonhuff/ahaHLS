@@ -1701,8 +1701,8 @@ namespace ahaHLS {
           addStateTransition(state, dest, pos, condWire, arch);
         }
       } else if (ReturnInst::classof(instr)) {
-        Condition cond;
-        assert(cond.isTrue());
+        // Condition cond;
+        // assert(cond.isTrue());
 
         StateId dest = state;
         if (arch.stg.sched.hasReturnDefault()) {
@@ -1710,7 +1710,9 @@ namespace ahaHLS {
         }
         ControlFlowPosition pos =
           position(state, instr, arch);
-        Wire condWire = wire(1, verilogForCondition(cond, pos, arch));        
+        //Wire condWire = wire(1, verilogForCondition(cond, pos, arch));
+
+        Wire condWire = constWire(1, 1);
         addStateTransition(state, dest, pos, condWire, arch);
         foundTerminator = true;
       }
@@ -1720,10 +1722,8 @@ namespace ahaHLS {
     if (!foundTerminator) {
       ControlFlowPosition pos =
         position(state, lastInstructionInState(state, arch), arch);
-      Condition cond;
-      assert(cond.isTrue());
       StateId dest = state + 1;
-      Wire condWire = wire(1, verilogForCondition(cond, pos, arch));
+      Wire condWire = constWire(1, 1);
       addStateTransition(state, dest, pos, condWire, arch);
     }
   }
