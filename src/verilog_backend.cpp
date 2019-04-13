@@ -1165,49 +1165,49 @@ namespace ahaHLS {
     
   }
   
-  std::string verilogForCondition(Condition& cond,
-                                  ControlFlowPosition pos,
-                                  MicroArchitecture& arch) {
-    string condStr = "";
+  // std::string verilogForCondition(Condition& cond,
+  //                                 ControlFlowPosition pos,
+  //                                 MicroArchitecture& arch) {
+  //   string condStr = "";
 
-    if (cond.isTrue()) {
-      return "1";
-    }
+  //   if (cond.isTrue()) {
+  //     return "1";
+  //   }
 
-    int clNum = 0;
-    for (auto cl : cond.clauses) {
+  //   int clNum = 0;
+  //   for (auto cl : cond.clauses) {
 
-      int aNum = 0;
-      for (auto a : cl) {
-        bool isNeg = a.negated;
+  //     int aNum = 0;
+  //     for (auto a : cl) {
+  //       bool isNeg = a.negated;
 
-        map<llvm::Value*, int> memoryMap;
-        string valueStr = outputName(a.cond, pos, arch);
+  //       map<llvm::Value*, int> memoryMap;
+  //       string valueStr = outputName(a.cond, pos, arch);
         
-        if (isNeg) {
-          condStr += "!";
-        }
+  //       if (isNeg) {
+  //         condStr += "!";
+  //       }
 
-        condStr += "(";
-        condStr += valueStr;
-        condStr += ")";
+  //       condStr += "(";
+  //       condStr += valueStr;
+  //       condStr += ")";
 
-        if (aNum < ((int) cl.size()) - 1) {
-          condStr += " && ";
-        }
+  //       if (aNum < ((int) cl.size()) - 1) {
+  //         condStr += " && ";
+  //       }
         
-        aNum++;
-      }
+  //       aNum++;
+  //     }
 
-      if (clNum < ((int) cond.clauses.size()) - 1) {
-        condStr += " || ";
-      }
+  //     if (clNum < ((int) cond.clauses.size()) - 1) {
+  //       condStr += " || ";
+  //     }
 
-      clNum++;
-    }
+  //     clNum++;
+  //   }
     
-    return condStr;
-  }
+  //   return condStr;
+  // }
 
   // I would like for this function to just return instruction port
   // assignments that include the names of ports as keys, rather
