@@ -612,11 +612,17 @@ namespace ahaHLS {
     const std::vector<StateId>& getStates() const { return states; }
   };
 
+  class SuccessorInfo {
+  public:
+    StateId destState;
+  };
+  
   class TransitionInfo {
   public:
-    std::set<BasicBlock*> noTerminatorExitBlocks;
-    std::set<BasicBlock*> branchExitBlocks;
-    std::set<BasicBlock*> returnExitBlocks;
+    // std::set<BasicBlock*> noTerminatorExitBlocks;
+    // std::set<BasicBlock*> branchExitBlocks;
+    // std::set<BasicBlock*> returnExitBlocks;
+    std::map<BasicBlock*, std::vector<SuccessorInfo> > successorInfo;
   };
   
   class StateTransitionGraph {

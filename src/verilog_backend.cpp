@@ -1595,16 +1595,20 @@ namespace ahaHLS {
     auto& pipelines = arch.pipelines;
 
     string atStateCond = atState(state, arch);
-    
-    if (isPipelineState(state, pipelines)) {
 
-      // Only one basic block can exist in each state if the state is a pipeline state
-      ControlFlowPosition pos =
-        position(state, lastInstructionInState(state, arch), arch);
+    for (auto transitionDest : destinations) {
+      StateId dest = transitionDest.dest;
+      Condition cond = transitionDest.cond;
       
-      auto p = getPipeline(state, pipelines);
+      if (isPipelineState(state, pipelines)) {
 
-      for (auto transitionDest : destinations) {
+        // Only one basic block can exist in each state if the state is a pipeline state
+        ControlFlowPosition pos =
+          position(state, lastInstructionInState(state, arch), arch);
+      
+        auto p = getPipeline(state, pipelines);
+
+        //for (auto transitionDest : destinations) {
 
         vector<string> conds{atStateCond};
         
@@ -1625,37 +1629,46 @@ namespace ahaHLS {
           controller.values[andCondWire(conds, arch).name] = to_string(transitionDest.dest);          
           
         }
-      }
+        //}
 
 
-    } else {
+      } else {
 
-      // Note: Now we can have multiple basic blocks in a single state,
-      // so there are multiple control flow positions possible. Each
-      // transition could only be produced by one possible
-      // ControlFlowPosition pos =
-      //   position(state, lastInstructionInState(state, arch), arch);
-
-      ControlFlowPosition pos =
-        position(state, lastInstructionInState(state, arch), arch);
-      
-      for (auto transitionDest : destinations) {
-
-        // Condition& cond = transitionDest.cond;
+        // Note: Now we can have multiple basic blocks in a single state,
+        // so there are multiple control flow positions possible. Each
+        // transition could only be produced by one possible
         // ControlFlowPosition pos =
-        //   position(state, arch.stg.pickInstructionAt(state), arch);          
-        // if (cond.isTrue()) {
-        // } else {
-        //   Value* condVal = cond.clauses[0][0].cond;
-        //   assert(Instruction::classof(condVal));
-        //   pos = position(state, dyn_cast<Instruction>(condVal), arch);
-        // }
-        
-        vector<string> conds{atStateCond};
-        
-        if (isPipelineState(transitionDest.dest, pipelines)) {
+        //   position(state, lastInstructionInState(state, arch), arch);
 
-          auto p = getPipeline(transitionDest.dest, pipelines);
+        ControlFlowPosition pos =
+          position(state, lastInstructionInState(state, arch), arch);
+
+      
+        // for (auto transitionDest : destinations) {
+        //   StateId dest = transitionDest.dest;
+        //   Condition cond = transitionDest.cond;
+        
+        // for (auto instr : arch.stg.instructionsFinishingAt(state)) {
+
+        //   if (!TerminatorInst::classof(instr)) {
+        //     continue;
+        //   }
+
+        //   StateId dest;
+        //   Condition cond;
+        //   if (BranchInst::classof(instr)) {
+        //     BranchInst* br = dyn_cast<BranchInst>(instr);
+          
+        //   } else {
+        //     assert(ReturnInst::classof(instr));
+        //     dest = 0;
+        //     assert(cond.isTrue());
+        //   }
+
+        vector<string> conds{atStateCond};
+        if (isPipelineState(dest, pipelines)) {
+
+          auto p = getPipeline(dest, pipelines);
 
           if (!contains_key(p.valids.at(0).name, arch.regControllers)) {
             arch.addController(p.valids.at(0).name, p.valids.at(0).width);
@@ -1668,11 +1681,11 @@ namespace ahaHLS {
 
           validController.values[andCondWire(conds, arch).name] = "1";
           
-          conds.push_back(verilogForCondition(transitionDest.cond, pos, arch));
+          conds.push_back(verilogForCondition(cond, pos, arch));
           controller.values[andCondWire(conds, arch).name] = to_string(p.stateId);
 
         } else {
-          conds.push_back(verilogForCondition(transitionDest.cond, pos, arch));
+          conds.push_back(verilogForCondition(cond, pos, arch));
 
           // TODO: Add multiple stall condition handling, and add stall logic
           // to other cases in control logic
@@ -1688,12 +1701,12 @@ namespace ahaHLS {
             }
           }
 
-          controller.values[andCondWire(conds, arch).name] = to_string(transitionDest.dest);
+          controller.values[andCondWire(conds, arch).name] = to_string(dest);
         }
       }
 
-
     }
+    //}
     
   }
 

@@ -1214,30 +1214,39 @@ namespace ahaHLS {
     //      branch to a different state
     //   4. All remaining blocks must be blocks whose terminators do not finish in
     //      this state, some instructions from them may be in progress in this state
-    for (auto& opState : g.opStates) {
+    // for (auto& opState : g.opStates) {
 
-      set<BasicBlock*> allBlocks;
-      StateId state = opState.first;
-      vector<Instruction*> instrs = opState.second;
-      for (auto instr : instrs) {
-        BasicBlock* blk = instr->getParent();
-        allBlocks.insert(blk);
-      }
+    //   set<BasicBlock*> allBlocks;
+    //   StateId state = opState.first;
+    //   vector<Instruction*> instrs = opState.second;
+    //   for (auto instr : instrs) {
+    //     BasicBlock* blk = instr->getParent();
+    //     allBlocks.insert(blk);
+    //   }
 
-      for (auto instr : g.instructionsFinishingAt(state)) {
-        if (BranchInst::classof(instr)) {
-          BranchInst* br = dyn_cast<BranchInst>(instr);
-          bool allJumpsToSameState = true;
-          for (int i = 0; i < br->getNumSuccessors(); i++) {
-            
-          }
-        }
-      }
+    //   TransitionInfo info;
+    //   for (auto instr : g.instructionsFinishingAt(state)) {
+    //     if (BranchInst::classof(instr)) {
+    //       BranchInst* br = dyn_cast<BranchInst>(instr);
+    //       bool allJumpsToSameState = true;
+    //       BasicBlock* pred = br->getParent();
+    //       for (int i = 0; i < br->getNumSuccessors(); i++) {
+    //         BasicBlock* succ = br->getSuccessor(i);
+    //         if (!jumpToSameState(pred, succ)) {
+    //           allJumpsToSameState = false;
+    //           break;
+    //         }
+    //       }
 
-      // Create 
-      TransitionInfo info;
-      g.transitions[state] = info;
-    }
+    //       if (!allJumpsToSameState) {
+    //         info.branchExitBlocks.insert(pred);
+    //       }
+    //     }
+    //   }
+
+    //   // Create 
+    //   g.transitions[state] = info;
+    // }
 
     // Q: What are the transition possibilities?
     // A: Each state contains instructions from many
