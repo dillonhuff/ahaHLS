@@ -626,6 +626,15 @@ namespace ahaHLS {
       auto& opSt = *(std::begin(opStates));
       return (opSt.second)[0]->getParent()->getParent();
     }
+
+    llvm::Instruction* pickInstructionAt(const StateId id) {
+      auto instrs = opStates[id];
+      if (instrs.size() == 0) {
+        return nullptr;
+      } else {
+        return instrs.back();
+      }
+    }
     
     StateTransitionGraph(const StateTransitionGraph& other) {
       std::cout << "Calling stg const ref constructor" << std::endl;

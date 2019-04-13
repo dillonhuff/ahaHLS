@@ -1596,10 +1596,12 @@ namespace ahaHLS {
 
     string atStateCond = atState(state, arch);
     
-    ControlFlowPosition pos =
-      position(state, lastInstructionInState(state, arch), arch);
-    
     if (isPipelineState(state, pipelines)) {
+
+      // Only one basic block can exist in each state if the state is a pipeline state
+      ControlFlowPosition pos =
+        position(state, lastInstructionInState(state, arch), arch);
+      
       auto p = getPipeline(state, pipelines);
 
       for (auto transitionDest : destinations) {
@@ -1628,8 +1630,24 @@ namespace ahaHLS {
 
     } else {
 
+      // Note: Now we can have multiple basic blocks in a single state,
+      // so there are multiple control flow positions possible. Each
+      // transition could only be produced by one possible
+      // ControlFlowPosition pos =
+      //   position(state, lastInstructionInState(state, arch), arch);
+      
       for (auto transitionDest : destinations) {
 
+        Condition& cond = transitionDest.cond;
+        ControlFlowPosition pos =
+          position(state, arch.stg.pickInstructionAt(state), arch);          
+        if (cond.isTrue()) {
+        } else {
+          Value* condVal = cond.clauses[0][0].cond;
+          assert(Instruction::classof(condVal));
+          pos = position(state, dyn_cast<Instruction>(condVal), arch);
+        }
+        
         vector<string> conds{atStateCond};
         
         if (isPipelineState(transitionDest.dest, pipelines)) {
@@ -1644,14 +1662,10 @@ namespace ahaHLS {
           }
           RegController& validController =
             arch.getController(p.valids.at(0));
-            //arch.regControllers[p.valids.at(0).name];
-          //validController.values[andStrings(conds)] = "1";
-          //validController.values[andCondStr(conds)] = "1";
+
           validController.values[andCondWire(conds, arch).name] = "1";
           
           conds.push_back(verilogForCondition(transitionDest.cond, pos, arch));
-          //controller.values[andStrings(conds)] = to_string(p.stateId);
-          //controller.values[andCondStr(conds)] = to_string(p.stateId);
           controller.values[andCondWire(conds, arch).name] = to_string(p.stateId);
 
         } else {
@@ -1660,8 +1674,6 @@ namespace ahaHLS {
           // TODO: Add multiple stall condition handling, and add stall logic
           // to other cases in control logic
 
-          //vector<string> stallConds;
-          
           for (auto instr : arch.stg.instructionsStartingAt(state)) {
 
             if (isBuiltinStallCall(instr)) {
@@ -1673,8 +1685,6 @@ namespace ahaHLS {
             }
           }
 
-          //controller.values[andStrings(conds)] = to_string(transitionDest.dest);
-          //controller.values[andCondStr(conds)] = to_string(transitionDest.dest);
           controller.values[andCondWire(conds, arch).name] = to_string(transitionDest.dest);
         }
       }
