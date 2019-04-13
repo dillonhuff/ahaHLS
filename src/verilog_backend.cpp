@@ -2611,47 +2611,39 @@ namespace ahaHLS {
     for (auto& bb : f->getBasicBlockList()) {
       int blkNo = arch.cs.getBasicBlockNo(&bb);
       auto blkString = to_string(blkNo);
+
       string name = "bb_" + blkString + "_active";
-      PortController& activeController = addPortController(name, 1, arch);
+      addPortController(name, 1, arch);
 
-      assert(activeController.functionalUnit().instName != "");
+      // Wire nextBBIsThisBlock =
+      //   checkEqual(blkNo, reg(32, "global_next_block"), arch);
+      // assert(activeController.functionalUnit().portWires.size() > 0);
 
-      Wire nextBBIsThisBlock =
-        checkEqual(blkNo, reg(32, "global_next_block"), arch);
-
-      // TODO: Insert code to accomodate jumps to the current block
-      // from basic blocks in the same state. Do this by adding
-      // conditions to the activeController to set the bb_active variable
-      // equal to one if any successor from the same state in the schedule
-      // branched to this block
-
-      assert(activeController.functionalUnit().portWires.size() > 0);
-      PortValues& vals =
-        activeController.inputControllers[activeController.onlyInput().name];
-      vals.portVals[constWire(1, 1)] = nextBBIsThisBlock;
+      // PortValues& vals =
+      //   activeController.inputControllers[activeController.onlyInput().name];
+      // vals.portVals[constWire(1, 1)] = nextBBIsThisBlock;
 
       TerminatorInst* term = bb.getTerminator();
       if (BranchInst::classof(term)) {
         BranchInst* br = dyn_cast<BranchInst>(term);
 
-          Wire atContainerBlock =
-            containerBlockIsActive(br, arch);
-          Wire atBranchState =
-            atStateWire(arch.stg.instructionEndState(br), arch);
-          Wire atContainerPos =
-            checkAnd(atContainerBlock, atBranchState, arch);
+        Wire atContainerBlock =
+          containerBlockIsActive(br, arch);
+        Wire atBranchState =
+          atStateWire(arch.stg.instructionEndState(br), arch);
+        Wire atContainerPos =
+          checkAnd(atContainerBlock, atBranchState, arch);
 
-          string hName = "br_" + blkString + "_happened";
-          Wire hWire = wire(1, hName);
+        string hName = "br_" + blkString + "_happened";
+        Wire hWire = wire(1, hName);
 
-          auto& happenedController = addPortController(hName, 1, arch);
-          
-          happenedController.setCond("in_data", atContainerPos, constWire(1, 1));
-          happenedController.setCond("in_data", checkNotWire(atContainerPos, arch), constWire(1, 0));
+        auto& happenedController = addPortController(hName, 1, arch);
+        happenedController.setCond("in_data", atContainerPos, constWire(1, 1));
+        happenedController.setCond("in_data", checkNotWire(atContainerPos, arch), constWire(1, 0));
           
         if (!(br->isConditional())) {
           BasicBlock* destBlock = br->getSuccessor(0);
-          edgeTakenWires.insert({{br->getParent(), destBlock}, hWire});
+          edgeTakenWires.insert({{br->getParent(), destBlock}, atContainerPos});
           
           arch.getController("global_next_block").values[wireValue(hName, arch)] =
             to_string(arch.cs.getBasicBlockNo(destBlock));
@@ -2684,6 +2676,27 @@ namespace ahaHLS {
 
         }
       }
+    }
+
+    // Insert happened controller values
+    for (auto& bb : f->getBasicBlockList()) {
+      int blkNo = arch.cs.getBasicBlockNo(&bb);
+      auto blkString = to_string(blkNo);
+
+      string name = "bb_" + blkString + "_active";
+      // This is the controller that
+      PortController& activeController = arch.portController(name);
+
+      //assert(activeController.functionalUnit().instName != "");
+
+      Wire nextBBIsThisBlock =
+        checkEqual(blkNo, reg(32, "global_next_block"), arch);
+      assert(activeController.functionalUnit().portWires.size() > 0);
+
+      PortValues& vals =
+        activeController.inputControllers[activeController.onlyInput().name];
+      vals.portVals[constWire(1, 1)] = nextBBIsThisBlock;
+      
     }
   }
 
