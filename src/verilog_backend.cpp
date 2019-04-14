@@ -935,6 +935,14 @@ namespace ahaHLS {
     }
   };
 
+  std::ostream& operator<<(std::ostream& out, ControlFlowPosition& pos) {
+    out << "Control Pos " << pos.stateId() << ": ";
+    out << (pos.inPipeline() ? "PIPE" : "");
+    out << valueString(pos.instr);
+
+    return out;
+  }
+  
   ControlFlowPosition position(const StateId state, Instruction* const instr) {
     return {state, false, -1, instr};
   }
@@ -1548,9 +1556,14 @@ namespace ahaHLS {
         continue;
       }
 
-      if (obb.dominates(last, instrG)) {
+      if ((last == nullptr) || obb.dominates(last, instrG)) {
         last = instrG;
       }
+    }
+
+    if (last == nullptr) {
+      cout << "No instructions from " << valueString(blk) << " in state " << state;
+      assert(false);
     }
 
     return last;
@@ -1627,6 +1640,8 @@ namespace ahaHLS {
                           Wire jumpCondWire,
                           MicroArchitecture& arch) {
 
+    cout << "Adding transition from " << state << " to " << dest << endl;
+
     string atStateCond = atState(state, arch);
 
     auto& controller = arch.getController(reg(32, "global_state"));
@@ -1687,6 +1702,8 @@ namespace ahaHLS {
         for (auto instr : arch.stg.instructionsStartingAt(state)) {
 
           if (isBuiltinStallCall(instr)) {
+            cout << "Getting name of " << valueString(instr->getOperand(0)) << endl;
+            cout << "at position " << pos << endl;
             string cond = outputName(instr->getOperand(0),
                                      pos,
                                      arch);
@@ -1805,7 +1822,7 @@ namespace ahaHLS {
     // TODO: Should be for (auto blk : nonTerminatingBlocks(state)) { if active...
     for (auto blk : nonTerminatingBlocks(state, arch.stg)) {
       cout << "Found non terminating block" << endl;
-      //if (!foundTerminator) {
+
       ControlFlowPosition pos =
         position(state, lastInstructionForBlockInState(blk, state, arch), arch);
       StateId dest = state + 1;
@@ -1816,6 +1833,7 @@ namespace ahaHLS {
     // If control is in a scheduler inserted blank state, go to the
     // next state
     if (arch.stg.isEmptyState(state)) {
+      cout << "State generation for empty state" << endl;
       StateId dest = state + 1;
       Wire condWire = constWire(1, 1);
       StateId lastNonBlank = findLastNonBlankState(state, arch.stg);
