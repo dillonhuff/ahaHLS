@@ -14,6 +14,14 @@ using namespace std;
 
 namespace ahaHLS {
 
+  Wire blockActiveInState(const StateId state,
+                          BasicBlock* const blk,
+                          MicroArchitecture& arch);
+  
+  bool jumpToSameState(BasicBlock* const predecessor,
+                       BasicBlock* const successor,
+                       MicroArchitecture& arch);
+
   Wire atStateWire(const StateId state, MicroArchitecture& arch);
 
   Wire checkNotWire(const Wire in, MicroArchitecture& arch);  
@@ -1781,6 +1789,10 @@ namespace ahaHLS {
           BasicBlock* bb = br->getSuccessor(i);
           StateId dest = arch.stg.blockStartState(bb);
 
+          if (jumpToSameState(br->getParent(), bb, arch)) {
+            continue;
+          }
+
           Wire condWire;
           if (br->isConditional()) {
             assert((i == 0) || (i == 1));
@@ -1795,6 +1807,8 @@ namespace ahaHLS {
           } else {
             condWire = constWire(1, 1);
           }
+
+          condWire = checkAnd(blockActiveInState(state, br->getParent(), arch), condWire, arch);
           
           addStateTransition(state, dest, pos, condWire, arch);
         }
@@ -1824,6 +1838,7 @@ namespace ahaHLS {
         position(state, lastInstructionForBlockInState(blk, state, arch), arch);
       StateId dest = state + 1;
       Wire condWire = constWire(1, 1);
+      condWire = checkAnd(blockActiveInState(state, blk, arch), condWire, arch);      
       addStateTransition(state, dest, pos, condWire, arch);
     }
 
