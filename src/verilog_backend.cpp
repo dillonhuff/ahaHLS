@@ -3722,17 +3722,28 @@ namespace ahaHLS {
 
   }
 
+  Wire inAnyPipeline(MicroArchitecture& arch) {
+    Wire inAnyPipe = constWire(1, 0);
+
+    return inAnyPipe;
+  }
+
+  std::string implies(const std::string& a, const std::string& b) {
+    return parens(notStr(a) + " || " + b);
+  }
+
   void noOverlappingStateTransitions(MicroArchitecture& arch,
                                      VerilogDebugInfo& info) {
     RegController& rc = arch.getController(arch.cs.getGlobalState());
+    string inPipe = inAnyPipeline(arch).valueString();
     for (pair<string, string> condAndVal0 : rc.values) {
       string cond0 = condAndVal0.first;
       for (pair<string, string> condAndVal1 : rc.values) {
         string cond1 = condAndVal1.first;
 
         if (cond0 != cond1) {
-          addAssert(notStr(cond0 + " === 1") + " || " +
-                    parens(cond1 + " !== 1"),
+          addAssert(implies(andStr(notStr(inPipe), cond0 + " === 1"),
+                            cond1 + " !== 1"),
                     info);
         }
       }
