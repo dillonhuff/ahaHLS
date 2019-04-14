@@ -658,6 +658,11 @@ namespace ahaHLS {
       return (opSt.second)[0]->getParent()->getParent();
     }
 
+    bool isEmptyState(const StateId id) {
+      return !dbhc::contains_key(id, opStates) ||
+        (dbhc::map_find(id, opStates).size() == 0);
+    }
+
     llvm::Instruction* pickInstructionAt(const StateId id) {
       auto instrs = opStates[id];
       if (instrs.size() == 0) {

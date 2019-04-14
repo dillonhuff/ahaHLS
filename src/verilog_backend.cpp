@@ -1536,6 +1536,26 @@ namespace ahaHLS {
     return parens(s);
   }
 
+  Instruction*
+  lastInstructionForBlockInState(BasicBlock* const blk,
+                                 const StateId state,
+                                 MicroArchitecture& arch) {
+    OrderedBasicBlock obb(blk);
+    Instruction* last = nullptr;
+    
+    for (auto instrG : map_find(state, arch.stg.opStates)) {
+      if (instrG->getParent() != blk) {
+        continue;
+      }
+
+      if (obb.dominates(last, instrG)) {
+        last = instrG;
+      }
+    }
+
+    return last;
+  }
+  
   Instruction* lastInstructionInState(const StateId state,
                                       MicroArchitecture& arch) {
     Instruction* last = nullptr;
@@ -1585,11 +1605,26 @@ namespace ahaHLS {
     
   }
 
+  StateId findLastNonBlankState(const StateId state, STG& stg) {
+    assert(state > 0);
+    StateId lastNonBlank = state - 1;
+
+    do {
+      if (!stg.isEmptyState(lastNonBlank)) {
+        return lastNonBlank;
+      }
+
+      lastNonBlank--;
+    } while (lastNonBlank > 0);
+
+    assert(!stg.isEmptyState(lastNonBlank));
+    return lastNonBlank;
+  }
+  
   void addStateTransition(const StateId state,
                           const StateId dest,
                           ControlFlowPosition& pos,
                           Wire jumpCondWire,
-                          //Condition& cond,
                           MicroArchitecture& arch) {
 
     string atStateCond = atState(state, arch);
@@ -1664,6 +1699,53 @@ namespace ahaHLS {
       }
     }
   }
+
+  bool instructionInProgressAt(llvm::Instruction* instr,
+                               const StateId state,
+                               STG& stg) {
+    return elem(state, map_find(instr, stg.sched.instrTimes));
+  }
+
+  // Returns the set of all basic blocks that contain instructions
+  // that are in progress in state, but where the terminator of the block
+  // does not execute in state
+  // I keep trying to express these state transitions in terms of basic
+  // blocks, but maybe they need to be expressed in terms of CFG edges.
+  // The problem is that blocks that start in one state and stop in another
+  // have "edges" in the state transition graph, that do not exist in the
+  // CFG because they are not transitions between blocks, they are transitions
+  // between groups of instructions in the same block
+  std::set<BasicBlock*>
+  nonTerminatingBlocks(const StateId state,
+                       STG& stg) {
+    vector<Instruction*> instrsAtState = map_find(state, stg.opStates);
+    set<BasicBlock*> allBlocks;
+    for (auto instr : instrsAtState) {
+      allBlocks.insert(instr->getParent());
+    }
+
+    cout << "All blocks size = " << allBlocks.size() << endl;
+    
+    set<BasicBlock*> nonTerminating;
+    for (auto blk : allBlocks) {
+      bool terminatorFinishesInState = false;
+      for (auto& instrPtr : *blk) {
+        auto* instr = &instrPtr;
+        if (TerminatorInst::classof(instr) &&
+            instructionInProgressAt(instr, state, stg) &&
+            (stg.instructionEndState(instr) == state)) {
+          terminatorFinishesInState = true;
+          break;
+        }
+      }
+
+      if (!terminatorFinishesInState) {
+        nonTerminating.insert(blk);
+      }
+    }
+
+    return nonTerminating;
+  }
   
   // Want to move toward merging basic blocks in to a single state
   // and allowing more code to be executed in a cycle. Need to
@@ -1721,11 +1803,24 @@ namespace ahaHLS {
     // because with multiple basic blocks it is possible to end
     // in a non-terminating block even if other blocks have terminators
     // TODO: Should be for (auto blk : nonTerminatingBlocks(state)) { if active...
-    if (!foundTerminator) {
+    for (auto blk : nonTerminatingBlocks(state, arch.stg)) {
+      cout << "Found non terminating block" << endl;
+      //if (!foundTerminator) {
       ControlFlowPosition pos =
-        position(state, lastInstructionInState(state, arch), arch);
+        position(state, lastInstructionForBlockInState(blk, state, arch), arch);
       StateId dest = state + 1;
       Wire condWire = constWire(1, 1);
+      addStateTransition(state, dest, pos, condWire, arch);
+    }
+
+    // If control is in a scheduler inserted blank state, go to the
+    // next state
+    if (arch.stg.isEmptyState(state)) {
+      StateId dest = state + 1;
+      Wire condWire = constWire(1, 1);
+      StateId lastNonBlank = findLastNonBlankState(state, arch.stg);
+      ControlFlowPosition pos =
+        position(lastNonBlank, arch.stg.pickInstructionAt(lastNonBlank), arch);
       addStateTransition(state, dest, pos, condWire, arch);
     }
   }
@@ -1738,6 +1833,7 @@ namespace ahaHLS {
       map_find(wire(32, "global_state"), arch.resetValues);
     
     for (auto state : arch.stg.opTransitions) {
+    //for (auto state : arch.stg.opStates) {
       emitPipelineStateCode(state.first, arch);
     }
 
