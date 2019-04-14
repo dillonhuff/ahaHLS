@@ -2205,14 +2205,6 @@ namespace ahaHLS {
     }
   }
 
-  // Now I have port-by-port controllers. I want to
-  //  1. Add insensitive ports flags to ModuleSpec
-  //  2. Optimize insensitive ports that are assigned in
-  void emitInstructionCode(std::ostream& out,
-                           MicroArchitecture& arch) {
-    emitVerilogForControllers(out, arch);
-  }
-  
   void emitPorts(std::ostream& out,
                  const vector<Port>& allPorts) {
 
@@ -3080,9 +3072,7 @@ namespace ahaHLS {
       out << "\tassign " << p.inPipe.name << " = global_state == " << p.stateId << ";"<< endl;
     }
 
-    //cout << "Emitting instruction storage" << endl;
-
-    emitInstructionCode(out, arch);
+    emitVerilogForControllers(out, arch);    
 
     out << tab(1) << "// Register controllers" << endl;
     for (auto& rc : arch.regControllers) {
@@ -3730,7 +3720,26 @@ namespace ahaHLS {
       }
     }
 
-  }  
+  }
+
+  void noOverlappingStateTransitions(MicroArchitecture& arch,
+                                     VerilogDebugInfo& info) {
+    RegController& rc = arch.getController(arch.cs.getGlobalState());
+    for (pair<string, string> condAndVal0 : rc.values) {
+      string cond0 = condAndVal0.first;
+      for (pair<string, string> condAndVal1 : rc.values) {
+        string cond1 = condAndVal1.first;
+
+        if (cond0 != cond1) {
+          addAssert(notStr(cond0 + " === 1") + " || " +
+                    parens(cond1 + " !== 1"),
+                    info);
+        }
+      }
+      
+    }
+  }
+  
   
   void noAddsTakeXInputs(MicroArchitecture& arch,
                          VerilogDebugInfo& debugInfo) {
@@ -3757,6 +3766,7 @@ namespace ahaHLS {
 
   void addNoXChecks(MicroArchitecture& arch,
                     VerilogDebugInfo& info) {
+    noOverlappingStateTransitions(arch, info);
     noBinopsTakeXInputs(arch, info, "fadd");
     noBinopsProduceXOutputs(arch, info, "fadd");
     noFifoReadsX(arch, info);
