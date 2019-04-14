@@ -1808,8 +1808,7 @@ namespace ahaHLS {
             condWire = constWire(1, 1);
           }
 
-          //condWire = checkAnd(blockActiveInState(state, br->getParent(), arch), condWire, arch);
-          
+          condWire = checkAnd(blockActiveInState(state, br->getParent(), arch), condWire, arch);
           addStateTransition(state, dest, pos, condWire, arch);
         }
       } else if (ReturnInst::classof(instr)) {
@@ -1822,7 +1821,7 @@ namespace ahaHLS {
         ControlFlowPosition pos =
           position(state, instr, arch);
         Wire condWire = constWire(1, 1);
-        //condWire = checkAnd(blockActiveInState(state, instr->getParent(), arch), condWire, arch);
+        condWire = checkAnd(blockActiveInState(state, instr->getParent(), arch), condWire, arch);
         addStateTransition(state, dest, pos, condWire, arch);
       }
     }
@@ -1839,7 +1838,7 @@ namespace ahaHLS {
         position(state, lastInstructionForBlockInState(blk, state, arch), arch);
       StateId dest = state + 1;
       Wire condWire = constWire(1, 1);
-      //condWire = checkAnd(blockActiveInState(state, blk, arch), condWire, arch);      
+      condWire = checkAnd(blockActiveInState(state, blk, arch), condWire, arch);
       addStateTransition(state, dest, pos, condWire, arch);
     }
 
