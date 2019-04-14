@@ -1767,13 +1767,11 @@ namespace ahaHLS {
   // Want to move toward merging basic blocks in to a single state
   // and allowing more code to be executed in a cycle. Need to
   // add the active basic block variable
-  void emitPipelineStateCode(const StateId state,
-                             MicroArchitecture& arch) {
+  void emitStateCode(const StateId state,
+                     MicroArchitecture& arch) {
 
-    bool foundTerminator = false;
     for (auto instr : arch.stg.instructionsFinishingAt(state)) {
       if (BranchInst::classof(instr)) {
-        foundTerminator = true;
         BranchInst* br = dyn_cast<BranchInst>(instr);
         
         ControlFlowPosition pos =
@@ -1811,7 +1809,6 @@ namespace ahaHLS {
           position(state, instr, arch);
         Wire condWire = constWire(1, 1);
         addStateTransition(state, dest, pos, condWire, arch);
-        foundTerminator = true;
       }
     }
 
@@ -1852,7 +1849,7 @@ namespace ahaHLS {
     
     for (auto state : arch.stg.opTransitions) {
     //for (auto state : arch.stg.opStates) {
-      emitPipelineStateCode(state.first, arch);
+      emitStateCode(state.first, arch);
     }
 
     for (auto state : arch.stg.opTransitions) {
