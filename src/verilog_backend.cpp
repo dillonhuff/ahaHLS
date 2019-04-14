@@ -1180,51 +1180,11 @@ namespace ahaHLS {
 
     
   }
+
+  Wire successor(BasicBlock* const bb, MicroArchitecture& arch) {
+    return Wire(32, "last_BB_reg");
+  }
   
-  // std::string verilogForCondition(Condition& cond,
-  //                                 ControlFlowPosition pos,
-  //                                 MicroArchitecture& arch) {
-  //   string condStr = "";
-
-  //   if (cond.isTrue()) {
-  //     return "1";
-  //   }
-
-  //   int clNum = 0;
-  //   for (auto cl : cond.clauses) {
-
-  //     int aNum = 0;
-  //     for (auto a : cl) {
-  //       bool isNeg = a.negated;
-
-  //       map<llvm::Value*, int> memoryMap;
-  //       string valueStr = outputName(a.cond, pos, arch);
-        
-  //       if (isNeg) {
-  //         condStr += "!";
-  //       }
-
-  //       condStr += "(";
-  //       condStr += valueStr;
-  //       condStr += ")";
-
-  //       if (aNum < ((int) cl.size()) - 1) {
-  //         condStr += " && ";
-  //       }
-        
-  //       aNum++;
-  //     }
-
-  //     if (clNum < ((int) cond.clauses.size()) - 1) {
-  //       condStr += " || ";
-  //     }
-
-  //     clNum++;
-  //   }
-    
-  //   return condStr;
-  // }
-
   // I would like for this function to just return instruction port
   // assignments that include the names of ports as keys, rather
   // than the names of specific wires connected to each functional unit
@@ -1349,7 +1309,8 @@ namespace ahaHLS {
       assignments.insert({addUnit.portWires["in"].name, input});
       assignments.insert({addUnit.portWires["s"].name, s});
       
-      assignments.insert({addUnit.portWires["last_block"].name, "last_BB_reg"});
+      //assignments.insert({addUnit.portWires["last_block"].name, "last_BB_reg"});
+      assignments.insert({addUnit.portWires["last_block"].name, successor(phi->getParent(), arch).valueString()});
 
     } else if (SelectInst::classof(instr)) {
       SelectInst* sel = dyn_cast<SelectInst>(instr);
@@ -2791,6 +2752,26 @@ namespace ahaHLS {
 
     return atContainerPos;
   }
+
+  Wire notStalledAtPos(const StateId state,
+                       ControlFlowPosition& pos,
+                       MicroArchitecture& arch) {
+    vector<string> conds;
+    for (auto instr : arch.stg.instructionsStartingAt(state)) {
+
+      if (isBuiltinStallCall(instr)) {
+        cout << "Getting name of " << valueString(instr->getOperand(0)) << endl;
+        cout << "at position " << pos << endl;
+        string cond = outputName(instr->getOperand(0),
+                                 pos,
+                                 arch);
+
+        conds.push_back(cond);
+      }
+    }
+
+    return wire(1, andCondStr(conds));
+  }
   
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
     Function* f = arch.stg.getFunction();
@@ -2815,15 +2796,22 @@ namespace ahaHLS {
       if (BranchInst::classof(term)) {
         BranchInst* br = dyn_cast<BranchInst>(term);
 
+        StateId branchEndState = arch.stg.instructionEndState(br);
+        
         Wire atContainerBlock =
           containerBlockIsActive(br, arch);
         Wire atBranchState =
-          atStateWire(arch.stg.instructionEndState(br), arch);
+          //atStateWire(arch.stg.instructionEndState(br), arch);
+          atStateWire(branchEndState, arch);
         Wire atContainerPos =
           checkAnd(atContainerBlock, atBranchState, arch);
 
+        ControlFlowPosition pos = position(branchEndState, br, arch);
+        Wire notStalled = notStalledAtPos(branchEndState, pos, arch);
+        atContainerPos = checkAnd(atContainerPos, notStalled, arch);
+
         string hName = "br_" + blkString + "_happened";
-        Wire hWire = wire(1, hName);
+        //Wire hWire = wire(1, hName);
 
         auto& happenedController = addPortController(hName, 1, arch);
         happenedController.setCond("in_data", atContainerPos, constWire(1, 1));

@@ -947,7 +947,11 @@ namespace ahaHLS {
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
 
-    emitVerilog("stalled_single_store_axi", graph, hcs, info);
+    map<Value*, int> memLayout;
+    auto arch = buildMicroArchitecture(graph, memLayout, hcs);
+    addNoXChecks(arch, info);
+    //emitVerilog("stalled_single_store_axi", graph, hcs, info);
+    emitVerilog("stalled_single_store_axi", arch, info);
     
     REQUIRE(runIVerilogTB("stalled_single_store_axi"));
   }

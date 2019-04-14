@@ -189,6 +189,10 @@ module test();
 
       #1 $display("Passed");
 
+   end // initial begin
+
+   always @(posedge clk) begin
+      $display("reader_valid = %d", reader_valid);
    end
 
    axil_ram #(.DATA_WIDTH(32), .ADDR_WIDTH(5))
