@@ -3724,6 +3724,9 @@ namespace ahaHLS {
 
   Wire inAnyPipeline(MicroArchitecture& arch) {
     Wire inAnyPipe = constWire(1, 0);
+    for (auto& p : arch.pipelines) {
+      inAnyPipe = checkOr(inAnyPipe, p.inPipe, arch);
+    }
 
     return inAnyPipe;
   }
