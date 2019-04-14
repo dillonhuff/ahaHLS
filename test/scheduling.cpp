@@ -185,6 +185,7 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
+    addNoXChecks(arch, info);
     emitVerilog("if_else", arch, info);
     
     REQUIRE(runIVerilogTB("if_else"));
