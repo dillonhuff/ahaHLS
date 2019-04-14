@@ -2942,8 +2942,9 @@ namespace ahaHLS {
         Wire predActive =
           arch.isActiveBlockVar(pred);
         int predNo = arch.cs.getBasicBlockNo(pred);
-        predController.setCond("in_data", nextBlkIsThisBlk, constWire(32, predNo));
+        predController.setCond("in_data", checkAnd(checkNotWire(nextBlkIsThisBlk, arch), predActive, arch), constWire(32, predNo));
       }
+      
     }
     
   }
