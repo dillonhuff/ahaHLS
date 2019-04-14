@@ -2156,11 +2156,32 @@ namespace ahaHLS {
           stallConds.push_back(blockActiveInState(state, instr->getParent(), arch).valueString());
           //stallConds.push_back(containerBlockIsActive(instr, arch).valueString());
 
-          //Wire stallDone = andConds(stallConds);
+          Wire condWire = andCondWire(stallConds, arch);
+
           auto pos = position(state, instr, arch);
           auto assigns = instructionPortAssignments(pos, arch);
 
-          map_insert(portController.portValues, state, {stallConds, assigns});
+        // StallConds stallConds = stallAndPortAssign.first;
+        // PortAssignments assignments = stallAndPortAssign.second;
+
+          for (pair<string, string> portAndValue : assigns) {
+            string portName = portAndValue.first;
+            string portVal = portAndValue.second;
+            if (!contains_key(portName, portController.inputControllers)) {
+              portController.inputControllers[portName] = PortValues();
+            }
+
+            PortValues& vals = portController.inputControllers[portName];
+            vals.portVals.insert({condWire, wire(32, portVal)});
+            //{state, {stallConds, portVal}});
+          }
+          
+          // for (pair<string, string> portAndValue : assigns) {
+          //   portController.setCond(portAndValue.first, condWire, Wire(32, portAndValue.second));
+          // }
+
+          //map_insert(portController.portValues, state, {stallConds, assigns});
+          
           for (auto asg : assigns) {
             usedPorts.insert(asg.first);
           }
@@ -2177,7 +2198,7 @@ namespace ahaHLS {
         }
       }
 
-      buildInputControllers(portController, arch);
+      //buildInputControllers(portController, arch);
       controllers[portController.functionalUnit().instName] = portController;
     }
 
