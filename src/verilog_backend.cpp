@@ -2153,7 +2153,10 @@ namespace ahaHLS {
           Instruction* instr = instrG;
 
           auto stallConds = getStallConds(instr, state, arch);
-          stallConds.push_back(containerBlockIsActive(instr, arch).valueString());
+          stallConds.push_back(blockActiveInState(state, instr->getParent(), arch).valueString());
+          //stallConds.push_back(containerBlockIsActive(instr, arch).valueString());
+
+          //Wire stallDone = andConds(stallConds);
           auto pos = position(state, instr, arch);
           auto assigns = instructionPortAssignments(pos, arch);
 
