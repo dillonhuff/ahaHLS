@@ -2877,13 +2877,18 @@ namespace ahaHLS {
       for (auto val : edgeTakenWires) {
         BasicBlock* predecessor = val.first.first;
         BasicBlock* successor = val.first.second;
+        Wire edgeTaken = val.second;
 
         if (successor == &bb) {
           //cout << "Block has predessesor" << endl;
           if (jumpToSameState(predecessor, successor, arch)) {
             //cout << "Found jump that stays inside single state" << endl;
+            // nextBBIsThisBlock =
+            //   checkOr(nextBBIsThisBlock, arch.isActiveBlockVar(predecessor), arch);
+
             nextBBIsThisBlock =
-              checkOr(nextBBIsThisBlock, arch.isActiveBlockVar(predecessor), arch);
+              checkOr(nextBBIsThisBlock, edgeTaken, arch);
+            
           }
         }
       }
