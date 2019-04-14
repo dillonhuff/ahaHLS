@@ -1876,56 +1876,56 @@ namespace ahaHLS {
 
   }
 
-  void buildInputControllers(PortController& controller,
-                             MicroArchitecture& arch) {
-    for (auto val : controller.portValues) {
-      StateId state = val.first;
+  // void buildInputControllers(PortController& controller,
+  //                            MicroArchitecture& arch) {
+  //   for (auto val : controller.portValues) {
+  //     StateId state = val.first;
 
-      for (auto stallAndPortAssign : val.second) {
-        StallConds stallConds = stallAndPortAssign.first;
-        PortAssignments assignments = stallAndPortAssign.second;
+  //     for (auto stallAndPortAssign : val.second) {
+  //       StallConds stallConds = stallAndPortAssign.first;
+  //       PortAssignments assignments = stallAndPortAssign.second;
 
-        for (auto portAndValue : assignments) {
-          string portName = portAndValue.first;
-          string portVal = portAndValue.second;
-          if (!contains_key(portName, controller.inputControllers)) {
-            controller.inputControllers[portName] = PortValues();
-          }
+  //       for (auto portAndValue : assignments) {
+  //         string portName = portAndValue.first;
+  //         string portVal = portAndValue.second;
+  //         if (!contains_key(portName, controller.inputControllers)) {
+  //           controller.inputControllers[portName] = PortValues();
+  //         }
 
-          PortValues& vals = controller.inputControllers[portName];
-          vals.portAssignments.insert({state, {stallConds, portVal}});
-        }
-      }
-    }
+  //         PortValues& vals = controller.inputControllers[portName];
+  //         vals.portAssignments.insert({state, {stallConds, portVal}});
+  //       }
+  //     }
+  //   }
 
-    // Convert to using portVals?
-    for (auto& portAndPortValues : controller.inputControllers) {
-      string portName = portAndPortValues.first;
-      PortValues& portValues = portAndPortValues.second;
+  //   // Convert to using portVals?
+  //   for (auto& portAndPortValues : controller.inputControllers) {
+  //     string portName = portAndPortValues.first;
+  //     PortValues& portValues = portAndPortValues.second;
 
-      assert(portValues.portVals.size() == 0);
+  //     assert(portValues.portVals.size() == 0);
       
-      for (auto& assignment : portValues.portAssignments) {
-        // Generate string for this assignment and then make it a wire
-        Wire value = wire(32, assignment.second.second);
-        StallConds stallConds = assignment.second.first;
+  //     for (auto& assignment : portValues.portAssignments) {
+  //       // Generate string for this assignment and then make it a wire
+  //       Wire value = wire(32, assignment.second.second);
+  //       StallConds stallConds = assignment.second.first;
 
-        StateId state = assignment.first;
-        vector<string> conds{atState(state, arch)};
-        for (auto& stallCond : stallConds) {
-          conds.push_back(stallCond);
-        }
-        //string startCond = andCondStr(conds);
-        Wire startCond = andCondWire(conds, arch);
-        //Wire condition = wire(32, startCond);
-        //portValues.portVals.insert({condition, value});
-        portValues.portVals.insert({startCond, value});
-      }
+  //       StateId state = assignment.first;
+  //       vector<string> conds{atState(state, arch)};
+  //       for (auto& stallCond : stallConds) {
+  //         conds.push_back(stallCond);
+  //       }
+  //       //string startCond = andCondStr(conds);
+  //       Wire startCond = andCondWire(conds, arch);
+  //       //Wire condition = wire(32, startCond);
+  //       //portValues.portVals.insert({condition, value});
+  //       portValues.portVals.insert({startCond, value});
+  //     }
 
-      // Clear the old data structure
-      portValues.portAssignments = {};
-    }
-  }
+  //     // Clear the old data structure
+  //     portValues.portAssignments = {};
+  //   }
+  // }
   
   bool usedInExactlyOneState(UnitController& controller) {
     int numUses = 0;
@@ -1977,7 +1977,7 @@ namespace ahaHLS {
     
     // Check that legacy data structure is not used here.
     // TOOD: Eventually remove portAssignments altogether
-    assert(portValues.portAssignments.size() == 0);
+    //assert(portValues.portAssignments.size() == 0);
 
     int numAssigns = portValues.portVals.size();
     
@@ -2038,8 +2038,8 @@ namespace ahaHLS {
       string port = portAndValues.first;
       PortValues vals = portAndValues.second;
 
-      assert((vals.portAssignments.size() == 0) ||
-             (vals.portVals.size() == 0));
+      // assert((vals.portAssignments.size() == 0) ||
+      //        (vals.portVals.size() == 0));
 
       if (vals.portVals.size() == 0) {
         assert(false);

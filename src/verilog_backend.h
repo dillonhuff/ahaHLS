@@ -354,7 +354,7 @@ namespace ahaHLS {
     //  1. States where the port is assigned
     //  2. States where it is an unused value
     bool isInsensitive;
-    map<StateId, pair<StallConds, string> > portAssignments;
+    //map<StateId, pair<StallConds, string> > portAssignments;
     map<Wire, Wire> portVals;
     std::string defaultValue;
   };
@@ -364,7 +364,7 @@ namespace ahaHLS {
   class PortController {
   public:
     UnitController unitController;
-    map<StateId, vector<pair<StallConds, PortAssignments> > > portValues;
+    //map<StateId, vector<pair<StallConds, PortAssignments> > > portValues;
 
     // These are defaults for all 
     // map<StateId, PortAssignments> defaultValues;
