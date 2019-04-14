@@ -2767,6 +2767,19 @@ namespace ahaHLS {
     return false;
   }
 
+  Wire blockActiveInState(const StateId state,
+                          BasicBlock* const blk,
+                          MicroArchitecture& arch) {
+    Wire atBlock =
+      arch.isActiveBlockVar(blk);
+    Wire atBranchState =
+      atStateWire(state, arch);
+    Wire atContainerPos =
+      checkAnd(atBlock, atBranchState, arch);
+
+    return atContainerPos;
+  }
+  
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
     Function* f = arch.stg.getFunction();
 
@@ -2880,6 +2893,19 @@ namespace ahaHLS {
       vals.portVals[constWire(1, 1)] = nextBBIsThisBlock;
       
     }
+
+    for (auto st : arch.stg.opStates) {
+      StateId state = st.first;
+      for (auto blk : nonTerminatingBlocks(state, arch.stg)) {
+
+        Wire thisBlkActive = blockActiveInState(state, blk, arch);
+        // If a block is active that does not execute its terminator, then
+        // the in the next cycle we continue to execute that block
+        arch.getController("global_next_block").values[thisBlkActive.valueString()] =
+          to_string(arch.cs.getBasicBlockNo(blk));
+      }
+    }
+    
   }
 
   MicroArchitecture
