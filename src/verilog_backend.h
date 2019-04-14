@@ -367,7 +367,7 @@ namespace ahaHLS {
     map<StateId, vector<pair<StallConds, PortAssignments> > > portValues;
 
     // These are defaults for all 
-    map<StateId, PortAssignments> defaultValues;
+    // map<StateId, PortAssignments> defaultValues;
     PortAssignments statelessDefaults;
 
     // TODO: This information should eventually be carried in the

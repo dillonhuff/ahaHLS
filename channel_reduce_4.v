@@ -1631,6 +1631,13 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 		notOp_94_in0 = valid ? icmp_tmp_3 : icmp_tmp_3;
 	end
 	// controller for out.out_in_data_reg
+	always @(*) begin
+		if (andOp_71_out) begin 
+			out_in_data_reg = rdata_ram_0;
+		end else begin
+			out_in_data_reg = 0;
+		end
+	end
 	// controller for out.out_write_valid_reg
 	always @(*) begin
 		if (andOp_73_out) begin 
@@ -1640,10 +1647,6 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 		end else begin
 			out_write_valid_reg = 0;
 		end
-	end
-	// Insensitive connections
-	always @(*) begin
-		out_in_data_reg = valid ? rdata_ram_0 : rdata_ram_0;
 	end
 	// controller for phi_5.phi_in_phi_5
 	// controller for phi_5.phi_last_block_phi_5

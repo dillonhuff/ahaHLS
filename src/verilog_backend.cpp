@@ -1965,8 +1965,11 @@ namespace ahaHLS {
 
   bool isInsensitive(const std::string& port,
                      PortController& portController) {
-    return contains_key(port, portController.insensitivePorts) &&
-      (map_find(port, portController.insensitivePorts) == true);
+    return elem(port, portController.functionalUnit().module.insensitivePorts);
+    //(map_find(port, portController.functionalUnit().module.insensitivePorts) == true);
+
+    // return contains_key(port, portController.insensitivePorts) &&
+    //   (map_find(port, portController.insensitivePorts) == true);
   }
 
   void emitVerilogForWireAssigns(std::ostream& out,
@@ -2164,10 +2167,10 @@ namespace ahaHLS {
           }
 
           //cout << "Unit modspec = " << unit.module << endl;
-          for (auto insensitivePort : unit.module.insensitivePorts) {
-            string ptName = unit.inputWire(insensitivePort);
-            portController.insensitivePorts[ptName] = true;
-          }
+          // for (auto insensitivePort : unit.module.insensitivePorts) {
+          //   string ptName = unit.inputWire(insensitivePort);
+          //   portController.insensitivePorts[ptName] = true;
+          // }
 
           // // Set per-state defaults
           // for (auto def : unit.module.defaultValues) {

@@ -24,14 +24,14 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// End debug wires and ports
 
 	// Start Functional Units
+	br_dummy br_unit();
+
 	reg [0:0] m_rst_n;
 	reg [31:0] m_word0;
 	reg [31:0] m_word1;
 	reg [31:0] m_word2;
 	wire [31:0] m_median_word;
 	median m(.clk(clk), .median_word(m_median_word), .rst_n(m_rst_n), .word0(m_word0), .word1(m_word1), .word2(m_word2));
-
-	br_dummy br_unit();
 
 	reg [63:0] phi_in_phi_6;
 	reg [31:0] phi_last_block_phi_6;
@@ -1171,13 +1171,28 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		end
 	end
 	// controller for m.m_word0
-	// controller for m.m_word1
-	// controller for m.m_word2
-	// Insensitive connections
 	always @(*) begin
-		m_word0 = valid ? in0_out_data : in0_out_data;
-		m_word1 = valid ? in1_out_data : in1_out_data;
-		m_word2 = valid ? in2_out_data : in2_out_data;
+		if (andOp_31_out) begin 
+			m_word0 = in0_out_data;
+		end else begin
+			m_word0 = 0;
+		end
+	end
+	// controller for m.m_word1
+	always @(*) begin
+		if (andOp_33_out) begin 
+			m_word1 = in1_out_data;
+		end else begin
+			m_word1 = 0;
+		end
+	end
+	// controller for m.m_word2
+	always @(*) begin
+		if (andOp_35_out) begin 
+			m_word2 = in2_out_data;
+		end else begin
+			m_word2 = 0;
+		end
 	end
 	// controller for notOp_11.notOp_11_in0
 	// Insensitive connections
@@ -1210,9 +1225,12 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		notOp_8_in0 = valid ? andOp_7_out : andOp_7_out;
 	end
 	// controller for out.out_in_data_reg
-	// Insensitive connections
 	always @(*) begin
-		out_in_data_reg = valid ? m_median_word : m_median_word;
+		if (andOp_47_out) begin 
+			out_in_data_reg = m_median_word;
+		end else begin
+			out_in_data_reg = 0;
+		end
 	end
 	// controller for phi_6.phi_in_phi_6
 	// controller for phi_6.phi_last_block_phi_6
