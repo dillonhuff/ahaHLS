@@ -2169,20 +2169,20 @@ namespace ahaHLS {
             portController.insensitivePorts[ptName] = true;
           }
 
-          // Set per-state defaults
-          for (auto def : unit.module.defaultValues) {
-            string name = def.first;
-            assert(contains_key(name, unit.portWires));
+          // // Set per-state defaults
+          // for (auto def : unit.module.defaultValues) {
+          //   string name = def.first;
+          //   assert(contains_key(name, unit.portWires));
             
-            string ptName = map_find(name, unit.portWires).name;
-            if (portController.isExternal()) {
-              ptName += "_reg";
-            }
-            if (!elem(ptName, usedPorts)) {
-              PortAssignments& stateDefaults = portController.defaultValues[state];
-              stateDefaults.insert({ptName, to_string(def.second)});
-            }
-          }
+          //   string ptName = map_find(name, unit.portWires).name;
+          //   if (portController.isExternal()) {
+          //     ptName += "_reg";
+          //   }
+          //   if (!elem(ptName, usedPorts)) {
+          //     PortAssignments& stateDefaults = portController.defaultValues[state];
+          //     stateDefaults.insert({ptName, to_string(def.second)});
+          //   }
+          // }
         }
 
       }
