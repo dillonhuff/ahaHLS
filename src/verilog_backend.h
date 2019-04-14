@@ -463,7 +463,7 @@ namespace ahaHLS {
       ctr.resetValue = "0";
       regControllers[name] = ctr;
     }
-
+    
     RegController& getController(const std::string& name) {
       if (dbhc::contains_key(name, regControllers)) {
         return regControllers[name];

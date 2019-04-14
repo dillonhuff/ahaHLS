@@ -221,6 +221,18 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 	wire [0:0] andOp_25_out;
 	andOp #(.WIDTH(1)) andOp_25(.in0(andOp_25_in0), .in1(andOp_25_in1), .out(andOp_25_out));
 
+	reg [31:0] bb_0_predecessor_in_data;
+	wire [31:0] bb_0_predecessor_out_data;
+	hls_wire #(.WIDTH(32)) bb_0_predecessor(.in_data(bb_0_predecessor_in_data), .out_data(bb_0_predecessor_out_data));
+
+	reg [31:0] bb_1_predecessor_in_data;
+	wire [31:0] bb_1_predecessor_out_data;
+	hls_wire #(.WIDTH(32)) bb_1_predecessor(.in_data(bb_1_predecessor_in_data), .out_data(bb_1_predecessor_out_data));
+
+	reg [31:0] bb_2_predecessor_in_data;
+	wire [31:0] bb_2_predecessor_out_data;
+	hls_wire #(.WIDTH(32)) bb_2_predecessor(.in_data(bb_2_predecessor_in_data), .out_data(bb_2_predecessor_out_data));
+
 	reg [31:0] eq_26_in0;
 	reg [31:0] eq_26_in1;
 	wire [0:0] eq_26_out;
@@ -1446,6 +1458,14 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 			bb_0_active_in_data = 0;
 		end
 	end
+	// controller for bb_0_predecessor.bb_0_predecessor_in_data
+	always @(*) begin
+		if (1'd1) begin 
+			bb_0_predecessor_in_data = last_BB_reg;
+		end else begin
+			bb_0_predecessor_in_data = 0;
+		end
+	end
 	// controller for bb_1_active.bb_1_active_in_data
 	always @(*) begin
 		if (1'd1) begin 
@@ -1454,12 +1474,28 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 			bb_1_active_in_data = 0;
 		end
 	end
+	// controller for bb_1_predecessor.bb_1_predecessor_in_data
+	always @(*) begin
+		if (1'd1) begin 
+			bb_1_predecessor_in_data = last_BB_reg;
+		end else begin
+			bb_1_predecessor_in_data = 0;
+		end
+	end
 	// controller for bb_2_active.bb_2_active_in_data
 	always @(*) begin
 		if (1'd1) begin 
 			bb_2_active_in_data = eq_13_out;
 		end else begin
 			bb_2_active_in_data = 0;
+		end
+	end
+	// controller for bb_2_predecessor.bb_2_predecessor_in_data
+	always @(*) begin
+		if (1'd1) begin 
+			bb_2_predecessor_in_data = last_BB_reg;
+		end else begin
+			bb_2_predecessor_in_data = 0;
 		end
 	end
 	// controller for br_0_happened.br_0_happened_in_data
@@ -2026,7 +2062,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 	// Insensitive connections
 	always @(*) begin
 		phi_in_phi_5 = valid ? {(32'd0), add_tmp_2} : {(32'd0), add_tmp_2};
-		phi_last_block_phi_5 = valid ? last_BB_reg : last_BB_reg;
+		phi_last_block_phi_5 = valid ? bb_2_predecessor_out_data : bb_2_predecessor_out_data;
 		phi_s_phi_5 = valid ? {32'd0, 32'd2} : {32'd0, 32'd2};
 	end
 	// controller for ram_0.raddr_ram_0_reg

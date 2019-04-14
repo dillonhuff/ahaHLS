@@ -1181,8 +1181,14 @@ namespace ahaHLS {
     
   }
 
-  Wire successor(BasicBlock* const bb, MicroArchitecture& arch) {
-    return Wire(32, "last_BB_reg");
+  Wire predecessor(BasicBlock* const bb, MicroArchitecture& arch) {
+    int blkNo = arch.cs.getBasicBlockNo(bb);
+    string activeName = "bb_" + to_string(blkNo) + "_predecessor";
+
+    return arch.portController(activeName).functionalUnit().outputWire();
+    
+    //return Wire(32, activeName);
+    //return Wire(32, "last_BB_reg");
   }
   
   // I would like for this function to just return instruction port
@@ -1310,7 +1316,7 @@ namespace ahaHLS {
       assignments.insert({addUnit.portWires["s"].name, s});
       
       //assignments.insert({addUnit.portWires["last_block"].name, "last_BB_reg"});
-      assignments.insert({addUnit.portWires["last_block"].name, successor(phi->getParent(), arch).valueString()});
+      assignments.insert({addUnit.portWires["last_block"].name, predecessor(phi->getParent(), arch).valueString()});
 
     } else if (SelectInst::classof(instr)) {
       SelectInst* sel = dyn_cast<SelectInst>(instr);
@@ -2909,6 +2915,16 @@ namespace ahaHLS {
         arch.getController("global_next_block").values[thisBlkActive.valueString()] =
           to_string(arch.cs.getBasicBlockNo(blk));
       }
+    }
+
+    // Add last basic block wires
+    for (auto& bb : f->getBasicBlockList()) {
+      string w = "bb_" + to_string(arch.cs.getBasicBlockNo(&bb)) + "_predecessor";
+      // + ; //predecessor(&bb, arch);
+      addPortController(w, 32, arch);
+
+      PortController& predController = arch.portController(w);
+      predController.setAlways("in_data", wire(32, "last_BB_reg"));
     }
     
   }

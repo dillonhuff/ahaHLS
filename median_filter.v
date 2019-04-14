@@ -1,16 +1,16 @@
-module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data, output [0:0] valid);
+module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [31:0] in0_in_data, input [31:0] in0_out_data, output [31:0] in1_in_data, input [31:0] in1_out_data, output [31:0] in2_in_data, input [31:0] in2_out_data, output [31:0] out_in_data, input [31:0] out_out_data);
 
+	reg [0:0] valid_reg;
 	reg [31:0] in0_in_data_reg;
 	reg [31:0] in1_in_data_reg;
 	reg [31:0] in2_in_data_reg;
 	reg [31:0] out_in_data_reg;
-	reg [0:0] valid_reg;
 
+	assign valid = valid_reg;
 	assign in0_in_data = in0_in_data_reg;
 	assign in1_in_data = in1_in_data_reg;
 	assign in2_in_data = in2_in_data_reg;
 	assign out_in_data = out_in_data_reg;
-	assign valid = valid_reg;
 
 	// Start debug wires and ports
 
@@ -219,6 +219,26 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data
 	reg [0:0] andOp_27_in1;
 	wire [0:0] andOp_27_out;
 	andOp #(.WIDTH(1)) andOp_27(.in0(andOp_27_in0), .in1(andOp_27_in1), .out(andOp_27_out));
+
+	reg [31:0] bb_0_predecessor_in_data;
+	wire [31:0] bb_0_predecessor_out_data;
+	hls_wire #(.WIDTH(32)) bb_0_predecessor(.in_data(bb_0_predecessor_in_data), .out_data(bb_0_predecessor_out_data));
+
+	reg [31:0] bb_1_predecessor_in_data;
+	wire [31:0] bb_1_predecessor_out_data;
+	hls_wire #(.WIDTH(32)) bb_1_predecessor(.in_data(bb_1_predecessor_in_data), .out_data(bb_1_predecessor_out_data));
+
+	reg [31:0] bb_2_predecessor_in_data;
+	wire [31:0] bb_2_predecessor_out_data;
+	hls_wire #(.WIDTH(32)) bb_2_predecessor(.in_data(bb_2_predecessor_in_data), .out_data(bb_2_predecessor_out_data));
+
+	reg [31:0] bb_3_predecessor_in_data;
+	wire [31:0] bb_3_predecessor_out_data;
+	hls_wire #(.WIDTH(32)) bb_3_predecessor(.in_data(bb_3_predecessor_in_data), .out_data(bb_3_predecessor_out_data));
+
+	reg [31:0] bb_4_predecessor_in_data;
+	wire [31:0] bb_4_predecessor_out_data;
+	hls_wire #(.WIDTH(32)) bb_4_predecessor(.in_data(bb_4_predecessor_in_data), .out_data(bb_4_predecessor_out_data));
 
 	reg [31:0] eq_28_in0;
 	reg [31:0] eq_28_in1;
@@ -1047,12 +1067,28 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data
 			bb_0_active_in_data = 0;
 		end
 	end
+	// controller for bb_0_predecessor.bb_0_predecessor_in_data
+	always @(*) begin
+		if (1'd1) begin 
+			bb_0_predecessor_in_data = last_BB_reg;
+		end else begin
+			bb_0_predecessor_in_data = 0;
+		end
+	end
 	// controller for bb_1_active.bb_1_active_in_data
 	always @(*) begin
 		if (1'd1) begin 
 			bb_1_active_in_data = eq_20_out;
 		end else begin
 			bb_1_active_in_data = 0;
+		end
+	end
+	// controller for bb_1_predecessor.bb_1_predecessor_in_data
+	always @(*) begin
+		if (1'd1) begin 
+			bb_1_predecessor_in_data = last_BB_reg;
+		end else begin
+			bb_1_predecessor_in_data = 0;
 		end
 	end
 	// controller for bb_2_active.bb_2_active_in_data
@@ -1063,6 +1099,14 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data
 			bb_2_active_in_data = 0;
 		end
 	end
+	// controller for bb_2_predecessor.bb_2_predecessor_in_data
+	always @(*) begin
+		if (1'd1) begin 
+			bb_2_predecessor_in_data = last_BB_reg;
+		end else begin
+			bb_2_predecessor_in_data = 0;
+		end
+	end
 	// controller for bb_3_active.bb_3_active_in_data
 	always @(*) begin
 		if (1'd1) begin 
@@ -1071,12 +1115,28 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data
 			bb_3_active_in_data = 0;
 		end
 	end
+	// controller for bb_3_predecessor.bb_3_predecessor_in_data
+	always @(*) begin
+		if (1'd1) begin 
+			bb_3_predecessor_in_data = last_BB_reg;
+		end else begin
+			bb_3_predecessor_in_data = 0;
+		end
+	end
 	// controller for bb_4_active.bb_4_active_in_data
 	always @(*) begin
 		if (1'd1) begin 
 			bb_4_active_in_data = eq_23_out;
 		end else begin
 			bb_4_active_in_data = 0;
+		end
+	end
+	// controller for bb_4_predecessor.bb_4_predecessor_in_data
+	always @(*) begin
+		if (1'd1) begin 
+			bb_4_predecessor_in_data = last_BB_reg;
+		end else begin
+			bb_4_predecessor_in_data = 0;
 		end
 	end
 	// controller for br_0_happened.br_0_happened_in_data
@@ -1598,7 +1658,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [31:0] in0_in_data
 	// Insensitive connections
 	always @(*) begin
 		phi_in_phi_6 = valid ? {(32'd0), add_tmp_1} : {(32'd0), add_tmp_1};
-		phi_last_block_phi_6 = valid ? last_BB_reg : last_BB_reg;
+		phi_last_block_phi_6 = valid ? bb_4_predecessor_out_data : bb_4_predecessor_out_data;
 		phi_s_phi_6 = valid ? {32'd2, 32'd4} : {32'd2, 32'd4};
 	end
 	// controller for ret_19.valid_reg
