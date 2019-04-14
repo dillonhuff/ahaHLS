@@ -372,7 +372,7 @@ namespace ahaHLS {
 
     // TODO: This information should eventually be carried in the
     // functional unit itself.
-    map<string, bool> insensitivePorts;
+    //map<string, bool> insensitivePorts;
 
     // This is the final form of the port controller for the unit.
     // Each input port on the functional unit has its own independent controller
