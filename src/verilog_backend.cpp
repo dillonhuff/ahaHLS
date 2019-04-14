@@ -2919,12 +2919,21 @@ namespace ahaHLS {
 
     // Add last basic block wires
     for (auto& bb : f->getBasicBlockList()) {
-      string w = "bb_" + to_string(arch.cs.getBasicBlockNo(&bb)) + "_predecessor";
-      // + ; //predecessor(&bb, arch);
+      int thisBlkNo = arch.cs.getBasicBlockNo(&bb);
+      string w = "bb_" + to_string(thisBlkNo) + "_predecessor";
       addPortController(w, 32, arch);
 
       PortController& predController = arch.portController(w);
-      predController.setAlways("in_data", wire(32, "last_BB_reg"));
+      //predController.setAlways("in_data", wire(32, "last_BB_reg"));
+
+      // Real code to set these controllers?
+      // 1. If the global_next_block is this block, then pred == last_BB_reg
+      // 2. Else: (this case should never happen with block splitting)
+      //      For each succesor, if it is active, set the predecessor to that succ
+
+      Wire nextBlkIsThisBlk =
+        checkEqual(thisBlkNo, wire(1, "global_next_block"), arch);
+      predController.setCond("in_data", nextBlkIsThisBlk, wire(32, "last_BB_reg"));
     }
     
   }
