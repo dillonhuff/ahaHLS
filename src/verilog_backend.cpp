@@ -1079,29 +1079,33 @@ namespace ahaHLS {
     }
   }
 
-  bool aheadInState(llvm::Instruction* const before,
-                    llvm::Instruction* const after,
-                    const StateId state,
-                    MicroArchitecture& arch) {
-    assert(arch.stg.instructionStartState(before) == arch.stg.instructionEndState(after));
-    assert(arch.stg.instructionStartState(before) == state);
+  bool getValueFromStorage(llvm::Instruction* const user,
+                           llvm::Instruction* const definedValue,
+                           const StateId state,
+                           MicroArchitecture& arch) {
+    assert(arch.stg.instructionStartState(user) == arch.stg.instructionEndState(definedValue));
+    assert(arch.stg.instructionStartState(user) == state);
     
-    BasicBlock* beforeBlock = before->getParent();
-    BasicBlock* afterBlock = after->getParent();
+    BasicBlock* userBlock = user->getParent();
+    BasicBlock* valueBlock = definedValue->getParent();
 
-    if (beforeBlock == afterBlock) {
+    if (userBlock == valueBlock) {
 
-      OrderedBasicBlock obb(beforeBB);
+      OrderedBasicBlock obb(userBlock);
 
-      if (obb.dominates(after, before)) {
+      if (obb.dominates(definedValue, user)) {
         return false;
       } else {
         return true;
       }
     }
 
-    if (arch.stg.blockEndState(beforeBlock) != argState) {
-      
+    assert(userBlock != valueBlock);
+
+    // Cannot reach the terminator of the user block from
+    // the current state
+    if (arch.stg.blockEndState(userBlock) != state) {
+      return true;
     }
     
     // How to check if it is possible to move from block to block?
@@ -1148,7 +1152,7 @@ namespace ahaHLS {
 
         if (argBB != userBB) {
           // TODO: Check if the instruction is forward inside the given state
-          if (aheadInState(instr, instr0, argState, arch)) {
+          if (getValueFromStorage(instr, instr0, argState, arch)) {
             return mostRecentStorageLocation(instr0, currentPosition, arch);
           } else {
             return dataOutput(instr0, arch);            
