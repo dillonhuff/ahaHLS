@@ -1079,6 +1079,12 @@ namespace ahaHLS {
     }
   }
 
+  bool blockPrecedesInState(BasicBlock* const maybeFirst,
+                            BasicBlock* const maybeSecond,
+                            const StateId state) {
+    return true;
+  }
+  
   bool getValueFromStorage(llvm::Instruction* const user,
                            llvm::Instruction* const definedValue,
                            const StateId state,
@@ -1100,7 +1106,7 @@ namespace ahaHLS {
       }
     }
 
-    assert(userBlock != valueBlock);
+    return !blockPrecedesInState(valueBlock, userBlock, state);
 
     // Idea: for now just find a path from one block to the next,
     // and see if that reduces the number of failing test cases.
