@@ -892,12 +892,14 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
-    noAddsTakeXInputs(arch, info);
-    noMulsTakeXInputs(arch, info);
-    noPhiOutputsXWhenUsed(arch, info);
-    noStoredValuesXWhenUsed(arch, info);
+    addNoXChecks(arch, info);
+    // addControlSanityChecks(arch, info);
+    // noAddsTakeXInputs(arch, info);
+    // noMulsTakeXInputs(arch, info);
+    // noPhiOutputsXWhenUsed(arch, info);
+    // noStoredValuesXWhenUsed(arch, info);
 
-    //emitVerilog(f, arch, info);
+    emitVerilog("mvmul", arch, info);
 
     map<string, vector<int> > memoryInit{{"a", {6, 1, 2, 3, 7, 5, 5, 2, 9}},
         {"b", {9, 3, 7}}};

@@ -3754,7 +3754,8 @@ namespace ahaHLS {
           string wireName = unit.onlyOutputVar();
 
           string valCheck = wireName + " !== 'dx";
-          string notActive = notAtState(st.first, arch);
+          //string notActive = notAtState(st.first, arch);
+          string notActive = notStr(activeWire()); //notAtState(st.first, arch);
           addAssert(notActive + " || " + valCheck, debugInfo);
         }
       }
@@ -4017,7 +4018,7 @@ namespace ahaHLS {
     noBlocksActiveInStatesWhereTheyAreNotScheduled(arch, info);
     atLeastOneValidPhiInput(arch, info);
     noOverlappingStateTransitions(arch, info);
-    noOverlappingBlockTransitions(arch, info);    
+    noOverlappingBlockTransitions(arch, info);
   }
   
   void addNoXChecks(MicroArchitecture& arch,
