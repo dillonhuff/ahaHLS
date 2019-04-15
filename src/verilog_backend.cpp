@@ -3035,10 +3035,13 @@ namespace ahaHLS {
 
       for (auto* pred : predecessors(&bb)) {
         if (arch.stg.blockEndState(pred) == arch.stg.blockStartState(&bb)) {
-          Wire predActive =
-            arch.isActiveBlockVar(pred);
+          // Wire predActive =
+          //   arch.isActiveBlockVar(pred);
           int predNo = arch.cs.getBasicBlockNo(pred);
-          predController.setCond("in_data", checkAnd(checkNotWire(nextBlkIsThisBlk, arch), predActive, arch), constWire(32, predNo));
+          //predController.setCond("in_data", checkAnd(checkNotWire(nextBlkIsThisBlk, arch), predActive, arch), constWire(32, predNo));
+
+          Wire edgeTaken = map_find({pred, &bb}, edgeTakenWires);
+          predController.setCond("in_data", checkAnd(checkNotWire(nextBlkIsThisBlk, arch), edgeTaken, arch), constWire(32, predNo));          
         }
       }
       
