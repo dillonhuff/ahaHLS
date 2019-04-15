@@ -1307,7 +1307,7 @@ namespace ahaHLS {
 
           if (ReturnInst::classof(instr)) {
 
-            returnBehavior(sched, g, st.first, dyn_cast<ReturnInst>(instr), cond);
+            //returnBehavior(sched, g, st.first, dyn_cast<ReturnInst>(instr), cond);
 
           } else {
 
