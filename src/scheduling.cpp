@@ -1109,56 +1109,9 @@ namespace ahaHLS {
 
   }
 
-  // STG buildSTG(Schedule& sched,
-  //              BasicBlock* entryBlock,
-  //              std::set<BasicBlock*>& blockList,
-  //              std::function<void(Schedule&,
-  //                                 STG&,
-  //                                 StateId,
-  //                                 llvm::ReturnInst*,
-  //                                 Condition&)>& returnBehavior);
-
-  
-  // Maybe I should re-write this entire thing assuming that each state
-  // contains exactly one basic block? That is the working assumption, and
-  // it delegates the work of converting control edges to select instructions
-  // and conditional loads / stores to the IR optimizations
-
-  // Q: How would that algorithm work? I suppose it would work by finding the
-  // transition conditions on the sole block in an STG and just adding those
-  // conditions to the output of the block?
-
-  //    I still dont see how the Zhang STG construction algorithm avoids the
-  //    problem of re-executing instructions from the initial basic block
-  //    if instructions from it are scheduled in the same state as a basic
-  //    block inside a loop. Without any paths to it in the dominator tree it
-  //    either never executes or always executes depending on how an empty
-  //    path is interpreted.
-  // STG buildSTG(Schedule& sched,
-  //              BasicBlock* entryBlock,
-  //              std::set<BasicBlock*>& blockList) {
-
-  //   auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
-  //     assert(!stg.hasTransition(st, st));
-
-  //     if (!stg.hasTransition(st, st)) {
-  //       map_insert(stg.opTransitions, st, {st, cond});
-  //     }
-  //   };
-    
-  //   std::function<void(Schedule&, STG&, StateId, llvm::ReturnInst*, Condition& cond)> returnBehavior(retB);
-
-  //   return buildSTG(sched, entryBlock, blockList, returnBehavior);
-  // }
-
   STG buildSTG(Schedule& sched,
                BasicBlock* entryBlock,
                std::set<BasicBlock*>& blockList) {
-               // std::function<void(Schedule&,
-               //                    STG&,
-               //                    StateId,
-               //                    llvm::ReturnInst*,
-               //                    Condition&)>& returnBehavior) {
                
     STG g(sched);
 
@@ -1400,24 +1353,6 @@ namespace ahaHLS {
   }
 
 
-  // STG buildSTG(Schedule& sched,
-  //              llvm::Function* const f,
-  //              // std::function<void(Schedule&,
-  //              //                    STG&,
-  //              //                    StateId,
-  //              //                    llvm::ReturnInst*,
-  //              //                    Condition&)>& returnBehavior) {
-
-  //   BasicBlock* entryBlock = &(f->getEntryBlock());
-  //   SymbolTableList<BasicBlock>& blockList = f->getBasicBlockList();
-  //   std::set<BasicBlock*> blockSet;
-  //   for (auto& bb : blockList) {
-  //     blockSet.insert(&bb);
-  //   }
-
-  //   return buildSTG(sched, entryBlock, blockSet, returnBehavior);
-  // }
-  
   STG buildSTG(Schedule& sched, llvm::Function* const f) {
     BasicBlock* entryBlock = &(f->getEntryBlock());
     SymbolTableList<BasicBlock>& blockList = f->getBasicBlockList();
