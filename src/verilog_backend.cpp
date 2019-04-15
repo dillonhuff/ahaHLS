@@ -1913,7 +1913,7 @@ namespace ahaHLS {
       StateId dest = state + 1;
       Wire condWire = constWire(1, 1);
       StateId lastNonBlank = findLastNonBlankState(state, arch.stg);
-      Instruction* instr = arch.stg.pickInstructionAt(lastNonBlank);
+      //Instruction* instr = arch.stg.pickInstructionAt(lastNonBlank);
       //condWire = checkAnd(blockActiveInState(state, instr->getParent(), arch), condWire, arch); 
       ControlFlowPosition pos =
         position(lastNonBlank, arch.stg.pickInstructionAt(lastNonBlank), arch);
