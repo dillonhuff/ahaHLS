@@ -2163,13 +2163,20 @@ namespace ahaHLS {
     // Functions
     auto readValidF = readPort("valid", 1, writeMod->getType());
     auto readReadyF = readPort("ready", 1, writeMod->getType());
-
+    auto setStartWriteF = writePort("start_write", 1, writeMod->getType());
+    auto writeDataF = writePort("write_data", width, inType);
+    auto writeAddrF = writePort("write_addr", 5, writeMod->getType());
+    
     // Build implementation
     IRBuilder<> entryBuilder(entryBlk);
     entryBuilder.CreateBr(stallReadyBlk);
     
     IRBuilder<> stallReadyBuilder(stallReadyBlk);
-    auto writeReady = stallReadyBuilder.CreateCall(readReadyF, {writeMod});    
+    auto writeReady = stallReadyBuilder.CreateCall(readReadyF, {writeMod});
+    stallReadyBuilder.CreateCall(setStartWriteF, {writeMod, mkInt(1, 1)});
+    stallReadyBuilder.CreateCall(writeAddrF, {writeMod, waddr});
+    stallReadyBuilder.CreateCall(writeDataF, {writeMod, wdata});
+    
     stallReadyBuilder.CreateCondBr(writeReady, stallValidBlk, stallReadyBlk);
     
     IRBuilder<> stallValidBuilder(stallValidBlk);
