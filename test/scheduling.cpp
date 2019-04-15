@@ -279,7 +279,17 @@ namespace ahaHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    emitVerilog("loop_add_7", graph, hcs);
+    VerilogDebugInfo info;
+
+    map<Value*, int> layout;
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
+    addNoXChecks(arch, info);
+    emitVerilog("loop_add_7", arch, info);
+    
+    // auto arch = buildMicroArchictecture(graph, hcs);
+    // addNoXChecks(arch, info);    
+    // //emitVerilog("loop_add_7", graph, hcs);
+    // emitVerilog("loop_add_7", arch, info);
 
     REQUIRE(runIVerilogTB("loop_add_7"));
   }
