@@ -3771,9 +3771,11 @@ namespace ahaHLS {
 
     if (hasOutput(instr)) {
       auto unitOutput = dataOutput(instr, arch);
-      addAlwaysBlock({"clk"}, "if(" + atState(st, arch) + ") begin $display(\"" + iStr + " == %d\", " + unitOutput + "); end", debugInfo);
+      //addAlwaysBlock({"clk"}, "if(" + atState(st, arch) + ") begin $display(\"" + iStr + " == %d\", " + unitOutput + "); end", debugInfo);
+      addAlwaysBlock({"clk"}, "if(" + blockActiveInState(st, instr->getParent(), arch).valueString() + ") begin $display(\"" + iStr + " == %d\", " + unitOutput + "); end", debugInfo);      
     } else {
-      addAlwaysBlock({"clk"}, "if(" + atState(st, arch) + ") begin $display(\"" + iStr + "\"); end", debugInfo);
+      //addAlwaysBlock({"clk"}, "if(" + atState(st, arch) + ") begin $display(\"" + iStr + "\"); end", debugInfo);
+      addAlwaysBlock({"clk"}, "if(" + blockActiveInState(st, instr->getParent(), arch).valueString() + ") begin $display(\"" + iStr + "\"); end", debugInfo);      
     }
   }
 
