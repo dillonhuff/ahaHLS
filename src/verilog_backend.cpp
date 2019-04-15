@@ -1928,12 +1928,13 @@ namespace ahaHLS {
     arch.getController("global_state").resetValue =
       map_find(wire(32, "global_state"), arch.resetValues);
     
-    for (auto state : arch.stg.opTransitions) {
-    //for (auto state : arch.stg.opStates) {
+    //for (auto state : arch.stg.opTransitions) {
+    for (auto state : arch.stg.opStates) {
       emitStateCode(state.first, arch);
     }
 
-    for (auto state : arch.stg.opTransitions) {
+    //for (auto state : arch.stg.opTransitions) {
+    for (auto state : arch.stg.opStates) {    
       emitTempStorageCode(state.first, arch);
     }
 
@@ -3078,8 +3079,9 @@ namespace ahaHLS {
     emitLastBBCode(arch);
     emitControlCode(arch);    
 
+    // No more transitions
     //assert(arch.stg.opStates.size() == stg.opStates.size());
-    assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
+    //assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
 
     return arch;
   }  
