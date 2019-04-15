@@ -737,5 +737,9 @@ namespace ahaHLS {
   MicroArchitecture synthesizeVerilog(llvm::Function* f,
                                       InterfaceFunctions& interfaces,
                                       HardwareConstraints& hcs);
+
+  void addControlSanityChecks(MicroArchitecture& arch,
+                              VerilogDebugInfo& info);
+
   
 }

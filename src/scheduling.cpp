@@ -752,8 +752,8 @@ namespace ahaHLS {
             //p.s.add(p.blockSink(next) < p.blockSource(nextBB));
 
             if (!elem(next, toPipeline) && !elem(nextBB, toPipeline)) {
-              //p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
-              p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
+              p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
+              //p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
             } else {
               p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
             }
@@ -771,8 +771,8 @@ namespace ahaHLS {
     for (int i = 0; i < (int) sortedBlocks.size() - 1; i++) {
       auto next = sortedBlocks[i];
       auto nextBB = sortedBlocks[i + 1];
-      //p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
-      p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
+      p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
+      //p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
     }
 
 

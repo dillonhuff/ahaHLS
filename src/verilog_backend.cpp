@@ -3931,6 +3931,26 @@ namespace ahaHLS {
       
     }
   }
+
+  void noOverlappingBlockTransitions(MicroArchitecture& arch,
+                                     VerilogDebugInfo& info) {
+    // TODO: Get by wire...
+    RegController& rc = arch.getController("global_next_block");
+    string inPipe = inAnyPipeline(arch).valueString();
+    for (pair<string, string> condAndVal0 : rc.values) {
+      string cond0 = condAndVal0.first;
+      for (pair<string, string> condAndVal1 : rc.values) {
+        string cond1 = condAndVal1.first;
+
+        if (cond0 != cond1) {
+          addAssert(implies(andStr(notStr(inPipe), cond0 + " === 1"),
+                            cond1 + " !== 1"),
+                    info);
+        }
+      }
+      
+    }
+  }
   
   
   void noAddsTakeXInputs(MicroArchitecture& arch,
@@ -3959,14 +3979,50 @@ namespace ahaHLS {
   void atLeastOneValidPhiInput(MicroArchitecture& arch,
                                VerilogDebugInfo& info) {
     // What do I want to check here?
-    // If a phi node is active exactly one of its predecessors
-    // branch actions was taken
+    // For each phi
+    //   if it is active, at least one of its container blocks preds
+    //   is the nextActiveBlock, or was taken in this cycle
+  }
+
+  void
+  noBlocksActiveInStatesWhereTheyAreNotScheduled(MicroArchitecture& arch,
+                                                 VerilogDebugInfo& info) {
+    Function* f = arch.stg.getFunction();
+    for (auto& blkV : f->getBasicBlockList()) {
+      BasicBlock* blk = &blkV;
+
+      StateId blkMin = arch.stg.blockStartState(blk);
+      StateId blkMax = arch.stg.blockEndState(blk);      
+
+      for (auto& st : arch.stg.opStates) {
+        StateId state = st.first;
+        if (state < blkMin) {
+          addAssert(implies(atState(state, arch),
+                            notStr(arch.isActiveBlockVar(blk).valueString())),
+                    info);
+        }
+
+        if (blkMax < state) {
+          addAssert(implies(atState(state, arch),
+                            notStr(arch.isActiveBlockVar(blk).valueString())),
+                    info);
+        }
+        
+      }
+    }
+  }
+
+  void addControlSanityChecks(MicroArchitecture& arch,
+                              VerilogDebugInfo& info) {
+    noBlocksActiveInStatesWhereTheyAreNotScheduled(arch, info);
+    atLeastOneValidPhiInput(arch, info);
+    noOverlappingStateTransitions(arch, info);
+    noOverlappingBlockTransitions(arch, info);    
   }
   
   void addNoXChecks(MicroArchitecture& arch,
                     VerilogDebugInfo& info) {
-    atLeastOneValidPhiInput(arch, info);
-    noOverlappingStateTransitions(arch, info);
+    addControlSanityChecks(arch, info);
     noBinopsTakeXInputs(arch, info, "fadd");
     noBinopsProduceXOutputs(arch, info, "fadd");
     noFifoReadsX(arch, info);

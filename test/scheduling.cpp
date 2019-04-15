@@ -283,7 +283,7 @@ namespace ahaHLS {
 
     map<Value*, int> layout;
     auto arch = buildMicroArchitecture(graph, layout, hcs);
-    addNoXChecks(arch, info);
+    addControlSanityChecks(arch, info);
     emitVerilog("loop_add_7", arch, info);
     
     // auto arch = buildMicroArchictecture(graph, hcs);
@@ -745,12 +745,16 @@ namespace ahaHLS {
     STG graph = buildSTG(s, f);
 
     VerilogDebugInfo info;
-    emitVerilog("blur_no_lb", graph, hcs);
+
     
     map<llvm::Value*, int> layout = {{getArg(f, 0), 0}}; //, {getArg(f, 1), 8}};
     // ArchOptions options;
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
+    addNoXChecks(arch, info);    
+    //emitVerilog("blur_no_lb", graph, hcs);
+    emitVerilog("blur_no_lb", arch, info);
+    
     map<string, int> testLayout = {{"a", 0}, {"b", 8}};
     map<string, vector<int> > memoryInit{{"a", {0, 1, 2, 3, 7, 5, 5, 2}}};
     map<string, vector<int> > memoryExpected{{"b", {}}};
@@ -818,10 +822,7 @@ namespace ahaHLS {
     //auto arch = buildMicroArchitecture(graph, layout);
 
     VerilogDebugInfo info;
-    noAddsTakeXInputs(arch, info);
-    noPhiOutputsXWhenUsed(arch, info);
-
-    noStoredValuesXWhenUsed(arch, info);
+    addNoXChecks(arch, info);
 
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
     info.wiresToWatch.push_back({false, 32, "wdata_temp_reg_dbg"});
