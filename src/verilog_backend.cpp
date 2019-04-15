@@ -1835,6 +1835,38 @@ namespace ahaHLS {
 
     return nonTerminating;
   }
+
+  std::set<BasicBlock*>
+  terminatingBlocks(const StateId state,
+                    STG& stg) {
+    vector<Instruction*> instrsAtState = map_find(state, stg.opStates);
+    set<BasicBlock*> allBlocks;
+    for (auto instr : instrsAtState) {
+      allBlocks.insert(instr->getParent());
+    }
+
+    cout << "All blocks size = " << allBlocks.size() << endl;
+    
+    set<BasicBlock*> terminating;
+    for (auto blk : allBlocks) {
+      bool terminatorFinishesInState = false;
+      for (auto& instrPtr : *blk) {
+        auto* instr = &instrPtr;
+        if (TerminatorInst::classof(instr) &&
+            instructionInProgressAt(instr, state, stg) &&
+            (stg.instructionEndState(instr) == state)) {
+          terminatorFinishesInState = true;
+          break;
+        }
+      }
+
+      if (terminatorFinishesInState) {
+        terminating.insert(blk);
+      }
+    }
+
+    return terminating;
+  }
   
   // Want to move toward merging basic blocks in to a single state
   // and allowing more code to be executed in a cycle. Need to
@@ -2876,7 +2908,10 @@ namespace ahaHLS {
 
     return wire(1, andCondStr(conds));
   }
-  
+
+  // Now: Many errors in valid computation. Not sure why?
+  // Hyp: In the return state the next basic block is not getting set
+  // to be the current block?
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
     Function* f = arch.stg.getFunction();
 
@@ -3006,7 +3041,6 @@ namespace ahaHLS {
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
       for (auto blk : nonTerminatingBlocks(state, arch.stg)) {
-
         Wire thisBlkActive = blockActiveInState(state, blk, arch);
         // If a block is active that does not execute its terminator, then
         // the in the next cycle we continue to execute that block
@@ -3015,6 +3049,23 @@ namespace ahaHLS {
       }
     }
 
+    for (auto st : arch.stg.opStates) {
+      StateId state = st.first;
+      for (auto blk : terminatingBlocks(state, arch.stg)) {
+        if (ReturnInst::classof(blk->getTerminator())) {
+          Wire thisBlkActive = blockActiveInState(state, blk, arch);
+          // If the a return statement executes in a given block
+          // then if there is not default behavior set the next block
+          // to be the current block.
+
+          if (!arch.stg.sched.hasReturnDefault()) {
+            arch.getController("global_next_block").values[thisBlkActive.valueString()] =
+              to_string(arch.cs.getBasicBlockNo(blk));
+          }
+        }
+      }
+    }
+    
     // Add last basic block wires
     for (auto& bb : f->getBasicBlockList()) {
       int thisBlkNo = arch.cs.getBasicBlockNo(&bb);
