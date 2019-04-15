@@ -1578,7 +1578,6 @@ namespace ahaHLS {
         if (isPipelineState(state, pipelines)) {
           auto p = getPipeline(state, pipelines);
           int stage = p.stageForState(state);
-          //pos = pipelinePosition(lastI, state, stage);
           if (stage < p.numStages() - 1) {
             instrName = map_find(instr, p.pipelineRegisters[stage + 1]).name;
             instrWire = map_find(instr, p.pipelineRegisters[stage + 1]);
@@ -1589,8 +1588,13 @@ namespace ahaHLS {
           auto unit = map_find(instr, unitAssignment);
 
           vector<string> allConds = conds;
-          allConds.push_back(atState(state, arch));
+          //allConds.push_back(atState(state, arch));
+          allConds.push_back(blockActiveInState(state,
+                                                instr->getParent(),
+                                                arch).valueString());
+          //allConds.push_back(atState(state, arch));
           Wire cond = andCondWire(allConds, arch);
+          
           arch.getController(instrWire).values[cond.name] = dataOutput(instr, arch);
         }
           
