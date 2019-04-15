@@ -2686,7 +2686,11 @@ namespace ahaHLS {
 
               // If this block is the last active block in st
               // then set last_BB_reg to be it, do not
-              rc.values[atState(st.first, arch)] = to_string(bbNo);              
+              //rc.values[atState(st.first, arch)] = to_string(bbNo);
+
+              
+              Wire condWire = blockActiveInState(st.first, instr->getParent(), arch);
+              rc.values[condWire.valueString()] = to_string(bbNo);
             }
           }
 
