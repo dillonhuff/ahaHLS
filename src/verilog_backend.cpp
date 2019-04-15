@@ -3114,7 +3114,8 @@ namespace ahaHLS {
       predController.setCond("in_data", nextBlkIsThisBlk, wire(32, "last_BB_reg"));
 
       for (auto* pred : predecessors(&bb)) {
-        if (arch.stg.blockEndState(pred) == arch.stg.blockStartState(&bb)) {
+        //if (arch.stg.blockEndState(pred) == arch.stg.blockStartState(&bb)) {
+        if (jumpToSameState(pred, &bb, arch)) {
           // Wire predActive =
           //   arch.isActiveBlockVar(pred);
           int predNo = arch.cs.getBasicBlockNo(pred);
@@ -3136,6 +3137,13 @@ namespace ahaHLS {
 
     auto f = stg.getFunction();
     map<BasicBlock*, int> basicBlockNos = numberBasicBlocks(f);
+    cout << "--- Basic block numbers" << endl;
+    for (auto p : basicBlockNos) {
+      cout << tab(1) << "Basic block" << endl;
+      cout << valueString(p.first) << endl;
+      cout << "has number " << p.second << endl;
+    }
+
     map<Instruction*, Wire> names = createInstrNames(stg);
     vector<ElaboratedPipeline> pipelines =
       buildPipelines(f, stg);
