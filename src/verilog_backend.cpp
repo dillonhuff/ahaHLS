@@ -1114,6 +1114,7 @@ namespace ahaHLS {
         BasicBlock* userBB = instr->getParent();
 
         if (argBB == userBB) {
+          // TODO: Check if the instruction is forward inside the given state
           return dataOutput(instr0, arch);          
         }
 
