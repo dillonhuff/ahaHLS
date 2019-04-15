@@ -2072,7 +2072,7 @@ namespace ahaHLS {
     auto writeStartReadF = writePort("start_read", 1, readMod->getType());
 
     auto readValidF = readPort("valid", 1, readMod->getType());    
-    // auto readReadyF = readPort("ready", 1, readMod->getType());
+    auto readReadyF = readPort("ready", 1, readMod->getType());
     
     // Implementation
     auto entryBlk = mkBB("entry_block", axiRead);
@@ -2084,7 +2084,6 @@ namespace ahaHLS {
     entryBuilder.CreateBr(stallReadyBlk);
 
     IRBuilder<> stallReadyBuilder(stallReadyBlk);
-    auto readReadyF = readPort("ready", 1, readMod->getType());
     auto readReady = stallReadyBuilder.CreateCall(readReadyF, {readMod});
     auto setStartRead = stallReadyBuilder.CreateCall(writeStartReadF, {readMod, mkInt(1, 1)});
     auto writeAddr = stallReadyBuilder.CreateCall(writeRaddrF, {readMod, getArg(axiRead, 1)});
