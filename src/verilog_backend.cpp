@@ -1780,7 +1780,9 @@ namespace ahaHLS {
                                      pos,
                                      arch);
 
-            conds.push_back(cond);
+            if (instr->getParent() == pos.instr->getParent()) {
+              conds.push_back(cond);
+            }
           }
         }
 
@@ -2045,7 +2047,8 @@ namespace ahaHLS {
     // Stalls do not get stalled by themselves
     if (!isBuiltinStallCall(instr)) {
       for (auto instrK : arch.stg.instructionsStartingAt(state)) {
-        if (isBuiltinStallCall(instrK)) {
+        if (isBuiltinStallCall(instrK) &&
+            (instrK->getParent() == instr->getParent())) {
 
           auto stallPos = position(state, instrK);
           string cond = outputName(instrK->getOperand(0),
