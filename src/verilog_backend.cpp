@@ -3905,8 +3905,16 @@ namespace ahaHLS {
     out << "endmodule" << endl;
   }
 
+  void atLeastOneValidPhiInput(MicroArchitecture& arch,
+                               VerilogDebugInfo& info) {
+    // What do I want to check here?
+    // If a phi node is active exactly one of its predecessors
+    // branch actions was taken
+  }
+  
   void addNoXChecks(MicroArchitecture& arch,
                     VerilogDebugInfo& info) {
+    atLeastOneValidPhiInput(arch, info);
     noOverlappingStateTransitions(arch, info);
     noBinopsTakeXInputs(arch, info, "fadd");
     noBinopsProduceXOutputs(arch, info, "fadd");
