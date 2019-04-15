@@ -1717,7 +1717,7 @@ namespace ahaHLS {
                           Wire jumpCondWire,
                           MicroArchitecture& arch) {
 
-    cout << "Adding transition from " << state << " to " << dest << endl;
+    cout << "Adding transition from " << state << " to " << dest << " via " << valueString(pos.instr) << endl;
 
     string atStateCond = atState(state, arch);
 
@@ -1888,11 +1888,13 @@ namespace ahaHLS {
         ControlFlowPosition pos =
           position(state, br, arch);
 
+        cout << "Adding transitions for branch " << valueString(br) << endl;
         for (int i = 0; i < (int) br->getNumSuccessors(); i++) {
           BasicBlock* bb = br->getSuccessor(i);
           StateId dest = arch.stg.blockStartState(bb);
 
           if (jumpToSameState(br->getParent(), bb, arch)) {
+            cout << "Jump to dest state " << dest << " is a same state jump" << endl;
             continue;
           }
 
@@ -1914,6 +1916,8 @@ namespace ahaHLS {
           condWire = checkAnd(blockActiveInState(state, br->getParent(), arch), condWire, arch);
           addStateTransition(state, dest, pos, condWire, arch);
         }
+
+        cout << "Done with branch" << endl;
       } else if (ReturnInst::classof(instr)) {
 
         StateId dest = state;
