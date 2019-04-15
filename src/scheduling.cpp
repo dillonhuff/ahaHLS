@@ -2098,6 +2098,7 @@ namespace ahaHLS {
     IRBuilder<> exitBlkBuilder(exitBlk);
     exitBlkBuilder.CreateRet(dataValue);
 
+    addDataConstraints(axiRead, exec);
     
     // Old definition
     // auto eb = mkBB("entry_block", axiRead);
@@ -2139,8 +2140,6 @@ namespace ahaHLS {
     // exec.addConstraint(instrEnd(setStartRead) + 1 == instrStart(stallUntilValid));
     // exec.addConstraint(instrStart(readValid) == instrStart(stallUntilValid));
     // exec.addConstraint(instrStart(dataValue) == instrStart(stallUntilValid));
-
-    addDataConstraints(axiRead, exec);
   }
 
   void implementAXIWrite(llvm::Function* axiWrite,
@@ -2185,6 +2184,8 @@ namespace ahaHLS {
     
     IRBuilder<> exitBuilder(exitBlk);
     exitBuilder.CreateRet(nullptr);
+
+    addDataConstraints(axiWrite, exec);
     
     // auto eb = mkBB("entry_block", axiWrite);
     // IRBuilder<> b(eb);
@@ -2230,8 +2231,7 @@ namespace ahaHLS {
     
     // exec.addConstraint(instrEnd(setStartWrite) + 1 == instrStart(stallUntilValid));
     // exec.addConstraint(instrStart(readValid) == instrStart(stallUntilValid));
-    
-    addDataConstraints(axiWrite, exec);
+
   }
 
   Instruction* stallOnPort(IRBuilder<>& b,
@@ -2552,6 +2552,7 @@ namespace ahaHLS {
     auto readStencilDataF = readPort("data_bus", width, dataTp);
     auto readStencilLastF = readPort("last_bus", 1, dataTp);    
 
+    // Actual implementation
     auto readReady = b.CreateCall(readReadyF, {stream});
     auto stallUntilReady = b.CreateCall(stallF, {readReady});
     auto setValid1 = b.CreateCall(setValidF, {stream, mkInt(1, 1)});
@@ -2562,8 +2563,6 @@ namespace ahaHLS {
 
     auto writeData = b.CreateCall(writeDataF, {stream, readStencilData});
     auto writeLast = b.CreateCall(writeLastF, {stream, readStencilLast});    
-    //auto data = b.CreateLoad(dataPtr);
-    //auto writeValue = b.CreateCall(writeDataF, {out, data});
       
     b.CreateRet(nullptr);
     
