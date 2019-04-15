@@ -3032,12 +3032,13 @@ namespace ahaHLS {
         checkEqual(thisBlkNo, wire(1, "global_next_block"), arch);
       predController.setCond("in_data", nextBlkIsThisBlk, wire(32, "last_BB_reg"));
 
-      // TODO: Should really be same state predecessors?
       for (auto* pred : predecessors(&bb)) {
-        Wire predActive =
-          arch.isActiveBlockVar(pred);
-        int predNo = arch.cs.getBasicBlockNo(pred);
-        predController.setCond("in_data", checkAnd(checkNotWire(nextBlkIsThisBlk, arch), predActive, arch), constWire(32, predNo));
+        if (arch.stg.blockEndState(pred) == arch.stg.blockStartState(&bb)) {
+          Wire predActive =
+            arch.isActiveBlockVar(pred);
+          int predNo = arch.cs.getBasicBlockNo(pred);
+          predController.setCond("in_data", checkAnd(checkNotWire(nextBlkIsThisBlk, arch), predActive, arch), constWire(32, predNo));
+        }
       }
       
     }

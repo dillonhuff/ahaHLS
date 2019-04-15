@@ -1635,7 +1635,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		phi_last_block_phi_8 = valid ? bb_4_predecessor_out_data : bb_4_predecessor_out_data;
 		phi_s_phi_8 = valid ? {32'd2, 32'd4} : {32'd2, 32'd4};
 	end
-	// controller for ret_4.valid_reg
+	// controller for ret_5.valid_reg
 	always @(*) begin
 		if (andOp_64_out) begin 
 			valid_reg = 1;
@@ -1697,10 +1697,10 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 				last_BB_reg <= 0;
 			end
 			if (eq_80_out) begin
-				last_BB_reg <= 1;
+				last_BB_reg <= 2;
 			end
 			if (eq_81_out) begin
-				last_BB_reg <= 2;
+				last_BB_reg <= 1;
 			end
 			if (eq_82_out) begin
 				last_BB_reg <= 3;
