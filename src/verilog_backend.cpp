@@ -1079,6 +1079,39 @@ namespace ahaHLS {
     }
   }
 
+  bool aheadInState(llvm::Instruction* const before,
+                    llvm::Instruction* const after,
+                    const StateId state,
+                    MicroArchitecture& arch) {
+    assert(arch.stg.instructionStartState(before) == arch.stg.instructionEndState(after));
+    assert(arch.stg.instructionStartState(before) == state);
+    
+    BasicBlock* beforeBlock = before->getParent();
+    BasicBlock* afterBlock = after->getParent();
+
+    if (beforeBlock == afterBlock) {
+
+      OrderedBasicBlock obb(beforeBB);
+
+      if (obb.dominates(after, before)) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+
+    if (arch.stg.blockEndState(beforeBlock) != argState) {
+      
+    }
+    
+    // How to check if it is possible to move from block to block?
+    // If beforeBlocks's terminator is not contained in state, then
+    // while (true) {
+    // }
+
+    return false;
+  }
+  
   std::string outputName(Value* val,
                          ControlFlowPosition& currentPosition,
                          MicroArchitecture& arch) {
@@ -1115,7 +1148,11 @@ namespace ahaHLS {
 
         if (argBB != userBB) {
           // TODO: Check if the instruction is forward inside the given state
-          return dataOutput(instr0, arch);          
+          if (aheadInState(instr, instr0, argState, arch)) {
+            return mostRecentStorageLocation(instr0, currentPosition, arch);
+          } else {
+            return dataOutput(instr0, arch);            
+          }
         }
 
         OrderedBasicBlock obb(argBB);
