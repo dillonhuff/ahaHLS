@@ -2683,6 +2683,9 @@ namespace ahaHLS {
               ElaboratedPipeline p = getPipeline(st.first, arch.pipelines);
               rc.values[atState(p.stateId, arch)] = to_string(bbNo);
             } else {
+
+              // If this block is the last active block in st
+              // then set last_BB_reg to be it, do not
               rc.values[atState(st.first, arch)] = to_string(bbNo);              
             }
           }
@@ -3106,6 +3109,7 @@ namespace ahaHLS {
 
       // Real code to set these controllers?
       // 1. If the global_next_block is this block, then pred == last_BB_reg
+      //    if this block is the last block to execute in the state
       // 2. Else: (this case should never happen with block splitting)
       //      For each succesor, if it is active, set the predecessor to that succ
 
@@ -3955,6 +3959,26 @@ namespace ahaHLS {
     return parens(notStr(a) + " || " + b);
   }
 
+  void noOverlappingLastBlockTransitions(MicroArchitecture& arch,
+                                         VerilogDebugInfo& info) {
+    RegController& rc = arch.getController(arch.cs.getLastBB());
+    string inPipe = inAnyPipeline(arch).valueString();
+    for (pair<string, string> condAndVal0 : rc.values) {
+      string cond0 = condAndVal0.first;
+      for (pair<string, string> condAndVal1 : rc.values) {
+        string cond1 = condAndVal1.first;
+
+        if (cond0 != cond1) {
+          addAssert(implies(andStr(notStr(inPipe), cond0 + " === 1"),
+                            cond1 + " !== 1"),
+                    info);
+        }
+      }
+      
+    }
+    
+  }
+  
   void noOverlappingStateTransitions(MicroArchitecture& arch,
                                      VerilogDebugInfo& info) {
     RegController& rc = arch.getController(arch.cs.getGlobalState());
@@ -4056,6 +4080,7 @@ namespace ahaHLS {
 
   void addControlSanityChecks(MicroArchitecture& arch,
                               VerilogDebugInfo& info) {
+    noOverlappingLastBlockTransitions(arch, info);
     noBlocksActiveInStatesWhereTheyAreNotScheduled(arch, info);
     atLeastOneValidPhiInput(arch, info);
     noOverlappingStateTransitions(arch, info);
