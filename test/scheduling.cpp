@@ -3095,13 +3095,13 @@ namespace ahaHLS {
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
     s.setDefaultReturnState(0);
     
-    auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
-      map_insert(stg.opTransitions, st, {0, cond});
-    };
+    // auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
+    //   map_insert(stg.opTransitions, st, {0, cond});
+    // };
     
-    std::function<void(Schedule&, STG&, StateId, llvm::ReturnInst*, Condition& cond)> returnBehavior(retB);
+    // std::function<void(Schedule&, STG&, StateId, llvm::ReturnInst*, Condition& cond)> returnBehavior(retB);
     
-    STG graph = buildSTG(s, f, returnBehavior);
+    STG graph = buildSTG(s, f); // , returnBehavior);
 
     cout << "STG Is" << endl;
     graph.print(cout);
@@ -3185,13 +3185,13 @@ namespace ahaHLS {
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
     s.setDefaultReturnState(0);
 
-    auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
-      map_insert(stg.opTransitions, st, {0, cond});
-    };
+    // auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
+    //   map_insert(stg.opTransitions, st, {0, cond});
+    // };
     
-    std::function<void(Schedule&, STG&, StateId, llvm::ReturnInst*, Condition& cond)> returnBehavior(retB);
+    // std::function<void(Schedule&, STG&, StateId, llvm::ReturnInst*, Condition& cond)> returnBehavior(retB);
     
-    STG graph = buildSTG(s, f, returnBehavior);
+    STG graph = buildSTG(s, f); //, returnBehavior);
 
     cout << "STG Is" << endl;
     graph.print(cout);
@@ -3301,13 +3301,13 @@ namespace ahaHLS {
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
     s.setDefaultReturnState(0);
 
-    auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
-      map_insert(stg.opTransitions, st, {0, cond});
-    };
+    // auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
+    //   map_insert(stg.opTransitions, st, {0, cond});
+    // };
     
-    std::function<void(Schedule&, STG&, StateId, llvm::ReturnInst*, Condition& cond)> returnBehavior(retB);
+    // std::function<void(Schedule&, STG&, StateId, llvm::ReturnInst*, Condition& cond)> returnBehavior(retB);
     
-    STG graph = buildSTG(s, f, returnBehavior);
+    STG graph = buildSTG(s, f); //, returnBehavior);
 
     cout << "STG Is" << endl;
     graph.print(cout);
@@ -3551,13 +3551,13 @@ namespace ahaHLS {
     map<Function*, SchedulingProblem> constraints{{f, p}};
     Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
     s.setDefaultReturnState(0);
-    auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
-      map_insert(stg.opTransitions, st, {0, cond});
-    };
+    // auto retB = [](Schedule& sched, STG& stg, const StateId st, ReturnInst* instr, Condition& cond) {
+    //   map_insert(stg.opTransitions, st, {0, cond});
+    // };
     
-    std::function<void(Schedule&, STG&, StateId, llvm::ReturnInst*, Condition& cond)> returnBehavior(retB);
+    // std::function<void(Schedule&, STG&, StateId, llvm::ReturnInst*, Condition& cond)> returnBehavior(retB);
     
-    STG graph = buildSTG(s, f, returnBehavior);
+    STG graph = buildSTG(s, f); //, returnBehavior);
 
     cout << "STG Is" << endl;
     graph.print(cout);
