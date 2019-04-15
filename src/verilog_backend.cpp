@@ -3030,7 +3030,7 @@ namespace ahaHLS {
       //      For each succesor, if it is active, set the predecessor to that succ
 
       Wire nextBlkIsThisBlk =
-        checkEqual(thisBlkNo, wire(1, "global_next_block"), arch);
+        checkEqual(thisBlkNo, wire(32, "global_next_block"), arch);
       predController.setCond("in_data", nextBlkIsThisBlk, wire(32, "last_BB_reg"));
 
       for (auto* pred : predecessors(&bb)) {
