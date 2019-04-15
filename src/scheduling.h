@@ -696,12 +696,12 @@ namespace ahaHLS {
       return dbhc::map_find(instr, sched.instrTimes).back();
     }
 
-    StateId blockStartState(llvm::BasicBlock* const instr) {
-      return dbhc::map_find(instr, sched.blockTimes).front();
+    StateId blockStartState(llvm::BasicBlock* const block) {
+      return dbhc::map_find(block, sched.blockTimes).front();
     }
 
-    StateId blockEndState(llvm::BasicBlock* const instr) {
-      return dbhc::map_find(instr, sched.blockTimes).back();
+    StateId blockEndState(llvm::BasicBlock* const block) {
+      return dbhc::map_find(block, sched.blockTimes).back();
     }
     
     std::vector<Instruction*>

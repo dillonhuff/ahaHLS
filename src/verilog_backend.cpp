@@ -1084,7 +1084,7 @@ namespace ahaHLS {
                                      MicroArchitecture& arch) {
     //return true;
     set<BasicBlock*> succs;
-    for (BasicBlock* succ : successors(blk)) {
+    for (BasicBlock* const succ : successors(blk)) {
       if ((arch.stg.blockStartState(succ) == state) &&
           (arch.stg.blockEndState(succ) == state)) {
         succs.insert(succ);
@@ -2663,7 +2663,20 @@ namespace ahaHLS {
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
     emitVerilog(stg, memoryMap, info);
   }
-  
+
+  Wire lastBlockActiveInState(const StateId st,
+                              BasicBlock* const bb,
+                              MicroArchitecture& arch) {
+    Wire cond = blockActiveInState(st, bb, arch);
+    // TODO: Should be same state successors for optimization
+    for (BasicBlock* succ : successors(bb)) {
+      if (succ != bb) {
+        cond = checkAnd(checkNotWire(blockActiveInState(st, succ, arch), arch), cond, arch);
+      }
+    }
+
+    return cond;
+  }
   void emitLastBBCode(MicroArchitecture& arch) {
 
     RegController& rc = arch.getController(reg(32, "last_BB_reg"));
@@ -2689,7 +2702,7 @@ namespace ahaHLS {
               //rc.values[atState(st.first, arch)] = to_string(bbNo);
 
               
-              Wire condWire = blockActiveInState(st.first, instr->getParent(), arch);
+              Wire condWire = lastBlockActiveInState(st.first, instr->getParent(), arch);
               rc.values[condWire.valueString()] = to_string(bbNo);
             }
           }
@@ -2865,7 +2878,7 @@ namespace ahaHLS {
 
 
   
-  Wire MicroArchitecture::isActiveBlockVar(llvm::BasicBlock* bb) {
+  Wire MicroArchitecture::isActiveBlockVar(llvm::BasicBlock* const bb) {
     std::string activeUnit =
       "bb_" + std::to_string(cs.getBasicBlockNo(bb)) + "_active";
 
