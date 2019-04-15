@@ -1102,6 +1102,9 @@ namespace ahaHLS {
 
     assert(userBlock != valueBlock);
 
+    // Idea: for now just find a path from one block to the next,
+    // and see if that reduces the number of failing test cases.
+
     // Cannot reach the terminator of the user block from
     // the current state
     if (arch.stg.blockEndState(userBlock) != state) {
