@@ -1079,10 +1079,43 @@ namespace ahaHLS {
     }
   }
 
+  set<BasicBlock*> successorsInState(BasicBlock* const blk,
+                                     const StateId state,
+                                     MicroArchitecture& arch) {
+    return false;
+    // set<BasicBlock*> succs;
+    // for (BasicBlock* succ : successors(blk)) {
+    //   if ((arch.stg.blockStartState(succ) == state) &&
+    //       (arch.stg.blockEndState(succ) == state)) {
+    //     succs.insert(succ);
+    //   }
+    // }
+
+    // return succs;
+  }
+
   bool blockPrecedesInState(BasicBlock* const maybeFirst,
                             BasicBlock* const maybeSecond,
-                            const StateId state) {
-    return true;
+                            const StateId state,
+                            MicroArchitecture& arch) {
+    set<BasicBlock*> successors{maybeFirst};
+    bool addedSuccessors = true;
+    while (addedSuccessors) {
+      addedSuccessors = false;
+
+      int oldSize = successors.size();
+      for (auto blk : successors) {
+        for (auto succ : successorsInState(blk, state, arch)) {
+          successors.insert(succ);
+        }
+      }
+
+      if (oldSize != successors.size()) {
+        addedSuccessors = true;
+      }
+    }
+
+    return elem(maybeSecond, successors);
   }
   
   bool getValueFromStorage(llvm::Instruction* const user,
@@ -1106,7 +1139,7 @@ namespace ahaHLS {
       }
     }
 
-    return !blockPrecedesInState(valueBlock, userBlock, state);
+    return !blockPrecedesInState(valueBlock, userBlock, state, arch);
 
     // Idea: for now just find a path from one block to the next,
     // and see if that reduces the number of failing test cases.
