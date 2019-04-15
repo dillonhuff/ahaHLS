@@ -3771,10 +3771,8 @@ namespace ahaHLS {
 
     if (hasOutput(instr)) {
       auto unitOutput = dataOutput(instr, arch);
-      //addAlwaysBlock({"clk"}, "if(" + atState(st, arch) + ") begin $display(\"" + iStr + " == %d\", " + unitOutput + "); end", debugInfo);
       addAlwaysBlock({"clk"}, "if(" + blockActiveInState(st, instr->getParent(), arch).valueString() + ") begin $display(\"" + iStr + " == %d\", " + unitOutput + "); end", debugInfo);      
     } else {
-      //addAlwaysBlock({"clk"}, "if(" + atState(st, arch) + ") begin $display(\"" + iStr + "\"); end", debugInfo);
       addAlwaysBlock({"clk"}, "if(" + blockActiveInState(st, instr->getParent(), arch).valueString() + ") begin $display(\"" + iStr + "\"); end", debugInfo);      
     }
   }
@@ -3890,11 +3888,21 @@ namespace ahaHLS {
             string in0Name = map_find(string("in0"), unit.portWires).name;
             string in1Name = map_find(string("in1"), unit.portWires).name;
 
-            addAssert(notAtState(activeState, arch) + " || " +
+            string notAtSt =
+              notStr(blockActiveInState(st.first, instr->getParent(), arch).valueString());
+            // addAssert(notAtState(activeState, arch) + " || " +
+            //           in0Name + " !== " + to_string(getValueBitWidth(instr)) + "'dx",
+            //           debugInfo);
+
+            addAssert(notAtSt + " || " +
                       in0Name + " !== " + to_string(getValueBitWidth(instr)) + "'dx",
                       debugInfo);
+            
+            // addAssert(notAtState(activeState, arch) + " || " +
+            //           in1Name + " !== " + to_string(getValueBitWidth(instr)) + "'dx",
+            //           debugInfo);
 
-            addAssert(notAtState(activeState, arch) + " || " +
+            addAssert(notAtSt + " || " +
                       in1Name + " !== " + to_string(getValueBitWidth(instr)) + "'dx",
                       debugInfo);
             
