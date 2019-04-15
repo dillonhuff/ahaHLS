@@ -3735,10 +3735,15 @@ namespace ahaHLS {
   }
 
   std::string notAtState(const StateId state, MicroArchitecture& arch) {
-    //return "!" + parens(atState(state, arch));
     return checkNotWire(atStateWire(state, arch), arch).name;
   }
 
+  Wire notActiveWire(const StateId state,
+                            Instruction* instr,
+                            MicroArchitecture& arch) {
+    return checkNotWire(blockActiveInState(state, instr->getParent(), arch), arch);
+  }
+  
   void noPhiOutputsXWhenUsed(MicroArchitecture& arch,
                              VerilogDebugInfo& debugInfo) {
     for (auto st : arch.stg.opStates) {
@@ -3755,7 +3760,8 @@ namespace ahaHLS {
 
           string valCheck = wireName + " !== 'dx";
           //string notActive = notAtState(st.first, arch);
-          string notActive = notStr(activeWire()); //notAtState(st.first, arch);
+          //string notActive = notStr(activeWire()); //notAtState(st.first, arch);
+          string notActive = notActiveWire(activeState, instr, arch).valueString();
           addAssert(notActive + " || " + valCheck, debugInfo);
         }
       }
