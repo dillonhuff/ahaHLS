@@ -524,7 +524,7 @@ module phi( last_block, s, in, out);
       end
     end
     if (found == 0) begin
-//      $display("Error: last_block: %b not in s : %b",last_block, s);
+      $display("Error: last_block: %b not in s : %b",last_block, s);
       out_reg <= {{WIDTH}{1'bx}};
     end
   end
