@@ -1557,9 +1557,10 @@ namespace ahaHLS {
   }
 
   void emitTempStorage(const StateId state,
-                       const vector<std::string>& conds,
+                       //const vector<std::string>& conds,
                        //const std::string& cond,
                        MicroArchitecture& arch) {
+
 
     auto& names = arch.names;
     auto& pipelines = arch.pipelines;
@@ -1568,6 +1569,26 @@ namespace ahaHLS {
     for (auto instrG : arch.stg.instructionsFinishingAt(state)) {
       Instruction* instr = instrG;
 
+      //vector<string> conds{atState(state, arch)};
+      vector<string> conds{blockActiveInState(state, instr->getParent(), arch).valueString()};
+
+      // Stalls do not get stalled by themselves
+      for (auto instrK : arch.stg.instructionsStartingAt(state)) {
+        //cout << "Instruction = " << valueString(instrK.instruction) << endl;
+        if (isBuiltinStallCall(instrK)) {
+
+          auto stallPos = position(state, instrK);
+          string cond = outputName(instrK->getOperand(0),
+                                   stallPos,
+                                   arch);
+
+          if (instrK->getParent() == instr->getParent()) {
+            conds.push_back(cond);
+          }
+        }
+      }
+    
+      
       if (hasOutput(instr)) {
 
         assert(contains_key(instr, names));
@@ -1667,25 +1688,9 @@ namespace ahaHLS {
                            //const std::vector<StateTransition>& destinations,
                            MicroArchitecture& arch) {
 
-    vector<string> allConds{atState(state, arch)};
-
-    // Stalls do not get stalled by themselves
-    for (auto instrK : arch.stg.instructionsStartingAt(state)) {
-      //cout << "Instruction = " << valueString(instrK.instruction) << endl;
-      if (isBuiltinStallCall(instrK)) {
-
-        auto stallPos = position(state, instrK);
-        string cond = outputName(instrK->getOperand(0),
-                                 stallPos,
-                                 arch);
-
-        allConds.push_back(cond);
-      }
-    }
-
     emitTempStorage(state,
                     //andStrings(allConds),
-                    allConds,
+                    //allConds,
                     arch);
     
   }
