@@ -1082,22 +1082,24 @@ namespace ahaHLS {
   set<BasicBlock*> successorsInState(BasicBlock* const blk,
                                      const StateId state,
                                      MicroArchitecture& arch) {
-    return false;
-    // set<BasicBlock*> succs;
-    // for (BasicBlock* succ : successors(blk)) {
-    //   if ((arch.stg.blockStartState(succ) == state) &&
-    //       (arch.stg.blockEndState(succ) == state)) {
-    //     succs.insert(succ);
-    //   }
-    // }
+    //return true;
+    set<BasicBlock*> succs;
+    for (BasicBlock* succ : successors(blk)) {
+      if ((arch.stg.blockStartState(succ) == state) &&
+          (arch.stg.blockEndState(succ) == state)) {
+        succs.insert(succ);
+      }
+    }
 
-    // return succs;
+    return succs;
   }
 
   bool blockPrecedesInState(BasicBlock* const maybeFirst,
                             BasicBlock* const maybeSecond,
                             const StateId state,
                             MicroArchitecture& arch) {
+    return true;
+    
     set<BasicBlock*> successors{maybeFirst};
     bool addedSuccessors = true;
     while (addedSuccessors) {
