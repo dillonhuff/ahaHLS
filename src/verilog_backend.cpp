@@ -1084,6 +1084,9 @@ namespace ahaHLS {
                          MicroArchitecture& arch) {
 
     cout << "Getting name of " << valueString(val) << endl;
+    Instruction* instr = currentPosition.instr;
+    cout << "In instruction " << valueString(instr) << endl;
+    
     if (Instruction::classof(val)) {
 
       // Pointers to allocations (RAMs) always have a base
@@ -1110,7 +1113,9 @@ namespace ahaHLS {
         BasicBlock* argBB = instr0->getParent();
         BasicBlock* userBB = instr->getParent();
 
-        assert(argBB == userBB);
+        if (argBB == userBB) {
+          return dataOutput(instr0, arch);          
+        }
 
         OrderedBasicBlock obb(argBB);
 
