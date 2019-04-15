@@ -2870,7 +2870,36 @@ namespace ahaHLS {
                        MicroArchitecture& arch) {
     if ((predecessor != successor) &&
         (arch.stg.blockStartState(successor) == arch.stg.blockEndState(predecessor))) {
-      return true;
+
+      StateId state = arch.stg.blockStartState(successor);
+      // Check if predecessor precedes successor
+      if (blockPrecedesInState(predecessor,
+                               successor,
+                               state,
+                               arch)) {
+        //return true;
+
+        cout << "Block" << endl;
+        cout << valueString(predecessor) << endl;
+
+        cout << "precedes Block" << endl;
+        cout << valueString(successor) << endl;
+        cout << " in state " << state << endl;
+
+        return true;
+      } else {
+
+        cout << "Block" << endl;
+        cout << valueString(predecessor) << endl;
+
+        cout << "postcedes Block" << endl;
+        cout << valueString(successor) << endl;
+        cout << " in state " << state << endl;
+
+        
+        return false;
+      }
+
     }
 
     return false;
