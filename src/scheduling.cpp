@@ -2403,7 +2403,7 @@ namespace ahaHLS {
   }
 
   void StateTransitionGraph::print(std::ostream& out) {
-    out << "--- States" << std::endl;
+    out << "--- # of states = " << opStates.size() << std::endl;
     for (auto st : opStates) {
       out << tab(1) << "-- State: " << st.first << endl;
       map<BasicBlock*, vector<Instruction*> > bbsToInstrs;

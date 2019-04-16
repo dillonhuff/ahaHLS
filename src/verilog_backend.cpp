@@ -1085,8 +1085,15 @@ namespace ahaHLS {
     //return true;
     set<BasicBlock*> succs;
     for (BasicBlock* const succ : successors(blk)) {
-      if ((arch.stg.blockStartState(succ) == state) &&
-          (arch.stg.blockEndState(succ) == state)) {
+
+      // Is this too restrictive? To be a successor
+      // in this state the block does not need to
+      // finish in this state, it just needs to start in
+      // this state.
+      // if ((arch.stg.blockStartState(succ) == state) &&
+      //     (arch.stg.blockEndState(succ) == state)) {
+
+      if (arch.stg.blockStartState(succ) == state) {
         succs.insert(succ);
       }
     }
@@ -1107,8 +1114,12 @@ namespace ahaHLS {
 
       int oldSize = successors.size();
       for (auto blk : successors) {
-        for (auto succ : successorsInState(blk, state, arch)) {
-          successors.insert(succ);
+
+        if (arch.stg.blockEndState(blk) == state) {
+          // TODO: Maybe here I should check if the block is a terminating block?
+          for (auto succ : successorsInState(blk, state, arch)) {
+            successors.insert(succ);
+          }
         }
       }
 
@@ -1143,21 +1154,21 @@ namespace ahaHLS {
 
     return !blockPrecedesInState(valueBlock, userBlock, state, arch);
 
-    // Idea: for now just find a path from one block to the next,
-    // and see if that reduces the number of failing test cases.
+    // // Idea: for now just find a path from one block to the next,
+    // // and see if that reduces the number of failing test cases.
 
-    // Cannot reach the terminator of the user block from
-    // the current state
-    if (arch.stg.blockEndState(userBlock) != state) {
-      return true;
-    }
-    
-    // How to check if it is possible to move from block to block?
-    // If beforeBlocks's terminator is not contained in state, then
-    // while (true) {
+    // // Cannot reach the terminator of the user block from
+    // // the current state
+    // if (arch.stg.blockEndState(userBlock) != state) {
+    //   return true;
     // }
+    
+    // // How to check if it is possible to move from block to block?
+    // // If beforeBlocks's terminator is not contained in state, then
+    // // while (true) {
+    // // }
 
-    return false;
+    // return false;
   }
   
   std::string outputName(Value* val,
@@ -1507,6 +1518,8 @@ namespace ahaHLS {
     return false;
   }
 
+  // TODO: Update this function. Should use the same logic
+  // as the outputName function does to decide on temporary usage
   bool needsTempStorage(llvm::Instruction* const instr,
                         MicroArchitecture& arch) {
 
