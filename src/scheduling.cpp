@@ -2590,16 +2590,24 @@ namespace ahaHLS {
 
     IRBuilder<> stallReadyBuilder(stallReadyBlk);
     auto readReady = stallReadyBuilder.CreateCall(readReadyF, {stream});
-    auto setValid1 = stallReadyBuilder.CreateCall(setValidF, {stream, mkInt(1, 1)});
-    auto readStencilLast = stallReadyBuilder.CreateCall(readStencilLastF, {inDataPtr});
-    auto readStencilData = stallReadyBuilder.CreateCall(readStencilDataF, {inDataPtr});    
+    // auto setValid1 = stallReadyBuilder.CreateCall(setValidF, {stream, mkInt(1, 1)});
+    // auto readStencilLast = stallReadyBuilder.CreateCall(readStencilLastF, {inDataPtr});
+    // auto readStencilData = stallReadyBuilder.CreateCall(readStencilDataF, {inDataPtr});    
 
-    auto writeData = stallReadyBuilder.CreateCall(writeDataF, {stream, readStencilData});
-    auto writeLast = stallReadyBuilder.CreateCall(writeLastF, {stream, readStencilLast});    
+    // auto writeData = stallReadyBuilder.CreateCall(writeDataF, {stream, readStencilData});
+    // auto writeLast = stallReadyBuilder.CreateCall(writeLastF, {stream, readStencilLast});    
     stallReadyBuilder.CreateCondBr(readReady, exitBlk, stallReadyBlk);
 
     IRBuilder<> exitBuilder(exitBlk);
+    auto setValid1 = exitBuilder.CreateCall(setValidF, {stream, mkInt(1, 1)});
+    auto readStencilLast = exitBuilder.CreateCall(readStencilLastF, {inDataPtr});
+    auto readStencilData = exitBuilder.CreateCall(readStencilDataF, {inDataPtr});    
+    auto writeData = exitBuilder.CreateCall(writeDataF, {stream, readStencilData});
+    auto writeLast = exitBuilder.CreateCall(writeLastF, {stream, readStencilLast}); 
+    
     exitBuilder.CreateRet(nullptr);
+
+    exec.addConstraint(end(stallReadyBlk) + 1 == start(exitBlk));
 
     // // Built in stall implementation
 
