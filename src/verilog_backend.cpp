@@ -2053,7 +2053,7 @@ namespace ahaHLS {
   }
 
   bool stateless(FunctionalUnit& unit) {
-    vector<string> statelessUnits{"add", "sub", "shlOp", "mul", "phi", "getelementptr_2", "ne", "eq", "trunc", "sext", "slt", "andOp", "notOp"};
+    vector<string> statelessUnits{"add", "sub", "shlOp", "mul", "phi", "getelementptr_2", "ne", "eq", "trunc", "sext", "slt", "andOp", "notOp", "sgt", "orOp"};
     return elem(unit.getModName(), statelessUnits);
   }
 
@@ -2918,22 +2918,22 @@ namespace ahaHLS {
                                arch)) {
         //return true;
 
-        cout << "Block" << endl;
-        cout << valueString(predecessor) << endl;
+        // cout << "Block" << endl;
+        // cout << valueString(predecessor) << endl;
 
-        cout << "precedes Block" << endl;
-        cout << valueString(successor) << endl;
-        cout << " in state " << state << endl;
+        // cout << "precedes Block" << endl;
+        // cout << valueString(successor) << endl;
+        // cout << " in state " << state << endl;
 
         return true;
       } else {
 
-        cout << "Block" << endl;
-        cout << valueString(predecessor) << endl;
+        // cout << "Block" << endl;
+        // cout << valueString(predecessor) << endl;
 
-        cout << "postcedes Block" << endl;
-        cout << valueString(successor) << endl;
-        cout << " in state " << state << endl;
+        // cout << "postcedes Block" << endl;
+        // cout << valueString(successor) << endl;
+        // cout << " in state " << state << endl;
 
         
         return false;

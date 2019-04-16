@@ -88,6 +88,10 @@ endmodule
 
 module sgt(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [0:0] out);
    parameter WIDTH = 1;
+
+   always @(*) begin
+      $display("sgt: in0 = %b, in1 = %b, out = %b", in0, in1, out);
+   end
    assign out = $signed(in0) > $signed(in1);
 endmodule
 
