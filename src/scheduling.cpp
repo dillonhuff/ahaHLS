@@ -2568,6 +2568,7 @@ namespace ahaHLS {
 
     IRBuilder<> exitBuilder(exitBlk);
     exitBuilder.CreateRet(nullptr);
+
     // // Built in stall implementation
 
     // auto eb = mkBB("entry_block", stencilCall);
@@ -2631,6 +2632,12 @@ namespace ahaHLS {
     auto setValidF = writePort("read_valid", 1, streamTp);
     auto stallF = stallFunction();
 
+    // While loop implementation
+    auto entryBlk = mkBB("entry_blk", stencilCall);
+    auto stallReady = mkBB("stall_ready", stencilCall);
+    auto exitBlk = mkBB("exit_blk", stencilCall);
+
+    // Actual calls in built-in stall implementation
     auto readReady = b.CreateCall(readReadyF, {stream});
     auto stallUntilReady = b.CreateCall(stallF, {readReady});
     auto setValid1 = b.CreateCall(setValidF, {stream, mkInt(1, 1)});
