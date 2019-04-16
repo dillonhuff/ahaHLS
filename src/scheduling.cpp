@@ -2675,16 +2675,17 @@ namespace ahaHLS {
     IRBuilder<> stallReadyBuilder(stallReadyBlk);
     auto readReady = stallReadyBuilder.CreateCall(readReadyF, {stream});
     auto setValid1 = stallReadyBuilder.CreateCall(setValidF, {stream, mkInt(1, 1)});
-
-    auto readData = stallReadyBuilder.CreateCall(readDataF, {stream});
-    auto readLast = stallReadyBuilder.CreateCall(readLastF, {stream});
-    auto writeDataToStencil = stallReadyBuilder.CreateCall(writeDataToStencilF, {inDataPtr, readData});
-    stallReadyBuilder.CreateCall(writeLastToStencilF, {inDataPtr, readLast});
-    stallReadyBuilder.CreateCall(setStencilF, {inDataPtr, mkInt(1, 1)});
     stallReadyBuilder.CreateCondBr(readReady, exitBlk, stallReadyBlk);
 
     IRBuilder<> exitBuilder(exitBlk);
+    auto readData = exitBuilder.CreateCall(readDataF, {stream});
+    auto readLast = exitBuilder.CreateCall(readLastF, {stream});
+    auto writeDataToStencil = exitBuilder.CreateCall(writeDataToStencilF, {inDataPtr, readData});
+    exitBuilder.CreateCall(setStencilF, {inDataPtr, mkInt(1, 1)});
+    exitBuilder.CreateCall(writeLastToStencilF, {inDataPtr, readLast});
     exitBuilder.CreateRet(nullptr);
+
+    exec.addConstraint(end(stallReadyBlk) + 1 == start(exitBlk));
     
     // // Actual calls in built-in stall implementation
     // auto readReady = b.CreateCall(readReadyF, {stream});
