@@ -2526,10 +2526,6 @@ namespace ahaHLS {
   void implementStencilWrite(llvm::Function* stencilCall,
                              ExecutionConstraints& exec) {
     assert(stencilCall->getReturnType() == voidType());
-
-    auto eb = mkBB("entry_block", stencilCall);
-    IRBuilder<> b(eb);
-
     auto stream = getArg(stencilCall, 0);
     auto inDataPtr = getArg(stencilCall, 1);
 
@@ -2550,33 +2546,58 @@ namespace ahaHLS {
     auto stallF = stallFunction();
 
     auto readStencilDataF = readPort("data_bus", width, dataTp);
-    auto readStencilLastF = readPort("last_bus", 1, dataTp);    
+    auto readStencilLastF = readPort("last_bus", 1, dataTp);
 
-    // Actual implementation
-    auto readReady = b.CreateCall(readReadyF, {stream});
-    auto stallUntilReady = b.CreateCall(stallF, {readReady});
-    auto setValid1 = b.CreateCall(setValidF, {stream, mkInt(1, 1)});
-    auto setValid0 = b.CreateCall(setValidF, {stream, mkInt(0, 1)});
+    // Loop implementation
+    auto entryBlk = mkBB("entry_block", stencilCall);
+    auto stallReadyBlk = mkBB("stall_ready", stencilCall);    
+    auto exitBlk = mkBB("exit_block", stencilCall);
 
-    auto readStencilLast = b.CreateCall(readStencilLastF, {inDataPtr});
-    auto readStencilData = b.CreateCall(readStencilDataF, {inDataPtr});    
+    IRBuilder<> entryBuilder(entryBlk);
+    entryBuilder.CreateBr(stallReadyBlk);
 
-    auto writeData = b.CreateCall(writeDataF, {stream, readStencilData});
-    auto writeLast = b.CreateCall(writeLastF, {stream, readStencilLast});    
+    IRBuilder<> stallReadyBuilder(stallReadyBlk);
+    auto readReady = stallReadyBuilder.CreateCall(readReadyF, {stream});
+    auto setValid1 = stallReadyBuilder.CreateCall(setValidF, {stream, mkInt(1, 1)});
+    auto readStencilLast = stallReadyBuilder.CreateCall(readStencilLastF, {inDataPtr});
+    auto readStencilData = stallReadyBuilder.CreateCall(readStencilDataF, {inDataPtr});    
+
+    auto writeData = stallReadyBuilder.CreateCall(writeDataF, {stream, readStencilData});
+    auto writeLast = stallReadyBuilder.CreateCall(writeLastF, {stream, readStencilLast});    
+    stallReadyBuilder.CreateCondBr(readReady, exitBlk, stallReadyBlk);
+
+    IRBuilder<> exitBuilder(exitBlk);
+    exitBuilder.CreateRet(nullptr);
+    // // Built in stall implementation
+
+    // auto eb = mkBB("entry_block", stencilCall);
+    // IRBuilder<> b(eb);
+    
+    // auto readReady = b.CreateCall(readReadyF, {stream});
+    // auto stallUntilReady = b.CreateCall(stallF, {readReady});
+    // auto setValid1 = b.CreateCall(setValidF, {stream, mkInt(1, 1)});
+    // auto setValid0 = b.CreateCall(setValidF, {stream, mkInt(0, 1)});
+
+    // auto readStencilLast = b.CreateCall(readStencilLastF, {inDataPtr});
+    // auto readStencilData = b.CreateCall(readStencilDataF, {inDataPtr});    
+
+    // auto writeData = b.CreateCall(writeDataF, {stream, readStencilData});
+    // auto writeLast = b.CreateCall(writeLastF, {stream, readStencilLast});    
       
-    b.CreateRet(nullptr);
+    // b.CreateRet(nullptr);
     
-    exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
-    exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
-    exec.addConstraint(instrStart(setValid1) == instrStart(writeData));
-    exec.addConstraint(instrStart(setValid1) == instrStart(writeLast));
+    // exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
+    // exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
+    // exec.addConstraint(instrStart(setValid1) == instrStart(writeData));
+    // exec.addConstraint(instrStart(setValid1) == instrStart(writeLast));
 
-    exec.addConstraint(instrStart(setValid1) == instrStart(readStencilData));
-    exec.addConstraint(instrStart(setValid1) == instrStart(readStencilLast));    
+    // exec.addConstraint(instrStart(setValid1) == instrStart(readStencilData));
+    // exec.addConstraint(instrStart(setValid1) == instrStart(readStencilLast));
     
-    // exec.addConstraint(instrEnd(data) == instrStart(data));
-    // exec.addConstraint(instrEnd(data) == instrStart(writeValue));    
-    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+    // // exec.addConstraint(instrEnd(data) == instrStart(data));
+    // // exec.addConstraint(instrEnd(data) == instrStart(writeValue));    
+    // exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+    
     addDataConstraints(stencilCall, exec);
   }
 
