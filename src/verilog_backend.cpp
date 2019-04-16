@@ -1101,11 +1101,15 @@ namespace ahaHLS {
     return succs;
   }
 
+  // TODO: I still think this code is wrong even though I dont have a test to
+  // prove it. I dont see how it can deal with two looped blocks in a state
+  // Also: Another problem here is that a block precedes itself in this code,
+  // but in reality blocks never preceed themselves in
   bool blockPrecedesInState(BasicBlock* const maybeFirst,
                             BasicBlock* const maybeSecond,
                             const StateId state,
                             MicroArchitecture& arch) {
-    return true;
+    //return true;
     
     set<BasicBlock*> successors{maybeFirst};
     bool addedSuccessors = true;
