@@ -1120,7 +1120,6 @@ namespace ahaHLS {
       for (auto blk : successors) {
 
         if (arch.stg.blockEndState(blk) == state) {
-          // TODO: Maybe here I should check if the block is a terminating block?
           for (auto succ : successorsInState(blk, state, arch)) {
             successors.insert(succ);
           }
