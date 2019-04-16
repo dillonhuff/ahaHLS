@@ -2606,8 +2606,8 @@ namespace ahaHLS {
                             ExecutionConstraints& exec) {
     assert(stencilCall->getReturnType() == voidType());
 
-    auto eb = mkBB("entry_block", stencilCall);
-    IRBuilder<> b(eb);
+    // auto eb = mkBB("entry_block", stencilCall);
+    // IRBuilder<> b(eb);
 
     auto stream = getArg(stencilCall, 1);
     auto inDataPtr = getArg(stencilCall, 0);
@@ -2634,40 +2634,58 @@ namespace ahaHLS {
 
     // While loop implementation
     auto entryBlk = mkBB("entry_blk", stencilCall);
-    auto stallReady = mkBB("stall_ready", stencilCall);
+    auto stallReadyBlk = mkBB("stall_ready", stencilCall);
     auto exitBlk = mkBB("exit_blk", stencilCall);
 
-    // Actual calls in built-in stall implementation
-    auto readReady = b.CreateCall(readReadyF, {stream});
-    auto stallUntilReady = b.CreateCall(stallF, {readReady});
-    auto setValid1 = b.CreateCall(setValidF, {stream, mkInt(1, 1)});
-    auto setValid0 = b.CreateCall(setValidF, {stream, mkInt(0, 1)});
+    IRBuilder<> entryBuilder(entryBlk);
+    entryBuilder.CreateBr(stallReadyBlk);
 
-    // Data read process:
-    // 1. Read data out of ready-valid channel ports
-    // 2. Write it to the target stencil
-    auto readData = b.CreateCall(readDataF, {stream});
-    auto readLast = b.CreateCall(readLastF, {stream});
-    auto writeDataToStencil = b.CreateCall(writeDataToStencilF, {inDataPtr, readData});
-    auto writeLastToStencil = b.CreateCall(writeLastToStencilF, {inDataPtr, readLast});
-    auto setStencil = b.CreateCall(setStencilF, {inDataPtr, mkInt(1, 1)});
-      
-    b.CreateRet(nullptr);
+    IRBuilder<> stallReadyBuilder(stallReadyBlk);
+    auto readReady = stallReadyBuilder.CreateCall(readReadyF, {stream});
+    auto setValid1 = stallReadyBuilder.CreateCall(setValidF, {stream, mkInt(1, 1)});
+
+    auto readData = stallReadyBuilder.CreateCall(readDataF, {stream});
+    auto readLast = stallReadyBuilder.CreateCall(readLastF, {stream});
+    auto writeDataToStencil = stallReadyBuilder.CreateCall(writeDataToStencilF, {inDataPtr, readData});
+    auto writeLastToStencil = stallReadyBuilder.CreateCall(writeLastToStencilF, {inDataPtr, readLast});
+    auto setStencil = stallReadyBuilder.CreateCall(setStencilF, {inDataPtr, mkInt(1, 1)});
+    stallReadyBuilder.CreateCondBr(readReady, exitBlk, stallReadyBlk);
+
+    IRBuilder<> exitBuilder(exitBlk);
+    exitBuilder.CreateRet(nullptr);
     
-    exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
-    exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
-    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+    // // Actual calls in built-in stall implementation
+    // auto readReady = b.CreateCall(readReadyF, {stream});
+    // auto stallUntilReady = b.CreateCall(stallF, {readReady});
+    // auto setValid1 = b.CreateCall(setValidF, {stream, mkInt(1, 1)});
+    // auto setValid0 = b.CreateCall(setValidF, {stream, mkInt(0, 1)});
 
-    exec.add(instrStart(setValid0) == instrStart(readData));
-    exec.add(instrStart(setValid0) == instrStart(readLast));    
+    // // Data read process:
+    // // 1. Read data out of ready-valid channel ports
+    // // 2. Write it to the target stencil
+    // auto readData = b.CreateCall(readDataF, {stream});
+    // auto readLast = b.CreateCall(readLastF, {stream});
+    // auto writeDataToStencil = b.CreateCall(writeDataToStencilF, {inDataPtr, readData});
+    // auto writeLastToStencil = b.CreateCall(writeLastToStencilF, {inDataPtr, readLast});
+    // auto setStencil = b.CreateCall(setStencilF, {inDataPtr, mkInt(1, 1)});
+      
+    // b.CreateRet(nullptr);
+    
+    // exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
+    // exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
+    // exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
 
-    exec.add(instrStart(setValid0) == instrStart(writeDataToStencil));
-    exec.add(instrStart(setValid0) == instrStart(writeLastToStencil));
-    exec.add(instrStart(setValid0) == instrStart(setStencil));        
+    // exec.add(instrStart(setValid0) == instrStart(readData));
+    // exec.add(instrStart(setValid0) == instrStart(readLast));    
+
+    // exec.add(instrStart(setValid0) == instrStart(writeDataToStencil));
+    // exec.add(instrStart(setValid0) == instrStart(writeLastToStencil));
+    // exec.add(instrStart(setValid0) == instrStart(setStencil));
+
+    //b.CreateRet(nullptr);
 
     addDataConstraints(stencilCall, exec);
     
-    b.CreateRet(nullptr);
   }
 
   void implementStencilSetLast(llvm::Function* stencilCall,
