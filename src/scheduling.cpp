@@ -2674,19 +2674,26 @@ namespace ahaHLS {
 
     IRBuilder<> stallReadyBuilder(stallReadyBlk);
     auto readReady = stallReadyBuilder.CreateCall(readReadyF, {stream});
-    auto setValid1 = stallReadyBuilder.CreateCall(setValidF, {stream, mkInt(1, 1)});
     stallReadyBuilder.CreateCondBr(readReady, exitBlk, stallReadyBlk);
 
     IRBuilder<> exitBuilder(exitBlk);
+    auto setValid1 = exitBuilder.CreateCall(setValidF, {stream, mkInt(1, 1)});
     auto readData = exitBuilder.CreateCall(readDataF, {stream});
     auto readLast = exitBuilder.CreateCall(readLastF, {stream});
+
     auto writeDataToStencil = exitBuilder.CreateCall(writeDataToStencilF, {inDataPtr, readData});
-    exitBuilder.CreateCall(setStencilF, {inDataPtr, mkInt(1, 1)});
-    exitBuilder.CreateCall(writeLastToStencilF, {inDataPtr, readLast});
+    auto setStencil = exitBuilder.CreateCall(setStencilF, {inDataPtr, mkInt(1, 1)});
+    auto setLast = exitBuilder.CreateCall(writeLastToStencilF, {inDataPtr, readLast});
     exitBuilder.CreateRet(nullptr);
 
     exec.addConstraint(end(stallReadyBlk) + 1 == start(exitBlk));
-    
+
+    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(readData));
+    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(readLast));        
+
+    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setStencil));        
+    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(writeDataToStencil));
+    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setLast));        
     // // Actual calls in built-in stall implementation
     // auto readReady = b.CreateCall(readReadyF, {stream});
     // auto stallUntilReady = b.CreateCall(stallF, {readReady});
