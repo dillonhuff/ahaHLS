@@ -1654,10 +1654,10 @@ namespace ahaHLS {
       }
     }
 
-    if (last == nullptr) {
-      cout << "No instructions from " << valueString(blk) << " in state " << state;
-      assert(false);
-    }
+    // if (last == nullptr) {
+    //   cout << "No instructions from " << valueString(blk) << " in state " << state;
+    //   assert(false);
+    // }
 
     return last;
   }
@@ -1717,7 +1717,7 @@ namespace ahaHLS {
                           Wire jumpCondWire,
                           MicroArchitecture& arch) {
 
-    cout << "Adding transition from " << state << " to " << dest << " via " << valueString(pos.instr) << endl;
+    //cout << "Adding transition from " << state << " to " << dest << " via " << valueString(pos.instr) << endl;
 
     string atStateCond = atState(state, arch);
 
@@ -1779,8 +1779,10 @@ namespace ahaHLS {
         for (auto instr : arch.stg.instructionsStartingAt(state)) {
 
           if (isBuiltinStallCall(instr)) {
-            cout << "Getting name of " << valueString(instr->getOperand(0)) << endl;
-            cout << "at position " << pos << endl;
+            // cout << "Getting name of " << valueString(instr->getOperand(0)) << endl;
+            // cout << "at position " << pos << endl;
+            assert(pos.instr != nullptr);
+            
             string cond = outputName(instr->getOperand(0),
                                      pos,
                                      arch);
