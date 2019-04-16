@@ -4434,11 +4434,13 @@ namespace ahaHLS {
       [](StructType* axiStencil) { return axiPackedStencilSpec(16, 1, 1); };
 
     ExecutionConstraints exec;
-    Instruction* c0 = findCall(0, f->getEntryBlock());
-    Instruction* c1 = findCall(1, f->getEntryBlock());
-    Instruction* c2 = findCall(2, f->getEntryBlock());    
-    exec.add(instrEnd(c0) < instrStart(c1));
-    exec.add(instrEnd(c1) < instrStart(c2));    
+    sequentialCalls(f, exec);
+
+    // Instruction* c0 = findCall(0, f->getEntryBlock());
+    // Instruction* c1 = findCall(1, f->getEntryBlock());
+    // Instruction* c2 = findCall(2, f->getEntryBlock());    
+    // exec.add(instrEnd(c0) < instrStart(c1));
+    // exec.add(instrEnd(c1) < instrStart(c2));    
     set<BasicBlock*> toPipeline;
     Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
     STG graph = buildSTG(s, f);
