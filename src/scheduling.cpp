@@ -2401,6 +2401,39 @@ namespace ahaHLS {
     cout << valueString(axiRead) << endl;
 
   }
+
+  void StateTransitionGraph::print(std::ostream& out) {
+    out << "--- States" << std::endl;
+    for (auto st : opStates) {
+      out << tab(1) << "-- State: " << st.first << endl;
+      map<BasicBlock*, vector<Instruction*> > bbsToInstrs;
+      for (auto instr : st.second) {
+        map_insert(bbsToInstrs, instr->getParent(), instr);
+      }
+
+      for (auto bb : bbsToInstrs) {
+        out << tab(1) << "- Basic block: " << string(bb.first->getName()) << endl;
+        for (auto instr : bb.second) {
+          out << tab(1) << valueString(instr) << endl;
+        }
+        out << endl;
+      }
+
+      // out << "\t" << st.first << std::endl;
+      // for (auto instr : st.second) {
+      //   out << valueString(instr) << std::endl;
+      // }
+    }
+
+    out << "--- State Transistions" << std::endl;      
+    for (auto tr : opTransitions) {
+      out << "\t" << tr.first << std::endl;
+      for (auto nextState : tr.second) {
+        out << "\t\t -> " << nextState << std::endl;
+      }
+    }
+  }
+
   
   std::ostream& operator<<(std::ostream& out, const ModuleSpec& m) {
     out << "module_spec " << m.name << endl;
@@ -2543,7 +2576,6 @@ namespace ahaHLS {
 
     auto readReadyF = readPort("write_ready", 1, streamTp);
     auto setValidF = writePort("write_valid", 1, streamTp);
-    auto stallF = stallFunction();
 
     auto readStencilDataF = readPort("data_bus", width, dataTp);
     auto readStencilLastF = readPort("last_bus", 1, dataTp);
@@ -2647,8 +2679,8 @@ namespace ahaHLS {
     auto readData = stallReadyBuilder.CreateCall(readDataF, {stream});
     auto readLast = stallReadyBuilder.CreateCall(readLastF, {stream});
     auto writeDataToStencil = stallReadyBuilder.CreateCall(writeDataToStencilF, {inDataPtr, readData});
-    auto writeLastToStencil = stallReadyBuilder.CreateCall(writeLastToStencilF, {inDataPtr, readLast});
-    auto setStencil = stallReadyBuilder.CreateCall(setStencilF, {inDataPtr, mkInt(1, 1)});
+    stallReadyBuilder.CreateCall(writeLastToStencilF, {inDataPtr, readLast});
+    stallReadyBuilder.CreateCall(setStencilF, {inDataPtr, mkInt(1, 1)});
     stallReadyBuilder.CreateCondBr(readReady, exitBlk, stallReadyBlk);
 
     IRBuilder<> exitBuilder(exitBlk);

@@ -2642,7 +2642,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 	always @(*) begin
 		if (andOp_56_out) begin 
 			in_read_valid_reg = -(1'd1);
-		end else if (andOp_58_out) begin 
+		end else if (andOp_60_out) begin 
 			in_read_valid_reg = (1'd0);
 		end else begin
 			in_read_valid_reg = 0;

@@ -420,7 +420,7 @@ namespace ahaHLS {
 
     int uniqueNum;
 
-    Wire isActiveBlockVar(llvm::BasicBlock* bb);
+    Wire isActiveBlockVar(llvm::BasicBlock* const bb);
     
     std::string uniqueName(const std::string& prefix) {
       std::string name = prefix + "_" + std::to_string(uniqueNum);

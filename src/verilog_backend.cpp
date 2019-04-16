@@ -1819,6 +1819,13 @@ namespace ahaHLS {
     for (auto instr : instrsAtState) {
       allBlocks.insert(instr->getParent());
     }
+    for (auto blk : stg.sched.blockTimes) {
+      for (auto stateNum : blk.second) {
+        if (stateNum == state) {
+          allBlocks.insert(blk.first);
+        }
+      }
+    }
 
     cout << "All blocks size = " << allBlocks.size() << endl;
     
@@ -2888,8 +2895,6 @@ namespace ahaHLS {
     inputControllers[portName].portVals[condition] = value;
   }
 
-
-  
   Wire MicroArchitecture::isActiveBlockVar(llvm::BasicBlock* const bb) {
     std::string activeUnit =
       "bb_" + std::to_string(cs.getBasicBlockNo(bb)) + "_active";

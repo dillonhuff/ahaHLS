@@ -746,24 +746,9 @@ namespace ahaHLS {
 
       return false;
     }
-    void print(std::ostream& out) {
-      out << "--- States" << std::endl;
-      for (auto st : opStates) {
-        out << "\t" << st.first << std::endl;
-        for (auto instr : st.second) {
-          out << valueString(instr) << std::endl;
-        }
-      }
 
-      out << "--- State Transistions" << std::endl;      
-      for (auto tr : opTransitions) {
-        out << "\t" << tr.first << std::endl;
-        for (auto nextState : tr.second) {
-          out << "\t\t -> " << nextState << std::endl;
-        }
-      }
-    }
-
+    void print(std::ostream& out);
+    
   };
 
   typedef StateTransitionGraph STG;
