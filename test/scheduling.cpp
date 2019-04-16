@@ -4647,7 +4647,9 @@ namespace ahaHLS {
     tb.settablePort(in, "in_data_bus");
     tb.settablePort(in, "in_last_bus");    
     tb.settablePort(in, "write_valid");
-    tb.settablePort(out, "read_valid");    
+    tb.settablePort(out, "read_valid");
+
+    //tb.actionOnCondition("1", "$display(\"arg_1_data_bus = %d, arg_1_last_bus = %d\", arg_1_data_bus, arg_1_last_bus);");
 
     map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
     tb.setArgPort(out, "read_valid", 0, "1'b0");
