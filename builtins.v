@@ -462,8 +462,6 @@ module fifo(input clk,
          if (read_valid) begin
             `assert(read_ready, 1'd1)
 
-            //$display("reading %d, from address %d", ram[read_addr], read_addr);            
-
             // Wraparound
             read_addr <= next_read_addr;
 
@@ -479,7 +477,8 @@ module fifo(input clk,
 
    always @(posedge clk) begin
       if (read_valid && read_ready) begin
-         $display("reading from address %d", read_addr);
+         //$display("reading from address %d", read_addr);
+         $display("reading %d, from address %d", ram[read_addr], read_addr);
          
          out_data_reg <= ram[read_addr];
       end
@@ -1600,14 +1599,14 @@ module HLS_stream(input clk, input rst,
       end
    end   
 
-   always @(posedge clk) begin
-      // $display("read ready ? %d, read valid %d", read_ready, read_valid);
-      // $display("Read data = %d", data_out);
+   // always @(posedge clk) begin
+   //    // $display("read ready ? %d, read valid %d", read_ready, read_valid);
+   //    // $display("Read data = %d", data_out);
       
-      if (read_valid && read_ready) begin
-         //$display("Reading %d", data_out);
-      end
-   end   
+   //    if (read_valid && read_ready) begin
+   //       $display("Reading %d from %d", mem[read_addr], read_addr);
+   //    end
+   // end   
    
    // always @(posedge clk) begin
    //    $display("read ready = %d", read_ready);
