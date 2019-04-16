@@ -1590,6 +1590,14 @@ module HLS_stream(input clk, input rst,
       end
    end   
 
+   always @(posedge clk) begin
+      $display("read ready ? %d, read valid %d", read_ready, read_valid);
+      
+      if (read_valid) begin
+         $display("Reading %d", data_out);
+      end
+   end   
+   
    // always @(posedge clk) begin
    //    $display("read ready = %d", read_ready);
    // end   
