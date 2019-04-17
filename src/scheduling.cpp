@@ -2429,7 +2429,42 @@ namespace ahaHLS {
 
     return inState;
   }
-  
+
+  bool noPredecessors(BasicBlock* const blk,
+                      STG& stg) {
+    if (!contains_key(blk, stg.sched.controlPredecessors)) {
+      return true;
+    }
+
+    return map_find(blk, stg.sched.controlPredecessors).size() == 0;
+  }
+
+  std::set<BasicBlock*> entryBlocks(const StateId state,
+                                    STG& stg) {
+    auto activeBlks = blocksInState(state, stg);
+    set<BasicBlock*> entryBlks;
+    for (auto blk : activeBlks) {
+      if (noPredecessors(blk, stg)) {
+        entryBlks.insert(blk);
+      } else {
+
+        bool hasPreStatePred = false;
+        for (auto pred : map_find(blk, stg.sched.controlPredecessors)) {
+          if (stg.instructionEndState(pred->getTerminator()) != state) {
+            hasPreStatePred = true;
+            break;
+          }
+        }
+
+        if (hasPreStatePred) {
+          entryBlks.insert(blk);
+        }
+      }
+    }
+
+    return entryBlks;
+  }
+
   void StateTransitionGraph::print(std::ostream& out) {
     out << "--- # of states = " << opStates.size() << std::endl;
     for (auto st : opStates) {
@@ -2462,6 +2497,14 @@ namespace ahaHLS {
       for (auto blk : inState) {
         out << tab(3) << blkNameString(blk) << endl;
       }
+
+      set<BasicBlock*> startBlocks =
+        entryBlocks(state, *this);
+      out << tab(2) << "- Blocks that can be active on state entry" << endl;
+      for (auto blk : startBlocks) {
+        out << tab(3) << blkNameString(blk) << endl;
+      }
+      
     }
 
     out << "--- State Transistions" << std::endl;      
@@ -2640,7 +2683,7 @@ namespace ahaHLS {
     exec.add(start(stallReadyBlk) == end(stallReadyBlk));
 
     IRBuilder<> exitBuilder(exitBlk);
-    auto setValid1 = exitBuilder.CreateCall(setValidF, {stream, mkInt(1, 1)});
+    exitBuilder.CreateCall(setValidF, {stream, mkInt(1, 1)});
     auto readStencilLast = exitBuilder.CreateCall(readStencilLastF, {inDataPtr});
     auto readStencilData = exitBuilder.CreateCall(readStencilDataF, {inDataPtr});    
     exitBuilder.CreateCall(writeDataF, {stream, readStencilData});

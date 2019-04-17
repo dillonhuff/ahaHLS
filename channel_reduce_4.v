@@ -1,20 +1,20 @@
-module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [31:0] out_in_data, output [0:0] out_read_valid, output [0:0] out_rst, output [0:0] out_write_valid, input [31:0] out_out_data, input [0:0] out_read_ready, input [0:0] out_write_ready, output [31:0] in_in_data, output [0:0] in_read_valid, output [0:0] in_rst, output [0:0] in_write_valid, input [31:0] in_out_data, input [0:0] in_read_ready, input [0:0] in_write_ready);
+module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_data, output [0:0] out_read_valid, output [0:0] out_rst, output [0:0] out_write_valid, input [31:0] out_out_data, input [0:0] out_read_ready, input [0:0] out_write_ready, output [0:0] valid, output [31:0] in_in_data, output [0:0] in_read_valid, output [0:0] in_rst, output [0:0] in_write_valid, input [31:0] in_out_data, input [0:0] in_read_ready, input [0:0] in_write_ready);
 
-	reg [0:0] valid_reg;
 	reg [31:0] out_in_data_reg;
 	reg [0:0] out_read_valid_reg;
 	reg [0:0] out_rst_reg;
 	reg [0:0] out_write_valid_reg;
+	reg [0:0] valid_reg;
 	reg [31:0] in_in_data_reg;
 	reg [0:0] in_read_valid_reg;
 	reg [0:0] in_rst_reg;
 	reg [0:0] in_write_valid_reg;
 
-	assign valid = valid_reg;
 	assign out_in_data = out_in_data_reg;
 	assign out_read_valid = out_read_valid_reg;
 	assign out_rst = out_rst_reg;
 	assign out_write_valid = out_write_valid_reg;
+	assign valid = valid_reg;
 	assign in_in_data = in_in_data_reg;
 	assign in_read_valid = in_read_valid_reg;
 	assign in_rst = in_rst_reg;
@@ -32,6 +32,8 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// End debug wires and ports
 
 	// Start Functional Units
+	add call_17();
+
 	add alloca_0();
 
 	add bitcast_1();
@@ -47,15 +49,13 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 
 	br_dummy br_unit();
 
-	add call_16();
+	add call_18();
 
 	reg [63:0] phi_in_phi_5;
 	reg [31:0] phi_last_block_phi_5;
 	reg [63:0] phi_s_phi_5;
 	wire [31:0] phi_out_phi_5;
 	phi #(.NB_PAIR(2), .WIDTH(32)) phi_5(.in(phi_in_phi_5), .last_block(phi_last_block_phi_5), .out(phi_out_phi_5), .s(phi_s_phi_5));
-
-	add call_18();
 
 	reg [31:0] add_in0_add_12;
 	reg [31:0] add_in1_add_12;
@@ -496,50 +496,50 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [0:0] andOp_78_out;
 	andOp #(.WIDTH(1)) andOp_78(.in0(andOp_78_in0), .in1(andOp_78_in1), .out(andOp_78_out));
 
-	reg [31:0] andOp_79_in0;
-	reg [31:0] andOp_79_in1;
-	wire [31:0] andOp_79_out;
-	andOp #(.WIDTH(32)) andOp_79(.in0(andOp_79_in0), .in1(andOp_79_in1), .out(andOp_79_out));
+	reg [31:0] eq_79_in0;
+	reg [31:0] eq_79_in1;
+	wire [0:0] eq_79_out;
+	eq #(.WIDTH(32)) eq_79(.in0(eq_79_in0), .in1(eq_79_in1), .out(eq_79_out));
 
-	reg [31:0] eq_80_in0;
-	reg [31:0] eq_80_in1;
-	wire [0:0] eq_80_out;
-	eq #(.WIDTH(32)) eq_80(.in0(eq_80_in0), .in1(eq_80_in1), .out(eq_80_out));
+	reg [0:0] andOp_80_in0;
+	reg [0:0] andOp_80_in1;
+	wire [0:0] andOp_80_out;
+	andOp #(.WIDTH(1)) andOp_80(.in0(andOp_80_in0), .in1(andOp_80_in1), .out(andOp_80_out));
 
-	reg [0:0] andOp_81_in0;
-	reg [0:0] andOp_81_in1;
-	wire [0:0] andOp_81_out;
-	andOp #(.WIDTH(1)) andOp_81(.in0(andOp_81_in0), .in1(andOp_81_in1), .out(andOp_81_out));
+	reg [31:0] eq_81_in0;
+	reg [31:0] eq_81_in1;
+	wire [0:0] eq_81_out;
+	eq #(.WIDTH(32)) eq_81(.in0(eq_81_in0), .in1(eq_81_in1), .out(eq_81_out));
 
-	reg [31:0] eq_82_in0;
-	reg [31:0] eq_82_in1;
-	wire [0:0] eq_82_out;
-	eq #(.WIDTH(32)) eq_82(.in0(eq_82_in0), .in1(eq_82_in1), .out(eq_82_out));
+	reg [0:0] andOp_82_in0;
+	reg [0:0] andOp_82_in1;
+	wire [0:0] andOp_82_out;
+	andOp #(.WIDTH(1)) andOp_82(.in0(andOp_82_in0), .in1(andOp_82_in1), .out(andOp_82_out));
 
-	reg [0:0] andOp_83_in0;
-	reg [0:0] andOp_83_in1;
-	wire [0:0] andOp_83_out;
-	andOp #(.WIDTH(1)) andOp_83(.in0(andOp_83_in0), .in1(andOp_83_in1), .out(andOp_83_out));
+	reg [31:0] eq_83_in0;
+	reg [31:0] eq_83_in1;
+	wire [0:0] eq_83_out;
+	eq #(.WIDTH(32)) eq_83(.in0(eq_83_in0), .in1(eq_83_in1), .out(eq_83_out));
 
-	reg [31:0] eq_84_in0;
-	reg [31:0] eq_84_in1;
-	wire [0:0] eq_84_out;
-	eq #(.WIDTH(32)) eq_84(.in0(eq_84_in0), .in1(eq_84_in1), .out(eq_84_out));
+	reg [0:0] andOp_84_in0;
+	reg [0:0] andOp_84_in1;
+	wire [0:0] andOp_84_out;
+	andOp #(.WIDTH(1)) andOp_84(.in0(andOp_84_in0), .in1(andOp_84_in1), .out(andOp_84_out));
 
-	reg [0:0] andOp_85_in0;
-	reg [0:0] andOp_85_in1;
-	wire [0:0] andOp_85_out;
-	andOp #(.WIDTH(1)) andOp_85(.in0(andOp_85_in0), .in1(andOp_85_in1), .out(andOp_85_out));
+	reg [31:0] eq_85_in0;
+	reg [31:0] eq_85_in1;
+	wire [0:0] eq_85_out;
+	eq #(.WIDTH(32)) eq_85(.in0(eq_85_in0), .in1(eq_85_in1), .out(eq_85_out));
 
-	reg [31:0] eq_86_in0;
-	reg [31:0] eq_86_in1;
-	wire [0:0] eq_86_out;
-	eq #(.WIDTH(32)) eq_86(.in0(eq_86_in0), .in1(eq_86_in1), .out(eq_86_out));
+	reg [0:0] andOp_86_in0;
+	reg [0:0] andOp_86_in1;
+	wire [0:0] andOp_86_out;
+	andOp #(.WIDTH(1)) andOp_86(.in0(andOp_86_in0), .in1(andOp_86_in1), .out(andOp_86_out));
 
-	reg [0:0] andOp_87_in0;
-	reg [0:0] andOp_87_in1;
-	wire [0:0] andOp_87_out;
-	andOp #(.WIDTH(1)) andOp_87(.in0(andOp_87_in0), .in1(andOp_87_in1), .out(andOp_87_out));
+	reg [31:0] andOp_87_in0;
+	reg [31:0] andOp_87_in1;
+	wire [31:0] andOp_87_out;
+	andOp #(.WIDTH(32)) andOp_87(.in0(andOp_87_in0), .in1(andOp_87_in1), .out(andOp_87_out));
 
 	reg [31:0] eq_88_in0;
 	reg [31:0] eq_88_in1;
@@ -1866,13 +1866,6 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 		andOp_78_in0 = valid ? bb_1_active_out_data : bb_1_active_out_data;
 		andOp_78_in1 = valid ? eq_77_out : eq_77_out;
 	end
-	// controller for andOp_79.andOp_79_in0
-	// controller for andOp_79.andOp_79_in1
-	// Insensitive connections
-	always @(*) begin
-		andOp_79_in0 = valid ? out_write_ready : out_write_ready;
-		andOp_79_in1 = valid ? andOp_78_out : andOp_78_out;
-	end
 	// controller for andOp_8.andOp_8_in0
 	// controller for andOp_8.andOp_8_in1
 	// Insensitive connections
@@ -1880,33 +1873,40 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 		andOp_8_in0 = valid ? andOp_6_out : andOp_6_out;
 		andOp_8_in1 = valid ? icmp_tmp_3 : icmp_tmp_3;
 	end
-	// controller for andOp_81.andOp_81_in0
-	// controller for andOp_81.andOp_81_in1
+	// controller for andOp_80.andOp_80_in0
+	// controller for andOp_80.andOp_80_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_81_in0 = valid ? bb_1_active_out_data : bb_1_active_out_data;
-		andOp_81_in1 = valid ? eq_80_out : eq_80_out;
+		andOp_80_in0 = valid ? bb_1_active_out_data : bb_1_active_out_data;
+		andOp_80_in1 = valid ? eq_79_out : eq_79_out;
 	end
-	// controller for andOp_83.andOp_83_in0
-	// controller for andOp_83.andOp_83_in1
+	// controller for andOp_82.andOp_82_in0
+	// controller for andOp_82.andOp_82_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_83_in0 = valid ? bb_1_active_out_data : bb_1_active_out_data;
-		andOp_83_in1 = valid ? eq_82_out : eq_82_out;
+		andOp_82_in0 = valid ? bb_1_active_out_data : bb_1_active_out_data;
+		andOp_82_in1 = valid ? eq_81_out : eq_81_out;
 	end
-	// controller for andOp_85.andOp_85_in0
-	// controller for andOp_85.andOp_85_in1
+	// controller for andOp_84.andOp_84_in0
+	// controller for andOp_84.andOp_84_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_85_in0 = valid ? bb_1_active_out_data : bb_1_active_out_data;
-		andOp_85_in1 = valid ? eq_84_out : eq_84_out;
+		andOp_84_in0 = valid ? bb_1_active_out_data : bb_1_active_out_data;
+		andOp_84_in1 = valid ? eq_83_out : eq_83_out;
+	end
+	// controller for andOp_86.andOp_86_in0
+	// controller for andOp_86.andOp_86_in1
+	// Insensitive connections
+	always @(*) begin
+		andOp_86_in0 = valid ? bb_1_active_out_data : bb_1_active_out_data;
+		andOp_86_in1 = valid ? eq_85_out : eq_85_out;
 	end
 	// controller for andOp_87.andOp_87_in0
 	// controller for andOp_87.andOp_87_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_87_in0 = valid ? bb_1_active_out_data : bb_1_active_out_data;
-		andOp_87_in1 = valid ? eq_86_out : eq_86_out;
+		andOp_87_in0 = valid ? out_write_ready : out_write_ready;
+		andOp_87_in1 = valid ? andOp_86_out : andOp_86_out;
 	end
 	// controller for andOp_89.andOp_89_in0
 	// controller for andOp_89.andOp_89_in1
@@ -2565,36 +2565,36 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for eq_77.eq_77_in1
 	// Insensitive connections
 	always @(*) begin
-		eq_77_in0 = valid ? 32'd4 : 32'd4;
+		eq_77_in0 = valid ? 32'd5 : 32'd5;
 		eq_77_in1 = valid ? global_state : global_state;
 	end
-	// controller for eq_80.eq_80_in0
-	// controller for eq_80.eq_80_in1
+	// controller for eq_79.eq_79_in0
+	// controller for eq_79.eq_79_in1
 	// Insensitive connections
 	always @(*) begin
-		eq_80_in0 = valid ? 32'd5 : 32'd5;
-		eq_80_in1 = valid ? global_state : global_state;
+		eq_79_in0 = valid ? 32'd5 : 32'd5;
+		eq_79_in1 = valid ? global_state : global_state;
 	end
-	// controller for eq_82.eq_82_in0
-	// controller for eq_82.eq_82_in1
+	// controller for eq_81.eq_81_in0
+	// controller for eq_81.eq_81_in1
 	// Insensitive connections
 	always @(*) begin
-		eq_82_in0 = valid ? 32'd5 : 32'd5;
-		eq_82_in1 = valid ? global_state : global_state;
+		eq_81_in0 = valid ? 32'd6 : 32'd6;
+		eq_81_in1 = valid ? global_state : global_state;
 	end
-	// controller for eq_84.eq_84_in0
-	// controller for eq_84.eq_84_in1
+	// controller for eq_83.eq_83_in0
+	// controller for eq_83.eq_83_in1
 	// Insensitive connections
 	always @(*) begin
-		eq_84_in0 = valid ? 32'd6 : 32'd6;
-		eq_84_in1 = valid ? global_state : global_state;
+		eq_83_in0 = valid ? 32'd4 : 32'd4;
+		eq_83_in1 = valid ? global_state : global_state;
 	end
-	// controller for eq_86.eq_86_in0
-	// controller for eq_86.eq_86_in1
+	// controller for eq_85.eq_85_in0
+	// controller for eq_85.eq_85_in1
 	// Insensitive connections
 	always @(*) begin
-		eq_86_in0 = valid ? 32'd4 : 32'd4;
-		eq_86_in1 = valid ? global_state : global_state;
+		eq_85_in0 = valid ? 32'd4 : 32'd4;
+		eq_85_in1 = valid ? global_state : global_state;
 	end
 	// controller for eq_88.eq_88_in0
 	// controller for eq_88.eq_88_in1
@@ -2704,7 +2704,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	end
 	// controller for out.out_in_data_reg
 	always @(*) begin
-		if (andOp_83_out) begin 
+		if (andOp_80_out) begin 
 			out_in_data_reg = rdata_ram_0;
 		end else begin
 			out_in_data_reg = 0;
@@ -2712,9 +2712,9 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	end
 	// controller for out.out_write_valid_reg
 	always @(*) begin
-		if (andOp_81_out) begin 
+		if (andOp_78_out) begin 
 			out_write_valid_reg = -(1'd1);
-		end else if (andOp_85_out) begin 
+		end else if (andOp_82_out) begin 
 			out_write_valid_reg = (1'd0);
 		end else begin
 			out_write_valid_reg = 0;
@@ -2769,7 +2769,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 			wen_ram_0_reg = 0;
 		end
 	end
-	// controller for ret_23.valid_reg
+	// controller for ret_24.valid_reg
 	always @(*) begin
 		if (andOp_89_out) begin 
 			valid_reg = 1;
