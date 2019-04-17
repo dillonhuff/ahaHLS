@@ -2549,7 +2549,6 @@ namespace ahaHLS {
       }
 
       nextLevel = {};
-      //currentLevel = nextLevel;
       levelNo++;
     }
     return levels;
