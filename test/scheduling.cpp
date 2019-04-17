@@ -1315,19 +1315,20 @@ namespace ahaHLS {
     entryBuilder.CreateBr(loopBlock);
 
     IRBuilder<> loopBuilder(loopBlock);
-    auto indPhi = loopBuilder.CreatePHI(intType(32), 2);    
+    auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
+    auto twoIndPhi = loopBuilder.CreateMul(mkInt(2, 32), indPhi);
     auto xPhi = loopBuilder.CreatePHI(intType(32), 2);
     auto yPhi = loopBuilder.CreatePHI(intType(32), 2);
     auto nextInd = loopBuilder.CreateAdd(indPhi, one);
 
     storeRAMVal(loopBuilder,
                 getArg(f, 0),
-                indPhi,
+                twoIndPhi,
                 yPhi);
 
     storeRAMVal(loopBuilder,
                 getArg(f, 0),
-                loopBuilder.CreateAdd(indPhi, mkInt(1, 32)),
+                loopBuilder.CreateAdd(twoIndPhi, mkInt(1, 32)),
                 xPhi);
     
     auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);

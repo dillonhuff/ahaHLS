@@ -2439,12 +2439,29 @@ namespace ahaHLS {
     return map_find(blk, stg.sched.controlPredecessors).size() == 0;
   }
 
+  set<BasicBlock*> outOfStatePredecessors(const StateId state,
+                                          BasicBlock* blk,
+                                          STG& stg) {
+    if (noPredecessors(blk, stg)) {
+      return {};
+    }
+
+    set<BasicBlock*> preds;
+    for (auto pred : predecessors(blk)) {
+      if (stg.instructionEndState(blk->getTerminator()) != state) {
+        preds.insert(pred);
+      }
+    }
+    return preds;
+  }
+
   std::set<BasicBlock*> entryBlocks(const StateId state,
                                     STG& stg) {
     auto activeBlks = blocksInState(state, stg);
     set<BasicBlock*> entryBlks;
     for (auto blk : activeBlks) {
       if (noPredecessors(blk, stg)) {
+        // This is the function entry block
         entryBlks.insert(blk);
       } else if (stg.blockStartState(blk) != state) {
 
@@ -2455,15 +2472,19 @@ namespace ahaHLS {
 
       } else {
 
-        bool hasPreStatePred = false;
-        for (auto pred : map_find(blk, stg.sched.controlPredecessors)) {
-          if (stg.instructionEndState(pred->getTerminator()) != state) {
-            hasPreStatePred = true;
-            break;
-          }
-        }
+        // bool hasPreStatePred = false;
+        // for (auto pred : map_find(blk, stg.sched.controlPredecessors)) {
+        //   if (stg.instructionEndState(pred->getTerminator()) != state) {
+        //     hasPreStatePred = true;
+        //     break;
+        //   }
+        // }
 
-        if (hasPreStatePred) {
+        // if (hasPreStatePred) {
+        //   entryBlks.insert(blk);
+        // }
+
+        if (outOfStatePredecessors(state, blk, stg).size() > 0) {
           entryBlks.insert(blk);
         }
 
@@ -2527,13 +2548,14 @@ namespace ahaHLS {
         if (elem(blk, allInState) && !contains_key(blk, levels)) {
 
           bool allSameStatePredsEarlier = true;
-          for (auto pred : sameStatePredecessors(blk, state, stg)) {
+          auto sameStatePreds = sameStatePredecessors(blk, state, stg);
+          for (auto pred : sameStatePreds) {
             if (!contains_key(pred, levels)) {
               allSameStatePredsEarlier = false;
             }
           }
           
-          if (allSameStatePredsEarlier) {
+          if ((sameStatePreds.size() > 0) && allSameStatePredsEarlier) {
             nextLevel.insert(blk);
           }
           
@@ -2626,7 +2648,8 @@ namespace ahaHLS {
       //   2. Blocks starting but not ending
       //   3. Blocks ending but not starting?
       //   4. Blocks that do not start or end but are active
-      //   5. Topological levels of each block in the state for each possible entry
+      //   5. Out of state transitions
+      //   6. In to state transitions
       
     }
 

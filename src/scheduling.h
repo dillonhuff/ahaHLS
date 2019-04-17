@@ -1603,6 +1603,11 @@ namespace ahaHLS {
                        ExecutionConstraints& exec);
 
   ModuleSpec registerModSpec(const int width);
+
+  map<BasicBlock*, map<BasicBlock*, int> >
+  topologicalLevelsForBlocks(const StateId state,
+                             STG& stg);
+  
 }
 
 

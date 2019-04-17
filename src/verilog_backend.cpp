@@ -16,6 +16,12 @@ using namespace std;
 
 namespace ahaHLS {
 
+  Wire checkEqual(const int value, const Wire w, MicroArchitecture& arch);
+  
+  PortController& addPortController(const std::string& name,
+                                    const int width,
+                                    MicroArchitecture& arch);
+  
   Wire blockActiveInState(const StateId state,
                           BasicBlock* const blk,
                           MicroArchitecture& arch);
@@ -1209,12 +1215,48 @@ namespace ahaHLS {
         BasicBlock* userBB = instr->getParent();
 
         if (argBB != userBB) {
-          // TODO: Check if the instruction is forward inside the given state
-          if (getValueFromStorage(instr, instr0, argState, arch)) {
-            return mostRecentStorageLocation(instr0, currentPosition, arch);
-          } else {
-            return dataOutput(instr0, arch);            
+
+          int dataWidth = getValueBitWidth(instr0);
+          string wireName = arch.uniqueName("tmp_output");
+          PortController& controller =
+            addPortController(wireName, dataWidth, arch);
+
+          Wire storedWire = wire(dataWidth, mostRecentStorageLocation(instr0, currentPosition, arch));
+          Wire liveWire = wire(dataWidth, dataOutput(instr0, arch));
+
+          // TODO: Dont re-compute this every time
+          auto topoLevels =
+            topologicalLevelsForBlocks(thisState, arch.stg);
+
+          for (auto entryToLevels : topoLevels) {
+            BasicBlock* entryBlock = entryToLevels.first;
+
+            Wire enteredThisBlk = checkEqual(arch.cs.getBasicBlockNo(entryBlock),
+                                             wire(32, "global_next_block"),
+                                             arch);
+
+            if (!contains_key(argBB, entryToLevels.second)) {
+              controller.setCond("in_data", enteredThisBlk, storedWire);
+            } else {
+              int userLevel = map_find(userBB, entryToLevels.second);
+              int definedLevel = map_find(argBB, entryToLevels.second);
+
+              if (userLevel >= definedLevel) {
+                controller.setCond("in_data", enteredThisBlk, liveWire);                
+              } else {
+                controller.setCond("in_data", enteredThisBlk, storedWire);                
+              }
+            }
           }
+
+          return controller.functionalUnit().outputWire("out_data");
+          //assert(false);
+          // // TODO: Check if the instruction is forward inside the given state
+          // if (getValueFromStorage(instr, instr0, argState, arch)) {
+          //   return mostRecentStorageLocation(instr0, currentPosition, arch);
+          // } else {
+          //   return dataOutput(instr0, arch);            
+          // }
         }
 
         OrderedBasicBlock obb(argBB);
