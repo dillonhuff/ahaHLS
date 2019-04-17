@@ -471,7 +471,10 @@ namespace ahaHLS {
     pm.run(*(f->getParent()));
 
     Schedule s = skeleton->schedule;
-
+    if (contains_key(f, constraints)) {
+      s.controlPredecessors = map_find(f, constraints).controlPredecessors;
+    }
+    
     return s;
   }
 
@@ -2405,6 +2408,28 @@ namespace ahaHLS {
 
   }
 
+  std::string blkNameString(BasicBlock* const blk) {
+    if (blk->getName() != "") {
+      return blk->getName();
+    }
+
+    return "anon_blk, terminator = " + valueString(blk->getTerminator());
+  }
+
+  std::set<BasicBlock*> blocksInState(const StateId state,
+                                      STG& stg) {
+    set<BasicBlock*> inState;
+    for (auto blk : stg.sched.blockTimes) {
+      StateId start = stg.blockStartState(blk.first);
+      StateId end = stg.blockEndState(blk.first);      
+      if ((start <= state) && (state <= end)) {
+        inState.insert(blk.first);
+      }
+    }
+
+    return inState;
+  }
+  
   void StateTransitionGraph::print(std::ostream& out) {
     out << "--- # of states = " << opStates.size() << std::endl;
     for (auto st : opStates) {
@@ -2426,6 +2451,17 @@ namespace ahaHLS {
       // for (auto instr : st.second) {
       //   out << valueString(instr) << std::endl;
       // }
+    }
+
+    out << "--- Block transition info" << endl;
+    for (auto& st : opStates) {
+      StateId state = st.first;
+      out << tab(1) << "-- State " << st.first << endl;
+      set<BasicBlock*> inState = blocksInState(state, *this);
+      out << tab(2) << "- Blocks in state" << endl;
+      for (auto blk : inState) {
+        out << tab(3) << blkNameString(blk) << endl;
+      }
     }
 
     out << "--- State Transistions" << std::endl;      
@@ -2607,8 +2643,8 @@ namespace ahaHLS {
     auto setValid1 = exitBuilder.CreateCall(setValidF, {stream, mkInt(1, 1)});
     auto readStencilLast = exitBuilder.CreateCall(readStencilLastF, {inDataPtr});
     auto readStencilData = exitBuilder.CreateCall(readStencilDataF, {inDataPtr});    
-    auto writeData = exitBuilder.CreateCall(writeDataF, {stream, readStencilData});
-    auto writeLast = exitBuilder.CreateCall(writeLastF, {stream, readStencilLast}); 
+    exitBuilder.CreateCall(writeDataF, {stream, readStencilData});
+    exitBuilder.CreateCall(writeLastF, {stream, readStencilLast}); 
     
     exitBuilder.CreateRet(nullptr);
 

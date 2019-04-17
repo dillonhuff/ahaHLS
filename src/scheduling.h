@@ -443,6 +443,8 @@ namespace ahaHLS {
     int defaultReturnState;
     bool hasRetDefault;
 
+    std::map<llvm::BasicBlock*, std::vector<llvm::BasicBlock*> > controlPredecessors;
+
     Schedule() : hasRetDefault(false) {}
 
     bool hasReturnDefault() const { return hasRetDefault; }
