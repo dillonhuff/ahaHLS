@@ -909,6 +909,8 @@ namespace ahaHLS {
     bool optimize;
     LinearExpression objectiveFunction;
 
+    std::map<llvm::BasicBlock*, std::vector<llvm::BasicBlock*> > controlPredecessors;
+
     SchedulingProblem(const HardwareConstraints& hcs_) :
       blockNo(0), hdc(hcs_), optimize(false) {}
 

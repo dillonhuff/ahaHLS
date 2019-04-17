@@ -766,6 +766,7 @@ namespace ahaHLS {
       }
       
     }
+
     // std::vector<BasicBlock*> sortedBlocks =
     //   topologicalSortOfBlocks(f, controlPredecessors);
     // for (int i = 0; i < (int) sortedBlocks.size() - 1; i++) {
@@ -779,6 +780,8 @@ namespace ahaHLS {
     ExecutionConstraints exe;
     addDataConstraints(f, exe);
     exe.addConstraints(p, f);
+
+    p.controlPredecessors = controlPredecessors;
 
     return p;
   }
@@ -2673,7 +2676,7 @@ namespace ahaHLS {
     
     auto readReadyF = readPort("read_ready", 1, streamTp);
     auto setValidF = writePort("read_valid", 1, streamTp);
-    auto stallF = stallFunction();
+    //auto stallF = stallFunction();
 
     // While loop implementation
     auto entryBlk = mkBB("entry_blk", stencilCall);
