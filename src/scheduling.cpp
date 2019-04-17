@@ -2491,10 +2491,77 @@ namespace ahaHLS {
     return transitions;
   }
 
+  set<BasicBlock*> sameStatePredecessors(BasicBlock* blk,
+                                         const StateId state,
+                                         STG& stg) {
+    if (noPredecessors(blk, stg)) {
+      return {};
+    }
+
+    set<BasicBlock*> preds;
+    for (auto pred : map_find(blk, stg.sched.controlPredecessors)) {
+      if (stg.instructionEndState(pred->getTerminator()) == state) {
+        preds.insert(pred);
+      }
+    }
+
+    return preds;
+  }
+  
+  // Note: Some blocks will be unreachable for a given entry block
+  std::map<llvm::BasicBlock*, int>
+  topologicalLevelsAssumingEntry(const StateId state,
+                                 BasicBlock* entryBlk,
+                                 STG& stg) {
+    map<BasicBlock*, int> levels;
+
+    levels[entryBlk] = 0;
+    int levelNo = 1;
+    set<BasicBlock*> allInState = blocksInState(state, stg);
+    while (true) {
+      set<BasicBlock*> nextLevel;
+
+      // For every block in the design if all same state predecessors
+      // of the block are already in 
+      for (auto blk : allInState) {
+        if (elem(blk, allInState) && !contains_key(blk, levels)) {
+
+          bool allSameStatePredsEarlier = true;
+          for (auto pred : sameStatePredecessors(blk, state, stg)) {
+            if (!contains_key(pred, levels)) {
+              allSameStatePredsEarlier = false;
+            }
+          }
+          
+          if (allSameStatePredsEarlier) {
+            nextLevel.insert(blk);
+          }
+          
+        }
+      }
+      
+      for (auto blk : nextLevel) {
+        levels[blk] = levelNo;
+      }
+
+      if (nextLevel.size() == 0) {
+        break;
+      }
+
+      nextLevel = {};
+      //currentLevel = nextLevel;
+      levelNo++;
+    }
+    return levels;
+  }
+  
   map<BasicBlock*, map<BasicBlock*, int> >
   topologicalLevelsForBlocks(const StateId state,
                              STG& stg) {
     map<BasicBlock*, map<BasicBlock*, int> > levels;
+    for (auto blk : entryBlocks(state, stg)) {
+      levels[blk] = topologicalLevelsAssumingEntry(state, blk, stg);
+    }
     return levels;
   }
   
@@ -2550,6 +2617,9 @@ namespace ahaHLS {
       out << tab(2) << "- Topological levels for blocks by entry" << endl;
       for (auto ent : blockLevelsForEntries) {
         out << tab(3) << "Entry: " << blkNameString(ent.first) << " implies levels" << endl;
+        for (auto blockLevel : ent.second) {
+          out << tab(4) << blkNameString(blockLevel.first) << " at level " << blockLevel.second << endl;
+        }
       }
 
       // To add:
