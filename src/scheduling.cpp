@@ -2490,6 +2490,13 @@ namespace ahaHLS {
 
     return transitions;
   }
+
+  map<BasicBlock*, map<BasicBlock*, int> >
+  topologicalLevelsForBlocks(const StateId state,
+                             STG& stg) {
+    map<BasicBlock*, map<BasicBlock*, int> > levels;
+    return levels;
+  }
   
   void StateTransitionGraph::print(std::ostream& out) {
     out << "--- # of states = " << opStates.size() << std::endl;
@@ -2538,11 +2545,19 @@ namespace ahaHLS {
         out << tab(3) << blkNameString(transition.first) << " -> " << blkNameString(transition.second) << endl;
       }
 
+      map<BasicBlock*, map<BasicBlock*, int> > blockLevelsForEntries =
+        topologicalLevelsForBlocks(state, *this);
+      out << tab(2) << "- Topological levels for blocks by entry" << endl;
+      for (auto ent : blockLevelsForEntries) {
+        out << tab(3) << "Entry: " << blkNameString(ent.first) << " implies levels" << endl;
+      }
+
       // To add:
       //   1. Blocks fully in states
       //   2. Blocks starting but not ending
       //   3. Blocks ending but not starting?
       //   4. Blocks that do not start or end but are active
+      //   5. Topological levels of each block in the state for each possible entry
       
     }
 
