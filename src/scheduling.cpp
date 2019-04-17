@@ -2446,6 +2446,13 @@ namespace ahaHLS {
     for (auto blk : activeBlks) {
       if (noPredecessors(blk, stg)) {
         entryBlks.insert(blk);
+      } else if (stg.blockStartState(blk) != state) {
+
+        // Any block that is active in this state, but does not start
+        // in this state could have been active in a previous state
+        // and transitioned to this state
+        entryBlks.insert(blk);
+
       } else {
 
         bool hasPreStatePred = false;
@@ -2459,12 +2466,31 @@ namespace ahaHLS {
         if (hasPreStatePred) {
           entryBlks.insert(blk);
         }
+
+
       }
     }
 
     return entryBlks;
   }
 
+  std::set<std::pair<BasicBlock*, BasicBlock*> >
+  getInStateTransitions(const StateId state,
+                        STG& stg) {
+    set<pair<BasicBlock*, BasicBlock*> > transitions;
+    for (auto blkPreds : stg.sched.controlPredecessors) {
+      BasicBlock* dest = blkPreds.first;
+      for (auto src : blkPreds.second) {
+        if ((stg.blockStartState(dest) == state) &&
+            (stg.blockEndState(src) == state)) {
+          transitions.insert({src, dest});
+        }
+      }
+    }
+
+    return transitions;
+  }
+  
   void StateTransitionGraph::print(std::ostream& out) {
     out << "--- # of states = " << opStates.size() << std::endl;
     for (auto st : opStates) {
@@ -2504,6 +2530,19 @@ namespace ahaHLS {
       for (auto blk : startBlocks) {
         out << tab(3) << blkNameString(blk) << endl;
       }
+
+      set<pair<BasicBlock*, BasicBlock*> > inStateTransitions =
+        getInStateTransitions(state, *this);
+      out << tab(2) << "- In state transitions" << endl;
+      for (auto transition : inStateTransitions) {
+        out << tab(3) << blkNameString(transition.first) << " -> " << blkNameString(transition.second) << endl;
+      }
+
+      // To add:
+      //   1. Blocks fully in states
+      //   2. Blocks starting but not ending
+      //   3. Blocks ending but not starting?
+      //   4. Blocks that do not start or end but are active
       
     }
 
