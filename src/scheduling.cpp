@@ -141,6 +141,9 @@ namespace ahaHLS {
           p.controlPredecessors;
         
       } else {
+
+        // Maybe the input should be ExecutionConstraints rather than
+        // a SchedulingProblem?
         SchedulingProblem p = map_find(&F, functionConstraints);
 
         addMemoryConstraints(&F,
@@ -1060,7 +1063,8 @@ namespace ahaHLS {
     exe.addConstraints(p, f);
 
   }
-  
+
+  // Dewarping, shading?
   SchedulingProblem
   createSchedulingProblem(llvm::Function* f,
                           HardwareConstraints& hdc,
@@ -1073,22 +1077,18 @@ namespace ahaHLS {
     return p;
   }
   
-  Schedule scheduleFunction(llvm::Function* f,
-                            HardwareConstraints& hdc,
-                            std::set<BasicBlock*>& toPipeline,
-                            AAResults& aliasAnalysis,
-                            ScalarEvolution& sc) {
+  // Schedule scheduleFunction(llvm::Function* f,
+  //                           HardwareConstraints& hdc,
+  //                           std::set<BasicBlock*>& toPipeline,
+  //                           AAResults& aliasAnalysis,
+  //                           ScalarEvolution& sc) {
+  //   SchedulingProblem p =
+  //     createSchedulingProblem(f, hdc, toPipeline, aliasAnalysis, sc);
 
-    // Remove builtin calls and replace them with sequences of calls
-    // to port setting functions?
-
-    SchedulingProblem p =
-      createSchedulingProblem(f, hdc, toPipeline, aliasAnalysis, sc);
-
-    Schedule s = buildFromModel(p);
-    s.controlPredecessors = p.controlPredecessors;
-    return s;
-  }
+  //   Schedule s = buildFromModel(p);
+  //   s.controlPredecessors = p.controlPredecessors;
+  //   return s;
+  // }
   
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc) {
     set<BasicBlock*> toPipeline;
