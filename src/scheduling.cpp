@@ -1624,7 +1624,7 @@ namespace ahaHLS {
 
     auto tp = out->getType();
     
-    int width = getTypeBitWidth(dataPtrTp->getElementType()); //getValueBitWidth(getArg(writeFifo, 1));
+    int width = getTypeBitWidth(dataPtrTp->getElementType());
 
     cout << "Data width of " << typeString(dataPtrTp) << " = " << width << endl;
 
