@@ -3847,6 +3847,13 @@ namespace ahaHLS {
     }
 
   }
+
+  void addDisplay(const std::string& cond,
+                  const std::string& condStr,
+                  const std::vector<std::string>& vars,
+                  VerilogDebugInfo& debugInfo) {
+    addAlwaysBlock({"clk"}, "if (" + cond + ") begin $display(\"" + condStr + "\", " + commaListString(vars) + "); end", debugInfo);
+  }
   
   void printInstrAtState(Instruction* instr,
                          StateId st,
@@ -3951,6 +3958,44 @@ namespace ahaHLS {
 
           addAssert(notStr(active) + " || " + valCheck, debugInfo);
         }
+      }
+    }
+  }
+
+  void addSetStencilChecks(MicroArchitecture& arch,
+                           VerilogDebugInfo& info) {
+    for (auto& bb : arch.stg.getFunction()->getBasicBlockList()) {
+      for (auto& instrRef : bb) {
+        auto instr = &instrRef;
+        if (isBuiltinPortWrite(instr)) {
+          string portName = getPortName(instr);
+          if (portName == "set_data") {
+            printInstrAtState(instr, arch.stg.instructionStartState(instr), arch, info);
+          }
+
+          if (portName == "in_data_bus") {
+
+            StateId state = arch.stg.instructionStartState(instr);
+            auto iStr = sanitizeFormatForVerilog(instructionString(instr));
+
+            string active =
+              blockActiveInState(state, instr->getParent(), arch).valueString();
+            vector<string> argValues;
+            ControlFlowPosition pos = position(state, instr, arch);
+            string argString = "";
+            for (int i = 1; i < (int) instr->getNumOperands() - 1; i++) {
+              cout << "argument " << i << " = " << valueString(instr->getOperand(i)) << endl;
+              argValues.push_back(outputName(instr->getOperand(i), pos, arch));
+              //argValues.push_back("dummy");
+              argString += "\\targ " + to_string(i) + " = %d\\n";
+            }
+            addDisplay(active, argString, argValues, info);
+            
+            //printInstrAtState(instr, arch.stg.instructionStartState(instr), arch, info);
+          }
+
+        }
+
       }
     }
   }

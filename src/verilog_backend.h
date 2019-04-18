@@ -741,5 +741,8 @@ namespace ahaHLS {
   void addControlSanityChecks(MicroArchitecture& arch,
                               VerilogDebugInfo& info);
 
+
+  void addSetStencilChecks(MicroArchitecture& arch,
+                           VerilogDebugInfo& info);
   
 }

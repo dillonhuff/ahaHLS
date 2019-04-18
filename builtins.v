@@ -1569,6 +1569,9 @@ module AxiPackedStencil(input clk,
       end
    end
 
+   // assign last_bus = set_data ? in_last_bus : (set_last_en ? set_last_value : data[0]);
+   // assign data_bus = set_data ? in_data_bus : data[DATA_WIDTH + 1 - 1 : 1];
+
    assign last_bus = data[0];
    assign data_bus = data[DATA_WIDTH + 1 - 1 : 1];
    

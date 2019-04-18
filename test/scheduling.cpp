@@ -5116,10 +5116,18 @@ namespace ahaHLS {
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
 
-    emitVerilog("stencil_copy", graph, hcs, info);
+
 
     map<llvm::Value*, int> layout = {};
+    
     auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+    addNoXChecks(arch, info);
+    addSetStencilChecks(arch, info);
+    emitVerilog("stencil_copy", arch, info);
+
+    //emitVerilog("stencil_copy", graph, hcs, info);
+
 
     auto in = dyn_cast<Argument>(getArg(f, 0));
     auto out = dyn_cast<Argument>(getArg(f, 1));    

@@ -2094,8 +2094,8 @@ namespace ahaHLS {
 
     IRBuilder<> stallReadyBuilder(stallReadyBlk);
     auto readReady = stallReadyBuilder.CreateCall(readReadyF, {readMod});
-    auto setStartRead = stallReadyBuilder.CreateCall(writeStartReadF, {readMod, mkInt(1, 1)});
-    auto writeAddr = stallReadyBuilder.CreateCall(writeRaddrF, {readMod, getArg(axiRead, 1)});
+    stallReadyBuilder.CreateCall(writeStartReadF, {readMod, mkInt(1, 1)});
+    stallReadyBuilder.CreateCall(writeRaddrF, {readMod, getArg(axiRead, 1)});
     stallReadyBuilder.CreateCondBr(readReady, stallValidBlk, stallReadyBlk);
 
     IRBuilder<> stallValidBuilder(stallValidBlk);

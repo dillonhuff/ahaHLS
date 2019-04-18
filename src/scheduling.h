@@ -1607,7 +1607,7 @@ namespace ahaHLS {
   map<BasicBlock*, map<BasicBlock*, int> >
   topologicalLevelsForBlocks(const StateId state,
                              STG& stg);
-  
+
 }
 
 
