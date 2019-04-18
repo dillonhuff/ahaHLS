@@ -129,17 +129,13 @@ namespace ahaHLS {
                                     toPipeline,
                                     a,
                                     sc);
+
       } else {
         SchedulingProblem p = map_find(&F, functionConstraints);
-        addMemoryConstraints(&F,
-                           hdc,
-                           toPipeline,
-                           a,
-                           sc,
-                           p);
 
         schedule = buildFromModel(p);
-        
+        schedule.controlPredecessors =
+          p.controlPredecessors;
       }
 
       return false;
@@ -471,9 +467,9 @@ namespace ahaHLS {
     pm.run(*(f->getParent()));
 
     Schedule s = skeleton->schedule;
-    if (contains_key(f, constraints)) {
-      s.controlPredecessors = map_find(f, constraints).controlPredecessors;
-    }
+    // if (contains_key(f, constraints)) {
+    //   s.controlPredecessors = map_find(f, constraints).controlPredecessors;
+    // }
     
     return s;
   }
@@ -1027,7 +1023,9 @@ namespace ahaHLS {
     SchedulingProblem p =
       createSchedulingProblem(f, hdc, toPipeline, aliasAnalysis, sc);
 
-    return buildFromModel(p);
+    Schedule s = buildFromModel(p);
+    s.controlPredecessors = p.controlPredecessors;
+    return s;
   }
   
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc) {
@@ -2439,13 +2437,20 @@ namespace ahaHLS {
     return map_find(blk, stg.sched.controlPredecessors).size() == 0;
   }
 
+  // Note: Topological sort of entry blocks is the critical thing here
+  // The in state transitions are the transitions from one block
+  // to another where the end of the source and start of the dest
+  // are 
   std::set<std::pair<BasicBlock*, BasicBlock*> >
   getInStateTransitions(const StateId state,
                         STG& stg) {
     set<pair<BasicBlock*, BasicBlock*> > transitions;
     for (auto blkPreds : stg.sched.controlPredecessors) {
+
       BasicBlock* dest = blkPreds.first;
       for (auto src : blkPreds.second) {
+
+        //cout << "control transition from " << blkNameString(src) << " to " << blkNameString(dest) << endl;
         if ((stg.blockStartState(dest) == state) &&
             (stg.blockEndState(src) == state)) {
           transitions.insert({src, dest});
