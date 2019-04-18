@@ -1508,6 +1508,7 @@ namespace ahaHLS {
     exitBuilder.CreateRet(readValue);
 
     exec.add(end(stallBlk) + 1 == instrStart(setValid1));
+    //exec.add(end(stallBlk) == instrStart(setValid1));
     exec.add(instrStart(setValid1) + 1 == instrStart(readValue));
 
     addDataConstraints(readFifo, exec);

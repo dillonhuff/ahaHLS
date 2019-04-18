@@ -83,7 +83,12 @@ module test();
       `POSEDGE
       `POSEDGE
       `POSEDGE
-
+      `POSEDGE
+      `POSEDGE
+      `POSEDGE
+      `POSEDGE
+      `POSEDGE
+      `POSEDGE                
       `POSEDGE        
 
       #1 `assert(write_ready0, 1'd1)

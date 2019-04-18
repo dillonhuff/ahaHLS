@@ -2774,97 +2774,97 @@ namespace ahaHLS {
 
     hcs.setCount(MUL_OP, 4);
 
-    set<BasicBlock*> toPipeline;
-    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
-    exec.addConstraints(p, f);
-    p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
-    // Add gep restriction
-    for (auto& bb : f->getBasicBlockList()) {
-      for (auto& instrR : bb) {
-        auto instr = &instrR;
-        int numUsers = instr->getNumUses();
+    // set<BasicBlock*> toPipeline;
+    // SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    // exec.addConstraints(p, f);
+    // p.setObjective(p.blockEnd(blk) - p.blockStart(blk));
+    // // Add gep restriction
+    // for (auto& bb : f->getBasicBlockList()) {
+    //   for (auto& instrR : bb) {
+    //     auto instr = &instrR;
+    //     int numUsers = instr->getNumUses();
 
-        if (!BinaryOperator::classof(instr) && (numUsers == 1)) {
-          auto& user = *(instr->uses().begin());
-          assert(Instruction::classof(user));
-          auto userInstr = dyn_cast<Instruction>(user.getUser());
-          p.addConstraint(p.instrEnd(instr) == p.instrStart(userInstr));
-        }
-      }
-    }
-    map<Function*, SchedulingProblem> constraints{{f, p}};
-    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
-    STG graph = buildSTG(s, f);
+    //     if (!BinaryOperator::classof(instr) && (numUsers == 1)) {
+    //       auto& user = *(instr->uses().begin());
+    //       assert(Instruction::classof(user));
+    //       auto userInstr = dyn_cast<Instruction>(user.getUser());
+    //       p.addConstraint(p.instrEnd(instr) == p.instrStart(userInstr));
+    //     }
+    //   }
+    // }
+    // map<Function*, SchedulingProblem> constraints{{f, p}};
+    // Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+    // STG graph = buildSTG(s, f);
 
-    cout << "STG Is" << endl;
-    graph.print(cout);
+    // cout << "STG Is" << endl;
+    // graph.print(cout);
 
-    //REQUIRE(graph.numControlStates() == 8);
+    // //REQUIRE(graph.numControlStates() == 8);
 
-    for (auto& st : graph.opStates) {
-      int numReads = 0;
-      int numWrites = 0;
-      int numMuls = 0;
-      int numAdds = 0;
-      int numLoads = 0;
-      int numStores = 0;
+    // for (auto& st : graph.opStates) {
+    //   int numReads = 0;
+    //   int numWrites = 0;
+    //   int numMuls = 0;
+    //   int numAdds = 0;
+    //   int numLoads = 0;
+    //   int numStores = 0;
 
-      for (auto instrG : graph.instructionsStartingAt(st.first)) {
-        Instruction* instr = instrG;
-        if (isBuiltinFifoRead(instr)) {
-          numReads++;
-        }
+    //   for (auto instrG : graph.instructionsStartingAt(st.first)) {
+    //     Instruction* instr = instrG;
+    //     if (isBuiltinFifoRead(instr)) {
+    //       numReads++;
+    //     }
 
-        if (isBuiltinFifoWrite(instr)) {
-          numWrites++;
-        }
+    //     if (isBuiltinFifoWrite(instr)) {
+    //       numWrites++;
+    //     }
 
-        if (instr->getOpcode() == Instruction::Mul) {
-          numMuls++;
-        }
+    //     if (instr->getOpcode() == Instruction::Mul) {
+    //       numMuls++;
+    //     }
 
-        if (instr->getOpcode() == Instruction::Add) {
-          numAdds++;
-        }
+    //     if (instr->getOpcode() == Instruction::Add) {
+    //       numAdds++;
+    //     }
 
-        if (LoadInst::classof(instr)) {
-          numLoads++;
-        }
+    //     if (LoadInst::classof(instr)) {
+    //       numLoads++;
+    //     }
 
-        if (StoreInst::classof(instr)) {
-          numStores++;
-        }
+    //     if (StoreInst::classof(instr)) {
+    //       numStores++;
+    //     }
         
-      }
+    //   }
 
-      // Looks like a register cannot be loaded from and stored to
-      // 
-      cout << "At state " << st.first << endl;
-      cout << tab(1) << " numReads     == " << numReads << endl;
-      cout << tab(1) << " numWrites    == " << numWrites << endl;
-      cout << tab(1) << " numMuls      == " << numMuls << endl;
-      cout << tab(1) << " numAdds      == " << numAdds << endl;
-      cout << tab(1) << " numLoads     == " << numLoads << endl;
-      cout << tab(1) << " numStores    == " << numStores << endl;
+    //   // Looks like a register cannot be loaded from and stored to
+    //   // 
+    //   cout << "At state " << st.first << endl;
+    //   cout << tab(1) << " numReads     == " << numReads << endl;
+    //   cout << tab(1) << " numWrites    == " << numWrites << endl;
+    //   cout << tab(1) << " numMuls      == " << numMuls << endl;
+    //   cout << tab(1) << " numAdds      == " << numAdds << endl;
+    //   cout << tab(1) << " numLoads     == " << numLoads << endl;
+    //   cout << tab(1) << " numStores    == " << numStores << endl;
 
-      bool res = (numReads == 0) || (numReads == 4);
-      REQUIRE(res);
-    }
+    //   bool res = (numReads == 0) || (numReads == 4);
+    //   REQUIRE(res);
+    // }
 
-    map<Value*, int> layout;
-    // ArchOptions options;
-    auto arch = buildMicroArchitecture(graph,
-                                       layout,
-                                       hcs);
+    // map<Value*, int> layout;
+    // // ArchOptions options;
+    // auto arch = buildMicroArchitecture(graph,
+    //                                    layout,
+    //                                    hcs);
 
-    VerilogDebugInfo info;
-    addNoXChecks(arch, info);
-    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
-    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+    // VerilogDebugInfo info;
+    // addNoXChecks(arch, info);
+    // info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    // info.debugAssigns.push_back({"global_state_dbg", "global_state"});
     
-    emitVerilog(arch, info);
+    // emitVerilog(arch, info);
 
-    REQUIRE(runIVerilogTB("sys_array_2x2"));
+    // REQUIRE(runIVerilogTB("sys_array_2x2"));
   }
 
   TEST_CASE("Phi node with 4 inputs") {
