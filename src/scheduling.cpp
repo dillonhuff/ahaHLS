@@ -23,24 +23,20 @@ using namespace z3;
 
 namespace ahaHLS {
 
-  // Maybe instructions in the STG opStates should be grouped by
-  // their basic block
-  // Also: Transitions in the STG should be grouped by their active block
-  // Only one block can be executing at a time, so only one block can be
-  // active on the transition
-  // Q: Can we infer opTransitions from the values of branches and the raw
-  //    schedule?
-  // A: I think the answer is yes. Each transition is just
-  //    the default numerically next state if no branches execute, or
-  //    is stateOf(start(blk)) if activeBlock == container(br blk)
-  //       stateOf(start(blk0)) if activeBlock == container(br c blk0, blk1) and c
-  //       stateOf(start(blk1)) if activeBlock == container(br c blk0, blk1) and !c
-  //    Active block is set by branch instructions themselves?
-  //    Maybe: Have passthrough register for active block, have branches set the
-  //           active block when they execute?
-  //           Q: What about pipelined designs?
-  //           A: Multiple active blocks, but only one frontier...
+  // Random note: In any meeting you have to allocate time
+  // to video conferencing debugging.
+  
+  // New problem: with merged blocks we need to add
+  // data constraints across blocks, but only the blocks
+  // that precede the user in the CFG. A few problems: one
+  // is that the info about precedence in scheduler CFG
+  // is in controlPredecessors. The other is that the selection
+  // of forward edges by the scheduler happens after inlining, so
+  // by the time it is done the original calls to functions such as
+  // copy_stencil have been inlined in to reads and writes to wires
 
+  // For now to see if tests work with adjustment to force block splitting
+  // for calls to stencil reads and writes?
   void
   addMemoryConstraints(llvm::Function* f,
                        HardwareConstraints& hdc,
@@ -756,8 +752,8 @@ namespace ahaHLS {
             //p.s.add(p.blockSink(next) < p.blockSource(nextBB));
 
             if (!elem(next, toPipeline) && !elem(nextBB, toPipeline)) {
-              p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
-              //p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
+              //p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
+              p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
             } else {
               p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
             }
@@ -793,9 +789,6 @@ namespace ahaHLS {
   // Solution to binding: Assume always unique, then modify program later
   // to reflect resource constraints?
 
-  // I also need to think about how to convert the readport, writeport APIxo
-  // description in a function in to sequential code snippets that can be
-  // used to drive a simulated model of a program.
   void
   addMemoryConstraints(llvm::Function* f,
                        HardwareConstraints& hdc,
@@ -805,6 +798,7 @@ namespace ahaHLS {
                        SchedulingProblem& p) {
 
     ExecutionConstraints exe;
+
     // Instructions must finish before their dependencies
     for (auto& bb : f->getBasicBlockList()) {
 
