@@ -35,6 +35,10 @@ namespace ahaHLS {
   // by the time it is done the original calls to functions such as
   // copy_stencil have been inlined in to reads and writes to wires
 
+  // TODO:
+  //   1. Move control predecessors up in to code outside the
+  //   2. Remove stall instructions from fifo reads and writes
+
   // For now to see if tests work with adjustment to force block splitting
   // for calls to stencil reads and writes?
   void
@@ -1076,19 +1080,6 @@ namespace ahaHLS {
 
     return p;
   }
-  
-  // Schedule scheduleFunction(llvm::Function* f,
-  //                           HardwareConstraints& hdc,
-  //                           std::set<BasicBlock*>& toPipeline,
-  //                           AAResults& aliasAnalysis,
-  //                           ScalarEvolution& sc) {
-  //   SchedulingProblem p =
-  //     createSchedulingProblem(f, hdc, toPipeline, aliasAnalysis, sc);
-
-  //   Schedule s = buildFromModel(p);
-  //   s.controlPredecessors = p.controlPredecessors;
-  //   return s;
-  // }
   
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc) {
     set<BasicBlock*> toPipeline;
