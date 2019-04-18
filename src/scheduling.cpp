@@ -2461,9 +2461,31 @@ namespace ahaHLS {
   // TODO: Implement address shifting / strobe?
   void implementRawAXIWrite(llvm::Function* axiWrite,
                             ExecutionConstraints& exec) {
-    auto entryBlk = mkBB("entry_block", axiWrite);
+    //auto entryBlk = mkBB("entry_block", axiWrite);
     //IRBuilder<> b(eb);
+
+    auto entryBlk = mkBB("entry_block", axiWrite);
+    auto stallAWReadyBlk = mkBB("stall_awready_block", axiWrite);
+    auto stallBValidBlk = mkBB("stall_bvalid_block", axiWrite);            
+    auto exitBlk = mkBB("exit_block", axiWrite);
+
+    IRBuilder<> entryBuilder(entryBlk);
+    entryBuilder.CreateBr(stallAWReadyBlk);
+
+    IRBuilder<> stallAWReadyBuilder(stallAWReadyBlk);
+    auto addrAndDataReady = mkInt(1, 1);
+    stallAWReadyBuilder.CreateCondBr(addrAndDataReady, stallBValidBlk, stallAWReadyBlk);    
+
+    IRBuilder<> stallBValidBuilder(stallBValidBlk);
+    auto bValid = mkInt(1, 1);
+    stallBValidBuilder.CreateCondBr(bValid, exitBlk, stallBValidBlk);
+    
+    IRBuilder<> exitBuilder(exitBlk);
+    exitBuilder.CreateRet(nullptr);
+    
     addDataConstraints(axiWrite, exec);
+
+    //awvalid, bvalid, writedata
 
     // auto readMod = getArg(axiWrite, 0);
     // cout << "ReadMod = " << valueString(readMod) << endl;
