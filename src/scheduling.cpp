@@ -1657,33 +1657,63 @@ namespace ahaHLS {
   
   void implementRVFifoWriteTemplate(llvm::Function* writeFifo,
                                     ExecutionConstraints& exec) {
-    auto eb = mkBB("entry_block", writeFifo);
-    IRBuilder<> b(eb);
 
     auto out = getArg(writeFifo, 0);
-    auto data = getArg(writeFifo, 1);
 
     auto tp = out->getType();
     int width = getValueBitWidth(getArg(writeFifo, 1));
-
+    
     auto writeDataF = writePort("in_data", width, tp);
     auto readReadyF = readPort("write_ready", 1, tp);
-
     auto setValidF = writePort("write_valid", 1, tp);
-    auto stallF = stallFunction();
 
-    auto readReady = b.CreateCall(readReadyF, {out});
-    auto stallUntilReady = b.CreateCall(stallF, {readReady});
-    auto setValid1 = b.CreateCall(setValidF, {out, mkInt(1, 1)});
-    auto setValid0 = b.CreateCall(setValidF, {out, mkInt(0, 1)});
-    auto writeValue = b.CreateCall(writeDataF, {out, data});
-      
-    b.CreateRet(nullptr);
+    auto entryBlk = mkBB("entry_block", writeFifo);
+    auto stallBlk = mkBB("stall_block", writeFifo);
+    auto exitBlk = mkBB("exit_block", writeFifo);
+
+    IRBuilder<> entryBuilder(entryBlk);
+    entryBuilder.CreateBr(stallBlk);
+
+    IRBuilder<> stallBuilder(stallBlk);
+    auto writeReady = stallBuilder.CreateCall(readReadyF, {out});
+    stallBuilder.CreateCondBr(writeReady, exitBlk, stallBlk);
+
+    IRBuilder<> exitBuilder(exitBlk);
+    auto setValid1 = exitBuilder.CreateCall(setValidF, {out, mkInt(1, 1)});
+    auto writeValue = exitBuilder.CreateCall(writeDataF, {out, getArg(writeFifo, 1)});
+    exitBuilder.CreateRet(nullptr);
+
+    exec.add(instrStart(setValid1) == instrStart(writeValue));
     
-    exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
-    exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
-    exec.addConstraint(instrStart(setValid1) == instrStart(writeValue));
-    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+    addDataConstraints(writeFifo, exec);
+    
+    // auto eb = mkBB("entry_block", writeFifo);
+    // IRBuilder<> b(eb);
+
+    // auto out = getArg(writeFifo, 0);
+    // auto data = getArg(writeFifo, 1);
+
+    // auto tp = out->getType();
+    // int width = getValueBitWidth(getArg(writeFifo, 1));
+
+    // auto writeDataF = writePort("in_data", width, tp);
+    // auto readReadyF = readPort("write_ready", 1, tp);
+
+    // auto setValidF = writePort("write_valid", 1, tp);
+    // auto stallF = stallFunction();
+
+    // auto readReady = b.CreateCall(readReadyF, {out});
+    // auto stallUntilReady = b.CreateCall(stallF, {readReady});
+    // auto setValid1 = b.CreateCall(setValidF, {out, mkInt(1, 1)});
+    // auto setValid0 = b.CreateCall(setValidF, {out, mkInt(0, 1)});
+    // auto writeValue = b.CreateCall(writeDataF, {out, data});
+      
+    // b.CreateRet(nullptr);
+    
+    // exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
+    // exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
+    // exec.addConstraint(instrStart(setValid1) == instrStart(writeValue));
+    // exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
   }
 
   Value* valueReplacement(Value* opI,
