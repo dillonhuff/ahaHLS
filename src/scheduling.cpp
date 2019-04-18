@@ -707,6 +707,39 @@ namespace ahaHLS {
     }
   }
 
+  bool hasStencilCall(BasicBlock* blk) {
+    for (auto& instrR : *blk) {
+      Instruction* instr = &instrR;
+      if (isBuiltinPortCall(instr)) {
+        
+        Value* val = instr->getOperand(0);
+        Type* argTp = val->getType();
+        assert(PointerType::classof(argTp));
+
+        Type* underlying = dyn_cast<PointerType>(argTp)->getElementType();
+
+        assert(StructType::classof(underlying));
+
+        StructType* stp = dyn_cast<StructType>(underlying);
+
+        cout << "Checking struct " << string(stp->getName()) << " has stencil" << endl;
+
+        if (hasPrefix(stp->getName(), "class.AxiPackedStencil")) {
+          cout << "Found stencil call" << endl;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  bool hasStencilCall(BasicBlock* a,
+                      BasicBlock* b) {
+    bool aHasStencil = hasStencilCall(a);
+    bool bHasStencil = hasStencilCall(b);    
+    return aHasStencil || bHasStencil;
+  }
+
   SchedulingProblem
   createSchedulingProblem(llvm::Function* f,
                           HardwareConstraints& hdc,
@@ -751,9 +784,10 @@ namespace ahaHLS {
 
             //p.s.add(p.blockSink(next) < p.blockSource(nextBB));
 
-            if (!elem(next, toPipeline) && !elem(nextBB, toPipeline)) {
-              //p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
-              p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
+            if (!elem(next, toPipeline) && !elem(nextBB, toPipeline) &&
+                !hasStencilCall(next, nextBB)) {
+              p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
+              //p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
             } else {
               p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
             }
