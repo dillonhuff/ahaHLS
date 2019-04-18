@@ -1248,20 +1248,20 @@ namespace ahaHLS {
                 if (userLevel > definedLevel) {
                   controller.setCond("in_data", enteredThisBlk, liveWire);
                 } else {
-                  controller.setCond("in_data", enteredThisBlk, storedWire);                
+                  controller.setCond("in_data", enteredThisBlk, storedWire); 
                 }
               }
             }
           }
 
-          return controller.functionalUnit().outputWire("out_data");
+          //return controller.functionalUnit().outputWire("out_data");
           //assert(false);
-          // // TODO: Check if the instruction is forward inside the given state
-          // if (getValueFromStorage(instr, instr0, argState, arch)) {
-          //   return mostRecentStorageLocation(instr0, currentPosition, arch);
-          // } else {
-          //   return dataOutput(instr0, arch);            
-          // }
+          // TODO: Check if the instruction is forward inside the given state
+          if (getValueFromStorage(instr, instr0, argState, arch)) {
+            return mostRecentStorageLocation(instr0, currentPosition, arch);
+          } else {
+            return dataOutput(instr0, arch);            
+          }
         }
 
         OrderedBasicBlock obb(argBB);
