@@ -2531,11 +2531,11 @@ namespace ahaHLS {
 
   void implementRawAXIRead(llvm::Function* axiRead,
                            ExecutionConstraints& exec) {
+
     auto eb = mkBB("entry_block", axiRead);
-    IRBuilder<> b(eb);
 
     auto readMod = getArg(axiRead, 0);
-    cout << "ReadMod = " << valueString(readMod) << endl;
+    //cout << "ReadMod = " << valueString(readMod) << endl;
     
     auto axiTp = getPointedToType(readMod->getType());
 
@@ -2543,52 +2543,118 @@ namespace ahaHLS {
     int dataWidth = getTypeBitWidth(outType);
     int addrWidth = 32;
 
-    cout << "axi read width = " << dataWidth << endl;
+    //cout << "axi read width = " << dataWidth << endl;
 
     auto readDataF = readPort("s_axil_rdata", dataWidth, axiTp);
     auto writeAddrF = writePort("s_axil_araddr", addrWidth, axiTp);
 
     auto arValidF = writePort("s_axil_arvalid", 1, axiTp);
 
-    cout << "Creating rawAXIRead definition" << endl;
+    //cout << "Creating rawAXIRead definition" << endl;
 
     // Set address data and wait for slave to be ready for read address
     auto addrVal = getArg(axiRead, 1);
 
+    IRBuilder<> entryBuilder(eb);
     // State placeholder, replace with start of basic block?
-    auto rdStart = b.CreateCall(readDataF, {readMod});
+    auto rdStart = entryBuilder.CreateCall(readDataF, {readMod});
 
-    auto addrValShifted = b.CreateShl(addrVal, mkInt(2, 32));
-    auto setAddr = b.CreateCall(writeAddrF, {readMod, addrValShifted});
+    auto addrValShifted = entryBuilder.CreateShl(addrVal, mkInt(2, 32));
+    auto setAddr = entryBuilder.CreateCall(writeAddrF, {readMod, addrValShifted});
 
     exec.add(instrStart(addrValShifted) == instrStart(setAddr));
     
-    auto setAddrValid = b.CreateCall(arValidF, {readMod, mkInt(1, 1)});
+    auto setAddrValid = entryBuilder.CreateCall(arValidF, {readMod, mkInt(1, 1)});
     exec.add(instrStart(setAddr) == instrStart(setAddrValid));
     exec.add(instrStart(setAddr) == instrEnd(rdStart) + 1);
-    
+
+    // Meta: Im now scared to start changing this function.
+    // Q: What is the easiest first step? Maybe I could start by
+    // creating multiple IRbuilders for the same function?
+
+    IRBuilder<> stallRaddrBuilder(eb);
     auto stallUntilReadAddrReady =
-      stallOnPort(b, readMod, 1, "s_axil_arready", exec);
+      stallOnPort(stallRaddrBuilder, readMod, 1, "s_axil_arready", exec);
     exec.add(instrEnd(stallUntilReadAddrReady) > instrStart(setAddr));
 
-    auto setReadReady = writePort(b, readMod, 1, "s_axil_rready", mkInt(1, 1));
+    auto setReadReady = writePort(stallRaddrBuilder, readMod, 1, "s_axil_rready", mkInt(1, 1));
     exec.add(instrEnd(stallUntilReadAddrReady) == instrStart(setReadReady));
 
+    IRBuilder<> stallRrespBuilder(eb);
     auto stallUntilReadRespReady =
-      stallOnPort(b, readMod, 1, "s_axil_rvalid", exec);
+      stallOnPort(stallRrespBuilder, readMod, 1, "s_axil_rvalid", exec);
     exec.add(instrStart(stallUntilReadRespReady) == instrStart(stallUntilReadAddrReady));
     
-    auto dataValue = b.CreateCall(readDataF, {readMod});
+    auto dataValue = stallRrespBuilder.CreateCall(readDataF, {readMod});
     exec.add(instrStart(dataValue) == instrEnd(stallUntilReadRespReady));
-    b.CreateRet(dataValue);
+    stallRrespBuilder.CreateRet(dataValue);
 
-    cout << "# of user defined constraints on AXI read = " << exec.constraints.size() << endl;
+    //cout << "# of user defined constraints on AXI read = " << exec.constraints.size() << endl;
 
     addDataConstraints(axiRead, exec);
+    
+    // Old definition
+    // auto eb = mkBB("entry_block", axiRead);
 
-    cout << "Total # of constraints on AXI read = " << exec.constraints.size() << endl;
-    cout << "axilRawRead = " << endl;
-    cout << valueString(axiRead) << endl;
+    // auto readMod = getArg(axiRead, 0);
+    // //cout << "ReadMod = " << valueString(readMod) << endl;
+    
+    // auto axiTp = getPointedToType(readMod->getType());
+
+    // auto outType = axiRead->getReturnType();
+    // int dataWidth = getTypeBitWidth(outType);
+    // int addrWidth = 32;
+
+    // //cout << "axi read width = " << dataWidth << endl;
+
+    // auto readDataF = readPort("s_axil_rdata", dataWidth, axiTp);
+    // auto writeAddrF = writePort("s_axil_araddr", addrWidth, axiTp);
+
+    // auto arValidF = writePort("s_axil_arvalid", 1, axiTp);
+
+    // //cout << "Creating rawAXIRead definition" << endl;
+
+    // // Set address data and wait for slave to be ready for read address
+    // auto addrVal = getArg(axiRead, 1);
+
+    // IRBuilder<> b(eb);
+    // // State placeholder, replace with start of basic block?
+    // auto rdStart = b.CreateCall(readDataF, {readMod});
+
+    // auto addrValShifted = b.CreateShl(addrVal, mkInt(2, 32));
+    // auto setAddr = b.CreateCall(writeAddrF, {readMod, addrValShifted});
+
+    // exec.add(instrStart(addrValShifted) == instrStart(setAddr));
+    
+    // auto setAddrValid = b.CreateCall(arValidF, {readMod, mkInt(1, 1)});
+    // exec.add(instrStart(setAddr) == instrStart(setAddrValid));
+    // exec.add(instrStart(setAddr) == instrEnd(rdStart) + 1);
+
+    // // Meta: Im now scared to start changing this function.
+    // // Q: What is the easiest first step? Maybe I could start by
+    // // creating multiple IRbuilders for the same function?
+    // auto stallUntilReadAddrReady =
+    //   stallOnPort(b, readMod, 1, "s_axil_arready", exec);
+    // exec.add(instrEnd(stallUntilReadAddrReady) > instrStart(setAddr));
+
+    // auto setReadReady = writePort(b, readMod, 1, "s_axil_rready", mkInt(1, 1));
+    // exec.add(instrEnd(stallUntilReadAddrReady) == instrStart(setReadReady));
+
+    // auto stallUntilReadRespReady =
+    //   stallOnPort(b, readMod, 1, "s_axil_rvalid", exec);
+    // exec.add(instrStart(stallUntilReadRespReady) == instrStart(stallUntilReadAddrReady));
+    
+    // auto dataValue = b.CreateCall(readDataF, {readMod});
+    // exec.add(instrStart(dataValue) == instrEnd(stallUntilReadRespReady));
+    // b.CreateRet(dataValue);
+
+    // //cout << "# of user defined constraints on AXI read = " << exec.constraints.size() << endl;
+
+    // addDataConstraints(axiRead, exec);
+
+    // // cout << "Total # of constraints on AXI read = " << exec.constraints.size() << endl;
+    // // cout << "axilRawRead = " << endl;
+    // // cout << valueString(axiRead) << endl;
 
   }
 
