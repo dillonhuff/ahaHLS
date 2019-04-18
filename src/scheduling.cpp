@@ -132,7 +132,12 @@ namespace ahaHLS {
 
       } else {
         SchedulingProblem p = map_find(&F, functionConstraints);
-
+        addMemoryConstraints(&F,
+                             hdc,
+                             toPipeline,
+                             a,
+                             sc,
+                             p);
         schedule = buildFromModel(p);
         schedule.controlPredecessors =
           p.controlPredecessors;

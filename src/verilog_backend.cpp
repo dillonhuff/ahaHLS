@@ -1254,14 +1254,14 @@ namespace ahaHLS {
             }
           }
 
-          //return controller.functionalUnit().outputWire("out_data");
+          return controller.functionalUnit().outputWire("out_data");
           //assert(false);
           // TODO: Check if the instruction is forward inside the given state
-          if (getValueFromStorage(instr, instr0, argState, arch)) {
-            return mostRecentStorageLocation(instr0, currentPosition, arch);
-          } else {
-            return dataOutput(instr0, arch);            
-          }
+          // if (getValueFromStorage(instr, instr0, argState, arch)) {
+          //   return mostRecentStorageLocation(instr0, currentPosition, arch);
+          // } else {
+          //   return dataOutput(instr0, arch);            
+          // }
         }
 
         OrderedBasicBlock obb(argBB);
