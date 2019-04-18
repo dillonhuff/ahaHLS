@@ -1564,13 +1564,15 @@ module AxiPackedStencil(input clk,
       //$display("data_bus = %d", data_bus);
       
       if (set_data == 1) begin
+         `assert(set_en, 1'b0)
+         
          $display("Set AxiPackedStencil %d, %d to data", in_data_bus, in_last_bus);
          data <= {in_data_bus, in_last_bus};
       end
    end
 
    // assign last_bus = set_data ? in_last_bus : (set_last_en ? set_last_value : data[0]);
-   // assign data_bus = set_data ? in_data_bus : data[DATA_WIDTH + 1 - 1 : 1];
+   //assign data_bus = set_data ? in_data_bus : data[DATA_WIDTH + 1 - 1 : 1];
 
    assign last_bus = data[0];
    assign data_bus = data[DATA_WIDTH + 1 - 1 : 1];
