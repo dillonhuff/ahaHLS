@@ -1235,16 +1235,21 @@ namespace ahaHLS {
                                              wire(32, "global_next_block"),
                                              arch);
 
-            if (!contains_key(argBB, entryToLevels.second)) {
-              controller.setCond("in_data", enteredThisBlk, storedWire);
-            } else {
-              int userLevel = map_find(userBB, entryToLevels.second);
-              int definedLevel = map_find(argBB, entryToLevels.second);
-
-              if (userLevel >= definedLevel) {
-                controller.setCond("in_data", enteredThisBlk, liveWire);                
+            // We can skip any entry block that does not contain the user
+            // because the user will never be referenced in a trace that
+            // starts with this block
+            if (contains_key(userBB, entryToLevels.second)) {
+              if (!contains_key(argBB, entryToLevels.second)) {
+                controller.setCond("in_data", enteredThisBlk, storedWire);
               } else {
-                controller.setCond("in_data", enteredThisBlk, storedWire);                
+                int userLevel = map_find(userBB, entryToLevels.second);
+                int definedLevel = map_find(argBB, entryToLevels.second);
+
+                if (userLevel > definedLevel) {
+                  controller.setCond("in_data", enteredThisBlk, liveWire);
+                } else {
+                  controller.setCond("in_data", enteredThisBlk, storedWire);                
+                }
               }
             }
           }

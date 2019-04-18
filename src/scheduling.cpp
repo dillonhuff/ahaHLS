@@ -2439,6 +2439,34 @@ namespace ahaHLS {
     return map_find(blk, stg.sched.controlPredecessors).size() == 0;
   }
 
+  std::set<std::pair<BasicBlock*, BasicBlock*> >
+  getInStateTransitions(const StateId state,
+                        STG& stg) {
+    set<pair<BasicBlock*, BasicBlock*> > transitions;
+    for (auto blkPreds : stg.sched.controlPredecessors) {
+      BasicBlock* dest = blkPreds.first;
+      for (auto src : blkPreds.second) {
+        if ((stg.blockStartState(dest) == state) &&
+            (stg.blockEndState(src) == state)) {
+          transitions.insert({src, dest});
+        }
+      }
+    }
+
+    return transitions;
+  }
+
+  bool isInStateJump(const StateId state,
+                     BasicBlock* pred,
+                     BasicBlock* succ,
+                     STG& stg) {
+    // If this edge is not an in state transition
+    if (!elem({pred, succ}, getInStateTransitions(state, stg))) {
+      return false;
+    }
+    return true;
+  }
+
   set<BasicBlock*> outOfStatePredecessors(const StateId state,
                                           BasicBlock* blk,
                                           STG& stg) {
@@ -2448,10 +2476,12 @@ namespace ahaHLS {
 
     set<BasicBlock*> preds;
     for (auto pred : predecessors(blk)) {
-      if (stg.instructionEndState(blk->getTerminator()) != state) {
+      //if ((stg.instructionEndState(blk->getTerminator()) != state) ||) {
+      if (!isInStateJump(state, pred, blk, stg)) {
         preds.insert(pred);
       }
     }
+
     return preds;
   }
 
@@ -2493,23 +2523,6 @@ namespace ahaHLS {
     }
 
     return entryBlks;
-  }
-
-  std::set<std::pair<BasicBlock*, BasicBlock*> >
-  getInStateTransitions(const StateId state,
-                        STG& stg) {
-    set<pair<BasicBlock*, BasicBlock*> > transitions;
-    for (auto blkPreds : stg.sched.controlPredecessors) {
-      BasicBlock* dest = blkPreds.first;
-      for (auto src : blkPreds.second) {
-        if ((stg.blockStartState(dest) == state) &&
-            (stg.blockEndState(src) == state)) {
-          transitions.insert({src, dest});
-        }
-      }
-    }
-
-    return transitions;
   }
 
   set<BasicBlock*> sameStatePredecessors(BasicBlock* blk,
