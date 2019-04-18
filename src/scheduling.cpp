@@ -707,7 +707,7 @@ namespace ahaHLS {
     }
   }
 
-  bool hasStencilCall(BasicBlock* blk) {
+  bool hasStructCall(BasicBlock* blk, const std::string& stencilPrefix) {
     for (auto& instrR : *blk) {
       Instruction* instr = &instrR;
       if (isBuiltinPortCall(instr)) {
@@ -724,7 +724,7 @@ namespace ahaHLS {
 
         cout << "Checking struct " << string(stp->getName()) << " has stencil" << endl;
 
-        if (hasPrefix(stp->getName(), "class.AxiPackedStencil")) {
+        if (hasPrefix(stp->getName(), stencilPrefix)) { //"class.AxiPackedStencil")) {
           cout << "Found stencil call" << endl;
           return true;
         }
@@ -735,8 +735,8 @@ namespace ahaHLS {
 
   bool hasStencilCall(BasicBlock* a,
                       BasicBlock* b) {
-    bool aHasStencil = hasStencilCall(a);
-    bool bHasStencil = hasStencilCall(b);    
+    bool aHasStencil = hasStructCall(a, "class.AxiPackedStencil");
+    bool bHasStencil = hasStructCall(b, "class.AxiPackedStencil");
     return aHasStencil || bHasStencil;
   }
 
@@ -785,7 +785,21 @@ namespace ahaHLS {
             //p.s.add(p.blockSink(next) < p.blockSource(nextBB));
 
             if (!elem(next, toPipeline) && !elem(nextBB, toPipeline) &&
-                !hasStencilCall(next, nextBB)) {
+                !hasStencilCall(next, nextBB) &&
+
+                !hasStructCall(next, "struct.builtin_fifo") &&
+                !hasStructCall(nextBB, "struct.builtin_fifo") &&
+
+                !hasStructCall(next, "builtin_fifo") &&
+                !hasStructCall(nextBB, "builtin_fifo") &&
+
+                !hasStructCall(next, "class.ac_channel") &&
+                !hasStructCall(nextBB, "class.ac_channel") &&
+
+                !hasStructCall(next, "class.axi_ram") &&
+                !hasStructCall(nextBB, "class.axi_ram")
+                
+                ) {
               p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
               //p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
             } else {
