@@ -3871,7 +3871,7 @@ namespace ahaHLS {
     map<string, int> testLayout = {};
     tb.memoryInit = {};
     tb.memoryExpected = {};
-    tb.runCycles = 30;
+    tb.runCycles = 40;
     tb.maxCycles = 50;
     tb.name = "reduce_4";
     tb.useModSpecs = true;
@@ -3880,8 +3880,9 @@ namespace ahaHLS {
     tb.settableWires.insert(outName + "_read_valid");    
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
 
-    map_insert(tb.actionsOnCycles, 25, assertString("valid === 1"));
-    map_insert(tb.actionsOnCycles, 21, assertString(outName + "_out_data === 1 + 4 + 7 + 9"));
+    int checkValidCycle = 35;
+    map_insert(tb.actionsOnCycles, checkValidCycle, assertString("valid === 1"));
+    map_insert(tb.actionsOnCycles, checkValidCycle + 1, assertString(outName + "_out_data === 1 + 4 + 7 + 9"));
     //to_string(1 + 3 + 5 + 19)));
     map_insert(tb.actionsInCycles, 0, string(outName + "_read_valid = 0;"));
     map_insert(tb.actionsInCycles, 0, string(in0Name + "_write_valid = 0;"));        
@@ -3903,9 +3904,9 @@ namespace ahaHLS {
     map_insert(tb.actionsInCycles, 9, string(in0Name + "_write_valid = 1;"));    
 
     map_insert(tb.actionsInCycles, 10, string(in0Name + "_write_valid = 0;")); 
-    map_insert(tb.actionsInCycles, 20, string(outName + "_read_valid = 1;"));    
 
-    map_insert(tb.actionsInCycles, 21, string(outName + "_read_valid = 0;"));
+    map_insert(tb.actionsInCycles, checkValidCycle, string(outName + "_read_valid = 1;"));    
+    map_insert(tb.actionsInCycles, checkValidCycle + 1, string(outName + "_read_valid = 0;"));
 
     emitVerilogTestBench(tb, arch, testLayout);
     

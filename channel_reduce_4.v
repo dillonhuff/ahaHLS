@@ -34,7 +34,11 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 	// Start Functional Units
 	add call_20();
 
-	br_dummy br_unit();
+	add alloca_0();
+
+	add bitcast_1();
+
+	add call_2();
 
 	reg [31:0] raddr_ram_0_reg;
 	reg [31:0] waddr_ram_0_reg;
@@ -43,11 +47,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 	wire [31:0] rdata_ram_0;
 	register #(.WIDTH(32)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
 
-	add alloca_0();
-
-	add bitcast_1();
-
-	add call_2();
+	br_dummy br_unit();
 
 	add call_21();
 
@@ -1333,20 +1333,20 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 	wire [0:0] andOp_239_out;
 	andOp #(.WIDTH(1)) andOp_239(.in0(andOp_239_in0), .in1(andOp_239_in1), .out(andOp_239_out));
 
-	reg [31:0] eq_240_in0;
-	reg [31:0] eq_240_in1;
-	wire [0:0] eq_240_out;
-	eq #(.WIDTH(32)) eq_240(.in0(eq_240_in0), .in1(eq_240_in1), .out(eq_240_out));
+	reg [31:0] andOp_240_in0;
+	reg [31:0] andOp_240_in1;
+	wire [31:0] andOp_240_out;
+	andOp #(.WIDTH(32)) andOp_240(.in0(andOp_240_in0), .in1(andOp_240_in1), .out(andOp_240_out));
 
-	reg [0:0] andOp_241_in0;
-	reg [0:0] andOp_241_in1;
-	wire [0:0] andOp_241_out;
-	andOp #(.WIDTH(1)) andOp_241(.in0(andOp_241_in0), .in1(andOp_241_in1), .out(andOp_241_out));
+	reg [31:0] eq_241_in0;
+	reg [31:0] eq_241_in1;
+	wire [0:0] eq_241_out;
+	eq #(.WIDTH(32)) eq_241(.in0(eq_241_in0), .in1(eq_241_in1), .out(eq_241_out));
 
-	reg [31:0] andOp_242_in0;
-	reg [31:0] andOp_242_in1;
-	wire [31:0] andOp_242_out;
-	andOp #(.WIDTH(32)) andOp_242(.in0(andOp_242_in0), .in1(andOp_242_in1), .out(andOp_242_out));
+	reg [0:0] andOp_242_in0;
+	reg [0:0] andOp_242_in1;
+	wire [0:0] andOp_242_out;
+	andOp #(.WIDTH(1)) andOp_242(.in0(andOp_242_in0), .in1(andOp_242_in1), .out(andOp_242_out));
 
 	reg [31:0] eq_243_in0;
 	reg [31:0] eq_243_in1;
@@ -2151,19 +2151,19 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 		andOp_239_in0 = valid ? bb_6_active_out_data : bb_6_active_out_data;
 		andOp_239_in1 = valid ? eq_238_out : eq_238_out;
 	end
-	// controller for andOp_241.andOp_241_in0
-	// controller for andOp_241.andOp_241_in1
+	// controller for andOp_240.andOp_240_in0
+	// controller for andOp_240.andOp_240_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_241_in0 = valid ? bb_6_active_out_data : bb_6_active_out_data;
-		andOp_241_in1 = valid ? eq_240_out : eq_240_out;
+		andOp_240_in0 = valid ? andOp_237_out : andOp_237_out;
+		andOp_240_in1 = valid ? andOp_239_out : andOp_239_out;
 	end
 	// controller for andOp_242.andOp_242_in0
 	// controller for andOp_242.andOp_242_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_242_in0 = valid ? andOp_239_out : andOp_239_out;
-		andOp_242_in1 = valid ? andOp_241_out : andOp_241_out;
+		andOp_242_in0 = valid ? bb_6_active_out_data : bb_6_active_out_data;
+		andOp_242_in1 = valid ? eq_241_out : eq_241_out;
 	end
 	// controller for andOp_244.andOp_244_in0
 	// controller for andOp_244.andOp_244_in1
@@ -3097,12 +3097,12 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 		eq_238_in0 = valid ? 32'd4 : 32'd4;
 		eq_238_in1 = valid ? global_state : global_state;
 	end
-	// controller for eq_240.eq_240_in0
-	// controller for eq_240.eq_240_in1
+	// controller for eq_241.eq_241_in0
+	// controller for eq_241.eq_241_in1
 	// Insensitive connections
 	always @(*) begin
-		eq_240_in0 = valid ? 32'd4 : 32'd4;
-		eq_240_in1 = valid ? global_state : global_state;
+		eq_241_in0 = valid ? 32'd4 : 32'd4;
+		eq_241_in1 = valid ? global_state : global_state;
 	end
 	// controller for eq_243.eq_243_in0
 	// controller for eq_243.eq_243_in1
@@ -3724,7 +3724,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 		if (rst) begin
 			call_tmp_2 <= 0;
 		end else begin
-			if (andOp_242_out) begin
+			if (andOp_240_out) begin
 				call_tmp_2 <= in_out_data;
 			end
 		end
