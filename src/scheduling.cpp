@@ -2532,8 +2532,11 @@ namespace ahaHLS {
   void implementRawAXIRead(llvm::Function* axiRead,
                            ExecutionConstraints& exec) {
 
-    auto eb = mkBB("entry_block", axiRead);
+    auto entryBlk = mkBB("entry_block", axiRead);
+    auto stallRaddrBlk = mkBB("stall_raddr_block", axiRead);
+    auto stallRrespBlk = mkBB("entry_rresp_block", axiRead);
 
+        
     auto readMod = getArg(axiRead, 0);
     //cout << "ReadMod = " << valueString(readMod) << endl;
     
@@ -2543,20 +2546,15 @@ namespace ahaHLS {
     int dataWidth = getTypeBitWidth(outType);
     int addrWidth = 32;
 
-    //cout << "axi read width = " << dataWidth << endl;
-
     auto readDataF = readPort("s_axil_rdata", dataWidth, axiTp);
     auto writeAddrF = writePort("s_axil_araddr", addrWidth, axiTp);
 
     auto arValidF = writePort("s_axil_arvalid", 1, axiTp);
 
-    //cout << "Creating rawAXIRead definition" << endl;
-
-    // Set address data and wait for slave to be ready for read address
     auto addrVal = getArg(axiRead, 1);
 
-    IRBuilder<> entryBuilder(eb);
-    // State placeholder, replace with start of basic block?
+    // Implementation
+    IRBuilder<> entryBuilder(entryBlk);
     auto rdStart = entryBuilder.CreateCall(readDataF, {readMod});
 
     auto addrValShifted = entryBuilder.CreateShl(addrVal, mkInt(2, 32));
@@ -2567,20 +2565,18 @@ namespace ahaHLS {
     auto setAddrValid = entryBuilder.CreateCall(arValidF, {readMod, mkInt(1, 1)});
     exec.add(instrStart(setAddr) == instrStart(setAddrValid));
     exec.add(instrStart(setAddr) == instrEnd(rdStart) + 1);
+    entryBuilder.CreateBr(stallRaddrBlk);
 
-    // Meta: Im now scared to start changing this function.
-    // Q: What is the easiest first step? Maybe I could start by
-    // creating multiple IRbuilders for the same function?
-
-    IRBuilder<> stallRaddrBuilder(eb);
+    IRBuilder<> stallRaddrBuilder(stallRaddrBlk);
     auto stallUntilReadAddrReady =
       stallOnPort(stallRaddrBuilder, readMod, 1, "s_axil_arready", exec);
     exec.add(instrEnd(stallUntilReadAddrReady) > instrStart(setAddr));
 
     auto setReadReady = writePort(stallRaddrBuilder, readMod, 1, "s_axil_rready", mkInt(1, 1));
     exec.add(instrEnd(stallUntilReadAddrReady) == instrStart(setReadReady));
+    stallRaddrBuilder.CreateBr(stallRrespBlk);
 
-    IRBuilder<> stallRrespBuilder(eb);
+    IRBuilder<> stallRrespBuilder(stallRrespBlk);
     auto stallUntilReadRespReady =
       stallOnPort(stallRrespBuilder, readMod, 1, "s_axil_rvalid", exec);
     exec.add(instrStart(stallUntilReadRespReady) == instrStart(stallUntilReadAddrReady));
@@ -2588,8 +2584,6 @@ namespace ahaHLS {
     auto dataValue = stallRrespBuilder.CreateCall(readDataF, {readMod});
     exec.add(instrStart(dataValue) == instrEnd(stallUntilReadRespReady));
     stallRrespBuilder.CreateRet(dataValue);
-
-    //cout << "# of user defined constraints on AXI read = " << exec.constraints.size() << endl;
 
     addDataConstraints(axiRead, exec);
     
