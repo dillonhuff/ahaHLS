@@ -816,10 +816,10 @@ namespace ahaHLS {
                 !hasStructCall(nextBB, "builtin_fifo") &&
 
                 !hasStructCall(next, "class.ac_channel") &&
-                !hasStructCall(nextBB, "class.ac_channel") &&
+                !hasStructCall(nextBB, "class.ac_channel")
 
-                !hasStructCall(next, "class.axi_ram") &&
-                !hasStructCall(nextBB, "class.axi_ram")
+                // !hasStructCall(next, "class.axi_ram") &&
+                // !hasStructCall(nextBB, "class.axi_ram")
                 
                 ) {
               p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
@@ -2461,131 +2461,154 @@ namespace ahaHLS {
   // TODO: Implement address shifting / strobe?
   void implementRawAXIWrite(llvm::Function* axiWrite,
                             ExecutionConstraints& exec) {
-    auto eb = mkBB("entry_block", axiWrite);
-    IRBuilder<> b(eb);
-
-    auto readMod = getArg(axiWrite, 0);
-    cout << "ReadMod = " << valueString(readMod) << endl;
-    
-    auto inType = getArg(axiWrite, 2)->getType();
-    int dataWidth = getTypeBitWidth(inType);
-    int addrWidth = 32;
-    int strbWidth = dataWidth / 8;
-
-    auto inAddr = getArg(axiWrite, 1);
-    auto addrValShifted = b.CreateShl(inAddr, mkInt(2, 32));    
-    auto inData = getArg(axiWrite, 2);    
-
-    // We are ready to accept a response
-    //auto wBready1 =
-    writePort(b, readMod, 1, "s_axil_bready", mkInt(1, 1));
-
-    // Set the address we want to write
-    auto wAddr = writePort(b, readMod, addrWidth, "s_axil_awaddr", addrValShifted);
-    auto wAWValid = writePort(b, readMod, 1, "s_axil_awvalid", mkInt(1, 1));
-    auto wDataValid0 = writePort(b, readMod, 1, "s_axil_wvalid", mkInt(1, 1));
-    auto wData0 = writePort(b, readMod, dataWidth, "s_axil_wdata", inData);
-    auto wStrb = writePort(b, readMod, strbWidth, "s_axil_wstrb", mkInt(15, strbWidth));
-
-    auto stallOnWriteDataReady = stallOnPort(b, readMod, 1, "s_axil_wready", exec);
-    auto stallOnAWValid = stallOnPort(b, readMod, 1, "s_axil_awready", exec);
-
-    exec.addConstraint(instrStart(wAddr) < instrStart(stallOnAWValid));
-    
-    exec.addConstraint(instrStart(wAddr) == instrStart(wAWValid));
-    exec.addConstraint(instrStart(wAddr) == instrStart(wData0));
-    exec.addConstraint(instrStart(wAddr) == instrStart(wStrb));        
-
-    exec.addConstraint(instrStart(wDataValid0) == instrStart(wAWValid));
-    exec.addConstraint(instrStart(wDataValid0) == instrStart(wData0));        
-    exec.addConstraint(instrStart(stallOnWriteDataReady) > instrEnd(wAWValid));
-
-    auto wAWValid0 = writePort(b, readMod, 1, "s_axil_awvalid", mkInt(1, 1));
-    auto wData = writePort(b, readMod, dataWidth, "s_axil_wdata", inData);
-    auto wDataValid = writePort(b, readMod, 1, "s_axil_wvalid", mkInt(1, 1));
-    exec.addConstraint(instrEnd(stallOnWriteDataReady) == instrStart(wData));
-    exec.addConstraint(instrEnd(stallOnWriteDataReady) == instrStart(wDataValid));
-    exec.addConstraint(instrEnd(stallOnWriteDataReady) == instrStart(wAWValid0));
-
-    auto stallOnBValid = stallOnPort(b, readMod, 1, "s_axil_bvalid", exec);
-
-    exec.addConstraint(instrEnd(stallOnWriteDataReady) == instrStart(stallOnBValid));
-    // exec.addConstraint(instrStart(wBready1) == instrStart(wAWValid));
-
-    //exec.addConstraint(instrStart(wBready1) == instrStart(stallOnBValid));
-    //exec.addConstraint(instrEnd(stallOnWriteDataReady) < instrStart(stallOnBValid));
-
-    auto ret = b.CreateRet(nullptr);
-
-    exec.addConstraint(instrEnd(stallOnBValid) + 1 == instrStart(ret));
-
-    cout << "# of user defined constraints on AXI write = " << exec.constraints.size() << endl;
-
+    auto entryBlk = mkBB("entry_block", axiWrite);
+    //IRBuilder<> b(eb);
     addDataConstraints(axiWrite, exec);
 
-    cout << "Total # of constraints on AXI write = " << exec.constraints.size() << endl;
-    cout << "axilRawRead = " << endl;
-    cout << valueString(axiWrite) << endl;
+    // auto readMod = getArg(axiWrite, 0);
+    // cout << "ReadMod = " << valueString(readMod) << endl;
+    
+    // auto inType = getArg(axiWrite, 2)->getType();
+    // int dataWidth = getTypeBitWidth(inType);
+    // int addrWidth = 32;
+    // int strbWidth = dataWidth / 8;
+
+    // auto inAddr = getArg(axiWrite, 1);
+    // auto addrValShifted = b.CreateShl(inAddr, mkInt(2, 32));    
+    // auto inData = getArg(axiWrite, 2);    
+
+    // // We are ready to accept a response
+    // //auto wBready1 =
+    // writePort(b, readMod, 1, "s_axil_bready", mkInt(1, 1));
+
+    // // Set the address we want to write
+    // auto wAddr = writePort(b, readMod, addrWidth, "s_axil_awaddr", addrValShifted);
+    // auto wAWValid = writePort(b, readMod, 1, "s_axil_awvalid", mkInt(1, 1));
+    // auto wDataValid0 = writePort(b, readMod, 1, "s_axil_wvalid", mkInt(1, 1));
+    // auto wData0 = writePort(b, readMod, dataWidth, "s_axil_wdata", inData);
+    // auto wStrb = writePort(b, readMod, strbWidth, "s_axil_wstrb", mkInt(15, strbWidth));
+
+    // auto stallOnWriteDataReady = stallOnPort(b, readMod, 1, "s_axil_wready", exec);
+    // auto stallOnAWValid = stallOnPort(b, readMod, 1, "s_axil_awready", exec);
+
+    // exec.addConstraint(instrStart(wAddr) < instrStart(stallOnAWValid));
+    
+    // exec.addConstraint(instrStart(wAddr) == instrStart(wAWValid));
+    // exec.addConstraint(instrStart(wAddr) == instrStart(wData0));
+    // exec.addConstraint(instrStart(wAddr) == instrStart(wStrb));        
+
+    // exec.addConstraint(instrStart(wDataValid0) == instrStart(wAWValid));
+    // exec.addConstraint(instrStart(wDataValid0) == instrStart(wData0));        
+    // exec.addConstraint(instrStart(stallOnWriteDataReady) > instrEnd(wAWValid));
+
+    // auto wAWValid0 = writePort(b, readMod, 1, "s_axil_awvalid", mkInt(1, 1));
+    // auto wData = writePort(b, readMod, dataWidth, "s_axil_wdata", inData);
+    // auto wDataValid = writePort(b, readMod, 1, "s_axil_wvalid", mkInt(1, 1));
+    // exec.addConstraint(instrEnd(stallOnWriteDataReady) == instrStart(wData));
+    // exec.addConstraint(instrEnd(stallOnWriteDataReady) == instrStart(wDataValid));
+    // exec.addConstraint(instrEnd(stallOnWriteDataReady) == instrStart(wAWValid0));
+
+    // auto stallOnBValid = stallOnPort(b, readMod, 1, "s_axil_bvalid", exec);
+
+    // exec.addConstraint(instrEnd(stallOnWriteDataReady) == instrStart(stallOnBValid));
+    // // exec.addConstraint(instrStart(wBready1) == instrStart(wAWValid));
+
+    // //exec.addConstraint(instrStart(wBready1) == instrStart(stallOnBValid));
+    // //exec.addConstraint(instrEnd(stallOnWriteDataReady) < instrStart(stallOnBValid));
+
+    // auto ret = b.CreateRet(nullptr);
+
+    // exec.addConstraint(instrEnd(stallOnBValid) + 1 == instrStart(ret));
+
+    // cout << "# of user defined constraints on AXI write = " << exec.constraints.size() << endl;
+
+    // addDataConstraints(axiWrite, exec);
+
+    // cout << "Total # of constraints on AXI write = " << exec.constraints.size() << endl;
+    // cout << "axilRawRead = " << endl;
+    // cout << valueString(axiWrite) << endl;
 
   }
 
   void implementRawAXIRead(llvm::Function* axiRead,
                            ExecutionConstraints& exec) {
 
+    auto readMod = getArg(axiRead, 0);
+    auto axiTp = getPointedToType(readMod->getType());
+    
     auto entryBlk = mkBB("entry_block", axiRead);
     auto stallRaddrBlk = mkBB("stall_raddr_block", axiRead);
     auto stallRrespBlk = mkBB("entry_rresp_block", axiRead);
+    auto exitBlk = mkBB("exit_block", axiRead);
 
-        
-    auto readMod = getArg(axiRead, 0);
-    //cout << "ReadMod = " << valueString(readMod) << endl;
-    
-    auto axiTp = getPointedToType(readMod->getType());
+    auto readRReadyF = readPort("s_axil_rresp", 1, axiTp);
 
-    auto outType = axiRead->getReturnType();
-    int dataWidth = getTypeBitWidth(outType);
-    int addrWidth = 32;
-
-    auto readDataF = readPort("s_axil_rdata", dataWidth, axiTp);
-    auto writeAddrF = writePort("s_axil_araddr", addrWidth, axiTp);
-
-    auto arValidF = writePort("s_axil_arvalid", 1, axiTp);
-
-    auto addrVal = getArg(axiRead, 1);
-
-    // Implementation
     IRBuilder<> entryBuilder(entryBlk);
-    auto rdStart = entryBuilder.CreateCall(readDataF, {readMod});
-
-    auto addrValShifted = entryBuilder.CreateShl(addrVal, mkInt(2, 32));
-    auto setAddr = entryBuilder.CreateCall(writeAddrF, {readMod, addrValShifted});
-
-    exec.add(instrStart(addrValShifted) == instrStart(setAddr));
-    
-    auto setAddrValid = entryBuilder.CreateCall(arValidF, {readMod, mkInt(1, 1)});
-    exec.add(instrStart(setAddr) == instrStart(setAddrValid));
-    exec.add(instrStart(setAddr) == instrEnd(rdStart) + 1);
     entryBuilder.CreateBr(stallRaddrBlk);
-
+    
     IRBuilder<> stallRaddrBuilder(stallRaddrBlk);
-    auto stallUntilReadAddrReady =
-      stallOnPort(stallRaddrBuilder, readMod, 1, "s_axil_arready", exec);
-    exec.add(instrEnd(stallUntilReadAddrReady) > instrStart(setAddr));
-
-    auto setReadReady = writePort(stallRaddrBuilder, readMod, 1, "s_axil_rready", mkInt(1, 1));
-    exec.add(instrEnd(stallUntilReadAddrReady) == instrStart(setReadReady));
-    stallRaddrBuilder.CreateBr(stallRrespBlk);
+    auto raddrReady = mkInt(1, 1);
+    stallRaddrBuilder.CreateCondBr(raddrReady, stallRrespBlk, stallRaddrBlk);
 
     IRBuilder<> stallRrespBuilder(stallRrespBlk);
-    auto stallUntilReadRespReady =
-      stallOnPort(stallRrespBuilder, readMod, 1, "s_axil_rvalid", exec);
-    exec.add(instrStart(stallUntilReadRespReady) == instrStart(stallUntilReadAddrReady));
-    
-    auto dataValue = stallRrespBuilder.CreateCall(readDataF, {readMod});
-    exec.add(instrStart(dataValue) == instrEnd(stallUntilReadRespReady));
-    stallRrespBuilder.CreateRet(dataValue);
+    auto rrespReady = mkInt(1, 1);
+    stallRrespBuilder.CreateCondBr(rrespReady, exitBlk, stallRrespBlk);
+
+    IRBuilder<> exitBuilder(exitBlk);
+    auto readValue = mkInt(234, 32);
+    exitBuilder.CreateRet(readValue);
 
     addDataConstraints(axiRead, exec);
+        
+    // auto readMod = getArg(axiRead, 0);
+    // //cout << "ReadMod = " << valueString(readMod) << endl;
+    
+    // auto axiTp = getPointedToType(readMod->getType());
+
+    // auto outType = axiRead->getReturnType();
+    // int dataWidth = getTypeBitWidth(outType);
+    // int addrWidth = 32;
+
+    // auto readDataF = readPort("s_axil_rdata", dataWidth, axiTp);
+    // auto writeAddrF = writePort("s_axil_araddr", addrWidth, axiTp);
+
+    // auto arValidF = writePort("s_axil_arvalid", 1, axiTp);
+
+    // auto addrVal = getArg(axiRead, 1);
+
+    // // Implementation
+    // IRBuilder<> entryBuilder(entryBlk);
+    // auto rdStart = entryBuilder.CreateCall(readDataF, {readMod});
+
+    // auto addrValShifted = entryBuilder.CreateShl(addrVal, mkInt(2, 32));
+    // auto setAddr = entryBuilder.CreateCall(writeAddrF, {readMod, addrValShifted});
+
+    // exec.add(instrStart(addrValShifted) == instrStart(setAddr));
+    
+    // auto setAddrValid = entryBuilder.CreateCall(arValidF, {readMod, mkInt(1, 1)});
+    // exec.add(instrStart(setAddr) == instrStart(setAddrValid));
+    // exec.add(instrStart(setAddr) == instrEnd(rdStart) + 1);
+    // entryBuilder.CreateBr(stallRaddrBlk);
+
+    // IRBuilder<> stallRaddrBuilder(stallRaddrBlk);
+    // auto stallUntilReadAddrReady =
+    //   stallOnPort(stallRaddrBuilder, readMod, 1, "s_axil_arready", exec);
+    // exec.add(instrEnd(stallUntilReadAddrReady) > instrStart(setAddr));
+
+    // auto setReadReady = writePort(stallRaddrBuilder, readMod, 1, "s_axil_rready", mkInt(1, 1));
+    // exec.add(instrEnd(stallUntilReadAddrReady) == instrStart(setReadReady));
+    // stallRaddrBuilder.CreateBr(stallRrespBlk);
+
+    // IRBuilder<> stallRrespBuilder(stallRrespBlk);
+    // auto stallUntilReadRespReady =
+    //   stallOnPort(stallRrespBuilder, readMod, 1, "s_axil_rvalid", exec);
+    // exec.add(instrStart(stallUntilReadRespReady) == instrStart(stallUntilReadAddrReady));
+    
+    // auto dataValue = stallRrespBuilder.CreateCall(readDataF, {readMod});
+    // exec.add(instrStart(dataValue) == instrEnd(stallUntilReadRespReady));
+    // stallRrespBuilder.CreateRet(dataValue);
+
+    // addDataConstraints(axiRead, exec);
     
     // Old definition
     // auto eb = mkBB("entry_block", axiRead);
