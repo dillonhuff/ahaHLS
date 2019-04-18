@@ -2555,6 +2555,7 @@ namespace ahaHLS {
   void implementRawAXIRead(llvm::Function* axiRead,
                            ExecutionConstraints& exec) {
 
+    int dataWidth = 32;
     auto readMod = getArg(axiRead, 0);
     auto axiTp = getPointedToType(readMod->getType());
     
@@ -2569,15 +2570,17 @@ namespace ahaHLS {
     entryBuilder.CreateBr(stallRaddrBlk);
     
     IRBuilder<> stallRaddrBuilder(stallRaddrBlk);
-    auto raddrReady = mkInt(1, 1);
+    auto raddrReady = readPort(stallRaddrBuilder, readMod, 1, "s_axil_arready");
+    writePort(stallRaddrBuilder, readMod, 1, "s_axil_arvalid", mkInt(1, 1));
     stallRaddrBuilder.CreateCondBr(raddrReady, stallRrespBlk, stallRaddrBlk);
 
     IRBuilder<> stallRrespBuilder(stallRrespBlk);
-    auto rrespReady = mkInt(1, 1);
+    auto rrespReady = readPort(stallRrespBuilder, readMod, 1, "s_axil_rvalid");
+    writePort(stallRrespBuilder, readMod, 1, "s_axil_rready", mkInt(1, 1));
+    auto readValue = readPort(stallRrespBuilder, readMod, dataWidth, "s_axil_rdata");
     stallRrespBuilder.CreateCondBr(rrespReady, exitBlk, stallRrespBlk);
 
     IRBuilder<> exitBuilder(exitBlk);
-    auto readValue = mkInt(234, 32);
     exitBuilder.CreateRet(readValue);
 
     addDataConstraints(axiRead, exec);
