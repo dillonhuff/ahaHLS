@@ -1480,42 +1480,74 @@ namespace ahaHLS {
   // A: Phrase stall on ready as: connect wire to ready and then
   //    make that wire a dependency of other codes?
   void implementRVFifoRead(llvm::Function* readFifo, ExecutionConstraints& exec) {
-    auto out = readFifoVal(readFifo);
-    //getArg(readFifo, 0);
 
+    auto out = readFifoVal(readFifo);
     auto tp = out->getType();
 
-    cout << "readFifoVal = " << valueString(out) << endl;
-    cout << "tp          = " << typeString(tp) << endl;
-    cout << "type read   = " << typeString(readOutputType(readFifo)) << endl;
-    int width = getTypeBitWidth(readOutputType(readFifo));
-    //readFifo->getReturnType());
+    int width = getTypeBitWidth(readOutputType(readFifo));    
 
-    cout << "type width = " << width << endl;
-      
-    auto eb = mkBB("entry_block", readFifo);
-    IRBuilder<> b(eb);
+    auto entryBlk = mkBB("entry_block", readFifo);
+    auto stallBlk = mkBB("stall_block", readFifo);
+    auto exitBlk = mkBB("exit_block", readFifo);
 
     auto readInDataF = readPort("out_data", width, tp);
     auto readReadyF = readPort("read_ready", 1, tp);
 
     auto setValidF = writePort("read_valid", 1, tp);
-    auto stallF = stallFunction();
-
-    auto readReady = b.CreateCall(readReadyF, {out});
-    auto stallUntilReady = b.CreateCall(stallF, {readReady});
-    auto setValid1 = b.CreateCall(setValidF, {out, mkInt(1, 1)});
-    auto setValid0 = b.CreateCall(setValidF, {out, mkInt(0, 1)});
-    auto readValue = b.CreateCall(readInDataF, {out});
-
-    b.CreateRet(readValue);
     
-    exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
-    exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
-    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(readValue));
-    exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+    IRBuilder<> entryBuilder(entryBlk);
+    entryBuilder.CreateBr(entryBlk);
+
+    IRBuilder<> stallBuilder(stallBlk);
+    auto readReady = stallBuilder.CreateCall(readReadyF, {out});    
+    stallBuilder.CreateCondBr(readReady, exitBlk, stallBlk);
+
+    IRBuilder<> exitBuilder(exitBlk);
+    auto setValid1 = exitBuilder.CreateCall(setValidF, {out, mkInt(1, 1)});
+    auto readValue = exitBuilder.CreateCall(readInDataF, {out});
+    exitBuilder.CreateRet(readValue);
+
+    exec.add(end(stallBlk) + 1 == instrStart(setValid1));
+    exec.add(instrStart(setValid1) + 1 == instrStart(readValue));
 
     addDataConstraints(readFifo, exec);
+    
+    // auto out = readFifoVal(readFifo);
+    // //getArg(readFifo, 0);
+
+    // auto tp = out->getType();
+
+    // // cout << "readFifoVal = " << valueString(out) << endl;
+    // // cout << "tp          = " << typeString(tp) << endl;
+    // // cout << "type read   = " << typeString(readOutputType(readFifo)) << endl;
+    // // int width = getTypeBitWidth(readOutputType(readFifo));
+    // //readFifo->getReturnType());
+
+    // cout << "type width = " << width << endl;
+      
+    // auto eb = mkBB("entry_block", readFifo);
+    // IRBuilder<> b(eb);
+
+    // auto readInDataF = readPort("out_data", width, tp);
+    // auto readReadyF = readPort("read_ready", 1, tp);
+
+    // auto setValidF = writePort("read_valid", 1, tp);
+    // auto stallF = stallFunction();
+
+    // auto readReady = b.CreateCall(readReadyF, {out});
+    // auto stallUntilReady = b.CreateCall(stallF, {readReady});
+    // auto setValid1 = b.CreateCall(setValidF, {out, mkInt(1, 1)});
+    // auto setValid0 = b.CreateCall(setValidF, {out, mkInt(0, 1)});
+    // auto readValue = b.CreateCall(readInDataF, {out});
+
+    // b.CreateRet(readValue);
+    
+    // exec.addConstraint(instrStart(readReady) == instrStart(stallUntilReady));
+    // exec.addConstraint(instrEnd(stallUntilReady) < instrStart(setValid1));
+    // exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(readValue));
+    // exec.addConstraint(instrEnd(setValid1) + 1 == instrStart(setValid0));
+
+    // addDataConstraints(readFifo, exec);
   }
 
   void implementRVFifoWrite(llvm::Function* writeFifo, ExecutionConstraints& exec) {
