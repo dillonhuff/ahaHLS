@@ -1496,7 +1496,7 @@ namespace ahaHLS {
     auto setValidF = writePort("read_valid", 1, tp);
     
     IRBuilder<> entryBuilder(entryBlk);
-    entryBuilder.CreateBr(entryBlk);
+    entryBuilder.CreateBr(stallBlk);
 
     IRBuilder<> stallBuilder(stallBlk);
     auto readReady = stallBuilder.CreateCall(readReadyF, {out});    
@@ -1566,7 +1566,7 @@ namespace ahaHLS {
     auto exitBlk = mkBB("exit_block", writeFifo);
 
     IRBuilder<> entryBuilder(entryBlk);
-    entryBuilder.CreateBr(entryBlk);
+    entryBuilder.CreateBr(stallBlk);
 
     IRBuilder<> stallBuilder(stallBlk);
     auto writeReady = stallBuilder.CreateCall(readReadyF, {out});
