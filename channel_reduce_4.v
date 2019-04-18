@@ -32,9 +32,9 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [31:0] out_in_d
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_18();
-
 	add alloca_0();
+
+	add call_18();
 
 	add bitcast_1();
 

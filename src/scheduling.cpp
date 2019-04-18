@@ -69,6 +69,13 @@ namespace ahaHLS {
   z3::expr toZ3(z3::context& c,
                 const LinearExpression& expr);
 
+  SchedulingProblem
+  createSchedulingProblem(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          std::set<BasicBlock*>& toPipeline,
+                          AAResults& aliasAnalysis,
+                          ScalarEvolution& sc);
+  
   // This is the real schedule function
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
@@ -120,14 +127,22 @@ namespace ahaHLS {
 
       //errs() << "Scheduling " << "\n" << valueString(&F) << "\n";
       if (!contains_key(&F, functionConstraints)) {
-        schedule = scheduleFunction(&F,
-                                    hdc,
-                                    toPipeline,
-                                    a,
-                                    sc);
+        // schedule = scheduleFunction(&F,
+        //                             hdc,
+        //                             toPipeline,
+        //                             a,
+        //                             sc);
 
+        SchedulingProblem p =
+          createSchedulingProblem(&F, hdc, toPipeline, a, sc);
+
+        schedule = buildFromModel(p);
+        schedule.controlPredecessors =
+          p.controlPredecessors;
+        
       } else {
         SchedulingProblem p = map_find(&F, functionConstraints);
+
         addMemoryConstraints(&F,
                              hdc,
                              toPipeline,
@@ -475,50 +490,50 @@ namespace ahaHLS {
     return s;
   }
 
-  // TODO: Re-name, this is not really a topological sort, since
-  // it ignores back-edges, it is really just a linearization that tries
-  // to respect forward control dependences
-  std::vector<BasicBlock*>
-  topologicalSortOfBlocks(llvm::Function* f,
-                          std::map<BasicBlock*, std::vector<BasicBlock*> >& controlPredecessors) {
+  // // TODO: Re-name, this is not really a topological sort, since
+  // // it ignores back-edges, it is really just a linearization that tries
+  // // to respect forward control dependences
+  // std::vector<BasicBlock*>
+  // topologicalSortOfBlocks(llvm::Function* f,
+  //                         std::map<BasicBlock*, std::vector<BasicBlock*> >& controlPredecessors) {
 
-    std::set<BasicBlock*> alreadyVisited;
-    vector<BasicBlock*> sortedOrder;
+  //   std::set<BasicBlock*> alreadyVisited;
+  //   vector<BasicBlock*> sortedOrder;
     
-    while (sortedOrder.size() < f->getBasicBlockList().size()) {
+  //   while (sortedOrder.size() < f->getBasicBlockList().size()) {
 
-      for (auto& nextBB : f->getBasicBlockList()) {
-        auto next = &nextBB;
+  //     for (auto& nextBB : f->getBasicBlockList()) {
+  //       auto next = &nextBB;
 
-        if (elem(next, alreadyVisited)) {
-          continue;
-        }
+  //       if (elem(next, alreadyVisited)) {
+  //         continue;
+  //       }
 
-        // Iterate over all blocks picking any whose predecessors are all
-        bool allPredsAdded = true;
+  //       // Iterate over all blocks picking any whose predecessors are all
+  //       bool allPredsAdded = true;
 
-        if (contains_key(next, controlPredecessors)) {
-          for (auto predBB : map_find(next, controlPredecessors)) {
+  //       if (contains_key(next, controlPredecessors)) {
+  //         for (auto predBB : map_find(next, controlPredecessors)) {
 
-            // // TODO: Change this check to respect the partial order computed
-            // // in STG dependency construction
+  //           // // TODO: Change this check to respect the partial order computed
+  //           // // in STG dependency construction
 
-            if (!elem(predBB, alreadyVisited)) {
-              allPredsAdded = false;
-              break;
-            }
-          }
-        }
+  //           if (!elem(predBB, alreadyVisited)) {
+  //             allPredsAdded = false;
+  //             break;
+  //           }
+  //         }
+  //       }
 
-        if (allPredsAdded) {
-          sortedOrder.push_back(next);
-          alreadyVisited.insert(next);
-        }
-      }
-    }
+  //       if (allPredsAdded) {
+  //         sortedOrder.push_back(next);
+  //         alreadyVisited.insert(next);
+  //       }
+  //     }
+  //   }
 
-    return sortedOrder;
-  }
+  //   return sortedOrder;
+  // }
 
   std::string scevStr(const SCEV* scev) {
     std::string str;
