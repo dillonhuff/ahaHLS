@@ -1251,6 +1251,9 @@ namespace ahaHLS {
                   controller.setCond("in_data", enteredThisBlk, storedWire); 
                 }
               }
+            } else {
+              // DO nothing
+              //controller.setCond("in_data", enteredThisBlk, storedWire);
             }
           }
 
