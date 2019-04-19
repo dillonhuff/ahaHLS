@@ -809,11 +809,11 @@ namespace ahaHLS {
             if (!elem(next, toPipeline) && !elem(nextBB, toPipeline) &&
                 !hasStencilCall(next, nextBB) &&
 
-                !hasStructCall(next, "struct.builtin_fifo") &&
-                !hasStructCall(nextBB, "struct.builtin_fifo") &&
+                // !hasStructCall(next, "struct.builtin_fifo") &&
+                // !hasStructCall(nextBB, "struct.builtin_fifo") &&
 
-                !hasStructCall(next, "builtin_fifo") &&
-                !hasStructCall(nextBB, "builtin_fifo") &&
+                // !hasStructCall(next, "builtin_fifo") &&
+                // !hasStructCall(nextBB, "builtin_fifo") &&
 
                 !hasStructCall(next, "class.ac_channel") &&
                 !hasStructCall(nextBB, "class.ac_channel")
