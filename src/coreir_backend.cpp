@@ -34,6 +34,9 @@ namespace ahaHLS {
     CoreIR::Module* mod = n->newModuleDecl(name, tp);
     CoreIR::ModuleDef* def = mod->newModuleDef();
 
+    map<string, Instance*> functionalUnits;
+    map<string, FunctionalUnit> wireSourceControllers;
+    map<string, RegController> wireSourceRegisters;
 
     mod->setDef(def);
   }
