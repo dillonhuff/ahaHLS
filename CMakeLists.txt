@@ -31,6 +31,7 @@ target_link_libraries(ahahls ${llvm_libs} z3)
 
 # Test executables
 SET(ALL_TEST_FILES ./test/scheduling.cpp
+                   ./test/coreir_backend_tests.cpp
                    ./test/dependence.cpp)
 
 
