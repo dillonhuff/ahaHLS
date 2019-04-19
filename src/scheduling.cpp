@@ -2577,7 +2577,8 @@ namespace ahaHLS {
     auto raddrReady = readPort(stallRaddrBuilder, readMod, 1, "s_axil_arready");
     writePort(stallRaddrBuilder, readMod, addrWidth, "s_axil_araddr", addrValShifted);
     writePort(stallRaddrBuilder, readMod, 1, "s_axil_arvalid", mkInt(1, 1));
-    stallRaddrBuilder.CreateCondBr(raddrReady, stallRrespBlk, stallRaddrBlk);
+    writePort(stallRaddrBuilder, readMod, 1, "s_axil_rready", mkInt(1, 1));    
+    stallRaddrBuilder.CreateCondBr(raddrReady, stallRrespBlk, stallRrespBlk);
 
     IRBuilder<> stallRrespBuilder(stallRrespBlk);
     auto rrespReady = readPort(stallRrespBuilder, readMod, 1, "s_axil_rvalid");

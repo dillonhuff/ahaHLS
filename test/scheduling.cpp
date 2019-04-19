@@ -992,19 +992,23 @@ namespace ahaHLS {
     Schedule s = scheduleInterface(f, hcs, interfaces);
     STG graph = buildSTG(s, f);
 
+
     cout << "STG Is" << endl;
     graph.print(cout);
 
+    map<Value*, int> layout;    
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
     VerilogDebugInfo info;
     info.debugAssigns.push_back({"global_state_dbg", "global_state"});
     info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    addNoXChecks(arch, info);
 
-    emitVerilog("raw_axi_wr", graph, hcs, info);
+    //emitVerilog("raw_axi_wr", graph, hcs, info);
+    emitVerilog("raw_axi_wr", arch, info);
 
     map<string, vector<int> > memoryInit;
     map<string, vector<int> > memoryExpected;
     map<string, int> testLayout;
-    map<Value*, int> layout;    
     TestBenchSpec tb = buildTB("raw_axi_wr", memoryInit, memoryExpected, testLayout);
     map_insert(tb.actionsOnCycles, 50, assertString("valid === 1"));
     map_insert(tb.actionsOnCycles, 50, assertString("ram_debug_data === 24"));
@@ -1021,7 +1025,7 @@ namespace ahaHLS {
     map_insert(tb.actionsInCycles, 49, string("ram_debug_addr = 0;"));
     map_insert(tb.actionsInCycles, 50, string("ram_debug_addr = 0;"));
 
-    auto arch = buildMicroArchitecture(graph, layout, hcs);
+    //auto arch = buildMicroArchitecture(graph, layout, hcs);
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("raw_axi_wr"));
