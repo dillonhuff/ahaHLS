@@ -1615,6 +1615,9 @@ namespace ahaHLS {
   topologicalSortOfBlocks(llvm::Function* f,
                           std::map<BasicBlock*, std::vector<BasicBlock*> >& controlPredecessors);
   
+
+  std::set<llvm::BasicBlock*> inProgressBlocks(const StateId state,
+                                               STG& stg);
   
 }
 

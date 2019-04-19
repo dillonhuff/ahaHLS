@@ -2937,6 +2937,17 @@ namespace ahaHLS {
     }
     return levels;
   }
+
+  std::set<llvm::BasicBlock*> inProgressBlocks(const StateId state,
+                                               STG& stg) {
+    set<BasicBlock*> inProg;
+    for (auto blk : blocksInState(state, stg)) {
+      if (stg.blockEndState(blk) != state) {
+        inProg.insert(blk);
+      }
+    }
+    return inProg;
+  }
   
   void StateTransitionGraph::print(std::ostream& out) {
     out << "--- # of states = " << opStates.size() << std::endl;
@@ -2978,6 +2989,13 @@ namespace ahaHLS {
         out << tab(3) << blkNameString(blk) << endl;
       }
 
+      set<BasicBlock*> inProgress =
+        inProgressBlocks(state, *this);
+      out << tab(2) << "- Blocks that are in progress but do not terminate" << endl;
+      for (auto blk : inProgress) {
+        out << tab(3) << blkNameString(blk) << endl;
+      }
+      
       set<pair<BasicBlock*, BasicBlock*> > inStateTransitions =
         getInStateTransitions(state, *this);
       out << tab(2) << "- In state transitions" << endl;

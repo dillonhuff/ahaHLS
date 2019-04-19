@@ -1886,9 +1886,9 @@ namespace ahaHLS {
     // Actually we ought to do this even if we do find terminators
     // because with multiple basic blocks it is possible to end
     // in a non-terminating block even if other blocks have terminators
-    // TODO: Should be for (auto blk : nonTerminatingBlocks(state)) { if active...
-    for (auto blk : nonTerminatingBlocks(state, arch.stg)) {
-      cout << "Found non terminating block" << endl;
+    //for (auto blk : nonTerminatingBlocks(state, arch.stg)) {
+    for (auto blk : inProgressBlocks(state, arch.stg)) {
+      cout << "Found non terminating block in " << state << endl;
 
       // ControlFlowPosition pos =
       //   position(state, lastInstructionForBlockInState(blk, state, arch), arch);
@@ -1914,8 +1914,6 @@ namespace ahaHLS {
       addStateTransition(state, dest, condWire, arch);
     }
 
-    // TODO: Emit code for non-terminating states
-    
   }
 
   // TODO: Remove resetValues field?
