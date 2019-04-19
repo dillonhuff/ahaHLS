@@ -2424,20 +2424,20 @@ namespace ahaHLS {
 
   }
 
-  Instruction* stallOnPort(IRBuilder<>& b,
-                           Value* const readMod,
-                           const int width,
-                           const std::string portName,
-                           ExecutionConstraints& exec) {
-    auto modType = getPointedToType(readMod->getType());
-    auto stallF = stallFunction();
-    auto readAReadyF = readPort(portName, width, modType);
+  // Instruction* stallOnPort(IRBuilder<>& b,
+  //                          Value* const readMod,
+  //                          const int width,
+  //                          const std::string portName,
+  //                          ExecutionConstraints& exec) {
+  //   auto modType = getPointedToType(readMod->getType());
+  //   auto stallF = stallFunction();
+  //   auto readAReadyF = readPort(portName, width, modType);
     
-    auto readAddrReady = b.CreateCall(readAReadyF, {readMod});
-    auto stallUntilReadAddrReady = b.CreateCall(stallF, readAddrReady);
-    exec.add(instrStart(readAddrReady) == instrStart(stallUntilReadAddrReady));
-    return stallUntilReadAddrReady;
-  }
+  //   auto readAddrReady = b.CreateCall(readAReadyF, {readMod});
+  //   auto stallUntilReadAddrReady = b.CreateCall(stallF, readAddrReady);
+  //   exec.add(instrStart(readAddrReady) == instrStart(stallUntilReadAddrReady));
+  //   return stallUntilReadAddrReady;
+  // }
 
   Instruction* writePort(IRBuilder<>& b,
                          Value* const writeMod,
