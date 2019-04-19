@@ -100,6 +100,12 @@ namespace ahaHLS {
     map<string, FunctionalUnit> wireSourceControllers;
     map<string, RegController> wireSourceRegisters;
 
+    // Then what?
+    // Iterate over controllers wiring up each controller
+    // output to the instances of the register? Note:
+    // I may also need to create a map from wire names to
+    // the functional units or registers that define them?
+
     mod->setDef(def);
   }
 

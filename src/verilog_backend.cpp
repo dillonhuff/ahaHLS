@@ -19,6 +19,7 @@ using namespace std;
 //   2. Pipelined code cleanup / outer loops
 //   3. CGRA linebuffer mapping
 //   4. Refactor the state code to use data structures from STG
+//   5. Fix the weird hack that was required
 
 // I think a CoreIR backend should precede the other CGRA mapping
 // stuff. Better to fill out the pipeline then get things working.
