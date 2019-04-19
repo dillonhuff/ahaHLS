@@ -2555,6 +2555,7 @@ namespace ahaHLS {
   void implementRawAXIRead(llvm::Function* axiRead,
                            ExecutionConstraints& exec) {
 
+    int addrWidth = 16;
     int dataWidth = 32;
     auto readMod = getArg(axiRead, 0);
     auto axiTp = getPointedToType(readMod->getType());
@@ -2564,13 +2565,17 @@ namespace ahaHLS {
     auto stallRrespBlk = mkBB("entry_rresp_block", axiRead);
     auto exitBlk = mkBB("exit_block", axiRead);
 
-    auto readRReadyF = readPort("s_axil_rresp", 1, axiTp);
+    //auto readRReadyF = readPort("s_axil_rresp", 1, axiTp);
 
+    auto addrVal = getArg(axiRead, 1);
+    
     IRBuilder<> entryBuilder(entryBlk);
+    auto addrValShifted = entryBuilder.CreateShl(addrVal, mkInt(2, 32));    
     entryBuilder.CreateBr(stallRaddrBlk);
     
     IRBuilder<> stallRaddrBuilder(stallRaddrBlk);
     auto raddrReady = readPort(stallRaddrBuilder, readMod, 1, "s_axil_arready");
+    writePort(stallRaddrBuilder, readMod, addrWidth, "s_axil_araddr", addrValShifted);
     writePort(stallRaddrBuilder, readMod, 1, "s_axil_arvalid", mkInt(1, 1));
     stallRaddrBuilder.CreateCondBr(raddrReady, stallRrespBlk, stallRaddrBlk);
 
@@ -2579,6 +2584,8 @@ namespace ahaHLS {
     writePort(stallRrespBuilder, readMod, 1, "s_axil_rready", mkInt(1, 1));
     auto readValue = readPort(stallRrespBuilder, readMod, dataWidth, "s_axil_rdata");
     stallRrespBuilder.CreateCondBr(rrespReady, exitBlk, stallRrespBlk);
+
+    exec.add(end(stallRaddrBlk) + 1 == start(stallRrespBlk));
 
     IRBuilder<> exitBuilder(exitBlk);
     exitBuilder.CreateRet(readValue);
