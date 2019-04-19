@@ -2111,7 +2111,7 @@ namespace ahaHLS {
             auto bbNo = arch.cs.getBasicBlockNo(instr->getParent());
             if (isPipelineState(st.first, arch.pipelines)) {
               ElaboratedPipeline p = getPipeline(st.first, arch.pipelines);
-              rc.values[atState(p.stateId, arch)] = to_string(bbNo);
+              rc.values[atStateWire(p.stateId, arch)] = to_string(bbNo);
             } else {
 
               // If this block is the last active block in st
