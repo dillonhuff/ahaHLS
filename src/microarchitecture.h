@@ -4,6 +4,47 @@
 
 namespace ahaHLS {
 
+  class ControlFlowPosition {
+
+    StateId state;
+    bool inPipe;
+    int pipeStage;
+
+  public:
+    llvm::Instruction* instr;
+
+    ControlFlowPosition(const StateId state_,
+                        const bool inPipe_,
+                        const int pipeStage_,
+                        llvm::Instruction* const instr_) :
+      state(state_), inPipe(inPipe_), pipeStage(pipeStage_), instr(instr_) {
+    }
+
+    bool inPipeline() const {
+      return inPipe;
+    }
+
+    StateId stateId() const {
+      return state;
+    }
+
+    BasicBlock* getBB() const {
+      return instr->getParent();
+    }
+
+    int pipelineStage() const {
+      return pipeStage;
+    }
+  };
+
+  std::ostream& operator<<(std::ostream& out, ControlFlowPosition& pos);
+  
+  ControlFlowPosition position(const StateId state, Instruction* const instr);
+
+  ControlFlowPosition pipelinePosition(Instruction* const instr,
+                                       const StateId state,
+                                       const int stage);
+
   bool hasOutput(llvm::Instruction* instr);
 
   class Memory {
@@ -497,5 +538,92 @@ namespace ahaHLS {
     }
 
   };
+
+  MicroArchitecture
+  buildMicroArchitecture(const STG& stg,
+                         std::map<std::string, int>& memoryMap);
+
+  MicroArchitecture
+  buildMicroArchitecture(const STG& stg,
+                         std::map<std::string, int>& memoryMap,
+                         HardwareConstraints& hcs);
+  
+  MicroArchitecture
+  buildMicroArchitecture(const STG& stg,
+                         std::map<llvm::Value*, int>& memoryMap,
+                         HardwareConstraints& hcs);
+  
+  MicroArchitecture
+  buildMicroArchitecture(const STG& stg,
+                         std::map<llvm::Value*, int>& memoryMap);
+
+  // TODO: Move to separate memory analysis file, and eventually
+  // to an LLVM dataflow pass
+  std::map<llvm::Instruction*, llvm::Value*>
+  memoryOpLocations(llvm::Function* f);
+
+  std::string atState(const StateId state, MicroArchitecture& arch);  
+  std::string notAtState(const StateId state, MicroArchitecture& arch);
+
+  llvm::Instruction* lastInstructionInState(const StateId state,
+                                            MicroArchitecture& arch);
+
+  std::string floatBits(const float f);
+
+  ControlFlowPosition position(const StateId state,
+                               Instruction* const instr,
+                               MicroArchitecture& arch);
+
+  bool stateless(FunctionalUnit& unit);
+
+  Wire inAnyPipeline(MicroArchitecture& arch);
+
+  Wire checkEqual(const int value, const Wire w, MicroArchitecture& arch);
+  
+  PortController& addPortController(const std::string& name,
+                                    const int width,
+                                    MicroArchitecture& arch);
+  
+  Wire blockActiveInState(const StateId state,
+                          BasicBlock* const blk,
+                          MicroArchitecture& arch);
+  
+  bool jumpToSameState(BasicBlock* const predecessor,
+                       BasicBlock* const successor,
+                       MicroArchitecture& arch);
+
+  Wire atStateWire(const StateId state, MicroArchitecture& arch);
+
+  Wire checkNotWire(const Wire in, MicroArchitecture& arch);  
+  Wire checkAnd(const Wire in0, const Wire in1, MicroArchitecture& arch);
+
+  std::string dataOutput(llvm::Instruction* instr0, const MicroArchitecture& arch);
+
+  std::vector<Port>
+  getPorts(const MicroArchitecture& arch);
+
+  std::string outputName(Value* val,
+                         ControlFlowPosition& currentPosition,
+                         MicroArchitecture& arch);
+
+  bool isInsensitive(const std::string& port,
+                     PortController& portController);
+
+  bool needsTempStorage(llvm::Instruction* const instr,
+                        MicroArchitecture& arch);
+
+  std::ostream& operator<<(std::ostream& out, const RegController& controller);
+
+  void emitPipelineValidChainBlock(MicroArchitecture& arch);
+
+  std::vector<ElaboratedPipeline>
+  buildPipelines(llvm::Function* f, const STG& stg);
+
+  void
+  emitPipelineInitiationBlock(MicroArchitecture& arch);
+
+  void emitPipelineResetBlock(MicroArchitecture& arch);
+
+  void emitPipelineRegisterChains(MicroArchitecture& arch);
   
 }

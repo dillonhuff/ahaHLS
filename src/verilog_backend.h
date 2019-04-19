@@ -179,24 +179,6 @@ namespace ahaHLS {
                          HardwareConstraints& hdc,
                          std::map<llvm::Value*, int>& memoryMap);
   
-  MicroArchitecture
-  buildMicroArchitecture(const STG& stg,
-                         std::map<std::string, int>& memoryMap);
-
-  MicroArchitecture
-  buildMicroArchitecture(const STG& stg,
-                         std::map<std::string, int>& memoryMap,
-                         HardwareConstraints& hcs);
-  
-  MicroArchitecture
-  buildMicroArchitecture(const STG& stg,
-                         std::map<llvm::Value*, int>& memoryMap,
-                         HardwareConstraints& hcs);
-  
-  MicroArchitecture
-  buildMicroArchitecture(const STG& stg,
-                         std::map<llvm::Value*, int>& memoryMap);
-  
   void noPhiOutputsXWhenUsed(MicroArchitecture& arch,
                              VerilogDebugInfo& debugInfo);
 
@@ -218,24 +200,6 @@ namespace ahaHLS {
   void addNoXChecks(MicroArchitecture& arch,
                     VerilogDebugInfo& debugInfo);
 
-  // TODO: Move to separate memory analysis file, and eventually
-  // to an LLVM dataflow pass
-  std::map<llvm::Instruction*, llvm::Value*>
-  memoryOpLocations(llvm::Function* f);
-
-  std::string atState(const StateId state, MicroArchitecture& arch);  
-  std::string notAtState(const StateId state, MicroArchitecture& arch);
-
-  llvm::Instruction* lastInstructionInState(const StateId state,
-                                            MicroArchitecture& arch);
-
-  void printInstrAtState(llvm::Instruction* instr,
-                         StateId st,
-                         MicroArchitecture& arch,
-                         VerilogDebugInfo& debugInfo);
-
-  std::string floatBits(const float f);
-
   void emitVerilog(const std::string& fn,
                    MicroArchitecture& arch,
                    const VerilogDebugInfo& debugInfo);
@@ -250,5 +214,10 @@ namespace ahaHLS {
 
   void addSetStencilChecks(MicroArchitecture& arch,
                            VerilogDebugInfo& info);
-  
+
+  void printInstrAtState(llvm::Instruction* instr,
+                         StateId st,
+                         MicroArchitecture& arch,
+                         VerilogDebugInfo& debugInfo);
+
 }
