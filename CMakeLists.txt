@@ -33,6 +33,10 @@ llvm_map_components_to_libnames(llvm_libs support core irreader passes)
 
 add_library(ahahls ${CPP_FILES})
 target_link_libraries(ahahls ${llvm_libs} z3)
+if (COREIR_BACKEND)
+target_link_libraries(ahahls coreir)
+endif()
+
 
 # Test executables
 SET(ALL_TEST_FILES ./test/scheduling.cpp

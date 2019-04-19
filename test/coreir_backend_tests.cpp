@@ -2,13 +2,15 @@
 
 #include "catch.hpp"
 
-#include "microarchitecture.h"
+#include "coreir.h"
+
 #include "coreir_backend.h"
 #include "llvm_codegen.h"
 #include "test_utils.h"
 
 #include <llvm/Transforms/Utils/BasicBlockUtils.h>
 
+using namespace CoreIR;
 using namespace dbhc;
 using namespace llvm;
 using namespace std;
@@ -45,7 +47,10 @@ namespace ahaHLS {
 
     map<llvm::Value*, int> layout = {};
     auto arch = buildMicroArchitecture(graph, layout, hcs);
-    
+
+    Context* c = newContext();
+
+    deleteContext(c);
   }
   
 }
