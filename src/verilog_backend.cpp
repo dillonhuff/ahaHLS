@@ -1762,8 +1762,7 @@ namespace ahaHLS {
         string pipeCond = jumpCond + " && " + pipelineClearOnNextCycleCondition(p);
           
         conds.push_back(pipeCond);
-        controller.values[andCondWire(conds, arch).name] = to_string(dest);          
-          
+        controller.values[andCondWire(conds, arch).name] = to_string(dest);
       }
 
     } else {
@@ -1988,57 +1987,6 @@ namespace ahaHLS {
 
   }
 
-  // void buildInputControllers(PortController& controller,
-  //                            MicroArchitecture& arch) {
-  //   for (auto val : controller.portValues) {
-  //     StateId state = val.first;
-
-  //     for (auto stallAndPortAssign : val.second) {
-  //       StallConds stallConds = stallAndPortAssign.first;
-  //       PortAssignments assignments = stallAndPortAssign.second;
-
-  //       for (auto portAndValue : assignments) {
-  //         string portName = portAndValue.first;
-  //         string portVal = portAndValue.second;
-  //         if (!contains_key(portName, controller.inputControllers)) {
-  //           controller.inputControllers[portName] = PortValues();
-  //         }
-
-  //         PortValues& vals = controller.inputControllers[portName];
-  //         vals.portAssignments.insert({state, {stallConds, portVal}});
-  //       }
-  //     }
-  //   }
-
-  //   // Convert to using portVals?
-  //   for (auto& portAndPortValues : controller.inputControllers) {
-  //     string portName = portAndPortValues.first;
-  //     PortValues& portValues = portAndPortValues.second;
-
-  //     assert(portValues.portVals.size() == 0);
-      
-  //     for (auto& assignment : portValues.portAssignments) {
-  //       // Generate string for this assignment and then make it a wire
-  //       Wire value = wire(32, assignment.second.second);
-  //       StallConds stallConds = assignment.second.first;
-
-  //       StateId state = assignment.first;
-  //       vector<string> conds{atState(state, arch)};
-  //       for (auto& stallCond : stallConds) {
-  //         conds.push_back(stallCond);
-  //       }
-  //       //string startCond = andCondStr(conds);
-  //       Wire startCond = andCondWire(conds, arch);
-  //       //Wire condition = wire(32, startCond);
-  //       //portValues.portVals.insert({condition, value});
-  //       portValues.portVals.insert({startCond, value});
-  //     }
-
-  //     // Clear the old data structure
-  //     portValues.portAssignments = {};
-  //   }
-  // }
-  
   bool usedInExactlyOneState(UnitController& controller) {
     int numUses = 0;
     for (auto st : controller.instructions) {
@@ -2052,29 +2000,6 @@ namespace ahaHLS {
     vector<string> statelessUnits{"add", "sub", "shlOp", "mul", "phi", "getelementptr_2", "ne", "eq", "trunc", "sext", "slt", "andOp", "notOp", "sgt", "orOp"};
     return elem(unit.getModName(), statelessUnits);
   }
-
-  // std::vector<std::string> getStallConds(Instruction* instr,
-  //                                        const StateId state,
-  //                                        MicroArchitecture& arch) {
-  //   vector<std::string> stallConds;
-
-  //   // Stalls do not get stalled by themselves
-  //   if (!isBuiltinStallCall(instr)) {
-  //     for (auto instrK : arch.stg.instructionsStartingAt(state)) {
-  //       if (isBuiltinStallCall(instrK) &&
-  //           (instrK->getParent() == instr->getParent())) {
-
-  //         auto stallPos = position(state, instrK);
-  //         string cond = outputName(instrK->getOperand(0),
-  //                                  stallPos,
-  //                                  arch);
-
-  //         stallConds.push_back(cond);
-  //       }
-  //     }
-  //   }
-  //   return stallConds;    
-  // }
 
   bool isInsensitive(const std::string& port,
                      PortController& portController) {
