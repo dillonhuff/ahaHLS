@@ -9,6 +9,11 @@ find_package(LLVM REQUIRED CONFIG)
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
+if (COREIR_BACKEND)
+MESSAGE(STATUS "Including CoreIR backend")
+add_definitions(-DCOREIR_BACKEND=1)
+endif()
+
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 

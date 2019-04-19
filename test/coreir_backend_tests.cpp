@@ -2,6 +2,7 @@
 
 #include "catch.hpp"
 
+#include "microarchitecture.h"
 #include "coreir_backend.h"
 #include "llvm_codegen.h"
 #include "test_utils.h"
