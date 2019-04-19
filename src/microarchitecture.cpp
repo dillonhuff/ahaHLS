@@ -2659,9 +2659,9 @@ namespace ahaHLS {
         arch.getController(p.valids.at(0));
       string atSt = atState(st, arch);
       
-      cont.values[andStr(atSt, testCond)] = "0";
-      cont.values[andStr(atSt, notStr(testCond))] = "1";      
-      cont.values[andStr(notStr(atSt), p.inPipe.name)] = "0";
+      cont.values[checkAnd(wire(1, atSt), wire(1, testCond), arch)] = "0";
+      cont.values[checkAnd(wire(1, atSt), wire(1, notStr(testCond)))] = "1";      
+      cont.values[checkAnd(wire(1, notStr(atSt)), wire(1, p.inPipe.name))] = "0";
     }
 
   }
