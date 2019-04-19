@@ -58,8 +58,7 @@ namespace ahaHLS {
   //  2. Remove or wrap the function -> SchedulingConstraints map
 
   // Q: What test cases do I need?
-  // A: Test case that merges basic blocks that execute different numbers of times
-  //    Test case with outer loop pipelining
+  // A: Test case with outer loop pipelining
   //    Test case that pipelines inner loop surrounded by outer loop
   //    Test case using a ready-valid interface together with pipelining
   //    Test case that builds a linebuffer from LLVM

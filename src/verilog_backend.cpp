@@ -14,6 +14,18 @@ using namespace std;
 
 // Pull zip file for z3 via travis? https://github.com/Z3Prover/z3/releases/download/z3-4.8.4/z3-4.8.4.d6df51951f4c-x64-ubuntu-14.04.zip
 
+// What to do next?
+//   1. CoreIR backend
+//   2. Pipelined code cleanup / outer loops
+//   3. CGRA linebuffer mapping
+//   4. Refactor the state code to use data structures from STG
+
+// I think a CoreIR backend should precede the other CGRA mapping
+// stuff. Better to fill out the pipeline then get things working.
+// Also: The loop task parallelism will be a critical optimization
+// so getting scheduling working for multiple, independent sections of
+// the CDFG will be important
+
 namespace ahaHLS {
 
   Wire checkEqual(const int value, const Wire w, MicroArchitecture& arch);
