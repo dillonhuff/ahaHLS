@@ -2120,7 +2120,8 @@ namespace ahaHLS {
 
               
               Wire condWire = lastBlockActiveInState(st.first, instr->getParent(), arch);
-              rc.values[condWire.valueString()] = to_string(bbNo);
+              //rc.values[condWire.valueString()] = to_string(bbNo);
+              rc.values[condWire] = to_string(bbNo);
             }
           }
 
@@ -2151,12 +2152,18 @@ namespace ahaHLS {
   }
   
 
-  std::string wireValue(const std::string& hName,
+  // std::string wireValue(const std::string& hName,
+  //                       MicroArchitecture& arch) {
+  //   auto& pController = arch.portController(hName);
+  //   return pController.unitController.unit.outputWire("out_data");
+  // }
+
+  Wire wireValue(const std::string& hName,
                         MicroArchitecture& arch) {
     auto& pController = arch.portController(hName);
-    return pController.unitController.unit.outputWire("out_data");
+    return pController.unitController.unit.outputWire();
   }
-
+  
   ModuleSpec comparatorSpec(const std::string& name, const int width) {
     ModuleSpec unit;
     unit.name = name;
@@ -2414,12 +2421,12 @@ namespace ahaHLS {
           edgeTakenWires.insert({{br->getParent(), falseSucc}, falseTaken});
 
           if (!jumpToSameState(&bb, trueSucc, arch)) {
-            arch.getController("global_next_block").values[trueTaken.valueString()] =
+            arch.getController("global_next_block").values[trueTaken] =
               to_string(trueBlkNo);
           }
 
           if (!jumpToSameState(&bb, falseSucc, arch)) {          
-            arch.getController("global_next_block").values[falseTaken.valueString()] =
+            arch.getController("global_next_block").values[falseTaken] =
               to_string(falseBlkNo);
           }
 
@@ -2471,7 +2478,7 @@ namespace ahaHLS {
         Wire thisBlkActive = blockActiveInState(state, blk, arch);
         // If a block is active that does not execute its terminator, then
         // the in the next cycle we continue to execute that block
-        arch.getController("global_next_block").values[thisBlkActive.valueString()] =
+        arch.getController("global_next_block").values[thisBlkActive] =
           to_string(arch.cs.getBasicBlockNo(blk));
       }
     }
@@ -2486,7 +2493,7 @@ namespace ahaHLS {
           // to be the current block.
 
           if (!arch.stg.sched.hasReturnDefault()) {
-            arch.getController("global_next_block").values[thisBlkActive.valueString()] =
+            arch.getController("global_next_block").values[thisBlkActive] =
               to_string(arch.cs.getBasicBlockNo(blk));
           }
         }
