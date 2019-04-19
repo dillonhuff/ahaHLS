@@ -2461,19 +2461,37 @@ namespace ahaHLS {
   // TODO: Implement address shifting / strobe?
   void implementRawAXIWrite(llvm::Function* axiWrite,
                             ExecutionConstraints& exec) {
-    //auto entryBlk = mkBB("entry_block", axiWrite);
-    //IRBuilder<> b(eb);
 
+    auto readMod = getArg(axiWrite, 0);
+    
+    auto inType = getArg(axiWrite, 2)->getType();
+
+    int dataWidth = getTypeBitWidth(inType);
+    int addrWidth = 32;
+    int strbWidth = dataWidth / 8;
+
+    auto inAddr = getArg(axiWrite, 1);
+    auto inData = getArg(axiWrite, 2);    
+    
     auto entryBlk = mkBB("entry_block", axiWrite);
     auto stallAWReadyBlk = mkBB("stall_awready_block", axiWrite);
     auto stallBValidBlk = mkBB("stall_bvalid_block", axiWrite);            
     auto exitBlk = mkBB("exit_block", axiWrite);
 
     IRBuilder<> entryBuilder(entryBlk);
+    auto addrValShifted = entryBuilder.CreateShl(inAddr, mkInt(2, 32));
     entryBuilder.CreateBr(stallAWReadyBlk);
 
     IRBuilder<> stallAWReadyBuilder(stallAWReadyBlk);
-    auto addrAndDataReady = mkInt(1, 1);
+    writePort(stallAWReadyBuilder, readMod, 1, "s_axil_awvalid", mkInt(1, 1));
+    writePort(stallAWReadyBuilder, readMod, 1, "s_axil_wvalid", mkInt(1, 1));
+    writePort(stallAWReadyBuilder, readMod, addrWidth, "s_axil_awaddr", addrValShifted);
+    writePort(stallAWReadyBuilder, readMod, dataWidth, "s_axil_wdata", inData);
+    writePort(stallAWReadyBuilder, readMod, strbWidth, "s_axil_wstrb", mkInt(15, strbWidth));
+
+    auto addrReady = readPort(stallAWReadyBuilder, readMod, 1, "s_axil_awready");
+    auto dataReady = readPort(stallAWReadyBuilder, readMod, 1, "s_axil_wready");    
+    auto addrAndDataReady = stallAWReadyBuilder.CreateAnd(addrReady, dataReady);
     stallAWReadyBuilder.CreateCondBr(addrAndDataReady, stallBValidBlk, stallAWReadyBlk);    
 
     IRBuilder<> stallBValidBuilder(stallBValidBlk);
