@@ -1608,6 +1608,14 @@ namespace ahaHLS {
   topologicalLevelsForBlocks(const StateId state,
                              STG& stg);
 
+  std::map<BasicBlock*, vector<BasicBlock*> >
+  buildControlPreds(llvm::Function* f);
+
+  std::vector<BasicBlock*>
+  topologicalSortOfBlocks(llvm::Function* f,
+                          std::map<BasicBlock*, std::vector<BasicBlock*> >& controlPredecessors);
+  
+  
 }
 
 

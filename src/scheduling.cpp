@@ -4,6 +4,8 @@
 
 #include <llvm/IR/Instructions.h>
 
+#include <llvm/IR/InstIterator.h>
+
 #include <llvm/Analysis/OrderedBasicBlock.h>
 
 #include <llvm/IR/LegacyPassManager.h>
@@ -827,7 +829,7 @@ namespace ahaHLS {
 
         if (BranchInst::classof(term)) {
           if (!elem(next, toPipeline) && !elem(nextBB, toPipeline)
-              && !hasStencilCall(next, nextBB)
+              //&& !hasStencilCall(next, nextBB)
               ) {
             p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
           } else {
@@ -3636,6 +3638,80 @@ namespace ahaHLS {
     ExecutionConstraints exec;
     return scheduleInterface(f, hcs, interfaces, toPipeline, exec);
   }
+
+  bool precedes(Instruction* pred, Instruction* succ, vector<BasicBlock*> blkOrder) {
+    auto predBlk = pred->getParent();
+    auto succBlk = succ->getParent();
+
+    if (predBlk == succBlk) {
+      OrderedBasicBlock obb(predBlk);
+      return obb.dominates(pred, succ);
+    }
+
+    int predPos =
+      distance(blkOrder.begin(), find(blkOrder.begin(), blkOrder.end(), predBlk));
+
+    int succPos =
+      distance(blkOrder.begin(), find(blkOrder.begin(), blkOrder.end(), succBlk));
+
+    return (succPos - predPos) > 0;
+  }
+
+  bool isStencilCall(Instruction* instr)  {
+    if (!CallInst::classof(instr)) {
+      return false;
+    }
+
+    //CallInst* call = dyn_cast<CallInst>(instr);
+
+    Value* val = instr->getOperand(0);
+    Type* argTp = val->getType();
+    if (!PointerType::classof(argTp)) {
+      return false;
+    }
+
+    Type* underlying = dyn_cast<PointerType>(argTp)->getElementType();
+
+    assert(StructType::classof(underlying));
+
+    StructType* stp = dyn_cast<StructType>(underlying);
+
+    cout << "Checking struct " << string(stp->getName()) << " has stencil" << endl;
+
+    string stencilPrefix = "class.AxiPackedStencil";
+    if (hasPrefix(stp->getName(), stencilPrefix)) { //"class.AxiPackedStencil")) {
+      cout << "Found stencil call in blk checks" << endl;
+      return true;
+    }
+
+    return false;
+    
+  }
+  
+  void addStencilCallConstraints(llvm::Function* f,
+                                 map<BasicBlock*, vector<BasicBlock*> >& preds,
+                                 ExecutionConstraints& exec) {
+    vector<BasicBlock*> blockOrder = topologicalSortOfBlocks(f, preds);
+    for (inst_iterator maybePred = inst_begin(f), E = inst_end(f);
+         maybePred != E;
+         ++maybePred) {
+      Instruction* pred = &(*maybePred);
+
+      for (auto maybeSucc = inst_begin(f), Es = inst_end(f);
+           maybeSucc != Es;
+           ++maybeSucc) {      
+        Instruction* succ = &(*maybeSucc);
+
+        if (pred != succ) {
+          if (precedes(pred, succ, blockOrder)) {
+            if (isStencilCall(pred) && isStencilCall(succ)) {
+              exec.add(instrEnd(pred) < instrStart(succ));
+            }
+          }
+        }
+      }
+    }
+  }
   
   Schedule scheduleInterface(llvm::Function* f,
                              HardwareConstraints& hcs,
@@ -3647,6 +3723,8 @@ namespace ahaHLS {
     cout << valueString(f) << endl;
 
     addDataConstraints(f, exec);
+    auto preds = buildControlPreds(f);
+    addStencilCallConstraints(f, preds, exec);
     inlineWireCalls(f, exec, interfaces);
 
     cout << "After inlining" << endl;
