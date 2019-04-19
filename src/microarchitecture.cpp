@@ -2660,8 +2660,8 @@ namespace ahaHLS {
       string atSt = atState(st, arch);
       
       cont.values[checkAnd(wire(1, atSt), wire(1, testCond), arch)] = "0";
-      cont.values[checkAnd(wire(1, atSt), wire(1, notStr(testCond)))] = "1";      
-      cont.values[checkAnd(wire(1, notStr(atSt)), wire(1, p.inPipe.name))] = "0";
+      cont.values[checkAnd(wire(1, atSt), wire(1, notStr(testCond)), arch)] = "1";      
+      cont.values[checkAnd(wire(1, notStr(atSt)), wire(1, p.inPipe.name), arch)] = "0";
     }
 
   }
@@ -2700,7 +2700,7 @@ namespace ahaHLS {
 
             assert(contains_key(i, nextNameMap));
             Wire next = map_find(i, nextNameMap);
-            arch.getController(next).values["1"] = current.name;
+            arch.getController(next).values[constWire(1, 1)] = current.name;
           }
         }
         
@@ -2709,7 +2709,7 @@ namespace ahaHLS {
       for (auto instrS : p.pipelineRegisters.back()) {
         Instruction* i = instrS.first;
         if (needsTempStorage(i, arch)) {
-          arch.getController(map_find(i, arch.names)).values["1"] =
+          arch.getController(map_find(i, arch.names)).values[constWire(1, 1)] =
             instrS.second.name;
         }
       }
@@ -2722,7 +2722,7 @@ namespace ahaHLS {
     for (auto p : pipelines) {
 
       for (int i = 0; i < ((int) p.valids.size()) - 1; i++) {
-        arch.getController(p.valids[i + 1]).values["1"] =
+        arch.getController(p.valids[i + 1]).values[constWire(1, 1)] =
           p.valids[i].name;
       }
     }
