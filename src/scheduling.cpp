@@ -497,6 +497,7 @@ namespace ahaHLS {
     return s;
   }
 
+  // Note: Save this function!!
   // // TODO: Re-name, this is not really a topological sort, since
   // // it ignores back-edges, it is really just a linearization that tries
   // // to respect forward control dependences
@@ -806,12 +807,8 @@ namespace ahaHLS {
 
             //p.s.add(p.blockSink(next) < p.blockSource(nextBB));
 
-            if (!elem(next, toPipeline) && !elem(nextBB, toPipeline) &&
-                !hasStencilCall(next, nextBB)
-
-                // !hasStructCall(next, "class.ac_channel") &&
-                // !hasStructCall(nextBB, "class.ac_channel")
-
+            if (!elem(next, toPipeline) && !elem(nextBB, toPipeline) //&&
+                //!hasStencilCall(next, nextBB)
                 ) {
               p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
               //p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
@@ -2570,7 +2567,7 @@ namespace ahaHLS {
     int addrWidth = 16;
     int dataWidth = 32;
     auto readMod = getArg(axiRead, 0);
-    auto axiTp = getPointedToType(readMod->getType());
+    //auto axiTp = getPointedToType(readMod->getType());
     
     auto entryBlk = mkBB("entry_block", axiRead);
     auto stallRaddrBlk = mkBB("stall_raddr_block", axiRead);
