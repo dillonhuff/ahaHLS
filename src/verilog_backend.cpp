@@ -2335,7 +2335,7 @@ namespace ahaHLS {
         for (auto instrG : instrsAtState) {
           Instruction* instr = instrG;
 
-          auto stallConds = getStallConds(instr, state, arch);
+          vector<string> stallConds = {}; //getStallConds(instr, state, arch);
           stallConds.push_back(blockActiveInState(state, instr->getParent(), arch).valueString());
           //stallConds.push_back(containerBlockIsActive(instr, arch).valueString());
 
