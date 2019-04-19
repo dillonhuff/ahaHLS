@@ -24,14 +24,14 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// End debug wires and ports
 
 	// Start Functional Units
+	br_dummy br_unit();
+
 	reg [0:0] m_rst_n;
 	reg [31:0] m_word0;
 	reg [31:0] m_word1;
 	reg [31:0] m_word2;
 	wire [31:0] m_median_word;
 	median m(.clk(clk), .median_word(m_median_word), .rst_n(m_rst_n), .word0(m_word0), .word1(m_word1), .word2(m_word2));
-
-	br_dummy br_unit();
 
 	reg [63:0] phi_in_phi_6;
 	reg [31:0] phi_last_block_phi_6;
@@ -1130,14 +1130,14 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// controller for andOp_133.andOp_133_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_133_in0 = valid ? bb_2_active_out_data : bb_2_active_out_data;
+		andOp_133_in0 = valid ? bb_0_active_out_data : bb_0_active_out_data;
 		andOp_133_in1 = valid ? eq_132_out : eq_132_out;
 	end
 	// controller for andOp_135.andOp_135_in0
 	// controller for andOp_135.andOp_135_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_135_in0 = valid ? bb_0_active_out_data : bb_0_active_out_data;
+		andOp_135_in0 = valid ? bb_2_active_out_data : bb_2_active_out_data;
 		andOp_135_in1 = valid ? eq_134_out : eq_134_out;
 	end
 	// controller for andOp_137.andOp_137_in0

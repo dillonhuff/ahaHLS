@@ -1067,7 +1067,9 @@ namespace ahaHLS {
     map<string, int> testLayout;
     map<Value*, int> layout;    
     TestBenchSpec tb = buildTB("axi_multi_transfer", memoryInit, memoryExpected, testLayout);
-    map_insert(tb.actionsOnCycles, 50, assertString("valid === 1"));
+
+    int endCycle = 100;
+    map_insert(tb.actionsOnCycles, endCycle, assertString("valid === 1"));
     
     tb.settableWires.insert("ram_debug_wr_en");
     tb.settableWires.insert("ram_debug_wr_addr");
@@ -1093,20 +1095,20 @@ namespace ahaHLS {
     map_insert(tb.actionsInCycles, 6, string("ram_debug_wr_en = 0;"));
 
     //map_insert(tb.actionsInCycles, 49, string("ram_debug_addr = 0;"));
-    map_insert(tb.actionsInCycles, 50, string("ram_debug_addr = 5;"));
-    map_insert(tb.actionsOnCycles, 50, assertString("ram_debug_data === 12 + 34"));
+    map_insert(tb.actionsInCycles, endCycle, string("ram_debug_addr = 5;"));
+    map_insert(tb.actionsOnCycles, endCycle, assertString("ram_debug_data === 12 + 34"));
 
-    map_insert(tb.actionsInCycles, 51, string("ram_debug_addr = 6;"));
-    map_insert(tb.actionsOnCycles, 51, assertString("ram_debug_data === 7 + 34"));
+    map_insert(tb.actionsInCycles, endCycle + 1, string("ram_debug_addr = 6;"));
+    map_insert(tb.actionsOnCycles, endCycle + 1, assertString("ram_debug_data === 7 + 34"));
 
-    map_insert(tb.actionsInCycles, 52, string("ram_debug_addr = 7;"));
-    map_insert(tb.actionsOnCycles, 52, assertString("ram_debug_data === 8 + 34"));
+    map_insert(tb.actionsInCycles, endCycle + 2, string("ram_debug_addr = 7;"));
+    map_insert(tb.actionsOnCycles, endCycle + 2, assertString("ram_debug_data === 8 + 34"));
 
-    map_insert(tb.actionsInCycles, 53, string("ram_debug_addr = 8;"));
-    map_insert(tb.actionsOnCycles, 53, assertString("ram_debug_data === 14 + 34"));
+    map_insert(tb.actionsInCycles, endCycle + 3, string("ram_debug_addr = 8;"));
+    map_insert(tb.actionsOnCycles, endCycle + 3, assertString("ram_debug_data === 14 + 34"));
 
-    map_insert(tb.actionsInCycles, 54, string("ram_debug_addr = 9;"));
-    map_insert(tb.actionsOnCycles, 54, assertString("ram_debug_data === 12 + 34"));
+    map_insert(tb.actionsInCycles, endCycle + 4, string("ram_debug_addr = 9;"));
+    map_insert(tb.actionsOnCycles, endCycle + 4, assertString("ram_debug_data === 12 + 34"));
     
     auto arch = buildMicroArchitecture(graph, layout, hcs);
     emitVerilogTestBench(tb, arch, testLayout);

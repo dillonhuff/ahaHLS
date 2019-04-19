@@ -2489,9 +2489,12 @@ namespace ahaHLS {
     writePort(stallAWReadyBuilder, readMod, dataWidth, "s_axil_wdata", inData);
     writePort(stallAWReadyBuilder, readMod, strbWidth, "s_axil_wstrb", mkInt(15, strbWidth));
 
+    writePort(stallAWReadyBuilder, readMod, 1, "s_axil_bready", mkInt(1, 1));    
+
     auto addrReady = readPort(stallAWReadyBuilder, readMod, 1, "s_axil_awready");
     auto dataReady = readPort(stallAWReadyBuilder, readMod, 1, "s_axil_wready");    
     auto addrAndDataReady = stallAWReadyBuilder.CreateAnd(addrReady, dataReady);
+
     stallAWReadyBuilder.CreateCondBr(addrAndDataReady, stallBValidBlk, stallAWReadyBlk);    
 
     IRBuilder<> stallBValidBuilder(stallBValidBlk);
