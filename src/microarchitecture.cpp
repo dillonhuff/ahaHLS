@@ -1888,15 +1888,19 @@ namespace ahaHLS {
     // in a non-terminating block even if other blocks have terminators
     //for (auto blk : nonTerminatingBlocks(state, arch.stg)) {
     for (auto blk : inProgressBlocks(state, arch.stg)) {
-      cout << "Found non terminating block in " << state << endl;
 
-      // ControlFlowPosition pos =
-      //   position(state, lastInstructionForBlockInState(blk, state, arch), arch);
-      StateId dest = state + 1;
-      Wire condWire = constWire(1, 1);
-      condWire = checkAnd(blockActiveInState(state, blk, arch), condWire, arch);
-      //addStateTransition(state, dest, pos, condWire, arch);
-      addStateTransition(state, dest, condWire, arch);
+      // Add transitions for blocks that have active non-terminator instructions
+      if (!arch.stg.isEmptyState(state)) {
+        cout << "Found non terminating block in " << state << endl;
+
+        // ControlFlowPosition pos =
+        //   position(state, lastInstructionForBlockInState(blk, state, arch), arch);
+        StateId dest = state + 1;
+        Wire condWire = constWire(1, 1);
+        condWire = checkAnd(blockActiveInState(state, blk, arch), condWire, arch);
+        //addStateTransition(state, dest, pos, condWire, arch);
+        addStateTransition(state, dest, condWire, arch);
+      }
     }
 
     // If control is in a scheduler inserted blank state, go to the

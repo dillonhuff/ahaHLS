@@ -5431,7 +5431,7 @@ namespace ahaHLS {
     //emitVerilog("vhls_target", graph, hcs);
 
     VerilogDebugInfo info;
-    addDisplay("1", "global_state == %d", {"global_state"}, info);
+    //addDisplay("1", "global_state == %d", {"global_state"}, info);
     addControlSanityChecks(arch, info);
     
     emitVerilog("vhls_target", arch, info);
