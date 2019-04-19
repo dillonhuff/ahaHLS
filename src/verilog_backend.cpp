@@ -2837,24 +2837,8 @@ namespace ahaHLS {
                                successor,
                                state,
                                arch)) {
-        //return true;
-
-        // cout << "Block" << endl;
-        // cout << valueString(predecessor) << endl;
-
-        // cout << "precedes Block" << endl;
-        // cout << valueString(successor) << endl;
-        // cout << " in state " << state << endl;
-
         return true;
       } else {
-
-        // cout << "Block" << endl;
-        // cout << valueString(predecessor) << endl;
-
-        // cout << "postcedes Block" << endl;
-        // cout << valueString(successor) << endl;
-        // cout << " in state " << state << endl;
 
         
         return false;
@@ -2877,26 +2861,6 @@ namespace ahaHLS {
 
     return atContainerPos;
   }
-
-  // Wire notStalledAtPos(const StateId state,
-  //                      ControlFlowPosition& pos,
-  //                      MicroArchitecture& arch) {
-  //   vector<string> conds;
-  //   for (auto instr : arch.stg.instructionsStartingAt(state)) {
-
-  //     if (isBuiltinStallCall(instr)) {
-  //       cout << "Getting name of " << valueString(instr->getOperand(0)) << endl;
-  //       cout << "at position " << pos << endl;
-  //       string cond = outputName(instr->getOperand(0),
-  //                                pos,
-  //                                arch);
-
-  //       conds.push_back(cond);
-  //     }
-  //   }
-
-  //   return wire(1, andCondStr(conds));
-  // }
 
   // Now: Many errors in valid computation. Not sure why?
   // Hyp: In the return state the next basic block is not getting set
@@ -2934,8 +2898,7 @@ namespace ahaHLS {
         Wire atContainerPos =
           checkAnd(atContainerBlock, atBranchState, arch);
 
-        //ControlFlowPosition pos = position(branchEndState, br, arch);
-        Wire notStalled = constWire(1, 1); //notStalledAtPos(branchEndState, pos, arch);
+        Wire notStalled = constWire(1, 1);
         atContainerPos = checkAnd(atContainerPos, notStalled, arch);
 
         string hName = "br_" + blkString + "_happened";
@@ -3074,12 +3037,9 @@ namespace ahaHLS {
       predController.setCond("in_data", nextBlkIsThisBlk, wire(32, "last_BB_reg"));
 
       for (auto* pred : predecessors(&bb)) {
-        //if (arch.stg.blockEndState(pred) == arch.stg.blockStartState(&bb)) {
         if (jumpToSameState(pred, &bb, arch)) {
-          // Wire predActive =
-          //   arch.isActiveBlockVar(pred);
+
           int predNo = arch.cs.getBasicBlockNo(pred);
-          //predController.setCond("in_data", checkAnd(checkNotWire(nextBlkIsThisBlk, arch), predActive, arch), constWire(32, predNo));
 
           Wire edgeTaken = map_find({pred, &bb}, edgeTakenWires);
           predController.setCond("in_data", checkAnd(checkNotWire(nextBlkIsThisBlk, arch), edgeTaken, arch), constWire(32, predNo));          
@@ -3870,18 +3830,10 @@ namespace ahaHLS {
 
             string notAtSt =
               notStr(blockActiveInState(st.first, instr->getParent(), arch).valueString());
-            // addAssert(notAtState(activeState, arch) + " || " +
-            //           in0Name + " !== " + to_string(getValueBitWidth(instr)) + "'dx",
-            //           debugInfo);
-
             addAssert(notAtSt + " || " +
                       in0Name + " !== " + to_string(getValueBitWidth(instr)) + "'dx",
                       debugInfo);
             
-            // addAssert(notAtState(activeState, arch) + " || " +
-            //           in1Name + " !== " + to_string(getValueBitWidth(instr)) + "'dx",
-            //           debugInfo);
-
             addAssert(notAtSt + " || " +
                       in1Name + " !== " + to_string(getValueBitWidth(instr)) + "'dx",
                       debugInfo);
