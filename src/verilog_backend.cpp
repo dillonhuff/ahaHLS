@@ -35,10 +35,6 @@ namespace ahaHLS {
   Wire checkNotWire(const Wire in, MicroArchitecture& arch);  
   Wire checkAnd(const Wire in0, const Wire in1, MicroArchitecture& arch);
   
-  // std::vector<std::string> getStallConds(Instruction* instr,
-  //                                        const StateId state,
-  //                                        MicroArchitecture& arch);
-  
   std::string andCondStr(const std::vector<string>& stallConds) {
     if (stallConds.size() == 0) {
       return "1";
@@ -1096,9 +1092,6 @@ namespace ahaHLS {
       // in this state the block does not need to
       // finish in this state, it just needs to start in
       // this state.
-      // if ((arch.stg.blockStartState(succ) == state) &&
-      //     (arch.stg.blockEndState(succ) == state)) {
-
       if (arch.stg.blockStartState(succ) == state) {
         succs.insert(succ);
       }
@@ -1162,22 +1155,6 @@ namespace ahaHLS {
     }
 
     return !blockPrecedesInState(valueBlock, userBlock, state, arch);
-
-    // // Idea: for now just find a path from one block to the next,
-    // // and see if that reduces the number of failing test cases.
-
-    // // Cannot reach the terminator of the user block from
-    // // the current state
-    // if (arch.stg.blockEndState(userBlock) != state) {
-    //   return true;
-    // }
-    
-    // // How to check if it is possible to move from block to block?
-    // // If beforeBlocks's terminator is not contained in state, then
-    // // while (true) {
-    // // }
-
-    // return false;
   }
   
   std::string outputName(Value* val,
@@ -1258,13 +1235,7 @@ namespace ahaHLS {
           }
 
           return controller.functionalUnit().outputWire("out_data");
-          //assert(false);
-          // TODO: Check if the instruction is forward inside the given state
-          // if (getValueFromStorage(instr, instr0, argState, arch)) {
-          //   return mostRecentStorageLocation(instr0, currentPosition, arch);
-          // } else {
-          //   return dataOutput(instr0, arch);            
-          // }
+
         }
 
         OrderedBasicBlock obb(argBB);
@@ -1343,9 +1314,6 @@ namespace ahaHLS {
     string activeName = "bb_" + to_string(blkNo) + "_predecessor";
 
     return arch.portController(activeName).functionalUnit().outputWire();
-    
-    //return Wire(32, activeName);
-    //return Wire(32, "last_BB_reg");
   }
   
   // I would like for this function to just return instruction port
@@ -1472,7 +1440,6 @@ namespace ahaHLS {
       assignments.insert({addUnit.portWires["in"].name, input});
       assignments.insert({addUnit.portWires["s"].name, s});
       
-      //assignments.insert({addUnit.portWires["last_block"].name, "last_BB_reg"});
       assignments.insert({addUnit.portWires["last_block"].name, predecessor(phi->getParent(), arch).valueString()});
 
     } else if (SelectInst::classof(instr)) {
@@ -1635,26 +1602,8 @@ namespace ahaHLS {
     for (auto instrG : arch.stg.instructionsFinishingAt(state)) {
       Instruction* instr = instrG;
 
-      //vector<string> conds{atState(state, arch)};
       vector<string> conds{blockActiveInState(state, instr->getParent(), arch).valueString()};
 
-      // Stalls do not get stalled by themselves
-      // for (auto instrK : arch.stg.instructionsStartingAt(state)) {
-      //   //cout << "Instruction = " << valueString(instrK.instruction) << endl;
-      //   if (isBuiltinStallCall(instrK)) {
-
-      //     auto stallPos = position(state, instrK);
-      //     string cond = outputName(instrK->getOperand(0),
-      //                              stallPos,
-      //                              arch);
-
-      //     if (instrK->getParent() == instr->getParent()) {
-      //       conds.push_back(cond);
-      //     }
-      //   }
-      // }
-    
-      
       if (hasOutput(instr)) {
 
         assert(contains_key(instr, names));
@@ -1839,25 +1788,6 @@ namespace ahaHLS {
 
       } else {
         conds.push_back(jumpCond);
-
-        // // TODO: Add multiple stall condition handling, and add stall logic
-        // // to other cases in control logic
-        // for (auto instr : arch.stg.instructionsStartingAt(state)) {
-
-        //   if (isBuiltinStallCall(instr)) {
-        //     // cout << "Getting name of " << valueString(instr->getOperand(0)) << endl;
-        //     // cout << "at position " << pos << endl;
-        //     assert(pos.instr != nullptr);
-            
-        //     string cond = outputName(instr->getOperand(0),
-        //                              pos,
-        //                              arch);
-
-        //     if (instr->getParent() == pos.instr->getParent()) {
-        //       conds.push_back(cond);
-        //     }
-        //   }
-        // }
 
         controller.values[andCondWire(conds, arch).name] = to_string(dest);
       }
@@ -3079,7 +3009,7 @@ namespace ahaHLS {
         Wire atContainerPos =
           checkAnd(atContainerBlock, atBranchState, arch);
 
-        ControlFlowPosition pos = position(branchEndState, br, arch);
+        //ControlFlowPosition pos = position(branchEndState, br, arch);
         Wire notStalled = constWire(1, 1); //notStalledAtPos(branchEndState, pos, arch);
         atContainerPos = checkAnd(atContainerPos, notStalled, arch);
 
@@ -3207,7 +3137,6 @@ namespace ahaHLS {
       addPortController(w, 32, arch);
 
       PortController& predController = arch.portController(w);
-      //predController.setAlways("in_data", wire(32, "last_BB_reg"));
 
       // Real code to set these controllers?
       // 1. If the global_next_block is this block, then pred == last_BB_reg
@@ -3275,10 +3204,6 @@ namespace ahaHLS {
     emitPipelineInitiationBlock(arch);
     emitLastBBCode(arch);
     emitControlCode(arch);    
-
-    // No more transitions
-    //assert(arch.stg.opStates.size() == stg.opStates.size());
-    //assert(arch.stg.opTransitions.size() == stg.opTransitions.size());
 
     return arch;
   }  
