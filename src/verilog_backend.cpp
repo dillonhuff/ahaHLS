@@ -1639,20 +1639,20 @@ namespace ahaHLS {
       vector<string> conds{blockActiveInState(state, instr->getParent(), arch).valueString()};
 
       // Stalls do not get stalled by themselves
-      for (auto instrK : arch.stg.instructionsStartingAt(state)) {
-        //cout << "Instruction = " << valueString(instrK.instruction) << endl;
-        if (isBuiltinStallCall(instrK)) {
+      // for (auto instrK : arch.stg.instructionsStartingAt(state)) {
+      //   //cout << "Instruction = " << valueString(instrK.instruction) << endl;
+      //   if (isBuiltinStallCall(instrK)) {
 
-          auto stallPos = position(state, instrK);
-          string cond = outputName(instrK->getOperand(0),
-                                   stallPos,
-                                   arch);
+      //     auto stallPos = position(state, instrK);
+      //     string cond = outputName(instrK->getOperand(0),
+      //                              stallPos,
+      //                              arch);
 
-          if (instrK->getParent() == instr->getParent()) {
-            conds.push_back(cond);
-          }
-        }
-      }
+      //     if (instrK->getParent() == instr->getParent()) {
+      //       conds.push_back(cond);
+      //     }
+      //   }
+      // }
     
       
       if (hasOutput(instr)) {
@@ -1840,24 +1840,24 @@ namespace ahaHLS {
       } else {
         conds.push_back(jumpCond);
 
-        // TODO: Add multiple stall condition handling, and add stall logic
-        // to other cases in control logic
-        for (auto instr : arch.stg.instructionsStartingAt(state)) {
+        // // TODO: Add multiple stall condition handling, and add stall logic
+        // // to other cases in control logic
+        // for (auto instr : arch.stg.instructionsStartingAt(state)) {
 
-          if (isBuiltinStallCall(instr)) {
-            // cout << "Getting name of " << valueString(instr->getOperand(0)) << endl;
-            // cout << "at position " << pos << endl;
-            assert(pos.instr != nullptr);
+        //   if (isBuiltinStallCall(instr)) {
+        //     // cout << "Getting name of " << valueString(instr->getOperand(0)) << endl;
+        //     // cout << "at position " << pos << endl;
+        //     assert(pos.instr != nullptr);
             
-            string cond = outputName(instr->getOperand(0),
-                                     pos,
-                                     arch);
+        //     string cond = outputName(instr->getOperand(0),
+        //                              pos,
+        //                              arch);
 
-            if (instr->getParent() == pos.instr->getParent()) {
-              conds.push_back(cond);
-            }
-          }
-        }
+        //     if (instr->getParent() == pos.instr->getParent()) {
+        //       conds.push_back(cond);
+        //     }
+        //   }
+        // }
 
         controller.values[andCondWire(conds, arch).name] = to_string(dest);
       }
