@@ -807,20 +807,11 @@ namespace ahaHLS {
             //p.s.add(p.blockSink(next) < p.blockSource(nextBB));
 
             if (!elem(next, toPipeline) && !elem(nextBB, toPipeline) &&
-                !hasStencilCall(next, nextBB) &&
+                !hasStencilCall(next, nextBB)
 
-                // !hasStructCall(next, "struct.builtin_fifo") &&
-                // !hasStructCall(nextBB, "struct.builtin_fifo") &&
+                // !hasStructCall(next, "class.ac_channel") &&
+                // !hasStructCall(nextBB, "class.ac_channel")
 
-                // !hasStructCall(next, "builtin_fifo") &&
-                // !hasStructCall(nextBB, "builtin_fifo") &&
-
-                !hasStructCall(next, "class.ac_channel") &&
-                !hasStructCall(nextBB, "class.ac_channel")
-
-                // !hasStructCall(next, "class.axi_ram") &&
-                // !hasStructCall(nextBB, "class.axi_ram")
-                
                 ) {
               p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
               //p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
