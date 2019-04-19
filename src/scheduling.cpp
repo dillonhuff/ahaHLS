@@ -828,9 +828,7 @@ namespace ahaHLS {
         Instruction* term = next->getTerminator();
 
         if (BranchInst::classof(term)) {
-          if (!elem(next, toPipeline) && !elem(nextBB, toPipeline)
-              //&& !hasStencilCall(next, nextBB)
-              ) {
+          if (!elem(next, toPipeline) && !elem(nextBB, toPipeline)) {
             p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
           } else {
             p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));

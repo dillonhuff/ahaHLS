@@ -1399,7 +1399,7 @@ namespace ahaHLS {
 
       assignments.insert({addUnit.portWires["in0"].name, falseName});
       assignments.insert({addUnit.portWires["in1"].name, trueName});
-      assignments.insert({addUnit.portWires["sel"].name, condName});            
+      assignments.insert({addUnit.portWires["sel"].name, condName});
 
     } else if (CallInst::classof(instr)) {
 
