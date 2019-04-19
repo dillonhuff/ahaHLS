@@ -26,6 +26,7 @@ SET(CPP_FILES ./src/scheduling.cpp
               ./src/verilog_backend.cpp
               ./src/llvm_codegen.cpp
               ./src/microarchitecture.cpp
+              ./src/coreir_backend.cpp
               ./src/utils.cpp
               ./src/test_utils.cpp)              
 
@@ -34,7 +35,7 @@ llvm_map_components_to_libnames(llvm_libs support core irreader passes)
 add_library(ahahls ${CPP_FILES})
 target_link_libraries(ahahls ${llvm_libs} z3)
 if (COREIR_BACKEND)
-target_link_libraries(ahahls coreir)
+target_link_libraries(ahahls coreirsim coreir)
 endif()
 
 
@@ -46,6 +47,9 @@ SET(ALL_TEST_FILES ./test/scheduling.cpp
 
 add_executable(all-tests ${ALL_TEST_FILES})
 target_link_libraries(all-tests ahahls ${llvm_libs})
+if (COREIR_BACKEND)
+target_link_libraries(ahahls coreirsim coreir)
+endif()
 
 SET(ALL_BINDING_FILES experiments/generate_bindings.cpp)
 add_executable(make-bindings ${ALL_BINDING_FILES})

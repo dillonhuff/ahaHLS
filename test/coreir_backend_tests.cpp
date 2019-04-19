@@ -6,7 +6,9 @@
 #include "llvm_codegen.h"
 #include "test_utils.h"
 
-#include <llvm/Transforms/Utils/BasicBlockUtils.h>
+#include "coreir/simulator/interpreter.h"
+
+// What?
 
 using namespace CoreIR;
 using namespace dbhc;
@@ -52,6 +54,25 @@ namespace ahaHLS {
     CoreIR::Module* storeMod = c->getGlobal()->getModule("single_store");
 
     REQUIRE(storeMod != nullptr);
+
+
+    cout << "Module is " << endl;
+    storeMod->print();    
+
+    SimulatorState sim(storeMod);
+    sim.setValue("self.rst", BitVec(1, 0));    
+
+    sim.setClock("self.clk", 0, 1);
+    sim.execute();
+
+    sim.setValue("self.rst", BitVec(1, 1));
+
+    sim.execute();
+    
+    sim.setValue("self.rst", BitVec(1, 0));
+
+    sim.setClock("self.clk", 0, 1);
+
     
     deleteContext(c);
   }
