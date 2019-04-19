@@ -763,6 +763,38 @@ namespace ahaHLS {
     return aHasStencil || bHasStencil;
   }
 
+  std::map<BasicBlock*, vector<BasicBlock*> >
+  buildControlPreds(llvm::Function* f) {
+    std::deque<BasicBlock*> toVisit{&(f->getEntryBlock())};
+    std::set<BasicBlock*> alreadyVisited;
+    map<BasicBlock*, vector<BasicBlock*> > controlPredecessors;
+    
+    while (toVisit.size() > 0) {
+      BasicBlock* next = toVisit.front();
+      toVisit.pop_front();
+      alreadyVisited.insert(next);
+
+      Instruction* term = next->getTerminator();
+
+      // TODO: Is this case even needed? Can I assume successors is empty for ret?
+      if (ReturnInst::classof(term)) {
+      } else {
+        assert(BranchInst::classof(term));
+
+        for (auto* nextBB : dyn_cast<TerminatorInst>(term)->successors()) {
+          if (!elem(nextBB, alreadyVisited)) {
+            // next is a predecessor of nextBB
+            map_insert(controlPredecessors, nextBB, next);
+            toVisit.push_back(nextBB);
+          }
+        }
+      }
+      
+    }
+
+    return controlPredecessors;
+  }
+  
   SchedulingProblem
   createSchedulingProblem(llvm::Function* f,
                           HardwareConstraints& hdc,
@@ -785,46 +817,28 @@ namespace ahaHLS {
       i++;
     }
     
+    std::map<BasicBlock*, vector<BasicBlock*> > controlPredecessors =
+      buildControlPreds(f);
+
     // Connect the control edges
-    std::deque<BasicBlock*> toVisit{&(f->getEntryBlock())};
-    std::set<BasicBlock*> alreadyVisited;
+    for (auto blkPreds : controlPredecessors) {
+      BasicBlock* nextBB = blkPreds.first;
 
-    std::map<BasicBlock*, vector<BasicBlock*> > controlPredecessors;
-    while (toVisit.size() > 0) {
-      BasicBlock* next = toVisit.front();
-      toVisit.pop_front();
-      alreadyVisited.insert(next);
+      for (auto next : blkPreds.second) {
+        Instruction* term = next->getTerminator();
 
-      Instruction* term = next->getTerminator();
-
-      // TODO: Is this case even needed? Can I assume successors is empty for ret?
-      if (ReturnInst::classof(term)) {
-      } else {
-        assert(BranchInst::classof(term));
-
-        for (auto* nextBB : dyn_cast<TerminatorInst>(term)->successors()) {
-          if (!elem(nextBB, alreadyVisited)) {
-
-            //p.s.add(p.blockSink(next) < p.blockSource(nextBB));
-
-            if (!elem(next, toPipeline) && !elem(nextBB, toPipeline) //&&
-                //!hasStencilCall(next, nextBB)
-                ) {
-              p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
-              //p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
-            } else {
-              p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
-            }
-
-            // next is a predecessor of nextBB
-            map_insert(controlPredecessors, nextBB, next);
-            toVisit.push_back(nextBB);
+        if (BranchInst::classof(term)) {
+          if (!elem(next, toPipeline) && !elem(nextBB, toPipeline)
+              && !hasStencilCall(next, nextBB)
+              ) {
+            p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
+          } else {
+            p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
           }
         }
       }
-      
     }
-
+    
     // std::vector<BasicBlock*> sortedBlocks =
     //   topologicalSortOfBlocks(f, controlPredecessors);
     // for (int i = 0; i < (int) sortedBlocks.size() - 1; i++) {
