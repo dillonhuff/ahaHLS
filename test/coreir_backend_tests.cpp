@@ -2,8 +2,6 @@
 
 #include "catch.hpp"
 
-#include "coreir.h"
-
 #include "coreir_backend.h"
 #include "llvm_codegen.h"
 #include "test_utils.h"
@@ -49,7 +47,12 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     Context* c = newContext();
+    emitCoreIR("single_store", arch, c, c->getGlobal());
 
+    CoreIR::Module* storeMod = c->getGlobal()->getModule("single_store");
+
+    REQUIRE(storeMod != nullptr);
+    
     deleteContext(c);
   }
   
