@@ -5424,10 +5424,17 @@ namespace ahaHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    emitVerilog("vhls_target", graph, hcs);
 
     map<llvm::Value*, int> layout = {};
     auto arch = buildMicroArchitecture(graph, layout, hcs);
+    
+    //emitVerilog("vhls_target", graph, hcs);
+
+    VerilogDebugInfo info;
+    addDisplay("1", "global_state == %d", {"global_state"}, info);
+    addControlSanityChecks(arch, info);
+    
+    emitVerilog("vhls_target", arch, info);
 
     auto in = dyn_cast<Argument>(getArg(f, 0));
     auto out = dyn_cast<Argument>(getArg(f, 1));    

@@ -220,4 +220,10 @@ namespace ahaHLS {
                          MicroArchitecture& arch,
                          VerilogDebugInfo& debugInfo);
 
+  void addDisplay(const std::string& cond,
+                  const std::string& condStr,
+                  const std::vector<std::string>& vars,
+                  VerilogDebugInfo& debugInfo);
+  
+
 }
