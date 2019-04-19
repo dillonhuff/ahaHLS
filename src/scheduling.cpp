@@ -501,47 +501,47 @@ namespace ahaHLS {
   // // TODO: Re-name, this is not really a topological sort, since
   // // it ignores back-edges, it is really just a linearization that tries
   // // to respect forward control dependences
-  // std::vector<BasicBlock*>
-  // topologicalSortOfBlocks(llvm::Function* f,
-  //                         std::map<BasicBlock*, std::vector<BasicBlock*> >& controlPredecessors) {
+  std::vector<BasicBlock*>
+  topologicalSortOfBlocks(llvm::Function* f,
+                          std::map<BasicBlock*, std::vector<BasicBlock*> >& controlPredecessors) {
 
-  //   std::set<BasicBlock*> alreadyVisited;
-  //   vector<BasicBlock*> sortedOrder;
+    std::set<BasicBlock*> alreadyVisited;
+    vector<BasicBlock*> sortedOrder;
     
-  //   while (sortedOrder.size() < f->getBasicBlockList().size()) {
+    while (sortedOrder.size() < f->getBasicBlockList().size()) {
 
-  //     for (auto& nextBB : f->getBasicBlockList()) {
-  //       auto next = &nextBB;
+      for (auto& nextBB : f->getBasicBlockList()) {
+        auto next = &nextBB;
 
-  //       if (elem(next, alreadyVisited)) {
-  //         continue;
-  //       }
+        if (elem(next, alreadyVisited)) {
+          continue;
+        }
 
-  //       // Iterate over all blocks picking any whose predecessors are all
-  //       bool allPredsAdded = true;
+        // Iterate over all blocks picking any whose predecessors are all
+        bool allPredsAdded = true;
 
-  //       if (contains_key(next, controlPredecessors)) {
-  //         for (auto predBB : map_find(next, controlPredecessors)) {
+        if (contains_key(next, controlPredecessors)) {
+          for (auto predBB : map_find(next, controlPredecessors)) {
 
-  //           // // TODO: Change this check to respect the partial order computed
-  //           // // in STG dependency construction
+            // // TODO: Change this check to respect the partial order computed
+            // // in STG dependency construction
 
-  //           if (!elem(predBB, alreadyVisited)) {
-  //             allPredsAdded = false;
-  //             break;
-  //           }
-  //         }
-  //       }
+            if (!elem(predBB, alreadyVisited)) {
+              allPredsAdded = false;
+              break;
+            }
+          }
+        }
 
-  //       if (allPredsAdded) {
-  //         sortedOrder.push_back(next);
-  //         alreadyVisited.insert(next);
-  //       }
-  //     }
-  //   }
+        if (allPredsAdded) {
+          sortedOrder.push_back(next);
+          alreadyVisited.insert(next);
+        }
+      }
+    }
 
-  //   return sortedOrder;
-  // }
+    return sortedOrder;
+  }
 
   std::string scevStr(const SCEV* scev) {
     std::string str;
@@ -798,7 +798,8 @@ namespace ahaHLS {
   SchedulingProblem
   createSchedulingProblem(llvm::Function* f,
                           HardwareConstraints& hdc,
-                          std::set<BasicBlock*>& toPipeline) {
+                          std::set<BasicBlock*>& toPipeline,
+                          map<BasicBlock*, vector<BasicBlock*> >& controlPredecessors) {
     SchedulingProblem p(hdc);
 
     for (auto& bb : f->getBasicBlockList()) {
@@ -817,9 +818,6 @@ namespace ahaHLS {
       i++;
     }
     
-    std::map<BasicBlock*, vector<BasicBlock*> > controlPredecessors =
-      buildControlPreds(f);
-
     // Connect the control edges
     for (auto blkPreds : controlPredecessors) {
       BasicBlock* nextBB = blkPreds.first;
@@ -856,6 +854,15 @@ namespace ahaHLS {
     p.controlPredecessors = controlPredecessors;
 
     return p;
+  }
+
+  SchedulingProblem
+  createSchedulingProblem(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          std::set<BasicBlock*>& toPipeline) {
+    std::map<BasicBlock*, vector<BasicBlock*> > controlPredecessors =
+      buildControlPreds(f);
+    return createSchedulingProblem(f, hdc, toPipeline, controlPredecessors);
   }
 
   // Solution to binding: Assume always unique, then modify program later
