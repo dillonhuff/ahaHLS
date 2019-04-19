@@ -28,7 +28,8 @@ namespace ahaHLS {
     out << tab(3) << controller.reg.name << " <= " << controller.resetValue << ";" << endl;
     out << tab(2) << "end else begin" << endl;
     for (auto val : controller.values) {
-      out << tab(3) << "if (" << val.first << ") begin" << endl;
+      //out << tab(3) << "if (" << val.first << ") begin" << endl;
+      out << tab(3) << "if (" << val.first.valueString() << ") begin" << endl;
       out << tab(4) << controller.reg.name << " <= " << val.second << ";" << endl;
       out << tab(3) << "end" << endl;      
     }
@@ -1574,7 +1575,8 @@ namespace ahaHLS {
           //allConds.push_back(atState(state, arch));
           Wire cond = andCondWire(allConds, arch);
           
-          arch.getController(instrWire).values[cond.name] = dataOutput(instr, arch);
+          //arch.getController(instrWire).values[cond.name] = dataOutput(instr, arch);
+          arch.getController(instrWire).values[cond] = dataOutput(instr, arch);
         }
           
       }
@@ -1696,7 +1698,8 @@ namespace ahaHLS {
         auto destP = getPipeline(dest, pipelines);
 
         conds.push_back(jumpCond);
-        controller.values[andCondWire(conds, arch).name] = to_string(destP.stateId);
+        //controller.values[andCondWire(conds, arch).name] = to_string(destP.stateId);
+        controller.values[andCondWire(conds, arch)] = to_string(destP.stateId);
           
       } else {
         int ind = p.stageForState(state);
@@ -1705,7 +1708,8 @@ namespace ahaHLS {
         string pipeCond = jumpCond + " && " + pipelineClearOnNextCycleCondition(p);
           
         conds.push_back(pipeCond);
-        controller.values[andCondWire(conds, arch).name] = to_string(dest);
+        //controller.values[andCondWire(conds, arch).name] = to_string(dest);
+        controller.values[andCondWire(conds, arch)] = to_string(dest);
       }
 
     } else {
@@ -1723,15 +1727,18 @@ namespace ahaHLS {
         RegController& validController =
           arch.getController(p.valids.at(0));
 
-        validController.values[andCondWire(conds, arch).name] = "1";
+        //validController.values[andCondWire(conds, arch).name] = "1";
+        validController.values[andCondWire(conds, arch)] = "1";
           
         conds.push_back(jumpCond);
-        controller.values[andCondWire(conds, arch).name] = to_string(p.stateId);
+        //controller.values[andCondWire(conds, arch).name] = to_string(p.stateId);
+        controller.values[andCondWire(conds, arch)] = to_string(p.stateId);
 
       } else {
         conds.push_back(jumpCond);
 
-        controller.values[andCondWire(conds, arch).name] = to_string(dest);
+        //controller.values[andCondWire(conds, arch).name] = to_string(dest);
+        controller.values[andCondWire(conds, arch)] = to_string(dest);
       }
     }
   }

@@ -397,7 +397,8 @@ namespace ahaHLS {
   public:
     Wire reg;
     std::string resetValue;
-    std::map<string, string> values;
+    //std::map<string, string> values;
+    std::map<Wire, string> values;
   };
 
   class MicroArchitecture {

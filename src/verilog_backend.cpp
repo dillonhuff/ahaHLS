@@ -1124,14 +1124,18 @@ namespace ahaHLS {
                                          VerilogDebugInfo& info) {
     RegController& rc = arch.getController(arch.cs.getLastBB());
     string inPipe = inAnyPipeline(arch).valueString();
-    for (pair<string, string> condAndVal0 : rc.values) {
-      string cond0 = condAndVal0.first;
-      for (pair<string, string> condAndVal1 : rc.values) {
-        string cond1 = condAndVal1.first;
+    //for (pair<string, string> condAndVal0 : rc.values) {
+    for (pair<Wire, string> condAndVal0 : rc.values) {
+      //string cond0 = condAndVal0.first;
+      Wire cond0 = condAndVal0.first;
+      //for (pair<string, string> condAndVal1 : rc.values) {
+      for (pair<Wire, string> condAndVal1 : rc.values) {
+        //string cond1 = condAndVal1.first;
+        Wire cond1 = condAndVal1.first;
 
-        if (cond0 != cond1) {
-          addAssert(implies(andStr(notStr(inPipe), cond0 + " === 1"),
-                            cond1 + " !== 1"),
+        if (cond0.valueString() != cond1.valueString()) {
+          addAssert(implies(andStr(notStr(inPipe), cond0.valueString() + " === 1"),
+                            cond1.valueString() + " !== 1"),
                     info);
         }
       }
@@ -1144,10 +1148,10 @@ namespace ahaHLS {
                                      VerilogDebugInfo& info) {
     RegController& rc = arch.getController(arch.cs.getGlobalState());
     string inPipe = inAnyPipeline(arch).valueString();
-    for (pair<string, string> condAndVal0 : rc.values) {
-      string cond0 = condAndVal0.first;
-      for (pair<string, string> condAndVal1 : rc.values) {
-        string cond1 = condAndVal1.first;
+    for (auto condAndVal0 : rc.values) {
+      string cond0 = condAndVal0.first.valueString();
+      for (auto condAndVal1 : rc.values) {
+        string cond1 = condAndVal1.first.valueString();
 
         if (cond0 != cond1) {
           addAssert(implies(andStr(notStr(inPipe), cond0 + " === 1"),
@@ -1164,10 +1168,10 @@ namespace ahaHLS {
     // TODO: Get by wire...
     RegController& rc = arch.getController("global_next_block");
     string inPipe = inAnyPipeline(arch).valueString();
-    for (pair<string, string> condAndVal0 : rc.values) {
-      string cond0 = condAndVal0.first;
-      for (pair<string, string> condAndVal1 : rc.values) {
-        string cond1 = condAndVal1.first;
+    for (auto condAndVal0 : rc.values) {
+      string cond0 = condAndVal0.first.valueString();
+      for (auto condAndVal1 : rc.values) {
+        string cond1 = condAndVal1.first.valueString();
 
         if (cond0 != cond1) {
           addAssert(implies(andStr(notStr(inPipe), cond0 + " === 1"),
