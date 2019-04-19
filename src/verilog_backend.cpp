@@ -35,9 +35,9 @@ namespace ahaHLS {
   Wire checkNotWire(const Wire in, MicroArchitecture& arch);  
   Wire checkAnd(const Wire in0, const Wire in1, MicroArchitecture& arch);
   
-  std::vector<std::string> getStallConds(Instruction* instr,
-                                         const StateId state,
-                                         MicroArchitecture& arch);
+  // std::vector<std::string> getStallConds(Instruction* instr,
+  //                                        const StateId state,
+  //                                        MicroArchitecture& arch);
   
   std::string andCondStr(const std::vector<string>& stallConds) {
     if (stallConds.size() == 0) {
@@ -2123,28 +2123,28 @@ namespace ahaHLS {
     return elem(unit.getModName(), statelessUnits);
   }
 
-  std::vector<std::string> getStallConds(Instruction* instr,
-                                         const StateId state,
-                                         MicroArchitecture& arch) {
-    vector<std::string> stallConds;
+  // std::vector<std::string> getStallConds(Instruction* instr,
+  //                                        const StateId state,
+  //                                        MicroArchitecture& arch) {
+  //   vector<std::string> stallConds;
 
-    // Stalls do not get stalled by themselves
-    if (!isBuiltinStallCall(instr)) {
-      for (auto instrK : arch.stg.instructionsStartingAt(state)) {
-        if (isBuiltinStallCall(instrK) &&
-            (instrK->getParent() == instr->getParent())) {
+  //   // Stalls do not get stalled by themselves
+  //   if (!isBuiltinStallCall(instr)) {
+  //     for (auto instrK : arch.stg.instructionsStartingAt(state)) {
+  //       if (isBuiltinStallCall(instrK) &&
+  //           (instrK->getParent() == instr->getParent())) {
 
-          auto stallPos = position(state, instrK);
-          string cond = outputName(instrK->getOperand(0),
-                                   stallPos,
-                                   arch);
+  //         auto stallPos = position(state, instrK);
+  //         string cond = outputName(instrK->getOperand(0),
+  //                                  stallPos,
+  //                                  arch);
 
-          stallConds.push_back(cond);
-        }
-      }
-    }
-    return stallConds;    
-  }
+  //         stallConds.push_back(cond);
+  //       }
+  //     }
+  //   }
+  //   return stallConds;    
+  // }
 
   bool isInsensitive(const std::string& port,
                      PortController& portController) {
@@ -3023,25 +3023,25 @@ namespace ahaHLS {
     return atContainerPos;
   }
 
-  Wire notStalledAtPos(const StateId state,
-                       ControlFlowPosition& pos,
-                       MicroArchitecture& arch) {
-    vector<string> conds;
-    for (auto instr : arch.stg.instructionsStartingAt(state)) {
+  // Wire notStalledAtPos(const StateId state,
+  //                      ControlFlowPosition& pos,
+  //                      MicroArchitecture& arch) {
+  //   vector<string> conds;
+  //   for (auto instr : arch.stg.instructionsStartingAt(state)) {
 
-      if (isBuiltinStallCall(instr)) {
-        cout << "Getting name of " << valueString(instr->getOperand(0)) << endl;
-        cout << "at position " << pos << endl;
-        string cond = outputName(instr->getOperand(0),
-                                 pos,
-                                 arch);
+  //     if (isBuiltinStallCall(instr)) {
+  //       cout << "Getting name of " << valueString(instr->getOperand(0)) << endl;
+  //       cout << "at position " << pos << endl;
+  //       string cond = outputName(instr->getOperand(0),
+  //                                pos,
+  //                                arch);
 
-        conds.push_back(cond);
-      }
-    }
+  //       conds.push_back(cond);
+  //     }
+  //   }
 
-    return wire(1, andCondStr(conds));
-  }
+  //   return wire(1, andCondStr(conds));
+  // }
 
   // Now: Many errors in valid computation. Not sure why?
   // Hyp: In the return state the next basic block is not getting set
@@ -3080,7 +3080,7 @@ namespace ahaHLS {
           checkAnd(atContainerBlock, atBranchState, arch);
 
         ControlFlowPosition pos = position(branchEndState, br, arch);
-        Wire notStalled = notStalledAtPos(branchEndState, pos, arch);
+        Wire notStalled = constWire(1, 1); //notStalledAtPos(branchEndState, pos, arch);
         atContainerPos = checkAnd(atContainerPos, notStalled, arch);
 
         string hName = "br_" + blkString + "_happened";
