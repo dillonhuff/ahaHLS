@@ -3664,30 +3664,36 @@ namespace ahaHLS {
 
     //CallInst* call = dyn_cast<CallInst>(instr);
 
-    Value* val = instr->getOperand(0);
-    Type* argTp = val->getType();
-    if (!PointerType::classof(argTp)) {
-      return false;
-    }
+    for (int i = 0; i < instr->getNumOperands(); i++) {
+      Value* val = instr->getOperand(i);
+      Type* argTp = val->getType();
+      if (!PointerType::classof(argTp)) {
+        continue;
+      }
 
-    Type* underlying = dyn_cast<PointerType>(argTp)->getElementType();
+      Type* underlying = dyn_cast<PointerType>(argTp)->getElementType();
 
-    assert(StructType::classof(underlying));
+      if (!StructType::classof(underlying)) {
+        continue;
+      }
 
-    StructType* stp = dyn_cast<StructType>(underlying);
+      StructType* stp = dyn_cast<StructType>(underlying);
 
-    cout << "Checking struct " << string(stp->getName()) << " has stencil" << endl;
+      cout << "Checking struct " << string(stp->getName()) << " has stencil" << endl;
 
-    string stencilPrefix = "class.AxiPackedStencil";
-    if (hasPrefix(stp->getName(), stencilPrefix)) { //"class.AxiPackedStencil")) {
-      cout << "Found stencil call in blk checks" << endl;
-      return true;
+      string stencilPrefix = "class.AxiPackedStencil";
+      if (hasPrefix(stp->getName(), stencilPrefix)) { //"class.AxiPackedStencil")) {
+        cout << "Found stencil call in blk checks" << endl;
+        return true;
+      }
     }
 
     return false;
     
   }
-  
+
+  // Note: I should really build an alias analysis, then use that to
+  // decide if the two calls are the same?
   void addStencilCallConstraints(llvm::Function* f,
                                  map<BasicBlock*, vector<BasicBlock*> >& preds,
                                  ExecutionConstraints& exec) {

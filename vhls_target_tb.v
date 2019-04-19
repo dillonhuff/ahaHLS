@@ -39,10 +39,6 @@ module vhls_target_tb();
 	end
 
 	always @(posedge clk) begin
-		if (350 == total_cycles) begin if (!(valid === 1)) begin $display("assertion(valid === 1)"); $finish(); end end
-	end
-
-	always @(posedge clk) begin
 		if (403 == total_cycles) begin if (!(arg_1_data_bus === 16'd56)) begin $display("assertion(arg_1_data_bus === 16'd56)"); $finish(); end end
 	end
 

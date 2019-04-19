@@ -5487,7 +5487,7 @@ namespace ahaHLS {
     map_insert(tb.actionsOnCycles, 409, assertString(string(out->getName()) + "_data_bus === 16'd6"));
     map_insert(tb.actionsOnCycles, 409, assertString(string(out->getName()) + "_last_bus === 1'b1"));
     
-    map_insert(tb.actionsOnCycles, 350, assertString("valid === 1"));
+    //map_insert(tb.actionsOnCycles, 350, assertString("valid === 1"));
     map_insert(tb.actionsOnCycles, 403, assertString("valid === 1"));
 
     emitVerilogTestBench(tb, arch, testLayout);
