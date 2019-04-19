@@ -13,6 +13,66 @@ namespace ahaHLS {
       return c->BitIn()->Arr(p.width);
     }
   }
+
+  string unitCoreIRName(ModuleSpec& spec) {
+    if (spec.name == "add") {
+      return "coreir.add";
+    } else if (spec.name == "hls_wire") {
+      return "coreir.wire";
+    } else if (spec.name == "eq") {
+      return "coreir.eq";
+    } else if (spec.name == "andOp") {
+      return "coreir.and";
+    } else {
+      cout << "Error: Unsupported modspec " << endl;
+      cout << spec << endl;
+      assert(false);
+    }
+  }
+
+  map<string, CoreIR::Value*> coreIRParams(ModuleSpec& spec,
+                                           CoreIR::Context* c) {
+    map<string, CoreIR::Value*> params;
+    for (auto p : spec.params) {
+      if (p.first == "WIDTH") {
+        params.insert({"width", Const::make(c, stoi(p.second))});
+      } else {
+        cout << "Error: Unsupported parameter = " << p.first << endl;
+        assert(false);
+      }
+    }
+    return params;
+  }
+  
+  Instance* instanceForModule(FunctionalUnit& unit,
+                              ModuleDef* def) {
+    auto inst =
+      def->addInstance(unit.instName,
+                       unitCoreIRName(unit.module),
+                       coreIRParams(unit.module, def->getContext()));
+    return inst;
+  }
+  
+  map<string, Instance*>
+  emitFunctionalUnits(MicroArchitecture& arch,
+                      ModuleDef* def) {
+    map<string, Instance*> instances;
+
+    for (auto unit : arch.functionalUnits) {
+      if (contains_key(unit.instName, instances)) {
+        continue;
+      }
+
+      if (unit.isExternal()) {
+        continue;
+      }
+
+      Instance* inst = instanceForModule(unit, def);
+      instances.insert({unit.instName, inst});
+    }
+
+    return instances;
+  }
   
   void emitCoreIR(const std::string& name,
                   MicroArchitecture& arch,
@@ -34,7 +94,9 @@ namespace ahaHLS {
     CoreIR::Module* mod = n->newModuleDecl(name, tp);
     CoreIR::ModuleDef* def = mod->newModuleDef();
 
-    map<string, Instance*> functionalUnits;
+    map<string, Instance*> functionalUnits =
+      emitFunctionalUnits(arch, def);
+    
     map<string, FunctionalUnit> wireSourceControllers;
     map<string, RegController> wireSourceRegisters;
 
