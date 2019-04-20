@@ -79,13 +79,13 @@ namespace ahaHLS {
   // Lowers all register controllers in to functional units for each
   // register along with a 
   void convertRegisterControllersToPortControllers(MicroArchitecture& arch) {
-    for (auto rc : arch.regControllers) {
-      RegController c = rc.second;
-      Wire reg = c.reg;
-      ModuleSpec regSpec;
-      regSpec.name = "coreir_reg";
-      arch.functionalUnits.push_back(functionalUnitForSpec(rc.first, regSpec));
-    }
+    // for (auto rc : arch.regControllers) {
+    //   RegController c = rc.second;
+    //   Wire reg = c.reg;
+    //   ModuleSpec regSpec;
+    //   regSpec.name = "coreir_reg";
+    //   arch.functionalUnits.push_back(functionalUnitForSpec(rc.first, regSpec));
+    // }
   }
   
   void emitCoreIR(const std::string& name,
