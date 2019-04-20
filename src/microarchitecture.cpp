@@ -1699,7 +1699,8 @@ namespace ahaHLS {
 
         conds.push_back(jumpCond);
         //controller.values[andCondWire(conds, arch).name] = to_string(destP.stateId);
-        controller.values[andCondWire(conds, arch)] = to_string(destP.stateId);
+        //controller.values[andCondWire(conds, arch)] = to_string(destP.stateId);
+        controller.values[andCondWire(conds, arch)] = constWire(32, destP.stateId);
           
       } else {
         int ind = p.stageForState(state);
@@ -1709,7 +1710,8 @@ namespace ahaHLS {
           
         conds.push_back(pipeCond);
         //controller.values[andCondWire(conds, arch).name] = to_string(dest);
-        controller.values[andCondWire(conds, arch)] = to_string(dest);
+        //controller.values[andCondWire(conds, arch)] = to_string(dest);
+        controller.values[andCondWire(conds, arch)] = constWire(32, dest);
       }
 
     } else {
@@ -1728,17 +1730,20 @@ namespace ahaHLS {
           arch.getController(p.valids.at(0));
 
         //validController.values[andCondWire(conds, arch).name] = "1";
-        validController.values[andCondWire(conds, arch)] = "1";
+        //validController.values[andCondWire(conds, arch)] = "1";
+        validController.values[andCondWire(conds, arch)] = constWire(1, 1);
           
         conds.push_back(jumpCond);
         //controller.values[andCondWire(conds, arch).name] = to_string(p.stateId);
-        controller.values[andCondWire(conds, arch)] = to_string(p.stateId);
+        //controller.values[andCondWire(conds, arch)] = to_string(p.stateId);
+        controller.values[andCondWire(conds, arch)] = constWire(32, p.stateId);
 
       } else {
         conds.push_back(jumpCond);
 
         //controller.values[andCondWire(conds, arch).name] = to_string(dest);
-        controller.values[andCondWire(conds, arch)] = to_string(dest);
+        //controller.values[andCondWire(conds, arch)] = to_string(dest);
+        controller.values[andCondWire(conds, arch)] = constWire(32, dest);
       }
     }
   }
@@ -2111,7 +2116,8 @@ namespace ahaHLS {
             auto bbNo = arch.cs.getBasicBlockNo(instr->getParent());
             if (isPipelineState(st.first, arch.pipelines)) {
               ElaboratedPipeline p = getPipeline(st.first, arch.pipelines);
-              rc.values[atStateWire(p.stateId, arch)] = to_string(bbNo);
+              //rc.values[atStateWire(p.stateId, arch)] = to_string(bbNo);
+              rc.values[atStateWire(p.stateId, arch)] = constWire(32, bbNo);
             } else {
 
               // If this block is the last active block in st
@@ -2121,7 +2127,8 @@ namespace ahaHLS {
               
               Wire condWire = lastBlockActiveInState(st.first, instr->getParent(), arch);
               //rc.values[condWire.valueString()] = to_string(bbNo);
-              rc.values[condWire] = to_string(bbNo);
+              //rc.values[condWire] = to_string(bbNo);
+              rc.values[condWire] = constWire(32, bbNo);
             }
           }
 
@@ -2396,7 +2403,8 @@ namespace ahaHLS {
 
           if (!jumpToSameState(&bb, destBlock, arch)) {
             arch.getController("global_next_block").values[wireValue(hName, arch)] =
-              to_string(arch.cs.getBasicBlockNo(destBlock));
+              constWire(32, arch.cs.getBasicBlockNo(destBlock));
+              //to_string(arch.cs.getBasicBlockNo(destBlock));
           }
         } else {
 
