@@ -14,13 +14,13 @@ using namespace std;
 
 namespace ahaHLS {
 
-  std::string andCondStr(const std::vector<string>& stallConds) {
-    if (stallConds.size() == 0) {
-      return "1";
-    }
+  // std::string andCondStr(const std::vector<string>& stallConds) {
+  //   if (stallConds.size() == 0) {
+  //     return "1";
+  //   }
 
-    return andStrings(stallConds);
-  }
+  //   return andStrings(stallConds);
+  // }
 
   std::ostream& operator<<(std::ostream& out, const RegController& controller) {
     out << tab(1) << "always @(posedge clk) begin" << endl;
@@ -1655,8 +1655,6 @@ namespace ahaHLS {
                            MicroArchitecture& arch) {
 
     emitTempStorage(state,
-                    //andStrings(allConds),
-                    //allConds,
                     arch);
     
   }
