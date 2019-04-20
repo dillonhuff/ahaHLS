@@ -1590,17 +1590,26 @@ namespace ahaHLS {
 
   }
 
-  std::string pipelineClearOnNextCycleCondition(const ElaboratedPipeline& p) {
-    string s = "";
-
+  std::string
+  pipelineClearOnNextCycleCondition(const ElaboratedPipeline& p,
+                                    MicroArchitecture& arch) {
+    Wire s = constWire(1, 1);
     for (int i = 0; i < (p.numStages() - 1); i++) {
-      s += "!" + p.valids.at(i).name;
-      if (i < (p.numStages() - 2)) {
-        s += " && ";
-      }
+      s = checkAnd(s, checkNotWire(p.valids.at(i), arch), arch);
     }
 
-    return parens(s);
+    return s.valueString();
+
+    // string s = "";
+
+    // for (int i = 0; i < (p.numStages() - 1); i++) {
+    //   s += "!" + p.valids.at(i).name;
+    //   if (i < (p.numStages() - 2)) {
+    //     s += " && ";
+    //   }
+    // }
+
+    // return parens(s);
   }
 
   Instruction*
@@ -1677,7 +1686,6 @@ namespace ahaHLS {
   
   void addStateTransition(const StateId state,
                           const StateId dest,
-                          //ControlFlowPosition& pos,
                           Wire jumpCondWire,
                           MicroArchitecture& arch) {
 
@@ -1710,7 +1718,7 @@ namespace ahaHLS {
         int ind = p.stageForState(state);
         assert(ind == (p.numStages() - 1));
 
-        string pipeCond = jumpCond + " && " + pipelineClearOnNextCycleCondition(p);
+        string pipeCond = jumpCond + " && " + pipelineClearOnNextCycleCondition(p, arch);
           
         conds.push_back(pipeCond);
         //controller.values[andCondWire(conds, arch).name] = to_string(dest);
