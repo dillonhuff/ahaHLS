@@ -2037,11 +2037,16 @@ namespace ahaHLS {
         for (auto instrG : instrsAtState) {
           Instruction* instr = instrG;
 
-          vector<string> stallConds = {};
-          stallConds.push_back(blockActiveInState(state, instr->getParent(), arch).valueString());
+          // vector<string> stallConds = {};
+          // stallConds.push_back(blockActiveInState(state, instr->getParent(), arch).valueString());
 
-          Wire condWire = andCondWire(stallConds, arch);
+          // Wire condWire = andCondWire(stallConds, arch);
 
+          // vector<string> stallConds = {};
+          // stallConds.push_back(blockActiveInState(state, instr->getParent(), arch).valueString());
+
+          Wire condWire = blockActiveInState(state, instr->getParent(), arch);
+          
           auto pos = position(state, instr, arch);
           auto assigns = instructionPortAssignments(pos, arch);
 
