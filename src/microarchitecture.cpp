@@ -1554,8 +1554,6 @@ namespace ahaHLS {
   }
   
   void emitTempStorage(const StateId state,
-                       //const vector<std::string>& conds,
-                       //const std::string& cond,
                        MicroArchitecture& arch) {
 
 
@@ -1565,8 +1563,6 @@ namespace ahaHLS {
     
     for (auto instrG : arch.stg.instructionsFinishingAt(state)) {
       Instruction* instr = instrG;
-
-      vector<Wire> conds{blockActiveInState(state, instr->getParent(), arch)};
 
       if (hasOutput(instr)) {
 
@@ -1587,20 +1583,8 @@ namespace ahaHLS {
         if (needsTempStorage(instr, arch)) {
           auto unit = map_find(instr, unitAssignment);
 
-          //vector<Wire> allConds = conds;
-          // allConds.push_back(blockActiveInState(state,
-          //                                       instr->getParent(),
-          //                                       arch).valueString());
-
-          // allConds.push_back(blockActiveInState(state,
-          //                                       instr->getParent(),
-          //                                       arch));
-
-          //allConds.push_back(atState(state, arch));
-          //Wire cond = andCond(allConds, arch);
           Wire cond = blockActiveInState(state, instr->getParent(), arch);
           
-          //arch.getController(instrWire).values[cond.name] = dataOutput(instr, arch);
           arch.getController(instrWire).values[cond] = dataOutputWire(instr, arch);
         }
           
