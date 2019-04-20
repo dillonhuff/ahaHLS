@@ -1525,19 +1525,19 @@ namespace ahaHLS {
     return false;
   }
 
-  Wire andCondWire(vector<std::string>& allConds,
-                   MicroArchitecture& arch) {
-    if (allConds.size() == 0) {
-      return constWire(1, 1);
-    }
+  // Wire andCondWire(vector<std::string>& allConds,
+  //                  MicroArchitecture& arch) {
+  //   if (allConds.size() == 0) {
+  //     return constWire(1, 1);
+  //   }
 
-    string w = allConds[0];
-    for (int i = 1; i < (int) allConds.size(); i++) {
-      string right = allConds[i];
-      w = checkAnd(wire(32, w), wire(32, right), arch).name;
-    }
-    return wire(32, w);
-  }
+  //   string w = allConds[0];
+  //   for (int i = 1; i < (int) allConds.size(); i++) {
+  //     string right = allConds[i];
+  //     w = checkAnd(wire(32, w), wire(32, right), arch).name;
+  //   }
+  //   return wire(32, w);
+  // }
 
   Wire andCond(vector<Wire>& allConds,
                MicroArchitecture& arch) {
