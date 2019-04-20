@@ -1566,7 +1566,8 @@ namespace ahaHLS {
     for (auto instrG : arch.stg.instructionsFinishingAt(state)) {
       Instruction* instr = instrG;
 
-      vector<string> conds{blockActiveInState(state, instr->getParent(), arch).valueString()};
+      //vector<string> conds{blockActiveInState(state, instr->getParent(), arch).valueString()};
+      vector<Wire> conds{blockActiveInState(state, instr->getParent(), arch)};
 
       if (hasOutput(instr)) {
 
@@ -1587,12 +1588,18 @@ namespace ahaHLS {
         if (needsTempStorage(instr, arch)) {
           auto unit = map_find(instr, unitAssignment);
 
-          vector<string> allConds = conds;
+          //vector<string> allConds = conds;
+          vector<Wire> allConds = conds;
+          // allConds.push_back(blockActiveInState(state,
+          //                                       instr->getParent(),
+          //                                       arch).valueString());
+
           allConds.push_back(blockActiveInState(state,
                                                 instr->getParent(),
-                                                arch).valueString());
+                                                arch));
+
           //allConds.push_back(atState(state, arch));
-          Wire cond = andCondWire(allConds, arch);
+          Wire cond = andCond(allConds, arch);
           
           //arch.getController(instrWire).values[cond.name] = dataOutput(instr, arch);
           arch.getController(instrWire).values[cond] = dataOutputWire(instr, arch);
