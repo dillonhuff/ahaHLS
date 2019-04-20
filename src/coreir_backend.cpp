@@ -23,6 +23,8 @@ namespace ahaHLS {
       return "coreir.eq";
     } else if (spec.name == "andOp") {
       return "coreir.and";
+    } else if (spec.name == "coreir_reg") {
+      return "mantle.reg";
     } else {
       cout << "Error: Unsupported modspec " << endl;
       cout << spec << endl;
@@ -73,12 +75,26 @@ namespace ahaHLS {
 
     return instances;
   }
+
+  // Lowers all register controllers in to functional units for each
+  // register along with a 
+  void convertRegisterControllersToPortControllers(MicroArchitecture& arch) {
+    for (auto rc : arch.regControllers) {
+      RegController c = rc.second;
+      Wire reg = c.reg;
+      ModuleSpec regSpec;
+      regSpec.name = "coreir_reg";
+      arch.functionalUnits.push_back(functionalUnitForSpec(rc.first, regSpec));
+    }
+  }
   
   void emitCoreIR(const std::string& name,
                   MicroArchitecture& arch,
                   CoreIR::Context* const c,
                   CoreIR::Namespace* const n) {
 
+    convertRegisterControllersToPortControllers(arch);
+    
     vector<pair<string, CoreIR::Type*> > tps;
     for (auto port : getPorts(arch)) {
       string name = port.name;
