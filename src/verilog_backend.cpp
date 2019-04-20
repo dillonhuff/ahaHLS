@@ -1125,11 +1125,11 @@ namespace ahaHLS {
     RegController& rc = arch.getController(arch.cs.getLastBB());
     string inPipe = inAnyPipeline(arch).valueString();
     //for (pair<string, string> condAndVal0 : rc.values) {
-    for (pair<Wire, string> condAndVal0 : rc.values) {
+    for (auto condAndVal0 : rc.values) {
       //string cond0 = condAndVal0.first;
       Wire cond0 = condAndVal0.first;
       //for (pair<string, string> condAndVal1 : rc.values) {
-      for (pair<Wire, string> condAndVal1 : rc.values) {
+      for (auto condAndVal1 : rc.values) {
         //string cond1 = condAndVal1.first;
         Wire cond1 = condAndVal1.first;
 

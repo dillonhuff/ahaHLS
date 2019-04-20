@@ -30,7 +30,7 @@ namespace ahaHLS {
     for (auto val : controller.values) {
       //out << tab(3) << "if (" << val.first << ") begin" << endl;
       out << tab(3) << "if (" << val.first.valueString() << ") begin" << endl;
-      out << tab(4) << controller.reg.name << " <= " << val.second << ";" << endl;
+      out << tab(4) << controller.reg.name << " <= " << val.second.valueString() << ";" << endl;
       out << tab(3) << "end" << endl;      
     }
     out << tab(2) << "end" << endl;
@@ -1001,12 +1001,12 @@ namespace ahaHLS {
     return tmpRes.name;
   }
 
-  std::string dataOutput(llvm::Instruction* instr0, const MicroArchitecture& arch) {
+  Wire dataOutputWire(llvm::Instruction* instr0, const MicroArchitecture& arch) {
     auto unit0Src =
       map_find(instr0, arch.unitAssignment);
 
     if (isBuiltinFifoRead(instr0)) {
-      return map_find(string("out_data"), unit0Src.outWires).name;
+      return map_find(string("out_data"), unit0Src.outWires);
     } else if (isBuiltinPortRead(instr0)) {
       auto portName = getPortName(instr0);
       //cout << "looking for " << portName << endl;
@@ -1014,15 +1014,21 @@ namespace ahaHLS {
         cout << "looking for " << portName << " for instruction " << valueString(instr0) << endl;
         assert(false);
       }
-      return map_find(string(portName), unit0Src.outWires).name;
+      return map_find(string(portName), unit0Src.outWires);
     } else {
       if (!(unit0Src.outWires.size() == 1)) {
         cout << "Error: Cannot find 1 output wire for " << valueString(instr0) << endl;
       }
       assert(unit0Src.outWires.size() == 1);
-      string valName = unit0Src.onlyOutputVar();
-      return valName;
+      return unit0Src.outputWire();
+      // string valName = unit0Src.onlyOutputVar();
+      // return valName;
     }
+  }
+
+  // This is a duplicate?
+  string dataOutput(llvm::Instruction* instr0, const MicroArchitecture& arch) {
+    return dataOutputWire(instr0, arch).valueString();
   }
 
   set<BasicBlock*> successorsInState(BasicBlock* const blk,
@@ -1576,7 +1582,7 @@ namespace ahaHLS {
           Wire cond = andCondWire(allConds, arch);
           
           //arch.getController(instrWire).values[cond.name] = dataOutput(instr, arch);
-          arch.getController(instrWire).values[cond] = dataOutput(instr, arch);
+          arch.getController(instrWire).values[cond] = dataOutputWire(instr, arch);
         }
           
       }
@@ -2042,7 +2048,7 @@ namespace ahaHLS {
         // StallConds stallConds = stallAndPortAssign.first;
         // PortAssignments assignments = stallAndPortAssign.second;
 
-          for (pair<string, string> portAndValue : assigns) {
+          for (auto portAndValue : assigns) {
             string portName = portAndValue.first;
             string portVal = portAndValue.second;
             if (!contains_key(portName, portController.inputControllers)) {
@@ -2430,12 +2436,14 @@ namespace ahaHLS {
 
           if (!jumpToSameState(&bb, trueSucc, arch)) {
             arch.getController("global_next_block").values[trueTaken] =
-              to_string(trueBlkNo);
+              constWire(32, trueBlkNo);
+              //to_string(trueBlkNo);
           }
 
           if (!jumpToSameState(&bb, falseSucc, arch)) {          
             arch.getController("global_next_block").values[falseTaken] =
-              to_string(falseBlkNo);
+              constWire(32, falseBlkNo);
+              //to_string(falseBlkNo);
           }
 
         }
@@ -2487,7 +2495,8 @@ namespace ahaHLS {
         // If a block is active that does not execute its terminator, then
         // the in the next cycle we continue to execute that block
         arch.getController("global_next_block").values[thisBlkActive] =
-          to_string(arch.cs.getBasicBlockNo(blk));
+          constWire(32, arch.cs.getBasicBlockNo(blk));
+          //to_string(arch.cs.getBasicBlockNo(blk));
       }
     }
 
@@ -2502,7 +2511,8 @@ namespace ahaHLS {
 
           if (!arch.stg.sched.hasReturnDefault()) {
             arch.getController("global_next_block").values[thisBlkActive] =
-              to_string(arch.cs.getBasicBlockNo(blk));
+              constWire(32, arch.cs.getBasicBlockNo(blk));
+              //to_string(arch.cs.getBasicBlockNo(blk));
           }
         }
       }
@@ -2667,9 +2677,12 @@ namespace ahaHLS {
         arch.getController(p.valids.at(0));
       string atSt = atState(st, arch);
       
-      cont.values[checkAnd(wire(1, atSt), wire(1, testCond), arch)] = "0";
-      cont.values[checkAnd(wire(1, atSt), wire(1, notStr(testCond)), arch)] = "1";      
-      cont.values[checkAnd(wire(1, notStr(atSt)), wire(1, p.inPipe.name), arch)] = "0";
+      //cont.values[checkAnd(wire(1, atSt), wire(1, testCond), arch)] = "0";
+      cont.values[checkAnd(wire(1, atSt), wire(1, testCond), arch)] = constWire(1, 0);
+      //cont.values[checkAnd(wire(1, atSt), wire(1, notStr(testCond)), arch)] = "1";
+      cont.values[checkAnd(wire(1, atSt), wire(1, notStr(testCond)), arch)] = constWire(1, 1);      
+      //cont.values[checkAnd(wire(1, notStr(atSt)), wire(1, p.inPipe.name), arch)] = "0";
+      cont.values[checkAnd(wire(1, notStr(atSt)), wire(1, p.inPipe.name), arch)] = constWire(1, 0);
     }
 
   }
@@ -2708,7 +2721,7 @@ namespace ahaHLS {
 
             assert(contains_key(i, nextNameMap));
             Wire next = map_find(i, nextNameMap);
-            arch.getController(next).values[constWire(1, 1)] = current.name;
+            arch.getController(next).values[constWire(1, 1)] = current;
           }
         }
         
@@ -2718,7 +2731,7 @@ namespace ahaHLS {
         Instruction* i = instrS.first;
         if (needsTempStorage(i, arch)) {
           arch.getController(map_find(i, arch.names)).values[constWire(1, 1)] =
-            instrS.second.name;
+            instrS.second;
         }
       }
     }
@@ -2731,7 +2744,7 @@ namespace ahaHLS {
 
       for (int i = 0; i < ((int) p.valids.size()) - 1; i++) {
         arch.getController(p.valids[i + 1]).values[constWire(1, 1)] =
-          p.valids[i].name;
+          p.valids[i];
       }
     }
   }
