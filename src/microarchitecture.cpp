@@ -2683,7 +2683,7 @@ namespace ahaHLS {
       // Does a true value in the branch conditional imply doing another iteration
       // of the loop
       if (trueBlock == pBlock) {
-        testCond = "!" + parens(testCond);
+        testCond = checkNotWire(wire(1, testCond), arch).valueString(); //"!" + parens(testCond);
       }
 
       RegController& cont =
