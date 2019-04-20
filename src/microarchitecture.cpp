@@ -1574,7 +1574,6 @@ namespace ahaHLS {
           auto unit = map_find(instr, unitAssignment);
 
           vector<string> allConds = conds;
-          //allConds.push_back(atState(state, arch));
           allConds.push_back(blockActiveInState(state,
                                                 instr->getParent(),
                                                 arch).valueString());
@@ -1710,21 +1709,16 @@ namespace ahaHLS {
         auto destP = getPipeline(dest, pipelines);
 
         conds.push_back(jumpCond);
-        //controller.values[andCondWire(conds, arch).name] = to_string(destP.stateId);
-        //controller.values[andCondWire(conds, arch)] = to_string(destP.stateId);
         controller.values[andCondWire(conds, arch)] = constWire(32, destP.stateId);
           
       } else {
         int ind = p.stageForState(state);
         assert(ind == (p.numStages() - 1));
 
-        //string pipeCond = jumpCond + " && " + pipelineClearOnNextCycleCondition(p, arch);
         string pipeCond =
           checkAnd(wire(1, jumpCond), wire(1, pipelineClearOnNextCycleCondition(p, arch)), arch).valueString();
           
         conds.push_back(pipeCond);
-        //controller.values[andCondWire(conds, arch).name] = to_string(dest);
-        //controller.values[andCondWire(conds, arch)] = to_string(dest);
         controller.values[andCondWire(conds, arch)] = constWire(32, dest);
       }
 
@@ -1743,20 +1737,14 @@ namespace ahaHLS {
         RegController& validController =
           arch.getController(p.valids.at(0));
 
-        //validController.values[andCondWire(conds, arch).name] = "1";
-        //validController.values[andCondWire(conds, arch)] = "1";
         validController.values[andCondWire(conds, arch)] = constWire(1, 1);
           
         conds.push_back(jumpCond);
-        //controller.values[andCondWire(conds, arch).name] = to_string(p.stateId);
-        //controller.values[andCondWire(conds, arch)] = to_string(p.stateId);
         controller.values[andCondWire(conds, arch)] = constWire(32, p.stateId);
 
       } else {
         conds.push_back(jumpCond);
 
-        //controller.values[andCondWire(conds, arch).name] = to_string(dest);
-        //controller.values[andCondWire(conds, arch)] = to_string(dest);
         controller.values[andCondWire(conds, arch)] = constWire(32, dest);
       }
     }
@@ -2049,17 +2037,13 @@ namespace ahaHLS {
         for (auto instrG : instrsAtState) {
           Instruction* instr = instrG;
 
-          vector<string> stallConds = {}; //getStallConds(instr, state, arch);
+          vector<string> stallConds = {};
           stallConds.push_back(blockActiveInState(state, instr->getParent(), arch).valueString());
-          //stallConds.push_back(containerBlockIsActive(instr, arch).valueString());
 
           Wire condWire = andCondWire(stallConds, arch);
 
           auto pos = position(state, instr, arch);
           auto assigns = instructionPortAssignments(pos, arch);
-
-        // StallConds stallConds = stallAndPortAssign.first;
-        // PortAssignments assignments = stallAndPortAssign.second;
 
           for (auto portAndValue : assigns) {
             string portName = portAndValue.first;
@@ -2070,14 +2054,7 @@ namespace ahaHLS {
 
             PortValues& vals = portController.inputControllers[portName];
             vals.portVals.insert({condWire, wire(32, portVal)});
-            //{state, {stallConds, portVal}});
           }
-          
-          // for (pair<string, string> portAndValue : assigns) {
-          //   portController.setCond(portAndValue.first, condWire, Wire(32, portAndValue.second));
-          // }
-
-          //map_insert(portController.portValues, state, {stallConds, assigns});
           
           for (auto asg : assigns) {
             usedPorts.insert(asg.first);
