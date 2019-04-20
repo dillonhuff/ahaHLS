@@ -232,6 +232,10 @@ namespace ahaHLS {
     
     ElaboratedPipeline(const Pipeline& p_) : p(p_) {}
 
+    Wire inPipeWire() const {
+      return wire(1, inPipe.name + "_out_data");
+    }
+    
     llvm::BranchInst* getExitBranch() const {
       llvm::Instruction* repeat = exitBranch;
       assert(llvm::BranchInst::classof(repeat));

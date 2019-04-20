@@ -1955,6 +1955,11 @@ namespace ahaHLS {
       emitTempStorageCode(state.first, arch);
     }
 
+    for (auto p : arch.pipelines) {
+      PortController& pc = addPortController(p.inPipe.name, 1, arch);
+      pc.setAlways("in_data", checkEqual(p.stateId, arch.cs.getGlobalState(), arch));
+    }
+
   }
 
   bool usedInExactlyOneState(UnitController& controller) {
@@ -2630,7 +2635,7 @@ namespace ahaHLS {
   Wire inAnyPipeline(MicroArchitecture& arch) {
     Wire inAnyPipe = constWire(1, 0);
     for (auto& p : arch.pipelines) {
-      inAnyPipe = checkOr(inAnyPipe, p.inPipe, arch);
+      inAnyPipe = checkOr(inAnyPipe, p.inPipeWire(), arch);
     }
 
     return inAnyPipe;
@@ -2682,7 +2687,7 @@ namespace ahaHLS {
       //cont.values[checkAnd(wire(1, atSt), wire(1, notStr(testCond)), arch)] = "1";
       cont.values[checkAnd(wire(1, atSt), wire(1, notStr(testCond)), arch)] = constWire(1, 1);      
       //cont.values[checkAnd(wire(1, notStr(atSt)), wire(1, p.inPipe.name), arch)] = "0";
-      cont.values[checkAnd(wire(1, notStr(atSt)), wire(1, p.inPipe.name), arch)] = constWire(1, 0);
+      cont.values[checkAnd(wire(1, notStr(atSt)), p.inPipeWire(), arch)] = constWire(1, 0);
     }
 
   }

@@ -410,9 +410,9 @@ namespace ahaHLS {
     emitRegisterStorage(out, arch);
 
     out << endl;
-    for (auto p : arch.pipelines) {
-      out << "\tassign " << p.inPipe.name << " = global_state == " << p.stateId << ";"<< endl;
-    }
+    // for (auto p : arch.pipelines) {
+    //   out << "\tassign " << p.inPipe.name << " = global_state == " << p.stateId << ";"<< endl;
+    // }
 
     emitVerilogForControllers(out, arch);    
 
@@ -896,7 +896,7 @@ namespace ahaHLS {
     if (arch.isPipelineState(state)) {
       auto p = arch.getPipeline(state);
       int stage = p.stageForState(state);
-      active = checkAnd(p.inPipe, p.valids.at(stage), arch);
+      active = checkAnd(p.inPipeWire(), p.valids.at(stage), arch);
     }
     return active;
   }
