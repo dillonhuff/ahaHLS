@@ -1887,7 +1887,6 @@ namespace ahaHLS {
           }
 
           condWire = checkAnd(blockActiveInState(state, br->getParent(), arch), condWire, arch);
-          //addStateTransition(state, dest, pos, condWire, arch);
           addStateTransition(state, dest, condWire, arch);
         }
 
@@ -1899,11 +1898,8 @@ namespace ahaHLS {
           dest = arch.stg.sched.getDefaultReturnState();
         }
 
-        // ControlFlowPosition pos =
-        //   position(state, instr, arch);
         Wire condWire = constWire(1, 1);
         condWire = checkAnd(blockActiveInState(state, instr->getParent(), arch), condWire, arch);
-        //addStateTransition(state, dest, pos, condWire, arch);
         addStateTransition(state, dest, condWire, arch);
       }
     }
@@ -1919,12 +1915,9 @@ namespace ahaHLS {
       if (!arch.stg.isEmptyState(state)) {
         cout << "Found non terminating block in " << state << endl;
 
-        // ControlFlowPosition pos =
-        //   position(state, lastInstructionForBlockInState(blk, state, arch), arch);
         StateId dest = state + 1;
         Wire condWire = constWire(1, 1);
         condWire = checkAnd(blockActiveInState(state, blk, arch), condWire, arch);
-        //addStateTransition(state, dest, pos, condWire, arch);
         addStateTransition(state, dest, condWire, arch);
       }
     }
@@ -1935,12 +1928,6 @@ namespace ahaHLS {
       cout << "State generation for empty state " << state << endl;
       StateId dest = state + 1;
       Wire condWire = constWire(1, 1);
-      //StateId lastNonBlank = findLastNonBlankState(state, arch.stg);
-      //Instruction* instr = arch.stg.pickInstructionAt(lastNonBlank);
-      //condWire = checkAnd(blockActiveInState(state, instr->getParent(), arch), condWire, arch); 
-      // ControlFlowPosition pos =
-      //   position(lastNonBlank, arch.stg.pickInstructionAt(lastNonBlank), arch);
-      //addStateTransition(state, dest, pos, condWire, arch);
       addStateTransition(state, dest, condWire, arch);
     }
 

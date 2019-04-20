@@ -38,6 +38,8 @@ namespace ahaHLS {
     for (auto p : spec.params) {
       if (p.first == "WIDTH") {
         params.insert({"width", Const::make(c, stoi(p.second))});
+      } else if (p.first == "HAS_EN") {
+        params.insert({"has_en", Const::make(c, stoi(p.second) == 1 ? true : false)});
       } else {
         cout << "Error: Unsupported parameter = " << p.first << endl;
         assert(false);
@@ -79,13 +81,15 @@ namespace ahaHLS {
   // Lowers all register controllers in to functional units for each
   // register along with a 
   void convertRegisterControllersToPortControllers(MicroArchitecture& arch) {
-    // for (auto rc : arch.regControllers) {
-    //   RegController c = rc.second;
-    //   Wire reg = c.reg;
-    //   ModuleSpec regSpec;
-    //   regSpec.name = "coreir_reg";
-    //   arch.functionalUnits.push_back(functionalUnitForSpec(rc.first, regSpec));
-    // }
+    for (auto rc : arch.regControllers) {
+      RegController c = rc.second;
+      Wire reg = c.reg;
+      ModuleSpec regSpec;
+      regSpec.params.insert({"HAS_EN", "1"});
+      regSpec.params.insert({"WIDTH", to_string(reg.width)});
+      regSpec.name = "coreir_reg";
+      arch.functionalUnits.push_back(functionalUnitForSpec(rc.first, regSpec));
+    }
   }
   
   void emitCoreIR(const std::string& name,
