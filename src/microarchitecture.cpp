@@ -1539,6 +1539,20 @@ namespace ahaHLS {
     return wire(32, w);
   }
 
+  Wire andCond(vector<Wire>& allConds,
+               MicroArchitecture& arch) {
+    if (allConds.size() == 0) {
+      return constWire(1, 1);
+    }
+
+    Wire w = allConds[0];
+    for (int i = 1; i < (int) allConds.size(); i++) {
+      Wire right = allConds[i];
+      w = checkAnd(w, right, arch);
+    }
+    return w;
+  }
+  
   void emitTempStorage(const StateId state,
                        //const vector<std::string>& conds,
                        //const std::string& cond,
@@ -1589,7 +1603,8 @@ namespace ahaHLS {
 
   }
 
-  std::string
+  //std::string
+  Wire
   pipelineClearOnNextCycleCondition(const ElaboratedPipeline& p,
                                     MicroArchitecture& arch) {
     Wire s = constWire(1, 1);
@@ -1597,7 +1612,7 @@ namespace ahaHLS {
       s = checkAnd(s, checkNotWire(p.valids.at(i), arch), arch);
     }
 
-    return s.valueString();
+    return s; //s.valueString();
 
     // string s = "";
 
@@ -1690,18 +1705,21 @@ namespace ahaHLS {
 
     //cout << "Adding transition from " << state << " to " << dest << " via " << valueString(pos.instr) << endl;
 
-    string atStateCond = atState(state, arch);
+    //string atStateCond = atState(state, arch);
+    Wire atStateCond = atStateWire(state, arch);
 
     auto& controller = arch.getController(reg(32, "global_state"));
     auto& pipelines = arch.pipelines;
 
-    auto jumpCond = jumpCondWire.valueString();
+    //auto jumpCond = jumpCondWire.valueString();
+    Wire jumpCond = jumpCondWire;
 
     if (isPipelineState(state, pipelines)) {
 
       auto p = getPipeline(state, pipelines);
 
-      vector<string> conds{atStateCond};
+      //vector<string> conds{atStateCond};
+      vector<Wire> conds{atStateCond};
 
       // Note: This assumes we never jump from pipeline to pipeline
       if (isPipelineState(dest, pipelines)) {
@@ -1709,21 +1727,25 @@ namespace ahaHLS {
         auto destP = getPipeline(dest, pipelines);
 
         conds.push_back(jumpCond);
-        controller.values[andCondWire(conds, arch)] = constWire(32, destP.stateId);
+        controller.values[andCond(conds, arch)] = constWire(32, destP.stateId);
           
       } else {
         int ind = p.stageForState(state);
         assert(ind == (p.numStages() - 1));
 
-        string pipeCond =
-          checkAnd(wire(1, jumpCond), wire(1, pipelineClearOnNextCycleCondition(p, arch)), arch).valueString();
-          
+        // string pipeCond =
+        //   checkAnd(wire(1, jumpCond), wire(1, pipelineClearOnNextCycleCondition(p, arch)), arch).valueString();
+
+        Wire pipeCond =
+          checkAnd(jumpCond, pipelineClearOnNextCycleCondition(p, arch), arch);
+        
         conds.push_back(pipeCond);
-        controller.values[andCondWire(conds, arch)] = constWire(32, dest);
+        controller.values[andCond(conds, arch)] = constWire(32, dest);
       }
 
     } else {
-      vector<string> conds{atStateCond};
+      //vector<string> conds{atStateCond};
+      vector<Wire> conds{atStateCond};
       if (isPipelineState(dest, pipelines)) {
 
         auto p = getPipeline(dest, pipelines);
@@ -1737,15 +1759,15 @@ namespace ahaHLS {
         RegController& validController =
           arch.getController(p.valids.at(0));
 
-        validController.values[andCondWire(conds, arch)] = constWire(1, 1);
+        validController.values[andCond(conds, arch)] = constWire(1, 1);
           
         conds.push_back(jumpCond);
-        controller.values[andCondWire(conds, arch)] = constWire(32, p.stateId);
+        controller.values[andCond(conds, arch)] = constWire(32, p.stateId);
 
       } else {
         conds.push_back(jumpCond);
 
-        controller.values[andCondWire(conds, arch)] = constWire(32, dest);
+        controller.values[andCond(conds, arch)] = constWire(32, dest);
       }
     }
   }
