@@ -1256,7 +1256,8 @@ namespace ahaHLS {
 
       cout << "Bitcast     = " << floatBits << endl;
 
-      return "32'b" + zeroExtend(floatBits, 32);
+      //return "32'b" + zeroExtend(floatBits, 32);
+      return constWire(32, fpVal->getValueAPF().bitcastToAPInt().getLimitedValue()).valueString();
     }
   }
 
