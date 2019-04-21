@@ -1902,7 +1902,11 @@ namespace ahaHLS {
         }
 
         cout << "Done with branch" << endl;
-      } else if (ReturnInst::classof(instr)) {
+      } //else
+    }
+
+    for (auto instr : arch.stg.instructionsFinishingAt(state)) {
+      if (ReturnInst::classof(instr)) {
 
         StateId dest = state;
         if (arch.stg.sched.hasReturnDefault()) {

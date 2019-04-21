@@ -822,7 +822,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// controller for andOp_116.andOp_116_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_116_in0 = valid ? bb_1_active_out_data : bb_1_active_out_data;
+		andOp_116_in0 = valid ? bb_4_active_out_data : bb_4_active_out_data;
 		andOp_116_in1 = valid ? eq_115_out : eq_115_out;
 	end
 	// controller for andOp_117.andOp_117_in0
@@ -830,7 +830,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// Insensitive connections
 	always @(*) begin
 		andOp_117_in0 = valid ? andOp_116_out : andOp_116_out;
-		andOp_117_in1 = valid ? 1'd1 : 1'd1;
+		andOp_117_in1 = valid ? cmp_out_icmp_18 : cmp_out_icmp_18;
 	end
 	// controller for andOp_119.andOp_119_in0
 	// controller for andOp_119.andOp_119_in1
@@ -843,7 +843,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// controller for andOp_121.andOp_121_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_121_in0 = valid ? bb_4_active_out_data : bb_4_active_out_data;
+		andOp_121_in0 = valid ? bb_1_active_out_data : bb_1_active_out_data;
 		andOp_121_in1 = valid ? eq_120_out : eq_120_out;
 	end
 	// controller for andOp_122.andOp_122_in0
@@ -851,7 +851,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// Insensitive connections
 	always @(*) begin
 		andOp_122_in0 = valid ? andOp_121_out : andOp_121_out;
-		andOp_122_in1 = valid ? cmp_out_icmp_18 : cmp_out_icmp_18;
+		andOp_122_in1 = valid ? 1'd1 : 1'd1;
 	end
 	// controller for andOp_124.andOp_124_in0
 	// controller for andOp_124.andOp_124_in1

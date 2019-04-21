@@ -448,6 +448,8 @@ namespace ahaHLS {
     // then the branch can complete before the end of the pipeline
     if (!elem(bb, toPipeline)) {
       addConstraint(blockEnd(bb) == instrEnd(term));
+    } else {
+      addConstraint(blockEnd(bb) == instrEnd(term));
     }
 
     blockNo++;
