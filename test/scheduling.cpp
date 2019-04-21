@@ -4143,14 +4143,15 @@ namespace ahaHLS {
     interfaces.functionTemplates[string("read")] = implementRVFifoRead;
     interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef;
 
-    addDataConstraints(f, exec);
+    //addDataConstraints(f, exec);
 
     cout << "Before inlining" << endl;
     cout << valueString(f) << endl;
 
-    addDataConstraints(f, exec);    
     inlineWireCalls(f, exec, interfaces);
 
+    addDataConstraints(f, exec);    
+    
     cout << "After inlining" << endl;
     cout << valueString(f) << endl;
 
@@ -4285,14 +4286,15 @@ namespace ahaHLS {
     interfaces.functionTemplates[string("read")] = implementRVFifoRead;
     interfaces.functionTemplates[string("write")] = implementRVFifoWriteRef;
 
-    addDataConstraints(f, exec);
+
 
     cout << "Before inlining" << endl;
     cout << valueString(f) << endl;
 
-    addDataConstraints(f, exec);    
+    //addDataConstraints(f, exec);    
     inlineWireCalls(f, exec, interfaces);
 
+    addDataConstraints(f, exec);    
     cout << "After inlining" << endl;
     cout << valueString(f) << endl;
 
@@ -5544,9 +5546,11 @@ namespace ahaHLS {
 
     set<BasicBlock*> toPipeline;
 
-    addDataConstraints(f, exec);
+
     inlineWireCalls(f, exec, interfaces);
 
+    addDataConstraints(f, exec);
+    
     cout << "After inlining" << endl;
     cout << valueString(f) << endl;
 
@@ -5643,9 +5647,13 @@ namespace ahaHLS {
 
     set<BasicBlock*> toPipeline;
 
-    addDataConstraints(f, exec);
+
     inlineWireCalls(f, exec, interfaces);
 
+    // Call after inlining
+    addDataConstraints(f, exec);
+
+    
     cout << "After inlining" << endl;
     cout << valueString(f) << endl;
 

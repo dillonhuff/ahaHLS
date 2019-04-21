@@ -3791,11 +3791,16 @@ namespace ahaHLS {
     cout << "Before inlining" << endl;
     cout << valueString(f) << endl;
 
-    addDataConstraints(f, exec);
+
     auto preds = buildControlPreds(f);
     addStencilCallConstraints(f, preds, exec);
+
     inlineWireCalls(f, exec, interfaces);
 
+    // These constraints must be added afterwards since basic block constraints
+    // will be destroyed by inlining
+    addDataConstraints(f, exec);
+    
     cout << "After inlining" << endl;
     cout << valueString(f) << endl;
 
