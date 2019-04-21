@@ -626,6 +626,9 @@ namespace ahaHLS {
       assert(depth() == (int) states.size());
     }
 
+    StateId startState() const { return states.front(); }
+    StateId endState() const { return states.back(); }    
+
     int II() const { return ii; }
     int depth() const { return stateDepth; }
     const std::vector<StateId>& getStates() const { return states; }

@@ -2824,6 +2824,39 @@ namespace ahaHLS {
     return transitions;
   }
 
+  std::set<std::pair<BasicBlock*, BasicBlock*> >
+  allTransitions(const StateId state,
+                 STG& stg) {
+    std::set<std::pair<BasicBlock*, BasicBlock*> > transitions;
+
+    for (auto instr : stg.instructionsFinishingAt(state)) {
+      if (BranchInst::classof(instr)) {
+        BranchInst* br = dyn_cast<BranchInst>(instr);
+        for (int i = 0; i < (int) br->getNumSuccessors(); i++) {
+          transitions.insert({br->getParent(), br->getSuccessor(i)});
+        }
+      }
+    }
+
+    return transitions;
+  }
+  
+  std::set<std::pair<BasicBlock*, BasicBlock*> >
+  getOutOfStateTransitions(const StateId state,
+                           STG& stg) {
+
+    auto inState = getInStateTransitions(state, stg);
+
+    set<pair<BasicBlock*, BasicBlock*> > out;
+    for (auto transition : allTransitions(state, stg)) {
+      if (!elem(transition, inState)) {
+        out.insert(transition);
+      }
+    }
+
+    return out;
+  }
+
   bool isInStateJump(const StateId state,
                      BasicBlock* pred,
                      BasicBlock* succ,
@@ -2991,6 +3024,41 @@ namespace ahaHLS {
     }
     return inProg;
   }
+
+  class CFGJump {
+  public:
+    std::pair<BasicBlock*, BasicBlock*> jmp;
+  };
+
+  bool inPipeline(BasicBlock* const blk, Pipeline& pipe, STG& stg) {
+    StateId start = stg.blockStartState(blk);
+    StateId end = stg.blockEndState(blk);
+
+    if ((pipe.startState() <= start) && (end <= pipe.endState())) {
+      return true;
+    }
+
+    return false;
+  }
+
+  vector<CFGJump> outOfPipelineJumps(Pipeline& pipe, STG& stg) {
+    vector<CFGJump> outJmps;
+    for (auto state : pipe.getStates()) {
+      auto outOfState = getOutOfStateTransitions(state, stg);
+      for (auto tr : outOfState) {
+        BasicBlock* next = tr.second;
+        if (!inPipeline(next, pipe, stg)) {
+          outJmps.push_back({{tr.first, tr.second}});
+        }
+      }
+    }
+    return outJmps;
+  }
+
+  std::ostream& operator<<(std::ostream& out, const CFGJump& jmp) {
+    out << blkNameString(jmp.jmp.first) << " -> " << blkNameString(jmp.jmp.second);
+    return out;
+  }
   
   void StateTransitionGraph::print(std::ostream& out) {
     out << "--- # of states = " << opStates.size() << std::endl;
@@ -3064,6 +3132,17 @@ namespace ahaHLS {
       //   5. Out of state transitions
       //   6. In to state transitions
       
+    }
+
+    out << "--- # of pipelines = " << pipelines.size() << endl;
+    for (auto pipe : pipelines) {
+      out << tab(1) << "-- Pipeline with II = " << pipe.II() << " has depth " << pipe.depth() << ", states: [" << commaListString(pipe.getStates()) << "]" << endl;
+
+      vector<CFGJump> outOfPipeJumps = outOfPipelineJumps(pipe, *this);
+      out << tab(2) << "- Out of pipeline jumps" << endl;
+      for (auto jump : outOfPipeJumps) {
+        out << tab(3) << "- " << jump << endl;
+      }
     }
 
     out << "--- State Transistions" << std::endl;      
