@@ -24,7 +24,7 @@ namespace ahaHLS {
     } else if (spec.name == "andOp") {
       return "coreir.and";
     } else if (spec.name == "coreir_reg") {
-      return "mantle.reg";
+      return "ahaHLS.reg";
     } else {
       cout << "Error: Unsupported modspec " << endl;
       cout << spec << endl;
@@ -88,7 +88,6 @@ namespace ahaHLS {
       regSpec.ports.insert({"en", inputPort(1, "en")});
       regSpec.ports.insert({"in", inputPort(reg.width, "in")});
       regSpec.ports.insert({"out", outputPort(reg.width, "out")});
-      regSpec.params.insert({"HAS_EN", "1"});
       regSpec.params.insert({"WIDTH", to_string(reg.width)});
       regSpec.name = "coreir_reg";
       auto unit = functionalUnitForSpec(rc.first, regSpec);
@@ -185,6 +184,40 @@ namespace ahaHLS {
     }
     return result;
   }
+
+  void addRegGenerator(Namespace* ahaLib) {
+    auto c = ahaLib->getContext();
+    
+    Params wireParams = {{"width", c->Int()}};
+    TypeGen* wireTp =
+      ahaLib->newTypeGen(
+                        "reg",
+                        wireParams,
+                        [](Context* c, Values genargs) {
+                          uint width = genargs.at("width")->get<int>();
+                          return c->Record({
+                              {"in", c->BitIn()->Arr(width)},
+                              {"en", c->BitIn()->Arr(1)},                          
+                                {"out",c->Bit()->Arr(width)}});
+                        });
+    ahaLib->newGeneratorDecl("reg", wireTp, wireParams);
+    auto gen = ahaLib->getGenerator("reg");
+
+    std::function<void (Context*, Values, ModuleDef*)> genFun =
+      [](Context* c, Values args, ModuleDef* def) {
+      uint width = args.at("width")->get<int>();
+
+      def->addInstance("innerReg",
+                       "mantle.reg",
+      {{"width", Const::make(c, width)}, {"has_en", Const::make(c, true)}});
+
+      def->connect("self.in", "innerReg.in");
+      def->connect("self.en.0", "innerReg.en");
+      def->connect("innerReg.out", "self.out");
+    };
+    gen->setGeneratorDefFromFun(genFun);
+    
+  }
   
   void emitCoreIR(const std::string& name,
                   MicroArchitecture& arch,
@@ -218,6 +251,8 @@ namespace ahaHLS {
       def->connect("innerWire.out", "self.out_data");
     };
     gen->setGeneratorDefFromFun(genFun);
+
+    addRegGenerator(ahaLib);
     
     
     convertRegisterControllersToPortControllers(arch);
