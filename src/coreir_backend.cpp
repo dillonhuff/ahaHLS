@@ -18,7 +18,7 @@ namespace ahaHLS {
     if (spec.name == "add") {
       return "coreir.add";
     } else if (spec.name == "hls_wire") {
-      return "coreir.wire";
+      return "ahaHLS.wire";
     } else if (spec.name == "eq") {
       return "coreir.eq";
     } else if (spec.name == "andOp") {
@@ -140,6 +140,35 @@ namespace ahaHLS {
                   CoreIR::Context* const c,
                   CoreIR::Namespace* const n) {
 
+    auto ahaLib = c->newNamespace("ahaHLS");
+    Params wireParams = {{"width", c->Int()}};
+    TypeGen* wireTp =
+      ahaLib->newTypeGen(
+                        "wire",
+                        wireParams,
+                        [](Context* c, Values genargs) {
+                          uint width = genargs.at("width")->get<int>();
+                          return c->Record({
+                              {"in_data", c->BitIn()->Arr(width)},
+                                {"out_data",c->Bit()->Arr(width)}});
+                        });
+    ahaLib->newGeneratorDecl("wire", wireTp, wireParams);
+    auto gen = ahaLib->getGenerator("wire");
+
+    std::function<void (Context*, Values, ModuleDef*)> genFun =
+      [](Context* c, Values args, ModuleDef* def) {
+      uint width = args.at("width")->get<int>();
+
+      def->addInstance("innerWire",
+                       "coreir.wire",
+      {{"width", Const::make(c, width)}});
+
+      def->connect("self.in_data", "innerWire.in");
+      def->connect("innerWire.out", "self.out_data");
+    };
+    gen->setGeneratorDefFromFun(genFun);
+    
+    
     convertRegisterControllersToPortControllers(arch);
     
     vector<pair<string, CoreIR::Type*> > tps;
