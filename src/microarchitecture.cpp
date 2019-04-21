@@ -2795,11 +2795,14 @@ namespace ahaHLS {
       }
 
       bool foundTerm = false;
-      for (auto instrG : stg.instructionsFinishingAt(p.getStates().back())) {
-        if (BranchInst::classof(instrG)) {
-          foundTerm = true;
-          ep.exitBranch = instrG;
-          break;
+      for (auto st : p.getStates()) {
+        //for (auto instrG : stg.instructionsFinishingAt(p.getStates().back())) {
+        for (auto instrG : stg.instructionsFinishingAt(st)) {
+          if (BranchInst::classof(instrG)) {
+            foundTerm = true;
+            ep.exitBranch = instrG;
+            break;
+          }
         }
       }
 
