@@ -73,7 +73,7 @@ namespace ahaHLS {
 
     sim.execute();
 
-    //REQUIRE(sim.getBitVec("self.valid") == BitVec(1, 0));    
+    REQUIRE(sim.getBitVec("self.valid") == BitVec(1, 0));    
     
     sim.setValue("self.rst", BitVec(1, 0));
 
@@ -83,7 +83,7 @@ namespace ahaHLS {
     sim.execute();
     sim.execute();
 
-    //REQUIRE(sim.getBitVec("self.valid") == BitVec(1, 1));
+    REQUIRE(sim.getBitVec("self.valid") == BitVec(1, 1));
 
     deleteContext(c);
   }
