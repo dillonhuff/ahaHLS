@@ -817,9 +817,14 @@ namespace ahaHLS {
 
         // Instructions must finish before their basic block terminator,
         // this is not true anymore in pipelining
+        // if (iptr != term) {
+        //   exe.addConstraint(instrEnd(iptr) <= instrStart(term));
+        // }
+
         if (iptr != term) {
-          exe.addConstraint(instrEnd(iptr) <= instrStart(term));
+          exe.add(instrEnd(iptr) <= end(&bb));
         }
+
       }
     }
 
