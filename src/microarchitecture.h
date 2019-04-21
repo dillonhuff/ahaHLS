@@ -76,7 +76,11 @@ namespace ahaHLS {
     
     std::string valueString() const {
       if (isConst) {
-        return std::to_string(width) + "'d" + std::to_string(constVal);
+        if (constVal >= 0) {
+          return std::to_string(width) + "'d" + std::to_string(constVal);
+        } else {
+          return "-" + parens(std::to_string(width) + "'d" + std::to_string(-constVal));
+        }
       } else {
         return name;
       }

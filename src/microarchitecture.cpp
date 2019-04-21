@@ -1241,8 +1241,10 @@ namespace ahaHLS {
       if (iStr[0] == '-') {
         return "-" + parens(to_string(tpWidth) + "'d" + iStr.substr(1));
       }
-      return parens(to_string(tpWidth) + "'d" + iStr);
-      
+
+      //return parens(to_string(tpWidth) + "'d" + iStr);
+
+      return constWire(tpWidth, dyn_cast<ConstantInt>(val)->getSExtValue()).valueString();
     } else {
       cout << "Getting name of value " << valueString(val) << " of type " << typeString(val->getType()) << endl;
       assert(ConstantFP::classof(val));
