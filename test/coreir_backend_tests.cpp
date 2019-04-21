@@ -61,7 +61,7 @@ namespace ahaHLS {
     cout << "Module is " << endl;
     storeMod->print();    
 
-    c->runPasses({"rungenerators", "flatten", "flattentypes"});    
+    c->runPasses({"rungenerators", "flatten", "flattentypes", "wireclocks-coreir"});    
 
     SimulatorState sim(storeMod);
     sim.setValue("self.rst", BitVec(1, 0));    

@@ -275,6 +275,8 @@ namespace ahaHLS {
     map<string, Instance*> functionalUnits =
       emitFunctionalUnits(arch, def);
 
+    // TODO: Need to wire up clocks?
+    
     for (auto pc : arch.portControllers) {
       cout << "Controller for " << pc.first << endl;
       for (auto in : pc.second.inputControllers) {
