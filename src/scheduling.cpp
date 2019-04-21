@@ -449,7 +449,6 @@ namespace ahaHLS {
     
     // By definition the completion of a branch is the completion of
     // the basic block that contains it.
-    //s.add(blockSink(bb) == dbhc::map_find(term, schedVars).back());
     addConstraint(blockEnd(bb) == instrEnd(term));
 
     blockNo++;
@@ -821,9 +820,9 @@ namespace ahaHLS {
         //   exe.addConstraint(instrEnd(iptr) <= instrStart(term));
         // }
 
-        if (iptr != term) {
-          exe.add(instrEnd(iptr) <= end(&bb));
-        }
+        // if (iptr != term) {
+        //   exe.add(instrEnd(iptr) <= end(&bb));
+        // }
 
       }
     }
