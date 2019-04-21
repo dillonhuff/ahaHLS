@@ -184,42 +184,45 @@ namespace ahaHLS {
 
     //Select* result = nullptr;
     Wireable* lastMux = nullptr;
-    cout << "Building controller" << endl;
+    // cout << "Building controller" << endl;
 
-    Context* c = def->getContext();
+    // Context* c = def->getContext();
     
-    for (auto v : vals.portVals) {
-      Instance* mux =
-        def->addInstance(arch.uniqueName("c_mux"),
-                         "coreir.mux",
-                         {{"width", Const::make(c, dataWidth)}});
+    // for (auto v : vals.portVals) {
+    //   Instance* mux =
+    //     def->addInstance(arch.uniqueName("c_mux"),
+    //                      "coreir.mux",
+    //                      {{"width", Const::make(c, dataWidth)}});
 
-      Select* wireCond =
-        findWireableFor(v.first, functionalUnits, def, arch);
+    //   Select* wireCond =
+    //     findWireableFor(v.first, functionalUnits, def, arch);
 
-      Select* dataValue =
-        findWireableFor(v.second, functionalUnits, def, arch);
+    //   Select* dataValue =
+    //     findWireableFor(v.second, functionalUnits, def, arch);
       
-      def->connect(mux->sel("sel"), wireCond);
-      def->connect(mux->sel("in1"), dataValue);
+    //   def->connect(mux->sel("sel"), wireCond);
+    //   def->connect(mux->sel("in1"), dataValue);
 
 
-      if (lastMux != nullptr) {
-        def->connect(lastMux->sel("out"), mux->sel("in0"));
+    //   if (lastMux != nullptr) {
+    //     def->connect(lastMux->sel("out"), mux->sel("in0"));
+    //   }
+    //   lastMux = mux;
+    // }
+
+    // assert(false);
+    if (lastMux == nullptr) {
+      //assert(result == nullptr);
+      if (vals.defaultValue != "") {
+        auto c = makeConstant(vals.defaultValue, dataWidth, def, arch);
+        return c;
+      } else {
+        auto c = makeConstant("0", dataWidth, def, arch);
+        return c;
       }
-      lastMux = mux;
     }
 
     assert(false);
-    // if (nextMux == nullptr) {
-    //   assert(result == nullptr);
-    //   if (vals.defaultValue != "") {
-    //     auto c = makeConstant(vals.defaultValue, dataWidth, def, arch);
-    //   } else {
-    //     auto c = makeConstant("0", dataWidth, def, arch);
-    //   }
-    // }
-    // return nextMux;
   }
 
   void addRegGenerator(Namespace* ahaLib) {

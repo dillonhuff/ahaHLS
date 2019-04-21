@@ -1107,7 +1107,7 @@ namespace ahaHLS {
     return !blockPrecedesInState(valueBlock, userBlock, state, arch);
   }
   
-  Wire outputWire(Value* val,
+  std::string outputWire(Value* val,
                   ControlFlowPosition& currentPosition,
                   MicroArchitecture& arch) {
 
@@ -1120,7 +1120,7 @@ namespace ahaHLS {
       // Pointers to allocations (RAMs) always have a base
       // address of zero
       if (AllocaInst::classof(val)) {
-        return constWire(32, 0); //"0";
+        return "0";
       }
 
       assert(!AllocaInst::classof(val));
@@ -1130,7 +1130,7 @@ namespace ahaHLS {
       auto instr0 = dyn_cast<Instruction>(val);
 
       if (instr0 == instr) {
-        return dataOutputWire(instr0, arch);
+        return dataOutput(instr0, arch);
       }
 
       StateId argState = map_find(instr0, arch.stg.sched.instrTimes).back();
@@ -1185,14 +1185,14 @@ namespace ahaHLS {
           }
 
           //return controller.functionalUnit().outputWire("out_data");
-          return controller.functionalUnit().output();
+          return controller.functionalUnit().outputWire("out_data");
 
         }
 
         OrderedBasicBlock obb(argBB);
 
         if (obb.dominates(instr0, instr)) {
-          return dataOutputWire(instr0, arch);
+          return dataOutput(instr0, arch);
         } else {
           return mostRecentStorageLocation(instr0, currentPosition, arch);
         }
@@ -1261,7 +1261,7 @@ namespace ahaHLS {
   std::string outputName(Value* val,
                          ControlFlowPosition& currentPosition,
                          MicroArchitecture& arch) {
-    return outputWire(val, currentPosition, arch).valueString();
+    return outputWire(val, currentPosition, arch);
   }
   
   Wire predecessor(BasicBlock* const bb, MicroArchitecture& arch) {
