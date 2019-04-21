@@ -134,7 +134,49 @@ namespace ahaHLS {
     cout << "Error: Could not find port for " << portName << endl;
     assert(false);
   }
+
+  Wireable* makeConstant(const std::string defaultValue,
+                         const int dataWidth,
+                         ModuleDef* def) {
+
+    cout << "default value is " << defaultValue << endl;
+    Context* c = def->getContext();
+    int value = stoi(defaultValue);
+
+    cout << "Building constant" << endl;
     
+    Instance* v = def->addInstance("myconst", "coreir.const", {{"width", Const::make(c, dataWidth)}}, {{"value", Const::make(c, BitVector(dataWidth, value))}});
+
+    cout << "Built constant" << endl;
+    return v->sel("out");
+  }
+  
+  Wireable* buildController(int dataWidth,
+                            PortValues& vals,
+                            map<string, Instance*>& functionalUnits,
+                            ModuleDef* def,
+                            MicroArchitecture& arch) {
+
+    // For every wire:
+    //   1. Create mux, wire condition wire to mux select
+    //   2. Wire value to mux 1
+    //   3. Set next mux to be this mux
+
+    Wireable* result = nullptr;
+    Wireable* nextMux = nullptr;
+    cout << "Building controller" << endl;
+    
+    if (nextMux == nullptr) {
+      assert(result == nullptr);
+      if (vals.defaultValue != "") {
+        return makeConstant(vals.defaultValue, dataWidth, def);
+      } else {
+        return makeConstant("0", dataWidth, def);
+      }
+    }
+    return result;
+  }
+  
   void emitCoreIR(const std::string& name,
                   MicroArchitecture& arch,
                   CoreIR::Context* const c,
@@ -196,6 +238,10 @@ namespace ahaHLS {
         PortValues vals = in.second;
         Wireable* w = findWireableFor(portName, functionalUnits, def, arch);
         cout << tab(1) << "Wireable for port " << portName << " is " << *w << endl;
+
+        int width = 10; // TODO: set by checking width
+        Wireable* inputWire = buildController(width, vals, functionalUnits, def, arch);
+        def->connect(w, inputWire);
       }
     }
 
