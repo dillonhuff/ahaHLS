@@ -1130,7 +1130,7 @@ namespace ahaHLS {
       auto instr0 = dyn_cast<Instruction>(val);
 
       if (instr0 == instr) {
-        return dataOutput(instr0, arch);
+        return dataOutputWire(instr0, arch).valueString();
       }
 
       StateId argState = map_find(instr0, arch.stg.sched.instrTimes).back();
@@ -1149,7 +1149,8 @@ namespace ahaHLS {
             addPortController(wireName, dataWidth, arch);
 
           Wire storedWire = wire(dataWidth, mostRecentStorageLocation(instr0, currentPosition, arch));
-          Wire liveWire = wire(dataWidth, dataOutput(instr0, arch));
+          //Wire liveWire = wire(dataWidth, dataOutput(instr0, arch));
+          Wire liveWire = dataOutputWire(instr0, arch);
 
           // TODO: Dont re-compute this every time
           auto topoLevels =
@@ -1192,7 +1193,8 @@ namespace ahaHLS {
         OrderedBasicBlock obb(argBB);
 
         if (obb.dominates(instr0, instr)) {
-          return dataOutput(instr0, arch);
+          //return dataOutput(instr0, arch);
+          return dataOutputWire(instr0, arch).valueString();
         } else {
           return mostRecentStorageLocation(instr0, currentPosition, arch);
         }
@@ -1221,6 +1223,7 @@ namespace ahaHLS {
           ModuleSpec mSpec = map_find(val, arch.hcs.modSpecs);
           cout << "Module spec for " << valueString(val) << " is " << mSpec << endl;
           assert(mSpec.name == "register");
+
           // Pointer arguments that are not included in the memory map
           // are assumed to be registers
           return string(val->getName()) + "_rdata";
