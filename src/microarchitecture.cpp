@@ -1107,9 +1107,9 @@ namespace ahaHLS {
     return !blockPrecedesInState(valueBlock, userBlock, state, arch);
   }
   
-  std::string outputName(Value* val,
-                         ControlFlowPosition& currentPosition,
-                         MicroArchitecture& arch) {
+  Wire outputWire(Value* val,
+                  ControlFlowPosition& currentPosition,
+                  MicroArchitecture& arch) {
 
     cout << "Getting name of " << valueString(val) << endl;
     Instruction* instr = currentPosition.instr;
@@ -1120,7 +1120,7 @@ namespace ahaHLS {
       // Pointers to allocations (RAMs) always have a base
       // address of zero
       if (AllocaInst::classof(val)) {
-        return "0";
+        return constWire(32, 0); //"0";
       }
 
       assert(!AllocaInst::classof(val));
@@ -1130,7 +1130,7 @@ namespace ahaHLS {
       auto instr0 = dyn_cast<Instruction>(val);
 
       if (instr0 == instr) {
-        return dataOutput(instr0, arch);
+        return dataOutputWire(instr0, arch);
       }
 
       StateId argState = map_find(instr0, arch.stg.sched.instrTimes).back();
@@ -1184,14 +1184,15 @@ namespace ahaHLS {
             }
           }
 
-          return controller.functionalUnit().outputWire("out_data");
+          //return controller.functionalUnit().outputWire("out_data");
+          return controller.functionalUnit().output();
 
         }
 
         OrderedBasicBlock obb(argBB);
 
         if (obb.dominates(instr0, instr)) {
-          return dataOutput(instr0, arch);
+          return dataOutputWire(instr0, arch);
         } else {
           return mostRecentStorageLocation(instr0, currentPosition, arch);
         }
@@ -1255,10 +1256,14 @@ namespace ahaHLS {
 
       return "32'b" + zeroExtend(floatBits, 32);
     }
-
-    
   }
 
+  std::string outputName(Value* val,
+                         ControlFlowPosition& currentPosition,
+                         MicroArchitecture& arch) {
+    return outputWire(val, currentPosition, arch).valueString();
+  }
+  
   Wire predecessor(BasicBlock* const bb, MicroArchitecture& arch) {
     int blkNo = arch.cs.getBasicBlockNo(bb);
     string activeName = "bb_" + to_string(blkNo) + "_predecessor";
@@ -2671,11 +2676,9 @@ namespace ahaHLS {
         arch.getController(p.valids.at(0));
       string atSt = atState(st, arch);
       
-      //cont.values[checkAnd(wire(1, atSt), wire(1, testCond), arch)] = "0";
+
       cont.values[checkAnd(wire(1, atSt), wire(1, testCond), arch)] = constWire(1, 0);
-      //cont.values[checkAnd(wire(1, atSt), wire(1, notStr(testCond)), arch)] = "1";
       cont.values[checkAnd(wire(1, atSt), wire(1, notStr(testCond)), arch)] = constWire(1, 1);      
-      //cont.values[checkAnd(wire(1, notStr(atSt)), wire(1, p.inPipe.name), arch)] = "0";
       cont.values[checkAnd(wire(1, notStr(atSt)), p.inPipeWire(), arch)] = constWire(1, 0);
     }
 
