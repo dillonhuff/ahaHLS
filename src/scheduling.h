@@ -1412,35 +1412,7 @@ namespace ahaHLS {
     }
   };
 
-  static inline
-  void addDataConstraints(llvm::Function* f, ExecutionConstraints& exe) {
-    for (auto& bb : f->getBasicBlockList()) {
-
-      Instruction* term = bb.getTerminator();
-      
-      for (auto& instr : bb) {
-        Instruction* iptr = &instr;
-        
-        for (auto& user : iptr->uses()) {
-          assert(Instruction::classof(user));
-          auto userInstr = dyn_cast<Instruction>(user.getUser());
-
-          if (!PHINode::classof(userInstr)) {
-            // Instructions must finish before their dependencies
-            exe.addConstraint(instrEnd(iptr) <= instrStart(userInstr));
-          }
-        }
-
-        // Instructions must finish before their basic block terminator,
-        // this is not true anymore in pipelining
-        if (iptr != term) {
-          exe.addConstraint(instrEnd(iptr) <= instrStart(term));
-        }
-      }
-    }
-
-  }
-
+  void addDataConstraints(llvm::Function* f, ExecutionConstraints& exe);
 
   class InterfaceFunctions {
   public:
