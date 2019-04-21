@@ -99,6 +99,23 @@ namespace ahaHLS {
     }
   }
 
+  Select* makeConstant(const std::string defaultValue,
+                       const int dataWidth,
+                       ModuleDef* def,
+                       MicroArchitecture& arch) {
+
+    cout << "default value is " << defaultValue << endl;
+    Context* c = def->getContext();
+    int value = stoi(defaultValue);
+
+    cout << "Building constant" << endl;
+    
+    Instance* v = def->addInstance(arch.uniqueName("const"), "coreir.const", {{"width", Const::make(c, dataWidth)}}, {{"value", Const::make(c, BitVector(dataWidth, value))}});
+
+    cout << "Built constant" << endl;
+    return v->sel("out");
+  }
+  
   Select* findWireableFor(const std::string portName,
                             map<string, Instance*>& functionalUnits,
                             ModuleDef* def,
@@ -142,47 +159,67 @@ namespace ahaHLS {
     assert(false);
   }
 
-  Select* makeConstant(const std::string defaultValue,
-                         const int dataWidth,
-                       ModuleDef* def,
-                       MicroArchitecture& arch) {
+  Select* findWireableFor(const Wire w,
+                          map<string, Instance*>& functionalUnits,
+                          ModuleDef* def,
+                          MicroArchitecture& arch) {
+    if (w.isConstant()) {
+      return makeConstant(to_string(w.constVal), w.width, def, arch);
+    }
 
-    cout << "default value is " << defaultValue << endl;
-    Context* c = def->getContext();
-    int value = stoi(defaultValue);
-
-    cout << "Building constant" << endl;
-    
-    Instance* v = def->addInstance(arch.uniqueName("const"), "coreir.const", {{"width", Const::make(c, dataWidth)}}, {{"value", Const::make(c, BitVector(dataWidth, value))}});
-
-    cout << "Built constant" << endl;
-    return v->sel("out");
+    cout << w.valueString() << " is not constant, name = " << w.name << endl;
+    return findWireableFor(w.valueString(), functionalUnits, def, arch);
   }
   
   Select* buildController(int dataWidth,
-                            PortValues& vals,
-                            map<string, Instance*>& functionalUnits,
-                            ModuleDef* def,
-                            MicroArchitecture& arch) {
+                          PortValues& vals,
+                          map<string, Instance*>& functionalUnits,
+                          ModuleDef* def,
+                          MicroArchitecture& arch) {
 
     // For every wire:
     //   1. Create mux, wire condition wire to mux select
     //   2. Wire value to mux 1
     //   3. Set next mux to be this mux
 
-    Select* result = nullptr;
-    Wireable* nextMux = nullptr;
+    //Select* result = nullptr;
+    Wireable* lastMux = nullptr;
     cout << "Building controller" << endl;
+
+    Context* c = def->getContext();
     
-    if (nextMux == nullptr) {
-      assert(result == nullptr);
-      if (vals.defaultValue != "") {
-        return makeConstant(vals.defaultValue, dataWidth, def, arch);
-      } else {
-        return makeConstant("0", dataWidth, def, arch);
+    for (auto v : vals.portVals) {
+      Instance* mux =
+        def->addInstance(arch.uniqueName("c_mux"),
+                         "coreir.mux",
+                         {{"width", Const::make(c, dataWidth)}});
+
+      Select* wireCond =
+        findWireableFor(v.first, functionalUnits, def, arch);
+
+      Select* dataValue =
+        findWireableFor(v.second, functionalUnits, def, arch);
+      
+      def->connect(mux->sel("sel"), wireCond);
+      def->connect(mux->sel("in1"), dataValue);
+
+
+      if (lastMux != nullptr) {
+        def->connect(lastMux->sel("out"), mux->sel("in0"));
       }
+      lastMux = mux;
     }
-    return result;
+
+    assert(false);
+    // if (nextMux == nullptr) {
+    //   assert(result == nullptr);
+    //   if (vals.defaultValue != "") {
+    //     auto c = makeConstant(vals.defaultValue, dataWidth, def, arch);
+    //   } else {
+    //     auto c = makeConstant("0", dataWidth, def, arch);
+    //   }
+    // }
+    // return nextMux;
   }
 
   void addRegGenerator(Namespace* ahaLib) {

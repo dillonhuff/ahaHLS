@@ -72,6 +72,8 @@ namespace ahaHLS {
     Wire(const bool registered_, const int width_, const std::string& name_) : 
       registered(registered_), width(width_), name(name_), isConst(false) {}
 
+    bool isConstant() const { return isConst; }
+    
     std::string valueString() const {
       if (isConst) {
         return std::to_string(width) + "'d" + std::to_string(constVal);
