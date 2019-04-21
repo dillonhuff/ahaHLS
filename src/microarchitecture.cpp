@@ -1731,8 +1731,8 @@ namespace ahaHLS {
         controller.values[andCond(conds, arch)] = constWire(32, destP.stateId);
           
       } else {
-        int ind = p.stageForState(state);
-        assert(ind == (p.numStages() - 1));
+        // int ind = p.stageForState(state);
+        // assert(ind == (p.numStages() - 1));
 
         // string pipeCond =
         //   checkAnd(wire(1, jumpCond), wire(1, pipelineClearOnNextCycleCondition(p, arch)), arch).valueString();
