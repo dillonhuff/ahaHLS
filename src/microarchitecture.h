@@ -618,6 +618,7 @@ namespace ahaHLS {
                         MicroArchitecture& arch);
 
   std::ostream& operator<<(std::ostream& out, const RegController& controller);
+  std::ostream& operator<<(std::ostream& out, const FunctionalUnit& unit);  
 
   void emitPipelineValidChainBlock(MicroArchitecture& arch);
 

@@ -91,7 +91,50 @@ namespace ahaHLS {
       arch.functionalUnits.push_back(functionalUnitForSpec(rc.first, regSpec));
     }
   }
-  
+
+  Wireable* findWireableFor(const std::string portName,
+                            map<string, Instance*>& functionalUnits,
+                            ModuleDef* def,
+                            MicroArchitecture& arch) {
+    cout << "Finding wireable for " << portName << endl;
+    for (auto unit : arch.functionalUnits) {
+      for (auto pt : unit.portWires) {
+        if ((pt.second.name == portName) ||
+            (pt.second.name + "_reg"  == portName)) {
+          cout << "Found port in unit " << unit << endl;
+          cout << "Port name is " << pt.first << endl;
+
+          if (unit.isExternal()) {
+            return def->sel("self")->sel(pt.second.name);
+          } else {
+            string instName = unit.instName;
+            Instance* inst = map_find(instName, functionalUnits);
+            cout << "Instance with port is " << *inst << endl;
+            return inst->sel(pt.first);
+          }
+        }
+      }
+
+      for (auto pt : unit.outWires) {
+        if ((pt.second.name == portName) ||
+            (pt.second.name + "_reg"  == portName)) {
+
+          if (unit.isExternal()) {
+            return def->sel("self")->sel(pt.second.name);
+          } else {
+            string instName = unit.instName;
+            Instance* inst = map_find(instName, functionalUnits);
+            cout << "Instance with port is " << *inst << endl;
+            return inst->sel(pt.first);
+          }
+        }
+      }
+    }
+
+    cout << "Error: Could not find port for " << portName << endl;
+    assert(false);
+  }
+    
   void emitCoreIR(const std::string& name,
                   MicroArchitecture& arch,
                   CoreIR::Context* const c,
@@ -116,9 +159,16 @@ namespace ahaHLS {
 
     map<string, Instance*> functionalUnits =
       emitFunctionalUnits(arch, def);
-    
-    map<string, FunctionalUnit> wireSourceControllers;
-    map<string, RegController> wireSourceRegisters;
+
+    for (auto pc : arch.portControllers) {
+      cout << "Controller for " << pc.first << endl;
+      for (auto in : pc.second.inputControllers) {
+        string portName = in.first;
+        PortValues vals = in.second;
+        Wireable* w = findWireableFor(portName, functionalUnits, def, arch);
+        cout << tab(1) << "Wireable for port " << portName << " is " << *w << endl;
+      }
+    }
 
     // Then what?
     // Iterate over controllers wiring up each controller
