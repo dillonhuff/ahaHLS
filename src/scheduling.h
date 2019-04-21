@@ -1423,7 +1423,7 @@ namespace ahaHLS {
         
         for (auto& user : iptr->uses()) {
           assert(Instruction::classof(user));
-          auto userInstr = dyn_cast<Instruction>(user.getUser());          
+          auto userInstr = dyn_cast<Instruction>(user.getUser());
 
           if (!PHINode::classof(userInstr)) {
             // Instructions must finish before their dependencies
