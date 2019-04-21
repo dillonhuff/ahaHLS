@@ -8,9 +8,9 @@ namespace ahaHLS {
 
   CoreIR::Type* portType(const Port p, CoreIR::Context* c) {
     if (p.input()) {
-      return c->Bit()->Arr(p.width);
-    } else {
       return c->BitIn()->Arr(p.width);
+    } else {
+      return c->Bit()->Arr(p.width);
     }
   }
 
@@ -85,14 +85,22 @@ namespace ahaHLS {
       RegController c = rc.second;
       Wire reg = c.reg;
       ModuleSpec regSpec;
+      regSpec.ports.insert({"en", inputPort(1, "en")});
+      regSpec.ports.insert({"in", inputPort(reg.width, "in")});
+      regSpec.ports.insert({"out", outputPort(reg.width, "out")});
       regSpec.params.insert({"HAS_EN", "1"});
       regSpec.params.insert({"WIDTH", to_string(reg.width)});
       regSpec.name = "coreir_reg";
-      arch.functionalUnits.push_back(functionalUnitForSpec(rc.first, regSpec));
+      auto unit = functionalUnitForSpec(rc.first, regSpec);
+      arch.functionalUnits.push_back(unit);
+
+      PortController& pc = arch.addPortController(unit);
+      pc.setAlways("en", constWire(1, 1));
+      pc.setAlways("in", constWire(reg.width, 0));
     }
   }
 
-  Wireable* findWireableFor(const std::string portName,
+  Select* findWireableFor(const std::string portName,
                             map<string, Instance*>& functionalUnits,
                             ModuleDef* def,
                             MicroArchitecture& arch) {
@@ -135,9 +143,10 @@ namespace ahaHLS {
     assert(false);
   }
 
-  Wireable* makeConstant(const std::string defaultValue,
+  Select* makeConstant(const std::string defaultValue,
                          const int dataWidth,
-                         ModuleDef* def) {
+                       ModuleDef* def,
+                       MicroArchitecture& arch) {
 
     cout << "default value is " << defaultValue << endl;
     Context* c = def->getContext();
@@ -145,13 +154,13 @@ namespace ahaHLS {
 
     cout << "Building constant" << endl;
     
-    Instance* v = def->addInstance("myconst", "coreir.const", {{"width", Const::make(c, dataWidth)}}, {{"value", Const::make(c, BitVector(dataWidth, value))}});
+    Instance* v = def->addInstance(arch.uniqueName("const"), "coreir.const", {{"width", Const::make(c, dataWidth)}}, {{"value", Const::make(c, BitVector(dataWidth, value))}});
 
     cout << "Built constant" << endl;
     return v->sel("out");
   }
   
-  Wireable* buildController(int dataWidth,
+  Select* buildController(int dataWidth,
                             PortValues& vals,
                             map<string, Instance*>& functionalUnits,
                             ModuleDef* def,
@@ -162,16 +171,16 @@ namespace ahaHLS {
     //   2. Wire value to mux 1
     //   3. Set next mux to be this mux
 
-    Wireable* result = nullptr;
+    Select* result = nullptr;
     Wireable* nextMux = nullptr;
     cout << "Building controller" << endl;
     
     if (nextMux == nullptr) {
       assert(result == nullptr);
       if (vals.defaultValue != "") {
-        return makeConstant(vals.defaultValue, dataWidth, def);
+        return makeConstant(vals.defaultValue, dataWidth, def, arch);
       } else {
-        return makeConstant("0", dataWidth, def);
+        return makeConstant("0", dataWidth, def, arch);
       }
     }
     return result;
@@ -236,11 +245,11 @@ namespace ahaHLS {
       for (auto in : pc.second.inputControllers) {
         string portName = in.first;
         PortValues vals = in.second;
-        Wireable* w = findWireableFor(portName, functionalUnits, def, arch);
+        Select* w = findWireableFor(portName, functionalUnits, def, arch);
         cout << tab(1) << "Wireable for port " << portName << " is " << *w << endl;
 
-        int width = 10; // TODO: set by checking width
-        Wireable* inputWire = buildController(width, vals, functionalUnits, def, arch);
+        int width = arrayLen(w); //10; // TODO: set by checking width
+        Select* inputWire = buildController(width, vals, functionalUnits, def, arch);
         def->connect(w, inputWire);
       }
     }
