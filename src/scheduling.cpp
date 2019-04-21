@@ -408,21 +408,19 @@ namespace ahaHLS {
     return count;
   }
 
-  void SchedulingProblem::addBasicBlock(llvm::BasicBlock* const bb) {
+  void SchedulingProblem::addBasicBlock(llvm::BasicBlock* const bb,
+                                        std::set<BasicBlock*>& toPipeline) {
     std::string snkPre = "basic_block_end_state_";
     std::string srcPre = "basic_block_start_state_";
 
     std::string start = srcPre + std::to_string(blockNo);
     std::string end = snkPre + std::to_string(blockNo);
 
-    //blockVars[bb] = {c.int_const(start.c_str()), c.int_const(end.c_str())};
     blockVarNames[bb] = {start, end};
 
     // Basic blocks cannot start before the beginning of time
     addConstraint(blockStart(bb) >= 0);
-    //s.add(blockSource(bb) >= 0);
     // Basic blocks must start before they finish asdf
-    //s.add(blockSource(bb) <= blockSink(bb));
     addConstraint(blockStart(bb) <= blockEnd(bb));
 
     int instrNo = 0;
@@ -431,12 +429,10 @@ namespace ahaHLS {
 
       int latency = getLatency(iptr, hdc);
 
-      //schedVars[iptr] = {};
       schedVarNames[iptr] = {};
 
       string instrPre = string(iptr->getOpcodeName()) + "_" + to_string(blockNumber()) + "_" + to_string(instrNo);
       for (int i = 0; i <= latency; i++) {
-        //map_insert(schedVars, iptr, c.int_const((instrPre + "_" + to_string(i)).c_str()));
         map_insert(schedVarNames, iptr, (instrPre + "_" + to_string(i)));
       }
 
@@ -448,8 +444,11 @@ namespace ahaHLS {
     assert(term != nullptr);
     
     // By definition the completion of a branch is the completion of
-    // the basic block that contains it.
-    addConstraint(blockEnd(bb) == instrEnd(term));
+    // the basic block that contains it, unless the block is pipelined,
+    // then the branch can complete before the end of the pipeline
+    if (!elem(bb, toPipeline)) {
+      addConstraint(blockEnd(bb) == instrEnd(term));
+    }
 
     blockNo++;
 
@@ -799,7 +798,7 @@ namespace ahaHLS {
   void addDataConstraints(llvm::Function* f, ExecutionConstraints& exe) {
     for (auto& bb : f->getBasicBlockList()) {
 
-      Instruction* term = bb.getTerminator();
+      //Instruction* term = bb.getTerminator();
       
       for (auto& instr : bb) {
         Instruction* iptr = &instr;
@@ -837,7 +836,7 @@ namespace ahaHLS {
     SchedulingProblem p(hdc);
 
     for (auto& bb : f->getBasicBlockList()) {
-      p.addBasicBlock(&bb);
+      p.addBasicBlock(&bb, toPipeline);
     }
 
     int i = 0;

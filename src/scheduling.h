@@ -993,7 +993,8 @@ namespace ahaHLS {
       return (int) dbhc::map_find(instr, schedVarNames).size();
     }
     
-    void addBasicBlock(llvm::BasicBlock* const bb);
+    void addBasicBlock(llvm::BasicBlock* const bb,
+                       std::set<llvm::BasicBlock*>& toPipeline);
 
     void addConstraint(const LinearConstraint& constraint) {
       constraints.push_back(constraint);
