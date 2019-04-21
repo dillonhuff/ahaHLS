@@ -1865,6 +1865,16 @@ namespace ahaHLS {
   void emitStateCode(const StateId state,
                      MicroArchitecture& arch) {
 
+    vector<pair<StateId, StateId> > newTransitions;
+    for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
+      BasicBlock* dest = transition.second;
+
+      StateId src = state;
+      StateId end = arch.stg.blockStartState(dest);
+      newTransitions.push_back({src, end});
+    }
+
+    vector<pair<StateId, StateId> > oldTransitions;
     for (auto instr : arch.stg.instructionsFinishingAt(state)) {
       if (BranchInst::classof(instr)) {
         BranchInst* br = dyn_cast<BranchInst>(instr);
@@ -1899,10 +1909,19 @@ namespace ahaHLS {
 
           condWire = checkAnd(blockActiveInState(state, br->getParent(), arch), condWire, arch);
           addStateTransition(state, dest, condWire, arch);
+
+          oldTransitions.push_back({state, dest});
+          if (!elem(pair<StateId, StateId>(state, dest), newTransitions)) {
+            cout << "Problem: transition from " << state << " to " << dest << " is in old transitions but not in new" << endl;
+          }
         }
 
         cout << "Done with branch" << endl;
       } //else
+    }
+
+    if (newTransitions.size() != oldTransitions.size()) {
+      cout << "Problem: New transitions size == " << newTransitions.size() << " but old transitions size == " << oldTransitions.size() << endl;
     }
 
     for (auto instr : arch.stg.instructionsFinishingAt(state)) {

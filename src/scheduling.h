@@ -1594,6 +1594,10 @@ namespace ahaHLS {
 
   std::set<llvm::BasicBlock*> inProgressBlocks(const StateId state,
                                                STG& stg);
+
+  std::set<std::pair<BasicBlock*, BasicBlock*> >
+  getOutOfStateTransitions(const StateId state,
+                           STG& stg);
   
 }
 
