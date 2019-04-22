@@ -2517,6 +2517,25 @@ namespace ahaHLS {
       
     }
   }
+
+  void buildReturnBlockTransitions(MicroArchitecture& arch) {
+    for (auto st : arch.stg.opStates) {
+      StateId state = st.first;
+      for (auto blk : terminatingBlocks(state, arch.stg)) {
+        if (ReturnInst::classof(blk->getTerminator())) {
+          Wire thisBlkActive = blockActiveInState(state, blk, arch);
+          // If the a return statement executes in a given block
+          // then if there is not default behavior set the next block
+          // to be the current block.
+
+          if (!arch.stg.sched.hasReturnDefault()) {
+            arch.getController("global_next_block").values[thisBlkActive] =
+              constWire(32, arch.cs.getBasicBlockNo(blk));
+          }
+        }
+      }
+    }
+  }
   
   // Now: Many errors in valid computation. Not sure why?
   // Hyp: In the return state the next basic block is not getting set
@@ -2643,49 +2662,25 @@ namespace ahaHLS {
       }
     }
 
-    for (auto st : arch.stg.opStates) {
-      StateId state = st.first;
-      for (auto blk : terminatingBlocks(state, arch.stg)) {
-        if (ReturnInst::classof(blk->getTerminator())) {
-          Wire thisBlkActive = blockActiveInState(state, blk, arch);
-          // If the a return statement executes in a given block
-          // then if there is not default behavior set the next block
-          // to be the current block.
+    buildReturnBlockTransitions(arch);
+    // for (auto st : arch.stg.opStates) {
+    //   StateId state = st.first;
+    //   for (auto blk : terminatingBlocks(state, arch.stg)) {
+    //     if (ReturnInst::classof(blk->getTerminator())) {
+    //       Wire thisBlkActive = blockActiveInState(state, blk, arch);
+    //       // If the a return statement executes in a given block
+    //       // then if there is not default behavior set the next block
+    //       // to be the current block.
 
-          if (!arch.stg.sched.hasReturnDefault()) {
-            arch.getController("global_next_block").values[thisBlkActive] =
-              constWire(32, arch.cs.getBasicBlockNo(blk));
-          }
-        }
-      }
-    }
-
-    buildPredecessorBlockWires(arch, edgeTakenWires);
-    
-    // // Add last basic block wires
-    // for (auto& bb : f->getBasicBlockList()) {
-    //   int thisBlkNo = arch.cs.getBasicBlockNo(&bb);
-    //   string w = "bb_" + to_string(thisBlkNo) + "_predecessor";
-    //   addPortController(w, 32, arch);
-
-    //   PortController& predController = arch.portController(w);
-
-    //   Wire nextBlkIsThisBlk =
-    //     checkEqual(thisBlkNo, wire(32, "global_next_block"), arch);
-    //   predController.setCond("in_data", nextBlkIsThisBlk, wire(32, "last_BB_reg"));
-
-    //   for (auto* pred : predecessors(&bb)) {
-    //     if (jumpToSameState(pred, &bb, arch)) {
-
-    //       int predNo = arch.cs.getBasicBlockNo(pred);
-
-    //       Wire edgeTaken = map_find({pred, &bb}, edgeTakenWires);
-    //       predController.setCond("in_data", checkAnd(checkNotWire(nextBlkIsThisBlk, arch), edgeTaken, arch), constWire(32, predNo));          
+    //       if (!arch.stg.sched.hasReturnDefault()) {
+    //         arch.getController("global_next_block").values[thisBlkActive] =
+    //           constWire(32, arch.cs.getBasicBlockNo(blk));
+    //       }
     //     }
     //   }
-      
     // }
-    
+
+    buildPredecessorBlockWires(arch, edgeTakenWires);
   }
 
   MicroArchitecture
