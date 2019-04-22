@@ -434,6 +434,8 @@ namespace ahaHLS {
 
     int uniqueNum;
 
+    std::map<std::pair<llvm::BasicBlock*, llvm::BasicBlock*>, Wire> edgeTakenWires;
+    
     Wire isActiveBlockVar(llvm::BasicBlock* const bb);
     
     std::string uniqueName(const std::string& prefix) {

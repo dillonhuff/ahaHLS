@@ -1750,18 +1750,6 @@ namespace ahaHLS {
 
         assert(getPipeline(dest, pipelines).stateId == p.stateId);
 
-        // // If this is a forward transition in the pipeline
-        // if (dest > state) {
-        //   auto& vController = arch.getController(p.stateIsActiveWire(dest));
-
-        //   cout << "Controller for pipeline state " << dest << " already has values" << endl;
-        //   for (auto v : vController.values) {
-        //     cout << tab(1) << v.first.valueString() << " -> " << v.second.valueString() << endl;
-        //   }
-        //   assert(vController.values.size() == 0);
-        //   vController.values[constWire(1, 1)] = p.stateIsActiveWire(state);
-        // }
-
       } else {
 
         // TODO: Generalize name to avoid overlap
@@ -2500,8 +2488,7 @@ namespace ahaHLS {
     }
   }
 
-  void buildPredecessorBlockWires(MicroArchitecture& arch,
-                                  map<pair<BasicBlock*, BasicBlock*>, Wire>& edgeTakenWires) {
+  void buildPredecessorBlockWires(MicroArchitecture& arch) {
 
     Function* f = arch.stg.getFunction();
     
@@ -2522,7 +2509,7 @@ namespace ahaHLS {
 
           int predNo = arch.cs.getBasicBlockNo(pred);
 
-          Wire edgeTaken = map_find({pred, &bb}, edgeTakenWires);
+          Wire edgeTaken = map_find({pred, &bb}, arch.edgeTakenWires);
           predController.setCond("in_data", checkAnd(checkNotWire(nextBlkIsThisBlk, arch), edgeTaken, arch), constWire(32, predNo));          
         }
       }
@@ -2563,7 +2550,7 @@ namespace ahaHLS {
     // wires in this loop as well. Assign them to the variables
     // I already have, and then wire them up to port controllers
     // in a subsequent loop?
-    map<pair<BasicBlock*, BasicBlock*>, Wire> edgeTakenWires;
+    
     for (auto& bb : f->getBasicBlockList()) {
       int blkNo = arch.cs.getBasicBlockNo(&bb);
       auto blkString = to_string(blkNo);
@@ -2591,7 +2578,7 @@ namespace ahaHLS {
           
         if (!(br->isConditional())) {
           BasicBlock* destBlock = br->getSuccessor(0);
-          edgeTakenWires.insert({{br->getParent(), destBlock}, atContainerPos});
+          arch.edgeTakenWires.insert({{br->getParent(), destBlock}, atContainerPos});
 
           addBlockJump(&bb, destBlock, wireValue(hName, arch), arch);
         } else {
@@ -2609,10 +2596,10 @@ namespace ahaHLS {
             checkAnd(atContainerPos, checkNotWire(condValue, arch), arch);
 
           BasicBlock* trueSucc = br->getSuccessor(0);
-          edgeTakenWires.insert({{br->getParent(), trueSucc}, trueTaken});
+          arch.edgeTakenWires.insert({{br->getParent(), trueSucc}, trueTaken});
 
           BasicBlock* falseSucc = br->getSuccessor(1);
-          edgeTakenWires.insert({{br->getParent(), falseSucc}, falseTaken});
+          arch.edgeTakenWires.insert({{br->getParent(), falseSucc}, falseTaken});
 
           addBlockJump(&bb, trueSucc, trueTaken, arch);
           addBlockJump(&bb, falseSucc, falseTaken, arch);                    
@@ -2633,7 +2620,7 @@ namespace ahaHLS {
 
       Wire nextBBIsThisBlock =
         checkEqual(blkNo, reg(32, "global_next_block"), arch);
-      for (auto val : edgeTakenWires) {
+      for (auto val : arch.edgeTakenWires) {
         BasicBlock* predecessor = val.first.first;
         BasicBlock* successor = val.first.second;
         Wire edgeTaken = val.second;
@@ -2675,7 +2662,7 @@ namespace ahaHLS {
     }
 
     buildReturnBlockTransitions(arch);
-    buildPredecessorBlockWires(arch, edgeTakenWires);
+    buildPredecessorBlockWires(arch);
   }
 
   MicroArchitecture
