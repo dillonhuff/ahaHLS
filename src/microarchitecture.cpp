@@ -14,21 +14,12 @@ using namespace std;
 
 namespace ahaHLS {
 
-  // std::string andCondStr(const std::vector<string>& stallConds) {
-  //   if (stallConds.size() == 0) {
-  //     return "1";
-  //   }
-
-  //   return andStrings(stallConds);
-  // }
-
   std::ostream& operator<<(std::ostream& out, const RegController& controller) {
     out << tab(1) << "always @(posedge clk) begin" << endl;
     out << tab(2) << "if (rst) begin" << endl;
     out << tab(3) << controller.reg.name << " <= " << controller.resetValue << ";" << endl;
     out << tab(2) << "end else begin" << endl;
     for (auto val : controller.values) {
-      //out << tab(3) << "if (" << val.first << ") begin" << endl;
       out << tab(3) << "if (" << val.first.valueString() << ") begin" << endl;
       out << tab(4) << controller.reg.name << " <= " << val.second.valueString() << ";" << endl;
       out << tab(3) << "end" << endl;      
@@ -1628,14 +1619,29 @@ namespace ahaHLS {
 
   }
 
-  //std::string
+  bool isTerminalState(const StateId state,
+                       const ElaboratedPipeline& p,
+                       MicroArchitecture& arch) {
+    return p.p.endState() == state;
+  }
+  
+  std::set<StateId> allStates(const ElaboratedPipeline& p) {
+    set<StateId> states(begin(p.p.getStates()), end(p.p.getStates()));
+    return states;
+  }
+
   Wire
   pipelineClearOnNextCycleCondition(const ElaboratedPipeline& p,
                                     MicroArchitecture& arch) {
     Wire s = constWire(1, 1);
-    for (int i = 0; i < (p.numStages() - 1); i++) {
-      s = checkAnd(s, checkNotWire(p.valids.at(i), arch), arch);
+    for (StateId state : allStates(p)) {
+      if (!isTerminalState(state, p, arch)) {
+        s = checkAnd(s, checkNotWire(p.stateIsActiveWire(state), arch), arch);
+      }
     }
+    // for (int i = 0; i < (p.numStages() - 1); i++) {
+    //   s = checkAnd(s, checkNotWire(p.valids.at(i), arch), arch);
+    // }
 
     return s;
   }
