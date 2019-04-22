@@ -94,8 +94,17 @@ namespace ahaHLS {
       arch.functionalUnits.push_back(unit);
 
       PortController& pc = arch.addPortController(unit);
-      pc.setAlways("en", constWire(1, 1));
-      pc.setAlways("in", constWire(reg.width, 0));
+      for (auto vl : c.values) {
+        pc.setCond("in", vl.first, vl.second);
+        pc.setCond("en", vl.first, constWire(1, 1));
+      }
+
+      pc.inputControllers["en"].defaultValue = "0";
+
+      // TODO: Set reset value
+      //pc.setAlways("en", constWire(1, 1));
+      //pc.setAlways("in", constWire(reg.width, 0));
+      
     }
   }
 
@@ -122,9 +131,12 @@ namespace ahaHLS {
                             MicroArchitecture& arch) {
     cout << "Finding wireable for " << portName << endl;
     for (auto unit : arch.functionalUnits) {
+      cout << "Searching unit " << unit.instName << endl;
       for (auto pt : unit.portWires) {
+        cout << "pt = " << pt.second.name << endl;
         if ((pt.second.name == portName) ||
-            (pt.second.name + "_reg"  == portName)) {
+            (pt.second.name + "_reg"  == portName) ||
+            (pt.second.name == portName + "_in_data")) {
           cout << "Found port in unit " << unit << endl;
           cout << "Port name is " << pt.first << endl;
 
@@ -140,8 +152,11 @@ namespace ahaHLS {
       }
 
       for (auto pt : unit.outWires) {
+        cout << "pt = " << pt.second.name << endl;        
+
         if ((pt.second.name == portName) ||
-            (pt.second.name + "_reg"  == portName)) {
+            (pt.second.name + "_reg"  == portName) ||
+            (pt.second.name == portName + "_out")) {
 
           if (unit.isExternal()) {
             return def->sel("self")->sel(pt.second.name);
