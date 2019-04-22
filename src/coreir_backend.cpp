@@ -389,14 +389,14 @@ namespace ahaHLS {
     for (auto pc : arch.portControllers) {
       cout << "Controller for " << pc.first << endl;
       for (auto in : pc.second.inputControllers) {
-        string portName = in.first;
-        PortValues vals = in.second;
-        Select* w = findWireableFor(portName, functionalUnits, def, arch);
-        cout << tab(1) << "Wireable for port " << portName << " is " << *w << endl;
+        // string portName = in.first;
+        // PortValues vals = in.second;
+        // Select* w = findWireableFor(portName, functionalUnits, def, arch);
+        // cout << tab(1) << "Wireable for port " << portName << " is " << *w << endl;
 
-        int width = arrayLen(w); //10; // TODO: set by checking width
-        Select* inputWire = buildController(width, vals, functionalUnits, def, arch);
-        def->connect(w, inputWire);
+        // int width = arrayLen(w); //10; // TODO: set by checking width
+        // Select* inputWire = buildController(width, vals, functionalUnits, def, arch);
+        // def->connect(w, inputWire);
       }
     }
 
