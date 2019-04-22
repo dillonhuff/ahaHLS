@@ -2540,7 +2540,8 @@ namespace ahaHLS {
     stallAWReadyBuilder.CreateCondBr(addrAndDataReady, stallBValidBlk, stallAWReadyBlk);    
 
     IRBuilder<> stallBValidBuilder(stallBValidBlk);
-    auto bValid = mkInt(1, 1);
+    //auto bValid = mkInt(1, 1);
+    auto bValid = readPort(stallBValidBuilder, readMod, 1, "s_axil_bvalid");
     stallBValidBuilder.CreateCondBr(bValid, exitBlk, stallBValidBlk);
     
     IRBuilder<> exitBuilder(exitBlk);
@@ -2637,10 +2638,10 @@ namespace ahaHLS {
     entryBuilder.CreateBr(stallRaddrBlk);
     
     IRBuilder<> stallRaddrBuilder(stallRaddrBlk);
-    auto raddrReady = readPort(stallRaddrBuilder, readMod, 1, "s_axil_arready");
+    auto raddrReady = mkInt(1, 1); //readPort(stallRaddrBuilder, readMod, 1, "s_axil_arready");
     writePort(stallRaddrBuilder, readMod, addrWidth, "s_axil_araddr", addrValShifted);
     writePort(stallRaddrBuilder, readMod, 1, "s_axil_arvalid", mkInt(1, 1));
-    writePort(stallRaddrBuilder, readMod, 1, "s_axil_rready", mkInt(1, 1));    
+    //writePort(stallRaddrBuilder, readMod, 1, "s_axil_rready", mkInt(1, 1));    
     stallRaddrBuilder.CreateCondBr(raddrReady, stallRrespBlk, stallRaddrBlk);
 
     IRBuilder<> stallRrespBuilder(stallRrespBlk);
