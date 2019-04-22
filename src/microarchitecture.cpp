@@ -1725,7 +1725,8 @@ namespace ahaHLS {
   
   void addStateTransition(const StateId state,
                           const StateId dest,
-                          Wire jumpCondWire,
+                          //Wire jumpCondWire,
+                          Wire jumpCond,
                           MicroArchitecture& arch) {
 
     //cout << "Adding transition from " << state << " to " << dest << " via " << valueString(pos.instr) << endl;
@@ -1735,24 +1736,19 @@ namespace ahaHLS {
     auto& controller = arch.getController(reg(32, "global_state"));
     auto& pipelines = arch.pipelines;
 
-    Wire jumpCond = jumpCondWire;
+    //Wire jumpCond = jumpCondWire;
 
     if (isPipelineState(state, pipelines)) {
 
       auto p = getPipeline(state, pipelines);
 
-      vector<Wire> conds{atStateCond};
-
       if (isPipelineState(dest, pipelines)) {
 
-        assert(getPipeline(dest, pipelines).stateId == getPipeline(state, pipelines).stateId);
-        // // Nothing happens to global state if we are in the same pipeline
-        // auto destP = getPipeline(dest, pipelines);
+        assert(getPipeline(dest, pipelines).stateId == p.stateId);
 
-        // conds.push_back(jumpCond);
-        // controller.values[andCond(conds, arch)] = constWire(32, destP.stateId);
-          
       } else {
+
+        vector<Wire> conds{atStateCond};
         Wire pipeCond =
           checkAnd(jumpCond, pipelineClearOnNextCycleCondition(p, arch), arch);
         
@@ -1766,15 +1762,8 @@ namespace ahaHLS {
 
         auto p = getPipeline(dest, pipelines);
 
-        // if (!contains_key(p.valids.at(0).name, arch.regControllers)) {
-        //   arch.addController(p.valids.at(0).name, p.valids.at(0).width);
-        //   RegController& validController =            
-        //     arch.regControllers[p.valids.at(0).name];
-        //   validController.resetValue = "0";
-        // }
         RegController& validController =
           arch.getController(p.valids.at(0));
-
         validController.values[andCond(conds, arch)] = constWire(1, 1);
           
         conds.push_back(jumpCond);
