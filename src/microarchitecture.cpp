@@ -934,10 +934,14 @@ namespace ahaHLS {
     return false;
   }
 
-  std::string mostRecentStorageLocation(Instruction* result,
+  // std::string mostRecentStorageLocation(Instruction* result,
+  //                                       ControlFlowPosition& currentPosition,
+  //                                       MicroArchitecture& arch) {
+
+  Wire mostRecentStorageLocation(Instruction* result,
                                         ControlFlowPosition& currentPosition,
                                         MicroArchitecture& arch) {
-
+    
 
     //cout << "Getting most recent location of " << valueString(result) << " for instruction " << valueString(currentPosition.instr) << endl;
 
@@ -950,7 +954,7 @@ namespace ahaHLS {
 
       if (!producedInPipeline(result, p, arch)) {
         Wire tmpRes = map_find(result, arch.names);
-        return tmpRes.name;
+        return tmpRes;
       }
 
       StateId argState = map_find(result, arch.stg.sched.instrTimes).back();
@@ -967,7 +971,7 @@ namespace ahaHLS {
 
         if (obb.dominates(result, currentPosition.instr)) {
           Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
-          return tmpRes.name;
+          return tmpRes;
         } else {
           //cout << "Getting data from previous stage" << endl;
           int stagePlusII = stage + p.II();
@@ -977,16 +981,16 @@ namespace ahaHLS {
             Wire tmpRes = map_find(result, arch.names);
 
             cout << "Wire name = " << tmpRes.name << endl;
-            return tmpRes.name;
+            return tmpRes;
           } else {
             Wire tmpRes = map_find(result, p.pipelineRegisters[stage + p.II()]);
-            return tmpRes.name;
+            return tmpRes;
           }
         }
 
       } else {
         Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
-        return tmpRes.name;
+        return tmpRes;
       }
     }
 
@@ -998,7 +1002,7 @@ namespace ahaHLS {
 
     //cout << "Name is " << tmpRes.name << endl;
     
-    return tmpRes.name;
+    return tmpRes;
   }
 
   Wire dataOutputWire(llvm::Instruction* instr0, const MicroArchitecture& arch) {
@@ -1107,10 +1111,14 @@ namespace ahaHLS {
     return !blockPrecedesInState(valueBlock, userBlock, state, arch);
   }
   
-  std::string outputWire(Value* val,
+  // std::string outputWire(Value* val,
+  //                        ControlFlowPosition& currentPosition,
+  //                        MicroArchitecture& arch) {
+
+  Wire outputWire(Value* val,
                   ControlFlowPosition& currentPosition,
                   MicroArchitecture& arch) {
-
+    
     cout << "Getting name of " << valueString(val) << endl;
     Instruction* instr = currentPosition.instr;
     cout << "In instruction " << valueString(instr) << endl;
@@ -1120,7 +1128,8 @@ namespace ahaHLS {
       // Pointers to allocations (RAMs) always have a base
       // address of zero
       if (AllocaInst::classof(val)) {
-        return "0";
+        //return "0";
+        return constWire(32, 0);
       }
 
       assert(!AllocaInst::classof(val));
@@ -1130,7 +1139,7 @@ namespace ahaHLS {
       auto instr0 = dyn_cast<Instruction>(val);
 
       if (instr0 == instr) {
-        return dataOutputWire(instr0, arch).valueString();
+        return dataOutputWire(instr0, arch);
       }
 
       StateId argState = map_find(instr0, arch.stg.sched.instrTimes).back();
@@ -1148,7 +1157,8 @@ namespace ahaHLS {
           PortController& controller =
             addPortController(wireName, dataWidth, arch);
 
-          Wire storedWire = wire(dataWidth, mostRecentStorageLocation(instr0, currentPosition, arch));
+          //Wire storedWire = wire(dataWidth, mostRecentStorageLocation(instr0, currentPosition, arch));
+          Wire storedWire = mostRecentStorageLocation(instr0, currentPosition, arch);
           //Wire liveWire = wire(dataWidth, dataOutput(instr0, arch));
           Wire liveWire = dataOutputWire(instr0, arch);
 
@@ -1186,7 +1196,8 @@ namespace ahaHLS {
           }
 
           //return controller.functionalUnit().outputWire("out_data");
-          return controller.functionalUnit().outputWire("out_data");
+          //return controller.functionalUnit().outputWire("out_data");
+          return controller.functionalUnit().outputWire();
 
         }
 
@@ -1194,7 +1205,7 @@ namespace ahaHLS {
 
         if (obb.dominates(instr0, instr)) {
           //return dataOutput(instr0, arch);
-          return dataOutputWire(instr0, arch).valueString();
+          return dataOutputWire(instr0, arch);
         } else {
           return mostRecentStorageLocation(instr0, currentPosition, arch);
         }
@@ -1210,7 +1221,7 @@ namespace ahaHLS {
 
           Type* under = dyn_cast<PointerType>(val->getType())->getElementType();
           return wire(getTypeBitWidth(under),
-                      to_string(map_find(val, arch.memoryMap))).valueString();
+                      to_string(map_find(val, arch.memoryMap)));
         } else {
           assert(val->getName() != "");
 
@@ -1229,11 +1240,11 @@ namespace ahaHLS {
           // Pointer arguments that are not included in the memory map
           // are assumed to be registers
           Type* under = dyn_cast<PointerType>(val->getType())->getElementType();
-          return wire(getTypeBitWidth(under), string(val->getName()) + "_rdata").valueString();
+          return wire(getTypeBitWidth(under), string(val->getName()) + "_rdata");
         }
       } else {
         cout << "Value argument of type " << typeString(val->getType()) << endl;
-        return wire(getValueBitWidth(val), valueArgName(dyn_cast<Argument>(val))).valueString();
+        return wire(getValueBitWidth(val), valueArgName(dyn_cast<Argument>(val)));
       }
     } else if (ConstantInt::classof(val)) {
       
@@ -1250,7 +1261,7 @@ namespace ahaHLS {
 
       //return parens(to_string(tpWidth) + "'d" + iStr);
 
-      return constWire(tpWidth, dyn_cast<ConstantInt>(val)->getSExtValue()).valueString();
+      return constWire(tpWidth, dyn_cast<ConstantInt>(val)->getSExtValue());
     } else {
       cout << "Getting name of value " << valueString(val) << " of type " << typeString(val->getType()) << endl;
       assert(ConstantFP::classof(val));
@@ -1263,14 +1274,14 @@ namespace ahaHLS {
       cout << "Bitcast     = " << floatBits << endl;
 
       //return "32'b" + zeroExtend(floatBits, 32);
-      return constWire(32, fpVal->getValueAPF().bitcastToAPInt().getLimitedValue()).valueString();
+      return constWire(32, fpVal->getValueAPF().bitcastToAPInt().getLimitedValue());
     }
   }
 
   std::string outputName(Value* val,
                          ControlFlowPosition& currentPosition,
                          MicroArchitecture& arch) {
-    return outputWire(val, currentPosition, arch);
+    return outputWire(val, currentPosition, arch).valueString();
   }
   
   Wire predecessor(BasicBlock* const bb, MicroArchitecture& arch) {
