@@ -14,6 +14,18 @@ using namespace std;
 
 namespace ahaHLS {
 
+  Wire atStateWire(const StateId state, MicroArchitecture& arch) {
+    if (arch.isPipelineState(state)) {
+      auto p = arch.getPipeline(state);
+      int stage = p.stageForState(state);
+      Wire active = checkAnd(p.inPipeWire(), p.valids.at(stage), arch);
+      return active;
+    } else {
+      Wire active = checkEqual(state, arch.cs.getGlobalState(), arch);
+      return active;
+    }
+  }
+
   std::ostream& operator<<(std::ostream& out, const RegController& controller) {
     out << tab(1) << "always @(posedge clk) begin" << endl;
     out << tab(2) << "if (rst) begin" << endl;

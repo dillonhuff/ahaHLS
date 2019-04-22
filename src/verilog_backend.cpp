@@ -890,17 +890,6 @@ namespace ahaHLS {
     }
   }
 
-  Wire atStateWire(const StateId state, MicroArchitecture& arch) {
-    Wire active = checkEqual(state, arch.cs.getGlobalState(), arch);
-    
-    if (arch.isPipelineState(state)) {
-      auto p = arch.getPipeline(state);
-      int stage = p.stageForState(state);
-      active = checkAnd(p.inPipeWire(), p.valids.at(stage), arch);
-    }
-    return active;
-  }
-
   std::string atState(const StateId state, MicroArchitecture& arch) {
     return atStateWire(state, arch).name;
   }
