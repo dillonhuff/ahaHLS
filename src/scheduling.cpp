@@ -449,7 +449,7 @@ namespace ahaHLS {
     if (!elem(bb, toPipeline)) {
       addConstraint(blockEnd(bb) == instrEnd(term));
     } else {
-      //addConstraint(blockEnd(bb) == instrEnd(term));
+      addConstraint(blockEnd(bb) == instrEnd(term));
     }
 
     blockNo++;

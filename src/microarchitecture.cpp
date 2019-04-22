@@ -1750,17 +1750,17 @@ namespace ahaHLS {
         outOfPipeJumpHappened.resetValue = "0";
         outOfPipeJumpHappened.values[jumpCond] = constWire(1, 1);
 
-        // vector<Wire> conds{}; //atStateCond};
-        // Wire pipeCond =
-        //   checkAnd(jumpCond, pipelineClearOnNextCycleCondition(p, arch), arch);
-        // conds.push_back(pipeCond);
-        //controller.values[andCond(conds, arch)] = constWire(32, dest);
+        vector<Wire> conds{}; //atStateCond};
+        Wire pipeCond =
+          checkAnd(jumpCond, pipelineClearOnNextCycleCondition(p, arch), arch);
+        conds.push_back(pipeCond);
+        controller.values[andCond(conds, arch)] = constWire(32, dest);
 
         Wire exitNextCycle =
           checkAnd(p.inPipeWire(), pipelineClearOnNextCycleCondition(p, arch), arch);
 
-        controller.values[checkAnd(exitNextCycle, outOfPipeJumpHappened.reg, arch)] =
-          constWire(32, dest);
+        // controller.values[checkAnd(exitNextCycle, outOfPipeJumpHappened.reg, arch)] =
+        //   constWire(32, dest);
       }
 
     } else {
