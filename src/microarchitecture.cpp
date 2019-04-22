@@ -1891,82 +1891,109 @@ namespace ahaHLS {
 
     vector<pair<StateId, StateId> > newTransitions;
     for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
+      BasicBlock* srcBlk = transition.first;
       BasicBlock* dest = transition.second;
 
+      BranchInst* br = dyn_cast<BranchInst>(srcBlk->getTerminator());
+      
       StateId src = state;
       StateId end = arch.stg.blockStartState(dest);
+
+      ControlFlowPosition pos =
+        position(state, br, arch);
+      
+      Wire condWire;
+      if (br->isConditional()) {
+        assert(br->getNumSuccessors() == 2);
+
+        Value* jmpTest = br->getOperand(0);
+        Wire jmpTestName = outputWire(jmpTest, pos, arch);
+        if (br->getSuccessor(0) == dest) {
+          condWire = jmpTestName;
+        } else {
+          assert(br->getSuccessor(1) == dest);
+          
+          condWire = checkNotWire(jmpTestName, arch);
+        }
+      } else {
+        condWire = constWire(1, 1);
+      }
+
+      condWire = checkAnd(blockActiveInState(state, br->getParent(), arch), condWire, arch);
+      addStateTransition(state, end, condWire, arch);
+      
       newTransitions.push_back({src, end});
     }
 
-    vector<pair<StateId, StateId> > oldTransitions;
-    for (auto instr : arch.stg.instructionsFinishingAt(state)) {
-      if (BranchInst::classof(instr)) {
-        BranchInst* br = dyn_cast<BranchInst>(instr);
+    // vector<pair<StateId, StateId> > oldTransitions;
+    // for (auto instr : arch.stg.instructionsFinishingAt(state)) {
+    //   if (BranchInst::classof(instr)) {
+    //     BranchInst* br = dyn_cast<BranchInst>(instr);
         
-        ControlFlowPosition pos =
-          position(state, br, arch);
+    //     ControlFlowPosition pos =
+    //       position(state, br, arch);
 
-        cout << "Adding transitions for branch " << valueString(br) << endl;
-        for (int i = 0; i < (int) br->getNumSuccessors(); i++) {
-          BasicBlock* bb = br->getSuccessor(i);
-          StateId dest = arch.stg.blockStartState(bb);
+    //     cout << "Adding transitions for branch " << valueString(br) << endl;
+    //     for (int i = 0; i < (int) br->getNumSuccessors(); i++) {
+    //       BasicBlock* bb = br->getSuccessor(i);
+    //       StateId dest = arch.stg.blockStartState(bb);
 
-          if (jumpToSameState(br->getParent(), bb, arch)) {
-            cout << "Jump to dest state " << dest << " is a same state jump" << endl;
-            continue;
-          }
+    //       if (jumpToSameState(br->getParent(), bb, arch)) {
+    //         cout << "Jump to dest state " << dest << " is a same state jump" << endl;
+    //         continue;
+    //       }
 
-          Wire condWire;
-          if (br->isConditional()) {
-            assert((i == 0) || (i == 1));
+    //       Wire condWire;
+    //       if (br->isConditional()) {
+    //         assert((i == 0) || (i == 1));
 
-            Value* jmpTest = br->getOperand(0);
-            //string jmpTestName = outputName(jmpTest, pos, arch);
-            Wire jmpTestName = outputWire(jmpTest, pos, arch);
-            if (i == 0) {
-              //condWire = wire(1, jmpTestName);
-              condWire = jmpTestName;
-            } else {
-              //condWire = checkNotWire(wire(1, jmpTestName), arch);
-              condWire = checkNotWire(jmpTestName, arch);
-            }
-          } else {
-            condWire = constWire(1, 1);
-          }
+    //         Value* jmpTest = br->getOperand(0);
+    //         //string jmpTestName = outputName(jmpTest, pos, arch);
+    //         Wire jmpTestName = outputWire(jmpTest, pos, arch);
+    //         if (i == 0) {
+    //           //condWire = wire(1, jmpTestName);
+    //           condWire = jmpTestName;
+    //         } else {
+    //           //condWire = checkNotWire(wire(1, jmpTestName), arch);
+    //           condWire = checkNotWire(jmpTestName, arch);
+    //         }
+    //       } else {
+    //         condWire = constWire(1, 1);
+    //       }
 
-          condWire = checkAnd(blockActiveInState(state, br->getParent(), arch), condWire, arch);
-          addStateTransition(state, dest, condWire, arch);
+    //       condWire = checkAnd(blockActiveInState(state, br->getParent(), arch), condWire, arch);
+    //       addStateTransition(state, dest, condWire, arch);
 
-          oldTransitions.push_back({state, dest});
-          if (!elem(pair<StateId, StateId>(state, dest), newTransitions)) {
-            cout << "Problem: transition from " << state << " to " << dest << " is in old transitions but not in new" << endl;
-          }
+    //       oldTransitions.push_back({state, dest});
+    //       if (!elem(pair<StateId, StateId>(state, dest), newTransitions)) {
+    //         cout << "Problem: transition from " << state << " to " << dest << " is in old transitions but not in new" << endl;
+    //       }
 
-        }
+    //     }
 
-        cout << "Done with branch" << endl;
-      } //else
-    }
+    //     cout << "Done with branch" << endl;
+    //   } //else
+    // }
 
-    for (auto tr : oldTransitions) {
-      if (!elem(tr, newTransitions)) {
-        cout << "Problem: transition from " << tr.first << " to " << tr.second << " is in old transitions but not in new" << endl;
-      }
-    }
+    // for (auto tr : oldTransitions) {
+    //   if (!elem(tr, newTransitions)) {
+    //     cout << "Problem: transition from " << tr.first << " to " << tr.second << " is in old transitions but not in new" << endl;
+    //   }
+    // }
 
-    if (newTransitions.size() != oldTransitions.size()) {
-      cout << "Problem: New transitions size == " << newTransitions.size() << " but old transitions size == " << oldTransitions.size() << endl;
-      cout << "New transitions " << endl;
-      for (auto t : newTransitions) {
-        cout << tab(1) << t.first << " -> " << t.second << endl;
-      }
+    // if (newTransitions.size() != oldTransitions.size()) {
+    //   cout << "Problem: New transitions size == " << newTransitions.size() << " but old transitions size == " << oldTransitions.size() << endl;
+    //   cout << "New transitions " << endl;
+    //   for (auto t : newTransitions) {
+    //     cout << tab(1) << t.first << " -> " << t.second << endl;
+    //   }
 
-      cout << "Old transitions " << endl;
-      for (auto t : oldTransitions) {
-        cout << tab(1) << t.first << " -> " << t.second << endl;
-      }
+    //   cout << "Old transitions " << endl;
+    //   for (auto t : oldTransitions) {
+    //     cout << tab(1) << t.first << " -> " << t.second << endl;
+    //   }
 
-    }
+    // }
 
     for (auto instr : arch.stg.instructionsFinishingAt(state)) {
       if (ReturnInst::classof(instr)) {
