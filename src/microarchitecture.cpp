@@ -1230,7 +1230,7 @@ namespace ahaHLS {
         }
       } else {
         cout << "Value argument of type " << typeString(val->getType()) << endl;
-        return valueArgName(dyn_cast<Argument>(val));
+        return wire(getValueBitWidth(val), valueArgName(dyn_cast<Argument>(val))).valueString();
       }
     } else if (ConstantInt::classof(val)) {
       
@@ -1241,9 +1241,9 @@ namespace ahaHLS {
       // TODO: Clean up number printouts
       int tpWidth = getValueBitWidth(val);
       string iStr = to_string(dyn_cast<ConstantInt>(val)->getSExtValue());
-      if (iStr[0] == '-') {
-        return "-" + parens(to_string(tpWidth) + "'d" + iStr.substr(1));
-      }
+      // if (iStr[0] == '-') {
+      //   return "-" + parens(to_string(tpWidth) + "'d" + iStr.substr(1));
+      // }
 
       //return parens(to_string(tpWidth) + "'d" + iStr);
 
