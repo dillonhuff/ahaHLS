@@ -1750,17 +1750,17 @@ namespace ahaHLS {
         outOfPipeJumpHappened.resetValue = "0";
         outOfPipeJumpHappened.values[jumpCond] = constWire(1, 1);
 
-        vector<Wire> conds{}; //atStateCond};
-        Wire pipeCond =
-          checkAnd(jumpCond, pipelineClearOnNextCycleCondition(p, arch), arch);
-        conds.push_back(pipeCond);
-        controller.values[andCond(conds, arch)] = constWire(32, dest);
+        // vector<Wire> conds{}; //atStateCond};
+        // Wire pipeCond =
+        //   checkAnd(jumpCond, pipelineClearOnNextCycleCondition(p, arch), arch);
+        // conds.push_back(pipeCond);
+        // controller.values[andCond(conds, arch)] = constWire(32, dest);
 
         Wire exitNextCycle =
           checkAnd(p.inPipeWire(), pipelineClearOnNextCycleCondition(p, arch), arch);
 
-        // controller.values[checkAnd(exitNextCycle, outOfPipeJumpHappened.reg, arch)] =
-        //   constWire(32, dest);
+        controller.values[checkAnd(exitNextCycle, outOfPipeJumpHappened.reg, arch)] =
+          constWire(32, dest);
       }
 
     } else {
@@ -2455,9 +2455,34 @@ namespace ahaHLS {
                     BasicBlock* destBlock,
                     const Wire jumpHappened,
                     MicroArchitecture& arch) {
+    StateId brStart = arch.stg.instructionEndState(src->getTerminator());
+    StateId brEnd = arch.stg.blockStartState(destBlock);
+
     if (!jumpToSameState(src, destBlock, arch)) {
-      arch.getController("global_next_block").values[jumpHappened] =
-        constWire(32, arch.cs.getBasicBlockNo(destBlock));
+    
+      if (isPipelineState(brStart, arch.pipelines) &&
+          !isPipelineState(brEnd, arch.pipelines)) {
+        cout << "Adding block transition for out of pipeline jump from " << brStart << " to " << brEnd << endl;
+        auto p = getPipeline(brStart, arch.pipelines);
+
+        // TODO: Uniquify this name
+        RegController& outOfPipeJumpHappened =
+          arch.getController(wire(1, "out_of_pipe_bb_" + to_string(brStart) + "_" + to_string(brEnd)));
+        outOfPipeJumpHappened.resetValue = "0";
+        outOfPipeJumpHappened.values[jumpHappened] = constWire(1, 1);
+
+        Wire exitNextCycle =
+          checkAnd(p.inPipeWire(), pipelineClearOnNextCycleCondition(p, arch), arch);
+
+        //auto& controller = arch.getController("global_next_block");
+        arch.getController("global_next_block").values[checkAnd(exitNextCycle, outOfPipeJumpHappened.reg, arch)] =
+          constWire(32, arch.cs.getBasicBlockNo(destBlock));
+      } else {
+        cout << "Adding block transition from " << brStart << " to " << brEnd << endl;
+        // Jump that is not between pipelines
+        arch.getController("global_next_block").values[jumpHappened] =
+          constWire(32, arch.cs.getBasicBlockNo(destBlock));
+      }
     }
   }
   
@@ -2506,10 +2531,6 @@ namespace ahaHLS {
           edgeTakenWires.insert({{br->getParent(), destBlock}, atContainerPos});
 
           addBlockJump(&bb, destBlock, wireValue(hName, arch), arch);
-          // if (!jumpToSameState(&bb, destBlock, arch)) {
-          //   arch.getController("global_next_block").values[wireValue(hName, arch)] =
-          //     constWire(32, arch.cs.getBasicBlockNo(destBlock));
-          // }
         } else {
 
           Value* condition = br->getOperand(0);
@@ -2532,18 +2553,6 @@ namespace ahaHLS {
 
           addBlockJump(&bb, trueSucc, trueTaken, arch);
           addBlockJump(&bb, falseSucc, falseTaken, arch);                    
-          // if (!jumpToSameState(&bb, trueSucc, arch)) {
-          //   int trueBlkNo = arch.cs.getBasicBlockNo(trueSucc);
-          //   arch.getController("global_next_block").values[trueTaken] =
-          //     constWire(32, trueBlkNo);
-          // }
-
-          // if (!jumpToSameState(&bb, falseSucc, arch)) {
-          //   int falseBlkNo = arch.cs.getBasicBlockNo(falseSucc);
-          //   arch.getController("global_next_block").values[falseTaken] =
-          //     constWire(32, falseBlkNo);
-          // }
-
         }
       }
     }
@@ -2589,12 +2598,17 @@ namespace ahaHLS {
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
       for (auto blk : nonTerminatingBlocks(state, arch.stg)) {
+
+        if (isPipelineState(state, arch.pipelines) ==
+            isPipelineState(state + 1, arch.pipelines)) {
+
         Wire thisBlkActive = blockActiveInState(state, blk, arch);
         // If a block is active that does not execute its terminator, then
         // the in the next cycle we continue to execute that block
         arch.getController("global_next_block").values[thisBlkActive] =
           constWire(32, arch.cs.getBasicBlockNo(blk));
           //to_string(arch.cs.getBasicBlockNo(blk));
+        }
       }
     }
 
