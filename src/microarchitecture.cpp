@@ -1731,7 +1731,7 @@ namespace ahaHLS {
 
     //cout << "Adding transition from " << state << " to " << dest << " via " << valueString(pos.instr) << endl;
 
-    Wire atStateCond = atStateWire(state, arch);
+    //Wire atStateCond = atStateWire(state, arch);
 
     auto& controller = arch.getController(reg(32, "global_state"));
     auto& pipelines = arch.pipelines;
@@ -1752,7 +1752,7 @@ namespace ahaHLS {
         outOfPipeJumpHappened.resetValue = "0";
         outOfPipeJumpHappened.values[jumpCond] = constWire(1, 1);
 
-        vector<Wire> conds{atStateCond};
+        vector<Wire> conds{}; //atStateCond};
         Wire pipeCond =
           checkAnd(jumpCond, pipelineClearOnNextCycleCondition(p, arch), arch);
         conds.push_back(pipeCond);
@@ -1763,7 +1763,7 @@ namespace ahaHLS {
       }
 
     } else {
-      vector<Wire> conds{atStateCond};
+      vector<Wire> conds{}; //atStateCond};
       if (isPipelineState(dest, pipelines)) {
 
         auto p = getPipeline(dest, pipelines);
@@ -2019,7 +2019,8 @@ namespace ahaHLS {
     if (arch.stg.isEmptyState(state)) {
       cout << "State generation for empty state " << state << endl;
       StateId dest = state + 1;
-      Wire condWire = constWire(1, 1);
+      //Wire condWire = constWire(1, 1);
+      Wire condWire = atStateWire(state, arch);      
       addStateTransition(state, dest, condWire, arch);
     }
 
