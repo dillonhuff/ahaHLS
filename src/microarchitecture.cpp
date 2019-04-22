@@ -2685,7 +2685,7 @@ namespace ahaHLS {
 
     buildBasicBlockEnableLogic(arch);    
     buildPortControllers(arch);
-    emitPipelineResetBlock(arch);
+    //emitPipelineResetBlock(arch);
     emitPipelineValidChainBlock(arch);
     emitPipelineRegisterChains(arch);
     emitPipelineInitiationBlock(arch);
@@ -2738,15 +2738,15 @@ namespace ahaHLS {
     return inAnyPipe;
   }
 
-  void emitPipelineResetBlock(MicroArchitecture& arch) {
+  // void emitPipelineResetBlock(MicroArchitecture& arch) {
 
-    for (auto p : arch.pipelines) {
+  //   for (auto p : arch.pipelines) {
 
-      for (auto validVar : p.valids) {
-        arch.getController(validVar).resetValue = "0";
-      }
-    }
-  }
+  //     for (auto validVar : p.valids) {
+  //       arch.getController(validVar).resetValue = "0";
+  //     }
+  //   }
+  // }
 
   void
   emitPipelineInitiationBlock(MicroArchitecture& arch) {
@@ -2841,6 +2841,13 @@ namespace ahaHLS {
   
   void emitPipelineValidChainBlock(MicroArchitecture& arch) {
     auto pipelines = arch.pipelines;
+
+    for (auto p : arch.pipelines) {
+
+      for (auto validVar : p.valids) {
+        arch.getController(validVar).resetValue = "0";
+      }
+    }
     
     for (auto p : pipelines) {
 
