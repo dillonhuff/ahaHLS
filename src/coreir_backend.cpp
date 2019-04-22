@@ -20,7 +20,7 @@ namespace ahaHLS {
     } else if (spec.name == "hls_wire") {
       return "ahaHLS.wire";
     } else if (spec.name == "eq") {
-      return "coreir.eq";
+      return "ahaHLS.eq";
     } else if (spec.name == "andOp") {
       return "coreir.and";
     } else if (spec.name == "coreir_reg") {
@@ -170,6 +170,24 @@ namespace ahaHLS {
     cout << w.valueString() << " is not constant, name = " << w.name << endl;
     return findWireableFor(w.valueString(), functionalUnits, def, arch);
   }
+
+  Select* truncateTo(int len,
+                     Select* data,
+                     ModuleDef* def,
+                     MicroArchitecture& arch) {
+    Context* c = def->getContext();
+
+    cout << "Data = " << *data << endl;
+    int inLen = arrayLen(data);
+    auto trunc = def->addInstance(arch.uniqueName("trunc"),
+                                  "coreir.slice",
+                                  {{"width", Const::make(c, inLen)},
+                                      {"lo", Const::make(c, 0)},
+                                        {"hi", Const::make(c, len)}});
+
+    def->connect(trunc->sel("in"), data);
+    return trunc->sel("out");
+  }
   
   Select* buildController(int dataWidth,
                           PortValues& vals,
@@ -184,45 +202,47 @@ namespace ahaHLS {
 
     //Select* result = nullptr;
     Wireable* lastMux = nullptr;
-    // cout << "Building controller" << endl;
+    cout << "Building controller" << endl;
 
-    // Context* c = def->getContext();
+    Context* c = def->getContext();
     
-    // for (auto v : vals.portVals) {
-    //   Instance* mux =
-    //     def->addInstance(arch.uniqueName("c_mux"),
-    //                      "coreir.mux",
-    //                      {{"width", Const::make(c, dataWidth)}});
+    for (auto v : vals.portVals) {
+      Instance* mux =
+        def->addInstance(arch.uniqueName("c_mux"),
+                         "coreir.mux",
+                         {{"width", Const::make(c, dataWidth)}});
 
-    //   Select* wireCond =
-    //     findWireableFor(v.first, functionalUnits, def, arch);
+      Select* wireCond =
+        findWireableFor(v.first, functionalUnits, def, arch);
 
-    //   Select* dataValue =
-    //     findWireableFor(v.second, functionalUnits, def, arch);
+      Select* dataValue =
+        findWireableFor(v.second, functionalUnits, def, arch);
       
-    //   def->connect(mux->sel("sel"), wireCond);
-    //   def->connect(mux->sel("in1"), dataValue);
+      def->connect(mux->sel("sel"), wireCond->sel(0));
+      def->connect(mux->sel("in1"), truncateTo(arrayLen(mux->sel("in1")),
+                                               dataValue,
+                                               def,
+                                               arch));
 
 
-    //   if (lastMux != nullptr) {
-    //     def->connect(lastMux->sel("out"), mux->sel("in0"));
-    //   }
-    //   lastMux = mux;
-    // }
-
-    // assert(false);
-    if (lastMux == nullptr) {
-      //assert(result == nullptr);
-      if (vals.defaultValue != "") {
-        auto c = makeConstant(vals.defaultValue, dataWidth, def, arch);
-        return c;
-      } else {
-        auto c = makeConstant("0", dataWidth, def, arch);
-        return c;
+      if (lastMux != nullptr) {
+        def->connect(lastMux->sel("out"), mux->sel("in0"));
       }
+      lastMux = mux;
     }
 
-    assert(false);
+    Select* ct = nullptr;
+    if (vals.defaultValue != "") {
+      ct = makeConstant(vals.defaultValue, dataWidth, def, arch);
+    } else {
+      ct = makeConstant("0", dataWidth, def, arch);
+    }
+
+    if (lastMux == nullptr) {
+      return ct;
+    }
+
+    return lastMux->sel("out");
   }
 
   void addRegGenerator(Namespace* ahaLib) {
@@ -254,6 +274,40 @@ namespace ahaHLS {
       def->connect("self.in", "innerReg.in");
       def->connect("self.en.0", "innerReg.en");
       def->connect("innerReg.out", "self.out");
+    };
+    gen->setGeneratorDefFromFun(genFun);
+    
+  }
+
+  void addEqGenerator(Namespace* ahaLib) {
+    auto c = ahaLib->getContext();
+    
+    Params wireParams = {{"width", c->Int()}};
+    TypeGen* wireTp =
+      ahaLib->newTypeGen(
+                        "eq",
+                        wireParams,
+                        [](Context* c, Values genargs) {
+                          uint width = genargs.at("width")->get<int>();
+                          return c->Record({
+                              {"in0", c->BitIn()->Arr(width)},
+                                {"in1", c->BitIn()->Arr(width)},
+                                  {"out",c->Bit()->Arr(width)}});
+                        });
+    ahaLib->newGeneratorDecl("eq", wireTp, wireParams);
+    auto gen = ahaLib->getGenerator("eq");
+
+    std::function<void (Context*, Values, ModuleDef*)> genFun =
+      [](Context* c, Values args, ModuleDef* def) {
+      uint width = args.at("width")->get<int>();
+
+      def->addInstance("innerEq",
+                       "coreir.eq",
+      {{"width", Const::make(c, width)}});
+
+      def->connect("self.in0", "innerReg.in0");
+      def->connect("self.in1", "innerReg.in1");      
+      def->connect("innerReg.out", "self.out.0");
     };
     gen->setGeneratorDefFromFun(genFun);
     
@@ -293,7 +347,7 @@ namespace ahaHLS {
     gen->setGeneratorDefFromFun(genFun);
 
     addRegGenerator(ahaLib);
-    
+    addEqGenerator(ahaLib);    
     
     convertRegisterControllersToPortControllers(arch);
     
