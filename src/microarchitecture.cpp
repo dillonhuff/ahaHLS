@@ -1737,7 +1737,7 @@ namespace ahaHLS {
                           Wire jumpCond,
                           MicroArchitecture& arch) {
 
-    //cout << "Adding transition from " << state << " to " << dest << " via " << valueString(pos.instr) << endl;
+    cout << "Adding transition from " << state << " to " << dest << endl;
 
     auto& controller = arch.getController(reg(32, "global_state"));
     auto& pipelines = arch.pipelines;
@@ -1749,6 +1749,18 @@ namespace ahaHLS {
       if (isPipelineState(dest, pipelines)) {
 
         assert(getPipeline(dest, pipelines).stateId == p.stateId);
+
+        // If this is a forward transition in the pipeline
+        if (dest > state) {
+          auto& vController = arch.getController(p.stateIsActiveWire(dest));
+
+          cout << "Controller for pipeline state " << dest << " already has values" << endl;
+          for (auto v : vController.values) {
+            cout << tab(1) << v.first.valueString() << " -> " << v.second.valueString() << endl;
+          }
+          assert(vController.values.size() == 0);
+          vController.values[constWire(1, 1)] = p.stateIsActiveWire(state);
+        }
 
       } else {
 
@@ -2663,23 +2675,6 @@ namespace ahaHLS {
     }
 
     buildReturnBlockTransitions(arch);
-    // for (auto st : arch.stg.opStates) {
-    //   StateId state = st.first;
-    //   for (auto blk : terminatingBlocks(state, arch.stg)) {
-    //     if (ReturnInst::classof(blk->getTerminator())) {
-    //       Wire thisBlkActive = blockActiveInState(state, blk, arch);
-    //       // If the a return statement executes in a given block
-    //       // then if there is not default behavior set the next block
-    //       // to be the current block.
-
-    //       if (!arch.stg.sched.hasReturnDefault()) {
-    //         arch.getController("global_next_block").values[thisBlkActive] =
-    //           constWire(32, arch.cs.getBasicBlockNo(blk));
-    //       }
-    //     }
-    //   }
-    // }
-
     buildPredecessorBlockWires(arch, edgeTakenWires);
   }
 
@@ -2879,13 +2874,13 @@ namespace ahaHLS {
       }
     }
     
-    for (auto p : pipelines) {
+    // for (auto p : pipelines) {
 
-      for (int i = 0; i < ((int) p.valids.size()) - 1; i++) {
-        arch.getController(p.valids[i + 1]).values[constWire(1, 1)] =
-          p.valids[i];
-      }
-    }
+    //   for (int i = 0; i < ((int) p.valids.size()) - 1; i++) {
+    //     arch.getController(p.valids[i + 1]).values[constWire(1, 1)] =
+    //       p.valids[i];
+    //   }
+    // }
   }
 
   std::vector<ElaboratedPipeline>
