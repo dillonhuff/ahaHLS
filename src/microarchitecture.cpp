@@ -1207,8 +1207,10 @@ namespace ahaHLS {
     } else if (Argument::classof(val)) {
       if (PointerType::classof(val->getType())) {
         if (contains_key(val, arch.memoryMap)) {
-      
-          return to_string(map_find(val, arch.memoryMap));
+
+          Type* under = dyn_cast<PointerType>(val->getType())->getElementType();
+          return wire(getTypeBitWidth(under),
+                      to_string(map_find(val, arch.memoryMap))).valueString();
         } else {
           assert(val->getName() != "");
 
