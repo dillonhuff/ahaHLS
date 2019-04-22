@@ -1226,7 +1226,8 @@ namespace ahaHLS {
 
           // Pointer arguments that are not included in the memory map
           // are assumed to be registers
-          return string(val->getName()) + "_rdata";
+          Type* under = dyn_cast<PointerType>(val->getType())->getElementType();
+          return wire(getTypeBitWidth(under), string(val->getName()) + "_rdata").valueString();
         }
       } else {
         cout << "Value argument of type " << typeString(val->getType()) << endl;
