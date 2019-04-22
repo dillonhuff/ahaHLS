@@ -2602,11 +2602,11 @@ namespace ahaHLS {
         if (isPipelineState(state, arch.pipelines) ==
             isPipelineState(state + 1, arch.pipelines)) {
 
-        Wire thisBlkActive = blockActiveInState(state, blk, arch);
-        // If a block is active that does not execute its terminator, then
-        // the in the next cycle we continue to execute that block
-        arch.getController("global_next_block").values[thisBlkActive] =
-          constWire(32, arch.cs.getBasicBlockNo(blk));
+          Wire thisBlkActive = blockActiveInState(state, blk, arch);
+          // If a block is active that does not execute its terminator, then
+          // the in the next cycle we continue to execute that block
+          arch.getController("global_next_block").values[thisBlkActive] =
+            constWire(32, arch.cs.getBasicBlockNo(blk));
           //to_string(arch.cs.getBasicBlockNo(blk));
         }
       }
