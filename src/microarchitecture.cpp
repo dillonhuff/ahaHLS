@@ -1730,20 +1730,17 @@ namespace ahaHLS {
 
     //cout << "Adding transition from " << state << " to " << dest << " via " << valueString(pos.instr) << endl;
 
-    //string atStateCond = atState(state, arch);
     Wire atStateCond = atStateWire(state, arch);
 
     auto& controller = arch.getController(reg(32, "global_state"));
     auto& pipelines = arch.pipelines;
 
-    //auto jumpCond = jumpCondWire.valueString();
     Wire jumpCond = jumpCondWire;
 
     if (isPipelineState(state, pipelines)) {
 
       auto p = getPipeline(state, pipelines);
 
-      //vector<string> conds{atStateCond};
       vector<Wire> conds{atStateCond};
 
       // Note: This assumes we never jump from pipeline to pipeline
@@ -1755,12 +1752,6 @@ namespace ahaHLS {
         controller.values[andCond(conds, arch)] = constWire(32, destP.stateId);
           
       } else {
-        // int ind = p.stageForState(state);
-        // assert(ind == (p.numStages() - 1));
-
-        // string pipeCond =
-        //   checkAnd(wire(1, jumpCond), wire(1, pipelineClearOnNextCycleCondition(p, arch)), arch).valueString();
-
         Wire pipeCond =
           checkAnd(jumpCond, pipelineClearOnNextCycleCondition(p, arch), arch);
         
@@ -1769,18 +1760,17 @@ namespace ahaHLS {
       }
 
     } else {
-      //vector<string> conds{atStateCond};
       vector<Wire> conds{atStateCond};
       if (isPipelineState(dest, pipelines)) {
 
         auto p = getPipeline(dest, pipelines);
 
-        if (!contains_key(p.valids.at(0).name, arch.regControllers)) {
-          arch.addController(p.valids.at(0).name, p.valids.at(0).width);
-          RegController& validController =            
-            arch.regControllers[p.valids.at(0).name];
-          validController.resetValue = "0";
-        }
+        // if (!contains_key(p.valids.at(0).name, arch.regControllers)) {
+        //   arch.addController(p.valids.at(0).name, p.valids.at(0).width);
+        //   RegController& validController =            
+        //     arch.regControllers[p.valids.at(0).name];
+        //   validController.resetValue = "0";
+        // }
         RegController& validController =
           arch.getController(p.valids.at(0));
 
