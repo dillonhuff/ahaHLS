@@ -2451,6 +2451,16 @@ namespace ahaHLS {
     return atContainerPos;
   }
 
+  void addBlockJump(BasicBlock* src,
+                    BasicBlock* destBlock,
+                    const Wire jumpHappened,
+                    MicroArchitecture& arch) {
+    if (!jumpToSameState(src, destBlock, arch)) {
+      arch.getController("global_next_block").values[jumpHappened] =
+        constWire(32, arch.cs.getBasicBlockNo(destBlock));
+    }
+  }
+  
   // Now: Many errors in valid computation. Not sure why?
   // Hyp: In the return state the next basic block is not getting set
   // to be the current block?
@@ -2495,10 +2505,11 @@ namespace ahaHLS {
           BasicBlock* destBlock = br->getSuccessor(0);
           edgeTakenWires.insert({{br->getParent(), destBlock}, atContainerPos});
 
-          if (!jumpToSameState(&bb, destBlock, arch)) {
-            arch.getController("global_next_block").values[wireValue(hName, arch)] =
-              constWire(32, arch.cs.getBasicBlockNo(destBlock));
-          }
+          addBlockJump(&bb, destBlock, wireValue(hName, arch), arch);
+          // if (!jumpToSameState(&bb, destBlock, arch)) {
+          //   arch.getController("global_next_block").values[wireValue(hName, arch)] =
+          //     constWire(32, arch.cs.getBasicBlockNo(destBlock));
+          // }
         } else {
 
           Value* condition = br->getOperand(0);
@@ -2519,17 +2530,19 @@ namespace ahaHLS {
           BasicBlock* falseSucc = br->getSuccessor(1);
           edgeTakenWires.insert({{br->getParent(), falseSucc}, falseTaken});
 
-          if (!jumpToSameState(&bb, trueSucc, arch)) {
-            int trueBlkNo = arch.cs.getBasicBlockNo(trueSucc);
-            arch.getController("global_next_block").values[trueTaken] =
-              constWire(32, trueBlkNo);
-          }
+          addBlockJump(&bb, trueSucc, trueTaken, arch);
+          addBlockJump(&bb, falseSucc, falseTaken, arch);                    
+          // if (!jumpToSameState(&bb, trueSucc, arch)) {
+          //   int trueBlkNo = arch.cs.getBasicBlockNo(trueSucc);
+          //   arch.getController("global_next_block").values[trueTaken] =
+          //     constWire(32, trueBlkNo);
+          // }
 
-          if (!jumpToSameState(&bb, falseSucc, arch)) {
-            int falseBlkNo = arch.cs.getBasicBlockNo(falseSucc);
-            arch.getController("global_next_block").values[falseTaken] =
-              constWire(32, falseBlkNo);
-          }
+          // if (!jumpToSameState(&bb, falseSucc, arch)) {
+          //   int falseBlkNo = arch.cs.getBasicBlockNo(falseSucc);
+          //   arch.getController("global_next_block").values[falseTaken] =
+          //     constWire(32, falseBlkNo);
+          // }
 
         }
       }
