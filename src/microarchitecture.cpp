@@ -1750,17 +1750,17 @@ namespace ahaHLS {
 
         assert(getPipeline(dest, pipelines).stateId == p.stateId);
 
-        // If this is a forward transition in the pipeline
-        if (dest > state) {
-          auto& vController = arch.getController(p.stateIsActiveWire(dest));
+        // // If this is a forward transition in the pipeline
+        // if (dest > state) {
+        //   auto& vController = arch.getController(p.stateIsActiveWire(dest));
 
-          cout << "Controller for pipeline state " << dest << " already has values" << endl;
-          for (auto v : vController.values) {
-            cout << tab(1) << v.first.valueString() << " -> " << v.second.valueString() << endl;
-          }
-          assert(vController.values.size() == 0);
-          vController.values[constWire(1, 1)] = p.stateIsActiveWire(state);
-        }
+        //   cout << "Controller for pipeline state " << dest << " already has values" << endl;
+        //   for (auto v : vController.values) {
+        //     cout << tab(1) << v.first.valueString() << " -> " << v.second.valueString() << endl;
+        //   }
+        //   assert(vController.values.size() == 0);
+        //   vController.values[constWire(1, 1)] = p.stateIsActiveWire(state);
+        // }
 
       } else {
 
@@ -2874,13 +2874,13 @@ namespace ahaHLS {
       }
     }
     
-    // for (auto p : pipelines) {
+    for (auto p : pipelines) {
 
-    //   for (int i = 0; i < ((int) p.valids.size()) - 1; i++) {
-    //     arch.getController(p.valids[i + 1]).values[constWire(1, 1)] =
-    //       p.valids[i];
-    //   }
-    // }
+      for (int i = 0; i < ((int) p.valids.size()) - 1; i++) {
+        arch.getController(p.valids[i + 1]).values[constWire(1, 1)] =
+          p.valids[i];
+      }
+    }
   }
 
   std::vector<ElaboratedPipeline>
