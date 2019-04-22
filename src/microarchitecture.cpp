@@ -1398,6 +1398,7 @@ namespace ahaHLS {
       string input = "{";
       string s = "{";      
 
+      int totalWidth = 0;
       for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
         BasicBlock* b0 = phi->getIncomingBlock(i);
         int b0Val = arch.cs.getBasicBlockNo(b0);
@@ -1406,6 +1407,8 @@ namespace ahaHLS {
 
         auto val0Name = outputWire(v0, pos, arch);
 
+        totalWidth += val0Name.width;
+        
         input += val0Name.valueString();
         s += "32'd" + to_string(b0Val);
 
@@ -1418,10 +1421,11 @@ namespace ahaHLS {
       input += "}";
       s += "}";
 
-      assignments.insert({addUnit.portWires["in"].name, input});
-      assignments.insert({addUnit.portWires["s"].name, s});
+      //assignments.insert({addUnit.portWires["in"].name, input});
+      assignments.insert({addUnit.portWires["in"].name, wire(totalWidth, input)});
+      assignments.insert({addUnit.portWires["s"].name, wire(32*phi->getNumIncomingValues(), s)});
       
-      assignments.insert({addUnit.portWires["last_block"].name, predecessor(phi->getParent(), arch).valueString()});
+      assignments.insert({addUnit.portWires["last_block"].name, predecessor(phi->getParent(), arch)});
 
     } else if (SelectInst::classof(instr)) {
       SelectInst* sel = dyn_cast<SelectInst>(instr);
@@ -2125,13 +2129,14 @@ namespace ahaHLS {
 
           for (auto portAndValue : assigns) {
             string portName = portAndValue.first;
-            string portVal = portAndValue.second;
+            //string portVal = portAndValue.second;
+            Wire portVal = portAndValue.second;
             if (!contains_key(portName, portController.inputControllers)) {
               portController.inputControllers[portName] = PortValues();
             }
 
             PortValues& vals = portController.inputControllers[portName];
-            vals.portVals.insert({condWire, wire(32, portVal)});
+            vals.portVals.insert({condWire, portVal}); //wire(32, portVal)});
           }
           
           for (auto asg : assigns) {
