@@ -1911,11 +1911,14 @@ namespace ahaHLS {
             assert((i == 0) || (i == 1));
 
             Value* jmpTest = br->getOperand(0);
-            string jmpTestName = outputName(jmpTest, pos, arch);
+            //string jmpTestName = outputName(jmpTest, pos, arch);
+            Wire jmpTestName = outputWire(jmpTest, pos, arch);
             if (i == 0) {
-              condWire = wire(1, jmpTestName);
+              //condWire = wire(1, jmpTestName);
+              condWire = jmpTestName;
             } else {
-              condWire = checkNotWire(wire(1, jmpTestName), arch);
+              //condWire = checkNotWire(wire(1, jmpTestName), arch);
+              condWire = checkNotWire(jmpTestName, arch);
             }
           } else {
             condWire = constWire(1, 1);
