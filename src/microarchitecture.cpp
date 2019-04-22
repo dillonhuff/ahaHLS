@@ -2341,7 +2341,12 @@ namespace ahaHLS {
   }
 
   Wire checkAnd(const Wire in0, const Wire in1, MicroArchitecture& arch) {
-    assert(in0.width == in1.width);
+
+    if (in0.width != in1.width) {
+      cout << "Error: in checkAnd, " << in0.valueString() << " has width " << in0.width << ", " << in1.valueString() << " has width " << in1.width << endl;
+      assert(in0.width == in1.width);      
+    }
+    
     PortController& controller = makeAnd(in0.width, arch);
     controller.setAlways("in0", in0);
     controller.setAlways("in1", in1);
@@ -2480,10 +2485,12 @@ namespace ahaHLS {
             position(brEndState, br, arch);
           
           // TODO: Convert outputName to wire
-          string condValue = outputName(condition, pos, arch);
+          //string condValue = outputName(condition, pos, arch);
+          Wire condValue = outputWire(condition, pos, arch);
 
-          Wire trueTaken = checkAnd(atContainerPos, wire(1, condValue), arch);
-          Wire falseTaken = checkAnd(atContainerPos, checkNotWire(wire(1, condValue), arch), arch);
+          Wire trueTaken = checkAnd(atContainerPos, condValue, arch);
+          Wire falseTaken =
+            checkAnd(atContainerPos, checkNotWire(condValue, arch), arch);
 
           BasicBlock* trueSucc = br->getSuccessor(0);
           int trueBlkNo = arch.cs.getBasicBlockNo(trueSucc);
@@ -2736,12 +2743,13 @@ namespace ahaHLS {
 
       RegController& cont =
         arch.getController(p.valids.at(0));
-      string atSt = atState(st, arch);
+      //string atSt = atState(st, arch);
+      Wire atSt = atStateWire(st, arch);
       
 
-      cont.values[checkAnd(wire(1, atSt), testCond, arch)] = constWire(1, 0);
-      cont.values[checkAnd(wire(1, atSt), checkNotWire(testCond, arch), arch)] = constWire(1, 1);      
-      cont.values[checkAnd(checkNotWire(wire(1, atSt), arch), p.inPipeWire(), arch)] = constWire(1, 0);
+      cont.values[checkAnd(atSt, testCond, arch)] = constWire(1, 0);
+      cont.values[checkAnd(atSt, checkNotWire(testCond, arch), arch)] = constWire(1, 1);
+      cont.values[checkAnd(checkNotWire(atSt, arch), p.inPipeWire(), arch)] = constWire(1, 0);
     }
 
   }
@@ -2834,14 +2842,16 @@ namespace ahaHLS {
 
         map<Instruction*, Wire> regs;
         for (auto val : pastValues) {
-          regs[val] = Wire(true, 32, string("pipeline_") + val->getOpcodeName() + "_" + iStr + "_" + jStr + "_" + to_string(regNum));
+          //regs[val] = Wire(true, 32, string("pipeline_") + val->getOpcodeName() + "_" + iStr + "_" + jStr + "_" + to_string(regNum));
+          regs[val] = Wire(true, getValueBitWidth(val), string("pipeline_") + val->getOpcodeName() + "_" + iStr + "_" + jStr + "_" + to_string(regNum));
           regNum++;
         }
 
         for (auto instrG : stg.instructionsFinishingAt(st)) {
           Instruction* i = instrG;
           if (hasOutput(i)) {          
-            regs[i] = Wire(true, 32, string("pipeline_") + i->getOpcodeName() + iStr + "_" + jStr + "_" + to_string(regNum));
+            //regs[i] = Wire(true, 32, string("pipeline_") + i->getOpcodeName() + iStr + "_" + jStr + "_" + to_string(regNum));
+            regs[i] = Wire(true, getValueBitWidth(i), string("pipeline_") + i->getOpcodeName() + iStr + "_" + jStr + "_" + to_string(regNum));
             pastValues.insert(i);
             regNum++;
           }
