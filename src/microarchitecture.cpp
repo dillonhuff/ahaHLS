@@ -14,16 +14,20 @@ using namespace std;
 
 namespace ahaHLS {
 
-  Wire atStateWire(const StateId state, MicroArchitecture& arch) {
+  Wire buildAtStateWire(const StateId state, MicroArchitecture& arch) {
     if (arch.isPipelineState(state)) {
       auto p = arch.getPipeline(state);
-      // int stage = p.stageForState(state);
       Wire active = checkAnd(p.inPipeWire(), p.stateIsActiveWire(state), arch);
       return active;
     } else {
       Wire active = checkEqual(state, arch.cs.getGlobalState(), arch);
       return active;
     }
+  }
+
+  Wire atStateWire(const StateId state, MicroArchitecture& arch) {
+    cout << "Getting wire for " << state << endl;
+    return map_find(state, arch.atStateWires);
   }
 
   std::ostream& operator<<(std::ostream& out, const RegController& controller) {
@@ -2665,6 +2669,18 @@ namespace ahaHLS {
     buildPredecessorBlockWires(arch);
   }
 
+  void buildAtStateWires(MicroArchitecture& arch) {
+    for (auto st : arch.stg.opStates) {
+      Wire w = buildAtStateWire(st.first, arch);
+      arch.atStateWires[st.first] = w;
+    }
+
+    for (auto p : arch.pipelines) {
+      Wire w = buildAtStateWire(p.stateId, arch);
+      arch.atStateWires[p.stateId] = w;
+    }
+  }
+  
   MicroArchitecture
   buildMicroArchitecture(const STG& stg,
                          std::map<llvm::Value*, int>& memMap,
@@ -2696,6 +2712,7 @@ namespace ahaHLS {
       arch.functionalUnits.push_back(unit.second);
     }
 
+    buildAtStateWires(arch);
     buildBasicBlockEnableLogic(arch);    
     buildPortControllers(arch);
     emitPipelineValidChainBlock(arch);
