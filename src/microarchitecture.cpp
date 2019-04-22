@@ -1711,6 +1711,14 @@ namespace ahaHLS {
     assert(!stg.isEmptyState(lastNonBlank));
     return lastNonBlank;
   }
+
+  StateId entryState(const ElaboratedPipeline& p) {
+    return p.p.startState();
+  }
+  
+  Wire entryStateActiveWire(const ElaboratedPipeline& p) {
+    return p.stateIsActiveWire(entryState(p));
+  }
   
   void addStateTransition(const StateId state,
                           const StateId dest,
@@ -1752,7 +1760,7 @@ namespace ahaHLS {
         auto p = getPipeline(dest, pipelines);
 
         RegController& validController =
-          arch.getController(p.valids.at(0));
+          arch.getController(entryStateActiveWire(p)); //p.valids.at(0));
         validController.values[andCond(conds, arch)] = constWire(1, 1);
           
         conds.push_back(jumpCond);
@@ -2770,7 +2778,7 @@ namespace ahaHLS {
       }
 
       RegController& cont =
-        arch.getController(p.valids.at(0));
+        arch.getController(entryStateActiveWire(p)); //p.valids.at(0));
       Wire atSt = atStateWire(st, arch);
       
 
