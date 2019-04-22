@@ -1637,18 +1637,7 @@ namespace ahaHLS {
       s = checkAnd(s, checkNotWire(p.valids.at(i), arch), arch);
     }
 
-    return s; //s.valueString();
-
-    // string s = "";
-
-    // for (int i = 0; i < (p.numStages() - 1); i++) {
-    //   s += "!" + p.valids.at(i).name;
-    //   if (i < (p.numStages() - 2)) {
-    //     s += " && ";
-    //   }
-    // }
-
-    // return parens(s);
+    return s;
   }
 
   Instruction*
@@ -1667,11 +1656,6 @@ namespace ahaHLS {
         last = instrG;
       }
     }
-
-    // if (last == nullptr) {
-    //   cout << "No instructions from " << valueString(blk) << " in state " << state;
-    //   assert(false);
-    // }
 
     return last;
   }
@@ -1699,7 +1683,6 @@ namespace ahaHLS {
   }
 
   void emitTempStorageCode(const StateId state,
-                           //const std::vector<StateTransition>& destinations,
                            MicroArchitecture& arch) {
 
     emitTempStorage(state,
@@ -1725,7 +1708,6 @@ namespace ahaHLS {
   
   void addStateTransition(const StateId state,
                           const StateId dest,
-                          //Wire jumpCondWire,
                           Wire jumpCond,
                           MicroArchitecture& arch) {
 
@@ -1749,12 +1731,6 @@ namespace ahaHLS {
           arch.getController(wire(1, "out_of_pipe_" + to_string(state) + "_" + to_string(dest)));
         outOfPipeJumpHappened.resetValue = "0";
         outOfPipeJumpHappened.values[jumpCond] = constWire(1, 1);
-
-        // vector<Wire> conds{}; //atStateCond};
-        // Wire pipeCond =
-        //   checkAnd(jumpCond, pipelineClearOnNextCycleCondition(p, arch), arch);
-        // conds.push_back(pipeCond);
-        // controller.values[andCond(conds, arch)] = constWire(32, dest);
 
         Wire exitNextCycle =
           checkAnd(p.inPipeWire(), pipelineClearOnNextCycleCondition(p, arch), arch);
@@ -2789,7 +2765,6 @@ namespace ahaHLS {
 
       RegController& cont =
         arch.getController(p.valids.at(0));
-      //string atSt = atState(st, arch);
       Wire atSt = atStateWire(st, arch);
       
 
