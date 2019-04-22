@@ -2479,13 +2479,6 @@ namespace ahaHLS {
 
         StateId branchEndState = arch.stg.instructionEndState(br);
         
-        // Wire atContainerBlock =
-        //   containerBlockIsActive(br, arch);
-        // Wire atBranchState =
-        //   atStateWire(branchEndState, arch);
-        // Wire atContainerPos =
-        //   checkAnd(atContainerBlock, atBranchState, arch);
-
         Wire atContainerPos =
           blockActiveInState(branchEndState, br->getParent(), arch);
 
@@ -2521,19 +2514,19 @@ namespace ahaHLS {
             checkAnd(atContainerPos, checkNotWire(condValue, arch), arch);
 
           BasicBlock* trueSucc = br->getSuccessor(0);
-          int trueBlkNo = arch.cs.getBasicBlockNo(trueSucc);
           edgeTakenWires.insert({{br->getParent(), trueSucc}, trueTaken});
 
           BasicBlock* falseSucc = br->getSuccessor(1);
-          int falseBlkNo = arch.cs.getBasicBlockNo(falseSucc);
           edgeTakenWires.insert({{br->getParent(), falseSucc}, falseTaken});
 
           if (!jumpToSameState(&bb, trueSucc, arch)) {
+            int trueBlkNo = arch.cs.getBasicBlockNo(trueSucc);
             arch.getController("global_next_block").values[trueTaken] =
               constWire(32, trueBlkNo);
           }
 
-          if (!jumpToSameState(&bb, falseSucc, arch)) {          
+          if (!jumpToSameState(&bb, falseSucc, arch)) {
+            int falseBlkNo = arch.cs.getBasicBlockNo(falseSucc);
             arch.getController("global_next_block").values[falseTaken] =
               constWire(32, falseBlkNo);
           }
