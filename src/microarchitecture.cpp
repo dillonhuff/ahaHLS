@@ -1743,13 +1743,14 @@ namespace ahaHLS {
 
       vector<Wire> conds{atStateCond};
 
-      // Note: This assumes we never jump from pipeline to pipeline
       if (isPipelineState(dest, pipelines)) {
 
-        auto destP = getPipeline(dest, pipelines);
+        assert(getPipeline(dest, pipelines).stateId == getPipeline(state, pipelines).stateId);
+        // // Nothing happens to global state if we are in the same pipeline
+        // auto destP = getPipeline(dest, pipelines);
 
-        conds.push_back(jumpCond);
-        controller.values[andCond(conds, arch)] = constWire(32, destP.stateId);
+        // conds.push_back(jumpCond);
+        // controller.values[andCond(conds, arch)] = constWire(32, destP.stateId);
           
       } else {
         Wire pipeCond =
