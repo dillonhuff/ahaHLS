@@ -2479,12 +2479,15 @@ namespace ahaHLS {
 
         StateId branchEndState = arch.stg.instructionEndState(br);
         
-        Wire atContainerBlock =
-          containerBlockIsActive(br, arch);
-        Wire atBranchState =
-          atStateWire(branchEndState, arch);
+        // Wire atContainerBlock =
+        //   containerBlockIsActive(br, arch);
+        // Wire atBranchState =
+        //   atStateWire(branchEndState, arch);
+        // Wire atContainerPos =
+        //   checkAnd(atContainerBlock, atBranchState, arch);
+
         Wire atContainerPos =
-          checkAnd(atContainerBlock, atBranchState, arch);
+          blockActiveInState(branchEndState, br->getParent(), arch);
 
         Wire notStalled = constWire(1, 1);
         atContainerPos = checkAnd(atContainerPos, notStalled, arch);
