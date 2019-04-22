@@ -2487,6 +2487,36 @@ namespace ahaHLS {
       }
     }
   }
+
+  void buildPredecessorBlockWires(MicroArchitecture& arch,
+                                  map<pair<BasicBlock*, BasicBlock*>, Wire>& edgeTakenWires) {
+
+    Function* f = arch.stg.getFunction();
+    
+    // Add last basic block wires
+    for (auto& bb : f->getBasicBlockList()) {
+      int thisBlkNo = arch.cs.getBasicBlockNo(&bb);
+      string w = "bb_" + to_string(thisBlkNo) + "_predecessor";
+      addPortController(w, 32, arch);
+
+      PortController& predController = arch.portController(w);
+
+      Wire nextBlkIsThisBlk =
+        checkEqual(thisBlkNo, wire(32, "global_next_block"), arch);
+      predController.setCond("in_data", nextBlkIsThisBlk, wire(32, "last_BB_reg"));
+
+      for (auto* pred : predecessors(&bb)) {
+        if (jumpToSameState(pred, &bb, arch)) {
+
+          int predNo = arch.cs.getBasicBlockNo(pred);
+
+          Wire edgeTaken = map_find({pred, &bb}, edgeTakenWires);
+          predController.setCond("in_data", checkAnd(checkNotWire(nextBlkIsThisBlk, arch), edgeTaken, arch), constWire(32, predNo));          
+        }
+      }
+      
+    }
+  }
   
   // Now: Many errors in valid computation. Not sure why?
   // Hyp: In the return state the next basic block is not getting set
@@ -2629,30 +2659,32 @@ namespace ahaHLS {
         }
       }
     }
+
+    buildPredecessorBlockWires(arch, edgeTakenWires);
     
-    // Add last basic block wires
-    for (auto& bb : f->getBasicBlockList()) {
-      int thisBlkNo = arch.cs.getBasicBlockNo(&bb);
-      string w = "bb_" + to_string(thisBlkNo) + "_predecessor";
-      addPortController(w, 32, arch);
+    // // Add last basic block wires
+    // for (auto& bb : f->getBasicBlockList()) {
+    //   int thisBlkNo = arch.cs.getBasicBlockNo(&bb);
+    //   string w = "bb_" + to_string(thisBlkNo) + "_predecessor";
+    //   addPortController(w, 32, arch);
 
-      PortController& predController = arch.portController(w);
+    //   PortController& predController = arch.portController(w);
 
-      Wire nextBlkIsThisBlk =
-        checkEqual(thisBlkNo, wire(32, "global_next_block"), arch);
-      predController.setCond("in_data", nextBlkIsThisBlk, wire(32, "last_BB_reg"));
+    //   Wire nextBlkIsThisBlk =
+    //     checkEqual(thisBlkNo, wire(32, "global_next_block"), arch);
+    //   predController.setCond("in_data", nextBlkIsThisBlk, wire(32, "last_BB_reg"));
 
-      for (auto* pred : predecessors(&bb)) {
-        if (jumpToSameState(pred, &bb, arch)) {
+    //   for (auto* pred : predecessors(&bb)) {
+    //     if (jumpToSameState(pred, &bb, arch)) {
 
-          int predNo = arch.cs.getBasicBlockNo(pred);
+    //       int predNo = arch.cs.getBasicBlockNo(pred);
 
-          Wire edgeTaken = map_find({pred, &bb}, edgeTakenWires);
-          predController.setCond("in_data", checkAnd(checkNotWire(nextBlkIsThisBlk, arch), edgeTaken, arch), constWire(32, predNo));          
-        }
-      }
+    //       Wire edgeTaken = map_find({pred, &bb}, edgeTakenWires);
+    //       predController.setCond("in_data", checkAnd(checkNotWire(nextBlkIsThisBlk, arch), edgeTaken, arch), constWire(32, predNo));          
+    //     }
+    //   }
       
-    }
+    // }
     
   }
 
