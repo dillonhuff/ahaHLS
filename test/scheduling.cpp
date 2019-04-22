@@ -1741,7 +1741,8 @@ namespace ahaHLS {
     ConstantInt* one = mkInt("1", 32);    
 
     IRBuilder<> builder(entryBlock);
-    auto condVal = loadVal(builder, getArg(f, 0), zero);
+    auto condVal = builder.CreateTrunc(loadVal(builder, getArg(f, 0), zero),
+                                       intType(1));
     builder.CreateCondBr(condVal, tBlock, fBlock);
 
     IRBuilder<> fBuilder(fBlock);
@@ -1838,11 +1839,13 @@ namespace ahaHLS {
     ConstantInt* two = mkInt("2", 32);    
 
     IRBuilder<> builder(entryBlock);
-    auto condVal = loadVal(builder, getArg(f, 0), zero);
+    auto condVal =
+      builder.CreateTrunc(loadVal(builder, getArg(f, 0), zero), intType(1));
     builder.CreateCondBr(condVal, tBlock, fBlock);
 
     IRBuilder<> fBuilder(fBlock);
-    auto cond1Val = loadVal(fBuilder, getArg(f, 1), zero);
+    auto cond1Val =
+      fBuilder.CreateTrunc(loadVal(fBuilder, getArg(f, 1), zero), intType(1));
     fBuilder.CreateCondBr(cond1Val, ftBlock, ffBlock);
 
     IRBuilder<> ffBuilder(ffBlock);
