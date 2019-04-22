@@ -1736,8 +1736,6 @@ namespace ahaHLS {
     auto& controller = arch.getController(reg(32, "global_state"));
     auto& pipelines = arch.pipelines;
 
-    //Wire jumpCond = jumpCondWire;
-
     if (isPipelineState(state, pipelines)) {
 
       auto p = getPipeline(state, pipelines);
@@ -1748,12 +1746,20 @@ namespace ahaHLS {
 
       } else {
 
+        // TODO: Generalize name to avoid overlap
+        RegController& outOfPipeJumpHappened =
+          arch.getController(wire(1, "out_of_pipe_" + to_string(state) + "_" + to_string(dest)));
+        outOfPipeJumpHappened.resetValue = "0";
+        outOfPipeJumpHappened.values[jumpCond] = constWire(1, 1);
+
         vector<Wire> conds{atStateCond};
         Wire pipeCond =
           checkAnd(jumpCond, pipelineClearOnNextCycleCondition(p, arch), arch);
-        
         conds.push_back(pipeCond);
         controller.values[andCond(conds, arch)] = constWire(32, dest);
+
+        Wire exitNextCycle =
+          checkAnd(p.inPipeWire(), pipelineClearOnNextCycleCondition(p, arch), arch);
       }
 
     } else {
