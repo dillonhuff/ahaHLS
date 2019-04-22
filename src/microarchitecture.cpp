@@ -1922,6 +1922,16 @@ namespace ahaHLS {
 
     if (newTransitions.size() != oldTransitions.size()) {
       cout << "Problem: New transitions size == " << newTransitions.size() << " but old transitions size == " << oldTransitions.size() << endl;
+      cout << "New transitions " << endl;
+      for (auto t : newTransitions) {
+        cout << tab(1) << t.first << " -> " << t.second << endl;
+      }
+
+      cout << "Old transitions " << endl;
+      for (auto t : oldTransitions) {
+        cout << tab(1) << t.first << " -> " << t.second << endl;
+      }
+
     }
 
     for (auto instr : arch.stg.instructionsFinishingAt(state)) {
