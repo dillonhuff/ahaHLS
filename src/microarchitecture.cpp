@@ -2609,7 +2609,6 @@ namespace ahaHLS {
           // the in the next cycle we continue to execute that block
           arch.getController("global_next_block").values[thisBlkActive] =
             constWire(32, arch.cs.getBasicBlockNo(blk));
-          //to_string(arch.cs.getBasicBlockNo(blk));
         }
       }
     }
@@ -2626,7 +2625,6 @@ namespace ahaHLS {
           if (!arch.stg.sched.hasReturnDefault()) {
             arch.getController("global_next_block").values[thisBlkActive] =
               constWire(32, arch.cs.getBasicBlockNo(blk));
-              //to_string(arch.cs.getBasicBlockNo(blk));
           }
         }
       }
@@ -2639,12 +2637,6 @@ namespace ahaHLS {
       addPortController(w, 32, arch);
 
       PortController& predController = arch.portController(w);
-
-      // Real code to set these controllers?
-      // 1. If the global_next_block is this block, then pred == last_BB_reg
-      //    if this block is the last block to execute in the state
-      // 2. Else: (this case should never happen with block splitting)
-      //      For each succesor, if it is active, set the predecessor to that succ
 
       Wire nextBlkIsThisBlk =
         checkEqual(thisBlkNo, wire(32, "global_next_block"), arch);
@@ -2697,7 +2689,6 @@ namespace ahaHLS {
 
     buildBasicBlockEnableLogic(arch);    
     buildPortControllers(arch);
-    //emitPipelineResetBlock(arch);
     emitPipelineValidChainBlock(arch);
     emitPipelineRegisterChains(arch);
     emitPipelineInitiationBlock(arch);
