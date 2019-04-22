@@ -1905,6 +1905,7 @@ namespace ahaHLS {
       Wire condWire;
       if (br->isConditional()) {
         assert(br->getNumSuccessors() == 2);
+        assert(br->getSuccessor(0) != br->getSuccessor(1));
 
         Value* jmpTest = br->getOperand(0);
         Wire jmpTestName = outputWire(jmpTest, pos, arch);
