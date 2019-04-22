@@ -17,8 +17,8 @@ namespace ahaHLS {
   Wire atStateWire(const StateId state, MicroArchitecture& arch) {
     if (arch.isPipelineState(state)) {
       auto p = arch.getPipeline(state);
-      int stage = p.stageForState(state);
-      Wire active = checkAnd(p.inPipeWire(), p.valids.at(stage), arch);
+      // int stage = p.stageForState(state);
+      Wire active = checkAnd(p.inPipeWire(), p.stateIsActiveWire(state), arch);
       return active;
     } else {
       Wire active = checkEqual(state, arch.cs.getGlobalState(), arch);
