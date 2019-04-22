@@ -1296,7 +1296,8 @@ namespace ahaHLS {
   // than the names of specific wires connected to each functional unit
   // port, so that I could save information about whether this assignment
   // was sensitive to changes or not
-  std::map<std::string, std::string>
+  //std::map<std::string, std::string>
+  std::map<std::string, Wire>
   instructionPortAssignments(ControlFlowPosition pos,
                              MicroArchitecture& arch) {
 
@@ -1305,46 +1306,50 @@ namespace ahaHLS {
     auto instr = pos.instr;
     auto addUnit = map_find(instr, arch.unitAssignment);
 
-    map<string, string> assignments;
+    //map<string, string> assignments;
+    map<string, Wire> assignments;
 
     if (ReturnInst::classof(instr)) {
       assert(addUnit.isExternal());
       
-      assignments.insert({addUnit.inputWire("valid"), "1"});
+      //assignments.insert({addUnit.inputWire("valid"), "1"});
+      assignments.insert({addUnit.inputWire("valid"), constWire(1, 1)});
 
       ReturnInst* ret = dyn_cast<ReturnInst>(instr);
       Value* val = ret->getReturnValue();
       if (val != nullptr) {
-        auto valName = outputName(val, pos, arch);
+        auto valName = outputWire(val, pos, arch);
         assignments.insert({addUnit.inputWire("return_value"), valName});
       }
     } else if (StoreInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
-      auto wdataName = outputName(arg0, pos, arch);
+      auto wdataName = outputWire(arg0, pos, arch);
       
       Value* location = instr->getOperand(1);
-      auto locValue = outputName(location, pos, arch);
+      auto locValue = outputWire(location, pos, arch);
 
       assignments.insert({addUnit.inputWire("waddr"), locValue});
       assignments.insert({addUnit.inputWire("wdata"), wdataName});
-      assignments.insert({addUnit.inputWire("wen"), "1"});
+      //assignments.insert({addUnit.inputWire("wen"), "1"});
+      assignments.insert({addUnit.inputWire("wen"), constWire(1, 1)});
 
     } else if (LoadInst::classof(instr)) {
 
       Value* location = instr->getOperand(0);
-      auto locValue = outputName(location, pos, arch);
+      auto locValue = outputWire(location, pos, arch);
 
       assignments.insert({addUnit.inputWire("raddr"), locValue});
 
       if (contains_key(string("ren"), addUnit.portWires)) {
-        assignments.insert({addUnit.inputWire("ren"), "1"});
+        //assignments.insert({addUnit.inputWire("ren"), "1"});
+        assignments.insert({addUnit.inputWire("ren"), constWire(1, 1)});
       }
 
     } else if (TruncInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
-      auto arg0Name = outputName(arg0, pos, arch);
+      auto arg0Name = outputWire(arg0, pos, arch);
 
       assignments.insert({addUnit.portWires["in"].name, arg0Name});
 
@@ -1352,13 +1357,14 @@ namespace ahaHLS {
                CmpInst::classof(instr)) {
 
       auto arg0 = instr->getOperand(0);
-      auto arg0Name = outputName(arg0, pos, arch);
+      auto arg0Name = outputWire(arg0, pos, arch);
 
       auto arg1 = instr->getOperand(1);
-      auto arg1Name = outputName(arg1, pos, arch);
+      auto arg1Name = outputWire(arg1, pos, arch);
 
       if (instr->getOpcode() == Instruction::FAdd) {
-        assignments.insert({addUnit.portWires["en"].name, "1"});        
+        //assignments.insert({addUnit.portWires["en"].name, "1"});
+        assignments.insert({addUnit.portWires["en"].name, constWire(1, 1)});        
       }
       assignments.insert({addUnit.portWires["in0"].name, arg0Name});
       assignments.insert({addUnit.portWires["in1"].name, arg1Name});      
@@ -1373,7 +1379,7 @@ namespace ahaHLS {
 
       //cout << "arg0 = " << valueString(arg0) << endl;
 
-      auto arg0Name = outputName(arg0, pos, arch);
+      auto arg0Name = outputWire(arg0, pos, arch);
 
       assignments.insert({addUnit.portWires["base_addr"].name, arg0Name});
 
@@ -1381,7 +1387,7 @@ namespace ahaHLS {
         auto arg1 = instr->getOperand(i);
         //cout << "Getting operand " << valueString(arg1) << endl;
         auto arg1Name =
-          outputName(arg1, pos, arch);
+          outputWire(arg1, pos, arch);
 
         assignments.insert({addUnit.portWires["in" + to_string(i)].name, arg1Name});
       }
@@ -1398,9 +1404,9 @@ namespace ahaHLS {
 
         Value* v0 = phi->getIncomingValue(i);
 
-        string val0Name = outputName(v0, pos, arch);
+        auto val0Name = outputWire(v0, pos, arch);
 
-        input += val0Name;
+        input += val0Name.valueString();
         s += "32'd" + to_string(b0Val);
 
         if (i < ((int) phi->getNumIncomingValues()) - 1) {
@@ -1421,13 +1427,13 @@ namespace ahaHLS {
       SelectInst* sel = dyn_cast<SelectInst>(instr);
 
       Value* cond = sel->getCondition();
-      string condName = outputName(cond, pos, arch);
+      auto condName = outputWire(cond, pos, arch);
 
       Value* trueVal = sel->getTrueValue();
-      string trueName = outputName(trueVal, pos, arch);
+      auto trueName = outputWire(trueVal, pos, arch);
 
       Value* falseVal = sel->getFalseValue();
-      string falseName = outputName(falseVal, pos, arch);
+      auto falseName = outputWire(falseVal, pos, arch);
 
       assignments.insert({addUnit.portWires["in0"].name, falseName});
       assignments.insert({addUnit.portWires["in1"].name, trueName});
@@ -1439,7 +1445,7 @@ namespace ahaHLS {
 
         std::string portName = getPortName(instr);
         cout << "Port name = " << portName << endl;
-        string val = outputName(instr->getOperand(1), pos, arch);
+        auto val = outputWire(instr->getOperand(1), pos, arch);
 
         assignments.insert({addUnit.inputWire(portName), val});
 
@@ -1454,12 +1460,12 @@ namespace ahaHLS {
     } else if(SExtInst::classof(instr)) {
 
       Value* trueVal = instr->getOperand(0);
-      string trueName = outputName(trueVal, pos, arch);
+      auto trueName = outputWire(trueVal, pos, arch);
 
       assignments.insert({addUnit.portWires["in"].name, trueName});
     } else if (ZExtInst::classof(instr)) {
       Value* inVal = instr->getOperand(0);
-      string inName = outputName(inVal, pos, arch);
+      auto inName = outputWire(inVal, pos, arch);
       assignments.insert({addUnit.portWires["in"].name, inName});
     } else {
 
