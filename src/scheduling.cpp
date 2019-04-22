@@ -2641,7 +2641,7 @@ namespace ahaHLS {
     writePort(stallRaddrBuilder, readMod, addrWidth, "s_axil_araddr", addrValShifted);
     writePort(stallRaddrBuilder, readMod, 1, "s_axil_arvalid", mkInt(1, 1));
     writePort(stallRaddrBuilder, readMod, 1, "s_axil_rready", mkInt(1, 1));    
-    stallRaddrBuilder.CreateCondBr(raddrReady, stallRrespBlk, stallRrespBlk);
+    stallRaddrBuilder.CreateCondBr(raddrReady, stallRrespBlk, stallRaddrBlk);
 
     IRBuilder<> stallRrespBuilder(stallRrespBlk);
     auto rrespReady = readPort(stallRrespBuilder, readMod, 1, "s_axil_rvalid");
@@ -3116,6 +3116,13 @@ namespace ahaHLS {
         out << tab(3) << blkNameString(transition.first) << " -> " << blkNameString(transition.second) << endl;
       }
 
+      set<pair<BasicBlock*, BasicBlock*> > outOfStateTransitions =
+        getOutOfStateTransitions(state, *this);
+      out << tab(2) << "- Out of state transitions" << endl;
+      for (auto transition : outOfStateTransitions) {
+        out << tab(3) << blkNameString(transition.first) << " -> " << blkNameString(transition.second) << endl;
+      }
+      
       map<BasicBlock*, map<BasicBlock*, int> > blockLevelsForEntries =
         topologicalLevelsForBlocks(state, *this);
       out << tab(2) << "- Topological levels for blocks by entry" << endl;
