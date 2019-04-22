@@ -1731,8 +1731,6 @@ namespace ahaHLS {
 
     //cout << "Adding transition from " << state << " to " << dest << " via " << valueString(pos.instr) << endl;
 
-    //Wire atStateCond = atStateWire(state, arch);
-
     auto& controller = arch.getController(reg(32, "global_state"));
     auto& pipelines = arch.pipelines;
 
@@ -1752,14 +1750,17 @@ namespace ahaHLS {
         outOfPipeJumpHappened.resetValue = "0";
         outOfPipeJumpHappened.values[jumpCond] = constWire(1, 1);
 
-        vector<Wire> conds{}; //atStateCond};
-        Wire pipeCond =
-          checkAnd(jumpCond, pipelineClearOnNextCycleCondition(p, arch), arch);
-        conds.push_back(pipeCond);
-        controller.values[andCond(conds, arch)] = constWire(32, dest);
+        // vector<Wire> conds{}; //atStateCond};
+        // Wire pipeCond =
+        //   checkAnd(jumpCond, pipelineClearOnNextCycleCondition(p, arch), arch);
+        // conds.push_back(pipeCond);
+        //controller.values[andCond(conds, arch)] = constWire(32, dest);
 
         Wire exitNextCycle =
           checkAnd(p.inPipeWire(), pipelineClearOnNextCycleCondition(p, arch), arch);
+
+        controller.values[checkAnd(exitNextCycle, outOfPipeJumpHappened.reg, arch)] =
+          constWire(32, dest);
       }
 
     } else {
@@ -2481,7 +2482,6 @@ namespace ahaHLS {
         Wire atContainerBlock =
           containerBlockIsActive(br, arch);
         Wire atBranchState =
-          //atStateWire(arch.stg.instructionEndState(br), arch);
           atStateWire(branchEndState, arch);
         Wire atContainerPos =
           checkAnd(atContainerBlock, atBranchState, arch);
@@ -2490,7 +2490,6 @@ namespace ahaHLS {
         atContainerPos = checkAnd(atContainerPos, notStalled, arch);
 
         string hName = "br_" + blkString + "_happened";
-        //Wire hWire = wire(1, hName);
 
         auto& happenedController = addPortController(hName, 1, arch);
         happenedController.setCond("in_data", atContainerPos, constWire(1, 1));
@@ -2503,7 +2502,6 @@ namespace ahaHLS {
           if (!jumpToSameState(&bb, destBlock, arch)) {
             arch.getController("global_next_block").values[wireValue(hName, arch)] =
               constWire(32, arch.cs.getBasicBlockNo(destBlock));
-              //to_string(arch.cs.getBasicBlockNo(destBlock));
           }
         } else {
 
@@ -2513,8 +2511,6 @@ namespace ahaHLS {
           ControlFlowPosition pos =
             position(brEndState, br, arch);
           
-          // TODO: Convert outputName to wire
-          //string condValue = outputName(condition, pos, arch);
           Wire condValue = outputWire(condition, pos, arch);
 
           Wire trueTaken = checkAnd(atContainerPos, condValue, arch);
@@ -2532,13 +2528,11 @@ namespace ahaHLS {
           if (!jumpToSameState(&bb, trueSucc, arch)) {
             arch.getController("global_next_block").values[trueTaken] =
               constWire(32, trueBlkNo);
-              //to_string(trueBlkNo);
           }
 
           if (!jumpToSameState(&bb, falseSucc, arch)) {          
             arch.getController("global_next_block").values[falseTaken] =
               constWire(32, falseBlkNo);
-              //to_string(falseBlkNo);
           }
 
         }
