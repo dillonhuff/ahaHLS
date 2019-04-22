@@ -1914,10 +1914,17 @@ namespace ahaHLS {
           if (!elem(pair<StateId, StateId>(state, dest), newTransitions)) {
             cout << "Problem: transition from " << state << " to " << dest << " is in old transitions but not in new" << endl;
           }
+
         }
 
         cout << "Done with branch" << endl;
       } //else
+    }
+
+    for (auto tr : oldTransitions) {
+      if (!elem(tr, newTransitions)) {
+        cout << "Problem: transition from " << tr.first << " to " << tr.second << " is in old transitions but not in new" << endl;
+      }
     }
 
     if (newTransitions.size() != oldTransitions.size()) {
