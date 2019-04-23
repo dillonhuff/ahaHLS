@@ -1356,70 +1356,6 @@ namespace ahaHLS {
       }
     }
 
-    // Build up new transitions data structure.
-    // Terminators that finish (branches and returns) have special status
-    // Also need to figure out the number of states that could finish?
-
-    // Stages:
-    //   1. Get the set of all blocks that execute in the state
-    //   2. Remove all blocks that finish and then (always) branch to blocks in the same state
-    //      because these blocks cannot be terminators.
-    //   3. Isolate all blocks whose terminators finish in this state and who could
-    //      branch to a different state
-    //   4. All remaining blocks must be blocks whose terminators do not finish in
-    //      this state, some instructions from them may be in progress in this state
-    // for (auto& opState : g.opStates) {
-
-    //   set<BasicBlock*> allBlocks;
-    //   StateId state = opState.first;
-    //   vector<Instruction*> instrs = opState.second;
-    //   for (auto instr : instrs) {
-    //     BasicBlock* blk = instr->getParent();
-    //     allBlocks.insert(blk);
-    //   }
-
-    //   TransitionInfo info;
-    //   for (auto instr : g.instructionsFinishingAt(state)) {
-    //     if (BranchInst::classof(instr)) {
-    //       BranchInst* br = dyn_cast<BranchInst>(instr);
-    //       bool allJumpsToSameState = true;
-    //       BasicBlock* pred = br->getParent();
-    //       for (int i = 0; i < br->getNumSuccessors(); i++) {
-    //         BasicBlock* succ = br->getSuccessor(i);
-    //         if (!jumpToSameState(pred, succ)) {
-    //           allJumpsToSameState = false;
-    //           break;
-    //         }
-    //       }
-
-    //       if (!allJumpsToSameState) {
-    //         info.branchExitBlocks.insert(pred);
-    //       }
-    //     }
-    //   }
-
-    //   // Create 
-    //   g.transitions[state] = info;
-    // }
-
-    // Q: What are the transition possibilities?
-    // A: Each state contains instructions from many
-    //    different basic blocks, b0, b1, ..., bn
-    //    for each basic block a few things could be true:
-    //    1. The terminator for that block finishes in S
-    //    2. The terminator does not finish but:
-    //       2.1 All non-terminator instructions finish
-    //       2.2 At least one non-terminator instruction does not finish
-    //
-    // If 2.2 is true then if bi is executing we must transition to
-    // (S + 1) to complete the in progress instructions
-    //
-    // Otherwise 2.1 is true and we are done with all instructions
-    // from bi in S, but we have nowhere obvious to go. In that case
-    // I suppose the legal choice is to find the next instruction in the
-    // basic block that has not started transition to its state?
-
-    // Compute transitions
     for (auto st : g.opStates) {
       map<BasicBlock*, vector<Instruction*> > endingInstructions;
       map<BasicBlock*, vector<Instruction*> > inProgressInstructions;
@@ -1439,104 +1375,12 @@ namespace ahaHLS {
         }
 
       }
-
-    //   for (auto bb : blocksInState) {
-        
-    //     bool terminatorFinishing = false;
-    //     Instruction* instr = nullptr;
-    //     Condition cond;
-    //     if (contains_key(bb, endingInstructions)) {
-    //       for (auto ist : map_find(bb, endingInstructions)) {
-    //         if (TerminatorInst::classof(ist)) {
-    //           terminatorFinishing = true;
-    //           instr = ist;
-    //           cond = Condition();
-    //         }
-    //       }
-    //     }
-
-    //     // If terminator is finishing no instructions are still in progress
-    //     if (terminatorFinishing) {
-    //       assert(!contains_key(bb, inProgressInstructions));
-
-    //       if (ReturnInst::classof(instr)) {
-
-    //         //returnBehavior(sched, g, st.first, dyn_cast<ReturnInst>(instr), cond);
-
-    //       } else {
-
-    //         auto* branch = dyn_cast<BranchInst>(instr);
-    //         if (branch->isConditional()) {
-    //           assert(branch->getNumSuccessors() == 2);
-    //           Value* cond = branch->getCondition();
-
-    //           BasicBlock* trueB = branch->getSuccessor(0);
-    //           BasicBlock* falseB = branch->getSuccessor(1);
-
-    //           StateId trueState =
-    //             map_find(trueB, sched.blockTimes).front();
-    //           StateId falseState =
-    //             map_find(falseB, sched.blockTimes).front();
-
-    //           // Only add a state transition if this branch takes
-    //           // the control flow into a different state
-    //           if ((trueB == instr->getParent()) || (trueState != st.first)) {
-    //             map_insert(g.opTransitions, st.first, {trueState, Condition(cond)});
-    //           }
-    //           if ((falseB == instr->getParent()) || (falseState != st.first)) {
-    //             map_insert(g.opTransitions, st.first, {falseState, Condition(cond, true)});
-    //           }
-                
-    //         } else {
-    //           assert(branch->getNumSuccessors() == 1);
-
-    //           StateId nextState =
-    //             map_find(branch->getSuccessor(0), sched.blockTimes).front();
-    //           if ((branch->getSuccessor(0) == instr->getParent()) ||
-    //               (nextState != st.first)) {
-    //             map_insert(g.opTransitions, st.first, {nextState, Condition()});
-    //           }
-                
-    //         }
-    //       }
-
-    //     } else {
-
-    //       if (inProgressInstructions.size() == 0) {
-    //         // No terminator and no in progress instructions, need to look for
-    //         // a default
-    //         cout << "Zero in progress instructions in basic block " << st.first << endl;
-
-    //         auto endingInBlock = map_find(bb, endingInstructions);              
-    //         assert(endingInBlock.size() > 0);
-
-    //         //GuardedInstruction instrG = endingInBlock.back();
-    //         map_insert(g.opTransitions, st.first, {st.first + 1, Condition()});
-
-    //       } else {
-    //         // No terminator, but some instructions are in progress, need to
-    //         // go to the numerically next state
-    //         cout << "Some instructions are not finished " << endl;
-    //         cout << "inserting transition from " << st.first << " to " << st.first + 1 << endl;
-
-    //         auto inProgressInBlock = map_find(bb, inProgressInstructions);    
-    //         assert(inProgressInBlock.size() > 0);
-
-    //         //GuardedInstruction instrG = inProgressInBlock.back();xo
-    //         //map_insert(g.opTransitions, st.first, {st.first + 1, instrG.cond});
-    //         map_insert(g.opTransitions, st.first, {st.first + 1, Condition()});
-              
-    //       }
-    //     }
-    //   }
       
     }
 
     for (auto p : sched.pipelineSchedules) {
       int II = p.second;
-      //assert(p.first.blks.size() == 1);
-      
-      //BasicBlock* bb = *begin(p.first.blks);
+
       set<StateId> stateIds;      
       for (auto bb : p.first.blks) {
         vector<int> states = map_find(bb, sched.blockTimes);
@@ -1544,8 +1388,8 @@ namespace ahaHLS {
           stateIds.insert(id);
         }
       }
-      //g.pipelines.push_back(Pipeline(II, states[1] - states[0] + 1, stateIds));
-      g.pipelines.push_back(Pipeline(II, stateIds.size(), stateIds));      
+
+      g.pipelines.push_back(Pipeline(II, stateIds.size(), stateIds));
     }
 
     return g;
