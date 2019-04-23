@@ -1296,6 +1296,127 @@ namespace ahaHLS {
     REQUIRE(runIVerilogTB("accum_loop"));
   }
 
+  // Next test case: Need to do a stenciled loop where I fill
+  // and then use a shift register for the loop computation
+  TEST_CASE("Outer loop pipelining of transfer from FIFO to RAM") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    auto mod = llvm::make_unique<Module>("FIFO-RAM transfer", context);
+    setGlobalLLVMModule(mod.get());
+
+    int width = 32;
+    
+    InterfaceFunctions interfaces;
+    StructType* tp = fifoType(width);
+    vector<Type*> readArgs = {tp->getPointerTo()};
+    Function* readFifo = fifoRead(width, mod.get());
+    interfaces.addFunction(readFifo);
+    implementRVFifoRead(readFifo, interfaces.getConstraints(readFifo));
+
+    cout << "Read fifo func" << endl;
+    cout << valueString(readFifo) << endl;
+
+    Function* writeFifo = fifoWrite(width, mod.get());
+    interfaces.addFunction(writeFifo);
+    implementRVFifoWrite(writeFifo, interfaces.getConstraints(writeFifo));
+
+    cout << "Write fifo func" << endl;
+    cout << valueString(writeFifo) << endl;
+
+    std::vector<Type *> inputs{tp->getPointerTo(),
+        sramType(32, 16)->getPointerTo()};
+    Function* f = mkFunc(inputs, "accum_loop", mod.get());
+
+    auto entryBlock = mkBB("entry_block", f);
+    auto loopBlock = mkBB("loop_block", f);
+    auto exitBlock = mkBB("exit_block", f);        
+
+    // ConstantInt* loopBound = mkInt("5", 32);
+    // ConstantInt* zero = mkInt("0", 32);    
+    // ConstantInt* one = mkInt("1", 32);    
+
+    // IRBuilder<> builder(entryBlock);
+    // auto ldA = loadRAMVal(builder, dyn_cast<Value>(getArg(f, 0)), zero);
+    // builder.CreateBr(loopBlock);
+
+    // IRBuilder<> loopBuilder(loopBlock);
+    // auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
+    // auto sumPhi = loopBuilder.CreatePHI(intType(32), 2);
+    // auto nextInd = loopBuilder.CreateAdd(indPhi, one);
+    // auto nextSum = loopBuilder.CreateAdd(sumPhi, ldA);
+
+    // auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
+
+    // indPhi->addIncoming(zero, entryBlock);
+    // indPhi->addIncoming(nextInd, loopBlock);
+
+    // sumPhi->addIncoming(zero, entryBlock);
+    // sumPhi->addIncoming(nextSum, loopBlock);
+    
+    // loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
+
+    // IRBuilder<> exitBuilder(exitBlock);
+    // //exitBuilder.CreateStore(nextSum, dyn_cast<Value>(f->arg_begin() + 1));
+    // storeRAMVal(exitBuilder, dyn_cast<Value>(getArg(f, 1)), mkInt(15, 32), nextSum);
+    // exitBuilder.CreateRet(nullptr);
+
+    // cout << valueString(f) << endl;
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.typeSpecs[string("SRAM_32_16")] =
+      [](StructType* tp) { return ramSpec(32, 16); };
+
+    Function* ramRead = ramLoadFunction(getArg(f, 0));
+    interfaces.addFunction(ramRead);
+    implementRAMRead0(ramRead,
+                      interfaces.getConstraints(ramRead));
+
+    Function* ramWrite = ramStoreFunction(getArg(f, 1));
+    interfaces.addFunction(ramWrite);
+    implementRAMWrite0(ramWrite,
+                       interfaces.getConstraints(ramWrite));
+    
+    Schedule s = scheduleInterface(f, hcs, interfaces);
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<string, int> testLayout = {{"arg_1", 15}};
+    map<llvm::Value*, int> layout;
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(arch, info);
+
+    // Create testing infrastructure
+    map<string, vector<int> > memoryInit{{"arg_0", {6}}};
+    map<string, vector<int> > memoryExpected{{"arg_1", {1, 2, 5, 9, 18}}};
+
+    TestBenchSpec tb;
+    tb.memoryInit = memoryInit;
+    tb.memoryExpected = memoryExpected;
+    tb.runCycles = 100;
+    tb.name = "accum_loop";
+    tb.useModSpecs = true;
+    int startSetMemCycle = 1;
+    setRAM(tb, 1, "arg_0", memoryInit, testLayout);
+
+    int startRunCycle = startSetMemCycle + 10; 
+    map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+    map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+
+    int checkMemCycle = 40;
+    checkRAM(tb, checkMemCycle, "arg_1", memoryExpected, testLayout);
+
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    REQUIRE(runIVerilogTB("accum_loop"));
+  }
+  
   TEST_CASE("Block outside loop but in same state defines value used in loop") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
@@ -1305,7 +1426,7 @@ namespace ahaHLS {
 
     std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
         sramType(32, 16)->getPointerTo()};
-    Function* f = mkFunc(inputs, "accum_loop", mod.get());
+    Function* f = mkFunc(inputs, "outer_loop_pipe", mod.get());
 
     auto entryBlock = mkBB("entry_block", f);
     auto loopBlock = mkBB("loop_block", f);
@@ -1392,7 +1513,7 @@ namespace ahaHLS {
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 10;
-    tb.name = "accum_loop";
+    tb.name = "outer_loop_pipe";
     tb.useModSpecs = true;
     int startSetMemCycle = 1;
     setRAM(tb, 1, "arg_0", memoryInit, testLayout);
@@ -1402,11 +1523,11 @@ namespace ahaHLS {
     map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
 
     int checkMemCycle = 40;
-    checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
+    checkRAM(tb, checkMemCycle, "arg_1", memoryExpected, testLayout);
 
     emitVerilogTestBench(tb, arch, testLayout);
 
-    REQUIRE(runIVerilogTB("accum_loop"));
+    REQUIRE(runIVerilogTB("outer_loop_pipe"));
   }
   
   TEST_CASE("1D stencil without shift register in LLVM") {
