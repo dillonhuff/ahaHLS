@@ -1704,6 +1704,6 @@ module concat(input [IN0_WIDTH - 1 : 0] in0,
    parameter IN1_WIDTH = 32;
    parameter OUT_WIDTH = IN0_WIDTH + IN1_WIDTH;
 
-   assign out = {in0, in1};
+   assign out = {in1, in0};
    
 endmodule

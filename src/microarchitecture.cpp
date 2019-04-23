@@ -1423,11 +1423,11 @@ namespace ahaHLS {
         Value* v0 = phi->getIncomingValue(i);
         auto val0Name = outputWire(v0, pos, arch);
 
-        input = concatWires(input, val0Name, arch);
-        s = concatWires(s, constWire(32, b0Val), arch);
+        // input = concatWires(input, val0Name, arch);
+        // s = concatWires(s, constWire(32, b0Val), arch);
 
-        // input = concatWires(val0Name, input, arch);
-        // s = concatWires(constWire(32, b0Val), s, arch);
+        input = concatWires(val0Name, input, arch);
+        s = concatWires(constWire(32, b0Val), s, arch);
       }
 
       assignments.insert({addUnit.portWires["in"], input});
