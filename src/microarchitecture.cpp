@@ -2866,11 +2866,15 @@ namespace ahaHLS {
       vector<map<Instruction*, Wire> > pipelineRegisters;
       std::set<Instruction*> pastValues;
       int regNum = 0;
-      for (int j = 0; j < p.depth(); j++) {
-        string jStr = to_string(j);
+      // for (int j = 0; j < p.depth(); j++) {
+      //   string jStr = to_string(j);
+
+      for (auto st : p.getStates()) {
+        string jStr = to_string(st);
+        
         ep.valids.push_back(Wire(true, 1, "pipeline_stage_" + jStr + "_valid"));
 
-        StateId st = ep.stateForStage(j); //0; //ep.p.getStates().at(j);
+        //StateId st = ep.stateForStage(j); //0; //ep.p.getStates().at(j);
         //assert(false);
         assert(st >= 0);
 
