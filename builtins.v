@@ -1695,3 +1695,15 @@ module hls_wire(input [WIDTH - 1 : 0] in_data,
    
    assign out_data = in_data;
 endmodule
+
+module concat(input [IN0_WIDTH - 1 : 0] in0,
+              input [IN1_WIDTH - 1 : 0] in1,
+              output [OUT_WIDTH - 1 : 0] out);
+   
+   parameter IN0_WIDTH = 32;
+   parameter IN1_WIDTH = 32;
+   parameter OUT_WIDTH = IN0_WIDTH + IN1_WIDTH;
+
+   assign out = {in1, in0};
+   
+endmodule

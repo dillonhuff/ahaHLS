@@ -1430,7 +1430,6 @@ namespace ahaHLS {
       input += "}";
       s += "}";
 
-      //assignments.insert({addUnit.portWires["in"].name, input});
       assignments.insert({addUnit.portWires["in"], wire(totalWidth, input)});
       assignments.insert({addUnit.portWires["s"], wire(32*phi->getNumIncomingValues(), s)});
       
@@ -2163,13 +2162,6 @@ namespace ahaHLS {
     return arch.portController(name);
   }
   
-
-  // std::string wireValue(const std::string& hName,
-  //                       MicroArchitecture& arch) {
-  //   auto& pController = arch.portController(hName);
-  //   return pController.unitController.unit.outputWire("out_data");
-  // }
-
   Wire wireValue(const std::string& hName,
                         MicroArchitecture& arch) {
     auto& pController = arch.portController(hName);
@@ -2189,6 +2181,20 @@ namespace ahaHLS {
     return unit;
   }
 
+  ModuleSpec concatSpec(const std::string& name, const int width0, const int width1) {
+    ModuleSpec unit;
+    unit.name = name;
+    unit.hasClock = false;
+    unit.hasRst = false;
+    unit.params = {{"IN0_WIDTH", to_string(width0)},
+                   {"IN1_WIDTH", to_string(width1)}};
+    unit.ports = {{"in0", inputPort(width0, "in0")},
+                  {"in1", inputPort(width1, "in1")},
+                  {"out", outputPort(width0 + width1, "out")}};
+    unit.insensitivePorts = {"in0", "in1"};
+    return unit;
+  }
+  
   ModuleSpec binopSpec(const std::string& name, const int width) {
     ModuleSpec unit;
     unit.name = name;
@@ -2241,6 +2247,18 @@ namespace ahaHLS {
     return arch.portController(unit.instName);
   }
 
+  PortController& makeConcat(const int width0,
+                             const int width1,
+                             MicroArchitecture& arch) {
+    string eqName = arch.uniqueName("concat");
+    ModuleSpec eqSpec = concatSpec("concat", width0, width1);
+    FunctionalUnit& unit = arch.makeUnit(eqName, eqSpec);
+    assert(unit.instName == eqName);
+    
+    arch.addPortController(unit);
+    return arch.portController(unit.instName);
+  }
+  
   PortController& makeOr(const int width, MicroArchitecture& arch) {
     string eqName = arch.uniqueName("orOp");
     ModuleSpec eqSpec = binopSpec("orOp", width);
@@ -2280,6 +2298,14 @@ namespace ahaHLS {
     return controller.functionalUnit().outputWire();
   }
 
+  Wire concatWires(const Wire in0, const Wire in1, MicroArchitecture& arch) {
+    PortController& controller = makeConcat(in0.width, in1.width, arch);
+    controller.setAlways("in0", in0);
+    controller.setAlways("in1", in1);
+
+    return controller.functionalUnit().outputWire();
+  }
+  
   Wire checkAnd(const Wire in0, const Wire in1, MicroArchitecture& arch) {
 
     if (in0.width != in1.width) {
