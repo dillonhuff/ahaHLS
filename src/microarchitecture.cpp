@@ -1315,6 +1315,7 @@ namespace ahaHLS {
 
     //map<string, string> assignments;
     map<string, Wire> assignments;
+    //map<Wire, Wire> assignments;
 
     if (ReturnInst::classof(instr)) {
       assert(addUnit.isExternal());
