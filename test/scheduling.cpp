@@ -1366,70 +1366,139 @@ namespace ahaHLS {
     interfaces.addFunction(ramWrite);
     implementRAMWrite0(ramWrite,
                        interfaces.getConstraints(ramWrite));
+
+    SECTION("No pipelining") {
+      Schedule s = scheduleInterface(f, hcs, interfaces);
+      STG graph = buildSTG(s, f);
+
+      cout << "STG Is" << endl;
+      graph.print(cout);
+
+      map<string, int> testLayout = {{"arg_1", 0}};
+      map<llvm::Value*, int> layout;
+      auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+      VerilogDebugInfo info;
+      addNoXChecks(arch, info);
+
+      emitVerilog(arch, info);
+
+      // Create testing infrastructure
+      map<string, vector<int> > memoryInit{{"arg_0", {6}}};
+      map<string, vector<int> > memoryExpected{{"arg_1", {1, 2, 5, 9, 18}}};
+
+      auto arg0 = dyn_cast<Argument>(getArg(f, 0));
+      string in0Name = string(arg0->getName());
     
-    Schedule s = scheduleInterface(f, hcs, interfaces);
-    STG graph = buildSTG(s, f);
+      TestBenchSpec tb;
+      tb.memoryExpected = memoryExpected;
+      tb.runCycles = 100;
+      tb.name = "outer_loop_pipe";
+      tb.useModSpecs = true;
+      tb.settableWires.insert(in0Name + "_in_data");
+      tb.settableWires.insert(in0Name + "_write_valid");
 
-    cout << "STG Is" << endl;
-    graph.print(cout);
+      int startSetMemCycle = 1;
 
-    map<string, int> testLayout = {{"arg_1", 0}};
-    map<llvm::Value*, int> layout;
-    auto arch = buildMicroArchitecture(graph, layout, hcs);
+      tb.setArgPort(arg0, "write_valid", 4, "1");
+      tb.setArgPort(arg0, "in_data", 4, "1");
+      //tb.setArgPort(arg0, "write_valid", 5, "0");
 
-    VerilogDebugInfo info;
-    addNoXChecks(arch, info);
+      tb.setArgPort(arg0, "write_valid", 5, "1");
+      tb.setArgPort(arg0, "in_data", 5, "2");
+      //tb.setArgPort(arg0, "write_valid", 6, "0");
 
-    emitVerilog(arch, info);
+      tb.setArgPort(arg0, "write_valid", 6, "1");
+      tb.setArgPort(arg0, "in_data", 6, "5");
+      tb.setArgPort(arg0, "write_valid", 7, "0");
 
-    // Create testing infrastructure
-    map<string, vector<int> > memoryInit{{"arg_0", {6}}};
-    map<string, vector<int> > memoryExpected{{"arg_1", {1, 2, 5, 9, 18}}};
-
-    auto arg0 = dyn_cast<Argument>(getArg(f, 0));
-    string in0Name = string(arg0->getName());
-    
-    TestBenchSpec tb;
-    tb.memoryExpected = memoryExpected;
-    tb.runCycles = 100;
-    tb.name = "outer_loop_pipe";
-    tb.useModSpecs = true;
-    tb.settableWires.insert(in0Name + "_in_data");
-    tb.settableWires.insert(in0Name + "_write_valid");
-
-    int startSetMemCycle = 1;
-
-    tb.setArgPort(arg0, "write_valid", 4, "1");
-    tb.setArgPort(arg0, "in_data", 4, "1");
-    tb.setArgPort(arg0, "write_valid", 5, "0");
-
-    tb.setArgPort(arg0, "write_valid", 8, "1");
-    tb.setArgPort(arg0, "in_data", 8, "2");
-    tb.setArgPort(arg0, "write_valid", 9, "0");
-
-    tb.setArgPort(arg0, "write_valid", 10, "1");
-    tb.setArgPort(arg0, "in_data", 10, "5");
-    tb.setArgPort(arg0, "write_valid", 11, "0");
-
-    tb.setArgPort(arg0, "write_valid", 15, "1");
-    tb.setArgPort(arg0, "in_data", 15, "9");
-    tb.setArgPort(arg0, "write_valid", 16, "0");
+      tb.setArgPort(arg0, "write_valid", 15, "1");
+      tb.setArgPort(arg0, "in_data", 15, "9");
+      tb.setArgPort(arg0, "write_valid", 16, "0");
  
-    tb.setArgPort(arg0, "write_valid", 17, "1");
-    tb.setArgPort(arg0, "in_data", 17, "18");
-    tb.setArgPort(arg0, "write_valid", 18, "0");
+      tb.setArgPort(arg0, "write_valid", 17, "1");
+      tb.setArgPort(arg0, "in_data", 17, "18");
+      tb.setArgPort(arg0, "write_valid", 18, "0");
    
     
-    int startRunCycle = startSetMemCycle + 2; 
-    map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
-    map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+      int startRunCycle = startSetMemCycle + 2; 
+      map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+      map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
 
-    int checkMemCycle = 40;
-    checkRAM(tb, checkMemCycle, "arg_1", memoryExpected, testLayout);
+      int checkMemCycle = 40;
+      checkRAM(tb, checkMemCycle, "arg_1", memoryExpected, testLayout);
 
-    emitVerilogTestBench(tb, arch, testLayout);
+      emitVerilogTestBench(tb, arch, testLayout);
 
-    REQUIRE(runIVerilogTB("outer_loop_pipe"));
+      REQUIRE(runIVerilogTB("outer_loop_pipe"));
+    }
+
+    SECTION("With pipelining") {
+      Schedule s = scheduleInterface(f, hcs, interfaces);
+      STG graph = buildSTG(s, f);
+
+      cout << "STG Is" << endl;
+      graph.print(cout);
+
+      map<string, int> testLayout = {{"arg_1", 0}};
+      map<llvm::Value*, int> layout;
+      auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+      VerilogDebugInfo info;
+      addNoXChecks(arch, info);
+
+      emitVerilog(arch, info);
+
+      // Create testing infrastructure
+      map<string, vector<int> > memoryInit{{"arg_0", {6}}};
+      map<string, vector<int> > memoryExpected{{"arg_1", {1, 2, 5, 9, 18}}};
+
+      auto arg0 = dyn_cast<Argument>(getArg(f, 0));
+      string in0Name = string(arg0->getName());
+    
+      TestBenchSpec tb;
+      tb.memoryExpected = memoryExpected;
+      tb.runCycles = 100;
+      tb.name = "outer_loop_pipe";
+      tb.useModSpecs = true;
+      tb.settableWires.insert(in0Name + "_in_data");
+      tb.settableWires.insert(in0Name + "_write_valid");
+
+      int startSetMemCycle = 1;
+
+      tb.setArgPort(arg0, "write_valid", 4, "1");
+      tb.setArgPort(arg0, "in_data", 4, "1");
+      //tb.setArgPort(arg0, "write_valid", 5, "0");
+
+      tb.setArgPort(arg0, "write_valid", 5, "1");
+      tb.setArgPort(arg0, "in_data", 5, "2");
+      //tb.setArgPort(arg0, "write_valid", 6, "0");
+
+      tb.setArgPort(arg0, "write_valid", 6, "1");
+      tb.setArgPort(arg0, "in_data", 6, "5");
+      tb.setArgPort(arg0, "write_valid", 7, "0");
+
+      tb.setArgPort(arg0, "write_valid", 15, "1");
+      tb.setArgPort(arg0, "in_data", 15, "9");
+      tb.setArgPort(arg0, "write_valid", 16, "0");
+ 
+      tb.setArgPort(arg0, "write_valid", 17, "1");
+      tb.setArgPort(arg0, "in_data", 17, "18");
+      tb.setArgPort(arg0, "write_valid", 18, "0");
+   
+    
+      int startRunCycle = startSetMemCycle + 2; 
+      map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+      map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+
+      int checkMemCycle = 40;
+      checkRAM(tb, checkMemCycle, "arg_1", memoryExpected, testLayout);
+
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      REQUIRE(runIVerilogTB("outer_loop_pipe"));
+    }
+
   }
   
   TEST_CASE("Block outside loop but in same state defines value used in loop") {
@@ -5813,8 +5882,8 @@ namespace ahaHLS {
     map<llvm::Value*, int> layout = {};
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
-    auto receiver = dyn_cast<Argument>(getArg(f, 0));
-    auto counter = dyn_cast<Argument>(getArg(f, 1));    
+    // auto receiver = dyn_cast<Argument>(getArg(f, 0));
+    // auto counter = dyn_cast<Argument>(getArg(f, 1));    
 
     TestBenchSpec tb;
     map<string, int> testLayout = {};
