@@ -1569,20 +1569,6 @@ namespace ahaHLS {
     return false;
   }
 
-  // Wire andCondWire(vector<std::string>& allConds,
-  //                  MicroArchitecture& arch) {
-  //   if (allConds.size() == 0) {
-  //     return constWire(1, 1);
-  //   }
-
-  //   string w = allConds[0];
-  //   for (int i = 1; i < (int) allConds.size(); i++) {
-  //     string right = allConds[i];
-  //     w = checkAnd(wire(32, w), wire(32, right), arch).name;
-  //   }
-  //   return wire(32, w);
-  // }
-
   Wire andCond(vector<Wire>& allConds,
                MicroArchitecture& arch) {
     if (allConds.size() == 0) {
@@ -1920,76 +1906,6 @@ namespace ahaHLS {
       
       newTransitions.push_back({src, end});
     }
-
-    // vector<pair<StateId, StateId> > oldTransitions;
-    // for (auto instr : arch.stg.instructionsFinishingAt(state)) {
-    //   if (BranchInst::classof(instr)) {
-    //     BranchInst* br = dyn_cast<BranchInst>(instr);
-        
-    //     ControlFlowPosition pos =
-    //       position(state, br, arch);
-
-    //     cout << "Adding transitions for branch " << valueString(br) << endl;
-    //     for (int i = 0; i < (int) br->getNumSuccessors(); i++) {
-    //       BasicBlock* bb = br->getSuccessor(i);
-    //       StateId dest = arch.stg.blockStartState(bb);
-
-    //       if (jumpToSameState(br->getParent(), bb, arch)) {
-    //         cout << "Jump to dest state " << dest << " is a same state jump" << endl;
-    //         continue;
-    //       }
-
-    //       Wire condWire;
-    //       if (br->isConditional()) {
-    //         assert((i == 0) || (i == 1));
-
-    //         Value* jmpTest = br->getOperand(0);
-    //         //string jmpTestName = outputName(jmpTest, pos, arch);
-    //         Wire jmpTestName = outputWire(jmpTest, pos, arch);
-    //         if (i == 0) {
-    //           //condWire = wire(1, jmpTestName);
-    //           condWire = jmpTestName;
-    //         } else {
-    //           //condWire = checkNotWire(wire(1, jmpTestName), arch);
-    //           condWire = checkNotWire(jmpTestName, arch);
-    //         }
-    //       } else {
-    //         condWire = constWire(1, 1);
-    //       }
-
-    //       condWire = checkAnd(blockActiveInState(state, br->getParent(), arch), condWire, arch);
-    //       addStateTransition(state, dest, condWire, arch);
-
-    //       oldTransitions.push_back({state, dest});
-    //       if (!elem(pair<StateId, StateId>(state, dest), newTransitions)) {
-    //         cout << "Problem: transition from " << state << " to " << dest << " is in old transitions but not in new" << endl;
-    //       }
-
-    //     }
-
-    //     cout << "Done with branch" << endl;
-    //   } //else
-    // }
-
-    // for (auto tr : oldTransitions) {
-    //   if (!elem(tr, newTransitions)) {
-    //     cout << "Problem: transition from " << tr.first << " to " << tr.second << " is in old transitions but not in new" << endl;
-    //   }
-    // }
-
-    // if (newTransitions.size() != oldTransitions.size()) {
-    //   cout << "Problem: New transitions size == " << newTransitions.size() << " but old transitions size == " << oldTransitions.size() << endl;
-    //   cout << "New transitions " << endl;
-    //   for (auto t : newTransitions) {
-    //     cout << tab(1) << t.first << " -> " << t.second << endl;
-    //   }
-
-    //   cout << "Old transitions " << endl;
-    //   for (auto t : oldTransitions) {
-    //     cout << tab(1) << t.first << " -> " << t.second << endl;
-    //   }
-
-    // }
 
     for (auto instr : arch.stg.instructionsFinishingAt(state)) {
       if (ReturnInst::classof(instr)) {
