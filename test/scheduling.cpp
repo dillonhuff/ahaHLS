@@ -1373,7 +1373,7 @@ namespace ahaHLS {
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<string, int> testLayout = {{"arg_1", 15}};
+    map<string, int> testLayout = {{"arg_1", 0}};
     map<llvm::Value*, int> layout;
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
@@ -1406,6 +1406,19 @@ namespace ahaHLS {
     tb.setArgPort(arg0, "write_valid", 8, "1");
     tb.setArgPort(arg0, "in_data", 8, "2");
     tb.setArgPort(arg0, "write_valid", 9, "0");
+
+    tb.setArgPort(arg0, "write_valid", 10, "1");
+    tb.setArgPort(arg0, "in_data", 10, "5");
+    tb.setArgPort(arg0, "write_valid", 11, "0");
+
+    tb.setArgPort(arg0, "write_valid", 15, "1");
+    tb.setArgPort(arg0, "in_data", 15, "9");
+    tb.setArgPort(arg0, "write_valid", 16, "0");
+ 
+    tb.setArgPort(arg0, "write_valid", 17, "1");
+    tb.setArgPort(arg0, "in_data", 17, "18");
+    tb.setArgPort(arg0, "write_valid", 18, "0");
+   
     
     int startRunCycle = startSetMemCycle + 2; 
     map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
