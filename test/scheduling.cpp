@@ -1458,6 +1458,9 @@ namespace ahaHLS {
         if (&blk != &(f->getEntryBlock())) {
           if (!ReturnInst::classof(blk.getTerminator())) {
             all.blks.insert(&blk);
+
+            cout << "Pipelining block " << endl;
+            cout << valueString(&blk) << endl;
           }
         }
       }

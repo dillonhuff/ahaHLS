@@ -469,6 +469,7 @@ namespace ahaHLS {
     // the basic block that contains it, unless the block is pipelined,
     // then the branch can complete before the end of the pipeline
     if (!inAnyPipeline(bb, toPipeline)) {
+      cout << "Basic bloc " << valueString(bb) << "is not in any pipeline" << endl;
       addConstraint(blockEnd(bb) == instrEnd(term));
     } else {
       //addConstraint(blockEnd(bb) == instrEnd(term));
@@ -1520,22 +1521,18 @@ namespace ahaHLS {
 
     for (auto p : sched.pipelineSchedules) {
       int II = p.second;
-      assert(p.first.blks.size() == 1);
+      //assert(p.first.blks.size() == 1);
       
-      BasicBlock* bb = *begin(p.first.blks);
-      vector<int> states = map_find(bb, sched.blockTimes);
-
-      // TODO: Check that:
-      //   1. The transition condition is checked less than II cycles into the pipeline
-      //   2. The sequence of states only have transitions from one to another and
-      //      then back to the start of the pipeline or out of it
-
-      vector<StateId> stateIds;
-      for (StateId id = states[0]; id <= states[1]; id++) {
-        stateIds.push_back(id);
+      //BasicBlock* bb = *begin(p.first.blks);
+      vector<StateId> stateIds;      
+      for (auto bb : p.first.blks) {
+        vector<int> states = map_find(bb, sched.blockTimes);
+        for (StateId id = states[0]; id <= states[1]; id++) {
+          stateIds.push_back(id);
+        }
       }
-
-      g.pipelines.push_back(Pipeline(II, states[1] - states[0] + 1, stateIds));
+      //g.pipelines.push_back(Pipeline(II, states[1] - states[0] + 1, stateIds));
+      g.pipelines.push_back(Pipeline(II, stateIds.size(), stateIds));      
     }
 
     return g;
