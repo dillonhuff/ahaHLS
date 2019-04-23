@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <vector>
+#include <set>
 #include <string>
 
 #include <llvm/IR/Instructions.h>
@@ -49,6 +50,16 @@ namespace ahaHLS {
   template<typename T>
   static inline
   std::string commaListString(const std::vector<T>& objs) {
+    std::vector<std::string> strs;
+    for (auto str : objs) {
+      strs.push_back(std::to_string(str));
+    }
+    return commaListString(strs);
+  }
+
+  template<typename T>
+  static inline
+  std::string commaListString(const std::set<T>& objs) {
     std::vector<std::string> strs;
     for (auto str : objs) {
       strs.push_back(std::to_string(str));

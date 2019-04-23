@@ -1537,11 +1537,11 @@ namespace ahaHLS {
       //assert(p.first.blks.size() == 1);
       
       //BasicBlock* bb = *begin(p.first.blks);
-      vector<StateId> stateIds;      
+      set<StateId> stateIds;      
       for (auto bb : p.first.blks) {
         vector<int> states = map_find(bb, sched.blockTimes);
         for (StateId id = states[0]; id <= states[1]; id++) {
-          stateIds.push_back(id);
+          stateIds.insert(id);
         }
       }
       //g.pipelines.push_back(Pipeline(II, states[1] - states[0] + 1, stateIds));
