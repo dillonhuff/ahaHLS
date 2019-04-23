@@ -1322,9 +1322,9 @@ namespace ahaHLS {
             g.opStates[var] = {};
           }
 
-          if (!contains_key(var, g.opTransitions)) {
-            g.opTransitions[var] = {};
-          }
+          // if (!contains_key(var, g.opTransitions)) {
+          //   g.opTransitions[var] = {};
+          // }
 
         }
       }
