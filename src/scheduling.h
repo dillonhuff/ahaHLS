@@ -951,10 +951,20 @@ namespace ahaHLS {
       std::string val = dbhc::map_find(p, IInames);
       return val;
     }
+
+    LinearExpression getII(const PipelineSpec& p) const {
+      std::string val = getIIName(p);
+      return LinearExpression(val);
+    }
     
     LinearExpression getII(llvm::BasicBlock* bb) const {
-      std::string val = getIIName(bb);
-      return LinearExpression(getIIName(bb));
+      for (auto p : IInames) {
+        if (dbhc::elem(bb, p.first.blks)) {
+          return getII(p.first);
+        }
+      }
+
+      assert(false);
     }
     
     int blockNumber() const {

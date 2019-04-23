@@ -898,7 +898,7 @@ namespace ahaHLS {
         Instruction* term = next->getTerminator();
 
         if (BranchInst::classof(term)) {
-          if (!elem(next, toPipeline) && !elem(nextBB, toPipeline)) {
+          if (!inAnyPipeline(next, toPipeline) && !inAnyPipeline(nextBB, toPipeline)) {
             p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
           } else {
             p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
@@ -1242,16 +1242,18 @@ namespace ahaHLS {
     STG g(sched);
 
     // Make sure pipeline states are included in STG
-    for (auto blk : sched.pipelineSchedules) {
-      for (auto var : map_find(blk.first, sched.blockTimes)) {
-        if (!contains_key(var, g.opStates)) {
-          g.opStates[var] = {};
-        }
+    for (auto p : sched.pipelineSchedules) {
+      for (auto blk : p.first.blks) {
+        for (auto var : map_find(blk, sched.blockTimes)) {
+          if (!contains_key(var, g.opStates)) {
+            g.opStates[var] = {};
+          }
 
-        if (!contains_key(var, g.opTransitions)) {
-          g.opTransitions[var] = {};
-        }
+          if (!contains_key(var, g.opTransitions)) {
+            g.opTransitions[var] = {};
+          }
 
+        }
       }
     }
 
@@ -1459,7 +1461,9 @@ namespace ahaHLS {
 
     for (auto p : sched.pipelineSchedules) {
       int II = p.second;
-      BasicBlock* bb = p.first;
+      assert(p.first.blks.size() == 1);
+      
+      BasicBlock* bb = *begin(p.first.blks);
       vector<int> states = map_find(bb, sched.blockTimes);
 
       // TODO: Check that:

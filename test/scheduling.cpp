@@ -433,7 +433,9 @@ namespace ahaHLS {
     Schedule s = scheduleInterface(f, hcs, interfaces, blocksToPipeline);
 
     REQUIRE(s.numStates() == 7);
-    REQUIRE(map_find(*begin(blocksToPipeline), s.pipelineSchedules) == 1);
+    PipelineSpec spec{true, {*begin(blocksToPipeline)}};
+    //REQUIRE(map_find(*begin(blocksToPipeline), s.pipelineSchedules) == 1);
+    REQUIRE(map_find(spec, s.pipelineSchedules) == 1);
 
     STG graph = buildSTG(s, f);
 
@@ -489,7 +491,9 @@ namespace ahaHLS {
     Schedule s = scheduleInterface(f, hcs, interfaces, blocksToPipeline);
 
     REQUIRE(s.numStates() == 7);
-    REQUIRE(map_find(*begin(blocksToPipeline), s.pipelineSchedules) == 1);
+    PipelineSpec spec{true, {*begin(blocksToPipeline)}};
+    //REQUIRE(map_find(*begin(blocksToPipeline), s.pipelineSchedules) == 1);
+    REQUIRE(map_find(spec, s.pipelineSchedules) == 1);
 
     STG graph = buildSTG(s, f);
 
@@ -571,7 +575,7 @@ namespace ahaHLS {
     // Pipelined
 
     REQUIRE(s.numStates() == 7);
-    REQUIRE(map_find(*begin(blocksToPipeline), s.pipelineSchedules) == 1);
+    //REQUIRE(map_find(*begin(blocksToPipeline), s.pipelineSchedules) == 1);
 
     STG graph = buildSTG(s, f);
 
