@@ -1442,8 +1442,6 @@ namespace ahaHLS {
     SECTION("With pipelining") {
       //Schedule s = scheduleInterface(f, hcs, interfaces);
 
-      auto preds = buildControlPreds(f);
-
       ExecutionConstraints exec;
       
       inlineWireCalls(f, exec, interfaces);
@@ -1451,6 +1449,8 @@ namespace ahaHLS {
     
       cout << "After inlining" << endl;
       cout << valueString(f) << endl;
+
+      auto preds = buildControlPreds(f);
 
       set<PipelineSpec> toPipeline;
       PipelineSpec all{false, {}};
