@@ -921,7 +921,8 @@ namespace ahaHLS {
         Instruction* term = next->getTerminator();
 
         if (BranchInst::classof(term)) {
-          if (!inAnyPipeline(next, toPipeline) && !inAnyPipeline(nextBB, toPipeline)) {
+          if (!inAnyPipeline(next, toPipeline) &&
+              !inAnyPipeline(nextBB, toPipeline)) {
             p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
           } else {
             p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
