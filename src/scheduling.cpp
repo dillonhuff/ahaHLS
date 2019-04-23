@@ -829,12 +829,38 @@ namespace ahaHLS {
     }
 
   }
+
+
+  bool operator<(const PipelineSpec& x, const PipelineSpec& y) {
+    if (x.staticII < y.staticII) {
+      return true;
+    }
+
+    if (x.staticII > y.staticII) {
+      return false;
+    }
+
+    return x.blks < y.blks;
+  }
   
   SchedulingProblem
   createSchedulingProblem(llvm::Function* f,
                           HardwareConstraints& hdc,
                           std::set<BasicBlock*>& toPipeline,
                           map<BasicBlock*, vector<BasicBlock*> >& controlPredecessors) {
+    set<PipelineSpec> pipes;
+    for (auto bb : toPipeline) {
+      pipes.insert({true, {bb}});
+    }
+    return createSchedulingProblem(f, hdc, pipes, controlPredecessors);
+  }
+
+  SchedulingProblem
+  createSchedulingProblem(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          std::set<PipelineSpec>& toPipeline,
+                          map<BasicBlock*, vector<BasicBlock*> >& controlPredecessors) {
+    
     SchedulingProblem p(hdc);
 
     for (auto& bb : f->getBasicBlockList()) {

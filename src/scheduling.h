@@ -1598,6 +1598,21 @@ namespace ahaHLS {
   std::set<std::pair<BasicBlock*, BasicBlock*> >
   getOutOfStateTransitions(const StateId state,
                            STG& stg);
+
+
+  class PipelineSpec {
+  public:
+    bool staticII;
+    std::set<llvm::BasicBlock*> blks;
+  };
+
+  bool operator<(const PipelineSpec& x, const PipelineSpec& y);
+  
+  SchedulingProblem
+  createSchedulingProblem(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          std::set<PipelineSpec>& toPipeline,
+                          map<BasicBlock*,vector<BasicBlock*>>& controlPredecessors);
   
 }
 
