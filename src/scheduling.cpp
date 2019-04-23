@@ -408,8 +408,19 @@ namespace ahaHLS {
     return count;
   }
 
+  bool inAnyPipeline(BasicBlock* const bb,
+                     set<PipelineSpec>& toPipeline) {
+    for (auto p : toPipeline) {
+      if (elem(bb, p.blks)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
   void SchedulingProblem::addBasicBlock(llvm::BasicBlock* const bb,
-                                        std::set<BasicBlock*>& toPipeline) {
+                                        std::set<PipelineSpec>& toPipeline) {
+                                        //std::set<BasicBlock*>& toPipeline) {
     std::string snkPre = "basic_block_end_state_";
     std::string srcPre = "basic_block_start_state_";
 
@@ -446,7 +457,7 @@ namespace ahaHLS {
     // By definition the completion of a branch is the completion of
     // the basic block that contains it, unless the block is pipelined,
     // then the branch can complete before the end of the pipeline
-    if (!elem(bb, toPipeline)) {
+    if (!inAnyPipeline(bb, toPipeline)) {
       addConstraint(blockEnd(bb) == instrEnd(term));
     } else {
       //addConstraint(blockEnd(bb) == instrEnd(term));
@@ -896,16 +907,6 @@ namespace ahaHLS {
       }
     }
     
-    // std::vector<BasicBlock*> sortedBlocks =
-    //   topologicalSortOfBlocks(f, controlPredecessors);
-    // for (int i = 0; i < (int) sortedBlocks.size() - 1; i++) {
-    //   auto next = sortedBlocks[i];
-    //   auto nextBB = sortedBlocks[i + 1];
-    //   //p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
-    //   p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
-    // }
-
-
     ExecutionConstraints exe;
     addDataConstraints(f, exe);
     exe.addConstraints(p, f);

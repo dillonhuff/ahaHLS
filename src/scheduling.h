@@ -11,6 +11,14 @@ using namespace std;
 
 namespace ahaHLS {
 
+  class PipelineSpec {
+  public:
+    bool staticII;
+    std::set<llvm::BasicBlock*> blks;
+  };
+
+  bool operator<(const PipelineSpec& x, const PipelineSpec& y);
+  
   enum ExecutionActionType {
     EXECUTION_ACTION_INSTRUCTION,
     EXECUTION_ACTION_TAG,
@@ -438,7 +446,7 @@ namespace ahaHLS {
   public:
     std::map<llvm::Instruction*, std::vector<int> > instrTimes;
     std::map<llvm::BasicBlock*, std::vector<int> > blockTimes;
-    std::map<llvm::BasicBlock*, int> pipelineSchedules;
+    std::map<PipelineSpec, int> pipelineSchedules;
 
     int defaultReturnState;
     bool hasRetDefault;
@@ -906,7 +914,7 @@ namespace ahaHLS {
     std::map<ExecutionAction, std::vector<std::string> > actionVarNames;
     std::map<llvm::Instruction*, std::vector<std::string> > schedVarNames;
     std::map<llvm::BasicBlock*, std::vector<std::string> > blockVarNames;
-    std::map<llvm::BasicBlock*, std::string> IInames;
+    std::map<PipelineSpec, std::string> IInames;
 
     std::vector<LinearConstraint> constraints;
 
@@ -929,7 +937,18 @@ namespace ahaHLS {
     }
 
     std::string getIIName(llvm::BasicBlock* bb) const {
-      std::string val = dbhc::map_find(bb, IInames);
+      //std::string val = dbhc::map_find(bb, IInames);
+      for (auto p : IInames) {
+        if (dbhc::elem(bb, p.first.blks)) {
+          return p.second;
+        }
+      }
+
+      assert(false);
+    }
+
+    std::string getIIName(const PipelineSpec& p) const {
+      std::string val = dbhc::map_find(p, IInames);
       return val;
     }
     
@@ -997,7 +1016,8 @@ namespace ahaHLS {
     }
     
     void addBasicBlock(llvm::BasicBlock* const bb,
-                       std::set<llvm::BasicBlock*>& toPipeline);
+                       std::set<PipelineSpec>& toPipeline);
+                       //std::set<llvm::BasicBlock*>& toPipeline);
 
     void addConstraint(const LinearConstraint& constraint) {
       constraints.push_back(constraint);
@@ -1600,14 +1620,6 @@ namespace ahaHLS {
                            STG& stg);
 
 
-  class PipelineSpec {
-  public:
-    bool staticII;
-    std::set<llvm::BasicBlock*> blks;
-  };
-
-  bool operator<(const PipelineSpec& x, const PipelineSpec& y);
-  
   SchedulingProblem
   createSchedulingProblem(llvm::Function* f,
                           HardwareConstraints& hdc,
