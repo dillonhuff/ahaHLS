@@ -2134,17 +2134,8 @@ namespace ahaHLS {
         StateId state = stInstrG.first;
         auto instrsAtState = stInstrG.second;
 
-        //std::set<string> usedPorts;
         for (auto instrG : instrsAtState) {
           Instruction* instr = instrG;
-
-          // vector<string> stallConds = {};
-          // stallConds.push_back(blockActiveInState(state, instr->getParent(), arch).valueString());
-
-          // Wire condWire = andCondWire(stallConds, arch);
-
-          // vector<string> stallConds = {};
-          // stallConds.push_back(blockActiveInState(state, instr->getParent(), arch).valueString());
 
           Wire condWire = blockActiveInState(state, instr->getParent(), arch);
           
@@ -2152,21 +2143,16 @@ namespace ahaHLS {
           auto assigns = instructionPortAssignments(pos, arch);
 
           for (auto portAndValue : assigns) {
-            //string portName = portAndValue.first;
+
             Wire portName = portAndValue.first;
-            //string portVal = portAndValue.second;
             Wire portVal = portAndValue.second;
             if (!contains_key(portName.valueString(), portController.inputControllers)) {
               portController.inputControllers[portName.valueString()] = PortValues();
             }
 
             PortValues& vals = portController.inputControllers[portName.valueString()];
-            vals.portVals.insert({condWire, portVal}); //wire(32, portVal)});
+            vals.portVals.insert({condWire, portVal});
           }
-          
-          // for (auto asg : assigns) {
-          //   usedPorts.insert(asg.first);
-          // }
 
         }
 
@@ -2180,7 +2166,6 @@ namespace ahaHLS {
         }
       }
 
-      //buildInputControllers(portController, arch);
       controllers[portController.functionalUnit().instName] = portController;
     }
 
