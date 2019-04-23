@@ -50,6 +50,14 @@ namespace ahaHLS {
                        AAResults& aliasAnalysis,
                        ScalarEvolution& sc,
                        SchedulingProblem& p);
+
+  void
+  addMemoryConstraints(llvm::Function* f,
+                       HardwareConstraints& hdc,
+                       std::set<PipelineSpec>& toPipeline,
+                       AAResults& aliasAnalysis,
+                       ScalarEvolution& sc,
+                       SchedulingProblem& p);
   
   HardwareConstraints standardConstraints() {
     HardwareConstraints hcs;
@@ -78,6 +86,13 @@ namespace ahaHLS {
   SchedulingProblem
   createSchedulingProblem(llvm::Function* f,
                           HardwareConstraints& hdc,
+                          std::set<PipelineSpec>& toPipeline,
+                          AAResults& aliasAnalysis,
+                          ScalarEvolution& sc);
+  
+  SchedulingProblem
+  createSchedulingProblem(llvm::Function* f,
+                          HardwareConstraints& hdc,
                           std::set<BasicBlock*>& toPipeline,
                           AAResults& aliasAnalysis,
                           ScalarEvolution& sc);
@@ -93,7 +108,8 @@ namespace ahaHLS {
     static char ID;
     Function* target;
     HardwareConstraints& hdc;
-    std::set<BasicBlock*>& toPipeline;
+    //std::set<BasicBlock*>& toPipeline;
+    std::set<PipelineSpec>& toPipeline;
 
     Schedule schedule;
 
@@ -101,7 +117,8 @@ namespace ahaHLS {
     
     SkeletonPass(Function* target_,
                  HardwareConstraints& hdc_,
-                 std::set<BasicBlock*>& toPipeline_) :
+                 std::set<PipelineSpec>& toPipeline_) :
+                 //std::set<BasicBlock*>& toPipeline_) :
       FunctionPass(ID),      
       target(target_),
       hdc(hdc_),
@@ -133,12 +150,6 @@ namespace ahaHLS {
 
       //errs() << "Scheduling " << "\n" << valueString(&F) << "\n";
       if (!contains_key(&F, functionConstraints)) {
-        // schedule = scheduleFunction(&F,
-        //                             hdc,
-        //                             toPipeline,
-        //                             a,
-        //                             sc);
-
         SchedulingProblem p =
           createSchedulingProblem(&F, hdc, toPipeline, a, sc);
 
@@ -482,6 +493,17 @@ namespace ahaHLS {
 
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
+                            std::set<BasicBlock*>& toPipeline,
+                            std::map<Function*, SchedulingProblem>& constraints) {
+    set<PipelineSpec> p;
+    for (auto bb : toPipeline) {
+      p.insert({true, {bb}});
+    }
+    return scheduleFunction(f, hdc, p, constraints);
+  }
+  
+  Schedule scheduleFunction(llvm::Function* f,
+                            HardwareConstraints& hdc,
                             std::set<BasicBlock*>& toPipeline) {
     map<Function*, SchedulingProblem> cs;
     return scheduleFunction(f, hdc, toPipeline, cs);
@@ -489,7 +511,7 @@ namespace ahaHLS {
 
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
-                            std::set<BasicBlock*>& toPipeline,
+                            std::set<PipelineSpec>& toPipeline,
                             std::map<Function*, SchedulingProblem>& constraints) {
 
     llvm::legacy::PassManager pm;
@@ -925,6 +947,15 @@ namespace ahaHLS {
     return createSchedulingProblem(f, hdc, toPipeline, controlPredecessors);
   }
 
+  SchedulingProblem
+  createSchedulingProblem(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          std::set<PipelineSpec>& toPipeline) {
+    std::map<BasicBlock*, vector<BasicBlock*> > controlPredecessors =
+      buildControlPreds(f);
+    return createSchedulingProblem(f, hdc, toPipeline, controlPredecessors);
+  }
+  
   // Solution to binding: Assume always unique, then modify program later
   // to reflect resource constraints?
 
@@ -936,6 +967,20 @@ namespace ahaHLS {
                        ScalarEvolution& sc,
                        SchedulingProblem& p) {
 
+    set<PipelineSpec> pipe;
+    for (auto p : toPipeline) {
+      pipe.insert({true, {p}});
+    }
+    return addMemoryConstraints(f, hdc, pipe, aliasAnalysis, sc, p);
+  }
+  
+  void
+  addMemoryConstraints(llvm::Function* f,
+                       HardwareConstraints& hdc,
+                       std::set<PipelineSpec>& toPipeline,
+                       AAResults& aliasAnalysis,
+                       ScalarEvolution& sc,
+                       SchedulingProblem& p) {
     ExecutionConstraints exe;
 
     // Instructions must finish before their dependencies
@@ -1088,7 +1133,8 @@ namespace ahaHLS {
 
           // Make sure subsequent pipelined loop iterations obey
           // the resource partial order
-          if (elem(&bb, toPipeline)) {
+          //if (elem(&bb, toPipeline)) {
+          if (inAnyPipeline(&bb, toPipeline)) {
             auto II = p.getII(&bb);
 
             assert(iGroups.front().size() > 0);
@@ -1108,7 +1154,8 @@ namespace ahaHLS {
 
     DominatorTree domTree(*f);
     for (auto& bb : f->getBasicBlockList()) {
-      if (elem(&bb, toPipeline)) {
+      //if (elem(&bb, toPipeline)) {
+      if (inAnyPipeline(&bb, toPipeline)) {
         LinearExpression II = p.getII(&bb);
 
         for (Instruction& instrA : bb) {
@@ -1142,6 +1189,18 @@ namespace ahaHLS {
   createSchedulingProblem(llvm::Function* f,
                           HardwareConstraints& hdc,
                           std::set<BasicBlock*>& toPipeline,
+                          AAResults& aliasAnalysis,
+                          ScalarEvolution& sc) {
+    auto p = createSchedulingProblem(f, hdc, toPipeline);
+    addMemoryConstraints(f, hdc, toPipeline, aliasAnalysis, sc, p);
+
+    return p;
+  }
+
+  SchedulingProblem
+  createSchedulingProblem(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          std::set<PipelineSpec>& toPipeline,
                           AAResults& aliasAnalysis,
                           ScalarEvolution& sc) {
     auto p = createSchedulingProblem(f, hdc, toPipeline);

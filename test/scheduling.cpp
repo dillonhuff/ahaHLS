@@ -575,6 +575,8 @@ namespace ahaHLS {
     // Pipelined
 
     REQUIRE(s.numStates() == 7);
+    PipelineSpec spec{true, {*(begin(blocksToPipeline))}};
+    REQUIRE(map_find(spec, s.pipelineSchedules) == 1);    
     //REQUIRE(map_find(*begin(blocksToPipeline), s.pipelineSchedules) == 1);
 
     STG graph = buildSTG(s, f);
@@ -1438,7 +1440,35 @@ namespace ahaHLS {
     }
 
     SECTION("With pipelining") {
-      Schedule s = scheduleInterface(f, hcs, interfaces);
+      //Schedule s = scheduleInterface(f, hcs, interfaces);
+
+      auto preds = buildControlPreds(f);
+
+      ExecutionConstraints exec;
+      
+      inlineWireCalls(f, exec, interfaces);
+      addDataConstraints(f, exec);
+    
+      cout << "After inlining" << endl;
+      cout << valueString(f) << endl;
+
+      set<PipelineSpec> toPipeline;
+      PipelineSpec all{false, {}};
+      for (auto& blk : f->getBasicBlockList()) {
+        if (&blk != &(f->getEntryBlock())) {
+          if (!ReturnInst::classof(blk.getTerminator())) {
+            all.blks.insert(&blk);
+          }
+        }
+      }
+      toPipeline.insert(all);
+
+      SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline, preds);
+      exec.addConstraints(p, f);
+
+      map<Function*, SchedulingProblem> constraints{{f, p}};
+      Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+
       STG graph = buildSTG(s, f);
 
       cout << "STG Is" << endl;

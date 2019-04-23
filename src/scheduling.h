@@ -1635,6 +1635,11 @@ namespace ahaHLS {
                           HardwareConstraints& hdc,
                           std::set<PipelineSpec>& toPipeline,
                           map<BasicBlock*,vector<BasicBlock*>>& controlPredecessors);
+
+  Schedule scheduleFunction(llvm::Function* f,
+                            HardwareConstraints& hdc,
+                            std::set<PipelineSpec>& toPipeline,
+                            std::map<Function*, SchedulingProblem>& constraints);
   
 }
 
