@@ -1228,85 +1228,85 @@ namespace ahaHLS {
     return scheduleFunction(f, hdc, toPipeline);
   }
 
-  void computeTransitions(BasicBlock* bb,
-                          vector<Condition>& conditions,
-                          map<BasicBlock*, vector<pair<BasicBlock*, vector<Condition> > > >& transitions) {
-    assert(!contains_key(bb, transitions));
-    return;
-  }
+  // void computeTransitions(BasicBlock* bb,
+  //                         vector<Condition>& conditions,
+  //                         map<BasicBlock*, vector<pair<BasicBlock*, vector<Condition> > > >& transitions) {
+  //   assert(!contains_key(bb, transitions));
+  //   return;
+  // }
 
-  vector<vector<Atom> > allPathConditions(BasicBlock* src,
-                                          BasicBlock* target,
-                                          std::set<BasicBlock*>& considered) {
+  // vector<vector<Atom> > allPathConditions(BasicBlock* src,
+  //                                         BasicBlock* target,
+  //                                         std::set<BasicBlock*>& considered) {
 
-    if (elem(src, considered)) {
-      return {};
-    }
+  //   if (elem(src, considered)) {
+  //     return {};
+  //   }
 
-    if (src == target) {
-      return {{}};
-    }
+  //   if (src == target) {
+  //     return {{}};
+  //   }
 
-    considered.insert(src);
+  //   considered.insert(src);
 
-    auto termInst = src->getTerminator();
+  //   auto termInst = src->getTerminator();
 
-    if (ReturnInst::classof(termInst)) {
-      return {};
-    } else if (BranchInst::classof(termInst)) {
-      BranchInst* br = dyn_cast<BranchInst>(termInst);
-      if (!br->isConditional()) {
-        assert(br->getNumSuccessors() == 1);
+  //   if (ReturnInst::classof(termInst)) {
+  //     return {};
+  //   } else if (BranchInst::classof(termInst)) {
+  //     BranchInst* br = dyn_cast<BranchInst>(termInst);
+  //     if (!br->isConditional()) {
+  //       assert(br->getNumSuccessors() == 1);
 
-        BasicBlock* nextB = br->getSuccessor(0);
+  //       BasicBlock* nextB = br->getSuccessor(0);
 
-        // Does the true or false condition on this block executing in
-        // the given state need to be considered when making this pathing
-        // decision?
+  //       // Does the true or false condition on this block executing in
+  //       // the given state need to be considered when making this pathing
+  //       // decision?
 
-        // True values are not represented
-        return allPathConditions(nextB, target, considered);
-      } else {
-        assert(br->getNumSuccessors() == 2);
+  //       // True values are not represented
+  //       return allPathConditions(nextB, target, considered);
+  //     } else {
+  //       assert(br->getNumSuccessors() == 2);
 
-        cout << "Found cond branch" << endl;
+  //       cout << "Found cond branch" << endl;
 
-        BasicBlock* trueB = br->getSuccessor(0);
-        BasicBlock* falseB = br->getSuccessor(1);
+  //       BasicBlock* trueB = br->getSuccessor(0);
+  //       BasicBlock* falseB = br->getSuccessor(1);
 
-        Value* cond = br->getCondition();
+  //       Value* cond = br->getCondition();
 
-        Atom trueCond(cond);
-        Atom falseCond(cond, true);
+  //       Atom trueCond(cond);
+  //       Atom falseCond(cond, true);
         
-        vector<vector<Atom> > truePaths =
-          allPathConditions(trueB, target, considered);
+  //       vector<vector<Atom> > truePaths =
+  //         allPathConditions(trueB, target, considered);
 
-        vector<vector<Atom> > falsePaths =
-          allPathConditions(falseB, target, considered);
+  //       vector<vector<Atom> > falsePaths =
+  //         allPathConditions(falseB, target, considered);
 
-        vector<vector<Atom> > allPaths;
-        for (auto p : truePaths) {
-          auto pCpy = p;
-          pCpy.push_back(trueCond);
-          allPaths.push_back(pCpy);
-        }
+  //       vector<vector<Atom> > allPaths;
+  //       for (auto p : truePaths) {
+  //         auto pCpy = p;
+  //         pCpy.push_back(trueCond);
+  //         allPaths.push_back(pCpy);
+  //       }
 
-        for (auto p : falsePaths) {
-          auto pCpy = p;
-          pCpy.push_back(falseCond);
-          allPaths.push_back(pCpy);
-        }
+  //       for (auto p : falsePaths) {
+  //         auto pCpy = p;
+  //         pCpy.push_back(falseCond);
+  //         allPaths.push_back(pCpy);
+  //       }
 
-        return allPaths;
+  //       return allPaths;
         
-      }
+  //     }
       
-    }
+  //   }
 
-    assert(false);
+  //   assert(false);
 
-  }
+  // }
 
   STG buildSTG(Schedule& sched,
                BasicBlock* entryBlock,
