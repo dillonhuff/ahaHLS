@@ -1440,7 +1440,6 @@ namespace ahaHLS {
     }
 
     SECTION("With pipelining") {
-      //Schedule s = scheduleInterface(f, hcs, interfaces);
 
       ExecutionConstraints exec;
       
@@ -1464,7 +1463,7 @@ namespace ahaHLS {
           }
         }
       }
-      toPipeline.insert(all);
+      //toPipeline.insert(all);
 
       SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline, preds);
       exec.addConstraints(p, f);

@@ -622,24 +622,24 @@ namespace ahaHLS {
   class Pipeline {
     int ii;
     int stateDepth;
-    std::vector<StateId> states;    
+    std::set<StateId> states;    
 
   public:
     Pipeline(const int ii_,
              const int stateDepth_,
-             const std::vector<StateId>& states_) :
+             const std::set<StateId>& states_) :
       ii(ii_), stateDepth(stateDepth_), states(states_) {
       assert(II() >= 1);
       assert(depth() >= 1);
       assert(depth() == (int) states.size());
     }
 
-    StateId startState() const { return states.front(); }
-    StateId endState() const { return states.back(); }    
+    StateId startState() const { return *std::min_element(std::begin(states), std::end(states)); } //.front(); }
+    StateId endState() const { return *std::max_element(std::begin(states), std::end(states)); }//return states.back(); }    
 
     int II() const { return ii; }
     int depth() const { return stateDepth; }
-    const std::vector<StateId>& getStates() const { return states; }
+    const std::set<StateId>& getStates() const { return states; }
   };
 
   class SuccessorInfo {

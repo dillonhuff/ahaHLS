@@ -419,6 +419,17 @@ namespace ahaHLS {
     return count;
   }
 
+  bool inSamePipeline(BasicBlock* const x,
+                      BasicBlock* const y,
+                      set<PipelineSpec>& toPipeline) {
+    for (auto p : toPipeline) {
+      if (elem(x, p.blks) && elem(y, p.blks)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   bool inAnyPipeline(BasicBlock* const bb,
                      set<PipelineSpec>& toPipeline) {
     for (auto p : toPipeline) {
@@ -921,8 +932,9 @@ namespace ahaHLS {
         Instruction* term = next->getTerminator();
 
         if (BranchInst::classof(term)) {
-          if (!inAnyPipeline(next, toPipeline) &&
-              !inAnyPipeline(nextBB, toPipeline)) {
+          if ((!inAnyPipeline(next, toPipeline) &&
+               !inAnyPipeline(nextBB, toPipeline)) ||
+              (inSamePipeline(next, nextBB, toPipeline))) {
             p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
           } else {
             p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));

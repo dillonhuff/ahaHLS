@@ -955,11 +955,11 @@ namespace ahaHLS {
                                         MicroArchitecture& arch) {
     
 
-    //cout << "Getting most recent location of " << valueString(result) << " for instruction " << valueString(currentPosition.instr) << endl;
+    cout << "Getting most recent location of " << valueString(result) << " for instruction " << valueString(currentPosition.instr) << endl;
 
     
     if (currentPosition.inPipeline()) {
-      //cout << "We are in a pipeline" << endl;
+      cout << "We are in a pipeline" << endl;
 
       int stage = currentPosition.pipelineStage();
       auto p = arch.getPipeline(currentPosition.stateId());
@@ -1001,6 +1001,8 @@ namespace ahaHLS {
         }
 
       } else {
+
+        cout << "Value is in pipeline registers for another stage" << endl;
         Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
         return tmpRes;
       }
