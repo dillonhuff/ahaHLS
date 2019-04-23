@@ -1326,7 +1326,7 @@ namespace ahaHLS {
 
     std::vector<Type *> inputs{tp->getPointerTo(),
         sramType(32, 16)->getPointerTo()};
-    Function* f = mkFunc(inputs, "accum_loop", mod.get());
+    Function* f = mkFunc(inputs, "outer_loop_pipe", mod.get());
 
     auto entryBlk = mkBB("entry_block", f);
     auto loopBlk = mkBB("loop_stall_block", f);
@@ -1352,29 +1352,12 @@ namespace ahaHLS {
     IRBuilder<> exitBuilder(exitBlk);
     exitBuilder.CreateRet(nullptr);
     
-    // auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
-
-    // indPhi->addIncoming(zero, entryBlock);
-    // indPhi->addIncoming(nextInd, loopBlock);
-
-    // sumPhi->addIncoming(zero, entryBlock);
-    // sumPhi->addIncoming(nextSum, loopBlock);
-    
-    // loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
-
-    // IRBuilder<> exitBuilder(exitBlock);
-    // //exitBuilder.CreateStore(nextSum, dyn_cast<Value>(f->arg_begin() + 1));
-    // storeRAMVal(exitBuilder, dyn_cast<Value>(getArg(f, 1)), mkInt(15, 32), nextSum);
-    // exitBuilder.CreateRet(nullptr);
-
-    // cout << valueString(f) << endl;
-
     HardwareConstraints hcs = standardConstraints();
     hcs.typeSpecs[string("SRAM_32_16")] =
       [](StructType* tp) { return ramSpec(32, 16); };
     hcs.typeSpecs["builtin_fifo_32"] = fifoSpec32;
     
-    Function* ramRead = ramLoadFunction(getArg(f, 0));
+    Function* ramRead = ramLoadFunction(getArg(f, 1));
     interfaces.addFunction(ramRead);
     implementRAMRead0(ramRead,
                       interfaces.getConstraints(ramRead));
@@ -1403,14 +1386,27 @@ namespace ahaHLS {
     map<string, vector<int> > memoryInit{{"arg_0", {6}}};
     map<string, vector<int> > memoryExpected{{"arg_1", {1, 2, 5, 9, 18}}};
 
+    auto arg0 = dyn_cast<Argument>(getArg(f, 0));
+    string in0Name = string(arg0->getName());
+    
     TestBenchSpec tb;
-    tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 100;
-    tb.name = "accum_loop";
+    tb.name = "outer_loop_pipe";
     tb.useModSpecs = true;
+    tb.settableWires.insert(in0Name + "_in_data");
+    tb.settableWires.insert(in0Name + "_write_valid");
+
     int startSetMemCycle = 1;
 
+    tb.setArgPort(arg0, "write_valid", 4, "1");
+    tb.setArgPort(arg0, "in_data", 4, "1");
+    tb.setArgPort(arg0, "write_valid", 5, "0");
+
+    tb.setArgPort(arg0, "write_valid", 8, "1");
+    tb.setArgPort(arg0, "in_data", 8, "2");
+    tb.setArgPort(arg0, "write_valid", 9, "0");
+    
     int startRunCycle = startSetMemCycle + 2; 
     map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
     map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
@@ -1420,7 +1416,7 @@ namespace ahaHLS {
 
     emitVerilogTestBench(tb, arch, testLayout);
 
-    REQUIRE(runIVerilogTB("accum_loop"));
+    REQUIRE(runIVerilogTB("outer_loop_pipe"));
   }
   
   TEST_CASE("Block outside loop but in same state defines value used in loop") {
@@ -1432,7 +1428,7 @@ namespace ahaHLS {
 
     std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
         sramType(32, 16)->getPointerTo()};
-    Function* f = mkFunc(inputs, "outer_loop_pipe", mod.get());
+    Function* f = mkFunc(inputs, "accum_loop", mod.get());
 
     auto entryBlock = mkBB("entry_block", f);
     auto loopBlock = mkBB("loop_block", f);
@@ -1519,7 +1515,7 @@ namespace ahaHLS {
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 10;
-    tb.name = "outer_loop_pipe";
+    tb.name = "accum_loop";
     tb.useModSpecs = true;
     int startSetMemCycle = 1;
     setRAM(tb, 1, "arg_0", memoryInit, testLayout);
@@ -1533,7 +1529,7 @@ namespace ahaHLS {
 
     emitVerilogTestBench(tb, arch, testLayout);
 
-    REQUIRE(runIVerilogTB("outer_loop_pipe"));
+    REQUIRE(runIVerilogTB("accum_loop"));
   }
   
   TEST_CASE("1D stencil without shift register in LLVM") {
