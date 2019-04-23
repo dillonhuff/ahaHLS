@@ -1101,29 +1101,29 @@ namespace ahaHLS {
     return elem(maybeSecond, successors);
   }
   
-  bool getValueFromStorage(llvm::Instruction* const user,
-                           llvm::Instruction* const definedValue,
-                           const StateId state,
-                           MicroArchitecture& arch) {
-    assert(arch.stg.instructionStartState(user) == arch.stg.instructionEndState(definedValue));
-    assert(arch.stg.instructionStartState(user) == state);
+  // bool getValueFromStorage(llvm::Instruction* const user,
+  //                          llvm::Instruction* const definedValue,
+  //                          const StateId state,
+  //                          MicroArchitecture& arch) {
+  //   assert(arch.stg.instructionStartState(user) == arch.stg.instructionEndState(definedValue));
+  //   assert(arch.stg.instructionStartState(user) == state);
     
-    BasicBlock* userBlock = user->getParent();
-    BasicBlock* valueBlock = definedValue->getParent();
+  //   BasicBlock* userBlock = user->getParent();
+  //   BasicBlock* valueBlock = definedValue->getParent();
 
-    if (userBlock == valueBlock) {
+  //   if (userBlock == valueBlock) {
 
-      OrderedBasicBlock obb(userBlock);
+  //     OrderedBasicBlock obb(userBlock);
 
-      if (obb.dominates(definedValue, user)) {
-        return false;
-      } else {
-        return true;
-      }
-    }
+  //     if (obb.dominates(definedValue, user)) {
+  //       return false;
+  //     } else {
+  //       return true;
+  //     }
+  //   }
 
-    return !blockPrecedesInState(valueBlock, userBlock, state, arch);
-  }
+  //   return !blockPrecedesInState(valueBlock, userBlock, state, arch);
+  // }
   
   // std::string outputWire(Value* val,
   //                        ControlFlowPosition& currentPosition,
@@ -2866,21 +2866,16 @@ namespace ahaHLS {
       vector<map<Instruction*, Wire> > pipelineRegisters;
       std::set<Instruction*> pastValues;
       int regNum = 0;
-      // for (int j = 0; j < p.depth(); j++) {
-      //   string jStr = to_string(j);
 
       for (auto st : p.getStates()) {
         string jStr = to_string(st);
         
         ep.valids.push_back(Wire(true, 1, "pipeline_stage_" + jStr + "_valid"));
 
-        //StateId st = ep.stateForStage(j); //0; //ep.p.getStates().at(j);
-        //assert(false);
         assert(st >= 0);
 
         map<Instruction*, Wire> regs;
         for (auto val : pastValues) {
-          //regs[val] = Wire(true, 32, string("pipeline_") + val->getOpcodeName() + "_" + iStr + "_" + jStr + "_" + to_string(regNum));
           regs[val] = Wire(true, getValueBitWidth(val), string("pipeline_") + val->getOpcodeName() + "_" + iStr + "_" + jStr + "_" + to_string(regNum));
           regNum++;
         }
@@ -2888,7 +2883,6 @@ namespace ahaHLS {
         for (auto instrG : stg.instructionsFinishingAt(st)) {
           Instruction* i = instrG;
           if (hasOutput(i)) {          
-            //regs[i] = Wire(true, 32, string("pipeline_") + i->getOpcodeName() + iStr + "_" + jStr + "_" + to_string(regNum));
             regs[i] = Wire(true, getValueBitWidth(i), string("pipeline_") + i->getOpcodeName() + iStr + "_" + jStr + "_" + to_string(regNum));
             pastValues.insert(i);
             regNum++;
@@ -2900,7 +2894,6 @@ namespace ahaHLS {
 
       bool foundTerm = false;
       for (auto st : p.getStates()) {
-        //for (auto instrG : stg.instructionsFinishingAt(p.getStates().back())) {
         for (auto instrG : stg.instructionsFinishingAt(st)) {
           if (BranchInst::classof(instrG)) {
             foundTerm = true;
