@@ -14,6 +14,11 @@ using namespace std;
 
 namespace ahaHLS {
 
+  PortController& makeConcat(const int width0,
+                             const int width1,
+                             MicroArchitecture& arch);
+  Wire concatWires(const Wire in0, const Wire in1, MicroArchitecture& arch);
+  
   Wire buildAtStateWire(const StateId state, MicroArchitecture& arch) {
     if (arch.isPipelineState(state)) {
       auto p = arch.getPipeline(state);
@@ -1402,38 +1407,63 @@ namespace ahaHLS {
       }
 
     } else if (PHINode::classof(instr)) {
-      PHINode* phi = dyn_cast<PHINode>(instr);
 
-      string input = "{";
-      string s = "{";      
+      PHINode* phi = dyn_cast<PHINode>(instr);      
+      assert(phi->getNumIncomingValues() > 0);
 
-      int totalWidth = 0;
-      for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
+      BasicBlock* b0 = phi->getIncomingBlock(0);
+      int b0Val = arch.cs.getBasicBlockNo(b0);
+      Value* v0 = phi->getIncomingValue(0);
+      Wire input = outputWire(v0, pos, arch);
+      Wire s = constWire(32, b0Val);
+
+      for (int i = 1; i < (int) phi->getNumIncomingValues(); i++) {
         BasicBlock* b0 = phi->getIncomingBlock(i);
         int b0Val = arch.cs.getBasicBlockNo(b0);
-
         Value* v0 = phi->getIncomingValue(i);
-
         auto val0Name = outputWire(v0, pos, arch);
 
-        totalWidth += val0Name.width;
-        
-        input += val0Name.valueString();
-        s += "32'd" + to_string(b0Val);
+        input = concatWires(input, val0Name, arch);
+        s = concatWires(s, constWire(32, b0Val), arch);
 
-        if (i < ((int) phi->getNumIncomingValues()) - 1) {
-          input += ", ";
-          s += ", ";
-        }
+        // input = concatWires(val0Name, input, arch);
+        // s = concatWires(constWire(32, b0Val), s, arch);
       }
 
-      input += "}";
-      s += "}";
-
-      assignments.insert({addUnit.portWires["in"], wire(totalWidth, input)});
-      assignments.insert({addUnit.portWires["s"], wire(32*phi->getNumIncomingValues(), s)});
-      
+      assignments.insert({addUnit.portWires["in"], input});
+      assignments.insert({addUnit.portWires["s"], s});
       assignments.insert({addUnit.portWires["last_block"], predecessor(phi->getParent(), arch)});
+      
+      // string input = "{";
+      // string s = "{";      
+
+      // int totalWidth = 0;
+      // for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
+      //   BasicBlock* b0 = phi->getIncomingBlock(i);
+      //   int b0Val = arch.cs.getBasicBlockNo(b0);
+
+      //   Value* v0 = phi->getIncomingValue(i);
+
+      //   auto val0Name = outputWire(v0, pos, arch);
+
+      //   totalWidth += val0Name.width;
+        
+      //   input += val0Name.valueString();
+      //   s += "32'd" + to_string(b0Val);
+
+      //   if (i < ((int) phi->getNumIncomingValues()) - 1) {
+      //     input += ", ";
+      //     s += ", ";
+      //   }
+      // }
+
+      // input += "}";
+      // s += "}";
+
+      // assignments.insert({addUnit.portWires["in"], wire(totalWidth, input)});
+      // assignments.insert({addUnit.portWires["s"], wire(32*phi->getNumIncomingValues(), s)});
+      
+      // assignments.insert({addUnit.portWires["last_block"], predecessor(phi->getParent(), arch)});
 
     } else if (SelectInst::classof(instr)) {
       SelectInst* sel = dyn_cast<SelectInst>(instr);
