@@ -1352,7 +1352,7 @@ namespace ahaHLS {
         g.opStates[i] = {};
         Condition t;
         assert(t.isTrue());
-        g.opTransitions[i] = {{i + 1, t}};
+        //g.opTransitions[i] = {{i + 1, t}};
       }
     }
 
@@ -3099,13 +3099,13 @@ namespace ahaHLS {
       }
     }
 
-    out << "--- State Transistions" << std::endl;      
-    for (auto tr : opTransitions) {
-      out << "\t" << tr.first << std::endl;
-      for (auto nextState : tr.second) {
-        out << "\t\t -> " << nextState << std::endl;
-      }
-    }
+    // out << "--- State Transistions" << std::endl;      
+    // for (auto tr : opTransitions) {
+    //   out << "\t" << tr.first << std::endl;
+    //   for (auto nextState : tr.second) {
+    //     out << "\t\t -> " << nextState << std::endl;
+    //   }
+    // }
   }
 
   

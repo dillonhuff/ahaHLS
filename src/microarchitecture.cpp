@@ -1989,12 +1989,10 @@ namespace ahaHLS {
     arch.getController("global_state").resetValue =
       map_find(wire(32, "global_state"), arch.resetValues);
     
-    //for (auto state : arch.stg.opTransitions) {
     for (auto state : arch.stg.opStates) {
       emitStateCode(state.first, arch);
     }
 
-    //for (auto state : arch.stg.opTransitions) {
     for (auto state : arch.stg.opStates) {    
       emitTempStorageCode(state.first, arch);
     }
