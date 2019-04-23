@@ -2870,8 +2870,8 @@ namespace ahaHLS {
         string jStr = to_string(j);
         ep.valids.push_back(Wire(true, 1, "pipeline_stage_" + jStr + "_valid"));
 
-        StateId st = 0; //ep.p.getStates().at(j);
-        assert(false);
+        StateId st = ep.stateForStage(j); //0; //ep.p.getStates().at(j);
+        //assert(false);
         assert(st >= 0);
 
         map<Instruction*, Wire> regs;

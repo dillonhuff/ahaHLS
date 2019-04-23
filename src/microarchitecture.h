@@ -293,7 +293,8 @@ namespace ahaHLS {
     }
 
     int stateIndex(const StateId id) const {
-      assert(false);
+      return id - p.startState();
+      //assert(false);
       // for (int i = 0; i < (int) p.getStates().size(); i++) {
       //   if (p.getStates().at(i) == id) {
       //     return i;
@@ -304,12 +305,12 @@ namespace ahaHLS {
     }
 
     int stageForState(const StateId id) const {
-      assert(false);
-      //return stateIndex(id);
+      return stateIndex(id);
     }
 
     int stateForStage(const int stageNo) const {
-      assert(false);
+      return p.startState() + stageNo;
+      //assert(false);
       //return p.getStates().at(stageNo);
     }
     
