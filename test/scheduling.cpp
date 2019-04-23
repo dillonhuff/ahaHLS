@@ -1328,24 +1328,30 @@ namespace ahaHLS {
         sramType(32, 16)->getPointerTo()};
     Function* f = mkFunc(inputs, "accum_loop", mod.get());
 
-    auto entryBlock = mkBB("entry_block", f);
-    auto loopBlock = mkBB("loop_block", f);
-    auto exitBlock = mkBB("exit_block", f);        
+    auto entryBlk = mkBB("entry_block", f);
+    auto loopBlk = mkBB("loop_stall_block", f);
+    auto exitBlk = mkBB("exit_block", f);
 
-    // ConstantInt* loopBound = mkInt("5", 32);
-    // ConstantInt* zero = mkInt("0", 32);    
-    // ConstantInt* one = mkInt("1", 32);    
+    auto loopBound = mkInt(5, 32);
+    
+    IRBuilder<> entryBuilder(entryBlk);
+    entryBuilder.CreateBr(loopBlk);
 
-    // IRBuilder<> builder(entryBlock);
-    // auto ldA = loadRAMVal(builder, dyn_cast<Value>(getArg(f, 0)), zero);
-    // builder.CreateBr(loopBlock);
+    IRBuilder<> loopBuilder(loopBlk);
+    auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
+    auto nextInd = loopBuilder.CreateAdd(indPhi, mkInt(1, 32));
+    auto shouldLoop = loopBuilder.CreateICmpNE(nextInd, loopBound);
+    auto readFromFifo = loopBuilder.CreateCall(readFifo, {getArg(f, 0)});
+    storeRAMVal(loopBuilder, getArg(f, 1), indPhi, readFromFifo);
 
-    // IRBuilder<> loopBuilder(loopBlock);
-    // auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
-    // auto sumPhi = loopBuilder.CreatePHI(intType(32), 2);
-    // auto nextInd = loopBuilder.CreateAdd(indPhi, one);
-    // auto nextSum = loopBuilder.CreateAdd(sumPhi, ldA);
+    indPhi->addIncoming(mkInt(0, 32), entryBlk);
+    indPhi->addIncoming(nextInd, loopBlk);
+    
+    loopBuilder.CreateCondBr(shouldLoop, loopBlk, exitBlk);
 
+    IRBuilder<> exitBuilder(exitBlk);
+    exitBuilder.CreateRet(nullptr);
+    
     // auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
 
     // indPhi->addIncoming(zero, entryBlock);
@@ -1366,7 +1372,8 @@ namespace ahaHLS {
     HardwareConstraints hcs = standardConstraints();
     hcs.typeSpecs[string("SRAM_32_16")] =
       [](StructType* tp) { return ramSpec(32, 16); };
-
+    hcs.typeSpecs["builtin_fifo_32"] = fifoSpec32;
+    
     Function* ramRead = ramLoadFunction(getArg(f, 0));
     interfaces.addFunction(ramRead);
     implementRAMRead0(ramRead,
@@ -1403,9 +1410,8 @@ namespace ahaHLS {
     tb.name = "accum_loop";
     tb.useModSpecs = true;
     int startSetMemCycle = 1;
-    setRAM(tb, 1, "arg_0", memoryInit, testLayout);
 
-    int startRunCycle = startSetMemCycle + 10; 
+    int startRunCycle = startSetMemCycle + 2; 
     map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
     map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
 
