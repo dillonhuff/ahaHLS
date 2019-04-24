@@ -3131,21 +3131,12 @@ namespace ahaHLS {
       set<pair<BasicBlock*, BasicBlock*> > outOfStateTransitions =
         getOutOfStateTransitions(state, *this);
       out << tab(2) << "- Out of state transitions" << endl;
+
+      // Now I want this transition table to 
       for (auto transition : outOfStateTransitions) {
         out << tab(3) << blkNameString(transition.first) << " -> " << blkNameString(transition.second) << endl;
       }
-      
-      map<BasicBlock*, map<BasicBlock*, int> > blockLevelsForEntries =
-        topologicalLevelsForBlocks(state, *this);
-      out << tab(2) << "- Topological levels for blocks by entry" << endl;
-      for (auto ent : blockLevelsForEntries) {
-        out << tab(3) << "Entry: " << blkNameString(ent.first) << " implies levels" << endl;
-        for (auto blockLevel : ent.second) {
-          out << tab(4) << blkNameString(blockLevel.first) << " at level " << blockLevel.second << endl;
-        }
-      }
 
-      // Print out table of transition rules
       out << tab(2) << "- Default state transitions" << endl;
       for (auto blk : activeOnExitBlocks(state, *this)) {
 
@@ -3161,6 +3152,15 @@ namespace ahaHLS {
         }
       }
       
+      map<BasicBlock*, map<BasicBlock*, int> > blockLevelsForEntries =
+        topologicalLevelsForBlocks(state, *this);
+      out << tab(2) << "- Topological levels for blocks by entry" << endl;
+      for (auto ent : blockLevelsForEntries) {
+        out << tab(3) << "Entry: " << blkNameString(ent.first) << " implies levels" << endl;
+        for (auto blockLevel : ent.second) {
+          out << tab(4) << blkNameString(blockLevel.first) << " at level " << blockLevel.second << endl;
+        }
+      }
 
       // To add:
       //   1. Blocks fully in states
