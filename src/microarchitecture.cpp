@@ -982,6 +982,10 @@ namespace ahaHLS {
         OrderedBasicBlock obb(argBB);
 
         if (obb.dominates(result, currentPosition.instr)) {
+
+          // No reason to ever get a storage location for a value
+          // that is computed before its user inside the same state
+          assert(false);
           Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
           return tmpRes;
         } else {
@@ -995,6 +999,7 @@ namespace ahaHLS {
             cout << "Wire name = " << tmpRes.name << endl;
             return tmpRes;
           } else {
+            // Could I just get from the last active value?
             Wire tmpRes = map_find(result, p.pipelineRegisters[stage + p.II()]);
             return tmpRes;
           }
