@@ -1013,15 +1013,17 @@ namespace ahaHLS {
       }
     }
 
-    cout << "Getting the value of " << valueString(result) << " from arch.names" << endl;
-
-    assert(contains_key(result, arch.names));
+    return sequentialReg(result, arch);
     
-    Wire tmpRes = map_find(result, arch.names);
+    // cout << "Getting the value of " << valueString(result) << " from arch.names" << endl;
 
-    //cout << "Name is " << tmpRes.name << endl;
+    // assert(contains_key(result, arch.names));
     
-    return tmpRes;
+    // Wire tmpRes = map_find(result, arch.names);
+
+    // //cout << "Name is " << tmpRes.name << endl;
+    
+    // return tmpRes;
   }
 
   Wire dataOutputWire(llvm::Instruction* instr0, const MicroArchitecture& arch) {
