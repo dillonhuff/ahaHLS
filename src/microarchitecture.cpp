@@ -979,14 +979,14 @@ namespace ahaHLS {
 
       if (argState == thisState) {
 
-        BasicBlock* argBB = result->getParent();
-        BasicBlock* userBB = currentPosition.instr->getParent();
+        // BasicBlock* argBB = result->getParent();
+        // BasicBlock* userBB = currentPosition.instr->getParent();
 
-        assert(argBB == userBB);
+        // assert(argBB == userBB);
 
-        OrderedBasicBlock obb(argBB);
+        // OrderedBasicBlock obb(argBB);
 
-        assert(!(obb.dominates(result, currentPosition.instr)));
+        // assert(!(obb.dominates(result, currentPosition.instr)));
 
         int stagePlusII = stage + p.II();
         if (stagePlusII >= (int) p.pipelineRegisters.size()) {
