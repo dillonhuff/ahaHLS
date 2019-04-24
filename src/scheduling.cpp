@@ -393,22 +393,18 @@ namespace ahaHLS {
     for (auto blkF : p.blockVarNames) {
       BasicBlock* blk = blkF.first;
       set<int> instrStartTimes;
-      //set<int> instrEndTimes;      
       for (auto& instrG : *blk) {
         auto* instr = &instrG;
         int startTime = map_find(instr, sched.instrTimes).front();
         instrStartTimes.insert(startTime);
-        //int endTime = map_find(instr, sched.instrTimes).back();
-        //instrEndTimes.insert(endTime);
       }
 
       int blkStart = *min_element(begin(instrStartTimes), end(instrStartTimes));
-      //int blkEnd = *max_element(begin(instrEndTimes), end(instrEndTimes));
 
       assert(sched.blockTimes[blk].size() == 2);
+      assert(blkStart >= sched.blockTimes[blk][0]);
       
       sched.blockTimes[blk][0] = blkStart;
-      //sched.blockTimes[blk][1] = blkEnd;      
     }
     
     return sched;
