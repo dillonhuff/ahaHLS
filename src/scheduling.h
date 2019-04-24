@@ -663,7 +663,8 @@ namespace ahaHLS {
     std::map<StateId, std::vector<StateTransition> > opTransitions;
     std::vector<Pipeline> pipelines;
     std::map<StateId, TransitionInfo> transitions;
-
+    map<BasicBlock*, int> basicBlockNos;
+    
     StateTransitionGraph() {}
 
     llvm::Function* getFunction() const {
@@ -1640,6 +1641,8 @@ namespace ahaHLS {
                             HardwareConstraints& hdc,
                             std::set<PipelineSpec>& toPipeline,
                             std::map<Function*, SchedulingProblem>& constraints);
+
+  std::map<llvm::BasicBlock*, int> numberBasicBlocks(llvm::Function* const f);
   
 }
 

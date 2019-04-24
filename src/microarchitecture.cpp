@@ -959,19 +959,19 @@ namespace ahaHLS {
 
     cout << "Getting most recent location of " << valueString(result) << " for instruction " << valueString(currentPosition.instr) << endl;
 
-    
+
+    // Thought: The datapath API could be one function which
+    // gets the output wire of a piece of storage which stores the
+    // last time the producer instruction was triggered along
+    // the given control path to the user?
     if (currentPosition.inPipeline()) {
       cout << "We are in a pipeline" << endl;
-
-      // TODO: Check that result is in the same pipeline
 
       int stage = currentPosition.pipelineStage();
       auto p = arch.getPipeline(currentPosition.stateId());
 
       if (!producedInPipeline(result, p, arch)) {
         return sequentialReg(result, arch);
-        // Wire tmpRes = map_find(result, arch.names);
-        // return tmpRes;
       }
 
       StateId argState = map_find(result, arch.stg.sched.instrTimes).back();
@@ -1499,19 +1499,6 @@ namespace ahaHLS {
     return assignments;
   }
     
-  map<BasicBlock*, int> numberBasicBlocks(Function* const f) {
-    map<BasicBlock*, int> basicBlockNos;
-
-    int blockNo = 0;
-    for (auto& bb : f->getBasicBlockList()) {
-      basicBlockNos[&bb] = blockNo;
-      blockNo += 1;
-    }
-
-    return basicBlockNos;
-
-  }
-
   ElaboratedPipeline getPipeline(const StateId id,
                                  const std::vector<ElaboratedPipeline>& pipelines) {
     for (auto p : pipelines) {
@@ -2622,7 +2609,10 @@ namespace ahaHLS {
                          HardwareConstraints& hcs) {
 
     auto f = stg.getFunction();
-    map<BasicBlock*, int> basicBlockNos = numberBasicBlocks(f);
+
+    // TODO: Remove this duplicated function
+    map<BasicBlock*, int> basicBlockNos = stg.basicBlockNos;
+    //numberBasicBlocks(f);
     cout << "--- Basic block numbers" << endl;
     for (auto p : basicBlockNos) {
       cout << tab(1) << "Basic block" << endl;

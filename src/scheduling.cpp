@@ -1314,6 +1314,7 @@ namespace ahaHLS {
                
     STG g(sched);
 
+
     // Make sure pipeline states are included in STG
     for (auto p : sched.pipelineSchedules) {
       for (auto blk : p.first.blks) {
@@ -1392,6 +1393,7 @@ namespace ahaHLS {
       g.pipelines.push_back(Pipeline(II, stateIds.size(), stateIds));
     }
 
+    g.basicBlockNos = numberBasicBlocks(g.getFunction());    
     return g;
   }
 
@@ -2760,7 +2762,6 @@ namespace ahaHLS {
       BasicBlock* dest = blkPreds.first;
       for (auto src : blkPreds.second) {
 
-        //cout << "control transition from " << blkNameString(src) << " to " << blkNameString(dest) << endl;
         if ((stg.blockStartState(dest) == state) &&
             (stg.blockEndState(src) == state)) {
           transitions.insert({src, dest});
@@ -4130,5 +4131,19 @@ namespace ahaHLS {
       }
     }
   }
+
+  map<BasicBlock*, int> numberBasicBlocks(Function* const f) {
+    map<BasicBlock*, int> basicBlockNos;
+
+    int blockNo = 0;
+    for (auto& bb : f->getBasicBlockList()) {
+      basicBlockNos[&bb] = blockNo;
+      blockNo += 1;
+    }
+
+    return basicBlockNos;
+
+  }
+
   
 }
