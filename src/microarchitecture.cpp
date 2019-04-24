@@ -1171,9 +1171,7 @@ namespace ahaHLS {
           PortController& controller =
             addPortController(wireName, dataWidth, arch);
 
-          //Wire storedWire = wire(dataWidth, mostRecentStorageLocation(instr0, currentPosition, arch));
           Wire storedWire = mostRecentStorageLocation(instr0, currentPosition, arch);
-          //Wire liveWire = wire(dataWidth, dataOutput(instr0, arch));
           Wire liveWire = dataOutputWire(instr0, arch);
 
           // TODO: Dont re-compute this every time
@@ -1205,12 +1203,9 @@ namespace ahaHLS {
               }
             } else {
               // DO nothing
-              //controller.setCond("in_data", enteredThisBlk, storedWire);
             }
           }
 
-          //return controller.functionalUnit().outputWire("out_data");
-          //return controller.functionalUnit().outputWire("out_data");
           return controller.functionalUnit().outputWire();
 
         }
@@ -1218,7 +1213,6 @@ namespace ahaHLS {
         OrderedBasicBlock obb(argBB);
 
         if (obb.dominates(instr0, instr)) {
-          //return dataOutput(instr0, arch);
           return dataOutputWire(instr0, arch);
         } else {
           return mostRecentStorageLocation(instr0, currentPosition, arch);
