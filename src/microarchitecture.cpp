@@ -946,13 +946,9 @@ namespace ahaHLS {
     return false;
   }
 
-  // std::string mostRecentStorageLocation(Instruction* result,
-  //                                       ControlFlowPosition& currentPosition,
-  //                                       MicroArchitecture& arch) {
-
   Wire mostRecentStorageLocation(Instruction* result,
-                                        ControlFlowPosition& currentPosition,
-                                        MicroArchitecture& arch) {
+                                 ControlFlowPosition& currentPosition,
+                                 MicroArchitecture& arch) {
     
 
     cout << "Getting most recent location of " << valueString(result) << " for instruction " << valueString(currentPosition.instr) << endl;
@@ -960,6 +956,8 @@ namespace ahaHLS {
     
     if (currentPosition.inPipeline()) {
       cout << "We are in a pipeline" << endl;
+
+      // TODO: Check that result is in the same pipeline
 
       int stage = currentPosition.pipelineStage();
       auto p = arch.getPipeline(currentPosition.stateId());
@@ -982,23 +980,13 @@ namespace ahaHLS {
         OrderedBasicBlock obb(argBB);
 
         assert(!(obb.dominates(result, currentPosition.instr)));
-        
-        // //if (obb.dominates(result, currentPosition.instr)) {
 
-        //   // No reason to ever get a storage location for a value
-        //   // that is computed before its user inside the same state
-        //   assert(false);
-        //   Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
-        //   return tmpRes;
-        // } else {
-        //cout << "Getting data from previous stage" << endl;
         int stagePlusII = stage + p.II();
         if (stagePlusII >= (int) p.pipelineRegisters.size()) {
           assert(contains_key(result, arch.names));
                    
           Wire tmpRes = map_find(result, arch.names);
 
-          //Wire tmpRes = map_find(result, p.pipelineRegisters[p.pipelineRegisters.size() - 1]); //stage + p.II()]);
           cout << "Wire name = " << tmpRes.name << endl;
           return tmpRes;
         } else {
@@ -1006,7 +994,6 @@ namespace ahaHLS {
           Wire tmpRes = map_find(result, p.pipelineRegisters[stage + p.II()]);
           return tmpRes;
         }
-        //        }
 
       } else {
 
