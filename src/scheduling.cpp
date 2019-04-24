@@ -3035,6 +3035,18 @@ namespace ahaHLS {
     out << blkNameString(jmp.jmp.first) << " -> " << blkNameString(jmp.jmp.second);
     return out;
   }
+
+  class StateActivationRecord {
+  public:
+    StateId state;
+    BasicBlock* entryBlock;
+    BasicBlock* priorBlock;
+  };
+
+  std::ostream& operator<<(std::ostream& out, const StateActivationRecord& r) {
+    out << "State: " << r.state << ", entry = " << blkNameString(r.entryBlock) << ", prior block = " << blkNameString(r.priorBlock) << endl;
+    return out;
+  }
   
   void StateTransitionGraph::print(std::ostream& out) {
     out << "--- # of states = " << opStates.size() << std::endl;
@@ -3114,14 +3126,27 @@ namespace ahaHLS {
         }
       }
 
+      // Print out table of transition rules
+      out << tab(2) << "- Default state transitions" << endl;
+      for (auto blk : activeOnExitBlocks(state, *this)) {
+
+        if (elem(blk, inProgressBlocks(state, *this))) {
+          BasicBlock* entryBlock = blk;
+          // Note: this is wrong, prior block can be set to itself or set to
+          // currently terminating block
+          BasicBlock* priorBlock = blk;
+          StateId nextState = state + 1;
+
+          StateActivationRecord record{nextState, entryBlock, priorBlock};
+          out << tab(3) << blkNameString(blk) << " default transition to " << record << endl;
+        }
+      }
       
 
       // To add:
       //   1. Blocks fully in states
       //   2. Blocks starting but not ending
       //   3. Blocks ending but not starting?
-      //   4. Blocks that do not start or end but are active
-      //   5. Out of state transitions
       //   6. In to state transitions
       
     }
@@ -3137,13 +3162,6 @@ namespace ahaHLS {
       }
     }
 
-    // out << "--- State Transistions" << std::endl;      
-    // for (auto tr : opTransitions) {
-    //   out << "\t" << tr.first << std::endl;
-    //   for (auto nextState : tr.second) {
-    //     out << "\t\t -> " << nextState << std::endl;
-    //   }
-    // }
   }
 
   
