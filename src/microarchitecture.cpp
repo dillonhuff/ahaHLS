@@ -981,29 +981,32 @@ namespace ahaHLS {
 
         OrderedBasicBlock obb(argBB);
 
-        if (obb.dominates(result, currentPosition.instr)) {
+        assert(!(obb.dominates(result, currentPosition.instr)));
+        
+        // //if (obb.dominates(result, currentPosition.instr)) {
 
-          // No reason to ever get a storage location for a value
-          // that is computed before its user inside the same state
-          assert(false);
-          Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
+        //   // No reason to ever get a storage location for a value
+        //   // that is computed before its user inside the same state
+        //   assert(false);
+        //   Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
+        //   return tmpRes;
+        // } else {
+        //cout << "Getting data from previous stage" << endl;
+        int stagePlusII = stage + p.II();
+        if (stagePlusII >= (int) p.pipelineRegisters.size()) {
+          assert(contains_key(result, arch.names));
+                   
+          Wire tmpRes = map_find(result, arch.names);
+
+          //Wire tmpRes = map_find(result, p.pipelineRegisters[p.pipelineRegisters.size() - 1]); //stage + p.II()]);
+          cout << "Wire name = " << tmpRes.name << endl;
           return tmpRes;
         } else {
-          //cout << "Getting data from previous stage" << endl;
-          int stagePlusII = stage + p.II();
-          if (stagePlusII >= (int) p.pipelineRegisters.size()) {
-            assert(contains_key(result, arch.names));
-                   
-            Wire tmpRes = map_find(result, arch.names);
-
-            cout << "Wire name = " << tmpRes.name << endl;
-            return tmpRes;
-          } else {
-            // Could I just get from the last active value?
-            Wire tmpRes = map_find(result, p.pipelineRegisters[stage + p.II()]);
-            return tmpRes;
-          }
+          // Could I just get from the last active value?
+          Wire tmpRes = map_find(result, p.pipelineRegisters[stage + p.II()]);
+          return tmpRes;
         }
+        //        }
 
       } else {
 
