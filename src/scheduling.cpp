@@ -2973,6 +2973,34 @@ namespace ahaHLS {
     return inProg;
   }
 
+  std::set<llvm::BasicBlock*>
+  activeOnExitBlocks(const StateId state,
+                     STG& stg) {
+    set<BasicBlock*> onExit = inProgressBlocks(state, stg);
+    for (auto blk : blocksInState(state, stg)) {
+      // Any block that contains an out of state jump can
+      // be a terminator
+      if (stg.instructionEndState(blk->getTerminator()) == state) {
+        TerminatorInst* term = dyn_cast<TerminatorInst>(blk->getTerminator());
+        if (ReturnInst::classof(term)) {
+          onExit.insert(blk);
+        } else {
+          if (BranchInst::classof(term)) {
+            BranchInst* br = dyn_cast<BranchInst>(term);
+            for (int i = 0; i < (int) br->getNumSuccessors(); i++) {
+              BasicBlock* succ = br->getSuccessor(i);
+              if (!isInStateJump(state, br->getParent(), succ, stg)) {
+                onExit.insert(blk);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return onExit;
+  }
+  
   class CFGJump {
   public:
     std::pair<BasicBlock*, BasicBlock*> jmp;
@@ -3054,6 +3082,13 @@ namespace ahaHLS {
       for (auto blk : inProgress) {
         out << tab(3) << blkNameString(blk) << endl;
       }
+
+      set<BasicBlock*> activeOnExit =
+        activeOnExitBlocks(state, *this);
+      out << tab(2) << "- Blocks that can be active on state exit" << endl;
+      for (auto blk : activeOnExit) {
+        out << tab(3) << blkNameString(blk) << endl;
+      }
       
       set<pair<BasicBlock*, BasicBlock*> > inStateTransitions =
         getInStateTransitions(state, *this);
@@ -3078,6 +3113,8 @@ namespace ahaHLS {
           out << tab(4) << blkNameString(blockLevel.first) << " at level " << blockLevel.second << endl;
         }
       }
+
+      
 
       // To add:
       //   1. Blocks fully in states

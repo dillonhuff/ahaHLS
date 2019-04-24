@@ -2717,7 +2717,6 @@ namespace ahaHLS {
       ControlFlowPosition pos =
         pipelinePosition(dyn_cast<Instruction>(p.getExitCondition()), p.stateForStage(p.II() - 1), p.II() - 1);
 
-      //string testCond = outputName(p.getExitCondition(), pos, arch);
       Wire testCond = outputWire(p.getExitCondition(), pos, arch);
       auto br = p.getExitBranch();
 
@@ -2727,12 +2726,11 @@ namespace ahaHLS {
       // Does a true value in the branch conditional imply doing another iteration
       // of the loop
       if (trueBlock == pBlock) {
-        //testCond = checkNotWire(wire(1, testCond), arch).valueString(); //"!" + parens(testCond);
         testCond = checkNotWire(testCond, arch);
       }
 
       RegController& cont =
-        arch.getController(entryStateActiveWire(p)); //p.valids.at(0));
+        arch.getController(entryStateActiveWire(p));
       Wire atSt = atStateWire(st, arch);
       
 
