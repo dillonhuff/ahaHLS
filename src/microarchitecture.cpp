@@ -1101,34 +1101,6 @@ namespace ahaHLS {
     return elem(maybeSecond, successors);
   }
   
-  // bool getValueFromStorage(llvm::Instruction* const user,
-  //                          llvm::Instruction* const definedValue,
-  //                          const StateId state,
-  //                          MicroArchitecture& arch) {
-  //   assert(arch.stg.instructionStartState(user) == arch.stg.instructionEndState(definedValue));
-  //   assert(arch.stg.instructionStartState(user) == state);
-    
-  //   BasicBlock* userBlock = user->getParent();
-  //   BasicBlock* valueBlock = definedValue->getParent();
-
-  //   if (userBlock == valueBlock) {
-
-  //     OrderedBasicBlock obb(userBlock);
-
-  //     if (obb.dominates(definedValue, user)) {
-  //       return false;
-  //     } else {
-  //       return true;
-  //     }
-  //   }
-
-  //   return !blockPrecedesInState(valueBlock, userBlock, state, arch);
-  // }
-  
-  // std::string outputWire(Value* val,
-  //                        ControlFlowPosition& currentPosition,
-  //                        MicroArchitecture& arch) {
-
   Wire outputWire(Value* val,
                   ControlFlowPosition& currentPosition,
                   MicroArchitecture& arch) {
