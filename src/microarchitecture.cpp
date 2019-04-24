@@ -946,6 +946,12 @@ namespace ahaHLS {
     return false;
   }
 
+  Wire sequentialReg(Instruction* result,
+                     MicroArchitecture& arch) {
+    Wire tmpRes = map_find(result, arch.names);
+    return tmpRes;
+  }
+  
   Wire mostRecentStorageLocation(Instruction* result,
                                  ControlFlowPosition& currentPosition,
                                  MicroArchitecture& arch) {
@@ -963,8 +969,9 @@ namespace ahaHLS {
       auto p = arch.getPipeline(currentPosition.stateId());
 
       if (!producedInPipeline(result, p, arch)) {
-        Wire tmpRes = map_find(result, arch.names);
-        return tmpRes;
+        return sequentialReg(result, arch);
+        // Wire tmpRes = map_find(result, arch.names);
+        // return tmpRes;
       }
 
       StateId argState = map_find(result, arch.stg.sched.instrTimes).back();
@@ -983,12 +990,15 @@ namespace ahaHLS {
 
         int stagePlusII = stage + p.II();
         if (stagePlusII >= (int) p.pipelineRegisters.size()) {
-          assert(contains_key(result, arch.names));
-                   
-          Wire tmpRes = map_find(result, arch.names);
 
-          cout << "Wire name = " << tmpRes.name << endl;
-          return tmpRes;
+          return sequentialReg(result, arch);
+          
+          // assert(contains_key(result, arch.names));
+                   
+          // Wire tmpRes = map_find(result, arch.names);
+
+          // cout << "Wire name = " << tmpRes.name << endl;
+          // return tmpRes;
         } else {
           // Could I just get from the last active value?
           Wire tmpRes = map_find(result, p.pipelineRegisters[stage + p.II()]);
@@ -1182,10 +1192,12 @@ namespace ahaHLS {
         if (obb.dominates(instr0, instr)) {
           return dataOutputWire(instr0, arch);
         } else {
+          //return sequentialReg(instr0, arch);
           return mostRecentStorageLocation(instr0, currentPosition, arch);
         }
         
       } else {
+        //return sequentialReg(instr0, arch);
         return mostRecentStorageLocation(instr0, currentPosition, arch);
       }
 
