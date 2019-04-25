@@ -1878,16 +1878,21 @@ namespace ahaHLS {
 
     // More general: If no branches were taken leave the lastBB
     // If any branches were taken set the lastBB to the last branch that was taken
-    for (auto instr : arch.stg.instructionsFinishingAt(state)) {
 
-      set<Instruction*> terms;
-      for (auto jmp : possibleLastJumps(state, arch.stg)) {
-        TerminatorInst* termInstr = jmp.jmp.first->getTerminator();
+    set<Instruction*> terms;
+    for (auto jmp : possibleLastJumps(state, arch.stg)) {
+      TerminatorInst* termInstr = jmp.jmp.first->getTerminator();
+      //TerminatorInst* instr = jmp.jmp.first->getTerminator();
+      terms.insert(termInstr);
+    }
 
-        //TerminatorInst* instr = jmp.jmp.first->getTerminator();
-        terms.insert(termInstr);
-      }
+    
+    //for (auto instr : arch.stg.instructionsFinishingAt(state)) {
+    //for (auto instr : terms) { //arch.stg.instructionsFinishingAt(state)) {
 
+    for (auto jmp : possibleLastJumps(state, arch.stg)) {
+      Instruction* instr = jmp.jmp.first->getTerminator();
+      
       if (BranchInst::classof(instr)) {
 
         if (!elem(instr, terms)) {
