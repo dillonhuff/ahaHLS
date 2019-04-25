@@ -14,6 +14,10 @@ using namespace std;
 
 namespace ahaHLS {
 
+  Wire lastBlockActiveInState(const StateId st,
+                              BasicBlock* const bb,
+                              MicroArchitecture& arch);
+  
   PortController& makeConcat(const int width0,
                              const int width1,
                              MicroArchitecture& arch);
@@ -1863,11 +1867,22 @@ namespace ahaHLS {
   void emitStateCode(const StateId state,
                      MicroArchitecture& arch) {
 
+    RegController& rc = arch.getController(reg(32, "last_BB_reg"));
+    
     vector<pair<StateId, StateId> > newTransitions;
     for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
       BasicBlock* srcBlk = transition.first;
       BasicBlock* dest = transition.second;
 
+
+      StateActivationRecord record =
+        buildRecord(srcBlk, dest, arch.stg);
+
+      if (record.priorBlock != nullptr) {
+        rc.values[lastBlockActiveInState(state, srcBlk, arch)] =
+          constWire(32, arch.cs.getBasicBlockNo(record.priorBlock));
+      }
+      
       BranchInst* br = dyn_cast<BranchInst>(srcBlk->getTerminator());
       
       StateId src = state;
@@ -1921,26 +1936,13 @@ namespace ahaHLS {
     //for (auto blk : nonTerminatingBlocks(state, arch.stg)) {
     for (auto blk : inProgressBlocks(state, arch.stg)) {
 
-      // Add transitions for blocks that have active non-terminator instructions
-      //if (!arch.stg.isEmptyState(state)) {
-        cout << "Found non terminating block in " << state << endl;
+      cout << "Found non terminating block in " << state << endl;
 
-        StateId dest = state + 1;
-        Wire condWire = constWire(1, 1);
-        condWire = checkAnd(blockActiveInState(state, blk, arch), condWire, arch);
-        addStateTransition(state, dest, condWire, arch);
-        //}
+      StateId dest = state + 1;
+      Wire condWire = constWire(1, 1);
+      condWire = checkAnd(blockActiveInState(state, blk, arch), condWire, arch);
+      addStateTransition(state, dest, condWire, arch);
     }
-
-    // // If control is in a scheduler inserted blank state, go to the
-    // // next state
-    // if (arch.stg.isEmptyState(state)) {
-    //   cout << "State generation for empty state " << state << endl;
-    //   StateId dest = state + 1;
-    //   //Wire condWire = constWire(1, 1);
-    //   Wire condWire = atStateWire(state, arch);      
-    //   addStateTransition(state, dest, condWire, arch);
-    // }
 
   }
 
@@ -2095,6 +2097,7 @@ namespace ahaHLS {
 
     return cond;
   }
+
   void emitLastBBCode(MicroArchitecture& arch) {
 
     RegController& rc = arch.getController(reg(32, "last_BB_reg"));
@@ -2643,7 +2646,7 @@ namespace ahaHLS {
     emitPipelineValidChainBlock(arch);
     emitPipelineRegisterChains(arch);
     emitPipelineInitiationBlock(arch);
-    emitLastBBCode(arch);
+    //emitLastBBCode(arch);
     emitControlCode(arch);    
 
     return arch;

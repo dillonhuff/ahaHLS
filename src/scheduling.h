@@ -1643,6 +1643,18 @@ namespace ahaHLS {
                             std::map<Function*, SchedulingProblem>& constraints);
 
   std::map<llvm::BasicBlock*, int> numberBasicBlocks(llvm::Function* const f);
+
+  class StateActivationRecord {
+  public:
+    StateId state;
+    llvm::BasicBlock* entryBlock;
+    llvm::BasicBlock* priorBlock;
+  };
+
+  std::ostream& operator<<(std::ostream& out, const StateActivationRecord& r);
+
+  StateActivationRecord
+  buildRecord(BasicBlock* const src, BasicBlock* const dst, STG& stg);
   
 }
 

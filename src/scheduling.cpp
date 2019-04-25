@@ -3055,16 +3055,19 @@ namespace ahaHLS {
     return out;
   }
 
-  class StateActivationRecord {
-  public:
-    StateId state;
-    BasicBlock* entryBlock;
-    BasicBlock* priorBlock;
-  };
-
   std::ostream& operator<<(std::ostream& out, const StateActivationRecord& r) {
-    out << "State: " << r.state << ", entry = " << blkNameString(r.entryBlock) << ", prior block = " << blkNameString(r.priorBlock) << endl;
+    out << "State: " << r.state << ", entry = " << blkNameString(r.entryBlock) << ", prior block = " << ((r.priorBlock == nullptr) ? "SAME" : blkNameString(r.priorBlock)) << endl;
     return out;
+  }
+
+  StateActivationRecord
+  buildRecord(BasicBlock* const src, BasicBlock* const dst, STG& stg) {
+    StateActivationRecord r;
+    r.state = stg.blockStartState(dst);
+    r.entryBlock = dst;
+    r.priorBlock = src;
+
+    return r;
   }
   
   void StateTransitionGraph::print(std::ostream& out) {
@@ -3134,7 +3137,9 @@ namespace ahaHLS {
 
       // Now I want this transition table to 
       for (auto transition : outOfStateTransitions) {
-        out << tab(3) << blkNameString(transition.first) << " -> " << blkNameString(transition.second) << endl;
+        StateActivationRecord record =
+          buildRecord(transition.first, transition.second, *this);
+        out << tab(3) << blkNameString(transition.first) << " -> " << record << endl;
       }
 
       out << tab(2) << "- Default state transitions" << endl;
@@ -3144,7 +3149,7 @@ namespace ahaHLS {
           BasicBlock* entryBlock = blk;
           // Note: this is wrong, prior block can be set to itself or set to
           // currently terminating block
-          BasicBlock* priorBlock = blk;
+          BasicBlock* priorBlock = nullptr;
           StateId nextState = state + 1;
 
           StateActivationRecord record{nextState, entryBlock, priorBlock};
