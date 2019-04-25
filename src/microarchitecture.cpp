@@ -1984,11 +1984,11 @@ namespace ahaHLS {
     return elem(port, portController.functionalUnit().module.insensitivePorts);
   }
 
-  Wire containerBlockIsActive(Instruction* const instr,
-                              MicroArchitecture& arch) {
-    BasicBlock* bb = instr->getParent();
-    return arch.isActiveBlockVar(bb);
-  }
+  // Wire containerBlockIsActive(Instruction* const instr,
+  //                             MicroArchitecture& arch) {
+  //   BasicBlock* bb = instr->getParent();
+  //   return arch.isActiveBlockVar(bb);
+  // }
   
   // Here I am calling atState after the mapping of instructions on to
   // cycles has vanished. By construction the schedule should never
@@ -2437,7 +2437,6 @@ namespace ahaHLS {
         Wire nextBlkIsThisBlk =
           // NOTE: Im not clear on whether this is the right structure for a
           // system where each state has its own entryBlock and lastBlock variables
-          //checkEqual(thisBlkNo, wire(32, "global_next_block"), arch);
           checkEqual(thisBlkNo, nextBBReg(state, arch), arch);
         //predController.setCond("in_data", nextBlkIsThisBlk, wire(32, "last_BB_reg"));
 
