@@ -2611,22 +2611,17 @@ namespace ahaHLS {
 
 
         Wire nextBBIsThisBlock =
-          checkEqual(blkNo, reg(32, "global_next_block"), arch);
+          //checkEqual(blkNo, reg(32, "global_next_block"), arch);
+          checkEqual(blkNo, nextBBReg(state, arch), arch);
         for (auto val : arch.edgeTakenWires) {
           BasicBlock* predecessor = val.first.first;
           BasicBlock* successor = val.first.second;
           Wire edgeTaken = val.second;
 
           if (successor == blk) {
-            //cout << "Block has predessesor" << endl;
             if (jumpToSameState(predecessor, successor, arch)) {
-              //cout << "Found jump that stays inside single state" << endl;
-              // nextBBIsThisBlock =
-              //   checkOr(nextBBIsThisBlock, arch.isActiveBlockVar(predecessor), arch);
-
               nextBBIsThisBlock =
                 checkOr(nextBBIsThisBlock, edgeTaken, arch);
-            
             }
           }
         }
@@ -2634,8 +2629,6 @@ namespace ahaHLS {
         string name = "bb_" + blkString + "_active_in_state_" + to_string(state);
 
         cout << "Getting controller for " << name << endl;
-        
-        //addPortController(name, 1, arch);
         
         PortController& activeController = arch.portController(name);
 
