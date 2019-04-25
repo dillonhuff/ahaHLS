@@ -454,6 +454,8 @@ namespace ahaHLS {
 
     std::map<std::pair<llvm::BasicBlock*, llvm::BasicBlock*>, Wire> edgeTakenWires;
     std::map<StateId, Wire> atStateWires;
+    std::map<StateId, Wire> lastBBWires;
+    std::map<StateId, Wire> entryBBWires;
     
     Wire isActiveBlockVar(llvm::BasicBlock* const bb);
     

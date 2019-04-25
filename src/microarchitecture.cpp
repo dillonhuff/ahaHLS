@@ -1865,13 +1865,27 @@ namespace ahaHLS {
   // and allowing more code to be executed in a cycle. Need to
   // add the active basic block variable
 
-  
+  StateId dstState(const CFGJump& jmp,
+                   STG& stg) {
+    return stg.blockStartState(jmp.jmp.second);
+  }
+
+  Wire lastBBReg(const StateId state, MicroArchitecture& arch) {
+    return reg(32, "last_BB_reg"); //map_find(state, arch.lastBBWires);
+  }
+
+  // Now: I want the lastBB register, state is active
+  // wires, and global_next_block wires to be per-state
   void emitStateCode(const StateId state,
                      MicroArchitecture& arch) {
 
-    RegController& rc = arch.getController(reg(32, "last_BB_reg"));
 
+    //RegController& rc = arch.getController(reg(32, "last_BB_reg"));
     for (auto jmp : possibleLastJumps(state, arch.stg)) {
+      StateId dst = dstState(jmp, arch.stg);
+
+      RegController& rc = arch.getController(lastBBReg(dst, arch));
+      
       auto bbNo = arch.cs.getBasicBlockNo(jmp.jmp.first);
       if (isPipelineState(state, arch.pipelines)) {
         ElaboratedPipeline p = getPipeline(state, arch.pipelines);
@@ -2102,44 +2116,44 @@ namespace ahaHLS {
     return cond;
   }
 
-  void emitLastBBCode(MicroArchitecture& arch) {
+  // void emitLastBBCode(MicroArchitecture& arch) {
 
-    RegController& rc = arch.getController(reg(32, "last_BB_reg"));
+  //   RegController& rc = arch.getController(reg(32, "last_BB_reg"));
 
-    // Find each branch instruction
-    // For each branch instruction if the branch goes out to
-    // a block in another state (or its own block) then set the
-    // next block variable, otherwise set the current (combinational) block
-    // variable.
-    for (auto st : arch.stg.opStates) {
-      if (st.second.size() > 0) {
+  //   // Find each branch instruction
+  //   // For each branch instruction if the branch goes out to
+  //   // a block in another state (or its own block) then set the
+  //   // next block variable, otherwise set the current (combinational) block
+  //   // variable.
+  //   for (auto st : arch.stg.opStates) {
+  //     if (st.second.size() > 0) {
 
-        for (auto instr : arch.stg.instructionsFinishingAt(st.first)) {
-          if (TerminatorInst::classof(instr)) {
-            auto bbNo = arch.cs.getBasicBlockNo(instr->getParent());
-            if (isPipelineState(st.first, arch.pipelines)) {
-              ElaboratedPipeline p = getPipeline(st.first, arch.pipelines);
-              //rc.values[atStateWire(p.stateId, arch)] = to_string(bbNo);
-              rc.values[atStateWire(p.stateId, arch)] = constWire(32, bbNo);
-            } else {
+  //       for (auto instr : arch.stg.instructionsFinishingAt(st.first)) {
+  //         if (TerminatorInst::classof(instr)) {
+  //           auto bbNo = arch.cs.getBasicBlockNo(instr->getParent());
+  //           if (isPipelineState(st.first, arch.pipelines)) {
+  //             ElaboratedPipeline p = getPipeline(st.first, arch.pipelines);
+  //             //rc.values[atStateWire(p.stateId, arch)] = to_string(bbNo);
+  //             rc.values[atStateWire(p.stateId, arch)] = constWire(32, bbNo);
+  //           } else {
 
-              // If this block is the last active block in st
-              // then set last_BB_reg to be it, do not
-              //rc.values[atState(st.first, arch)] = to_string(bbNo);
+  //             // If this block is the last active block in st
+  //             // then set last_BB_reg to be it, do not
+  //             //rc.values[atState(st.first, arch)] = to_string(bbNo);
 
               
-              Wire condWire = lastBlockActiveInState(st.first, instr->getParent(), arch);
-              //rc.values[condWire.valueString()] = to_string(bbNo);
-              //rc.values[condWire] = to_string(bbNo);
-              rc.values[condWire] = constWire(32, bbNo);
-            }
-          }
+  //             Wire condWire = lastBlockActiveInState(st.first, instr->getParent(), arch);
+  //             //rc.values[condWire.valueString()] = to_string(bbNo);
+  //             //rc.values[condWire] = to_string(bbNo);
+  //             rc.values[condWire] = constWire(32, bbNo);
+  //           }
+  //         }
 
-        }
-      }
-    }
+  //       }
+  //     }
+  //   }
 
-  }
+  // }
 
   FunctionalUnit wireUnit(const std::string& name,
                           const int width) {
@@ -2435,7 +2449,8 @@ namespace ahaHLS {
 
       Wire nextBlkIsThisBlk =
         checkEqual(thisBlkNo, wire(32, "global_next_block"), arch);
-      predController.setCond("in_data", nextBlkIsThisBlk, wire(32, "last_BB_reg"));
+      //predController.setCond("in_data", nextBlkIsThisBlk, wire(32, "last_BB_reg"));
+      predController.setCond("in_data", nextBlkIsThisBlk, lastBBReg(arch.stg.blockStartState(&bb), arch)); //wire(32, "last_BB_reg"));
 
       for (auto* pred : predecessors(&bb)) {
         if (jumpToSameState(pred, &bb, arch)) {
@@ -2474,6 +2489,8 @@ namespace ahaHLS {
   // to be the current block?
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
     Function* f = arch.stg.getFunction();
+
+    arch.addController("last_BB_reg", 32);
 
     arch.addController("global_next_block", 32);
     arch.getController("global_next_block").resetValue =
@@ -2650,7 +2667,6 @@ namespace ahaHLS {
     emitPipelineValidChainBlock(arch);
     emitPipelineRegisterChains(arch);
     emitPipelineInitiationBlock(arch);
-    //emitLastBBCode(arch);
     emitControlCode(arch);    
 
     return arch;
