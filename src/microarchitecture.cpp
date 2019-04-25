@@ -1868,6 +1868,20 @@ namespace ahaHLS {
                      MicroArchitecture& arch) {
 
     RegController& rc = arch.getController(reg(32, "last_BB_reg"));
+
+    for (auto instr : arch.stg.instructionsFinishingAt(state)) {
+      if (TerminatorInst::classof(instr)) {
+        auto bbNo = arch.cs.getBasicBlockNo(instr->getParent());
+        if (isPipelineState(state, arch.pipelines)) {
+          ElaboratedPipeline p = getPipeline(state, arch.pipelines);
+          rc.values[atStateWire(p.stateId, arch)] = constWire(32, bbNo);
+        } else {
+          Wire condWire = lastBlockActiveInState(state, instr->getParent(), arch);
+          rc.values[condWire] = constWire(32, bbNo);
+        }
+      }
+
+    }
     
     vector<pair<StateId, StateId> > newTransitions;
     for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
@@ -1875,13 +1889,13 @@ namespace ahaHLS {
       BasicBlock* dest = transition.second;
 
 
-      StateActivationRecord record =
-        buildRecord(srcBlk, dest, arch.stg);
+      // StateActivationRecord record =
+      //   buildRecord(srcBlk, dest, arch.stg);
 
-      if (record.priorBlock != nullptr) {
-        rc.values[lastBlockActiveInState(state, srcBlk, arch)] =
-          constWire(32, arch.cs.getBasicBlockNo(record.priorBlock));
-      }
+      // if (record.priorBlock != nullptr) {
+      //   rc.values[lastBlockActiveInState(state, srcBlk, arch)] =
+      //     constWire(32, arch.cs.getBasicBlockNo(record.priorBlock));
+      // }
       
       BranchInst* br = dyn_cast<BranchInst>(srcBlk->getTerminator());
       
