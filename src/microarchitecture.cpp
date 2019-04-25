@@ -14,6 +14,8 @@ using namespace std;
 
 namespace ahaHLS {
 
+  Wire nextBBReg(const StateId state, MicroArchitecture& arch);
+  
   Wire lastBlockActiveInState(const StateId st,
                               BasicBlock* const bb,
                               MicroArchitecture& arch);
@@ -1165,7 +1167,8 @@ namespace ahaHLS {
             BasicBlock* entryBlock = entryToLevels.first;
 
             Wire enteredThisBlk = checkEqual(arch.cs.getBasicBlockNo(entryBlock),
-                                             wire(32, "global_next_block"),
+                                             nextBBReg(thisState, arch),
+                                             //wire(32, "global_next_block"),
                                              arch);
 
             // We can skip any entry block that does not contain the user
@@ -1870,6 +1873,10 @@ namespace ahaHLS {
     return stg.blockStartState(jmp.jmp.second);
   }
 
+  Wire nextBBReg(const StateId state, MicroArchitecture& arch) {
+    return wire(32, "global_next_block");
+  }
+  
   Wire lastBBReg(const StateId state, MicroArchitecture& arch) {
     //return reg(32, "last_BB_reg"); //map_find(state, arch.lastBBWires);
     return map_find(state, arch.lastBBWires);
@@ -2425,8 +2432,8 @@ namespace ahaHLS {
         Wire exitNextCycle =
           checkAnd(p.inPipeWire(), pipelineClearOnNextCycleCondition(p, arch), arch);
 
-        arch.getController("global_next_block").values[checkAnd(exitNextCycle, outOfPipeJumpHappened.reg, arch)] =
-        //nextBlockController.values[checkAnd(exitNextCycle, outOfPipeJumpHappened.reg, arch)] =
+        //arch.getController("global_next_block").values[checkAnd(exitNextCycle, outOfPipeJumpHappened.reg, arch)] =
+        nextBlockController.values[checkAnd(exitNextCycle, outOfPipeJumpHappened.reg, arch)] =
           constWire(32, arch.cs.getBasicBlockNo(destBlock));
       } else {
         cout << "Adding block transition from " << brStart << " to " << brEnd << endl;
