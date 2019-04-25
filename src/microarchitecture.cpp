@@ -1870,6 +1870,8 @@ namespace ahaHLS {
     RegController& rc = arch.getController(reg(32, "last_BB_reg"));
 
     for (auto instr : arch.stg.instructionsFinishingAt(state)) {
+    // for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
+    //   Instruction* instr = transition.first->getTerminator();
       if (TerminatorInst::classof(instr)) {
         auto bbNo = arch.cs.getBasicBlockNo(instr->getParent());
         if (isPipelineState(state, arch.pipelines)) {
