@@ -1846,11 +1846,14 @@ namespace ahaHLS {
 
   Wire nextBBReg(const StateId state, MicroArchitecture& arch) {
     return wire(32, "global_next_block");
+    //return map_find(state, arch.entryBBWires);
   }
 
   RegController& nextBBController(const StateId state, MicroArchitecture& arch) {
+    // Wire bbReg = nextBBReg(state, arch);
+    // return arch.getController(bbReg);
+
     return arch.getController(wire(32, "global_next_block"));
-    //return wire(32, "global_next_block");
   }
   
   Wire lastBBReg(const StateId state, MicroArchitecture& arch) {
