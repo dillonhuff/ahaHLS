@@ -1891,27 +1891,38 @@ namespace ahaHLS {
     //for (auto instr : terms) { //arch.stg.instructionsFinishingAt(state)) {
 
     for (auto jmp : possibleLastJumps(state, arch.stg)) {
-      Instruction* instr = jmp.jmp.first->getTerminator();
-      
-      if (BranchInst::classof(instr)) {
-
-        if (!elem(instr, terms)) {
-          cout << "Error:" << valueString(instr) << " is a finishing branch that is not a possible last jump" << endl;
-          //assert(false);
-          //continue;
-        } else {
-          auto bbNo = arch.cs.getBasicBlockNo(instr->getParent());
-          if (isPipelineState(state, arch.pipelines)) {
-            ElaboratedPipeline p = getPipeline(state, arch.pipelines);
-            rc.values[atStateWire(p.stateId, arch)] = constWire(32, bbNo);
-          } else {
-            Wire condWire = lastBlockActiveInState(state, instr->getParent(), arch);
-            rc.values[condWire] = constWire(32, bbNo);
-          }
-        }
+      auto bbNo = arch.cs.getBasicBlockNo(jmp.jmp.first);
+      if (isPipelineState(state, arch.pipelines)) {
+        ElaboratedPipeline p = getPipeline(state, arch.pipelines);
+        rc.values[atStateWire(p.stateId, arch)] = constWire(32, bbNo);
+      } else {
+        Wire condWire = map_find(jmp.jmp, arch.edgeTakenWires);
+        rc.values[condWire] = constWire(32, bbNo);
       }
-
     }
+
+    // for (auto jmp : possibleLastJumps(state, arch.stg)) {
+    //   Instruction* instr = jmp.jmp.first->getTerminator();
+      
+    //   if (BranchInst::classof(instr)) {
+
+    //     if (!elem(instr, terms)) {
+    //       cout << "Error:" << valueString(instr) << " is a finishing branch that is not a possible last jump" << endl;
+    //       //assert(false);
+    //       //continue;
+    //     } else {
+    //       auto bbNo = arch.cs.getBasicBlockNo(instr->getParent());
+    //       if (isPipelineState(state, arch.pipelines)) {
+    //         ElaboratedPipeline p = getPipeline(state, arch.pipelines);
+    //         rc.values[atStateWire(p.stateId, arch)] = constWire(32, bbNo);
+    //       } else {
+    //         Wire condWire = lastBlockActiveInState(state, instr->getParent(), arch);
+    //         rc.values[condWire] = constWire(32, bbNo);
+    //       }
+    //     }
+    //   }
+
+    // }
     
     vector<pair<StateId, StateId> > newTransitions;
     for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
