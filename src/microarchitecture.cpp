@@ -1871,7 +1871,8 @@ namespace ahaHLS {
   }
 
   Wire lastBBReg(const StateId state, MicroArchitecture& arch) {
-    return reg(32, "last_BB_reg"); //map_find(state, arch.lastBBWires);
+    //return reg(32, "last_BB_reg"); //map_find(state, arch.lastBBWires);
+    return map_find(state, arch.lastBBWires);
   }
 
   // Now: I want the lastBB register, state is active
@@ -2490,7 +2491,13 @@ namespace ahaHLS {
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
     Function* f = arch.stg.getFunction();
 
-    arch.addController("last_BB_reg", 32);
+    //for (auto& bb : f->getBasicBlockList()) {
+    for (auto st : arch.stg.opStates) {
+      StateId state = st.first;
+      string lastName = "state_" + to_string(state) + "_last_BB_reg";
+      arch.addController(lastName, 32);
+      arch.lastBBWires.insert({state, arch.getController(lastName).reg});
+    }
 
     arch.addController("global_next_block", 32);
     arch.getController("global_next_block").resetValue =

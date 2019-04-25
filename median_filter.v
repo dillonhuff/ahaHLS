@@ -449,9 +449,11 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// End Functional Units
 
 	reg [31:0] add_tmp_2;
+	reg [31:0] bb_0_last_BB_reg;
+	reg [31:0] bb_1_last_BB_reg;
+	reg [31:0] bb_2_last_BB_reg;
 	reg [31:0] global_next_block;
 	reg [31:0] global_state;
-	reg [31:0] last_BB_reg;
 
 	// controller for add_add_9.add_in0_add_9
 	// controller for add_add_9.add_in1_add_9
@@ -562,14 +564,14 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// controller for andOp_43.andOp_43_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_43_in0 = valid ? bb_0_active_out_data : bb_0_active_out_data;
+		andOp_43_in0 = valid ? bb_2_active_out_data : bb_2_active_out_data;
 		andOp_43_in1 = valid ? eq_0_out : eq_0_out;
 	end
 	// controller for andOp_44.andOp_44_in0
 	// controller for andOp_44.andOp_44_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_44_in0 = valid ? bb_2_active_out_data : bb_2_active_out_data;
+		andOp_44_in0 = valid ? bb_0_active_out_data : bb_0_active_out_data;
 		andOp_44_in1 = valid ? eq_0_out : eq_0_out;
 	end
 	// controller for andOp_45.andOp_45_in0
@@ -765,7 +767,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// controller for bb_0_predecessor.bb_0_predecessor_in_data
 	always @(*) begin
 		if (eq_30_out) begin 
-			bb_0_predecessor_in_data = last_BB_reg;
+			bb_0_predecessor_in_data = bb_0_last_BB_reg;
 		end else begin
 			bb_0_predecessor_in_data = 0;
 		end
@@ -783,7 +785,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		if (andOp_33_out) begin 
 			bb_1_predecessor_in_data = 32'd3;
 		end else if (eq_31_out) begin 
-			bb_1_predecessor_in_data = last_BB_reg;
+			bb_1_predecessor_in_data = bb_2_last_BB_reg;
 		end else begin
 			bb_1_predecessor_in_data = 0;
 		end
@@ -801,7 +803,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		if (andOp_36_out) begin 
 			bb_2_predecessor_in_data = 32'd0;
 		end else if (eq_34_out) begin 
-			bb_2_predecessor_in_data = last_BB_reg;
+			bb_2_predecessor_in_data = bb_0_last_BB_reg;
 		end else begin
 			bb_2_predecessor_in_data = 0;
 		end
@@ -819,7 +821,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		if (andOp_39_out) begin 
 			bb_3_predecessor_in_data = 32'd4;
 		end else if (eq_37_out) begin 
-			bb_3_predecessor_in_data = last_BB_reg;
+			bb_3_predecessor_in_data = bb_2_last_BB_reg;
 		end else begin
 			bb_3_predecessor_in_data = 0;
 		end
@@ -837,7 +839,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		if (andOp_42_out) begin 
 			bb_4_predecessor_in_data = 32'd2;
 		end else if (eq_40_out) begin 
-			bb_4_predecessor_in_data = last_BB_reg;
+			bb_4_predecessor_in_data = bb_2_last_BB_reg;
 		end else begin
 			bb_4_predecessor_in_data = 0;
 		end
@@ -996,7 +998,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	end
 	// controller for m.m_rst_n
 	always @(*) begin
-		if (andOp_44_out) begin 
+		if (andOp_43_out) begin 
 			m_rst_n = -(1'd1);
 		end else if (andOp_45_out) begin 
 			m_rst_n = 1'd0;
@@ -1120,7 +1122,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		phi_last_block_phi_8 = valid ? bb_4_predecessor_out_data : bb_4_predecessor_out_data;
 		phi_s_phi_8 = valid ? concat_54_out : concat_54_out;
 	end
-	// controller for ret_4.valid_reg
+	// controller for ret_6.valid_reg
 	always @(*) begin
 		if (andOp_51_out) begin 
 			valid_reg = 1'd1;
@@ -1135,6 +1137,36 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		end else begin
 			if (andOp_69_out) begin
 				add_tmp_2 <= add_out_add_9;
+			end
+		end
+	end
+
+	always @(posedge clk) begin
+		if (rst) begin
+			bb_0_last_BB_reg <= 0;
+		end else begin
+			if (andOp_4_out) begin
+				bb_0_last_BB_reg <= 32'd0;
+			end
+		end
+	end
+
+	always @(posedge clk) begin
+		if (rst) begin
+			bb_1_last_BB_reg <= 0;
+		end else begin
+		end
+	end
+
+	always @(posedge clk) begin
+		if (rst) begin
+			bb_2_last_BB_reg <= 0;
+		end else begin
+			if (andOp_10_out) begin
+				bb_2_last_BB_reg <= 32'd3;
+			end
+			if (andOp_15_out) begin
+				bb_2_last_BB_reg <= 32'd4;
 			end
 		end
 	end
@@ -1173,22 +1205,6 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 			end
 			if (andOp_68_out) begin
 				global_state <= 32'd2;
-			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			last_BB_reg <= 0;
-		end else begin
-			if (andOp_10_out) begin
-				last_BB_reg <= 32'd3;
-			end
-			if (andOp_15_out) begin
-				last_BB_reg <= 32'd4;
-			end
-			if (andOp_4_out) begin
-				last_BB_reg <= 32'd0;
 			end
 		end
 	end
