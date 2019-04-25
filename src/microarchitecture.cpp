@@ -2610,16 +2610,6 @@ namespace ahaHLS {
         auto blkString = to_string(blkNo);
 
 
-        string name = "bb_" + blkString + "_active_in_state_" + to_string(state);
-
-        cout << "Getting controller for " << name << endl;
-        
-        //addPortController(name, 1, arch);
-        
-        PortController& activeController = arch.portController(name);
-
-        cout << "Got active controller for " << name << endl;
-
         Wire nextBBIsThisBlock =
           checkEqual(blkNo, reg(32, "global_next_block"), arch);
         for (auto val : arch.edgeTakenWires) {
@@ -2641,6 +2631,17 @@ namespace ahaHLS {
           }
         }
 
+        string name = "bb_" + blkString + "_active_in_state_" + to_string(state);
+
+        cout << "Getting controller for " << name << endl;
+        
+        //addPortController(name, 1, arch);
+        
+        PortController& activeController = arch.portController(name);
+
+        cout << "Got active controller for " << name << endl;
+
+        
         PortValues& vals =
           activeController.inputControllers[activeController.onlyInput().name];
         vals.portVals[constWire(1, 1)] = nextBBIsThisBlock;
