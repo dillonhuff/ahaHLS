@@ -1883,6 +1883,8 @@ namespace ahaHLS {
       set<Instruction*> terms;
       for (auto jmp : possibleLastJumps(state, arch.stg)) {
         TerminatorInst* termInstr = jmp.jmp.first->getTerminator();
+
+        //TerminatorInst* instr = jmp.jmp.first->getTerminator();
         terms.insert(termInstr);
       }
 
