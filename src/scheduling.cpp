@@ -3025,6 +3025,35 @@ namespace ahaHLS {
     std::pair<BasicBlock*, BasicBlock*> jmp;
   };
 
+  bool operator<(const CFGJump& x, const CFGJump& y) {
+    return x.jmp < y.jmp;
+  }
+
+  std::set<CFGJump> possibleLastJumps(const StateId state,
+                                      STG& stg) {
+    set<CFGJump> jmps;
+    for (auto instr : stg.instructionsFinishingAt(state)) {
+      if (BranchInst::classof(instr)) {
+        BranchInst* br = dyn_cast<BranchInst>(instr);
+        for (int i = 0; i < br->getNumSuccessors(); i++) {
+          BasicBlock* succ = br->getSuccessor(i);
+          if (!isInStateJump(state, br->getParent(), succ, stg)) {
+            // All jumps out of the state are possible last jumps
+            jmps.insert({{br->getParent(), succ}});
+          } else {
+            if (elem(succ, inProgressBlocks(state, stg))) {
+              // Jumps to blocks that will not terminate in this block
+              // are possible last jumps
+              jmps.insert({{br->getParent(), succ}});
+            }
+          }
+        }
+      }
+    }
+    
+    return jmps;
+  }
+  
   bool inPipeline(BasicBlock* const blk, Pipeline& pipe, STG& stg) {
     StateId start = stg.blockStartState(blk);
     StateId end = stg.blockEndState(blk);
@@ -3165,6 +3194,13 @@ namespace ahaHLS {
         for (auto blockLevel : ent.second) {
           out << tab(4) << blkNameString(blockLevel.first) << " at level " << blockLevel.second << endl;
         }
+      }
+
+      set<CFGJump> lastJumps =
+        possibleLastJumps(state, *this);
+      out << tab(2) << "- Possible last jumps" << endl;
+      for (auto jmp : lastJumps) {
+        out << tab(3) << "Last jump: " << jmp << endl;
       }
 
       // To add:

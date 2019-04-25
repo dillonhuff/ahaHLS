@@ -1864,15 +1864,24 @@ namespace ahaHLS {
   // Want to move toward merging basic blocks in to a single state
   // and allowing more code to be executed in a cycle. Need to
   // add the active basic block variable
+
+  
   void emitStateCode(const StateId state,
                      MicroArchitecture& arch) {
 
     RegController& rc = arch.getController(reg(32, "last_BB_reg"));
 
+    // Need to set lastBB if
+    //  1. The state ends with a branch to another state
+    //  2. The state ends in an in progress block that it jumped to
+    //     in the state
+
+    // More general: If no branches were taken leave the lastBB
+    // If any branches were taken set the lastBB to the last branch that was taken
     for (auto instr : arch.stg.instructionsFinishingAt(state)) {
     // for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
     //   Instruction* instr = transition.first->getTerminator();
-      if (TerminatorInst::classof(instr)) {
+      if (BranchInst::classof(instr)) {
         auto bbNo = arch.cs.getBasicBlockNo(instr->getParent());
         if (isPipelineState(state, arch.pipelines)) {
           ElaboratedPipeline p = getPipeline(state, arch.pipelines);
