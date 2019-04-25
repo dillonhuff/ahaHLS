@@ -1871,25 +1871,6 @@ namespace ahaHLS {
 
     RegController& rc = arch.getController(reg(32, "last_BB_reg"));
 
-    // Need to set lastBB if
-    //  1. The state ends with a branch to another state
-    //  2. The state ends in an in progress block that it jumped to
-    //     in the state
-
-    // More general: If no branches were taken leave the lastBB
-    // If any branches were taken set the lastBB to the last branch that was taken
-
-    set<Instruction*> terms;
-    for (auto jmp : possibleLastJumps(state, arch.stg)) {
-      TerminatorInst* termInstr = jmp.jmp.first->getTerminator();
-      //TerminatorInst* instr = jmp.jmp.first->getTerminator();
-      terms.insert(termInstr);
-    }
-
-    
-    //for (auto instr : arch.stg.instructionsFinishingAt(state)) {
-    //for (auto instr : terms) { //arch.stg.instructionsFinishingAt(state)) {
-
     for (auto jmp : possibleLastJumps(state, arch.stg)) {
       auto bbNo = arch.cs.getBasicBlockNo(jmp.jmp.first);
       if (isPipelineState(state, arch.pipelines)) {
@@ -1901,43 +1882,11 @@ namespace ahaHLS {
       }
     }
 
-    // for (auto jmp : possibleLastJumps(state, arch.stg)) {
-    //   Instruction* instr = jmp.jmp.first->getTerminator();
-      
-    //   if (BranchInst::classof(instr)) {
-
-    //     if (!elem(instr, terms)) {
-    //       cout << "Error:" << valueString(instr) << " is a finishing branch that is not a possible last jump" << endl;
-    //       //assert(false);
-    //       //continue;
-    //     } else {
-    //       auto bbNo = arch.cs.getBasicBlockNo(instr->getParent());
-    //       if (isPipelineState(state, arch.pipelines)) {
-    //         ElaboratedPipeline p = getPipeline(state, arch.pipelines);
-    //         rc.values[atStateWire(p.stateId, arch)] = constWire(32, bbNo);
-    //       } else {
-    //         Wire condWire = lastBlockActiveInState(state, instr->getParent(), arch);
-    //         rc.values[condWire] = constWire(32, bbNo);
-    //       }
-    //     }
-    //   }
-
-    // }
-    
     vector<pair<StateId, StateId> > newTransitions;
     for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
       BasicBlock* srcBlk = transition.first;
       BasicBlock* dest = transition.second;
 
-
-      // StateActivationRecord record =
-      //   buildRecord(srcBlk, dest, arch.stg);
-
-      // if (record.priorBlock != nullptr) {
-      //   rc.values[lastBlockActiveInState(state, srcBlk, arch)] =
-      //     constWire(32, arch.cs.getBasicBlockNo(record.priorBlock));
-      // }
-      
       BranchInst* br = dyn_cast<BranchInst>(srcBlk->getTerminator());
       
       StateId src = state;
