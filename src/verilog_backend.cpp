@@ -1218,13 +1218,13 @@ namespace ahaHLS {
         StateId state = st.first;
         if (state < blkMin) {
           addAssert(implies(atState(state, arch),
-                            notStr(arch.isActiveBlockVar(blk).valueString())),
+                            notStr(arch.isActiveBlockVar(state, blk).valueString())),
                     info);
         }
 
         if (blkMax < state) {
           addAssert(implies(atState(state, arch),
-                            notStr(arch.isActiveBlockVar(blk).valueString())),
+                            notStr(arch.isActiveBlockVar(state, blk).valueString())),
                     info);
         }
         

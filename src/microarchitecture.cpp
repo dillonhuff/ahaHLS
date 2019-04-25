@@ -2335,11 +2335,17 @@ namespace ahaHLS {
     inputControllers[portName].portVals[condition] = value;
   }
 
-  Wire MicroArchitecture::isActiveBlockVar(llvm::BasicBlock* const bb) {
-    std::string activeUnit =
-      "bb_" + std::to_string(cs.getBasicBlockNo(bb)) + "_active";
+  Wire MicroArchitecture::isActiveBlockVar(const StateId state,
+                                           llvm::BasicBlock* const bb) {
+    if (elem(bb, blocksInState(state, stg))) {
+      std::string activeUnit =
+        "bb_" + std::to_string(cs.getBasicBlockNo(bb)) + "_active_in_state_" + to_string(state);
 
-    return portController(activeUnit).functionalUnit().outputWire();
+      return portController(activeUnit).functionalUnit().outputWire();
+    } else {
+      return constWire(1, 0);
+    }
+    
   }
 
   bool jumpToSameState(BasicBlock* const predecessor,
@@ -2370,7 +2376,7 @@ namespace ahaHLS {
                           BasicBlock* const blk,
                           MicroArchitecture& arch) {
     Wire atBlock =
-      arch.isActiveBlockVar(blk);
+      arch.isActiveBlockVar(state, blk);
     Wire atBranchState =
       atStateWire(state, arch);
     Wire atContainerPos =
@@ -2504,59 +2510,94 @@ namespace ahaHLS {
     // I already have, and then wire them up to port controllers
     // in a subsequent loop?
     
-    for (auto& bb : f->getBasicBlockList()) {
-      int blkNo = arch.cs.getBasicBlockNo(&bb);
-      auto blkString = to_string(blkNo);
+    //for (auto& bb : f->getBasicBlockList()) {
 
-      TerminatorInst* term = bb.getTerminator();
-      if (BranchInst::classof(term)) {
-        BranchInst* br = dyn_cast<BranchInst>(term);
+    cout << "Adding happened in state logic" << endl;
 
-        StateId branchEndState = arch.stg.instructionEndState(br);
+    for (auto st : arch.stg.opStates) {
+      StateId state = st.first;
+
+      cout << "Adding happened for state " << state << endl;
+      for (auto blk : blocksInState(state, arch.stg)) {
+        //cout << "Adding happened for blk " << valueString(blk) << endl;
+
+        int blkNo = arch.cs.getBasicBlockNo(blk);
+        auto blkString = to_string(blkNo);
+
+        string name = "bb_" + blkString + "_active_in_state_" + to_string(state);
+        addPortController(name, 1, arch);        
+
+        cout << "Added controller controller for " << name << endl;
         
-        Wire atContainerPos =
-          blockActiveInState(branchEndState, br->getParent(), arch);
+      }
+    }
 
-        Wire notStalled = constWire(1, 1);
-        atContainerPos = checkAnd(atContainerPos, notStalled, arch);
+    for (auto st : arch.stg.opStates) {
+      StateId state = st.first;
 
-        string hName = "br_" + blkString + "_happened";
+      cout << "Adding happened for state " << state << endl;
+      for (auto blk : blocksInState(state, arch.stg)) {
+        cout << "Adding happened for blk " << valueString(blk) << endl;
 
-        auto& happenedController = addPortController(hName, 1, arch);
-        happenedController.setCond("in_data", atContainerPos, constWire(1, 1));
-        happenedController.setCond("in_data", checkNotWire(atContainerPos, arch), constWire(1, 0));
+        int blkNo = arch.cs.getBasicBlockNo(blk);
+        auto blkString = to_string(blkNo);
+
+        TerminatorInst* term = blk->getTerminator();
+
+        // string name = "bb_" + blkString + "_active_in_state_" + to_string(state);
+        // addPortController(name, 1, arch);        
+        // cout << "Added controller controller for " << name << endl;
+        
+        if (BranchInst::classof(term)) {
+          BranchInst* br = dyn_cast<BranchInst>(term);
+
+          StateId branchEndState = arch.stg.instructionEndState(br);
+
+
+          Wire atContainerPos =
+            blockActiveInState(branchEndState, br->getParent(), arch);
+
+          Wire notStalled = constWire(1, 1);
+          atContainerPos = checkAnd(atContainerPos, notStalled, arch);
+
+          string hName = "br_" + blkString + "_happened_in_state_" + to_string(state);
+          auto& happenedController = addPortController(hName, 1, arch);
+          happenedController.setCond("in_data", atContainerPos, constWire(1, 1));
+          happenedController.setCond("in_data", checkNotWire(atContainerPos, arch), constWire(1, 0));
           
-        if (!(br->isConditional())) {
-          BasicBlock* destBlock = br->getSuccessor(0);
-          arch.edgeTakenWires.insert({{br->getParent(), destBlock}, atContainerPos});
+          if (!(br->isConditional())) {
+            BasicBlock* destBlock = br->getSuccessor(0);
+            arch.edgeTakenWires.insert({{br->getParent(), destBlock}, atContainerPos});
 
-          addBlockJump(&bb, destBlock, wireValue(hName, arch), arch);
-        } else {
+            addBlockJump(blk, destBlock, wireValue(hName, arch), arch);
+          } else {
 
-          Value* condition = br->getOperand(0);
+            Value* condition = br->getOperand(0);
 
-          StateId brEndState = arch.stg.instructionEndState(br);
-          ControlFlowPosition pos =
-            position(brEndState, br, arch);
+            StateId brEndState = arch.stg.instructionEndState(br);
+            ControlFlowPosition pos =
+              position(brEndState, br, arch);
           
-          Wire condValue = outputWire(condition, pos, arch);
+            Wire condValue = outputWire(condition, pos, arch);
 
-          Wire trueTaken = checkAnd(atContainerPos, condValue, arch);
-          Wire falseTaken =
-            checkAnd(atContainerPos, checkNotWire(condValue, arch), arch);
+            Wire trueTaken = checkAnd(atContainerPos, condValue, arch);
+            Wire falseTaken =
+              checkAnd(atContainerPos, checkNotWire(condValue, arch), arch);
 
-          BasicBlock* trueSucc = br->getSuccessor(0);
-          arch.edgeTakenWires.insert({{br->getParent(), trueSucc}, trueTaken});
+            BasicBlock* trueSucc = br->getSuccessor(0);
+            arch.edgeTakenWires.insert({{br->getParent(), trueSucc}, trueTaken});
 
-          BasicBlock* falseSucc = br->getSuccessor(1);
-          arch.edgeTakenWires.insert({{br->getParent(), falseSucc}, falseTaken});
+            BasicBlock* falseSucc = br->getSuccessor(1);
+            arch.edgeTakenWires.insert({{br->getParent(), falseSucc}, falseTaken});
 
-          addBlockJump(&bb, trueSucc, trueTaken, arch);
-          addBlockJump(&bb, falseSucc, falseTaken, arch);                    
+            addBlockJump(blk, trueSucc, trueTaken, arch);
+            addBlockJump(blk, falseSucc, falseTaken, arch);                    
+          }
         }
       }
     }
 
+    cout << "Adding active in state logic" << endl;
     // There is an extra issue here: what if
     // the last basic block in the trace that is active
     // in state S is not a block that does not have its terminator
@@ -2568,11 +2609,16 @@ namespace ahaHLS {
         int blkNo = arch.cs.getBasicBlockNo(blk);
         auto blkString = to_string(blkNo);
 
-        string name = "bb_" + blkString + "_active"; //_in_state_" + to_string(state);
-        //string name = "bb_" + blkString + "_active";
-        addPortController(name, 1, arch);
+
+        string name = "bb_" + blkString + "_active_in_state_" + to_string(state);
+
+        cout << "Getting controller for " << name << endl;
+        
+        //addPortController(name, 1, arch);
         
         PortController& activeController = arch.portController(name);
+
+        cout << "Got active controller for " << name << endl;
 
         Wire nextBBIsThisBlock =
           checkEqual(blkNo, reg(32, "global_next_block"), arch);

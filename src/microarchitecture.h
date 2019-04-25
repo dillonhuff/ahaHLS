@@ -457,7 +457,7 @@ namespace ahaHLS {
     std::map<StateId, Wire> lastBBWires;
     std::map<StateId, Wire> entryBBWires;
     
-    Wire isActiveBlockVar(llvm::BasicBlock* const bb);
+    Wire isActiveBlockVar(const StateId state, llvm::BasicBlock* const bb);
     
     std::string uniqueName(const std::string& prefix) {
       std::string name = prefix + "_" + std::to_string(uniqueNum);
@@ -482,7 +482,10 @@ namespace ahaHLS {
     }
     
     PortController& portController(const std::string& name) {
-      assert(dbhc::contains_key(name, portControllers));
+      if (!dbhc::contains_key(name, portControllers)) {
+        std::cout << "Error: No controller for " << name << std::endl;
+        assert(dbhc::contains_key(name, portControllers));
+      }
       return portControllers[name];
       // for (auto& c : portControllers) {
       //   if (c.unitController.unit.instName == name) {
