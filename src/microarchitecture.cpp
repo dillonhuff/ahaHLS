@@ -1847,6 +1847,11 @@ namespace ahaHLS {
   Wire nextBBReg(const StateId state, MicroArchitecture& arch) {
     return wire(32, "global_next_block");
   }
+
+  RegController& nextBBController(const StateId state, MicroArchitecture& arch) {
+    return arch.getController(wire(32, "global_next_block"));
+    //return wire(32, "global_next_block");
+  }
   
   Wire lastBBReg(const StateId state, MicroArchitecture& arch) {
     //return reg(32, "last_BB_reg"); //map_find(state, arch.lastBBWires);
@@ -2393,7 +2398,8 @@ namespace ahaHLS {
     StateId brEnd = arch.stg.blockStartState(destBlock);
 
     if (!jumpToSameState(src, destBlock, arch)) {
-      auto& nextBlockController = arch.getController("global_next_block");
+      //auto& nextBlockController = arch.getController("global_next_block");
+      auto& nextBlockController = nextBBController(brEnd, arch); //arch.getController("global_next_block");
     
       if (isPipelineState(brStart, arch.pipelines) &&
           !isPipelineState(brEnd, arch.pipelines)) {
@@ -2474,7 +2480,8 @@ namespace ahaHLS {
           // to be the current block.
 
           if (!arch.stg.sched.hasReturnDefault()) {
-            arch.getController("global_next_block").values[thisBlkActive] =
+            //arch.getController("global_next_block").values[thisBlkActive] =
+            nextBBController(state, arch).values[thisBlkActive] =
               constWire(32, arch.cs.getBasicBlockNo(blk));
           }
         }
@@ -2501,6 +2508,7 @@ namespace ahaHLS {
 
     }
 
+    // TODO: Change to state by state controllers
     arch.addController("global_next_block", 32);
     arch.getController("global_next_block").resetValue =
       to_string(arch.cs.getBasicBlockNo(&(f->getEntryBlock())));
