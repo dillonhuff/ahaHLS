@@ -2497,6 +2497,11 @@ namespace ahaHLS {
       string lastName = "state_" + to_string(state) + "_last_BB_reg";
       arch.addController(lastName, 32);
       arch.lastBBWires.insert({state, arch.getController(lastName).reg});
+
+      string entryName = "state_" + to_string(state) + "_entry_BB_reg";
+      arch.addController(entryName, 32);
+      arch.lastBBWires.insert({state, arch.getController(entryName).reg});
+
     }
 
     arch.addController("global_next_block", 32);
