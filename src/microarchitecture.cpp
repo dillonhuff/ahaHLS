@@ -1168,7 +1168,6 @@ namespace ahaHLS {
 
             Wire enteredThisBlk = checkEqual(arch.cs.getBasicBlockNo(entryBlock),
                                              nextBBReg(thisState, arch),
-                                             //wire(32, "global_next_block"),
                                              arch);
 
             // We can skip any entry block that does not contain the user
@@ -2432,13 +2431,11 @@ namespace ahaHLS {
         Wire exitNextCycle =
           checkAnd(p.inPipeWire(), pipelineClearOnNextCycleCondition(p, arch), arch);
 
-        //arch.getController("global_next_block").values[checkAnd(exitNextCycle, outOfPipeJumpHappened.reg, arch)] =
         nextBlockController.values[checkAnd(exitNextCycle, outOfPipeJumpHappened.reg, arch)] =
           constWire(32, arch.cs.getBasicBlockNo(destBlock));
       } else {
         cout << "Adding block transition from " << brStart << " to " << brEnd << endl;
         // Jump that is not between pipelines
-        //arch.getController("global_next_block").values[jumpHappened] =
         nextBlockController.values[jumpHappened] =
           constWire(32, arch.cs.getBasicBlockNo(destBlock));
       }
@@ -2458,7 +2455,10 @@ namespace ahaHLS {
       PortController& predController = arch.portController(w);
 
       Wire nextBlkIsThisBlk =
-        checkEqual(thisBlkNo, wire(32, "global_next_block"), arch);
+        // NOTE: Im not clear on whether this is the right structure for a
+        // system where each state has its own entryBlock and lastBlock variables
+        //checkEqual(thisBlkNo, wire(32, "global_next_block"), arch);
+        checkEqual(thisBlkNo, nextBBReg(arch.stg.blockStartState(&bb), arch), arch);
       //predController.setCond("in_data", nextBlkIsThisBlk, wire(32, "last_BB_reg"));
       predController.setCond("in_data", nextBlkIsThisBlk, lastBBReg(arch.stg.blockStartState(&bb), arch)); //wire(32, "last_BB_reg"));
 
