@@ -1279,7 +1279,7 @@ namespace ahaHLS {
     return outputWire(val, currentPosition, arch).valueString();
   }
   
-  Wire predecessor(BasicBlock* const bb, MicroArchitecture& arch) {
+  Wire predecessor(const StateId state, BasicBlock* const bb, MicroArchitecture& arch) {
     int blkNo = arch.cs.getBasicBlockNo(bb);
     string activeName = "bb_" + to_string(blkNo) + "_predecessor";
 
@@ -1413,40 +1413,12 @@ namespace ahaHLS {
         s = concatWires(constWire(32, b0Val), s, arch);
       }
 
+      StateId phiStartState = arch.stg.instructionStartState(phi);
+      
       assignments.insert({addUnit.portWires["in"], input});
       assignments.insert({addUnit.portWires["s"], s});
-      assignments.insert({addUnit.portWires["last_block"], predecessor(phi->getParent(), arch)});
-      
-      // string input = "{";
-      // string s = "{";      
-
-      // int totalWidth = 0;
-      // for (int i = 0; i < (int) phi->getNumIncomingValues(); i++) {
-      //   BasicBlock* b0 = phi->getIncomingBlock(i);
-      //   int b0Val = arch.cs.getBasicBlockNo(b0);
-
-      //   Value* v0 = phi->getIncomingValue(i);
-
-      //   auto val0Name = outputWire(v0, pos, arch);
-
-      //   totalWidth += val0Name.width;
-        
-      //   input += val0Name.valueString();
-      //   s += "32'd" + to_string(b0Val);
-
-      //   if (i < ((int) phi->getNumIncomingValues()) - 1) {
-      //     input += ", ";
-      //     s += ", ";
-      //   }
-      // }
-
-      // input += "}";
-      // s += "}";
-
-      // assignments.insert({addUnit.portWires["in"], wire(totalWidth, input)});
-      // assignments.insert({addUnit.portWires["s"], wire(32*phi->getNumIncomingValues(), s)});
-      
-      // assignments.insert({addUnit.portWires["last_block"], predecessor(phi->getParent(), arch)});
+      //assignments.insert({addUnit.portWires["last_block"], predecessor(phi->getParent(), arch)});
+      assignments.insert({addUnit.portWires["last_block"], predecessor(phiStartState, phi->getParent(), arch)});
 
     } else if (SelectInst::classof(instr)) {
       SelectInst* sel = dyn_cast<SelectInst>(instr);
@@ -2442,6 +2414,8 @@ namespace ahaHLS {
     }
   }
 
+  // The predecessor wires check the predecessor of a block
+  // in the same state?
   void buildPredecessorBlockWires(MicroArchitecture& arch) {
 
     Function* f = arch.stg.getFunction();
@@ -2460,7 +2434,10 @@ namespace ahaHLS {
         //checkEqual(thisBlkNo, wire(32, "global_next_block"), arch);
         checkEqual(thisBlkNo, nextBBReg(arch.stg.blockStartState(&bb), arch), arch);
       //predController.setCond("in_data", nextBlkIsThisBlk, wire(32, "last_BB_reg"));
-      predController.setCond("in_data", nextBlkIsThisBlk, lastBBReg(arch.stg.blockStartState(&bb), arch)); //wire(32, "last_BB_reg"));
+
+      // If the current block is the entry block of the current state then the
+      // predecessor is the value stored in lastBBReg
+      predController.setCond("in_data", nextBlkIsThisBlk, lastBBReg(arch.stg.blockStartState(&bb), arch));
 
       for (auto* pred : predecessors(&bb)) {
         if (jumpToSameState(pred, &bb, arch)) {
