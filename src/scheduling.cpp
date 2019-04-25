@@ -3024,6 +3024,18 @@ namespace ahaHLS {
     return x.jmp < y.jmp;
   }
 
+  std::set<BasicBlock*>
+  returnBlocks(const StateId state,
+               STG& stg) {
+    set<BasicBlock*> blks;
+    for (auto instr : stg.instructionsFinishingAt(state)) {
+      if (ReturnInst::classof(instr)) {
+        blks.insert(instr->getParent());
+      }
+    }
+    return blks;
+  }
+  
   std::set<CFGJump> possibleLastJumps(const StateId state,
                                       STG& stg) {
     set<CFGJump> jmps;
@@ -3036,7 +3048,8 @@ namespace ahaHLS {
             // All jumps out of the state are possible last jumps
             jmps.insert({{br->getParent(), succ}});
           } else {
-            if (elem(succ, inProgressBlocks(state, stg))) {
+            if (elem(succ, inProgressBlocks(state, stg)) ||
+                elem(succ, returnBlocks(state, stg))) {
               // Jumps to blocks that will not terminate in this block
               // are possible last jumps
               jmps.insert({{br->getParent(), succ}});

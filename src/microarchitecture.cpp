@@ -1880,10 +1880,21 @@ namespace ahaHLS {
     // If any branches were taken set the lastBB to the last branch that was taken
     for (auto instr : arch.stg.instructionsFinishingAt(state)) {
 
-    // for (auto jmp : possibleLastJumps(state, arch.stg)) {
-    //   TerminatorInst* instr = jmp.jmp.first->getTerminator();
-      
+      set<Instruction*> terms;
+      for (auto jmp : possibleLastJumps(state, arch.stg)) {
+        TerminatorInst* termInstr = jmp.jmp.first->getTerminator();
+        terms.insert(termInstr);
+      }
+
       if (BranchInst::classof(instr)) {
+
+        if (!elem(instr, terms)) {
+          cout << "Error:" << valueString(instr) << " is a finishing branch that is not a possible last jump" << endl;
+          //assert(false);
+          continue;
+        }
+      
+        
         auto bbNo = arch.cs.getBasicBlockNo(instr->getParent());
         if (isPipelineState(state, arch.pipelines)) {
           ElaboratedPipeline p = getPipeline(state, arch.pipelines);
