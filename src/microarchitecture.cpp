@@ -2619,7 +2619,6 @@ namespace ahaHLS {
 
 
         Wire nextBBIsThisBlock =
-          //checkEqual(blkNo, reg(32, "global_next_block"), arch);
           checkEqual(blkNo, nextBBReg(state, arch), arch);
         for (auto val : arch.edgeTakenWires) {
           BasicBlock* predecessor = val.first.first;
@@ -2659,7 +2658,8 @@ namespace ahaHLS {
           Wire thisBlkActive = blockActiveInState(state, blk, arch);
           // If a block is active that does not execute its terminator, then
           // the in the next cycle we continue to execute that block
-          arch.getController("global_next_block").values[thisBlkActive] =
+          //arch.getController("global_next_block").values[thisBlkActive] =
+          nextBBController(state, arch).values[thisBlkActive] =
             constWire(32, arch.cs.getBasicBlockNo(blk));
         }
       }
