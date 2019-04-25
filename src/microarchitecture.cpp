@@ -2398,8 +2398,7 @@ namespace ahaHLS {
     StateId brEnd = arch.stg.blockStartState(destBlock);
 
     if (!jumpToSameState(src, destBlock, arch)) {
-      //auto& nextBlockController = arch.getController("global_next_block");
-      auto& nextBlockController = nextBBController(brEnd, arch); //arch.getController("global_next_block");
+      auto& nextBlockController = nextBBController(brEnd, arch);
     
       if (isPipelineState(brStart, arch.pipelines) &&
           !isPipelineState(brEnd, arch.pipelines)) {
@@ -2480,7 +2479,6 @@ namespace ahaHLS {
           // to be the current block.
 
           if (!arch.stg.sched.hasReturnDefault()) {
-            //arch.getController("global_next_block").values[thisBlkActive] =
             nextBBController(state, arch).values[thisBlkActive] =
               constWire(32, arch.cs.getBasicBlockNo(blk));
           }
@@ -2504,14 +2502,16 @@ namespace ahaHLS {
 
       string entryName = "state_" + to_string(state) + "_entry_BB_reg";
       arch.addController(entryName, 32);
-      arch.lastBBWires.insert({state, arch.getController(entryName).reg});
-
+      arch.getController(entryName).resetValue =
+        to_string(arch.cs.getBasicBlockNo(&(f->getEntryBlock())));
+      arch.entryBBWires.insert({state, arch.getController(entryName).reg});
+      
     }
 
-    // TODO: Change to state by state controllers
-    arch.addController("global_next_block", 32);
-    arch.getController("global_next_block").resetValue =
-      to_string(arch.cs.getBasicBlockNo(&(f->getEntryBlock())));
+    // // TODO: Change to state by state controllers
+    // arch.addController("global_next_block", 32);
+    // arch.getController("global_next_block").resetValue =
+    //   to_string(arch.cs.getBasicBlockNo(&(f->getEntryBlock())));
 
     // Maybe the thing to do here is to create branch taken
     // wires in this loop as well. Assign them to the variables
@@ -2658,7 +2658,6 @@ namespace ahaHLS {
           Wire thisBlkActive = blockActiveInState(state, blk, arch);
           // If a block is active that does not execute its terminator, then
           // the in the next cycle we continue to execute that block
-          //arch.getController("global_next_block").values[thisBlkActive] =
           nextBBController(state, arch).values[thisBlkActive] =
             constWire(32, arch.cs.getBasicBlockNo(blk));
         }
