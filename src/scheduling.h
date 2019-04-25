@@ -1666,6 +1666,8 @@ namespace ahaHLS {
   std::set<CFGJump> possibleLastJumps(const StateId state,
                                       STG& stg);
   
+  std::set<BasicBlock*> blocksInState(const StateId state,
+                                      STG& stg);
   
 }
 

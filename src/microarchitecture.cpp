@@ -1281,7 +1281,8 @@ namespace ahaHLS {
   
   Wire predecessor(const StateId state, BasicBlock* const bb, MicroArchitecture& arch) {
     int blkNo = arch.cs.getBasicBlockNo(bb);
-    string activeName = "bb_" + to_string(blkNo) + "_predecessor";
+    //string activeName = "bb_" + to_string(blkNo) + "_predecessor";
+    string activeName = "bb_" + to_string(blkNo) + "_predecessor_in_state_" + to_string(state);
 
     return arch.portController(activeName).functionalUnit().outputWire();
   }
@@ -1417,7 +1418,6 @@ namespace ahaHLS {
       
       assignments.insert({addUnit.portWires["in"], input});
       assignments.insert({addUnit.portWires["s"], s});
-      //assignments.insert({addUnit.portWires["last_block"], predecessor(phi->getParent(), arch)});
       assignments.insert({addUnit.portWires["last_block"], predecessor(phiStartState, phi->getParent(), arch)});
 
     } else if (SelectInst::classof(instr)) {
@@ -2419,36 +2419,42 @@ namespace ahaHLS {
   void buildPredecessorBlockWires(MicroArchitecture& arch) {
 
     Function* f = arch.stg.getFunction();
-    
-    // Add last basic block wires
-    for (auto& bb : f->getBasicBlockList()) {
-      int thisBlkNo = arch.cs.getBasicBlockNo(&bb);
-      string w = "bb_" + to_string(thisBlkNo) + "_predecessor";
-      addPortController(w, 32, arch);
 
-      PortController& predController = arch.portController(w);
+    for (auto st : arch.stg.opStates) {
+      StateId state = st.first;
 
-      Wire nextBlkIsThisBlk =
-        // NOTE: Im not clear on whether this is the right structure for a
-        // system where each state has its own entryBlock and lastBlock variables
-        //checkEqual(thisBlkNo, wire(32, "global_next_block"), arch);
-        checkEqual(thisBlkNo, nextBBReg(arch.stg.blockStartState(&bb), arch), arch);
-      //predController.setCond("in_data", nextBlkIsThisBlk, wire(32, "last_BB_reg"));
+      // Add last basic block wires
+      //for (auto& bb : f->getBasicBlockList()) {
+      for (auto blk : blocksInState(state, arch.stg)) {
+        
+        int thisBlkNo = arch.cs.getBasicBlockNo(blk);
+        //string w = "bb_" + to_string(thisBlkNo) + "_predecessor";
+        string w = "bb_" + to_string(thisBlkNo) + "_predecessor_in_state_" + to_string(state);
+        addPortController(w, 32, arch);
 
-      // If the current block is the entry block of the current state then the
-      // predecessor is the value stored in lastBBReg
-      predController.setCond("in_data", nextBlkIsThisBlk, lastBBReg(arch.stg.blockStartState(&bb), arch));
+        PortController& predController = arch.portController(w);
 
-      for (auto* pred : predecessors(&bb)) {
-        if (jumpToSameState(pred, &bb, arch)) {
+        Wire nextBlkIsThisBlk =
+          // NOTE: Im not clear on whether this is the right structure for a
+          // system where each state has its own entryBlock and lastBlock variables
+          //checkEqual(thisBlkNo, wire(32, "global_next_block"), arch);
+          checkEqual(thisBlkNo, nextBBReg(state, arch), arch);
+        //predController.setCond("in_data", nextBlkIsThisBlk, wire(32, "last_BB_reg"));
 
-          int predNo = arch.cs.getBasicBlockNo(pred);
+        // If the current block is the entry block of the current state then the
+        // predecessor is the value stored in lastBBReg
+        predController.setCond("in_data", nextBlkIsThisBlk, lastBBReg(state, arch));
 
-          Wire edgeTaken = map_find({pred, &bb}, arch.edgeTakenWires);
-          predController.setCond("in_data", checkAnd(checkNotWire(nextBlkIsThisBlk, arch), edgeTaken, arch), constWire(32, predNo));          
+        for (auto* pred : predecessors(blk)) {
+          if (jumpToSameState(pred, blk, arch)) {
+
+            int predNo = arch.cs.getBasicBlockNo(pred);
+
+            Wire edgeTaken = map_find({pred, blk}, arch.edgeTakenWires);
+            predController.setCond("in_data", checkAnd(checkNotWire(nextBlkIsThisBlk, arch), edgeTaken, arch), constWire(32, predNo));          
+          }
         }
       }
-      
     }
   }
 
