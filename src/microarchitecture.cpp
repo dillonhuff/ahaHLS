@@ -1893,17 +1893,16 @@ namespace ahaHLS {
         if (!elem(instr, terms)) {
           cout << "Error:" << valueString(instr) << " is a finishing branch that is not a possible last jump" << endl;
           //assert(false);
-          continue;
-        }
-      
-        
-        auto bbNo = arch.cs.getBasicBlockNo(instr->getParent());
-        if (isPipelineState(state, arch.pipelines)) {
-          ElaboratedPipeline p = getPipeline(state, arch.pipelines);
-          rc.values[atStateWire(p.stateId, arch)] = constWire(32, bbNo);
+          //continue;
         } else {
-          Wire condWire = lastBlockActiveInState(state, instr->getParent(), arch);
-          rc.values[condWire] = constWire(32, bbNo);
+          auto bbNo = arch.cs.getBasicBlockNo(instr->getParent());
+          if (isPipelineState(state, arch.pipelines)) {
+            ElaboratedPipeline p = getPipeline(state, arch.pipelines);
+            rc.values[atStateWire(p.stateId, arch)] = constWire(32, bbNo);
+          } else {
+            Wire condWire = lastBlockActiveInState(state, instr->getParent(), arch);
+            rc.values[condWire] = constWire(32, bbNo);
+          }
         }
       }
 
