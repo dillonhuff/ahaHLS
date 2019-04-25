@@ -3020,11 +3020,6 @@ namespace ahaHLS {
     return onExit;
   }
   
-  class CFGJump {
-  public:
-    std::pair<BasicBlock*, BasicBlock*> jmp;
-  };
-
   bool operator<(const CFGJump& x, const CFGJump& y) {
     return x.jmp < y.jmp;
   }

@@ -1655,6 +1655,17 @@ namespace ahaHLS {
 
   StateActivationRecord
   buildRecord(BasicBlock* const src, BasicBlock* const dst, STG& stg);
+
+  class CFGJump {
+  public:
+    std::pair<BasicBlock*, BasicBlock*> jmp;
+  };
+
+  bool operator<(const CFGJump& x, const CFGJump& y);
+
+  std::set<CFGJump> possibleLastJumps(const StateId state,
+                                      STG& stg);
+  
   
 }
 
