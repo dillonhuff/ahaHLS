@@ -2508,9 +2508,6 @@ namespace ahaHLS {
       int blkNo = arch.cs.getBasicBlockNo(&bb);
       auto blkString = to_string(blkNo);
 
-      string name = "bb_" + blkString + "_active";
-      addPortController(name, 1, arch);
-
       TerminatorInst* term = bb.getTerminator();
       if (BranchInst::classof(term)) {
         BranchInst* br = dyn_cast<BranchInst>(term);
@@ -2564,38 +2561,44 @@ namespace ahaHLS {
     // the last basic block in the trace that is active
     // in state S is not a block that does not have its terminator
     // in state S?
-    for (auto& bb : f->getBasicBlockList()) {
-      int blkNo = arch.cs.getBasicBlockNo(&bb);
-      auto blkString = to_string(blkNo);
+    //for (auto& bb : f->getBasicBlockList()) {
+    for (auto st : arch.stg.opStates) {
+      StateId state = st.first;
+      for (auto blk : blocksInState(state, arch.stg)) {
+        int blkNo = arch.cs.getBasicBlockNo(blk);
+        auto blkString = to_string(blkNo);
 
-      string name = "bb_" + blkString + "_active";
-      PortController& activeController = arch.portController(name);
+        string name = "bb_" + blkString + "_active"; //_in_state_" + to_string(state);
+        //string name = "bb_" + blkString + "_active";
+        addPortController(name, 1, arch);
+        
+        PortController& activeController = arch.portController(name);
 
-      Wire nextBBIsThisBlock =
-        checkEqual(blkNo, reg(32, "global_next_block"), arch);
-      for (auto val : arch.edgeTakenWires) {
-        BasicBlock* predecessor = val.first.first;
-        BasicBlock* successor = val.first.second;
-        Wire edgeTaken = val.second;
+        Wire nextBBIsThisBlock =
+          checkEqual(blkNo, reg(32, "global_next_block"), arch);
+        for (auto val : arch.edgeTakenWires) {
+          BasicBlock* predecessor = val.first.first;
+          BasicBlock* successor = val.first.second;
+          Wire edgeTaken = val.second;
 
-        if (successor == &bb) {
-          //cout << "Block has predessesor" << endl;
-          if (jumpToSameState(predecessor, successor, arch)) {
-            //cout << "Found jump that stays inside single state" << endl;
-            // nextBBIsThisBlock =
-            //   checkOr(nextBBIsThisBlock, arch.isActiveBlockVar(predecessor), arch);
+          if (successor == blk) {
+            //cout << "Block has predessesor" << endl;
+            if (jumpToSameState(predecessor, successor, arch)) {
+              //cout << "Found jump that stays inside single state" << endl;
+              // nextBBIsThisBlock =
+              //   checkOr(nextBBIsThisBlock, arch.isActiveBlockVar(predecessor), arch);
 
-            nextBBIsThisBlock =
-              checkOr(nextBBIsThisBlock, edgeTaken, arch);
+              nextBBIsThisBlock =
+                checkOr(nextBBIsThisBlock, edgeTaken, arch);
             
+            }
           }
         }
-      }
 
-      PortValues& vals =
-        activeController.inputControllers[activeController.onlyInput().name];
-      vals.portVals[constWire(1, 1)] = nextBBIsThisBlock;
-      
+        PortValues& vals =
+          activeController.inputControllers[activeController.onlyInput().name];
+        vals.portVals[constWire(1, 1)] = nextBBIsThisBlock;
+      }
     }
 
     for (auto st : arch.stg.opStates) {
