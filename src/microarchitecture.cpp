@@ -2409,6 +2409,7 @@ namespace ahaHLS {
     StateId brEnd = arch.stg.blockStartState(destBlock);
 
     if (!jumpToSameState(src, destBlock, arch)) {
+      auto& nextBlockController = arch.getController("global_next_block");
     
       if (isPipelineState(brStart, arch.pipelines) &&
           !isPipelineState(brEnd, arch.pipelines)) {
@@ -2424,13 +2425,14 @@ namespace ahaHLS {
         Wire exitNextCycle =
           checkAnd(p.inPipeWire(), pipelineClearOnNextCycleCondition(p, arch), arch);
 
-        //auto& controller = arch.getController("global_next_block");
         arch.getController("global_next_block").values[checkAnd(exitNextCycle, outOfPipeJumpHappened.reg, arch)] =
+        //nextBlockController.values[checkAnd(exitNextCycle, outOfPipeJumpHappened.reg, arch)] =
           constWire(32, arch.cs.getBasicBlockNo(destBlock));
       } else {
         cout << "Adding block transition from " << brStart << " to " << brEnd << endl;
         // Jump that is not between pipelines
-        arch.getController("global_next_block").values[jumpHappened] =
+        //arch.getController("global_next_block").values[jumpHappened] =
+        nextBlockController.values[jumpHappened] =
           constWire(32, arch.cs.getBasicBlockNo(destBlock));
       }
     }
