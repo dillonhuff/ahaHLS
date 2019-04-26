@@ -1769,44 +1769,44 @@ namespace ahaHLS {
   // have "edges" in the state transition graph, that do not exist in the
   // CFG because they are not transitions between blocks, they are transitions
   // between groups of instructions in the same block
-  std::set<BasicBlock*>
-  nonTerminatingBlocks(const StateId state,
-                       STG& stg) {
-    vector<Instruction*> instrsAtState = map_find(state, stg.opStates);
-    set<BasicBlock*> allBlocks;
-    for (auto instr : instrsAtState) {
-      allBlocks.insert(instr->getParent());
-    }
-    for (auto blk : stg.sched.blockTimes) {
-      for (auto stateNum : blk.second) {
-        if (stateNum == state) {
-          allBlocks.insert(blk.first);
-        }
-      }
-    }
+  // std::set<BasicBlock*>
+  // nonTerminatingBlocks(const StateId state,
+  //                      STG& stg) {
+  //   vector<Instruction*> instrsAtState = map_find(state, stg.opStates);
+  //   set<BasicBlock*> allBlocks;
+  //   for (auto instr : instrsAtState) {
+  //     allBlocks.insert(instr->getParent());
+  //   }
+  //   for (auto blk : stg.sched.blockTimes) {
+  //     for (auto stateNum : blk.second) {
+  //       if (stateNum == state) {
+  //         allBlocks.insert(blk.first);
+  //       }
+  //     }
+  //   }
 
-    cout << "All blocks size = " << allBlocks.size() << endl;
+  //   cout << "All blocks size = " << allBlocks.size() << endl;
     
-    set<BasicBlock*> nonTerminating;
-    for (auto blk : allBlocks) {
-      bool terminatorFinishesInState = false;
-      for (auto& instrPtr : *blk) {
-        auto* instr = &instrPtr;
-        if (TerminatorInst::classof(instr) &&
-            instructionInProgressAt(instr, state, stg) &&
-            (stg.instructionEndState(instr) == state)) {
-          terminatorFinishesInState = true;
-          break;
-        }
-      }
+  //   set<BasicBlock*> nonTerminating;
+  //   for (auto blk : allBlocks) {
+  //     bool terminatorFinishesInState = false;
+  //     for (auto& instrPtr : *blk) {
+  //       auto* instr = &instrPtr;
+  //       if (TerminatorInst::classof(instr) &&
+  //           instructionInProgressAt(instr, state, stg) &&
+  //           (stg.instructionEndState(instr) == state)) {
+  //         terminatorFinishesInState = true;
+  //         break;
+  //       }
+  //     }
 
-      if (!terminatorFinishesInState) {
-        nonTerminating.insert(blk);
-      }
-    }
+  //     if (!terminatorFinishesInState) {
+  //       nonTerminating.insert(blk);
+  //     }
+  //   }
 
-    return nonTerminating;
-  }
+  //   return nonTerminating;
+  // }
 
   std::set<BasicBlock*>
   terminatingBlocks(const StateId state,
@@ -2571,25 +2571,6 @@ namespace ahaHLS {
       }
     }
 
-    // for (auto st : arch.stg.opStates) {
-    //   StateId state = st.first;
-
-    //   //for (auto blk : nonTerminatingBlocks(state, arch.stg)) {
-    //   for (auto blk : inProgressBlocks(state, arch.stg)) {
-
-    //     // if (isPipelineState(state, arch.pipelines) ==
-    //     //     isPipelineState(state + 1, arch.pipelines)) {
-
-    //     //   Wire thisBlkActive = blockActiveInState(state, blk, arch);
-    //     //   // If a block is active that does not execute its terminator, then
-    //     //   // the in the next cycle we continue to execute that block
-    //     //   nextBBController(state, arch).values[thisBlkActive] =
-    //     //     constWire(32, arch.cs.getBasicBlockNo(blk));
-    //     // }
-    //   }
-
-    // }
-    
     buildPredecessorBlockWires(arch);
   }
 
