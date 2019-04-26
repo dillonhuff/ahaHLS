@@ -1906,17 +1906,12 @@ namespace ahaHLS {
           dest = arch.stg.sched.getDefaultReturnState();
         }
 
-        //Wire condWire = constWire(1, 1);
         Wire condWire = blockActiveInState(state, instr->getParent(), arch);
-        //condWire, arch);//checkAnd(blockActiveInState(state, instr->getParent(), arch), condWire, arch);
         addStateTransition(state, dest, condWire, arch);
 
-        // Set next block logic
-        //Wire thisBlkActive = blockActiveInState(state, instr->getParent(), arch);
         // If the a return statement executes in a given block
         // then if there is not default behavior set the next block
         // to be the current block.
-
         if (!arch.stg.sched.hasReturnDefault()) {
           nextBBController(state, arch).values[condWire] =
             constWire(32, arch.cs.getBasicBlockNo(instr->getParent()));
@@ -1945,6 +1940,11 @@ namespace ahaHLS {
       Wire condWire = constWire(1, 1);
       condWire = checkAnd(blockActiveInState(state, blk, arch), condWire, arch);
       addStateTransition(state, dest, condWire, arch);
+
+      //Wire condWire = blockActiveInState(state, blk, arch);
+      auto& cntr = nextBBController(state + 1, arch);
+      cntr.values[condWire] = constWire(32, arch.cs.getBasicBlockNo(blk));
+      
     }
 
   }
@@ -2595,11 +2595,11 @@ namespace ahaHLS {
         }
       }
 
-      for (auto blk : inProgressBlocks(state, arch.stg)) {
-        Wire condWire = blockActiveInState(state, blk, arch);
-        auto& cntr = nextBBController(state + 1, arch);
-        cntr.values[condWire] = constWire(32, arch.cs.getBasicBlockNo(blk));
-      }
+      // for (auto blk : inProgressBlocks(state, arch.stg)) {
+      //   Wire condWire = blockActiveInState(state, blk, arch);
+      //   auto& cntr = nextBBController(state + 1, arch);
+      //   cntr.values[condWire] = constWire(32, arch.cs.getBasicBlockNo(blk));
+      // }
 
       // for (auto blk : terminatingBlocks(state, arch.stg)) {
       //   if (ReturnInst::classof(blk->getTerminator())) {
