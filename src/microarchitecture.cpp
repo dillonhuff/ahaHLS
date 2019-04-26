@@ -1634,7 +1634,8 @@ namespace ahaHLS {
     Wire s = constWire(1, 1);
     for (StateId state : allStates(p)) {
       if (!isTerminalState(state, p, arch)) {
-        s = checkAnd(s, checkNotWire(p.stateIsActiveWire(state), arch), arch);
+        //s = checkAnd(s, checkNotWire(p.stateIsActiveWire(state), arch), arch);
+        s = checkAnd(s, checkNotWire(stateActiveReg(state, arch), arch), arch);
       }
     }
     // for (int i = 0; i < (p.numStages() - 1); i++) {
