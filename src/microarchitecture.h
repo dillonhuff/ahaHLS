@@ -667,5 +667,6 @@ namespace ahaHLS {
   void emitPipelineResetBlock(MicroArchitecture& arch);
 
   void emitPipelineRegisterChains(MicroArchitecture& arch);
-  
+
+  Wire stateActiveReg(const StateId state, MicroArchitecture& arch);  
 }

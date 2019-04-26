@@ -1232,12 +1232,30 @@ namespace ahaHLS {
     }
   }
 
+  void printAllActiveStates(MicroArchitecture& arch,
+                            VerilogDebugInfo& info) {
+
+    vector<string> vars;
+    string str = "state active flags: ";
+    for (auto st : arch.stg.opStates) {
+      StateId state = st.first;
+
+      //str += stateActiveReg(state, arch).valueString() + " = %d, ";
+      str += "%d, ";
+      vars.push_back(stateActiveReg(state, arch).valueString());
+      //addDisplay("1", stateActiveReg(state, arch).valueString() + " = %d\\n", 
+    }
+
+    addDisplay("1", str, vars, info);
+  }
+  
   void addControlSanityChecks(MicroArchitecture& arch,
                               VerilogDebugInfo& info) {
     noOverlappingLastBlockTransitions(arch, info);
     noBlocksActiveInStatesWhereTheyAreNotScheduled(arch, info);
     atLeastOneValidPhiInput(arch, info);
     noOverlappingStateTransitions(arch, info);
+    printAllActiveStates(arch, info);
     //noOverlappingBlockTransitions(arch, info);
   }
   

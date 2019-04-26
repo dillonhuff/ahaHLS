@@ -1844,6 +1844,8 @@ namespace ahaHLS {
           //   constWire(1, 1);
 
         } else {
+
+          cout << "Adding default transition from " << state << " to " << dest << endl;
           exitStateActive.values[jumpCond] =
             constWire(1, 1);
         }
@@ -2856,44 +2858,44 @@ namespace ahaHLS {
     return inAnyPipe;
   }
 
-  void
-  emitPipelineInitiationBlock(MicroArchitecture& arch) {
+  // void
+  // emitPipelineInitiationBlock(MicroArchitecture& arch) {
 
-    auto& pipelines = arch.pipelines;
+  //   auto& pipelines = arch.pipelines;
 
-    for (auto p : pipelines) {
-      int stage = p.II() - 1;
-      StateId st = p.stateForStage(stage);
+  //   for (auto p : pipelines) {
+  //     int stage = p.II() - 1;
+  //     StateId st = p.stateForStage(stage);
 
-      std::map<llvm::Value*, int> memMap;
+  //     std::map<llvm::Value*, int> memMap;
 
-      assert(Instruction::classof(p.getExitCondition()));
-      ControlFlowPosition pos =
-        pipelinePosition(dyn_cast<Instruction>(p.getExitCondition()), p.stateForStage(p.II() - 1), p.II() - 1);
+  //     assert(Instruction::classof(p.getExitCondition()));
+  //     ControlFlowPosition pos =
+  //       pipelinePosition(dyn_cast<Instruction>(p.getExitCondition()), p.stateForStage(p.II() - 1), p.II() - 1);
 
-      Wire testCond = outputWire(p.getExitCondition(), pos, arch);
-      auto br = p.getExitBranch();
+  //     Wire testCond = outputWire(p.getExitCondition(), pos, arch);
+  //     auto br = p.getExitBranch();
 
-      auto trueBlock = br->getSuccessor(0);
-      BasicBlock* pBlock = p.getEntryBlock();
+  //     auto trueBlock = br->getSuccessor(0);
+  //     BasicBlock* pBlock = p.getEntryBlock();
 
-      // Does a true value in the branch conditional imply doing another iteration
-      // of the loop
-      if (trueBlock == pBlock) {
-        testCond = checkNotWire(testCond, arch);
-      }
+  //     // Does a true value in the branch conditional imply doing another iteration
+  //     // of the loop
+  //     if (trueBlock == pBlock) {
+  //       testCond = checkNotWire(testCond, arch);
+  //     }
 
-      RegController& cont =
-        arch.getController(entryStateActiveWire(p, arch));
-      Wire atSt = atStateWire(st, arch);
+  //     RegController& cont =
+  //       arch.getController(entryStateActiveWire(p, arch));
+  //     Wire atSt = atStateWire(st, arch);
       
 
-      cont.values[checkAnd(atSt, testCond, arch)] = constWire(1, 0);
-      cont.values[checkAnd(atSt, checkNotWire(testCond, arch), arch)] = constWire(1, 1);
-      cont.values[checkAnd(checkNotWire(atSt, arch), p.inPipeWire(), arch)] = constWire(1, 0);
-    }
+  //     cont.values[checkAnd(atSt, testCond, arch)] = constWire(1, 0);
+  //     cont.values[checkAnd(atSt, checkNotWire(testCond, arch), arch)] = constWire(1, 1);
+  //     cont.values[checkAnd(checkNotWire(atSt, arch), p.inPipeWire(), arch)] = constWire(1, 0);
+  //   }
 
-  }
+  // }
 
   void emitPipelineRegisterChains(MicroArchitecture& arch) {
     for (auto p : arch.pipelines) {
