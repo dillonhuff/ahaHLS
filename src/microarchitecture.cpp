@@ -2447,20 +2447,7 @@ namespace ahaHLS {
       arch.getController(entryName).resetValue =
         to_string(arch.cs.getBasicBlockNo(&(f->getEntryBlock())));
       arch.entryBBWires.insert({state, arch.getController(entryName).reg});
-      
-    }
 
-    // Maybe the thing to do here is to create branch taken
-    // wires in this loop as well. Assign them to the variables
-    // I already have, and then wire them up to port controllers
-    // in a subsequent loop?
-
-    cout << "Adding happened in state logic" << endl;
-
-    for (auto st : arch.stg.opStates) {
-      StateId state = st.first;
-
-      cout << "Adding happened for state " << state << endl;
       for (auto blk : blocksInState(state, arch.stg)) {
 
         int blkNo = arch.cs.getBasicBlockNo(blk);
@@ -2471,6 +2458,7 @@ namespace ahaHLS {
         string w = "bb_" + to_string(blkNo) + "_predecessor_in_state_" + to_string(state);
         addPortController(w, 32, arch);
       }
+      
     }
 
     for (auto st : arch.stg.opStates) {
@@ -2504,9 +2492,6 @@ namespace ahaHLS {
           if (!(br->isConditional())) {
             BasicBlock* destBlock = br->getSuccessor(0);
             arch.edgeTakenWires.insert({{br->getParent(), destBlock}, atContainerPos});
-
-            //addBlockJump(blk, destBlock, wireValue(hName, arch), arch);
-            //addBlockJump(blk, destBlock, atContainerPos, arch);
           } else {
 
             Value* condition = br->getOperand(0);
@@ -2526,9 +2511,6 @@ namespace ahaHLS {
 
             BasicBlock* falseSucc = br->getSuccessor(1);
             arch.edgeTakenWires.insert({{br->getParent(), falseSucc}, falseTaken});
-
-            //addBlockJump(blk, trueSucc, trueTaken, arch);
-            //addBlockJump(blk, falseSucc, falseTaken, arch);                    
           }
         }
 
@@ -2570,14 +2552,7 @@ namespace ahaHLS {
         }
 
         string name = "bb_" + blkString + "_active_in_state_" + to_string(state);
-
-        cout << "Getting controller for " << name << endl;
-        
         PortController& activeController = arch.portController(name);
-
-        cout << "Got active controller for " << name << endl;
-
-        
         PortValues& vals =
           activeController.inputControllers[activeController.onlyInput().name];
         vals.portVals[constWire(1, 1)] = nextBBIsThisBlock;
