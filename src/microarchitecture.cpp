@@ -2012,6 +2012,9 @@ namespace ahaHLS {
       emitStateCode(state.first, arch);
     }
 
+    // Now that all state transitions have been added to the control path
+    // set defaults to ensure that states that are not transitioned to in any
+    // cycle will be set to 0
     for (auto state : arch.stg.opStates) {
       auto& activeController =
         stateActiveRegController(state.first, arch);
