@@ -2377,13 +2377,11 @@ namespace ahaHLS {
       StateId state = st.first;
 
       // Add last basic block wires
-      //for (auto& bb : f->getBasicBlockList()) {
       for (auto blk : blocksInState(state, arch.stg)) {
         
         int thisBlkNo = arch.cs.getBasicBlockNo(blk);
-        //string w = "bb_" + to_string(thisBlkNo) + "_predecessor";
         string w = "bb_" + to_string(thisBlkNo) + "_predecessor_in_state_" + to_string(state);
-        addPortController(w, 32, arch);
+        //addPortController(w, 32, arch);
 
         PortController& predController = arch.portController(w);
 
@@ -2391,7 +2389,6 @@ namespace ahaHLS {
           // NOTE: Im not clear on whether this is the right structure for a
           // system where each state has its own entryBlock and lastBlock variables
           checkEqual(thisBlkNo, nextBBReg(state, arch), arch);
-        //predController.setCond("in_data", nextBlkIsThisBlk, wire(32, "last_BB_reg"));
 
         // If the current block is the entry block of the current state then the
         // predecessor is the value stored in lastBBReg
@@ -2434,7 +2431,6 @@ namespace ahaHLS {
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
     Function* f = arch.stg.getFunction();
 
-    //for (auto& bb : f->getBasicBlockList()) {
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
       string lastName = "state_" + to_string(state) + "_last_BB_reg";
@@ -2449,17 +2445,10 @@ namespace ahaHLS {
       
     }
 
-    // // TODO: Change to state by state controllers
-    // arch.addController("global_next_block", 32);
-    // arch.getController("global_next_block").resetValue =
-    //   to_string(arch.cs.getBasicBlockNo(&(f->getEntryBlock())));
-
     // Maybe the thing to do here is to create branch taken
     // wires in this loop as well. Assign them to the variables
     // I already have, and then wire them up to port controllers
     // in a subsequent loop?
-    
-    //for (auto& bb : f->getBasicBlockList()) {
 
     cout << "Adding happened in state logic" << endl;
 
@@ -2477,6 +2466,11 @@ namespace ahaHLS {
         addPortController(name, 1, arch);        
 
         cout << "Added controller controller for " << name << endl;
+
+        //int thisBlkNo = arch.cs.getBasicBlockNo(blk);
+        string w = "bb_" + to_string(blkNo) + "_predecessor_in_state_" + to_string(state);
+        addPortController(w, 32, arch);
+        
         
       }
     }
@@ -2669,7 +2663,7 @@ namespace ahaHLS {
     }
 
     buildAtStateWires(arch);
-    buildBasicBlockEnableLogic(arch);    
+    buildBasicBlockEnableLogic(arch);
     buildPortControllers(arch);
     emitPipelineValidChainBlock(arch);
     emitPipelineRegisterChains(arch);
