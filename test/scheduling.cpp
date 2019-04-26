@@ -2592,8 +2592,8 @@ namespace ahaHLS {
     TestBenchSpec tb;
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
-    tb.runCycles = 20;
-    tb.maxCycles = 43;
+    tb.runCycles = 30;
+    tb.maxCycles = 50;
     tb.name = "mem_dep_pipe_long";
     emitVerilogTestBench(tb, arch, testLayout);
 
