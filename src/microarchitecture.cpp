@@ -1861,13 +1861,11 @@ namespace ahaHLS {
     return map_find(state, arch.lastBBWires);
   }
 
-  // Now: I want the lastBB register, state is active
-  // wires, and global_next_block wires to be per-state
+  // Global state should also be broken up and turned in to state
+  // active flags
   void emitStateCode(const StateId state,
                      MicroArchitecture& arch) {
 
-
-    //RegController& rc = arch.getController(reg(32, "last_BB_reg"));
     for (auto jmp : possibleLastJumps(state, arch.stg)) {
       StateId dst = dstState(jmp, arch.stg);
 
@@ -1883,7 +1881,6 @@ namespace ahaHLS {
       }
     }
 
-    //vector<pair<StateId, StateId> > newTransitions;
     for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
       BasicBlock* srcBlk = transition.first;
       BasicBlock* dest = transition.second;
@@ -1912,7 +1909,14 @@ namespace ahaHLS {
     // Actually we ought to do this even if we do find terminators
     // because with multiple basic blocks it is possible to end
     // in a non-terminating block even if other blocks have terminators
-    //for (auto blk : nonTerminatingBlocks(state, arch.stg)) {
+
+    // Note: If we are in a pipelined state we might have a block whose
+    // terminating branch executes in this state, but which also
+    // has additional unfinished data processing instructions
+
+    // Note: We might actually want to merge these three
+    // loops in to one loop over the possible exit blocks
+    // of the state, and then consider each case inside the loop body?
     for (auto blk : inProgressBlocks(state, arch.stg)) {
 
       cout << "Found non terminating block in " << state << endl;
