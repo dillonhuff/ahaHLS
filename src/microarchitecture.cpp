@@ -1909,6 +1909,18 @@ namespace ahaHLS {
         Wire condWire = constWire(1, 1);
         condWire = checkAnd(blockActiveInState(state, instr->getParent(), arch), condWire, arch);
         addStateTransition(state, dest, condWire, arch);
+
+        // Set next block logic
+        Wire thisBlkActive = blockActiveInState(state, instr->getParent(), arch);
+        // If the a return statement executes in a given block
+        // then if there is not default behavior set the next block
+        // to be the current block.
+
+        if (!arch.stg.sched.hasReturnDefault()) {
+          nextBBController(state, arch).values[thisBlkActive] =
+            constWire(32, arch.cs.getBasicBlockNo(instr->getParent()));
+        }
+        
       }
     }
 
@@ -2566,7 +2578,9 @@ namespace ahaHLS {
       // for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
       //   addBlockJump(transition.first, transition.second, map_find(transition, arch.edgeTakenWires), arch);
       // }
-    
+
+      // These two loops seem odd to me. I would like the loop structure
+      // here to parallel what is in emitStateCode
       for (auto blk : nonTerminatingBlocks(state, arch.stg)) {
 
         if (isPipelineState(state, arch.pipelines) ==
@@ -2586,19 +2600,19 @@ namespace ahaHLS {
         cntr.values[condWire] = constWire(32, arch.cs.getBasicBlockNo(blk));
       }
 
-      for (auto blk : terminatingBlocks(state, arch.stg)) {
-        if (ReturnInst::classof(blk->getTerminator())) {
-          Wire thisBlkActive = blockActiveInState(state, blk, arch);
-          // If the a return statement executes in a given block
-          // then if there is not default behavior set the next block
-          // to be the current block.
+      // for (auto blk : terminatingBlocks(state, arch.stg)) {
+      //   if (ReturnInst::classof(blk->getTerminator())) {
+      //     Wire thisBlkActive = blockActiveInState(state, blk, arch);
+      //     // If the a return statement executes in a given block
+      //     // then if there is not default behavior set the next block
+      //     // to be the current block.
 
-          if (!arch.stg.sched.hasReturnDefault()) {
-            nextBBController(state, arch).values[thisBlkActive] =
-              constWire(32, arch.cs.getBasicBlockNo(blk));
-          }
-        }
-      }
+      //     if (!arch.stg.sched.hasReturnDefault()) {
+      //       nextBBController(state, arch).values[thisBlkActive] =
+      //         constWire(32, arch.cs.getBasicBlockNo(blk));
+      //     }
+      //   }
+      // }
       
     }
     
