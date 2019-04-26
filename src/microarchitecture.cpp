@@ -1993,6 +1993,10 @@ namespace ahaHLS {
       Wire active = stateActiveReg(state.first, arch);
       arch.addController(active.name, active.width);
     }
+
+    RegController& startController =
+      stateActiveRegController(arch.stg.blockStartState(&(arch.stg.getFunction()->getEntryBlock())), arch);
+    startController.resetValue = "1";
     
     for (auto state : arch.stg.opStates) {
       emitStateCode(state.first, arch);
