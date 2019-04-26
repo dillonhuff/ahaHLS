@@ -2573,18 +2573,33 @@ namespace ahaHLS {
             constWire(32, arch.cs.getBasicBlockNo(blk));
         }
       }
-    }
+    // }
 
-    for (auto st : arch.stg.opStates) {
-      StateId state = st.first;
+    // for (auto st : arch.stg.opStates) {
+    //   StateId state = st.first;
       for (auto blk : inProgressBlocks(state, arch.stg)) {
         Wire condWire = blockActiveInState(state, blk, arch);
         auto& cntr = nextBBController(state + 1, arch);
         cntr.values[condWire] = constWire(32, arch.cs.getBasicBlockNo(blk));
       }
+
+      for (auto blk : terminatingBlocks(state, arch.stg)) {
+        if (ReturnInst::classof(blk->getTerminator())) {
+          Wire thisBlkActive = blockActiveInState(state, blk, arch);
+          // If the a return statement executes in a given block
+          // then if there is not default behavior set the next block
+          // to be the current block.
+
+          if (!arch.stg.sched.hasReturnDefault()) {
+            nextBBController(state, arch).values[thisBlkActive] =
+              constWire(32, arch.cs.getBasicBlockNo(blk));
+          }
+        }
+      }
+      
     }
     
-    buildReturnBlockTransitions(arch);
+    //buildReturnBlockTransitions(arch);
     buildPredecessorBlockWires(arch);
   }
 
