@@ -14,6 +14,11 @@ using namespace std;
 
 namespace ahaHLS {
 
+  void addBlockJump(BasicBlock* src,
+                    BasicBlock* destBlock,
+                    const Wire jumpHappened,
+                    MicroArchitecture& arch);
+  
   Wire nextBBReg(const StateId state, MicroArchitecture& arch);
   
   Wire lastBlockActiveInState(const StateId st,
@@ -2371,7 +2376,7 @@ namespace ahaHLS {
   // in the same state?
   void buildPredecessorBlockWires(MicroArchitecture& arch) {
 
-    Function* f = arch.stg.getFunction();
+    //Function* f = arch.stg.getFunction();
 
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
@@ -2457,21 +2462,14 @@ namespace ahaHLS {
 
       cout << "Adding happened for state " << state << endl;
       for (auto blk : blocksInState(state, arch.stg)) {
-        //cout << "Adding happened for blk " << valueString(blk) << endl;
 
         int blkNo = arch.cs.getBasicBlockNo(blk);
         auto blkString = to_string(blkNo);
 
         string name = "bb_" + blkString + "_active_in_state_" + to_string(state);
         addPortController(name, 1, arch);        
-
-        cout << "Added controller controller for " << name << endl;
-
-        //int thisBlkNo = arch.cs.getBasicBlockNo(blk);
         string w = "bb_" + to_string(blkNo) + "_predecessor_in_state_" + to_string(state);
         addPortController(w, 32, arch);
-        
-        
       }
     }
 
@@ -2487,15 +2485,10 @@ namespace ahaHLS {
 
         TerminatorInst* term = blk->getTerminator();
 
-        // string name = "bb_" + blkString + "_active_in_state_" + to_string(state);
-        // addPortController(name, 1, arch);        
-        // cout << "Added controller controller for " << name << endl;
-        
         if (BranchInst::classof(term)) {
           BranchInst* br = dyn_cast<BranchInst>(term);
 
           StateId branchEndState = arch.stg.instructionEndState(br);
-
 
           Wire atContainerPos =
             blockActiveInState(branchEndState, br->getParent(), arch);
@@ -2512,7 +2505,8 @@ namespace ahaHLS {
             BasicBlock* destBlock = br->getSuccessor(0);
             arch.edgeTakenWires.insert({{br->getParent(), destBlock}, atContainerPos});
 
-            addBlockJump(blk, destBlock, wireValue(hName, arch), arch);
+            //addBlockJump(blk, destBlock, wireValue(hName, arch), arch);
+            addBlockJump(blk, destBlock, atContainerPos, arch);
           } else {
 
             Value* condition = br->getOperand(0);
@@ -2541,11 +2535,6 @@ namespace ahaHLS {
     }
 
     cout << "Adding active in state logic" << endl;
-    // There is an extra issue here: what if
-    // the last basic block in the trace that is active
-    // in state S is not a block that does not have its terminator
-    // in state S?
-    //for (auto& bb : f->getBasicBlockList()) {
 
     // TODO: Add defaults to basic block controllers?
     // Check that on state entry the next block is one of the contained
