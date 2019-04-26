@@ -14,6 +14,8 @@ using namespace std;
 
 namespace ahaHLS {
 
+  Wire checkOr(const Wire in0, const Wire in1, MicroArchitecture& arch);
+  
   void addBlockJump(BasicBlock* src,
                     BasicBlock* destBlock,
                     const Wire jumpHappened,
@@ -41,9 +43,13 @@ namespace ahaHLS {
 
   Wire buildAtStateWire(const StateId state, MicroArchitecture& arch) {
     if (arch.isPipelineState(state)) {
-      auto p = arch.getPipeline(state);
-      Wire active = checkAnd(p.inPipeWire(), p.stateIsActiveWire(state), arch);
-      return active;
+      // auto p = arch.getPipeline(state);
+      // Wire active = checkAnd(p.inPipeWire(), p.stateIsActiveWire(state), arch);
+      // return active;
+
+      return stateActiveReg(state, arch);
+      //return active;
+      
     } else {
       // TODO: This will need to become a check on the value of the
       // state is active register
@@ -1912,13 +1918,13 @@ namespace ahaHLS {
       RegController& rc = arch.getController(lastBBReg(dst, arch));
       
       auto bbNo = arch.cs.getBasicBlockNo(jmp.jmp.first);
-      if (isPipelineState(state, arch.pipelines)) {
-        ElaboratedPipeline p = getPipeline(state, arch.pipelines);
-        rc.values[atStateWire(p.stateId, arch)] = constWire(32, bbNo);
-      } else {
+      // if (isPipelineState(state, arch.pipelines)) {
+      //   ElaboratedPipeline p = getPipeline(state, arch.pipelines);
+      //   rc.values[atStateWire(p.stateId, arch)] = constWire(32, bbNo);
+      // } else {
         Wire condWire = map_find(jmp.jmp, arch.edgeTakenWires);
         rc.values[condWire] = constWire(32, bbNo);
-      }
+        // }
     }
 
     for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
@@ -2029,7 +2035,15 @@ namespace ahaHLS {
       PortController& pc = addPortController(p.inPipe.name, 1, arch);
       // TODO: This will need to be an "or" over the active flags for all states
       // in the pipeline
-      pc.setAlways("in_data", checkEqual(p.stateId, arch.cs.getGlobalState(), arch));
+
+      Wire anyPipeStateActive = constWire(1, 0);
+      for (auto st : p.p.getStates()) {
+        anyPipeStateActive =
+          checkOr(stateActiveReg(st, arch), anyPipeStateActive, arch);
+      }
+
+      pc.setAlways("in_data", anyPipeStateActive);
+      //pc.setAlways("in_data", checkEqual(p.stateId, arch.cs.getGlobalState(), arch));
     }
 
   }
