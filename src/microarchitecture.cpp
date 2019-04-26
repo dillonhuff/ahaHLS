@@ -2412,30 +2412,28 @@ namespace ahaHLS {
     }
   }
 
-  void buildReturnBlockTransitions(MicroArchitecture& arch) {
-    for (auto st : arch.stg.opStates) {
-      StateId state = st.first;
-      for (auto blk : terminatingBlocks(state, arch.stg)) {
-        if (ReturnInst::classof(blk->getTerminator())) {
-          Wire thisBlkActive = blockActiveInState(state, blk, arch);
-          // If the a return statement executes in a given block
-          // then if there is not default behavior set the next block
-          // to be the current block.
+  // void buildReturnBlockTransitions(MicroArchitecture& arch) {
+  //   for (auto st : arch.stg.opStates) {
+  //     StateId state = st.first;
+  //     for (auto blk : terminatingBlocks(state, arch.stg)) {
+  //       if (ReturnInst::classof(blk->getTerminator())) {
+  //         Wire thisBlkActive = blockActiveInState(state, blk, arch);
+  //         // If the a return statement executes in a given block
+  //         // then if there is not default behavior set the next block
+  //         // to be the current block.
 
-          if (!arch.stg.sched.hasReturnDefault()) {
-            nextBBController(state, arch).values[thisBlkActive] =
-              constWire(32, arch.cs.getBasicBlockNo(blk));
-          }
-        }
-      }
-    }
-  }
-  
-  // TODO: Pull apart control variable declaration and the wiring
-  // up of control variables
-  void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
+  //         if (!arch.stg.sched.hasReturnDefault()) {
+  //           nextBBController(state, arch).values[thisBlkActive] =
+  //             constWire(32, arch.cs.getBasicBlockNo(blk));
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
+
+  void addBasicBlockControllers(MicroArchitecture& arch) {
     Function* f = arch.stg.getFunction();
-
+    
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
       string lastName = "state_" + to_string(state) + "_last_BB_reg";
@@ -2461,6 +2459,13 @@ namespace ahaHLS {
       
     }
 
+  }
+  
+  // TODO: Pull apart control variable declaration and the wiring
+  // up of control variables
+  void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
+    addBasicBlockControllers(arch);
+    
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
 
@@ -2556,12 +2561,9 @@ namespace ahaHLS {
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
 
-      // for (auto st : arch.stg.opStates) {
-      //   StateId state = st.first;
       for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
         addBlockJump(transition.first, transition.second, map_find(transition, arch.edgeTakenWires), arch);
       }
-      // }
     
       for (auto blk : nonTerminatingBlocks(state, arch.stg)) {
 
@@ -2575,10 +2577,7 @@ namespace ahaHLS {
             constWire(32, arch.cs.getBasicBlockNo(blk));
         }
       }
-    // }
 
-    // for (auto st : arch.stg.opStates) {
-    //   StateId state = st.first;
       for (auto blk : inProgressBlocks(state, arch.stg)) {
         Wire condWire = blockActiveInState(state, blk, arch);
         auto& cntr = nextBBController(state + 1, arch);
@@ -2601,7 +2600,6 @@ namespace ahaHLS {
       
     }
     
-    //buildReturnBlockTransitions(arch);
     buildPredecessorBlockWires(arch);
   }
 
