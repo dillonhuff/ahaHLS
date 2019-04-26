@@ -2571,24 +2571,24 @@ namespace ahaHLS {
       }
     }
 
-    for (auto st : arch.stg.opStates) {
-      StateId state = st.first;
+    // for (auto st : arch.stg.opStates) {
+    //   StateId state = st.first;
 
-      //for (auto blk : nonTerminatingBlocks(state, arch.stg)) {
-      for (auto blk : inProgressBlocks(state, arch.stg)) {
+    //   //for (auto blk : nonTerminatingBlocks(state, arch.stg)) {
+    //   for (auto blk : inProgressBlocks(state, arch.stg)) {
 
-        if (isPipelineState(state, arch.pipelines) ==
-            isPipelineState(state + 1, arch.pipelines)) {
+    //     // if (isPipelineState(state, arch.pipelines) ==
+    //     //     isPipelineState(state + 1, arch.pipelines)) {
 
-          Wire thisBlkActive = blockActiveInState(state, blk, arch);
-          // If a block is active that does not execute its terminator, then
-          // the in the next cycle we continue to execute that block
-          nextBBController(state, arch).values[thisBlkActive] =
-            constWire(32, arch.cs.getBasicBlockNo(blk));
-        }
-      }
+    //     //   Wire thisBlkActive = blockActiveInState(state, blk, arch);
+    //     //   // If a block is active that does not execute its terminator, then
+    //     //   // the in the next cycle we continue to execute that block
+    //     //   nextBBController(state, arch).values[thisBlkActive] =
+    //     //     constWire(32, arch.cs.getBasicBlockNo(blk));
+    //     // }
+    //   }
 
-    }
+    // }
     
     buildPredecessorBlockWires(arch);
   }
