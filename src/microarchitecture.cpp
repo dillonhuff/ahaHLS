@@ -1964,6 +1964,11 @@ namespace ahaHLS {
     arch.addController("global_state", 32);
     arch.getController("global_state").resetValue =
       map_find(wire(32, "global_state"), arch.resetValues);
+
+    for (auto state : arch.stg.opStates) {
+      Wire active = stateActiveReg(state.first, arch);
+      arch.addController(active.name, active.width);
+    }
     
     for (auto state : arch.stg.opStates) {
       emitStateCode(state.first, arch);
