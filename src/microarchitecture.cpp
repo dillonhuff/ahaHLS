@@ -1883,41 +1883,45 @@ namespace ahaHLS {
       }
     }
 
-    vector<pair<StateId, StateId> > newTransitions;
+    //vector<pair<StateId, StateId> > newTransitions;
     for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
       BasicBlock* srcBlk = transition.first;
       BasicBlock* dest = transition.second;
 
-      BranchInst* br = dyn_cast<BranchInst>(srcBlk->getTerminator());
+      Wire edgeTakenWire = map_find({srcBlk, dest}, arch.edgeTakenWires);
+      
+      // BranchInst* br = dyn_cast<BranchInst>(srcBlk->getTerminator());
       
       StateId src = state;
       StateId end = arch.stg.blockStartState(dest);
 
-      ControlFlowPosition pos =
-        position(state, br, arch);
+      // ControlFlowPosition pos =
+      //   position(state, br, arch);
       
-      Wire condWire;
-      if (br->isConditional()) {
-        assert(br->getNumSuccessors() == 2);
-        assert(br->getSuccessor(0) != br->getSuccessor(1));
+      // Wire condWire;
+      // if (br->isConditional()) {
+      //   assert(br->getNumSuccessors() == 2);
+      //   assert(br->getSuccessor(0) != br->getSuccessor(1));
 
-        Value* jmpTest = br->getOperand(0);
-        Wire jmpTestName = outputWire(jmpTest, pos, arch);
-        if (br->getSuccessor(0) == dest) {
-          condWire = jmpTestName;
-        } else {
-          assert(br->getSuccessor(1) == dest);
+      //   Value* jmpTest = br->getOperand(0);
+      //   Wire jmpTestName = outputWire(jmpTest, pos, arch);
+      //   if (br->getSuccessor(0) == dest) {
+      //     condWire = jmpTestName;
+      //   } else {
+      //     assert(br->getSuccessor(1) == dest);
           
-          condWire = checkNotWire(jmpTestName, arch);
-        }
-      } else {
-        condWire = constWire(1, 1);
-      }
+      //     condWire = checkNotWire(jmpTestName, arch);
+      //   }
+      // } else {
+      //   condWire = constWire(1, 1);
+      // }
 
-      condWire = checkAnd(blockActiveInState(state, br->getParent(), arch), condWire, arch);
-      addStateTransition(state, end, condWire, arch);
+      //condWire = checkAnd(blockActiveInState(state, br->getParent(), arch), condWire, arch);
+      //addStateTransition(state, end, condWire, arch);
+
+      addStateTransition(state, end, edgeTakenWire, arch);
       
-      newTransitions.push_back({src, end});
+      //newTransitions.push_back({src, end});
     }
 
     for (auto instr : arch.stg.instructionsFinishingAt(state)) {
