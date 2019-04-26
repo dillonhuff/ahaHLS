@@ -1773,7 +1773,8 @@ namespace ahaHLS {
   void addStateTransition(const StateId state,
                           const StateId dest,
                           Wire jumpCond,
-                          MicroArchitecture& arch) {
+                          MicroArchitecture& arch,
+                          const bool isDefault=false) {
 
     cout << "Adding transition from " << state << " to " << dest << endl;
 
@@ -1801,7 +1802,7 @@ namespace ahaHLS {
         RegController& exitStateActive =
           stateActiveRegController(dest, arch);
         
-        if (cyclesToWaitForHazards > 0) {
+        if ((cyclesToWaitForHazards > 0) && !isDefault) {
           cout << "Need to wait " << cyclesToWaitForHazards << " additional cycles for hazards to resolve in transition from " << state << " to " << dest << endl;
           //assert(false);
 
@@ -1833,7 +1834,9 @@ namespace ahaHLS {
           Wire finalCond = checkAnd(storedJumpCond, waitedForHazards, arch);
           exitStateActive.values[finalCond] =
             constWire(1, 1);
-          
+
+          // Reset temp on jump
+          inPipeJumpHappened.values[finalCond] = constWire(1, 0);
 
           // RegController& exitStateActive =
           //   stateActiveRegController(dest, arch);
@@ -2070,7 +2073,7 @@ namespace ahaHLS {
 
       StateId dest = state + 1;
       Wire condWire = blockActiveInState(state, blk, arch);
-      addStateTransition(state, dest, condWire, arch);
+      addStateTransition(state, dest, condWire, arch, true);
 
       auto& cntr = nextBBController(dest, arch);
       cntr.values[condWire] = constWire(32, arch.cs.getBasicBlockNo(blk));
