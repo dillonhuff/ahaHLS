@@ -1894,6 +1894,8 @@ namespace ahaHLS {
       
       StateId end = arch.stg.blockStartState(dest);
       addStateTransition(state, end, edgeTakenWire, arch);
+
+      addBlockJump(transition.first, transition.second, map_find(transition, arch.edgeTakenWires), arch);      
     }
 
     for (auto instr : arch.stg.instructionsFinishingAt(state)) {
@@ -2561,9 +2563,9 @@ namespace ahaHLS {
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
 
-      for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
-        addBlockJump(transition.first, transition.second, map_find(transition, arch.edgeTakenWires), arch);
-      }
+      // for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
+      //   addBlockJump(transition.first, transition.second, map_find(transition, arch.edgeTakenWires), arch);
+      // }
     
       for (auto blk : nonTerminatingBlocks(state, arch.stg)) {
 
