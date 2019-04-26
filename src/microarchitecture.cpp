@@ -1817,8 +1817,7 @@ namespace ahaHLS {
             buildCounter(stateActiveReg(state, arch), 32, arch);
           Wire waitedForHazards = checkEqual(hazardCounterOutput,
                                              constWire(hazardCounterOutput.width,
-                                                       0),
-                                                       //cyclesToWaitForHazards),
+                                                       cyclesToWaitForHazards),
                                              arch);
 
         // TODO: Generalize name to avoid overlap
