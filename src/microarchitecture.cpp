@@ -2517,13 +2517,6 @@ namespace ahaHLS {
       }
     }
 
-    for (auto st : arch.stg.opStates) {
-      StateId state = st.first;
-      for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
-        addBlockJump(transition.first, transition.second, map_find(transition, arch.edgeTakenWires), arch);
-      }
-    }
-    
     cout << "Adding active in state logic" << endl;
 
     // TODO: Add defaults to basic block controllers?
@@ -2531,6 +2524,7 @@ namespace ahaHLS {
     // blocks in the state?
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
+
       for (auto blk : blocksInState(state, arch.stg)) {
         int blkNo = arch.cs.getBasicBlockNo(blk);
         auto blkString = to_string(blkNo);
@@ -2561,6 +2555,14 @@ namespace ahaHLS {
 
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
+
+      // for (auto st : arch.stg.opStates) {
+      //   StateId state = st.first;
+      for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
+        addBlockJump(transition.first, transition.second, map_find(transition, arch.edgeTakenWires), arch);
+      }
+      // }
+    
       for (auto blk : nonTerminatingBlocks(state, arch.stg)) {
 
         if (isPipelineState(state, arch.pipelines) ==
