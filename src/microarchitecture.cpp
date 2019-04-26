@@ -2429,9 +2429,8 @@ namespace ahaHLS {
     }
   }
   
-  // Now: Many errors in valid computation. Not sure why?
-  // Hyp: In the return state the next basic block is not getting set
-  // to be the current block?
+  // TODO: Pull apart control variable declaration and the wiring
+  // up of control variables
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
     Function* f = arch.stg.getFunction();
 

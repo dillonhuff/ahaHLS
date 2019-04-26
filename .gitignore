@@ -158,3 +158,4 @@ test/ll_files/block_ram_256_16.h
 test/ll_files/block_ram_256_16_test.cpp
 test/ll_files/channel_scratch.cpp
 stencil_write_loop*
+outer_loop_pipe*
