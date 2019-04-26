@@ -47,7 +47,8 @@ namespace ahaHLS {
     } else {
       // TODO: This will need to become a check on the value of the
       // state is active register
-      Wire active = checkEqual(state, arch.cs.getGlobalState(), arch);
+      //Wire active = checkEqual(state, arch.cs.getGlobalState(), arch);
+      Wire active = stateActiveReg(state, arch); //checkEqual(state, arch.cs.getGlobalState(), arch);
       return active;
     }
   }
