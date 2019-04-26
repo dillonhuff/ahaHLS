@@ -1255,7 +1255,7 @@ namespace ahaHLS {
     noBlocksActiveInStatesWhereTheyAreNotScheduled(arch, info);
     atLeastOneValidPhiInput(arch, info);
     noOverlappingStateTransitions(arch, info);
-    printAllActiveStates(arch, info);
+    //printAllActiveStates(arch, info);
     //noOverlappingBlockTransitions(arch, info);
   }
   

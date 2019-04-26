@@ -2016,11 +2016,11 @@ namespace ahaHLS {
     return map_find(state, arch.lastBBWires);
   }
 
-  // Global state should also be broken up and turned in to state
-  // active flags
   void emitStateCode(const StateId state,
                      MicroArchitecture& arch) {
 
+    // Maybe I need to adjuste each jump to ensure that the correct
+    // lastBB value is being used?
     for (auto jmp : possibleLastJumps(state, arch.stg)) {
       StateId dst = dstState(jmp, arch.stg);
 
