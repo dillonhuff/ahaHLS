@@ -3073,7 +3073,21 @@ namespace ahaHLS {
     return false;
   }
 
-  vector<CFGJump> outOfPipelineJumps(Pipeline& pipe, STG& stg) {
+  std::vector<CFGJump> inPipelineJumps(Pipeline& pipe, STG& stg) {
+    vector<CFGJump> inJmps;
+    for (auto state : pipe.getStates()) {
+      auto outOfState = getOutOfStateTransitions(state, stg);
+      for (auto tr : outOfState) {
+        BasicBlock* next = tr.second;
+        if (inPipeline(next, pipe, stg)) {
+          inJmps.push_back({{tr.first, tr.second}});
+        }
+      }
+    }
+    return inJmps;
+  }
+  
+  std::vector<CFGJump> outOfPipelineJumps(Pipeline& pipe, STG& stg) {
     vector<CFGJump> outJmps;
     for (auto state : pipe.getStates()) {
       auto outOfState = getOutOfStateTransitions(state, stg);
@@ -3228,6 +3242,13 @@ namespace ahaHLS {
       for (auto jump : outOfPipeJumps) {
         out << tab(3) << "- " << jump << endl;
       }
+
+      vector<CFGJump> inPipeJumps = inPipelineJumps(pipe, *this);
+      out << tab(2) << "- In pipeline jumps" << endl;
+      for (auto jump : inPipeJumps) {
+        out << tab(3) << "- " << jump << endl;
+      }
+      
     }
 
   }
