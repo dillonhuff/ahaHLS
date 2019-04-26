@@ -2106,11 +2106,11 @@ namespace ahaHLS {
     return arch.portController(name);
   }
   
-  Wire wireValue(const std::string& hName,
-                        MicroArchitecture& arch) {
-    auto& pController = arch.portController(hName);
-    return pController.unitController.unit.outputWire();
-  }
+  // Wire wireValue(const std::string& hName,
+  //                       MicroArchitecture& arch) {
+  //   auto& pController = arch.portController(hName);
+  //   return pController.unitController.unit.outputWire();
+  // }
   
   ModuleSpec comparatorSpec(const std::string& name, const int width) {
     ModuleSpec unit;
@@ -2506,7 +2506,7 @@ namespace ahaHLS {
             arch.edgeTakenWires.insert({{br->getParent(), destBlock}, atContainerPos});
 
             //addBlockJump(blk, destBlock, wireValue(hName, arch), arch);
-            addBlockJump(blk, destBlock, atContainerPos, arch);
+            //addBlockJump(blk, destBlock, atContainerPos, arch);
           } else {
 
             Value* condition = br->getOperand(0);
@@ -2527,13 +2527,21 @@ namespace ahaHLS {
             BasicBlock* falseSucc = br->getSuccessor(1);
             arch.edgeTakenWires.insert({{br->getParent(), falseSucc}, falseTaken});
 
-            addBlockJump(blk, trueSucc, trueTaken, arch);
-            addBlockJump(blk, falseSucc, falseTaken, arch);                    
+            //addBlockJump(blk, trueSucc, trueTaken, arch);
+            //addBlockJump(blk, falseSucc, falseTaken, arch);                    
           }
         }
+
       }
     }
 
+    for (auto st : arch.stg.opStates) {
+      StateId state = st.first;
+      for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
+        addBlockJump(transition.first, transition.second, map_find(transition, arch.edgeTakenWires), arch);
+      }
+    }
+    
     cout << "Adding active in state logic" << endl;
 
     // TODO: Add defaults to basic block controllers?
