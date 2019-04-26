@@ -1982,6 +1982,16 @@ namespace ahaHLS {
 
   }
 
+  void setDefaultValue(RegController& c, const Wire defaultValue, MicroArchitecture& arch) {
+    Wire noOtherCondTrue = constWire(1, 1);
+
+    for (auto v : c.values) {
+      noOtherCondTrue = checkAnd(checkNotWire(v.first, arch), noOtherCondTrue, arch);
+    }
+
+    c.values[noOtherCondTrue] = defaultValue;
+  }
+  
   // TODO: Remove resetValues field?
   void emitControlCode(MicroArchitecture& arch) {
 
@@ -2000,6 +2010,12 @@ namespace ahaHLS {
     
     for (auto state : arch.stg.opStates) {
       emitStateCode(state.first, arch);
+    }
+
+    for (auto state : arch.stg.opStates) {
+      auto& activeController =
+        stateActiveRegController(state.first, arch);
+      setDefaultValue(activeController, constWire(1, 0), arch);
     }
 
     for (auto state : arch.stg.opStates) {    
