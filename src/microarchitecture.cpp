@@ -2103,45 +2103,6 @@ namespace ahaHLS {
     return cond;
   }
 
-  // void emitLastBBCode(MicroArchitecture& arch) {
-
-  //   RegController& rc = arch.getController(reg(32, "last_BB_reg"));
-
-  //   // Find each branch instruction
-  //   // For each branch instruction if the branch goes out to
-  //   // a block in another state (or its own block) then set the
-  //   // next block variable, otherwise set the current (combinational) block
-  //   // variable.
-  //   for (auto st : arch.stg.opStates) {
-  //     if (st.second.size() > 0) {
-
-  //       for (auto instr : arch.stg.instructionsFinishingAt(st.first)) {
-  //         if (TerminatorInst::classof(instr)) {
-  //           auto bbNo = arch.cs.getBasicBlockNo(instr->getParent());
-  //           if (isPipelineState(st.first, arch.pipelines)) {
-  //             ElaboratedPipeline p = getPipeline(st.first, arch.pipelines);
-  //             //rc.values[atStateWire(p.stateId, arch)] = to_string(bbNo);
-  //             rc.values[atStateWire(p.stateId, arch)] = constWire(32, bbNo);
-  //           } else {
-
-  //             // If this block is the last active block in st
-  //             // then set last_BB_reg to be it, do not
-  //             //rc.values[atState(st.first, arch)] = to_string(bbNo);
-
-              
-  //             Wire condWire = lastBlockActiveInState(st.first, instr->getParent(), arch);
-  //             //rc.values[condWire.valueString()] = to_string(bbNo);
-  //             //rc.values[condWire] = to_string(bbNo);
-  //             rc.values[condWire] = constWire(32, bbNo);
-  //           }
-  //         }
-
-  //       }
-  //     }
-  //   }
-
-  // }
-
   FunctionalUnit wireUnit(const std::string& name,
                           const int width) {
     ModuleSpec m = wireSpec(width);
