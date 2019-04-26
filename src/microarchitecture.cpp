@@ -1895,7 +1895,7 @@ namespace ahaHLS {
       StateId end = arch.stg.blockStartState(dest);
       addStateTransition(state, end, edgeTakenWire, arch);
 
-      addBlockJump(transition.first, transition.second, map_find(transition, arch.edgeTakenWires), arch);      
+      addBlockJump(transition.first, transition.second, edgeTakenWire, arch);
     }
 
     for (auto instr : arch.stg.instructionsFinishingAt(state)) {
@@ -1906,8 +1906,9 @@ namespace ahaHLS {
           dest = arch.stg.sched.getDefaultReturnState();
         }
 
-        Wire condWire = constWire(1, 1);
-        condWire = checkAnd(blockActiveInState(state, instr->getParent(), arch), condWire, arch);
+        //Wire condWire = constWire(1, 1);
+        Wire condWire = blockActiveInState(state, instr->getParent(), arch);
+        //condWire, arch);//checkAnd(blockActiveInState(state, instr->getParent(), arch), condWire, arch);
         addStateTransition(state, dest, condWire, arch);
 
         // Set next block logic
@@ -1926,7 +1927,7 @@ namespace ahaHLS {
 
     // Unconditional transition to a different state
     // Actually we ought to do this even if we do find terminators
-    // because with multiple basic blocks it is possible to end
+    // because with multiple basic blocks in a pipeline it is possible to end
     // in a non-terminating block even if other blocks have terminators
 
     // Note: If we are in a pipelined state we might have a block whose
