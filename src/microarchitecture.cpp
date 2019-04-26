@@ -1755,17 +1755,19 @@ namespace ahaHLS {
       }
 
     } else {
-      vector<Wire> conds{}; //atStateCond};
+      //vector<Wire> conds{}; //atStateCond};
       if (isPipelineState(dest, pipelines)) {
 
         auto p = getPipeline(dest, pipelines);
 
         RegController& validController =
           arch.getController(entryStateActiveWire(p)); //p.valids.at(0));
-        validController.values[andCond(conds, arch)] = constWire(1, 1);
+        //validController.values[andCond(conds, arch)] = constWire(1, 1);
+        validController.values[jumpCond] = constWire(1, 1);
           
-        conds.push_back(jumpCond);
-        controller.values[andCond(conds, arch)] = constWire(32, p.stateId);
+        //conds.push_back(jumpCond);
+        //controller.values[andCond(conds, arch)] = constWire(32, p.stateId);
+        controller.values[jumpCond] = constWire(32, p.stateId);
 
         RegController& exitStateActive =
           stateActiveRegController(dest, arch);
@@ -1773,9 +1775,10 @@ namespace ahaHLS {
           constWire(1, 1);
 
       } else {
-        conds.push_back(jumpCond);
+        //conds.push_back(jumpCond);
 
-        controller.values[andCond(conds, arch)] = constWire(32, dest);
+        //controller.values[andCond(conds, arch)] = constWire(32, dest);
+        controller.values[jumpCond] = constWire(32, dest);
 
         RegController& exitStateActive =
           stateActiveRegController(dest, arch);
