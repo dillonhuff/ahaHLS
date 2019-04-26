@@ -14,6 +14,56 @@ using namespace std;
 
 namespace ahaHLS {
 
+  ModuleSpec binopSpec(const std::string& name, const int width);
+  
+  PortController& makePlus(const int width, MicroArchitecture& arch) {
+    string eqName = arch.uniqueName("add");
+    ModuleSpec eqSpec = binopSpec("add", width);
+    FunctionalUnit& unit = arch.makeUnit(eqName, eqSpec);
+
+    assert(unit.instName == eqName);
+    
+    arch.addPortController(unit);
+    return arch.portController(unit.instName);
+  }
+  
+  Wire plusWire(const Wire in0, const Wire in1, MicroArchitecture& arch);
+  Wire plusWire(const Wire in0, const Wire in1, MicroArchitecture& arch) {
+    if (in0.width != in1.width) {
+      cout << "Error: in plusWire, " << in0.valueString() << " has width " << in0.width << ", " << in1.valueString() << " has width " << in1.width << endl;
+      assert(in0.width == in1.width);      
+    }
+    
+    PortController& controller = makePlus(in0.width, arch);
+    controller.setAlways("in0", in0);
+    controller.setAlways("in1", in1);
+
+    return controller.functionalUnit().outputWire();
+  }
+  
+  void setDefaultValue(RegController& c, const Wire defaultValue, MicroArchitecture& arch);
+  
+  Wire buildCounter(const Wire resetCond,
+                    const int width,
+                    MicroArchitecture& arch) {
+    // What should the counter be?
+    //   1. Register with reset value 0, defaults to itself + 1?
+
+    string name = arch.uniqueName("counter_");
+    arch.addController(name, width);
+    RegController& rc = arch.getController(name);
+    rc.resetValue = "0";
+    rc.values[resetCond] = constWire(width, 0);
+    
+    Wire output = rc.reg;
+
+    setDefaultValue(rc, plusWire(output, constWire(width, 1), arch), arch);
+
+    return output;
+  }
+  
+  Wire checkEqual(const Wire valWire, const Wire w, MicroArchitecture& arch);
+  
   Wire checkOr(const Wire in0, const Wire in1, MicroArchitecture& arch);
   
   void addBlockJump(BasicBlock* src,
@@ -1738,10 +1788,63 @@ namespace ahaHLS {
 
         assert(getPipeline(dest, pipelines).stateId == p.stateId);
 
+        StateId pipeEntry = entryState(p);
+        assert(state >= pipeEntry);
+        
+        int timeFromPipeEntryToBranch = state - pipeEntry;
+        int II = p.II();
+
+        assert(II >= 1);
+
+        int cyclesToWaitForHazards = (II - 1) - timeFromPipeEntryToBranch;
+
         RegController& exitStateActive =
           stateActiveRegController(dest, arch);
-        exitStateActive.values[jumpCond] =
-          constWire(1, 1);
+        
+        if (cyclesToWaitForHazards > 0) {
+          cout << "Need to wait " << cyclesToWaitForHazards << " additional cycles for hazards to resolve in transition from " << state << " to " << dest << endl;
+          //assert(false);
+
+          // What do we need to do here?
+          //   1. Create a counter that resets to 0 at the entry to the current state
+          //   2. Create a temporary variable to store the jumpCond wire value
+          //   3. Set the final condition wire to be the and of jumpCond and counter?
+
+          // Sanity check, should really adjust counter width
+          assert(cyclesToWaitForHazards < (1024));
+          
+          Wire hazardCounterOutput =
+            buildCounter(stateActiveReg(state, arch), 32, arch);
+          Wire waitedForHazards = checkEqual(hazardCounterOutput,
+                                             constWire(hazardCounterOutput.width,
+                                                       0),
+                                                       //cyclesToWaitForHazards),
+                                             arch);
+
+        // TODO: Generalize name to avoid overlap
+          string storeName =
+            arch.uniqueName("in_pipe_" + to_string(state) + "_" + to_string(dest));
+          RegController& inPipeJumpHappened =
+            arch.getController(wire(1, storeName));
+          inPipeJumpHappened.resetValue = "0";
+          // TODO: Adjust to check that we are in this state?
+          inPipeJumpHappened.values[jumpCond] = constWire(1, 1);
+          Wire storedJumpCond = inPipeJumpHappened.reg;
+          
+          Wire finalCond = checkAnd(storedJumpCond, waitedForHazards, arch);
+          exitStateActive.values[finalCond] =
+            constWire(1, 1);
+          
+
+          // RegController& exitStateActive =
+          //   stateActiveRegController(dest, arch);
+          // exitStateActive.values[jumpCond] =
+          //   constWire(1, 1);
+
+        } else {
+          exitStateActive.values[jumpCond] =
+            constWire(1, 1);
+        }
         
       } else {
 
@@ -2316,6 +2419,15 @@ namespace ahaHLS {
     return controller.functionalUnit().outputWire();
   }
 
+  Wire checkEqual(const Wire valWire, const Wire w, MicroArchitecture& arch) {
+    PortController& controller = makeEquals(w.width, arch);
+    controller.setAlways("in0", valWire);
+    controller.setAlways("in1", w);
+
+    //cout << "Creating equals functional unit = " << controller.functionalUnit() << endl;
+    return controller.functionalUnit().outputWire();
+  }
+  
   Wire checkNotWire(const Wire in, MicroArchitecture& arch) {
     PortController& controller = makeNot(in.width, arch);
     controller.setAlways("in", in);
