@@ -2972,21 +2972,23 @@ namespace ahaHLS {
     set<BasicBlock*> inProg;
     for (auto blk : blocksInState(state, stg)) {
       if (stg.blockEndState(blk) != state) {
-        bool oneInstrActiveBefore = false;
-        for (auto& instrR : *blk) {
-          Instruction* instr = &instrR;
-          StateId iStart = stg.instructionStartState(instr);
-          //StateId iEnd = stg.instructionEndState(instr);
+        inProg.insert(blk); //
 
-          if (iStart >= state) {
-            oneInstrActiveBefore = true;
-            break;
-          }
-        }
+        // bool oneInstrActiveBefore = false;
+        // for (auto& instrR : *blk) {
+        //   Instruction* instr = &instrR;
+        //   StateId iStart = stg.instructionStartState(instr);
+        //   //StateId iEnd = stg.instructionEndState(instr);
 
-        if (oneInstrActiveBefore) {
-          inProg.insert(blk);
-        }
+        //   if (iStart >= state) {
+        //     oneInstrActiveBefore = true;
+        //     break;
+        //   }
+        // }
+
+        // if (oneInstrActiveBefore) {
+        //   inProg.insert(blk);
+        // }
       }
     }
     return inProg;

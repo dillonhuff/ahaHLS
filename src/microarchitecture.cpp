@@ -1920,13 +1920,8 @@ namespace ahaHLS {
       RegController& rc = arch.getController(lastBBReg(dst, arch));
       
       auto bbNo = arch.cs.getBasicBlockNo(jmp.jmp.first);
-      // if (isPipelineState(state, arch.pipelines)) {
-      //   ElaboratedPipeline p = getPipeline(state, arch.pipelines);
-      //   rc.values[atStateWire(p.stateId, arch)] = constWire(32, bbNo);
-      // } else {
-        Wire condWire = map_find(jmp.jmp, arch.edgeTakenWires);
-        rc.values[condWire] = constWire(32, bbNo);
-        // }
+      Wire condWire = map_find(jmp.jmp, arch.edgeTakenWires);
+      rc.values[condWire] = constWire(32, bbNo);
     }
 
     for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
@@ -1963,18 +1958,10 @@ namespace ahaHLS {
       }
     }
 
-    // Unconditional transition to a different state
-    // Actually we ought to do this even if we do find terminators
-    // because with multiple basic blocks in a pipeline it is possible to end
-    // in a non-terminating block even if other blocks have terminators
-
     // Note: If we are in a pipelined state we might have a block whose
     // terminating branch executes in this state, but which also
     // has additional unfinished data processing instructions
 
-    // Note: We might actually want to merge these three
-    // loops in to one loop over the possible exit blocks
-    // of the state, and then consider each case inside the loop body?
     for (auto blk : inProgressBlocks(state, arch.stg)) {
 
       cout << "Found non terminating block in " << state << endl;
