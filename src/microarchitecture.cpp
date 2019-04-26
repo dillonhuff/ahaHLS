@@ -1912,13 +1912,13 @@ namespace ahaHLS {
         addStateTransition(state, dest, condWire, arch);
 
         // Set next block logic
-        Wire thisBlkActive = blockActiveInState(state, instr->getParent(), arch);
+        //Wire thisBlkActive = blockActiveInState(state, instr->getParent(), arch);
         // If the a return statement executes in a given block
         // then if there is not default behavior set the next block
         // to be the current block.
 
         if (!arch.stg.sched.hasReturnDefault()) {
-          nextBBController(state, arch).values[thisBlkActive] =
+          nextBBController(state, arch).values[condWire] =
             constWire(32, arch.cs.getBasicBlockNo(instr->getParent()));
         }
         
