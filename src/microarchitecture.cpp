@@ -1729,6 +1729,11 @@ namespace ahaHLS {
 
         assert(getPipeline(dest, pipelines).stateId == p.stateId);
 
+        RegController& exitStateActive =
+          stateActiveRegController(dest, arch);
+        exitStateActive.values[jumpCond] =
+          constWire(1, 1);
+        
       } else {
 
         // TODO: Generalize name to avoid overlap
@@ -1742,6 +1747,11 @@ namespace ahaHLS {
 
         controller.values[checkAnd(exitNextCycle, outOfPipeJumpHappened.reg, arch)] =
           constWire(32, dest);
+
+        RegController& exitStateActive =
+          stateActiveRegController(dest, arch);
+        exitStateActive.values[checkAnd(exitNextCycle, outOfPipeJumpHappened.reg, arch)] =
+          constWire(1, 1);
       }
 
     } else {
@@ -1757,10 +1767,20 @@ namespace ahaHLS {
         conds.push_back(jumpCond);
         controller.values[andCond(conds, arch)] = constWire(32, p.stateId);
 
+        RegController& exitStateActive =
+          stateActiveRegController(dest, arch);
+        exitStateActive.values[jumpCond] =
+          constWire(1, 1);
+
       } else {
         conds.push_back(jumpCond);
 
         controller.values[andCond(conds, arch)] = constWire(32, dest);
+
+        RegController& exitStateActive =
+          stateActiveRegController(dest, arch);
+        exitStateActive.values[jumpCond] =
+          constWire(1, 1);
       }
     }
   }
