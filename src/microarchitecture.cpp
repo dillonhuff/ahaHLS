@@ -29,13 +29,24 @@ namespace ahaHLS {
                              const int width1,
                              MicroArchitecture& arch);
   Wire concatWires(const Wire in0, const Wire in1, MicroArchitecture& arch);
-  
+
+  Wire stateActiveReg(const StateId state, MicroArchitecture& arch) {
+    return reg(1, "state_" + to_string(state) + "_is_active");
+  }
+
+  RegController& stateActiveRegController(const StateId state,
+                                          MicroArchitecture& arch) {
+    return arch.getController(stateActiveReg(state, arch));
+  }
+
   Wire buildAtStateWire(const StateId state, MicroArchitecture& arch) {
     if (arch.isPipelineState(state)) {
       auto p = arch.getPipeline(state);
       Wire active = checkAnd(p.inPipeWire(), p.stateIsActiveWire(state), arch);
       return active;
     } else {
+      // TODO: This will need to become a check on the value of the
+      // state is active register
       Wire active = checkEqual(state, arch.cs.getGlobalState(), arch);
       return active;
     }
@@ -1964,6 +1975,8 @@ namespace ahaHLS {
 
     for (auto p : arch.pipelines) {
       PortController& pc = addPortController(p.inPipe.name, 1, arch);
+      // TODO: This will need to be an "or" over the active flags for all states
+      // in the pipeline
       pc.setAlways("in_data", checkEqual(p.stateId, arch.cs.getGlobalState(), arch));
     }
 
