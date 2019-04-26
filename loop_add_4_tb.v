@@ -143,7 +143,7 @@ module test();
       #1 dbg_addr = 1;
 
       $display("dbg_data = %d", dbg_data);
-      #1 `assert(global_state_dbg, 6)       
+      //#1 `assert(global_state_dbg, 6)       
 
       //#1 `assert(valid, 1'd1)      
       #1 `assert(dbg_data, 32'd9)

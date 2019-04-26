@@ -1715,8 +1715,9 @@ namespace ahaHLS {
     return p.p.startState();
   }
   
-  Wire entryStateActiveWire(const ElaboratedPipeline& p) {
-    return p.stateIsActiveWire(entryState(p));
+  Wire entryStateActiveWire(const ElaboratedPipeline& p, MicroArchitecture& arch) {
+    //return p.stateIsActiveWire(entryState(p));
+    return stateActiveReg(entryState(p), arch);
   }
   
   void addStateTransition(const StateId state,
@@ -1769,7 +1770,7 @@ namespace ahaHLS {
         auto p = getPipeline(dest, pipelines);
 
         RegController& validController =
-          arch.getController(entryStateActiveWire(p)); //p.valids.at(0));
+          arch.getController(entryStateActiveWire(p, arch)); //p.valids.at(0));
         //validController.values[andCond(conds, arch)] = constWire(1, 1);
         validController.values[jumpCond] = constWire(1, 1);
           
@@ -2703,7 +2704,7 @@ namespace ahaHLS {
     buildAtStateWires(arch);
     buildBasicBlockEnableLogic(arch);
     buildPortControllers(arch);
-    emitPipelineValidChainBlock(arch);
+    //emitPipelineValidChainBlock(arch);
     emitPipelineRegisterChains(arch);
     emitPipelineInitiationBlock(arch);
     emitControlCode(arch);    
@@ -2782,7 +2783,7 @@ namespace ahaHLS {
       }
 
       RegController& cont =
-        arch.getController(entryStateActiveWire(p));
+        arch.getController(entryStateActiveWire(p, arch));
       Wire atSt = atStateWire(st, arch);
       
 
