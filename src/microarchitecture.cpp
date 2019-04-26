@@ -2706,7 +2706,7 @@ namespace ahaHLS {
     buildPortControllers(arch);
     //emitPipelineValidChainBlock(arch);
     emitPipelineRegisterChains(arch);
-    emitPipelineInitiationBlock(arch);
+    //emitPipelineInitiationBlock(arch);
     emitControlCode(arch);    
 
     return arch;
@@ -2844,24 +2844,24 @@ namespace ahaHLS {
     }
   }
   
-  void emitPipelineValidChainBlock(MicroArchitecture& arch) {
-    auto pipelines = arch.pipelines;
+  // void emitPipelineValidChainBlock(MicroArchitecture& arch) {
+  //   auto pipelines = arch.pipelines;
 
-    for (auto p : arch.pipelines) {
+  //   for (auto p : arch.pipelines) {
 
-      for (auto validVar : p.valids) {
-        arch.getController(validVar).resetValue = "0";
-      }
-    }
+  //     for (auto validVar : p.valids) {
+  //       arch.getController(validVar).resetValue = "0";
+  //     }
+  //   }
     
-    for (auto p : pipelines) {
+  //   for (auto p : pipelines) {
 
-      for (int i = 0; i < ((int) p.valids.size()) - 1; i++) {
-        arch.getController(p.valids[i + 1]).values[constWire(1, 1)] =
-          p.valids[i];
-      }
-    }
-  }
+  //     for (int i = 0; i < ((int) p.valids.size()) - 1; i++) {
+  //       arch.getController(p.valids[i + 1]).values[constWire(1, 1)] =
+  //         p.valids[i];
+  //     }
+  //   }
+  // }
 
   std::vector<ElaboratedPipeline>
   buildPipelines(llvm::Function* f, const STG& stg) {

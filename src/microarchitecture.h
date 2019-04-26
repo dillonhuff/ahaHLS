@@ -256,9 +256,9 @@ namespace ahaHLS {
       return wire(1, inPipe.name + "_out_data");
     }
 
-    Wire stateIsActiveWire(const StateId state) const {
-      return valids.at(stageForState(state));
-    }
+    // Wire stateIsActiveWire(const StateId state) const {
+    //   return valids.at(stageForState(state));
+    // }
     
     llvm::BranchInst* getExitBranch() const {
       llvm::Instruction* repeat = exitBranch;
