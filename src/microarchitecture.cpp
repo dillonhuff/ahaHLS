@@ -2703,16 +2703,6 @@ namespace ahaHLS {
     return inAnyPipe;
   }
 
-  // void emitPipelineResetBlock(MicroArchitecture& arch) {
-
-  //   for (auto p : arch.pipelines) {
-
-  //     for (auto validVar : p.valids) {
-  //       arch.getController(validVar).resetValue = "0";
-  //     }
-  //   }
-  // }
-
   void
   emitPipelineInitiationBlock(MicroArchitecture& arch) {
 
