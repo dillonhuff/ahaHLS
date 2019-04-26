@@ -2614,6 +2614,10 @@ namespace ahaHLS {
     // in state S is not a block that does not have its terminator
     // in state S?
     //for (auto& bb : f->getBasicBlockList()) {
+
+    // TODO: Add defaults to basic block controllers?
+    // Check that on state entry the next block is one of the contained
+    // blocks in the state?
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
       for (auto blk : blocksInState(state, arch.stg)) {
@@ -2667,6 +2671,15 @@ namespace ahaHLS {
       }
     }
 
+    for (auto st : arch.stg.opStates) {
+      StateId state = st.first;
+      for (auto blk : inProgressBlocks(state, arch.stg)) {
+        Wire condWire = blockActiveInState(state, blk, arch);
+        auto& cntr = nextBBController(state + 1, arch);
+        cntr.values[condWire] = constWire(32, arch.cs.getBasicBlockNo(blk));
+      }
+    }
+    
     buildReturnBlockTransitions(arch);
     buildPredecessorBlockWires(arch);
   }
