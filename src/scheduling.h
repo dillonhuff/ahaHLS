@@ -1672,6 +1672,10 @@ namespace ahaHLS {
   std::set<std::pair<BasicBlock*, BasicBlock*> >
   getInStateTransitions(const StateId state,
                         STG& stg);
+
+  std::set<BasicBlock*> outOfStatePredecessors(const StateId state,
+                                               llvm::BasicBlock* blk,
+                                               STG& stg);
   
 }
 

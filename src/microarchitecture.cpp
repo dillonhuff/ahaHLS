@@ -2847,6 +2847,23 @@ namespace ahaHLS {
           // Do nothing. We cannot default transition to the entry block
         }
 
+        Wire notDefaultTaken = checkNotWire(lastBBIsThisBB, arch);
+        Wire transitionedHere =
+          checkAnd(activeNotSet, notDefaultTaken, arch);
+        // If the default was not taken then the next value of this wire
+        // must be the value from the predecessor block
+        for (auto pred : outOfStatePredecessors(state, instr->getParent(), arch.stg)) {
+          Wire predIsLastBlk =
+            checkEqual(lastBBReg(state, arch),
+                       constWire(32, arch.cs.getBasicBlockNo(pred)),
+                       arch);
+
+          // TODO: The transition state location depends on whether the branch
+          // was in a pipeline or not?
+          rc.values[checkAnd(transitionedHere, predIsLastBlk, arch)] =
+            arch.dp.stateData[arch.stg.instructionEndState(pred->getTerminator())].values[instr];
+        }
+
         // Should be:
         // for (prior : possiblePriorStates) { rc.values[notset ^ prior] = ...
         // rc.values[activeNotSet] = arch.dp[priorState][instr];
