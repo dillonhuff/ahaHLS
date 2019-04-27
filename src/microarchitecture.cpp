@@ -2797,7 +2797,6 @@ namespace ahaHLS {
 
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
-      //Wire isActive = stateActiveReg(state, arch);
 
       WorldState& dataRegisters = arch.dp.stateData[state];
       for (pair<Instruction*, Wire> valStorage : dataRegisters.values) {
