@@ -1529,6 +1529,7 @@ namespace ahaHLS {
 
       int checkMemCycle = 40;
       checkRAM(tb, checkMemCycle, "arg_1", memoryExpected, testLayout);
+      map_insert(tb.actionsOnCycles, checkMemCycle, assertString("valid === 1"));
 
       emitVerilogTestBench(tb, arch, testLayout);
 
