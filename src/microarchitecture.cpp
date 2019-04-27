@@ -2790,17 +2790,33 @@ namespace ahaHLS {
     return vals;
   }
 
+  class WorldState {
+  public:
+    std::map<Instruction*, Wire> values;
+  };
+
+  class Datapath {
+  public:
+    std::map<StateId, WorldState> stateData;
+  };
+  
   void buildDataPathWires(MicroArchitecture& arch) {
     set<Instruction*> allValues = allDataInFunction(arch.stg.getFunction());
 
+    Datapath dp;
+    
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
+      dp.stateData[state] = {};
+      
       for (auto val : allValues) {
         string tmpName =
           arch.uniqueName("data_store_" + to_string(state));
-        
-        addPortController(tmpName, getValueBitWidth(val), arch);
-        
+
+        Wire tmpReg = reg(getValueBitWidth(val), tmpName);
+        arch.addController(tmpReg.valueString(), tmpReg.width);
+        auto& rc = arch.getController(tmpReg);
+        dp.stateData[state].values[val] = rc.reg;
       }
     }
   }
