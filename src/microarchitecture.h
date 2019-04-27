@@ -441,6 +441,7 @@ namespace ahaHLS {
   class DataPath {
   public:
     std::map<StateId, WorldState> stateData;
+    std::map<StateId, WorldState> stateDataInputs;    
   };
   
   class MicroArchitecture {

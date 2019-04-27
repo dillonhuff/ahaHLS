@@ -1040,7 +1040,7 @@ namespace ahaHLS {
 
     StateId currentPos = currentPosition.stateId();
 
-    return arch.dp.stateData[currentPos].values[result];
+    return arch.dp.stateDataInputs[currentPos].values[result];
 
     // Thought: The datapath API could be one function which
     // gets the output wire of a piece of storage which stores the
@@ -2793,6 +2793,17 @@ namespace ahaHLS {
     return vals;
   }
 
+  PortController& findWireController(const std::string& name,
+                                     MicroArchitecture& arch) {
+    for (auto& pc : arch.portControllers) {
+      if (pc.second.functionalUnit().outputWire().name == name) {
+        return pc.second;
+      }
+    }
+    cout << "Error: Could not find any controller with output " << name << endl;
+    assert(false);
+  }
+
   void buildDataPathSetLogic(MicroArchitecture& arch) {
     // What do I need to do here?
     // For each state:
@@ -2804,6 +2815,8 @@ namespace ahaHLS {
       StateId state = st.first;
 
       WorldState& dataRegisters = arch.dp.stateData[state];
+      WorldState& dataInputs = arch.dp.stateDataInputs[state];
+      
       for (pair<Instruction*, Wire> valStorage : dataRegisters.values) {
 
         Instruction* instr = valStorage.first;
@@ -2815,6 +2828,9 @@ namespace ahaHLS {
         }
 
         RegController& rc = arch.getController(valStorage.second);
+        PortController& pc =
+          findWireController(dataInputs.values[instr].name, arch);
+          //arch.portController(dataInputs.values[instr].name);
 
         Wire stateActive = atStateWire(state, arch);
         Wire blkNotActive =
@@ -2822,9 +2838,9 @@ namespace ahaHLS {
         Wire activeNotSet = checkAnd(stateActive, blkNotActive, arch);
 
         ControlFlowPosition pos = position(state, instr, arch);
-        rc.values[blockActiveInState(state, instr->getParent(), arch)] =
+        Wire blockActiveS = blockActiveInState(state, instr->getParent(), arch);
+        rc.values[blockActiveS] =
           outputWire(instr, pos, arch);
-
 
         // Q: How do we handle the entry block case?
         // Q: How do I want to track the last state graph transition?
@@ -2846,6 +2862,10 @@ namespace ahaHLS {
         StateId priorState = state - 1;
         if (priorState >= 0) {
           rc.values[defaultTaken] = arch.dp.stateData[priorState].values[instr];
+          pc.setCond("in_data",
+                     defaultTaken,
+                     arch.dp.stateData[priorState].values[instr]);
+          
         } else {
           // Do nothing. We cannot default transition to the entry block
         }
@@ -2889,6 +2909,13 @@ namespace ahaHLS {
         arch.addController(tmpReg.valueString(), tmpReg.width);
         auto& rc = arch.getController(tmpReg);
         arch.dp.stateData[state].values[val] = rc.reg;
+
+
+        string inName =
+          arch.uniqueName("data_in_" + to_string(state));
+        auto& pc = addPortController(inName, tmpReg.width, arch);
+        arch.dp.stateDataInputs[state].values[val] =
+          pc.functionalUnit().outputWire();
       }
     }
   }
