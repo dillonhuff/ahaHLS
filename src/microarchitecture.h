@@ -467,6 +467,7 @@ namespace ahaHLS {
     std::map<StateId, Wire> atStateWires;
     std::map<StateId, Wire> lastBBWires;
     std::map<StateId, Wire> entryBBWires;
+    std::map<StateId, Wire> lastStateWires;
 
     DataPath dp;
     

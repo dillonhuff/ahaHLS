@@ -14,6 +14,8 @@ using namespace std;
 
 namespace ahaHLS {
 
+  Wire getLastStateReg(const StateId state, MicroArchitecture& arch);
+  
   ModuleSpec binopSpec(const std::string& name, const int width);
   
   PortController& makePlus(const int width, MicroArchitecture& arch) {
@@ -91,6 +93,15 @@ namespace ahaHLS {
     return arch.getController(stateActiveReg(state, arch));
   }
 
+  Wire buildLastStateWire(const StateId state,
+                          MicroArchitecture& arch) {
+    string name = "state_" + to_string(state) + "_last_state";
+    Wire w = reg(32, name);
+    arch.addController(name, 32);
+
+    return w;
+  }
+  
   Wire buildAtStateWire(const StateId state, MicroArchitecture& arch) {
     if (arch.isPipelineState(state)) {
       // auto p = arch.getPipeline(state);
@@ -1785,6 +1796,9 @@ namespace ahaHLS {
     auto& controller = arch.getController(reg(32, "global_state"));
     auto& pipelines = arch.pipelines;
 
+    auto& lastStateController = arch.getController(getLastStateReg(dest, arch));
+    lastStateController.values[jumpCond] = constWire(32, state);
+    
     if (isPipelineState(state, pipelines)) {
 
       auto p = getPipeline(state, pipelines);
@@ -2772,6 +2786,9 @@ namespace ahaHLS {
     for (auto st : arch.stg.opStates) {
       Wire w = buildAtStateWire(st.first, arch);
       arch.atStateWires[st.first] = w;
+
+      Wire lastState = buildLastStateWire(st.first, arch);
+      arch.lastStateWires[st.first] = lastState;
     }
 
     for (auto p : arch.pipelines) {
@@ -2802,6 +2819,18 @@ namespace ahaHLS {
     }
     cout << "Error: Could not find any controller with output " << name << endl;
     assert(false);
+  }
+
+  std::set<StateId> possiblePriorStates(const StateId state, STG& stg) {
+    set<StateId> states;
+    for (auto st : stg.opStates) {
+      states.insert(st.first);
+    }
+    return states;
+  }
+
+  Wire getLastStateReg(const StateId state, MicroArchitecture& arch) {
+    return map_find(state, arch.lastStateWires);
   }
 
   void buildDataPathSetLogic(MicroArchitecture& arch) {
@@ -2839,7 +2868,7 @@ namespace ahaHLS {
         Wire priorValue = priorValueController.functionalUnit().outputWire();
 
         // TODO: Set stateDataInputs correctly before setting stateData
-        for (StateId possibleLast : possiblePriorStates(state)) {
+        for (StateId possibleLast : possiblePriorStates(state, arch.stg)) {
           Wire atLast = checkEqual(possibleLast, lastStateWire, arch);
           // Q: Do I really need to check if we are at the current state here?
           // if the current state is not active this value will not be used anyway...
@@ -2848,16 +2877,25 @@ namespace ahaHLS {
           Wire priorData = arch.dp.stateData[possibleLast].values[instr];
           priorValueController.setCond("in_data", lastTriggered, priorData);
         }
+
+        priorValueController.statelessDefaults["in_data"] = "234";
         
         Wire stateActive = atStateWire(state, arch);
         Wire blkActive = arch.isActiveBlockVar(state, instr->getParent());
+        Wire blkActiveInState = blockActiveInState(state, instr->getParent(), arch);
 
-        Wire instrProducedInState = constWire(1, 0);
-        Wire instrNotProducedInState = constWire(1, 0);
+        Wire instrProducedInState =
+          checkEqual(constWire(32, arch.stg.instructionEndState(instr)),
+                     constWire(32, state),
+                     arch);
+        Wire instrProducedInStateActivation =
+          checkAnd(blkActiveInState, instrProducedInState, arch);
+        Wire instrNotProducedInStateActivation =
+          checkAnd(blkActiveInState, checkNotWire(instrProducedInState, arch), arch);
 
         ControlFlowPosition pos = position(state, instr, arch);        
-        rc.values[instrProducedInState] = outputWire(instr, pos, arch);
-        rc.values[instrNotProducedInState] = priorValue;
+        rc.values[instrProducedInStateActivation] = outputWire(instr, pos, arch);
+        rc.values[instrNotProducedInStateActivation] = priorValue;
 
         // // Problem: Computing the prior state number in the architecture
         // // requires a circuit that can convert the lastBB / nextBB numbers
