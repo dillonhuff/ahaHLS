@@ -2790,11 +2790,31 @@ namespace ahaHLS {
     return vals;
   }
 
+  void buildDataPathSetLogic(MicroArchitecture& arch) {
+    // What do I need to do here?
+    // For each state:
+    //   If the state is active: Set each worldState variable based on prior state
+
+    for (auto st : arch.stg.opStates) {
+      StateId state = st.first;
+      //Wire isActive = stateActiveReg(state, arch);
+
+      WorldState& dataRegisters = arch.dp.stateData[state];
+      for (pair<Instruction*, Wire> valStorage : dataRegisters.values) {
+
+        Instruction* instr = valStorage.first;
+        RegController& rc = arch.getController(valStorage.second);
+
+        ControlFlowPosition pos = position(state, instr, arch);
+        rc.values[blockActiveInState(state, instr->getParent(), arch)] =
+          outputWire(instr, pos, arch);
+      }
+    }
+  }
+  
   void buildDataPathWires(MicroArchitecture& arch) {
     set<Instruction*> allValues = allDataInFunction(arch.stg.getFunction());
 
-    //Datapath dp;
-    
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
       arch.dp.stateData[state] = {};
@@ -2850,7 +2870,8 @@ namespace ahaHLS {
     buildBasicBlockEnableLogic(arch);
     buildPortControllers(arch);
     emitPipelineRegisterChains(arch);
-    emitControlCode(arch);    
+    emitControlCode(arch);
+    buildDataPathSetLogic(arch);
 
     return arch;
   }  
