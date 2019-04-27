@@ -1256,6 +1256,14 @@ namespace ahaHLS {
     addDisplay("1", str, vars, info);
   }
 
+  void printEdgeTakenWires(MicroArchitecture& arch,
+                           VerilogDebugInfo& info) {
+    addDisplay("1", "valid_reg = %d", {"valid_reg"});
+    for (auto w : arch.edgeTakenWires) {
+      addDisplay("1", w.second.valueString() + " = %d", {w.second.valueString()}, info);
+    }
+  }
+  
   // Thoughts: Tricky to generate complex printouts in synthesizable
   // verilog. Maybe I should look in to using unsynthesizable constructs?
   void addControlSanityChecks(MicroArchitecture& arch,
@@ -1264,6 +1272,7 @@ namespace ahaHLS {
     noBlocksActiveInStatesWhereTheyAreNotScheduled(arch, info);
     atLeastOneValidPhiInput(arch, info);
     noOverlappingStateTransitions(arch, info);
+    printEdgeTakenWires(arch, info);
     //printAllActiveStates(arch, info);
     //noOverlappingBlockTransitions(arch, info);
   }
