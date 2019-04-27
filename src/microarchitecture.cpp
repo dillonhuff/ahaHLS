@@ -2816,7 +2816,8 @@ namespace ahaHLS {
 
       WorldState& dataRegisters = arch.dp.stateData[state];
       WorldState& dataInputs = arch.dp.stateDataInputs[state];
-      
+
+      Wire lastStateWire = getLastStateReg(state, arch);
       for (pair<Instruction*, Wire> valStorage : dataRegisters.values) {
 
         Instruction* instr = valStorage.first;
@@ -2829,84 +2830,115 @@ namespace ahaHLS {
 
         //"_out_data"
         RegController& rc = arch.getController(valStorage.second);
-        // TODO: Remove this name lookup hacke
+        // TODO: Remove this name lookup hack
         string wName = dataInputs.values[instr].name;
         string ctName = wName.substr(0, wName.size() - 9);
         cout << "ctName = " << ctName << endl;
-        PortController& pc =
-          //findWireController(dataInputs.values[instr].name, arch);
+        PortController& priorValueController =
           arch.portController(ctName);
+        Wire priorValue = priorValueController.functionalUnit().outputWire();
 
+        // TODO: Set stateDataInputs correctly before setting stateData
+        for (StateId possibleLast : possiblePriorStates(state)) {
+          Wire atLast = checkEqual(possibleLast, lastStateWire, arch);
+          // Q: Do I really need to check if we are at the current state here?
+          // if the current state is not active this value will not be used anyway...
+          Wire lastTriggered =
+            checkAnd(atStateWire(state, arch), atLast, arch);
+          Wire priorData = arch.dp.stateData[possibleLast].values[instr];
+          priorValueController.setCond("in_data", lastTriggered, priorData);
+        }
+        
         Wire stateActive = atStateWire(state, arch);
         Wire blkActive = arch.isActiveBlockVar(state, instr->getParent());
-        if (arch.stg.instructionEndState(instr) == state) {
-          ControlFlowPosition pos = position(state, instr, arch);          
-          Wire instrEnding = checkAnd(stateActive, blkActive, arch);
-          rc.values[instrEnding] = outputWire(instr, pos, arch);
 
-          // TODO: If block containing it is not active should we forward from
-          // prior state?
-          // No need to set dataInputs because in this state the instruction
-          // will never be read?
-        } else {
-          Wire blkNotActive =
-            checkNotWire(blkActive, arch);
+        Wire instrProducedInState = constWire(1, 0);
+        Wire instrNotProducedInState = constWire(1, 0);
 
-          // If at state, the block is active, but we are not producing the
-          // instruction in this state, then take the value of the
-          // instruction from default
+        ControlFlowPosition pos = position(state, instr, arch);        
+        rc.values[instrProducedInState] = outputWire(instr, pos, arch);
+        rc.values[instrNotProducedInState] = priorValue;
 
-          Wire defaultTaken = checkAnd(stateActive, blkActive, arch);
+        // // Problem: Computing the prior state number in the architecture
+        // // requires a circuit that can convert the lastBB / nextBB numbers
+        // // in to state ids, which would require huge resource costs
+
+        // // One way to do this:
+        // //   1. Get a wire for a circuit that computes the prior state number?
+        // //   2. Get a list of all possible prior state Ids
+        // //   3. Get a list of all Wires corresponding to data outputs for
+        // //      the given instruction in each possible
+        // //      prior state
+        // //   4. For each dataInput if the data is not produced in a given state
+        // //      activation pick the data input out from the prior states
+        // if (arch.stg.instructionEndState(instr) == state) {
+        //   ControlFlowPosition pos = position(state, instr, arch);          
+        //   Wire instrEnding = checkAnd(stateActive, blkActive, arch);
+        //   rc.values[instrEnding] = outputWire(instr, pos, arch);
+
+        //   // TODO: If block containing it is not active should we forward from
+        //   // prior state?
+        //   // No need to set dataInputs because in this state the instruction
+        //   // will never be read?
+        // } else {
+        //   Wire blkNotActive =
+        //     checkNotWire(blkActive, arch);
+
+        //   // If at state, the block is active, but we are not producing the
+        //   // instruction in this state, then take the value of the
+        //   // instruction from default
+
+        //   Wire defaultTaken = checkAnd(stateActive, blkActive, arch);
           
-          Wire activeNotSet = checkAnd(stateActive, blkNotActive, arch);
+        //   Wire activeNotSet = checkAnd(stateActive, blkNotActive, arch);
 
-          // Q: Can we compute the prior state without adding a prior-state
-          // variable for each state?
-          // A: Two possibilities for the prior state: It was a default
-          // transition, or it was a branch
-          // If it was a branch we can check the last active block to find
-          // its value. If it was a default transition then lastBB == entryBB
-          // and so the last state is the current state - 1
-          // There is a special case on entry (no predecessor exists)
+        //   // Q: Can we compute the prior state without adding a prior-state
+        //   // variable for each state?
+        //   // A: Two possibilities for the prior state: It was a default
+        //   // transition, or it was a branch
+        //   // If it was a branch we can check the last active block to find
+        //   // its value. If it was a default transition then lastBB == entryBB
+        //   // and so the last state is the current state - 1
+        //   // There is a special case on entry (no predecessor exists)
 
-          Wire lastBBIsThisBB =
-            checkEqual(nextBBReg(state, arch), lastBBReg(state, arch), arch);
-            //Wire defaultTaken = constWire(1, 1); //activeNotSet; //lastBBIsThisBB; //constWire(1, 1);
-          //checkAnd(activeNotSet, lastBBIsThisBB, arch);
+        //   Wire lastBBIsThisBB =
+        //     checkEqual(nextBBReg(state, arch), lastBBReg(state, arch), arch);
+        //     //Wire defaultTaken = constWire(1, 1); //activeNotSet; //lastBBIsThisBB; //constWire(1, 1);
+        //   //checkAnd(activeNotSet, lastBBIsThisBB, arch);
 
-          StateId priorState = state - 1;
-          if (priorState >= 0) {
-            rc.values[defaultTaken] = arch.dp.stateData[priorState].values[instr];
-            pc.setCond("in_data",
-                       defaultTaken,
-                       arch.dp.stateData[priorState].values[instr]);
+        //   StateId priorState = state - 1;
+        //   if (priorState >= 0) {
+        //     rc.values[defaultTaken] = arch.dp.stateData[priorState].values[instr];
+        //     pc.setCond("in_data",
+        //                defaultTaken,
+        //                arch.dp.stateData[priorState].values[instr]);
           
-          } else {
-            // Do nothing. We cannot default transition to the entry block
-          }
+        //   } else {
+        //     // Do nothing. We cannot default transition to the entry block
+        //   }
 
-          Wire notDefaultTaken = checkNotWire(lastBBIsThisBB, arch);
-          Wire transitionedHere =
-            checkAnd(activeNotSet, notDefaultTaken, arch);
-          // If the default was not taken then the next value of this wire
-          // must be the value from the predecessor block
-          for (auto pred : outOfStatePredecessors(state, instr->getParent(), arch.stg)) {
-            Wire predIsLastBlk =
-              checkEqual(lastBBReg(state, arch),
-                         constWire(32, arch.cs.getBasicBlockNo(pred)),
-                         arch);
+        //   Wire notDefaultTaken = checkNotWire(lastBBIsThisBB, arch);
+        //   Wire transitionedHere =
+        //     checkAnd(activeNotSet, notDefaultTaken, arch);
+        //   // If the default was not taken then the next value of this wire
+        //   // must be the value from the predecessor block
+        //   for (auto pred : outOfStatePredecessors(state, instr->getParent(), arch.stg)) {
+        //     Wire predIsLastBlk =
+        //       checkEqual(lastBBReg(state, arch),
+        //                  constWire(32, arch.cs.getBasicBlockNo(pred)),
+        //                  arch);
 
-            // TODO: The transition state location depends on whether the branch
-            // was in a pipeline or not?
-            rc.values[checkAnd(transitionedHere, predIsLastBlk, arch)] =
-              arch.dp.stateData[arch.stg.instructionEndState(pred->getTerminator())].values[instr];
-          }
+        //     // TODO: The transition state location depends on whether the branch
+        //     // was in a pipeline or not?
+        //     rc.values[checkAnd(transitionedHere, predIsLastBlk, arch)] =
+        //       arch.dp.stateData[arch.stg.instructionEndState(pred->getTerminator())].values[instr];
+        //   }
 
-          // Should be:
-          // for (prior : possiblePriorStates) { rc.values[notset ^ prior] = ...
-          // rc.values[activeNotSet] = arch.dp[priorState][instr];
+        //   // Should be:
+        //   // for (prior : possiblePriorStates) { rc.values[notset ^ prior] = ...
+        //   // rc.values[activeNotSet] = arch.dp[priorState][instr];
           
-        }
+        // }
 
       }
     }
