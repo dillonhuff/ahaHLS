@@ -1273,7 +1273,7 @@ namespace ahaHLS {
     atLeastOneValidPhiInput(arch, info);
     noOverlappingStateTransitions(arch, info);
     //printEdgeTakenWires(arch, info);
-    printAllActiveStates(arch, info);
+    //printAllActiveStates(arch, info);
     //noOverlappingBlockTransitions(arch, info);
   }
   
