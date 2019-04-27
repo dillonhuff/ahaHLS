@@ -1845,7 +1845,7 @@ namespace ahaHLS {
 
         } else {
 
-          cout << "Adding default transition from " << state << " to " << dest << endl;
+          cout << "Adding immediate pipeline transition from " << state << " to " << dest << endl;
           exitStateActive.values[jumpCond] =
             constWire(1, 1);
         }
@@ -2541,7 +2541,9 @@ namespace ahaHLS {
     StateId brStart = arch.stg.instructionEndState(src->getTerminator());
     StateId brEnd = arch.stg.blockStartState(destBlock);
 
-    if (!jumpToSameState(src, destBlock, arch)) {
+      cout << "Jump between " << brStart << " and " << brEnd << " is a jump to the same state?" << endl;    
+    // if (!jumpToSameState(src, destBlock, arch)) {
+    //   cout << "Jump between " << brStart << " and " << brEnd << " is not a jump to the same state?" << endl;
       auto& nextBlockController = nextBBController(brEnd, arch);
     
       if (isPipelineState(brStart, arch.pipelines) &&
@@ -2561,12 +2563,13 @@ namespace ahaHLS {
         nextBlockController.values[checkAnd(exitNextCycle, outOfPipeJumpHappened.reg, arch)] =
           constWire(32, arch.cs.getBasicBlockNo(destBlock));
       } else {
-        cout << "Adding block transition from " << brStart << " to " << brEnd << endl;
+        cout << "Adding block transition for state transition " << brStart << " to " << brEnd << endl;
         // Jump that is not between pipelines
         nextBlockController.values[jumpHappened] =
           constWire(32, arch.cs.getBasicBlockNo(destBlock));
       }
-    }
+    // } else {
+    // }
   }
 
   // The predecessor wires check the predecessor of a block

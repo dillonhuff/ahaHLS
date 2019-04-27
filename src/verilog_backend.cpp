@@ -1240,22 +1240,31 @@ namespace ahaHLS {
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
 
-      //str += stateActiveReg(state, arch).valueString() + " = %d, ";
-      str += "%d, ";
+      str += "\\n" + tab(1) + "State: " + to_string(state) + " = %d, ";
       vars.push_back(stateActiveReg(state, arch).valueString());
-      //addDisplay("1", stateActiveReg(state, arch).valueString() + " = %d\\n", 
+
+      vector<string> blkVars;
+      string blkStr = "\\n" + tab(2) + "blks: ";
+      for (auto blk : blocksInState(state, arch.stg)) {
+        blkStr += to_string(arch.cs.getBasicBlockNo(blk)) + " = %d, ";
+        blkVars.push_back(arch.isActiveBlockVar(state, blk).valueString());
+      }
+      concat(vars, blkVars);
+      str += blkStr;
     }
 
     addDisplay("1", str, vars, info);
   }
-  
+
+  // Thoughts: Tricky to generate complex printouts in synthesizable
+  // verilog. Maybe I should look in to using unsynthesizable constructs?
   void addControlSanityChecks(MicroArchitecture& arch,
                               VerilogDebugInfo& info) {
     noOverlappingLastBlockTransitions(arch, info);
     noBlocksActiveInStatesWhereTheyAreNotScheduled(arch, info);
     atLeastOneValidPhiInput(arch, info);
     noOverlappingStateTransitions(arch, info);
-    //printAllActiveStates(arch, info);
+    printAllActiveStates(arch, info);
     //noOverlappingBlockTransitions(arch, info);
   }
   
