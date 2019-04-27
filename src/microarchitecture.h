@@ -433,6 +433,16 @@ namespace ahaHLS {
     std::map<Wire, Wire> values;
   };
 
+  class WorldState {
+  public:
+    std::map<Instruction*, Wire> values;
+  };
+
+  class DataPath {
+  public:
+    std::map<StateId, WorldState> stateData;
+  };
+  
   class MicroArchitecture {
   public:
     ControlState cs;
@@ -456,6 +466,8 @@ namespace ahaHLS {
     std::map<StateId, Wire> atStateWires;
     std::map<StateId, Wire> lastBBWires;
     std::map<StateId, Wire> entryBBWires;
+
+    DataPath dp;
     
     Wire isActiveBlockVar(const StateId state, llvm::BasicBlock* const bb);
     
