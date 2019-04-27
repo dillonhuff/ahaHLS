@@ -1135,57 +1135,57 @@ namespace ahaHLS {
     return dataOutputWire(instr0, arch).valueString();
   }
 
-  set<BasicBlock*> successorsInState(BasicBlock* const blk,
-                                     const StateId state,
-                                     MicroArchitecture& arch) {
-    //return true;
-    set<BasicBlock*> succs;
-    for (BasicBlock* const succ : successors(blk)) {
+  // set<BasicBlock*> successorsInState(BasicBlock* const blk,
+  //                                    const StateId state,
+  //                                    MicroArchitecture& arch) {
+  //   //return true;
+  //   set<BasicBlock*> succs;
+  //   for (BasicBlock* const succ : successors(blk)) {
 
-      // Is this too restrictive? To be a successor
-      // in this state the block does not need to
-      // finish in this state, it just needs to start in
-      // this state.
-      if (arch.stg.blockStartState(succ) == state) {
-        succs.insert(succ);
-      }
-    }
+  //     // Is this too restrictive? To be a successor
+  //     // in this state the block does not need to
+  //     // finish in this state, it just needs to start in
+  //     // this state.
+  //     if (arch.stg.blockStartState(succ) == state) {
+  //       succs.insert(succ);
+  //     }
+  //   }
 
-    return succs;
-  }
+  //   return succs;
+  // }
 
   // TODO: I still think this code is wrong even though I dont have a test to
   // prove it. I dont see how it can deal with two looped blocks in a state
   // Also: Another problem here is that a block precedes itself in this code,
   // but in reality blocks never preceed themselves in
-  bool blockPrecedesInState(BasicBlock* const maybeFirst,
-                            BasicBlock* const maybeSecond,
-                            const StateId state,
-                            MicroArchitecture& arch) {
-    //return true;
+  // bool blockPrecedesInState(BasicBlock* const maybeFirst,
+  //                           BasicBlock* const maybeSecond,
+  //                           const StateId state,
+  //                           MicroArchitecture& arch) {
+  //   //return true;
     
-    set<BasicBlock*> successors{maybeFirst};
-    bool addedSuccessors = true;
-    while (addedSuccessors) {
-      addedSuccessors = false;
+  //   set<BasicBlock*> successors{maybeFirst};
+  //   bool addedSuccessors = true;
+  //   while (addedSuccessors) {
+  //     addedSuccessors = false;
 
-      int oldSize = successors.size();
-      for (auto blk : successors) {
+  //     int oldSize = successors.size();
+  //     for (auto blk : successors) {
 
-        if (arch.stg.blockEndState(blk) == state) {
-          for (auto succ : successorsInState(blk, state, arch)) {
-            successors.insert(succ);
-          }
-        }
-      }
+  //       if (arch.stg.blockEndState(blk) == state) {
+  //         for (auto succ : successorsInState(blk, state, arch)) {
+  //           successors.insert(succ);
+  //         }
+  //       }
+  //     }
 
-      if (oldSize != successors.size()) {
-        addedSuccessors = true;
-      }
-    }
+  //     if (oldSize != successors.size()) {
+  //       addedSuccessors = true;
+  //     }
+  //   }
 
-    return elem(maybeSecond, successors);
-  }
+  //   return elem(maybeSecond, successors);
+  // }
   
   Wire outputWire(Value* val,
                   ControlFlowPosition& currentPosition,
@@ -2497,30 +2497,30 @@ namespace ahaHLS {
     
   }
 
-  bool jumpToSameState(BasicBlock* const predecessor,
-                       BasicBlock* const successor,
-                       MicroArchitecture& arch) {
+  // bool jumpToSameState(BasicBlock* const predecessor,
+  //                      BasicBlock* const successor,
+  //                      MicroArchitecture& arch) {
 
-    if ((predecessor != successor) &&
-        (arch.stg.blockStartState(successor) == arch.stg.blockEndState(predecessor))) {
+  //   if ((predecessor != successor) &&
+  //       (arch.stg.blockStartState(successor) == arch.stg.blockEndState(predecessor))) {
 
-      StateId state = arch.stg.blockStartState(successor);
-      // Check if predecessor precedes successor
-      if (blockPrecedesInState(predecessor,
-                               successor,
-                               state,
-                               arch)) {
-        return true;
-      } else {
+  //     StateId state = arch.stg.blockStartState(successor);
+  //     // Check if predecessor precedes successor
+  //     if (blockPrecedesInState(predecessor,
+  //                              successor,
+  //                              state,
+  //                              arch)) {
+  //       return true;
+  //     } else {
 
         
-        return false;
-      }
+  //       return false;
+  //     }
 
-    }
+  //   }
 
-    return false;
-  }
+  //   return false;
+  // }
 
   Wire blockActiveInState(const StateId state,
                           BasicBlock* const blk,
