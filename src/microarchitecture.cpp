@@ -2795,6 +2795,8 @@ namespace ahaHLS {
     // For each state:
     //   If the state is active: Set each worldState variable based on prior state
 
+    Function* f = arch.stg.getFunction();
+    
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
 
@@ -2802,6 +2804,13 @@ namespace ahaHLS {
       for (pair<Instruction*, Wire> valStorage : dataRegisters.values) {
 
         Instruction* instr = valStorage.first;
+        
+        // Instructions that are produced in the entry block have no
+        // prior values, so storage registers for these instructions cannot be set
+        if ((state == 0) && (&(f->getEntryBlock()) == instr->getParent())) {
+          continue;
+        }
+
         RegController& rc = arch.getController(valStorage.second);
 
         Wire stateActive = atStateWire(state, arch);
@@ -2816,7 +2825,28 @@ namespace ahaHLS {
 
         // Q: How do we handle the entry block case?
         // Q: How do I want to track the last state graph transition?
-        
+
+        // Q: Can we compute the prior state without adding a prior-state
+        // variable for each state?
+        // A: Two possibilities for the prior state: It was a default
+        // transition, or it was a branch
+        // If it was a branch we can check the last active block to find
+        // its value. If it was a default transition then lastBB == entryBB
+        // and so the last state is the current state - 1
+        // There is a special case on entry (no predecessor exists)
+
+        Wire lastBBIsThisBB =
+          checkEqual(nextBBReg(state, arch), lastBBReg(state, arch), arch);
+        Wire defaultTaken =
+          checkAnd(activeNotSet, lastBBIsThisBB, arch);
+
+        StateId priorState = state - 1;
+        if (priorState >= 0) {
+          rc.values[defaultTaken] = arch.dp.stateData[priorState].values[instr];
+        } else {
+          // Do nothing. We cannot default transition to the entry block
+        }
+
         // Should be:
         // for (prior : possiblePriorStates) { rc.values[notset ^ prior] = ...
         // rc.values[activeNotSet] = arch.dp[priorState][instr];
