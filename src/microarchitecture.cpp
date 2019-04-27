@@ -2843,21 +2843,22 @@ namespace ahaHLS {
           ControlFlowPosition pos = position(state, instr, arch);          
           Wire instrEnding = checkAnd(stateActive, blkActive, arch);
           rc.values[instrEnding] = outputWire(instr, pos, arch);
+
+          // TODO: If block containing it is not active should we forward from
+          // prior state?
           // No need to set dataInputs because in this state the instruction
           // will never be read?
         } else {
-          //Wire stateActive = atStateWire(state, arch);
           Wire blkNotActive =
-            checkNotWire(arch.isActiveBlockVar(state, instr->getParent()), arch);
+            checkNotWire(blkActive, arch);
+
+          // If at state, the block is active, but we are not producing the
+          // instruction in this state, then take the value of the
+          // instruction from default
+
+          Wire defaultTaken = checkAnd(stateActive, blkActive, arch);
+          
           Wire activeNotSet = checkAnd(stateActive, blkNotActive, arch);
-
-
-          // Wire blockActiveS = blockActiveInState(state, instr->getParent(), arch);
-          // rc.values[blockActiveS] =
-          //   outputWire(instr, pos, arch);
-
-          // Q: How do we handle the entry block case?
-          // Q: How do I want to track the last state graph transition?
 
           // Q: Can we compute the prior state without adding a prior-state
           // variable for each state?
@@ -2870,7 +2871,7 @@ namespace ahaHLS {
 
           Wire lastBBIsThisBB =
             checkEqual(nextBBReg(state, arch), lastBBReg(state, arch), arch);
-          Wire defaultTaken = constWire(1, 1); //activeNotSet; //lastBBIsThisBB; //constWire(1, 1);
+            //Wire defaultTaken = constWire(1, 1); //activeNotSet; //lastBBIsThisBB; //constWire(1, 1);
           //checkAnd(activeNotSet, lastBBIsThisBB, arch);
 
           StateId priorState = state - 1;
