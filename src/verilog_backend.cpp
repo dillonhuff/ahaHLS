@@ -1351,7 +1351,7 @@ namespace ahaHLS {
     noStoredValuesXWhenUsed(arch, info);
 
     //noPortXWhenRead("out_data", arch, info);
-    noPortXWrites("waddr_0", arch, info);    
+    //noPortXWrites("waddr_0", arch, info);    
   }
 
   std::string argName(llvm::Argument* arg) {

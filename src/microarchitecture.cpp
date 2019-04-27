@@ -2776,6 +2776,34 @@ namespace ahaHLS {
       arch.atStateWires[p.stateId] = w;
     }
   }
+
+  set<Instruction*> allDataInFunction(Function* const f) {
+    set<Instruction*> vals;
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instrR : bb) {
+        if (hasOutput(&instrR)) {
+          vals.insert(&instrR);
+        }
+      }
+    }
+
+    return vals;
+  }
+
+  void buildDataPathWires(MicroArchitecture& arch) {
+    set<Instruction*> allValues = allDataInFunction(arch.stg.getFunction());
+
+    for (auto st : arch.stg.opStates) {
+      StateId state = st.first;
+      for (auto val : allValues) {
+        string tmpName =
+          arch.uniqueName("data_store_" + to_string(state));
+        
+        addPortController(tmpName, getValueBitWidth(val), arch);
+        
+      }
+    }
+  }
   
   MicroArchitecture
   buildMicroArchitecture(const STG& stg,
@@ -2811,12 +2839,11 @@ namespace ahaHLS {
       arch.functionalUnits.push_back(unit.second);
     }
 
+    buildDataPathWires(arch);
     buildAtStateWires(arch);
     buildBasicBlockEnableLogic(arch);
     buildPortControllers(arch);
-    //emitPipelineValidChainBlock(arch);
     emitPipelineRegisterChains(arch);
-    //emitPipelineInitiationBlock(arch);
     emitControlCode(arch);    
 
     return arch;
@@ -2909,8 +2936,8 @@ namespace ahaHLS {
       for (map<Instruction*, Wire>& regMap : p.pipelineRegisters) {
         for (auto iReg : regMap) {
           arch.addController(iReg.second.name, iReg.second.width);
-          RegController& reg = arch.getController(iReg.second.name);
-          reg.resetValue = "32'dx";
+          //RegController& reg = arch.getController(iReg.second.name);
+          //reg.resetValue = "32'dx";
         }
       }
     }
