@@ -2601,7 +2601,8 @@ namespace ahaHLS {
         predController.setCond("in_data", nextBlkIsThisBlk, lastBBReg(state, arch));
 
         for (auto* pred : predecessors(blk)) {
-          if (jumpToSameState(pred, blk, arch)) {
+          //if (jumpToSameState(pred, blk, arch)) {
+          if (elem({pred, blk}, getInStateTransitions(state, arch.stg))) {
 
             int predNo = arch.cs.getBasicBlockNo(pred);
 
