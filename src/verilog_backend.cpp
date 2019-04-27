@@ -1258,7 +1258,7 @@ namespace ahaHLS {
 
   void printEdgeTakenWires(MicroArchitecture& arch,
                            VerilogDebugInfo& info) {
-    addDisplay("1", "valid_reg = %d", {"valid_reg"});
+    addDisplay("1", "valid_reg = %d", {"valid_reg"}, info);
     for (auto w : arch.edgeTakenWires) {
       addDisplay("1", w.second.valueString() + " = %d", {w.second.valueString()}, info);
     }
