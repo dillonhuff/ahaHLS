@@ -470,7 +470,6 @@ namespace ahaHLS {
     DataPath dp;
     
     Wire isActiveBlockVar(const StateId state, llvm::BasicBlock* const bb);
-    
     std::string uniqueName(const std::string& prefix) {
       std::string name = prefix + "_" + std::to_string(uniqueNum);
       uniqueNum++;

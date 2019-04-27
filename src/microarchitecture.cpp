@@ -2804,9 +2804,22 @@ namespace ahaHLS {
         Instruction* instr = valStorage.first;
         RegController& rc = arch.getController(valStorage.second);
 
+        Wire stateActive = atStateWire(state, arch);
+        Wire blkNotActive =
+          checkNotWire(arch.isActiveBlockVar(state, instr->getParent()), arch);
+        Wire activeNotSet = checkAnd(stateActive, blkNotActive, arch);
+
         ControlFlowPosition pos = position(state, instr, arch);
         rc.values[blockActiveInState(state, instr->getParent(), arch)] =
           outputWire(instr, pos, arch);
+
+
+        // Q: How do we handle the entry block case?
+        // Q: How do I want to track the last state graph transition?
+        
+        // Should be:
+        // for (prior : possiblePriorStates) { rc.values[notset ^ prior] = ...
+        // rc.values[activeNotSet] = arch.dp[priorState][instr];
       }
     }
   }
