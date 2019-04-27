@@ -1045,6 +1045,64 @@ namespace ahaHLS {
 
   }  
 
+  void noPortXWrites(const std::string& portName,
+                     MicroArchitecture& arch,
+                     VerilogDebugInfo& info) {
+    for (auto st : arch.stg.opStates) {
+      for (auto instr : arch.stg.instructionsFinishingAt(st.first)) {
+        if (isBuiltinPortWrite(instr)) {
+          if (getPortName(instr) == portName) {
+            FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+
+            StateId activeState = st.first;
+            BasicBlock* blk = instr->getParent();
+
+            Wire active = blockActiveInState(activeState, blk, arch);
+
+            string iStr = instructionString(instr);
+            printInstrAtState(instr, activeState, arch, info);
+
+            cout << "Operand 1 to " << portName << " = " << valueString(instr->getOperand(1)) << endl;
+            auto pos = position(activeState, instr, arch);
+            string in0Name = outputName(instr->getOperand(1),
+                                        pos,
+                                        arch);
+
+            addAssert(implies(active.valueString(),
+                              in0Name + " !== " + to_string(getValueBitWidth(instr->getOperand(1))) + "'dx"),
+                      info);
+          }
+        }
+      }
+    }
+    
+  }
+  
+  void noPortXWhenRead(const std::string& portName,
+                       MicroArchitecture& arch,
+                       VerilogDebugInfo& info) {
+    for (auto st : arch.stg.opStates) {
+      for (auto instr : arch.stg.instructionsFinishingAt(st.first)) {
+        if (isBuiltinPortRead(instr)) {
+          if (getPortName(instr) == portName) {
+            FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+
+            StateId activeState = st.first;
+
+            string iStr = instructionString(instr);
+            printInstrAtState(instr, activeState, arch, info);
+
+            string outName = map_find(portName, unit.outWires).name;
+            addAssert(notAtState(activeState, arch) + " || " +
+                      outName + " !== " + to_string(getValueBitWidth(instr)) + "'dx",
+                      info);
+          }
+        }
+      }
+    }
+           
+  }
+  
   void noBinopsProduceXOutputs(MicroArchitecture& arch,
                                VerilogDebugInfo& debugInfo,
                                const std::string& opName) {
@@ -1291,6 +1349,9 @@ namespace ahaHLS {
     noLoadedValuesXWhenUsed(arch, info);
     noLoadAddressesXWhenUsed(arch, info);
     noStoredValuesXWhenUsed(arch, info);
+
+    //noPortXWhenRead("out_data", arch, info);
+    noPortXWrites("waddr_0", arch, info);    
   }
 
   std::string argName(llvm::Argument* arg) {

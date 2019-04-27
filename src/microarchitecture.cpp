@@ -1092,9 +1092,10 @@ namespace ahaHLS {
       }
     }
 
+    cout << "Getting the value of " << valueString(result) << " from arch.names" << endl;    
     return sequentialReg(result, arch);
     
-    // cout << "Getting the value of " << valueString(result) << " from arch.names" << endl;
+
 
     // assert(contains_key(result, arch.names));
     
@@ -2908,6 +2909,8 @@ namespace ahaHLS {
       for (map<Instruction*, Wire>& regMap : p.pipelineRegisters) {
         for (auto iReg : regMap) {
           arch.addController(iReg.second.name, iReg.second.width);
+          RegController& reg = arch.getController(iReg.second.name);
+          reg.resetValue = "32'dx";
         }
       }
     }

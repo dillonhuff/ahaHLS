@@ -211,5 +211,7 @@ namespace ahaHLS {
 
   llvm::Function*
   getFunctionByDemangledName(llvm::Module* mod, const std::string& name);
+
+  std::string implies(const std::string& a, const std::string& b);  
   
 }
