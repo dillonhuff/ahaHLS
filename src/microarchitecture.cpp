@@ -1038,6 +1038,9 @@ namespace ahaHLS {
 
     cout << "Getting most recent location of " << valueString(result) << " for instruction " << valueString(currentPosition.instr) << endl;
 
+    StateId currentPos = currentPosition.stateId();
+
+    return arch.dp.stateData[currentPos].values[result];
 
     // Thought: The datapath API could be one function which
     // gets the output wire of a piece of storage which stores the

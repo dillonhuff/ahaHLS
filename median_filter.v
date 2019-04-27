@@ -2895,7 +2895,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// controller for concat_78.concat_78_in1
 	// Insensitive connections
 	always @(*) begin
-		concat_78_in0 = valid ? add_tmp_2 : add_tmp_2;
+		concat_78_in0 = valid ? data_store_2_15 : data_store_2_15;
 		concat_78_in1 = valid ? 32'd0 : 32'd0;
 	end
 	// controller for concat_79.concat_79_in0
