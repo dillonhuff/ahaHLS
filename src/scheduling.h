@@ -1668,6 +1668,10 @@ namespace ahaHLS {
   
   std::set<BasicBlock*> blocksInState(const StateId state,
                                       STG& stg);
+
+  std::set<std::pair<BasicBlock*, BasicBlock*> >
+  getInStateTransitions(const StateId state,
+                        STG& stg);
   
 }
 

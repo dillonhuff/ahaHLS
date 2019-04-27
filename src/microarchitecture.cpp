@@ -2500,6 +2500,7 @@ namespace ahaHLS {
   bool jumpToSameState(BasicBlock* const predecessor,
                        BasicBlock* const successor,
                        MicroArchitecture& arch) {
+
     if ((predecessor != successor) &&
         (arch.stg.blockStartState(successor) == arch.stg.blockEndState(predecessor))) {
 
@@ -2743,7 +2744,8 @@ namespace ahaHLS {
           Wire edgeTaken = val.second;
 
           if (successor == blk) {
-            if (jumpToSameState(predecessor, successor, arch)) {
+            //if (jumpToSameState(predecessor, successor, arch)) {
+            if (elem({predecessor, successor}, getInStateTransitions(state, arch.stg))) {
               nextBBIsThisBlock =
                 checkOr(nextBBIsThisBlock, edgeTaken, arch);
             }
