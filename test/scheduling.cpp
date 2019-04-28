@@ -1021,7 +1021,7 @@ namespace ahaHLS {
     
       TestBenchSpec tb;
       tb.memoryExpected = memoryExpected;
-      tb.runCycles = 32;
+      tb.runCycles = 8;
       tb.name = "simple_outer_pipe";
       tb.useModSpecs = true;
       int startSetMemCycle = 1;
@@ -1030,7 +1030,7 @@ namespace ahaHLS {
       map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
       map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
 
-      int checkMemCycle = 200;
+      int checkMemCycle = 30;
       checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
 
       emitVerilogTestBench(tb, arch, testLayout);
@@ -1064,6 +1064,7 @@ namespace ahaHLS {
       }
       toPipeline.insert(all);
 
+      // Changed
       SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline, preds);
       exec.addConstraints(p, f);
 
@@ -1094,7 +1095,6 @@ namespace ahaHLS {
     
       TestBenchSpec tb;
       tb.memoryExpected = memoryExpected;
-      tb.runCycles = 32;
       tb.name = "simple_outer_pipe";
       tb.useModSpecs = true;
       int startSetMemCycle = 1;
@@ -1103,7 +1103,7 @@ namespace ahaHLS {
       map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
       map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
 
-      int checkMemCycle = 200;
+      int checkMemCycle = 30;
       checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
 
       emitVerilogTestBench(tb, arch, testLayout);
@@ -1374,7 +1374,7 @@ namespace ahaHLS {
     map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
     map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
 
-    int checkMemCycle = 20;
+    int checkMemCycle = 30;
     checkRAM(tb, checkMemCycle, "arg_1", memoryExpected, testLayout);
 
     emitVerilogTestBench(tb, arch, testLayout);
