@@ -1014,7 +1014,7 @@ namespace ahaHLS {
 
       // Create testing infrastructure
       map<string, vector<int> > memoryInit{{"arg_0", {6}}};
-      map<string, vector<int> > memoryExpected{{"arg_0", {3}}};
+      map<string, vector<int> > memoryExpected{{"arg_0", {3, 3, 3, 3, 3}}};
 
       auto arg0 = dyn_cast<Argument>(getArg(f, 0));
       string in0Name = string(arg0->getName());
