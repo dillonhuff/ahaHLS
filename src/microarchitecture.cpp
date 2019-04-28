@@ -2039,6 +2039,11 @@ namespace ahaHLS {
 
     // Maybe I need to adjuste each jump to ensure that the correct
     // lastBB value is being used?
+
+    // Note: Maybe need to check that the possible last jump was taken
+    // and that no subsequent jumps were taken?
+
+    // TODO: Check that lastBB conditions do not overlap?
     for (auto jmp : possibleLastJumps(state, arch.stg)) {
       StateId dst = dstState(jmp, arch.stg);
 
