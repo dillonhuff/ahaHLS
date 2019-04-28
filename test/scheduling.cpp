@@ -1463,7 +1463,7 @@ namespace ahaHLS {
           }
         }
       }
-      //toPipeline.insert(all);
+      toPipeline.insert(all);
 
       SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline, preds);
       exec.addConstraints(p, f);
