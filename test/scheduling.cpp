@@ -1021,7 +1021,7 @@ namespace ahaHLS {
     
       TestBenchSpec tb;
       tb.memoryExpected = memoryExpected;
-      tb.runCycles = 150;
+      tb.runCycles = 32;
       tb.name = "simple_outer_pipe";
       tb.useModSpecs = true;
       int startSetMemCycle = 1;
@@ -1094,7 +1094,7 @@ namespace ahaHLS {
     
       TestBenchSpec tb;
       tb.memoryExpected = memoryExpected;
-      tb.runCycles = 150;
+      tb.runCycles = 32;
       tb.name = "simple_outer_pipe";
       tb.useModSpecs = true;
       int startSetMemCycle = 1;
