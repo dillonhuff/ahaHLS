@@ -1030,7 +1030,7 @@ namespace ahaHLS {
       map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
       map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
 
-      int checkMemCycle = 30;
+      int checkMemCycle = 100;
       checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
 
       emitVerilogTestBench(tb, arch, testLayout);
