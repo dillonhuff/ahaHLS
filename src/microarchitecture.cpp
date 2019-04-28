@@ -2815,6 +2815,47 @@ namespace ahaHLS {
     }
   }
 
+  std::set<Instruction*>
+  allValuesThatMayNeedStorage(Function* const f,
+                              STG& stg) {
+    set<Instruction*> vals;
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instrR : bb) {
+        if (hasOutput(&instrR)) {
+
+          Instruction* instr = &instrR;
+
+          // If all users are in the produce state, and
+          // none are PHI nodes, then we do not need this
+          bool noPhiUsers = true;
+          bool allInProduceState = true;
+
+          for (auto& user : instr->uses()) {
+            assert(Instruction::classof(user));
+            auto userInstr = dyn_cast<Instruction>(user.getUser());
+
+            if (PHINode::classof(userInstr)) {
+              noPhiUsers = false;
+              break;
+            }
+
+            if (stg.instructionStartState(userInstr) !=
+                stg.instructionEndState(instr)) {
+              allInProduceState = false;
+              break;
+            }
+            
+          }
+
+          if (!noPhiUsers || !allInProduceState) {
+            vals.insert(&instrR);
+          }
+        }
+      }
+    }
+    return vals;
+  }
+
   set<Instruction*> allDataInFunction(Function* const f) {
     set<Instruction*> vals;
     for (auto& bb : f->getBasicBlockList()) {
@@ -3023,6 +3064,21 @@ namespace ahaHLS {
   
   void buildDataPathWires(MicroArchitecture& arch) {
     set<Instruction*> allValues = allDataInFunction(arch.stg.getFunction());
+
+    cout << "# of values in function = " << allValues.size() << endl;
+    for (auto v : allValues) {
+      cout << tab(1) << valueString(v) << endl;
+    }
+
+    set<Instruction*> allValuesMayNeedStorage =
+      allValuesThatMayNeedStorage(arch.stg.getFunction(), arch.stg);
+
+    cout << "# of values in function that may need storage = " << allValuesMayNeedStorage.size() << endl;
+    for (auto v : allValuesMayNeedStorage) {
+      cout << tab(1) << valueString(v) << endl;
+    }
+
+    allValues = allValuesMayNeedStorage;
 
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
