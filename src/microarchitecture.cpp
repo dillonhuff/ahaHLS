@@ -119,7 +119,7 @@ namespace ahaHLS {
   }
 
   Wire atStateWire(const StateId state, MicroArchitecture& arch) {
-    cout << "Getting wire for " << state << endl;
+    //cout << "Getting wire for " << state << endl;
     return map_find(state, arch.atStateWires);
   }
 
@@ -262,7 +262,7 @@ namespace ahaHLS {
         }
         auto iTp = dyn_cast<IntegerType>(tp);
         string name = valueArgName(&arg);
-        cout << "Integer port name = " << name << endl;
+        //cout << "Integer port name = " << name << endl;
         pts.push_back(inputPort(getTypeBitWidth(iTp), name));
       }
     }
@@ -1217,9 +1217,9 @@ namespace ahaHLS {
                   ControlFlowPosition& currentPosition,
                   MicroArchitecture& arch) {
     
-    cout << "Getting name of " << valueString(val) << endl;
+    //cout << "Getting name of " << valueString(val) << endl;
     Instruction* instr = currentPosition.instr;
-    cout << "In instruction " << valueString(instr) << endl;
+    //cout << "In instruction " << valueString(instr) << endl;
     
     if (Instruction::classof(val)) {
 
