@@ -1022,7 +1022,7 @@ namespace ahaHLS {
     
       TestBenchSpec tb;
       tb.memoryExpected = memoryExpected;
-      tb.runCycles = 100;
+      tb.runCycles = 150;
       tb.name = "simple_outer_pipe";
       tb.useModSpecs = true;
       int startSetMemCycle = 1;
@@ -1031,7 +1031,7 @@ namespace ahaHLS {
       map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
       map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
 
-      int checkMemCycle = 40;
+      int checkMemCycle = 200;
       checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
 
       emitVerilogTestBench(tb, arch, testLayout);
