@@ -1049,63 +1049,76 @@ namespace ahaHLS {
 
     StateId currentPos = currentPosition.stateId();
 
-    return arch.dp.stateDataInputs[currentPos].values[result];
+    if (contains_key(currentPos, arch.dp.stateDataInputs)) {
+      auto& stateInputs = arch.dp.stateDataInputs[currentPos];
 
-    // Thought: The datapath API could be one function which
-    // gets the output wire of a piece of storage which stores the
-    // last time the producer instruction was triggered along
-    // the given control path to the user?
-    if (currentPosition.inPipeline()) {
-      cout << "We are in a pipeline" << endl;
-
-      int stage = currentPosition.pipelineStage();
-      auto p = arch.getPipeline(currentPosition.stateId());
-
-      if (!producedInPipeline(result, p, arch)) {
-        return sequentialReg(result, arch);
-      }
-
-      StateId argState = map_find(result, arch.stg.sched.instrTimes).back();
-      StateId thisState = map_find(currentPosition.instr, arch.stg.sched.instrTimes).front();
-
-      if (argState == thisState) {
-
-        // BasicBlock* argBB = result->getParent();
-        // BasicBlock* userBB = currentPosition.instr->getParent();
-
-        // assert(argBB == userBB);
-
-        // OrderedBasicBlock obb(argBB);
-
-        // assert(!(obb.dominates(result, currentPosition.instr)));
-
-        int stagePlusII = stage + p.II();
-        if (stagePlusII >= (int) p.pipelineRegisters.size()) {
-
-          return sequentialReg(result, arch);
-          
-          // assert(contains_key(result, arch.names));
-                   
-          // Wire tmpRes = map_find(result, arch.names);
-
-          // cout << "Wire name = " << tmpRes.name << endl;
-          // return tmpRes;
-        } else {
-          // Could I just get from the last active value?
-          Wire tmpRes = map_find(result, p.pipelineRegisters[stage + p.II()]);
-          return tmpRes;
-        }
-
+      if (contains_key(result, stateInputs.values)) {
+        return arch.dp.stateDataInputs[currentPos].values[result];
       } else {
 
-        cout << "Value is in pipeline registers for another stage" << endl;
-        Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
-        return tmpRes;
+        // Assert faise here?
+        return constWire(getValueBitWidth(result), 0); //arch.dp.stateDataInputs[currentPos].values[result];        
       }
+      //return arch.dp.stateDataInputs[currentPos].values[result];
+    } else {
+      return constWire(getValueBitWidth(result), 0); //arch.dp.stateDataInputs[currentPos].values[result];
     }
 
-    cout << "Getting the value of " << valueString(result) << " from arch.names" << endl;    
-    return sequentialReg(result, arch);
+    // // Thought: The datapath API could be one function which
+    // // gets the output wire of a piece of storage which stores the
+    // // last time the producer instruction was triggered along
+    // // the given control path to the user?
+    // if (currentPosition.inPipeline()) {
+    //   cout << "We are in a pipeline" << endl;
+
+    //   int stage = currentPosition.pipelineStage();
+    //   auto p = arch.getPipeline(currentPosition.stateId());
+
+    //   if (!producedInPipeline(result, p, arch)) {
+    //     return sequentialReg(result, arch);
+    //   }
+
+    //   StateId argState = map_find(result, arch.stg.sched.instrTimes).back();
+    //   StateId thisState = map_find(currentPosition.instr, arch.stg.sched.instrTimes).front();
+
+    //   if (argState == thisState) {
+
+    //     // BasicBlock* argBB = result->getParent();
+    //     // BasicBlock* userBB = currentPosition.instr->getParent();
+
+    //     // assert(argBB == userBB);
+
+    //     // OrderedBasicBlock obb(argBB);
+
+    //     // assert(!(obb.dominates(result, currentPosition.instr)));
+
+    //     int stagePlusII = stage + p.II();
+    //     if (stagePlusII >= (int) p.pipelineRegisters.size()) {
+
+    //       return sequentialReg(result, arch);
+          
+    //       // assert(contains_key(result, arch.names));
+                   
+    //       // Wire tmpRes = map_find(result, arch.names);
+
+    //       // cout << "Wire name = " << tmpRes.name << endl;
+    //       // return tmpRes;
+    //     } else {
+    //       // Could I just get from the last active value?
+    //       Wire tmpRes = map_find(result, p.pipelineRegisters[stage + p.II()]);
+    //       return tmpRes;
+    //     }
+
+    //   } else {
+
+    //     cout << "Value is in pipeline registers for another stage" << endl;
+    //     Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
+    //     return tmpRes;
+    //   }
+    // }
+
+    // cout << "Getting the value of " << valueString(result) << " from arch.names" << endl;    
+    // return sequentialReg(result, arch);
     
 
 
@@ -2839,6 +2852,12 @@ namespace ahaHLS {
               break;
             }
 
+            if (userInstr->getParent() !=
+                instr->getParent()) {
+              allInProduceState = false;
+              break;
+            }
+            
             if (stg.instructionStartState(userInstr) !=
                 stg.instructionEndState(instr)) {
               allInProduceState = false;
@@ -2892,6 +2911,19 @@ namespace ahaHLS {
     return map_find(state, arch.lastStateWires);
   }
 
+  Wire datapathValueAt(const StateId possibleLast,
+                       Instruction* instr,
+                       MicroArchitecture& arch) {
+    auto& stateInfo = arch.dp.stateData[possibleLast];
+    if (contains_key(instr, stateInfo.values)) {
+      return stateInfo.values[instr];
+    }
+
+    return constWire(getValueBitWidth(instr), 0);
+    //Wire priorData = arch.dp.stateData[possibleLast].values[instr];
+    
+  }
+  
   void buildDataPathSetLogic(MicroArchitecture& arch) {
     // What do I need to do here?
     // For each state:
@@ -2920,13 +2952,6 @@ namespace ahaHLS {
 
         Instruction* instr = valStorage.first;
         
-        // Instructions that are produced in the entry block have no
-        // prior values, so storage registers for these instructions cannot be set
-        // if ((state == 0) && (&(f->getEntryBlock()) == instr->getParent())) {
-        //   continue;
-        // }
-
-        //"_out_data"
         RegController& rc = arch.getController(valStorage.second);
         // TODO: Remove this name lookup hack
         string wName = dataInputs.values[instr].name;
@@ -2936,17 +2961,12 @@ namespace ahaHLS {
           arch.portController(ctName);
         Wire priorValue = priorValueController.functionalUnit().outputWire();
 
-        // TODO: Set stateDataInputs correctly before setting stateData
-        //for (StateId possibleLast : possiblePriorStates(state, arch.stg)) {
         for (auto stP : isLastStateFlags) {
           StateId possibleLast = stP.first;
           Wire lastTriggered = stP.second;
-          // Wire atLast = checkEqual(possibleLast, lastStateWire, arch);
-          // // Q: Do I really need to check if we are at the current state here?
-          // // if the current state is not active this value will not be used anyway...
-          // Wire lastTriggered =
-          //   checkAnd(atStateWire(state, arch), atLast, arch);
-          Wire priorData = arch.dp.stateData[possibleLast].values[instr];
+
+          //Wire priorData = arch.dp.stateData[possibleLast].values[instr];
+          Wire priorData = datapathValueAt(possibleLast, instr, arch);
           priorValueController.setCond("in_data", lastTriggered, priorData);
         }
 
@@ -2974,90 +2994,6 @@ namespace ahaHLS {
                            checkNotWire(instrProducedInStateActivation, arch),
                            arch)] =
           priorValue;
-        // rc.values[instrNotProducedInStateActivation] = priorValue;
-        // rc.values[containerBlockNotActiveInStateActivation] = priorValue;
-
-        // // Problem: Computing the prior state number in the architecture
-        // // requires a circuit that can convert the lastBB / nextBB numbers
-        // // in to state ids, which would require huge resource costs
-
-        // // One way to do this:
-        // //   1. Get a wire for a circuit that computes the prior state number?
-        // //   2. Get a list of all possible prior state Ids
-        // //   3. Get a list of all Wires corresponding to data outputs for
-        // //      the given instruction in each possible
-        // //      prior state
-        // //   4. For each dataInput if the data is not produced in a given state
-        // //      activation pick the data input out from the prior states
-        // if (arch.stg.instructionEndState(instr) == state) {
-        //   ControlFlowPosition pos = position(state, instr, arch);          
-        //   Wire instrEnding = checkAnd(stateActive, blkActive, arch);
-        //   rc.values[instrEnding] = outputWire(instr, pos, arch);
-
-        //   // TODO: If block containing it is not active should we forward from
-        //   // prior state?
-        //   // No need to set dataInputs because in this state the instruction
-        //   // will never be read?
-        // } else {
-        //   Wire blkNotActive =
-        //     checkNotWire(blkActive, arch);
-
-        //   // If at state, the block is active, but we are not producing the
-        //   // instruction in this state, then take the value of the
-        //   // instruction from default
-
-        //   Wire defaultTaken = checkAnd(stateActive, blkActive, arch);
-          
-        //   Wire activeNotSet = checkAnd(stateActive, blkNotActive, arch);
-
-        //   // Q: Can we compute the prior state without adding a prior-state
-        //   // variable for each state?
-        //   // A: Two possibilities for the prior state: It was a default
-        //   // transition, or it was a branch
-        //   // If it was a branch we can check the last active block to find
-        //   // its value. If it was a default transition then lastBB == entryBB
-        //   // and so the last state is the current state - 1
-        //   // There is a special case on entry (no predecessor exists)
-
-        //   Wire lastBBIsThisBB =
-        //     checkEqual(nextBBReg(state, arch), lastBBReg(state, arch), arch);
-        //     //Wire defaultTaken = constWire(1, 1); //activeNotSet; //lastBBIsThisBB; //constWire(1, 1);
-        //   //checkAnd(activeNotSet, lastBBIsThisBB, arch);
-
-        //   StateId priorState = state - 1;
-        //   if (priorState >= 0) {
-        //     rc.values[defaultTaken] = arch.dp.stateData[priorState].values[instr];
-        //     pc.setCond("in_data",
-        //                defaultTaken,
-        //                arch.dp.stateData[priorState].values[instr]);
-          
-        //   } else {
-        //     // Do nothing. We cannot default transition to the entry block
-        //   }
-
-        //   Wire notDefaultTaken = checkNotWire(lastBBIsThisBB, arch);
-        //   Wire transitionedHere =
-        //     checkAnd(activeNotSet, notDefaultTaken, arch);
-        //   // If the default was not taken then the next value of this wire
-        //   // must be the value from the predecessor block
-        //   for (auto pred : outOfStatePredecessors(state, instr->getParent(), arch.stg)) {
-        //     Wire predIsLastBlk =
-        //       checkEqual(lastBBReg(state, arch),
-        //                  constWire(32, arch.cs.getBasicBlockNo(pred)),
-        //                  arch);
-
-        //     // TODO: The transition state location depends on whether the branch
-        //     // was in a pipeline or not?
-        //     rc.values[checkAnd(transitionedHere, predIsLastBlk, arch)] =
-        //       arch.dp.stateData[arch.stg.instructionEndState(pred->getTerminator())].values[instr];
-        //   }
-
-        //   // Should be:
-        //   // for (prior : possiblePriorStates) { rc.values[notset ^ prior] = ...
-        //   // rc.values[activeNotSet] = arch.dp[priorState][instr];
-          
-        // }
-
       }
     }
   }
