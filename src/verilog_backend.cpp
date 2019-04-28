@@ -919,8 +919,12 @@ namespace ahaHLS {
           string wireName = unit.onlyOutputVar();
 
           string valCheck = wireName + " !== 'dx";
-          string notActive = notActiveWire(activeState, instr, arch).valueString();
-          addAssert(notActive + " || " + valCheck, debugInfo);
+
+          string activeStr =
+            blockActiveInState(activeState, instr->getParent(), arch).valueString();
+          addAssert(implies(activeStr, valCheck), debugInfo);
+          // string notActive = notActiveWire(activeState, instr, arch).valueString();
+          // addAssert(notActive + " || " + valCheck, debugInfo);
         }
       }
     }
