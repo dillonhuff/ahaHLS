@@ -2893,8 +2893,8 @@ namespace ahaHLS {
 
         priorValueController.statelessDefaults["in_data"] = "234";
         
-        //Wire stateActive = atStateWire(state, arch);
-        //Wire blkActive = arch.isActiveBlockVar(state, instr->getParent());
+        Wire stateActive = atStateWire(state, arch);
+        Wire blkActive = arch.isActiveBlockVar(state, instr->getParent());
         Wire blkActiveInState = blockActiveInState(state, instr->getParent(), arch);
 
         Wire instrProducedInState =
@@ -2903,17 +2903,20 @@ namespace ahaHLS {
                      arch);
         Wire instrProducedInStateActivation =
           checkAnd(blkActiveInState, instrProducedInState, arch);
-
         // Maybe this should be: atState, but block not active, or
         Wire instrNotProducedInStateActivation =
           checkAnd(blkActiveInState, checkNotWire(instrProducedInState, arch), arch);
-
         Wire containerBlockNotActiveInStateActivation =
-          chackAnd(stateActive, checkNotWire(), arch);
+          checkAnd(stateActive, checkNotWire(blkActive, arch), arch);
+
         ControlFlowPosition pos = position(state, instr, arch);        
         rc.values[instrProducedInStateActivation] = outputWire(instr, pos, arch);
-        rc.values[instrNotProducedInStateActivation] = priorValue;
-        rc.values[containerBlockNotActiveInStateActivation] = priorValue;
+        rc.values[checkAnd(stateActive,
+                           checkNotWire(instrProducedInStateActivation, arch),
+                           arch)] =
+          priorValue;
+        // rc.values[instrNotProducedInStateActivation] = priorValue;
+        // rc.values[containerBlockNotActiveInStateActivation] = priorValue;
 
         // // Problem: Computing the prior state number in the architecture
         // // requires a circuit that can convert the lastBB / nextBB numbers
