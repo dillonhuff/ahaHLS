@@ -2942,10 +2942,14 @@ namespace ahaHLS {
       // Build prior state wires
       map<StateId, Wire> isLastStateFlags;
       for (StateId possibleLast : possiblePriorStates(state, arch.stg)) {
+
+        // Note: Do not need atState check for this combinational logic?
         Wire atLast = checkEqual(possibleLast, lastStateWire, arch);
-        Wire lastTriggered =
-          checkAnd(atStateWire(state, arch), atLast, arch);
-        isLastStateFlags[possibleLast] = lastTriggered;
+        // Wire lastTriggered =
+        //   checkAnd(atStateWire(state, arch), atLast, arch);
+        // isLastStateFlags[possibleLast] = lastTriggered;
+
+        isLastStateFlags[possibleLast] = atLast;
       }
       
       for (pair<Instruction*, Wire> valStorage : dataRegisters.values) {
