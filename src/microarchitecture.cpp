@@ -2847,15 +2847,25 @@ namespace ahaHLS {
       WorldState& dataInputs = arch.dp.stateDataInputs[state];
 
       Wire lastStateWire = getLastStateReg(state, arch);
+
+      // Build prior state wires
+      map<StateId, Wire> isLastStateFlags;
+      for (StateId possibleLast : possiblePriorStates(state, arch.stg)) {
+        Wire atLast = checkEqual(possibleLast, lastStateWire, arch);
+        Wire lastTriggered =
+          checkAnd(atStateWire(state, arch), atLast, arch);
+        isLastStateFlags[possibleLast] = lastTriggered;
+      }
+      
       for (pair<Instruction*, Wire> valStorage : dataRegisters.values) {
 
         Instruction* instr = valStorage.first;
         
         // Instructions that are produced in the entry block have no
         // prior values, so storage registers for these instructions cannot be set
-        if ((state == 0) && (&(f->getEntryBlock()) == instr->getParent())) {
-          continue;
-        }
+        // if ((state == 0) && (&(f->getEntryBlock()) == instr->getParent())) {
+        //   continue;
+        // }
 
         //"_out_data"
         RegController& rc = arch.getController(valStorage.second);
@@ -2868,20 +2878,23 @@ namespace ahaHLS {
         Wire priorValue = priorValueController.functionalUnit().outputWire();
 
         // TODO: Set stateDataInputs correctly before setting stateData
-        for (StateId possibleLast : possiblePriorStates(state, arch.stg)) {
-          Wire atLast = checkEqual(possibleLast, lastStateWire, arch);
-          // Q: Do I really need to check if we are at the current state here?
-          // if the current state is not active this value will not be used anyway...
-          Wire lastTriggered =
-            checkAnd(atStateWire(state, arch), atLast, arch);
+        //for (StateId possibleLast : possiblePriorStates(state, arch.stg)) {
+        for (auto stP : isLastStateFlags) {
+          StateId possibleLast = stP.first;
+          Wire lastTriggered = stP.second;
+          // Wire atLast = checkEqual(possibleLast, lastStateWire, arch);
+          // // Q: Do I really need to check if we are at the current state here?
+          // // if the current state is not active this value will not be used anyway...
+          // Wire lastTriggered =
+          //   checkAnd(atStateWire(state, arch), atLast, arch);
           Wire priorData = arch.dp.stateData[possibleLast].values[instr];
           priorValueController.setCond("in_data", lastTriggered, priorData);
         }
 
         priorValueController.statelessDefaults["in_data"] = "234";
         
-        Wire stateActive = atStateWire(state, arch);
-        Wire blkActive = arch.isActiveBlockVar(state, instr->getParent());
+        //Wire stateActive = atStateWire(state, arch);
+        //Wire blkActive = arch.isActiveBlockVar(state, instr->getParent());
         Wire blkActiveInState = blockActiveInState(state, instr->getParent(), arch);
 
         Wire instrProducedInState =
@@ -2890,12 +2903,17 @@ namespace ahaHLS {
                      arch);
         Wire instrProducedInStateActivation =
           checkAnd(blkActiveInState, instrProducedInState, arch);
+
+        // Maybe this should be: atState, but block not active, or
         Wire instrNotProducedInStateActivation =
           checkAnd(blkActiveInState, checkNotWire(instrProducedInState, arch), arch);
 
+        Wire containerBlockNotActiveInStateActivation =
+          chackAnd(stateActive, checkNotWire(), arch);
         ControlFlowPosition pos = position(state, instr, arch);        
         rc.values[instrProducedInStateActivation] = outputWire(instr, pos, arch);
         rc.values[instrNotProducedInStateActivation] = priorValue;
+        rc.values[containerBlockNotActiveInStateActivation] = priorValue;
 
         // // Problem: Computing the prior state number in the architecture
         // // requires a circuit that can convert the lastBB / nextBB numbers
