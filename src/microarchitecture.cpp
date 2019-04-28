@@ -2042,15 +2042,15 @@ namespace ahaHLS {
     // and that no subsequent jumps were taken?
 
     // TODO: Check that lastBB conditions do not overlap?
-    for (auto jmp : possibleLastJumps(state, arch.stg)) {
-      StateId dst = dstState(jmp, arch.stg);
+    // for (auto jmp : possibleLastJumps(state, arch.stg)) {
+    //   StateId dst = dstState(jmp, arch.stg);
 
-      RegController& rc = arch.getController(lastBBReg(dst, arch));
+    //   RegController& rc = arch.getController(lastBBReg(dst, arch));
       
-      auto bbNo = arch.cs.getBasicBlockNo(jmp.jmp.first);
-      Wire condWire = map_find(jmp.jmp, arch.edgeTakenWires);
-      rc.values[condWire] = constWire(32, bbNo);
-    }
+    //   auto bbNo = arch.cs.getBasicBlockNo(jmp.jmp.first);
+    //   Wire condWire = map_find(jmp.jmp, arch.edgeTakenWires);
+    //   rc.values[condWire] = constWire(32, bbNo);
+    // }
 
     for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
       BasicBlock* srcBlk = transition.first;
@@ -2062,6 +2062,10 @@ namespace ahaHLS {
       addStateTransition(state, end, edgeTakenWire, arch);
 
       addBlockJump(transition.first, transition.second, edgeTakenWire, arch);
+
+      RegController& lastBBController =
+        arch.getController(lastBBReg(end, arch));
+      lastBBController.values[edgeTakenWire] = constWire(32, arch.cs.getBasicBlockNo(srcBlk));
     }
 
     for (auto instr : arch.stg.instructionsFinishingAt(state)) {
@@ -2075,6 +2079,10 @@ namespace ahaHLS {
         Wire condWire = blockActiveInState(state, instr->getParent(), arch);
         addStateTransition(state, dest, condWire, arch);
 
+        RegController& lastBBController =
+          arch.getController(lastBBReg(dest, arch));
+        lastBBController.values[condWire] = predecessor(state, instr->getParent(), arch);
+        
         // If the a return statement executes in a given block
         // then if there is not default behavior set the next block
         // to be the current block.
