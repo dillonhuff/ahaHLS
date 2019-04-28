@@ -932,6 +932,44 @@ namespace ahaHLS {
     REQUIRE(runIVerilogTB("mvmul"));
   }
 
+  TEST_CASE("Simple outer loop pipeline") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    auto mod = llvm::make_unique<Module>("simple outer loop pipeline", context);
+    setGlobalLLVMModule(mod.get());
+    std::vector<Type *> inputs{sramType(32, 16)->getPointerTo()};
+    Function* f = mkFunc(inputs, "simple_outer_loop", mod.get());
+
+    auto entryBlk = mkBB("entry_block", f);
+    auto outerEntryBlk = mkBB("outer_loop_entry_block", f);
+    auto outerExitBlk = mkBB("outer_loop_exit_block", f);
+    auto innerBlk = mkBB("inner_loop_block", f);
+    auto exitBlk = mkBB("exit_block", f);
+
+    IRBuilder<> entryBuilder(entryBlk);
+    entryBuilder.CreateBr(outerEntryBlk);
+
+    IRBuilder<> outerEntryBuilder(outerEntryBlk);
+    outerEntryBuilder.CreateBr(innerBlk);
+
+    IRBuilder<> innerBuilder(innerBlk);
+    auto innerLoopDone = mkInt(1, 1);    
+    innerBuilder.CreateCondBr(innerLoopDone, outerExitBlk, innerBlk);
+
+    IRBuilder<> outerExitBuilder(outerExitBlk);
+    auto outerLoopDone = mkInt(1, 1);
+    outerExitBuilder.CreateCondBr(outerLoopDone, exitBlk, outerEntryBlk);
+
+    IRBuilder<> exitBuilder(exitBlk);
+    exitBuilder.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+    
+  }
+
+
   TEST_CASE("AXI based memory transfer") {
 
     SMDiagnostic Err;
