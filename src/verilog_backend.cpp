@@ -1364,7 +1364,7 @@ namespace ahaHLS {
   void addControlSanityChecks(MicroArchitecture& arch,
                               VerilogDebugInfo& info) {
     noOverlappingLastBlockTransitions(arch, info);
-    noOverlappingNextBlockTransitions(arch, info);    
+    noOverlappingBlockTransitions(arch, info);    
     noBlocksActiveInStatesWhereTheyAreNotScheduled(arch, info);
     atLeastOneValidPhiInput(arch, info);
 

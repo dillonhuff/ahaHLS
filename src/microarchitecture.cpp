@@ -2100,7 +2100,14 @@ namespace ahaHLS {
 
       auto& cntr = nextBBController(dest, arch);
       cntr.values[condWire] = constWire(32, arch.cs.getBasicBlockNo(blk));
+
+      RegController& lastBBController =
+        arch.getController(lastBBReg(dest, arch));
+      lastBBController.values[condWire] = predecessor(state, blk, arch);
       
+      //auto bbNo = arch.cs.getBasicBlockNo(jmp.jmp.first);
+      //Wire condWire = map_find(jmp.jmp, arch.edgeTakenWires);
+      //rc.values[condWire] = constWire(32, bbNo);
     }
 
   }
