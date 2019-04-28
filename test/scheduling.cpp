@@ -939,7 +939,7 @@ namespace ahaHLS {
     auto mod = llvm::make_unique<Module>("simple outer loop pipeline", context);
     setGlobalLLVMModule(mod.get());
     std::vector<Type *> inputs{sramType(32, 16)->getPointerTo()};
-    Function* f = mkFunc(inputs, "simple_outer_loop", mod.get());
+    Function* f = mkFunc(inputs, "simple_outer_pipe", mod.get());
 
     auto entryBlk = mkBB("entry_block", f);
     auto outerEntryBlk = mkBB("outer_loop_entry_block", f);
@@ -951,14 +951,26 @@ namespace ahaHLS {
     entryBuilder.CreateBr(outerEntryBlk);
 
     IRBuilder<> outerEntryBuilder(outerEntryBlk);
+    auto indPhi = outerEntryBuilder.CreatePHI(intType(32), 2);
+    auto nextInd = outerEntryBuilder.CreateAdd(indPhi, mkInt(1, 32));
+
     outerEntryBuilder.CreateBr(innerBlk);
 
+    indPhi->addIncoming(mkInt(0, 32), entryBlk);
+    indPhi->addIncoming(nextInd, outerExitBlk);
+    
     IRBuilder<> innerBuilder(innerBlk);
-    auto innerLoopDone = mkInt(1, 1);    
+    auto innerInd = innerBuilder.CreatePHI(intType(32), 2);
+    auto nextInnerInd = innerBuilder.CreateAdd(innerInd, mkInt(1, 32));
+    auto innerLoopDone = innerBuilder.CreateICmpEQ(nextInnerInd, mkInt(4, 32));
     innerBuilder.CreateCondBr(innerLoopDone, outerExitBlk, innerBlk);
 
+    innerInd->addIncoming(mkInt(0, 32), outerEntryBlk);
+    innerInd->addIncoming(nextInnerInd, innerBlk);
+    
     IRBuilder<> outerExitBuilder(outerExitBlk);
-    auto outerLoopDone = mkInt(1, 1);
+    auto outerLoopDone = outerExitBuilder.CreateICmpEQ(nextInd, mkInt(5, 32));
+    storeRAMVal(outerExitBuilder, getArg(f, 0), indPhi, innerInd);
     outerExitBuilder.CreateCondBr(outerLoopDone, exitBlk, outerEntryBlk);
 
     IRBuilder<> exitBuilder(exitBlk);
@@ -966,6 +978,66 @@ namespace ahaHLS {
 
     cout << "LLVM Function" << endl;
     cout << valueString(f) << endl;
+
+    InterfaceFunctions interfaces;
+    
+    HardwareConstraints hcs = standardConstraints();
+    hcs.typeSpecs[string("SRAM_32_16")] =
+      [](StructType* tp) { return ramSpec(32, 16); };
+    hcs.typeSpecs["builtin_fifo_32"] = fifoSpec32;
+    
+    Function* ramRead = ramLoadFunction(getArg(f, 0));
+    interfaces.addFunction(ramRead);
+    implementRAMRead0(ramRead,
+                      interfaces.getConstraints(ramRead));
+
+    Function* ramWrite = ramStoreFunction(getArg(f, 0));
+    interfaces.addFunction(ramWrite);
+    implementRAMWrite0(ramWrite,
+                       interfaces.getConstraints(ramWrite));
+
+    SECTION("No pipelining") {
+      Schedule s = scheduleInterface(f, hcs, interfaces);
+      STG graph = buildSTG(s, f);
+
+      cout << "STG Is" << endl;
+      graph.print(cout);
+
+      map<string, int> testLayout = {{"arg_0", 0}};
+      map<llvm::Value*, int> layout;
+      auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+      VerilogDebugInfo info;
+      addNoXChecks(arch, info);
+
+      emitVerilog(arch, info);
+
+      // Create testing infrastructure
+      map<string, vector<int> > memoryInit{{"arg_0", {6}}};
+      // No
+      map<string, vector<int> > memoryExpected{{"arg_0", {4, 4, 4, 4, 4}}};
+
+      auto arg0 = dyn_cast<Argument>(getArg(f, 0));
+      string in0Name = string(arg0->getName());
+    
+      TestBenchSpec tb;
+      tb.memoryExpected = memoryExpected;
+      tb.runCycles = 100;
+      tb.name = "simple_outer_pipe";
+      tb.useModSpecs = true;
+      int startSetMemCycle = 1;
+    
+      int startRunCycle = startSetMemCycle + 2; 
+      map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+      map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+
+      int checkMemCycle = 40;
+      checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
+
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      REQUIRE(runIVerilogTB("simple_outer_pipe"));
+    }
     
   }
 
