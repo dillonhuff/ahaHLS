@@ -1171,66 +1171,99 @@ namespace ahaHLS {
     return parens(notStr(a) + " || " + b);
   }
 
-  void noOverlappingLastBlockTransitions(MicroArchitecture& arch,
-                                         VerilogDebugInfo& info) {
-    RegController& rc = arch.getController(arch.cs.getLastBB());
-    string inPipe = inAnyPipeline(arch).valueString();
-    //for (pair<string, string> condAndVal0 : rc.values) {
-    for (auto condAndVal0 : rc.values) {
-      //string cond0 = condAndVal0.first;
-      Wire cond0 = condAndVal0.first;
-      //for (pair<string, string> condAndVal1 : rc.values) {
-      for (auto condAndVal1 : rc.values) {
-        //string cond1 = condAndVal1.first;
-        Wire cond1 = condAndVal1.first;
+  // void noOverlappingLastBlockTransitions(MicroArchitecture& arch,
+  //                                        VerilogDebugInfo& info) {
+  //   RegController& rc = arch.getController(arch.cs.getLastBB());
+  //   string inPipe = inAnyPipeline(arch).valueString();
+  //   //for (pair<string, string> condAndVal0 : rc.values) {
+  //   for (auto condAndVal0 : rc.values) {
+  //     //string cond0 = condAndVal0.first;
+  //     Wire cond0 = condAndVal0.first;
+  //     //for (pair<string, string> condAndVal1 : rc.values) {
+  //     for (auto condAndVal1 : rc.values) {
+  //       //string cond1 = condAndVal1.first;
+  //       Wire cond1 = condAndVal1.first;
 
-        if (cond0.valueString() != cond1.valueString()) {
-          addAssert(implies(andStr(notStr(inPipe), cond0.valueString() + " === 1"),
-                            cond1.valueString() + " !== 1"),
-                    info);
-        }
-      }
+  //       if (cond0.valueString() != cond1.valueString()) {
+  //         addAssert(implies(andStr(notStr(inPipe), cond0.valueString() + " === 1"),
+  //                           cond1.valueString() + " !== 1"),
+  //                   info);
+  //       }
+  //     }
       
-    }
+  //   }
     
-  }
+  // }
   
   void noOverlappingStateTransitions(MicroArchitecture& arch,
                                      VerilogDebugInfo& info) {
-    RegController& rc = arch.getController(arch.cs.getGlobalState());
-    string inPipe = inAnyPipeline(arch).valueString();
-    for (auto condAndVal0 : rc.values) {
-      string cond0 = condAndVal0.first.valueString();
-      for (auto condAndVal1 : rc.values) {
-        string cond1 = condAndVal1.first.valueString();
 
-        if (cond0 != cond1) {
-          addAssert(implies(andStr(notStr(inPipe), cond0 + " === 1"),
-                            cond1 + " !== 1"),
-                    info);
+    
+    //RegController& rc = arch.getController(arch.cs.getGlobalState());
+
+    for (auto st : arch.stg.opStates) {
+      RegController& rc = arch.getController(stateActiveReg(st.first, arch));
+      string inPipe = inAnyPipeline(arch).valueString();
+      for (auto condAndVal0 : rc.values) {
+        string cond0 = condAndVal0.first.valueString();
+        for (auto condAndVal1 : rc.values) {
+          string cond1 = condAndVal1.first.valueString();
+
+          if (cond0 != cond1) {
+            addAssert(implies(andStr(notStr(inPipe), cond0 + " === 1"),
+                              cond1 + " !== 1"),
+                      info);
+          }
         }
-      }
       
+      }
     }
   }
 
   void noOverlappingBlockTransitions(MicroArchitecture& arch,
                                      VerilogDebugInfo& info) {
     // TODO: Get by wire...
-    RegController& rc = arch.getController("global_next_block");
-    string inPipe = inAnyPipeline(arch).valueString();
-    for (auto condAndVal0 : rc.values) {
-      string cond0 = condAndVal0.first.valueString();
-      for (auto condAndVal1 : rc.values) {
-        string cond1 = condAndVal1.first.valueString();
+    //RegController& rc = arch.getController("global_next_block");
 
-        if (cond0 != cond1) {
-          addAssert(implies(andStr(notStr(inPipe), cond0 + " === 1"),
-                            cond1 + " !== 1"),
-                    info);
+    for (auto st : arch.stg.opStates) {
+      RegController& rc = arch.getController(nextBBReg(st.first, arch));
+    
+      string inPipe = inAnyPipeline(arch).valueString();
+      for (auto condAndVal0 : rc.values) {
+        string cond0 = condAndVal0.first.valueString();
+        for (auto condAndVal1 : rc.values) {
+          string cond1 = condAndVal1.first.valueString();
+
+          if (cond0 != cond1) {
+            addAssert(implies(andStr(notStr(inPipe), cond0 + " === 1"),
+                              cond1 + " !== 1"),
+                      info);
+          }
         }
-      }
       
+      }
+    }
+  }
+
+  void noOverlappingLastBlockTransitions(MicroArchitecture& arch,
+                                         VerilogDebugInfo& info) {
+    for (auto st : arch.stg.opStates) {
+      RegController& rc = arch.getController(lastBBReg(st.first, arch));
+    
+      string inPipe = inAnyPipeline(arch).valueString();
+      for (auto condAndVal0 : rc.values) {
+        string cond0 = condAndVal0.first.valueString();
+        for (auto condAndVal1 : rc.values) {
+          string cond1 = condAndVal1.first.valueString();
+
+          if (cond0 != cond1) {
+            addAssert(implies(andStr(notStr(inPipe), cond0 + " === 1"),
+                              cond1 + " !== 1"),
+                      info);
+          }
+        }
+      
+      }
     }
   }
   
@@ -1331,9 +1364,13 @@ namespace ahaHLS {
   void addControlSanityChecks(MicroArchitecture& arch,
                               VerilogDebugInfo& info) {
     noOverlappingLastBlockTransitions(arch, info);
+    noOverlappingNextBlockTransitions(arch, info);    
     noBlocksActiveInStatesWhereTheyAreNotScheduled(arch, info);
     atLeastOneValidPhiInput(arch, info);
+
+    // TODO: Change to use new state flags
     noOverlappingStateTransitions(arch, info);
+    
     //printEdgeTakenWires(arch, info);
     //printAllActiveStates(arch, info);
     //noOverlappingBlockTransitions(arch, info);

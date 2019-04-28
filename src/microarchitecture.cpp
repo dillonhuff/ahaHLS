@@ -73,8 +73,6 @@ namespace ahaHLS {
                     const Wire jumpHappened,
                     MicroArchitecture& arch);
   
-  Wire nextBBReg(const StateId state, MicroArchitecture& arch);
-  
   Wire lastBlockActiveInState(const StateId st,
                               BasicBlock* const bb,
                               MicroArchitecture& arch);

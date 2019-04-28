@@ -681,5 +681,9 @@ namespace ahaHLS {
 
   void emitPipelineRegisterChains(MicroArchitecture& arch);
 
-  Wire stateActiveReg(const StateId state, MicroArchitecture& arch);  
+  Wire stateActiveReg(const StateId state, MicroArchitecture& arch);
+
+  Wire nextBBReg(const StateId state, MicroArchitecture& arch);
+  Wire lastBBReg(const StateId state, MicroArchitecture& arch);
+  
 }
