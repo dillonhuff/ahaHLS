@@ -2986,7 +2986,7 @@ namespace ahaHLS {
           priorValueController.setCond("in_data", lastTriggered, priorData);
         }
 
-        priorValueController.statelessDefaults["in_data"] = "234";
+        //priorValueController.statelessDefaults["in_data"] = "234";
         
         Wire stateActive = atStateWire(state, arch);
         Wire blkActive = arch.isActiveBlockVar(state, instr->getParent());
