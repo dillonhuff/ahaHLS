@@ -2901,8 +2901,20 @@ namespace ahaHLS {
 
   std::set<StateId> possiblePriorStates(const StateId state, STG& stg) {
     set<StateId> states;
+    states.insert(state);
+    if (state > 0) {
+      states.insert(state - 1);
+    }
+
     for (auto st : stg.opStates) {
-      states.insert(st.first);
+      for (auto transition : getOutOfStateTransitions(st.first, stg)) {
+        StateId dest = stg.blockStartState(transition.second);
+        if (dest == state) {
+          states.insert(stg.instructionStartState(transition.first->getTerminator()));
+        }
+      }
+      
+      //states.insert(st.first);
     }
     return states;
   }

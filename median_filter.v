@@ -24,14 +24,14 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// End debug wires and ports
 
 	// Start Functional Units
-	br_dummy br_unit();
-
 	reg [0:0] m_rst_n;
 	reg [31:0] m_word0;
 	reg [31:0] m_word1;
 	reg [31:0] m_word2;
 	wire [31:0] m_median_word;
 	median m(.clk(clk), .median_word(m_median_word), .rst_n(m_rst_n), .word0(m_word0), .word1(m_word1), .word2(m_word2));
+
+	br_dummy br_unit();
 
 	reg [63:0] phi_in_phi_8;
 	reg [31:0] phi_last_block_phi_8;
@@ -61,14 +61,6 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	wire [31:0] data_in_2_5_out_data;
 	hls_wire #(.WIDTH(32)) data_in_2_5(.in_data(data_in_2_5_in_data), .out_data(data_in_2_5_out_data));
 
-	reg [0:0] bb_0_active_in_state_0_in_data;
-	wire [0:0] bb_0_active_in_state_0_out_data;
-	hls_wire #(.WIDTH(1)) bb_0_active_in_state_0(.in_data(bb_0_active_in_state_0_in_data), .out_data(bb_0_active_in_state_0_out_data));
-
-	reg [31:0] bb_0_predecessor_in_state_0_in_data;
-	wire [31:0] bb_0_predecessor_in_state_0_out_data;
-	hls_wire #(.WIDTH(32)) bb_0_predecessor_in_state_0(.in_data(bb_0_predecessor_in_state_0_in_data), .out_data(bb_0_predecessor_in_state_0_out_data));
-
 	reg [0:0] bb_2_active_in_state_0_in_data;
 	wire [0:0] bb_2_active_in_state_0_out_data;
 	hls_wire #(.WIDTH(1)) bb_2_active_in_state_0(.in_data(bb_2_active_in_state_0_in_data), .out_data(bb_2_active_in_state_0_out_data));
@@ -76,6 +68,14 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	reg [31:0] bb_2_predecessor_in_state_0_in_data;
 	wire [31:0] bb_2_predecessor_in_state_0_out_data;
 	hls_wire #(.WIDTH(32)) bb_2_predecessor_in_state_0(.in_data(bb_2_predecessor_in_state_0_in_data), .out_data(bb_2_predecessor_in_state_0_out_data));
+
+	reg [0:0] bb_0_active_in_state_0_in_data;
+	wire [0:0] bb_0_active_in_state_0_out_data;
+	hls_wire #(.WIDTH(1)) bb_0_active_in_state_0(.in_data(bb_0_active_in_state_0_in_data), .out_data(bb_0_active_in_state_0_out_data));
+
+	reg [31:0] bb_0_predecessor_in_state_0_in_data;
+	wire [31:0] bb_0_predecessor_in_state_0_out_data;
+	hls_wire #(.WIDTH(32)) bb_0_predecessor_in_state_0(.in_data(bb_0_predecessor_in_state_0_in_data), .out_data(bb_0_predecessor_in_state_0_out_data));
 
 	reg [0:0] bb_2_active_in_state_1_in_data;
 	wire [0:0] bb_2_active_in_state_1_out_data;
@@ -101,14 +101,6 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	wire [31:0] bb_1_predecessor_in_state_2_out_data;
 	hls_wire #(.WIDTH(32)) bb_1_predecessor_in_state_2(.in_data(bb_1_predecessor_in_state_2_in_data), .out_data(bb_1_predecessor_in_state_2_out_data));
 
-	reg [0:0] bb_4_active_in_state_2_in_data;
-	wire [0:0] bb_4_active_in_state_2_out_data;
-	hls_wire #(.WIDTH(1)) bb_4_active_in_state_2(.in_data(bb_4_active_in_state_2_in_data), .out_data(bb_4_active_in_state_2_out_data));
-
-	reg [31:0] bb_4_predecessor_in_state_2_in_data;
-	wire [31:0] bb_4_predecessor_in_state_2_out_data;
-	hls_wire #(.WIDTH(32)) bb_4_predecessor_in_state_2(.in_data(bb_4_predecessor_in_state_2_in_data), .out_data(bb_4_predecessor_in_state_2_out_data));
-
 	reg [0:0] bb_2_active_in_state_2_in_data;
 	wire [0:0] bb_2_active_in_state_2_out_data;
 	hls_wire #(.WIDTH(1)) bb_2_active_in_state_2(.in_data(bb_2_active_in_state_2_in_data), .out_data(bb_2_active_in_state_2_out_data));
@@ -116,6 +108,14 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	reg [31:0] bb_2_predecessor_in_state_2_in_data;
 	wire [31:0] bb_2_predecessor_in_state_2_out_data;
 	hls_wire #(.WIDTH(32)) bb_2_predecessor_in_state_2(.in_data(bb_2_predecessor_in_state_2_in_data), .out_data(bb_2_predecessor_in_state_2_out_data));
+
+	reg [0:0] bb_4_active_in_state_2_in_data;
+	wire [0:0] bb_4_active_in_state_2_out_data;
+	hls_wire #(.WIDTH(1)) bb_4_active_in_state_2(.in_data(bb_4_active_in_state_2_in_data), .out_data(bb_4_active_in_state_2_out_data));
+
+	reg [31:0] bb_4_predecessor_in_state_2_in_data;
+	wire [31:0] bb_4_predecessor_in_state_2_out_data;
+	hls_wire #(.WIDTH(32)) bb_4_predecessor_in_state_2(.in_data(bb_4_predecessor_in_state_2_in_data), .out_data(bb_4_predecessor_in_state_2_out_data));
 
 	reg [0:0] andOp_6_in0;
 	reg [0:0] andOp_6_in1;
@@ -127,9 +127,9 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	wire [0:0] andOp_7_out;
 	andOp #(.WIDTH(1)) andOp_7(.in0(andOp_7_in0), .in1(andOp_7_in1), .out(andOp_7_out));
 
-	reg [0:0] br_0_happened_in_state_0_in_data;
-	wire [0:0] br_0_happened_in_state_0_out_data;
-	hls_wire #(.WIDTH(1)) br_0_happened_in_state_0(.in_data(br_0_happened_in_state_0_in_data), .out_data(br_0_happened_in_state_0_out_data));
+	reg [0:0] br_2_happened_in_state_0_in_data;
+	wire [0:0] br_2_happened_in_state_0_out_data;
+	hls_wire #(.WIDTH(1)) br_2_happened_in_state_0(.in_data(br_2_happened_in_state_0_in_data), .out_data(br_2_happened_in_state_0_out_data));
 
 	reg [0:0] notOp_8_in0;
 	wire [0:0] notOp_8_out;
@@ -145,9 +145,9 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	wire [0:0] andOp_10_out;
 	andOp #(.WIDTH(1)) andOp_10(.in0(andOp_10_in0), .in1(andOp_10_in1), .out(andOp_10_out));
 
-	reg [0:0] br_2_happened_in_state_0_in_data;
-	wire [0:0] br_2_happened_in_state_0_out_data;
-	hls_wire #(.WIDTH(1)) br_2_happened_in_state_0(.in_data(br_2_happened_in_state_0_in_data), .out_data(br_2_happened_in_state_0_out_data));
+	reg [0:0] br_0_happened_in_state_0_in_data;
+	wire [0:0] br_0_happened_in_state_0_out_data;
+	hls_wire #(.WIDTH(1)) br_0_happened_in_state_0(.in_data(br_0_happened_in_state_0_in_data), .out_data(br_0_happened_in_state_0_out_data));
 
 	reg [0:0] notOp_11_in0;
 	wire [0:0] notOp_11_out;
@@ -199,9 +199,9 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	wire [0:0] andOp_19_out;
 	andOp #(.WIDTH(1)) andOp_19(.in0(andOp_19_in0), .in1(andOp_19_in1), .out(andOp_19_out));
 
-	reg [0:0] br_4_happened_in_state_2_in_data;
-	wire [0:0] br_4_happened_in_state_2_out_data;
-	hls_wire #(.WIDTH(1)) br_4_happened_in_state_2(.in_data(br_4_happened_in_state_2_in_data), .out_data(br_4_happened_in_state_2_out_data));
+	reg [0:0] br_2_happened_in_state_2_in_data;
+	wire [0:0] br_2_happened_in_state_2_out_data;
+	hls_wire #(.WIDTH(1)) br_2_happened_in_state_2(.in_data(br_2_happened_in_state_2_in_data), .out_data(br_2_happened_in_state_2_out_data));
 
 	reg [0:0] notOp_20_in0;
 	wire [0:0] notOp_20_out;
@@ -212,47 +212,47 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	wire [0:0] andOp_21_out;
 	andOp #(.WIDTH(1)) andOp_21(.in0(andOp_21_in0), .in1(andOp_21_in1), .out(andOp_21_out));
 
-	reg [0:0] notOp_22_in0;
-	wire [0:0] notOp_22_out;
-	notOp #(.WIDTH(1)) notOp_22(.in(notOp_22_in0), .out(notOp_22_out));
+	reg [0:0] andOp_22_in0;
+	reg [0:0] andOp_22_in1;
+	wire [0:0] andOp_22_out;
+	andOp #(.WIDTH(1)) andOp_22(.in0(andOp_22_in0), .in1(andOp_22_in1), .out(andOp_22_out));
 
-	reg [0:0] andOp_23_in0;
-	reg [0:0] andOp_23_in1;
-	wire [0:0] andOp_23_out;
-	andOp #(.WIDTH(1)) andOp_23(.in0(andOp_23_in0), .in1(andOp_23_in1), .out(andOp_23_out));
+	reg [0:0] br_4_happened_in_state_2_in_data;
+	wire [0:0] br_4_happened_in_state_2_out_data;
+	hls_wire #(.WIDTH(1)) br_4_happened_in_state_2(.in_data(br_4_happened_in_state_2_in_data), .out_data(br_4_happened_in_state_2_out_data));
+
+	reg [0:0] notOp_23_in0;
+	wire [0:0] notOp_23_out;
+	notOp #(.WIDTH(1)) notOp_23(.in(notOp_23_in0), .out(notOp_23_out));
 
 	reg [0:0] andOp_24_in0;
 	reg [0:0] andOp_24_in1;
 	wire [0:0] andOp_24_out;
 	andOp #(.WIDTH(1)) andOp_24(.in0(andOp_24_in0), .in1(andOp_24_in1), .out(andOp_24_out));
 
-	reg [0:0] andOp_25_in0;
-	reg [0:0] andOp_25_in1;
-	wire [0:0] andOp_25_out;
-	andOp #(.WIDTH(1)) andOp_25(.in0(andOp_25_in0), .in1(andOp_25_in1), .out(andOp_25_out));
+	reg [0:0] notOp_25_in0;
+	wire [0:0] notOp_25_out;
+	notOp #(.WIDTH(1)) notOp_25(.in(notOp_25_in0), .out(notOp_25_out));
 
-	reg [0:0] br_2_happened_in_state_2_in_data;
-	wire [0:0] br_2_happened_in_state_2_out_data;
-	hls_wire #(.WIDTH(1)) br_2_happened_in_state_2(.in_data(br_2_happened_in_state_2_in_data), .out_data(br_2_happened_in_state_2_out_data));
-
-	reg [0:0] notOp_26_in0;
-	wire [0:0] notOp_26_out;
-	notOp #(.WIDTH(1)) notOp_26(.in(notOp_26_in0), .out(notOp_26_out));
+	reg [0:0] andOp_26_in0;
+	reg [0:0] andOp_26_in1;
+	wire [0:0] andOp_26_out;
+	andOp #(.WIDTH(1)) andOp_26(.in0(andOp_26_in0), .in1(andOp_26_in1), .out(andOp_26_out));
 
 	reg [31:0] eq_27_in0;
 	reg [31:0] eq_27_in1;
 	wire [0:0] eq_27_out;
 	eq #(.WIDTH(32)) eq_27(.in0(eq_27_in0), .in1(eq_27_in1), .out(eq_27_out));
 
-	reg [31:0] eq_28_in0;
-	reg [31:0] eq_28_in1;
-	wire [0:0] eq_28_out;
-	eq #(.WIDTH(32)) eq_28(.in0(eq_28_in0), .in1(eq_28_in1), .out(eq_28_out));
+	reg [0:0] orOp_28_in0;
+	reg [0:0] orOp_28_in1;
+	wire [0:0] orOp_28_out;
+	orOp #(.WIDTH(1)) orOp_28(.in0(orOp_28_in0), .in1(orOp_28_in1), .out(orOp_28_out));
 
-	reg [0:0] orOp_29_in0;
-	reg [0:0] orOp_29_in1;
-	wire [0:0] orOp_29_out;
-	orOp #(.WIDTH(1)) orOp_29(.in0(orOp_29_in0), .in1(orOp_29_in1), .out(orOp_29_out));
+	reg [31:0] eq_29_in0;
+	reg [31:0] eq_29_in1;
+	wire [0:0] eq_29_out;
+	eq #(.WIDTH(32)) eq_29(.in0(eq_29_in0), .in1(eq_29_in1), .out(eq_29_out));
 
 	reg [31:0] eq_30_in0;
 	reg [31:0] eq_30_in1;
@@ -284,34 +284,34 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	wire [0:0] eq_35_out;
 	eq #(.WIDTH(32)) eq_35(.in0(eq_35_in0), .in1(eq_35_in1), .out(eq_35_out));
 
-	reg [0:0] orOp_36_in0;
-	reg [0:0] orOp_36_in1;
-	wire [0:0] orOp_36_out;
-	orOp #(.WIDTH(1)) orOp_36(.in0(orOp_36_in0), .in1(orOp_36_in1), .out(orOp_36_out));
+	reg [31:0] eq_36_in0;
+	reg [31:0] eq_36_in1;
+	wire [0:0] eq_36_out;
+	eq #(.WIDTH(32)) eq_36(.in0(eq_36_in0), .in1(eq_36_in1), .out(eq_36_out));
 
-	reg [31:0] eq_37_in0;
-	reg [31:0] eq_37_in1;
-	wire [0:0] eq_37_out;
-	eq #(.WIDTH(32)) eq_37(.in0(eq_37_in0), .in1(eq_37_in1), .out(eq_37_out));
+	reg [0:0] orOp_37_in0;
+	reg [0:0] orOp_37_in1;
+	wire [0:0] orOp_37_out;
+	orOp #(.WIDTH(1)) orOp_37(.in0(orOp_37_in0), .in1(orOp_37_in1), .out(orOp_37_out));
 
 	reg [31:0] eq_38_in0;
 	reg [31:0] eq_38_in1;
 	wire [0:0] eq_38_out;
 	eq #(.WIDTH(32)) eq_38(.in0(eq_38_in0), .in1(eq_38_in1), .out(eq_38_out));
 
-	reg [31:0] eq_39_in0;
-	reg [31:0] eq_39_in1;
-	wire [0:0] eq_39_out;
-	eq #(.WIDTH(32)) eq_39(.in0(eq_39_in0), .in1(eq_39_in1), .out(eq_39_out));
+	reg [0:0] notOp_39_in0;
+	wire [0:0] notOp_39_out;
+	notOp #(.WIDTH(1)) notOp_39(.in(notOp_39_in0), .out(notOp_39_out));
 
-	reg [0:0] notOp_40_in0;
-	wire [0:0] notOp_40_out;
-	notOp #(.WIDTH(1)) notOp_40(.in(notOp_40_in0), .out(notOp_40_out));
+	reg [0:0] andOp_40_in0;
+	reg [0:0] andOp_40_in1;
+	wire [0:0] andOp_40_out;
+	andOp #(.WIDTH(1)) andOp_40(.in0(andOp_40_in0), .in1(andOp_40_in1), .out(andOp_40_out));
 
-	reg [0:0] andOp_41_in0;
-	reg [0:0] andOp_41_in1;
-	wire [0:0] andOp_41_out;
-	andOp #(.WIDTH(1)) andOp_41(.in0(andOp_41_in0), .in1(andOp_41_in1), .out(andOp_41_out));
+	reg [31:0] eq_41_in0;
+	reg [31:0] eq_41_in1;
+	wire [0:0] eq_41_out;
+	eq #(.WIDTH(32)) eq_41(.in0(eq_41_in0), .in1(eq_41_in1), .out(eq_41_out));
 
 	reg [31:0] eq_42_in0;
 	reg [31:0] eq_42_in1;
@@ -351,19 +351,19 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	wire [0:0] eq_49_out;
 	eq #(.WIDTH(32)) eq_49(.in0(eq_49_in0), .in1(eq_49_in1), .out(eq_49_out));
 
-	reg [0:0] notOp_50_in0;
-	wire [0:0] notOp_50_out;
-	notOp #(.WIDTH(1)) notOp_50(.in(notOp_50_in0), .out(notOp_50_out));
+	reg [31:0] eq_50_in0;
+	reg [31:0] eq_50_in1;
+	wire [0:0] eq_50_out;
+	eq #(.WIDTH(32)) eq_50(.in0(eq_50_in0), .in1(eq_50_in1), .out(eq_50_out));
 
-	reg [0:0] andOp_51_in0;
-	reg [0:0] andOp_51_in1;
-	wire [0:0] andOp_51_out;
-	andOp #(.WIDTH(1)) andOp_51(.in0(andOp_51_in0), .in1(andOp_51_in1), .out(andOp_51_out));
+	reg [0:0] notOp_51_in0;
+	wire [0:0] notOp_51_out;
+	notOp #(.WIDTH(1)) notOp_51(.in(notOp_51_in0), .out(notOp_51_out));
 
-	reg [31:0] eq_52_in0;
-	reg [31:0] eq_52_in1;
-	wire [0:0] eq_52_out;
-	eq #(.WIDTH(32)) eq_52(.in0(eq_52_in0), .in1(eq_52_in1), .out(eq_52_out));
+	reg [0:0] andOp_52_in0;
+	reg [0:0] andOp_52_in1;
+	wire [0:0] andOp_52_out;
+	andOp #(.WIDTH(1)) andOp_52(.in0(andOp_52_in0), .in1(andOp_52_in1), .out(andOp_52_out));
 
 	reg [0:0] andOp_53_in0;
 	reg [0:0] andOp_53_in1;
@@ -516,10 +516,10 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	wire [0:0] eq_83_out;
 	eq #(.WIDTH(32)) eq_83(.in0(eq_83_in0), .in1(eq_83_in1), .out(eq_83_out));
 
-	reg [31:0] eq_84_in0;
-	reg [31:0] eq_84_in1;
-	wire [0:0] eq_84_out;
-	eq #(.WIDTH(32)) eq_84(.in0(eq_84_in0), .in1(eq_84_in1), .out(eq_84_out));
+	reg [0:0] andOp_84_in0;
+	reg [0:0] andOp_84_in1;
+	wire [0:0] andOp_84_out;
+	andOp #(.WIDTH(1)) andOp_84(.in0(andOp_84_in0), .in1(andOp_84_in1), .out(andOp_84_out));
 
 	reg [31:0] eq_85_in0;
 	reg [31:0] eq_85_in1;
@@ -531,10 +531,9 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	wire [0:0] andOp_86_out;
 	andOp #(.WIDTH(1)) andOp_86(.in0(andOp_86_in0), .in1(andOp_86_in1), .out(andOp_86_out));
 
-	reg [31:0] eq_87_in0;
-	reg [31:0] eq_87_in1;
-	wire [0:0] eq_87_out;
-	eq #(.WIDTH(32)) eq_87(.in0(eq_87_in0), .in1(eq_87_in1), .out(eq_87_out));
+	reg [0:0] notOp_87_in0;
+	wire [0:0] notOp_87_out;
+	notOp #(.WIDTH(1)) notOp_87(.in(notOp_87_in0), .out(notOp_87_out));
 
 	reg [0:0] andOp_88_in0;
 	reg [0:0] andOp_88_in1;
@@ -559,66 +558,67 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	wire [0:0] andOp_92_out;
 	andOp #(.WIDTH(1)) andOp_92(.in0(andOp_92_in0), .in1(andOp_92_in1), .out(andOp_92_out));
 
-	reg [0:0] notOp_93_in0;
-	wire [0:0] notOp_93_out;
-	notOp #(.WIDTH(1)) notOp_93(.in(notOp_93_in0), .out(notOp_93_out));
+	reg [31:0] eq_93_in0;
+	reg [31:0] eq_93_in1;
+	wire [0:0] eq_93_out;
+	eq #(.WIDTH(32)) eq_93(.in0(eq_93_in0), .in1(eq_93_in1), .out(eq_93_out));
 
-	reg [0:0] andOp_94_in0;
-	reg [0:0] andOp_94_in1;
-	wire [0:0] andOp_94_out;
-	andOp #(.WIDTH(1)) andOp_94(.in0(andOp_94_in0), .in1(andOp_94_in1), .out(andOp_94_out));
+	reg [31:0] eq_94_in0;
+	reg [31:0] eq_94_in1;
+	wire [0:0] eq_94_out;
+	eq #(.WIDTH(32)) eq_94(.in0(eq_94_in0), .in1(eq_94_in1), .out(eq_94_out));
 
-	reg [31:0] eq_95_in0;
-	reg [31:0] eq_95_in1;
-	wire [0:0] eq_95_out;
-	eq #(.WIDTH(32)) eq_95(.in0(eq_95_in0), .in1(eq_95_in1), .out(eq_95_out));
+	reg [0:0] andOp_95_in0;
+	reg [0:0] andOp_95_in1;
+	wire [0:0] andOp_95_out;
+	andOp #(.WIDTH(1)) andOp_95(.in0(andOp_95_in0), .in1(andOp_95_in1), .out(andOp_95_out));
 
 	reg [31:0] eq_96_in0;
 	reg [31:0] eq_96_in1;
 	wire [0:0] eq_96_out;
 	eq #(.WIDTH(32)) eq_96(.in0(eq_96_in0), .in1(eq_96_in1), .out(eq_96_out));
 
-	reg [31:0] eq_97_in0;
-	reg [31:0] eq_97_in1;
-	wire [0:0] eq_97_out;
-	eq #(.WIDTH(32)) eq_97(.in0(eq_97_in0), .in1(eq_97_in1), .out(eq_97_out));
+	reg [0:0] andOp_97_in0;
+	reg [0:0] andOp_97_in1;
+	wire [0:0] andOp_97_out;
+	andOp #(.WIDTH(1)) andOp_97(.in0(andOp_97_in0), .in1(andOp_97_in1), .out(andOp_97_out));
 
-	reg [0:0] andOp_98_in0;
-	reg [0:0] andOp_98_in1;
-	wire [0:0] andOp_98_out;
-	andOp #(.WIDTH(1)) andOp_98(.in0(andOp_98_in0), .in1(andOp_98_in1), .out(andOp_98_out));
+	reg [0:0] notOp_98_in0;
+	wire [0:0] notOp_98_out;
+	notOp #(.WIDTH(1)) notOp_98(.in(notOp_98_in0), .out(notOp_98_out));
 
-	reg [31:0] eq_99_in0;
-	reg [31:0] eq_99_in1;
-	wire [0:0] eq_99_out;
-	eq #(.WIDTH(32)) eq_99(.in0(eq_99_in0), .in1(eq_99_in1), .out(eq_99_out));
+	reg [0:0] andOp_99_in0;
+	reg [0:0] andOp_99_in1;
+	wire [0:0] andOp_99_out;
+	andOp #(.WIDTH(1)) andOp_99(.in0(andOp_99_in0), .in1(andOp_99_in1), .out(andOp_99_out));
 
-	reg [0:0] andOp_100_in0;
-	reg [0:0] andOp_100_in1;
-	wire [0:0] andOp_100_out;
-	andOp #(.WIDTH(1)) andOp_100(.in0(andOp_100_in0), .in1(andOp_100_in1), .out(andOp_100_out));
+	reg [0:0] notOp_100_in0;
+	wire [0:0] notOp_100_out;
+	notOp #(.WIDTH(1)) notOp_100(.in(notOp_100_in0), .out(notOp_100_out));
 
-	reg [0:0] notOp_101_in0;
-	wire [0:0] notOp_101_out;
-	notOp #(.WIDTH(1)) notOp_101(.in(notOp_101_in0), .out(notOp_101_out));
+	reg [0:0] andOp_101_in0;
+	reg [0:0] andOp_101_in1;
+	wire [0:0] andOp_101_out;
+	andOp #(.WIDTH(1)) andOp_101(.in0(andOp_101_in0), .in1(andOp_101_in1), .out(andOp_101_out));
 
-	reg [0:0] andOp_102_in0;
-	reg [0:0] andOp_102_in1;
-	wire [0:0] andOp_102_out;
-	andOp #(.WIDTH(1)) andOp_102(.in0(andOp_102_in0), .in1(andOp_102_in1), .out(andOp_102_out));
+	reg [0:0] notOp_102_in0;
+	wire [0:0] notOp_102_out;
+	notOp #(.WIDTH(1)) notOp_102(.in(notOp_102_in0), .out(notOp_102_out));
 
-	reg [0:0] notOp_103_in0;
-	wire [0:0] notOp_103_out;
-	notOp #(.WIDTH(1)) notOp_103(.in(notOp_103_in0), .out(notOp_103_out));
+	reg [0:0] andOp_103_in0;
+	reg [0:0] andOp_103_in1;
+	wire [0:0] andOp_103_out;
+	andOp #(.WIDTH(1)) andOp_103(.in0(andOp_103_in0), .in1(andOp_103_in1), .out(andOp_103_out));
 
-	reg [0:0] andOp_104_in0;
-	reg [0:0] andOp_104_in1;
-	wire [0:0] andOp_104_out;
-	andOp #(.WIDTH(1)) andOp_104(.in0(andOp_104_in0), .in1(andOp_104_in1), .out(andOp_104_out));
+	reg [31:0] eq_104_in0;
+	reg [31:0] eq_104_in1;
+	wire [0:0] eq_104_out;
+	eq #(.WIDTH(32)) eq_104(.in0(eq_104_in0), .in1(eq_104_in1), .out(eq_104_out));
 
-	reg [0:0] notOp_105_in0;
-	wire [0:0] notOp_105_out;
-	notOp #(.WIDTH(1)) notOp_105(.in(notOp_105_in0), .out(notOp_105_out));
+	reg [31:0] eq_105_in0;
+	reg [31:0] eq_105_in1;
+	wire [0:0] eq_105_out;
+	eq #(.WIDTH(32)) eq_105(.in0(eq_105_in0), .in1(eq_105_in1), .out(eq_105_out));
 
 	reg [0:0] andOp_106_in0;
 	reg [0:0] andOp_106_in1;
@@ -630,25 +630,23 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	wire [0:0] eq_107_out;
 	eq #(.WIDTH(32)) eq_107(.in0(eq_107_in0), .in1(eq_107_in1), .out(eq_107_out));
 
-	reg [31:0] eq_108_in0;
-	reg [31:0] eq_108_in1;
-	wire [0:0] eq_108_out;
-	eq #(.WIDTH(32)) eq_108(.in0(eq_108_in0), .in1(eq_108_in1), .out(eq_108_out));
+	reg [0:0] andOp_108_in0;
+	reg [0:0] andOp_108_in1;
+	wire [0:0] andOp_108_out;
+	andOp #(.WIDTH(1)) andOp_108(.in0(andOp_108_in0), .in1(andOp_108_in1), .out(andOp_108_out));
 
-	reg [31:0] eq_109_in0;
-	reg [31:0] eq_109_in1;
-	wire [0:0] eq_109_out;
-	eq #(.WIDTH(32)) eq_109(.in0(eq_109_in0), .in1(eq_109_in1), .out(eq_109_out));
+	reg [0:0] notOp_109_in0;
+	wire [0:0] notOp_109_out;
+	notOp #(.WIDTH(1)) notOp_109(.in(notOp_109_in0), .out(notOp_109_out));
 
 	reg [0:0] andOp_110_in0;
 	reg [0:0] andOp_110_in1;
 	wire [0:0] andOp_110_out;
 	andOp #(.WIDTH(1)) andOp_110(.in0(andOp_110_in0), .in1(andOp_110_in1), .out(andOp_110_out));
 
-	reg [31:0] eq_111_in0;
-	reg [31:0] eq_111_in1;
-	wire [0:0] eq_111_out;
-	eq #(.WIDTH(32)) eq_111(.in0(eq_111_in0), .in1(eq_111_in1), .out(eq_111_out));
+	reg [0:0] notOp_111_in0;
+	wire [0:0] notOp_111_out;
+	notOp #(.WIDTH(1)) notOp_111(.in(notOp_111_in0), .out(notOp_111_out));
 
 	reg [0:0] andOp_112_in0;
 	reg [0:0] andOp_112_in1;
@@ -663,24 +661,6 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	reg [0:0] andOp_114_in1;
 	wire [0:0] andOp_114_out;
 	andOp #(.WIDTH(1)) andOp_114(.in0(andOp_114_in0), .in1(andOp_114_in1), .out(andOp_114_out));
-
-	reg [0:0] notOp_115_in0;
-	wire [0:0] notOp_115_out;
-	notOp #(.WIDTH(1)) notOp_115(.in(notOp_115_in0), .out(notOp_115_out));
-
-	reg [0:0] andOp_116_in0;
-	reg [0:0] andOp_116_in1;
-	wire [0:0] andOp_116_out;
-	andOp #(.WIDTH(1)) andOp_116(.in0(andOp_116_in0), .in1(andOp_116_in1), .out(andOp_116_out));
-
-	reg [0:0] notOp_117_in0;
-	wire [0:0] notOp_117_out;
-	notOp #(.WIDTH(1)) notOp_117(.in(notOp_117_in0), .out(notOp_117_out));
-
-	reg [0:0] andOp_118_in0;
-	reg [0:0] andOp_118_in1;
-	wire [0:0] andOp_118_out;
-	andOp #(.WIDTH(1)) andOp_118(.in0(andOp_118_in0), .in1(andOp_118_in1), .out(andOp_118_out));
 
 	// End Functional Units
 
@@ -716,68 +696,54 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		andOp_10_in0 = valid ? andOp_9_out : andOp_9_out;
 		andOp_10_in1 = valid ? 1'd1 : 1'd1;
 	end
-	// controller for andOp_100.andOp_100_in0
-	// controller for andOp_100.andOp_100_in1
+	// controller for andOp_101.andOp_101_in0
+	// controller for andOp_101.andOp_101_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_100_in0 = valid ? andOp_98_out : andOp_98_out;
-		andOp_100_in1 = valid ? eq_99_out : eq_99_out;
+		andOp_101_in0 = valid ? state_1_is_active : state_1_is_active;
+		andOp_101_in1 = valid ? notOp_100_out : notOp_100_out;
 	end
-	// controller for andOp_102.andOp_102_in0
-	// controller for andOp_102.andOp_102_in1
+	// controller for andOp_103.andOp_103_in0
+	// controller for andOp_103.andOp_103_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_102_in0 = valid ? andOp_98_out : andOp_98_out;
-		andOp_102_in1 = valid ? notOp_101_out : notOp_101_out;
-	end
-	// controller for andOp_104.andOp_104_in0
-	// controller for andOp_104.andOp_104_in1
-	// Insensitive connections
-	always @(*) begin
-		andOp_104_in0 = valid ? state_1_is_active : state_1_is_active;
-		andOp_104_in1 = valid ? notOp_103_out : notOp_103_out;
+		andOp_103_in0 = valid ? state_1_is_active : state_1_is_active;
+		andOp_103_in1 = valid ? notOp_102_out : notOp_102_out;
 	end
 	// controller for andOp_106.andOp_106_in0
 	// controller for andOp_106.andOp_106_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_106_in0 = valid ? state_1_is_active : state_1_is_active;
-		andOp_106_in1 = valid ? notOp_105_out : notOp_105_out;
+		andOp_106_in0 = valid ? bb_4_active_in_state_2_out_data : bb_4_active_in_state_2_out_data;
+		andOp_106_in1 = valid ? state_2_is_active : state_2_is_active;
+	end
+	// controller for andOp_108.andOp_108_in0
+	// controller for andOp_108.andOp_108_in1
+	// Insensitive connections
+	always @(*) begin
+		andOp_108_in0 = valid ? andOp_106_out : andOp_106_out;
+		andOp_108_in1 = valid ? eq_107_out : eq_107_out;
 	end
 	// controller for andOp_110.andOp_110_in0
 	// controller for andOp_110.andOp_110_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_110_in0 = valid ? bb_4_active_in_state_2_out_data : bb_4_active_in_state_2_out_data;
-		andOp_110_in1 = valid ? state_2_is_active : state_2_is_active;
+		andOp_110_in0 = valid ? andOp_106_out : andOp_106_out;
+		andOp_110_in1 = valid ? notOp_109_out : notOp_109_out;
 	end
 	// controller for andOp_112.andOp_112_in0
 	// controller for andOp_112.andOp_112_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_112_in0 = valid ? andOp_110_out : andOp_110_out;
-		andOp_112_in1 = valid ? eq_111_out : eq_111_out;
+		andOp_112_in0 = valid ? state_2_is_active : state_2_is_active;
+		andOp_112_in1 = valid ? notOp_111_out : notOp_111_out;
 	end
 	// controller for andOp_114.andOp_114_in0
 	// controller for andOp_114.andOp_114_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_114_in0 = valid ? andOp_110_out : andOp_110_out;
+		andOp_114_in0 = valid ? state_2_is_active : state_2_is_active;
 		andOp_114_in1 = valid ? notOp_113_out : notOp_113_out;
-	end
-	// controller for andOp_116.andOp_116_in0
-	// controller for andOp_116.andOp_116_in1
-	// Insensitive connections
-	always @(*) begin
-		andOp_116_in0 = valid ? state_2_is_active : state_2_is_active;
-		andOp_116_in1 = valid ? notOp_115_out : notOp_115_out;
-	end
-	// controller for andOp_118.andOp_118_in0
-	// controller for andOp_118.andOp_118_in1
-	// Insensitive connections
-	always @(*) begin
-		andOp_118_in0 = valid ? state_2_is_active : state_2_is_active;
-		andOp_118_in1 = valid ? notOp_117_out : notOp_117_out;
 	end
 	// controller for andOp_12.andOp_12_in0
 	// controller for andOp_12.andOp_12_in1
@@ -811,7 +777,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// controller for andOp_18.andOp_18_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_18_in0 = valid ? bb_4_active_in_state_2_out_data : bb_4_active_in_state_2_out_data;
+		andOp_18_in0 = valid ? bb_2_active_in_state_2_out_data : bb_2_active_in_state_2_out_data;
 		andOp_18_in1 = valid ? state_2_is_active : state_2_is_active;
 	end
 	// controller for andOp_19.andOp_19_in0
@@ -825,43 +791,43 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// controller for andOp_21.andOp_21_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_21_in0 = valid ? andOp_19_out : andOp_19_out;
-		andOp_21_in1 = valid ? cmp_out_icmp_18 : cmp_out_icmp_18;
+		andOp_21_in0 = valid ? bb_4_active_in_state_2_out_data : bb_4_active_in_state_2_out_data;
+		andOp_21_in1 = valid ? state_2_is_active : state_2_is_active;
 	end
-	// controller for andOp_23.andOp_23_in0
-	// controller for andOp_23.andOp_23_in1
+	// controller for andOp_22.andOp_22_in0
+	// controller for andOp_22.andOp_22_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_23_in0 = valid ? andOp_19_out : andOp_19_out;
-		andOp_23_in1 = valid ? notOp_22_out : notOp_22_out;
+		andOp_22_in0 = valid ? andOp_21_out : andOp_21_out;
+		andOp_22_in1 = valid ? 1'd1 : 1'd1;
 	end
 	// controller for andOp_24.andOp_24_in0
 	// controller for andOp_24.andOp_24_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_24_in0 = valid ? bb_2_active_in_state_2_out_data : bb_2_active_in_state_2_out_data;
-		andOp_24_in1 = valid ? state_2_is_active : state_2_is_active;
+		andOp_24_in0 = valid ? andOp_22_out : andOp_22_out;
+		andOp_24_in1 = valid ? cmp_out_icmp_18 : cmp_out_icmp_18;
 	end
-	// controller for andOp_25.andOp_25_in0
-	// controller for andOp_25.andOp_25_in1
+	// controller for andOp_26.andOp_26_in0
+	// controller for andOp_26.andOp_26_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_25_in0 = valid ? andOp_24_out : andOp_24_out;
-		andOp_25_in1 = valid ? 1'd1 : 1'd1;
+		andOp_26_in0 = valid ? andOp_22_out : andOp_22_out;
+		andOp_26_in1 = valid ? notOp_25_out : notOp_25_out;
 	end
-	// controller for andOp_41.andOp_41_in0
-	// controller for andOp_41.andOp_41_in1
+	// controller for andOp_40.andOp_40_in0
+	// controller for andOp_40.andOp_40_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_41_in0 = valid ? notOp_40_out : notOp_40_out;
-		andOp_41_in1 = valid ? andOp_7_out : andOp_7_out;
+		andOp_40_in0 = valid ? notOp_39_out : notOp_39_out;
+		andOp_40_in1 = valid ? andOp_10_out : andOp_10_out;
 	end
 	// controller for andOp_45.andOp_45_in0
 	// controller for andOp_45.andOp_45_in1
 	// Insensitive connections
 	always @(*) begin
 		andOp_45_in0 = valid ? notOp_44_out : notOp_44_out;
-		andOp_45_in1 = valid ? andOp_23_out : andOp_23_out;
+		andOp_45_in1 = valid ? andOp_26_out : andOp_26_out;
 	end
 	// controller for andOp_48.andOp_48_in0
 	// controller for andOp_48.andOp_48_in1
@@ -870,12 +836,12 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		andOp_48_in0 = valid ? notOp_47_out : notOp_47_out;
 		andOp_48_in1 = valid ? andOp_16_out : andOp_16_out;
 	end
-	// controller for andOp_51.andOp_51_in0
-	// controller for andOp_51.andOp_51_in1
+	// controller for andOp_52.andOp_52_in0
+	// controller for andOp_52.andOp_52_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_51_in0 = valid ? notOp_50_out : notOp_50_out;
-		andOp_51_in1 = valid ? andOp_10_out : andOp_10_out;
+		andOp_52_in0 = valid ? notOp_51_out : notOp_51_out;
+		andOp_52_in1 = valid ? andOp_7_out : andOp_7_out;
 	end
 	// controller for andOp_53.andOp_53_in0
 	// controller for andOp_53.andOp_53_in1
@@ -930,8 +896,8 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// controller for andOp_6.andOp_6_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_6_in0 = valid ? bb_0_active_in_state_0_out_data : bb_0_active_in_state_0_out_data;
-		andOp_6_in1 = valid ? state_0_is_active : state_0_is_active;
+		andOp_6_in0 = valid ? bb_2_active_in_state_2_out_data : bb_2_active_in_state_2_out_data;
+		andOp_6_in1 = valid ? state_2_is_active : state_2_is_active;
 	end
 	// controller for andOp_60.andOp_60_in0
 	// controller for andOp_60.andOp_60_in1
@@ -1059,32 +1025,39 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		andOp_82_in0 = valid ? bb_4_active_in_state_2_out_data : bb_4_active_in_state_2_out_data;
 		andOp_82_in1 = valid ? state_2_is_active : state_2_is_active;
 	end
+	// controller for andOp_84.andOp_84_in0
+	// controller for andOp_84.andOp_84_in1
+	// Insensitive connections
+	always @(*) begin
+		andOp_84_in0 = valid ? 1'd0 : 1'd0;
+		andOp_84_in1 = valid ? state_0_is_active : state_0_is_active;
+	end
 	// controller for andOp_86.andOp_86_in0
 	// controller for andOp_86.andOp_86_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_86_in0 = valid ? 1'd0 : 1'd0;
-		andOp_86_in1 = valid ? state_0_is_active : state_0_is_active;
+		andOp_86_in0 = valid ? andOp_84_out : andOp_84_out;
+		andOp_86_in1 = valid ? eq_85_out : eq_85_out;
 	end
 	// controller for andOp_88.andOp_88_in0
 	// controller for andOp_88.andOp_88_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_88_in0 = valid ? andOp_86_out : andOp_86_out;
-		andOp_88_in1 = valid ? eq_87_out : eq_87_out;
+		andOp_88_in0 = valid ? andOp_84_out : andOp_84_out;
+		andOp_88_in1 = valid ? notOp_87_out : notOp_87_out;
 	end
 	// controller for andOp_9.andOp_9_in0
 	// controller for andOp_9.andOp_9_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_9_in0 = valid ? bb_2_active_in_state_2_out_data : bb_2_active_in_state_2_out_data;
-		andOp_9_in1 = valid ? state_2_is_active : state_2_is_active;
+		andOp_9_in0 = valid ? bb_0_active_in_state_0_out_data : bb_0_active_in_state_0_out_data;
+		andOp_9_in1 = valid ? state_0_is_active : state_0_is_active;
 	end
 	// controller for andOp_90.andOp_90_in0
 	// controller for andOp_90.andOp_90_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_90_in0 = valid ? andOp_86_out : andOp_86_out;
+		andOp_90_in0 = valid ? state_0_is_active : state_0_is_active;
 		andOp_90_in1 = valid ? notOp_89_out : notOp_89_out;
 	end
 	// controller for andOp_92.andOp_92_in0
@@ -1094,31 +1067,38 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		andOp_92_in0 = valid ? state_0_is_active : state_0_is_active;
 		andOp_92_in1 = valid ? notOp_91_out : notOp_91_out;
 	end
-	// controller for andOp_94.andOp_94_in0
-	// controller for andOp_94.andOp_94_in1
+	// controller for andOp_95.andOp_95_in0
+	// controller for andOp_95.andOp_95_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_94_in0 = valid ? state_0_is_active : state_0_is_active;
-		andOp_94_in1 = valid ? notOp_93_out : notOp_93_out;
+		andOp_95_in0 = valid ? 1'd0 : 1'd0;
+		andOp_95_in1 = valid ? state_1_is_active : state_1_is_active;
 	end
-	// controller for andOp_98.andOp_98_in0
-	// controller for andOp_98.andOp_98_in1
+	// controller for andOp_97.andOp_97_in0
+	// controller for andOp_97.andOp_97_in1
 	// Insensitive connections
 	always @(*) begin
-		andOp_98_in0 = valid ? 1'd0 : 1'd0;
-		andOp_98_in1 = valid ? state_1_is_active : state_1_is_active;
+		andOp_97_in0 = valid ? andOp_95_out : andOp_95_out;
+		andOp_97_in1 = valid ? eq_96_out : eq_96_out;
+	end
+	// controller for andOp_99.andOp_99_in0
+	// controller for andOp_99.andOp_99_in1
+	// Insensitive connections
+	always @(*) begin
+		andOp_99_in0 = valid ? andOp_95_out : andOp_95_out;
+		andOp_99_in1 = valid ? notOp_98_out : notOp_98_out;
 	end
 	// controller for bb_0_active_in_state_0.bb_0_active_in_state_0_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_0_active_in_state_0_in_data = eq_27_out;
+			bb_0_active_in_state_0_in_data = eq_29_out;
 		end else begin
 			bb_0_active_in_state_0_in_data = 0;
 		end
 	end
 	// controller for bb_0_predecessor_in_state_0.bb_0_predecessor_in_state_0_in_data
 	always @(*) begin
-		if (eq_38_out) begin 
+		if (eq_41_out) begin 
 			bb_0_predecessor_in_state_0_in_data = state_0_last_BB_reg;
 		end else begin
 			bb_0_predecessor_in_state_0_in_data = 0;
@@ -1145,7 +1125,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// controller for bb_2_active_in_state_0.bb_2_active_in_state_0_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_2_active_in_state_0_in_data = orOp_29_out;
+			bb_2_active_in_state_0_in_data = orOp_28_out;
 		end else begin
 			bb_2_active_in_state_0_in_data = 0;
 		end
@@ -1161,16 +1141,16 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// controller for bb_2_active_in_state_2.bb_2_active_in_state_2_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_2_active_in_state_2_in_data = eq_37_out;
+			bb_2_active_in_state_2_in_data = eq_35_out;
 		end else begin
 			bb_2_active_in_state_2_in_data = 0;
 		end
 	end
 	// controller for bb_2_predecessor_in_state_0.bb_2_predecessor_in_state_0_in_data
 	always @(*) begin
-		if (andOp_41_out) begin 
+		if (andOp_40_out) begin 
 			bb_2_predecessor_in_state_0_in_data = 32'd0;
-		end else if (eq_39_out) begin 
+		end else if (eq_38_out) begin 
 			bb_2_predecessor_in_state_0_in_data = state_0_last_BB_reg;
 		end else begin
 			bb_2_predecessor_in_state_0_in_data = 0;
@@ -1186,7 +1166,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	end
 	// controller for bb_2_predecessor_in_state_2.bb_2_predecessor_in_state_2_in_data
 	always @(*) begin
-		if (eq_52_out) begin 
+		if (eq_49_out) begin 
 			bb_2_predecessor_in_state_2_in_data = state_2_last_BB_reg;
 		end else begin
 			bb_2_predecessor_in_state_2_in_data = 0;
@@ -1213,16 +1193,16 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// controller for bb_4_active_in_state_2.bb_4_active_in_state_2_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_4_active_in_state_2_in_data = orOp_36_out;
+			bb_4_active_in_state_2_in_data = orOp_37_out;
 		end else begin
 			bb_4_active_in_state_2_in_data = 0;
 		end
 	end
 	// controller for bb_4_predecessor_in_state_2.bb_4_predecessor_in_state_2_in_data
 	always @(*) begin
-		if (andOp_51_out) begin 
+		if (andOp_52_out) begin 
 			bb_4_predecessor_in_state_2_in_data = 32'd2;
-		end else if (eq_49_out) begin 
+		end else if (eq_50_out) begin 
 			bb_4_predecessor_in_state_2_in_data = state_2_last_BB_reg;
 		end else begin
 			bb_4_predecessor_in_state_2_in_data = 0;
@@ -1230,9 +1210,9 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	end
 	// controller for br_0_happened_in_state_0.br_0_happened_in_state_0_in_data
 	always @(*) begin
-		if (andOp_7_out) begin 
+		if (andOp_10_out) begin 
 			br_0_happened_in_state_0_in_data = 1'd1;
-		end else if (notOp_8_out) begin 
+		end else if (notOp_11_out) begin 
 			br_0_happened_in_state_0_in_data = 1'd0;
 		end else begin
 			br_0_happened_in_state_0_in_data = 0;
@@ -1240,9 +1220,9 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	end
 	// controller for br_2_happened_in_state_0.br_2_happened_in_state_0_in_data
 	always @(*) begin
-		if (andOp_10_out) begin 
+		if (andOp_7_out) begin 
 			br_2_happened_in_state_0_in_data = 1'd1;
-		end else if (notOp_11_out) begin 
+		end else if (notOp_8_out) begin 
 			br_2_happened_in_state_0_in_data = 1'd0;
 		end else begin
 			br_2_happened_in_state_0_in_data = 0;
@@ -1260,9 +1240,9 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	end
 	// controller for br_2_happened_in_state_2.br_2_happened_in_state_2_in_data
 	always @(*) begin
-		if (andOp_25_out) begin 
+		if (andOp_19_out) begin 
 			br_2_happened_in_state_2_in_data = 1'd1;
-		end else if (notOp_26_out) begin 
+		end else if (notOp_20_out) begin 
 			br_2_happened_in_state_2_in_data = 1'd0;
 		end else begin
 			br_2_happened_in_state_2_in_data = 0;
@@ -1280,9 +1260,9 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	end
 	// controller for br_4_happened_in_state_2.br_4_happened_in_state_2_in_data
 	always @(*) begin
-		if (andOp_19_out) begin 
+		if (andOp_22_out) begin 
 			br_4_happened_in_state_2_in_data = 1'd1;
-		end else if (notOp_20_out) begin 
+		end else if (notOp_23_out) begin 
 			br_4_happened_in_state_2_in_data = 1'd0;
 		end else begin
 			br_4_happened_in_state_2_in_data = 0;
@@ -1306,79 +1286,64 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	always @(*) begin
 		if (eq_83_out) begin 
 			data_in_0_1_in_data = data_store_0_0;
-		end else if (eq_84_out) begin 
-			data_in_0_1_in_data = data_store_1_2;
-		end else if (eq_85_out) begin 
-			data_in_0_1_in_data = data_store_2_4;
 		end else begin
 			data_in_0_1_in_data = 0;
 		end
 	end
 	// controller for data_in_1_3.data_in_1_3_in_data
 	always @(*) begin
-		if (eq_95_out) begin 
+		if (eq_93_out) begin 
 			data_in_1_3_in_data = data_store_0_0;
-		end else if (eq_96_out) begin 
+		end else if (eq_94_out) begin 
 			data_in_1_3_in_data = data_store_1_2;
-		end else if (eq_97_out) begin 
-			data_in_1_3_in_data = data_store_2_4;
 		end else begin
 			data_in_1_3_in_data = 0;
 		end
 	end
 	// controller for data_in_2_5.data_in_2_5_in_data
 	always @(*) begin
-		if (eq_107_out) begin 
-			data_in_2_5_in_data = data_store_0_0;
-		end else if (eq_108_out) begin 
+		if (eq_104_out) begin 
 			data_in_2_5_in_data = data_store_1_2;
-		end else if (eq_109_out) begin 
+		end else if (eq_105_out) begin 
 			data_in_2_5_in_data = data_store_2_4;
 		end else begin
 			data_in_2_5_in_data = 0;
 		end
 	end
+	// controller for eq_104.eq_104_in0
+	// controller for eq_104.eq_104_in1
+	// Insensitive connections
+	always @(*) begin
+		eq_104_in0 = valid ? 32'd1 : 32'd1;
+		eq_104_in1 = valid ? state_2_last_state : state_2_last_state;
+	end
+	// controller for eq_105.eq_105_in0
+	// controller for eq_105.eq_105_in1
+	// Insensitive connections
+	always @(*) begin
+		eq_105_in0 = valid ? 32'd2 : 32'd2;
+		eq_105_in1 = valid ? state_2_last_state : state_2_last_state;
+	end
 	// controller for eq_107.eq_107_in0
 	// controller for eq_107.eq_107_in1
 	// Insensitive connections
 	always @(*) begin
-		eq_107_in0 = valid ? 32'd0 : 32'd0;
-		eq_107_in1 = valid ? state_2_last_state : state_2_last_state;
-	end
-	// controller for eq_108.eq_108_in0
-	// controller for eq_108.eq_108_in1
-	// Insensitive connections
-	always @(*) begin
-		eq_108_in0 = valid ? 32'd1 : 32'd1;
-		eq_108_in1 = valid ? state_2_last_state : state_2_last_state;
-	end
-	// controller for eq_109.eq_109_in0
-	// controller for eq_109.eq_109_in1
-	// Insensitive connections
-	always @(*) begin
-		eq_109_in0 = valid ? 32'd2 : 32'd2;
-		eq_109_in1 = valid ? state_2_last_state : state_2_last_state;
-	end
-	// controller for eq_111.eq_111_in0
-	// controller for eq_111.eq_111_in1
-	// Insensitive connections
-	always @(*) begin
-		eq_111_in0 = valid ? 32'd2 : 32'd2;
-		eq_111_in1 = valid ? 32'd2 : 32'd2;
+		eq_107_in0 = valid ? 32'd2 : 32'd2;
+		eq_107_in1 = valid ? 32'd2 : 32'd2;
 	end
 	// controller for eq_27.eq_27_in0
 	// controller for eq_27.eq_27_in1
 	// Insensitive connections
 	always @(*) begin
-		eq_27_in0 = valid ? 32'd0 : 32'd0;
+		eq_27_in0 = valid ? 32'd2 : 32'd2;
 		eq_27_in1 = valid ? state_0_entry_BB_reg : state_0_entry_BB_reg;
 	end
-	// controller for eq_28.eq_28_in0
-	// controller for eq_28.eq_28_in1
+	// controller for eq_29.eq_29_in0
+	// controller for eq_29.eq_29_in1
 	// Insensitive connections
 	always @(*) begin
-		eq_28_in0 = valid ? 32'd2 : 32'd2;
-		eq_28_in1 = valid ? state_0_entry_BB_reg : state_0_entry_BB_reg;
+		eq_29_in0 = valid ? 32'd0 : 32'd0;
+		eq_29_in1 = valid ? state_0_entry_BB_reg : state_0_entry_BB_reg;
 	end
 	// controller for eq_30.eq_30_in0
 	// controller for eq_30.eq_30_in1
@@ -1405,29 +1370,29 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// controller for eq_35.eq_35_in1
 	// Insensitive connections
 	always @(*) begin
-		eq_35_in0 = valid ? 32'd4 : 32'd4;
+		eq_35_in0 = valid ? 32'd2 : 32'd2;
 		eq_35_in1 = valid ? state_2_entry_BB_reg : state_2_entry_BB_reg;
 	end
-	// controller for eq_37.eq_37_in0
-	// controller for eq_37.eq_37_in1
+	// controller for eq_36.eq_36_in0
+	// controller for eq_36.eq_36_in1
 	// Insensitive connections
 	always @(*) begin
-		eq_37_in0 = valid ? 32'd2 : 32'd2;
-		eq_37_in1 = valid ? state_2_entry_BB_reg : state_2_entry_BB_reg;
+		eq_36_in0 = valid ? 32'd4 : 32'd4;
+		eq_36_in1 = valid ? state_2_entry_BB_reg : state_2_entry_BB_reg;
 	end
 	// controller for eq_38.eq_38_in0
 	// controller for eq_38.eq_38_in1
 	// Insensitive connections
 	always @(*) begin
-		eq_38_in0 = valid ? 32'd0 : 32'd0;
+		eq_38_in0 = valid ? 32'd2 : 32'd2;
 		eq_38_in1 = valid ? state_0_entry_BB_reg : state_0_entry_BB_reg;
 	end
-	// controller for eq_39.eq_39_in0
-	// controller for eq_39.eq_39_in1
+	// controller for eq_41.eq_41_in0
+	// controller for eq_41.eq_41_in1
 	// Insensitive connections
 	always @(*) begin
-		eq_39_in0 = valid ? 32'd2 : 32'd2;
-		eq_39_in1 = valid ? state_0_entry_BB_reg : state_0_entry_BB_reg;
+		eq_41_in0 = valid ? 32'd0 : 32'd0;
+		eq_41_in1 = valid ? state_0_entry_BB_reg : state_0_entry_BB_reg;
 	end
 	// controller for eq_42.eq_42_in0
 	// controller for eq_42.eq_42_in1
@@ -1454,15 +1419,15 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// controller for eq_49.eq_49_in1
 	// Insensitive connections
 	always @(*) begin
-		eq_49_in0 = valid ? 32'd4 : 32'd4;
+		eq_49_in0 = valid ? 32'd2 : 32'd2;
 		eq_49_in1 = valid ? state_2_entry_BB_reg : state_2_entry_BB_reg;
 	end
-	// controller for eq_52.eq_52_in0
-	// controller for eq_52.eq_52_in1
+	// controller for eq_50.eq_50_in0
+	// controller for eq_50.eq_50_in1
 	// Insensitive connections
 	always @(*) begin
-		eq_52_in0 = valid ? 32'd2 : 32'd2;
-		eq_52_in1 = valid ? state_2_entry_BB_reg : state_2_entry_BB_reg;
+		eq_50_in0 = valid ? 32'd4 : 32'd4;
+		eq_50_in1 = valid ? state_2_entry_BB_reg : state_2_entry_BB_reg;
 	end
 	// controller for eq_83.eq_83_in0
 	// controller for eq_83.eq_83_in1
@@ -1471,54 +1436,33 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		eq_83_in0 = valid ? 32'd0 : 32'd0;
 		eq_83_in1 = valid ? state_0_last_state : state_0_last_state;
 	end
-	// controller for eq_84.eq_84_in0
-	// controller for eq_84.eq_84_in1
-	// Insensitive connections
-	always @(*) begin
-		eq_84_in0 = valid ? 32'd1 : 32'd1;
-		eq_84_in1 = valid ? state_0_last_state : state_0_last_state;
-	end
 	// controller for eq_85.eq_85_in0
 	// controller for eq_85.eq_85_in1
 	// Insensitive connections
 	always @(*) begin
 		eq_85_in0 = valid ? 32'd2 : 32'd2;
-		eq_85_in1 = valid ? state_0_last_state : state_0_last_state;
+		eq_85_in1 = valid ? 32'd0 : 32'd0;
 	end
-	// controller for eq_87.eq_87_in0
-	// controller for eq_87.eq_87_in1
+	// controller for eq_93.eq_93_in0
+	// controller for eq_93.eq_93_in1
 	// Insensitive connections
 	always @(*) begin
-		eq_87_in0 = valid ? 32'd2 : 32'd2;
-		eq_87_in1 = valid ? 32'd0 : 32'd0;
+		eq_93_in0 = valid ? 32'd0 : 32'd0;
+		eq_93_in1 = valid ? state_1_last_state : state_1_last_state;
 	end
-	// controller for eq_95.eq_95_in0
-	// controller for eq_95.eq_95_in1
+	// controller for eq_94.eq_94_in0
+	// controller for eq_94.eq_94_in1
 	// Insensitive connections
 	always @(*) begin
-		eq_95_in0 = valid ? 32'd0 : 32'd0;
-		eq_95_in1 = valid ? state_1_last_state : state_1_last_state;
+		eq_94_in0 = valid ? 32'd1 : 32'd1;
+		eq_94_in1 = valid ? state_1_last_state : state_1_last_state;
 	end
 	// controller for eq_96.eq_96_in0
 	// controller for eq_96.eq_96_in1
 	// Insensitive connections
 	always @(*) begin
-		eq_96_in0 = valid ? 32'd1 : 32'd1;
-		eq_96_in1 = valid ? state_1_last_state : state_1_last_state;
-	end
-	// controller for eq_97.eq_97_in0
-	// controller for eq_97.eq_97_in1
-	// Insensitive connections
-	always @(*) begin
-		eq_97_in0 = valid ? 32'd2 : 32'd2;
-		eq_97_in1 = valid ? state_1_last_state : state_1_last_state;
-	end
-	// controller for eq_99.eq_99_in0
-	// controller for eq_99.eq_99_in1
-	// Insensitive connections
-	always @(*) begin
-		eq_99_in0 = valid ? 32'd2 : 32'd2;
-		eq_99_in1 = valid ? 32'd1 : 32'd1;
+		eq_96_in0 = valid ? 32'd2 : 32'd2;
+		eq_96_in1 = valid ? 32'd1 : 32'd1;
 	end
 	// controller for icmp_18.cmp_in0_icmp_18
 	// controller for icmp_18.cmp_in1_icmp_18
@@ -1563,40 +1507,35 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 			m_word2 = 0;
 		end
 	end
-	// controller for notOp_101.notOp_101_in0
+	// controller for notOp_100.notOp_100_in0
 	// Insensitive connections
 	always @(*) begin
-		notOp_101_in0 = valid ? eq_99_out : eq_99_out;
+		notOp_100_in0 = valid ? 1'd0 : 1'd0;
 	end
-	// controller for notOp_103.notOp_103_in0
+	// controller for notOp_102.notOp_102_in0
 	// Insensitive connections
 	always @(*) begin
-		notOp_103_in0 = valid ? 1'd0 : 1'd0;
+		notOp_102_in0 = valid ? andOp_97_out : andOp_97_out;
 	end
-	// controller for notOp_105.notOp_105_in0
+	// controller for notOp_109.notOp_109_in0
 	// Insensitive connections
 	always @(*) begin
-		notOp_105_in0 = valid ? andOp_100_out : andOp_100_out;
+		notOp_109_in0 = valid ? eq_107_out : eq_107_out;
 	end
 	// controller for notOp_11.notOp_11_in0
 	// Insensitive connections
 	always @(*) begin
 		notOp_11_in0 = valid ? andOp_10_out : andOp_10_out;
 	end
+	// controller for notOp_111.notOp_111_in0
+	// Insensitive connections
+	always @(*) begin
+		notOp_111_in0 = valid ? bb_4_active_in_state_2_out_data : bb_4_active_in_state_2_out_data;
+	end
 	// controller for notOp_113.notOp_113_in0
 	// Insensitive connections
 	always @(*) begin
-		notOp_113_in0 = valid ? eq_111_out : eq_111_out;
-	end
-	// controller for notOp_115.notOp_115_in0
-	// Insensitive connections
-	always @(*) begin
-		notOp_115_in0 = valid ? bb_4_active_in_state_2_out_data : bb_4_active_in_state_2_out_data;
-	end
-	// controller for notOp_117.notOp_117_in0
-	// Insensitive connections
-	always @(*) begin
-		notOp_117_in0 = valid ? andOp_112_out : andOp_112_out;
+		notOp_113_in0 = valid ? andOp_108_out : andOp_108_out;
 	end
 	// controller for notOp_14.notOp_14_in0
 	// Insensitive connections
@@ -1613,20 +1552,20 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	always @(*) begin
 		notOp_20_in0 = valid ? andOp_19_out : andOp_19_out;
 	end
-	// controller for notOp_22.notOp_22_in0
+	// controller for notOp_23.notOp_23_in0
 	// Insensitive connections
 	always @(*) begin
-		notOp_22_in0 = valid ? cmp_out_icmp_18 : cmp_out_icmp_18;
+		notOp_23_in0 = valid ? andOp_22_out : andOp_22_out;
 	end
-	// controller for notOp_26.notOp_26_in0
+	// controller for notOp_25.notOp_25_in0
 	// Insensitive connections
 	always @(*) begin
-		notOp_26_in0 = valid ? andOp_25_out : andOp_25_out;
+		notOp_25_in0 = valid ? cmp_out_icmp_18 : cmp_out_icmp_18;
 	end
-	// controller for notOp_40.notOp_40_in0
+	// controller for notOp_39.notOp_39_in0
 	// Insensitive connections
 	always @(*) begin
-		notOp_40_in0 = valid ? eq_39_out : eq_39_out;
+		notOp_39_in0 = valid ? eq_38_out : eq_38_out;
 	end
 	// controller for notOp_44.notOp_44_in0
 	// Insensitive connections
@@ -1638,10 +1577,10 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	always @(*) begin
 		notOp_47_in0 = valid ? eq_46_out : eq_46_out;
 	end
-	// controller for notOp_50.notOp_50_in0
+	// controller for notOp_51.notOp_51_in0
 	// Insensitive connections
 	always @(*) begin
-		notOp_50_in0 = valid ? eq_49_out : eq_49_out;
+		notOp_51_in0 = valid ? eq_50_out : eq_50_out;
 	end
 	// controller for notOp_74.notOp_74_in0
 	// Insensitive connections
@@ -1651,7 +1590,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	// controller for notOp_76.notOp_76_in0
 	// Insensitive connections
 	always @(*) begin
-		notOp_76_in0 = valid ? andOp_21_out : andOp_21_out;
+		notOp_76_in0 = valid ? andOp_24_out : andOp_24_out;
 	end
 	// controller for notOp_78.notOp_78_in0
 	// Insensitive connections
@@ -1668,34 +1607,39 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 	always @(*) begin
 		notOp_80_in0 = valid ? andOp_73_out : andOp_73_out;
 	end
+	// controller for notOp_87.notOp_87_in0
+	// Insensitive connections
+	always @(*) begin
+		notOp_87_in0 = valid ? eq_85_out : eq_85_out;
+	end
 	// controller for notOp_89.notOp_89_in0
 	// Insensitive connections
 	always @(*) begin
-		notOp_89_in0 = valid ? eq_87_out : eq_87_out;
+		notOp_89_in0 = valid ? 1'd0 : 1'd0;
 	end
 	// controller for notOp_91.notOp_91_in0
 	// Insensitive connections
 	always @(*) begin
-		notOp_91_in0 = valid ? 1'd0 : 1'd0;
+		notOp_91_in0 = valid ? andOp_86_out : andOp_86_out;
 	end
-	// controller for notOp_93.notOp_93_in0
+	// controller for notOp_98.notOp_98_in0
 	// Insensitive connections
 	always @(*) begin
-		notOp_93_in0 = valid ? andOp_88_out : andOp_88_out;
+		notOp_98_in0 = valid ? eq_96_out : eq_96_out;
 	end
-	// controller for orOp_29.orOp_29_in0
-	// controller for orOp_29.orOp_29_in1
+	// controller for orOp_28.orOp_28_in0
+	// controller for orOp_28.orOp_28_in1
 	// Insensitive connections
 	always @(*) begin
-		orOp_29_in0 = valid ? eq_28_out : eq_28_out;
-		orOp_29_in1 = valid ? andOp_7_out : andOp_7_out;
+		orOp_28_in0 = valid ? eq_27_out : eq_27_out;
+		orOp_28_in1 = valid ? andOp_10_out : andOp_10_out;
 	end
 	// controller for orOp_32.orOp_32_in0
 	// controller for orOp_32.orOp_32_in1
 	// Insensitive connections
 	always @(*) begin
 		orOp_32_in0 = valid ? eq_31_out : eq_31_out;
-		orOp_32_in1 = valid ? andOp_23_out : andOp_23_out;
+		orOp_32_in1 = valid ? andOp_26_out : andOp_26_out;
 	end
 	// controller for orOp_34.orOp_34_in0
 	// controller for orOp_34.orOp_34_in1
@@ -1704,12 +1648,12 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		orOp_34_in0 = valid ? eq_33_out : eq_33_out;
 		orOp_34_in1 = valid ? andOp_16_out : andOp_16_out;
 	end
-	// controller for orOp_36.orOp_36_in0
-	// controller for orOp_36.orOp_36_in1
+	// controller for orOp_37.orOp_37_in0
+	// controller for orOp_37.orOp_37_in1
 	// Insensitive connections
 	always @(*) begin
-		orOp_36_in0 = valid ? eq_35_out : eq_35_out;
-		orOp_36_in1 = valid ? andOp_10_out : andOp_10_out;
+		orOp_37_in0 = valid ? eq_36_out : eq_36_out;
+		orOp_37_in1 = valid ? andOp_7_out : andOp_7_out;
 	end
 	// controller for out.out_in_data_reg
 	always @(*) begin
@@ -1728,7 +1672,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		phi_last_block_phi_8 = valid ? bb_4_predecessor_in_state_2_out_data : bb_4_predecessor_in_state_2_out_data;
 		phi_s_phi_8 = valid ? concat_64_out : concat_64_out;
 	end
-	// controller for ret_5.valid_reg
+	// controller for ret_4.valid_reg
 	always @(*) begin
 		if (andOp_61_out) begin 
 			valid_reg = 1'd1;
@@ -1751,10 +1695,10 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		if (rst) begin
 			data_store_0_0 <= 0;
 		end else begin
-			if (andOp_88_out) begin
+			if (andOp_86_out) begin
 				data_store_0_0 <= add_out_add_9;
 			end
-			if (andOp_94_out) begin
+			if (andOp_92_out) begin
 				data_store_0_0 <= data_in_0_1_out_data;
 			end
 		end
@@ -1764,11 +1708,11 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		if (rst) begin
 			data_store_1_2 <= 0;
 		end else begin
-			if (andOp_100_out) begin
-				data_store_1_2 <= add_out_add_9;
-			end
-			if (andOp_106_out) begin
+			if (andOp_103_out) begin
 				data_store_1_2 <= data_in_1_3_out_data;
+			end
+			if (andOp_97_out) begin
+				data_store_1_2 <= add_out_add_9;
 			end
 		end
 	end
@@ -1777,10 +1721,10 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		if (rst) begin
 			data_store_2_4 <= 0;
 		end else begin
-			if (andOp_112_out) begin
+			if (andOp_108_out) begin
 				data_store_2_4 <= add_out_add_9;
 			end
-			if (andOp_118_out) begin
+			if (andOp_114_out) begin
 				data_store_2_4 <= data_in_2_5_out_data;
 			end
 		end
@@ -1790,7 +1734,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		if (rst) begin
 			global_state <= 0;
 		end else begin
-			if (andOp_21_out) begin
+			if (andOp_24_out) begin
 				global_state <= 32'd2;
 			end
 			if (andOp_71_out) begin
@@ -1883,7 +1827,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		if (rst) begin
 			state_2_entry_BB_reg <= 0;
 		end else begin
-			if (andOp_21_out) begin
+			if (andOp_24_out) begin
 				state_2_entry_BB_reg <= 32'd4;
 			end
 			if (andOp_72_out) begin
@@ -1899,7 +1843,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		if (rst) begin
 			state_2_is_active <= 0;
 		end else begin
-			if (andOp_21_out) begin
+			if (andOp_24_out) begin
 				state_2_is_active <= 1'd1;
 			end
 			if (andOp_72_out) begin
@@ -1918,7 +1862,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		if (rst) begin
 			state_2_last_BB_reg <= 0;
 		end else begin
-			if (andOp_21_out) begin
+			if (andOp_24_out) begin
 				state_2_last_BB_reg <= 32'd4;
 			end
 			if (andOp_72_out) begin
@@ -1934,7 +1878,7 @@ module median_filter(input [0:0] clk, input [0:0] rst, output [0:0] valid, outpu
 		if (rst) begin
 			state_2_last_state <= 0;
 		end else begin
-			if (andOp_21_out) begin
+			if (andOp_24_out) begin
 				state_2_last_state <= 32'd2;
 			end
 			if (andOp_72_out) begin
