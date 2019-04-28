@@ -1037,6 +1037,79 @@ namespace ahaHLS {
 
       REQUIRE(runIVerilogTB("simple_outer_pipe"));
     }
+
+    SECTION("With pipelining") {
+
+      ExecutionConstraints exec;
+      
+      inlineWireCalls(f, exec, interfaces);
+      addDataConstraints(f, exec);
+    
+      cout << "After inlining" << endl;
+      cout << valueString(f) << endl;
+
+      auto preds = buildControlPreds(f);
+
+      set<PipelineSpec> toPipeline;
+      PipelineSpec all{false, {}};
+      for (auto& blk : f->getBasicBlockList()) {
+        if (&blk != &(f->getEntryBlock())) {
+          if (!ReturnInst::classof(blk.getTerminator())) {
+            all.blks.insert(&blk);
+
+            cout << "Pipelining block " << endl;
+            cout << valueString(&blk) << endl;
+          }
+        }
+      }
+      toPipeline.insert(all);
+
+      SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline, preds);
+      exec.addConstraints(p, f);
+
+      map<Function*, SchedulingProblem> constraints{{f, p}};
+      Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+
+      // Schedule s = scheduleInterface(f, hcs, interfaces);
+      STG graph = buildSTG(s, f);
+
+      cout << "STG Is" << endl;
+      graph.print(cout);
+
+      map<string, int> testLayout = {{"arg_0", 0}};
+      map<llvm::Value*, int> layout;
+      auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+      VerilogDebugInfo info;
+      addNoXChecks(arch, info);
+
+      emitVerilog(arch, info);
+
+      // Create testing infrastructure
+      map<string, vector<int> > memoryInit{{"arg_0", {6}}};
+      map<string, vector<int> > memoryExpected{{"arg_0", {3, 3, 3, 3, 3}}};
+
+      auto arg0 = dyn_cast<Argument>(getArg(f, 0));
+      string in0Name = string(arg0->getName());
+    
+      TestBenchSpec tb;
+      tb.memoryExpected = memoryExpected;
+      tb.runCycles = 150;
+      tb.name = "simple_outer_pipe";
+      tb.useModSpecs = true;
+      int startSetMemCycle = 1;
+    
+      int startRunCycle = startSetMemCycle + 2; 
+      map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+      map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+
+      int checkMemCycle = 200;
+      checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
+
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      REQUIRE(runIVerilogTB("simple_outer_pipe"));
+    }
     
   }
 
