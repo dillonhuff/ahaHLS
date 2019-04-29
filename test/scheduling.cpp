@@ -1235,10 +1235,10 @@ namespace ahaHLS {
       auto preds = buildControlPreds(f);
 
       set<PipelineSpec> toPipeline;
-      PipelineSpec l0{false, {loop0Blk}};
-      PipelineSpec l1{false, {loop1Blk}};      
-      toPipeline.insert(l0);
-      toPipeline.insert(l1);
+      PipelineSpec l0{false, {loop0Blk, loop1Blk}};
+      //PipelineSpec l1{false, {loop1Blk}};      
+      //toPipeline.insert(l0);
+      //toPipeline.insert(l1);
 
       // Changed
       SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline, preds);

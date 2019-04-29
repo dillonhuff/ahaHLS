@@ -1250,16 +1250,21 @@ namespace ahaHLS {
     for (auto st : arch.stg.opStates) {
       RegController& rc = arch.getController(lastBBReg(st.first, arch));
     
-      string inPipe = inAnyPipeline(arch).valueString();
+      //string inPipe = inAnyPipeline(arch).valueString();
       for (auto condAndVal0 : rc.values) {
         string cond0 = condAndVal0.first.valueString();
         for (auto condAndVal1 : rc.values) {
           string cond1 = condAndVal1.first.valueString();
 
           if (cond0 != cond1) {
-            addAssert(implies(andStr(notStr(inPipe), cond0 + " === 1"),
+            // addAssert(implies(andStr(notStr(inPipe), cond0 + " === 1"),
+            //                   cond1 + " !== 1"),
+            //           info);
+
+            addAssert(implies(cond0 + " === 1",
                               cond1 + " !== 1"),
                       info);
+
           }
         }
       
