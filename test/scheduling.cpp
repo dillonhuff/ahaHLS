@@ -1240,6 +1240,9 @@ namespace ahaHLS {
       toPipeline.insert(l0);
       //toPipeline.insert(l1);
 
+      // TODO: Remove when we have real hazard resolution
+      exec.addConstraint(end(loop0Blk) < start(loop1Blk));
+
       // Changed
       SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline, preds);
       exec.addConstraints(p, f);

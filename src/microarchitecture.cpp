@@ -12,6 +12,8 @@ using namespace dbhc;
 using namespace llvm;
 using namespace std;
 
+// Simple system TODO: Add valid time tests in TestBenchSpec
+
 // Yet another issue with default state transitions, this time the problem
 // is default transitions from one loop to another inside a successive loop pipeline.
 // It seems as though the problem is that the default transitions used to
@@ -21,6 +23,7 @@ using namespace std;
 // makes it hard for me to just add the directive that the default transitions
 // should stop at the end of the block, because that block does not stop at the end
 // of the store?
+
 // It seems as though the default schedule of this pipeline produces
 // overlapping state visits, though Im not sure if I see that in the state
 // transition code. It is ok for pipelined states to contain multiple branches,
@@ -31,7 +34,11 @@ using namespace std;
 // the basic blocks connecting them could never overlap
 // OR: I could set basic blocks in a pipeline to finish before another block
 // starts, due to branch movement this wouldnt force sequential execution, but
-// would avoid state overlap
+// would avoid state overlap. The problem is that it would force small blocks
+// to be split across states when that really is not needed.
+// OR: I could add some real hazard resolution that would distinguish between
+// states where operations are actually happening and wait times between operations
+// with side effects
 
 // Hazard resolution is now the big problem. It shows up first because
 // of the outer loop pipelines need to wait one cycle before reading.
