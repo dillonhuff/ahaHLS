@@ -1034,11 +1034,11 @@ namespace ahaHLS {
     return false;
   }
 
-  Wire sequentialReg(Instruction* result,
-                     MicroArchitecture& arch) {
-    Wire tmpRes = map_find(result, arch.names);
-    return tmpRes;
-  }
+  // Wire sequentialReg(Instruction* result,
+  //                    MicroArchitecture& arch) {
+  //   Wire tmpRes = map_find(result, arch.names);
+  //   return tmpRes;
+  // }
   
   Wire mostRecentStorageLocation(Instruction* result,
                                  ControlFlowPosition& currentPosition,
@@ -1653,45 +1653,45 @@ namespace ahaHLS {
     return w;
   }
   
-  void emitTempStorage(const StateId state,
-                       MicroArchitecture& arch) {
+  // void emitTempStorage(const StateId state,
+  //                      MicroArchitecture& arch) {
 
 
-    auto& names = arch.names;
-    auto& pipelines = arch.pipelines;
-    auto& unitAssignment = arch.unitAssignment;
+  //   auto& names = arch.names;
+  //   auto& pipelines = arch.pipelines;
+  //   auto& unitAssignment = arch.unitAssignment;
     
-    for (auto instrG : arch.stg.instructionsFinishingAt(state)) {
-      Instruction* instr = instrG;
+  //   for (auto instrG : arch.stg.instructionsFinishingAt(state)) {
+  //     Instruction* instr = instrG;
 
-      if (hasOutput(instr)) {
+  //     if (hasOutput(instr)) {
 
-        assert(contains_key(instr, names));
+  //       assert(contains_key(instr, names));
 
-        Wire instrWire = map_find(instr, names);
-        string instrName = map_find(instr, names).name;
+  //       Wire instrWire = map_find(instr, names);
+  //       string instrName = map_find(instr, names).name;
         
-        // if (isPipelineState(state, pipelines)) {
-        //   auto p = getPipeline(state, pipelines);
-        //   int stage = p.stageForState(state);
-        //   if (stage < p.numStages() - 1) {
-        //     instrName = map_find(instr, p.pipelineRegisters[stage + 1]).name;
-        //     instrWire = map_find(instr, p.pipelineRegisters[stage + 1]);
-        //   }
-        // }
+  //       // if (isPipelineState(state, pipelines)) {
+  //       //   auto p = getPipeline(state, pipelines);
+  //       //   int stage = p.stageForState(state);
+  //       //   if (stage < p.numStages() - 1) {
+  //       //     instrName = map_find(instr, p.pipelineRegisters[stage + 1]).name;
+  //       //     instrWire = map_find(instr, p.pipelineRegisters[stage + 1]);
+  //       //   }
+  //       // }
 
-        if (needsTempStorage(instr, arch)) {
-          auto unit = map_find(instr, unitAssignment);
+  //       if (needsTempStorage(instr, arch)) {
+  //         auto unit = map_find(instr, unitAssignment);
 
-          Wire cond = blockActiveInState(state, instr->getParent(), arch);
+  //         Wire cond = blockActiveInState(state, instr->getParent(), arch);
           
-          arch.getController(instrWire).values[cond] = dataOutputWire(instr, arch);
-        }
+  //         arch.getController(instrWire).values[cond] = dataOutputWire(instr, arch);
+  //       }
           
-      }
-    }
+  //     }
+  //   }
 
-  }
+  // }
 
   bool isTerminalState(const StateId state,
                        const ElaboratedPipeline& p,
@@ -1763,13 +1763,13 @@ namespace ahaHLS {
     return last;
   }
 
-  void emitTempStorageCode(const StateId state,
-                           MicroArchitecture& arch) {
+  // void emitTempStorageCode(const StateId state,
+  //                          MicroArchitecture& arch) {
 
-    emitTempStorage(state,
-                    arch);
+  //   emitTempStorage(state,
+  //                   arch);
     
-  }
+  // }
 
   StateId findLastNonBlankState(const StateId state, STG& stg) {
     assert(state > 0);
@@ -2171,9 +2171,9 @@ namespace ahaHLS {
       setDefaultValue(activeController, constWire(1, 0), arch);
     }
 
-    for (auto state : arch.stg.opStates) {    
-      emitTempStorageCode(state.first, arch);
-    }
+    // for (auto state : arch.stg.opStates) {    
+    //   emitTempStorageCode(state.first, arch);
+    // }
 
     for (auto p : arch.pipelines) {
       PortController& pc = addPortController(p.inPipe.name, 1, arch);

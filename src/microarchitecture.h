@@ -247,8 +247,8 @@ namespace ahaHLS {
     Wire inPipe;
     StateId stateId;
 
-    std::vector<std::map<llvm::Instruction*, Wire> > pipelineRegisters;
-    Instruction* exitBranch;
+    // std::vector<std::map<llvm::Instruction*, Wire> > pipelineRegisters;
+    // Instruction* exitBranch;
     
     ElaboratedPipeline(const Pipeline& p_) : p(p_) {}
 
@@ -260,37 +260,37 @@ namespace ahaHLS {
     //   return valids.at(stageForState(state));
     // }
     
-    llvm::BranchInst* getExitBranch() const {
-      llvm::Instruction* repeat = exitBranch;
-      assert(llvm::BranchInst::classof(repeat));
-      llvm::BranchInst* pipelineB = llvm::dyn_cast<llvm::BranchInst>(repeat);
+    // llvm::BranchInst* getExitBranch() const {
+    //   llvm::Instruction* repeat = exitBranch;
+    //   assert(llvm::BranchInst::classof(repeat));
+    //   llvm::BranchInst* pipelineB = llvm::dyn_cast<llvm::BranchInst>(repeat);
 
-      assert(pipelineB->isConditional());
+    //   assert(pipelineB->isConditional());
 
-      return pipelineB;
-    }
+    //   return pipelineB;
+    // }
 
     int II() const {
       return p.II();
     }
 
-    llvm::BasicBlock* getEntryBlock() const {
-      return (exitBranch)->getParent();
-    }
+    // llvm::BasicBlock* getEntryBlock() const {
+    //   return (exitBranch)->getParent();
+    // }
     
-    llvm::Value* getExitCondition() const {
-      llvm::Instruction* repeat = exitBranch;
-      assert(llvm::BranchInst::classof(repeat));
-      llvm::BranchInst* pipelineB = llvm::dyn_cast<llvm::BranchInst>(repeat);
+    // llvm::Value* getExitCondition() const {
+    //   llvm::Instruction* repeat = exitBranch;
+    //   assert(llvm::BranchInst::classof(repeat));
+    //   llvm::BranchInst* pipelineB = llvm::dyn_cast<llvm::BranchInst>(repeat);
 
-      assert(pipelineB->isConditional());
+    //   assert(pipelineB->isConditional());
 
-      return pipelineB->getCondition();
-    }
+    //   return pipelineB->getCondition();
+    // }
 
-    int numStages() const {
-      return p.getStates().size();
-    }
+    // int numStages() const {
+    //   return p.getStates().size();
+    // }
 
     int stateIndex(const StateId id) const {
       return id - p.startState();
