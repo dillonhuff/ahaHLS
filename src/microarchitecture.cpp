@@ -1889,7 +1889,8 @@ namespace ahaHLS {
 
       StateId dest = state + 1;
 
-      if (elem(blk, blocksInState(dest, arch.stg))) {
+      //if (elem(blk, blocksInState(dest, arch.stg))) {
+      if (false) {
         Wire condWire = blockActiveInState(state, blk, arch);
         addStateTransition(state, dest, condWire, arch, true);
 
