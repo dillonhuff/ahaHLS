@@ -1173,6 +1173,13 @@ namespace ahaHLS {
                           HardwareConstraints& hdc,
                           std::set<llvm::BasicBlock*>& toPipeline);
 
+  SchedulingProblem
+  createSchedulingProblem(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          std::set<PipelineSpec>& toPipeline,
+                          std::set<TaskSpec>& tasks,                          
+                          map<BasicBlock*, vector<BasicBlock*> >& controlPredecessors);
+  
   class EventTime {
   public:
     ExecutionAction action;

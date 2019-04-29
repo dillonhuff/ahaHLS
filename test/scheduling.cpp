@@ -1302,11 +1302,13 @@ namespace ahaHLS {
 
       set<BasicBlock*> task0{entryBlk, loop0Blk};
       set<BasicBlock*> task1{loop1Blk, exitBlk};
+      set<TaskSpec> tasks{{task0}, {task1}};
       
       auto preds = buildControlPreds(f);
 
       set<PipelineSpec> toPipeline;
-      SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline, preds);
+      SchedulingProblem p =
+        createSchedulingProblem(f, hcs, toPipeline, tasks, preds);
       exec.addConstraints(p, f);
 
       map<Function*, SchedulingProblem> constraints{{f, p}};

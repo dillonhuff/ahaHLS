@@ -923,10 +923,22 @@ namespace ahaHLS {
     return createSchedulingProblem(f, hdc, pipes, controlPredecessors);
   }
 
+  // Placeholder
   SchedulingProblem
   createSchedulingProblem(llvm::Function* f,
                           HardwareConstraints& hdc,
                           std::set<PipelineSpec>& toPipeline,
+                          map<BasicBlock*, vector<BasicBlock*> >& controlPredecessors) {
+    set<TaskSpec> tasks;
+    return createSchedulingProblem(f, hdc, toPipeline, tasks, controlPredecessors);
+    
+  }
+  
+  SchedulingProblem
+  createSchedulingProblem(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          std::set<PipelineSpec>& toPipeline,
+                          std::set<TaskSpec>& tasks,                          
                           map<BasicBlock*, vector<BasicBlock*> >& controlPredecessors) {
     
     SchedulingProblem p(hdc);
