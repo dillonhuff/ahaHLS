@@ -1113,6 +1113,188 @@ namespace ahaHLS {
     
   }
 
+  TEST_CASE("Task parallelism with successive simple loops") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    auto mod = llvm::make_unique<Module>("task parallel loop pairs", context);
+    setGlobalLLVMModule(mod.get());
+    std::vector<Type *> inputs{sramType(32, 16)->getPointerTo()};
+    Function* f = mkFunc(inputs, "task_parallel_loops", mod.get());
+
+    auto entryBlk = mkBB("entry_block", f);
+    auto loop0Blk = mkBB("loop0", f);
+    auto loop1Blk = mkBB("loop1", f);
+    auto exitBlk = mkBB("exit_block", f);
+
+    IRBuilder<> entryBuilder(entryBlk);
+    entryBuilder.CreateBr(loop0Blk);
+
+    IRBuilder<> loop0Builder(loop0Blk);
+    auto indPhi = loop0Builder.CreatePHI(intType(32), 2);
+    auto nextInd = loop0Builder.CreateAdd(indPhi, mkInt(1, 32));
+    storeRAMVal(loop0Builder, getArg(f, 0), indPhi, indPhi);
+    auto loop0Done = loop0Builder.CreateICmpEQ(nextInd, mkInt(4, 32));
+    loop0Builder.CreateCondBr(loop0Done, loop1Blk, loop0Blk);
+
+    indPhi->addIncoming(mkInt(0, 32), entryBlk);
+    indPhi->addIncoming(nextInd, loop0Blk);
+    
+    // IRBuilder<> innerBuilder(innerBlk);
+    // auto innerInd = innerBuilder.CreatePHI(intType(32), 2);
+    // auto nextInnerInd = innerBuilder.CreateAdd(innerInd, mkInt(1, 32));
+    // storeRAMVal(loop0Builder, getArg(f, 0), indPhi, innerInd);
+    // auto innerLoopDone = innerBuilder.CreateICmpEQ(nextInnerInd, mkInt(4, 32));
+    // auto loop0Br = innerBuilder.CreateCondBr(innerLoopDone, loop1Blk, loop0Blk);
+
+    // innerInd->addIncoming(mkInt(0, 32), outerEntryBlk);
+    // innerInd->addIncoming(nextInnerInd, innerBlk);
+    
+    // IRBuilder<> loop1Builder(outerExitBlk);
+    // auto outerLoopDone = loop1Builder.CreateICmpEQ(nextInd, mkInt(5, 32));
+    // storeRAMVal(loop1Builder, getArg(f, 0), loop1Builder.CreateAdd(indPhi, mkInt(4, 32)), innerInd);
+    // loop1Builder.CreateCondBr(outerLoopDone, exitBlk, outerEntryBlk);
+
+    IRBuilder<> exitBuilder(exitBlk);
+    exitBuilder.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
+    InterfaceFunctions interfaces;
+    
+    HardwareConstraints hcs = standardConstraints();
+    hcs.typeSpecs[string("SRAM_32_16")] =
+      [](StructType* tp) { return ramSpec(32, 16); };
+    hcs.typeSpecs["builtin_fifo_32"] = fifoSpec32;
+    
+    Function* ramRead = ramLoadFunction(getArg(f, 0));
+    interfaces.addFunction(ramRead);
+    implementRAMRead0(ramRead,
+                      interfaces.getConstraints(ramRead));
+
+    Function* ramWrite = ramStoreFunction(getArg(f, 0));
+    interfaces.addFunction(ramWrite);
+    implementRAMWrite0(ramWrite,
+                       interfaces.getConstraints(ramWrite));
+
+    SECTION("No pipelining") {
+      Schedule s = scheduleInterface(f, hcs, interfaces);
+      STG graph = buildSTG(s, f);
+
+      cout << "STG Is" << endl;
+      graph.print(cout);
+
+      map<string, int> testLayout = {{"arg_0", 0}};
+      map<llvm::Value*, int> layout;
+      auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+      VerilogDebugInfo info;
+      addNoXChecks(arch, info);
+
+      emitVerilog(arch, info);
+
+      // Create testing infrastructure
+      map<string, vector<int> > memoryInit{{"arg_0", {6}}};
+      map<string, vector<int> > memoryExpected{{"arg_0", {3, 3, 3, 3, 3}}};
+
+      auto arg0 = dyn_cast<Argument>(getArg(f, 0));
+      string in0Name = string(arg0->getName());
+    
+      TestBenchSpec tb;
+      tb.memoryExpected = memoryExpected;
+      tb.runCycles = 8;
+      tb.name = "task_parallel_loops";
+      tb.useModSpecs = true;
+      int startSetMemCycle = 1;
+    
+      int startRunCycle = startSetMemCycle + 2; 
+      map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+      map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+
+      int checkMemCycle = 100;
+      checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
+
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      REQUIRE(runIVerilogTB("task_parallel_loops"));
+    }
+
+    // SECTION("With pipelining") {
+
+    //   ExecutionConstraints exec;
+      
+    //   inlineWireCalls(f, exec, interfaces);
+    //   addDataConstraints(f, exec);
+    
+    //   cout << "After inlining" << endl;
+    //   cout << valueString(f) << endl;
+
+    //   auto preds = buildControlPreds(f);
+
+    //   set<PipelineSpec> toPipeline;
+    //   PipelineSpec all{false, {}};
+    //   for (auto& blk : f->getBasicBlockList()) {
+    //     if (&blk != &(f->getEntryBlock())) {
+    //       if (!ReturnInst::classof(blk.getTerminator())) {
+    //         all.blks.insert(&blk);
+
+    //         cout << "Pipelining block " << endl;
+    //         cout << valueString(&blk) << endl;
+    //       }
+    //     }
+    //   }
+    //   toPipeline.insert(all);
+
+    //   // Changed
+    //   SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline, preds);
+    //   exec.addConstraints(p, f);
+
+    //   map<Function*, SchedulingProblem> constraints{{f, p}};
+    //   Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+
+    //   // Schedule s = scheduleInterface(f, hcs, interfaces);
+    //   STG graph = buildSTG(s, f);
+
+    //   cout << "STG Is" << endl;
+    //   graph.print(cout);
+
+    //   map<string, int> testLayout = {{"arg_0", 0}};
+    //   map<llvm::Value*, int> layout;
+    //   auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+    //   VerilogDebugInfo info;
+    //   addNoXChecks(arch, info);
+
+    //   emitVerilog(arch, info);
+
+    //   // Create testing infrastructure
+    //   map<string, vector<int> > memoryInit{{"arg_0", {6}}};
+    //   map<string, vector<int> > memoryExpected{{"arg_0", {3, 3, 3, 3, 3}}};
+
+    //   auto arg0 = dyn_cast<Argument>(getArg(f, 0));
+    //   string in0Name = string(arg0->getName());
+    
+    //   TestBenchSpec tb;
+    //   tb.memoryExpected = memoryExpected;
+    //   tb.name = "task_parallel_loops";
+    //   tb.useModSpecs = true;
+    //   int startSetMemCycle = 1;
+    
+    //   int startRunCycle = startSetMemCycle + 2; 
+    //   map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+    //   map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+
+    //   int checkMemCycle = 30;
+    //   checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
+
+    //   emitVerilogTestBench(tb, arch, testLayout);
+
+    //   REQUIRE(runIVerilogTB("task_parallel_loops"));
+    // }
+    
+  }
+  
 
   TEST_CASE("AXI based memory transfer") {
 
