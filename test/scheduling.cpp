@@ -1219,78 +1219,73 @@ namespace ahaHLS {
       REQUIRE(runIVerilogTB("task_parallel_loops"));
     }
 
-    // SECTION("With pipelining") {
+    SECTION("With task parallelism") {
 
-    //   ExecutionConstraints exec;
+      ExecutionConstraints exec;
       
-    //   inlineWireCalls(f, exec, interfaces);
-    //   addDataConstraints(f, exec);
+      inlineWireCalls(f, exec, interfaces);
+      addDataConstraints(f, exec);
     
-    //   cout << "After inlining" << endl;
-    //   cout << valueString(f) << endl;
+      cout << "After inlining" << endl;
+      cout << valueString(f) << endl;
 
-    //   auto preds = buildControlPreds(f);
+      set<BasicBlock*> task0{entryBlk, loop0Blk};
+      set<BasicBlock*> task1{loop1Blk, exitBlk};
+      
+      auto preds = buildControlPreds(f);
 
-    //   set<PipelineSpec> toPipeline;
-    //   PipelineSpec all{false, {}};
-    //   for (auto& blk : f->getBasicBlockList()) {
-    //     if (&blk != &(f->getEntryBlock())) {
-    //       if (!ReturnInst::classof(blk.getTerminator())) {
-    //         all.blks.insert(&blk);
+      set<PipelineSpec> toPipeline;
+      PipelineSpec l0{false, {loop0Blk}};
+      PipelineSpec l1{false, {loop1Blk}};      
+      toPipeline.insert(l0);
+      toPipeline.insert(l1);
 
-    //         cout << "Pipelining block " << endl;
-    //         cout << valueString(&blk) << endl;
-    //       }
-    //     }
-    //   }
-    //   toPipeline.insert(all);
+      // Changed
+      SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline, preds);
+      exec.addConstraints(p, f);
 
-    //   // Changed
-    //   SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline, preds);
-    //   exec.addConstraints(p, f);
+      map<Function*, SchedulingProblem> constraints{{f, p}};
+      Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
 
-    //   map<Function*, SchedulingProblem> constraints{{f, p}};
-    //   Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+      // Schedule s = scheduleInterface(f, hcs, interfaces);
+      STG graph = buildSTG(s, f);
 
-    //   // Schedule s = scheduleInterface(f, hcs, interfaces);
-    //   STG graph = buildSTG(s, f);
+      cout << "STG Is" << endl;
+      graph.print(cout);
 
-    //   cout << "STG Is" << endl;
-    //   graph.print(cout);
+      map<string, int> testLayout = {{"arg_0", 0}};
+      map<llvm::Value*, int> layout;
+      auto arch = buildMicroArchitecture(graph, layout, hcs);
 
-    //   map<string, int> testLayout = {{"arg_0", 0}};
-    //   map<llvm::Value*, int> layout;
-    //   auto arch = buildMicroArchitecture(graph, layout, hcs);
+      VerilogDebugInfo info;
+      addNoXChecks(arch, info);
 
-    //   VerilogDebugInfo info;
-    //   addNoXChecks(arch, info);
+      emitVerilog(arch, info);
 
-    //   emitVerilog(arch, info);
+      // Create testing infrastructure
+      map<string, vector<int> > memoryInit{{"arg_0", {6}}};
+      map<string, vector<int> > memoryExpected{{"arg_0", {0, 1, 2, 3, 0, 1, 2, 3}}};
 
-    //   // Create testing infrastructure
-    //   map<string, vector<int> > memoryInit{{"arg_0", {6}}};
-    //   map<string, vector<int> > memoryExpected{{"arg_0", {3, 3, 3, 3, 3}}};
-
-    //   auto arg0 = dyn_cast<Argument>(getArg(f, 0));
-    //   string in0Name = string(arg0->getName());
+      auto arg0 = dyn_cast<Argument>(getArg(f, 0));
+      string in0Name = string(arg0->getName());
     
-    //   TestBenchSpec tb;
-    //   tb.memoryExpected = memoryExpected;
-    //   tb.name = "task_parallel_loops";
-    //   tb.useModSpecs = true;
-    //   int startSetMemCycle = 1;
+      TestBenchSpec tb;
+      tb.memoryExpected = memoryExpected;
+      tb.name = "task_parallel_loops";
+      tb.useModSpecs = true;
+      int startSetMemCycle = 1;
     
-    //   int startRunCycle = startSetMemCycle + 2; 
-    //   map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
-    //   map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+      int startRunCycle = startSetMemCycle + 2; 
+      map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+      map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
 
-    //   int checkMemCycle = 30;
-    //   checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
+      int checkMemCycle = 100;
+      checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
 
-    //   emitVerilogTestBench(tb, arch, testLayout);
+      emitVerilogTestBench(tb, arch, testLayout);
 
-    //   REQUIRE(runIVerilogTB("task_parallel_loops"));
-    // }
+      REQUIRE(runIVerilogTB("task_parallel_loops"));
+    }
     
   }
   
