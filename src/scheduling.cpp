@@ -906,6 +906,10 @@ namespace ahaHLS {
 
     return x.blks < y.blks;
   }
+
+  bool operator<(const TaskSpec& x, const TaskSpec& y) {
+    return x.blks < y.blks;
+  }
   
   SchedulingProblem
   createSchedulingProblem(llvm::Function* f,

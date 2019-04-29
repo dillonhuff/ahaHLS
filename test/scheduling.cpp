@@ -1289,6 +1289,66 @@ namespace ahaHLS {
 
       REQUIRE(runIVerilogTB("task_parallel_loops"));
     }
+
+    SECTION("Each loop in a different task") {
+
+      ExecutionConstraints exec;
+      
+      inlineWireCalls(f, exec, interfaces);
+      addDataConstraints(f, exec);
+    
+      cout << "After inlining" << endl;
+      cout << valueString(f) << endl;
+
+      set<BasicBlock*> task0{entryBlk, loop0Blk};
+      set<BasicBlock*> task1{loop1Blk, exitBlk};
+      
+      auto preds = buildControlPreds(f);
+
+      set<PipelineSpec> toPipeline;
+      SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline, preds);
+      exec.addConstraints(p, f);
+
+      map<Function*, SchedulingProblem> constraints{{f, p}};
+      Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+      STG graph = buildSTG(s, f);
+
+      cout << "STG Is" << endl;
+      graph.print(cout);
+
+      map<string, int> testLayout = {{"arg_0", 0}};
+      map<llvm::Value*, int> layout;
+      auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+      VerilogDebugInfo info;
+      addNoXChecks(arch, info);
+
+      emitVerilog(arch, info);
+
+      // Create testing infrastructure
+      map<string, vector<int> > memoryInit{{"arg_0", {6}}};
+      map<string, vector<int> > memoryExpected{{"arg_0", {0, 1, 2, 3, 0, 1, 2, 3}}};
+
+      auto arg0 = dyn_cast<Argument>(getArg(f, 0));
+      string in0Name = string(arg0->getName());
+    
+      TestBenchSpec tb;
+      tb.memoryExpected = memoryExpected;
+      tb.name = "task_parallel_loops";
+      tb.useModSpecs = true;
+      int startSetMemCycle = 1;
+    
+      int startRunCycle = startSetMemCycle + 2; 
+      map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+      map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+
+      int checkMemCycle = 100;
+      checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
+
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      REQUIRE(runIVerilogTB("task_parallel_loops"));
+    }
     
   }
   
