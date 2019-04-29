@@ -1373,6 +1373,31 @@ namespace ahaHLS {
       addDisplay("1", w.second.valueString() + " = %d", {w.second.valueString()}, info);
     }
   }
+
+  void
+  noPipelinesWithMultipleActiveOutOfStateBranches(MicroArchitecture& arch,
+                                                  VerilogDebugInfo& info) {
+    for (auto p : arch.pipelines) {
+      for (StateId state0 : p.p.getStates()) {
+        for (StateId state1 : p.p.getStates()) {
+          if (state0 != state1) {
+            bool state0OutBranch =
+              getOutOfStateTransitions(state0, arch.stg).size() > 0;
+
+            bool state1OutBranch =
+              getOutOfStateTransitions(state1, arch.stg).size() > 0;
+
+            if (state0OutBranch && state1OutBranch) {
+              addAssert(implies(stateActiveReg(state0, arch).valueString(),
+                                notStr(stateActiveReg(state1, arch).valueString())),
+                        info);
+            }
+            
+          }
+        }
+      }
+    }
+  }
   
   // Thoughts: Tricky to generate complex printouts in synthesizable
   // verilog. Maybe I should look in to using unsynthesizable constructs?
@@ -1382,8 +1407,13 @@ namespace ahaHLS {
     noOverlappingBlockTransitions(arch, info);
     noOverlappingStateTransitions(arch, info);
 
-    // TODO: Check that pipelines never execute the out of state branches
-    // TODO: Check that there is no port controller overlap
+    // TODO: Check that pipelines never activate multiple out of state
+    // branches
+    noPipelinesWithMultipleActiveOutOfStateBranches(arch, info);
+
+    // TODO: Check that there is no port controller overlap? This will be
+    // so expensive that maybe it should be saved for special datapath
+    // sanity check?
 
     noBlocksActiveInStatesWhereTheyAreNotScheduled(arch, info);
     atLeastOneValidPhiInput(arch, info);
