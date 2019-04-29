@@ -1130,31 +1130,30 @@ namespace ahaHLS {
     IRBuilder<> entryBuilder(entryBlk);
     entryBuilder.CreateBr(loop0Blk);
 
-    IRBuilder<> loop0Builder(loop0Blk);
-    auto indPhi = loop0Builder.CreatePHI(intType(32), 2);
-    auto nextInd = loop0Builder.CreateAdd(indPhi, mkInt(1, 32));
-    storeRAMVal(loop0Builder, getArg(f, 0), indPhi, indPhi);
-    auto loop0Done = loop0Builder.CreateICmpEQ(nextInd, mkInt(4, 32));
-    loop0Builder.CreateCondBr(loop0Done, loop1Blk, loop0Blk);
+    {
+      IRBuilder<> loop0Builder(loop0Blk);
+      auto indPhi = loop0Builder.CreatePHI(intType(32), 2);
+      auto nextInd = loop0Builder.CreateAdd(indPhi, mkInt(1, 32));
+      storeRAMVal(loop0Builder, getArg(f, 0), indPhi, indPhi);
+      auto loop0Done = loop0Builder.CreateICmpEQ(nextInd, mkInt(4, 32));
+      loop0Builder.CreateCondBr(loop0Done, loop1Blk, loop0Blk);
 
-    indPhi->addIncoming(mkInt(0, 32), entryBlk);
-    indPhi->addIncoming(nextInd, loop0Blk);
+      indPhi->addIncoming(mkInt(0, 32), entryBlk);
+      indPhi->addIncoming(nextInd, loop0Blk);
+    }
+
+    {
+      IRBuilder<> loop0Builder(loop1Blk);
+      auto indPhi = loop0Builder.CreatePHI(intType(32), 2);
+      auto nextInd = loop0Builder.CreateAdd(indPhi, mkInt(1, 32));
+      storeRAMVal(loop0Builder, getArg(f, 0), loop0Builder.CreateAdd(indPhi, mkInt(4, 32)), indPhi);
+      auto loop0Done = loop0Builder.CreateICmpEQ(nextInd, mkInt(4, 32));
+      loop0Builder.CreateCondBr(loop0Done, exitBlk, loop1Blk);
+
+      indPhi->addIncoming(mkInt(0, 32), loop0Blk);
+      indPhi->addIncoming(nextInd, loop1Blk);
+    }
     
-    // IRBuilder<> innerBuilder(innerBlk);
-    // auto innerInd = innerBuilder.CreatePHI(intType(32), 2);
-    // auto nextInnerInd = innerBuilder.CreateAdd(innerInd, mkInt(1, 32));
-    // storeRAMVal(loop0Builder, getArg(f, 0), indPhi, innerInd);
-    // auto innerLoopDone = innerBuilder.CreateICmpEQ(nextInnerInd, mkInt(4, 32));
-    // auto loop0Br = innerBuilder.CreateCondBr(innerLoopDone, loop1Blk, loop0Blk);
-
-    // innerInd->addIncoming(mkInt(0, 32), outerEntryBlk);
-    // innerInd->addIncoming(nextInnerInd, innerBlk);
-    
-    // IRBuilder<> loop1Builder(outerExitBlk);
-    // auto outerLoopDone = loop1Builder.CreateICmpEQ(nextInd, mkInt(5, 32));
-    // storeRAMVal(loop1Builder, getArg(f, 0), loop1Builder.CreateAdd(indPhi, mkInt(4, 32)), innerInd);
-    // loop1Builder.CreateCondBr(outerLoopDone, exitBlk, outerEntryBlk);
-
     IRBuilder<> exitBuilder(exitBlk);
     exitBuilder.CreateRet(nullptr);
 
@@ -1178,7 +1177,7 @@ namespace ahaHLS {
     implementRAMWrite0(ramWrite,
                        interfaces.getConstraints(ramWrite));
 
-    SECTION("No pipelining") {
+    SECTION("No task parallelism") {
       Schedule s = scheduleInterface(f, hcs, interfaces);
       STG graph = buildSTG(s, f);
 
@@ -1196,7 +1195,7 @@ namespace ahaHLS {
 
       // Create testing infrastructure
       map<string, vector<int> > memoryInit{{"arg_0", {6}}};
-      map<string, vector<int> > memoryExpected{{"arg_0", {3, 3, 3, 3, 3}}};
+      map<string, vector<int> > memoryExpected{{"arg_0", {0, 1, 2, 3, 0, 1, 2, 3}}};
 
       auto arg0 = dyn_cast<Argument>(getArg(f, 0));
       string in0Name = string(arg0->getName());
