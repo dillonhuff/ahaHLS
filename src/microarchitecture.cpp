@@ -47,6 +47,16 @@ using namespace std;
 // difference between actions in different basic blocks of the same pipeline
 // is not the same as the difference in states. It is the min of the difference
 // between the branch connecting b0 and b1, and the value of b1
+
+// Assumption in Cong / Zhang:
+// Time from blk y: [i0; br x;] to blk x: [i1]; is:
+//   time from end(i0) to end(br x) + time from start(blk x) to i1?
+
+// timediff(i0, i1) is starttime(i0) - starttime(i1)
+// Start time relative to the start of dominator block of i1?
+// Unpipelined: starttime(i0) == stateNumber(i0) - starttime(blky)?
+// 
+
 namespace ahaHLS {
 
   Wire getLastStateReg(const StateId state, MicroArchitecture& arch);
