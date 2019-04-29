@@ -1379,16 +1379,19 @@ namespace ahaHLS {
   void addControlSanityChecks(MicroArchitecture& arch,
                               VerilogDebugInfo& info) {
     noOverlappingLastBlockTransitions(arch, info);
-    noOverlappingBlockTransitions(arch, info);    
+    noOverlappingBlockTransitions(arch, info);
+    noOverlappingStateTransitions(arch, info);
+
+    // TODO: Check that pipelines never execute the out of state branches
+    // TODO: Check that there is no port controller overlap
+
     noBlocksActiveInStatesWhereTheyAreNotScheduled(arch, info);
     atLeastOneValidPhiInput(arch, info);
 
-    // TODO: Change to use new state flags
-    noOverlappingStateTransitions(arch, info);
+    
     
     //printEdgeTakenWires(arch, info);
     //printAllActiveStates(arch, info);
-    //noOverlappingBlockTransitions(arch, info);
   }
   
   void addNoXChecks(MicroArchitecture& arch,

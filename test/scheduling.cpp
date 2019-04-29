@@ -1113,7 +1113,7 @@ namespace ahaHLS {
     
   }
 
-  TEST_CASE("Task parallelism with successive simple loops") {
+  TEST_CASE("Task parallelism and pipelining with successive simple loops") {
     LLVMContext context;
     setGlobalLLVMContext(&context);
 
@@ -1177,7 +1177,7 @@ namespace ahaHLS {
     implementRAMWrite0(ramWrite,
                        interfaces.getConstraints(ramWrite));
 
-    SECTION("No task parallelism") {
+    SECTION("No pipelining and no task parallelism") {
       Schedule s = scheduleInterface(f, hcs, interfaces);
       STG graph = buildSTG(s, f);
 
@@ -1219,7 +1219,7 @@ namespace ahaHLS {
       REQUIRE(runIVerilogTB("task_parallel_loops"));
     }
 
-    SECTION("With task parallelism") {
+    SECTION("Both successive loops inside a single pipeline") {
 
       ExecutionConstraints exec;
       
@@ -1237,7 +1237,7 @@ namespace ahaHLS {
       set<PipelineSpec> toPipeline;
       PipelineSpec l0{false, {loop0Blk, loop1Blk}};
       //PipelineSpec l1{false, {loop1Blk}};      
-      //toPipeline.insert(l0);
+      toPipeline.insert(l0);
       //toPipeline.insert(l1);
 
       // Changed

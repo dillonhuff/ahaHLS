@@ -1888,19 +1888,18 @@ namespace ahaHLS {
       cout << "Found non terminating block in " << state << endl;
 
       StateId dest = state + 1;
-      Wire condWire = blockActiveInState(state, blk, arch);
-      addStateTransition(state, dest, condWire, arch, true);
 
-      auto& cntr = nextBBController(dest, arch);
-      cntr.values[condWire] = constWire(32, arch.cs.getBasicBlockNo(blk));
+      if (elem(blk, blocksInState(dest, arch.stg))) {
+        Wire condWire = blockActiveInState(state, blk, arch);
+        addStateTransition(state, dest, condWire, arch, true);
 
-      RegController& lastBBController =
-        arch.getController(lastBBReg(dest, arch));
-      lastBBController.values[condWire] = predecessor(state, blk, arch);
-      
-      //auto bbNo = arch.cs.getBasicBlockNo(jmp.jmp.first);
-      //Wire condWire = map_find(jmp.jmp, arch.edgeTakenWires);
-      //rc.values[condWire] = constWire(32, bbNo);
+        auto& cntr = nextBBController(dest, arch);
+        cntr.values[condWire] = constWire(32, arch.cs.getBasicBlockNo(blk));
+
+        RegController& lastBBController =
+          arch.getController(lastBBReg(dest, arch));
+        lastBBController.values[condWire] = predecessor(state, blk, arch);
+      }
     }
 
   }
