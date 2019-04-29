@@ -243,7 +243,7 @@ namespace ahaHLS {
   class ElaboratedPipeline {
   public:
     Pipeline p;
-    std::vector<Wire> valids;
+    //std::vector<Wire> valids;
     Wire inPipe;
     StateId stateId;
 

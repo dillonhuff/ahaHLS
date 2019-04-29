@@ -2972,7 +2972,7 @@ namespace ahaHLS {
         // TODO: Remove this name lookup hack
         string wName = dataInputs.values[instr].name;
         string ctName = wName.substr(0, wName.size() - 9);
-        cout << "ctName = " << ctName << endl;
+        //cout << "ctName = " << ctName << endl;
         PortController& priorValueController =
           arch.portController(ctName);
         Wire priorValue = priorValueController.functionalUnit().outputWire();
@@ -3093,7 +3093,7 @@ namespace ahaHLS {
     buildAtStateWires(arch);
     buildBasicBlockEnableLogic(arch);
     buildPortControllers(arch);
-    emitPipelineRegisterChains(arch);
+    //emitPipelineRegisterChains(arch);
     emitControlCode(arch);
     buildDataPathSetLogic(arch);
 
@@ -3182,57 +3182,57 @@ namespace ahaHLS {
 
   // }
 
-  void emitPipelineRegisterChains(MicroArchitecture& arch) {
-    for (auto p : arch.pipelines) {
-      for (map<Instruction*, Wire>& regMap : p.pipelineRegisters) {
-        for (auto iReg : regMap) {
-          arch.addController(iReg.second.name, iReg.second.width);
-          //RegController& reg = arch.getController(iReg.second.name);
-          //reg.resetValue = "32'dx";
-        }
-      }
-    }
+  // void emitPipelineRegisterChains(MicroArchitecture& arch) {
+  //   for (auto p : arch.pipelines) {
+  //     for (map<Instruction*, Wire>& regMap : p.pipelineRegisters) {
+  //       for (auto iReg : regMap) {
+  //         arch.addController(iReg.second.name, iReg.second.width);
+  //         //RegController& reg = arch.getController(iReg.second.name);
+  //         //reg.resetValue = "32'dx";
+  //       }
+  //     }
+  //   }
 
-    for (auto p : arch.pipelines) {
+  //   for (auto p : arch.pipelines) {
 
-      for (int i = 0; i < ((int) p.pipelineRegisters.size()) - 1; i++) {
+  //     for (int i = 0; i < ((int) p.pipelineRegisters.size()) - 1; i++) {
 
-        map<Instruction*, Wire> nameMap =
-          p.pipelineRegisters[i];
+  //       map<Instruction*, Wire> nameMap =
+  //         p.pipelineRegisters[i];
 
-        map<Instruction*, Wire> nextNameMap =
-          p.pipelineRegisters[i + 1];
+  //       map<Instruction*, Wire> nextNameMap =
+  //         p.pipelineRegisters[i + 1];
 
-        set<Instruction*> instructionsFinishing;
-        for (auto instrG : arch.stg.instructionsFinishingAt(p.stateForStage(i))) {
-          instructionsFinishing.insert(instrG);
-        }
+  //       set<Instruction*> instructionsFinishing;
+  //       for (auto instrG : arch.stg.instructionsFinishingAt(p.stateForStage(i))) {
+  //         instructionsFinishing.insert(instrG);
+  //       }
 
-        for (auto instrS : nameMap) {
-          Instruction* i = instrS.first;
+  //       for (auto instrS : nameMap) {
+  //         Instruction* i = instrS.first;
 
-          // Instructions finishing in this stage have values stored in a separate
-          // block
-          if (!elem(i, instructionsFinishing)) {
-            Wire current = instrS.second;
+  //         // Instructions finishing in this stage have values stored in a separate
+  //         // block
+  //         if (!elem(i, instructionsFinishing)) {
+  //           Wire current = instrS.second;
 
-            assert(contains_key(i, nextNameMap));
-            Wire next = map_find(i, nextNameMap);
-            arch.getController(next).values[constWire(1, 1)] = current;
-          }
-        }
+  //           assert(contains_key(i, nextNameMap));
+  //           Wire next = map_find(i, nextNameMap);
+  //           arch.getController(next).values[constWire(1, 1)] = current;
+  //         }
+  //       }
         
-      }
+  //     }
 
-      for (auto instrS : p.pipelineRegisters.back()) {
-        Instruction* i = instrS.first;
-        if (needsTempStorage(i, arch)) {
-          arch.getController(map_find(i, arch.names)).values[constWire(1, 1)] =
-            instrS.second;
-        }
-      }
-    }
-  }
+  //     for (auto instrS : p.pipelineRegisters.back()) {
+  //       Instruction* i = instrS.first;
+  //       if (needsTempStorage(i, arch)) {
+  //         arch.getController(map_find(i, arch.names)).values[constWire(1, 1)] =
+  //           instrS.second;
+  //       }
+  //     }
+  //   }
+  // }
   
   // void emitPipelineValidChainBlock(MicroArchitecture& arch) {
   //   auto pipelines = arch.pipelines;
@@ -3274,7 +3274,7 @@ namespace ahaHLS {
       for (auto st : p.getStates()) {
         string jStr = to_string(st);
         
-        ep.valids.push_back(Wire(true, 1, "pipeline_stage_" + jStr + "_valid"));
+        //ep.valids.push_back(Wire(true, 1, "pipeline_stage_" + jStr + "_valid"));
 
         assert(st >= 0);
 
