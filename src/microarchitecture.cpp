@@ -12,6 +12,35 @@ using namespace dbhc;
 using namespace llvm;
 using namespace std;
 
+// Hazard resolution is now the big problem. It shows up first because
+// of the outer loop pipelines need to wait one cycle before reading.
+// This may not be the only problem with the outer loop pipeline, but it is
+// one problem
+
+// Issues:
+//   1. Hazard resolution / empty states
+//   2. More versatile datapath (FIFOs as connectors, buffers etc)
+//   3. Task parallelism
+
+// Hazards are tricky for a few reasons
+//   1. Scheduling code contains many versions of the same function
+//   2. Scheduling analyses use an LLVM pass to generate data structures
+//   3. ExecutionConstraints and SchedulingProblem are very similar but used
+//      in several places
+//   4. Even though I have two different constraint data structures I do not
+//      have an explicit way to represent different kinds of hazards.
+///  5. Inlining breaks up the instructions that create some types of hazards so
+//      that they are not as easy to find in the translation
+
+// Q: Could I look through execution constraints after the fact and find
+//    constraints that could be violated by pipeline scheduling?
+// A: The fact that a branch is pipelined means that the state number gap
+//    between read valid and write does not necessarily correspond to a delay
+//    in cycles between the two?
+//    How can I tell if a state gap between instructions is actually important
+//    to the correct execution of a program? Treat state ids as both states and
+//    times? For each branch compute the actual execution time of branches and then
+//    check whether the trace matches?
 namespace ahaHLS {
 
   Wire getLastStateReg(const StateId state, MicroArchitecture& arch);
