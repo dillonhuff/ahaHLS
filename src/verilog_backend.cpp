@@ -1260,7 +1260,6 @@ namespace ahaHLS {
     for (auto st : arch.stg.opStates) {
       RegController& rc = arch.getController(lastBBReg(st.first, arch));
     
-      //string inPipe = inAnyPipeline(arch).valueString();
       for (auto condAndVal0 : rc.values) {
         string cond0 = condAndVal0.first.valueString();
         for (auto condAndVal1 : rc.values) {

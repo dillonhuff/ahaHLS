@@ -21,6 +21,17 @@ using namespace std;
 // makes it hard for me to just add the directive that the default transitions
 // should stop at the end of the block, because that block does not stop at the end
 // of the store?
+// It seems as though the default schedule of this pipeline produces
+// overlapping state visits, though Im not sure if I see that in the state
+// transition code. It is ok for pipelined states to contain multiple branches,
+// but if a basic block is pipelined, with its branch possibly going to a subsequent
+// block in the pipeline then that subsequent block must be scheduled separately
+// since it cannot have multiple blocks active at a time.
+// OR: I could allow states to activate from multiple sources as long as
+// the basic blocks connecting them could never overlap
+// OR: I could set basic blocks in a pipeline to finish before another block
+// starts, due to branch movement this wouldnt force sequential execution, but
+// would avoid state overlap
 
 // Hazard resolution is now the big problem. It shows up first because
 // of the outer loop pipelines need to wait one cycle before reading.
