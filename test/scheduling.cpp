@@ -1636,6 +1636,11 @@ namespace ahaHLS {
       set<PipelineSpec> toPipeline;
       PipelineSpec all{false, {}};
       for (auto& blk : f->getBasicBlockList()) {
+        if (blk.getName() == "exit_block_il") {
+          cout << "No branch sinking in exit block il" << endl;
+          exec.addConstraint(instrEnd(blk.getTerminator()) == end(&blk));
+        }
+        
         if (&blk != &(f->getEntryBlock())) {
           if (!ReturnInst::classof(blk.getTerminator())) {
             all.blks.insert(&blk);
@@ -1645,7 +1650,7 @@ namespace ahaHLS {
           }
         }
       }
-      //toPipeline.insert(all);
+      toPipeline.insert(all);
 
       SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline, preds);
       exec.addConstraints(p, f);

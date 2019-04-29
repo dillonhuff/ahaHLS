@@ -41,6 +41,12 @@ using namespace std;
 //    to the correct execution of a program? Treat state ids as both states and
 //    times? For each branch compute the actual execution time of branches and then
 //    check whether the trace matches?
+
+// Note: Maybe static hazards can be resolved in constraint solving by pushing
+// the branch forward in the schedule (higher II?). Could say that the *time*
+// difference between actions in different basic blocks of the same pipeline
+// is not the same as the difference in states. It is the min of the difference
+// between the branch connecting b0 and b1, and the value of b1
 namespace ahaHLS {
 
   Wire getLastStateReg(const StateId state, MicroArchitecture& arch);
