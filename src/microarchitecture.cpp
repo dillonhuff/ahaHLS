@@ -1671,14 +1671,14 @@ namespace ahaHLS {
         Wire instrWire = map_find(instr, names);
         string instrName = map_find(instr, names).name;
         
-        if (isPipelineState(state, pipelines)) {
-          auto p = getPipeline(state, pipelines);
-          int stage = p.stageForState(state);
-          if (stage < p.numStages() - 1) {
-            instrName = map_find(instr, p.pipelineRegisters[stage + 1]).name;
-            instrWire = map_find(instr, p.pipelineRegisters[stage + 1]);
-          }
-        }
+        // if (isPipelineState(state, pipelines)) {
+        //   auto p = getPipeline(state, pipelines);
+        //   int stage = p.stageForState(state);
+        //   if (stage < p.numStages() - 1) {
+        //     instrName = map_find(instr, p.pipelineRegisters[stage + 1]).name;
+        //     instrWire = map_find(instr, p.pipelineRegisters[stage + 1]);
+        //   }
+        // }
 
         if (needsTempStorage(instr, arch)) {
           auto unit = map_find(instr, unitAssignment);
@@ -1792,7 +1792,6 @@ namespace ahaHLS {
   }
   
   Wire entryStateActiveWire(const ElaboratedPipeline& p, MicroArchitecture& arch) {
-    //return p.stateIsActiveWire(entryState(p));
     return stateActiveReg(entryState(p), arch);
   }
   
@@ -2188,7 +2187,6 @@ namespace ahaHLS {
       }
 
       pc.setAlways("in_data", anyPipeStateActive);
-      //pc.setAlways("in_data", checkEqual(p.stateId, arch.cs.getGlobalState(), arch));
     }
 
   }
@@ -2932,7 +2930,6 @@ namespace ahaHLS {
     }
 
     return constWire(getValueBitWidth(instr), 0);
-    //Wire priorData = arch.dp.stateData[possibleLast].values[instr];
     
   }
   
@@ -2981,7 +2978,6 @@ namespace ahaHLS {
           StateId possibleLast = stP.first;
           Wire lastTriggered = stP.second;
 
-          //Wire priorData = arch.dp.stateData[possibleLast].values[instr];
           Wire priorData = datapathValueAt(possibleLast, instr, arch);
           priorValueController.setCond("in_data", lastTriggered, priorData);
         }
@@ -3267,52 +3263,52 @@ namespace ahaHLS {
       ep.stateId = pipeState + i;
       ep.inPipe = Wire(1, "in_pipeline_" + iStr);
 
-      vector<map<Instruction*, Wire> > pipelineRegisters;
-      std::set<Instruction*> pastValues;
-      int regNum = 0;
+      // //vector<map<Instruction*, Wire> > pipelineRegisters;
+      // std::set<Instruction*> pastValues;
+      // int regNum = 0;
 
-      for (auto st : p.getStates()) {
-        string jStr = to_string(st);
+      // for (auto st : p.getStates()) {
+      //   string jStr = to_string(st);
         
-        //ep.valids.push_back(Wire(true, 1, "pipeline_stage_" + jStr + "_valid"));
+      //   //ep.valids.push_back(Wire(true, 1, "pipeline_stage_" + jStr + "_valid"));
 
-        assert(st >= 0);
+      //   assert(st >= 0);
 
-        map<Instruction*, Wire> regs;
-        for (auto val : pastValues) {
-          regs[val] = Wire(true, getValueBitWidth(val), string("pipeline_") + val->getOpcodeName() + "_" + iStr + "_" + jStr + "_" + to_string(regNum));
-          regNum++;
-        }
+      //   map<Instruction*, Wire> regs;
+      //   for (auto val : pastValues) {
+      //     regs[val] = Wire(true, getValueBitWidth(val), string("pipeline_") + val->getOpcodeName() + "_" + iStr + "_" + jStr + "_" + to_string(regNum));
+      //     regNum++;
+      //   }
 
-        for (auto instrG : stg.instructionsFinishingAt(st)) {
-          Instruction* i = instrG;
-          if (hasOutput(i)) {          
-            regs[i] = Wire(true, getValueBitWidth(i), string("pipeline_") + i->getOpcodeName() + iStr + "_" + jStr + "_" + to_string(regNum));
-            pastValues.insert(i);
-            regNum++;
-          }
-        }
+      //   for (auto instrG : stg.instructionsFinishingAt(st)) {
+      //     Instruction* i = instrG;
+      //     if (hasOutput(i)) {          
+      //       regs[i] = Wire(true, getValueBitWidth(i), string("pipeline_") + i->getOpcodeName() + iStr + "_" + jStr + "_" + to_string(regNum));
+      //       pastValues.insert(i);
+      //       regNum++;
+      //     }
+      //   }
 
-        pipelineRegisters.push_back(regs);
-      }
+      //   //pipelineRegisters.push_back(regs);
+      // }
 
-      bool foundTerm = false;
-      for (auto st : p.getStates()) {
-        for (auto instrG : stg.instructionsFinishingAt(st)) {
-          if (BranchInst::classof(instrG)) {
-            foundTerm = true;
-            ep.exitBranch = instrG;
-            break;
-          }
-        }
-      }
+      // bool foundTerm = false;
+      // for (auto st : p.getStates()) {
+      //   for (auto instrG : stg.instructionsFinishingAt(st)) {
+      //     if (BranchInst::classof(instrG)) {
+      //       foundTerm = true;
+      //       ep.exitBranch = instrG;
+      //       break;
+      //     }
+      //   }
+      // }
 
-      assert(foundTerm);
+      // assert(foundTerm);
 
       // TODO: Check that the terminator condition is evaluated in the first
       // state of the basic block
 
-      ep.pipelineRegisters = pipelineRegisters;
+      //ep.pipelineRegisters = pipelineRegisters;
       pipelines.push_back(ep);
 
       pipeState++;
