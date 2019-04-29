@@ -1064,71 +1064,6 @@ namespace ahaHLS {
       return constWire(getValueBitWidth(result), 0); //arch.dp.stateDataInputs[currentPos].values[result];
     }
 
-    // // Thought: The datapath API could be one function which
-    // // gets the output wire of a piece of storage which stores the
-    // // last time the producer instruction was triggered along
-    // // the given control path to the user?
-    // if (currentPosition.inPipeline()) {
-    //   cout << "We are in a pipeline" << endl;
-
-    //   int stage = currentPosition.pipelineStage();
-    //   auto p = arch.getPipeline(currentPosition.stateId());
-
-    //   if (!producedInPipeline(result, p, arch)) {
-    //     return sequentialReg(result, arch);
-    //   }
-
-    //   StateId argState = map_find(result, arch.stg.sched.instrTimes).back();
-    //   StateId thisState = map_find(currentPosition.instr, arch.stg.sched.instrTimes).front();
-
-    //   if (argState == thisState) {
-
-    //     // BasicBlock* argBB = result->getParent();
-    //     // BasicBlock* userBB = currentPosition.instr->getParent();
-
-    //     // assert(argBB == userBB);
-
-    //     // OrderedBasicBlock obb(argBB);
-
-    //     // assert(!(obb.dominates(result, currentPosition.instr)));
-
-    //     int stagePlusII = stage + p.II();
-    //     if (stagePlusII >= (int) p.pipelineRegisters.size()) {
-
-    //       return sequentialReg(result, arch);
-          
-    //       // assert(contains_key(result, arch.names));
-                   
-    //       // Wire tmpRes = map_find(result, arch.names);
-
-    //       // cout << "Wire name = " << tmpRes.name << endl;
-    //       // return tmpRes;
-    //     } else {
-    //       // Could I just get from the last active value?
-    //       Wire tmpRes = map_find(result, p.pipelineRegisters[stage + p.II()]);
-    //       return tmpRes;
-    //     }
-
-    //   } else {
-
-    //     cout << "Value is in pipeline registers for another stage" << endl;
-    //     Wire tmpRes = map_find(result, p.pipelineRegisters[stage]);
-    //     return tmpRes;
-    //   }
-    // }
-
-    // cout << "Getting the value of " << valueString(result) << " from arch.names" << endl;    
-    // return sequentialReg(result, arch);
-    
-
-
-    // assert(contains_key(result, arch.names));
-    
-    // Wire tmpRes = map_find(result, arch.names);
-
-    // //cout << "Name is " << tmpRes.name << endl;
-    
-    // return tmpRes;
   }
 
   Wire dataOutputWire(llvm::Instruction* instr0, const MicroArchitecture& arch) {
@@ -1151,8 +1086,6 @@ namespace ahaHLS {
       }
       assert(unit0Src.outWires.size() == 1);
       return unit0Src.outputWire();
-      // string valName = unit0Src.onlyOutputVar();
-      // return valName;
     }
   }
 
@@ -1161,58 +1094,6 @@ namespace ahaHLS {
     return dataOutputWire(instr0, arch).valueString();
   }
 
-  // set<BasicBlock*> successorsInState(BasicBlock* const blk,
-  //                                    const StateId state,
-  //                                    MicroArchitecture& arch) {
-  //   //return true;
-  //   set<BasicBlock*> succs;
-  //   for (BasicBlock* const succ : successors(blk)) {
-
-  //     // Is this too restrictive? To be a successor
-  //     // in this state the block does not need to
-  //     // finish in this state, it just needs to start in
-  //     // this state.
-  //     if (arch.stg.blockStartState(succ) == state) {
-  //       succs.insert(succ);
-  //     }
-  //   }
-
-  //   return succs;
-  // }
-
-  // TODO: I still think this code is wrong even though I dont have a test to
-  // prove it. I dont see how it can deal with two looped blocks in a state
-  // Also: Another problem here is that a block precedes itself in this code,
-  // but in reality blocks never preceed themselves in
-  // bool blockPrecedesInState(BasicBlock* const maybeFirst,
-  //                           BasicBlock* const maybeSecond,
-  //                           const StateId state,
-  //                           MicroArchitecture& arch) {
-  //   //return true;
-    
-  //   set<BasicBlock*> successors{maybeFirst};
-  //   bool addedSuccessors = true;
-  //   while (addedSuccessors) {
-  //     addedSuccessors = false;
-
-  //     int oldSize = successors.size();
-  //     for (auto blk : successors) {
-
-  //       if (arch.stg.blockEndState(blk) == state) {
-  //         for (auto succ : successorsInState(blk, state, arch)) {
-  //           successors.insert(succ);
-  //         }
-  //       }
-  //     }
-
-  //     if (oldSize != successors.size()) {
-  //       addedSuccessors = true;
-  //     }
-  //   }
-
-  //   return elem(maybeSecond, successors);
-  // }
-  
   Wire outputWire(Value* val,
                   ControlFlowPosition& currentPosition,
                   MicroArchitecture& arch) {
@@ -1653,46 +1534,6 @@ namespace ahaHLS {
     return w;
   }
   
-  // void emitTempStorage(const StateId state,
-  //                      MicroArchitecture& arch) {
-
-
-  //   auto& names = arch.names;
-  //   auto& pipelines = arch.pipelines;
-  //   auto& unitAssignment = arch.unitAssignment;
-    
-  //   for (auto instrG : arch.stg.instructionsFinishingAt(state)) {
-  //     Instruction* instr = instrG;
-
-  //     if (hasOutput(instr)) {
-
-  //       assert(contains_key(instr, names));
-
-  //       Wire instrWire = map_find(instr, names);
-  //       string instrName = map_find(instr, names).name;
-        
-  //       // if (isPipelineState(state, pipelines)) {
-  //       //   auto p = getPipeline(state, pipelines);
-  //       //   int stage = p.stageForState(state);
-  //       //   if (stage < p.numStages() - 1) {
-  //       //     instrName = map_find(instr, p.pipelineRegisters[stage + 1]).name;
-  //       //     instrWire = map_find(instr, p.pipelineRegisters[stage + 1]);
-  //       //   }
-  //       // }
-
-  //       if (needsTempStorage(instr, arch)) {
-  //         auto unit = map_find(instr, unitAssignment);
-
-  //         Wire cond = blockActiveInState(state, instr->getParent(), arch);
-          
-  //         arch.getController(instrWire).values[cond] = dataOutputWire(instr, arch);
-  //       }
-          
-  //     }
-  //   }
-
-  // }
-
   bool isTerminalState(const StateId state,
                        const ElaboratedPipeline& p,
                        MicroArchitecture& arch) {
@@ -1710,66 +1551,12 @@ namespace ahaHLS {
     Wire s = constWire(1, 1);
     for (StateId state : allStates(p)) {
       if (!isTerminalState(state, p, arch)) {
-        //s = checkAnd(s, checkNotWire(p.stateIsActiveWire(state), arch), arch);
         s = checkAnd(s, checkNotWire(stateActiveReg(state, arch), arch), arch);
       }
     }
-    // for (int i = 0; i < (p.numStages() - 1); i++) {
-    //   s = checkAnd(s, checkNotWire(p.valids.at(i), arch), arch);
-    // }
 
     return s;
   }
-
-  Instruction*
-  lastInstructionForBlockInState(BasicBlock* const blk,
-                                 const StateId state,
-                                 MicroArchitecture& arch) {
-    OrderedBasicBlock obb(blk);
-    Instruction* last = nullptr;
-    
-    for (auto instrG : map_find(state, arch.stg.opStates)) {
-      if (instrG->getParent() != blk) {
-        continue;
-      }
-
-      if ((last == nullptr) || obb.dominates(last, instrG)) {
-        last = instrG;
-      }
-    }
-
-    return last;
-  }
-  
-  Instruction* lastInstructionInState(const StateId state,
-                                      MicroArchitecture& arch) {
-    Instruction* last = nullptr;
-    BasicBlock* lastBB = nullptr;
-
-    for (auto instrG : map_find(state, arch.stg.opStates)) {
-      if (last == nullptr) {
-        last = instrG;
-        lastBB = last->getParent();
-      }
-
-      assert(instrG->getParent() == lastBB);
-
-      OrderedBasicBlock obb(lastBB);
-      if (obb.dominates(last, instrG)) {
-        last = instrG;
-      }
-    }
-
-    return last;
-  }
-
-  // void emitTempStorageCode(const StateId state,
-  //                          MicroArchitecture& arch) {
-
-  //   emitTempStorage(state,
-  //                   arch);
-    
-  // }
 
   StateId findLastNonBlankState(const StateId state, STG& stg) {
     assert(state > 0);
@@ -1938,54 +1725,6 @@ namespace ahaHLS {
     return elem(state, map_find(instr, stg.sched.instrTimes));
   }
 
-  // Returns the set of all basic blocks that contain instructions
-  // that are in progress in state, but where the terminator of the block
-  // does not execute in state
-  // I keep trying to express these state transitions in terms of basic
-  // blocks, but maybe they need to be expressed in terms of CFG edges.
-  // The problem is that blocks that start in one state and stop in another
-  // have "edges" in the state transition graph, that do not exist in the
-  // CFG because they are not transitions between blocks, they are transitions
-  // between groups of instructions in the same block
-  // std::set<BasicBlock*>
-  // nonTerminatingBlocks(const StateId state,
-  //                      STG& stg) {
-  //   vector<Instruction*> instrsAtState = map_find(state, stg.opStates);
-  //   set<BasicBlock*> allBlocks;
-  //   for (auto instr : instrsAtState) {
-  //     allBlocks.insert(instr->getParent());
-  //   }
-  //   for (auto blk : stg.sched.blockTimes) {
-  //     for (auto stateNum : blk.second) {
-  //       if (stateNum == state) {
-  //         allBlocks.insert(blk.first);
-  //       }
-  //     }
-  //   }
-
-  //   cout << "All blocks size = " << allBlocks.size() << endl;
-    
-  //   set<BasicBlock*> nonTerminating;
-  //   for (auto blk : allBlocks) {
-  //     bool terminatorFinishesInState = false;
-  //     for (auto& instrPtr : *blk) {
-  //       auto* instr = &instrPtr;
-  //       if (TerminatorInst::classof(instr) &&
-  //           instructionInProgressAt(instr, state, stg) &&
-  //           (stg.instructionEndState(instr) == state)) {
-  //         terminatorFinishesInState = true;
-  //         break;
-  //       }
-  //     }
-
-  //     if (!terminatorFinishesInState) {
-  //       nonTerminating.insert(blk);
-  //     }
-  //   }
-
-  //   return nonTerminating;
-  // }
-
   std::set<BasicBlock*>
   terminatingBlocks(const StateId state,
                     STG& stg) {
@@ -2052,17 +1791,6 @@ namespace ahaHLS {
 
     // Note: Maybe need to check that the possible last jump was taken
     // and that no subsequent jumps were taken?
-
-    // TODO: Check that lastBB conditions do not overlap?
-    // for (auto jmp : possibleLastJumps(state, arch.stg)) {
-    //   StateId dst = dstState(jmp, arch.stg);
-
-    //   RegController& rc = arch.getController(lastBBReg(dst, arch));
-      
-    //   auto bbNo = arch.cs.getBasicBlockNo(jmp.jmp.first);
-    //   Wire condWire = map_find(jmp.jmp, arch.edgeTakenWires);
-    //   rc.values[condWire] = constWire(32, bbNo);
-    // }
 
     for (auto transition : getOutOfStateTransitions(state, arch.stg)) {
       BasicBlock* srcBlk = transition.first;
@@ -2209,12 +1937,6 @@ namespace ahaHLS {
                      PortController& portController) {
     return elem(port, portController.functionalUnit().module.insensitivePorts);
   }
-
-  // Wire containerBlockIsActive(Instruction* const instr,
-  //                             MicroArchitecture& arch) {
-  //   BasicBlock* bb = instr->getParent();
-  //   return arch.isActiveBlockVar(bb);
-  // }
   
   // Here I am calling atState after the mapping of instructions on to
   // cycles has vanished. By construction the schedule should never
@@ -2340,12 +2062,6 @@ namespace ahaHLS {
 
     return arch.portController(name);
   }
-  
-  // Wire wireValue(const std::string& hName,
-  //                       MicroArchitecture& arch) {
-  //   auto& pController = arch.portController(hName);
-  //   return pController.unitController.unit.outputWire();
-  // }
   
   ModuleSpec comparatorSpec(const std::string& name, const int width) {
     ModuleSpec unit;
@@ -2544,31 +2260,6 @@ namespace ahaHLS {
     
   }
 
-  // bool jumpToSameState(BasicBlock* const predecessor,
-  //                      BasicBlock* const successor,
-  //                      MicroArchitecture& arch) {
-
-  //   if ((predecessor != successor) &&
-  //       (arch.stg.blockStartState(successor) == arch.stg.blockEndState(predecessor))) {
-
-  //     StateId state = arch.stg.blockStartState(successor);
-  //     // Check if predecessor precedes successor
-  //     if (blockPrecedesInState(predecessor,
-  //                              successor,
-  //                              state,
-  //                              arch)) {
-  //       return true;
-  //     } else {
-
-        
-  //       return false;
-  //     }
-
-  //   }
-
-  //   return false;
-  // }
-
   Wire blockActiveInState(const StateId state,
                           BasicBlock* const blk,
                           MicroArchitecture& arch) {
@@ -2660,25 +2351,6 @@ namespace ahaHLS {
       }
     }
   }
-
-  // void buildReturnBlockTransitions(MicroArchitecture& arch) {
-  //   for (auto st : arch.stg.opStates) {
-  //     StateId state = st.first;
-  //     for (auto blk : terminatingBlocks(state, arch.stg)) {
-  //       if (ReturnInst::classof(blk->getTerminator())) {
-  //         Wire thisBlkActive = blockActiveInState(state, blk, arch);
-  //         // If the a return statement executes in a given block
-  //         // then if there is not default behavior set the next block
-  //         // to be the current block.
-
-  //         if (!arch.stg.sched.hasReturnDefault()) {
-  //           nextBBController(state, arch).values[thisBlkActive] =
-  //             constWire(32, arch.cs.getBasicBlockNo(blk));
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
 
   void addBasicBlockControllers(MicroArchitecture& arch) {
     Function* f = arch.stg.getFunction();
@@ -2954,9 +2626,6 @@ namespace ahaHLS {
 
         // Note: Do not need atState check for this combinational logic?
         Wire atLast = checkEqual(possibleLast, lastStateWire, arch);
-        // Wire lastTriggered =
-        //   checkAnd(atStateWire(state, arch), atLast, arch);
-        // isLastStateFlags[possibleLast] = lastTriggered;
 
         isLastStateFlags[possibleLast] = atLast;
       }
@@ -3139,116 +2808,6 @@ namespace ahaHLS {
     return inAnyPipe;
   }
 
-  // void
-  // emitPipelineInitiationBlock(MicroArchitecture& arch) {
-
-  //   auto& pipelines = arch.pipelines;
-
-  //   for (auto p : pipelines) {
-  //     int stage = p.II() - 1;
-  //     StateId st = p.stateForStage(stage);
-
-  //     std::map<llvm::Value*, int> memMap;
-
-  //     assert(Instruction::classof(p.getExitCondition()));
-  //     ControlFlowPosition pos =
-  //       pipelinePosition(dyn_cast<Instruction>(p.getExitCondition()), p.stateForStage(p.II() - 1), p.II() - 1);
-
-  //     Wire testCond = outputWire(p.getExitCondition(), pos, arch);
-  //     auto br = p.getExitBranch();
-
-  //     auto trueBlock = br->getSuccessor(0);
-  //     BasicBlock* pBlock = p.getEntryBlock();
-
-  //     // Does a true value in the branch conditional imply doing another iteration
-  //     // of the loop
-  //     if (trueBlock == pBlock) {
-  //       testCond = checkNotWire(testCond, arch);
-  //     }
-
-  //     RegController& cont =
-  //       arch.getController(entryStateActiveWire(p, arch));
-  //     Wire atSt = atStateWire(st, arch);
-      
-
-  //     cont.values[checkAnd(atSt, testCond, arch)] = constWire(1, 0);
-  //     cont.values[checkAnd(atSt, checkNotWire(testCond, arch), arch)] = constWire(1, 1);
-  //     cont.values[checkAnd(checkNotWire(atSt, arch), p.inPipeWire(), arch)] = constWire(1, 0);
-  //   }
-
-  // }
-
-  // void emitPipelineRegisterChains(MicroArchitecture& arch) {
-  //   for (auto p : arch.pipelines) {
-  //     for (map<Instruction*, Wire>& regMap : p.pipelineRegisters) {
-  //       for (auto iReg : regMap) {
-  //         arch.addController(iReg.second.name, iReg.second.width);
-  //         //RegController& reg = arch.getController(iReg.second.name);
-  //         //reg.resetValue = "32'dx";
-  //       }
-  //     }
-  //   }
-
-  //   for (auto p : arch.pipelines) {
-
-  //     for (int i = 0; i < ((int) p.pipelineRegisters.size()) - 1; i++) {
-
-  //       map<Instruction*, Wire> nameMap =
-  //         p.pipelineRegisters[i];
-
-  //       map<Instruction*, Wire> nextNameMap =
-  //         p.pipelineRegisters[i + 1];
-
-  //       set<Instruction*> instructionsFinishing;
-  //       for (auto instrG : arch.stg.instructionsFinishingAt(p.stateForStage(i))) {
-  //         instructionsFinishing.insert(instrG);
-  //       }
-
-  //       for (auto instrS : nameMap) {
-  //         Instruction* i = instrS.first;
-
-  //         // Instructions finishing in this stage have values stored in a separate
-  //         // block
-  //         if (!elem(i, instructionsFinishing)) {
-  //           Wire current = instrS.second;
-
-  //           assert(contains_key(i, nextNameMap));
-  //           Wire next = map_find(i, nextNameMap);
-  //           arch.getController(next).values[constWire(1, 1)] = current;
-  //         }
-  //       }
-        
-  //     }
-
-  //     for (auto instrS : p.pipelineRegisters.back()) {
-  //       Instruction* i = instrS.first;
-  //       if (needsTempStorage(i, arch)) {
-  //         arch.getController(map_find(i, arch.names)).values[constWire(1, 1)] =
-  //           instrS.second;
-  //       }
-  //     }
-  //   }
-  // }
-  
-  // void emitPipelineValidChainBlock(MicroArchitecture& arch) {
-  //   auto pipelines = arch.pipelines;
-
-  //   for (auto p : arch.pipelines) {
-
-  //     for (auto validVar : p.valids) {
-  //       arch.getController(validVar).resetValue = "0";
-  //     }
-  //   }
-    
-  //   for (auto p : pipelines) {
-
-  //     for (int i = 0; i < ((int) p.valids.size()) - 1; i++) {
-  //       arch.getController(p.valids[i + 1]).values[constWire(1, 1)] =
-  //         p.valids[i];
-  //     }
-  //   }
-  // }
-
   std::vector<ElaboratedPipeline>
   buildPipelines(llvm::Function* f, const STG& stg) {
     std::vector<ElaboratedPipeline> pipelines;
@@ -3263,52 +2822,6 @@ namespace ahaHLS {
       ep.stateId = pipeState + i;
       ep.inPipe = Wire(1, "in_pipeline_" + iStr);
 
-      // //vector<map<Instruction*, Wire> > pipelineRegisters;
-      // std::set<Instruction*> pastValues;
-      // int regNum = 0;
-
-      // for (auto st : p.getStates()) {
-      //   string jStr = to_string(st);
-        
-      //   //ep.valids.push_back(Wire(true, 1, "pipeline_stage_" + jStr + "_valid"));
-
-      //   assert(st >= 0);
-
-      //   map<Instruction*, Wire> regs;
-      //   for (auto val : pastValues) {
-      //     regs[val] = Wire(true, getValueBitWidth(val), string("pipeline_") + val->getOpcodeName() + "_" + iStr + "_" + jStr + "_" + to_string(regNum));
-      //     regNum++;
-      //   }
-
-      //   for (auto instrG : stg.instructionsFinishingAt(st)) {
-      //     Instruction* i = instrG;
-      //     if (hasOutput(i)) {          
-      //       regs[i] = Wire(true, getValueBitWidth(i), string("pipeline_") + i->getOpcodeName() + iStr + "_" + jStr + "_" + to_string(regNum));
-      //       pastValues.insert(i);
-      //       regNum++;
-      //     }
-      //   }
-
-      //   //pipelineRegisters.push_back(regs);
-      // }
-
-      // bool foundTerm = false;
-      // for (auto st : p.getStates()) {
-      //   for (auto instrG : stg.instructionsFinishingAt(st)) {
-      //     if (BranchInst::classof(instrG)) {
-      //       foundTerm = true;
-      //       ep.exitBranch = instrG;
-      //       break;
-      //     }
-      //   }
-      // }
-
-      // assert(foundTerm);
-
-      // TODO: Check that the terminator condition is evaluated in the first
-      // state of the basic block
-
-      //ep.pipelineRegisters = pipelineRegisters;
       pipelines.push_back(ep);
 
       pipeState++;
