@@ -3140,6 +3140,13 @@ namespace ahaHLS {
         out << endl;
       }
 
+      for (auto blk : blocksInState(st.first, *this)) {
+        if (!contains_key(blk, bbsToInstrs)) {
+          out << tab(1) << "- Basic block: " << string(blk->getName()) << endl;
+          out << tab(1) << "EMPTY" << endl;
+        }
+      }
+
       // out << "\t" << st.first << std::endl;
       // for (auto instr : st.second) {
       //   out << valueString(instr) << std::endl;

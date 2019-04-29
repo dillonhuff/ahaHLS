@@ -12,6 +12,16 @@ using namespace dbhc;
 using namespace llvm;
 using namespace std;
 
+// Yet another issue with default state transitions, this time the problem
+// is default transitions from one loop to another inside a successive loop pipeline.
+// It seems as though the problem is that the default transitions used to
+// guarantee that the pipeline waits on stores are also default transitioning
+// in to the state that contains the next loop body in sequential execution.
+// Inlining of stores in to a group of instructions with no delineated end
+// makes it hard for me to just add the directive that the default transitions
+// should stop at the end of the block, because that block does not stop at the end
+// of the store?
+
 // Hazard resolution is now the big problem. It shows up first because
 // of the outer loop pipelines need to wait one cycle before reading.
 // This may not be the only problem with the outer loop pipeline, but it is
@@ -1889,8 +1899,8 @@ namespace ahaHLS {
 
       StateId dest = state + 1;
 
-      //if (elem(blk, blocksInState(dest, arch.stg))) {
-      if (false) {
+      if (elem(blk, blocksInState(dest, arch.stg))) {
+      //if (false) {
         Wire condWire = blockActiveInState(state, blk, arch);
         addStateTransition(state, dest, condWire, arch, true);
 

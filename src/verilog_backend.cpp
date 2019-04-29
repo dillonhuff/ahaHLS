@@ -1267,9 +1267,6 @@ namespace ahaHLS {
           string cond1 = condAndVal1.first.valueString();
 
           if (cond0 != cond1) {
-            // addAssert(implies(andStr(notStr(inPipe), cond0 + " === 1"),
-            //                   cond1 + " !== 1"),
-            //           info);
 
             addAssert(implies(cond0 + " === 1",
                               cond1 + " !== 1"),
