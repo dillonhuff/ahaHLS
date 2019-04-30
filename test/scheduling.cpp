@@ -1111,9 +1111,9 @@ namespace ahaHLS {
     //setMemSpec(getArg(srUser, 0), hcs, ramSpec(1, 3, 2, 1, ramWidth, ramDepth));
     hcs.typeSpecs[string("SRAM_32_16")] =
       // new ram spec
-      [](StructType* tp) { return ramSpec(32, 16, 2, 1); };
-    
-      //[](StructType* tp) { return ramSpec(32, 16); };
+      //[](StructType* tp) { return ramSpec(32, 16, 2, 1); };
+      [](StructType* tp) { return ramSpec(32, 16); };
+
     hcs.typeSpecs["builtin_fifo_32"] = fifoSpec32;
     
     Function* ramRead = ramLoadFunction(getArg(f, 0));
