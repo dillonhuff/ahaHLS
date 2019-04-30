@@ -241,5 +241,10 @@ namespace ahaHLS {
   void checkSignal(TestBenchSpec& tb,
                    const std::string& signalName,
                    const std::map<int, int>& valuesAtCycles);
+
+  void checkRAMContents(TestBenchSpec& tb,
+                        int checkMemCycle,
+                        const std::string ramName,
+                        const std::vector<int>& memoryExpected);
   
 }

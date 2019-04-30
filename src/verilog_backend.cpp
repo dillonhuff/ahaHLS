@@ -1570,6 +1570,20 @@ namespace ahaHLS {
     map_insert(tb.actionsOnCycles, startSetMemCycle, name + string("_debug_write_en <= 0;"));
   }
 
+  void checkRAMContents(TestBenchSpec& tb,
+                        int checkMemCycle,
+                        const std::string ramName,
+                        const vector<int>& memoryExpected) {
+    tb.settableWires.insert(ramName + "_debug_addr");
+        
+    for (int i = 0; i < (int) memoryExpected.size(); i++) {
+      int val = memoryExpected[i];
+      map_insert(tb.actionsInCycles, checkMemCycle, ramName + "_debug_addr = " + to_string(i) + ";");
+      map_insert(tb.actionsInCycles, checkMemCycle, assertString(ramName + "_debug_data === " + to_string(val)));
+      checkMemCycle++;
+    }
+  }
+  
   void checkRAM(TestBenchSpec& tb,
                 int checkMemCycle,
                 const std::string name,

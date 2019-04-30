@@ -1146,9 +1146,6 @@ namespace ahaHLS {
       map<string, vector<int> > memoryInit{{"arg_0", {6}}};
       map<string, vector<int> > memoryExpected{{"arg_0", {0, 1, 2, 3, 0, 1, 2, 3}}};
 
-      auto arg0 = dyn_cast<Argument>(getArg(f, 0));
-      string in0Name = string(arg0->getName());
-    
       TestBenchSpec tb;
       tb.memoryExpected = memoryExpected;
       tb.runCycles = 8;
@@ -1162,6 +1159,8 @@ namespace ahaHLS {
 
       int checkMemCycle = 100;
       checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
+
+      checkRAMContents(tb, checkMemCycle, "arg_0", {0, 1, 2, 3});
 
       checkSignal(tb,
                    "valid",
@@ -1222,9 +1221,6 @@ namespace ahaHLS {
       map<string, vector<int> > memoryInit{{"arg_0", {6}}};
       map<string, vector<int> > memoryExpected{{"arg_0", {0, 1, 2, 3, 0, 1, 2, 3}}};
 
-      auto arg0 = dyn_cast<Argument>(getArg(f, 0));
-      string in0Name = string(arg0->getName());
-    
       TestBenchSpec tb;
       tb.memoryExpected = memoryExpected;
       tb.name = "task_parallel_loops";
@@ -1288,9 +1284,6 @@ namespace ahaHLS {
       map<string, vector<int> > memoryInit{{"arg_0", {6}}};
       map<string, vector<int> > memoryExpected{{"arg_0", {0, 1, 2, 3, 0, 1, 2, 3}}};
 
-      auto arg0 = dyn_cast<Argument>(getArg(f, 0));
-      string in0Name = string(arg0->getName());
-    
       TestBenchSpec tb;
       tb.memoryExpected = memoryExpected;
       tb.name = "task_parallel_loops";
@@ -1358,9 +1351,6 @@ namespace ahaHLS {
       map<string, vector<int> > memoryInit{{"arg_0", {6}}};
       map<string, vector<int> > memoryExpected{{"arg_0", {0, 1, 2, 3, 0, 1, 2, 3}}};
 
-      auto arg0 = dyn_cast<Argument>(getArg(f, 0));
-      string in0Name = string(arg0->getName());
-    
       TestBenchSpec tb;
       tb.memoryExpected = memoryExpected;
       tb.name = "task_parallel_loops";
@@ -1378,7 +1368,6 @@ namespace ahaHLS {
                    "valid",
                   {{3, 0}, {10, 0}, {15, 1}, {17, 1}, {19, 1}, {20, 1}, {25, 1}, {30, 1}, {35, 1}, {40, 1}, {100, 1}});
 
-      //tb.actionOnCondition("1", "$display(\"valid = %d\", valid);");
       emitVerilogTestBench(tb, arch, testLayout);
 
       REQUIRE(runIVerilogTB("task_parallel_loops"));
