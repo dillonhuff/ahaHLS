@@ -1234,6 +1234,10 @@ namespace ahaHLS {
       int checkMemCycle = 100;
       checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
 
+      checkSignal(tb,
+                   "valid",
+                  {{3, 0}, {10, 0}, {15, 0}, {17, 1}, {20, 1}, {30, 1}, {35, 1}, {40, 1}, {100, 1}});
+      
       emitVerilogTestBench(tb, arch, testLayout);
 
       REQUIRE(runIVerilogTB("task_parallel_loops"));
