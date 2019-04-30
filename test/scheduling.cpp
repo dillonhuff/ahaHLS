@@ -1108,8 +1108,12 @@ namespace ahaHLS {
     InterfaceFunctions interfaces;
     
     HardwareConstraints hcs = standardConstraints();
+    //setMemSpec(getArg(srUser, 0), hcs, ramSpec(1, 3, 2, 1, ramWidth, ramDepth));
     hcs.typeSpecs[string("SRAM_32_16")] =
-      [](StructType* tp) { return ramSpec(32, 16); };
+      // new ram spec
+      [](StructType* tp) { return ramSpec(32, 16, 2, 1); };
+    
+      //[](StructType* tp) { return ramSpec(32, 16); };
     hcs.typeSpecs["builtin_fifo_32"] = fifoSpec32;
     
     Function* ramRead = ramLoadFunction(getArg(f, 0));
