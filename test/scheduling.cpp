@@ -1064,7 +1064,8 @@ namespace ahaHLS {
 
     auto mod = llvm::make_unique<Module>("task parallel loop pairs", context);
     setGlobalLLVMModule(mod.get());
-    std::vector<Type *> inputs{sramType(32, 16)->getPointerTo()};
+    std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
+        sramType(32, 16)->getPointerTo(),};
     Function* f = mkFunc(inputs, "task_parallel_loops", mod.get());
 
     auto entryBlk = mkBB("entry_block", f);
@@ -1092,6 +1093,7 @@ namespace ahaHLS {
       auto indPhi = loop0Builder.CreatePHI(intType(32), 2);
       auto nextInd = loop0Builder.CreateAdd(indPhi, mkInt(1, 32));
       storeRAMVal(loop0Builder, getArg(f, 0), loop0Builder.CreateAdd(indPhi, mkInt(4, 32)), indPhi);
+      storeRAMVal(loop0Builder, getArg(f, 1), indPhi, indPhi);
       auto loop0Done = loop0Builder.CreateICmpEQ(nextInd, mkInt(4, 32));
       loop0Builder.CreateCondBr(loop0Done, exitBlk, loop1Blk);
 
@@ -1158,9 +1160,10 @@ namespace ahaHLS {
       map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
 
       int checkMemCycle = 100;
-      checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
+      //checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
 
       checkRAMContents(tb, checkMemCycle, "arg_0", {0, 1, 2, 3});
+      checkRAMContents(tb, checkMemCycle + 30, "arg_1", {0, 1, 2, 3});
 
       checkSignal(tb,
                    "valid",
