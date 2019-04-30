@@ -1675,69 +1675,82 @@ namespace ahaHLS {
 
       if (isPipelineState(dest, pipelines)) {
 
-        assert(getPipeline(dest, pipelines).stateId == p.stateId);
+        if (getPipeline(dest, pipelines).stateId == p.stateId) {
 
-        StateId pipeEntry = entryState(p);
-        assert(state >= pipeEntry);
+          StateId pipeEntry = entryState(p);
+          assert(state >= pipeEntry);
         
-        int timeFromPipeEntryToBranch = state - pipeEntry;
-        int II = p.II();
+          int timeFromPipeEntryToBranch = state - pipeEntry;
+          int II = p.II();
 
-        assert(II >= 1);
+          assert(II >= 1);
 
-        int cyclesToWaitForHazards = (II - 1) - timeFromPipeEntryToBranch;
+          int cyclesToWaitForHazards = (II - 1) - timeFromPipeEntryToBranch;
 
-        RegController& exitStateActive =
-          stateActiveRegController(dest, arch);
+          RegController& exitStateActive =
+            stateActiveRegController(dest, arch);
         
-        if ((cyclesToWaitForHazards > 0) && !isDefault) {
-          cout << "Need to wait " << cyclesToWaitForHazards << " additional cycles for hazards to resolve in transition from " << state << " to " << dest << endl;
-          //assert(false);
+          if ((cyclesToWaitForHazards > 0) && !isDefault) {
+            cout << "Need to wait " << cyclesToWaitForHazards << " additional cycles for hazards to resolve in transition from " << state << " to " << dest << endl;
+            //assert(false);
 
-          // What do we need to do here?
-          //   1. Create a counter that resets to 0 at the entry to the current state
-          //   2. Create a temporary variable to store the jumpCond wire value
-          //   3. Set the final condition wire to be the and of jumpCond and counter?
+            // What do we need to do here?
+            //   1. Create a counter that resets to 0 at the entry to the current state
+            //   2. Create a temporary variable to store the jumpCond wire value
+            //   3. Set the final condition wire to be the and of jumpCond and counter?
 
-          // Sanity check, should really adjust counter width
-          assert(cyclesToWaitForHazards < (1024));
+            // Sanity check, should really adjust counter width
+            assert(cyclesToWaitForHazards < (1024));
           
-          Wire hazardCounterOutput =
-            buildCounter(stateActiveReg(state, arch), 32, arch);
-          Wire waitedForHazards = checkEqual(hazardCounterOutput,
-                                             constWire(hazardCounterOutput.width,
-                                                       cyclesToWaitForHazards),
-                                             arch);
+            Wire hazardCounterOutput =
+              buildCounter(stateActiveReg(state, arch), 32, arch);
+            Wire waitedForHazards = checkEqual(hazardCounterOutput,
+                                               constWire(hazardCounterOutput.width,
+                                                         cyclesToWaitForHazards),
+                                               arch);
 
-        // TODO: Generalize name to avoid overlap
-          string storeName =
-            arch.uniqueName("in_pipe_" + to_string(state) + "_" + to_string(dest));
-          RegController& inPipeJumpHappened =
-            arch.getController(wire(1, storeName));
-          inPipeJumpHappened.resetValue = "0";
-          // TODO: Adjust to check that we are in this state?
-          inPipeJumpHappened.values[jumpCond] = constWire(1, 1);
-          Wire storedJumpCond = inPipeJumpHappened.reg;
+            // TODO: Generalize name to avoid overlap
+            string storeName =
+              arch.uniqueName("in_pipe_" + to_string(state) + "_" + to_string(dest));
+            RegController& inPipeJumpHappened =
+              arch.getController(wire(1, storeName));
+            inPipeJumpHappened.resetValue = "0";
+            // TODO: Adjust to check that we are in this state?
+            inPipeJumpHappened.values[jumpCond] = constWire(1, 1);
+            Wire storedJumpCond = inPipeJumpHappened.reg;
           
-          Wire finalCond = checkAnd(storedJumpCond, waitedForHazards, arch);
-          exitStateActive.values[finalCond] =
-            constWire(1, 1);
+            Wire finalCond = checkAnd(storedJumpCond, waitedForHazards, arch);
+            exitStateActive.values[finalCond] =
+              constWire(1, 1);
 
-          // Reset temp on jump
-          inPipeJumpHappened.values[finalCond] = constWire(1, 0);
+            // Reset temp on jump
+            inPipeJumpHappened.values[finalCond] = constWire(1, 0);
 
-          // RegController& exitStateActive =
-          //   stateActiveRegController(dest, arch);
-          // exitStateActive.values[jumpCond] =
-          //   constWire(1, 1);
+          } else {
+
+            cout << "Adding immediate pipeline transition from " << state << " to " << dest << endl;
+            exitStateActive.values[jumpCond] =
+              constWire(1, 1);
+          }
 
         } else {
 
-          cout << "Adding immediate pipeline transition from " << state << " to " << dest << endl;
+
+          auto otherPipe = getPipeline(dest, pipelines);
+
+          RegController& validController =
+            arch.getController(entryStateActiveWire(otherPipe, arch));
+          validController.values[jumpCond] = constWire(1, 1);
+          
+          controller.values[jumpCond] = constWire(32, otherPipe.stateId);
+
+          RegController& exitStateActive =
+            stateActiveRegController(dest, arch);
           exitStateActive.values[jumpCond] =
             constWire(1, 1);
+          
+          //assert(false);
         }
-        
       } else {
 
         // TODO: Generalize name to avoid overlap
@@ -1759,18 +1772,15 @@ namespace ahaHLS {
       }
 
     } else {
-      //vector<Wire> conds{}; //atStateCond};
+
       if (isPipelineState(dest, pipelines)) {
 
         auto p = getPipeline(dest, pipelines);
 
         RegController& validController =
-          arch.getController(entryStateActiveWire(p, arch)); //p.valids.at(0));
-        //validController.values[andCond(conds, arch)] = constWire(1, 1);
+          arch.getController(entryStateActiveWire(p, arch));
         validController.values[jumpCond] = constWire(1, 1);
           
-        //conds.push_back(jumpCond);
-        //controller.values[andCond(conds, arch)] = constWire(32, p.stateId);
         controller.values[jumpCond] = constWire(32, p.stateId);
 
         RegController& exitStateActive =
@@ -1779,9 +1789,6 @@ namespace ahaHLS {
           constWire(1, 1);
 
       } else {
-        //conds.push_back(jumpCond);
-
-        //controller.values[andCond(conds, arch)] = constWire(32, dest);
         controller.values[jumpCond] = constWire(32, dest);
 
         RegController& exitStateActive =

@@ -1372,7 +1372,7 @@ namespace ahaHLS {
 
       checkSignal(tb,
                    "valid",
-                  {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {19, 0}, {20, 1}, {25, 1}, {30, 1}, {35, 1}, {40, 1}, {100, 1}});
+                  {{3, 0}, {10, 0}, {15, 1}, {17, 1}, {19, 1}, {20, 1}, {25, 1}, {30, 1}, {35, 1}, {40, 1}, {100, 1}});
 
       //tb.actionOnCondition("1", "$display(\"valid = %d\", valid);");
       emitVerilogTestBench(tb, arch, testLayout);
