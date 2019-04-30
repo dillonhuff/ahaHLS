@@ -1568,7 +1568,7 @@ namespace ahaHLS {
       int expectedValue = cycleValPair.second;
 
       string cond = signalName + " === " + to_string(expectedValue);
-      map_insert(tb.actionsInCycles, cycle, assertString(cond));
+      map_insert(tb.actionsOnCycles, cycle, assertString(cond));
     }
   }
   
