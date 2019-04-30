@@ -1696,6 +1696,9 @@ namespace ahaHLS {
                           map<BasicBlock*, vector<BasicBlock*> >& controlPredecessors);
 
   std::set<CFGJump> getOutOfTaskJumps(TaskSpec& task, STG& stg);
+
+  TaskSpec getTask(llvm::BasicBlock* const blk,
+                   STG& stg);
   
 }
 

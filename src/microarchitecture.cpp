@@ -1856,6 +1856,10 @@ namespace ahaHLS {
     return map_find(state, arch.lastBBWires);
   }
 
+  StateId entryState(STG& stg) {
+    return stg.blockStartState(&(stg.getFunction()->getEntryBlock()));
+  }
+  
   void emitStateCode(const StateId state,
                      MicroArchitecture& arch) {
 
@@ -1870,6 +1874,18 @@ namespace ahaHLS {
       BasicBlock* dest = transition.second;
 
       Wire edgeTakenWire = map_find({srcBlk, dest}, arch.edgeTakenWires);
+
+      CFGJump jmp{transition};
+      auto outJumps = getTask(srcBlk, arch.stg);
+      if (elem(jmp, getOutOfTaskJumps(outJumps, arch.stg))) {
+        cout << "Adding out of task transitions" << endl;
+        // Q: Will this pass with control sanity checks disabled?
+        //edgeTakenWire = constWire(1, 1);
+        edgeTakenWire =
+          blockActiveInState(entryState(arch.stg),
+                             &(arch.stg.getFunction()->getEntryBlock()),
+                             arch);
+      }
       
       StateId end = arch.stg.blockStartState(dest);
       addStateTransition(state, end, edgeTakenWire, arch);
