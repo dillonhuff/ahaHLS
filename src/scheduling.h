@@ -447,6 +447,670 @@ namespace ahaHLS {
     }
   }
 
+  template<typename T>
+  class LinearExpr {
+    //std::map<std::string, int> vars;
+    std::map<T, int> vars;
+    int c;
+
+  public:
+
+    LinearExpr(const T var_) :
+      vars({{var_, 1}}), c(0) {}
+
+    LinearExpr(int c_) :
+      vars({}), c(c_) {}
+    
+    LinearExpr(std::map<T, int>& vars_, const int c_) :
+      vars(vars_), c(c_) {}
+
+    LinearExpr() : vars({}), c(0) {}
+
+    LinearExpr<T> scalarMul(const int k) const {
+      std::map<T, int> mulVars;
+      for (auto v : vars) {
+        mulVars.insert({v.first, k*v.second});
+      }
+      return {mulVars, k*getCoeff()};
+    }
+    
+    LinearExpr<T> sub(const LinearExpr<T>& right) const {
+      std::map<T, int> subVars;
+      auto rightVars = right.getVars();
+      for (auto v : vars) {
+        if (dbhc::contains_key(v.first, rightVars)) {
+          subVars.insert({v.first, v.second - dbhc::map_find(v.first, rightVars)});
+        } else {
+          subVars.insert(v);
+        }
+      }
+
+      for (auto v : rightVars) {
+        if (!dbhc::contains_key(v.first, vars)) {
+          subVars.insert({v.first, -v.second});
+        }
+      }
+
+      return {subVars, c - right.getCoeff()};
+    }
+
+    LinearExpr<T> add(const LinearExpr<T>& right) const {
+      std::map<T, int> addVars;
+      auto rightVars = right.getVars();
+      for (auto v : vars) {
+        if (dbhc::contains_key(v.first, rightVars)) {
+          addVars.insert({v.first, v.second + dbhc::map_find(v.first, rightVars)});
+        } else {
+          addVars.insert(v);
+        }
+      }
+
+      for (auto v : rightVars) {
+        if (!dbhc::contains_key(v.first, vars)) {
+          addVars.insert({v.first, v.second});
+        }
+      }
+
+      return {addVars, c + right.getCoeff()};
+    }
+    
+    int getCoeff() const {
+      return c;
+    }
+
+    std::map<T, int> getVars() const {
+      return vars;
+    }
+
+    int getValue(const T& var) {
+      assert(dbhc::contains_key(var, vars));
+      return dbhc::map_find(var, vars);
+    }
+  };
+
+  typedef LinearExpr<std::string> LinearExpression;
+
+  template<typename T>
+  static inline
+  std::ostream& operator<<(std::ostream& out, const LinearExpr<T> expr) {
+    auto vars = expr.getVars();
+    for (auto v : vars) {
+      out << v.second << "*" << v.first << " + ";
+    }
+    out << expr.getCoeff();
+
+    return out;
+  }
+
+  enum ZCondition {
+    CMP_LTZ,
+    CMP_GTZ,
+    CMP_LTEZ,
+    CMP_GTEZ,
+    CMP_EQZ
+  };
+
+  template<typename T>
+  class LinearCon {
+  public:
+    LinearExpr<T> expr;
+    ZCondition cond;
+  };
+
+  typedef LinearCon<std::string> LinearConstraint;
+
+  static inline
+  std::string toString(const ZCondition cond) {
+    switch (cond) {
+    case CMP_LTZ:
+      return "< 0";
+    case CMP_GTEZ:
+      return ">= 0";
+    case CMP_LTEZ:
+      return "<= 0";
+    case CMP_GTZ:
+      return "> 0";
+    case CMP_EQZ:
+      return "== 0";
+      
+    default:
+      assert(false);
+    }
+  }
+
+  static inline
+  std::ostream& operator<<(std::ostream& out, const LinearConstraint& c) {
+    out << c.expr << " " << toString(c.cond);
+    return out;
+  }
+
+  template<typename T>
+  static inline
+  LinearExpr<T>
+  operator-(const LinearExpr<T> left, const LinearExpr<T> right) {
+    return left.sub(right);
+  }
+
+  template<typename T>  
+  static inline
+  LinearExpr<T>
+  operator+(const LinearExpr<T> left, const LinearExpr<T> right) {
+    return left.add(right);
+  }
+
+  template<typename T>  
+  static inline
+  LinearExpr<T>
+  operator+(const LinearExpr<T> left, const int right) {
+    return left.add(LinearExpr<T>(right));
+  }
+  
+  template<typename T>  
+  static inline
+  LinearExpr<T>
+  operator*(const LinearExpr<T> left, const int c) {
+    return left.scalarMul(c);
+  }
+  
+  template<typename T> static inline
+  LinearCon<T>
+  operator>=(const LinearExpr<T> left, const LinearExpr<T> right) {
+    return {left - right, CMP_GTEZ};
+  }
+
+  template<typename T> static inline
+  LinearCon<T>
+  operator>=(const LinearExpr<T> left, const int right) {
+    return {left - LinearExpr<T>(right), CMP_GTEZ};
+  }
+
+  template<typename T> static inline
+  LinearCon<T>
+  operator>=(const int left, const LinearExpr<T> right) {
+    return {LinearExpr<T>(left) - right, CMP_GTEZ};
+  }
+
+  template<typename T> static inline
+  LinearCon<T>
+  operator<=(const LinearExpr<T> left, const LinearExpr<T> right) {
+    return {left - right, CMP_LTEZ};
+  }
+
+  template<typename T> static inline
+  LinearCon<T>
+  operator<=(const LinearExpr<T> left, const int right) {
+    return {left - LinearExpr<T>(right), CMP_LTEZ};
+  }
+
+  template<typename T> static inline
+  LinearCon<T>
+  operator<=(const int left, const LinearExpr<T> right) {
+    return {LinearExpr<T>(left) - right, CMP_LTEZ};
+  }
+
+  template<typename T> static inline
+  LinearCon<T>
+  operator==(const LinearExpr<T> left, const LinearExpr<T> right) {
+    return {left - right, CMP_EQZ};
+  }
+
+  template<typename T> static inline
+  LinearCon<T>
+  operator==(const LinearExpr<T> left, const int right) {
+    return {left - LinearExpr<T>(right), CMP_EQZ};
+  }
+
+  template<typename T> static inline
+  LinearCon<T>
+  operator==(const int left, const LinearExpr<T> right) {
+    return {LinearExpr<T>(left) - right, CMP_EQZ};
+  }
+
+  // ---
+  template<typename T> static inline
+  LinearCon<T>
+  operator<(const LinearExpr<T> left, const LinearExpr<T> right) {
+    return {left - right, CMP_LTZ};
+  }
+
+  template<typename T> static inline
+  LinearCon<T>
+  operator<(const LinearExpr<T> left, const int right) {
+    return {left - LinearExpr<T>(right), CMP_LTZ};
+  }
+
+  template<typename T> static inline
+  LinearCon<T>
+  operator>(const int left, const LinearExpr<T> right) {
+    return {LinearExpr<T>(left) - right, CMP_GTZ};
+  }
+
+  template<typename T> static inline
+  LinearCon<T>
+  operator>(const LinearExpr<T> left, const LinearExpr<T> right) {
+    return {left - right, CMP_GTZ};
+  }
+
+  template<typename T> static inline
+  LinearCon<T>
+  operator>(const LinearExpr<T> left, const int right) {
+    return {left - LinearExpr<T>(right), CMP_GTZ};
+  }
+
+  template<typename T> static inline
+  LinearCon<T>
+  operator<(const int left, const LinearExpr<T> right) {
+    return {LinearExpr<T>(left) - right, CMP_LTZ};
+  }
+  
+  class EventTime {
+  public:
+    ExecutionAction action;
+    bool isEnd;
+    int offset;
+
+    void replaceInstruction(Instruction* const toReplace,
+                            Instruction* const replacement) {
+      if (action.isInstruction() && (action.getInstruction() == toReplace)) {
+        action.setInstruction(replacement);
+        //instr = replacement;
+      }
+    }
+
+    void replaceAction(ExecutionAction& toReplace,
+                       ExecutionAction& replacement) {
+      if (action == toReplace) {
+        action = replacement;
+      }
+    }
+    
+    bool isStart() const {
+      return !isEnd;
+    }
+
+    ExecutionAction getAction() const {
+      return action;
+    }
+    
+    llvm::Instruction* getInstr() const {
+      return action.getInstruction();
+    }
+  };
+
+  typedef EventTime InstructionTime;
+
+  class SchedulingProblem {
+  public:
+    int blockNo;
+
+    std::map<ExecutionAction, std::vector<std::string> > actionVarNames;
+    std::map<llvm::Instruction*, std::vector<std::string> > schedVarNames;
+    std::map<llvm::BasicBlock*, std::vector<std::string> > blockVarNames;
+    std::map<PipelineSpec, std::string> IInames;
+
+    std::vector<LinearConstraint> constraints;
+
+    HardwareConstraints hdc;
+    bool optimize;
+    LinearExpression objectiveFunction;
+
+    std::map<llvm::BasicBlock*, std::vector<llvm::BasicBlock*> > controlPredecessors;
+    std::set<TaskSpec> taskSpecs;
+
+    SchedulingProblem(const HardwareConstraints& hcs_) :
+      blockNo(0), hdc(hcs_), optimize(false) {}
+
+    SchedulingProblem() : optimize(false) {
+      blockNo = 0;
+    }
+
+    void setObjective(const LinearExpression& expr) {
+      objectiveFunction = expr;
+      optimize = true;
+    }
+
+    std::string getIIName(llvm::BasicBlock* bb) const {
+      //std::string val = dbhc::map_find(bb, IInames);
+      for (auto p : IInames) {
+        if (dbhc::elem(bb, p.first.blks)) {
+          return p.second;
+        }
+      }
+
+      assert(false);
+    }
+
+    std::string getIIName(const PipelineSpec& p) const {
+      std::string val = dbhc::map_find(p, IInames);
+      return val;
+    }
+
+    LinearExpression getII(const PipelineSpec& p) const {
+      std::string val = getIIName(p);
+      return LinearExpression(val);
+    }
+    
+    LinearExpression getII(llvm::BasicBlock* bb) const {
+      for (auto p : IInames) {
+        if (dbhc::elem(bb, p.first.blks)) {
+          return getII(p.first);
+        }
+      }
+
+      assert(false);
+    }
+    
+    int blockNumber() const {
+      return blockNo;
+    }
+
+    LinearExpression blockStart(llvm::BasicBlock* bb) {
+      return LinearExpression(dbhc::map_find(bb, blockVarNames).front());
+    }
+
+    LinearExpression blockEnd(llvm::BasicBlock* bb) {
+      return LinearExpression(dbhc::map_find(bb, blockVarNames).back());
+    }
+
+    bool hasAction(const ExecutionAction& action) {
+      return dbhc::contains_key(action, actionVarNames);
+    }
+
+    void addAction(const ExecutionAction& action) {
+      // TODO: Eventually use this for all actions including instructions
+      assert(!action.isInstruction());
+      actionVarNames[action] = {action.getName() + "_start", action.getName() + "_end"};
+    }
+
+    LinearExpression actionStart(const ExecutionAction& action) {
+      auto lc = LinearExpression(dbhc::map_find(action, actionVarNames).front());
+      //cout << "start of " << action << " is " << lc << endl;
+      return lc;
+    }
+
+    LinearExpression actionEnd(const ExecutionAction& action) {
+      return LinearExpression(dbhc::map_find(action, actionVarNames).back());
+    }
+    
+    LinearExpression instrStart(const ExecutionAction& action) {
+      assert(action.isInstruction());
+      return LinearExpression(dbhc::map_find(action.getInstruction(), schedVarNames).front());
+    }
+
+    LinearExpression instrEnd(const ExecutionAction& action) {
+      assert(action.isInstruction());      
+      return LinearExpression(dbhc::map_find(action.getInstruction(), schedVarNames).back());
+    }
+    
+    LinearExpression instrStart(llvm::Instruction* instr) {
+      return LinearExpression(dbhc::map_find(instr, schedVarNames).front());
+    }
+
+    LinearExpression instrStage(llvm::Instruction* instr, const int i) {
+      return LinearExpression(dbhc::map_find(instr, schedVarNames).at(i));
+    }
+
+    LinearExpression instrEnd(llvm::Instruction* instr) {
+      return LinearExpression(dbhc::map_find(instr, schedVarNames).back());
+    }
+
+    int numStages(llvm::Instruction* instr) {
+      return (int) dbhc::map_find(instr, schedVarNames).size();
+    }
+    
+    void addBasicBlock(llvm::BasicBlock* const bb,
+                       std::set<PipelineSpec>& toPipeline);
+                       //std::set<llvm::BasicBlock*>& toPipeline);
+
+    void addConstraint(const LinearConstraint& constraint) {
+      constraints.push_back(constraint);
+    }
+  };
+
+  static inline   
+  InstructionTime operator+(const InstructionTime t, const int offset) {
+    return {t.action, t.isEnd, t.offset + offset};
+  }
+
+  static inline   
+  InstructionTime operator+(const int offset, const InstructionTime t) {
+    return {t.action, t.isEnd, t.offset + offset};
+  }
+
+  static inline   
+  LinearExpression
+  toLinearExpression(const InstructionTime& time,
+                     SchedulingProblem& p) {
+    if (time.action.isInstruction()) {
+      return (time.isEnd ? p.instrEnd(time.action) : p.instrStart(time.action)) + time.offset;
+    } else if (time.action.isBasicBlock()) {
+      return (time.isEnd ? p.blockEnd(time.action.getBasicBlock()) : p.blockStart(time.action.getBasicBlock())) + time.offset;
+    } else {
+      if (!p.hasAction(time.action)) {
+        p.addAction(time.action);
+      }
+      return (time.isEnd ? p.actionEnd(time.action) : p.actionStart(time.action)) + time.offset;      
+    }
+  }
+
+  static inline   
+  InstructionTime start(BasicBlock* const bb) {
+    return {bb, false, 0};
+  }
+
+  static inline   
+  InstructionTime end(BasicBlock* const bb) {
+    return {bb, true, 0};
+  }
+  
+  static inline   
+  InstructionTime instrEnd(Instruction* const instr) {
+    return {instr, true, 0};
+  }
+
+  static inline   
+  InstructionTime instrStart(Instruction* const instr) {
+    return {instr, false, 0};
+  }
+
+  static inline   
+  InstructionTime actionStart(ExecutionAction& action) {
+    return {action, false, 0};
+  }
+
+  static inline   
+  InstructionTime actionEnd(ExecutionAction& action) {
+    return {action, true, 0};
+  }
+  
+  static inline   
+  InstructionTime instrEnd(llvm::Value* const instr) {
+    assert(llvm::Instruction::classof(instr));
+    return {llvm::dyn_cast<llvm::Instruction>(instr), true, 0};
+  }
+
+  static inline 
+  InstructionTime instrStart(llvm::Value* const instr) {
+    assert(llvm::Instruction::classof(instr));
+    return {llvm::dyn_cast<llvm::Instruction>(instr), false, 0};
+  }
+
+  static inline
+  std::ostream& operator<<(std::ostream& out, const InstructionTime& t) {
+    std::string pre = t.isEnd ? "end" : "start";
+    out << pre << "(" << t.action << ") + " << t.offset;
+    return out;
+  }
+
+  enum ExecutionConstraintType {
+    CONSTRAINT_TYPE_ORDERED,
+    CONSTRAINT_TYPE_STALL,
+    CONSTRAINT_TYPE_ILP,        
+  };
+
+  class ExecutionConstraint {
+  public:
+    virtual void addSelfTo(SchedulingProblem& p, Function* f) = 0;
+    virtual ExecutionConstraintType type() const = 0;
+    virtual void replaceInstruction(Instruction* const toReplace,
+                                    Instruction* const replacement) = 0;
+
+    virtual void replaceAction(ExecutionAction& toReplace,
+                               ExecutionAction& replacement) = 0;
+    
+    virtual ExecutionConstraint* clone() const = 0;
+    virtual void print(std::ostream& out) const = 0;    
+    virtual ~ExecutionConstraint() {}
+  };
+
+  static inline
+  std::ostream& operator<<(std::ostream& out, const ExecutionConstraint& c) {
+    c.print(out);
+    return out;
+  }
+
+  class WaitUntil : public ExecutionConstraint {
+  public:
+    Value* value;
+    Instruction* mustWait;
+  };
+
+  enum OrderRestriction {
+    ORDER_RESTRICTION_SIMULTANEOUS,
+    ORDER_RESTRICTION_BEFORE,
+    ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS,
+  };
+
+  static inline
+  std::string toString(OrderRestriction r) {
+    switch(r) {
+    case ORDER_RESTRICTION_SIMULTANEOUS:
+      return "==";
+    case ORDER_RESTRICTION_BEFORE:
+      return "<";
+    case ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS:
+      return "<=";
+    default:
+      assert(false);
+    }
+  }
+
+  class Ordered : public ExecutionConstraint {
+  public:
+    InstructionTime before;
+    InstructionTime after;
+
+    OrderRestriction restriction;
+
+    Ordered(const InstructionTime before_,
+            const InstructionTime after_,
+            const OrderRestriction restriction_) :
+      before(before_),
+      after(after_),
+      restriction(restriction_) {}
+
+    virtual ExecutionConstraintType type() const override {
+      return CONSTRAINT_TYPE_ORDERED;
+    }
+
+    virtual void print(std::ostream& out) const override {
+      out << before << " " << toString(restriction) << " " << after;
+    }
+    
+    virtual ExecutionConstraint* clone() const override {
+      InstructionTime beforeCpy(before);
+      InstructionTime afterCpy(after);      
+      return new Ordered(beforeCpy, afterCpy, restriction);
+    }
+    
+    virtual void replaceAction(ExecutionAction& toReplace,
+                               ExecutionAction& replacement) override {
+      before.replaceAction(toReplace, replacement);
+      after.replaceAction(toReplace, replacement);      
+    }
+    
+    virtual void replaceInstruction(Instruction* const toReplace,
+                                    Instruction* const replacement) override {
+      before.replaceInstruction(toReplace, replacement);
+      after.replaceInstruction(toReplace, replacement);      
+    }
+    
+    virtual void addSelfTo(SchedulingProblem& p, Function* f) override {
+      LinearExpression aTime = toLinearExpression(after, p);
+      LinearExpression bTime = toLinearExpression(before, p);
+      if (restriction == ORDER_RESTRICTION_SIMULTANEOUS) {
+        p.addConstraint(bTime == aTime);
+      } else if (restriction == ORDER_RESTRICTION_BEFORE) {
+        p.addConstraint(bTime < aTime);
+      } else if (restriction == ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS) {
+        p.addConstraint(bTime <= aTime);        
+      } else {
+        assert(false);
+      }
+    }
+  };
+  
+  static inline
+  Ordered* operator<(InstructionTime before, InstructionTime after) {
+    return new Ordered(before, after, ORDER_RESTRICTION_BEFORE);
+  }
+
+  static inline
+  Ordered* operator==(InstructionTime before, InstructionTime after) {
+    return new Ordered(before, after, ORDER_RESTRICTION_SIMULTANEOUS);
+  }
+
+  static inline
+  Ordered* operator<=(InstructionTime before, InstructionTime after) {
+    return new Ordered(before, after, ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS);
+  }
+
+  static inline
+  Ordered* operator>(InstructionTime before, InstructionTime after) {
+    return after < before;
+  }
+  
+  class ExecutionConstraints {
+  public:
+    std::vector<ExecutionConstraint*> constraints;
+
+    ExecutionConstraints() {}
+
+    ExecutionConstraints(const ExecutionConstraints& other) {
+      for (auto c : other.constraints) {
+        addConstraint(c->clone());
+      }
+    }
+
+    void remove(ExecutionConstraint* c) {
+      assert(dbhc::elem(c, constraints));
+
+      dbhc::remove(c, constraints);
+      delete c;
+    }
+    
+    void addConstraint(ExecutionConstraint* c) {
+      constraints.push_back(c);
+    }
+
+    void add(ExecutionConstraint* c) {
+      addConstraint(c);
+    }
+    
+    void addConstraints(SchedulingProblem& p,
+                        Function* f) {
+      for (auto c : constraints) {
+        c->addSelfTo(p, f);
+      }
+    }
+
+    ~ExecutionConstraints() {
+      for (auto c : constraints) {
+        delete c;
+      }
+    }
+  };
+
   class Schedule {
 
   public:
@@ -459,6 +1123,8 @@ namespace ahaHLS {
 
     std::map<llvm::BasicBlock*, std::vector<llvm::BasicBlock*> > controlPredecessors;
 
+    SchedulingProblem problem;
+    
     Schedule() : hasRetDefault(false) {}
 
     bool hasReturnDefault() const { return hasRetDefault; }
@@ -777,689 +1443,6 @@ namespace ahaHLS {
   
   HardwareConstraints standardConstraints();
 
-  template<typename T>
-  class LinearExpr {
-    //std::map<std::string, int> vars;
-    std::map<T, int> vars;
-    int c;
-
-  public:
-
-    LinearExpr(const T var_) :
-      vars({{var_, 1}}), c(0) {}
-
-    LinearExpr(int c_) :
-      vars({}), c(c_) {}
-    
-    LinearExpr(std::map<T, int>& vars_, const int c_) :
-      vars(vars_), c(c_) {}
-
-    LinearExpr() : vars({}), c(0) {}
-
-    LinearExpr<T> scalarMul(const int k) const {
-      std::map<T, int> mulVars;
-      for (auto v : vars) {
-        mulVars.insert({v.first, k*v.second});
-      }
-      return {mulVars, k*getCoeff()};
-    }
-    
-    LinearExpr<T> sub(const LinearExpr<T>& right) const {
-      std::map<T, int> subVars;
-      auto rightVars = right.getVars();
-      for (auto v : vars) {
-        if (dbhc::contains_key(v.first, rightVars)) {
-          subVars.insert({v.first, v.second - dbhc::map_find(v.first, rightVars)});
-        } else {
-          subVars.insert(v);
-        }
-      }
-
-      for (auto v : rightVars) {
-        if (!dbhc::contains_key(v.first, vars)) {
-          subVars.insert({v.first, -v.second});
-        }
-      }
-
-      return {subVars, c - right.getCoeff()};
-    }
-
-    LinearExpr<T> add(const LinearExpr<T>& right) const {
-      std::map<T, int> addVars;
-      auto rightVars = right.getVars();
-      for (auto v : vars) {
-        if (dbhc::contains_key(v.first, rightVars)) {
-          addVars.insert({v.first, v.second + dbhc::map_find(v.first, rightVars)});
-        } else {
-          addVars.insert(v);
-        }
-      }
-
-      for (auto v : rightVars) {
-        if (!dbhc::contains_key(v.first, vars)) {
-          addVars.insert({v.first, v.second});
-        }
-      }
-
-      return {addVars, c + right.getCoeff()};
-    }
-    
-    int getCoeff() const {
-      return c;
-    }
-
-    std::map<T, int> getVars() const {
-      return vars;
-    }
-
-    int getValue(const T& var) {
-      assert(dbhc::contains_key(var, vars));
-      return dbhc::map_find(var, vars);
-    }
-  };
-
-  typedef LinearExpr<std::string> LinearExpression;
-
-  template<typename T>
-  static inline
-  std::ostream& operator<<(std::ostream& out, const LinearExpr<T> expr) {
-    auto vars = expr.getVars();
-    for (auto v : vars) {
-      out << v.second << "*" << v.first << " + ";
-    }
-    out << expr.getCoeff();
-
-    return out;
-  }
-
-  enum ZCondition {
-    CMP_LTZ,
-    CMP_GTZ,
-    CMP_LTEZ,
-    CMP_GTEZ,
-    CMP_EQZ
-  };
-
-  template<typename T>
-  class LinearCon {
-  public:
-    LinearExpr<T> expr;
-    ZCondition cond;
-  };
-
-  typedef LinearCon<std::string> LinearConstraint;
-
-  static inline
-  std::string toString(const ZCondition cond) {
-    switch (cond) {
-    case CMP_LTZ:
-      return "< 0";
-    case CMP_GTEZ:
-      return ">= 0";
-    case CMP_LTEZ:
-      return "<= 0";
-    case CMP_GTZ:
-      return "> 0";
-    case CMP_EQZ:
-      return "== 0";
-      
-    default:
-      assert(false);
-    }
-  }
-
-  static inline
-  std::ostream& operator<<(std::ostream& out, const LinearConstraint& c) {
-    out << c.expr << " " << toString(c.cond);
-    return out;
-  }
-
-  class SchedulingProblem {
-  public:
-    int blockNo;
-
-    std::map<ExecutionAction, std::vector<std::string> > actionVarNames;
-    std::map<llvm::Instruction*, std::vector<std::string> > schedVarNames;
-    std::map<llvm::BasicBlock*, std::vector<std::string> > blockVarNames;
-    std::map<PipelineSpec, std::string> IInames;
-
-    std::vector<LinearConstraint> constraints;
-
-    HardwareConstraints hdc;
-    bool optimize;
-    LinearExpression objectiveFunction;
-
-    std::map<llvm::BasicBlock*, std::vector<llvm::BasicBlock*> > controlPredecessors;
-
-    SchedulingProblem(const HardwareConstraints& hcs_) :
-      blockNo(0), hdc(hcs_), optimize(false) {}
-
-    SchedulingProblem() : optimize(false) {
-      blockNo = 0;
-    }
-
-    void setObjective(const LinearExpression& expr) {
-      objectiveFunction = expr;
-      optimize = true;
-    }
-
-    std::string getIIName(llvm::BasicBlock* bb) const {
-      //std::string val = dbhc::map_find(bb, IInames);
-      for (auto p : IInames) {
-        if (dbhc::elem(bb, p.first.blks)) {
-          return p.second;
-        }
-      }
-
-      assert(false);
-    }
-
-    std::string getIIName(const PipelineSpec& p) const {
-      std::string val = dbhc::map_find(p, IInames);
-      return val;
-    }
-
-    LinearExpression getII(const PipelineSpec& p) const {
-      std::string val = getIIName(p);
-      return LinearExpression(val);
-    }
-    
-    LinearExpression getII(llvm::BasicBlock* bb) const {
-      for (auto p : IInames) {
-        if (dbhc::elem(bb, p.first.blks)) {
-          return getII(p.first);
-        }
-      }
-
-      assert(false);
-    }
-    
-    int blockNumber() const {
-      return blockNo;
-    }
-
-    LinearExpression blockStart(llvm::BasicBlock* bb) {
-      return LinearExpression(dbhc::map_find(bb, blockVarNames).front());
-    }
-
-    LinearExpression blockEnd(llvm::BasicBlock* bb) {
-      return LinearExpression(dbhc::map_find(bb, blockVarNames).back());
-    }
-
-    bool hasAction(const ExecutionAction& action) {
-      return dbhc::contains_key(action, actionVarNames);
-    }
-
-    void addAction(const ExecutionAction& action) {
-      // TODO: Eventually use this for all actions including instructions
-      assert(!action.isInstruction());
-      actionVarNames[action] = {action.getName() + "_start", action.getName() + "_end"};
-    }
-
-    LinearExpression actionStart(const ExecutionAction& action) {
-      auto lc = LinearExpression(dbhc::map_find(action, actionVarNames).front());
-      //cout << "start of " << action << " is " << lc << endl;
-      return lc;
-    }
-
-    LinearExpression actionEnd(const ExecutionAction& action) {
-      return LinearExpression(dbhc::map_find(action, actionVarNames).back());
-    }
-    
-    LinearExpression instrStart(const ExecutionAction& action) {
-      assert(action.isInstruction());
-      return LinearExpression(dbhc::map_find(action.getInstruction(), schedVarNames).front());
-    }
-
-    LinearExpression instrEnd(const ExecutionAction& action) {
-      assert(action.isInstruction());      
-      return LinearExpression(dbhc::map_find(action.getInstruction(), schedVarNames).back());
-    }
-    
-    LinearExpression instrStart(llvm::Instruction* instr) {
-      return LinearExpression(dbhc::map_find(instr, schedVarNames).front());
-    }
-
-    LinearExpression instrStage(llvm::Instruction* instr, const int i) {
-      return LinearExpression(dbhc::map_find(instr, schedVarNames).at(i));
-    }
-
-    LinearExpression instrEnd(llvm::Instruction* instr) {
-      return LinearExpression(dbhc::map_find(instr, schedVarNames).back());
-    }
-
-    int numStages(llvm::Instruction* instr) {
-      return (int) dbhc::map_find(instr, schedVarNames).size();
-    }
-    
-    void addBasicBlock(llvm::BasicBlock* const bb,
-                       std::set<PipelineSpec>& toPipeline);
-                       //std::set<llvm::BasicBlock*>& toPipeline);
-
-    void addConstraint(const LinearConstraint& constraint) {
-      constraints.push_back(constraint);
-    }
-  };
-
-  template<typename T>
-  static inline
-  LinearExpr<T>
-  operator-(const LinearExpr<T> left, const LinearExpr<T> right) {
-    return left.sub(right);
-  }
-
-  template<typename T>  
-  static inline
-  LinearExpr<T>
-  operator+(const LinearExpr<T> left, const LinearExpr<T> right) {
-    return left.add(right);
-  }
-
-  template<typename T>  
-  static inline
-  LinearExpr<T>
-  operator+(const LinearExpr<T> left, const int right) {
-    return left.add(LinearExpr<T>(right));
-  }
-  
-  template<typename T>  
-  static inline
-  LinearExpr<T>
-  operator*(const LinearExpr<T> left, const int c) {
-    return left.scalarMul(c);
-  }
-  
-  template<typename T> static inline
-  LinearCon<T>
-  operator>=(const LinearExpr<T> left, const LinearExpr<T> right) {
-    return {left - right, CMP_GTEZ};
-  }
-
-  template<typename T> static inline
-  LinearCon<T>
-  operator>=(const LinearExpr<T> left, const int right) {
-    return {left - LinearExpr<T>(right), CMP_GTEZ};
-  }
-
-  template<typename T> static inline
-  LinearCon<T>
-  operator>=(const int left, const LinearExpr<T> right) {
-    return {LinearExpr<T>(left) - right, CMP_GTEZ};
-  }
-
-  template<typename T> static inline
-  LinearCon<T>
-  operator<=(const LinearExpr<T> left, const LinearExpr<T> right) {
-    return {left - right, CMP_LTEZ};
-  }
-
-  template<typename T> static inline
-  LinearCon<T>
-  operator<=(const LinearExpr<T> left, const int right) {
-    return {left - LinearExpr<T>(right), CMP_LTEZ};
-  }
-
-  template<typename T> static inline
-  LinearCon<T>
-  operator<=(const int left, const LinearExpr<T> right) {
-    return {LinearExpr<T>(left) - right, CMP_LTEZ};
-  }
-
-  template<typename T> static inline
-  LinearCon<T>
-  operator==(const LinearExpr<T> left, const LinearExpr<T> right) {
-    return {left - right, CMP_EQZ};
-  }
-
-  template<typename T> static inline
-  LinearCon<T>
-  operator==(const LinearExpr<T> left, const int right) {
-    return {left - LinearExpr<T>(right), CMP_EQZ};
-  }
-
-  template<typename T> static inline
-  LinearCon<T>
-  operator==(const int left, const LinearExpr<T> right) {
-    return {LinearExpr<T>(left) - right, CMP_EQZ};
-  }
-
-  // ---
-  template<typename T> static inline
-  LinearCon<T>
-  operator<(const LinearExpr<T> left, const LinearExpr<T> right) {
-    return {left - right, CMP_LTZ};
-  }
-
-  template<typename T> static inline
-  LinearCon<T>
-  operator<(const LinearExpr<T> left, const int right) {
-    return {left - LinearExpr<T>(right), CMP_LTZ};
-  }
-
-  template<typename T> static inline
-  LinearCon<T>
-  operator>(const int left, const LinearExpr<T> right) {
-    return {LinearExpr<T>(left) - right, CMP_GTZ};
-  }
-
-  template<typename T> static inline
-  LinearCon<T>
-  operator>(const LinearExpr<T> left, const LinearExpr<T> right) {
-    return {left - right, CMP_GTZ};
-  }
-
-  template<typename T> static inline
-  LinearCon<T>
-  operator>(const LinearExpr<T> left, const int right) {
-    return {left - LinearExpr<T>(right), CMP_GTZ};
-  }
-
-  template<typename T> static inline
-  LinearCon<T>
-  operator<(const int left, const LinearExpr<T> right) {
-    return {LinearExpr<T>(left) - right, CMP_LTZ};
-  }
-  
-  Schedule buildFromModel(SchedulingProblem& p);
-
-  // TODO: Add incremental support for building scheduling constraints?
-  Schedule scheduleFunction(llvm::Function* f,
-                            HardwareConstraints& hdc,
-                            std::set<llvm::BasicBlock*>& toPipeline,
-                            std::map<llvm::Function*, SchedulingProblem>& constraints);
-
-  SchedulingProblem
-  createSchedulingProblem(llvm::Function* f,
-                          HardwareConstraints& hdc,
-                          std::set<llvm::BasicBlock*>& toPipeline);
-
-  SchedulingProblem
-  createSchedulingProblem(llvm::Function* f,
-                          HardwareConstraints& hdc,
-                          std::set<PipelineSpec>& toPipeline,
-                          std::set<TaskSpec>& tasks,                          
-                          map<BasicBlock*, vector<BasicBlock*> >& controlPredecessors);
-  
-  class EventTime {
-  public:
-    ExecutionAction action;
-    bool isEnd;
-    int offset;
-
-    void replaceInstruction(Instruction* const toReplace,
-                            Instruction* const replacement) {
-      if (action.isInstruction() && (action.getInstruction() == toReplace)) {
-        action.setInstruction(replacement);
-        //instr = replacement;
-      }
-    }
-
-    void replaceAction(ExecutionAction& toReplace,
-                       ExecutionAction& replacement) {
-      if (action == toReplace) {
-        action = replacement;
-      }
-    }
-    
-    bool isStart() const {
-      return !isEnd;
-    }
-
-    ExecutionAction getAction() const {
-      return action;
-    }
-    
-    llvm::Instruction* getInstr() const {
-      return action.getInstruction();
-    }
-  };
-
-  typedef EventTime InstructionTime;
-
-  static inline   
-  InstructionTime operator+(const InstructionTime t, const int offset) {
-    return {t.action, t.isEnd, t.offset + offset};
-  }
-
-  static inline   
-  InstructionTime operator+(const int offset, const InstructionTime t) {
-    return {t.action, t.isEnd, t.offset + offset};
-  }
-
-  static inline   
-  LinearExpression
-  toLinearExpression(const InstructionTime& time,
-                     SchedulingProblem& p) {
-    if (time.action.isInstruction()) {
-      return (time.isEnd ? p.instrEnd(time.action) : p.instrStart(time.action)) + time.offset;
-    } else if (time.action.isBasicBlock()) {
-      return (time.isEnd ? p.blockEnd(time.action.getBasicBlock()) : p.blockStart(time.action.getBasicBlock())) + time.offset;
-    } else {
-      if (!p.hasAction(time.action)) {
-        p.addAction(time.action);
-      }
-      return (time.isEnd ? p.actionEnd(time.action) : p.actionStart(time.action)) + time.offset;      
-    }
-  }
-
-  static inline   
-  InstructionTime start(BasicBlock* const bb) {
-    return {bb, false, 0};
-  }
-
-  static inline   
-  InstructionTime end(BasicBlock* const bb) {
-    return {bb, true, 0};
-  }
-  
-  static inline   
-  InstructionTime instrEnd(Instruction* const instr) {
-    return {instr, true, 0};
-  }
-
-  static inline   
-  InstructionTime instrStart(Instruction* const instr) {
-    return {instr, false, 0};
-  }
-
-  static inline   
-  InstructionTime actionStart(ExecutionAction& action) {
-    return {action, false, 0};
-  }
-
-  static inline   
-  InstructionTime actionEnd(ExecutionAction& action) {
-    return {action, true, 0};
-  }
-  
-  static inline   
-  InstructionTime instrEnd(llvm::Value* const instr) {
-    assert(llvm::Instruction::classof(instr));
-    return {llvm::dyn_cast<llvm::Instruction>(instr), true, 0};
-  }
-
-  static inline 
-  InstructionTime instrStart(llvm::Value* const instr) {
-    assert(llvm::Instruction::classof(instr));
-    return {llvm::dyn_cast<llvm::Instruction>(instr), false, 0};
-  }
-
-  static inline
-  std::ostream& operator<<(std::ostream& out, const InstructionTime& t) {
-    std::string pre = t.isEnd ? "end" : "start";
-    out << pre << "(" << t.action << ") + " << t.offset;
-    return out;
-  }
-
-  enum ExecutionConstraintType {
-    CONSTRAINT_TYPE_ORDERED,
-    CONSTRAINT_TYPE_STALL,
-    CONSTRAINT_TYPE_ILP,        
-  };
-
-  class ExecutionConstraint {
-  public:
-    virtual void addSelfTo(SchedulingProblem& p, Function* f) = 0;
-    virtual ExecutionConstraintType type() const = 0;
-    virtual void replaceInstruction(Instruction* const toReplace,
-                                    Instruction* const replacement) = 0;
-
-    virtual void replaceAction(ExecutionAction& toReplace,
-                               ExecutionAction& replacement) = 0;
-    
-    virtual ExecutionConstraint* clone() const = 0;
-    virtual void print(std::ostream& out) const = 0;    
-    virtual ~ExecutionConstraint() {}
-  };
-
-  static inline
-  std::ostream& operator<<(std::ostream& out, const ExecutionConstraint& c) {
-    c.print(out);
-    return out;
-  }
-
-  class WaitUntil : public ExecutionConstraint {
-  public:
-    Value* value;
-    Instruction* mustWait;
-  };
-
-  enum OrderRestriction {
-    ORDER_RESTRICTION_SIMULTANEOUS,
-    ORDER_RESTRICTION_BEFORE,
-    ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS,
-  };
-
-  static inline
-  std::string toString(OrderRestriction r) {
-    switch(r) {
-    case ORDER_RESTRICTION_SIMULTANEOUS:
-      return "==";
-    case ORDER_RESTRICTION_BEFORE:
-      return "<";
-    case ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS:
-      return "<=";
-    default:
-      assert(false);
-    }
-  }
-
-  class Ordered : public ExecutionConstraint {
-  public:
-    InstructionTime before;
-    InstructionTime after;
-
-    OrderRestriction restriction;
-
-    Ordered(const InstructionTime before_,
-            const InstructionTime after_,
-            const OrderRestriction restriction_) :
-      before(before_),
-      after(after_),
-      restriction(restriction_) {}
-
-    virtual ExecutionConstraintType type() const override {
-      return CONSTRAINT_TYPE_ORDERED;
-    }
-
-    virtual void print(std::ostream& out) const override {
-      out << before << " " << toString(restriction) << " " << after;
-    }
-    
-    virtual ExecutionConstraint* clone() const override {
-      InstructionTime beforeCpy(before);
-      InstructionTime afterCpy(after);      
-      return new Ordered(beforeCpy, afterCpy, restriction);
-    }
-    
-    virtual void replaceAction(ExecutionAction& toReplace,
-                               ExecutionAction& replacement) override {
-      before.replaceAction(toReplace, replacement);
-      after.replaceAction(toReplace, replacement);      
-    }
-    
-    virtual void replaceInstruction(Instruction* const toReplace,
-                                    Instruction* const replacement) override {
-      before.replaceInstruction(toReplace, replacement);
-      after.replaceInstruction(toReplace, replacement);      
-    }
-    
-    virtual void addSelfTo(SchedulingProblem& p, Function* f) override {
-      LinearExpression aTime = toLinearExpression(after, p);
-      LinearExpression bTime = toLinearExpression(before, p);
-      if (restriction == ORDER_RESTRICTION_SIMULTANEOUS) {
-        p.addConstraint(bTime == aTime);
-      } else if (restriction == ORDER_RESTRICTION_BEFORE) {
-        p.addConstraint(bTime < aTime);
-      } else if (restriction == ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS) {
-        p.addConstraint(bTime <= aTime);        
-      } else {
-        assert(false);
-      }
-    }
-  };
-  
-  static inline
-  Ordered* operator<(InstructionTime before, InstructionTime after) {
-    return new Ordered(before, after, ORDER_RESTRICTION_BEFORE);
-  }
-
-  static inline
-  Ordered* operator==(InstructionTime before, InstructionTime after) {
-    return new Ordered(before, after, ORDER_RESTRICTION_SIMULTANEOUS);
-  }
-
-  static inline
-  Ordered* operator<=(InstructionTime before, InstructionTime after) {
-    return new Ordered(before, after, ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS);
-  }
-
-  static inline
-  Ordered* operator>(InstructionTime before, InstructionTime after) {
-    return after < before;
-  }
-  
-  class ExecutionConstraints {
-  public:
-    std::vector<ExecutionConstraint*> constraints;
-
-    ExecutionConstraints() {}
-
-    ExecutionConstraints(const ExecutionConstraints& other) {
-      for (auto c : other.constraints) {
-        addConstraint(c->clone());
-      }
-    }
-
-    void remove(ExecutionConstraint* c) {
-      assert(dbhc::elem(c, constraints));
-
-      dbhc::remove(c, constraints);
-      delete c;
-    }
-    
-    void addConstraint(ExecutionConstraint* c) {
-      constraints.push_back(c);
-    }
-
-    void add(ExecutionConstraint* c) {
-      addConstraint(c);
-    }
-    
-    void addConstraints(SchedulingProblem& p,
-                        Function* f) {
-      for (auto c : constraints) {
-        c->addSelfTo(p, f);
-      }
-    }
-
-    ~ExecutionConstraints() {
-      for (auto c : constraints) {
-        delete c;
-      }
-    }
-  };
-
   void addDataConstraints(llvm::Function* f, ExecutionConstraints& exe);
 
   class InterfaceFunctions {
@@ -1689,6 +1672,26 @@ namespace ahaHLS {
   std::set<BasicBlock*> outOfStatePredecessors(const StateId state,
                                                llvm::BasicBlock* blk,
                                                STG& stg);
+
+  Schedule buildFromModel(SchedulingProblem& p);
+
+  // TODO: Add incremental support for building scheduling constraints?
+  Schedule scheduleFunction(llvm::Function* f,
+                            HardwareConstraints& hdc,
+                            std::set<llvm::BasicBlock*>& toPipeline,
+                            std::map<llvm::Function*, SchedulingProblem>& constraints);
+
+  SchedulingProblem
+  createSchedulingProblem(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          std::set<llvm::BasicBlock*>& toPipeline);
+
+  SchedulingProblem
+  createSchedulingProblem(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          std::set<PipelineSpec>& toPipeline,
+                          std::set<TaskSpec>& tasks,                          
+                          map<BasicBlock*, vector<BasicBlock*> >& controlPredecessors);
   
 }
 

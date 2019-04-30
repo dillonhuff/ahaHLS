@@ -154,6 +154,7 @@ namespace ahaHLS {
           createSchedulingProblem(&F, hdc, toPipeline, a, sc);
 
         schedule = buildFromModel(p);
+        schedule.problem = p;
         schedule.controlPredecessors =
           p.controlPredecessors;
         
@@ -170,6 +171,7 @@ namespace ahaHLS {
                              sc,
                              p);
         schedule = buildFromModel(p);
+        schedule.problem = p;        
         schedule.controlPredecessors =
           p.controlPredecessors;
       }
@@ -1006,6 +1008,7 @@ namespace ahaHLS {
     exe.addConstraints(p, f);
 
     p.controlPredecessors = controlPredecessors;
+    p.taskSpecs = tasks;
 
     return p;
   }
