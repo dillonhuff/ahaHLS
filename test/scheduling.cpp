@@ -1128,21 +1128,6 @@ namespace ahaHLS {
     implementRAMWrite0(ramWrite,
                        interfaces.getConstraints(ramWrite));
 
-    SECTION("No pipelining and no task parallelism") {
-      Schedule s = scheduleInterface(f, hcs, interfaces);
-      STG graph = buildSTG(s, f);
-
-      cout << "STG Is" << endl;
-      graph.print(cout);
-
-      map<string, int> testLayout = {{"arg_0", 0}};
-      map<llvm::Value*, int> layout;
-      auto arch = buildMicroArchitecture(graph, layout, hcs);
-
-      VerilogDebugInfo info;
-      addNoXChecks(arch, info);
-
-      emitVerilog(arch, info);
 
       // Create testing infrastructure
       map<string, vector<int> > memoryInit{{"arg_0", {6}}};
@@ -1164,6 +1149,22 @@ namespace ahaHLS {
 
       checkRAMContents(tb, checkMemCycle, "arg_0", {0, 1, 2, 3});
       checkRAMContents(tb, checkMemCycle + 30, "arg_1", {0, 1, 2, 3});
+    
+    SECTION("No pipelining and no task parallelism") {
+      Schedule s = scheduleInterface(f, hcs, interfaces);
+      STG graph = buildSTG(s, f);
+
+      cout << "STG Is" << endl;
+      graph.print(cout);
+
+      map<string, int> testLayout = {{"arg_0", 0}};
+      map<llvm::Value*, int> layout;
+      auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+      VerilogDebugInfo info;
+      addNoXChecks(arch, info);
+
+      emitVerilog(arch, info);
 
       checkSignal(tb,
                    "valid",
@@ -1221,21 +1222,21 @@ namespace ahaHLS {
       emitVerilog(arch, info);
 
       // Create testing infrastructure
-      map<string, vector<int> > memoryInit{{"arg_0", {6}}};
-      map<string, vector<int> > memoryExpected{{"arg_0", {0, 1, 2, 3, 0, 1, 2, 3}}};
+      // map<string, vector<int> > memoryInit{{"arg_0", {6}}};
+      // map<string, vector<int> > memoryExpected{{"arg_0", {0, 1, 2, 3, 0, 1, 2, 3}}};
 
-      TestBenchSpec tb;
-      tb.memoryExpected = memoryExpected;
-      tb.name = "task_parallel_loops";
-      tb.useModSpecs = true;
-      int startSetMemCycle = 1;
+      // TestBenchSpec tb;
+      // tb.memoryExpected = memoryExpected;
+      // tb.name = "task_parallel_loops";
+      // tb.useModSpecs = true;
+      // int startSetMemCycle = 1;
     
-      int startRunCycle = startSetMemCycle + 2; 
-      map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
-      map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+      // int startRunCycle = startSetMemCycle + 2; 
+      // map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+      // map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
 
-      int checkMemCycle = 100;
-      checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
+      // int checkMemCycle = 100;
+      // checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
 
       checkSignal(tb,
                    "valid",
@@ -1283,22 +1284,22 @@ namespace ahaHLS {
 
       emitVerilog(arch, info);
 
-      // Create testing infrastructure
-      map<string, vector<int> > memoryInit{{"arg_0", {6}}};
-      map<string, vector<int> > memoryExpected{{"arg_0", {0, 1, 2, 3, 0, 1, 2, 3}}};
+      // // Create testing infrastructure
+      // map<string, vector<int> > memoryInit{{"arg_0", {6}}};
+      // map<string, vector<int> > memoryExpected{{"arg_0", {0, 1, 2, 3, 0, 1, 2, 3}}};
 
-      TestBenchSpec tb;
-      tb.memoryExpected = memoryExpected;
-      tb.name = "task_parallel_loops";
-      tb.useModSpecs = true;
-      int startSetMemCycle = 1;
+      // TestBenchSpec tb;
+      // tb.memoryExpected = memoryExpected;
+      // tb.name = "task_parallel_loops";
+      // tb.useModSpecs = true;
+      // int startSetMemCycle = 1;
     
-      int startRunCycle = startSetMemCycle + 2; 
-      map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
-      map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+      // int startRunCycle = startSetMemCycle + 2; 
+      // map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+      // map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
 
-      int checkMemCycle = 100;
-      checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
+      // int checkMemCycle = 100;
+      // checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
 
       checkSignal(tb,
                    "valid",
@@ -1350,22 +1351,22 @@ namespace ahaHLS {
 
       emitVerilog(arch, info);
 
-      // Create testing infrastructure
-      map<string, vector<int> > memoryInit{{"arg_0", {6}}};
-      map<string, vector<int> > memoryExpected{{"arg_0", {0, 1, 2, 3, 0, 1, 2, 3}}};
+      // // Create testing infrastructure
+      // map<string, vector<int> > memoryInit{{"arg_0", {6}}};
+      // map<string, vector<int> > memoryExpected{{"arg_0", {0, 1, 2, 3, 0, 1, 2, 3}}};
 
-      TestBenchSpec tb;
-      tb.memoryExpected = memoryExpected;
-      tb.name = "task_parallel_loops";
-      tb.useModSpecs = true;
-      int startSetMemCycle = 1;
+      // TestBenchSpec tb;
+      // tb.memoryExpected = memoryExpected;
+      // tb.name = "task_parallel_loops";
+      // tb.useModSpecs = true;
+      // int startSetMemCycle = 1;
     
-      int startRunCycle = startSetMemCycle + 2; 
-      map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
-      map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+      // int startRunCycle = startSetMemCycle + 2; 
+      // map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+      // map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
 
-      int checkMemCycle = 100;
-      checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
+      // int checkMemCycle = 100;
+      // checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
 
       checkSignal(tb,
                    "valid",
