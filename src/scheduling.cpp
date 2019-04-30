@@ -449,6 +449,17 @@ namespace ahaHLS {
     return false;
   }
 
+  bool inSameTask(BasicBlock* const x,
+                  BasicBlock* const y,
+                  set<TaskSpec>& tasks) {
+    for (auto p : tasks) {
+      if (elem(x, p.blks) && elem(y, p.blks)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
   bool inAnyPipeline(BasicBlock* const bb,
                      set<PipelineSpec>& toPipeline) {
     for (auto p : toPipeline) {
@@ -930,6 +941,11 @@ namespace ahaHLS {
                           std::set<PipelineSpec>& toPipeline,
                           map<BasicBlock*, vector<BasicBlock*> >& controlPredecessors) {
     set<TaskSpec> tasks;
+    TaskSpec t;
+    for (auto& bb : f->getBasicBlockList()) {
+      t.blks.insert(&bb);
+    }
+    tasks.insert(t);
     return createSchedulingProblem(f, hdc, toPipeline, tasks, controlPredecessors);
     
   }
@@ -958,6 +974,8 @@ namespace ahaHLS {
       
       i++;
     }
+
+    // What do I need to do for tasks?
     
     // Connect the control edges
     for (auto blkPreds : controlPredecessors) {
@@ -967,13 +985,19 @@ namespace ahaHLS {
         Instruction* term = next->getTerminator();
 
         if (BranchInst::classof(term)) {
-          if ((!inAnyPipeline(next, toPipeline) &&
-               !inAnyPipeline(nextBB, toPipeline)) ||
-              (inSamePipeline(next, nextBB, toPipeline))) {
-            p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
-          } else {
-            p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
+          // In different
+          if (inSameTask(next, nextBB, tasks)) {
+            if ((!inAnyPipeline(next, toPipeline) &&
+                 !inAnyPipeline(nextBB, toPipeline)) ||
+                (inSamePipeline(next, nextBB, toPipeline))) {
+              p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
+            } else {
+              p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
+            }
           }
+        } else {
+          // Blocks in different tasks must be separate
+          p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
         }
       }
     }
