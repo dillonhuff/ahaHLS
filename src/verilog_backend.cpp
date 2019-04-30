@@ -1578,8 +1578,8 @@ namespace ahaHLS {
         
     for (int i = 0; i < (int) memoryExpected.size(); i++) {
       int val = memoryExpected[i];
-      map_insert(tb.actionsInCycles, checkMemCycle, ramName + "_debug_addr = " + to_string(i) + ";");
-      map_insert(tb.actionsInCycles, checkMemCycle, assertString(ramName + "_debug_data === " + to_string(val)));
+      map_insert(tb.actionsOnCycles, checkMemCycle, ramName + "_debug_addr <= " + to_string(i) + ";");
+      map_insert(tb.actionsOnCycles, checkMemCycle + 1, assertString(ramName + "_debug_data === " + to_string(val)));
       checkMemCycle++;
     }
   }

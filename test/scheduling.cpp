@@ -1092,7 +1092,7 @@ namespace ahaHLS {
       IRBuilder<> loop0Builder(loop1Blk);
       auto indPhi = loop0Builder.CreatePHI(intType(32), 2);
       auto nextInd = loop0Builder.CreateAdd(indPhi, mkInt(1, 32));
-      storeRAMVal(loop0Builder, getArg(f, 0), loop0Builder.CreateAdd(indPhi, mkInt(4, 32)), indPhi);
+      //storeRAMVal(loop0Builder, getArg(f, 0), loop0Builder.CreateAdd(indPhi, mkInt(4, 32)), indPhi);
       storeRAMVal(loop0Builder, getArg(f, 1), indPhi, indPhi);
       auto loop0Done = loop0Builder.CreateICmpEQ(nextInd, mkInt(4, 32));
       loop0Builder.CreateCondBr(loop0Done, exitBlk, loop1Blk);
@@ -1148,7 +1148,7 @@ namespace ahaHLS {
       //checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
 
       checkRAMContents(tb, checkMemCycle, "arg_0", {0, 1, 2, 3});
-      //checkRAMContents(tb, checkMemCycle + 30, "arg_1", {0, 1, 2, 3});
+      checkRAMContents(tb, checkMemCycle + 30, "arg_1", {0, 1, 2, 3});
     
     SECTION("No pipelining and no task parallelism") {
       Schedule s = scheduleInterface(f, hcs, interfaces);
