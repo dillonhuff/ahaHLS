@@ -1408,18 +1408,20 @@ namespace ahaHLS {
 
         cout << "valname = " << valName << endl;
 
-        PortValues pv = map_find(valName, c.inputControllers);
-        cout << "Found port " << portName << endl;
+        if (contains_key(valName, c.inputControllers)) {
+          PortValues pv = map_find(valName, c.inputControllers);
+          cout << "Found port " << portName << endl;
 
-        for (auto condAndVal0 : pv.portVals) {
-          Wire cond0 = condAndVal0.first;
-          for (auto condAndVal1 : pv.portVals) {
-            Wire cond1 = condAndVal1.first;
+          for (auto condAndVal0 : pv.portVals) {
+            Wire cond0 = condAndVal0.first;
+            for (auto condAndVal1 : pv.portVals) {
+              Wire cond1 = condAndVal1.first;
 
-            if (cond0.valueString() != cond1.valueString()) {
-              addAssert(implies(cond0.valueString(),
-                                notStr(cond1.valueString())),
-                        info);
+              if (cond0.valueString() != cond1.valueString()) {
+                addAssert(implies(cond0.valueString(),
+                                  notStr(cond1.valueString())),
+                          info);
+              }
             }
           }
         }
