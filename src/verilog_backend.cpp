@@ -1394,6 +1394,38 @@ namespace ahaHLS {
       }
     }
   }
+
+  void noOverlappingSetsOnPort(const std::string& portName,
+                               MicroArchitecture& arch,
+                               VerilogDebugInfo& info) {
+    for (auto portController : arch.portControllers) {
+      PortController& c = portController.second;
+      FunctionalUnit unit = c.functionalUnit();
+      
+      if (contains_key(portName, unit.portWires)) {
+
+        string valName = unit.inputWire(portName);
+
+        cout << "valname = " << valName << endl;
+
+        PortValues pv = map_find(valName, c.inputControllers);
+        cout << "Found port " << portName << endl;
+
+        for (auto condAndVal0 : pv.portVals) {
+          Wire cond0 = condAndVal0.first;
+          for (auto condAndVal1 : pv.portVals) {
+            Wire cond1 = condAndVal1.first;
+
+            if (cond0.valueString() != cond1.valueString()) {
+              addAssert(implies(cond0.valueString(),
+                                notStr(cond1.valueString())),
+                        info);
+            }
+          }
+        }
+      }
+    }
+  }
   
   // Thoughts: Tricky to generate complex printouts in synthesizable
   // verilog. Maybe I should look in to using unsynthesizable constructs?
@@ -1403,9 +1435,9 @@ namespace ahaHLS {
     noOverlappingBlockTransitions(arch, info);
     noOverlappingStateTransitions(arch, info);
 
-    // TODO: Check that pipelines never activate multiple out of state
-    // branches
     noPipelinesWithMultipleActiveOutOfStateBranches(arch, info);
+
+    noOverlappingSetsOnPort("wen_0", arch, info);
 
     // TODO: Check that there is no port controller overlap? This will be
     // so expensive that maybe it should be saved for special datapath
