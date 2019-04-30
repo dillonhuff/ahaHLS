@@ -1628,7 +1628,7 @@ namespace ahaHLS {
   getOutOfStateTransitions(const StateId state,
                            STG& stg);
 
-
+    
   SchedulingProblem
   createSchedulingProblem(llvm::Function* f,
                           HardwareConstraints& hdc,
@@ -1694,6 +1694,8 @@ namespace ahaHLS {
                           std::set<PipelineSpec>& toPipeline,
                           std::set<TaskSpec>& tasks,                          
                           map<BasicBlock*, vector<BasicBlock*> >& controlPredecessors);
+
+  std::set<CFGJump> getOutOfTaskJumps(TaskSpec& task, STG& stg);
   
 }
 
