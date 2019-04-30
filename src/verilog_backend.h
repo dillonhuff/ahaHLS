@@ -226,4 +226,20 @@ namespace ahaHLS {
                   VerilogDebugInfo& debugInfo);
   
 
+  void checkRAM(TestBenchSpec& tb,
+                int checkMemCycle,
+                const std::string name,
+                std::map<string, vector<int> >& memoryExpected,
+                std::map<string, int>& testLayout);
+  
+  void setRAM(TestBenchSpec& tb,
+              int startSetMemCycle,
+              const std::string name,
+              std::map<string, vector<int> >& memoryInit,
+              std::map<string, int>& testLayout);
+
+  void checkSignal(TestBenchSpec& tb,
+                   const std::string& signalName,
+                   const std::map<int, int>& valuesAtCycles);
+  
 }

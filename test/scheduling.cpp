@@ -643,61 +643,6 @@ namespace ahaHLS {
 
     REQUIRE(runIVerilogTB("loop_add_4_copy"));
   }
-
-  void setRAM(TestBenchSpec& tb,
-              int startSetMemCycle,
-              const std::string name,
-              std::map<string, vector<int> >& memoryInit,
-              std::map<string, int>& testLayout) {
-
-    if (memoryInit.size() == 0) {
-      return;
-    }
-
-    tb.settableWires.insert(name + "_debug_write_addr");
-    tb.settableWires.insert(name + "_debug_write_data");
-    tb.settableWires.insert(name + "_debug_write_en");
-    
-    for (auto exp : memoryInit) {
-      int offset = map_find(exp.first, testLayout);
-      for (int i = 0; i < (int) exp.second.size(); i++) {
-        int val = exp.second[i];
-
-        map_insert(tb.actionsOnCycles, startSetMemCycle, name + "_debug_write_addr <= " + to_string(offset) + ";");
-        map_insert(tb.actionsOnCycles, startSetMemCycle, name + "_debug_write_data <= " + to_string(val) + ";");
-        map_insert(tb.actionsOnCycles, startSetMemCycle, name + string("_debug_write_en <= 1;"));
-
-        offset++;
-        startSetMemCycle++;
-      }
-    }
-
-    map_insert(tb.actionsOnCycles, startSetMemCycle, name + string("_debug_write_en <= 0;"));
-  }
-
-  void checkRAM(TestBenchSpec& tb,
-                int checkMemCycle,
-                const std::string name,
-                std::map<string, vector<int> >& memoryExpected,
-                std::map<string, int>& testLayout) {
-
-    if (memoryExpected.size() == 0) {
-      return;
-    }
-
-    tb.settableWires.insert(name + "_debug_addr");
-        
-    for (auto exp : memoryExpected) {
-      int offset = map_find(exp.first, testLayout);
-      for (int i = 0; i < (int) exp.second.size(); i++) {
-        int val = exp.second[i];
-        map_insert(tb.actionsInCycles, checkMemCycle, name + "_debug_addr = " + to_string(offset) + ";");
-        map_insert(tb.actionsInCycles, checkMemCycle, assertString(name + "_debug_data === " + to_string(val)));
-        offset++;
-        checkMemCycle++;
-      }
-    }
-  }
   
   TestBenchSpec buildTB(std::string name,
                         map<string, vector<int> >& memoryInit,
@@ -1214,6 +1159,10 @@ namespace ahaHLS {
       int checkMemCycle = 100;
       checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
 
+      checkSignal(tb,
+                   "valid",
+                  {{3, 0}, {10, 0}, {30, 0}, {35, 1}, {40, 1}, {100, 1}});
+      
       emitVerilogTestBench(tb, arch, testLayout);
 
       REQUIRE(runIVerilogTB("task_parallel_loops"));
@@ -6103,10 +6052,7 @@ namespace ahaHLS {
     map<llvm::Value*, int> layout = {};
     auto arch = buildMicroArchitecture(graph, layout, hcs);
     
-    //emitVerilog("vhls_target", graph, hcs);
-
     VerilogDebugInfo info;
-    //addDisplay("1", "global_state == %d", {"global_state"}, info);
     addControlSanityChecks(arch, info);
     
     emitVerilog("vhls_target", arch, info);
@@ -6281,86 +6227,4 @@ namespace ahaHLS {
 
   }
 
-  TEST_CASE("IP receiver") {
-    SMDiagnostic Err;
-    LLVMContext Context;
-    setGlobalLLVMContext(&Context);
-    
-    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "count_packets");
-    setGlobalLLVMModule(Mod.get());
-
-    Function* f = getFunctionByDemangledName(Mod.get(), "count_packets");
-    int argId = 0;    
-    for (auto &Arg : f->args()) {
-      f->addParamAttr(argId, llvm::Attribute::NoAlias);
-      argId++;
-    }
-
-    //getArg(f, 0)->setName("ram");
-
-    cout << "llvm function" << endl;
-    cout << valueString(f) << endl;
-
-    deleteLLVMLifetimeCalls(f);
-
-    InterfaceFunctions interfaces;
-    interfaces.functionTemplates[string("increment")] =
-      [](Function* f, ExecutionConstraints& exe) { implementIncrement(f, exe); };
-    interfaces.functionTemplates[string("get_addrs")] =
-      [](Function* f, ExecutionConstraints& exe) { implementGetAddrsRV(f, exe); };
-
-    HardwareConstraints hcs = standardConstraints();
-    hcs.typeSpecs["class.counter"] =
-      [](StructType* axiStencil) { return counterSpec(); };
-    hcs.typeSpecs["class.ip_receiver"] =
-      [](StructType* tp) { return ipReceiverSpec(); };
-    
-    ExecutionConstraints exec;
-    // sequentialCalls(f, exec);
-
-    set<BasicBlock*> toPipeline;
-
-
-    inlineWireCalls(f, exec, interfaces);
-
-    // Call after inlining
-    addDataConstraints(f, exec);
-
-    
-    cout << "After inlining" << endl;
-    cout << valueString(f) << endl;
-
-    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
-    p.setObjective(p.blockEnd(exitBlock(f)) - p.blockStart(&(f->getEntryBlock())));
-    exec.addConstraints(p, f);
-
-    map<Function*, SchedulingProblem> constraints{{f, p}};
-    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
-    
-    STG graph = buildSTG(s, f);
-    
-    cout << "STG Is" << endl;
-    graph.print(cout);
-
-    emitVerilog("count_packets", graph, hcs);
-
-    map<llvm::Value*, int> layout = {};
-    auto arch = buildMicroArchitecture(graph, layout, hcs);
-
-    // auto receiver = dyn_cast<Argument>(getArg(f, 0));
-    // auto counter = dyn_cast<Argument>(getArg(f, 1));    
-
-    TestBenchSpec tb;
-    map<string, int> testLayout = {};
-    tb.memoryInit = {};
-    tb.memoryExpected = {};
-    tb.runCycles = 9500;
-    tb.maxCycles = 10000;
-    tb.name = "count_packets";
-    tb.useModSpecs = true;
-
-    emitVerilogTestBench(tb, arch, testLayout);
-    REQUIRE(runIVerilogTest("count_packets_tb.v", "count_packets", " builtins.v count_packets.v ip_eth_rx.v"));
-
-  }
 }

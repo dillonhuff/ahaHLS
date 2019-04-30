@@ -1504,5 +1504,72 @@ namespace ahaHLS {
     return arch;
   }
 
+
+  void setRAM(TestBenchSpec& tb,
+              int startSetMemCycle,
+              const std::string name,
+              std::map<string, vector<int> >& memoryInit,
+              std::map<string, int>& testLayout) {
+
+    if (memoryInit.size() == 0) {
+      return;
+    }
+
+    tb.settableWires.insert(name + "_debug_write_addr");
+    tb.settableWires.insert(name + "_debug_write_data");
+    tb.settableWires.insert(name + "_debug_write_en");
+    
+    for (auto exp : memoryInit) {
+      int offset = map_find(exp.first, testLayout);
+      for (int i = 0; i < (int) exp.second.size(); i++) {
+        int val = exp.second[i];
+
+        map_insert(tb.actionsOnCycles, startSetMemCycle, name + "_debug_write_addr <= " + to_string(offset) + ";");
+        map_insert(tb.actionsOnCycles, startSetMemCycle, name + "_debug_write_data <= " + to_string(val) + ";");
+        map_insert(tb.actionsOnCycles, startSetMemCycle, name + string("_debug_write_en <= 1;"));
+
+        offset++;
+        startSetMemCycle++;
+      }
+    }
+
+    map_insert(tb.actionsOnCycles, startSetMemCycle, name + string("_debug_write_en <= 0;"));
+  }
+
+  void checkRAM(TestBenchSpec& tb,
+                int checkMemCycle,
+                const std::string name,
+                std::map<string, vector<int> >& memoryExpected,
+                std::map<string, int>& testLayout) {
+
+    if (memoryExpected.size() == 0) {
+      return;
+    }
+
+    tb.settableWires.insert(name + "_debug_addr");
+        
+    for (auto exp : memoryExpected) {
+      int offset = map_find(exp.first, testLayout);
+      for (int i = 0; i < (int) exp.second.size(); i++) {
+        int val = exp.second[i];
+        map_insert(tb.actionsInCycles, checkMemCycle, name + "_debug_addr = " + to_string(offset) + ";");
+        map_insert(tb.actionsInCycles, checkMemCycle, assertString(name + "_debug_data === " + to_string(val)));
+        offset++;
+        checkMemCycle++;
+      }
+    }
+  }
+
+  void checkSignal(TestBenchSpec& tb,
+                   const std::string& signalName,
+                   const std::map<int, int>& valuesAtCycles) {
+    for (auto cycleValPair : valuesAtCycles) {
+      int cycle = cycleValPair.first;
+      int expectedValue = cycleValPair.second;
+
+      string cond = signalName + " === " + to_string(expectedValue);
+      map_insert(tb.actionsInCycles, cycle, assertString(cond));
+    }
+  }
   
 }
