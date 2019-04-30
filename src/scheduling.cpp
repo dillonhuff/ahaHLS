@@ -3130,6 +3130,44 @@ namespace ahaHLS {
     }
     return inJmps;
   }
+
+  std::set<StateId> statesInBlock(BasicBlock* const blk, STG& stg) {
+    set<StateId> sts;
+    for (StateId state = stg.blockStartState(blk);
+         state <= stg.blockEndState(blk);
+         state++) {
+      sts.insert(state);
+    }
+    return sts;
+  }
+
+  TaskSpec getTask(BasicBlock* const blk,
+                   STG& stg) {
+    for (auto& ts : stg.sched.problem.taskSpecs) {
+      if (elem(blk, ts.blks)) {
+        return ts;
+      }
+    }
+
+    cout << "Error: Cannot find task for " << endl;
+    cout << valueString(blk) << endl;
+    assert(false);
+  }
+  
+  std::set<CFGJump> getOutOfTaskJumps(TaskSpec& task, STG& stg) {
+    set<CFGJump> outJumps;
+    for (BasicBlock* blk : task.blks) {
+      for (StateId state : statesInBlock(blk, stg)) {
+        for (auto jmp : getOutOfStateTransitions(state, stg)) {
+          BasicBlock* dest = jmp.second;
+          if (task != getTask(dest, stg)) {
+            outJumps.insert({jmp});
+          }
+        }
+      }
+    }
+    return outJumps;
+  }
   
   std::vector<CFGJump> outOfPipelineJumps(Pipeline& pipe, STG& stg) {
     vector<CFGJump> outJmps;
@@ -3189,10 +3227,6 @@ namespace ahaHLS {
         }
       }
 
-      // out << "\t" << st.first << std::endl;
-      // for (auto instr : st.second) {
-      //   out << valueString(instr) << std::endl;
-      // }
     }
 
     out << "--- Block transition info" << endl;
@@ -3300,6 +3334,18 @@ namespace ahaHLS {
         out << tab(3) << "- " << jump << endl;
       }
       
+    }
+
+    out << "--- # of tasks = " << sched.problem.taskSpecs.size() << endl;
+    for (auto task : sched.problem.taskSpecs) {
+      out << tab(1) << "Task contains " << task.blks.size() << " blocks" << endl;
+
+      set<CFGJump> outOfTaskJumps =
+        getOutOfTaskJumps(task, *this);
+      out << tab(2) << "-- Out of task jumps" << endl;
+      for (auto jmp : outOfTaskJumps) {
+        out << tab(3) << "- " << jmp << endl;
+      }
     }
 
   }
@@ -4340,5 +4386,13 @@ namespace ahaHLS {
 
   }
 
+  bool operator==(const TaskSpec& x, const TaskSpec& y) {
+    return x.blks == y.blks;
+  }
+
+  bool operator!=(const TaskSpec& x, const TaskSpec& y) {
+    return !(x == y);
+  }
+  
   
 }

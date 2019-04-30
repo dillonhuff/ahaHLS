@@ -24,6 +24,8 @@ namespace ahaHLS {
   
   bool operator<(const PipelineSpec& x, const PipelineSpec& y);
   bool operator<(const TaskSpec& x, const TaskSpec& y);  
+  bool operator==(const TaskSpec& x, const TaskSpec& y);
+  bool operator!=(const TaskSpec& x, const TaskSpec& y);  
 
   enum ExecutionActionType {
     EXECUTION_ACTION_INSTRUCTION,
