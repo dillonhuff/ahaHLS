@@ -994,10 +994,9 @@ namespace ahaHLS {
             } else {
               p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
             }
+          } else {
+            p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));            
           }
-        } else {
-          // Blocks in different tasks must be separate
-          p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
         }
       }
     }
