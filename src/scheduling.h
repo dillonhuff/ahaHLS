@@ -1701,6 +1701,10 @@ namespace ahaHLS {
                    STG& stg);
 
   std::set<TaskSpec> halideTaskSpecs(llvm::Function* f);
+
+  void addStencilCallConstraints(llvm::Function* f,
+                                 map<BasicBlock*, vector<BasicBlock*> >& preds,
+                                 ExecutionConstraints& exec);
   
 }
 

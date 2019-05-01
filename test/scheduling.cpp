@@ -6207,6 +6207,9 @@ namespace ahaHLS {
       // ExecutionConstraints exec;
 
       // sequentialCalls(f, exec);
+
+      auto preds = buildControlPreds(f);
+      addStencilCallConstraints(f, preds, exec);
       
       inlineWireCalls(f, exec, interfaces);
       addDataConstraints(f, exec);
@@ -6216,8 +6219,6 @@ namespace ahaHLS {
 
       //set<TaskSpec> tasks = halideTaskSpecs(f);
       //set<TaskSpec> tasks = {}; //halideTaskSpecs(f);
-
-      auto preds = buildControlPreds(f);
 
       set<PipelineSpec> toPipeline;
       SchedulingProblem p =
