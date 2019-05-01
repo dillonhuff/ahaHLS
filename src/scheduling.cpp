@@ -977,7 +977,20 @@ namespace ahaHLS {
       i++;
     }
 
-    // What do I need to do for tasks?
+    // // What do I need to do for tasks?
+    // for (auto& bb0 : f->getBasicBlockList()) {
+    //   auto* blk0 = &bb0;
+    //   // //for (int i = 0; i < blk->getNumSuccessors(); i++) {
+    //   // for (auto* succ : successors(blk)) {
+    //   for (auto& bb1 : f->getBasicBlockList()) {
+    //     auto* blk1 = &bb1;
+    //     if ((blk0 != blk1) && !inSameTask(blk0, blk1, tasks)) {
+    //       cout << "blocks not in same task" << endl;
+    //       p.addConstraint((p.blockEnd(blk0) < p.blockStart(blk1)) ||
+    //                       (p.blockStart(blk1) < p.blockEnd(blk0)));
+    //     }
+    //   }
+    // }
     
     // Connect the control edges
     for (auto blkPreds : controlPredecessors) {
@@ -987,7 +1000,6 @@ namespace ahaHLS {
         Instruction* term = next->getTerminator();
 
         if (BranchInst::classof(term)) {
-          // In different
           if (inSameTask(next, nextBB, tasks)) {
             if ((!inAnyPipeline(next, toPipeline) &&
                  !inAnyPipeline(nextBB, toPipeline)) ||

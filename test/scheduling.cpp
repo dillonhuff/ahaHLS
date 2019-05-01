@@ -6216,6 +6216,8 @@ namespace ahaHLS {
 
       set<TaskSpec> tasks = halideTaskSpecs(f);
 
+      preds = buildControlPreds(f);
+      
       set<PipelineSpec> toPipeline;
       SchedulingProblem p =
         createSchedulingProblem(f, hcs, toPipeline, tasks, preds);
