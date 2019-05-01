@@ -4521,6 +4521,26 @@ namespace ahaHLS {
       }
     }
 
+    vector<TaskSpec> sorted = sortTasks(tasks);
+    assert(sorted.size() == tasks.size());
+    
+    // TaskSpec finalTask = sorted.back();
+    // if ((finalTask.blks.size() == 1)) {
+    //   BasicBlock* last = *(begin(finalTask.blks));
+    //   if (ReturnInst::classof(last->getTerminator())) {
+    //     cout << "Isolated return block" << endl;
+    //     if (tasks.size() > 1) {
+
+    //       TaskSpec nextToLast = sorted[sorted.size() - 2];
+    //       tasks.erase(nextToLast);
+    //       tasks.erase(finalTask);
+
+    //       nextToLast.blks.insert(last);
+    //       tasks.insert(nextToLast);
+    //     }
+    //   }
+    // }
+      
     //assert(false);
 
     return tasks;

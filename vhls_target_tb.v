@@ -39,47 +39,71 @@ module vhls_target_tb();
 	end
 
 	always @(posedge clk) begin
-		if (3 == total_cycles) begin if (!(valid === 0)) begin $display("assertion(valid === 0)"); $finish(); end end
+		if (3 == total_cycles) begin if (!(arg_1_read_ready === 0)) begin $display("assertion(arg_1_read_ready === 0)"); $finish(); end end
 	end
 
 	always @(posedge clk) begin
-		if (10 == total_cycles) begin if (!(valid === 0)) begin $display("assertion(valid === 0)"); $finish(); end end
+		if (10 == total_cycles) begin if (!(arg_1_read_ready === 0)) begin $display("assertion(arg_1_read_ready === 0)"); $finish(); end end
 	end
 
 	always @(posedge clk) begin
-		if (15 == total_cycles) begin if (!(valid === 0)) begin $display("assertion(valid === 0)"); $finish(); end end
+		if (15 == total_cycles) begin if (!(arg_1_read_ready === 0)) begin $display("assertion(arg_1_read_ready === 0)"); $finish(); end end
 	end
 
 	always @(posedge clk) begin
-		if (17 == total_cycles) begin if (!(valid === 0)) begin $display("assertion(valid === 0)"); $finish(); end end
+		if (17 == total_cycles) begin if (!(arg_1_read_ready === 0)) begin $display("assertion(arg_1_read_ready === 0)"); $finish(); end end
 	end
 
 	always @(posedge clk) begin
-		if (100 == total_cycles) begin if (!(valid === 0)) begin $display("assertion(valid === 0)"); $finish(); end end
+		if (22 == total_cycles) begin if (!(arg_1_read_ready === 0)) begin $display("assertion(arg_1_read_ready === 0)"); $finish(); end end
 	end
 
 	always @(posedge clk) begin
-		if (103 == total_cycles) begin if (!(valid === 0)) begin $display("assertion(valid === 0)"); $finish(); end end
+		if (25 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1)"); $finish(); end end
 	end
 
 	always @(posedge clk) begin
-		if (106 == total_cycles) begin if (!(valid === 1)) begin $display("assertion(valid === 1)"); $finish(); end end
+		if (37 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1)"); $finish(); end end
 	end
 
 	always @(posedge clk) begin
-		if (112 == total_cycles) begin if (!(valid === 1)) begin $display("assertion(valid === 1)"); $finish(); end end
+		if (43 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1)"); $finish(); end end
 	end
 
 	always @(posedge clk) begin
-		if (125 == total_cycles) begin if (!(valid === 1)) begin $display("assertion(valid === 1)"); $finish(); end end
+		if (47 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1)"); $finish(); end end
 	end
 
 	always @(posedge clk) begin
-		if (150 == total_cycles) begin if (!(valid === 1)) begin $display("assertion(valid === 1)"); $finish(); end end
+		if (50 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1)"); $finish(); end end
 	end
 
 	always @(posedge clk) begin
-		if (200 == total_cycles) begin if (!(valid === 1)) begin $display("assertion(valid === 1)"); $finish(); end end
+		if (100 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (103 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (106 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (112 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (125 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (150 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (200 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1)"); $finish(); end end
 	end
 
 	always @(posedge clk) begin
