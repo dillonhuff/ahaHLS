@@ -6256,4 +6256,23 @@ namespace ahaHLS {
 
   }
 
+  TEST_CASE("Cascade from Halide") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<Module> Mod = loadLLFile(Context, Err, "halide_cascade");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
+
+    cout << "llvm function" << endl;
+    cout << valueString(f) << endl;
+
+    deleteLLVMLifetimeCalls(f);
+
+    cout << "After lifetime deletes" << endl;
+    cout << valueString(f) << endl;
+    
+  }  
 }
