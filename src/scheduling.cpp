@@ -4642,5 +4642,13 @@ namespace ahaHLS {
         cout << "Unrecognized halide struct " << name << endl;
       }
     }
+
+    for (Function& funcR : mod->functions()) {
+      Function* func = &funcR;
+      if (canDemangle(string(func->getName()))) {
+        cout << "Cpp func name = " << demangle(string(func->getName())) << endl;
+        // TOOD: Set linebuffer valid definitions?
+      }
+    }
   }
 }

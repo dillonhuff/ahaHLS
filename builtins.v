@@ -1707,3 +1707,16 @@ module concat(input [IN0_WIDTH - 1 : 0] in0,
    assign out = {in1, in0};
    
 endmodule
+
+module linebuffer_model(input clk,
+                        input rst,
+
+                        output out_data_valid);
+
+   parameter NROWS = 64;
+   parameter NCOLS = 64;
+
+   
+   assign out_data_valid = 1;
+   
+endmodule
