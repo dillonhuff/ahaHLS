@@ -1705,6 +1705,10 @@ namespace ahaHLS {
   void addStencilCallConstraints(llvm::Function* f,
                                  map<BasicBlock*, vector<BasicBlock*> >& preds,
                                  ExecutionConstraints& exec);
+
+  void populateHalideStencils(Function* f,
+                              InterfaceFunctions& interfaces,
+                              HardwareConstraints& hcs);
   
 }
 

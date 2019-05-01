@@ -4545,4 +4545,16 @@ namespace ahaHLS {
 
     return tasks;
   }
+
+  void populateHalideStencils(Function* f,
+                              InterfaceFunctions& interfaces,
+                              HardwareConstraints& hcs) {
+    Module* mod = f->getParent();
+
+    cout << "Building stencil, stream, and linebuffer info for func" << endl;
+    //for (auto& g : mod->globals()) {
+    for (auto* stp : mod->getIdentifiedStructTypes()) {
+      cout << typeString(stp) << endl;
+    }
+  }
 }

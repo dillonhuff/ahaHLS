@@ -6266,13 +6266,17 @@ namespace ahaHLS {
 
     Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
 
-    cout << "llvm function" << endl;
-    cout << valueString(f) << endl;
+    // cout << "llvm function" << endl;
+    // cout << valueString(f) << endl;
 
     deleteLLVMLifetimeCalls(f);
 
-    cout << "After lifetime deletes" << endl;
-    cout << valueString(f) << endl;
+    // cout << "After lifetime deletes" << endl;
+    // cout << valueString(f) << endl;
+
+    InterfaceFunctions interfaces;
+    HardwareConstraints hcs = standardConstraints();
+    populateHalideStencils(f, interfaces, hcs);
     
   }  
 }
