@@ -1699,6 +1699,8 @@ namespace ahaHLS {
 
   TaskSpec getTask(llvm::BasicBlock* const blk,
                    STG& stg);
+
+  std::set<TaskSpec> halideTaskSpecs(llvm::Function* f);
   
 }
 

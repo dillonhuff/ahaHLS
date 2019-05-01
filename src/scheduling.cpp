@@ -4393,5 +4393,42 @@ namespace ahaHLS {
     return !(x == y);
   }
   
-  
+
+  std::set<TaskSpec> halideTaskSpecs(llvm::Function* f) {
+    DominatorTree dt(*f);
+    LoopInfo li(dt);
+
+    set<TaskSpec> tasks;
+    cout << "-- Loops in 2 x 2" << endl;
+
+    set<BasicBlock*> allBlksInTasks;
+    for (Loop* loop : li) {
+      //  Dump
+      cout << "- loop" << endl;
+      cout << valueString(loop->getHeader()) << endl;
+
+      TaskSpec loopTask;
+      for (BasicBlock* blk : loop->getBlocks()) {
+        loopTask.blks.insert(blk);
+        allBlksInTasks.insert(blk);
+      }
+
+      tasks.insert(loopTask);
+    }
+
+    for (auto& bb : f->getBasicBlockList()) {
+      if (!elem(&bb, allBlksInTasks)) {
+
+        cout << "Basic block not in loop task" << endl;
+        cout << valueString(&bb) << endl;
+
+        TaskSpec blockTask{{&bb}};
+        tasks.insert(blockTask);
+      }
+    }
+
+    //assert(false);
+
+    return tasks;
+  }
 }

@@ -6198,22 +6198,50 @@ namespace ahaHLS {
       addControlSanityChecks(arch, info);
     
       emitVerilog("vhls_target", arch, info);
-      
       emitVerilogTestBench(tb, arch, testLayout);
 
       REQUIRE(runIVerilogTB("vhls_target"));      
     }
 
     SECTION("With each block in its own task") {
-      DominatorTree dt(*f);
-      LoopInfo li(dt);
+      // ExecutionConstraints exec;
 
-      cout << "-- Loops in 2 x 2" << endl;
-      for (Loop* loop : li) {
-        //  Dump
-        cout << "- loop" << endl;
-        cout << valueString(loop->getHeader()) << endl;
-      }
+      // sequentialCalls(f, exec);
+      
+      inlineWireCalls(f, exec, interfaces);
+      addDataConstraints(f, exec);
+    
+      cout << "After inlining" << endl;
+      cout << valueString(f) << endl;
+
+      //set<TaskSpec> tasks = halideTaskSpecs(f);
+      //set<TaskSpec> tasks = {}; //halideTaskSpecs(f);
+
+      auto preds = buildControlPreds(f);
+
+      set<PipelineSpec> toPipeline;
+      SchedulingProblem p =
+        //createSchedulingProblem(f, hcs, toPipeline, tasks, preds);
+        createSchedulingProblem(f, hcs, toPipeline, preds);
+      exec.addConstraints(p, f);
+
+      map<Function*, SchedulingProblem> constraints{{f, p}};
+      Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+      STG graph = buildSTG(s, f);
+
+      cout << "STG Is" << endl;
+      graph.print(cout);
+
+      map<llvm::Value*, int> layout = {};
+      auto arch = buildMicroArchitecture(graph, layout, hcs);
+      
+      VerilogDebugInfo info;
+      addControlSanityChecks(arch, info);
+    
+      emitVerilog("vhls_target", arch, info);
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      REQUIRE(runIVerilogTB("vhls_target"));      
     }
 
   }
