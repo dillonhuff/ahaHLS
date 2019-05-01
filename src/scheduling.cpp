@@ -4602,6 +4602,10 @@ namespace ahaHLS {
         cout << "Is linebuffer" << endl;
         // TODO: Create linebuffers. This is a little more tricky because
         // Im not sure verilog can handle many different linebuffer types
+      } else if (hasPrefix(name, "class.ram_")) {
+        cout << "Is ram" << endl;
+      } else {
+        cout << "Unrecognized halide struct " << name << endl;
       }
     }
   }
