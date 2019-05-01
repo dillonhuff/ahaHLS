@@ -4629,7 +4629,15 @@ namespace ahaHLS {
           return linebufferSpec(stencilIn, stencilOut, nRows, nCols);
         };
       } else if (hasPrefix(name, "class.ram_")) {
-        cout << "Is ram" << endl;
+
+        // TODO: Extract actual names
+        int typeWidth = 32;
+        int depth = 9;
+
+        hcs.typeSpecs[name] =
+          [typeWidth, depth](StructType* axiStencil) {
+          return ramSpec(typeWidth, depth);
+        };
       } else {
         cout << "Unrecognized halide struct " << name << endl;
       }
