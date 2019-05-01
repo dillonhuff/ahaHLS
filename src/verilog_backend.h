@@ -129,17 +129,10 @@ namespace ahaHLS {
     addAlwaysBlock({"clk"}, "$display(\"global_state == %d, " + wireName + " == %d\", global_state, " + wireName + ");", info);
   }
 
-  static inline
-  std::string assertString(const std::string& condition) {
-    return "if (!(" + condition + ")) begin $display(\"assertion(" + condition + ")\"); $finish(); end";
-  }
+  std::string assertString(const std::string& condition);
   
-  static inline void
-  addAssert(const std::string& condition,
-            VerilogDebugInfo& info) {
-    addAlwaysBlock({"clk"}, assertString(condition), info); 
-  }
-
+  void addAssert(const std::string& condition,
+                 VerilogDebugInfo& info);
 
   void emitVerilog(const std::string& name,
                    STG& graph,

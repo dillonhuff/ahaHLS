@@ -6204,9 +6204,6 @@ namespace ahaHLS {
     }
 
     SECTION("With each block in its own task") {
-      // ExecutionConstraints exec;
-
-      // sequentialCalls(f, exec);
 
       auto preds = buildControlPreds(f);
       addStencilCallConstraints(f, preds, exec);
@@ -6218,12 +6215,10 @@ namespace ahaHLS {
       cout << valueString(f) << endl;
 
       set<TaskSpec> tasks = halideTaskSpecs(f);
-      //set<TaskSpec> tasks = {}; //halideTaskSpecs(f);
 
       set<PipelineSpec> toPipeline;
       SchedulingProblem p =
         createSchedulingProblem(f, hcs, toPipeline, tasks, preds);
-      //createSchedulingProblem(f, hcs, toPipeline, preds);
       exec.addConstraints(p, f);
 
       map<Function*, SchedulingProblem> constraints{{f, p}};

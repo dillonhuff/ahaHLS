@@ -29,6 +29,28 @@ using namespace std;
 
 namespace ahaHLS {
 
+  std::string assertString(const std::string& condition) {
+    return "if (!(" + condition + ")) begin $display(\"assertion(" + condition + ")\"); $finish(); end";
+  }
+
+  std::string assertString(const std::string& condition,
+                           const std::string& extraMsg) {
+    return "if (!(" + condition + ")) begin $display(\"assertion(" + condition + ") failed: " + extraMsg + "\"); $finish(); end";
+  }
+  
+  void
+  addAssert(const std::string& condition,
+            VerilogDebugInfo& info) {
+    addAlwaysBlock({"clk"}, assertString(condition), info); 
+  }
+
+  void
+  addAssert(const std::string& condition,
+            const std::string& extraMsg,
+            VerilogDebugInfo& info) {
+    addAlwaysBlock({"clk"}, assertString(condition, extraMsg), info); 
+  }
+  
   void emitVerilogForWireAssigns(std::ostream& out,
                                  MicroArchitecture& arch,
                                  const std::string& port,
@@ -1210,12 +1232,10 @@ namespace ahaHLS {
           string cond1 = condAndVal1.first.valueString();
 
           if (cond0 != cond1) {
-            // addAssert(implies(andStr(notStr(inPipe), cond0 + " === 1"),
-            //                   cond1 + " !== 1"),
-            //           info);
 
             addAssert(implies(cond0 + " === 1",
                               cond1 + " !== 1"),
+                      "Overlapping state active transition for state " + to_string(st.first),
                       info);
 
           }
@@ -1227,23 +1247,16 @@ namespace ahaHLS {
 
   void noOverlappingBlockTransitions(MicroArchitecture& arch,
                                      VerilogDebugInfo& info) {
-    // TODO: Get by wire...
-    //RegController& rc = arch.getController("global_next_block");
 
     for (auto st : arch.stg.opStates) {
       RegController& rc = arch.getController(nextBBReg(st.first, arch));
     
-      //string inPipe = inAnyPipeline(arch).valueString();
       for (auto condAndVal0 : rc.values) {
         string cond0 = condAndVal0.first.valueString();
         for (auto condAndVal1 : rc.values) {
           string cond1 = condAndVal1.first.valueString();
 
           if (cond0 != cond1) {
-            // addAssert(implies(andStr(notStr(inPipe), cond0 + " === 1"),
-            //                   cond1 + " !== 1"),
-            //           info);
-
             addAssert(implies(cond0 + " === 1",
                               cond1 + " !== 1"),
                       info);
