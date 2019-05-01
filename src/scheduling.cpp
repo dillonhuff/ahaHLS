@@ -1453,7 +1453,26 @@ namespace ahaHLS {
       g.pipelines.push_back(Pipeline(II, stateIds.size(), stateIds));
     }
 
-    g.basicBlockNos = numberBasicBlocks(g.getFunction());    
+    g.basicBlockNos = numberBasicBlocks(g.getFunction());
+
+    // Sanity check: Make sure not blocks in different tasks share a state
+    //for (auto& bb : f->getBasicBlockList()) {
+    for (auto st : g.opStates) {
+      StateId state = st.first;
+      for (auto blk0 : blocksInState(state, g)) {
+        for (auto blk1 : blocksInState(state, g)) {
+          if (getTask(blk0, g) != getTask(blk1, g)) {
+            cout << "Error block " << endl;
+            cout << valueString(blk0) << endl;
+            cout << " and block " << endl;
+            cout << valueString(blk1) << endl;
+            cout << "are in different tasks, but are scheduled in same state" << endl;
+            assert(false);
+          }
+        }
+      }
+    }
+    
     return g;
   }
 
