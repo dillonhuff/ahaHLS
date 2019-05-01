@@ -4546,6 +4546,24 @@ namespace ahaHLS {
     return tasks;
   }
 
+  struct HalideStencilTp {
+  public:
+    int typeWidth;
+    int nRows;
+    int nCols;
+  };
+
+  ModuleSpec linebufferSpec(const HalideStencilTp stencilIn,
+                            const HalideStencilTp stencilOut,
+                            const int nRows,
+                            const int nCols) {
+    ModuleSpec mSpec;
+    mSpec.name = "linebuffer_model";
+    mSpec.hasClock = true;
+    mSpec.hasRst = true;
+    return mSpec;
+  }
+  
   // TODO: Actually extract types
   int stencilTypeWidth(const std::string& name) {
     return 16;
@@ -4600,8 +4618,16 @@ namespace ahaHLS {
         
       } else if (hasPrefix(name, "class.linebuffer_")) {
         cout << "Is linebuffer" << endl;
-        // TODO: Create linebuffers. This is a little more tricky because
-        // Im not sure verilog can handle many different linebuffer types
+
+        int nRows = 64;
+        int nCols = 64;
+
+        HalideStencilTp stencilIn{16, 1, 1};
+        HalideStencilTp stencilOut{16, 3, 3};        
+        hcs.typeSpecs[name] =
+          [stencilIn, stencilOut, nRows, nCols](StructType* axiStencil) {
+          return linebufferSpec(stencilIn, stencilOut, nRows, nCols);
+        };
       } else if (hasPrefix(name, "class.ram_")) {
         cout << "Is ram" << endl;
       } else {
