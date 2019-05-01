@@ -4582,6 +4582,14 @@ namespace ahaHLS {
     return "NONAME";
   }
 
+  bool isLBValidRead(Function* const func) {
+    return false;
+  }
+
+  void implementLBValidRead(llvm::Function* readFifo,
+                            ExecutionConstraints& exec) {
+  }
+  
   void populateHalideStencils(Function* f,
                               InterfaceFunctions& interfaces,
                               HardwareConstraints& hcs) {
@@ -4648,6 +4656,12 @@ namespace ahaHLS {
       if (canDemangle(string(func->getName()))) {
         cout << "Cpp func name = " << demangle(string(func->getName())) << endl;
         // TOOD: Set linebuffer valid definitions?
+
+        if (isLBValidRead(func)) {
+          cout << "Implementing LB valid" << endl;
+          interfaces.addFunction(func);
+          implementLBValidRead(func, interfaces.getConstraints(func));
+        }
       }
     }
   }
