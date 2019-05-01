@@ -951,6 +951,57 @@ namespace ahaHLS {
     return createSchedulingProblem(f, hdc, toPipeline, tasks, controlPredecessors);
     
   }
+
+  set<pair<BasicBlock*, BasicBlock*> >
+  getOutOfTaskTransitions(TaskSpec& t) {
+    set<pair<BasicBlock*, BasicBlock*> > trs;
+
+    for (auto blk : t.blks) {
+      for (auto succ : successors(blk)) {
+        if (!elem(succ, t.blks)) {
+          trs.insert({blk, succ});
+        }
+      }
+    }
+
+    return trs;
+  }
+
+  TaskSpec noPredecessorTasks(std::set<TaskSpec>& tasks) {
+    set<BasicBlock*> destBlks;
+    for (auto possible : tasks) {
+
+      bool noJumpsToTask = true;
+      for (auto t : tasks) {
+        for (auto jmp : getOutOfTaskTransitions(t)) {
+          if (elem(jmp.second, possible.blks)) {
+            noJumpsToTask = false;
+            break;
+          }
+        }
+      }
+
+      if (noJumpsToTask) {
+        return possible;
+      }
+    }
+
+    cout << "Error: Could not find a predecessor task" << endl;
+    assert(false);
+  }
+
+  vector<TaskSpec> sortTasks(std::set<TaskSpec>& tasks) {
+    set<TaskSpec> remaining = tasks;
+    vector<TaskSpec> sorted;
+
+    while (remaining.size() > 0) {
+      TaskSpec next = noPredecessorTasks(remaining);
+      remaining.erase(next);
+      sorted.push_back(next);
+    }
+    
+    return sorted;
+  }
   
   SchedulingProblem
   createSchedulingProblem(llvm::Function* f,
@@ -977,6 +1028,18 @@ namespace ahaHLS {
       i++;
     }
 
+    vector<TaskSpec> sortedTasks = sortTasks(tasks);
+    for (int i = 0; i < ((int) sortedTasks.size()) - 1; i++) {
+      TaskSpec current = sortedTasks[i];
+      TaskSpec next = sortedTasks[i + 1];
+
+      for (auto curBlk : current.blks) {
+        for (auto nextBlk : next.blks) {
+          p.addConstraint(p.blockEnd(curBlk) < p.blockStart(nextBlk));
+        }
+      }
+    }
+    
     // // What do I need to do for tasks?
     // for (auto& bb0 : f->getBasicBlockList()) {
     //   auto* blk0 = &bb0;
