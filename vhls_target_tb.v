@@ -39,6 +39,50 @@ module vhls_target_tb();
 	end
 
 	always @(posedge clk) begin
+		if (3 == total_cycles) begin if (!(valid === 0)) begin $display("assertion(valid === 0)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (10 == total_cycles) begin if (!(valid === 0)) begin $display("assertion(valid === 0)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (15 == total_cycles) begin if (!(valid === 0)) begin $display("assertion(valid === 0)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (17 == total_cycles) begin if (!(valid === 0)) begin $display("assertion(valid === 0)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (100 == total_cycles) begin if (!(valid === 0)) begin $display("assertion(valid === 0)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (103 == total_cycles) begin if (!(valid === 0)) begin $display("assertion(valid === 0)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (106 == total_cycles) begin if (!(valid === 1)) begin $display("assertion(valid === 1)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (112 == total_cycles) begin if (!(valid === 1)) begin $display("assertion(valid === 1)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (125 == total_cycles) begin if (!(valid === 1)) begin $display("assertion(valid === 1)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (150 == total_cycles) begin if (!(valid === 1)) begin $display("assertion(valid === 1)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (200 == total_cycles) begin if (!(valid === 1)) begin $display("assertion(valid === 1)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
 		if (700 == total_cycles) begin if (!(valid === 1)) begin $display("assertion(valid === 1)"); $finish(); end end
 	end
 

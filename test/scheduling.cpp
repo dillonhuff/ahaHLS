@@ -6196,7 +6196,11 @@ namespace ahaHLS {
     
       VerilogDebugInfo info;
       addControlSanityChecks(arch, info);
-    
+
+      checkSignal(tb,
+                   "valid",
+                  {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {100, 0}, {103, 0}, {106, 1}, {112, 1}, {125, 1}, {150, 1}, {200, 1}});
+      
       emitVerilog("vhls_target", arch, info);
       emitVerilogTestBench(tb, arch, testLayout);
 
@@ -6235,7 +6239,11 @@ namespace ahaHLS {
       
       VerilogDebugInfo info;
       addControlSanityChecks(arch, info);
-    
+
+      checkSignal(tb,
+                   "valid",
+                  {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {100, 0}, {103, 0}, {106, 1}, {112, 1}, {125, 1}, {150, 1}, {200, 1}});
+      
       emitVerilog("vhls_target", arch, info);
       emitVerilogTestBench(tb, arch, testLayout);
 
