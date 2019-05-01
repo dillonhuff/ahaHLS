@@ -3,7 +3,7 @@
 #include "utils.h"
 
 #include <llvm/IR/CFG.h>
-
+#include <llvm/Analysis/CFG.h>
 #include <llvm/Analysis/OrderedBasicBlock.h>
 
 #include <fstream>
@@ -2774,6 +2774,21 @@ namespace ahaHLS {
       }
     }
   }
+
+  bool defCouldReachThisState(Instruction* val,
+                              const StateId state,
+                              MicroArchitecture& arch) {
+    BasicBlock* defBlk = val->getParent();
+
+    bool unreachable = true;
+    for (auto blk : blocksInState(state, arch.stg)) {
+      if (isPotentiallyReachable(defBlk, blk)) {
+        unreachable = false;
+        break;
+      }
+    }
+    return !unreachable;
+  }
   
   void buildDataPathWires(MicroArchitecture& arch) {
     set<Instruction*> allValues = allDataInFunction(arch.stg.getFunction());
@@ -2797,21 +2812,24 @@ namespace ahaHLS {
       StateId state = st.first;
       arch.dp.stateData[state] = {};
       
-      for (auto val : allValues) {
-        string tmpName =
-          arch.uniqueName("data_store_" + to_string(state));
+      for (Instruction* val : allValues) {
 
-        Wire tmpReg = reg(getValueBitWidth(val), tmpName);
-        arch.addController(tmpReg.valueString(), tmpReg.width);
-        auto& rc = arch.getController(tmpReg);
-        arch.dp.stateData[state].values[val] = rc.reg;
+        if (defCouldReachThisState(val, state, arch)) {
+          string tmpName =
+            arch.uniqueName("data_store_" + to_string(state));
+
+          Wire tmpReg = reg(getValueBitWidth(val), tmpName);
+          arch.addController(tmpReg.valueString(), tmpReg.width);
+          auto& rc = arch.getController(tmpReg);
+          arch.dp.stateData[state].values[val] = rc.reg;
 
 
-        string inName =
-          arch.uniqueName("data_in_" + to_string(state));
-        auto& pc = addPortController(inName, tmpReg.width, arch);
-        arch.dp.stateDataInputs[state].values[val] =
-          pc.functionalUnit().outputWire();
+          string inName =
+            arch.uniqueName("data_in_" + to_string(state));
+          auto& pc = addPortController(inName, tmpReg.width, arch);
+          arch.dp.stateDataInputs[state].values[val] =
+            pc.functionalUnit().outputWire();
+        }
       }
     }
   }

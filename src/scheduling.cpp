@@ -824,10 +824,10 @@ namespace ahaHLS {
 
         StructType* stp = dyn_cast<StructType>(underlying);
 
-        cout << "Checking struct " << string(stp->getName()) << " has stencil" << endl;
+        //cout << "Checking struct " << string(stp->getName()) << " has stencil" << endl;
 
         if (hasPrefix(stp->getName(), stencilPrefix)) { //"class.AxiPackedStencil")) {
-          cout << "Found stencil call" << endl;
+          //cout << "Found stencil call" << endl;
           return true;
         }
       }
@@ -4014,11 +4014,11 @@ namespace ahaHLS {
 
       StructType* stp = dyn_cast<StructType>(underlying);
 
-      cout << "Checking struct " << string(stp->getName()) << " has stencil" << endl;
+      //cout << "Checking struct " << string(stp->getName()) << " has stencil" << endl;
 
       string stencilPrefix = "class.AxiPackedStencil";
       if (hasPrefix(stp->getName(), stencilPrefix)) { //"class.AxiPackedStencil")) {
-        cout << "Found stencil call in blk checks" << endl;
+        //cout << "Found stencil call in blk checks" << endl;
         return true;
       }
     }
