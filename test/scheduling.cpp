@@ -6217,13 +6217,13 @@ namespace ahaHLS {
       cout << "After inlining" << endl;
       cout << valueString(f) << endl;
 
-      //set<TaskSpec> tasks = halideTaskSpecs(f);
+      set<TaskSpec> tasks = halideTaskSpecs(f);
       //set<TaskSpec> tasks = {}; //halideTaskSpecs(f);
 
       set<PipelineSpec> toPipeline;
       SchedulingProblem p =
-        //createSchedulingProblem(f, hcs, toPipeline, tasks, preds);
-        createSchedulingProblem(f, hcs, toPipeline, preds);
+        createSchedulingProblem(f, hcs, toPipeline, tasks, preds);
+      //createSchedulingProblem(f, hcs, toPipeline, preds);
       exec.addConstraints(p, f);
 
       map<Function*, SchedulingProblem> constraints{{f, p}};
