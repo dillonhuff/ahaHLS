@@ -2775,6 +2775,30 @@ namespace ahaHLS {
     }
   }
 
+  bool userReachableFromState(Instruction* val,
+                              const StateId state,
+                              MicroArchitecture& arch) {
+    bool userReachable = false;
+    for (auto blk : blocksInState(state, arch.stg)) {
+
+      // If any user of val is reachable from any block
+      // in this state it must be saved
+      for (auto& user : val->uses()) {
+        assert(Instruction::classof(user));
+        Instruction* userInstr = dyn_cast<Instruction>(user.getUser());
+        BasicBlock* userBB = userInstr->getParent();
+
+        if (isPotentiallyReachable(blk, userBB)) {
+          userReachable = true;
+          break;
+        }
+      }
+      
+    }
+
+    return userReachable;
+  }
+  
   bool defCouldReachThisState(Instruction* val,
                               const StateId state,
                               MicroArchitecture& arch) {
@@ -2814,7 +2838,8 @@ namespace ahaHLS {
       
       for (Instruction* val : allValues) {
 
-        if (defCouldReachThisState(val, state, arch)) {
+        //if (defCouldReachThisState(val, state, arch)) {
+        if (userReachableFromState(val, state, arch)) {
           string tmpName =
             arch.uniqueName("data_store_" + to_string(state));
 
