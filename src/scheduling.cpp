@@ -4546,6 +4546,24 @@ namespace ahaHLS {
     return tasks;
   }
 
+  // TODO: Actually extract types
+  int stencilTypeWidth(const std::string& name) {
+    return 16;
+  }
+  
+  int stencilNumRows(const std::string& name) {
+    return 1;
+  }
+
+  int stencilNumCols(const std::string& name) {
+    return 1;
+  }
+
+  string streamStencilName(const std::string& streamName) {
+    assert(hasPrefix(streamName, "class.hls_stream_"));
+    return "NONAME";
+  }
+
   void populateHalideStencils(Function* f,
                               InterfaceFunctions& interfaces,
                               HardwareConstraints& hcs) {
@@ -4555,6 +4573,32 @@ namespace ahaHLS {
     //for (auto& g : mod->globals()) {
     for (auto* stp : mod->getIdentifiedStructTypes()) {
       cout << typeString(stp) << endl;
+      string name = stp->getName();
+      cout << "Name = " << name << endl;
+      if (hasPrefix(name, "class.AxiPackedStencil_")) {
+        cout << "Is stencil" << endl;
+        int typeWidth = stencilTypeWidth(name);
+        int nRows = stencilNumRows(name);
+        int nCols = stencilNumCols(name);
+
+        hcs.typeSpecs[name] =
+          [typeWidth, nRows, nCols](StructType* axiStencil) {
+          return axiPackedStencilSpec(typeWidth, nRows, nCols);
+        };
+      } else if (hasPrefix(name, "class.hls_stream_")) {
+        // No stream?
+        string stencilName = streamStencilName(name);
+        int typeWidth = stencilTypeWidth(stencilName);
+        int nRows = stencilNumRows(stencilName);
+        int nCols = stencilNumCols(stencilName);
+
+        cout << "Is stream" << endl;
+        hcs.typeSpecs[name] =
+          [typeWidth, nRows, nCols](StructType* axiStencil) {
+          return streamAxiPackedStencilSpec(typeWidth, nRows, nCols);
+        };
+        
+      }
     }
   }
 }
