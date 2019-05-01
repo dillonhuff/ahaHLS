@@ -6183,15 +6183,15 @@ namespace ahaHLS {
     map_insert(tb.actionsOnCycles, endCycle + 5, assertString(string(out->getName()) + "_data_bus === 16'd20"));
     map_insert(tb.actionsOnCycles, endCycle + 5, assertString(string(out->getName()) + "_last_bus === 1'b0"));
 
-    // tb.setArgPort(out, "read_valid", 406, "1'b1");
-    // tb.setArgPort(out, "read_valid", 407, "1'b0");
-    // map_insert(tb.actionsOnCycles, 407, assertString(string(out->getName()) + "_data_bus === 16'd14"));
-    // map_insert(tb.actionsOnCycles, 407, assertString(string(out->getName()) + "_last_bus === 1'b0"));
+    tb.setArgPort(out, "read_valid", endCycle + 6, "1'b1");
+    tb.setArgPort(out, "read_valid", endCycle + 7, "1'b0");
+    map_insert(tb.actionsOnCycles, endCycle + 7, assertString(string(out->getName()) + "_data_bus === 16'd14"));
+    map_insert(tb.actionsOnCycles, endCycle + 7, assertString(string(out->getName()) + "_last_bus === 1'b0"));
 
-    // tb.setArgPort(out, "read_valid", 408, "1'b1");
-    // tb.setArgPort(out, "read_valid", 409, "1'b0");
-    // map_insert(tb.actionsOnCycles, 409, assertString(string(out->getName()) + "_data_bus === 16'd6"));
-    // map_insert(tb.actionsOnCycles, 409, assertString(string(out->getName()) + "_last_bus === 1'b1"));
+    tb.setArgPort(out, "read_valid", endCycle + 8, "1'b1");
+    tb.setArgPort(out, "read_valid", endCycle + 9, "1'b0");
+    map_insert(tb.actionsOnCycles, endCycle + 9, assertString(string(out->getName()) + "_data_bus === 16'd6"));
+    map_insert(tb.actionsOnCycles, endCycle + 9, assertString(string(out->getName()) + "_last_bus === 1'b1"));
     
     //map_insert(tb.actionsOnCycles, 350, assertString("valid === 1"));
     map_insert(tb.actionsOnCycles, endCycle, assertString("valid === 1"));
@@ -6199,109 +6199,6 @@ namespace ahaHLS {
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("vhls_target"));
-  }
-
-  TEST_CASE("Median filter implementation") {
-    SMDiagnostic Err;
-    LLVMContext Context;
-    setGlobalLLVMContext(&Context);
-    
-    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "median_filter");
-    setGlobalLLVMModule(Mod.get());
-
-    Function* f = getFunctionByDemangledName(Mod.get(), "median_filter");
-    //int argId = 0;    
-    //for (auto &Arg : f->args()) {
-    for (int argId = 0; argId < (int) f->arg_size(); argId++) {
-      f->addParamAttr(argId, llvm::Attribute::NoAlias);
-    //argId++;
-    }
-
-    //getArg(f, 0)->setName("ram");
-
-    cout << "llvm function" << endl;
-    cout << valueString(f) << endl;
-
-    deleteLLVMLifetimeCalls(f);
-
-    InterfaceFunctions interfaces;
-    interfaces.functionTemplates[string("read")] =
-      [](Function* f, ExecutionConstraints& exe) { implementWireRead(f); };
-    interfaces.functionTemplates[string("write")] =
-      [](Function* f, ExecutionConstraints& exe) { implementWireWrite(f); };
-    interfaces.functionTemplates[string("run_median")] = implementRunMedian;
-
-    HardwareConstraints hcs = standardConstraints();
-    hcs.typeSpecs["class.median"] =
-      [](StructType* axiStencil) { return medianFilterSpec(); };
-    hcs.typeSpecs["class.ac_channel"] =
-      [](StructType* tp) { return wireSpec(32); };
-    
-    ExecutionConstraints exec;
-    // sequentialCalls(f, exec);
-
-    set<BasicBlock*> toPipeline;
-
-
-    inlineWireCalls(f, exec, interfaces);
-
-    addDataConstraints(f, exec);
-    
-    cout << "After inlining" << endl;
-    cout << valueString(f) << endl;
-
-    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
-    p.setObjective(p.blockEnd(exitBlock(f)) - p.blockStart(&(f->getEntryBlock())));
-    exec.addConstraints(p, f);
-
-    map<Function*, SchedulingProblem> constraints{{f, p}};
-    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
-    
-    STG graph = buildSTG(s, f);
-    
-    cout << "STG Is" << endl;
-    graph.print(cout);
-
-    emitVerilog("median_filter", graph, hcs);
-
-    map<llvm::Value*, int> layout = {};
-    auto arch = buildMicroArchitecture(graph, layout, hcs);
-
-    auto in0 = dyn_cast<Argument>(getArg(f, 0));
-    auto in1 = dyn_cast<Argument>(getArg(f, 1));
-    auto in2 = dyn_cast<Argument>(getArg(f, 2));
-    // auto out = dyn_cast<Argument>(getArg(f, 3));
-
-    TestBenchSpec tb;
-    map<string, int> testLayout = {};
-    tb.memoryInit = {};
-    tb.memoryExpected = {};
-    tb.runCycles = 9500;
-    tb.maxCycles = 10000;
-    tb.name = "median_filter";
-    tb.useModSpecs = true;
-    tb.settablePort(in0, "in_data");
-    tb.settablePort(in1, "in_data");
-    tb.settablePort(in2, "in_data");        
-
-    // tb.actionOnCondition("1", "$display(\"median_word = %d\", out_in_data);");
-    // tb.actionOnCondition("1", "$display(\"in0_out_data = %d\", in0_out_data);");
-    // tb.actionOnCondition("1", "$display(\"in1_out_data = %d\", in1_out_data);");
-    // tb.actionOnCondition("1", "$display(\"in2_out_data = %d\", in2_out_data);");
-
-    map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
-    
-    tb.setArgPort(in0, "in_data", 1, "{8'd2, 8'd5, 8'd9, 8'd16}");
-    tb.setArgPort(in1, "in_data", 1, "{8'd2, 8'd5, 8'd9, 8'd16}");
-    tb.setArgPort(in2, "in_data", 1, "{8'd2, 8'd5, 8'd9, 8'd16}");    
-
-    map_insert(tb.actionsOnCycles, 9000, assertString("valid === 1"));
-    map_insert(tb.actionsOnCycles, 9001, assertString("valid === 1"));
-
-
-    emitVerilogTestBench(tb, arch, testLayout);
-    //REQUIRE(runIVerilogTest("median_filter_tb.v", "median_filter", " median_filter.v builtins.v median.v dff_3_pipe.v node.v pixel_network.v state_machine.v common_network.v"));
-
   }
 
 }

@@ -58,6 +58,22 @@ module vhls_target_tb();
 		if (705 == total_cycles) begin if (!(arg_1_last_bus === 1'b0)) begin $display("assertion(arg_1_last_bus === 1'b0)"); $finish(); end end
 	end
 
+	always @(posedge clk) begin
+		if (707 == total_cycles) begin if (!(arg_1_data_bus === 16'd14)) begin $display("assertion(arg_1_data_bus === 16'd14)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (707 == total_cycles) begin if (!(arg_1_last_bus === 1'b0)) begin $display("assertion(arg_1_last_bus === 1'b0)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (709 == total_cycles) begin if (!(arg_1_data_bus === 16'd6)) begin $display("assertion(arg_1_data_bus === 16'd6)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (709 == total_cycles) begin if (!(arg_1_last_bus === 1'b1)) begin $display("assertion(arg_1_last_bus === 1'b1)"); $finish(); end end
+	end
+
 	always @(*) begin
 		if (0 == total_cycles) begin arg_1_read_valid = 1'b0; end
 	end
@@ -132,6 +148,22 @@ module vhls_target_tb();
 
 	always @(*) begin
 		if (705 == total_cycles) begin arg_1_read_valid = 1'b0; end
+	end
+
+	always @(*) begin
+		if (706 == total_cycles) begin arg_1_read_valid = 1'b1; end
+	end
+
+	always @(*) begin
+		if (707 == total_cycles) begin arg_1_read_valid = 1'b0; end
+	end
+
+	always @(*) begin
+		if (708 == total_cycles) begin arg_1_read_valid = 1'b1; end
+	end
+
+	always @(*) begin
+		if (709 == total_cycles) begin arg_1_read_valid = 1'b0; end
 	end
 
 	always @(posedge clk) begin

@@ -1033,7 +1033,6 @@ namespace ahaHLS {
   
   // Solution to binding: Assume always unique, then modify program later
   // to reflect resource constraints?
-
   void
   addMemoryConstraints(llvm::Function* f,
                        HardwareConstraints& hdc,
