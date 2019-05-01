@@ -4559,6 +4559,7 @@ namespace ahaHLS {
                             const int nCols) {
     ModuleSpec mSpec;
     mSpec.name = "linebuffer_model";
+    mSpec.ports = {{"out_data_valid", outputPort(1, "out_data_valid")}};
     mSpec.hasClock = true;
     mSpec.hasRst = true;
     return mSpec;
@@ -4583,11 +4584,28 @@ namespace ahaHLS {
   }
 
   bool isLBValidRead(Function* const func) {
+    string name = func->getName();
+    if (canDemangle(name)) {
+      name = demangle(name);
+      if (hasPrefix(name, "linebuffer_")) {
+        string mName = drop("::", name);
+        cout << "linebuffer method name = " << mName << endl;
+        string rName = takeUntil("(", mName);
+        cout << "method name = " << rName << endl;
+        return rName == "has_valid_data";
+      }
+    }
+    
     return false;
   }
 
-  void implementLBValidRead(llvm::Function* readFifo,
+  void implementLBValidRead(llvm::Function* lbM,
                             ExecutionConstraints& exec) {
+    auto lbMod = getArg(lbM, 0);
+    auto bb = mkBB("entry_block", lbM);
+    IRBuilder<> eBuilder(bb);
+    auto readRes = readPort(eBuilder, lbMod, 1, "out_data_valid");
+    eBuilder.CreateRet(readRes);
   }
   
   void populateHalideStencils(Function* f,
