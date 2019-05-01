@@ -6,6 +6,8 @@
 #include "llvm_codegen.h"
 #include "test_utils.h"
 
+#include <llvm/IR/Dominators.h>
+#include <llvm/Analysis/LoopInfo.h>
 #include <llvm/Transforms/Utils/BasicBlockUtils.h>
 
 using namespace dbhc;
@@ -6119,20 +6121,6 @@ namespace ahaHLS {
     sequentialCalls(f, exec);
     set<BasicBlock*> toPipeline;    
 
-    Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
-    STG graph = buildSTG(s, f);
-    
-    cout << "STG Is" << endl;
-    graph.print(cout);
-
-
-    map<llvm::Value*, int> layout = {};
-    auto arch = buildMicroArchitecture(graph, layout, hcs);
-    
-    VerilogDebugInfo info;
-    addControlSanityChecks(arch, info);
-    
-    emitVerilog("vhls_target", arch, info);
 
     auto in = dyn_cast<Argument>(getArg(f, 0));
     auto out = dyn_cast<Argument>(getArg(f, 1));    
@@ -6195,9 +6183,39 @@ namespace ahaHLS {
     
     map_insert(tb.actionsOnCycles, endCycle, assertString("valid === 1"));
 
-    emitVerilogTestBench(tb, arch, testLayout);
+    SECTION("No task parallelism") {
+      Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
+      STG graph = buildSTG(s, f);
     
-    REQUIRE(runIVerilogTB("vhls_target"));
+      cout << "STG Is" << endl;
+      graph.print(cout);
+
+
+      map<llvm::Value*, int> layout = {};
+      auto arch = buildMicroArchitecture(graph, layout, hcs);
+    
+      VerilogDebugInfo info;
+      addControlSanityChecks(arch, info);
+    
+      emitVerilog("vhls_target", arch, info);
+      
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      REQUIRE(runIVerilogTB("vhls_target"));      
+    }
+
+    SECTION("With each block in its own task") {
+      DominatorTree dt(*f);
+      LoopInfo li(dt);
+
+      cout << "-- Loops in 2 x 2" << endl;
+      for (Loop* loop : li) {
+        //  Dump
+        cout << "- loop" << endl;
+        cout << valueString(loop->getHeader()) << endl;
+      }
+    }
+
   }
 
 }
