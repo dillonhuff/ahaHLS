@@ -4598,6 +4598,10 @@ namespace ahaHLS {
           return streamAxiPackedStencilSpec(typeWidth, nRows, nCols);
         };
         
+      } else if (hasPrefix(name, "class.linebuffer_")) {
+        cout << "Is linebuffer" << endl;
+        // TODO: Create linebuffers. This is a little more tricky because
+        // Im not sure verilog can handle many different linebuffer types
       }
     }
   }
