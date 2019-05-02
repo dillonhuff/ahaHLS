@@ -2881,11 +2881,20 @@ namespace ahaHLS {
         in[state] = uSet;
 
         set<Instruction*> newOut;
+
+        // Needs to include predecessor states?
         for (auto jmp : getOutOfStateTransitions(state, arch.stg)) {
           StateId destState = arch.stg.blockStartState(jmp.second);
           auto succIns = in[destState];
           newOut = setUnion(newOut, succIns);
         }
+
+        if (inProgressBlocks(state, arch.stg).size() > 0) {
+          StateId destState = state + 1;
+          auto succIns = in[destState];
+          newOut = setUnion(newOut, succIns);
+        }
+        
         out[state] = newOut;
       }
 
@@ -2908,6 +2917,20 @@ namespace ahaHLS {
           break;
         }
 
+      }
+      
+    }
+
+    cout << "Final live values" << endl;
+    for (auto st : arch.stg.opStates) {
+      cout << tab(1) << "-------" << endl;
+      cout << tab(1) << st.first << " live in  = " << in[st.first].size() << endl;
+      for (auto v : in[st.first]) {
+        cout << tab(2) << valueString(v) << endl;
+      }
+      cout << tab(1) << st.first << " live out = " << out[st.first].size() << endl;
+      for (auto v : out[st.first]) {
+        cout << tab(2) << valueString(v) << endl;
       }
       
     }
