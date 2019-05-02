@@ -25,6 +25,8 @@ using namespace z3;
 
 namespace ahaHLS {
 
+  int stencilTypeWidth(const std::string& name);
+  
   // Random note: In any meeting you have to allocate time
   // to video conferencing debugging.
   
@@ -3829,8 +3831,11 @@ namespace ahaHLS {
     assert(PointerType::classof(stencil->getType()));    
 
     auto stencilTp = dyn_cast<PointerType>(stencil->getType())->getElementType();
+    assert(StructType::classof(stencilTp));
+    StructType* stencilStruct = dyn_cast<StructType>(stencilTp);
     
-    int dataWidth = 16;
+    int dataWidth = stencilTypeWidth(stencilStruct->getName());
+    //getStencilWidth(stencilStruct->getName()); //16;
 
     auto eb = mkBB("entry_block", stencilCall);
     IRBuilder<> b(eb);
@@ -4564,10 +4569,45 @@ namespace ahaHLS {
     mSpec.hasRst = true;
     return mSpec;
   }
+
+  string takeDigits(const std::string& str) {
+    string digits = "";
+    int i = 0;
+    while (i < (int) str.size()) {
+      if (!isdigit(str[i])) {
+        break;
+      }
+
+      digits += str[i];
+      i++;
+    }
+
+    return digits;
+  }
   
   // TODO: Actually extract types
   int stencilTypeWidth(const std::string& name) {
-    return 16;
+    cout << "Getting type width of " << name << endl;
+
+    string stencilPrefix = "";
+    if (hasPrefix(name, "class.AxiPackedStencil_")) {
+      stencilPrefix = "class.AxiPackedStencil_";
+    } else {
+      stencilPrefix = "class.PackedStencil_";
+    }
+    
+    //string nm = drop("class.AxiPackedStencil_", name);
+    string nm = drop(stencilPrefix, name);
+
+    if (hasPrefix(nm, "int")) {
+      return stoi(takeDigits(drop("int", nm)));
+    } else {
+      assert(hasPrefix(nm, "uint"));
+      cout << "nm = " << nm << endl;
+      return stoi(takeDigits(drop("uint", nm)));
+    }
+
+    //return 16;
   }
   
   int stencilNumRows(const std::string& name) {
@@ -4580,9 +4620,27 @@ namespace ahaHLS {
 
   string streamStencilName(const std::string& streamName) {
     assert(hasPrefix(streamName, "class.hls_stream_"));
-    return "NONAME";
+    return "class." + drop("class.hls_stream_", streamName);
+    //return "NONAME";
   }
 
+  bool isStencilGet(Function* const func) {
+    string name = func->getName();
+    if (canDemangle(name)) {
+      name = demangle(name);
+      
+      if (hasPrefix(name, "AxiPackedStencil_")) {
+        string mName = drop("::", name);
+        cout << "axi stencil method name = " << mName << endl;
+        string rName = takeUntil("(", mName);
+        cout << "method name = " << rName << endl;
+        return rName == "get";
+      }
+    }
+
+    return false;
+  }
+  
   bool isLBValidRead(Function* const func) {
     string name = func->getName();
     if (canDemangle(name)) {
@@ -4679,6 +4737,10 @@ namespace ahaHLS {
           cout << "Implementing LB valid" << endl;
           interfaces.addFunction(func);
           implementLBValidRead(func, interfaces.getConstraints(func));
+        } else if (isStencilGet(func)) {
+          cout << "Implementing LB valid" << endl;
+          interfaces.addFunction(func);
+          implementStencilGet(func, interfaces.getConstraints(func));
         }
       }
     }
