@@ -2889,15 +2889,21 @@ namespace ahaHLS {
         out[state] = newOut;
       }
 
-      bool stable = true;
+      stable = true;
       for (auto st : arch.stg.opStates) {
         StateId state = st.first;
         if (inP[state].size() != in[state].size()) {
+          cout << "inP size = " << inP[state].size() << endl;
+          cout << "in  size = " << in[state].size() << endl;          
           stable = false;
           break;
         }
 
         if (outP[state].size() != out[state].size()) {
+          cout << "state    = " << state << endl;
+          cout << "inP size = " << inP[state].size() << endl;
+          cout << "in  size = " << in[state].size() << endl;          
+          
           stable = false;
           break;
         }
@@ -2905,9 +2911,6 @@ namespace ahaHLS {
       }
       
     }
-    
-    std::map<StateId, std::set<Instruction*> > liveVals;
-
     
     return out;
   }
