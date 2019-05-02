@@ -2752,10 +2752,12 @@ namespace ahaHLS {
         Wire blkActive = arch.isActiveBlockVar(state, instr->getParent());
         Wire blkActiveInState = blockActiveInState(state, instr->getParent(), arch);
 
+        // This is a constant, I should be able to remove it?
         Wire instrProducedInState =
-          checkEqual(constWire(32, arch.stg.instructionEndState(instr)),
-                     constWire(32, state),
-                     arch);
+          constWire(1, arch.stg.instructionEndState(instr) == state);
+          // checkEqual(constWire(32, arch.stg.instructionEndState(instr)),
+          //            constWire(32, state),
+          //            arch);
         Wire instrProducedInStateActivation =
           checkAnd(blkActiveInState, instrProducedInState, arch);
         // Maybe this should be: atState, but block not active, or
