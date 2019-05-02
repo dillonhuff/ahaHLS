@@ -273,25 +273,25 @@ namespace ahaHLS {
       if (quiet) {
         puts(realName);
       } else {
-        printf("%s, mangled: %s\n", realName, mangledName);
+        //printf("%s, mangled: %s\n", realName, mangledName);
       }
 
       return string(realName);
 
     case -1:
-      printf("FAIL: failed to allocate memory while demangling %s\n",
-             mangledName);
+      // printf("FAIL: failed to allocate memory while demangling %s\n",
+      //        mangledName);
       free((void *)realName);  
       assert(false);
 
     case -2:
-      printf("FAIL: %s is not a valid name under the C++ ABI mangling rules\n",
-             mangledName);
+      // printf("FAIL: %s is not a valid name under the C++ ABI mangling rules\n",
+      //        mangledName);
       free((void *)realName);  
       assert(false);
 
     default:
-      printf("FAIL: some other unexpected error: %d\n", status);
+      //printf("FAIL: some other unexpected error: %d\n", status);
       free((void *)realName);  
       assert(false);
     }

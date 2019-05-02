@@ -5148,14 +5148,14 @@ namespace ahaHLS {
       }
     }
 
-    cout << "Unused instructions = " << toDel.size() << endl;
+    //cout << "Unused instructions = " << toDel.size() << endl;
     for (auto instrP : toDel) {
-      cout << "No uses for " << valueString(instrP) << endl;
+      //cout << "No uses for " << valueString(instrP) << endl;
       instrP->eraseFromParent();
     }
     
-    cout << "llvm after lifetime deletes" << endl;
-    cout << valueString(f) << endl;
+    //cout << "llvm after lifetime deletes" << endl;
+    //cout << valueString(f) << endl;
   }
 
   TEST_CASE("Using a FIFO with compound type as argument") {

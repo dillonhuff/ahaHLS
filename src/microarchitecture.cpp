@@ -2486,9 +2486,9 @@ namespace ahaHLS {
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
 
-      cout << "Adding happened for state " << state << endl;
+      //cout << "Adding happened for state " << state << endl;
       for (auto blk : blocksInState(state, arch.stg)) {
-        cout << "Adding happened for blk " << valueString(blk) << endl;
+        //cout << "Adding happened for blk " << valueString(blk) << endl;
 
         int blkNo = arch.cs.getBasicBlockNo(blk);
         auto blkString = to_string(blkNo);

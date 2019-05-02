@@ -514,7 +514,7 @@ namespace ahaHLS {
     // the basic block that contains it, unless the block is pipelined,
     // then the branch can complete before the end of the pipeline
     if (!inAnyPipeline(bb, toPipeline)) {
-      cout << "Basic bloc " << valueString(bb) << "is not in any pipeline" << endl;
+      //cout << "Basic bloc " << valueString(bb) << "is not in any pipeline" << endl;
       addConstraint(blockEnd(bb) == instrEnd(term));
     } else {
       //addConstraint(blockEnd(bb) == instrEnd(term));
@@ -2033,11 +2033,11 @@ namespace ahaHLS {
     map<Value*, Value*> argsToValues;
     Function* called = toInline->getCalledFunction();
 
-    cout << "Function def " << valueString(called) << endl;    
+    //cout << "Function def " << valueString(called) << endl;    
     
     for (int i = 0; i < (int) toInline->getNumOperands() - 1; i++) {
-      cout << "i = " << i << endl;
-      cout << "Operand " << i << " = " << valueString(toInline->getOperand(i)) << endl;
+      // cout << "i = " << i << endl;
+      // cout << "Operand " << i << " = " << valueString(toInline->getOperand(i)) << endl;
       argsToValues[getArg(called, i)] = toInline->getOperand(i);
     }
 
@@ -2277,7 +2277,7 @@ namespace ahaHLS {
             
               break;
             } else if (canDemangle(inlineFunc->getName())) {
-              cout << "Can demangle" << endl;
+              //cout << "Can demangle" << endl;
               string dmName =
                 demangledFuncName(demangle(inlineFunc->getName()));
               if (contains_key(dmName, interfaces.functionTemplates)) {
@@ -4608,7 +4608,7 @@ namespace ahaHLS {
   
   // TODO: Actually extract types
   int stencilTypeWidth(const std::string& name) {
-    cout << "Getting type width of " << name << endl;
+    //cout << "Getting type width of " << name << endl;
 
     string stencilPrefix = "";
     if (hasPrefix(name, "class.AxiPackedStencil_")) {
@@ -4624,7 +4624,7 @@ namespace ahaHLS {
       return stoi(takeDigits(drop("int", nm)));
     } else {
       assert(hasPrefix(nm, "uint"));
-      cout << "nm = " << nm << endl;
+      //cout << "nm = " << nm << endl;
       return stoi(takeDigits(drop("uint", nm)));
     }
 
@@ -4652,9 +4652,9 @@ namespace ahaHLS {
       
       if (hasPrefix(name, "AxiPackedStencil_")) {
         string mName = drop("::", name);
-        cout << "axi stencil method name = " << mName << endl;
+        //cout << "axi stencil method name = " << mName << endl;
         string rName = takeUntil("(", mName);
-        cout << "method name = " << rName << endl;
+        //cout << "method name = " << rName << endl;
         return rName == "get";
       }
     }
@@ -4669,9 +4669,9 @@ namespace ahaHLS {
       
       if (hasPrefix(name, "ram_")) {
         string mName = drop("::", name);
-        cout << "axi stencil method name = " << mName << endl;
+        //cout << "axi stencil method name = " << mName << endl;
         string rName = takeUntil("(", mName);
-        cout << "method name = " << rName << endl;
+        //cout << "method name = " << rName << endl;
         return rName == "ram_read";
       }
     }
@@ -4685,9 +4685,9 @@ namespace ahaHLS {
       name = demangle(name);
       if (hasPrefix(name, "linebuffer_")) {
         string mName = drop("::", name);
-        cout << "linebuffer method name = " << mName << endl;
+        //cout << "linebuffer method name = " << mName << endl;
         string rName = takeUntil("(", mName);
-        cout << "method name = " << rName << endl;
+        //cout << "method name = " << rName << endl;
         return rName == "has_valid_data";
       }
     }
@@ -4713,7 +4713,7 @@ namespace ahaHLS {
   }
 
   string dropType(const std::string& rName) {
-    cout << "Dropping type from " << rName << endl;
+    //cout << "Dropping type from " << rName << endl;
     
     if (hasPrefix(rName, "int")) {
       string digits = drop("int", rName);
@@ -4754,11 +4754,11 @@ namespace ahaHLS {
     cout << "Building stencil, stream, and linebuffer info for func" << endl;
     //for (auto& g : mod->globals()) {
     for (auto* stp : mod->getIdentifiedStructTypes()) {
-      cout << typeString(stp) << endl;
+      //cout << typeString(stp) << endl;
       string name = stp->getName();
-      cout << "Name = " << name << endl;
+      //cout << "Name = " << name << endl;
       if (hasPrefix(name, "class.AxiPackedStencil_")) {
-        cout << "Is stencil" << endl;
+        //cout << "Is stencil" << endl;
         int typeWidth = stencilTypeWidth(name);
         int nRows = stencilNumRows(name);
         int nCols = stencilNumCols(name);
@@ -4781,7 +4781,7 @@ namespace ahaHLS {
         };
         
       } else if (hasPrefix(name, "class.linebuffer_")) {
-        cout << "Is linebuffer" << endl;
+        //cout << "Is linebuffer" << endl;
 
         int nRows = 64;
         int nCols = 64;
@@ -4810,15 +4810,15 @@ namespace ahaHLS {
     for (Function& funcR : mod->functions()) {
       Function* func = &funcR;
       if (canDemangle(string(func->getName()))) {
-        cout << "Cpp func name = " << demangle(string(func->getName())) << endl;
+        //cout << "Cpp func name = " << demangle(string(func->getName())) << endl;
         // TOOD: Set linebuffer valid definitions?
 
         if (isLBValidRead(func)) {
-          cout << "Implementing LB valid" << endl;
+          //cout << "Implementing LB valid" << endl;
           interfaces.addFunction(func);
           implementLBValidRead(func, interfaces.getConstraints(func));
         } else if (isStencilGet(func)) {
-          cout << "Implementing LB valid" << endl;
+          //cout << "Implementing LB valid" << endl;
           interfaces.addFunction(func);
           implementStencilGet(func, interfaces.getConstraints(func));
         } else if (isRAMRead(func)) {
@@ -4828,7 +4828,7 @@ namespace ahaHLS {
           int addrWidth = ramAddrWidth(ramTp->getName());
           int width = ramDataWidth(ramTp->getName());
 
-          cout << "Implementing ram read" << endl;
+          //cout << "Implementing ram read" << endl;
           implementRAMRead(func,
                            interfaces.getConstraints(func),
                            0,
