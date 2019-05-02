@@ -2838,8 +2838,9 @@ namespace ahaHLS {
       
       for (Instruction* val : allValues) {
 
-        //if (defCouldReachThisState(val, state, arch)) {
-        if (userReachableFromState(val, state, arch)) {
+        if (defCouldReachThisState(val, state, arch) &&
+            userReachableFromState(val, state, arch)) {
+        //if (userReachableFromState(val, state, arch)) {
           string tmpName =
             arch.uniqueName("data_store_" + to_string(state));
 
