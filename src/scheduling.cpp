@@ -3992,9 +3992,11 @@ namespace ahaHLS {
     return mSpec;
   }
 
-  void implementRAMRead(Function* ramRead1, ExecutionConstraints& exec, const int portNo) {
-    int addrWidth = getValueBitWidth(getArg(ramRead1, 1));
-    int width = getTypeBitWidth(ramRead1->getReturnType());
+  void implementRAMRead(Function* ramRead1,
+                        ExecutionConstraints& exec,
+                        const int portNo,
+                        const int addrWidth,
+                        const int width) {
     auto sramTp = getArg(ramRead1, 0)->getType();
 
     string iStr = to_string(portNo);
@@ -4013,6 +4015,12 @@ namespace ahaHLS {
     exec.add(instrStart(setAddr) + 1 == instrStart(readData));
 
     addDataConstraints(ramRead1, exec);
+  }
+  
+  void implementRAMRead(Function* ramRead1, ExecutionConstraints& exec, const int portNo) {
+    int addrWidth = getValueBitWidth(getArg(ramRead1, 1));
+    int width = getTypeBitWidth(ramRead1->getReturnType());
+    return implementRAMRead(ramRead1, exec, portNo, addrWidth, width);
   }
   
   void implementRAMRead0(Function* ramRead0, ExecutionConstraints& exec) {
@@ -4584,6 +4592,19 @@ namespace ahaHLS {
 
     return digits;
   }
+
+  string dropDigits(const std::string& str) {
+    int i = 0;
+    while (i < (int) str.size()) {
+      if (!isdigit(str[i])) {
+        break;
+      }
+
+      i++;
+    }
+
+    return str.substr(i);
+  }
   
   // TODO: Actually extract types
   int stencilTypeWidth(const std::string& name) {
@@ -4640,6 +4661,23 @@ namespace ahaHLS {
 
     return false;
   }
+
+  bool isRAMRead(Function* const func) {
+    string name = func->getName();
+    if (canDemangle(name)) {
+      name = demangle(name);
+      
+      if (hasPrefix(name, "ram_")) {
+        string mName = drop("::", name);
+        cout << "axi stencil method name = " << mName << endl;
+        string rName = takeUntil("(", mName);
+        cout << "method name = " << rName << endl;
+        return rName == "ram_read";
+      }
+    }
+
+    return false;
+  }
   
   bool isLBValidRead(Function* const func) {
     string name = func->getName();
@@ -4664,6 +4702,48 @@ namespace ahaHLS {
     IRBuilder<> eBuilder(bb);
     auto readRes = readPort(eBuilder, lbMod, 1, "out_data_valid");
     eBuilder.CreateRet(readRes);
+  }
+
+  StructType* getStructTp(Type* ptrToStruct) {
+    assert(PointerType::classof(ptrToStruct));
+    Type* tp = dyn_cast<PointerType>(ptrToStruct)->getElementType();
+    assert(StructType::classof(tp));
+
+    return dyn_cast<StructType>(tp);
+  }
+
+  string dropType(const std::string& rName) {
+    cout << "Dropping type from " << rName << endl;
+    
+    if (hasPrefix(rName, "int")) {
+      string digits = drop("int", rName);
+      string rest = dropDigits(digits);
+      return drop("_t_", rest);
+    } else {
+      assert(false);
+    }
+  }
+  
+  int ramAddrWidth(const std::string& ramName) {
+    string rName = drop("class.ram_", ramName);
+    string rest = dropType(rName);
+
+    return (int) clog2(stoi(rest));
+  }
+
+  string dropInt(const std::string& ramName) {
+    if (hasPrefix(ramName, "int")) {
+      return drop("int", ramName);
+    } else {
+      hasPrefix(ramName, "uint");
+      return drop("uint", ramName);      
+    }
+  }
+
+  int ramDataWidth(const std::string& ramName) {
+    string rName = drop("class.ram_", ramName);
+    string rest = dropInt(rName);
+    return stoi(takeDigits(rest));
   }
   
   void populateHalideStencils(Function* f,
@@ -4741,6 +4821,19 @@ namespace ahaHLS {
           cout << "Implementing LB valid" << endl;
           interfaces.addFunction(func);
           implementStencilGet(func, interfaces.getConstraints(func));
+        } else if (isRAMRead(func)) {
+          interfaces.addFunction(func);
+
+          StructType* ramTp = getStructTp(getArg(func, 0)->getType());
+          int addrWidth = ramAddrWidth(ramTp->getName());
+          int width = ramDataWidth(ramTp->getName());
+
+          cout << "Implementing ram read" << endl;
+          implementRAMRead(func,
+                           interfaces.getConstraints(func),
+                           0,
+                           addrWidth,
+                           width);
         }
       }
     }
