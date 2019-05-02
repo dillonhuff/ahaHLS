@@ -2813,6 +2813,104 @@ namespace ahaHLS {
     }
     return !unreachable;
   }
+
+  template<typename T>
+  set<T> setUnion(set<T>& a, set<T>& b) {
+    set<T> res;
+    for (auto elem : a) {
+      res.insert(elem);
+    }
+    for (auto elem : b) {
+      res.insert(elem);
+    }
+
+    //set_union(begin(a), end(a), begin(b), end(b), begin(res));
+    return res;
+  }
+
+  set<Instruction*> definedInstrs(const StateId state,
+                                  MicroArchitecture& arch) {
+    set<Instruction*> defined;
+    for (auto instr : arch.stg.instructionsFinishingAt(state)) {
+      defined.insert(instr);
+    }
+
+    return defined;
+    
+  }
+  
+  set<Instruction*> usedInstrs(const StateId state,
+                               MicroArchitecture& arch) {
+    set<Instruction*> used;
+    for (auto instr : arch.stg.instructionsStartingAt(state)) {
+      for (int i = 0; i < (int) instr->getNumOperands(); i++) {
+        Value* op = instr->getOperand(i);
+        if (Instruction::classof(op)) {
+          used.insert(dyn_cast<Instruction>(op));
+        }
+      }
+    }
+
+    return used;
+  }
+  
+  std::map<StateId, std::set<Instruction*> >
+  findLiveValues(MicroArchitecture& arch) {
+
+    std::map<StateId, std::set<Instruction*> > in;
+    std::map<StateId, std::set<Instruction*> > out;
+    for (auto st : arch.stg.opStates) {
+      in[st.first] = {};
+      out[st.first] = {};      
+    }
+
+    bool stable = false;
+    while (!stable) {
+
+      std::map<StateId, std::set<Instruction*> > inP = in;
+      std::map<StateId, std::set<Instruction*> > outP = out;
+
+      for (auto st : arch.stg.opStates) {
+        StateId state = st.first;
+        set<Instruction*> used = usedInstrs(state, arch);
+        set<Instruction*> defd = definedInstrs(state, arch);
+        auto diff = difference(out[state], defd);
+        set<Instruction*> uSet =
+          setUnion(used, diff);
+                              
+        in[state] = uSet;
+
+        set<Instruction*> newOut;
+        for (auto jmp : getOutOfStateTransitions(state, arch.stg)) {
+          StateId destState = arch.stg.blockStartState(jmp.second);
+          auto succIns = in[destState];
+          newOut = setUnion(newOut, succIns);
+        }
+        out[state] = newOut;
+      }
+
+      bool stable = true;
+      for (auto st : arch.stg.opStates) {
+        StateId state = st.first;
+        if (inP[state].size() != in[state].size()) {
+          stable = false;
+          break;
+        }
+
+        if (outP[state].size() != out[state].size()) {
+          stable = false;
+          break;
+        }
+
+      }
+      
+    }
+    
+    std::map<StateId, std::set<Instruction*> > liveVals;
+
+    
+    return out;
+  }
   
   void buildDataPathWires(MicroArchitecture& arch) {
     set<Instruction*> allValues = allDataInFunction(arch.stg.getFunction());
@@ -2831,6 +2929,13 @@ namespace ahaHLS {
     }
 
     allValues = allValuesMayNeedStorage;
+
+    map<StateId, set<Instruction*> > liveVals =
+      findLiveValues(arch);
+    cout << "Live values in each state" << endl;
+    for (auto st : liveVals) {
+      cout << tab(1) << st.first << " = " << st.second.size() << endl;
+    }
 
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
