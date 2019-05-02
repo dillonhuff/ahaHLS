@@ -3052,7 +3052,8 @@ namespace ahaHLS {
         //if (elem(val, liveVals[state])) {
         //if (userReachableFromState(val, state, arch)) {
 
-          if (elem(val, liveOut[state]) || elem(val, liveIn[state])) {
+          //if (elem(val, liveOut[state]) || elem(val, liveIn[state])) {
+          if (true) {
             string tmpName =
               arch.uniqueName("data_store_" + to_string(state));
 
