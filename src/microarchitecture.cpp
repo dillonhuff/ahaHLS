@@ -1130,12 +1130,10 @@ namespace ahaHLS {
         return arch.dp.stateDataInputs[currentPos].values[result];
       } else {
 
-        // Assert faise here?
-        return constWire(getValueBitWidth(result), 0); //arch.dp.stateDataInputs[currentPos].values[result];        
+        assert(false);
       }
-      //return arch.dp.stateDataInputs[currentPos].values[result];
     } else {
-      return constWire(getValueBitWidth(result), 0); //arch.dp.stateDataInputs[currentPos].values[result];
+      assert(false);
     }
 
   }
