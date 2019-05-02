@@ -2,6 +2,7 @@
 
 #include "utils.h"
 
+#include <llvm/IR/Dominators.h>
 #include <llvm/IR/CFG.h>
 #include <llvm/Analysis/CFG.h>
 #include <llvm/Analysis/OrderedBasicBlock.h>
@@ -2840,9 +2841,10 @@ namespace ahaHLS {
   }
   
   set<Instruction*> usedInstrs(const StateId state,
-                               MicroArchitecture& arch) {
+                               STG& stg) {
+    //MicroArchitecture& arch) {
     set<Instruction*> used;
-    for (auto instr : arch.stg.instructionsStartingAt(state)) {
+    for (auto instr : stg.instructionsStartingAt(state)) {
       for (int i = 0; i < (int) instr->getNumOperands(); i++) {
         Value* op = instr->getOperand(i);
         if (Instruction::classof(op)) {
@@ -2853,15 +2855,85 @@ namespace ahaHLS {
 
     return used;
   }
+
+  // May be used but may not be defined in same state activation
+  set<Instruction*> valuesThatMayBeUsedInState(const StateId state,
+                                               STG& stg) {
+    Function* f = stg.getFunction();
+    DominatorTree dt(*f);
+
+    set<Instruction*> maybeUsed;
+    for (auto instr : stg.instructionsStartingAt(state)) {
+      for (int i = 0; i < (int) instr->getNumOperands(); i++) {
+        Value* op = instr->getOperand(i);
+        if (Instruction::classof(op)) {
+          Instruction* used = dyn_cast<Instruction>(op);
+          bool alwaysDefinedBefore =
+            stg.instructionEndState(used) == stg.instructionStartState(instr) &&
+            dt.dominates(used, instr);
+
+          if (!alwaysDefinedBefore) {
+            maybeUsed.insert(used);
+          }
+        }
+      }
+    }
+
+    return maybeUsed;
+  }
+
+  set<Instruction*> valuesThatAreAlwaysDefinedInState(const StateId state,
+                                                      STG& stg) {
+    Function* f = stg.getFunction();
+    DominatorTree dt(*f);
+
+    set<Instruction*> alwaysDefined;
+    set<BasicBlock*> activeOnExit =
+      activeOnExitBlocks(state, stg);
+
+    for (auto instr : stg.instructionsFinishingAt(state)) {
+      bool dominatesAllExits = true;
+      for (auto possibleExit : activeOnExit) {
+        auto exitTerm = possibleExit->getTerminator();
+        if (!dt.dominates(instr, exitTerm)) {
+          dominatesAllExits = false;
+          break;
+        }
+      }
+
+      if (dominatesAllExits) {
+        alwaysDefined.insert(instr);
+      }
+    }
+
+    return alwaysDefined;
+  }
+
+  class LiveVals {
+  public:
+    std::map<StateId, std::set<Instruction*> > in;
+    std::map<StateId, std::set<Instruction*> > out;
+  };
   
-  std::map<StateId, std::set<Instruction*> >
+  //std::map<StateId, std::set<Instruction*> >
+  LiveVals
   findLiveValues(MicroArchitecture& arch) {
 
     std::map<StateId, std::set<Instruction*> > in;
     std::map<StateId, std::set<Instruction*> > out;
+
+    std::map<StateId, set<Instruction*> > maybeUsed;
+    std::map<StateId, set<Instruction*> > alwaysDefined;
+
+
     for (auto st : arch.stg.opStates) {
       in[st.first] = {};
-      out[st.first] = {};      
+      out[st.first] = {};
+
+      maybeUsed[st.first] =
+        valuesThatMayBeUsedInState(st.first, arch.stg);
+      alwaysDefined[st.first] =
+        valuesThatAreAlwaysDefinedInState(st.first, arch.stg);
     }
 
     bool stable = false;
@@ -2872,8 +2944,10 @@ namespace ahaHLS {
 
       for (auto st : arch.stg.opStates) {
         StateId state = st.first;
-        set<Instruction*> used = usedInstrs(state, arch);
-        set<Instruction*> defd = definedInstrs(state, arch);
+        set<Instruction*> used = map_find(state, maybeUsed);
+        //usedInstrs(state, arch);
+        set<Instruction*> defd = map_find(state, alwaysDefined);
+          //definedInstrs(state, arch);
         auto diff = difference(out[state], defd);
         set<Instruction*> uSet =
           setUnion(used, diff);
@@ -2935,7 +3009,7 @@ namespace ahaHLS {
       
     }
     
-    return out;
+    return {in, out};
   }
   
   void buildDataPathWires(MicroArchitecture& arch) {
@@ -2956,12 +3030,15 @@ namespace ahaHLS {
 
     allValues = allValuesMayNeedStorage;
 
-    map<StateId, set<Instruction*> > liveVals =
-      findLiveValues(arch);
-    cout << "Live values in each state" << endl;
-    for (auto st : liveVals) {
-      cout << tab(1) << st.first << " = " << st.second.size() << endl;
-    }
+    LiveVals liveVals = findLiveValues(arch);
+    auto liveOut = liveVals.in;
+    auto liveIn = liveVals.out;    
+    // map<StateId, set<Instruction*> > liveVals =
+    //   findLiveValues(arch);
+    // cout << "Live values in each state" << endl;
+    // for (auto st : liveVals) {
+    //   cout << tab(1) << st.first << " = " << st.second.size() << endl;
+    // }
 
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
@@ -2971,21 +3048,28 @@ namespace ahaHLS {
 
         if (defCouldReachThisState(val, state, arch) &&
             userReachableFromState(val, state, arch)) {
+
+        //if (elem(val, liveVals[state])) {
         //if (userReachableFromState(val, state, arch)) {
-          string tmpName =
-            arch.uniqueName("data_store_" + to_string(state));
 
-          Wire tmpReg = reg(getValueBitWidth(val), tmpName);
-          arch.addController(tmpReg.valueString(), tmpReg.width);
-          auto& rc = arch.getController(tmpReg);
-          arch.dp.stateData[state].values[val] = rc.reg;
+          if (elem(val, liveOut[state]) || elem(val, liveIn[state])) {
+            string tmpName =
+              arch.uniqueName("data_store_" + to_string(state));
 
+            Wire tmpReg = reg(getValueBitWidth(val), tmpName);
+            arch.addController(tmpReg.valueString(), tmpReg.width);
+            auto& rc = arch.getController(tmpReg);
+            arch.dp.stateData[state].values[val] = rc.reg;
+            //}
 
-          string inName =
-            arch.uniqueName("data_in_" + to_string(state));
-          auto& pc = addPortController(inName, tmpReg.width, arch);
-          arch.dp.stateDataInputs[state].values[val] =
-            pc.functionalUnit().outputWire();
+          //if (elem(val, liveIn[state])) {
+            // Should be all values live on input?
+            string inName =
+              arch.uniqueName("data_in_" + to_string(state));
+            auto& pc = addPortController(inName, getValueBitWidth(val), arch);
+            arch.dp.stateDataInputs[state].values[val] =
+              pc.functionalUnit().outputWire();
+          }
         }
       }
     }

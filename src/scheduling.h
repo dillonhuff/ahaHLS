@@ -1709,7 +1709,8 @@ namespace ahaHLS {
   void populateHalideStencils(Function* f,
                               InterfaceFunctions& interfaces,
                               HardwareConstraints& hcs);
-  
+
+  std::set<llvm::BasicBlock*> activeOnExitBlocks(const StateId state, STG& stg);
 }
 
 
