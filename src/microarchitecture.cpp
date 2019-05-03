@@ -1113,7 +1113,7 @@ namespace ahaHLS {
                                  MicroArchitecture& arch) {
     
 
-    cout << "Getting most recent location of " << valueString(result) << " for instruction " << valueString(currentPosition.instr) << endl;
+    //cout << "Getting most recent location of " << valueString(result) << " for instruction " << valueString(currentPosition.instr) << endl;
 
     StateId currentPos = currentPosition.stateId();
 
@@ -1991,10 +1991,6 @@ namespace ahaHLS {
       setDefaultValue(activeController, constWire(1, 0), arch);
     }
 
-    // for (auto state : arch.stg.opStates) {    
-    //   emitTempStorageCode(state.first, arch);
-    // }
-
     for (auto p : arch.pipelines) {
       PortController& pc = addPortController(p.inPipe.name, 1, arch);
       // TODO: This will need to be an "or" over the active flags for all states
@@ -2376,14 +2372,14 @@ namespace ahaHLS {
     StateId brStart = arch.stg.instructionEndState(src->getTerminator());
     StateId brEnd = arch.stg.blockStartState(destBlock);
 
-      cout << "Jump between " << brStart << " and " << brEnd << " is a jump to the same state?" << endl;    
+    //cout << "Jump between " << brStart << " and " << brEnd << " is a jump to the same state?" << endl;    
     // if (!jumpToSameState(src, destBlock, arch)) {
     //   cout << "Jump between " << brStart << " and " << brEnd << " is not a jump to the same state?" << endl;
       auto& nextBlockController = nextBBController(brEnd, arch);
     
       if (isPipelineState(brStart, arch.pipelines) &&
           !isPipelineState(brEnd, arch.pipelines)) {
-        cout << "Adding block transition for out of pipeline jump from " << brStart << " to " << brEnd << endl;
+        //cout << "Adding block transition for out of pipeline jump from " << brStart << " to " << brEnd << endl;
         auto p = getPipeline(brStart, arch.pipelines);
 
         // TODO: Uniquify this name
@@ -2398,7 +2394,7 @@ namespace ahaHLS {
         nextBlockController.values[checkAnd(exitNextCycle, outOfPipeJumpHappened.reg, arch)] =
           constWire(32, arch.cs.getBasicBlockNo(destBlock));
       } else {
-        cout << "Adding block transition for state transition " << brStart << " to " << brEnd << endl;
+        //cout << "Adding block transition for state transition " << brStart << " to " << brEnd << endl;
         // Jump that is not between pipelines
         nextBlockController.values[jumpHappened] =
           constWire(32, arch.cs.getBasicBlockNo(destBlock));
@@ -3065,7 +3061,7 @@ namespace ahaHLS {
       arch.dp.stateData[state] = {};
       
       for (Instruction* val : allValues) {
-        cout << "Possibly adding " << valueString(val) << endl;
+        //cout << "Possibly adding " << valueString(val) << endl;
 
         // if (defCouldReachThisState(val, state, arch) &&
         //     userReachableFromState(val, state, arch)) {
