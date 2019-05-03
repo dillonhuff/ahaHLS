@@ -2749,7 +2749,7 @@ namespace ahaHLS {
         //priorValueController.statelessDefaults["in_data"] = "234";
         
         Wire stateActive = atStateWire(state, arch);
-        Wire blkActive = arch.isActiveBlockVar(state, instr->getParent());
+        // Wire blkActive = arch.isActiveBlockVar(state, instr->getParent());
         Wire blkActiveInState = blockActiveInState(state, instr->getParent(), arch);
 
         bool producedInStateVar =
@@ -2764,20 +2764,36 @@ namespace ahaHLS {
         Wire instrProducedInStateActivation =
           checkAnd(blkActiveInState, instrProducedInState, arch);
         // Maybe this should be: atState, but block not active, or
-        Wire instrNotProducedInStateActivation =
-          checkAnd(blkActiveInState, checkNotWire(instrProducedInState, arch), arch);
+        // Wire instrNotProducedInStateActivation =
+        //   checkAnd(blkActiveInState, checkNotWire(instrProducedInState, arch), arch);
         // Wire containerBlockNotActiveInStateActivation =
         //   checkAnd(stateActive, checkNotWire(blkActive, arch), arch);
 
         ControlFlowPosition pos = position(state, instr, arch);
 
+        // Wire nextVal;
+        // if (producedInStateVar) {
+        //   nextVal = outputWire(instr, pos, arch);
+        // } else {
+        //   nextVal = priorValue;
+        // }
+        
+        // rc.values[blkActiveInState] = nextVal;
+
+        // Wire instrProducedInStateActivation =
+        //   checkAnd(blkActiveInState, instrProducedInState, arch);
+        
         if (producedInStateVar) {
           rc.values[instrProducedInStateActivation] = outputWire(instr, pos, arch);
         } else {
-          rc.values[checkAnd(stateActive,
-                             checkNotWire(instrProducedInStateActivation, arch),
-                             arch)] =
+          // rc.values[checkAnd(stateActive,
+          //                    checkNotWire(instrProducedInStateActivation, arch),
+          //                    arch)] =
+          //   priorValue;
+
+          rc.values[stateActive] =
             priorValue;
+
         }
       }
     }
