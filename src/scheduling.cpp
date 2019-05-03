@@ -4472,7 +4472,7 @@ namespace ahaHLS {
           first = second;
           second = instr;
           if ((second != nullptr) && (first != nullptr)) {
-            exec.addConstraint(instrEnd(first) < instrStart(second));
+            exec.addConstraint(instrEnd(first) <= instrStart(second));
           }
         }
       }
