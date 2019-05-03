@@ -2768,19 +2768,12 @@ namespace ahaHLS {
         if (producedInStateVar) {
 
           Wire blkActiveInState = blockActiveInState(state, instr->getParent(), arch);
-          // This is a constant, I should be able to remove it?
-          // Wire instrProducedInState =
-          //   constWire(1, arch.stg.instructionEndState(instr) == state);
-          // Wire instrProducedInStateActivation =
-          //   checkAnd(blkActiveInState, instrProducedInState, arch);
-          //rc.values[instrProducedInStateActivation] = outputWire(instr, pos, arch);
           rc.values[blkActiveInState] = outputWire(instr, pos, arch);
 
           // Note: I think this should include a not produced in state forwarding
           // decision?
         } else {
-          rc.values[stateActive] =
-            priorValue;
+          rc.values[stateActive] = priorValue;
         }
       }
     }
@@ -2911,7 +2904,17 @@ namespace ahaHLS {
         }
       }
 
-      if (dominatesAllExits) {
+      bool appearsInAllOrders = true;
+      for (auto blkAndLevels : topologicalLevelsForBlocks(state, stg)) {
+        map<BasicBlock*, int>& levels = blkAndLevels.second;
+        if (!contains_key(instr->getParent(), levels)) {
+          appearsInAllOrders = false;
+          break;
+        }
+      }
+
+      if (dominatesAllExits && appearsInAllOrders) {
+        cout << valueString(instr) << " occurs in every activation of state " << state << endl;
         alwaysDefined.insert(instr);
       }
     }
@@ -3062,8 +3065,8 @@ namespace ahaHLS {
         //if (elem(val, liveVals[state])) {
         //if (userReachableFromState(val, state, arch)) {
 
-          //if (elem(val, liveOut[state]) || elem(val, liveIn[state])) {
-          if (true) {
+          if (elem(val, liveOut[state]) || elem(val, liveIn[state])) {
+            //if (true) {
             string tmpName =
               arch.uniqueName("data_store_" + to_string(state));
 
