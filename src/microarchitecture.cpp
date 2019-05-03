@@ -410,7 +410,7 @@ namespace ahaHLS {
       mems[instr] = val;
       foundOps.insert(instr);
     } else {
-      cout << "No source for " << instructionString(instr) << endl;
+      //cout << "No source for " << instructionString(instr) << endl;
     }
   }
 
@@ -611,7 +611,7 @@ namespace ahaHLS {
       string memSrc = memName(instr, memSrcs, memNames);
 
       if (!Argument::classof(memVal)) {
-        cout << "&&&& Memory unit Using unit " << memSrc << " for " << instructionString(instr) << endl;
+        //cout << "&&&& Memory unit Using unit " << memSrc << " for " << instructionString(instr) << endl;
         if (contains_key(memVal, hcs.memSpecs)) {
           modName = map_find(memVal, hcs.memSpecs).modSpec.name;
         } else {
@@ -677,7 +677,7 @@ namespace ahaHLS {
       if (!Argument::classof(memVal)) {
         if (contains_key(memVal, hcs.memSpecs)) {
           string name = map_find(memVal, hcs.memSpecs).modSpec.name;
-          cout << "Setting " << valueString(memVal) << " to " << name << endl;
+          //cout << "Setting " << valueString(memVal) << " to " << name << endl;
           modName = name;
         } else {
           modName = "register";
@@ -876,7 +876,7 @@ namespace ahaHLS {
         } else {
           Type* fuTp = fuPtr->getType();
 
-          cout << "Functional unit type = " << typeString(fuTp) << endl;
+          //cout << "Functional unit type = " << typeString(fuTp) << endl;
           assert(PointerType::classof(fuTp));
 
           Type* fuDerefTp = dyn_cast<PointerType>(fuTp)->getElementType();
@@ -885,7 +885,7 @@ namespace ahaHLS {
 
           StructType* structT = dyn_cast<StructType>(fuDerefTp);
 
-          cout << "Struct name = " << string(structT->getName()) << endl;
+          //cout << "Struct name = " << string(structT->getName()) << endl;
 
           if (!hcs.hasArgumentSpec(fuPtr)) {
             cout << "Error: No spec... possible choices" << endl;
@@ -3104,12 +3104,12 @@ namespace ahaHLS {
     // TODO: Remove this duplicated function
     map<BasicBlock*, int> basicBlockNos = stg.basicBlockNos;
     //numberBasicBlocks(f);
-    cout << "--- Basic block numbers" << endl;
-    for (auto p : basicBlockNos) {
-      cout << tab(1) << "Basic block" << endl;
-      cout << valueString(p.first) << endl;
-      cout << "has number " << p.second << endl;
-    }
+    // cout << "--- Basic block numbers" << endl;
+    // for (auto p : basicBlockNos) {
+    //   cout << tab(1) << "Basic block" << endl;
+    //   cout << valueString(p.first) << endl;
+    //   cout << "has number " << p.second << endl;
+    // }
 
     map<Instruction*, Wire> names = createInstrNames(stg);
     vector<ElaboratedPipeline> pipelines =
