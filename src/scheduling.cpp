@@ -4134,9 +4134,41 @@ namespace ahaHLS {
     
   }
 
+  bool isDemangledCall(const std::string& classPrefix,
+                       const std::string& methodName,
+                       CallInst* instr) {
+    string name = instr->getCalledFunction()->getName();
+    cout << "Call name = " << name << endl;
+    if (canDemangle(name)) {
+      string demangled = demangle(name);
+
+      cout << "demangled = " << demangled << endl;
+      if (hasPrefix(demangled, classPrefix)) {
+        cout << "with prefix" << endl;
+        return takeUntil("(", drop("::", demangled)) == methodName;
+      }
+      return false;
+    }
+    
+    return false;
+  }
+  
   void setHalideCallLatency(CallInst* instr,
                             ExecutionConstraints& exec) {
-    // write, read, set, get, set_last
+    if (isDemangledCall("AxiPackedStencil", "set", instr) ||
+        isDemangledCall("AxiPackedStencil", "set_last", instr) ||
+        isDemangledCall("AxiPackedStencil", "write", instr) ||
+        isDemangledCall("AxiPackedStencil", "copy", instr)) {
+      cout << "Setting stencil call latency " << valueString(instr) << endl;
+      //exec.add(instrStart(instr) + 1 == instrEnd(instr));
+
+      // Do nothing here for now. Not sure what is wrong in cascade
+
+    } else if (isDemangledCall("AxiPackedStencil", "read", instr) ||
+               isDemangledCall("AxiPackedStencil", "get", instr)) {
+      exec.add(instrStart(instr) == instrEnd(instr));
+    }
+    // read, get
   }
 
   // No aliasing of structs by construction
