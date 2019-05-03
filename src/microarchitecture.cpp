@@ -2358,6 +2358,10 @@ namespace ahaHLS {
   Wire blockActiveInState(const StateId state,
                           BasicBlock* const blk,
                           MicroArchitecture& arch) {
+    if (!elem(blk, blocksInState(state, arch.stg))) {
+      return constWire(1, 0);
+    }
+    
     Wire atBlock =
       arch.isActiveBlockVar(state, blk);
     Wire atBranchState =
