@@ -2859,6 +2859,10 @@ namespace ahaHLS {
   bool precedesInOrder(BasicBlock* used,
                        BasicBlock* blk,
                        map<BasicBlock*, int> levels) {
+    if (used == blk) {
+      return true;
+    }
+    
     if (!contains_key(blk, levels)) {
       return true;
     }
@@ -3036,19 +3040,19 @@ namespace ahaHLS {
       
     }
 
-    // cout << "Final live values" << endl;
-    // for (auto st : arch.stg.opStates) {
-    //   cout << tab(1) << "-------" << endl;
-    //   cout << tab(1) << st.first << " live in  = " << in[st.first].size() << endl;
-    //   for (auto v : in[st.first]) {
-    //     cout << tab(2) << valueString(v) << endl;
-    //   }
-    //   cout << tab(1) << st.first << " live out = " << out[st.first].size() << endl;
-    //   for (auto v : out[st.first]) {
-    //     cout << tab(2) << valueString(v) << endl;
-    //   }
+    cout << "Final live values" << endl;
+    for (auto st : arch.stg.opStates) {
+      cout << tab(1) << "-------" << endl;
+      cout << tab(1) << st.first << " live in  = " << in[st.first].size() << endl;
+      for (auto v : in[st.first]) {
+        cout << tab(2) << valueString(v) << endl;
+      }
+      cout << tab(1) << st.first << " live out = " << out[st.first].size() << endl;
+      for (auto v : out[st.first]) {
+        cout << tab(2) << valueString(v) << endl;
+      }
       
-    // }
+    }
     
     return {in, out};
   }

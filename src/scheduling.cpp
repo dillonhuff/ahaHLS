@@ -837,12 +837,12 @@ namespace ahaHLS {
     return false;
   }
 
-  bool hasStencilCall(BasicBlock* a,
-                      BasicBlock* b) {
-    bool aHasStencil = hasStructCall(a, "class.AxiPackedStencil");
-    bool bHasStencil = hasStructCall(b, "class.AxiPackedStencil");
-    return aHasStencil || bHasStencil;
-  }
+  // bool hasStencilCall(BasicBlock* a,
+  //                     BasicBlock* b) {
+  //   bool aHasStencil = hasStructCall(a, "class.AxiPackedStencil");
+  //   bool bHasStencil = hasStructCall(b, "class.AxiPackedStencil");
+  //   return aHasStencil || bHasStencil;
+  // }
 
   std::map<BasicBlock*, vector<BasicBlock*> >
   buildControlPreds(llvm::Function* f) {
