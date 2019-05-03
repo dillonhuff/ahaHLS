@@ -2723,10 +2723,28 @@ namespace ahaHLS {
       map<StateId, Wire> isLastStateFlags;
       for (StateId possibleLast : possiblePriorStates(state, arch.stg)) {
 
-        // Note: Do not need atState check for this combinational logic?
         Wire atLast = checkEqual(possibleLast, lastStateWire, arch);
-
         isLastStateFlags[possibleLast] = atLast;
+      }
+
+      for (pair<Instruction*, Wire> valStorage : dataInputs.values) {
+        Instruction* instr = valStorage.first;
+        
+        // TODO: Remove this name lookup hack
+        string wName = dataInputs.values[instr].name;
+        string ctName = wName.substr(0, wName.size() - 9);
+
+        PortController& priorValueController =
+          arch.portController(ctName);
+        Wire priorValue = priorValueController.functionalUnit().outputWire();
+
+        for (auto stP : isLastStateFlags) {
+          StateId possibleLast = stP.first;
+          Wire lastTriggered = stP.second;
+
+          Wire priorData = datapathValueAt(possibleLast, instr, arch);
+          priorValueController.setCond("in_data", lastTriggered, priorData);
+        }
       }
       
       for (pair<Instruction*, Wire> valStorage : dataRegisters.values) {
@@ -2742,13 +2760,13 @@ namespace ahaHLS {
           arch.portController(ctName);
         Wire priorValue = priorValueController.functionalUnit().outputWire();
 
-        for (auto stP : isLastStateFlags) {
-          StateId possibleLast = stP.first;
-          Wire lastTriggered = stP.second;
+        // for (auto stP : isLastStateFlags) {
+        //   StateId possibleLast = stP.first;
+        //   Wire lastTriggered = stP.second;
 
-          Wire priorData = datapathValueAt(possibleLast, instr, arch);
-          priorValueController.setCond("in_data", lastTriggered, priorData);
-        }
+        //   Wire priorData = datapathValueAt(possibleLast, instr, arch);
+        //   priorValueController.setCond("in_data", lastTriggered, priorData);
+        // }
 
         Wire stateActive = atStateWire(state, arch);
         bool producedInStateVar =
