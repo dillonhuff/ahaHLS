@@ -1208,9 +1208,6 @@ namespace ahaHLS {
           PortController& controller =
             addPortController(wireName, dataWidth, arch);
 
-          Wire storedWire = mostRecentStorageLocation(instr0, currentPosition, arch);
-          Wire liveWire = dataOutputWire(instr0, arch);
-
           // TODO: Dont re-compute this every time
           auto topoLevels =
             topologicalLevelsForBlocks(thisState, arch.stg);
@@ -1226,7 +1223,11 @@ namespace ahaHLS {
             // because the user will never be referenced in a trace that
             // starts with this block
             if (contains_key(userBB, entryToLevels.second)) {
+              Wire liveWire = dataOutputWire(instr0, arch);
+              
               if (!contains_key(argBB, entryToLevels.second)) {
+                Wire storedWire = mostRecentStorageLocation(instr0, currentPosition, arch);
+                
                 controller.setCond("in_data", enteredThisBlk, storedWire);
               } else {
                 int userLevel = map_find(userBB, entryToLevels.second);
@@ -1235,6 +1236,7 @@ namespace ahaHLS {
                 if (userLevel > definedLevel) {
                   controller.setCond("in_data", enteredThisBlk, liveWire);
                 } else {
+                  Wire storedWire = mostRecentStorageLocation(instr0, currentPosition, arch);                  
                   controller.setCond("in_data", enteredThisBlk, storedWire); 
                 }
               }
@@ -1350,7 +1352,7 @@ namespace ahaHLS {
   instructionPortAssignments(ControlFlowPosition pos,
                              MicroArchitecture& arch) {
 
-    //cout << "Generating code for " << valueString(pos.instr) << endl;
+    cout << "Generating code for " << valueString(pos.instr) << endl;
 
     auto instr = pos.instr;
     auto addUnit = map_find(instr, arch.unitAssignment);
