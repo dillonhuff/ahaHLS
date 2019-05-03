@@ -4134,6 +4134,26 @@ namespace ahaHLS {
     
   }
 
+  void setHalideCallLatency(CallInst* instr,
+                            ExecutionConstraints& exec) {
+    // write, read, set, get, set_last
+  }
+
+  // No aliasing of structs by construction
+  bool canOverlapNaive(CallInst* const pred,
+                       CallInst* const succ) {
+    for (int i = 0; i < pred->getNumOperands(); i++) {
+      Value* pr = pred->getOperand(i);
+      for (int j = 0; j < succ->getNumOperands(); j++) {
+        Value* sr = succ->getOperand(j);
+        if (pr == sr) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
   // Note: I should really build an alias analysis, then use that to
   // decide if the two calls are the same?
   // Now need stencil calls?
@@ -4146,6 +4166,10 @@ namespace ahaHLS {
          ++maybePred) {
       Instruction* pred = &(*maybePred);
 
+      if (isStencilCall(pred)) {
+        setHalideCallLatency(dyn_cast<CallInst>(pred), exec);
+      }
+
       for (auto maybeSucc = inst_begin(f), Es = inst_end(f);
            maybeSucc != Es;
            ++maybeSucc) {      
@@ -4154,7 +4178,10 @@ namespace ahaHLS {
         if (pred != succ) {
           if (precedes(pred, succ, blockOrder)) {
             if (isStencilCall(pred) && isStencilCall(succ)) {
-              exec.add(instrEnd(pred) < instrStart(succ));
+              if (canOverlapNaive(dyn_cast<CallInst>(pred),
+                                  dyn_cast<CallInst>(succ))) {
+                exec.add(instrEnd(pred) < instrStart(succ));
+              }
             }
           }
         }
