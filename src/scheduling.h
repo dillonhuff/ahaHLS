@@ -1604,8 +1604,8 @@ namespace ahaHLS {
                      const int width,
                      const std::string name);
 
-  void sequentialCalls(llvm::Function* f,
-                       ExecutionConstraints& exec);
+  // void sequentialCalls(llvm::Function* f,
+  //                      ExecutionConstraints& exec);
 
   ModuleSpec registerModSpec(const int width);
 

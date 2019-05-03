@@ -2362,7 +2362,7 @@ public:
         }
 
         // Set all calls to be sequential by default
-        sequentialCalls(f, interfaces.getConstraints(f));
+        //sequentialCalls(f, interfaces.getConstraints(f));
 
         functions.push_back(sf);
         activeFunction = nullptr;

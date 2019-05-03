@@ -5256,7 +5256,7 @@ namespace ahaHLS {
       [](StructType* axiStencil) { return axiPackedStencilSpec(16, 1, 1); };
 
     ExecutionConstraints exec;
-    sequentialCalls(f, exec);
+    //sequentialCalls(f, exec);
 
     // Instruction* c0 = findCall(0, f->getEntryBlock());
     // Instruction* c1 = findCall(1, f->getEntryBlock());
@@ -5348,7 +5348,7 @@ namespace ahaHLS {
       [](StructType* axiStencil) { return axiPackedStencilSpec(16, 1, 1); };
 
     ExecutionConstraints exec;
-    sequentialCalls(f, exec);
+    //sequentialCalls(f, exec);
     set<BasicBlock*> toPipeline;
     Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
     STG graph = buildSTG(s, f);
@@ -5437,7 +5437,7 @@ namespace ahaHLS {
       [](StructType* axiStencil) { return axiPackedStencilSpec(16, 1, 1); };
 
     ExecutionConstraints exec;
-    sequentialCalls(f, exec);
+    //sequentialCalls(f, exec);
 
     set<BasicBlock*> toPipeline;
     Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
@@ -5562,7 +5562,7 @@ namespace ahaHLS {
       [](StructType* axiStencil) { return axiPackedStencilSpec(16, 1, 1); };
 
     ExecutionConstraints exec;
-    sequentialCalls(f, exec);
+    //sequentialCalls(f, exec);
 
     set<BasicBlock*> toPipeline;
     Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
@@ -5687,7 +5687,7 @@ namespace ahaHLS {
       [](StructType* axiStencil) { return axiPackedStencilSpec(16, 1, 1); };
 
     ExecutionConstraints exec;
-    sequentialCalls(f, exec);
+    //sequentialCalls(f, exec);
 
     set<BasicBlock*> toPipeline;
     Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
@@ -5812,7 +5812,7 @@ namespace ahaHLS {
       [](StructType* axiStencil) { return axiPackedStencilSpec(16, 1, 1); };
 
     ExecutionConstraints exec;
-    sequentialCalls(f, exec);
+    //sequentialCalls(f, exec);
 
     set<BasicBlock*> toPipeline;
     Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
@@ -5943,7 +5943,7 @@ namespace ahaHLS {
       [](StructType* axiStencil) { return axiPackedStencilSpec(16, 1, 1); };
 
     ExecutionConstraints exec;
-    sequentialCalls(f, exec);
+    //sequentialCalls(f, exec);
 
     set<BasicBlock*> toPipeline;
     Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
@@ -6118,7 +6118,7 @@ namespace ahaHLS {
       [](StructType* axiStencil) { return axiPackedStencilSpec(16, 1, 1); };
 
     ExecutionConstraints exec;
-    sequentialCalls(f, exec);
+    //sequentialCalls(f, exec);
     set<BasicBlock*> toPipeline;    
 
 
@@ -6279,7 +6279,7 @@ namespace ahaHLS {
     populateHalideStencils(f, interfaces, hcs);
 
     ExecutionConstraints exec;
-    sequentialCalls(f, exec);
+    //sequentialCalls(f, exec);
 
     SECTION("No task parallelism or pipelining") {
       set<BasicBlock*> toPipeline;

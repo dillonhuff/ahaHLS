@@ -4136,6 +4136,7 @@ namespace ahaHLS {
 
   // Note: I should really build an alias analysis, then use that to
   // decide if the two calls are the same?
+  // Now need stencil calls?
   void addStencilCallConstraints(llvm::Function* f,
                                  map<BasicBlock*, vector<BasicBlock*> >& preds,
                                  ExecutionConstraints& exec) {
@@ -4478,7 +4479,7 @@ namespace ahaHLS {
             if (obb.dominates(before, after)) {
               if (CallInst::classof(before) &&
                   CallInst::classof(after)) {
-                //exec.add(instrEnd(before) <= instrStart(after));
+                exec.add(instrEnd(before) == instrStart(after));
               }
             }
           }
