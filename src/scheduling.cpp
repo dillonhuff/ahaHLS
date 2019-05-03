@@ -811,31 +811,31 @@ namespace ahaHLS {
     }
   }
 
-  bool hasStructCall(BasicBlock* blk, const std::string& stencilPrefix) {
-    for (auto& instrR : *blk) {
-      Instruction* instr = &instrR;
-      if (isBuiltinPortCall(instr)) {
+  // bool hasStructCall(BasicBlock* blk, const std::string& stencilPrefix) {
+  //   for (auto& instrR : *blk) {
+  //     Instruction* instr = &instrR;
+  //     if (isBuiltinPortCall(instr)) {
         
-        Value* val = instr->getOperand(0);
-        Type* argTp = val->getType();
-        assert(PointerType::classof(argTp));
+  //       Value* val = instr->getOperand(0);
+  //       Type* argTp = val->getType();
+  //       assert(PointerType::classof(argTp));
 
-        Type* underlying = dyn_cast<PointerType>(argTp)->getElementType();
+  //       Type* underlying = dyn_cast<PointerType>(argTp)->getElementType();
 
-        assert(StructType::classof(underlying));
+  //       assert(StructType::classof(underlying));
 
-        StructType* stp = dyn_cast<StructType>(underlying);
+  //       StructType* stp = dyn_cast<StructType>(underlying);
 
-        //cout << "Checking struct " << string(stp->getName()) << " has stencil" << endl;
+  //       //cout << "Checking struct " << string(stp->getName()) << " has stencil" << endl;
 
-        if (hasPrefix(stp->getName(), stencilPrefix)) { //"class.AxiPackedStencil")) {
-          //cout << "Found stencil call" << endl;
-          return true;
-        }
-      }
-    }
-    return false;
-  }
+  //       if (hasPrefix(stp->getName(), stencilPrefix)) { //"class.AxiPackedStencil")) {
+  //         //cout << "Found stencil call" << endl;
+  //         return true;
+  //       }
+  //     }
+  //   }
+  //   return false;
+  // }
 
   // bool hasStencilCall(BasicBlock* a,
   //                     BasicBlock* b) {
@@ -4466,16 +4466,35 @@ namespace ahaHLS {
     for (auto& bb : f->getBasicBlockList()) {
       Instruction* first = nullptr;
       Instruction* second = nullptr;
-      for (auto& instrP : bb) {
-        auto instr = &instrP;
-        if (CallInst::classof(instr)) {
-          first = second;
-          second = instr;
-          if ((second != nullptr) && (first != nullptr)) {
-            exec.addConstraint(instrEnd(first) <= instrStart(second));
+
+      OrderedBasicBlock obb(&bb);
+
+      for (auto& beforeR : bb) {
+        Instruction* before = &beforeR;
+        for (auto& afterR : bb) {
+          Instruction* after = &afterR;
+          
+          if (before != after) {
+            if (obb.dominates(before, after)) {
+              if (CallInst::classof(before) &&
+                  CallInst::classof(after)) {
+                //exec.add(instrEnd(before) <= instrStart(after));
+              }
+            }
           }
         }
       }
+
+      // for (auto& instrP : bb) {
+      //   auto instr = &instrP;
+      //   if (CallInst::classof(instr)) {
+      //     first = second;
+      //     second = instr;
+      //     if ((second != nullptr) && (first != nullptr)) {
+      //       exec.addConstraint(instrEnd(first) <= instrStart(second));
+      //     }
+      //   }
+      // }
     }
   }
 
