@@ -2856,6 +2856,20 @@ namespace ahaHLS {
     return used;
   }
 
+  bool precedesInOrder(BasicBlock* used,
+                       BasicBlock* blk,
+                       map<BasicBlock*, int> levels) {
+    if (!contains_key(blk, levels)) {
+      return true;
+    }
+
+    if (!contains_key(used, levels)) {
+      return false;
+    }
+
+    return map_find(used, levels) < map_find(blk, levels);
+  }
+  
   // May be used but may not be defined in same state activation
   set<Instruction*> valuesThatMayBeUsedInState(const StateId state,
                                                STG& stg) {
@@ -2878,10 +2892,15 @@ namespace ahaHLS {
           bool appearsInAllOrders = true;
           for (auto blkAndLevels : topologicalLevelsForBlocks(state, stg)) {
             map<BasicBlock*, int>& levels = blkAndLevels.second;
-            if (!contains_key(used->getParent(), levels)) {
+            if (!precedesInOrder(used->getParent(), instr->getParent(), levels)) {
               appearsInAllOrders = false;
               break;
+              
             }
+            // if (!contains_key(used->getParent(), levels)) {
+            //   appearsInAllOrders = false;
+            //   break;
+            // }
           }
           
           if (!alwaysDefinedBefore || !appearsInAllOrders) {
