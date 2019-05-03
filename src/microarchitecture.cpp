@@ -2867,6 +2867,9 @@ namespace ahaHLS {
 
     set<Instruction*> maybeUsed;
     for (auto instr : stg.instructionsStartingAt(state)) {
+
+      // TODO: Should check that def always precedes isntr in state topo levels
+      // *and* that the definition dominates the instruction
       for (int i = 0; i < (int) instr->getNumOperands(); i++) {
         Value* op = instr->getOperand(i);
         if (Instruction::classof(op)) {
@@ -2875,7 +2878,16 @@ namespace ahaHLS {
             stg.instructionEndState(used) == stg.instructionStartState(instr) &&
             dt.dominates(used, instr);
 
-          if (!alwaysDefinedBefore) {
+          bool appearsInAllOrders = true;
+          for (auto blkAndLevels : topologicalLevelsForBlocks(state, stg)) {
+            map<BasicBlock*, int>& levels = blkAndLevels.second;
+            if (!contains_key(used->getParent(), levels)) {
+              appearsInAllOrders = false;
+              break;
+            }
+          }
+          
+          if (!alwaysDefinedBefore || !appearsInAllOrders) {
             maybeUsed.insert(used);
           }
         }
