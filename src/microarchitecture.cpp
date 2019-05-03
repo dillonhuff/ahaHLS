@@ -1108,12 +1108,6 @@ namespace ahaHLS {
     return false;
   }
 
-  // Wire sequentialReg(Instruction* result,
-  //                    MicroArchitecture& arch) {
-  //   Wire tmpRes = map_find(result, arch.names);
-  //   return tmpRes;
-  // }
-  
   Wire mostRecentStorageLocation(Instruction* result,
                                  ControlFlowPosition& currentPosition,
                                  MicroArchitecture& arch) {
@@ -1129,7 +1123,10 @@ namespace ahaHLS {
       if (contains_key(result, stateInputs.values)) {
         return arch.dp.stateDataInputs[currentPos].values[result];
       } else {
-
+        cout << "Error: Could not find temp storage for " << valueString(result) << " from position " << valueString(currentPosition.instr) << endl << ", state " << currentPos << " has inputs " << endl;
+        for (auto in : stateInputs.values) {
+          cout << tab(1) << valueString(in.first) << " -> " << in.second.valueString() << endl;
+        }
         assert(false);
       }
     } else {
@@ -1283,7 +1280,7 @@ namespace ahaHLS {
           }
           assert(contains_key(val, arch.hcs.modSpecs));
           ModuleSpec mSpec = map_find(val, arch.hcs.modSpecs);
-          cout << "Module spec for " << valueString(val) << " is " << mSpec << endl;
+          //cout << "Module spec for " << valueString(val) << " is " << mSpec << endl;
           assert(mSpec.name == "register");
 
           // Pointer arguments that are not included in the memory map
@@ -1292,7 +1289,7 @@ namespace ahaHLS {
           return wire(getTypeBitWidth(under), string(val->getName()) + "_rdata");
         }
       } else {
-        cout << "Value argument of type " << typeString(val->getType()) << endl;
+        //cout << "Value argument of type " << typeString(val->getType()) << endl;
         return wire(getValueBitWidth(val), valueArgName(dyn_cast<Argument>(val)));
       }
     } else if (ConstantInt::classof(val)) {
@@ -1660,7 +1657,7 @@ namespace ahaHLS {
                           MicroArchitecture& arch,
                           const bool isDefault=false) {
 
-    cout << "Adding transition from " << state << " to " << dest << endl;
+    //cout << "Adding transition from " << state << " to " << dest << endl;
 
     auto& controller = arch.getController(reg(32, "global_state"));
     auto& pipelines = arch.pipelines;
@@ -1935,7 +1932,7 @@ namespace ahaHLS {
 
     for (auto blk : inProgressBlocks(state, arch.stg)) {
 
-      cout << "Found non terminating block in " << state << endl;
+      //cout << "Found non terminating block in " << state << endl;
 
       StateId dest = state + 1;
 
@@ -3056,22 +3053,24 @@ namespace ahaHLS {
     allValues = allValuesMayNeedStorage;
 
     LiveVals liveVals = findLiveValues(arch);
-    auto liveOut = liveVals.in;
-    auto liveIn = liveVals.out;    
+    auto liveOut = liveVals.out;
+    auto liveIn = liveVals.in;   
 
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
       arch.dp.stateData[state] = {};
       
       for (Instruction* val : allValues) {
+        cout << "Possibly adding " << valueString(val) << endl;
 
-        if (defCouldReachThisState(val, state, arch) &&
-            userReachableFromState(val, state, arch)) {
+        // if (defCouldReachThisState(val, state, arch) &&
+        //     userReachableFromState(val, state, arch)) {
 
         //if (elem(val, liveVals[state])) {
         //if (userReachableFromState(val, state, arch)) {
 
-          if (elem(val, liveOut[state]) || elem(val, liveIn[state])) {
+          //if (elem(val, liveOut[state]) || elem(val, liveIn[state])) {
+          if (elem(val, liveOut[state])) {
             //if (true) {
             string tmpName =
               arch.uniqueName("data_store_" + to_string(state));
@@ -3081,8 +3080,8 @@ namespace ahaHLS {
             auto& rc = arch.getController(tmpReg);
             arch.dp.stateData[state].values[val] = rc.reg;
             //}
-
-          //if (elem(val, liveIn[state])) {
+          }
+          if (elem(val, liveIn[state])) {
             // Should be all values live on input?
             string inName =
               arch.uniqueName("data_in_" + to_string(state));
@@ -3090,8 +3089,8 @@ namespace ahaHLS {
             arch.dp.stateDataInputs[state].values[val] =
               pc.functionalUnit().outputWire();
           }
-        }
       }
+      //}
     }
   }
   
