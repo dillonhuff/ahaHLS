@@ -2752,6 +2752,9 @@ namespace ahaHLS {
         Wire blkActive = arch.isActiveBlockVar(state, instr->getParent());
         Wire blkActiveInState = blockActiveInState(state, instr->getParent(), arch);
 
+        bool producedInStateVar =
+          arch.stg.instructionEndState(instr) == state;
+        
         // This is a constant, I should be able to remove it?
         Wire instrProducedInState =
           constWire(1, arch.stg.instructionEndState(instr) == state);
@@ -2763,15 +2766,19 @@ namespace ahaHLS {
         // Maybe this should be: atState, but block not active, or
         Wire instrNotProducedInStateActivation =
           checkAnd(blkActiveInState, checkNotWire(instrProducedInState, arch), arch);
-        Wire containerBlockNotActiveInStateActivation =
-          checkAnd(stateActive, checkNotWire(blkActive, arch), arch);
+        // Wire containerBlockNotActiveInStateActivation =
+        //   checkAnd(stateActive, checkNotWire(blkActive, arch), arch);
 
-        ControlFlowPosition pos = position(state, instr, arch);        
-        rc.values[instrProducedInStateActivation] = outputWire(instr, pos, arch);
-        rc.values[checkAnd(stateActive,
-                           checkNotWire(instrProducedInStateActivation, arch),
-                           arch)] =
-          priorValue;
+        ControlFlowPosition pos = position(state, instr, arch);
+
+        if (producedInStateVar) {
+          rc.values[instrProducedInStateActivation] = outputWire(instr, pos, arch);
+        } else {
+          rc.values[checkAnd(stateActive,
+                             checkNotWire(instrProducedInStateActivation, arch),
+                             arch)] =
+            priorValue;
+        }
       }
     }
   }
