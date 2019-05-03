@@ -2746,54 +2746,24 @@ namespace ahaHLS {
           priorValueController.setCond("in_data", lastTriggered, priorData);
         }
 
-        //priorValueController.statelessDefaults["in_data"] = "234";
-        
         Wire stateActive = atStateWire(state, arch);
-        // Wire blkActive = arch.isActiveBlockVar(state, instr->getParent());
-        Wire blkActiveInState = blockActiveInState(state, instr->getParent(), arch);
-
         bool producedInStateVar =
           arch.stg.instructionEndState(instr) == state;
-        
-        // This is a constant, I should be able to remove it?
-        Wire instrProducedInState =
-          constWire(1, arch.stg.instructionEndState(instr) == state);
-          // checkEqual(constWire(32, arch.stg.instructionEndState(instr)),
-          //            constWire(32, state),
-          //            arch);
-        Wire instrProducedInStateActivation =
-          checkAnd(blkActiveInState, instrProducedInState, arch);
-        // Maybe this should be: atState, but block not active, or
-        // Wire instrNotProducedInStateActivation =
-        //   checkAnd(blkActiveInState, checkNotWire(instrProducedInState, arch), arch);
-        // Wire containerBlockNotActiveInStateActivation =
-        //   checkAnd(stateActive, checkNotWire(blkActive, arch), arch);
 
         ControlFlowPosition pos = position(state, instr, arch);
 
-        // Wire nextVal;
-        // if (producedInStateVar) {
-        //   nextVal = outputWire(instr, pos, arch);
-        // } else {
-        //   nextVal = priorValue;
-        // }
-        
-        // rc.values[blkActiveInState] = nextVal;
-
-        // Wire instrProducedInStateActivation =
-        //   checkAnd(blkActiveInState, instrProducedInState, arch);
-        
         if (producedInStateVar) {
+
+          Wire blkActiveInState = blockActiveInState(state, instr->getParent(), arch);
+          // This is a constant, I should be able to remove it?
+          Wire instrProducedInState =
+            constWire(1, arch.stg.instructionEndState(instr) == state);
+          Wire instrProducedInStateActivation =
+            checkAnd(blkActiveInState, instrProducedInState, arch);
           rc.values[instrProducedInStateActivation] = outputWire(instr, pos, arch);
         } else {
-          // rc.values[checkAnd(stateActive,
-          //                    checkNotWire(instrProducedInStateActivation, arch),
-          //                    arch)] =
-          //   priorValue;
-
           rc.values[stateActive] =
             priorValue;
-
         }
       }
     }
