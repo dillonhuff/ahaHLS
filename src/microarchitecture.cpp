@@ -2749,12 +2749,6 @@ namespace ahaHLS {
         Instruction* instr = valStorage.first;
         
         RegController& rc = arch.getController(valStorage.second);
-        // TODO: Remove this name lookup hack
-        string wName = dataInputs.values[instr].name;
-        string ctName = wName.substr(0, wName.size() - 9);
-        PortController& priorValueController =
-          arch.portController(ctName);
-        Wire priorValue = priorValueController.functionalUnit().outputWire();
 
         Wire stateActive = atStateWire(state, arch);
         bool producedInStateVar =
@@ -2770,7 +2764,17 @@ namespace ahaHLS {
           // Note: I think this should include a not produced in state forwarding
           // decision?
         } else {
-          rc.values[stateActive] = priorValue;
+
+          if (contains_key(instr, dataInputs.values)) {
+            // TODO: Remove this name lookup hack
+            string wName = dataInputs.values[instr].name;
+            string ctName = wName.substr(0, wName.size() - 9);
+            PortController& priorValueController =
+              arch.portController(ctName);
+            Wire priorValue = priorValueController.functionalUnit().outputWire();
+          
+            rc.values[stateActive] = priorValue;
+          }
         }
       }
     }
