@@ -2755,18 +2755,9 @@ namespace ahaHLS {
         // TODO: Remove this name lookup hack
         string wName = dataInputs.values[instr].name;
         string ctName = wName.substr(0, wName.size() - 9);
-        //cout << "ctName = " << ctName << endl;
         PortController& priorValueController =
           arch.portController(ctName);
         Wire priorValue = priorValueController.functionalUnit().outputWire();
-
-        // for (auto stP : isLastStateFlags) {
-        //   StateId possibleLast = stP.first;
-        //   Wire lastTriggered = stP.second;
-
-        //   Wire priorData = datapathValueAt(possibleLast, instr, arch);
-        //   priorValueController.setCond("in_data", lastTriggered, priorData);
-        // }
 
         Wire stateActive = atStateWire(state, arch);
         bool producedInStateVar =
@@ -2778,11 +2769,15 @@ namespace ahaHLS {
 
           Wire blkActiveInState = blockActiveInState(state, instr->getParent(), arch);
           // This is a constant, I should be able to remove it?
-          Wire instrProducedInState =
-            constWire(1, arch.stg.instructionEndState(instr) == state);
-          Wire instrProducedInStateActivation =
-            checkAnd(blkActiveInState, instrProducedInState, arch);
-          rc.values[instrProducedInStateActivation] = outputWire(instr, pos, arch);
+          // Wire instrProducedInState =
+          //   constWire(1, arch.stg.instructionEndState(instr) == state);
+          // Wire instrProducedInStateActivation =
+          //   checkAnd(blkActiveInState, instrProducedInState, arch);
+          //rc.values[instrProducedInStateActivation] = outputWire(instr, pos, arch);
+          rc.values[blkActiveInState] = outputWire(instr, pos, arch);
+
+          // Note: I think this should include a not produced in state forwarding
+          // decision?
         } else {
           rc.values[stateActive] =
             priorValue;
