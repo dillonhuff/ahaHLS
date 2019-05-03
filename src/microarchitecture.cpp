@@ -1352,13 +1352,11 @@ namespace ahaHLS {
   instructionPortAssignments(ControlFlowPosition pos,
                              MicroArchitecture& arch) {
 
-    cout << "Generating code for " << valueString(pos.instr) << endl;
+    //cout << "Generating code for " << valueString(pos.instr) << endl;
 
     auto instr = pos.instr;
     auto addUnit = map_find(instr, arch.unitAssignment);
 
-    //map<string, string> assignments;
-    //map<string, Wire> assignments;
     map<Wire, Wire> assignments;
 
     if (ReturnInst::classof(instr)) {
@@ -3060,12 +3058,6 @@ namespace ahaHLS {
     LiveVals liveVals = findLiveValues(arch);
     auto liveOut = liveVals.in;
     auto liveIn = liveVals.out;    
-    // map<StateId, set<Instruction*> > liveVals =
-    //   findLiveValues(arch);
-    // cout << "Live values in each state" << endl;
-    // for (auto st : liveVals) {
-    //   cout << tab(1) << st.first << " = " << st.second.size() << endl;
-    // }
 
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
