@@ -25,6 +25,8 @@ namespace ahaHLS {
       return "coreir.and";
     } else if (spec.name == "coreir_reg") {
       return "ahaHLS.reg";
+    } else if (spec.name == "notOp") {
+      return "coreir.not";
     } else {
       cout << "Error: Unsupported modspec " << endl;
       cout << spec << endl;
@@ -133,7 +135,7 @@ namespace ahaHLS {
     for (auto unit : arch.functionalUnits) {
       cout << "Searching unit " << unit.instName << endl;
       for (auto pt : unit.portWires) {
-        cout << "pt = " << pt.second.name << endl;
+        //cout << "pt = " << pt.second.name << endl;
         if ((pt.second.name == portName) ||
             (pt.second.name + "_reg"  == portName) ||
             (pt.second.name == portName + "_in_data")) {
@@ -221,30 +223,30 @@ namespace ahaHLS {
 
     Context* c = def->getContext();
     
-    for (auto v : vals.portVals) {
-      Instance* mux =
-        def->addInstance(arch.uniqueName("c_mux"),
-                         "coreir.mux",
-                         {{"width", Const::make(c, dataWidth)}});
+    // for (auto v : vals.portVals) {
+    //   Instance* mux =
+    //     def->addInstance(arch.uniqueName("c_mux"),
+    //                      "coreir.mux",
+    //                      {{"width", Const::make(c, dataWidth)}});
 
-      Select* wireCond =
-        findWireableFor(v.first, functionalUnits, def, arch);
+    //   Select* wireCond =
+    //     findWireableFor(v.first, functionalUnits, def, arch);
 
-      Select* dataValue =
-        findWireableFor(v.second, functionalUnits, def, arch);
+    //   Select* dataValue =
+    //     findWireableFor(v.second, functionalUnits, def, arch);
       
-      def->connect(mux->sel("sel"), wireCond->sel(0));
-      def->connect(mux->sel("in1"), truncateTo(arrayLen(mux->sel("in1")),
-                                               dataValue,
-                                               def,
-                                               arch));
+    //   def->connect(mux->sel("sel"), wireCond->sel(0));
+    //   def->connect(mux->sel("in1"), truncateTo(arrayLen(mux->sel("in1")),
+    //                                            dataValue,
+    //                                            def,
+    //                                            arch));
 
 
-      if (lastMux != nullptr) {
-        def->connect(lastMux->sel("out"), mux->sel("in0"));
-      }
-      lastMux = mux;
-    }
+    //   if (lastMux != nullptr) {
+    //     def->connect(lastMux->sel("out"), mux->sel("in0"));
+    //   }
+    //   lastMux = mux;
+    // }
 
     Select* ct = nullptr;
     if (vals.defaultValue != "") {
@@ -316,7 +318,7 @@ namespace ahaHLS {
       [](Context* c, Values args, ModuleDef* def) {
       uint width = args.at("width")->get<int>();
 
-      def->addInstance("innerEq",
+      def->addInstance("innerReg",
                        "coreir.eq",
       {{"width", Const::make(c, width)}});
 
@@ -364,7 +366,7 @@ namespace ahaHLS {
     addRegGenerator(ahaLib);
     addEqGenerator(ahaLib);    
     
-    convertRegisterControllersToPortControllers(arch);
+    // convertRegisterControllersToPortControllers(arch);
     
     vector<pair<string, CoreIR::Type*> > tps;
     for (auto port : getPorts(arch)) {
@@ -386,19 +388,19 @@ namespace ahaHLS {
 
     // TODO: Need to wire up clocks?
     
-    for (auto pc : arch.portControllers) {
-      cout << "Controller for " << pc.first << endl;
-      for (auto in : pc.second.inputControllers) {
-        string portName = in.first;
-        PortValues vals = in.second;
-        Select* w = findWireableFor(portName, functionalUnits, def, arch);
-        cout << tab(1) << "Wireable for port " << portName << " is " << *w << endl;
+    // for (auto pc : arch.portControllers) {
+    //   cout << "Controller for " << pc.first << endl;
+    //   for (auto in : pc.second.inputControllers) {
+    //     string portName = in.first;
+    //     PortValues vals = in.second;
+    //     Select* w = findWireableFor(portName, functionalUnits, def, arch);
+    //     cout << tab(1) << "Wireable for port " << portName << " is " << *w << endl;
 
-        int width = arrayLen(w); //10; // TODO: set by checking width
-        Select* inputWire = buildController(width, vals, functionalUnits, def, arch);
-        def->connect(w, inputWire);
-      }
-    }
+    //     int width = arrayLen(w); //10; // TODO: set by checking width
+    //     Select* inputWire = buildController(width, vals, functionalUnits, def, arch);
+    //     def->connect(w, inputWire);
+    //   }
+    // }
 
     // Then what?
     // Iterate over controllers wiring up each controller
