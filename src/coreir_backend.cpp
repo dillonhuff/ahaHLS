@@ -237,10 +237,15 @@ namespace ahaHLS {
         findWireableFor(v.second, functionalUnits, def, arch);
       
       def->connect(mux->sel("sel"), wireCond->sel(0));
-      def->connect(mux->sel("in1"), truncateTo(arrayLen(mux->sel("in1")),
-                                               dataValue,
-                                               def,
-                                               arch));
+
+      if (arrayLen(dataValue) != arrayLen(mux->sel("in1"))) {
+        def->connect(mux->sel("in1"), truncateTo(arrayLen(mux->sel("in1")),
+                                                 dataValue,
+                                                 def,
+                                                 arch));
+      } else {
+        def->connect(mux->sel("in1"), dataValue);
+      }
 
 
       if (firstMux) {
