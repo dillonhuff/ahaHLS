@@ -131,9 +131,9 @@ namespace ahaHLS {
                             map<string, Instance*>& functionalUnits,
                             ModuleDef* def,
                             MicroArchitecture& arch) {
-    cout << "Finding wireable for " << portName << endl;
+    //cout << "Finding wireable for " << portName << endl;
     for (auto unit : arch.functionalUnits) {
-      cout << "Searching unit " << unit.instName << endl;
+      //cout << "Searching unit " << unit.instName << endl;
       for (auto pt : unit.portWires) {
         //cout << "pt = " << pt.second.name << endl;
         if ((pt.second.name == portName) ||
@@ -222,7 +222,8 @@ namespace ahaHLS {
     cout << "Building controller" << endl;
 
     Context* c = def->getContext();
-    
+
+    bool firstMux = true;
     for (auto v : vals.portVals) {
       Instance* mux =
         def->addInstance(arch.uniqueName("c_mux"),
@@ -242,10 +243,20 @@ namespace ahaHLS {
                                                arch));
 
 
+      if (firstMux) {
+        if (vals.defaultValue != "") {
+          def->connect(mux->sel("in0"), makeConstant(vals.defaultValue, dataWidth, def, arch));
+        } else {
+          def->connect(mux->sel("in0"), makeConstant("0", dataWidth, def, arch));
+        }
+      }
+      
       if (lastMux != nullptr) {
         def->connect(lastMux->sel("out"), mux->sel("in0"));
       }
       lastMux = mux;
+
+      firstMux = false;
     }
 
     Select* ct = nullptr;
