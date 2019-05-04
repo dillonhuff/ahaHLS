@@ -43,8 +43,6 @@ namespace ahaHLS {
   //   1. Move control predecessors up in to code outside the
   //   2. Remove stall instructions from fifo reads and writes
 
-  // For now to see if tests work with adjustment to force block splitting
-  // for calls to stencil reads and writes?
   void
   addMemoryConstraints(llvm::Function* f,
                        HardwareConstraints& hdc,
@@ -647,7 +645,7 @@ namespace ahaHLS {
     if (SCEVConstant::classof(scev)) {
       auto sConst = dyn_cast<SCEVConstant>(scev);
       auto val = sConst->getValue()->getValue().getLimitedValue();
-      cout << "Value of " << scevStr(scev) << " is " << val << endl;
+      //cout << "Value of " << scevStr(scev) << " is " << val << endl;
       return c.int_val(val);
     } else if (SCEVAddExpr::classof(scev)) {
       auto sExpr = dyn_cast<SCEVAddExpr>(scev);
@@ -696,8 +694,8 @@ namespace ahaHLS {
     const SCEV* writeSCEV = scalarEvolution.getSCEV(storeLoc);
     const SCEV* readSCEV = scalarEvolution.getSCEV(loadLoc);
 
-    cout << "Write location scev = " << scevStr(writeSCEV) << endl;
-    cout << "Read location scev  = " << scevStr(readSCEV) << endl;
+    //cout << "Write location scev = " << scevStr(writeSCEV) << endl;
+    //cout << "Read location scev  = " << scevStr(readSCEV) << endl;
 
     if (!SCEVAddRecExpr::classof(writeSCEV)) {
       return minDD;
@@ -1258,15 +1256,15 @@ namespace ahaHLS {
             iGroups.push_back(instrs);
           }
 
-          cout << "iGroups = " << iGroups.size() << endl;
-          for (auto gp : iGroups) {
-            cout << "\tGroup" << endl;
-            for (auto i : gp) {
-              cout << "\t\t" << instructionString(i) << endl;
-            }
+          // cout << "iGroups = " << iGroups.size() << endl;
+          // for (auto gp : iGroups) {
+          //   cout << "\tGroup" << endl;
+          //   for (auto i : gp) {
+          //     cout << "\t\t" << instructionString(i) << endl;
+          //   }
 
-            assert(gp.size() > 0);
-          }
+          //   assert(gp.size() > 0);
+          // }
           
           for (int i = 0; i < (int) iGroups.size() - 1; i++) {
             auto gp = iGroups[i];
@@ -2027,8 +2025,8 @@ namespace ahaHLS {
                                      CallInst* const toInline,
                                      ExecutionConstraints& constraintsToInline) {
 
-    cout << "Inlining " << valueString(toInline) << endl;
-    cout << "# of operands = " << toInline->getNumOperands() << endl;
+    // cout << "Inlining " << valueString(toInline) << endl;
+    // cout << "# of operands = " << toInline->getNumOperands() << endl;
 
     map<Value*, Value*> argsToValues;
     Function* called = toInline->getCalledFunction();
@@ -2041,11 +2039,11 @@ namespace ahaHLS {
       argsToValues[getArg(called, i)] = toInline->getOperand(i);
     }
 
-    cout << "# of basic blocks = " << called->getBasicBlockList().size() << endl;
+    //cout << "# of basic blocks = " << called->getBasicBlockList().size() << endl;
 
-    //assert(called->getBasicBlockList().size() == 1);
+    // assert(called->getBasicBlockList().size() == 1);
 
-    cout << "Built value list" << endl;
+    // cout << "Built value list" << endl;
 
     map<BasicBlock*, BasicBlock*> oldBlocksToClones;
 
