@@ -101,7 +101,7 @@ namespace ahaHLS {
         pc.setCond("en", vl.first, constWire(1, 1));
       }
 
-      pc.inputControllers["en"].defaultValue = "0";
+      pc.inputControllers[pc.functionalUnit().inputWire("en")].defaultValue = "0";
 
       // TODO: Set reset value
       //pc.setAlways("en", constWire(1, 1));
@@ -139,22 +139,22 @@ namespace ahaHLS {
         if ((pt.second.name == portName) ||
             (pt.second.name + "_reg"  == portName) ||
             (pt.second.name == portName + "_in_data")) {
-          cout << "Found port in unit " << unit << endl;
-          cout << "Port name is " << pt.first << endl;
+          //cout << "Found port in unit " << unit << endl;
+          //cout << "Port name is " << pt.first << endl;
 
           if (unit.isExternal()) {
             return def->sel("self")->sel(pt.second.name);
           } else {
             string instName = unit.instName;
             Instance* inst = map_find(instName, functionalUnits);
-            cout << "Instance with port is " << *inst << endl;
+            //cout << "Instance with port is " << *inst << endl;
             return inst->sel(pt.first);
           }
         }
       }
 
       for (auto pt : unit.outWires) {
-        cout << "pt = " << pt.second.name << endl;        
+        //cout << "pt = " << pt.second.name << endl;        
 
         if ((pt.second.name == portName) ||
             (pt.second.name + "_reg"  == portName) ||
@@ -165,7 +165,7 @@ namespace ahaHLS {
           } else {
             string instName = unit.instName;
             Instance* inst = map_find(instName, functionalUnits);
-            cout << "Instance with port is " << *inst << endl;
+            //cout << "Instance with port is " << *inst << endl;
             return inst->sel(pt.first);
           }
         }
@@ -223,30 +223,30 @@ namespace ahaHLS {
 
     Context* c = def->getContext();
     
-    // for (auto v : vals.portVals) {
-    //   Instance* mux =
-    //     def->addInstance(arch.uniqueName("c_mux"),
-    //                      "coreir.mux",
-    //                      {{"width", Const::make(c, dataWidth)}});
+    for (auto v : vals.portVals) {
+      Instance* mux =
+        def->addInstance(arch.uniqueName("c_mux"),
+                         "coreir.mux",
+                         {{"width", Const::make(c, dataWidth)}});
 
-    //   Select* wireCond =
-    //     findWireableFor(v.first, functionalUnits, def, arch);
+      Select* wireCond =
+        findWireableFor(v.first, functionalUnits, def, arch);
 
-    //   Select* dataValue =
-    //     findWireableFor(v.second, functionalUnits, def, arch);
+      Select* dataValue =
+        findWireableFor(v.second, functionalUnits, def, arch);
       
-    //   def->connect(mux->sel("sel"), wireCond->sel(0));
-    //   def->connect(mux->sel("in1"), truncateTo(arrayLen(mux->sel("in1")),
-    //                                            dataValue,
-    //                                            def,
-    //                                            arch));
+      def->connect(mux->sel("sel"), wireCond->sel(0));
+      def->connect(mux->sel("in1"), truncateTo(arrayLen(mux->sel("in1")),
+                                               dataValue,
+                                               def,
+                                               arch));
 
 
-    //   if (lastMux != nullptr) {
-    //     def->connect(lastMux->sel("out"), mux->sel("in0"));
-    //   }
-    //   lastMux = mux;
-    // }
+      if (lastMux != nullptr) {
+        def->connect(lastMux->sel("out"), mux->sel("in0"));
+      }
+      lastMux = mux;
+    }
 
     Select* ct = nullptr;
     if (vals.defaultValue != "") {
@@ -366,7 +366,7 @@ namespace ahaHLS {
     addRegGenerator(ahaLib);
     addEqGenerator(ahaLib);    
     
-    // convertRegisterControllersToPortControllers(arch);
+    convertRegisterControllersToPortControllers(arch);
     
     vector<pair<string, CoreIR::Type*> > tps;
     for (auto port : getPorts(arch)) {
@@ -388,25 +388,21 @@ namespace ahaHLS {
 
     // TODO: Need to wire up clocks?
     
-    // for (auto pc : arch.portControllers) {
-    //   cout << "Controller for " << pc.first << endl;
-    //   for (auto in : pc.second.inputControllers) {
-    //     string portName = in.first;
-    //     PortValues vals = in.second;
-    //     Select* w = findWireableFor(portName, functionalUnits, def, arch);
-    //     cout << tab(1) << "Wireable for port " << portName << " is " << *w << endl;
+    for (auto pc : arch.portControllers) {
+      cout << "Controller for " << pc.first << endl;
+      for (auto in : pc.second.inputControllers) {
+        string portName = in.first;
+        PortValues vals = in.second;
 
-    //     int width = arrayLen(w); //10; // TODO: set by checking width
-    //     Select* inputWire = buildController(width, vals, functionalUnits, def, arch);
-    //     def->connect(w, inputWire);
-    //   }
-    // }
+        Select* w =
+          findWireableFor(portName, functionalUnits, def, arch);
+        cout << tab(1) << "Wireable for port " << portName << " is " << *w << endl;
 
-    // Then what?
-    // Iterate over controllers wiring up each controller
-    // output to the instances of the register? Note:
-    // I may also need to create a map from wire names to
-    // the functional units or registers that define them?
+        int width = arrayLen(w); //10; // TODO: set by checking width
+        Select* inputWire = buildController(width, vals, functionalUnits, def, arch);
+        def->connect(w, inputWire);
+      }
+    }
 
     mod->setDef(def);
   }
