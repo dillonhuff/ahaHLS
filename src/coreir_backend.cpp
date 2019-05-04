@@ -101,6 +101,11 @@ namespace ahaHLS {
         pc.setCond("en", vl.first, constWire(1, 1));
       }
 
+      if (c.values.size() == 0) {
+        pc.setCond("in", constWire(1, 1), constWire(reg.width, 0));
+        pc.setCond("en", constWire(1, 1), constWire(1, 0));
+      }
+
       pc.inputControllers[pc.functionalUnit().inputWire("en")].defaultValue = "0";
 
       // TODO: Set reset value
@@ -119,11 +124,11 @@ namespace ahaHLS {
     Context* c = def->getContext();
     int value = stoi(defaultValue);
 
-    cout << "Building constant" << endl;
+    //cout << "Building constant" << endl;
     
     Instance* v = def->addInstance(arch.uniqueName("const"), "coreir.const", {{"width", Const::make(c, dataWidth)}}, {{"value", Const::make(c, BitVector(dataWidth, value))}});
 
-    cout << "Built constant" << endl;
+    //cout << "Built constant" << endl;
     return v->sel("out");
   }
   
@@ -219,7 +224,7 @@ namespace ahaHLS {
 
     //Select* result = nullptr;
     Wireable* lastMux = nullptr;
-    cout << "Building controller" << endl;
+    //cout << "Building controller" << endl;
 
     Context* c = def->getContext();
 
