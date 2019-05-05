@@ -42,6 +42,8 @@ namespace ahaHLS {
         params.insert({"width", Const::make(c, stoi(p.second))});
       } else if (p.first == "HAS_EN") {
         params.insert({"has_en", Const::make(c, stoi(p.second) == 1 ? true : false)});
+      } else if (p.first == "RESET_VALUE") {
+        params.insert({"has_rst", Const::make(c, stoi(p.second) == 1 ? true : false)});
       } else {
         cout << "Error: Unsupported parameter = " << p.first << endl;
         assert(false);
@@ -272,7 +274,7 @@ namespace ahaHLS {
 
       def->addInstance("innerReg",
                        "mantle.reg",
-      {{"width", Const::make(c, width)}, {"has_en", Const::make(c, true)}});
+      {{"width", Const::make(c, width)}, {"has_en", Const::make(c, true)}, {"has_rst", Const::make(c, true)}});
 
       def->connect("self.in", "innerReg.in");
       def->connect("self.en.0", "innerReg.en");
