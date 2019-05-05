@@ -3227,4 +3227,35 @@ namespace ahaHLS {
     return pipelines;
   }
 
+  // Lowers all register controllers in to functional units for each
+  // register along with a 
+  void convertRegisterControllersToPortControllers(MicroArchitecture& arch) {
+    for (auto rc : arch.regControllers) {
+      RegController c = rc.second;
+      Wire reg = c.reg;
+      ModuleSpec regSpec;
+      regSpec.ports.insert({"en", inputPort(1, "en")});
+      regSpec.ports.insert({"in", inputPort(reg.width, "in")});
+      regSpec.ports.insert({"out", outputPort(reg.width, "out")});
+      regSpec.params.insert({"WIDTH", to_string(reg.width)});
+      regSpec.name = "coreir_reg";
+      auto unit = functionalUnitForSpec(rc.first, regSpec);
+      arch.functionalUnits.push_back(unit);
+
+      PortController& pc = arch.addPortController(unit);
+      for (auto vl : c.values) {
+        pc.setCond("in", vl.first, vl.second);
+        pc.setCond("en", vl.first, constWire(1, 1));
+      }
+
+      if (c.values.size() == 0) {
+        pc.setCond("in", constWire(1, 1), constWire(reg.width, 0));
+        pc.setCond("en", constWire(1, 1), constWire(1, 0));
+      }
+
+      pc.inputControllers[pc.functionalUnit().inputWire("en")].defaultValue = "0";
+    }
+  }
+
+  
 }
