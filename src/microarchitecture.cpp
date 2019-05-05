@@ -3280,10 +3280,18 @@ namespace ahaHLS {
       RegController c = rc.second;
       Wire reg = c.reg;
       ModuleSpec regSpec;
+      regSpec.hasClock = true;
+      regSpec.hasRst = true;
       regSpec.ports.insert({"en", inputPort(1, "en")});
       regSpec.ports.insert({"in", inputPort(reg.width, "in")});
       regSpec.ports.insert({"out", outputPort(reg.width, "out")});
       regSpec.params.insert({"WIDTH", to_string(reg.width)});
+      if (c.resetValue != "") {
+        regSpec.params.insert({"RESET_VALUE", c.resetValue});
+      } else {
+        regSpec.params.insert({"RESET_VALUE", "0"});
+      }
+      
       regSpec.name = "coreir_reg";
       auto unit = functionalUnitForSpec(rc.first, regSpec);
       arch.functionalUnits.push_back(unit);

@@ -389,16 +389,21 @@ module register(input clk, input rst, input [WIDTH - 1:0] raddr, input [WIDTH - 
 endmodule // register
 
 module coreir_reg(input clk,
+                  input rst,
                   input                  en,
                   input [WIDTH - 1 : 0]  in,
                   output [WIDTH - 1 : 0] out);
    parameter WIDTH = 32;
-
+   parameter RESET_VALUE = 0;
    reg [31:0] data;
 
    always @(posedge clk) begin
-      if (en) begin
-         data <= in;
+      if (rst) begin
+         data <= RESET_VALUE;
+      end else begin
+         if (en) begin
+            data <= in;
+         end
       end
    end
    
