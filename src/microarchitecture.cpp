@@ -3227,9 +3227,55 @@ namespace ahaHLS {
     return pipelines;
   }
 
+  bool isRegisterName(const std::string& name, MicroArchitecture& arch) {
+    return contains_key(name, arch.regControllers);
+  }
+  
   // Lowers all register controllers in to functional units for each
   // register along with a 
   void convertRegisterControllersToPortControllers(MicroArchitecture& arch) {
+
+    // Replace old registers with new wire names
+    for (auto& pcN : arch.portControllers) {
+      PortController& pc = pcN.second;
+      for (auto& inCtrl : pc.inputControllers) {
+        PortValues& pv = inCtrl.second;
+
+        if (isRegisterName(pv.defaultValue, arch)) {
+          pv.defaultValue = pv.defaultValue + "_out";
+        }
+
+        set<Wire> toErase;
+        set<pair<Wire, Wire> > toAdd;
+        for (auto& condAndVal : pv.portVals) {
+          if (isRegisterName(condAndVal.first.valueString(), arch)) {
+            toErase.insert(condAndVal.first);
+            toAdd.insert({reg(condAndVal.first.width, condAndVal.first.valueString() + "_out"),
+                  condAndVal.first});
+          }
+
+          if (isRegisterName(condAndVal.second.valueString(), arch)) {
+            toAdd.insert({condAndVal.first,
+                  reg(condAndVal.second.width,
+                      condAndVal.second.valueString() + "_out")});
+          }
+
+        }
+
+        for (auto& er : toErase) {
+          cout << "Erasing " << er.valueString() << " from portVals" << endl;
+          pv.portVals.erase(er);
+        }
+
+        for (auto& add : toAdd) {
+          pv.portVals[add.first] = add.second;
+        }
+        
+      }
+
+      // Replace default
+    }
+    
     for (auto rc : arch.regControllers) {
       RegController c = rc.second;
       Wire reg = c.reg;
@@ -3255,6 +3301,8 @@ namespace ahaHLS {
 
       pc.inputControllers[pc.functionalUnit().inputWire("en")].defaultValue = "0";
     }
+
+    arch.regControllers = {};
   }
 
   

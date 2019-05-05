@@ -386,6 +386,24 @@ module register(input clk, input rst, input [WIDTH - 1:0] raddr, input [WIDTH - 
    
    assign rdata = data;
    
+endmodule // register
+
+module coreir_reg(input clk,
+                  input                  en,
+                  input [WIDTH - 1 : 0]  in,
+                  output [WIDTH - 1 : 0] out);
+   parameter WIDTH = 32;
+
+   reg [31:0] data;
+
+   always @(posedge clk) begin
+      if (en) begin
+         data <= in;
+      end
+   end
+   
+   assign out = data;
+
 endmodule
 
 module reg_passthrough(input clk, input rst, input [WIDTH - 1:0] raddr, input [WIDTH - 1:0] waddr, input wen, input ren, input [WIDTH - 1:0] wdata, output [WIDTH - 1:0] rdata);

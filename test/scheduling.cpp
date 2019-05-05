@@ -107,10 +107,56 @@ namespace ahaHLS {
 
     VerilogDebugInfo info;
     emitVerilog("single_store", arch, info);
-    //emitVerilog(f, graph, layout);
 
     REQUIRE(runIVerilogTB("single_store"));
   }
+
+  TEST_CASE("Schedule a single store operation and lowering the microarchitecture") {
+    SMDiagnostic err;
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    auto mod = loadCppModule(context, err, "single_store");
+    setGlobalLLVMModule(mod.get());
+
+    auto f = getFunctionByDemangledName(mod.get(), "single_store");
+    getArg(f, 0)->setName("a");
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read")] = implementRAMRead0;
+    interfaces.functionTemplates[string("write")] = implementRAMWrite0;
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
+
+    Schedule s = scheduleInterface(f, hcs, interfaces);
+    
+    REQUIRE(s.numStates() == 4);
+
+    auto& retInstr = f->getBasicBlockList().back().back();
+    REQUIRE(s.startTime(&retInstr) == 3);
+
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    REQUIRE(graph.numControlStates() == 4);
+
+    map<llvm::Value*, int> layout = {};
+    //ArchOptions options;
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
+    convertRegisterControllersToPortControllers(arch);
+
+    VerilogDebugInfo info;
+    emitVerilog("single_store", arch, info);
+
+    REQUIRE(runIVerilogTB("single_store"));
+  }  
 
   TEST_CASE("Adding two numbers and storing them back") {
 
