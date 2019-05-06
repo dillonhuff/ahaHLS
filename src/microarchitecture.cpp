@@ -137,8 +137,24 @@ namespace ahaHLS {
 
     return output;
   }
-  
+
   Wire checkEqual(const Wire valWire, const Wire w, MicroArchitecture& arch);
+
+  Wire waitedNCycles(const Wire condWire,
+                     const int cyclesToWait,
+                     MicroArchitecture& arch) {
+    assert(cyclesToWait < 1024);
+
+    Wire hazardCounterOutput =
+      buildCounter(condWire, 32, arch);
+    Wire waitedForHazards =
+      checkEqual(hazardCounterOutput,
+                 constWire(hazardCounterOutput.width,
+                           cyclesToWait),
+                 arch);
+
+    return waitedForHazards;
+  }
   
   Wire checkOr(const Wire in0, const Wire in1, MicroArchitecture& arch);
   
@@ -1696,31 +1712,37 @@ namespace ahaHLS {
             //   3. Set the final condition wire to be the and of jumpCond and counter?
 
             // Sanity check, should really adjust counter width
-            assert(cyclesToWaitForHazards < (1024));
-          
-            Wire hazardCounterOutput =
-              buildCounter(stateActiveReg(state, arch), 32, arch);
-            Wire waitedForHazards = checkEqual(hazardCounterOutput,
-                                               constWire(hazardCounterOutput.width,
-                                                         cyclesToWaitForHazards),
-                                               arch);
+            //assert(cyclesToWaitForHazards < (1024));
 
-            // TODO: Generalize name to avoid overlap
+            // TODO: I want to turn this in to a generic signal delay code
+            // Wire hazardCounterOutput =
+            //   buildCounter(stateActiveReg(state, arch), 32, arch);
+            // Wire waitedForHazards = checkEqual(hazardCounterOutput,
+            //                                    constWire(hazardCounterOutput.width,
+            //                                              cyclesToWaitForHazards),
+            //                                    arch);
+
+            Wire waitedForHazards =
+              waitedNCycles(stateActiveReg(state, arch),
+                            cyclesToWaitForHazards,
+                            arch);
+
             string storeName =
               arch.uniqueName("in_pipe_" + to_string(state) + "_" + to_string(dest));
             RegController& inPipeJumpHappened =
               arch.getController(wire(1, storeName));
             inPipeJumpHappened.resetValue = "0";
-            // TODO: Adjust to check that we are in this state?
-            inPipeJumpHappened.values[jumpCond] = constWire(1, 1);
+            //inPipeJumpHappened.values[jumpCond] = constWire(1, 1);
+            inPipeJumpHappened.values[stateActiveReg(state, arch)] =
+              jumpCond;
             Wire storedJumpCond = inPipeJumpHappened.reg;
-          
             Wire finalCond = checkAnd(storedJumpCond, waitedForHazards, arch);
-            exitStateActive.values[finalCond] =
-              constWire(1, 1);
 
             // Reset temp on jump
-            inPipeJumpHappened.values[finalCond] = constWire(1, 0);
+            //inPipeJumpHappened.values[finalCond] = constWire(1, 0);
+            
+            exitStateActive.values[finalCond] =
+              constWire(1, 1);
 
           } else {
 

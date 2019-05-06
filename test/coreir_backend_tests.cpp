@@ -51,23 +51,23 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     Context* c = newContext();
-    emitCoreIR("single_store", arch, c, c->getGlobal());
+    // emitCoreIR("single_store", arch, c, c->getGlobal());
 
-    CoreIR::Module* storeMod = c->getGlobal()->getModule("single_store");
+    // CoreIR::Module* storeMod = c->getGlobal()->getModule("single_store");
 
-    REQUIRE(storeMod != nullptr);
+    // REQUIRE(storeMod != nullptr);
 
 
-    cout << "Module is " << endl;
-    storeMod->print();    
+    // cout << "Module is " << endl;
+    // storeMod->print();    
 
-    c->runPasses({"rungenerators", "flatten", "flattentypes", "wireclocks-coreir"});
+    // c->runPasses({"rungenerators", "flatten", "flattentypes", "wireclocks-coreir"});
 
-    cout << "After preprocessing module is " << endl;
-    storeMod->print();    
+    // cout << "After preprocessing module is " << endl;
+    // storeMod->print();    
     
 
-    SimulatorState sim(storeMod);
+    // SimulatorState sim(storeMod);
     // sim.setValue("self.rst", BitVec(1, 0));
 
     // sim.setClock("self.clk", 0, 1);
