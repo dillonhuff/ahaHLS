@@ -155,6 +155,30 @@ namespace ahaHLS {
 
     return waitedForHazards;
   }
+
+  Wire delayedSignal(const Wire signalProduced,
+                     const Wire signal,
+                     const int cyclesToWait,
+                     MicroArchitecture& arch) {
+
+    Wire waitedForHazards =
+      waitedNCycles(signalProduced,
+                    cyclesToWait,
+                    arch);
+
+    string storeName =
+      //arch.uniqueName("in_pipe_" + to_string(state) + "_" + to_string(dest));
+      arch.uniqueName("delayed_signal_");
+
+    RegController& inPipeJumpHappened =
+      arch.getController(wire(1, storeName));
+    inPipeJumpHappened.resetValue = "0";
+    inPipeJumpHappened.values[signalProduced] = signal;
+    Wire storedJumpCond = inPipeJumpHappened.reg;
+    Wire finalCond = checkAnd(storedJumpCond, waitedForHazards, arch);
+
+    return finalCond;
+  }
   
   Wire checkOr(const Wire in0, const Wire in1, MicroArchitecture& arch);
   
@@ -1721,22 +1745,25 @@ namespace ahaHLS {
             //                                    constWire(hazardCounterOutput.width,
             //                                              cyclesToWaitForHazards),
             //                                    arch);
+            // Wire waitedForHazards =
+            //   waitedNCycles(stateActiveReg(state, arch),
+            //                 cyclesToWaitForHazards,
+            //                 arch);
 
-            Wire waitedForHazards =
-              waitedNCycles(stateActiveReg(state, arch),
-                            cyclesToWaitForHazards,
-                            arch);
-
-            string storeName =
-              arch.uniqueName("in_pipe_" + to_string(state) + "_" + to_string(dest));
-            RegController& inPipeJumpHappened =
-              arch.getController(wire(1, storeName));
-            inPipeJumpHappened.resetValue = "0";
-            //inPipeJumpHappened.values[jumpCond] = constWire(1, 1);
-            inPipeJumpHappened.values[stateActiveReg(state, arch)] =
-              jumpCond;
-            Wire storedJumpCond = inPipeJumpHappened.reg;
-            Wire finalCond = checkAnd(storedJumpCond, waitedForHazards, arch);
+            Wire signalProduced = stateActiveReg(state, arch);
+            Wire finalCond =
+              delayedSignal(signalProduced, jumpCond, cyclesToWaitForHazards, arch);
+            
+            // string storeName =
+            //   arch.uniqueName("in_pipe_" + to_string(state) + "_" + to_string(dest));
+            // RegController& inPipeJumpHappened =
+            //   arch.getController(wire(1, storeName));
+            // inPipeJumpHappened.resetValue = "0";
+            // //inPipeJumpHappened.values[jumpCond] = constWire(1, 1);
+            // inPipeJumpHappened.values[stateActiveReg(state, arch)] =
+            //   jumpCond;
+            // Wire storedJumpCond = inPipeJumpHappened.reg;
+            // Wire finalCond = checkAnd(storedJumpCond, waitedForHazards, arch);
 
             // Reset temp on jump
             //inPipeJumpHappened.values[finalCond] = constWire(1, 0);
