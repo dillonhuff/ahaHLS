@@ -14,6 +14,8 @@ namespace ahaHLS {
     }
   }
 
+  // CoreIR register? Use mantle register and use clr,
+  // When I do addInstance I will set init?
   string unitCoreIRName(ModuleSpec& spec) {
     if (spec.name == "add") {
       return "coreir.add";
@@ -177,7 +179,7 @@ namespace ahaHLS {
     def->connect(trunc->sel("in"), data);
     return trunc->sel("out");
   }
-  
+
   Select* buildController(int dataWidth,
                           PortValues& vals,
                           map<string, Instance*>& functionalUnits,

@@ -1728,55 +1728,23 @@ namespace ahaHLS {
         
           if ((cyclesToWaitForHazards > 0) && !isDefault) {
             cout << "Need to wait " << cyclesToWaitForHazards << " additional cycles for hazards to resolve in transition from " << state << " to " << dest << endl;
-            //assert(false);
-
-            // What do we need to do here?
-            //   1. Create a counter that resets to 0 at the entry to the current state
-            //   2. Create a temporary variable to store the jumpCond wire value
-            //   3. Set the final condition wire to be the and of jumpCond and counter?
-
-            // Sanity check, should really adjust counter width
-            //assert(cyclesToWaitForHazards < (1024));
-
-            // TODO: I want to turn this in to a generic signal delay code
-            // Wire hazardCounterOutput =
-            //   buildCounter(stateActiveReg(state, arch), 32, arch);
-            // Wire waitedForHazards = checkEqual(hazardCounterOutput,
-            //                                    constWire(hazardCounterOutput.width,
-            //                                              cyclesToWaitForHazards),
-            //                                    arch);
-            // Wire waitedForHazards =
-            //   waitedNCycles(stateActiveReg(state, arch),
-            //                 cyclesToWaitForHazards,
-            //                 arch);
 
             Wire signalProduced = stateActiveReg(state, arch);
+
             Wire finalCond =
               delayedSignal(signalProduced, jumpCond, cyclesToWaitForHazards, arch);
+
+            jumpCond = finalCond;
             
-            // string storeName =
-            //   arch.uniqueName("in_pipe_" + to_string(state) + "_" + to_string(dest));
-            // RegController& inPipeJumpHappened =
-            //   arch.getController(wire(1, storeName));
-            // inPipeJumpHappened.resetValue = "0";
-            // //inPipeJumpHappened.values[jumpCond] = constWire(1, 1);
-            // inPipeJumpHappened.values[stateActiveReg(state, arch)] =
-            //   jumpCond;
-            // Wire storedJumpCond = inPipeJumpHappened.reg;
-            // Wire finalCond = checkAnd(storedJumpCond, waitedForHazards, arch);
+            // exitStateActive.values[finalCond] =
+            //   constWire(1, 1);
 
-            // Reset temp on jump
-            //inPipeJumpHappened.values[finalCond] = constWire(1, 0);
-            
-            exitStateActive.values[finalCond] =
-              constWire(1, 1);
+          } //else {
 
-          } else {
-
-            cout << "Adding immediate pipeline transition from " << state << " to " << dest << endl;
-            exitStateActive.values[jumpCond] =
-              constWire(1, 1);
-          }
+          cout << "Adding immediate pipeline transition from " << state << " to " << dest << endl;
+          exitStateActive.values[jumpCond] =
+            constWire(1, 1);
+            //}
 
         } else {
 
