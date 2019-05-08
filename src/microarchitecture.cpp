@@ -799,6 +799,9 @@ namespace ahaHLS {
       int w0 = getValueBitWidth(instr->getOperand(0));
       int w1 = getValueBitWidth(instr->getOperand(1));
 
+      if (w0 != w1) {
+        cout << "Binops do not match widths " << valueString(instr) << endl;
+      }
       assert(w0 == w1);
 
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
