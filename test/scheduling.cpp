@@ -16,6 +16,11 @@ using namespace std;
 
 namespace ahaHLS {
 
+  TestBenchSpec buildTB(std::string name,
+                        map<string, vector<int> >& memoryInit,
+                        map<string, vector<int> >& memoryExpected,
+                        map<string, int>& testLayout);
+  
   ModuleSpec axiWriterSpec(llvm::StructType* tp) {
     map<string, string> modParams;
     map<string, Port> ports{{"write_data", inputPort(32, "write_data")},
@@ -111,6 +116,61 @@ namespace ahaHLS {
     REQUIRE(runIVerilogTB("single_store"));
   }
 
+  TEST_CASE("Histogram with pipelining") {
+    SMDiagnostic err;
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    auto mod = loadCppModule(context, err, "hist_simple");
+    setGlobalLLVMModule(mod.get());
+
+    auto f = getFunctionByDemangledName(mod.get(), "hist_simple");
+    getArg(f, 0)->setName("a");
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read")] = implementRAMRead0;
+    interfaces.functionTemplates[string("write")] = implementRAMWrite0;
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM.0"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
+
+    Schedule s = scheduleInterface(f, hcs, interfaces);
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<llvm::Value*, int> layout = {};
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+    VerilogDebugInfo info;
+    emitVerilog("hist_simple", arch, info);
+
+    map<string, int> testLayout = {{"img", 0}, {"hist", 8}};
+    map<string, vector<int> > memoryInit{{"a", {0, 1, 2, 3, 7, 5, 5, 2}}};
+    map<string, vector<int> > memoryExpected{{"b", {}}};
+
+    // auto ma = map_find(string("a"), memoryInit);
+    // for (int i = 1; i < 8 - 1; i++) {
+    //   map_insert(memoryExpected, string("b"), (ma[i - 1] + ma[i] + ma[i + 1]));
+    // }
+
+    // cout << "Expected values" << endl;
+    // for (auto val : map_find(string("b"), memoryExpected)) {
+    //   cout << "\t" << val << endl;
+    // }
+
+    TestBenchSpec tb = buildTB("hist_simple", memoryInit, memoryExpected, testLayout);
+    emitVerilogTestBench(tb, arch, testLayout);
+    
+    REQUIRE(runIVerilogTB("hist_simple"));
+  }
+  
   TEST_CASE("Schedule a single store operation and lowering the microarchitecture") {
     SMDiagnostic err;
     LLVMContext context;
