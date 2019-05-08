@@ -61,6 +61,7 @@ namespace ahaHLS {
   
   HardwareConstraints standardConstraints() {
     HardwareConstraints hcs;
+    hcs.setLatency(SELECT_OP, 0);    
     hcs.setLatency(STORE_OP, 3);
     hcs.setLatency(LOAD_OP, 1);
     hcs.setLatency(CMP_OP, 0);
