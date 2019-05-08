@@ -248,13 +248,6 @@ namespace ahaHLS {
 
       map<Function*, SchedulingProblem> constraints{{f, p}};
       Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
-      
-      // // Need to create pipeline spec with multiple blocks
-      // set<BasicBlock*> toPipeline;
-      // for (auto& bb : f->getBasicBlockList()) {
-      //   toPipeline.insert(&bb);
-      // }
-      // Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline);
       STG graph = buildSTG(s, f);
 
       cout << "STG Is" << endl;
