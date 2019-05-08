@@ -198,13 +198,14 @@ namespace ahaHLS {
 
       VerilogDebugInfo info;
       addNoXChecks(arch, info);
-      emitVerilog("hist_simple", arch, info);
+      emitVerilog("hist_simple_illegal", arch, info);
 
-      
+
+      tb.name = "hist_simple_illegal";
       emitVerilogTestBench(tb, arch, testLayout);
 
       // This should fail
-      REQUIRE(!runIVerilogTB("hist_simple"));    
+      REQUIRE(!runIVerilogTB("hist_simple_illegal"));
     }
 
     SECTION("Pipelined, forwarded histogram") {
