@@ -925,7 +925,7 @@ namespace ahaHLS {
 
           StructType* structT = dyn_cast<StructType>(fuDerefTp);
 
-          //cout << "Struct name = " << string(structT->getName()) << endl;
+          cout << "Struct name = " << string(structT->getName()) << endl;
 
           if (!hcs.hasArgumentSpec(fuPtr)) {
             cout << "Error: No spec... possible choices" << endl;

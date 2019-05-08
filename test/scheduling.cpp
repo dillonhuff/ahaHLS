@@ -138,6 +138,8 @@ namespace ahaHLS {
     HardwareConstraints hcs = standardConstraints();
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM.0"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM.0.2"] = ramSpecFunc;    
+    hcs.typeSpecs["class.RAM.1"] = ramSpecFunc;    
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
 
     map<string, int> testLayout = {};
@@ -203,6 +205,73 @@ namespace ahaHLS {
 
       // This should fail
       REQUIRE(!runIVerilogTB("hist_simple"));    
+    }
+
+    SECTION("Pipelined, forwarded histogram") {
+      auto mod = loadCppModule(context, err, "hist_forwarded");
+      setGlobalLLVMModule(mod.get());
+
+      auto f = getFunctionByDemangledName(mod.get(), "hist_forwarded");
+      getArg(f, 0)->setName("img");
+      getArg(f, 1)->setName("hist");
+
+      cout << "LLVM Function" << endl;
+      cout << valueString(f) << endl;
+
+      ExecutionConstraints exec;
+      
+      inlineWireCalls(f, exec, interfaces);
+      addDataConstraints(f, exec);
+    
+      cout << "After inlining" << endl;
+      cout << valueString(f) << endl;
+
+      auto preds = buildControlPreds(f);
+
+      set<PipelineSpec> toPipeline;
+      PipelineSpec all{false, {}};
+      for (auto& blk : f->getBasicBlockList()) {
+        if (&blk != &(f->getEntryBlock())) {
+          if (!ReturnInst::classof(blk.getTerminator())) {
+            all.blks.insert(&blk);
+
+            cout << "Pipelining block " << endl;
+            cout << valueString(&blk) << endl;
+          }
+        }
+      }
+      toPipeline.insert(all);
+
+      // Changed
+      SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline, preds);
+      exec.addConstraints(p, f);
+
+      map<Function*, SchedulingProblem> constraints{{f, p}};
+      Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+      
+      // // Need to create pipeline spec with multiple blocks
+      // set<BasicBlock*> toPipeline;
+      // for (auto& bb : f->getBasicBlockList()) {
+      //   toPipeline.insert(&bb);
+      // }
+      // Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline);
+      STG graph = buildSTG(s, f);
+
+      cout << "STG Is" << endl;
+      graph.print(cout);
+
+      map<llvm::Value*, int> layout = {};
+      auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+      VerilogDebugInfo info;
+      addNoXChecks(arch, info);
+      emitVerilog("hist_forwarded", arch, info);
+
+      tb.name = "hist_forwarded";
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      // This should fail
+      REQUIRE(runIVerilogTB("hist_forwarded"));    
     }
 
   }
