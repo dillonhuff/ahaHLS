@@ -125,7 +125,8 @@ namespace ahaHLS {
     setGlobalLLVMModule(mod.get());
 
     auto f = getFunctionByDemangledName(mod.get(), "hist_simple");
-    getArg(f, 0)->setName("a");
+    getArg(f, 0)->setName("img");
+    getArg(f, 1)->setName("hist");
 
     cout << "LLVM Function" << endl;
     cout << valueString(f) << endl;
@@ -149,23 +150,30 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
+    addNoXChecks(arch, info);
     emitVerilog("hist_simple", arch, info);
 
-    map<string, int> testLayout = {{"img", 0}, {"hist", 8}};
-    map<string, vector<int> > memoryInit{{"a", {0, 1, 2, 3, 7, 5, 5, 2}}};
-    map<string, vector<int> > memoryExpected{{"b", {}}};
+    map<string, int> testLayout = {};
+    TestBenchSpec tb;
+    tb.memoryExpected = {};
+    tb.runCycles = 100;
+    tb.name = "hist_simple";
+    tb.useModSpecs = true;
+    int startSetMemCycle = 1;
 
-    // auto ma = map_find(string("a"), memoryInit);
-    // for (int i = 1; i < 8 - 1; i++) {
-    //   map_insert(memoryExpected, string("b"), (ma[i - 1] + ma[i] + ma[i + 1]));
-    // }
+    
+    int startRunCycle = startSetMemCycle + 20;
+    map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 1;"));
+    map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+    map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
 
-    // cout << "Expected values" << endl;
-    // for (auto val : map_find(string("b"), memoryExpected)) {
-    //   cout << "\t" << val << endl;
-    // }
+    int checkMemCycle = 100;
+    //checkRAM(tb, checkMemCycle, "arg_0", memoryExpected, testLayout);
 
-    TestBenchSpec tb = buildTB("hist_simple", memoryInit, memoryExpected, testLayout);
+    setRAMContents(tb, startSetMemCycle, "img", {0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3});
+    setRAMContents(tb, startSetMemCycle, "hist", {0, 0, 0, 0});
+    checkRAMContents(tb, checkMemCycle + 100, "hist", {1, 8, 5, 2});
+
     emitVerilogTestBench(tb, arch, testLayout);
     
     REQUIRE(runIVerilogTB("hist_simple"));

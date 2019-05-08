@@ -239,5 +239,11 @@ namespace ahaHLS {
                         int checkMemCycle,
                         const std::string ramName,
                         const std::vector<int>& memoryExpected);
+
+  // Set
+  void setRAMContents(TestBenchSpec& tb,
+                      int setMemCycle,
+                      const std::string ramName,
+                      const vector<int>& memoryValues);
   
 }
