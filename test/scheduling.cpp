@@ -200,7 +200,9 @@ namespace ahaHLS {
 
       
       emitVerilogTestBench(tb, arch, testLayout);
-      REQUIRE(runIVerilogTB("hist_simple"));    
+
+      // This should fail
+      REQUIRE(!runIVerilogTB("hist_simple"));    
     }
 
   }
