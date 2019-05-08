@@ -140,19 +140,6 @@ namespace ahaHLS {
     hcs.typeSpecs["class.RAM.0"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
 
-    Schedule s = scheduleInterface(f, hcs, interfaces);
-    STG graph = buildSTG(s, f);
-
-    cout << "STG Is" << endl;
-    graph.print(cout);
-
-    map<llvm::Value*, int> layout = {};
-    auto arch = buildMicroArchitecture(graph, layout, hcs);
-
-    VerilogDebugInfo info;
-    addNoXChecks(arch, info);
-    emitVerilog("hist_simple", arch, info);
-
     map<string, int> testLayout = {};
     TestBenchSpec tb;
     tb.memoryExpected = {};
@@ -174,9 +161,48 @@ namespace ahaHLS {
     setRAMContents(tb, startSetMemCycle, "hist", {0, 0, 0, 0});
     checkRAMContents(tb, checkMemCycle + 100, "hist", {1, 8, 5, 2});
 
-    emitVerilogTestBench(tb, arch, testLayout);
-    
-    REQUIRE(runIVerilogTB("hist_simple"));
+    SECTION("Baseline: No pipelining") {
+      Schedule s = scheduleInterface(f, hcs, interfaces);
+      STG graph = buildSTG(s, f);
+
+      cout << "STG Is" << endl;
+      graph.print(cout);
+
+      map<llvm::Value*, int> layout = {};
+      auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+      VerilogDebugInfo info;
+      addNoXChecks(arch, info);
+      emitVerilog("hist_simple", arch, info);
+
+      
+      emitVerilogTestBench(tb, arch, testLayout);
+      REQUIRE(runIVerilogTB("hist_simple"));
+    }
+
+    SECTION("With illegal pipeline II") {
+      set<BasicBlock*> toPipeline;
+      for (auto& bb : f->getBasicBlockList()) {
+        toPipeline.insert(&bb);
+      }
+      Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline);
+      STG graph = buildSTG(s, f);
+
+      cout << "STG Is" << endl;
+      graph.print(cout);
+
+      map<llvm::Value*, int> layout = {};
+      auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+      VerilogDebugInfo info;
+      addNoXChecks(arch, info);
+      emitVerilog("hist_simple", arch, info);
+
+      
+      emitVerilogTestBench(tb, arch, testLayout);
+      REQUIRE(runIVerilogTB("hist_simple"));    
+    }
+
   }
   
   TEST_CASE("Schedule a single store operation and lowering the microarchitecture") {
