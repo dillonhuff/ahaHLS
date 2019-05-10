@@ -3462,6 +3462,11 @@ namespace ahaHLS {
     for (auto pt : m.insensitivePorts) {
       out << tab(2) << pt << endl;
     }
+
+    out << tab(1) << "params" << endl;
+    for (auto pt : m.params) {
+      out << tab(2) << pt.first << " = " << pt.second << endl;
+    }
     
 
     return out;
@@ -4744,10 +4749,21 @@ namespace ahaHLS {
   }
   
   int stencilNumRows(const std::string& name) {
+    cout << "Stencil name in nrows = " << name << endl;
+    
     return 1;
   }
 
   int stencilNumCols(const std::string& name) {
+    string stencilPrefix = "";
+    if (hasPrefix(name, "class.AxiPackedStencil_")) {
+      stencilPrefix = "class.AxiPackedStencil_";
+    } else {
+      stencilPrefix = "class.PackedStencil_";
+    }
+    
+    string nm = drop(stencilPrefix, name);
+
     return 1;
   }
 

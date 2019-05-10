@@ -226,7 +226,7 @@ module mvmul_tb();
 	end
 
 
-	RAM3 ram(.clk(clk), .debug_addr(ram_debug_addr), .debug_data(ram_debug_data), .debug_write_addr(ram_debug_write_addr), .debug_write_data(ram_debug_write_data), .debug_write_en(ram_debug_write_en), .raddr_0(ram_raddr_0), .raddr_1(ram_raddr_1), .raddr_2(ram_raddr_2), .rdata_0(ram_rdata_0), .rdata_1(ram_rdata_1), .rdata_2(ram_rdata_2), .rst(rst), .waddr_0(ram_waddr_0), .wdata_0(ram_wdata_0), .wen_0(ram_wen_0));
+	RAM3 #(.DEPTH(32), .WIDTH(32)) ram(.clk(clk), .debug_addr(ram_debug_addr), .debug_data(ram_debug_data), .debug_write_addr(ram_debug_write_addr), .debug_write_data(ram_debug_write_data), .debug_write_en(ram_debug_write_en), .raddr_0(ram_raddr_0), .raddr_1(ram_raddr_1), .raddr_2(ram_raddr_2), .rdata_0(ram_rdata_0), .rdata_1(ram_rdata_1), .rdata_2(ram_rdata_2), .rst(rst), .waddr_0(ram_waddr_0), .wdata_0(ram_wdata_0), .wen_0(ram_wen_0));
 
 	mvmul dut(.clk(clk), .ram_debug_data(ram_debug_data), .ram_raddr_0(ram_raddr_0), .ram_raddr_1(ram_raddr_1), .ram_raddr_2(ram_raddr_2), .ram_rdata_0(ram_rdata_0), .ram_rdata_1(ram_rdata_1), .ram_rdata_2(ram_rdata_2), .ram_rst(ram_rst), .ram_waddr_0(ram_waddr_0), .ram_wdata_0(ram_wdata_0), .ram_wen_0(ram_wen_0), .rst(rst), .valid(valid));
 

@@ -780,14 +780,16 @@ namespace ahaHLS {
 
         if (arch.hcs.hasArgumentSpec(getArg(f, i)) ||
             contains_key(getArg(f, i), arch.hcs.modSpecs)) {
-          //cout << valueString(getArg(f, i)) << "is modspeced" << endl;
+          cout << valueString(getArg(f, i)) << "is modspeced" << endl;
 
           ModuleSpec s;
           if (arch.hcs.hasArgumentSpec(getArg(f, i))) {
             s = arch.hcs.getArgumentSpec(getArg(f, i));
           } else {
-            s = map_find(getArg(f, i), arch.hcs.modSpecs);            
+            s = map_find(getArg(f, i), arch.hcs.modSpecs);
           }
+
+          cout << "spec is " << s << endl;
 
           string instName = getArg(f, i)->getName();
           if (instName == "") {
@@ -818,7 +820,7 @@ namespace ahaHLS {
           if (s.hasReset()) {
             conns.insert({"rst", "rst"});
           }
-          ModuleInstance arg{s.name, instName, conns};
+          ModuleInstance arg{s.name, s.params, instName, conns};
           comps.instances.push_back(arg);
         } else if (IntegerType::classof(getArg(f, i)->getType())) {
           string modName = "hls_wire";

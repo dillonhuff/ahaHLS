@@ -248,9 +248,9 @@ module vhls_target_tb();
 	end
 
 
-	HLS_stream arg_0(.clk(clk), .data_bus(arg_0_data_bus), .in_data_bus(arg_0_in_data_bus), .in_last_bus(arg_0_in_last_bus), .last_bus(arg_0_last_bus), .read_ready(arg_0_read_ready), .read_valid(arg_0_read_valid), .rst(rst), .write_ready(arg_0_write_ready), .write_valid(arg_0_write_valid));
+	HLS_stream #(.NCOLS(1), .NROWS(1), .VALUE_WIDTH(16)) arg_0(.clk(clk), .data_bus(arg_0_data_bus), .in_data_bus(arg_0_in_data_bus), .in_last_bus(arg_0_in_last_bus), .last_bus(arg_0_last_bus), .read_ready(arg_0_read_ready), .read_valid(arg_0_read_valid), .rst(rst), .write_ready(arg_0_write_ready), .write_valid(arg_0_write_valid));
 
-	HLS_stream arg_1(.clk(clk), .data_bus(arg_1_data_bus), .in_data_bus(arg_1_in_data_bus), .in_last_bus(arg_1_in_last_bus), .last_bus(arg_1_last_bus), .read_ready(arg_1_read_ready), .read_valid(arg_1_read_valid), .rst(rst), .write_ready(arg_1_write_ready), .write_valid(arg_1_write_valid));
+	HLS_stream #(.NCOLS(1), .NROWS(1), .VALUE_WIDTH(16)) arg_1(.clk(clk), .data_bus(arg_1_data_bus), .in_data_bus(arg_1_in_data_bus), .in_last_bus(arg_1_in_last_bus), .last_bus(arg_1_last_bus), .read_ready(arg_1_read_ready), .read_valid(arg_1_read_valid), .rst(rst), .write_ready(arg_1_write_ready), .write_valid(arg_1_write_valid));
 
 	vhls_target dut(.arg_0_data_bus(arg_0_data_bus), .arg_0_last_bus(arg_0_last_bus), .arg_0_read_ready(arg_0_read_ready), .arg_0_read_valid(arg_0_read_valid), .arg_0_write_ready(arg_0_write_ready), .arg_1_data_bus(arg_1_data_bus), .arg_1_in_data_bus(arg_1_in_data_bus), .arg_1_in_last_bus(arg_1_in_last_bus), .arg_1_last_bus(arg_1_last_bus), .arg_1_read_ready(arg_1_read_ready), .arg_1_write_ready(arg_1_write_ready), .arg_1_write_valid(arg_1_write_valid), .clk(clk), .rst(rst), .valid(valid));
 
