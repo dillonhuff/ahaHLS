@@ -37,16 +37,22 @@ class fifo {
     do {
       bit_1 pt;
       pt = read_port(write_ready);
+    set_valid: write_port(write_valid, 1);
+    set_data: write_port(in_data, data);
+      
     } while (pt == 0);
-    
+
+    //add_constraint(end(stall_ready) < start(set_valid));
+    //add_constraint(start(set_valid) == start(set_data));
+
     //stall_ready: stall(read_port(write_ready));
-  set_valid: write_port(write_valid, 1);
-  set_data: write_port(in_data, data);
   ret: return;
 
-    add_constraint(end(stall_ready) < start(set_valid));
-    add_constraint(start(set_valid) == start(set_data));
-    add_constraint(end(set_data) + 1 == start(ret));
+    add_constraint(start(stall_ready) == end(stall_ready));        
+    add_constraint(end(stall_ready) + 1 == start(ret));    
+    // add_constraint(end(stall_ready) < start(set_valid));
+    // add_constraint(start(set_valid) == start(set_data));
+    // add_constraint(end(set_data) + 1 == start(ret));
   }
 
 };
@@ -91,8 +97,11 @@ class axi_ram {
                          bit_2& awburst,
                          bit_8& awlen,
                          bit_16& awaddr) {
-  stall_awready: stall(read_port(s_axi_awready));
 
+  stall_awready:
+    do {
+      bit_1 pt;
+      pt = read_port(s_axi_awready);
   set_v: write_port(s_axi_awvalid, 1);
   set_size: write_port(s_axi_awsize, awsize);    
   set_burst: write_port(s_axi_awburst, awburst);
@@ -100,13 +109,26 @@ class axi_ram {
   set_addr: write_port(s_axi_awaddr, awaddr);
   set_wv: write_port(s_axi_wvalid, 1);
 
-    add_constraint(end(stall_awready) == start(set_v));
+    } while (pt == 0);
+
+    add_constraint(end(stall_awready) == start(stall_awready));
+
+    //stall_awready: stall(read_port(s_axi_awready));
+
+  // set_v: write_port(s_axi_awvalid, 1);
+  // set_size: write_port(s_axi_awsize, awsize);    
+  // set_burst: write_port(s_axi_awburst, awburst);
+  // set_len: write_port(s_axi_awlen, awlen);
+  // set_addr: write_port(s_axi_awaddr, awaddr);
+  // set_wv: write_port(s_axi_wvalid, 1);
+
+    // add_constraint(end(stall_awready) == start(set_v));
     
-    add_constraint(start(set_v) == start(set_size));
-    add_constraint(start(set_v) == start(set_burst));
-    add_constraint(start(set_v) == start(set_len));
-    add_constraint(start(set_v) == start(set_addr));
-    add_constraint(start(set_v) == start(set_wv));
+    // add_constraint(start(set_v) == start(set_size));
+    // add_constraint(start(set_v) == start(set_burst));
+    // add_constraint(start(set_v) == start(set_len));
+    // add_constraint(start(set_v) == start(set_addr));
+    // add_constraint(start(set_v) == start(set_wv));
   }
 
   bit_32 read_next_beat() {
@@ -173,19 +195,28 @@ class axi_ram {
     do {
       bit_1 pt;
       pt = read_port(s_axi_arready);
-    } while (pt == 0);
-    
+
   set_v: write_port(s_axi_arvalid, 1);
   set_sz: write_port(s_axi_arsize, arsize);    
   set_burst: write_port(s_axi_arburst, arburst);
   set_arlen: write_port(s_axi_arlen, arlen);
   set_addr: write_port(s_axi_araddr, araddr);
 
-    add_constraint(end(stall_arready) < start(set_v));    
-    add_constraint(start(set_v) == start(set_sz));
-    add_constraint(start(set_v) == start(set_burst));
-    add_constraint(start(set_v) == start(set_arlen));
-    add_constraint(start(set_v) == start(set_addr));            
+    } while (pt == 0);
+
+    add_constraint(start(stall_arready) == end(stall_arready));        
+
+    // set_v: write_port(s_axi_arvalid, 1);
+  // set_sz: write_port(s_axi_arsize, arsize);    
+  // set_burst: write_port(s_axi_arburst, arburst);
+  // set_arlen: write_port(s_axi_arlen, arlen);
+  // set_addr: write_port(s_axi_araddr, araddr);
+
+    // add_constraint(end(stall_arready) < start(set_v));    
+    // add_constraint(start(set_v) == start(set_sz));
+    // add_constraint(start(set_v) == start(set_burst));
+    // add_constraint(start(set_v) == start(set_arlen));
+    // add_constraint(start(set_v) == start(set_addr));            
   }
   
 
