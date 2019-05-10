@@ -120,6 +120,20 @@ namespace ahaHLS {
        isInsensitive(port, portController));
     
   }
+
+  set<string> statelessWires(MicroArchitecture& arch) {
+    set<string> stateless;
+    for (auto& pc : arch.portControllers) {
+      for (auto& ic : pc.second.inputControllers) {
+        PortValues portVals = ic.second;
+        if (statelessConnection(portVals, ic.first, pc.second)) {
+          stateless.insert(ic.first);
+        }
+      }
+    }
+
+    return stateless;
+  }
   // The same value problem is striking again...
   // The simplified wires really ought to be connected through assigns,
   // but I cannot get that to work without
@@ -171,11 +185,12 @@ namespace ahaHLS {
     // TODO: Replace with assigns
     if (statelessConns.size() > 0) {
       out << tab(1) << "// Insensitive connections" << endl;
-      out << tab(1) << "always @(*) begin" << endl;
+      //out << tab(1) << "always @(*) begin" << endl;
       for (auto sc : statelessConns) {
-        out << tab(2) << sc.first << " = " << "clk ? " << sc.second << " : " << sc.second << ";" << endl;
+        //out << tab(2) << sc.first << " = " << "clk ? " << sc.second << " : " << sc.second << ";" << endl;
+        out << tab(1) << "assign " << sc.first << " = " << sc.second << ";" << endl;
       }
-      out << tab(1) << "end" << endl;
+      //out << tab(1) << "end" << endl;
     }
   }
   
@@ -239,8 +254,14 @@ namespace ahaHLS {
       }
 
       map<string, string> wireConns;
+      set<string> noStateWires = statelessWires(arch);
       for (auto w : unit.portWires) {
-        out << "\t" << w.second << ";" << endl;
+        if (elem(w.second.valueString(), noStateWires)) {
+          w.second.registered = false;
+          out << "\t" << w.second << ";" << endl;
+        } else {
+          out << "\t" << w.second << ";" << endl;
+        }
         wireConns.insert({w.first, w.second.name});        
       }
 
