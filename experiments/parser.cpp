@@ -3585,131 +3585,130 @@ int main() {
 
       assert(runIVerilogTest("axi_read_burst_func_tb.v", "axi_read_burst_func", " builtins.v axi_read_burst_func.v RAM.v delay.v ram_primitives.v axi_ram.v"));
     }
+  //}
+    {
+      SynthCppModule scppMod(parseMod);
+      auto arch = synthesizeVerilog(scppMod, "axi_burst_multi");
+
+      map<llvm::Value*, int> layout = {};
+      TestBenchSpec tb;
+      auto result =
+        sc<Argument>(getArg(scppMod.getFunction("axi_burst_multi")->llvmFunction(),
+                            0));
+      map<string, int> testLayout = {};
+      tb.runCycles = 50;
+      tb.maxCycles = 60; // No
+      tb.name = "axi_burst_multi";
+      tb.useModSpecs = true;
+      tb.settablePort(result, "read_valid");
+
+      tb.setArgPort(result, "read_valid", 0, "0");
+      map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+      map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));        
+      map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+
+      int checkStart = 40;
+      tb.setArgPort(result, "read_valid", checkStart, "1");
+      tb.setArgPort(result, "read_valid", checkStart + 1, "1");
+      tb.setArgPort(result, "read_valid", checkStart + 2, "1");
+      tb.setArgPort(result, "read_valid", checkStart + 3, "1");
+      tb.setArgPort(result, "read_valid", checkStart + 4, "0");      
+
+      map_insert(tb.actionsOnCycles, checkStart + 1, assertString("arg_0_out_data === (1)"));
+      map_insert(tb.actionsOnCycles, checkStart + 2, assertString("arg_0_out_data === (2)"));
+      map_insert(tb.actionsOnCycles, checkStart + 3, assertString("arg_0_out_data === (3)"));
+      map_insert(tb.actionsOnCycles, checkStart + 4, assertString("arg_0_out_data === (4)")); 
+
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      assert(runIVerilogTest("axi_burst_multi_tb.v", "axi_burst_multi", " builtins.v axi_burst_multi.v RAM.v delay.v ram_primitives.v axi_ram.v"));
+    }
+
+    {
+      SynthCppModule scppMod(parseMod);
+      auto arch = synthesizeVerilog(scppMod, "axi_write_burst");
+
+      map<llvm::Value*, int> layout = {};
+      TestBenchSpec tb;
+      auto result =
+        sc<Argument>(getArg(scppMod.getFunction("axi_write_burst")->llvmFunction(),
+                            0));
+      auto input =
+        sc<Argument>(getArg(scppMod.getFunction("axi_write_burst")->llvmFunction(),
+                            1));
+      auto size =
+        sc<Argument>(getArg(scppMod.getFunction("axi_write_burst")->llvmFunction(),
+                            2));
+      auto startLoc =
+        sc<Argument>(getArg(scppMod.getFunction("axi_write_burst")->llvmFunction(),
+                            3));
+      
+      map<string, int> testLayout = {};
+      tb.runCycles = 100;
+      tb.maxCycles = 150; // No
+      tb.name = "axi_write_burst";
+      tb.useModSpecs = true;
+      tb.settablePort(input, "write_valid");
+      tb.settablePort(input, "in_data");            
+      tb.settablePort(result, "read_valid");
+
+      tb.settablePort(size, "wen");
+      tb.settablePort(size, "wdata");            
+
+      tb.settablePort(startLoc, "wen");
+      tb.settablePort(startLoc, "wdata");            
+
+      tb.setArgPort(size, "wen", 4, "1");
+      tb.setArgPort(size, "wdata", 4, "4");
+      tb.setArgPort(size, "wen", 5, "0");      
+
+      tb.setArgPort(startLoc, "wen", 4, "1");
+      tb.setArgPort(startLoc, "wdata", 4, "10");      
+      tb.setArgPort(startLoc, "wen", 5, "0");
+      
+      tb.setArgPort(result, "read_valid", 0, "0");
+      map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+      map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
+      map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+
+      map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+
+      int setStartCycle = 5;
+      int burstSize = 5;
+      for (int i = 0; i < burstSize; i++) {
+        tb.setArgPort(input, "write_valid", setStartCycle + i, "1");
+        tb.setArgPort(input, "in_data", setStartCycle + i, to_string(i + 1));
+      }
+      tb.setArgPort(input, "write_valid", setStartCycle + burstSize, "0");
+      
+      int checkStart = 90;
+      tb.setArgPort(result, "read_valid", checkStart, "1");
+      tb.setArgPort(result, "read_valid", checkStart + 1, "1");
+      tb.setArgPort(result, "read_valid", checkStart + 2, "1");
+      tb.setArgPort(result, "read_valid", checkStart + 3, "1");
+      tb.setArgPort(result, "read_valid", checkStart + 4, "0");      
+
+      map_insert(tb.actionsOnCycles, checkStart + 1, assertString("arg_0_out_data === (1)"));
+      map_insert(tb.actionsOnCycles, checkStart + 2, assertString("arg_0_out_data === (2)"));
+      map_insert(tb.actionsOnCycles, checkStart + 3, assertString("arg_0_out_data === (3)"));
+      map_insert(tb.actionsOnCycles, checkStart + 4, assertString("arg_0_out_data === (4)")); 
+
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      assert(runIVerilogTest("axi_write_burst_tb.v", "axi_write_burst", " builtins.v axi_write_burst.v RAM.v delay.v ram_primitives.v axi_ram.v"));
+    }
+
+    {
+      SynthCppModule scppMod(parseMod);
+      auto arch = synthesizeVerilog(scppMod, "axi_wb");
+    }    
+
+    {
+      SynthCppModule scppMod(parseMod);
+      auto arch = synthesizeVerilog(scppMod, "axi_rb");
+    }    
+
   }
-
-  //   {
-  //     SynthCppModule scppMod(parseMod);
-  //     auto arch = synthesizeVerilog(scppMod, "axi_burst_multi");
-
-  //     map<llvm::Value*, int> layout = {};
-  //     TestBenchSpec tb;
-  //     auto result =
-  //       sc<Argument>(getArg(scppMod.getFunction("axi_burst_multi")->llvmFunction(),
-  //                           0));
-  //     map<string, int> testLayout = {};
-  //     tb.runCycles = 50;
-  //     tb.maxCycles = 60; // No
-  //     tb.name = "axi_burst_multi";
-  //     tb.useModSpecs = true;
-  //     tb.settablePort(result, "read_valid");
-
-  //     tb.setArgPort(result, "read_valid", 0, "0");
-  //     map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
-  //     map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));        
-  //     map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
-
-  //     int checkStart = 40;
-  //     tb.setArgPort(result, "read_valid", checkStart, "1");
-  //     tb.setArgPort(result, "read_valid", checkStart + 1, "1");
-  //     tb.setArgPort(result, "read_valid", checkStart + 2, "1");
-  //     tb.setArgPort(result, "read_valid", checkStart + 3, "1");
-  //     tb.setArgPort(result, "read_valid", checkStart + 4, "0");      
-
-  //     map_insert(tb.actionsOnCycles, checkStart + 1, assertString("arg_0_out_data === (1)"));
-  //     map_insert(tb.actionsOnCycles, checkStart + 2, assertString("arg_0_out_data === (2)"));
-  //     map_insert(tb.actionsOnCycles, checkStart + 3, assertString("arg_0_out_data === (3)"));
-  //     map_insert(tb.actionsOnCycles, checkStart + 4, assertString("arg_0_out_data === (4)")); 
-
-  //     emitVerilogTestBench(tb, arch, testLayout);
-
-  //     assert(runIVerilogTest("axi_burst_multi_tb.v", "axi_burst_multi", " builtins.v axi_burst_multi.v RAM.v delay.v ram_primitives.v axi_ram.v"));
-  //   }
-
-  //   {
-  //     SynthCppModule scppMod(parseMod);
-  //     auto arch = synthesizeVerilog(scppMod, "axi_write_burst");
-
-  //     map<llvm::Value*, int> layout = {};
-  //     TestBenchSpec tb;
-  //     auto result =
-  //       sc<Argument>(getArg(scppMod.getFunction("axi_write_burst")->llvmFunction(),
-  //                           0));
-  //     auto input =
-  //       sc<Argument>(getArg(scppMod.getFunction("axi_write_burst")->llvmFunction(),
-  //                           1));
-  //     auto size =
-  //       sc<Argument>(getArg(scppMod.getFunction("axi_write_burst")->llvmFunction(),
-  //                           2));
-  //     auto startLoc =
-  //       sc<Argument>(getArg(scppMod.getFunction("axi_write_burst")->llvmFunction(),
-  //                           3));
-      
-  //     map<string, int> testLayout = {};
-  //     tb.runCycles = 100;
-  //     tb.maxCycles = 150; // No
-  //     tb.name = "axi_write_burst";
-  //     tb.useModSpecs = true;
-  //     tb.settablePort(input, "write_valid");
-  //     tb.settablePort(input, "in_data");            
-  //     tb.settablePort(result, "read_valid");
-
-  //     tb.settablePort(size, "wen");
-  //     tb.settablePort(size, "wdata");            
-
-  //     tb.settablePort(startLoc, "wen");
-  //     tb.settablePort(startLoc, "wdata");            
-
-  //     tb.setArgPort(size, "wen", 4, "1");
-  //     tb.setArgPort(size, "wdata", 4, "4");
-  //     tb.setArgPort(size, "wen", 5, "0");      
-
-  //     tb.setArgPort(startLoc, "wen", 4, "1");
-  //     tb.setArgPort(startLoc, "wdata", 4, "10");      
-  //     tb.setArgPort(startLoc, "wen", 5, "0");
-      
-  //     tb.setArgPort(result, "read_valid", 0, "0");
-  //     map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
-  //     map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
-  //     map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
-
-  //     map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
-
-  //     int setStartCycle = 5;
-  //     int burstSize = 5;
-  //     for (int i = 0; i < burstSize; i++) {
-  //       tb.setArgPort(input, "write_valid", setStartCycle + i, "1");
-  //       tb.setArgPort(input, "in_data", setStartCycle + i, to_string(i + 1));
-  //     }
-  //     tb.setArgPort(input, "write_valid", setStartCycle + burstSize, "0");
-      
-  //     int checkStart = 90;
-  //     tb.setArgPort(result, "read_valid", checkStart, "1");
-  //     tb.setArgPort(result, "read_valid", checkStart + 1, "1");
-  //     tb.setArgPort(result, "read_valid", checkStart + 2, "1");
-  //     tb.setArgPort(result, "read_valid", checkStart + 3, "1");
-  //     tb.setArgPort(result, "read_valid", checkStart + 4, "0");      
-
-  //     map_insert(tb.actionsOnCycles, checkStart + 1, assertString("arg_0_out_data === (1)"));
-  //     map_insert(tb.actionsOnCycles, checkStart + 2, assertString("arg_0_out_data === (2)"));
-  //     map_insert(tb.actionsOnCycles, checkStart + 3, assertString("arg_0_out_data === (3)"));
-  //     map_insert(tb.actionsOnCycles, checkStart + 4, assertString("arg_0_out_data === (4)")); 
-
-  //     emitVerilogTestBench(tb, arch, testLayout);
-
-  //     assert(runIVerilogTest("axi_write_burst_tb.v", "axi_write_burst", " builtins.v axi_write_burst.v RAM.v delay.v ram_primitives.v axi_ram.v"));
-  //   }
-
-  //   {
-  //     SynthCppModule scppMod(parseMod);
-  //     auto arch = synthesizeVerilog(scppMod, "axi_wb");
-  //   }    
-
-  //   {
-  //     SynthCppModule scppMod(parseMod);
-  //     auto arch = synthesizeVerilog(scppMod, "axi_rb");
-  //   }    
-
-  // }
       
   {
     ifstream t("./experiments/register_iclass.cpp");

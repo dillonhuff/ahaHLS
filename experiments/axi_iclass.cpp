@@ -201,24 +201,24 @@ class axi_ram {
     
     //stall_valid_nb: stall(read_port(s_axi_wready));
 
-  stall_valid_nb: do {
+  stall_valid_nb0: do {
       bit_1 pt;
       pt = read_port(s_axi_wready);
     } while (pt == 0);
     
-  set_wvalid_nb: write_port(s_axi_wvalid, 1);
+  set_wvalid_nb0: write_port(s_axi_wvalid, 1);
 
-    add_constraint(end(stall_valid_nb) < start(set_wvalid_nb));
+    //add_constraint(end(stall_valid_nb0) <= start(set_wvalid_nb0));
 
-  set_data_nb: write_port(s_axi_wdata, 0);
-  set_strb_nb: write_port(s_axi_wstrb, 0);
+  set_data_nb0: write_port(s_axi_wdata, 0);
+  set_strb_nb0: write_port(s_axi_wstrb, 0);
 
-    add_constraint(start(set_wvalid_nb) == start(set_data_nb));
-    add_constraint(start(set_wvalid_nb) == start(set_strb_nb));
+    add_constraint(start(set_wvalid_nb0) == start(set_data_nb0));
+    add_constraint(start(set_wvalid_nb0) == start(set_strb_nb0));
 
-  ret_nb: return;
+  ret_nb0: return;
 
-    add_constraint(end(set_wvalid_nb) + 1 == start(ret_nb));
+    add_constraint(end(set_wvalid_nb0) + 1 == start(ret_nb0));
   }
   
   void start_read_burst(bit_3& arsize,
