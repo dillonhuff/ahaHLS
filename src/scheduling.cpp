@@ -3571,6 +3571,20 @@ namespace ahaHLS {
     b.CreateRet(mkInt(5, 16));
   }
 
+  void implementLBRead(llvm::Function* const func,
+                       ExecutionConstraints& exec) {
+    auto eb = mkBB("entry_block", func);
+    IRBuilder<> b(eb);
+    b.CreateRet(nullptr);
+  }
+
+  void implementLBWrite(llvm::Function* const func,
+                        ExecutionConstraints& exec) {
+    auto eb = mkBB("entry_block", func);
+    IRBuilder<> b(eb);
+    b.CreateRet(nullptr);
+  }
+  
   void implementStencilWrite(llvm::Function* stencilCall,
                              ExecutionConstraints& exec) {
     assert(stencilCall->getReturnType() == voidType());
@@ -4944,6 +4958,12 @@ namespace ahaHLS {
         } else if (isMethod("hls_stream_", "write", func)) {
           interfaces.addFunction(func);
           implementStencilWrite(func, interfaces.getConstraints(func));
+        } else if (isMethod("linebuffer_", "lb_write", func)) {
+          interfaces.addFunction(func);
+          implementLBWrite(func, interfaces.getConstraints(func));
+        } else if (isMethod("linebuffer_", "lb_read", func)) {
+          interfaces.addFunction(func);
+          implementLBRead(func, interfaces.getConstraints(func));
         }
       }
     }
