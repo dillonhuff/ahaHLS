@@ -6505,14 +6505,15 @@ namespace ahaHLS {
 
       map<llvm::Value*, int> layout = {};
       auto arch = buildMicroArchitecture(graph, layout, hcs);
-    
+
       VerilogDebugInfo info;
-      addControlSanityChecks(arch, info);
+      addNoXChecks(arch, info);
 
-      // checkSignal(tb,
-      //             "valid",
-      //             {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {100, 0}, {103, 0}, {106, 1}, {112, 1}, {125, 1}, {150, 1}, {200, 1}});
+      checkSignal(tb,
+                  "valid",
+                  {{3, 0}, {10, 0}, {15, 0}, {1000, 0}});
 
+      // Later
       // checkSignal(tb,
       //             "arg_1_read_ready",
       //             {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {25, 0}, {37, 0}, {43, 0}, {47, 0}, {50, 1}, {100, 1}, {103, 1}, {106, 1}, {112, 1}, {125, 1}, {150, 1}, {200, 1}});
