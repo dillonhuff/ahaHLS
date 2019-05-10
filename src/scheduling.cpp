@@ -4137,13 +4137,13 @@ namespace ahaHLS {
                        const std::string& methodName,
                        CallInst* instr) {
     string name = instr->getCalledFunction()->getName();
-    cout << "Call name = " << name << endl;
+    //cout << "Call name = " << name << endl;
     if (canDemangle(name)) {
       string demangled = demangle(name);
 
-      cout << "demangled = " << demangled << endl;
+      //cout << "demangled = " << demangled << endl;
       if (hasPrefix(demangled, classPrefix)) {
-        cout << "with prefix" << endl;
+        //cout << "with prefix" << endl;
         return takeUntil("(", drop("::", demangled)) == methodName;
       }
       return false;
@@ -4158,7 +4158,7 @@ namespace ahaHLS {
         isDemangledCall("AxiPackedStencil", "set_last", instr) ||
         isDemangledCall("AxiPackedStencil", "write", instr) ||
         isDemangledCall("AxiPackedStencil", "copy", instr)) {
-      cout << "Setting stencil call latency " << valueString(instr) << endl;
+      //cout << "Setting stencil call latency " << valueString(instr) << endl;
       //exec.add(instrStart(instr) + 1 == instrEnd(instr));
 
       // Do nothing here for now. Not sure what is wrong in cascade

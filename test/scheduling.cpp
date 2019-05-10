@@ -6486,6 +6486,15 @@ namespace ahaHLS {
     ExecutionConstraints exec;
     //sequentialCalls(f, exec);
 
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 800;
+    tb.maxCycles = 1000;
+    tb.name = "halide_cascade";
+    tb.useModSpecs = true;
+    
     SECTION("No task parallelism or pipelining") {
       set<BasicBlock*> toPipeline;
       Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
@@ -6508,11 +6517,10 @@ namespace ahaHLS {
       //             "arg_1_read_ready",
       //             {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {25, 0}, {37, 0}, {43, 0}, {47, 0}, {50, 1}, {100, 1}, {103, 1}, {106, 1}, {112, 1}, {125, 1}, {150, 1}, {200, 1}});
       
-      emitVerilog("vhls_target", arch, info);
-      // emitVerilogTestBench(tb, arch, testLayout);
+      emitVerilog("halide_cascade", arch, info);
+      emitVerilogTestBench(tb, arch, testLayout);
 
-      // REQUIRE(runIVerilogTB("vhls_target"));      
-      
+      REQUIRE(runIVerilogTB("halide_cascade"));
     }
   }  
 }
