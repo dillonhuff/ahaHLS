@@ -152,19 +152,32 @@ class axi_ram {
   }
 
   void write_next_beat(bit_32& data, bit_4& strobe) {
-  stall_valid_nb: stall(read_port(s_axi_wready));
+    //stall_valid_nb: stall(read_port(s_axi_wready));
+
+  stall_valid_nb:
+    do {
+      bit_1 pt;
+      pt = read_port(s_axi_wready);
+
   set_wvalid_nb: write_port(s_axi_wvalid, 1);
-
-    add_constraint(end(stall_valid_nb) < start(set_wvalid_nb));
-
   set_data_nb: write_port(s_axi_wdata, data);
   set_strb_nb: write_port(s_axi_wstrb, strobe);
+      
+    } while (pt == 0);
+    
+  // set_wvalid_nb: write_port(s_axi_wvalid, 1);
 
-    add_constraint(start(set_wvalid_nb) == start(set_data_nb));
-    add_constraint(start(set_wvalid_nb) == start(set_strb_nb));
+  //   add_constraint(end(stall_valid_nb) < start(set_wvalid_nb));
+
+  // set_data_nb: write_port(s_axi_wdata, data);
+  // set_strb_nb: write_port(s_axi_wstrb, strobe);
+
+  //   add_constraint(start(set_wvalid_nb) == start(set_data_nb));
+  //   add_constraint(start(set_wvalid_nb) == start(set_strb_nb));
 
   ret_nb: return;
 
+    add_constraint(end(set_wvalid_nb) == start(set_wvalid_nb));
     add_constraint(end(set_wvalid_nb) + 1 == start(ret_nb));
   }
 
