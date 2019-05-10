@@ -4728,6 +4728,28 @@ namespace ahaHLS {
     //return "NONAME";
   }
 
+  bool isMethod(const std::string& className,
+                const std::string& methodName,
+                Function* const func) {
+
+    string name = func->getName();
+    if (canDemangle(name)) {
+      name = demangle(name);
+
+      cout << "IsMethod name = " << name << endl;
+      if (hasPrefix(name, className)) {
+        string mName = drop("::", name);
+        cout << "axi stencil method name = " << mName << endl;
+        string rName = takeUntil("(", mName);
+        cout << "method name = " << rName << endl;        
+        return rName == methodName;
+      }
+    }
+
+    return false;
+
+  }
+
   bool isStencilGet(Function* const func) {
     string name = func->getName();
     if (canDemangle(name)) {
@@ -4901,7 +4923,6 @@ namespace ahaHLS {
           interfaces.addFunction(func);
           implementLBValidRead(func, interfaces.getConstraints(func));
         } else if (isStencilGet(func)) {
-          //cout << "Implementing LB valid" << endl;
           interfaces.addFunction(func);
           implementStencilGet(func, interfaces.getConstraints(func));
         } else if (isRAMRead(func)) {
@@ -4917,6 +4938,9 @@ namespace ahaHLS {
                            0,
                            addrWidth,
                            width);
+        } else if (isMethod("hls_stream_AxiPackedStencil", "read", func)) {
+          interfaces.addFunction(func);
+          implementStencilRead(func, interfaces.getConstraints(func));
         }
       }
     }
