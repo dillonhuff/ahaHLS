@@ -6461,6 +6461,69 @@ namespace ahaHLS {
 
   }
 
+  TEST_CASE("Set kernel ram in halide function") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "cascade_halide_ram_set_loop");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "cascade_halide_ram_set_loop");
+    getArg(f, 0)->setName("arg_0");
+    getArg(f, 1)->setName("arg_1");
+
+    cout << "llvm function" << endl;
+    cout << valueString(f) << endl;
+
+    deleteLLVMLifetimeCalls(f);
+
+    InterfaceFunctions interfaces;
+    HardwareConstraints hcs = standardConstraints();
+    populateHalideStencils(f, interfaces, hcs);
+
+    ExecutionConstraints exec;
+    //sequentialCalls(f, exec);
+
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 300;
+    tb.maxCycles = 300;
+    tb.name = "cascade_halide_ram_set_loop";
+    tb.useModSpecs = true;
+    map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));    
+    map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
+    map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));    
+
+    // Now reset?
+    set<BasicBlock*> toPipeline;
+    Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
+    STG graph = buildSTG(s, f);
+    
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<llvm::Value*, int> layout = {};
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    checkSignal(tb,
+                "valid",
+                {{3, 0}, {10, 0}, {15, 0}, {200, 1}});
+
+    emitVerilog("cascade_halide_ram_set_loop", arch, info);
+
+    //setRVChannel(tb, "arg_0", fifoIns);
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    REQUIRE(runIVerilogTB("cascade_halide_ram_set_loop"));
+    
+  }
+  
   TEST_CASE("Cascade from Halide") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -6494,6 +6557,9 @@ namespace ahaHLS {
     tb.maxCycles = 1000;
     tb.name = "halide_cascade";
     tb.useModSpecs = true;
+    map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));    
+    map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
+    map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));    
     
     SECTION("No task parallelism or pipelining") {
       set<BasicBlock*> toPipeline;

@@ -159,7 +159,7 @@ namespace ahaHLS {
       out << tab(1) << "// Insensitive connections" << endl;
       out << tab(1) << "always @(*) begin" << endl;
       for (auto sc : statelessConns) {
-        out << tab(2) << sc.first << " = " << "valid ? " << sc.second << " : " << sc.second << ";" << endl;
+        out << tab(2) << sc.first << " = " << "clk ? " << sc.second << " : " << sc.second << ";" << endl;
       }
       out << tab(1) << "end" << endl;
     }
