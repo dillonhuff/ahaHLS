@@ -4938,9 +4938,12 @@ namespace ahaHLS {
                            0,
                            addrWidth,
                            width);
-        } else if (isMethod("hls_stream_AxiPackedStencil", "read", func)) {
+        } else if (isMethod("hls_stream_", "read", func)) {
           interfaces.addFunction(func);
           implementStencilRead(func, interfaces.getConstraints(func));
+        } else if (isMethod("hls_stream_", "write", func)) {
+          interfaces.addFunction(func);
+          implementStencilWrite(func, interfaces.getConstraints(func));
         }
       }
     }
