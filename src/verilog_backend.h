@@ -245,5 +245,9 @@ namespace ahaHLS {
                       int setMemCycle,
                       const std::string ramName,
                       const vector<int>& memoryValues);
+
+  void setRVChannel(TestBenchSpec& tb,
+                    const std::string fifoName,
+                    const vector<pair<int, int> >& writeTimesAndValues);
   
 }

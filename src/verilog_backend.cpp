@@ -1583,6 +1583,24 @@ namespace ahaHLS {
     map_insert(tb.actionsOnCycles, startSetMemCycle, name + string("_debug_write_en <= 0;"));
   }
 
+  void setRVChannel(TestBenchSpec& tb,
+                    const std::string fifoName,
+                    const vector<pair<int, int> >& writeTimesAndValues) {
+    tb.settableWires.insert(fifoName + "_write_valid");
+    tb.settableWires.insert(fifoName + "_in_data_bus");
+    tb.settableWires.insert(fifoName + "_in_last_bus");
+    
+    for (int i = 0; i < (int) writeTimesAndValues.size(); i++) {
+      int time = writeTimesAndValues[i].first;
+      int val = writeTimesAndValues[i].second;
+
+      map_insert(tb.actionsOnCycles, time, fifoName + "_write_valid <= 1'b1;");
+      map_insert(tb.actionsOnCycles, time, fifoName + "_in_data_bus <= " + to_string(val) + ";");
+      map_insert(tb.actionsOnCycles, time, fifoName + "_in_last_bus <= 0;");            
+      map_insert(tb.actionsOnCycles, time + 1, fifoName + "_write_valid <= 1'b0;");
+    }    
+  }
+  
   void setRAMContents(TestBenchSpec& tb,
                       int setMemCycle,
                       const std::string ramName,

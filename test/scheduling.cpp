@@ -6511,7 +6511,7 @@ namespace ahaHLS {
 
       checkSignal(tb,
                   "valid",
-                  {{3, 0}, {10, 0}, {15, 0}, {1000, 0}});
+                  {{3, 0}, {10, 0}, {15, 0}, {600, 1}});
 
       // Later
       // checkSignal(tb,
@@ -6519,6 +6519,16 @@ namespace ahaHLS {
       //             {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {25, 0}, {37, 0}, {43, 0}, {47, 0}, {50, 1}, {100, 1}, {103, 1}, {106, 1}, {112, 1}, {125, 1}, {150, 1}, {200, 1}});
       
       emitVerilog("halide_cascade", arch, info);
+
+      int numIns = 16*16;
+      int writeTime = 3;
+      vector<pair<int, int> > fifoIns;
+      for (int i = 0; i < numIns; i++) {
+        fifoIns.push_back({writeTime, i});
+        writeTime += 2;
+      }
+      // CS
+      setRVChannel(tb, "arg_0", fifoIns);
       emitVerilogTestBench(tb, arch, testLayout);
 
       REQUIRE(runIVerilogTB("halide_cascade"));
