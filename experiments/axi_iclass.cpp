@@ -182,7 +182,30 @@ class axi_ram {
   }
 
   void finish_write_burst() {
-  stall_valid_nb: stall(read_port(s_axi_wready));
+
+  // stall_valid_f:
+  //   do {
+  //     bit_1 pt;
+  //     pt = read_port(s_axi_wready);
+
+  //     write_port(s_axi_wvalid, 1);
+  //     write_port(s_axi_wdata, data);
+  //     write_port(s_axi_wstrb, strobe);
+      
+  //   } while (pt == 0);
+
+  // ret_f: return;
+
+    //add_constraint(start(stall_valid_f) == end(stall_valid_f));
+    //add_constraint(end(stall_valid_f) + 1 == start(ret_f));
+    
+    //stall_valid_nb: stall(read_port(s_axi_wready));
+
+  stall_valid_nb: do {
+      bit_1 pt;
+      pt = read_port(s_axi_wready);
+    } while (pt == 0);
+    
   set_wvalid_nb: write_port(s_axi_wvalid, 1);
 
     add_constraint(end(stall_valid_nb) < start(set_wvalid_nb));
