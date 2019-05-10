@@ -270,7 +270,9 @@ namespace ahaHLS {
       string instName = unit.instName;
 
       for (auto w : unit.outWires) {
+
         out << "\twire [" << w.second.width - 1 << ":0] " << w.second.name << ";" << endl;
+          
         wireConns.insert({w.first, w.second.name});
       }
 
