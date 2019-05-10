@@ -6551,8 +6551,8 @@ namespace ahaHLS {
     map<string, int> testLayout = {};
     tb.memoryInit = {};
     tb.memoryExpected = {};
-    tb.runCycles = 300;
-    tb.maxCycles = 300;
+    tb.runCycles = 2000;
+    tb.maxCycles = 2000;
     tb.name = "cascade_halide_first_lb";
     tb.useModSpecs = true;
     map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));    
@@ -6575,7 +6575,7 @@ namespace ahaHLS {
 
     checkSignal(tb,
                 "valid",
-                {{3, 0}, {7, 0}, {15, 0}, {200, 1}});
+                {{3, 0}, {7, 0}, {15, 0}, {1999, 1}});
 
     emitVerilog("cascade_halide_first_lb", arch, info);
     emitVerilogTestBench(tb, arch, testLayout);
