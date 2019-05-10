@@ -235,7 +235,8 @@ namespace ahaHLS {
     std::set<std::string> alreadyEmitted;
 
     //cout << "# of functional units = " << arch.functionalUnits.size() << endl;
-
+    set<string> noStateWires = statelessWires(arch);
+    
     for (auto unit : arch.functionalUnits) {
       //auto unit = iUnit.second;
 
@@ -254,7 +255,7 @@ namespace ahaHLS {
       }
 
       map<string, string> wireConns;
-      set<string> noStateWires = statelessWires(arch);
+
       for (auto w : unit.portWires) {
         if (elem(w.second.valueString(), noStateWires)) {
           w.second.registered = false;
