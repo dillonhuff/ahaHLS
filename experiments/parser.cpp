@@ -3545,46 +3545,47 @@ int main() {
   
   cout << "Done with statement tests" << endl;
 
-  // {
-  //   ifstream t("./experiments/axi_iclass.cpp");
-  //   std::string str((std::istreambuf_iterator<char>(t)),
-  //                   std::istreambuf_iterator<char>());
+  {
+    ifstream t("./experiments/axi_iclass.cpp");
+    std::string str((std::istreambuf_iterator<char>(t)),
+                    std::istreambuf_iterator<char>());
 
-  //   auto tokens = tokenize(str);
-  //   ParserModule parseMod = parse(tokens);
+    auto tokens = tokenize(str);
+    ParserModule parseMod = parse(tokens);
 
-  //   cout << parseMod << endl;
+    cout << parseMod << endl;
 
-  //   {
-  //     SynthCppModule scppMod(parseMod);
-  //     auto arch = synthesizeVerilog(scppMod, "axi_read_burst_func");
+    {
+      SynthCppModule scppMod(parseMod);
+      auto arch = synthesizeVerilog(scppMod, "axi_read_burst_func");
 
-  //     map<llvm::Value*, int> layout = {};
-  //     TestBenchSpec tb;
-  //     auto result =
-  //       sc<Argument>(getArg(scppMod.getFunction("axi_read_burst_func")->llvmFunction(),
-  //                           0));
-  //     map<string, int> testLayout = {};
-  //     tb.runCycles = 30;
-  //     tb.maxCycles = 60; // No
-  //     tb.name = "axi_read_burst_func";
-  //     tb.useModSpecs = true;
-  //     tb.settablePort(result, "read_valid");
+      map<llvm::Value*, int> layout = {};
+      TestBenchSpec tb;
+      auto result =
+        sc<Argument>(getArg(scppMod.getFunction("axi_read_burst_func")->llvmFunction(),
+                            0));
+      map<string, int> testLayout = {};
+      tb.runCycles = 30;
+      tb.maxCycles = 60; // No
+      tb.name = "axi_read_burst_func";
+      tb.useModSpecs = true;
+      tb.settablePort(result, "read_valid");
 
-  //     tb.setArgPort(result, "read_valid", 0, "0");
-  //     map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
-  //     map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));        
-  //     map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+      tb.setArgPort(result, "read_valid", 0, "0");
+      map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+      map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));        
+      map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
 
-  //     tb.setArgPort(result, "read_valid", 20, "1");
-  //     tb.setArgPort(result, "read_valid", 21, "0");
+      tb.setArgPort(result, "read_valid", 20, "1");
+      tb.setArgPort(result, "read_valid", 21, "0");
 
-  //     map_insert(tb.actionsOnCycles, 21, assertString("arg_0_out_data === (34)"));
+      map_insert(tb.actionsOnCycles, 21, assertString("arg_0_out_data === (34)"));
 
-  //     emitVerilogTestBench(tb, arch, testLayout);
+      emitVerilogTestBench(tb, arch, testLayout);
 
-  //     assert(runIVerilogTest("axi_read_burst_func_tb.v", "axi_read_burst_func", " builtins.v axi_read_burst_func.v RAM.v delay.v ram_primitives.v axi_ram.v"));
-  //   }
+      assert(runIVerilogTest("axi_read_burst_func_tb.v", "axi_read_burst_func", " builtins.v axi_read_burst_func.v RAM.v delay.v ram_primitives.v axi_ram.v"));
+    }
+  }
 
   //   {
   //     SynthCppModule scppMod(parseMod);

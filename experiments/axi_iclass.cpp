@@ -33,7 +33,13 @@ class fifo {
   }
 
   void write_fifo(bit_32& data) {
-  stall_ready: stall(read_port(write_ready));
+  stall_ready:
+    do {
+      bit_1 pt;
+      pt = read_port(write_ready);
+    } while (pt == 0);
+    
+    //stall_ready: stall(read_port(write_ready));
   set_valid: write_port(write_valid, 1);
   set_data: write_port(in_data, data);
   ret: return;
@@ -104,7 +110,13 @@ class axi_ram {
   }
 
   bit_32 read_next_beat() {
-  stall_valid: stall(read_port(s_axi_rvalid));
+  stall_valid:
+    do {
+      bit_1 pt;
+      pt = read_port(s_axi_rvalid);
+    } while (pt == 0);
+    
+    //stall_valid: stall(read_port(s_axi_rvalid));
   set_ready: write_port(s_axi_rready, 1);
 
     add_constraint(end(stall_valid) < start(set_ready));
@@ -155,8 +167,14 @@ class axi_ram {
                         bit_2& arburst,
                         bit_8& arlen,
                         bit_16& araddr) {
-  stall_arready: stall(read_port(s_axi_arready));
+    //stall_arready: stall(read_port(s_axi_arready));
 
+  stall_arready:
+    do {
+      bit_1 pt;
+      pt = read_port(s_axi_arready);
+    } while (pt == 0);
+    
   set_v: write_port(s_axi_arvalid, 1);
   set_sz: write_port(s_axi_arsize, arsize);    
   set_burst: write_port(s_axi_arburst, arburst);
