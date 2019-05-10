@@ -1182,13 +1182,22 @@ module concat(input [IN0_WIDTH - 1 : 0] in0,
 endmodule
 
 module linebuffer_model(input clk,
-                        input rst,
+                        input                          rst,
 
-                        output out_data_valid);
+                        output [OUT_ROWS*OUT_COLS*DATA_SIZE - 1 : 0] out_window,
+                        output                         out_data_valid);
 
+   parameter DATA_SIZE = 32 + 1;
+   
    parameter NROWS = 64;
    parameter NCOLS = 64;
 
+   parameter IN_ROWS = 1;
+   parameter IN_COLS = 1;
+
+   parameter OUT_ROWS = 3;
+   parameter OUT_COLS = 3;
+   
    
    assign out_data_valid = 1;
    

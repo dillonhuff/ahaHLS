@@ -4672,6 +4672,21 @@ namespace ahaHLS {
     mSpec.ports = {{"out_data_valid", outputPort(1, "out_data_valid")}};
     mSpec.hasClock = true;
     mSpec.hasRst = true;
+
+    assert(stencilIn.typeWidth == stencilOut.typeWidth);
+    
+    mSpec.params.insert({{"NROWS", to_string(nRows)},
+
+          // Last bit
+          {"DATA_SIZE", to_string(stencilIn.typeWidth + 1)},
+          {"NCOLS", to_string(nCols)},
+
+          {"IN_ROWS", to_string(stencilIn.nRows)},
+            {"IN_COLS", to_string(stencilIn.nCols)},
+
+          {"OUT_ROWS", to_string(stencilOut.nRows)},
+            {"OUT_COLS", to_string(stencilOut.nCols)}});
+              
     return mSpec;
   }
 
