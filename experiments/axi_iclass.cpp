@@ -13,7 +13,14 @@ class fifo {
   }
 
   bit_32 read_fifo() {
-  stall_ready: stall(read_port(read_ready));
+  stall_ready:
+    do {
+      bit_1 pt;
+      pt = read_port(read_ready);
+    } while (pt == 0);
+
+    //stall_ready: do { bit_1 pt; pt = read_port(read_ready); } while(!pt);
+    //stall(read_port(read_ready));
   set_valid: write_port(read_valid, 1);
 
     bit_32 out_val;
