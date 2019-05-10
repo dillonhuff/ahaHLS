@@ -6523,6 +6523,66 @@ namespace ahaHLS {
     REQUIRE(runIVerilogTB("cascade_halide_ram_set_loop"));
     
   }
+
+  TEST_CASE("Feed data to linebuffer then read it out") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "cascade_halide_first_lb");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "cascade_halide_first_lb");
+    getArg(f, 0)->setName("arg_0");
+    getArg(f, 1)->setName("_hw_input_stencil_stream");
+
+    cout << "llvm function" << endl;
+    cout << valueString(f) << endl;
+
+    deleteLLVMLifetimeCalls(f);
+
+    InterfaceFunctions interfaces;
+    HardwareConstraints hcs = standardConstraints();
+    populateHalideStencils(f, interfaces, hcs);
+
+    ExecutionConstraints exec;
+
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 300;
+    tb.maxCycles = 300;
+    tb.name = "cascade_halide_first_lb";
+    tb.useModSpecs = true;
+    map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));    
+    map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
+    map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));    
+
+    // Now reset?
+    set<BasicBlock*> toPipeline;
+    Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
+    STG graph = buildSTG(s, f);
+    
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<llvm::Value*, int> layout = {};
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    checkSignal(tb,
+                "valid",
+                {{3, 0}, {7, 0}, {15, 0}, {200, 1}});
+
+    emitVerilog("cascade_halide_first_lb", arch, info);
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    REQUIRE(runIVerilogTB("cascade_halide_first_lb"));
+    
+  }
   
   TEST_CASE("Cascade from Halide") {
     SMDiagnostic Err;
@@ -6597,7 +6657,7 @@ namespace ahaHLS {
       setRVChannel(tb, "arg_0", fifoIns);
       emitVerilogTestBench(tb, arch, testLayout);
 
-      REQUIRE(runIVerilogTB("halide_cascade"));
+      //REQUIRE(runIVerilogTB("halide_cascade"));
     }
   }  
 }

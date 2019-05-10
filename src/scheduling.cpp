@@ -3545,7 +3545,12 @@ namespace ahaHLS {
 
     modSpec.defaultValues["set_data"] = 0;
     modSpec.defaultValues["set_en"] = 0;    
-    modSpec.defaultValues["set_last_en"] = 0;    
+    modSpec.defaultValues["set_last_en"] = 0;
+
+    modSpec.params.insert({"VALUE_WIDTH", to_string(valueWidth)});
+    modSpec.params.insert({"NROWS", to_string(nRows)});
+    modSpec.params.insert({"NCOLS", to_string(nCols)});
+    
     return modSpec;
   }
 
