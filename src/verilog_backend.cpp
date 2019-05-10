@@ -106,7 +106,20 @@ namespace ahaHLS {
     
     out << tab(1) << "end" << endl;
   }
-  
+
+  bool statelessConnection(PortValues& vals,
+                           const std::string& port,
+                           PortController& portController) {
+    set<string> values;
+    for (auto val : vals.portVals) {
+      values.insert(val.second.valueString());
+    }
+    bool allAssignsTheSame = values.size() == 1;    
+    return allAssignsTheSame &&
+      (stateless(portController.unitController.unit) ||
+       isInsensitive(port, portController));
+    
+  }
   // The same value problem is striking again...
   // The simplified wires really ought to be connected through assigns,
   // but I cannot get that to work without
@@ -140,9 +153,10 @@ namespace ahaHLS {
       
         out << tab(1) << "// controller for " << portController.unitController.unit.instName << "." << port << endl;
 
-        if (allAssignsTheSame &&
-            (stateless(portController.unitController.unit) ||
-             isInsensitive(port, portController))) {
+        if (statelessConnection(vals, port, portController)) {
+        // if (allAssignsTheSame &&
+        //     (stateless(portController.unitController.unit) ||
+        //      isInsensitive(port, portController))) {
 
           //auto stateCondVal = *(begin(vals.portVals));
           auto stateCondVal = *(begin(vals.portVals));
