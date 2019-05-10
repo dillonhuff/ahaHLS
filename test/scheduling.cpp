@@ -6593,80 +6593,80 @@ namespace ahaHLS {
     
   }
   
-  TEST_CASE("Cascade from Halide") {
-    SMDiagnostic Err;
-    LLVMContext Context;
-    setGlobalLLVMContext(&Context);
+  // TEST_CASE("Cascade from Halide") {
+  //   SMDiagnostic Err;
+  //   LLVMContext Context;
+  //   setGlobalLLVMContext(&Context);
     
-    std::unique_ptr<Module> Mod = loadLLFile(Context, Err, "halide_cascade");
-    setGlobalLLVMModule(Mod.get());
+  //   std::unique_ptr<Module> Mod = loadLLFile(Context, Err, "halide_cascade");
+  //   setGlobalLLVMModule(Mod.get());
 
-    Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
+  //   Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
 
-    // cout << "llvm function" << endl;
-    // cout << valueString(f) << endl;
+  //   // cout << "llvm function" << endl;
+  //   // cout << valueString(f) << endl;
 
-    deleteLLVMLifetimeCalls(f);
+  //   deleteLLVMLifetimeCalls(f);
 
-    // cout << "After lifetime deletes" << endl;
-    // cout << valueString(f) << endl;
+  //   // cout << "After lifetime deletes" << endl;
+  //   // cout << valueString(f) << endl;
 
-    InterfaceFunctions interfaces;
-    HardwareConstraints hcs = standardConstraints();
-    populateHalideStencils(f, interfaces, hcs);
+  //   InterfaceFunctions interfaces;
+  //   HardwareConstraints hcs = standardConstraints();
+  //   populateHalideStencils(f, interfaces, hcs);
 
-    ExecutionConstraints exec;
-    //sequentialCalls(f, exec);
+  //   ExecutionConstraints exec;
+  //   //sequentialCalls(f, exec);
 
-    TestBenchSpec tb;
-    map<string, int> testLayout = {};
-    tb.memoryInit = {};
-    tb.memoryExpected = {};
-    tb.runCycles = 6000;
-    tb.maxCycles = 7000;
-    tb.name = "halide_cascade";
-    tb.useModSpecs = true;
-    map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));    
-    map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
-    map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));    
+  //   TestBenchSpec tb;
+  //   map<string, int> testLayout = {};
+  //   tb.memoryInit = {};
+  //   tb.memoryExpected = {};
+  //   tb.runCycles = 6000;
+  //   tb.maxCycles = 7000;
+  //   tb.name = "halide_cascade";
+  //   tb.useModSpecs = true;
+  //   map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));    
+  //   map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
+  //   map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));    
     
-    SECTION("No task parallelism or pipelining") {
-      set<BasicBlock*> toPipeline;
-      Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
-      STG graph = buildSTG(s, f);
+  //   SECTION("No task parallelism or pipelining") {
+  //     set<BasicBlock*> toPipeline;
+  //     Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
+  //     STG graph = buildSTG(s, f);
     
-      cout << "STG Is" << endl;
-      graph.print(cout);
+  //     cout << "STG Is" << endl;
+  //     graph.print(cout);
 
-      map<llvm::Value*, int> layout = {};
-      auto arch = buildMicroArchitecture(graph, layout, hcs);
+  //     map<llvm::Value*, int> layout = {};
+  //     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
-      VerilogDebugInfo info;
-      addNoXChecks(arch, info);
+  //     VerilogDebugInfo info;
+  //     addNoXChecks(arch, info);
 
-      checkSignal(tb,
-                  "valid",
-                  {{3, 0}, {10, 0}, {15, 0}, {600, 0}, {5000, 1}});
+  //     checkSignal(tb,
+  //                 "valid",
+  //                 {{3, 0}, {10, 0}, {15, 0}, {600, 0}, {5000, 1}});
 
-      // Later
-      // checkSignal(tb,
-      //             "arg_1_read_ready",
-      //             {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {25, 0}, {37, 0}, {43, 0}, {47, 0}, {50, 1}, {100, 1}, {103, 1}, {106, 1}, {112, 1}, {125, 1}, {150, 1}, {200, 1}});
+  //     // Later
+  //     // checkSignal(tb,
+  //     //             "arg_1_read_ready",
+  //     //             {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {25, 0}, {37, 0}, {43, 0}, {47, 0}, {50, 1}, {100, 1}, {103, 1}, {106, 1}, {112, 1}, {125, 1}, {150, 1}, {200, 1}});
       
-      emitVerilog("halide_cascade", arch, info);
+  //     emitVerilog("halide_cascade", arch, info);
 
-      int numIns = 16*16;
-      int writeTime = 3;
-      vector<pair<int, int> > fifoIns;
-      for (int i = 0; i < numIns; i++) {
-        fifoIns.push_back({writeTime, i});
-        writeTime += 2;
-      }
-      // CS
-      setRVChannel(tb, "arg_0", fifoIns);
-      emitVerilogTestBench(tb, arch, testLayout);
+  //     int numIns = 16*16;
+  //     int writeTime = 3;
+  //     vector<pair<int, int> > fifoIns;
+  //     for (int i = 0; i < numIns; i++) {
+  //       fifoIns.push_back({writeTime, i});
+  //       writeTime += 2;
+  //     }
+  //     // CS
+  //     setRVChannel(tb, "arg_0", fifoIns);
+  //     emitVerilogTestBench(tb, arch, testLayout);
 
-      //REQUIRE(runIVerilogTB("halide_cascade"));
-    }
-  }  
+  //     //REQUIRE(runIVerilogTB("halide_cascade"));
+  //   }
+  // }  
 }
