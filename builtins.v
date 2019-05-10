@@ -1099,7 +1099,7 @@ module HLS_stream(input clk, input rst,
    assign last_bus = data_out[0];
    assign data_bus = data_out[DATA_WIDTH + 1 - 1 : 1];
    // Holds 
-   fifo #(.WIDTH(DATA_WIDTH + 1), .DEPTH(32))
+   fifo #(.WIDTH(DATA_WIDTH + 1), .DEPTH(320))
    stencil_stream(.clk(clk),
                   .rst(rst),
                   .read_ready(read_ready),
