@@ -4750,8 +4750,22 @@ namespace ahaHLS {
   
   int stencilNumRows(const std::string& name) {
     cout << "Stencil name in nrows = " << name << endl;
+
+    string stencilPrefix = "";
+    if (hasPrefix(name, "class.AxiPackedStencil_")) {
+      stencilPrefix = "class.AxiPackedStencil_";
+    } else {
+      stencilPrefix = "class.PackedStencil_";
+    }
     
-    return 1;
+    string nm = drop(stencilPrefix, name);
+
+    cout << "NumRows nm = " << nm << endl;
+    string res = drop("_", dropDigits(drop("_", drop("_t", nm))));
+
+    
+    cout << "res = " << res << endl;
+    return stoi(takeDigits(res));
   }
 
   int stencilNumCols(const std::string& name) {
@@ -4764,7 +4778,13 @@ namespace ahaHLS {
     
     string nm = drop(stencilPrefix, name);
 
-    return 1;
+    cout << "NumRows nm = " << nm << endl;
+    string res = drop("_", drop("_t", nm));
+
+    cout << "res = " << res << endl;
+    return stoi(takeDigits(res));
+    // cout << "NumRows "
+    // return 1;
   }
 
   string streamStencilName(const std::string& streamName) {
