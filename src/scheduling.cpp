@@ -3590,6 +3590,8 @@ namespace ahaHLS {
     IRBuilder<> b(eb);
     // set stencil data set_data == 1,
     auto lbOut = readPort(b, lb, stencilWidth, "out_window");
+    auto setReadReady = writePort(b, lb, 1, "out_data_ready", mkInt(1, 1));    
+
     auto wData = writePort(b, outStencil, 1, "set_data", mkInt(1, 1));
     auto wLast = writePort(b, outStencil, 1, "in_last_bus", mkInt(0, 1));        
     auto setD = writePort(b, outStencil, stencilWidth, "in_data_bus", lbOut);
@@ -3597,6 +3599,7 @@ namespace ahaHLS {
 
     // All at once
     exec.add(instrStart(lbOut) == instrStart(wData));
+    exec.add(instrStart(lbOut) == instrStart(setReadReady));
     exec.add(instrStart(lbOut) == instrStart(wLast));
     exec.add(instrStart(lbOut) == instrStart(setD));        
     b.CreateRet(nullptr);
@@ -3604,8 +3607,20 @@ namespace ahaHLS {
 
   void implementLBWrite(llvm::Function* const func,
                         ExecutionConstraints& exec) {
+
+    Value* inStencil = getArg(func, 1);
+    Value* lb = getArg(func, 0);
+
     auto eb = mkBB("entry_block", func);
     IRBuilder<> b(eb);
+
+    // TODO: Read this from inStencil
+    int inWidth = 16*1*1;
+    auto wValid = writePort(b, lb, 1, "in_valid", mkInt(1, 1));
+    auto wData = writePort(b, lb, inWidth, "in_data", mkInt(743, inWidth));
+
+    // All at once
+    exec.add(instrStart(wValid) == instrStart(wData));
 
     b.CreateRet(nullptr);
   }
@@ -4687,10 +4702,19 @@ namespace ahaHLS {
                             const int nCols) {
 
     int outWindowWidth = stencilOut.nRows*stencilOut.nCols*stencilOut.typeWidth;
+    int inWindowWidth = stencilIn.nRows*stencilIn.nCols*stencilIn.typeWidth;
+    
     ModuleSpec mSpec;
     mSpec.name = "linebuffer_model";
     mSpec.ports = {{"out_data_valid", outputPort(1, "out_data_valid")}};
     mSpec.ports.insert({"out_window", outputPort(outWindowWidth, "out_window")});
+    mSpec.ports.insert({"in_data", inputPort(inWindowWidth, "in_data")});
+    mSpec.ports.insert({"in_valid", inputPort(1, "in_valid")});        
+    mSpec.ports.insert({"out_data_ready", inputPort(1, "out_data_ready")});
+
+    mSpec.defaultValues.insert({"in_valid", 0});
+    mSpec.defaultValues.insert({"out_data_ready", 0});
+    
     mSpec.hasClock = true;
     mSpec.hasRst = true;
 
@@ -4969,8 +4993,8 @@ namespace ahaHLS {
       } else if (hasPrefix(name, "class.linebuffer_")) {
         //cout << "Is linebuffer" << endl;
 
-        int nRows = 64;
-        int nCols = 64;
+        int nRows = 16;
+        int nCols = 16;
 
         HalideStencilTp stencilIn{16, 1, 1};
         HalideStencilTp stencilOut{16, 3, 3};        

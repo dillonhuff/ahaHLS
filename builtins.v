@@ -1188,7 +1188,8 @@ module linebuffer_model(input clk,
                         input                                        in_valid,
 
                         output [OUT_ROWS*OUT_COLS*DATA_SIZE - 1 : 0] out_window,
-                        output                                       out_data_valid);
+                        output                                       out_data_valid,
+                        input                                        out_data_ready);
 
    parameter DATA_SIZE = 32 + 1;
 
@@ -1205,6 +1206,8 @@ module linebuffer_model(input clk,
 
    reg [IN_BUS_SIZE - 1 : 0] data [NROWS*NCOLS - 1 : 0];
 
+   reg [OUT_ROWS*OUT_COLS*DATA_SIZE - 1 : 0] out_window_data;
+   
    reg [31:0]          next_write_loc;
    reg [31:0]          next_read_loc;
    
@@ -1225,13 +1228,22 @@ module linebuffer_model(input clk,
          next_read_loc <= 0;
       end else begin
 
+         if (out_data_valid & out_data_ready) begin
+            $display("lb reading = %b", data[next_read_loc]);
+
+            next_read_loc <= next_read_loc + 1;
+            out_window_data <= data[next_read_loc];
+         end
+
          if (in_valid) begin
+            $display("next_write_loc update = %d", next_write_loc);
             next_write_loc <= next_write_loc + 1;
+            data[next_write_loc] <= in_data;
          end
       end
    end
 
-   assign out_window = 197;
-   assign out_data_valid = 1;
+   assign out_window = out_window_data;
+   
    
 endmodule
