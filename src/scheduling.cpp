@@ -3500,7 +3500,7 @@ namespace ahaHLS {
 
     modSpec.ports.insert({"in_data_bus", inputPort(dataBusWidth, "in_data_bus")});
     modSpec.ports.insert({"in_last_bus", inputPort(lastBusWidth, "in_last_bus")});
-    
+
     // Control ports
     modSpec.ports.insert({"write_valid", inputPort(1, "write_valid")});
     modSpec.ports.insert({"write_ready", outputPort(1, "write_ready")});
@@ -3513,6 +3513,7 @@ namespace ahaHLS {
 
     modSpec.defaultValues["write_valid"] = 0;
     modSpec.defaultValues["read_valid"] = 0;
+
     return modSpec;
   }
 
@@ -3578,8 +3579,26 @@ namespace ahaHLS {
 
   void implementLBRead(llvm::Function* const func,
                        ExecutionConstraints& exec) {
+    // Need to get stencil arguments
+    Value* outStencil = getArg(func, 0);
+    Value* lb = getArg(func, 1);
+
+    // TODO: Get value from outStencil name
+    int stencilWidth = 16*3*3;
+
     auto eb = mkBB("entry_block", func);
     IRBuilder<> b(eb);
+    // set stencil data set_data == 1,
+    auto lbOut = readPort(b, lb, stencilWidth, "out_window");
+    auto wData = writePort(b, outStencil, 1, "set_data", mkInt(1, 1));
+    auto wLast = writePort(b, outStencil, 1, "in_last_bus", mkInt(0, 1));        
+    auto setD = writePort(b, outStencil, stencilWidth, "in_data_bus", lbOut);
+                          //mkInt(154, stencilWidth));
+
+    // All at once
+    exec.add(instrStart(lbOut) == instrStart(wData));
+    exec.add(instrStart(lbOut) == instrStart(wLast));
+    exec.add(instrStart(lbOut) == instrStart(setD));        
     b.CreateRet(nullptr);
   }
 
@@ -3587,6 +3606,7 @@ namespace ahaHLS {
                         ExecutionConstraints& exec) {
     auto eb = mkBB("entry_block", func);
     IRBuilder<> b(eb);
+
     b.CreateRet(nullptr);
   }
   
@@ -3624,12 +3644,6 @@ namespace ahaHLS {
 
     IRBuilder<> stallReadyBuilder(stallReadyBlk);
     auto readReady = stallReadyBuilder.CreateCall(readReadyF, {stream});
-    // auto setValid1 = stallReadyBuilder.CreateCall(setValidF, {stream, mkInt(1, 1)});
-    // auto readStencilLast = stallReadyBuilder.CreateCall(readStencilLastF, {inDataPtr});
-    // auto readStencilData = stallReadyBuilder.CreateCall(readStencilDataF, {inDataPtr});    
-
-    // auto writeData = stallReadyBuilder.CreateCall(writeDataF, {stream, readStencilData});
-    // auto writeLast = stallReadyBuilder.CreateCall(writeLastF, {stream, readStencilLast});    
     stallReadyBuilder.CreateCondBr(readReady, exitBlk, stallReadyBlk);
 
     exec.add(start(stallReadyBlk) == end(stallReadyBlk));
@@ -3812,9 +3826,8 @@ namespace ahaHLS {
     auto value = getArg(stencilCall, 1);
     auto ind0 = getArg(stencilCall, 2);
     auto ind1 = getArg(stencilCall, 3);
-    //auto ind2 = getArg(stencilCall, 4);
 
-    assert(PointerType::classof(stencil->getType()));    
+    assert(PointerType::classof(stencil->getType()));
 
     auto stencilTp = dyn_cast<PointerType>(stencil->getType())->getElementType();
     
@@ -4672,9 +4685,12 @@ namespace ahaHLS {
                             const HalideStencilTp stencilOut,
                             const int nRows,
                             const int nCols) {
+
+    int outWindowWidth = stencilOut.nRows*stencilOut.nCols*stencilOut.typeWidth;
     ModuleSpec mSpec;
     mSpec.name = "linebuffer_model";
     mSpec.ports = {{"out_data_valid", outputPort(1, "out_data_valid")}};
+    mSpec.ports.insert({"out_window", outputPort(outWindowWidth, "out_window")});
     mSpec.hasClock = true;
     mSpec.hasRst = true;
 

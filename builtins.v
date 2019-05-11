@@ -1197,8 +1197,8 @@ module linebuffer_model(input clk,
 
    parameter OUT_ROWS = 3;
    parameter OUT_COLS = 3;
-   
-   
+
+   assign out_window = 197;
    assign out_data_valid = 1;
    
 endmodule

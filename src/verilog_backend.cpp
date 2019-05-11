@@ -1627,6 +1627,18 @@ namespace ahaHLS {
   checkRVChannel(TestBenchSpec& tb,
                  const std::string& fifoName,
                  const std::vector<std::pair<int, std::string> >& readTimesAndValues) {
+
+    tb.settableWires.insert(fifoName + "_read_valid");
+    
+    for (int i = 0; i < (int) readTimesAndValues.size(); i++) {
+      int time = readTimesAndValues[i].first;
+      string expectedVal = readTimesAndValues[i].second;
+
+      map_insert(tb.actionsOnCycles, time, fifoName + "_read_valid <= 1'b1;");
+      map_insert(tb.actionsOnCycles, time + 1, assertString(fifoName + "_data_bus === " + expectedVal));
+      map_insert(tb.actionsOnCycles, time + 1, fifoName + "_read_valid <= 1'b0;");
+    }    
+
   }  
 
   void setRVChannel(TestBenchSpec& tb,

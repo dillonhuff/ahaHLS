@@ -211,7 +211,12 @@ namespace ahaHLS {
 
     Wire input(const std::string& name) const {
       if (!dbhc::contains_key(name, portWires)) {
-        std::cout << "Error: No wire named " << name << std::endl;
+        std::cout << "Error: No wire named " << name << ", input wires in unit " <<  instName << std::endl;
+        for (auto w : portWires) {
+          std::cout << tab(1) << w.first << " -> " << w.second.valueString() << endl;
+        }
+
+        std::cout << "Module spec = " << module << std::endl;
         assert(false);
       }
       
