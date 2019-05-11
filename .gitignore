@@ -162,3 +162,5 @@ outer_loop_pipe*
 simple_outer_pipe*
 simple_outer_loop.v
 task_parallel_loop*
+cascade_halide_first_lb*
+halid_cascade*
