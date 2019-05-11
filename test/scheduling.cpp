@@ -6587,6 +6587,10 @@ namespace ahaHLS {
     }
     // CS
     setRVChannel(tb, "arg_0", fifoIns);
+
+    vector<pair<int, string> > fifoOuts;
+    fifoOuts.push_back({4000, "{{1'b0, 32'd0}, {1'b0, 32'd1}, {1'b0, 32'd2}, {1'b1, 32'd3}, {1'b0, 32'd4}, {1'b0, 32'd5}, {1'b0, 32'd6}, {1'b0, 32'd7}, {1'b0, 32'd8}}"});
+    checkRVChannel(tb, "arg_1", fifoOuts);
     emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("cascade_halide_first_lb"));

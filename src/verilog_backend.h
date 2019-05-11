@@ -249,5 +249,8 @@ namespace ahaHLS {
   void setRVChannel(TestBenchSpec& tb,
                     const std::string fifoName,
                     const vector<pair<int, int> >& writeTimesAndValues);
-  
+
+  void checkRVChannel(TestBenchSpec& tb,
+                      const std::string& fifoName,
+                      const std::vector<std::pair<int, std::string> >& readTimesAndValues);
 }

@@ -1623,6 +1623,12 @@ namespace ahaHLS {
     map_insert(tb.actionsOnCycles, startSetMemCycle, name + string("_debug_write_en <= 0;"));
   }
 
+  void
+  checkRVChannel(TestBenchSpec& tb,
+                 const std::string& fifoName,
+                 const std::vector<std::pair<int, std::string> >& readTimesAndValues) {
+  }  
+
   void setRVChannel(TestBenchSpec& tb,
                     const std::string fifoName,
                     const vector<pair<int, int> >& writeTimesAndValues) {
