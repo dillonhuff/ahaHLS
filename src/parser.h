@@ -45,11 +45,13 @@ namespace ahaHLS {
   };
 
 
+  static inline
   bool oneCharToken(const char c) {
     vector<char> chars = {'{', '}', ';', ')', '(', ',', '[', ']', ':', '-', '&', '+', '=', '>', '<', '*', '.'};
     return elem(c, chars);
   }
 
+  static inline
   bool isKeyword(const std::string& str) {
     vector<string> keywords{"void", "for", "return", "do", "while"};
     return elem(str, keywords);
@@ -82,24 +84,29 @@ namespace ahaHLS {
     std::string getStr() const { return str; }
   };
 
+  static inline
   bool operator<(const Token l, const Token r) {
     return l.getStr() < r.getStr();
   }
 
+  static inline
   bool isComparator(Token op) {
     vector<string> comps = {"==", ">", "<", "*", ">=", "<="};
     return elem(op.getStr(), comps);
   }
 
+  static inline
   std::ostream& operator<<(std::ostream& out, const Token& t) {
     out << t.getStr();
     return out;
   }
 
+  static inline
   bool operator==(const Token& a, const Token& b) {
     return a.getStr() == b.getStr();
   }
 
+  static inline
   bool operator!=(const Token& a, const Token& b) {
     return !(a == b);
   }
@@ -157,10 +164,13 @@ namespace ahaHLS {
 
   typedef ParseState<char> TokenState;
 
+  static inline
   bool isBinop(const Token t) {
     vector<string> binopStrings{"=", "==", "+", "&", "-", "/", "^", "%", "&&", "||", "<=", ">=", "<", ">", "*"};
     return elem(t.getStr(), binopStrings);
   }
+
+  static inline
   bool isWhitespace(const char c) {
     return isspace(c);
   }
@@ -270,7 +280,10 @@ namespace ahaHLS {
     }
   }
 
+  static inline
   bool isUnderscore(const char c) { return c == '_'; }
+
+  static inline
   bool isAlphaNum(const char c) { return isalnum(c); }
 
   maybe<Token> parseStr(const std::string target, TokenState& chars);
@@ -364,6 +377,7 @@ namespace ahaHLS {
   
   };
 
+  static inline
   std::ostream& operator<<(std::ostream& out, const Expression& e) {
     e.print(out);
     return out;
@@ -1429,30 +1443,7 @@ namespace ahaHLS {
     return maybe<Statement*>();
   }
 
-  maybe<Statement*> parseStatement(ParseState<Token>& tokens) {
-    //cout << "Starting to parse statement " << tokens.remainder() << endl;
-  
-    if (tokens.atEnd()) {
-      return maybe<Statement*>();
-    }
-  
-    // Try to parse a label?
-    auto label = tryParse<Token>(parseLabel, tokens);
-  
-    auto stmt = parseStatementNoLabel(tokens);
-
-    if (!stmt.has_value()) {
-      return maybe<Statement*>();
-    }
-
-    if (label.has_value()) {
-      auto stmtV = stmt.get_value();
-      stmtV->setLabel(label.get_value());
-      return stmtV;
-    }
-    return stmt;
-  }
-
+  static inline
   ParserModule parse(const std::vector<Token>& tokens) {
     ParseState<Token> pm(tokens);
     vector<Statement*> stmts =
@@ -1474,11 +1465,13 @@ namespace ahaHLS {
   //   // }
   // }
 
+  static inline
   bool isPrimitiveStruct(SynthCppStructType*  const st) {
     string name = st->getName();
     return hasPrefix(name, "bit_") || hasPrefix(name, "sint_") || hasPrefix(name, "uint_");
   }
 
+  static inline
   int getWidth(SynthCppStructType* tp) {
     assert(isPrimitiveStruct(tp));
     string name = tp->getName();
@@ -1492,6 +1485,7 @@ namespace ahaHLS {
     }
   }
 
+  static inline
   llvm::Type* llvmTypeFor(SynthCppType* const tp) {
     if (SynthCppPointerType::classof(tp)) {
       return llvmTypeFor(sc<SynthCppPointerType>(tp)->getElementType())->getPointerTo();
@@ -1541,6 +1535,7 @@ namespace ahaHLS {
     }
   };
 
+  static inline
   std::ostream& operator<<(std::ostream& out, const SynthCppFunction& f) {
     out << " " << f.getName() << "(ARGS) {" << endl;
     out << "}" << endl;
@@ -1548,6 +1543,7 @@ namespace ahaHLS {
     return out;
   }
 
+  static inline
   SynthCppFunction* builtinStub(std::string name, std::vector<llvm::Type*>& args, SynthCppType* retType) {
     SynthCppFunction* stub = new SynthCppFunction();
     stub->nameToken = Token(name);
@@ -1592,6 +1588,7 @@ namespace ahaHLS {
     }
   };
 
+  static inline
   std::ostream& operator<<(std::ostream& out, const SynthCppClass& mod) {
     out << "class " << mod.getName() << "{" << endl;
     for (auto v : mod.methods) {
@@ -1602,6 +1599,7 @@ namespace ahaHLS {
     return out;
   }
 
+  static inline
   bool isInputPort(SynthCppType* const tp) {
     auto ps = extractM<SynthCppStructType>(tp);
     if (!ps.has_value()) {
@@ -1616,6 +1614,7 @@ namespace ahaHLS {
     return false;
   }
 
+  static inline
   bool isOutputPort(SynthCppType* const tp) {
     auto ps = extractM<SynthCppStructType>(tp);
     if (!ps.has_value()) {
@@ -1630,10 +1629,12 @@ namespace ahaHLS {
     return false;
   }
 
+  static inline
   bool isPortType(SynthCppType* const tp) {
     return isOutputPort(tp) || isInputPort(tp);
   }
 
+  static inline
   int portWidth(SynthCppType* const tp) {
     assert(isPortType(tp));
     auto portStruct = extract<SynthCppStructType>(tp);
@@ -1652,6 +1653,7 @@ namespace ahaHLS {
     }
   }
 
+  static inline
   vector<Type*> functionInputs(FunctionDecl* fd) {
     vector<Type*> inputTypes;
     for (auto argDecl : fd->args) {
@@ -1669,6 +1671,7 @@ namespace ahaHLS {
     return inputTypes;
   }
 
+  static inline
   SynthCppStructType* extractBaseStructType(SynthCppType* tp) {
     if (SynthCppStructType::classof(tp)) {
       return sc<SynthCppStructType>(tp);
@@ -2045,7 +2048,7 @@ namespace ahaHLS {
     bool hasValue(Token t) const {
       return contains_key(t.getStr(), valueMap);
     }
-  
+
     llvm::Value* getValueFor(Token t) {
       cout << "Getting value for " << t.getStr() << endl;
       assert(contains_key(t.getStr(), valueMap));

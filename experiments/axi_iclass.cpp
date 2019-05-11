@@ -199,16 +199,16 @@ class axi_ram {
     //add_constraint(start(stall_valid_f) == end(stall_valid_f));
     //add_constraint(end(stall_valid_f) + 1 == start(ret_f));
     
-    //stall_valid_nb: stall(read_port(s_axi_wready));
+    stall_valid_nb: stall(read_port(s_axi_wready));
 
-  stall_valid_nb0: do {
-      bit_1 pt;
-      pt = read_port(s_axi_wready);
-    } while (pt == 0);
+  // stall_valid_nb0: do {
+  //     bit_1 pt;
+  //     pt = read_port(s_axi_wready);
+  //   } while (pt == 0);
     
   set_wvalid_nb0: write_port(s_axi_wvalid, 1);
 
-    //add_constraint(end(stall_valid_nb0) <= start(set_wvalid_nb0));
+    add_constraint(end(stall_valid_nb) < start(set_wvalid_nb0));
 
   set_data_nb0: write_port(s_axi_wdata, 0);
   set_strb_nb0: write_port(s_axi_wstrb, 0);
