@@ -1062,7 +1062,7 @@ namespace ahaHLS {
         auto unit =
           createUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
 
-        cout << "-- Created unit " << unit.instName << endl;
+        //cout << "-- Created unit " << unit.instName << endl;
         units[instr] = unit;
 
         resSuffix++;
@@ -1730,7 +1730,7 @@ namespace ahaHLS {
             stateActiveRegController(dest, arch);
         
           if ((cyclesToWaitForHazards > 0) && !isDefault) {
-            cout << "Need to wait " << cyclesToWaitForHazards << " additional cycles for hazards to resolve in transition from " << state << " to " << dest << endl;
+            //cout << "Need to wait " << cyclesToWaitForHazards << " additional cycles for hazards to resolve in transition from " << state << " to " << dest << endl;
 
             Wire signalProduced = stateActiveReg(state, arch);
 
@@ -1744,7 +1744,7 @@ namespace ahaHLS {
 
           } //else {
 
-          cout << "Adding immediate pipeline transition from " << state << " to " << dest << endl;
+          //cout << "Adding immediate pipeline transition from " << state << " to " << dest << endl;
           exitStateActive.values[jumpCond] =
             constWire(1, 1);
             //}
@@ -1830,7 +1830,7 @@ namespace ahaHLS {
       allBlocks.insert(instr->getParent());
     }
 
-    cout << "All blocks size = " << allBlocks.size() << endl;
+    //cout << "All blocks size = " << allBlocks.size() << endl;
     
     set<BasicBlock*> terminating;
     for (auto blk : allBlocks) {
@@ -1901,7 +1901,7 @@ namespace ahaHLS {
       CFGJump jmp{transition};
       auto outJumps = getTask(srcBlk, arch.stg);
       if (elem(jmp, getOutOfTaskJumps(outJumps, arch.stg))) {
-        cout << "Adding out of task transitions" << endl;
+        //cout << "Adding out of task transitions" << endl;
         // Q: Will this pass with control sanity checks disabled?
         //edgeTakenWire = constWire(1, 1);
         edgeTakenWire =
@@ -2555,7 +2555,7 @@ namespace ahaHLS {
       }
     }
 
-    cout << "Adding active in state logic" << endl;
+    //cout << "Adding active in state logic" << endl;
 
     // TODO: Add defaults to basic block controllers?
     // Check that on state entry the next block is one of the contained
