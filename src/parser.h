@@ -973,35 +973,14 @@ namespace ahaHLS {
     return maybe<Expression*>();
   }
 
-  maybe<FunctionCall*> parseFunctionCall(ParseState<Token>& tokens) {
-    Token t = tokens.parseChar();
-    if (!t.isId()) {
-      return maybe<FunctionCall*>();
-    }
-
-    Token paren = tokens.parseChar();
-    if (paren != Token("(")) {
-      return maybe<FunctionCall*>();
-    }
-
-    //cout << "parsing funcall " << tokens.remainder() << endl;
-    vector<Expression*> callArgs =
-      sepBtwn0<Expression*, Token>(parseExpressionMaybe, parseComma, tokens);
-
-    paren = tokens.parseChar();
-    if (paren != Token(")")) {
-      return maybe<FunctionCall*>();
-    }
-
-    return new FunctionCall(t, callArgs);
-  }
-
+  static inline
   int precedence(Token op) {
     map<string, int> prec{{"+", 100}, {"==", 99}, {"-", 100}, {"*", 100}, {"<", 99}, {">", 99}};
     assert(contains_key(op.getStr(), prec));
     return map_find(op.getStr(), prec);
   }
 
+  static inline
   Expression* popOperand(vector<Expression*>& postfixString) {
     assert(postfixString.size() > 0);
 
@@ -1018,91 +997,7 @@ namespace ahaHLS {
     return top;
   }
 
-  maybe<Expression*> parseExpressionMaybe(ParseState<Token>& tokens) {
-    //cout << "-- Parsing expression " << tokens.remainder() << endl;
-
-    vector<Token> operatorStack;
-    vector<Expression*> postfixString;
-  
-    while (true) {
-      auto pExpr = parsePrimitiveExpressionMaybe(tokens);
-      //cout << "After primitive expr = " << tokens.remainder() << endl;
-      if (!pExpr.has_value()) {
-        break;
-      }
-
-      postfixString.push_back(pExpr.get_value());
-    
-      if (tokens.atEnd() || !isBinop(tokens.peekChar())) {
-        break;
-      }
-
-      Token binop = tokens.parseChar();
-      if (!isBinop(binop)) {
-        break;
-      }
-
-      //cout << "Adding binop " << binop << endl;
-      if (operatorStack.size() == 0) {
-        //cout << tab(1) << "Op stack empty " << binop << endl;      
-        operatorStack.push_back(binop);
-      } else if (precedence(binop) > precedence(operatorStack.back())) {
-        //cout << tab(1) << "Op has higher precedence " << binop << endl;      
-        operatorStack.push_back(binop);
-      } else {
-        while (true) {
-          Token topOp = operatorStack.back();
-          operatorStack.pop_back();
-
-          //cout << "Popping " << topOp << " from op stack" << endl;
-
-          postfixString.push_back(new Identifier(topOp));
-        
-          if ((operatorStack.size() == 0) ||
-              (precedence(binop) > precedence(operatorStack.back()))) {
-            break;
-          }
-        }
-
-        operatorStack.push_back(binop);
-      }
-    }
-
-    // Pop and print all operators on the stack
-    //cout << "Adding ops" << endl;
-    // Reverse order of this?
-    for (auto op : operatorStack) {
-      //cout << tab(1) << "Popping operator " << op << endl;
-      postfixString.push_back(new Identifier(op));
-    }
-
-    if (postfixString.size() == 0) {
-      return maybe<Expression*>();
-    }
-
-    //cout << "Building final value" << endl;
-    //cout << "Postfix string" << endl;
-    // for (auto s : postfixString) {
-    //   cout << tab(1) << *s << endl;
-    // }
-
-    Expression* final = popOperand(postfixString);
-    assert(postfixString.size() == 0);
-    assert(final != nullptr);
-
-    //cout << "Returning expression " << *final << endl;
-    return final;
-  }
-
-  Expression* parseExpression(ParseState<Token>& tokens) {
-    auto res = parseExpressionMaybe(tokens);
-    if (res.has_value()) {
-      return res.get_value();
-    }
-
-    assert(false);
-  }
-
+  static inline
   int getDataWidth(const std::string& name) {
     if (hasPrefix(name, "bit_")) {
       return stoi(name.substr(4));
@@ -1114,6 +1009,7 @@ namespace ahaHLS {
     }
   }
 
+  static inline
   maybe<SynthCppType*> parseBaseType(ParseState<Token>& tokens) {
     if (tokens.peekChar().isId()) {
     
@@ -1141,6 +1037,7 @@ namespace ahaHLS {
     return maybe<SynthCppType*>();
   }
 
+  static inline
   maybe<SynthCppType*> parseType(ParseState<Token>& tokens) {
     auto tp = parseBaseType(tokens);
 
@@ -1153,6 +1050,7 @@ namespace ahaHLS {
     return tp;
   }
 
+  static inline
   maybe<ArgumentDecl*> parseArgDeclMaybe(ParseState<Token>& tokens) {
     // cout << "Parsing arg declaration = " << tokens.remainder() << endl;
     // cout << "Remaining tokens = " << tokens.remainderSize() << endl;
@@ -1196,6 +1094,7 @@ namespace ahaHLS {
     return new ArgumentDecl(tp.get_value(), argName);
   }
 
+  static inline
   ArgumentDecl* parseArgDecl(ParseState<Token>& tokens) {
     auto d = parseArgDeclMaybe(tokens);
     if (d.has_value()) {
@@ -1205,6 +1104,7 @@ namespace ahaHLS {
     assert(false);
   }
 
+  static inline
   maybe<Statement*> parseFuncDecl(ParseState<Token>& tokens) {
     maybe<SynthCppType*> tp = tryParse<SynthCppType*>(parseType, tokens);
     if (!tp.has_value()) {
@@ -1240,6 +1140,7 @@ namespace ahaHLS {
 
   }
 
+  static inline
   maybe<Token> parseLabel(ParseState<Token>& tokens) {
     if (tokens.atEnd()) {
       return maybe<Token>();
@@ -1262,6 +1163,7 @@ namespace ahaHLS {
     return t;
   }
 
+  static inline
   maybe<Statement*> parseFunctionCallStmt(ParseState<Token>& tokens) {
     maybe<FunctionCall*> p = parseFunctionCall(tokens);
     if (!p.has_value()) {
@@ -1276,6 +1178,7 @@ namespace ahaHLS {
     return new ExpressionStmt(static_cast<FunctionCall*>(p.get_value()));
   }
 
+  static inline
   maybe<Statement*> parseAssignStmt(ParseState<Token>& tokens) {
     //cout << "Starting parse assign \" " << tokens.remainder() << "\"" << endl;
 
@@ -1304,7 +1207,11 @@ namespace ahaHLS {
     }
 
     return new AssignStmt(id, r.get_value());
+
   }
+
+
+  static inline
   maybe<Statement*> parseForLoop(ParseState<Token>& tokens) {
 
     //cout << "Parsing for loop " << tokens.remainder() << endl;
@@ -1385,6 +1292,7 @@ namespace ahaHLS {
 
   };
 
+  static inline
   maybe<Statement*> parseDoWhileLoop(ParseState<Token>& tokens) {
     //cout << "Parsing do = " << tokens.remainder() << endl;
   
@@ -1426,7 +1334,8 @@ namespace ahaHLS {
 
     return maybe<Statement*>();
   }
-  
+
+  static inline
   maybe<Statement*> parseStatementNoLabel(ParseState<Token>& tokens) {
     // Try to parse for loop
     auto doStmt = tryParse<Statement*>(parseDoWhileLoop, tokens);
