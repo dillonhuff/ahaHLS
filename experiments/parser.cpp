@@ -1,13 +1,13 @@
 #include "parser.h"
 
-// #include "llvm/Transforms/Scalar/GVN.h"
-// #include "llvm/Transforms/Scalar.h"
-// #include <llvm/IR/LegacyPassManager.h>
-// #include <llvm/Transforms/IPO/PassManagerBuilder.h>
-// #include <llvm/Analysis/AliasAnalysis.h>
-// #include <llvm/Analysis/LoopInfo.h>
-// #include <llvm/Analysis/LoopAccessAnalysis.h>
-// #include <llvm/Analysis/ScalarEvolution.h>
+#include "llvm/Transforms/Scalar/GVN.h"
+#include "llvm/Transforms/Scalar.h"
+#include <llvm/IR/LegacyPassManager.h>
+#include <llvm/Transforms/IPO/PassManagerBuilder.h>
+#include <llvm/Analysis/AliasAnalysis.h>
+#include <llvm/Analysis/LoopInfo.h>
+#include <llvm/Analysis/LoopAccessAnalysis.h>
+#include <llvm/Analysis/ScalarEvolution.h>
 
 #include <functional>
 
