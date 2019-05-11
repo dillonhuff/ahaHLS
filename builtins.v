@@ -1182,12 +1182,17 @@ module concat(input [IN0_WIDTH - 1 : 0] in0,
 endmodule
 
 module linebuffer_model(input clk,
-                        input                          rst,
+                        input                                        rst,
+
+                        input [IN_BUS_SIZE - 1 : 0]                  in_data,
+                        input                                        in_valid,
 
                         output [OUT_ROWS*OUT_COLS*DATA_SIZE - 1 : 0] out_window,
-                        output                         out_data_valid);
+                        output                                       out_data_valid);
 
    parameter DATA_SIZE = 32 + 1;
+
+   parameter IN_BUS_SIZE = IN_ROWS*IN_COLS*DATA_SIZE;
    
    parameter NROWS = 64;
    parameter NCOLS = 64;
@@ -1197,6 +1202,34 @@ module linebuffer_model(input clk,
 
    parameter OUT_ROWS = 3;
    parameter OUT_COLS = 3;
+
+   reg [IN_BUS_SIZE - 1 : 0] data [NROWS*NCOLS - 1 : 0];
+
+   reg [31:0]          next_write_loc;
+   reg [31:0]          next_read_loc;
+   
+   reg [31:0]          window_center;
+   reg                 window_valid;
+   
+
+   wire [31:0]         rw_difference;
+
+   assign rw_difference = next_write_loc - next_read_loc;
+   
+   assign out_data_valid = rw_difference >= ((OUT_ROWS - 1)*NCOLS + OUT_COLS);
+
+   always @(posedge clk) begin
+      if (rst) begin
+         window_valid <= 0;
+         next_write_loc <= 0;
+         next_read_loc <= 0;
+      end else begin
+
+         if (in_valid) begin
+            next_write_loc <= next_write_loc + 1;
+         end
+      end
+   end
 
    assign out_window = 197;
    assign out_data_valid = 1;
