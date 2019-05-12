@@ -1003,7 +1003,7 @@ namespace ahaHLS {
       tb.useModSpecs = true;
       map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
 
-      map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
+      //map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
     
       checkRAMContents(tb, 30, "arg_0", {0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
       emitVerilogTestBench(tb, arch, testLayout);
