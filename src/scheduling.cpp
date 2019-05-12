@@ -1123,6 +1123,55 @@ namespace ahaHLS {
     }
     return addMemoryConstraints(f, hdc, pipe, aliasAnalysis, sc, p);
   }
+
+  void
+  addOrderConstraints(vector<vector<Instruction*> >& iGroups,
+                      ExecutionConstraints& exe,
+                      SchedulingProblem& p,
+                      set<PipelineSpec>& toPipeline,
+                      BasicBlock& bb) {
+    // cout << "iGroups = " << iGroups.size() << endl;
+    // for (auto gp : iGroups) {
+    //   cout << "\tGroup" << endl;
+    //   for (auto i : gp) {
+    //     cout << "\t\t" << instructionString(i) << endl;
+    //   }
+
+    //   assert(gp.size() > 0);
+    // }
+          
+    for (int i = 0; i < (int) iGroups.size() - 1; i++) {
+      auto gp = iGroups[i];
+      auto next = iGroups[i + 1];
+      for (auto preI : gp) {
+        for (auto nextI : next) {
+          // Change to p.instrStart(preI) + II_unit
+          exe.addConstraint(instrStart(preI) + 1 <= instrStart(nextI));
+        }
+      }
+    }
+
+    // If all instructions fit in 1 group there is no resource conflict
+    assert(iGroups.size() > 1);
+
+    // Make sure subsequent pipelined loop iterations obey
+    // the resource partial order
+    //if (elem(&bb, toPipeline)) {
+    if (inAnyPipeline(&bb, toPipeline)) {
+      auto II = p.getII(&bb);
+
+      assert(iGroups.front().size() > 0);
+      assert(iGroups.at(iGroups.size() - 1).size() > 0);
+
+      for (auto firstI : iGroups.front()) {
+        for (auto lastI : iGroups.back()) {
+          p.addConstraint(p.instrEnd(lastI) < II + p.instrStart(firstI));
+        }
+      }
+
+    }
+    
+  }
   
   void
   addMemoryConstraints(llvm::Function* f,
@@ -1257,46 +1306,7 @@ namespace ahaHLS {
             iGroups.push_back(instrs);
           }
 
-          // cout << "iGroups = " << iGroups.size() << endl;
-          // for (auto gp : iGroups) {
-          //   cout << "\tGroup" << endl;
-          //   for (auto i : gp) {
-          //     cout << "\t\t" << instructionString(i) << endl;
-          //   }
-
-          //   assert(gp.size() > 0);
-          // }
-          
-          for (int i = 0; i < (int) iGroups.size() - 1; i++) {
-            auto gp = iGroups[i];
-            auto next = iGroups[i + 1];
-            for (auto preI : gp) {
-              for (auto nextI : next) {
-                // Change to p.instrStart(preI) + II_unit
-                exe.addConstraint(instrStart(preI) + 1 <= instrStart(nextI));
-              }
-            }
-          }
-
-          // If all instructions fit in 1 group there is no resource conflict
-          assert(iGroups.size() > 1);
-
-          // Make sure subsequent pipelined loop iterations obey
-          // the resource partial order
-          //if (elem(&bb, toPipeline)) {
-          if (inAnyPipeline(&bb, toPipeline)) {
-            auto II = p.getII(&bb);
-
-            assert(iGroups.front().size() > 0);
-            assert(iGroups.at(iGroups.size() - 1).size() > 0);
-
-            for (auto firstI : iGroups.front()) {
-              for (auto lastI : iGroups.back()) {
-                p.addConstraint(p.instrEnd(lastI) < II + p.instrStart(firstI));
-              }
-            }
-
-          }
+          addOrderConstraints(iGroups, exe, p, toPipeline, bb);
 
         }
       }
