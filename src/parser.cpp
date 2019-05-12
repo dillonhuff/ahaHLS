@@ -174,6 +174,7 @@ namespace ahaHLS {
     if (!tokens.nextCharIs(Token("pipeline"))) {
       return maybe<Statement*>();
     }
+    tokens.parseChar();
 
     auto iiExpr = parseExpressionMaybe(tokens);
     if (!iiExpr.has_value()) {
@@ -667,5 +668,35 @@ namespace ahaHLS {
     emitVerilog(arch, info);
 
     return arch;
+  }
+
+  BasicBlock*
+  SynthCppModule::addBB(const std::string& name, llvm::Function* const f) {
+    return mkBB(name, f);
+  }
+
+  void SynthCppModule::pushPipeline(const int II) {
+  }
+
+  void SynthCppModule::popPipeline() {
+  }
+
+  int extractInt(Expression* expr) {
+    cout << "Extracting II from " << *expr << endl;
+    IntegerExpr* exp = extract<IntegerExpr>(expr);
+    return exp->getInt();
+  }
+  
+  void SynthCppModule::genLLVM(PipelineBlock* const stmt) {
+    Expression* targetII = stmt->ii;
+    int ii = extractInt(targetII);
+    
+    pushPipeline(ii);
+    
+    for (auto stmt : stmt->body) {
+      genLLVM(stmt);
+    }
+    
+    popPipeline();
   }
 }

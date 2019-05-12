@@ -941,26 +941,53 @@ namespace ahaHLS {
   
   TEST_CASE("RAM pipelining tests") {
 
-    ParserModule parseM = parseSynthModule("./experiments/ram_iclass.cpp");
-    SynthCppModule scppMod(parseM);
+    SECTION("No pipeline sanity check") {
+      ParserModule parseM = parseSynthModule("./experiments/ram_iclass.cpp");
+      SynthCppModule scppMod(parseM);
 
-    auto arch = synthesizeVerilog(scppMod, "independent_writes");
+      auto arch = synthesizeVerilog(scppMod, "independent_writes");
 
-    TestBenchSpec tb;
-    map<string, int> testLayout = {};
-    tb.runCycles = 70;
-    tb.maxCycles = 100;
-    tb.name = "independent_writes";
-    tb.useModSpecs = true;
-    map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+      TestBenchSpec tb;
+      map<string, int> testLayout = {};
+      tb.runCycles = 70;
+      tb.maxCycles = 100;
+      tb.name = "independent_writes";
+      tb.useModSpecs = true;
+      map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
 
-    map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
+      map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
     
-    checkRAMContents(tb, 30, "arg_0", {0, 1, 2, 3, 4});
-    emitVerilogTestBench(tb, arch, testLayout);
+      checkRAMContents(tb, 30, "arg_0", {0, 1, 2, 3, 4});
+      emitVerilogTestBench(tb, arch, testLayout);
 
-    // Need to figure out how to inline register specifications
-    REQUIRE(runIVerilogTest("independent_writes_tb.v", "independent_writes", " builtins.v independent_writes.v RAM.v delay.v ram_primitives.v"));
+      // Need to figure out how to inline register specifications
+      REQUIRE(runIVerilogTest("independent_writes_tb.v", "independent_writes", " builtins.v independent_writes.v RAM.v delay.v ram_primitives.v"));
+
+    }
+
+    SECTION("Pipelined with II == 1") {
+      ParserModule parseM = parseSynthModule("./experiments/ram_iclass.cpp");
+      SynthCppModule scppMod(parseM);
+
+      auto arch = synthesizeVerilog(scppMod, "pipelined_independent_writes");
+
+      TestBenchSpec tb;
+      map<string, int> testLayout = {};
+      tb.runCycles = 70;
+      tb.maxCycles = 100;
+      tb.name = "pipelined_independent_writes";
+      tb.useModSpecs = true;
+      map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+
+      map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
+    
+      checkRAMContents(tb, 30, "arg_0", {0, 1, 2, 3, 4});
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      // Need to figure out how to inline register specifications
+      REQUIRE(runIVerilogTest("pipelined_independent_writes_tb.v", "pipelined_independent_writes", " builtins.v pipelined_independent_writes.v RAM.v delay.v ram_primitives.v"));
+
+    }
 
   }
 
