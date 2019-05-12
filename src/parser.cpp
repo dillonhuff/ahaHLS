@@ -502,7 +502,8 @@ namespace ahaHLS {
   Schedule scheduleInterfaceZeroReg(llvm::Function* f,
                                     HardwareConstraints& hcs,
                                     InterfaceFunctions& interfaces,
-                                    std::set<BasicBlock*>& toPipeline,
+                                    std::set<PipelineSpec>& toPipeline,
+                                    //std::set<BasicBlock*>& toPipeline,
                                     ExecutionConstraints& exec) {
 
     cout << "Before inlining" << endl;
@@ -547,7 +548,8 @@ namespace ahaHLS {
     //   cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
     // }
 
-    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+    auto preds = buildControlPreds(f);    
+    SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline, preds);
     exec.addConstraints(p, f);
 
     map<Function*, SchedulingProblem> constraints{{f, p}};
@@ -643,7 +645,8 @@ namespace ahaHLS {
       scheduleInterfaceZeroReg(f->llvmFunction(),
                                scppMod.getHardwareConstraints(),
                                scppMod.getInterfaceFunctions(),
-                               scppMod.getBlocksToPipeline(),
+                               f->pipelines,
+                               //scppMod.getBlocksToPipeline(),
                                scppMod.getInterfaceFunctions().getConstraints(f->llvmFunction()));
 
     STG graph = buildSTG(s, f->llvmFunction());
