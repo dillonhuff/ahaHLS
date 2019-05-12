@@ -88,4 +88,6 @@ void pipelined_structural_hazard(RAM& mem) {
       mem.write(2*index + 1, 2*index + 1);
     }
   }
+
+  return;
 }

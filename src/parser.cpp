@@ -696,8 +696,14 @@ namespace ahaHLS {
     cgs.inPipeline = false;
 
     assert(activeFunction != nullptr);
-    
+
     activeFunction->pipelines.insert(cgs.activePipeline);
+
+    auto bd = cgs.builder();
+    auto* nextBB = addBB("after_pipeline_" + uniqueNumString(), activeFunction->llvmFunction());
+    bd.CreateBr(nextBB);
+
+    cgs.setActiveBlock(nextBB);
   }
 
   int extractInt(Expression* expr) {
