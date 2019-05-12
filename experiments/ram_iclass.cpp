@@ -49,3 +49,12 @@ class RAM {
 void filter_ram(RAM& mem) {
   mem.write(10, mem.read(0) + mem.read(1));
 }
+
+void independent_writes(RAM& mem) {
+
+  bit_32 index;
+
+  for (index = 0; index < 5; index = index + 1) {
+    mem.write(index, index);
+  }
+}

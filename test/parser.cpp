@@ -909,4 +909,76 @@ namespace ahaHLS {
     }
     
   }
+
+  TEST_CASE("RAM pipelining tests") {
+
+      ifstream t("./experiments/ram_iclass.cpp");
+      std::string str((std::istreambuf_iterator<char>(t)),
+                      std::istreambuf_iterator<char>());
+
+      auto tokens = tokenize(str);
+      cout << "Tokens" << endl;
+      for (auto t : tokens) {
+        cout << "\t" << t.getStr() << endl;
+      }
+
+      ParserModule parseMod = parse(tokens);
+
+      cout << parseMod << endl;
+
+      REQUIRE(parseMod.getStatements().size() >= 2);
+
+      SynthCppModule scppMod(parseMod);
+
+      REQUIRE(scppMod.getClasses().size() >= 1);
+      REQUIRE(scppMod.getFunctions().size() >= 1);
+
+      cout << "Before synthesize verilog: # of interface functions = " << scppMod.getInterfaceFunctions().constraints.size() << endl;
+      for (auto func : scppMod.getInterfaceFunctions().constraints) {
+        cout << tab(1) << "# of constraints on " <<
+          string(func.first->getName()) << " = " <<
+          func.second.constraints.size() << endl;
+      }
+    
+      auto arch = synthesizeVerilog(scppMod, "independent_writes");
+
+      // map<llvm::Value*, int> layout = {};
+
+      // auto in =
+      //   sc<Argument>(getArg(scppMod.getFunction("filter_ram")->llvmFunction(), 0));
+      // TestBenchSpec tb;
+      // map<string, int> testLayout = {};
+      // tb.memoryInit = {};
+      // tb.memoryExpected = {};
+      // tb.runCycles = 70;
+      // tb.maxCycles = 100;
+      // tb.name = "filter_ram";
+      // tb.useModSpecs = true;
+      // tb.settablePort(in, "debug_addr");
+      // tb.settablePort(in, "debug_write_addr");
+      // tb.settablePort(in, "debug_write_data");
+      // tb.settablePort(in, "debug_write_en");            
+
+      // tb.setArgPort(in, "debug_write_addr", 1, "0");
+      // tb.setArgPort(in, "debug_write_data", 1, "6");
+      // tb.setArgPort(in, "debug_write_en", 1, "1");    
+
+      // tb.setArgPort(in, "debug_write_addr", 2, "1");
+      // tb.setArgPort(in, "debug_write_data", 2, "8");
+      // tb.setArgPort(in, "debug_write_en", 2, "1");    
+
+      // tb.setArgPort(in, "debug_write_en", 3, "0");
+      // map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+
+      // map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
+    
+      // tb.setArgPort(in, "debug_addr", 76, "10");
+      // map_insert(tb.actionsOnCycles, 76, assertString("arg_0_debug_data === (8 + 6)"));
+    
+      // emitVerilogTestBench(tb, arch, testLayout);
+
+      // // Need to figure out how to inline register specifications
+      // REQUIRE(runIVerilogTest("filter_ram_tb.v", "filter_ram", " builtins.v filter_ram.v RAM.v delay.v ram_primitives.v"));
+
+  }
 }
