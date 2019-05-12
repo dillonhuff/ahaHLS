@@ -180,7 +180,20 @@ namespace ahaHLS {
       return maybe<Statement*>();
     }
 
-    assert(false);
+    if (!tokens.nextCharIs(Token("{"))) {
+      return maybe<Statement*>();
+    }
+    tokens.parseChar();
+
+    auto stmts = many<Statement*>(parseStatement, tokens);
+
+    if (!tokens.nextCharIs(Token("}"))) {
+      return maybe<Statement*>();
+    }
+    tokens.parseChar();
+    
+
+    return new PipelineBlock(iiExpr.get_value(), stmts);
   }
   
   maybe<Statement*> parseForLoop(ParseState<Token>& tokens) {

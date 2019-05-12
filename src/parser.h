@@ -642,6 +642,7 @@ namespace ahaHLS {
 
   enum StatementKind {
     STATEMENT_KIND_CLASS_DECL,
+    STATEMENT_KIND_PIPELINE,
     STATEMENT_KIND_FUNCTION_DECL,
     STATEMENT_KIND_ARG_DECL,  
     STATEMENT_KIND_ASSIGN,
@@ -1224,6 +1225,24 @@ namespace ahaHLS {
 
   }
 
+  class PipelineBlock : public Statement {
+  public:
+    Expression* ii;
+    vector<Statement*> body;
+
+    PipelineBlock(Expression* e_,
+                  std::vector<Statement*>& stmts_) : ii(e_), body(stmts_) {}
+
+    static bool classof(const Statement* const stmt) {
+      return stmt->getKind() == STATEMENT_KIND_PIPELINE;
+    }
+  
+    virtual StatementKind getKind() const {
+      return STATEMENT_KIND_PIPELINE;
+    }
+    
+  };
+    
   class DoWhileLoop : public Statement {
   public:
 
