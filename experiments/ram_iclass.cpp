@@ -14,6 +14,13 @@ class RAM {
   input_5 raddr_0;
   output_32 rdata_0;
 
+  // write0[0] == write1[0] -> start(write0) < start(write1)
+  // write0[0] == read0[0] -> end(write0) <= start(read0)
+
+  // Q: How do you say that reads are independent?
+  // A: Really reads cannot start in the same cycle
+  // T -> start(read0) != end(read0)
+
   void write(bit_5& addr, bit_32& data) {
   set_wen:
     set_port(wen_0, 1);

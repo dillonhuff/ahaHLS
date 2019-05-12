@@ -942,43 +942,45 @@ namespace ahaHLS {
     
       auto arch = synthesizeVerilog(scppMod, "independent_writes");
 
-      // map<llvm::Value*, int> layout = {};
+      VerilogDebugInfo info;
+      addNoXChecks(arch, info);
 
-      // auto in =
-      //   sc<Argument>(getArg(scppMod.getFunction("filter_ram")->llvmFunction(), 0));
-      // TestBenchSpec tb;
-      // map<string, int> testLayout = {};
-      // tb.memoryInit = {};
-      // tb.memoryExpected = {};
-      // tb.runCycles = 70;
-      // tb.maxCycles = 100;
-      // tb.name = "filter_ram";
-      // tb.useModSpecs = true;
-      // tb.settablePort(in, "debug_addr");
-      // tb.settablePort(in, "debug_write_addr");
-      // tb.settablePort(in, "debug_write_data");
-      // tb.settablePort(in, "debug_write_en");            
+      map<llvm::Value*, int> layout = {};
 
-      // tb.setArgPort(in, "debug_write_addr", 1, "0");
-      // tb.setArgPort(in, "debug_write_data", 1, "6");
-      // tb.setArgPort(in, "debug_write_en", 1, "1");    
+      auto in =
+        sc<Argument>(getArg(scppMod.getFunction("independent_writes")->llvmFunction(), 0));
+      TestBenchSpec tb;
+      map<string, int> testLayout = {};
+      tb.memoryInit = {};
+      tb.memoryExpected = {};
+      tb.runCycles = 70;
+      tb.maxCycles = 100;
+      tb.name = "independent_writes";
+      tb.useModSpecs = true;
+      tb.settablePort(in, "debug_addr");
+      tb.settablePort(in, "debug_write_addr");
+      tb.settablePort(in, "debug_write_data");
+      tb.settablePort(in, "debug_write_en");            
 
-      // tb.setArgPort(in, "debug_write_addr", 2, "1");
-      // tb.setArgPort(in, "debug_write_data", 2, "8");
-      // tb.setArgPort(in, "debug_write_en", 2, "1");    
+      tb.setArgPort(in, "debug_write_addr", 1, "0");
+      tb.setArgPort(in, "debug_write_data", 1, "6");
+      tb.setArgPort(in, "debug_write_en", 1, "1");    
 
-      // tb.setArgPort(in, "debug_write_en", 3, "0");
-      // map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+      tb.setArgPort(in, "debug_write_addr", 2, "1");
+      tb.setArgPort(in, "debug_write_data", 2, "8");
+      tb.setArgPort(in, "debug_write_en", 2, "1");    
 
-      // map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
+      tb.setArgPort(in, "debug_write_en", 3, "0");
+      map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+
+      map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
     
-      // tb.setArgPort(in, "debug_addr", 76, "10");
-      // map_insert(tb.actionsOnCycles, 76, assertString("arg_0_debug_data === (8 + 6)"));
-    
-      // emitVerilogTestBench(tb, arch, testLayout);
+      tb.setArgPort(in, "debug_addr", 76, "10");
+      map_insert(tb.actionsOnCycles, 76, assertString("arg_0_debug_data === (8 + 6)"));
+      emitVerilogTestBench(tb, arch, testLayout);
 
-      // // Need to figure out how to inline register specifications
-      // REQUIRE(runIVerilogTest("filter_ram_tb.v", "filter_ram", " builtins.v filter_ram.v RAM.v delay.v ram_primitives.v"));
+      // Need to figure out how to inline register specifications
+      REQUIRE(runIVerilogTest("independent_writes_tb.v", "independent_writes", " builtins.v independent_writes.v RAM.v delay.v ram_primitives.v"));
 
   }
 }
