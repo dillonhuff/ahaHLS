@@ -712,17 +712,17 @@ namespace ahaHLS {
     return exp->getInt();
   }
   
-  void SynthCppModule::genLLVM(PipelineBlock* const stmt) {
+  void SynthCppModule::genLLVM(PipelineBlock* const pipe) {
 
     cout << "Generating llvm for pipeline" << endl;
-    Expression* targetII = stmt->ii;
+    Expression* targetII = pipe->ii;
     int ii = extractInt(targetII);
 
     cout << "Pushing pipeline" << endl;    
     pushPipeline(ii);
 
     cout << "Pushed pipeline" << endl;        
-    for (auto stmt : stmt->body) {
+    for (auto stmt : pipe->body) {
       genLLVM(stmt);
     }
 
