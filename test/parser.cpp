@@ -1011,7 +1011,31 @@ namespace ahaHLS {
 
       // Need to figure out how to inline register specifications
       REQUIRE(runIVerilogTest("pipelined_structural_hazard_tb.v", "pipelined_structural_hazard", " builtins.v pipelined_structural_hazard.v RAM.v delay.v ram_primitives.v"));
+    }
 
+    SECTION("Pipelined with II == 2 due to memory hazard") {
+      ParserModule parseM = parseSynthModule("./experiments/ram_iclass.cpp");
+      SynthCppModule scppMod(parseM);
+
+      auto arch = synthesizeVerilog(scppMod, "pipelined_memory_hazard");
+
+      TestBenchSpec tb;
+      map<string, int> testLayout = {};
+      tb.runCycles = 70;
+      tb.maxCycles = 100;
+      tb.name = "pipelined_memory_hazard";
+      tb.useModSpecs = true;
+      map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+
+      // TODO: Reintroduce after figuring out cross-call constraints
+      // map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
+      setRAMContents(tb, 0, "arg_0", {0});
+
+      checkRAMContents(tb, 30, "arg_0", {0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      // Need to figure out how to inline register specifications
+      REQUIRE(runIVerilogTest("pipelined_memory_hazard_tb.v", "pipelined_memory_hazard", " builtins.v pipelined_memory_hazard.v RAM.v delay.v ram_primitives.v"));
     }
     
   }
