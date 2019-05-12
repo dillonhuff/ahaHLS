@@ -672,13 +672,29 @@ namespace ahaHLS {
 
   BasicBlock*
   SynthCppModule::addBB(const std::string& name, llvm::Function* const f) {
-    return mkBB(name, f);
+    auto bb = mkBB(name, f);
+    if (cgs.inPipeline) {
+      cgs.activePipeline.blks.insert(bb);
+    }
+
+    return bb;
   }
 
   void SynthCppModule::pushPipeline(const int II) {
+    assert(activeFunction != nullptr);
+    
+    cgs.activePipeline = PipelineSpec();
+    cgs.activePipeline.staticII = II;
+    cgs.inPipeline = true;
   }
 
   void SynthCppModule::popPipeline() {
+    assert(cgs.inPipeline);
+    cgs.inPipeline = false;
+
+    assert(activeFunction != nullptr);
+    
+    activeFunction->pipelines.insert(cgs.activePipeline);
   }
 
   int extractInt(Expression* expr) {
@@ -688,15 +704,22 @@ namespace ahaHLS {
   }
   
   void SynthCppModule::genLLVM(PipelineBlock* const stmt) {
+
+    cout << "Generating llvm for pipeline" << endl;
     Expression* targetII = stmt->ii;
     int ii = extractInt(targetII);
-    
+
+    cout << "Pushing pipeline" << endl;    
     pushPipeline(ii);
-    
+
+    cout << "Pushed pipeline" << endl;        
     for (auto stmt : stmt->body) {
       genLLVM(stmt);
     }
-    
+
+    cout << "Popping pipeline" << endl;            
     popPipeline();
+
+    cout << "Popped pipeline" << endl;                
   }
 }

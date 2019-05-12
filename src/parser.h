@@ -1376,6 +1376,7 @@ namespace ahaHLS {
     std::map<std::string, SynthCppType*> symtab;
     SynthCppType* retType;
     ExecutionConstraints* constraints;
+    set<PipelineSpec> pipelines;
 
     bool hasReturnType() {
       return retType != nullptr;
@@ -1601,7 +1602,10 @@ namespace ahaHLS {
 
     SymbolTable symtab;
 
-    CodeGenState() : activeBlock(nullptr) {}
+    bool inPipeline;
+    PipelineSpec activePipeline;
+
+    CodeGenState() : activeBlock(nullptr), inPipeline(false) {}
 
     BasicBlock& getActiveBlock() const { return *activeBlock; }
     void setActiveBlock(BasicBlock* blk) {
@@ -1777,7 +1781,7 @@ namespace ahaHLS {
                 sf->retType = methodFuncDecl->returnType;
                 sf->constraints = &(interfaces.getConstraints(f));
 
-                auto bb = mkBB("entry_block", f);
+                auto bb = addBB("entry_block", f);
                 cgs.setActiveBlock(bb);
               
                 //IRBuilder<> b(bb);
@@ -1864,7 +1868,7 @@ namespace ahaHLS {
           interfaces.addFunction(f);
           sf->constraints = &interfaces.getConstraints(f);
 
-          auto bb = mkBB("entry_block", f);
+          auto bb = addBB("entry_block", f);
           cgs.setActiveBlock(bb);
         
           //IRBuilder<> b(bb);
@@ -2272,9 +2276,9 @@ namespace ahaHLS {
       auto bd = cgs.builder();
 
       // Need entry block to check
-      auto loopTestBlock = mkBB( "for_blk_init_test_" + uniqueNumString(), activeFunction->llvmFunction());
-      auto loopBodyBlock = mkBB( "for_body_" + uniqueNumString(), activeFunction->llvmFunction());
-      auto nextBlock = mkBB( "for_body_" + uniqueNumString(), activeFunction->llvmFunction());    
+      auto loopTestBlock = addBB( "for_blk_init_test_" + uniqueNumString(), activeFunction->llvmFunction());
+      auto loopBodyBlock = addBB( "for_body_" + uniqueNumString(), activeFunction->llvmFunction());
+      auto nextBlock = addBB( "for_body_" + uniqueNumString(), activeFunction->llvmFunction());    
 
       genLLVM(init);
       bd.CreateBr(loopTestBlock);
@@ -2398,14 +2402,14 @@ namespace ahaHLS {
 
       auto lastBlock = cgs.builder();
       auto loopBlock =
-        mkBB("while_loop_" + uniqueNumString(), activeFunction->llvmFunction());
+        addBB("while_loop_" + uniqueNumString(), activeFunction->llvmFunction());
       lastBlock.CreateBr(loopBlock);
 
       cgs.setActiveBlock(loopBlock);
 
       // Create exit block
       auto nextBlock =
-        mkBB("after_while_" + uniqueNumString(), activeFunction->llvmFunction());
+        addBB("after_while_" + uniqueNumString(), activeFunction->llvmFunction());
 
       for (auto stmt : stmts) {
         genLLVM(stmt);
