@@ -947,27 +947,12 @@ namespace ahaHLS {
 
       map<llvm::Value*, int> layout = {};
 
-      // auto in =
-      //   sc<Argument>(getArg(scppMod.getFunction("independent_writes")->llvmFunction(), 0));
       TestBenchSpec tb;
       map<string, int> testLayout = {};
       tb.runCycles = 70;
       tb.maxCycles = 100;
       tb.name = "independent_writes";
       tb.useModSpecs = true;
-      // tb.settablePort(in, "debug_write_addr");
-      // tb.settablePort(in, "debug_write_data");
-      // tb.settablePort(in, "debug_write_en");            
-
-      // tb.setArgPort(in, "debug_write_addr", 1, "0");
-      // tb.setArgPort(in, "debug_write_data", 1, "6");
-      // tb.setArgPort(in, "debug_write_en", 1, "1");    
-
-      // tb.setArgPort(in, "debug_write_addr", 2, "1");
-      // tb.setArgPort(in, "debug_write_data", 2, "8");
-      // tb.setArgPort(in, "debug_write_en", 2, "1");    
-
-      // tb.setArgPort(in, "debug_write_en", 3, "0");
       map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
 
       map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
