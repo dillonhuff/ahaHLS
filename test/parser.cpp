@@ -964,4 +964,24 @@ namespace ahaHLS {
       REQUIRE(runIVerilogTest("independent_writes_tb.v", "independent_writes", " builtins.v independent_writes.v RAM.v delay.v ram_primitives.v"));
 
   }
+
+  TEST_CASE("Pipeline statement") {
+    std::string str =
+      "pipeline() {"
+      "for (index = 0; index < 5; index = index + 1) {"
+      "mem.write(index, index);"
+      "}"
+      "}";
+
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+
+    REQUIRE(tp.has_value());
+
+    REQUIRE(st.atEnd());
+
+    delete tp.get_value();
+  }
+
+  
 }
