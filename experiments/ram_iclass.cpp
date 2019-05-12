@@ -77,3 +77,15 @@ void pipelined_independent_writes(RAM& mem) {
     }
   }
 }
+
+void pipelined_structural_hazard(RAM& mem) {
+
+  bit_32 index;
+
+  pipeline(2) {
+    for (index = 0; index < 5; index = index + 1) {
+      mem.write(2*index, 2*index);
+      mem.write(2*index + 1, 2*index + 1);
+    }
+  }
+}

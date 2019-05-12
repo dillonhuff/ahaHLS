@@ -989,6 +989,30 @@ namespace ahaHLS {
 
     }
 
+    SECTION("Pipelined with II == 2 due to structural hazard") {
+      ParserModule parseM = parseSynthModule("./experiments/ram_iclass.cpp");
+      SynthCppModule scppMod(parseM);
+
+      auto arch = synthesizeVerilog(scppMod, "pipelined_structural_hazard");
+
+      TestBenchSpec tb;
+      map<string, int> testLayout = {};
+      tb.runCycles = 70;
+      tb.maxCycles = 100;
+      tb.name = "pipelined_structural_hazard";
+      tb.useModSpecs = true;
+      map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+
+      map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
+    
+      checkRAMContents(tb, 30, "arg_0", {0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      // Need to figure out how to inline register specifications
+      REQUIRE(runIVerilogTest("pipelined_structural_hazard_tb.v", "pipelined_structural_hazard", " builtins.v pipelined_structural_hazard.v RAM.v delay.v ram_primitives.v"));
+
+    }
+    
   }
 
   
