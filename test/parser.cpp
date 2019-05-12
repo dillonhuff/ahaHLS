@@ -967,7 +967,7 @@ namespace ahaHLS {
 
   TEST_CASE("Pipeline statement") {
     std::string str =
-      "pipeline() {"
+      "pipeline(4) {"
       "for (index = 0; index < 5; index = index + 1) {"
       "mem.write(index, index);"
       "}"

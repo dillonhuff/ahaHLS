@@ -164,3 +164,6 @@ simple_outer_loop.v
 task_parallel_loop*
 cascade_halide_first_lb*
 halid_cascade*
+independent_writes*
+hist_simple_illegal*
+hist_simple*

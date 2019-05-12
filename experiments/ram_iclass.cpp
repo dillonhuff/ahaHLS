@@ -65,3 +65,15 @@ void independent_writes(RAM& mem) {
     mem.write(index, index);
   }
 }
+
+
+void pipelined_independent_writes(RAM& mem) {
+
+  bit_32 index;
+
+  pipeline(1) {
+    for (index = 0; index < 5; index = index + 1) {
+      mem.write(index, index);
+    }
+  }
+}
