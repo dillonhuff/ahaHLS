@@ -95,18 +95,18 @@ void pipelined_structural_hazard(RAM& mem) {
 void pipelined_memory_hazard(RAM& mem) {
   bit_32 index;
 
-  pipeline(2) {
+  //pipeline(2) {
     for (index = 1; index < 10; index = index + 1) {
       bit_32 prev;
       prev = index - 1;
 
       bit_32 val;
-      val = mem.read(index);
+      val = mem.read(prev);
       val = val + 1;
       
       mem.write(index, val);
     }
-  }
+    //}
 
   return;
 }

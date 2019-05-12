@@ -1031,7 +1031,7 @@ namespace ahaHLS {
       // map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
       setRAMContents(tb, 0, "arg_0", {0});
 
-      checkRAMContents(tb, 30, "arg_0", {0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
+      checkRAMContents(tb, 50, "arg_0", {0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
       emitVerilogTestBench(tb, arch, testLayout);
 
       // Need to figure out how to inline register specifications
