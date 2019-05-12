@@ -479,6 +479,24 @@ namespace ahaHLS {
   
   }
 
+  TEST_CASE("Pipeline statement") {
+    std::string str =
+      "pipeline(4) {"
+      "for (index = 0; index < 5; index = index + 1) {"
+      "mem.write(index, index);"
+      "}"
+      "}";
+
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+
+    REQUIRE(tp.has_value());
+
+    REQUIRE(st.atEnd());
+
+    delete tp.get_value();
+  }
+
   TEST_CASE("Code generation tests") {
 
     {
@@ -910,77 +928,40 @@ namespace ahaHLS {
     
   }
 
+  ParserModule parseSynthModule(const std::string filePath) {
+    ifstream t(filePath);
+    std::string str((std::istreambuf_iterator<char>(t)),
+                    std::istreambuf_iterator<char>());
+
+    auto tokens = tokenize(str);
+    ParserModule parseMod = parse(tokens);
+
+    return parseMod;
+  }
+  
   TEST_CASE("RAM pipelining tests") {
 
-      ifstream t("./experiments/ram_iclass.cpp");
-      std::string str((std::istreambuf_iterator<char>(t)),
-                      std::istreambuf_iterator<char>());
+    ParserModule parseM = parseSynthModule("./experiments/ram_iclass.cpp");
+    SynthCppModule scppMod(parseM);
 
-      auto tokens = tokenize(str);
-      cout << "Tokens" << endl;
-      for (auto t : tokens) {
-        cout << "\t" << t.getStr() << endl;
-      }
+    auto arch = synthesizeVerilog(scppMod, "independent_writes");
 
-      ParserModule parseMod = parse(tokens);
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.runCycles = 70;
+    tb.maxCycles = 100;
+    tb.name = "independent_writes";
+    tb.useModSpecs = true;
+    map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
 
-      cout << parseMod << endl;
-
-      REQUIRE(parseMod.getStatements().size() >= 2);
-
-      SynthCppModule scppMod(parseMod);
-
-      REQUIRE(scppMod.getClasses().size() >= 1);
-      REQUIRE(scppMod.getFunctions().size() >= 1);
-
-      cout << "Before synthesize verilog: # of interface functions = " << scppMod.getInterfaceFunctions().constraints.size() << endl;
-      for (auto func : scppMod.getInterfaceFunctions().constraints) {
-        cout << tab(1) << "# of constraints on " <<
-          string(func.first->getName()) << " = " <<
-          func.second.constraints.size() << endl;
-      }
+    map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
     
-      auto arch = synthesizeVerilog(scppMod, "independent_writes");
+    checkRAMContents(tb, 30, "arg_0", {0, 1, 2, 3, 4});
+    emitVerilogTestBench(tb, arch, testLayout);
 
-      VerilogDebugInfo info;
-      addNoXChecks(arch, info);
+    // Need to figure out how to inline register specifications
+    REQUIRE(runIVerilogTest("independent_writes_tb.v", "independent_writes", " builtins.v independent_writes.v RAM.v delay.v ram_primitives.v"));
 
-      map<llvm::Value*, int> layout = {};
-
-      TestBenchSpec tb;
-      map<string, int> testLayout = {};
-      tb.runCycles = 70;
-      tb.maxCycles = 100;
-      tb.name = "independent_writes";
-      tb.useModSpecs = true;
-      map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
-
-      map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
-    
-      checkRAMContents(tb, 30, "arg_0", {0, 1, 2, 3, 4});
-      emitVerilogTestBench(tb, arch, testLayout);
-
-      // Need to figure out how to inline register specifications
-      REQUIRE(runIVerilogTest("independent_writes_tb.v", "independent_writes", " builtins.v independent_writes.v RAM.v delay.v ram_primitives.v"));
-
-  }
-
-  TEST_CASE("Pipeline statement") {
-    std::string str =
-      "pipeline(4) {"
-      "for (index = 0; index < 5; index = index + 1) {"
-      "mem.write(index, index);"
-      "}"
-      "}";
-
-    ParseState<Token> st(tokenize(str));
-    auto tp = parseStatement(st);
-
-    REQUIRE(tp.has_value());
-
-    REQUIRE(st.atEnd());
-
-    delete tp.get_value();
   }
 
   
