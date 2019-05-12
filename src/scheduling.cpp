@@ -875,6 +875,45 @@ namespace ahaHLS {
     return controlPredecessors;
   }
 
+  bool isWriteToPort(Instruction* instr,
+                     Value* mod,
+                     const string port) {
+    if (!isBuiltinPortWrite(instr)) {
+      return false;
+    }
+
+    CallInst* c = dyn_cast<CallInst>(instr);
+
+    if (c->getOperand(0) != mod) {
+      return false;
+    }
+
+    return getPortName(c) == port;
+  }
+  
+  set<Value*> allStructsWrittenIn(BasicBlock* bb) {
+    set<Value*> ss;
+    for (auto& instr : *bb) {
+      if (isBuiltinPortWrite(&instr)) {
+        ss.insert(instr.getOperand(0));
+      }
+    }
+    return ss;
+  }
+
+  // Assumes no aliasing
+  set<string> allWritesToPortIn(Value* mod, BasicBlock* bb) {
+    set<string> allW;
+    for (auto& instr : *bb) {
+      if (isBuiltinPortWrite(&instr)) {
+        if (instr.getOperand(0) == mod) {
+          allW.insert(getPortName(&instr));
+        }
+      }
+    }
+    return allW;
+  }
+  
   void addDataConstraints(llvm::Function* f, ExecutionConstraints& exe) {
     for (auto& bb : f->getBasicBlockList()) {
 
@@ -1152,6 +1191,10 @@ namespace ahaHLS {
     }
 
     // If all instructions fit in 1 group there is no resource conflict
+    if (iGroups.size() <= 1) {
+      return;
+    }
+
     assert(iGroups.size() > 1);
 
     // Make sure subsequent pipelined loop iterations obey
@@ -1172,6 +1215,7 @@ namespace ahaHLS {
     }
     
   }
+  
   
   void
   addMemoryConstraints(llvm::Function* f,
@@ -1281,6 +1325,11 @@ namespace ahaHLS {
 
     // Add partial order constraints to respect resource constraints
     for (auto& bb : f->getBasicBlockList()) {
+
+      // More general form:
+      // for any two instructions with a hazard between them add code
+      // to split them across a given block?
+      
       for (auto& op : allOps()) {
 
         int opCount = countOperations(op, &bb);
@@ -1308,6 +1357,26 @@ namespace ahaHLS {
 
           addOrderConstraints(iGroups, exe, p, toPipeline, bb);
 
+        }
+      }
+
+      // For each port on each struct check
+      //for (Function* portWrite : allBuiltinWriteTypes(&bb)) {
+      for (Value* mod : allStructsWrittenIn(&bb)) {
+        for (string portName : allWritesToPortIn(mod, &bb)) {
+          for (auto& instr : bb) {
+
+            vector<vector<Instruction*> > iGroups;
+            for (auto& instr : bb) {
+              // same module?
+              if (isWriteToPort(&instr, mod, portName)) {
+                iGroups.push_back({&instr});                
+              }
+            }
+
+            addOrderConstraints(iGroups, exe, p, toPipeline, bb);
+          
+          }
         }
       }
     }
@@ -1356,6 +1425,7 @@ namespace ahaHLS {
 
     return p;
   }
+
 
   SchedulingProblem
   createSchedulingProblem(llvm::Function* f,
