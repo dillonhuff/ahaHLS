@@ -872,8 +872,12 @@ namespace ahaHLS {
     auto args = hazard->args;
     assert(args.size() == 2);
 
-    auto stmts = hazard->body;
+    string sourceMethod = args[0]->name.getStr();
+    string sinkMethod = args[1]->name.getStr();
 
+    auto stmts = hazard->body;
     assert(stmts.size() == 1);
+
+    cgs.getActiveClass()->hazards.push_back({sourceMethod, sinkMethod, nullptr, nullptr});
   }
 }
