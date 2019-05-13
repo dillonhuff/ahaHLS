@@ -533,12 +533,32 @@ namespace ahaHLS {
     }
   }
 
-  Schedule scheduleInterfaceZeroReg(llvm::Function* f,
+  Schedule scheduleInterfaceZeroReg(SynthCppModule& mod,
+                                    // Top level function
+                                    SynthCppFunction* sf,
                                     HardwareConstraints& hcs,
                                     InterfaceFunctions& interfaces,
                                     std::set<PipelineSpec>& toPipeline,
                                     ExecutionConstraints& exec) {
 
+    auto f = sf->llvmFunction();
+
+    // Need to add SynthCppModule as an argument. Then iterate over
+    // each pair of instructions and check if it matches the hazard
+    // condition.
+    for (auto cl : mod.classes) {
+      cout << "Hazards in " << cl->getName() << endl;
+      for (auto h : cl->hazards) {
+        cout << tab(1) << h.sourceMethod << ", " << h.sinkMethod << endl;
+      }
+      
+    }
+    
+    // cout << "Hazards" << endl;
+    // for (auto h : sf->hazards) {
+    //   cout << tab(1) << h.sourceMethod << ", " << h.sinkMethod << endl;
+    // }
+    
     cout << "Before inlining" << endl;
     cout << valueString(f) << endl;
 
@@ -699,11 +719,11 @@ namespace ahaHLS {
     }
   
     Schedule s =
-      scheduleInterfaceZeroReg(f->llvmFunction(),
+      scheduleInterfaceZeroReg(scppMod,
+                               f,
                                scppMod.getHardwareConstraints(),
                                scppMod.getInterfaceFunctions(),
                                f->pipelines,
-                               //scppMod.getBlocksToPipeline(),
                                scppMod.getInterfaceFunctions().getConstraints(f->llvmFunction()));
 
     STG graph = buildSTG(s, f->llvmFunction());
