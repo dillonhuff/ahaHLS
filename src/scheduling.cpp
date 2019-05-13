@@ -25,6 +25,21 @@ using namespace z3;
 
 namespace ahaHLS {
 
+  void addStandardConstraints(Function* const f,
+                              ExecutionConstraints& exe);
+
+  void
+  createMemoryConstraints(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          ExecutionConstraints& exe,
+                          AAResults& aliasAnalysis,
+                          ScalarEvolution& sc);
+  
+  SchedulingProblem
+  createSchedulingProblem(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          ExecutionConstraints& exe);
+  
   std::string ExecutionConstraints::getIIName(BasicBlock* const bb) {
     int i = 0;
     for (auto& pSpec : toPipeline) {
@@ -185,8 +200,28 @@ namespace ahaHLS {
 
       //errs() << "Scheduling " << "\n" << valueString(&F) << "\n";
       if (!contains_key(&F, functionConstraints)) {
-        SchedulingProblem p =
-          createSchedulingProblem(&F, hdc, toPipeline, a, sc);
+
+        auto f = &F;
+        ExecutionConstraints exe;
+        exe.toPipeline = toPipeline;
+        set<TaskSpec> tasks;
+        TaskSpec t;
+        for (auto& bb : f->getBasicBlockList()) {
+          t.blks.insert(&bb);
+        }
+        tasks.insert(t);
+        
+        exe.tasks = tasks;
+        std::map<BasicBlock*, vector<BasicBlock*> > controlPredecessors =
+          buildControlPreds(f);
+        exe.controlPredecessors = controlPredecessors;
+        addStandardConstraints(f, exe);
+        createMemoryConstraints(f, hdc, exe, a, sc);
+
+        SchedulingProblem p = createSchedulingProblem(f, hdc, exe);
+        
+        // SchedulingProblem p =
+        //   createSchedulingProblem(&F, hdc, toPipeline, a, sc);
 
         schedule = buildFromModel(p);
         schedule.problem = p;
@@ -1126,29 +1161,20 @@ namespace ahaHLS {
 
     addDataConstraints(f, exe);
   }
-  
+
   SchedulingProblem
   createSchedulingProblem(llvm::Function* f,
                           HardwareConstraints& hdc,
-                          std::set<PipelineSpec>& toPipeline,
-                          std::set<TaskSpec>& tasks,                          
-                          map<BasicBlock*, vector<BasicBlock*> >& controlPredecessors) {
+                          ExecutionConstraints& exe) {
 
-
-    ExecutionConstraints exe;
-    exe.toPipeline = toPipeline;
-    exe.tasks = tasks;
-    exe.controlPredecessors = controlPredecessors;
-
-    addStandardConstraints(f, exe);
     SchedulingProblem p(hdc);
 
     for (auto& bb : f->getBasicBlockList()) {
-      p.addBasicBlock(&bb, toPipeline);
+      p.addBasicBlock(&bb, exe.toPipeline);
     }
 
     int i = 0;
-    for (auto bb : toPipeline) {
+    for (auto bb : exe.toPipeline) {
       //string iiName = string("II_") + to_string(i);
       string iiName = exe.getIIName(*(begin(bb.blks)));
 
@@ -1165,6 +1191,25 @@ namespace ahaHLS {
     p.taskSpecs = exe.tasks;
 
     return p;
+
+  }  
+
+  SchedulingProblem
+  createSchedulingProblem(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          std::set<PipelineSpec>& toPipeline,
+                          std::set<TaskSpec>& tasks,                          
+                          map<BasicBlock*, vector<BasicBlock*> >& controlPredecessors) {
+
+
+    ExecutionConstraints exe;
+    exe.toPipeline = toPipeline;
+    exe.tasks = tasks;
+    exe.controlPredecessors = controlPredecessors;
+
+    addStandardConstraints(f, exe);
+
+    return createSchedulingProblem(f, hdc, exe);
   }
 
   SchedulingProblem
