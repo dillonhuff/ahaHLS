@@ -1506,6 +1506,12 @@ namespace ahaHLS {
 
         for (Instruction& instrA : bb) {
           for (Instruction& instrB : bb) {
+
+            if (hdc.hasTypeSpec(&instrA)) {
+              ModuleSpec m = hdc.getArgumentSpec(&instrA);
+              cout << "Module spec for " << valueString(&instrA) << " = " << m << endl;
+            }
+            
             int rawDD = rawOperandDD(&instrA, &instrB, domTree);
             if (rawDD > 0) {
               Ordered* ddC = instrEnd(&instrA) < instrStart(&instrB);
