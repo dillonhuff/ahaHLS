@@ -1404,12 +1404,17 @@ namespace ahaHLS {
       //if (elem(&bb, toPipeline)) {
       if (inAnyPipeline(&bb, toPipeline)) {
         LinearExpression II = p.getII(&bb);
+        string IIName = (begin(II.getVars()))->first;
 
         for (Instruction& instrA : bb) {
           for (Instruction& instrB : bb) {
             int rawDD = rawOperandDD(&instrA, &instrB, domTree);
             if (rawDD > 0) {
-              p.addConstraint(p.instrEnd(&instrA) < II*rawDD + p.instrStart(&instrB));
+              //p.addConstraint(p.instrEnd(&instrA) < II*rawDD + p.instrStart(&instrB));
+              Ordered* ddC = instrEnd(&instrA) < instrStart(&instrB);
+              ddC->pipelineOffsets[IIName] = rawDD;
+              exe.add(ddC);
+                //p.addConstraint(p.instrEnd(&instrA) < II*rawDD + p.instrStart(&instrB));
             }
 
             if (StoreInst::classof(&instrA) &&
@@ -1419,7 +1424,12 @@ namespace ahaHLS {
                                          aliasAnalysis,
                                          sc);
               if (memRawDD > 0) {
-                p.addConstraint(p.instrEnd(&instrA) < II*memRawDD + p.instrStart(&instrB));
+
+                Ordered* ddC = instrEnd(&instrA) < instrStart(&instrB);
+                ddC->pipelineOffsets[IIName] = memRawDD;
+                exe.add(ddC);
+                
+              //p.addConstraint(p.instrEnd(&instrA) < II*memRawDD + p.instrStart(&instrB));
               }
             }
           }
