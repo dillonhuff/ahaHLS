@@ -85,7 +85,7 @@ namespace ahaHLS {
                        ScalarEvolution& sc,
                        SchedulingProblem& p);
 
-  void
+  ExecutionConstraints
   addMemoryConstraints(llvm::Function* f,
                        HardwareConstraints& hdc,
                        std::set<PipelineSpec>& toPipeline,
@@ -1199,7 +1199,7 @@ namespace ahaHLS {
     for (auto p : toPipeline) {
       pipe.insert({true, {p}});
     }
-    return addMemoryConstraints(f, hdc, pipe, aliasAnalysis, sc, p);
+    addMemoryConstraints(f, hdc, pipe, aliasAnalysis, sc, p);
   }
 
   void
@@ -1264,7 +1264,7 @@ namespace ahaHLS {
   // As a next step I want to use only exe to create memory constraints
   // Then: Remove schedulingproblem as an argument
 
-  void
+  ExecutionConstraints
   addMemoryConstraints(llvm::Function* f,
                        HardwareConstraints& hdc,
                        std::set<PipelineSpec>& toPipeline,
@@ -1468,6 +1468,8 @@ namespace ahaHLS {
     }
 
     exe.addConstraints(p, f);
+
+    return exe;
   }
 
   // Dewarping, shading?
