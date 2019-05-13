@@ -163,6 +163,7 @@ namespace ahaHLS {
     Schedule schedule;
 
     std::map<Function*, SchedulingProblem> functionConstraints;
+    std::map<Function*, ExecutionConstraints> exeConstraints;    
     
     SkeletonPass(Function* target_,
                  HardwareConstraints& hdc_,
@@ -198,51 +199,67 @@ namespace ahaHLS {
       ScalarEvolution& sc = getAnalysis<ScalarEvolutionWrapperPass>().getSE();
 
       //errs() << "Scheduling " << "\n" << valueString(&F) << "\n";
-      if (!contains_key(&F, functionConstraints)) {
 
-        auto f = &F;
-        ExecutionConstraints exe;
-        exe.toPipeline = toPipeline;
-        set<TaskSpec> tasks;
-        TaskSpec t;
-        for (auto& bb : f->getBasicBlockList()) {
-          t.blks.insert(&bb);
-        }
-        tasks.insert(t);
-        
-        exe.tasks = tasks;
-        std::map<BasicBlock*, vector<BasicBlock*> > controlPredecessors =
-          buildControlPreds(f);
-        exe.controlPredecessors = controlPredecessors;
+      auto f = &F;
+      
+      if (contains_key(&F, exeConstraints)) {
+        ExecutionConstraints& exe = exeConstraints[f];
         addStandardConstraints(f, exe);
         createMemoryConstraints(f, hdc, exe, a, sc);
 
         SchedulingProblem p = createSchedulingProblem(f, hdc, exe);
         
-        // SchedulingProblem p =
-        //   createSchedulingProblem(&F, hdc, toPipeline, a, sc);
-
         schedule = buildFromModel(p);
         schedule.problem = p;
         schedule.controlPredecessors =
           p.controlPredecessors;
         
       } else {
+        if (!contains_key(&F, functionConstraints)) {
 
-        // Maybe the input should be ExecutionConstraints rather than
-        // a SchedulingProblem?
-        SchedulingProblem p = map_find(&F, functionConstraints);
+          ExecutionConstraints exe;
+          exe.toPipeline = toPipeline;
+          set<TaskSpec> tasks;
+          TaskSpec t;
+          for (auto& bb : f->getBasicBlockList()) {
+            t.blks.insert(&bb);
+          }
+          tasks.insert(t);
+        
+          exe.tasks = tasks;
+          std::map<BasicBlock*, vector<BasicBlock*> > controlPredecessors =
+            buildControlPreds(f);
+          exe.controlPredecessors = controlPredecessors;
+          addStandardConstraints(f, exe);
+          createMemoryConstraints(f, hdc, exe, a, sc);
 
-        addMemoryConstraints(&F,
-                             hdc,
-                             toPipeline,
-                             a,
-                             sc,
-                             p);
-        schedule = buildFromModel(p);
-        schedule.problem = p;        
-        schedule.controlPredecessors =
-          p.controlPredecessors;
+          SchedulingProblem p = createSchedulingProblem(f, hdc, exe);
+        
+          // SchedulingProblem p =
+          //   createSchedulingProblem(&F, hdc, toPipeline, a, sc);
+
+          schedule = buildFromModel(p);
+          schedule.problem = p;
+          schedule.controlPredecessors =
+            p.controlPredecessors;
+        
+        } else {
+
+          // Maybe the input should be ExecutionConstraints rather than
+          // a SchedulingProblem?
+          SchedulingProblem p = map_find(&F, functionConstraints);
+
+          addMemoryConstraints(&F,
+                               hdc,
+                               toPipeline,
+                               a,
+                               sc,
+                               p);
+          schedule = buildFromModel(p);
+          schedule.problem = p;        
+          schedule.controlPredecessors =
+            p.controlPredecessors;
+        }
       }
 
       return false;
