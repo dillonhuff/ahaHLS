@@ -536,9 +536,6 @@ namespace ahaHLS {
   Schedule scheduleInterfaceZeroReg(SynthCppModule& mod,
                                     // Top level function
                                     SynthCppFunction* sf,
-                                    //HardwareConstraints& hcs,
-                                    //InterfaceFunctions& interfaces,
-                                    //std::set<PipelineSpec>& toPipeline,
                                     ExecutionConstraints& exec) {
 
     auto& hcs = mod.getHardwareConstraints();
@@ -555,14 +552,8 @@ namespace ahaHLS {
       for (auto h : cl->hazards) {
         cout << tab(1) << h.sourceMethod << ", " << h.sinkMethod << endl;
       }
-      
     }
-    
-    // cout << "Hazards" << endl;
-    // for (auto h : sf->hazards) {
-    //   cout << tab(1) << h.sourceMethod << ", " << h.sinkMethod << endl;
-    // }
-    
+
     cout << "Before inlining" << endl;
     cout << valueString(f) << endl;
 
@@ -725,9 +716,6 @@ namespace ahaHLS {
     Schedule s =
       scheduleInterfaceZeroReg(scppMod,
                                f,
-                               // scppMod.getHardwareConstraints(),
-                               // scppMod.getInterfaceFunctions(),
-                               //f->pipelines,
                                scppMod.getInterfaceFunctions().getConstraints(f->llvmFunction()));
 
     STG graph = buildSTG(s, f->llvmFunction());
@@ -896,8 +884,8 @@ namespace ahaHLS {
     auto args = hazard->args;
     assert(args.size() == 2);
 
-    string sourceMethod = args[0]->name.getStr();
-    string sinkMethod = args[1]->name.getStr();
+    string sourceMethod = extract<SynthCppStructType>(args[0]->tp)->name.getStr();
+    string sinkMethod = extract<SynthCppStructType>(args[1]->tp)->name.getStr();
 
     auto stmts = hazard->body;
     assert(stmts.size() == 1);
