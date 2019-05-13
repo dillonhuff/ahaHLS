@@ -1199,7 +1199,7 @@ namespace ahaHLS {
   void
   addOrderConstraints(vector<vector<Instruction*> >& iGroups,
                       ExecutionConstraints& exe,
-                      SchedulingProblem& p,
+                      //SchedulingProblem& p,
                       set<PipelineSpec>& toPipeline,
                       BasicBlock& bb) {
     // cout << "iGroups = " << iGroups.size() << endl;
@@ -1395,8 +1395,8 @@ namespace ahaHLS {
             iGroups.push_back(instrs);
           }
 
-          addOrderConstraints(iGroups, exe, p, toPipeline, bb);
-
+          //addOrderConstraints(iGroups, exe, p, toPipeline, bb);
+          addOrderConstraints(iGroups, exe, toPipeline, bb);
         }
       }
 
@@ -1414,8 +1414,8 @@ namespace ahaHLS {
               }
             }
 
-            addOrderConstraints(iGroups, exe, p, toPipeline, bb);
-          
+            //addOrderConstraints(iGroups, exe, p, toPipeline, bb);
+            addOrderConstraints(iGroups, exe, toPipeline, bb);
           }
         }
       }
@@ -1425,8 +1425,10 @@ namespace ahaHLS {
     for (auto& bb : f->getBasicBlockList()) {
       //if (elem(&bb, toPipeline)) {
       if (inAnyPipeline(&bb, toPipeline)) {
-        LinearExpression II = p.getII(&bb);
-        string IIName = (begin(II.getVars()))->first;
+        // LinearExpression II = p.getII(&bb);
+        // string IIName = (begin(II.getVars()))->first;
+
+        string IIName = exe.getIIName(&bb);
 
         for (Instruction& instrA : bb) {
           for (Instruction& instrB : bb) {
@@ -1460,7 +1462,6 @@ namespace ahaHLS {
     }
 
     exe.addConstraints(p, f);
-
   }
 
   // Dewarping, shading?
