@@ -1336,6 +1336,21 @@ namespace ahaHLS {
   // As a next step I want to use only exe to create memory constraints
   // Then: Remove schedulingproblem as an argument
 
+  maybe<HazardSpec>
+  findHazard(Instruction* a, Instruction* b, HardwareConstraints& hdc) {
+    return maybe<HazardSpec>();
+  }
+
+  // 
+  int extractHazardDistance(Instruction* a, Instruction* b, HazardSpec& hdc) {
+    return -1;
+  }
+
+  // TODO: Parse actual hazard expression
+  Ordered* extractHazardConstraint(Instruction* a, Instruction* b, HazardSpec& hdc) {
+    return instrEnd(a) <= instrStart(b);
+  }
+  
   void
   createMemoryConstraints(llvm::Function* f,
                           HardwareConstraints& hdc,
@@ -1507,16 +1522,41 @@ namespace ahaHLS {
         for (Instruction& instrA : bb) {
           for (Instruction& instrB : bb) {
 
-            if (instrA.getNumOperands() > 0) {
-              Value* op0 = instrA.getOperand(0);
-              if (hdc.hasArgumentSpec(op0)) {
-                ModuleSpec m = hdc.getArgumentSpec(op0);
-                cout << "Module spec for " << valueString(op0) << " = " << m << endl;
-              } else {
-                cout << "No argument spec for " << valueString(op0) << endl;
+            // Q: How do I translate port names in C++ hazard descriptions
+            // in to port values in the real hazard?
+
+            // Once the system detects a possible hazard pair, what should it do?
+            // 1. Extract the hazard condition expression
+            // 2. Compile it to Z3
+            // 3. If DD >= 0 then:
+            // 4. Compile the hazard timing restriction to LinearExpr
+            // 5. Add timing_restriction + DD*II_var to execution constraints
+            
+            maybe<HazardSpec> hm = findHazard(&instrA, &instrB, hdc);
+            if (hm.has_value()) {
+              HazardSpec h = hm.get_value();
+
+              // For more complex loop nests we will need more info about
+              // loop levels
+              int dd = extractHazardDistance(&instrA, &instrB, h);
+
+              if (dd >= 0) {
+                Ordered* oc = extractHazardConstraint(&instrA, &instrB, h);
+                oc->pipelineOffsets[IIName] = dd;
+                exe.add(oc);
               }
             }
             
+            // if (instrA.getNumOperands() > 0) {
+            //   Value* op0 = instrA.getOperand(0);
+            //   if (hdc.hasArgumentSpec(op0)) {
+            //     ModuleSpec m = hdc.getArgumentSpec(op0);
+            //     cout << "Module spec for " << valueString(op0) << " = " << m << endl;
+            //   } else {
+            //     cout << "No argument spec for " << valueString(op0) << endl;
+            //   }
+            // }
+
             int rawDD = rawOperandDD(&instrA, &instrB, domTree);
             if (rawDD > 0) {
               Ordered* ddC = instrEnd(&instrA) < instrStart(&instrB);

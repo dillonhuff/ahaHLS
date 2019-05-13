@@ -26,19 +26,19 @@ class RAM {
             start(call0) <= end(call1));
   }
 
-  hazard(write call0, write call1) {
-    implies(call0.addr() == call1.addr(),
-            start(call0) < start(call1));
-  }
+  // hazard(write call0, write call1) {
+  //   implies(call0.addr() == call1.addr(),
+  //           start(call0) < start(call1));
+  // }
 
-  hazard(read call0, write call1) {
-    implies(call0.addr() == call1.addr(),
-            start(call0) <= start(call1));
-  }
+  // hazard(read call0, write call1) {
+  //   implies(call0.addr() == call1.addr(),
+  //           start(call0) <= start(call1));
+  // }
   
-  hazard(read call0, read call1) {
-    false;
-  }
+  // hazard(read call0, read call1) {
+  //   false;
+  // }
 
   void write(bit_5& addr, bit_32& data) {
   set_wen:
