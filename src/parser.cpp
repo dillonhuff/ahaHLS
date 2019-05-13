@@ -170,6 +170,15 @@ namespace ahaHLS {
     assert(false);
   }
 
+  maybe<Statement*> parseHazard(ParseState<Token>& tokens) {
+    if (!tokens.nextCharIs(Token("hazard"))) {
+      return maybe<Statement*>();
+    }
+    tokens.parseChar();
+
+    assert(false);
+  }
+  
   maybe<Statement*> parsePipeline(ParseState<Token>& tokens) {
     if (!tokens.nextCharIs(Token("pipeline"))) {
       return maybe<Statement*>();
@@ -273,6 +282,11 @@ namespace ahaHLS {
     auto pipeStmt = tryParse<Statement*>(parsePipeline, tokens);
     if (pipeStmt.has_value()) {
       return pipeStmt;
+    }
+
+    auto hazardStmt = tryParse<Statement*>(parseHazard, tokens);
+    if (hazardStmt.has_value()) {
+      return hazardStmt;
     }
     
     if (tokens.peekChar() == Token("return")) {

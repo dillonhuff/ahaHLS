@@ -497,6 +497,23 @@ namespace ahaHLS {
     delete tp.get_value();
   }
 
+  TEST_CASE("Hazard statement") {
+    std::string str =
+      "hazard(write call0, read call1) {"
+      "implies(call0.addr == call1.addr,"
+      "add_hazard(start(call0) <= end(call1)));"
+      "}";
+
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+
+    REQUIRE(tp.has_value());
+
+    REQUIRE(st.atEnd());
+
+    delete tp.get_value();
+  }
+  
   TEST_CASE("Code generation tests") {
 
     {
