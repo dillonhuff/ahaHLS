@@ -1611,6 +1611,78 @@ namespace ahaHLS {
     }
 
   }
+
+  class MemConstraintsPass : public FunctionPass {
+  public:
+    static char ID;
+    Function* target;
+    HardwareConstraints& hdc;
+    std::map<Function*, ExecutionConstraints*> exes;
+    
+    MemConstraintsPass(Function* target_,
+                       HardwareConstraints& hdc_,
+                       std::map<Function*, ExecutionConstraints*> exes_) : 
+      FunctionPass(ID),      
+      target(target_),
+      hdc(hdc_),
+      exes(exes_) {}
+
+
+    std::string aliasString;
+    
+    virtual void getAnalysisUsage(AnalysisUsage& AU) const override {
+      AU.addRequired<AAResultsWrapperPass>();
+      AU.addRequired<ScalarEvolutionWrapperPass>();
+
+      AU.setPreservesAll();
+    }
+
+    virtual StringRef getPassName() const override {
+      return StringRef("DillonHuffSkeletonPass");
+    }
+    
+    virtual bool runOnFunction(Function &F) override {
+      if (&F != target) {
+        return false;
+      }
+
+      AAResults& a = getAnalysis<AAResultsWrapperPass>().getAAResults();
+      ScalarEvolution& sc = getAnalysis<ScalarEvolutionWrapperPass>().getSE();
+
+      auto f = &F;
+
+      if (contains_key(f, exes)) {
+        cout << "Creating memory constraints for " << valueString(f) << endl;
+        ExecutionConstraints* exePtr = map_find(f, exes);
+        createMemoryConstraints(f, hdc, *exePtr, a, sc);
+      }
+
+      return false;
+    }
+  };
+
+  char MemConstraintsPass::ID = 0;
+  
+  void
+  createMemoryConstraints(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          ExecutionConstraints& exe) {
+
+    llvm::legacy::PassManager pm;
+    auto skeleton = new MemConstraintsPass(f, hdc, {{}});
+    skeleton->exes = {{f, &exe}};
+    pm.add(new LoopInfoWrapperPass());
+    pm.add(new AAResultsWrapperPass());
+    pm.add(new TargetLibraryInfoWrapperPass());
+    pm.add(skeleton);
+
+    pm.run(*(f->getParent()));
+
+    // if (contains_key(f, constraints)) {
+    //   s.controlPredecessors = map_find(f, constraints).controlPredecessors;
+    // }
+    
+  }
   
   ExecutionConstraints
   addMemoryConstraints(llvm::Function* f,
@@ -4862,8 +4934,8 @@ namespace ahaHLS {
   void sequentialCalls(llvm::Function* f,
                        ExecutionConstraints& exec) {
     for (auto& bb : f->getBasicBlockList()) {
-      Instruction* first = nullptr;
-      Instruction* second = nullptr;
+      //Instruction* first = nullptr;
+      //Instruction* second = nullptr;
 
       OrderedBasicBlock obb(&bb);
 

@@ -1725,6 +1725,12 @@ namespace ahaHLS {
                               HardwareConstraints& hcs);
 
   std::set<llvm::BasicBlock*> activeOnExitBlocks(const StateId state, STG& stg);
+
+  void
+  createMemoryConstraints(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          ExecutionConstraints& exe);
+  
 }
 
 

@@ -558,13 +558,13 @@ namespace ahaHLS {
     // Need to add SynthCppModule as an argument. Then iterate over
     // each pair of instructions and check if it matches the hazard
     // condition.
-    cout << "Classes and hazards" << endl;
-    for (auto cl : mod.classes) {
-      cout << "Hazards in " << cl->getName() << endl;
-      for (auto h : cl->hazards) {
-        cout << tab(1) << h.sourceMethod << ", " << h.sinkMethod << endl;
-      }
-    }
+    // cout << "Classes and hazards" << endl;
+    // for (auto cl : mod.classes) {
+    //   cout << "Hazards in " << cl->getName() << endl;
+    //   for (auto h : cl->hazards) {
+    //     cout << tab(1) << h.sourceMethod << ", " << h.sinkMethod << endl;
+    //   }
+    // }
 
     cout << "Before inlining" << endl;
     cout << valueString(f) << endl;
@@ -594,6 +594,13 @@ namespace ahaHLS {
     // analysis before inlining?
 
     // Other angles: HLS for mixed signal? Interaction with analog components?
+
+    // TODO: Before inlining add special function hazards to the memory
+    // Note: I will need SCEV no matter what, and probably alias analysis too
+
+    createMemoryConstraints(f, hcs, exec);
+
+
     inlineWireCalls(f, exec, interfaces);
 
     // TODO: Where to put this stuff
@@ -631,6 +638,7 @@ namespace ahaHLS {
     // for (auto mspec : hcs.memSpecs) {
     //   cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
     // }
+
 
     auto preds = buildControlPreds(f);    
     SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline, preds);
