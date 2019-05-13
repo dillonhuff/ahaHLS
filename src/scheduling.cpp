@@ -1336,9 +1336,45 @@ namespace ahaHLS {
   // As a next step I want to use only exe to create memory constraints
   // Then: Remove schedulingproblem as an argument
 
+  maybe<ModuleSpec>
+  extractSpec(Value* const op0, HardwareConstraints& hdc) {
+
+    if (hdc.hasArgumentSpec(op0)) {
+      ModuleSpec m = hdc.getArgumentSpec(op0);
+      return m;
+    }
+
+    return maybe<ModuleSpec>();
+  }
+  
   // TODO: Compute DD using substituted hazard condition  
   maybe<HazardSpec>
-  findHazard(Instruction* a, Instruction* b, HardwareConstraints& hdc) {
+  findHazard(Instruction* instrA, Instruction* instrB, HardwareConstraints& hdc) {
+
+
+    if ((instrA->getNumOperands() > 0) &&
+        (instrB->getNumOperands() > 0)) {
+      // TODO: Handle case where function has struct input return value
+      Value* op0A = instrA->getOperand(0);
+      Value* op0B = instrB->getOperand(0);
+
+      // TODO: Check aliasing
+      if (op0A == op0B) {
+        maybe<ModuleSpec> aSpecM = extractSpec(op0A, hdc);
+        maybe<ModuleSpec> bSpecM = extractSpec(op0B, hdc);
+
+        if (aSpecM.has_value() && bSpecM.has_value()) {
+          ModuleSpec aSpec = aSpecM.get_value();
+          ModuleSpec bSpec = bSpecM.get_value();
+
+          if (aSpec.name == bSpec.name) {
+            cout << "Instructions " << valueString(instrA) << " and " << valueString(instrB) << " potentially have a hazard" << endl;
+          }
+        }
+      }
+
+    }
+    
     return maybe<HazardSpec>();
   }
 
@@ -1548,16 +1584,6 @@ namespace ahaHLS {
               }
             }
             
-            // if (instrA.getNumOperands() > 0) {
-            //   Value* op0 = instrA.getOperand(0);
-            //   if (hdc.hasArgumentSpec(op0)) {
-            //     ModuleSpec m = hdc.getArgumentSpec(op0);
-            //     cout << "Module spec for " << valueString(op0) << " = " << m << endl;
-            //   } else {
-            //     cout << "No argument spec for " << valueString(op0) << endl;
-            //   }
-            // }
-
             int rawDD = rawOperandDD(&instrA, &instrB, domTree);
             if (rawDD > 0) {
               Ordered* ddC = instrEnd(&instrA) < instrStart(&instrB);
