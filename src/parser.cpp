@@ -890,6 +890,9 @@ namespace ahaHLS {
     auto stmts = hazard->body;
     assert(stmts.size() == 1);
 
+    Statement* hazardSTmt = stmts[0];
+    
+
     cgs.getActiveClass()->hazards.push_back({sourceMethod, sinkMethod, nullptr, nullptr});
   }
 }
