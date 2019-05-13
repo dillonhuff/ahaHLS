@@ -642,11 +642,13 @@ namespace ahaHLS {
   Schedule scheduleFunction(llvm::Function* f,
                             HardwareConstraints& hdc,
                             std::set<PipelineSpec>& toPipeline,
+                            std::map<Function*, ExecutionConstraints>& exeConstraints,
                             std::map<Function*, SchedulingProblem>& constraints) {
 
     llvm::legacy::PassManager pm;
     auto skeleton = new SkeletonPass(f, hdc, toPipeline);
     skeleton->functionConstraints = constraints;
+    skeleton->exeConstraints = exeConstraints;    
     pm.add(new LoopInfoWrapperPass());
     pm.add(new AAResultsWrapperPass());
     pm.add(new TargetLibraryInfoWrapperPass());
@@ -662,6 +664,13 @@ namespace ahaHLS {
     return s;
   }
 
+  Schedule scheduleFunction(llvm::Function* f,
+                            HardwareConstraints& hdc,
+                            std::set<PipelineSpec>& toPipeline,
+                            std::map<Function*, SchedulingProblem>& constraints) {
+    std::map<Function*, ExecutionConstraints> exeConstraints;
+    return scheduleFunction(f, hdc, toPipeline, exeConstraints, constraints);
+  }  
   // Note: Save this function!!
   // // TODO: Re-name, this is not really a topological sort, since
   // // it ignores back-edges, it is really just a linearization that tries
@@ -1491,10 +1500,7 @@ namespace ahaHLS {
 
     DominatorTree domTree(*f);
     for (auto& bb : f->getBasicBlockList()) {
-      //if (elem(&bb, toPipeline)) {
       if (inAnyPipeline(&bb, toPipeline)) {
-        // LinearExpression II = p.getII(&bb);
-        // string IIName = (begin(II.getVars()))->first;
 
         string IIName = exe.getIIName(&bb);
 
@@ -1502,11 +1508,9 @@ namespace ahaHLS {
           for (Instruction& instrB : bb) {
             int rawDD = rawOperandDD(&instrA, &instrB, domTree);
             if (rawDD > 0) {
-              //p.addConstraint(p.instrEnd(&instrA) < II*rawDD + p.instrStart(&instrB));
               Ordered* ddC = instrEnd(&instrA) < instrStart(&instrB);
               ddC->pipelineOffsets[IIName] = rawDD;
               exe.add(ddC);
-                //p.addConstraint(p.instrEnd(&instrA) < II*rawDD + p.instrStart(&instrB));
             }
 
             if (StoreInst::classof(&instrA) &&
@@ -1521,7 +1525,6 @@ namespace ahaHLS {
                 ddC->pipelineOffsets[IIName] = memRawDD;
                 exe.add(ddC);
                 
-              //p.addConstraint(p.instrEnd(&instrA) < II*memRawDD + p.instrStart(&instrB));
               }
             }
           }
