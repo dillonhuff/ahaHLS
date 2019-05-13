@@ -1264,16 +1264,15 @@ namespace ahaHLS {
   // As a next step I want to use only exe to create memory constraints
   // Then: Remove schedulingproblem as an argument
 
-  ExecutionConstraints
-  addMemoryConstraints(llvm::Function* f,
-                       HardwareConstraints& hdc,
-                       std::set<PipelineSpec>& toPipeline,
-                       AAResults& aliasAnalysis,
-                       ScalarEvolution& sc,
-                       SchedulingProblem& p) {
-    ExecutionConstraints exe;
-    exe.toPipeline = toPipeline;
+  void
+  createMemoryConstraints(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          ExecutionConstraints& exe,
+                          AAResults& aliasAnalysis,
+                          ScalarEvolution& sc) {
 
+    auto& toPipeline = exe.toPipeline;
+    
     // Instructions must finish before their dependencies
     for (auto& bb : f->getBasicBlockList()) {
 
@@ -1466,6 +1465,20 @@ namespace ahaHLS {
         }
       }
     }
+
+  }
+  
+  ExecutionConstraints
+  addMemoryConstraints(llvm::Function* f,
+                       HardwareConstraints& hdc,
+                       std::set<PipelineSpec>& toPipeline,
+                       AAResults& aliasAnalysis,
+                       ScalarEvolution& sc,
+                       SchedulingProblem& p) {
+    ExecutionConstraints exe;
+    exe.toPipeline = toPipeline;
+
+    createMemoryConstraints(f, hdc, exe, aliasAnalysis, sc);
 
     exe.addConstraints(p, f);
 
