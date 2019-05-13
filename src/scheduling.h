@@ -1083,6 +1083,9 @@ namespace ahaHLS {
       for (auto c : other.constraints) {
         addConstraint(c->clone());
       }
+      toPipeline = other.toPipeline;
+      tasks = other.tasks;
+      controlPredecessors = other.controlPredecessors;
     }
 
     std::string getIIName(BasicBlock* const bb);

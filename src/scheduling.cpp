@@ -1076,21 +1076,12 @@ namespace ahaHLS {
     
     return sorted;
   }
-  
-  SchedulingProblem
-  createSchedulingProblem(llvm::Function* f,
-                          HardwareConstraints& hdc,
-                          std::set<PipelineSpec>& toPipeline,
-                          std::set<TaskSpec>& tasks,                          
-                          map<BasicBlock*, vector<BasicBlock*> >& controlPredecessors) {
 
-
-    ExecutionConstraints exe;
-    exe.toPipeline = toPipeline;
-    exe.tasks = tasks;
-    exe.controlPredecessors = controlPredecessors;
-
-
+  void addStandardConstraints(Function* const f,
+                              ExecutionConstraints& exe) {
+    auto& tasks = exe.tasks;
+    auto& toPipeline = exe.toPipeline;
+    auto& controlPredecessors = exe.controlPredecessors;
     
     vector<TaskSpec> sortedTasks = sortTasks(tasks);
     for (int i = 0; i < ((int) sortedTasks.size()) - 1; i++) {
@@ -1134,7 +1125,22 @@ namespace ahaHLS {
     }
 
     addDataConstraints(f, exe);
-    
+  }
+  
+  SchedulingProblem
+  createSchedulingProblem(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          std::set<PipelineSpec>& toPipeline,
+                          std::set<TaskSpec>& tasks,                          
+                          map<BasicBlock*, vector<BasicBlock*> >& controlPredecessors) {
+
+
+    ExecutionConstraints exe;
+    exe.toPipeline = toPipeline;
+    exe.tasks = tasks;
+    exe.controlPredecessors = controlPredecessors;
+
+    addStandardConstraints(f, exe);
     SchedulingProblem p(hdc);
 
     for (auto& bb : f->getBasicBlockList()) {
