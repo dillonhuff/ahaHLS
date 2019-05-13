@@ -1401,6 +1401,16 @@ namespace ahaHLS {
     }
   }
 
+  class HazardSpec {
+  public:
+    string sourceMethod;
+    string sinkMethod;
+
+    // What is the right data structure to represent the hazard condition?
+    Expression* condition;
+    Expression* exeConstraint;
+  };
+  
   class SynthCppFunction {
   public:
     Token nameToken;
@@ -1409,6 +1419,7 @@ namespace ahaHLS {
     SynthCppType* retType;
     ExecutionConstraints* constraints;
     set<PipelineSpec> pipelines;
+    vector<HazardSpec> hazards;
 
     bool hasReturnType() {
       return retType != nullptr;
@@ -1783,8 +1794,6 @@ namespace ahaHLS {
             } else {
               assert(subStmt != nullptr);
               cout << "Unsupported statement in class, stmt kind: "  << subStmt->getKind() << endl;
-
-
               cout << *stmt << endl;
               assert(false);
             }
