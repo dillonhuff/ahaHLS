@@ -503,13 +503,36 @@ namespace ahaHLS {
                                     HardwareConstraints& hcs,
                                     InterfaceFunctions& interfaces,
                                     std::set<PipelineSpec>& toPipeline,
-                                    //std::set<BasicBlock*>& toPipeline,
                                     ExecutionConstraints& exec) {
 
     cout << "Before inlining" << endl;
     cout << valueString(f) << endl;
 
     addDataConstraints(f, exec);
+
+    // Problems:
+    // * One is that currently ExecutionConstraints
+    // only model constraints on the starts and ends of instructions
+    // they do not model constraints on the relative start and end times
+    // of different instances of instructions in a trace.
+    // * I have not added inter-call constraints to the language syntax
+    // * I need to preserve the results of inter-call constraints during
+    // inlining
+
+    // There is a tension between expressive models of built-in hardware
+    // (read / write port) and the ability to write constraints on larger
+    // operations.
+
+    // Q: Why couldnt I just start by adding pipeline constraints to exec
+    // and then letting the values inside them be inlined?
+    // A: Because the execution constraints in normal pipelining involve
+    // II, but ExecutionConstraints only allows order constraints that
+    // fit in difference logic
+
+    // Q: Maybe the thing to do is to start by writing code to do hazard
+    // analysis before inlining?
+
+    // Other angles: HLS for mixed signal? Interaction with analog components?
     inlineWireCalls(f, exec, interfaces);
 
     // TODO: Where to put this stuff
