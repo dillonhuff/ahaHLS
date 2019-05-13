@@ -1222,7 +1222,11 @@ namespace ahaHLS {
 
       for (auto firstI : iGroups.front()) {
         for (auto lastI : iGroups.back()) {
-          p.addConstraint(p.instrEnd(lastI) < II + p.instrStart(firstI));
+          //p.addConstraint(p.instrEnd(lastI) < II + p.instrStart(firstI));
+          Ordered* od = instrEnd(lastI) < instrStart(firstI);
+          string IIName = (begin(II.getVars()))->first;
+          od->pipelineOffsets[IIName] = 1;
+          exe.add(od);
         }
       }
 
