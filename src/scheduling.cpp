@@ -1473,7 +1473,6 @@ namespace ahaHLS {
                           ScalarEvolution& sc) {
     auto p = createSchedulingProblem(f, hdc, toPipeline);
     addMemoryConstraints(f, hdc, toPipeline, aliasAnalysis, sc, p);
-
     return p;
   }
   
