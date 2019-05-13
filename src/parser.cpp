@@ -536,16 +536,20 @@ namespace ahaHLS {
   Schedule scheduleInterfaceZeroReg(SynthCppModule& mod,
                                     // Top level function
                                     SynthCppFunction* sf,
-                                    HardwareConstraints& hcs,
-                                    InterfaceFunctions& interfaces,
-                                    std::set<PipelineSpec>& toPipeline,
+                                    //HardwareConstraints& hcs,
+                                    //InterfaceFunctions& interfaces,
+                                    //std::set<PipelineSpec>& toPipeline,
                                     ExecutionConstraints& exec) {
 
+    auto& hcs = mod.getHardwareConstraints();
+    auto& interfaces = mod.getInterfaceFunctions();
     auto f = sf->llvmFunction();
+    auto& toPipeline = sf->pipelines;
 
     // Need to add SynthCppModule as an argument. Then iterate over
     // each pair of instructions and check if it matches the hazard
     // condition.
+    cout << "Classes and hazards" << endl;
     for (auto cl : mod.classes) {
       cout << "Hazards in " << cl->getName() << endl;
       for (auto h : cl->hazards) {
@@ -721,9 +725,9 @@ namespace ahaHLS {
     Schedule s =
       scheduleInterfaceZeroReg(scppMod,
                                f,
-                               scppMod.getHardwareConstraints(),
-                               scppMod.getInterfaceFunctions(),
-                               f->pipelines,
+                               // scppMod.getHardwareConstraints(),
+                               // scppMod.getInterfaceFunctions(),
+                               //f->pipelines,
                                scppMod.getInterfaceFunctions().getConstraints(f->llvmFunction()));
 
     STG graph = buildSTG(s, f->llvmFunction());
