@@ -1079,22 +1079,9 @@ namespace ahaHLS {
         }
       }
     }
+
     
-    // // What do I need to do for tasks?
-    // for (auto& bb0 : f->getBasicBlockList()) {
-    //   auto* blk0 = &bb0;
-    //   // //for (int i = 0; i < blk->getNumSuccessors(); i++) {
-    //   // for (auto* succ : successors(blk)) {
-    //   for (auto& bb1 : f->getBasicBlockList()) {
-    //     auto* blk1 = &bb1;
-    //     if ((blk0 != blk1) && !inSameTask(blk0, blk1, tasks)) {
-    //       cout << "blocks not in same task" << endl;
-    //       p.addConstraint((p.blockEnd(blk0) < p.blockStart(blk1)) ||
-    //                       (p.blockStart(blk1) < p.blockEnd(blk0)));
-    //     }
-    //   }
-    // }
-    
+    ExecutionConstraints exe;    
     // Connect the control edges
     for (auto blkPreds : controlPredecessors) {
       BasicBlock* nextBB = blkPreds.first;
@@ -1107,18 +1094,20 @@ namespace ahaHLS {
             if ((!inAnyPipeline(next, toPipeline) &&
                  !inAnyPipeline(nextBB, toPipeline)) ||
                 (inSamePipeline(next, nextBB, toPipeline))) {
-              p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
+              //p.addConstraint(p.blockEnd(next) <= p.blockStart(nextBB));
+              exe.add(end(next) <= start(nextBB));
             } else {
-              p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
+              //p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
+              exe.add(end(next) < start(nextBB));
             }
           } else {
-            p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));            
+            //p.addConstraint(p.blockEnd(next) < p.blockStart(nextBB));
+            exe.add(end(next) < start(nextBB));            
           }
         }
       }
     }
-    
-    ExecutionConstraints exe;
+
     addDataConstraints(f, exe);
     exe.addConstraints(p, f);
 
