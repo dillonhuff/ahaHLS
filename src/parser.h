@@ -1401,16 +1401,6 @@ namespace ahaHLS {
     }
   }
 
-  class HazardSpec {
-  public:
-    string sourceMethod;
-    string sinkMethod;
-
-    // What is the right data structure to represent the hazard condition?
-    Expression* condition;
-    Expression* exeConstraint;
-  };
-  
   class SynthCppFunction {
   public:
     Token nameToken;
@@ -1759,7 +1749,7 @@ namespace ahaHLS {
     }
 
 
-    void addHazard(HazardDecl* hazard);
+    void addHazard(HazardDecl* hazard, ModuleSpec& cSpec);
     void addMethodDecl(FunctionDecl* decl, ModuleSpec& cSpec);
     
     SynthCppModule(ParserModule& parseRes) {
@@ -1793,7 +1783,7 @@ namespace ahaHLS {
             } else if (HazardDecl::classof(subStmt)) {
               cout << "Found hazard" << endl;
               auto haz = sc<HazardDecl>(subStmt);
-              addHazard(haz);
+              addHazard(haz, cSpec);
             } else {
               assert(subStmt != nullptr);
               cout << "Unsupported statement in class, stmt kind: "  << subStmt->getKind() << endl;

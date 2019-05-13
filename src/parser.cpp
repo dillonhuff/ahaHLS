@@ -892,7 +892,7 @@ namespace ahaHLS {
     
   }
 
-  void SynthCppModule::addHazard(HazardDecl* hazard) {
+  void SynthCppModule::addHazard(HazardDecl* hazard, ModuleSpec& cSpec) {
     auto args = hazard->args;
     assert(args.size() == 2);
 
@@ -903,8 +903,7 @@ namespace ahaHLS {
     assert(stmts.size() == 1);
 
     Statement* hazardSTmt = stmts[0];
-    
-
-    cgs.getActiveClass()->hazards.push_back({sourceMethod, sinkMethod, nullptr, nullptr});
+    cSpec.hazards.push_back({sourceMethod, sinkMethod});
+    //cgs.getActiveClass()->hazards.push_back({sourceMethod, sinkMethod});
   }
 }

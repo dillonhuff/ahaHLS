@@ -166,6 +166,16 @@ namespace ahaHLS {
   Port outputRegPort(const int width, const std::string& name);  
   Port outputDebugPort(const int width, const std::string& name);
 
+  class HazardSpec {
+  public:
+    string sourceMethod;
+    string sinkMethod;
+
+    // What is the right data structure to represent the hazard condition?
+    // Expression* condition;
+    // Expression* exeConstraint;
+  };
+  
   class ModuleSpec {
   public:
     bool hasClock;
@@ -175,6 +185,7 @@ namespace ahaHLS {
     std::map<std::string, Port> ports;
     std::map<std::string, int> defaultValues;
     std::set<std::string> insensitivePorts;
+    std::vector<HazardSpec> hazards;
 
     ModuleSpec() : hasClock(false), hasRst(false) {
     }
