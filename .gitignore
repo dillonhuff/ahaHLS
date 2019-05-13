@@ -167,3 +167,9 @@ halid_cascade*
 independent_writes*
 hist_simple_illegal*
 hist_simple*
+cascade_halide_ram_set_loop*
+halide_cascade*
+hist_forwarded*
+pipelined_structural_hazard*
+pipelined_independent_writes*
+pipelined_memory_hazard*
