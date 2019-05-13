@@ -1390,7 +1390,7 @@ namespace ahaHLS {
             CallInst* aCall = dyn_cast<CallInst>(instrA);
             CallInst* bCall = dyn_cast<CallInst>(instrB);
 
-            cout << "Instructions " << valueString(instrA) << " and " << valueString(instrB) << " potentially have a hazard" << endl;
+            //cout << "Instructions " << valueString(instrA) << " and " << valueString(instrB) << " potentially have a hazard" << endl;
 
             // Iterate over hazards to check
             for (auto hazard : aSpec.hazards) {
@@ -1411,7 +1411,8 @@ namespace ahaHLS {
 
   // TODO: Compute DD using substituted hazard condition
   int extractHazardDistance(Instruction* a, Instruction* b, HazardSpec& hdc) {
-    return -1;
+    
+    return 1;
   }
 
   // TODO: Parse actual hazard expression

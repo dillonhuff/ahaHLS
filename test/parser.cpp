@@ -1029,7 +1029,7 @@ namespace ahaHLS {
       REQUIRE(runIVerilogTest("pipelined_structural_hazard_tb.v", "pipelined_structural_hazard", " builtins.v pipelined_structural_hazard.v RAM.v delay.v ram_primitives.v"));
     }
 
-    SECTION("Pipelined with II == 2 due to memory hazard") {
+    SECTION("Pipelined with longer II due to memory hazard") {
       ParserModule parseM = parseSynthModule("./experiments/ram_iclass.cpp");
       SynthCppModule scppMod(parseM);
 
@@ -1050,7 +1050,7 @@ namespace ahaHLS {
       checkRAMContents(tb, 50, "arg_0", {0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
       emitVerilogTestBench(tb, arch, testLayout);
 
-      // REQUIRE(runIVerilogTest("pipelined_memory_hazard_tb.v", "pipelined_memory_hazard", " builtins.v pipelined_memory_hazard.v RAM.v delay.v ram_primitives.v"));
+      REQUIRE(runIVerilogTest("pipelined_memory_hazard_tb.v", "pipelined_memory_hazard", " builtins.v pipelined_memory_hazard.v RAM.v delay.v ram_primitives.v"));
     }
     
   }
