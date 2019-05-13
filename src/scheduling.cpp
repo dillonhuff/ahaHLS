@@ -1414,17 +1414,17 @@ namespace ahaHLS {
   }
 
   // Dewarping, shading?
-  SchedulingProblem
-  createSchedulingProblem(llvm::Function* f,
-                          HardwareConstraints& hdc,
-                          std::set<BasicBlock*>& toPipeline,
-                          AAResults& aliasAnalysis,
-                          ScalarEvolution& sc) {
-    auto p = createSchedulingProblem(f, hdc, toPipeline);
-    addMemoryConstraints(f, hdc, toPipeline, aliasAnalysis, sc, p);
+  // SchedulingProblem
+  // createSchedulingProblem(llvm::Function* f,
+  //                         HardwareConstraints& hdc,
+  //                         std::set<BasicBlock*>& toPipeline,
+  //                         AAResults& aliasAnalysis,
+  //                         ScalarEvolution& sc) {
+  //   auto p = createSchedulingProblem(f, hdc, toPipeline);
+  //   addMemoryConstraints(f, hdc, toPipeline, aliasAnalysis, sc, p);
 
-    return p;
-  }
+  //   return p;
+  // }
 
 
   SchedulingProblem

@@ -533,6 +533,18 @@ namespace ahaHLS {
     }
   }
 
+  // Challenges for added hazards
+  // * Inlining pipelined loops
+  // * Representing initiation intervals and dependence distances in ExecutionConstraints
+  // * Finding method calls that match a hazard with name mangling
+  // * Finding initiation intervals in solved scheduling problem after inlining
+  // * Confusion about relationship between SchedulingProblem and ExecutionConstraints
+
+  // What flow would I like:
+  // 1. All scheduling constraints added to ExecutionConstraints
+  // 2. Execution constraints lowered in to a SchedulingProblem
+  // 3. Solve scheduling problem
+  // 4. Extract ExecutionConstraints
   Schedule scheduleInterfaceZeroReg(SynthCppModule& mod,
                                     // Top level function
                                     SynthCppFunction* sf,

@@ -1557,6 +1557,11 @@ namespace ahaHLS {
     settableWires.insert(argName(arg) + "_" + port);
   }
 
+  // Maybe: Create scheduling problem from execution constraints as a method
+  // of the execution constraints problem?
+  // Do I ever manually create a SchedulingProblem and populate it with constraints?
+  // I guess I do add an objective function, but that could be put in to
+  // ExecConstraints
   MicroArchitecture synthesizeVerilog(llvm::Function* f,
                                       InterfaceFunctions& interfaces,
                                       HardwareConstraints& hcs) {
