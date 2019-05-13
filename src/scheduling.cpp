@@ -1234,7 +1234,7 @@ namespace ahaHLS {
     // the resource partial order
     //if (elem(&bb, toPipeline)) {
     if (inAnyPipeline(&bb, toPipeline)) {
-      auto II = p.getII(&bb);
+      //auto II = p.getII(&bb);
 
       assert(iGroups.front().size() > 0);
       assert(iGroups.at(iGroups.size() - 1).size() > 0);
@@ -1244,7 +1244,8 @@ namespace ahaHLS {
           //p.addConstraint(p.instrEnd(lastI) < II + p.instrStart(firstI));
           Ordered* od = instrEnd(lastI) < instrStart(firstI);
 
-          string IIName = (begin(II.getVars()))->first;
+          //string IIName = (begin(II.getVars()))->first;
+          string IIName = exe.getIIName(&bb); //(begin(II.getVars()))->first;
           od->pipelineOffsets[IIName] = 1;
           exe.add(od);
         }
@@ -1265,6 +1266,7 @@ namespace ahaHLS {
                        ScalarEvolution& sc,
                        SchedulingProblem& p) {
     ExecutionConstraints exe;
+    exe.toPipeline = toPipeline;
 
     // Instructions must finish before their dependencies
     for (auto& bb : f->getBasicBlockList()) {
