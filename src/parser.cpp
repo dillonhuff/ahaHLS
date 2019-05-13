@@ -176,7 +176,27 @@ namespace ahaHLS {
     }
     tokens.parseChar();
 
-    assert(false);
+    if (tokens.peekChar() == Token("(")) {
+      assert(tokens.parseChar() == Token("("));
+
+      vector<ArgumentDecl*> args =
+        sepBtwn0<ArgumentDecl*, Token>(parseArgDeclMaybe, parseComma, tokens);
+
+      assert(tokens.parseChar() == Token(")"));
+
+      assert(tokens.parseChar() == Token("{"));
+
+      vector<Statement*> funcStmts =
+        many<Statement*>(parseStatement, tokens);
+
+      cout << "After hazard = " << tokens.remainder() << endl;
+
+      assert(tokens.parseChar() == Token("}"));
+    
+      return new HazardDecl(args, funcStmts);
+    }
+
+    return maybe<Statement*>();
   }
   
   maybe<Statement*> parsePipeline(ParseState<Token>& tokens) {

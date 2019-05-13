@@ -500,8 +500,7 @@ namespace ahaHLS {
   TEST_CASE("Hazard statement") {
     std::string str =
       "hazard(write call0, read call1) {"
-      "implies(call0.addr == call1.addr,"
-      "add_hazard(start(call0) <= end(call1)));"
+      "implies(call0, add_hazard(start(call0) <= end(call1)));"
       "}";
 
     ParseState<Token> st(tokenize(str));

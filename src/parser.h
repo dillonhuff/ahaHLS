@@ -315,6 +315,16 @@ namespace ahaHLS {
         return result.get_value();
       }
 
+      result = tryParse<Token>(mkParseStr("<="), state);
+      if (result.has_value()) {
+        return result.get_value();
+      }
+
+      result = tryParse<Token>(mkParseStr(">="), state);
+      if (result.has_value()) {
+        return result.get_value();
+      }
+      
       result = tryParse<Token>(mkParseStr("->"), state);
       if (result.has_value()) {
         return result.get_value();
@@ -644,6 +654,7 @@ namespace ahaHLS {
     STATEMENT_KIND_CLASS_DECL,
     STATEMENT_KIND_PIPELINE,
     STATEMENT_KIND_FUNCTION_DECL,
+    STATEMENT_KIND_HAZARD_DECL,    
     STATEMENT_KIND_ARG_DECL,  
     STATEMENT_KIND_ASSIGN,
     STATEMENT_KIND_FOR,
@@ -853,6 +864,27 @@ namespace ahaHLS {
 
   };
 
+  class HazardDecl : public Statement {
+  public:
+    std::vector<ArgumentDecl*> args;
+    std::vector<Statement*> body;
+
+    HazardDecl(std::vector<ArgumentDecl*>& args_,
+               std::vector<Statement*>& body_) :
+      args(args_),
+      body(body_) {}
+
+    static bool classof(const Statement* const stmt) {
+      return stmt->getKind() == STATEMENT_KIND_HAZARD_DECL;
+    }
+  
+    virtual StatementKind getKind() const {
+      return STATEMENT_KIND_HAZARD_DECL;
+    }
+  
+
+  };
+  
   class ParserModule {
     std::vector<Statement*> stmts;
   
@@ -990,7 +1022,7 @@ namespace ahaHLS {
 
   static inline
   int precedence(Token op) {
-    map<string, int> prec{{"+", 100}, {"==", 99}, {"-", 100}, {"*", 100}, {"<", 99}, {">", 99}};
+    map<string, int> prec{{"+", 100}, {"==", 99}, {"-", 100}, {"*", 100}, {"<", 99}, {">", 99}, {"<=", 99}};
     assert(contains_key(op.getStr(), prec));
     return map_find(op.getStr(), prec);
   }
