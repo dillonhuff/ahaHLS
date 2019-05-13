@@ -189,7 +189,7 @@ namespace ahaHLS {
       vector<Statement*> funcStmts =
         many<Statement*>(parseStatement, tokens);
 
-      cout << "After hazard = " << tokens.remainder() << endl;
+      //cout << "After hazard = " << tokens.remainder() << endl;
 
       assert(tokens.parseChar() == Token("}"));
     
@@ -787,5 +787,84 @@ namespace ahaHLS {
     popPipeline();
 
     cout << "Popped pipeline" << endl;                
+  }
+
+  void SynthCppModule::addMethodDecl(FunctionDecl* methodFuncDecl,
+                                     ModuleSpec& cSpec) {
+    // I would like to be able to generate method
+    // and function code with the same generator so
+    // that I dont end up with argument duplication
+    //auto methodFuncDecl = sc<FunctionDecl>(st);
+    if (methodFuncDecl->getName() == "defaults") {
+      for (auto stmt : methodFuncDecl->body) {
+        pair<string, int> defaultValue = extractDefault(stmt);
+        cSpec.defaultValues.insert(defaultValue);
+      }
+    } else {
+      vector<Type*> argTps =
+        functionInputs(methodFuncDecl);
+
+      cout << "Method " << methodFuncDecl->getName() << " has arg types before return value and this:" << endl;
+      for (auto a : argTps) {
+        cout << tab(1) << typeString(a) << endl;
+      }
+            
+      vector<Type*> tps;
+      tps.push_back(llvmTypeFor(new SynthCppPointerType(new SynthCppStructType(cgs.getActiveClass()->name))));
+      for (auto a : argTps) {
+        tps.push_back(a);
+      }
+
+      cout << "Method " << methodFuncDecl->getName() << " has arg types" << endl;
+      for (auto a : tps) {
+        cout << tab(1) << typeString(a) << endl;
+      }
+      SynthCppFunction* sf = new SynthCppFunction();
+      activeFunction = sf;
+      sf->nameToken = methodFuncDecl->name;
+      // Change voidType to the function output type
+      auto f = mkFunc(tps, llvmTypeFor(methodFuncDecl->returnType), sf->getName());
+      interfaces.addFunction(f);
+      sf->func = f;
+      sf->retType = methodFuncDecl->returnType;
+      sf->constraints = &(interfaces.getConstraints(f));
+
+      auto bb = addBB("entry_block", f);
+      cgs.setActiveBlock(bb);
+              
+      //IRBuilder<> b(bb);
+
+      bool hasReturn = false; //sf->hasReturnValue();
+      auto bd = cgs.builder();
+      setArgumentSymbols(bd, sf->symtab, methodFuncDecl->args, f, 1 + (hasReturn ? 1 : 0));
+      cgs.symtab.pushTable(&(sf->symtab));
+      cout << "After setting argument symbols for "  << string(f->getName()) << endl;
+      cgs.symtab.print(cout);
+              
+            
+      for (auto stmt : methodFuncDecl->body) {
+        cout << "Statement" << endl;
+        genLLVM(stmt);
+      }
+
+      BasicBlock* activeBlock = &(cgs.getActiveBlock());
+      //&(activeFunction->llvmFunction()->getEntryBlock());
+      if (activeBlock->getTerminator() == nullptr) {
+        cout << "Basic block " << valueString(activeBlock) << "has no terminator" << endl;
+              
+        cgs.builder().CreateRet(nullptr);
+      }
+
+      cout << "Just generated code for method " << endl;
+      cout << valueString(sf->llvmFunction()) << endl;
+      cgs.getActiveClass()->methods[sf->getName()] = sf;
+
+      sanityCheck(f);
+              
+      //setAllAllocaMemTypes(hcs, f, registerSpec(32));
+            
+      activeFunction = nullptr;
+    }
+    
   }
 }

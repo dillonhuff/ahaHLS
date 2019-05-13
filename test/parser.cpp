@@ -500,14 +500,14 @@ namespace ahaHLS {
   TEST_CASE("Hazard statement") {
     std::string str =
       "hazard(write call0, read call1) {"
-      "implies(call0, add_hazard(start(call0) <= end(call1)));"
+      "implies(call0.addr() == call1.addr(), add_hazard(start(call0) <= end(call1)));"
       "}";
 
     ParseState<Token> st(tokenize(str));
     auto tp = parseStatement(st);
 
     REQUIRE(tp.has_value());
-
+    REQUIRE(tp.get_value()->getKind() == STATEMENT_KIND_HAZARD_DECL);
     REQUIRE(st.atEnd());
 
     delete tp.get_value();
