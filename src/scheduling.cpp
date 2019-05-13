@@ -1336,12 +1336,13 @@ namespace ahaHLS {
   // As a next step I want to use only exe to create memory constraints
   // Then: Remove schedulingproblem as an argument
 
+  // TODO: Compute DD using substituted hazard condition  
   maybe<HazardSpec>
   findHazard(Instruction* a, Instruction* b, HardwareConstraints& hdc) {
     return maybe<HazardSpec>();
   }
 
-  // 
+  // TODO: Compute DD using substituted hazard condition
   int extractHazardDistance(Instruction* a, Instruction* b, HazardSpec& hdc) {
     return -1;
   }
