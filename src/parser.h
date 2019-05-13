@@ -1771,18 +1771,21 @@ namespace ahaHLS {
           cgs.symtab.pushTable(&(c->memberVars));
           cgs.pushClassContext(c);
         
-          for (auto st : decl->body) {
-            if (ArgumentDecl::classof(st)) {
-              auto decl = sc<ArgumentDecl>(st);
+          for (auto subStmt: decl->body) {
+            if (ArgumentDecl::classof(subStmt)) {
+              auto decl = sc<ArgumentDecl>(subStmt);
               c->memberVars[decl->name.getStr()] = decl->tp;
-            } else if (FunctionDecl::classof(st)) {
-              auto methodFuncDecl = sc<FunctionDecl>(st);
+            } else if (FunctionDecl::classof(subStmt)) {
+              auto methodFuncDecl = sc<FunctionDecl>(subStmt);
               addMethodDecl(methodFuncDecl, cSpec);
-            } else if (HazardDecl::classof(stmt)) {
+            } else if (HazardDecl::classof(subStmt)) {
               cout << "Found hazard" << endl;
             } else {
-              assert(stmt != nullptr);
-              cout << "Unsupported statement in class, stmt kind: "  << stmt->getKind() << endl;
+              assert(subStmt != nullptr);
+              cout << "Unsupported statement in class, stmt kind: "  << subStmt->getKind() << endl;
+
+
+              cout << *stmt << endl;
               assert(false);
             }
           }
