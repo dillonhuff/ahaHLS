@@ -92,13 +92,13 @@ namespace ahaHLS {
   //   1. Move control predecessors up in to code outside the
   //   2. Remove stall instructions from fifo reads and writes
 
-  void
-  addMemoryConstraints(llvm::Function* f,
-                       HardwareConstraints& hdc,
-                       std::set<BasicBlock*>& toPipeline,
-                       AAResults& aliasAnalysis,
-                       ScalarEvolution& sc,
-                       SchedulingProblem& p);
+  // void
+  // addMemoryConstraints(llvm::Function* f,
+  //                      HardwareConstraints& hdc,
+  //                      std::set<BasicBlock*>& toPipeline,
+  //                      AAResults& aliasAnalysis,
+  //                      ScalarEvolution& sc,
+  //                      SchedulingProblem& p);
 
   ExecutionConstraints
   addMemoryConstraints(llvm::Function* f,
@@ -158,7 +158,6 @@ namespace ahaHLS {
     static char ID;
     Function* target;
     HardwareConstraints& hdc;
-    //std::set<BasicBlock*>& toPipeline;
     std::set<PipelineSpec>& toPipeline;
 
     Schedule schedule;
@@ -810,7 +809,9 @@ namespace ahaHLS {
 
     expr readBase = scevToExpr(rScev->getStart(), valueNames, c);
     expr readInc = scevToExpr(rScev->getOperand(1), valueNames, c);
-    
+
+    // This is the formula that will need to be saved from
+    // the user hazard description?
     opt.add(writeBase + Iw*writeInc == readBase + Ir*readInc);
 
     optimize::handle h1 = opt.minimize(DD);
@@ -1232,20 +1233,20 @@ namespace ahaHLS {
   
   // Solution to binding: Assume always unique, then modify program later
   // to reflect resource constraints?
-  void
-  addMemoryConstraints(llvm::Function* f,
-                       HardwareConstraints& hdc,
-                       std::set<BasicBlock*>& toPipeline,
-                       AAResults& aliasAnalysis,
-                       ScalarEvolution& sc,
-                       SchedulingProblem& p) {
+  // void
+  // addMemoryConstraints(llvm::Function* f,
+  //                      HardwareConstraints& hdc,
+  //                      std::set<BasicBlock*>& toPipeline,
+  //                      AAResults& aliasAnalysis,
+  //                      ScalarEvolution& sc,
+  //                      SchedulingProblem& p) {
 
-    set<PipelineSpec> pipe;
-    for (auto p : toPipeline) {
-      pipe.insert({true, {p}});
-    }
-    addMemoryConstraints(f, hdc, pipe, aliasAnalysis, sc, p);
-  }
+  //   set<PipelineSpec> pipe;
+  //   for (auto p : toPipeline) {
+  //     pipe.insert({true, {p}});
+  //   }
+  //   addMemoryConstraints(f, hdc, pipe, aliasAnalysis, sc, p);
+  // }
 
   void
   addOrderConstraints(vector<vector<Instruction*> >& iGroups,
