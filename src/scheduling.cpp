@@ -1089,25 +1089,7 @@ namespace ahaHLS {
     exe.toPipeline = toPipeline;
     exe.tasks = tasks;
     exe.controlPredecessors = controlPredecessors;
-    
-    SchedulingProblem p(hdc);
 
-    for (auto& bb : f->getBasicBlockList()) {
-      p.addBasicBlock(&bb, toPipeline);
-    }
-
-    int i = 0;
-    for (auto bb : toPipeline) {
-      //string iiName = string("II_") + to_string(i);
-      string iiName = exe.getIIName(*(begin(bb.blks)));
-
-      p.IInames.insert({bb, iiName});
-
-      auto ii = p.getII(bb);
-      p.addConstraint(0 < ii);
-      
-      i++;
-    }
 
     
     vector<TaskSpec> sortedTasks = sortTasks(tasks);
@@ -1152,10 +1134,29 @@ namespace ahaHLS {
     }
 
     addDataConstraints(f, exe);
+    
+    SchedulingProblem p(hdc);
+
+    for (auto& bb : f->getBasicBlockList()) {
+      p.addBasicBlock(&bb, toPipeline);
+    }
+
+    int i = 0;
+    for (auto bb : toPipeline) {
+      //string iiName = string("II_") + to_string(i);
+      string iiName = exe.getIIName(*(begin(bb.blks)));
+
+      p.IInames.insert({bb, iiName});
+
+      auto ii = p.getII(bb);
+      p.addConstraint(0 < ii);
+      
+      i++;
+    }
     exe.addConstraints(p, f);
 
-    p.controlPredecessors = controlPredecessors;
-    p.taskSpecs = tasks;
+    p.controlPredecessors = exe.controlPredecessors;
+    p.taskSpecs = exe.tasks;
 
     return p;
   }
@@ -1242,6 +1243,7 @@ namespace ahaHLS {
         for (auto lastI : iGroups.back()) {
           //p.addConstraint(p.instrEnd(lastI) < II + p.instrStart(firstI));
           Ordered* od = instrEnd(lastI) < instrStart(firstI);
+
           string IIName = (begin(II.getVars()))->first;
           od->pipelineOffsets[IIName] = 1;
           exe.add(od);
