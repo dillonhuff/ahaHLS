@@ -25,6 +25,28 @@ using namespace z3;
 
 namespace ahaHLS {
 
+  void Ordered::addSelfTo(SchedulingProblem& p, Function* f) {
+    LinearExpression aTime = toLinearExpression(after, p);
+    LinearExpression bTime = toLinearExpression(before, p);
+
+    LinearExpression pipeOffset(0);
+    for (const pair<string, int>& val : pipelineOffsets) {
+      LinearExpression offI = LinearExpression(val.first);
+      LinearExpression prod = val.second * offI;
+      pipeOffset = pipeOffset + val.second*LinearExpression(val.first);
+    }
+      
+    if (restriction == ORDER_RESTRICTION_SIMULTANEOUS) {
+      p.addConstraint(bTime == aTime + pipeOffset);
+    } else if (restriction == ORDER_RESTRICTION_BEFORE) {
+      p.addConstraint(bTime < aTime + pipeOffset);
+    } else if (restriction == ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS) {
+      p.addConstraint(bTime <= aTime + pipeOffset);        
+    } else {
+      assert(false);
+    }
+  }
+  
   int stencilTypeWidth(const std::string& name);
   
   // Random note: In any meeting you have to allocate time
@@ -1207,8 +1229,10 @@ namespace ahaHLS {
     }
     
   }
-  
-  
+
+  // As a next step I want to use only exe to create memory constraints
+  // Then: Remove schedulingproblem as an argument
+
   void
   addMemoryConstraints(llvm::Function* f,
                        HardwareConstraints& hdc,
@@ -1404,19 +1428,6 @@ namespace ahaHLS {
   }
 
   // Dewarping, shading?
-  // SchedulingProblem
-  // createSchedulingProblem(llvm::Function* f,
-  //                         HardwareConstraints& hdc,
-  //                         std::set<BasicBlock*>& toPipeline,
-  //                         AAResults& aliasAnalysis,
-  //                         ScalarEvolution& sc) {
-  //   auto p = createSchedulingProblem(f, hdc, toPipeline);
-  //   addMemoryConstraints(f, hdc, toPipeline, aliasAnalysis, sc, p);
-
-  //   return p;
-  // }
-
-
   SchedulingProblem
   createSchedulingProblem(llvm::Function* f,
                           HardwareConstraints& hdc,

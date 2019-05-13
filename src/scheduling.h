@@ -613,6 +613,13 @@ namespace ahaHLS {
   operator*(const LinearExpr<T> left, const int c) {
     return left.scalarMul(c);
   }
+
+  template<typename T>  
+  static inline
+  LinearExpr<T>
+  operator*(const int c, const LinearExpr<T> right) {
+    return right.scalarMul(c);
+  }
   
   template<typename T> static inline
   LinearCon<T>
@@ -1002,6 +1009,8 @@ namespace ahaHLS {
     InstructionTime before;
     InstructionTime after;
 
+    map<string, int> pipelineOffsets;
+    
     OrderRestriction restriction;
 
     Ordered(const InstructionTime before_,
@@ -1018,6 +1027,8 @@ namespace ahaHLS {
     virtual void print(std::ostream& out) const override {
       out << before << " " << toString(restriction) << " " << after;
     }
+
+    virtual void addSelfTo(SchedulingProblem& p, Function* f) override;
     
     virtual ExecutionConstraint* clone() const override {
       InstructionTime beforeCpy(before);
@@ -1037,19 +1048,6 @@ namespace ahaHLS {
       after.replaceInstruction(toReplace, replacement);      
     }
     
-    virtual void addSelfTo(SchedulingProblem& p, Function* f) override {
-      LinearExpression aTime = toLinearExpression(after, p);
-      LinearExpression bTime = toLinearExpression(before, p);
-      if (restriction == ORDER_RESTRICTION_SIMULTANEOUS) {
-        p.addConstraint(bTime == aTime);
-      } else if (restriction == ORDER_RESTRICTION_BEFORE) {
-        p.addConstraint(bTime < aTime);
-      } else if (restriction == ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS) {
-        p.addConstraint(bTime <= aTime);        
-      } else {
-        assert(false);
-      }
-    }
   };
   
   static inline

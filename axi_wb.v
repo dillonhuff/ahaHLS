@@ -1,16 +1,5 @@
-module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, output [0:0] arg_0_read_valid, output [0:0] arg_0_write_valid, input [31:0] arg_0_out_data, input [0:0] arg_0_read_ready, input [0:0] arg_0_write_ready, output [7:0] arg_1_raddr, output [7:0] arg_1_waddr, output [7:0] arg_1_wdata, output [0:0] arg_1_wen, input [7:0] arg_1_rdata, output [15:0] arg_2_raddr, output [15:0] arg_2_waddr, output [15:0] arg_2_wdata, output [0:0] arg_2_wen, input [15:0] arg_2_rdata, output [15:0] arg_3_s_axi_araddr, output [1:0] arg_3_s_axi_arburst, output [7:0] arg_3_s_axi_arlen, output [2:0] arg_3_s_axi_arsize, output [0:0] arg_3_s_axi_arvalid, output [15:0] arg_3_s_axi_awaddr, output [1:0] arg_3_s_axi_awburst, output [7:0] arg_3_s_axi_awlen, output [2:0] arg_3_s_axi_awsize, output [0:0] arg_3_s_axi_awvalid, output [0:0] arg_3_s_axi_bready, output [0:0] arg_3_s_axi_rready, output [31:0] arg_3_s_axi_wdata, output [3:0] arg_3_s_axi_wstrb, output [0:0] arg_3_s_axi_wvalid, input [0:0] arg_3_s_axi_arready, input [0:0] arg_3_s_axi_awready, input [0:0] arg_3_s_axi_bvalid, input [31:0] arg_3_s_axi_rdata, input [0:0] arg_3_s_axi_rvalid, input [0:0] arg_3_s_axi_wready, output [0:0] valid);
+module axi_wb(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_araddr, output [1:0] arg_3_s_axi_arburst, output [7:0] arg_3_s_axi_arlen, output [2:0] arg_3_s_axi_arsize, output [0:0] arg_3_s_axi_arvalid, output [15:0] arg_3_s_axi_awaddr, output [1:0] arg_3_s_axi_awburst, output [7:0] arg_3_s_axi_awlen, output [2:0] arg_3_s_axi_awsize, output [0:0] arg_3_s_axi_awvalid, output [0:0] arg_3_s_axi_bready, output [0:0] arg_3_s_axi_rready, output [31:0] arg_3_s_axi_wdata, output [3:0] arg_3_s_axi_wstrb, output [0:0] arg_3_s_axi_wvalid, input [0:0] arg_3_s_axi_arready, input [0:0] arg_3_s_axi_awready, input [0:0] arg_3_s_axi_bvalid, input [31:0] arg_3_s_axi_rdata, input [0:0] arg_3_s_axi_rvalid, input [0:0] arg_3_s_axi_wready, output [31:0] arg_0_in_data, output [0:0] arg_0_read_valid, output [0:0] arg_0_write_valid, input [31:0] arg_0_out_data, input [0:0] arg_0_read_ready, input [0:0] arg_0_write_ready, output [7:0] arg_1_raddr, output [7:0] arg_1_waddr, output [7:0] arg_1_wdata, output [0:0] arg_1_wen, input [7:0] arg_1_rdata, output [15:0] arg_2_raddr, output [15:0] arg_2_waddr, output [15:0] arg_2_wdata, output [0:0] arg_2_wen, input [15:0] arg_2_rdata, output [0:0] valid);
 
-	reg [31:0] arg_0_in_data_reg;
-	reg [0:0] arg_0_read_valid_reg;
-	reg [0:0] arg_0_write_valid_reg;
-	reg [7:0] arg_1_raddr_reg;
-	reg [7:0] arg_1_waddr_reg;
-	reg [7:0] arg_1_wdata_reg;
-	reg [0:0] arg_1_wen_reg;
-	reg [15:0] arg_2_raddr_reg;
-	reg [15:0] arg_2_waddr_reg;
-	reg [15:0] arg_2_wdata_reg;
-	reg [0:0] arg_2_wen_reg;
 	reg [15:0] arg_3_s_axi_araddr_reg;
 	reg [1:0] arg_3_s_axi_arburst_reg;
 	reg [7:0] arg_3_s_axi_arlen_reg;
@@ -26,19 +15,19 @@ module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, out
 	reg [31:0] arg_3_s_axi_wdata_reg;
 	reg [3:0] arg_3_s_axi_wstrb_reg;
 	reg [0:0] arg_3_s_axi_wvalid_reg;
+	reg [31:0] arg_0_in_data_reg;
+	reg [0:0] arg_0_read_valid_reg;
+	reg [0:0] arg_0_write_valid_reg;
+	reg [7:0] arg_1_raddr_reg;
+	reg [7:0] arg_1_waddr_reg;
+	reg [7:0] arg_1_wdata_reg;
+	reg [0:0] arg_1_wen_reg;
+	reg [15:0] arg_2_raddr_reg;
+	reg [15:0] arg_2_waddr_reg;
+	reg [15:0] arg_2_wdata_reg;
+	reg [0:0] arg_2_wen_reg;
 	reg [0:0] valid_reg;
 
-	assign arg_0_in_data = arg_0_in_data_reg;
-	assign arg_0_read_valid = arg_0_read_valid_reg;
-	assign arg_0_write_valid = arg_0_write_valid_reg;
-	assign arg_1_raddr = arg_1_raddr_reg;
-	assign arg_1_waddr = arg_1_waddr_reg;
-	assign arg_1_wdata = arg_1_wdata_reg;
-	assign arg_1_wen = arg_1_wen_reg;
-	assign arg_2_raddr = arg_2_raddr_reg;
-	assign arg_2_waddr = arg_2_waddr_reg;
-	assign arg_2_wdata = arg_2_wdata_reg;
-	assign arg_2_wen = arg_2_wen_reg;
 	assign arg_3_s_axi_araddr = arg_3_s_axi_araddr_reg;
 	assign arg_3_s_axi_arburst = arg_3_s_axi_arburst_reg;
 	assign arg_3_s_axi_arlen = arg_3_s_axi_arlen_reg;
@@ -54,6 +43,17 @@ module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, out
 	assign arg_3_s_axi_wdata = arg_3_s_axi_wdata_reg;
 	assign arg_3_s_axi_wstrb = arg_3_s_axi_wstrb_reg;
 	assign arg_3_s_axi_wvalid = arg_3_s_axi_wvalid_reg;
+	assign arg_0_in_data = arg_0_in_data_reg;
+	assign arg_0_read_valid = arg_0_read_valid_reg;
+	assign arg_0_write_valid = arg_0_write_valid_reg;
+	assign arg_1_raddr = arg_1_raddr_reg;
+	assign arg_1_waddr = arg_1_waddr_reg;
+	assign arg_1_wdata = arg_1_wdata_reg;
+	assign arg_1_wen = arg_1_wen_reg;
+	assign arg_2_raddr = arg_2_raddr_reg;
+	assign arg_2_waddr = arg_2_waddr_reg;
+	assign arg_2_wdata = arg_2_wdata_reg;
+	assign arg_2_wen = arg_2_wen_reg;
 	assign valid = valid_reg;
 
 	// Start debug wires and ports
@@ -68,11 +68,13 @@ module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, out
 	// End debug wires and ports
 
 	// Start Functional Units
-	wire [15:0] phi_in_phi_1;
-	wire [31:0] phi_last_block_phi_1;
-	wire [63:0] phi_s_phi_1;
-	wire [31:0] phi_out_phi_1;
-	phi #(.NB_PAIR(2), .WIDTH(8)) phi_1(.in(phi_in_phi_1), .last_block(phi_last_block_phi_1), .out(phi_out_phi_1), .s(phi_s_phi_1));
+	add call_33();
+
+	wire [15:0] phi_in_phi_0;
+	wire [31:0] phi_last_block_phi_0;
+	wire [63:0] phi_s_phi_0;
+	wire [31:0] phi_out_phi_0;
+	phi #(.NB_PAIR(2), .WIDTH(8)) phi_0(.in(phi_in_phi_0), .last_block(phi_last_block_phi_0), .out(phi_out_phi_0), .s(phi_s_phi_0));
 
 	br_dummy br_unit();
 
@@ -85,10 +87,10 @@ module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, out
 	wire [31:0] add_out_add_22;
 	add #(.WIDTH(32)) add_add_22(.in0(add_in0_add_22), .in1(add_in1_add_22), .out(add_out_add_22));
 
-	wire [7:0] cmp_in0_icmp_33;
-	wire [7:0] cmp_in1_icmp_33;
-	wire [0:0] cmp_out_icmp_33;
-	slt #(.WIDTH(8)) icmp_33(.in0(cmp_in0_icmp_33), .in1(cmp_in1_icmp_33), .out(cmp_out_icmp_33));
+	wire [7:0] cmp_in0_icmp_35;
+	wire [7:0] cmp_in1_icmp_35;
+	wire [0:0] cmp_out_icmp_35;
+	slt #(.WIDTH(8)) icmp_35(.in0(cmp_in0_icmp_35), .in1(cmp_in1_icmp_35), .out(cmp_out_icmp_35));
 
 	wire [31:0] trunc_in_trunc_23;
 	wire [7:0] trunc_out_trunc_23;
@@ -120,8 +122,6 @@ module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, out
 	wire [31:0] cmp_in1_icmp_31;
 	wire [0:0] cmp_out_icmp_31;
 	eq #(.WIDTH(32)) icmp_31(.in0(cmp_in0_icmp_31), .in1(cmp_in1_icmp_31), .out(cmp_out_icmp_31));
-
-	add call_36();
 
 	reg [7:0] data_in_0_1_in_data;
 	wire [7:0] data_in_0_1_out_data;
@@ -790,30 +790,30 @@ module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, out
 	wire [0:0] andOp_132_out;
 	andOp #(.WIDTH(1)) andOp_132(.in0(andOp_132_in0), .in1(andOp_132_in1), .out(andOp_132_out));
 
-	wire [0:0] andOp_133_in0;
-	wire [0:0] andOp_133_in1;
-	wire [0:0] andOp_133_out;
-	andOp #(.WIDTH(1)) andOp_133(.in0(andOp_133_in0), .in1(andOp_133_in1), .out(andOp_133_out));
+	wire [7:0] concat_133_in0;
+	wire [7:0] concat_133_in1;
+	wire [15:0] concat_133_out;
+	concat #(.IN0_WIDTH(8), .IN1_WIDTH(8)) concat_133(.in0(concat_133_in0), .in1(concat_133_in1), .out(concat_133_out));
 
-	wire [0:0] andOp_134_in0;
-	wire [0:0] andOp_134_in1;
-	wire [0:0] andOp_134_out;
-	andOp #(.WIDTH(1)) andOp_134(.in0(andOp_134_in0), .in1(andOp_134_in1), .out(andOp_134_out));
+	wire [31:0] concat_134_in0;
+	wire [31:0] concat_134_in1;
+	wire [63:0] concat_134_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_134(.in0(concat_134_in0), .in1(concat_134_in1), .out(concat_134_out));
 
 	wire [0:0] andOp_135_in0;
 	wire [0:0] andOp_135_in1;
 	wire [0:0] andOp_135_out;
 	andOp #(.WIDTH(1)) andOp_135(.in0(andOp_135_in0), .in1(andOp_135_in1), .out(andOp_135_out));
 
-	wire [7:0] concat_136_in0;
-	wire [7:0] concat_136_in1;
-	wire [15:0] concat_136_out;
-	concat #(.IN0_WIDTH(8), .IN1_WIDTH(8)) concat_136(.in0(concat_136_in0), .in1(concat_136_in1), .out(concat_136_out));
+	wire [0:0] andOp_136_in0;
+	wire [0:0] andOp_136_in1;
+	wire [0:0] andOp_136_out;
+	andOp #(.WIDTH(1)) andOp_136(.in0(andOp_136_in0), .in1(andOp_136_in1), .out(andOp_136_out));
 
-	wire [31:0] concat_137_in0;
-	wire [31:0] concat_137_in1;
-	wire [63:0] concat_137_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_137(.in0(concat_137_in0), .in1(concat_137_in1), .out(concat_137_out));
+	wire [0:0] andOp_137_in0;
+	wire [0:0] andOp_137_in1;
+	wire [0:0] andOp_137_out;
+	andOp #(.WIDTH(1)) andOp_137(.in0(andOp_137_in0), .in1(andOp_137_in1), .out(andOp_137_out));
 
 	wire [0:0] andOp_138_in0;
 	wire [0:0] andOp_138_in1;
@@ -1313,23 +1313,23 @@ module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, out
 	// controller for andOp_132.andOp_132_in0
 	// controller for andOp_132.andOp_132_in1
 	// Insensitive connections
-	assign andOp_132_in0 = bb_5_active_in_state_0_out_data;
+	assign andOp_132_in0 = bb_1_active_in_state_0_out_data;
 	assign andOp_132_in1 = state_0_is_active;
-	// controller for andOp_133.andOp_133_in0
-	// controller for andOp_133.andOp_133_in1
-	// Insensitive connections
-	assign andOp_133_in0 = bb_6_active_in_state_1_out_data;
-	assign andOp_133_in1 = state_1_is_active;
-	// controller for andOp_134.andOp_134_in0
-	// controller for andOp_134.andOp_134_in1
-	// Insensitive connections
-	assign andOp_134_in0 = bb_6_active_in_state_2_out_data;
-	assign andOp_134_in1 = state_2_is_active;
 	// controller for andOp_135.andOp_135_in0
 	// controller for andOp_135.andOp_135_in1
 	// Insensitive connections
-	assign andOp_135_in0 = bb_1_active_in_state_0_out_data;
+	assign andOp_135_in0 = bb_5_active_in_state_0_out_data;
 	assign andOp_135_in1 = state_0_is_active;
+	// controller for andOp_136.andOp_136_in0
+	// controller for andOp_136.andOp_136_in1
+	// Insensitive connections
+	assign andOp_136_in0 = bb_6_active_in_state_1_out_data;
+	assign andOp_136_in1 = state_1_is_active;
+	// controller for andOp_137.andOp_137_in0
+	// controller for andOp_137.andOp_137_in1
+	// Insensitive connections
+	assign andOp_137_in0 = bb_6_active_in_state_2_out_data;
+	assign andOp_137_in1 = state_2_is_active;
 	// controller for andOp_138.andOp_138_in0
 	// controller for andOp_138.andOp_138_in1
 	// Insensitive connections
@@ -1463,12 +1463,12 @@ module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, out
 	// controller for andOp_177.andOp_177_in0
 	// controller for andOp_177.andOp_177_in1
 	// Insensitive connections
-	assign andOp_177_in0 = bb_8_active_in_state_3_out_data;
+	assign andOp_177_in0 = bb_2_active_in_state_3_out_data;
 	assign andOp_177_in1 = state_3_is_active;
 	// controller for andOp_178.andOp_178_in0
 	// controller for andOp_178.andOp_178_in1
 	// Insensitive connections
-	assign andOp_178_in0 = bb_2_active_in_state_3_out_data;
+	assign andOp_178_in0 = bb_8_active_in_state_3_out_data;
 	assign andOp_178_in1 = state_3_is_active;
 	// controller for andOp_179.andOp_179_in0
 	// controller for andOp_179.andOp_179_in1
@@ -1699,7 +1699,7 @@ module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, out
 	// controller for andOp_76.andOp_76_in1
 	// Insensitive connections
 	assign andOp_76_in0 = andOp_74_out;
-	assign andOp_76_in1 = cmp_out_icmp_33;
+	assign andOp_76_in1 = cmp_out_icmp_35;
 	// controller for andOp_78.andOp_78_in0
 	// controller for andOp_78.andOp_78_in1
 	// Insensitive connections
@@ -1719,7 +1719,7 @@ module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, out
 	// controller for andOp_82.andOp_82_in1
 	// Insensitive connections
 	assign andOp_82_in0 = andOp_80_out;
-	assign andOp_82_in1 = cmp_out_icmp_33;
+	assign andOp_82_in1 = cmp_out_icmp_35;
 	// controller for andOp_84.andOp_84_in0
 	// controller for andOp_84.andOp_84_in1
 	// Insensitive connections
@@ -1727,7 +1727,7 @@ module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, out
 	assign andOp_84_in1 = notOp_83_out;
 	// controller for arg_0.arg_0_read_valid_reg
 	always @(*) begin
-		if (andOp_133_out) begin 
+		if (andOp_136_out) begin 
 			arg_0_read_valid_reg = 32'd1;
 		end else begin
 			arg_0_read_valid_reg = 0;
@@ -1793,7 +1793,7 @@ module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, out
 	always @(*) begin
 		if (andOp_159_out) begin 
 			arg_3_s_axi_wdata_reg = tmp_output_160_out_data;
-		end else if (andOp_166_out) begin 
+		end else if (andOp_167_out) begin 
 			arg_3_s_axi_wdata_reg = 32'd0;
 		end else begin
 			arg_3_s_axi_wdata_reg = 0;
@@ -1803,7 +1803,7 @@ module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, out
 	always @(*) begin
 		if (andOp_163_out) begin 
 			arg_3_s_axi_wstrb_reg = -(4'd1);
-		end else if (andOp_167_out) begin 
+		end else if (andOp_166_out) begin 
 			arg_3_s_axi_wstrb_reg = 32'd0;
 		end else begin
 			arg_3_s_axi_wstrb_reg = 0;
@@ -2143,16 +2143,16 @@ module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, out
 			br_8_happened_in_state_3_in_data = 0;
 		end
 	end
-	// controller for concat_136.concat_136_in0
-	// controller for concat_136.concat_136_in1
+	// controller for concat_133.concat_133_in0
+	// controller for concat_133.concat_133_in1
 	// Insensitive connections
-	assign concat_136_in0 = 8'd0;
-	assign concat_136_in1 = data_in_0_7_out_data;
-	// controller for concat_137.concat_137_in0
-	// controller for concat_137.concat_137_in1
+	assign concat_133_in0 = 8'd0;
+	assign concat_133_in1 = data_in_0_7_out_data;
+	// controller for concat_134.concat_134_in0
+	// controller for concat_134.concat_134_in1
 	// Insensitive connections
-	assign concat_137_in0 = 32'd4;
-	assign concat_137_in1 = 32'd8;
+	assign concat_134_in0 = 32'd4;
+	assign concat_134_in1 = 32'd8;
 	// controller for data_in_0_1.data_in_0_1_in_data
 	always @(*) begin
 		if (eq_205_out) begin 
@@ -2608,11 +2608,11 @@ module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, out
 	// Insensitive connections
 	assign cmp_in0_icmp_31 = sgt_out_sext_30;
 	assign cmp_in1_icmp_31 = 32'd0;
-	// controller for icmp_33.cmp_in0_icmp_33
-	// controller for icmp_33.cmp_in1_icmp_33
+	// controller for icmp_35.cmp_in0_icmp_35
+	// controller for icmp_35.cmp_in1_icmp_35
 	// Insensitive connections
-	assign cmp_in0_icmp_33 = data_in_3_37_out_data;
-	assign cmp_in1_icmp_33 = data_in_3_33_out_data;
+	assign cmp_in0_icmp_35 = data_in_3_37_out_data;
+	assign cmp_in1_icmp_35 = data_in_3_33_out_data;
 	// controller for notOp_107.notOp_107_in0
 	// Insensitive connections
 	assign notOp_107_in0 = eq_106_out;
@@ -2702,13 +2702,13 @@ module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, out
 	assign notOp_75_in0 = andOp_74_out;
 	// controller for notOp_77.notOp_77_in0
 	// Insensitive connections
-	assign notOp_77_in0 = cmp_out_icmp_33;
+	assign notOp_77_in0 = cmp_out_icmp_35;
 	// controller for notOp_81.notOp_81_in0
 	// Insensitive connections
 	assign notOp_81_in0 = andOp_80_out;
 	// controller for notOp_83.notOp_83_in0
 	// Insensitive connections
-	assign notOp_83_in0 = cmp_out_icmp_33;
+	assign notOp_83_in0 = cmp_out_icmp_35;
 	// controller for orOp_101.orOp_101_in0
 	// controller for orOp_101.orOp_101_in1
 	// Insensitive connections
@@ -2744,13 +2744,13 @@ module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, out
 	// Insensitive connections
 	assign orOp_99_in0 = eq_98_out;
 	assign orOp_99_in1 = andOp_72_out;
-	// controller for phi_1.phi_in_phi_1
-	// controller for phi_1.phi_last_block_phi_1
-	// controller for phi_1.phi_s_phi_1
+	// controller for phi_0.phi_in_phi_0
+	// controller for phi_0.phi_last_block_phi_0
+	// controller for phi_0.phi_s_phi_0
 	// Insensitive connections
-	assign phi_in_phi_1 = concat_136_out;
-	assign phi_last_block_phi_1 = bb_1_predecessor_in_state_0_out_data;
-	assign phi_s_phi_1 = concat_137_out;
+	assign phi_in_phi_0 = concat_133_out;
+	assign phi_last_block_phi_0 = bb_1_predecessor_in_state_0_out_data;
+	assign phi_s_phi_0 = concat_134_out;
 	// controller for ret_40.valid_reg
 	always @(*) begin
 		if (andOp_179_out) begin 
@@ -2810,7 +2810,7 @@ module axi_wb(input [0:0] clk, input [0:0] rst, output [31:0] arg_0_in_data, out
 			data_store_0_0 <= 0;
 		end else begin
 			if (andOp_207_out) begin
-				data_store_0_0 <= phi_out_phi_1;
+				data_store_0_0 <= phi_out_phi_0;
 			end
 		end
 	end
