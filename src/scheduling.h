@@ -1308,8 +1308,8 @@ namespace ahaHLS {
       assert(depth() == (int) states.size());
     }
 
-    StateId startState() const { return *std::min_element(std::begin(states), std::end(states)); } //.front(); }
-    StateId endState() const { return *std::max_element(std::begin(states), std::end(states)); }//return states.back(); }    
+    StateId startState() const { return *std::min_element(std::begin(states), std::end(states)); }
+    StateId endState() const { return *std::max_element(std::begin(states), std::end(states)); }
 
     int II() const { return ii; }
     int depth() const { return stateDepth; }
@@ -1323,9 +1323,6 @@ namespace ahaHLS {
   
   class TransitionInfo {
   public:
-    // std::set<BasicBlock*> noTerminatorExitBlocks;
-    // std::set<BasicBlock*> branchExitBlocks;
-    // std::set<BasicBlock*> returnExitBlocks;
     std::map<BasicBlock*, std::vector<SuccessorInfo> > successorInfo;
   };
   
