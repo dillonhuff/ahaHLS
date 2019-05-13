@@ -1275,7 +1275,6 @@ namespace ahaHLS {
               
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
               if (aliasRes != NoAlias) {
-                //p.addConstraint(p.instrEnd(&instr) <= p.instrStart(&otherInstr));
                 exe.addConstraint(instrEnd(&instr) <= instrStart(&otherInstr));
               }
             }
@@ -1288,7 +1287,6 @@ namespace ahaHLS {
               // TODO: Add SCEV analysis
               AliasResult aliasRes = aliasAnalysis.alias(storeLoc, otherStoreLoc);
               if (aliasRes != NoAlias) {
-                //p.addConstraint(p.instrEnd(&instr) < p.instrEnd(&otherInstr));
                 exe.addConstraint(instrEnd(&instr) < instrEnd(&otherInstr));
               }
             }

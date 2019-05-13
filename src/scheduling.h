@@ -1075,7 +1075,10 @@ namespace ahaHLS {
   class ExecutionConstraints {
   public:
     std::vector<ExecutionConstraint*> constraints;
-
+    std::set<PipelineSpec> toPipeline;
+    std::set<TaskSpec> tasks;
+    map<BasicBlock*, vector<BasicBlock*> > controlPredecessors;
+    
     ExecutionConstraints() {}
 
     ExecutionConstraints(const ExecutionConstraints& other) {
