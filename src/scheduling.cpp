@@ -1068,6 +1068,8 @@ namespace ahaHLS {
       i++;
     }
 
+    ExecutionConstraints exe;
+    
     vector<TaskSpec> sortedTasks = sortTasks(tasks);
     for (int i = 0; i < ((int) sortedTasks.size()) - 1; i++) {
       TaskSpec current = sortedTasks[i];
@@ -1075,13 +1077,14 @@ namespace ahaHLS {
 
       for (auto curBlk : current.blks) {
         for (auto nextBlk : next.blks) {
-          p.addConstraint(p.blockEnd(curBlk) < p.blockStart(nextBlk));
+          //p.addConstraint(p.blockEnd(curBlk) < p.blockStart(nextBlk));
+          exe.add(end(curBlk) < start(nextBlk));
         }
       }
     }
 
     
-    ExecutionConstraints exe;    
+
     // Connect the control edges
     for (auto blkPreds : controlPredecessors) {
       BasicBlock* nextBB = blkPreds.first;
