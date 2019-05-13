@@ -1507,9 +1507,14 @@ namespace ahaHLS {
         for (Instruction& instrA : bb) {
           for (Instruction& instrB : bb) {
 
-            if (hdc.hasTypeSpec(&instrA)) {
-              ModuleSpec m = hdc.getArgumentSpec(&instrA);
-              cout << "Module spec for " << valueString(&instrA) << " = " << m << endl;
+            if (instrA.getNumOperands() > 0) {
+              Value* op0 = instrA.getOperand(0);
+              if (hdc.hasArgumentSpec(op0)) {
+                ModuleSpec m = hdc.getArgumentSpec(op0);
+                cout << "Module spec for " << valueString(op0) << " = " << m << endl;
+              } else {
+                cout << "No argument spec for " << valueString(op0) << endl;
+              }
             }
             
             int rawDD = rawOperandDD(&instrA, &instrB, domTree);
@@ -3676,6 +3681,11 @@ namespace ahaHLS {
     out << tab(1) << "params" << endl;
     for (auto pt : m.params) {
       out << tab(2) << pt.first << " = " << pt.second << endl;
+    }
+
+    out << tab(1) << "Hazards" << endl;
+    for (auto pt : m.hazards) {
+      out << tab(2) << pt.sourceMethod << " -> " << pt.sinkMethod << endl;
     }
     
 
