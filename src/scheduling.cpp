@@ -25,6 +25,18 @@ using namespace z3;
 
 namespace ahaHLS {
 
+  std::string ExecutionConstraints::getIIName(BasicBlock* const bb) {
+    int i = 0;
+    for (auto& pSpec : toPipeline) {
+      if (elem(bb, pSpec.blks)) {
+        return "II_" + to_string(i);
+      }
+      i++;
+    }
+
+    assert(false);
+  }
+  
   void Ordered::addSelfTo(SchedulingProblem& p, Function* f) {
     LinearExpression aTime = toLinearExpression(after, p);
     LinearExpression bTime = toLinearExpression(before, p);
@@ -1071,6 +1083,12 @@ namespace ahaHLS {
                           std::set<PipelineSpec>& toPipeline,
                           std::set<TaskSpec>& tasks,                          
                           map<BasicBlock*, vector<BasicBlock*> >& controlPredecessors) {
+
+
+    ExecutionConstraints exe;
+    exe.toPipeline = toPipeline;
+    exe.tasks = tasks;
+    exe.controlPredecessors = controlPredecessors;
     
     SchedulingProblem p(hdc);
 
@@ -1080,7 +1098,8 @@ namespace ahaHLS {
 
     int i = 0;
     for (auto bb : toPipeline) {
-      string iiName = string("II_") + to_string(i);
+      //string iiName = string("II_") + to_string(i);
+      string iiName = exe.getIIName(*(begin(bb.blks)));
 
       p.IInames.insert({bb, iiName});
 
@@ -1090,7 +1109,6 @@ namespace ahaHLS {
       i++;
     }
 
-    ExecutionConstraints exe;
     
     vector<TaskSpec> sortedTasks = sortTasks(tasks);
     for (int i = 0; i < ((int) sortedTasks.size()) - 1; i++) {

@@ -1085,6 +1085,8 @@ namespace ahaHLS {
       }
     }
 
+    std::string getIIName(BasicBlock* const bb);
+
     void remove(ExecutionConstraint* c) {
       assert(dbhc::elem(c, constraints));
 
