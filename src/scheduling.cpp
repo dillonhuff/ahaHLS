@@ -1346,6 +1346,15 @@ namespace ahaHLS {
 
     return maybe<ModuleSpec>();
   }
+
+  bool callMatchesHazardSpec(CallInst* before,
+                             CallInst* after,
+                             HazardSpec& h) {
+    string beforeName = before->getCalledFunction()->getName();
+    string afterName = after->getCalledFunction()->getName();
+
+    return (beforeName == h.sourceMethod) && (afterName == h.sinkMethod);
+  }
   
   // TODO: Compute DD using substituted hazard condition  
   maybe<HazardSpec>
@@ -1363,7 +1372,7 @@ namespace ahaHLS {
       // TODO: Check aliasing
       if (op0A == op0B) {
 
-        cout << "Instrs using same first op " << valueString(instrA) << " and " << valueString(instrB) << endl;        
+        //cout << "Instrs using same first op " << valueString(instrA) << " and " << valueString(instrB) << endl;        
         maybe<ModuleSpec> aSpecM = extractSpec(op0A, hdc);
         maybe<ModuleSpec> bSpecM = extractSpec(op0B, hdc);
 
@@ -1372,7 +1381,25 @@ namespace ahaHLS {
           ModuleSpec bSpec = bSpecM.get_value();
 
           if (aSpec.name == bSpec.name) {
+
+            if (!CallInst::classof(instrA) ||
+                !CallInst::classof(instrB)) {
+              return maybe<HazardSpec>();
+            }
+
+            CallInst* aCall = dyn_cast<CallInst>(instrA);
+            CallInst* bCall = dyn_cast<CallInst>(instrB);
+
             cout << "Instructions " << valueString(instrA) << " and " << valueString(instrB) << " potentially have a hazard" << endl;
+
+            // Iterate over hazards to check
+            for (auto hazard : aSpec.hazards) {
+              if (callMatchesHazardSpec(aCall, bCall, hazard)) {
+                cout << "Instructions " << valueString(instrA) << " and " << valueString(instrB) << " have a hazard" << endl;                
+                return hazard;
+              }
+            }
+
           }
         }
       }
