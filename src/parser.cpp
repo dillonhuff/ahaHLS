@@ -867,4 +867,13 @@ namespace ahaHLS {
     }
     
   }
+
+  void SynthCppModule::addHazard(HazardDecl* hazard) {
+    auto args = hazard->args;
+    assert(args.size() == 2);
+
+    auto stmts = hazard->body;
+
+    assert(stmts.size() == 1);
+  }
 }

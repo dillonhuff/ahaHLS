@@ -1419,7 +1419,6 @@ namespace ahaHLS {
     SynthCppType* retType;
     ExecutionConstraints* constraints;
     set<PipelineSpec> pipelines;
-    vector<HazardSpec> hazards;
 
     bool hasReturnType() {
       return retType != nullptr;
@@ -1465,6 +1464,7 @@ namespace ahaHLS {
     Token name;
     std::map<std::string, SynthCppType*> memberVars;
     std::map<std::string, SynthCppFunction*> methods;
+    vector<HazardSpec> hazards;
 
     std::string getName() const { return name.getStr(); }
   
@@ -1759,6 +1759,7 @@ namespace ahaHLS {
     }
 
 
+    void addHazard(HazardDecl* hazard);
     void addMethodDecl(FunctionDecl* decl, ModuleSpec& cSpec);
     
     SynthCppModule(ParserModule& parseRes) {
@@ -1791,6 +1792,8 @@ namespace ahaHLS {
               addMethodDecl(methodFuncDecl, cSpec);
             } else if (HazardDecl::classof(subStmt)) {
               cout << "Found hazard" << endl;
+              auto haz = sc<HazardDecl>(subStmt);
+              addHazard(haz);
             } else {
               assert(subStmt != nullptr);
               cout << "Unsupported statement in class, stmt kind: "  << subStmt->getKind() << endl;
