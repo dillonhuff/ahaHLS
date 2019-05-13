@@ -1358,8 +1358,12 @@ namespace ahaHLS {
       Value* op0A = instrA->getOperand(0);
       Value* op0B = instrB->getOperand(0);
 
+      //cout << "Checking for hazards between " << valueString(instrA) << " and " << valueString(instrB) << endl;
+      
       // TODO: Check aliasing
       if (op0A == op0B) {
+
+        cout << "Instrs using same first op " << valueString(instrA) << " and " << valueString(instrB) << endl;        
         maybe<ModuleSpec> aSpecM = extractSpec(op0A, hdc);
         maybe<ModuleSpec> bSpecM = extractSpec(op0B, hdc);
 
@@ -1403,8 +1407,6 @@ namespace ahaHLS {
       int instrInd = 0;
 
       for (auto& instr : bb) {
-        //Instruction* iptr = &instr;
-      
         int otherInd = 0;
         for (auto& otherInstr : bb) {
           if (otherInd > instrInd && (&otherInstr != &instr)) {
@@ -1550,10 +1552,12 @@ namespace ahaHLS {
       }
     }
 
+    cout << "Checking memory constraints in pipelines" << endl;
     DominatorTree domTree(*f);
     for (auto& bb : f->getBasicBlockList()) {
       if (inAnyPipeline(&bb, toPipeline)) {
 
+        cout << "Found basic block in pipeline" << endl;
         string IIName = exe.getIIName(&bb);
 
         for (Instruction& instrA : bb) {
@@ -1677,11 +1681,6 @@ namespace ahaHLS {
     pm.add(skeleton);
 
     pm.run(*(f->getParent()));
-
-    // if (contains_key(f, constraints)) {
-    //   s.controlPredecessors = map_find(f, constraints).controlPredecessors;
-    // }
-    
   }
   
   ExecutionConstraints

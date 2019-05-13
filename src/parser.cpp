@@ -598,6 +598,7 @@ namespace ahaHLS {
     // TODO: Before inlining add special function hazards to the memory
     // Note: I will need SCEV no matter what, and probably alias analysis too
 
+    exec.toPipeline = toPipeline;
     createMemoryConstraints(f, hcs, exec);
 
 
