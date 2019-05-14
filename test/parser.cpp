@@ -986,6 +986,8 @@ namespace ahaHLS {
       SynthCppModule scppMod(parseM);
 
       auto arch = synthesizeVerilog(scppMod, "pipelined_independent_writes");
+      REQUIRE(arch.stg.pipelines.size() == 1);
+      REQUIRE(arch.stg.pipelines[0].II() == 1);
 
       TestBenchSpec tb;
       map<string, int> testLayout = {};
@@ -1010,6 +1012,8 @@ namespace ahaHLS {
       SynthCppModule scppMod(parseM);
 
       auto arch = synthesizeVerilog(scppMod, "pipelined_structural_hazard");
+      REQUIRE(arch.stg.pipelines.size() == 1);
+      REQUIRE(arch.stg.pipelines[0].II() == 2);
 
       TestBenchSpec tb;
       map<string, int> testLayout = {};
@@ -1029,11 +1033,13 @@ namespace ahaHLS {
       REQUIRE(runIVerilogTest("pipelined_structural_hazard_tb.v", "pipelined_structural_hazard", " builtins.v pipelined_structural_hazard.v RAM.v delay.v ram_primitives.v"));
     }
 
-    SECTION("Pipelined with longer II due to memory hazard") {
+    SECTION("Pipelined with longer II due to RAW memory hazard") {
       ParserModule parseM = parseSynthModule("./experiments/ram_iclass.cpp");
       SynthCppModule scppMod(parseM);
 
       auto arch = synthesizeVerilog(scppMod, "pipelined_memory_hazard");
+      REQUIRE(arch.stg.pipelines.size() == 1);
+      REQUIRE(arch.stg.pipelines[0].II() > 2);
 
       TestBenchSpec tb;
       map<string, int> testLayout = {};
@@ -1052,7 +1058,7 @@ namespace ahaHLS {
 
       REQUIRE(runIVerilogTest("pipelined_memory_hazard_tb.v", "pipelined_memory_hazard", " builtins.v pipelined_memory_hazard.v RAM.v delay.v ram_primitives.v"));
     }
-    
+
   }
 
   

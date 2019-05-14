@@ -220,6 +220,24 @@ class axi_ram {
 
     add_constraint(end(set_wvalid_nb0) + 1 == start(ret_nb0));
   }
+
+  void write_burst(fifo& inputs,
+                   bit_8& burst_size,
+                   bit_16& start_loc) {
+    bit_8 burst_no;
+    burst_no = 0;
+
+    bit_9 num_transfers;
+    num_transfers = burst_size + 1;
+
+    this->start_write_burst(5, 1, num_transfers, start_loc);
+    bit_9 transfer_no;
+    for (transfer_no = 0;
+         transfer_no < num_transfers;
+         transfer_no = transfer_no + 1) {
+      this->write_next_beat(inputs.read_fifo(), 31);
+    }
+  }
   
   void start_read_burst(bit_3& arsize,
                         bit_2& arburst,

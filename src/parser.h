@@ -1231,7 +1231,9 @@ namespace ahaHLS {
     vector<HazardSpec> hazards;
 
     std::string getName() const { return name.getStr(); }
-  
+
+    SynthCppType* getType() { return new SynthCppStructType(name); }
+    
     SynthCppFunction* getMethod(const Token name) {
       cout << "Getting method for " << name << endl;
       return map_find(name.getStr(), methods);
@@ -1982,6 +1984,10 @@ namespace ahaHLS {
     }
 
     SynthCppType* getTypeForId(const Token id) {
+      if (id.getStr() == "this") {
+        assert(cgs.getActiveClass() != nullptr);
+        return new SynthCppPointerType(cgs.getActiveClass()->getType());
+      }
       return cgs.symtab.getType(id.getStr());
     }
 
@@ -2004,10 +2010,20 @@ namespace ahaHLS {
       cout << "Got type for " << idName << endl;
 
       auto classType = extractBaseStructType(tp);
+
+      cout << "Got class type = " << *classType << endl;
+      
       for (auto c : classes) {
+        cout << "Candidate class = " << c->name << endl;
         if (c->name == classType->name) {
           return c;
         }
+      }
+
+      // If token has the type of the class we are currently
+      // parsing
+      if (cgs.getActiveClass()->name == classType->name) {
+        return cgs.getActiveClass();
       }
 
       assert(false);

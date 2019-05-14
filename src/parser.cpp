@@ -883,7 +883,10 @@ namespace ahaHLS {
       cout << "After setting argument symbols for "  << string(f->getName()) << endl;
       cgs.symtab.print(cout);
               
-            
+
+      // Set "this" to have value of first argument
+      Value* thisArg = getArg(f, (hasReturn ? 1 : 0));
+      setValue(Token("this"), thisArg);
       for (auto stmt : methodFuncDecl->body) {
         cout << "Statement" << endl;
         genLLVM(stmt);
