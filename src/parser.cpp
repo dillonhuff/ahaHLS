@@ -599,17 +599,26 @@ namespace ahaHLS {
     // Note: I will need SCEV no matter what, and probably alias analysis too
 
     exec.toPipeline = toPipeline;
+
+    optimizeModuleLLVM(*(f->getParent()));
+    // No stores
+    optimizeStores(f);
+    clearExecutionConstraints(f, exec);
+
     createMemoryConstraints(f, hcs, exec);
 
 
     inlineWireCalls(f, exec, interfaces);
 
+    cout << "Immediately after inlining" << endl;
+    cout << valueString(f) << endl;
+    
     // TODO: Where to put this stuff
     optimizeModuleLLVM(*(f->getParent()));
     optimizeStores(f);
     clearExecutionConstraints(f, exec);
   
-    cout << "After inlining" << endl;
+    cout << "After inlining and store optimization" << endl;
     cout << valueString(f) << endl;
 
     setAllAllocaMemTypes(hcs, f, pss(32));

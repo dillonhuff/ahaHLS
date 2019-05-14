@@ -40,7 +40,7 @@ class RAM {
   //   false;
   // }
 
-  void write(bit_5& addr, bit_32& data) {
+  void write(bit_5 addr, bit_32 data) {
   set_wen:
     set_port(wen_0, 1);
   set_wdata:
@@ -55,7 +55,7 @@ class RAM {
     add_constraint(start(set_wen) + 3 == end(ret));
   }
 
-  bit_32 read(bit_5& addr) {
+  bit_32 read(bit_5 addr) {
   set_addr:
     set_port(raddr_0, addr);
 
