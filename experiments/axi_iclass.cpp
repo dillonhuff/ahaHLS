@@ -224,13 +224,10 @@ class axi_ram {
   void write_burst(fifo& inputs,
                    bit_8& burst_size,
                    bit_16& start_loc) {
-    bit_8 burst_no;
-    burst_no = 0;
-
     bit_9 num_transfers;
     num_transfers = burst_size + 1;
 
-    this->start_write_burst(5, 1, num_transfers, start_loc);
+    this->start_write_burst(4, 1, num_transfers, start_loc);
     bit_9 transfer_no;
     for (transfer_no = 0;
          transfer_no < num_transfers;
@@ -273,7 +270,32 @@ class axi_ram {
     // add_constraint(start(set_v) == start(set_addr));            
   }
   
+  void read_burst(fifo& results,
+                  bit_8& burst_size,
+                  bit_16& start_loc) {
+    bit_9 read_burst_size;
+    read_burst_size = burst_size + 1;
 
+    this->start_read_burst(5, 1, read_burst_size, start_loc);
+    bit_9 read_burst_no;
+  
+    for (read_burst_no = 0;
+         read_burst_no < read_burst_size;
+         read_burst_no = read_burst_no + 1) {
+      results.write_fifo(this->read_next_beat());
+    }
+  }
+
+  hazard(call0 writeBurst, call1 readBurst) {
+    implies(writeBurst.awaddr() + (writeBurst.awsize()*(writeBurst.awlen())) >=
+            readBurst.start_loc() + (readBurst.burst_size()*4),
+            end(writeBurst) <= start(readBurst));
+
+    // implies(writeBurst.awaddr == readBurst.raddr,
+    //         end(writeBurst) <= start(readBurst));
+
+  }
+  
 };
 
 void axi_burst_multi(fifo& result,

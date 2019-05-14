@@ -796,7 +796,7 @@ namespace ahaHLS {
 
   static inline
   int precedence(Token op) {
-    map<string, int> prec{{"+", 100}, {"==", 99}, {"-", 100}, {"*", 100}, {"<", 99}, {">", 99}, {"<=", 99}};
+    map<string, int> prec{{"+", 100}, {"==", 99}, {"-", 100}, {"*", 100}, {"<", 99}, {">", 99}, {"<=", 99}, {">=", 99}};
     assert(contains_key(op.getStr(), prec));
     return map_find(op.getStr(), prec);
   }
