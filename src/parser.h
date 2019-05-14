@@ -2182,6 +2182,10 @@ namespace ahaHLS {
             auto argStorage = bd.CreateAlloca(argLLVM->getType());
             bd.CreateStore(argLLVM, argStorage);
             argLLVM = argStorage;
+          } else if (PointerType::classof(argLLVM->getType()) &&
+                     !PointerType::classof(argParam->getType())) {
+            cout << "Argument " << valueString(argLLVM) << " is pointer but bound type of parameter is " << valueString(getArg(calledLLVM, synthFuncIndex + 1)) << " (value), need to dereference first" << endl;
+            assert(false);
           }
           args.push_back(argLLVM);
         }

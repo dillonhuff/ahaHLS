@@ -602,7 +602,7 @@ namespace ahaHLS {
 
     optimizeModuleLLVM(*(f->getParent()));
     // No stores
-    optimizeStores(f);
+    //optimizeStores(f);
     clearExecutionConstraints(f, exec);
 
     createMemoryConstraints(f, hcs, exec);
@@ -615,7 +615,7 @@ namespace ahaHLS {
     
     // TODO: Where to put this stuff
     optimizeModuleLLVM(*(f->getParent()));
-    optimizeStores(f);
+    //optimizeStores(f);
     clearExecutionConstraints(f, exec);
   
     cout << "After inlining and store optimization" << endl;
@@ -846,10 +846,10 @@ namespace ahaHLS {
       vector<Type*> argTps =
         functionInputs(methodFuncDecl);
 
-      cout << "Method " << methodFuncDecl->getName() << " has arg types before return value and this:" << endl;
-      for (auto a : argTps) {
-        cout << tab(1) << typeString(a) << endl;
-      }
+      // cout << "Method " << methodFuncDecl->getName() << " has arg types before return value and this:" << endl;
+      // for (auto a : argTps) {
+      //   cout << tab(1) << typeString(a) << endl;
+      // }
             
       vector<Type*> tps;
       tps.push_back(llvmTypeFor(new SynthCppPointerType(new SynthCppStructType(cgs.getActiveClass()->name))));
@@ -857,10 +857,10 @@ namespace ahaHLS {
         tps.push_back(a);
       }
 
-      cout << "Method " << methodFuncDecl->getName() << " has arg types" << endl;
-      for (auto a : tps) {
-        cout << tab(1) << typeString(a) << endl;
-      }
+      // cout << "Method " << methodFuncDecl->getName() << " has arg types" << endl;
+      // for (auto a : tps) {
+      //   cout << tab(1) << typeString(a) << endl;
+      // }
       SynthCppFunction* sf = new SynthCppFunction();
       activeFunction = sf;
       sf->nameToken = methodFuncDecl->name;
