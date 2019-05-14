@@ -24,6 +24,7 @@ INCLUDE_DIRECTORIES(./src/)
 
 SET(CPP_FILES ./src/scheduling.cpp
               ./src/parser.cpp
+              ./src/expression.cpp
               ./src/verilog_backend.cpp
               ./src/llvm_codegen.cpp
               ./src/microarchitecture.cpp
