@@ -1,6 +1,6 @@
 #pragma once
 
-#include "algorithm.h"
+#include "expression.h"
 #include "utils.h"
 
 #include <llvm/IR/Module.h>
@@ -172,8 +172,8 @@ namespace ahaHLS {
     string sinkMethod;
 
     // What is the right data structure to represent the hazard condition?
-    // Expression* condition;
-    // Expression* exeConstraint;
+    Expression* condition;
+    Expression* exeConstraint;
   };
   
   class ModuleSpec {

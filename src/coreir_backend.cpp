@@ -41,11 +41,11 @@ namespace ahaHLS {
     map<string, CoreIR::Value*> params;
     for (auto p : spec.params) {
       if (p.first == "WIDTH") {
-        params.insert({"width", Const::make(c, stoi(p.second))});
+        params.insert({"width", CoreIR::Const::make(c, stoi(p.second))});
       } else if (p.first == "HAS_EN") {
-        params.insert({"has_en", Const::make(c, stoi(p.second) == 1 ? true : false)});
+        params.insert({"has_en", CoreIR::Const::make(c, stoi(p.second) == 1 ? true : false)});
       } else if (p.first == "RESET_VALUE") {
-        params.insert({"has_rst", Const::make(c, stoi(p.second) == 1 ? true : false)});
+        params.insert({"has_rst", CoreIR::Const::make(c, stoi(p.second) == 1 ? true : false)});
       } else {
         cout << "Error: Unsupported parameter = " << p.first << endl;
         assert(false);
@@ -54,8 +54,8 @@ namespace ahaHLS {
     return params;
   }
   
-  Instance* instanceForModule(FunctionalUnit& unit,
-                              ModuleDef* def) {
+  CoreIR::Instance* instanceForModule(FunctionalUnit& unit,
+                              CoreIR::ModuleDef* def) {
     auto inst =
       def->addInstance(unit.instName,
                        unitCoreIRName(unit.module),
@@ -63,10 +63,10 @@ namespace ahaHLS {
     return inst;
   }
   
-  map<string, Instance*>
+  map<string, CoreIR::Instance*>
   emitFunctionalUnits(MicroArchitecture& arch,
-                      ModuleDef* def) {
-    map<string, Instance*> instances;
+                      CoreIR::ModuleDef* def) {
+    map<string, CoreIR::Instance*> instances;
 
     for (auto unit : arch.functionalUnits) {
       if (contains_key(unit.instName, instances)) {
@@ -77,17 +77,17 @@ namespace ahaHLS {
         continue;
       }
 
-      Instance* inst = instanceForModule(unit, def);
+      CoreIR::Instance* inst = instanceForModule(unit, def);
       instances.insert({unit.instName, inst});
     }
 
     return instances;
   }
 
-  Select* makeConstant(const std::string defaultValue,
-                       const int dataWidth,
-                       ModuleDef* def,
-                       MicroArchitecture& arch) {
+  CoreIR::Select* makeConstant(const std::string defaultValue,
+                               const int dataWidth,
+                               CoreIR::ModuleDef* def,
+                               MicroArchitecture& arch) {
 
     cout << "default value is " << defaultValue << endl;
     Context* c = def->getContext();
@@ -95,16 +95,16 @@ namespace ahaHLS {
 
     //cout << "Building constant" << endl;
     
-    Instance* v = def->addInstance(arch.uniqueName("const"), "coreir.const", {{"width", Const::make(c, dataWidth)}}, {{"value", Const::make(c, BitVector(dataWidth, value))}});
+    CoreIR::Instance* v = def->addInstance(arch.uniqueName("const"), "coreir.const", {{"width", CoreIR::Const::make(c, dataWidth)}}, {{"value", CoreIR::Const::make(c, BitVector(dataWidth, value))}});
 
     //cout << "Built constant" << endl;
     return v->sel("out");
   }
   
-  Select* findWireableFor(const std::string portName,
-                            map<string, Instance*>& functionalUnits,
-                            ModuleDef* def,
-                            MicroArchitecture& arch) {
+  CoreIR::Select* findWireableFor(const std::string portName,
+                                  map<string, CoreIR::Instance*>& functionalUnits,
+                                  CoreIR::ModuleDef* def,
+                                  MicroArchitecture& arch) {
     //cout << "Finding wireable for " << portName << endl;
     for (auto unit : arch.functionalUnits) {
       //cout << "Searching unit " << unit.instName << endl;
@@ -120,7 +120,7 @@ namespace ahaHLS {
             return def->sel("self")->sel(pt.second.name);
           } else {
             string instName = unit.instName;
-            Instance* inst = map_find(instName, functionalUnits);
+            CoreIR::Instance* inst = dbhc::map_find(instName, functionalUnits);
             //cout << "Instance with port is " << *inst << endl;
             return inst->sel(pt.first);
           }
@@ -138,7 +138,7 @@ namespace ahaHLS {
             return def->sel("self")->sel(pt.second.name);
           } else {
             string instName = unit.instName;
-            Instance* inst = map_find(instName, functionalUnits);
+            CoreIR::Instance* inst = dbhc::map_find(instName, functionalUnits);
             //cout << "Instance with port is " << *inst << endl;
             return inst->sel(pt.first);
           }
@@ -150,9 +150,9 @@ namespace ahaHLS {
     assert(false);
   }
 
-  Select* findWireableFor(const Wire w,
-                          map<string, Instance*>& functionalUnits,
-                          ModuleDef* def,
+  CoreIR::Select* findWireableFor(const Wire w,
+                          map<string, CoreIR::Instance*>& functionalUnits,
+                          CoreIR::ModuleDef* def,
                           MicroArchitecture& arch) {
     if (w.isConstant()) {
       return makeConstant(to_string(w.constVal), w.width, def, arch);
@@ -162,9 +162,9 @@ namespace ahaHLS {
     return findWireableFor(w.valueString(), functionalUnits, def, arch);
   }
 
-  Select* truncateTo(int len,
-                     Select* data,
-                     ModuleDef* def,
+  CoreIR::Select* truncateTo(int len,
+                     CoreIR::Select* data,
+                     CoreIR::ModuleDef* def,
                      MicroArchitecture& arch) {
     Context* c = def->getContext();
 
@@ -172,18 +172,18 @@ namespace ahaHLS {
     int inLen = arrayLen(data);
     auto trunc = def->addInstance(arch.uniqueName("trunc"),
                                   "coreir.slice",
-                                  {{"width", Const::make(c, inLen)},
-                                      {"lo", Const::make(c, 0)},
-                                        {"hi", Const::make(c, len)}});
+                                  {{"width", CoreIR::Const::make(c, inLen)},
+                                      {"lo", CoreIR::Const::make(c, 0)},
+                                        {"hi", CoreIR::Const::make(c, len)}});
 
     def->connect(trunc->sel("in"), data);
     return trunc->sel("out");
   }
 
-  Select* buildController(int dataWidth,
+  CoreIR::Select* buildController(int dataWidth,
                           PortValues& vals,
-                          map<string, Instance*>& functionalUnits,
-                          ModuleDef* def,
+                          map<string, CoreIR::Instance*>& functionalUnits,
+                          CoreIR::ModuleDef* def,
                           MicroArchitecture& arch) {
 
     // For every wire:
@@ -199,15 +199,15 @@ namespace ahaHLS {
 
     bool firstMux = true;
     for (auto v : vals.portVals) {
-      Instance* mux =
+      CoreIR::Instance* mux =
         def->addInstance(arch.uniqueName("c_mux"),
                          "coreir.mux",
-                         {{"width", Const::make(c, dataWidth)}});
+                         {{"width", CoreIR::Const::make(c, dataWidth)}});
 
-      Select* wireCond =
+      CoreIR::Select* wireCond =
         findWireableFor(v.first, functionalUnits, def, arch);
 
-      Select* dataValue =
+      CoreIR::Select* dataValue =
         findWireableFor(v.second, functionalUnits, def, arch);
       
       def->connect(mux->sel("sel"), wireCond->sel(0));
@@ -238,7 +238,7 @@ namespace ahaHLS {
       firstMux = false;
     }
 
-    Select* ct = nullptr;
+    CoreIR::Select* ct = nullptr;
     if (vals.defaultValue != "") {
       ct = makeConstant(vals.defaultValue, dataWidth, def, arch);
     } else {
@@ -270,13 +270,13 @@ namespace ahaHLS {
     ahaLib->newGeneratorDecl("reg", wireTp, wireParams);
     auto gen = ahaLib->getGenerator("reg");
 
-    std::function<void (Context*, Values, ModuleDef*)> genFun =
-      [](Context* c, Values args, ModuleDef* def) {
+    std::function<void (Context*, Values, CoreIR::ModuleDef*)> genFun =
+      [](Context* c, Values args, CoreIR::ModuleDef* def) {
       uint width = args.at("width")->get<int>();
 
       def->addInstance("innerReg",
                        "mantle.reg",
-      {{"width", Const::make(c, width)}, {"has_en", Const::make(c, true)}, {"has_rst", Const::make(c, true)}});
+      {{"width", CoreIR::Const::make(c, width)}, {"has_en", CoreIR::Const::make(c, true)}, {"has_rst", CoreIR::Const::make(c, true)}});
 
       def->connect("self.in", "innerReg.in");
       def->connect("self.en.0", "innerReg.en");
@@ -304,13 +304,13 @@ namespace ahaHLS {
     ahaLib->newGeneratorDecl("eq", wireTp, wireParams);
     auto gen = ahaLib->getGenerator("eq");
 
-    std::function<void (Context*, Values, ModuleDef*)> genFun =
-      [](Context* c, Values args, ModuleDef* def) {
+    std::function<void (Context*, Values, CoreIR::ModuleDef*)> genFun =
+      [](Context* c, Values args, CoreIR::ModuleDef* def) {
       uint width = args.at("width")->get<int>();
 
       def->addInstance("innerReg",
                        "coreir.eq",
-      {{"width", Const::make(c, width)}});
+      {{"width", CoreIR::Const::make(c, width)}});
 
       def->connect("self.in0", "innerReg.in0");
       def->connect("self.in1", "innerReg.in1");      
@@ -340,13 +340,13 @@ namespace ahaHLS {
     ahaLib->newGeneratorDecl("wire", wireTp, wireParams);
     auto gen = ahaLib->getGenerator("wire");
 
-    std::function<void (Context*, Values, ModuleDef*)> genFun =
-      [](Context* c, Values args, ModuleDef* def) {
+    std::function<void (Context*, Values, CoreIR::ModuleDef*)> genFun =
+      [](Context* c, Values args, CoreIR::ModuleDef* def) {
       uint width = args.at("width")->get<int>();
 
       def->addInstance("innerWire",
                        "coreir.wire",
-      {{"width", Const::make(c, width)}});
+      {{"width", CoreIR::Const::make(c, width)}});
 
       def->connect("self.in_data", "innerWire.in");
       def->connect("innerWire.out", "self.out_data");
@@ -373,7 +373,7 @@ namespace ahaHLS {
     CoreIR::Module* mod = n->newModuleDecl(name, tp);
     CoreIR::ModuleDef* def = mod->newModuleDef();
 
-    map<string, Instance*> functionalUnits =
+    map<string, CoreIR::Instance*> functionalUnits =
       emitFunctionalUnits(arch, def);
 
     // TODO: Need to wire up clocks?
@@ -384,12 +384,12 @@ namespace ahaHLS {
         string portName = in.first;
         PortValues vals = in.second;
 
-        Select* w =
+        CoreIR::Select* w =
           findWireableFor(portName, functionalUnits, def, arch);
         cout << tab(1) << "Wireable for port " << portName << " is " << *w << endl;
 
         int width = arrayLen(w); //10; // TODO: set by checking width
-        Select* inputWire = buildController(width, vals, functionalUnits, def, arch);
+        CoreIR::Select* inputWire = buildController(width, vals, functionalUnits, def, arch);
         def->connect(w, inputWire);
       }
     }

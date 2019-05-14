@@ -2,7 +2,6 @@
 
 #include "algorithm.h"
 
-using namespace dbhc;
 using namespace std;
 
 namespace ahaHLS {
@@ -18,13 +17,13 @@ namespace ahaHLS {
   static inline
   bool oneCharToken(const char c) {
     vector<char> chars = {'{', '}', ';', ')', '(', ',', '[', ']', ':', '-', '&', '+', '=', '>', '<', '*', '.'};
-    return elem(c, chars);
+    return dbhc::elem(c, chars);
   }
 
   static inline
   bool isKeyword(const std::string& str) {
     vector<string> keywords{"void", "for", "return", "do", "while"};
-    return elem(str, keywords);
+    return dbhc::elem(str, keywords);
   }
 
   class Token {
@@ -62,7 +61,7 @@ namespace ahaHLS {
   static inline
   bool isComparator(Token op) {
     vector<string> comps = {"==", ">", "<", "*", ">=", "<="};
-    return elem(op.getStr(), comps);
+    return dbhc::elem(op.getStr(), comps);
   }
 
   static inline

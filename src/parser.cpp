@@ -920,7 +920,8 @@ namespace ahaHLS {
     auto stmts = hazard->body;
     assert(stmts.size() == 1);
 
-    Statement* hazardSTmt = stmts[0];
+    ExpressionStmt* expS = extract<ExpressionStmt>(stmts[0]);
+    //Statement* hazardSTmt = stmts[0];
     cSpec.hazards.push_back({sourceMethod, sinkMethod});
     //cgs.getActiveClass()->hazards.push_back({sourceMethod, sinkMethod});
   }
