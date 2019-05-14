@@ -1409,10 +1409,85 @@ namespace ahaHLS {
     return maybe<HazardSpec>();
   }
 
-  // TODO: Compute DD using substituted hazard condition
-  int extractHazardDistance(Instruction* a, Instruction* b, HazardSpec& hdc) {
+  int extractHazardDistance(Instruction* a, Instruction* b, HazardSpec& hdc, ScalarEvolution& sc) {
+    // TODO: Actually find the form of the hazard
+
+    Value* aAddr = a->getOperand(1);
+    Value* bAddr = b->getOperand(1);
+
+    bool lexicallyForward = appearsBefore(a, b);
+    int minDD = lexicallyForward ? 0 : 1;
     
-    return 1;
+    if (PointerType::classof(aAddr->getType()) ||
+        PointerType::classof(bAddr->getType())) {
+
+      // Worst case scenario, but I should really check if the dependence is lexically forward or not
+      return minDD;
+    }
+
+    
+    cout << "aAddr = " << valueString(aAddr) << endl;
+    cout << "bAddr = " << valueString(bAddr) << endl;
+    
+    const SCEV* writeSCEV = sc.getSCEV(aAddr);
+    const SCEV* readSCEV = sc.getSCEV(bAddr);
+
+    if (!SCEVAddRecExpr::classof(writeSCEV)) {
+      return minDD;
+    }
+
+    auto wScev = dyn_cast<SCEVAddRecExpr>(writeSCEV);
+
+    if (!wScev->isAffine()) {
+      return minDD;
+    }
+
+    if (!SCEVAddRecExpr::classof(readSCEV)) {
+      return minDD;
+    }
+
+    auto rScev = dyn_cast<SCEVAddRecExpr>(readSCEV);
+
+    if (!rScev->isAffine()) {
+      return minDD;
+    }
+
+    context c;
+    optimize opt(c);
+    expr Iw = c.int_const("Iw");
+    expr Ir = c.int_const("Ir");
+    expr DD = c.int_const("DD");
+
+    opt.add(0 <= Iw);
+
+    if (lexicallyForward) {
+      opt.add(Iw <= Ir);
+    } else {
+      opt.add(Iw < Ir);
+    }
+
+    opt.add(DD == (Ir - Iw));
+
+    map<Value*, vector<expr> > valueNames;
+    expr writeBase = scevToExpr(wScev->getStart(), valueNames, c);
+    expr writeInc = scevToExpr(wScev->getOperand(1), valueNames, c);
+
+    expr readBase = scevToExpr(rScev->getStart(), valueNames, c);
+    expr readInc = scevToExpr(rScev->getOperand(1), valueNames, c);
+
+    // This is the formula that will need to be saved from
+    // the user hazard description?
+    opt.add(writeBase + Iw*writeInc == readBase + Ir*readInc);
+
+    optimize::handle h1 = opt.minimize(DD);
+
+    if (sat == opt.check()) {
+      cout << "Found lower bound via scev" << endl;
+      return opt.lower(h1).get_numeral_int64();
+    } else {
+      cout << "No solution for dependence distance, set distance == -1" << endl;
+      return -1;
+    }
   }
 
   // TODO: Parse actual hazard expression
@@ -1607,7 +1682,7 @@ namespace ahaHLS {
 
               // For more complex loop nests we will need more info about
               // loop levels
-              int dd = extractHazardDistance(&instrA, &instrB, h);
+              int dd = extractHazardDistance(&instrA, &instrB, h, sc);
 
               if (dd >= 0) {
                 Ordered* oc = extractHazardConstraint(&instrA, &instrB, h);
