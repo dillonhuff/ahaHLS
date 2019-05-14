@@ -1395,7 +1395,7 @@ namespace ahaHLS {
             // Iterate over hazards to check
             for (auto hazard : aSpec.hazards) {
               if (callMatchesHazardSpec(aCall, bCall, hazard)) {
-                cout << "Instructions " << valueString(instrA) << " and " << valueString(instrB) << " have a hazard" << endl;                
+                cout << "Instructions " << valueString(instrA) << " and " << valueString(instrB) << " have a hazard" << endl;
                 return hazard;
               }
             }
@@ -1452,6 +1452,8 @@ namespace ahaHLS {
       return minDD;
     }
 
+    // Really this should parse the hazard detector, then substitute in SCEV expressions with Iw / Iw + D
+    // in the parsed detector expression
     context c;
     optimize opt(c);
     expr Iw = c.int_const("Iw");
