@@ -602,7 +602,7 @@ namespace ahaHLS {
 
     optimizeModuleLLVM(*(f->getParent()));
     // No stores
-    //optimizeStores(f);
+    optimizeStores(f);
     clearExecutionConstraints(f, exec);
 
     createMemoryConstraints(f, hcs, exec);
@@ -615,7 +615,7 @@ namespace ahaHLS {
     
     // TODO: Where to put this stuff
     optimizeModuleLLVM(*(f->getParent()));
-    //optimizeStores(f);
+    optimizeStores(f);
     clearExecutionConstraints(f, exec);
   
     cout << "After inlining and store optimization" << endl;

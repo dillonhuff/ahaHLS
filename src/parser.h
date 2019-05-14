@@ -2148,6 +2148,8 @@ namespace ahaHLS {
         vector<Value*> args;
 
         for (auto arg : called->args) {
+
+          // TODO: Add argument binding code from method calls here
           args.push_back(genLLVM(arg));
         }
 
