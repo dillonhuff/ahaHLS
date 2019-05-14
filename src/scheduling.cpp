@@ -1452,6 +1452,8 @@ namespace ahaHLS {
       return minDD;
     }
 
+    cout << "Extracting hazard distance for hazard with condition " << *(hdc.condition) << " and timing requirement " << *(hdc.exeConstraint) << endl;
+
     // Really this should parse the hazard detector, then substitute in SCEV expressions with Iw / Iw + D
     // in the parsed detector expression
     context c;

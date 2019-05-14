@@ -921,8 +921,14 @@ namespace ahaHLS {
     assert(stmts.size() == 1);
 
     ExpressionStmt* expS = extract<ExpressionStmt>(stmts[0]);
+    Expression* expr = expS->expr;
+
+    FunctionCall* hazardCall = extract<FunctionCall>(expr);
+    assert(hazardCall->getName() == "implies");
+    assert(hazardCall->args.size() == 2);
+    
     //Statement* hazardSTmt = stmts[0];
-    cSpec.hazards.push_back({sourceMethod, sinkMethod});
+    cSpec.hazards.push_back({sourceMethod, sinkMethod, hazardCall->args[0], hazardCall->args[1]});
     //cgs.getActiveClass()->hazards.push_back({sourceMethod, sinkMethod});
   }
 }

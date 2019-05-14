@@ -128,8 +128,13 @@ namespace ahaHLS {
 
     virtual void print(std::ostream& out) const override {
       out << funcName << "(";
+      int argNo = 0;
       for (auto arg : args) {
-        out << *arg << ", ";
+        out << *arg;
+        if (argNo < ((int) args.size()) - 1) {
+          out << ", ";
+        }
+        argNo++;
       }
       out << ")";
     }
