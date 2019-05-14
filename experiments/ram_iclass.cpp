@@ -40,7 +40,7 @@ class RAM {
   //   false;
   // }
 
-  void write(bit_5 addr, bit_32 data) {
+  void write(bit_5 addr, bit_32& data) {
   set_wen:
     set_port(wen_0, 1);
   set_wdata:

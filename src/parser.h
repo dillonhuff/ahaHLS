@@ -2188,6 +2188,8 @@ namespace ahaHLS {
             assert(false);
           }
           args.push_back(argLLVM);
+
+          synthFuncIndex++;
         }
 
         return bd.CreateCall(calledFunc->llvmFunction(), args);
