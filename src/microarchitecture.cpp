@@ -3175,7 +3175,6 @@ namespace ahaHLS {
     buildAtStateWires(arch);
     buildBasicBlockEnableLogic(arch);
     buildPortControllers(arch);
-    //emitPipelineRegisterChains(arch);
     emitControlCode(arch);
     buildDataPathSetLogic(arch);
 

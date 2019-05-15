@@ -429,7 +429,8 @@ namespace ahaHLS {
     STATEMENT_KIND_PIPELINE,
     STATEMENT_KIND_FUNCTION_DECL,
     STATEMENT_KIND_HAZARD_DECL,    
-    STATEMENT_KIND_ARG_DECL,  
+    STATEMENT_KIND_ARG_DECL,
+    STATEMENT_KIND_STRUCT_DECL,      
     STATEMENT_KIND_ASSIGN,
     STATEMENT_KIND_FOR,
     STATEMENT_KIND_EXPRESSION,
@@ -609,6 +610,28 @@ namespace ahaHLS {
   
   };
 
+
+  class StructDecl : public Statement {
+  public:
+    Token name;
+    std::vector<ArgumentDecl*> fields;
+
+    StructDecl(Token name_,
+               std::vector<ArgumentDecl*>& fields_) :
+      name(name_),
+      fields(fields_) {}
+
+    std::string getName() const { return name.getStr(); }
+
+    static bool classof(const Statement* const stmt) {
+      return stmt->getKind() == STATEMENT_KIND_STRUCT_DECL;
+    }
+  
+    virtual StatementKind getKind() const {
+      return STATEMENT_KIND_STRUCT_DECL;
+    }
+  };
+  
   class FunctionDecl : public Statement {
   public:
     SynthCppType* returnType;

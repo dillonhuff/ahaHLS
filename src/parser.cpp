@@ -287,8 +287,66 @@ namespace ahaHLS {
   
   }
 
+  maybe<ArgumentDecl*> parseStructFieldMaybe(ParseState<Token>& tokens) {
+
+    auto decl = parseArgDeclMaybe(tokens);
+    if (!decl.has_value()) {
+      return maybe<ArgumentDecl*>();
+    }
+
+    if (!tokens.nextCharIs(Token(";"))) {
+      return maybe<ArgumentDecl*>();
+    }
+    tokens.parseChar();
+
+    return decl;
+  }
+  
+  maybe<Statement*> parseStructStmt(ParseState<Token>& tokens) {
+    if (tokens.nextCharIs(Token("struct"))) {
+      tokens.parseChar();
+
+      cout << "Parsing struct " << tokens.remainder() << endl;
+
+      Token name = tokens.peekChar();
+      tokens.parseChar();
+
+      if (!tokens.nextCharIs(Token("{"))) {
+        return maybe<Statement*>();
+      }
+      tokens.parseChar();
+
+      cout << "Parsing fields " << tokens.remainder() << endl;
+      
+      vector<ArgumentDecl*> fields =
+        many<ArgumentDecl*, Token>(parseStructFieldMaybe, tokens);
+
+      if (!tokens.nextCharIs(Token("}"))) {
+        return maybe<Statement*>();
+      }
+      tokens.parseChar();
+
+      cout << "Got fields " << tokens.remainder() << endl;      
+
+      // if (!tokens.nextCharIs(Token(";"))) {
+      //   return maybe<Statement*>();
+      // }
+      // tokens.parseChar();
+
+      return new StructDecl(name, fields);
+    }
+
+    return maybe<Statement*>();
+  }
+  
   maybe<Statement*> parseStatementNoLabel(ParseState<Token>& tokens) {
     // Try to parse for loop
+
+    auto structStmt = tryParse<Statement*>(parseStructStmt, tokens);
+    if (structStmt.has_value()) {
+      return structStmt;
+    }
+    
     auto doStmt = tryParse<Statement*>(parseDoWhileLoop, tokens);
     if (doStmt.has_value()) {
       return doStmt;

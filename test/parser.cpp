@@ -479,6 +479,20 @@ namespace ahaHLS {
   
   }
 
+  TEST_CASE("Parse struct statement") {
+    std::string str =
+      "struct Packet { bit_32 sport; bit_32 dport; bit_32 new_hop; bit_32 arrival; };";
+
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+
+    REQUIRE(tp.has_value());
+
+    REQUIRE(st.atEnd());
+
+    delete tp.get_value();    
+  }
+
   TEST_CASE("Pipeline statement") {
     std::string str =
       "pipeline(4) {"
