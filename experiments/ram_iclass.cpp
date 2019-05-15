@@ -23,13 +23,13 @@ class RAM {
 
   hazard(write call0, read call1) {
     implies(call0.addr() == call1.addr(),
-            start(call0) <= end(call1));
+            end(call0) <= start(call1));
   }
 
-  // hazard(write call0, write call1) {
-  //   implies(call0.addr() == call1.addr(),
-  //           start(call0) < start(call1));
-  // }
+  hazard(write call0, write call1) {
+    implies(call0.addr() == call1.addr(),
+            start(call0) < start(call1));
+  }
 
   // hazard(read call0, write call1) {
   //   implies(call0.addr() == call1.addr(),

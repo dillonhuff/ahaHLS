@@ -562,13 +562,13 @@ module phi( last_block, s, in, out);
     found = 0;
     for (i = 0 ; i < NB_PAIR; i=i+1) begin
       if (last_block == s[32*i +: 32]) begin
-        out_reg <= in[i*WIDTH +: WIDTH];
+        out_reg = in[i*WIDTH +: WIDTH];
         found = 1;
       end
     end
     if (found == 0) begin
       $display("Error: last_block: %b not in s : %b",last_block, s);
-      out_reg <= {{WIDTH}{1'bx}};
+      out_reg = {{WIDTH}{1'bx}};
     end
   end
 
