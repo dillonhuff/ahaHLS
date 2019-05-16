@@ -971,6 +971,40 @@ namespace ahaHLS {
     
   }
 
+  int getIndex(const std::string& fieldName,
+               StructDecl* const stmt) {
+    int i = 0;
+    for (auto& argDec : stmt->fields) {
+      if (argDec->name.getStr() == fieldName) {
+        return i;
+      }
+      i++;
+    }
+    assert(false);
+  }
+  
+  llvm::Value* SynthCppModule::structFieldPtr(Value* baseVal,
+                                              const std::string& fieldName) {
+    Type* baseTp = baseVal->getType();
+    cout << "Base vl = " << valueString(baseVal) << endl;    
+    cout << "Base tp = " << typeString(baseTp) << endl;
+    assert(PointerType::classof(baseTp));
+    Type* under = sc<PointerType>(baseTp)->getElementType();
+    assert(StructType::classof(under));
+
+    //StructType* stp = sc<StructType>(under);
+    StructDecl* decl = map_find(under, structDefs);
+
+    int fieldIndex = getIndex(fieldName, decl);
+    cout << "Index of " << fieldName << " is " << fieldIndex << endl;
+    assert(false);
+  }
+  
+  llvm::Value* SynthCppModule::genFieldAccess(FieldAccess* const e) {
+    Value* baseExpr = genLLVM(e->base);
+    return structFieldPtr(baseExpr, e->field.getStr());
+  }
+
   void SynthCppModule::addHazard(HazardDecl* hazard, ModuleSpec& cSpec) {
     auto args = hazard->args;
     assert(args.size() == 2);
@@ -1210,6 +1244,8 @@ namespace ahaHLS {
       string digits = i->digits;
       auto val = stoi(digits);
       return mkInt(val, 32);
+    } else if (FieldAccess::classof(e)) {
+      return genFieldAccess(sc<FieldAccess>(e));
     } else {
       cout << "Unsupported expression in LLVM codegen" << endl;
       assert(false);      
@@ -1249,6 +1285,17 @@ namespace ahaHLS {
     
     return new FieldAccess(base, field);
   }
-  
+
+  void SynthCppModule::addStructDecl(StructDecl* const stmt) {
+    string name = stmt->name.getStr();
+    vector<llvm::Type*> elems;
+    //map<string, int> layout;
+    for (auto& argDecl : stmt->fields) {
+      assert(argDecl->arraySize == nullptr);
+      elems.push_back(llvmTypeFor(argDecl->tp));
+    }
+    auto sTp = StructType::create(context, elems, name, true);
+    structDefs.insert({sTp, stmt});
+  }
   
 }

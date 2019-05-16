@@ -1494,6 +1494,7 @@ namespace ahaHLS {
     std::map<Token, Instruction*> labelsToInstructions;
     std::map<Token, BasicBlock*> labelsToBlockStarts;
     std::map<Token, BasicBlock*> labelsToBlockEnds;
+    std::map<llvm::Type*, StructDecl*> structDefs;
   
     std::string uniqueNumString() {
       auto s = std::to_string(globalNum);
@@ -1561,9 +1562,14 @@ namespace ahaHLS {
     }
 
 
+    llvm::Value* structFieldPtr(llvm::Value* baseVal, const std::string& fieldName);
+    
+    llvm::Value* genFieldAccess(FieldAccess* const e);    
     void addHazard(HazardDecl* hazard, ModuleSpec& cSpec);
     void addMethodDecl(FunctionDecl* decl, ModuleSpec& cSpec);
-    
+
+    void addStructDecl(StructDecl* const stmt);    
+
     SynthCppModule(ParserModule& parseRes) {
       activeFunction = nullptr;
 
@@ -1686,6 +1692,11 @@ namespace ahaHLS {
           sanityCheck(f);
 
           cgs.symtab.popTable();
+        } else if (StructDecl::classof(stmt)) {
+          addStructDecl(sc<StructDecl>(stmt));
+        } else {
+          cout << "Error: Unsupported statement kind " << stmt->getKind() << " in module" << endl;
+          assert(false);
         }
       }
 
