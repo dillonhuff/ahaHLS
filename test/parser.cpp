@@ -1086,7 +1086,7 @@ namespace ahaHLS {
     map_insert(tb.actionsOnCycles, 2, string("arg_3_wen <= 1;"));
     map_insert(tb.actionsOnCycles, 3, string("arg_3_wen <= 0;"));
     
-    map_insert(tb.actionsOnCycles, 10, assertString("arg_1_rdata === 13"));    
+    map_insert(tb.actionsOnCycles, 10, assertString("arg_0_rdata === 13"));    
     emitVerilogTestBench(tb, arch, testLayout);
 
     // // Need to figure out how to inline register specifications
