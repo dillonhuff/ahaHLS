@@ -742,6 +742,8 @@ namespace ahaHLS {
 
   maybe<FunctionCall*> parseFunctionCall(ParseState<Token>& tokens);
 
+  maybe<Expression*> parseFieldAccess(ParseState<Token>& tokens);
+  
   static inline
   maybe<Expression*> parseMethodCall(ParseState<Token>& tokens) {
     Token t = tokens.parseChar();
@@ -800,7 +802,12 @@ namespace ahaHLS {
     if (mCall.has_value()) {
       return mCall;
     }
-  
+
+    auto faccess = tryParse<Expression*>(parseFieldAccess, tokens);
+    if (faccess.has_value()) {
+      return faccess;
+    }
+    
     // Try parsing a function call
     // If that does not work try to parse an identifier
     // If that does not work try parsing a parenthesis

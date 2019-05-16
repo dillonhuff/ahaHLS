@@ -1215,5 +1215,40 @@ namespace ahaHLS {
       assert(false);      
     }
   }
+
+  maybe<Expression*> parseFieldAccess(ParseState<Token>& tokens) {
+    Token t = tokens.parseChar();
+    if (!t.isId()) {
+      return maybe<Expression*>();
+    }
+
+    cout << "Parsing expression " << tokens.remainder() << endl;
+    
+    // maybe<Expression*> base = parseExpressionMaybe(tokens);
+    // if (!base.has_value()) {
+    //   return maybe<Expression*>();
+    // }
+
+    Expression* base = new Identifier(t);
+
+    Token delim = tokens.parseChar();
+    if ((delim != Token("."))) {
+      return maybe<Expression*>();
+    }
+
+    //cout << "-- In method call, parsing function call " << tokens.remainder() << endl;
+
+    if (tokens.atEnd()) {
+      return maybe<Expression*>();
+    }
+
+    Token field = tokens.parseChar();
+    if (!field.isId()) {
+      return maybe<Expression*>();
+    }
+    
+    return new FieldAccess(base, field);
+  }
+  
   
 }
