@@ -548,6 +548,8 @@ namespace ahaHLS {
     Statement* body;
     Statement* elseClause;
 
+    IfStmt(Expression* const test_, Statement* const body_, Statement* const elseClause_) : test(test_), body(body_), elseClause(elseClause_) {}
+
     static bool classof(const Statement* const stmt) {
       return stmt->getKind() == STATEMENT_KIND_IF;
     }

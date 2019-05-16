@@ -225,6 +225,36 @@ namespace ahaHLS {
 
     return new PipelineBlock(iiExpr.get_value(), stmts);
   }
+
+  maybe<Statement*> parseIfStmt(ParseState<Token>& tokens) {
+    if (!tokens.nextCharIs(Token("if"))) {
+      return maybe<Statement*>();
+    }
+    tokens.parseChar();
+
+    auto cond = parseExpressionMaybe(tokens);
+    if (!cond.has_value()) {
+      return maybe<Statement*>();
+    }
+
+    maybe<Statement*> stmt = parseStatement(tokens);
+    if (!stmt.has_value()) {
+      return maybe<Statement*>();
+    }
+
+    
+    if (!tokens.nextCharIs(Token("else"))) {
+      return new IfStmt(cond.get_value(), stmt.get_value(), nullptr);
+    }
+    tokens.parseChar();
+
+    auto mRest = parseStatement(tokens);
+    if (!mRest.has_value()) {
+      return maybe<Statement*>();
+    }
+
+    return new IfStmt(cond.get_value(), stmt.get_value(), mRest.get_value());    
+  }
   
   maybe<Statement*> parseForLoop(ParseState<Token>& tokens) {
 
@@ -362,6 +392,11 @@ namespace ahaHLS {
     auto blockStmt = tryParse<Statement*>(parseBlockStmt, tokens);
     if (blockStmt.has_value()) {
       return blockStmt;
+    }
+
+    auto ifStmt = tryParse<Statement*>(parseIfStmt, tokens);
+    if (ifStmt.has_value()) {
+      return ifStmt;
     }
     
     auto structStmt = tryParse<Statement*>(parseStructStmt, tokens);
