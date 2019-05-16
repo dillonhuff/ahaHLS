@@ -984,35 +984,106 @@ namespace ahaHLS {
     return parseMod;
   }
 
-  TEST_CASE("User defined structure") {
-    ParserModule parseM = parseSynthModule("./experiments/packet_example.cpp");
+  TEST_CASE("Assigning primitives") {
+    ParserModule parseM = parseSynthModule("./experiments/primitive_assign.cpp");
     cout << "# of statements in module = " << parseM.getStatements().size() << endl;
 
-    REQUIRE(parseM.getStatements().size() == 2);
-    
     SynthCppModule scppMod(parseM);
 
     REQUIRE(scppMod.getFunctions().size() == 1);
 
-    auto arch = synthesizeVerilog(scppMod, "packet_example");
+    auto arch = synthesizeVerilog(scppMod, "primitive_assign");
 
     TestBenchSpec tb;
     map<string, int> testLayout = {};
     tb.runCycles = 70;
     tb.maxCycles = 100;
-    tb.name = "independent_writes";
+    tb.name = "primitive_assign";
     tb.useModSpecs = true;
-    map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+    tb.settableWires.insert("arg_0_wen");
+    tb.settableWires.insert("arg_0_wdata");    
+    map_insert(tb.actionsOnCycles, 2, string("arg_0_wdata <= 24;"));
+    map_insert(tb.actionsOnCycles, 2, string("arg_0_wen <= 1;"));
+    map_insert(tb.actionsOnCycles, 3, string("arg_0_wen <= 0;"));    
 
-    map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
-    
-    // checkRAMContents(tb, 30, "arg_0", {0, 1, 2, 3, 4});
+    map_insert(tb.actionsOnCycles, 6, assertString("arg_1_rdata === 24"));    
     emitVerilogTestBench(tb, arch, testLayout);
 
     // // Need to figure out how to inline register specifications
-      REQUIRE(runIVerilogTest("packet_example_tb.v", "packed_example", " builtins.v packet_example.v RAM.v delay.v ram_primitives.v"));
-    
+    // REQUIRE(runIVerilogTest("primitive_assign_tb.v", "packed_example", " builtins.v primitive_assign.v RAM.v delay.v ram_primitives.v"));
   }
+
+  TEST_CASE("Using custom control") {
+    ParserModule parseM = parseSynthModule("./experiments/custom_if.cpp");
+    cout << "# of statements in module = " << parseM.getStatements().size() << endl;
+
+    SynthCppModule scppMod(parseM);
+
+    REQUIRE(scppMod.getFunctions().size() == 1);
+
+    auto arch = synthesizeVerilog(scppMod, "custom_if");
+
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.runCycles = 70;
+    tb.maxCycles = 100;
+    tb.name = "custom_if";
+    tb.useModSpecs = true;
+    tb.settableWires.insert("arg_1_wen");
+    tb.settableWires.insert("arg_1_wdata");
+    tb.settableWires.insert("arg_2_wen");
+    tb.settableWires.insert("arg_2_wdata");    
+    tb.settableWires.insert("arg_3_wen");
+    tb.settableWires.insert("arg_3_wdata");    
+    
+    map_insert(tb.actionsOnCycles, 2, string("arg_1_wdata <= 1;"));
+    map_insert(tb.actionsOnCycles, 2, string("arg_1_wen <= 1;"));
+    map_insert(tb.actionsOnCycles, 3, string("arg_1_wen <= 0;"));    
+
+    map_insert(tb.actionsOnCycles, 2, string("arg_2_wdata <= 13;"));
+    map_insert(tb.actionsOnCycles, 2, string("arg_2_wen <= 1;"));
+    map_insert(tb.actionsOnCycles, 3, string("arg_2_wen <= 0;"));    
+
+    map_insert(tb.actionsOnCycles, 2, string("arg_3_wdata <= 19;"));
+    map_insert(tb.actionsOnCycles, 2, string("arg_3_wen <= 1;"));
+    map_insert(tb.actionsOnCycles, 3, string("arg_3_wen <= 0;"));
+    
+    map_insert(tb.actionsOnCycles, 6, assertString("arg_1_rdata === 13"));    
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    // // Need to figure out how to inline register specifications
+    REQUIRE(runIVerilogTest("custom_if_tb.v", "packed_example", " builtins.v custom_if.v RAM.v delay.v ram_primitives.v"));
+  }
+  
+  // TEST_CASE("User defined structure") {
+  //   ParserModule parseM = parseSynthModule("./experiments/packet_example.cpp");
+  //   cout << "# of statements in module = " << parseM.getStatements().size() << endl;
+
+  //   REQUIRE(parseM.getStatements().size() == 2);
+    
+  //   SynthCppModule scppMod(parseM);
+
+  //   REQUIRE(scppMod.getFunctions().size() == 1);
+
+  //   auto arch = synthesizeVerilog(scppMod, "packet_example");
+
+  //   TestBenchSpec tb;
+  //   map<string, int> testLayout = {};
+  //   tb.runCycles = 70;
+  //   tb.maxCycles = 100;
+  //   tb.name = "packet_example";
+  //   tb.useModSpecs = true;
+  //   map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+
+  //   map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
+    
+  //   // checkRAMContents(tb, 30, "arg_0", {0, 1, 2, 3, 4});
+  //   emitVerilogTestBench(tb, arch, testLayout);
+
+  //   // // Need to figure out how to inline register specifications
+  //     REQUIRE(runIVerilogTest("packet_example_tb.v", "packed_example", " builtins.v packet_example.v RAM.v delay.v ram_primitives.v"));
+    
+  // }
   
   TEST_CASE("RAM pipelining tests") {
 

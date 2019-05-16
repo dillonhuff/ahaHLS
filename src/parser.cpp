@@ -50,7 +50,7 @@ namespace ahaHLS {
       }
 
       if (!state.atEnd()) {
-        cout << "Parsing end char" << endl;
+        //cout << "Parsing end char" << endl;
         state.parseChar();
       }
 
@@ -306,7 +306,7 @@ namespace ahaHLS {
     if (tokens.nextCharIs(Token("struct"))) {
       tokens.parseChar();
 
-      cout << "Parsing struct " << tokens.remainder() << endl;
+      //cout << "Parsing struct " << tokens.remainder() << endl;
 
       Token name = tokens.peekChar();
       tokens.parseChar();
@@ -316,7 +316,7 @@ namespace ahaHLS {
       }
       tokens.parseChar();
 
-      cout << "Parsing fields " << tokens.remainder() << endl;
+      //cout << "Parsing fields " << tokens.remainder() << endl;
       
       vector<ArgumentDecl*> fields =
         many<ArgumentDecl*, Token>(parseStructFieldMaybe, tokens);
@@ -326,7 +326,7 @@ namespace ahaHLS {
       }
       tokens.parseChar();
 
-      cout << "Got fields " << tokens.remainder() << endl;      
+      //cout << "Got fields " << tokens.remainder() << endl;      
 
       if (!tokens.nextCharIs(Token(";"))) {
         return maybe<Statement*>();
@@ -1001,6 +1001,7 @@ namespace ahaHLS {
   }
   
   llvm::Value* SynthCppModule::genFieldAccess(FieldAccess* const e) {
+    cout << "Base expr = " << *(e->base) << endl;
     Value* baseExpr = genLLVM(e->base);
     return structFieldPtr(baseExpr, e->field.getStr());
   }
@@ -1258,7 +1259,7 @@ namespace ahaHLS {
       return maybe<Expression*>();
     }
 
-    cout << "Parsing expression " << tokens.remainder() << endl;
+    //cout << "Parsing expression " << tokens.remainder() << endl;
     
     // maybe<Expression*> base = parseExpressionMaybe(tokens);
     // if (!base.has_value()) {

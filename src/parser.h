@@ -426,6 +426,8 @@ namespace ahaHLS {
 
   enum StatementKind {
     STATEMENT_KIND_CLASS_DECL,
+    STATEMENT_KIND_IF,
+    STATEMENT_KIND_BLOCK,    
     STATEMENT_KIND_PIPELINE,
     STATEMENT_KIND_FUNCTION_DECL,
     STATEMENT_KIND_HAZARD_DECL,    
@@ -516,6 +518,48 @@ namespace ahaHLS {
   
   };
 
+  class BlockStmt : public Statement {
+  public:
+    vector<Statement*> body;
+
+    static bool classof(const Statement* const stmt) {
+      return stmt->getKind() == STATEMENT_KIND_BLOCK;
+    }
+
+    virtual StatementKind getKind() const {
+      return STATEMENT_KIND_BLOCK;
+    }
+
+    virtual void print(std::ostream& out) const {
+      out << "{" << endl;
+      for (auto stmt : body) {
+        out << tab(1) << *stmt << endl;
+      }
+      out << "}" << endl;
+    }
+
+  };
+  
+  class IfStmt : public Statement {
+  public:
+    Expression* test;
+    Statement* body;
+    Statement* elseClause;
+
+    static bool classof(const Statement* const stmt) {
+      return stmt->getKind() == STATEMENT_KIND_IF;
+    }
+
+    virtual StatementKind getKind() const {
+      return STATEMENT_KIND_IF;
+    }
+
+    virtual void print(std::ostream& out) const {
+      out << "IF (INSERT) { INSERT; }";
+    }
+
+  };
+  
   class ForStmt : public Statement {
   public:
     Statement* init;
@@ -1974,6 +2018,7 @@ namespace ahaHLS {
       if (rType == vType->getPointerTo()) {
         bd.CreateStore(value, receiver);
       } else {
+        // Cast values of different lengths
         assert(PointerType::classof(rType));
         auto underlying = dyn_cast<PointerType>(rType)->getElementType();
         if (isData(underlying) &&
