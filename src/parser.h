@@ -1908,7 +1908,8 @@ namespace ahaHLS {
 
     void pushPipeline(const int II);
     void popPipeline();
-    
+
+    void genLLVM(BlockStmt* const blk);    
     void genLLVM(ForStmt* const stmt) {
       Statement* init = stmt->init;
       Expression* exitTest = stmt->exitTest;
@@ -2072,6 +2073,7 @@ namespace ahaHLS {
     }
 
     void genLLVM(PipelineBlock* const stmt);
+    void genLLVM(IfStmt* const stmt);
     
     void genLLVM(Statement* const stmt) {
       auto bd = cgs.builder();
@@ -2110,6 +2112,10 @@ namespace ahaHLS {
         genLLVM(sc<DoWhileLoop>(stmt));
       } else if (PipelineBlock::classof(stmt)) {
         genLLVM(sc<PipelineBlock>(stmt));
+      } else if (IfStmt::classof(stmt)) {
+        genLLVM(sc<IfStmt>(stmt));
+      } else if (BlockStmt::classof(stmt)) {
+        genLLVM(sc<BlockStmt>(stmt));
       } else {
         // Add support for variable declarations, assignments, and for loops
         cout << "No support for code generation for statement" << endl;

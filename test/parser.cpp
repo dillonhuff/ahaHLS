@@ -1070,7 +1070,10 @@ namespace ahaHLS {
     tb.settableWires.insert("arg_2_wdata");    
     tb.settableWires.insert("arg_3_wen");
     tb.settableWires.insert("arg_3_wdata");    
-    
+
+    map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 1;"));
+    map_insert(tb.actionsOnCycles, 4, string("rst_reg <= 0;"));        
+
     map_insert(tb.actionsOnCycles, 2, string("arg_1_wdata <= 1;"));
     map_insert(tb.actionsOnCycles, 2, string("arg_1_wen <= 1;"));
     map_insert(tb.actionsOnCycles, 3, string("arg_1_wen <= 0;"));    
@@ -1083,11 +1086,11 @@ namespace ahaHLS {
     map_insert(tb.actionsOnCycles, 2, string("arg_3_wen <= 1;"));
     map_insert(tb.actionsOnCycles, 3, string("arg_3_wen <= 0;"));
     
-    map_insert(tb.actionsOnCycles, 6, assertString("arg_1_rdata === 13"));    
+    map_insert(tb.actionsOnCycles, 10, assertString("arg_1_rdata === 13"));    
     emitVerilogTestBench(tb, arch, testLayout);
 
     // // Need to figure out how to inline register specifications
-    REQUIRE(runIVerilogTest("custom_if_tb.v", "packed_example", " builtins.v custom_if.v RAM.v delay.v ram_primitives.v"));
+    REQUIRE(runIVerilogTest("custom_if_tb.v", "custom_if", " builtins.v custom_if.v RAM.v delay.v ram_primitives.v"));
   }
   
   // TEST_CASE("User defined structure") {

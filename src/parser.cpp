@@ -925,6 +925,38 @@ namespace ahaHLS {
     IntegerExpr* exp = extract<IntegerExpr>(expr);
     return exp->getInt();
   }
+
+  void SynthCppModule::genLLVM(IfStmt* const stmt) {
+    Expression* cond = stmt->test;
+    Statement* body = stmt->body;
+    Statement* elseClause = stmt->elseClause;
+
+    Value* condVal = genLLVM(cond);
+
+    auto trueBlk = addBB("if_t_" + uniqueNumString(), activeFunction->llvmFunction());
+    auto falseBlk = addBB("if_f_" + uniqueNumString(), activeFunction->llvmFunction());
+    auto continueBlk = addBB("if_end_" + uniqueNumString(), activeFunction->llvmFunction());    
+
+    auto bd = cgs.builder();
+    bd.CreateCondBr(condVal, trueBlk, falseBlk);
+
+    cgs.setActiveBlock(trueBlk);
+    genLLVM(body);
+    cgs.builder().CreateBr(continueBlk);
+
+
+    cgs.setActiveBlock(falseBlk);
+    genLLVM(elseClause);
+    cgs.builder().CreateBr(continueBlk);
+
+    cgs.setActiveBlock(continueBlk);
+  }
+
+  void SynthCppModule::genLLVM(BlockStmt* const blk) {
+    for (auto stmt : blk->body) {
+      genLLVM(stmt);
+    }
+  }
   
   void SynthCppModule::genLLVM(PipelineBlock* const pipe) {
 
