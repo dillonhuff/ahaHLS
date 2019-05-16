@@ -506,6 +506,41 @@ namespace ahaHLS {
 
     delete tp.get_value();    
   }
+
+  TEST_CASE("Block statement") {
+    std::string str =
+      "  {"
+      "    val = a;"
+      "  } ";
+
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+
+    REQUIRE(tp.has_value());
+
+    REQUIRE(st.atEnd());
+
+    delete tp.get_value();
+    
+  }
+
+  TEST_CASE("If-Else statement") {
+    std::string str =
+      "  if (c) {"
+      "    val = a;"
+      "  } else {"
+      "    val = b;"
+      "  }";
+
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+
+    REQUIRE(tp.has_value());
+
+    REQUIRE(st.atEnd());
+
+    delete tp.get_value();
+  }
   
   TEST_CASE("Pipeline statement") {
     std::string str =

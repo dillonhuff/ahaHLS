@@ -522,6 +522,8 @@ namespace ahaHLS {
   public:
     vector<Statement*> body;
 
+    BlockStmt(const std::vector<Statement*>& body_) : body(body_) {}
+
     static bool classof(const Statement* const stmt) {
       return stmt->getKind() == STATEMENT_KIND_BLOCK;
     }

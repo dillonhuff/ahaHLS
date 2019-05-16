@@ -338,10 +338,32 @@ namespace ahaHLS {
 
     return maybe<Statement*>();
   }
+
+  maybe<Statement*> parseBlockStmt(ParseState<Token>& tokens) {
+    if (!tokens.nextCharIs(Token("{"))) {
+      return maybe<Statement*>();
+    }
+    tokens.parseChar();
+
+    vector<Statement*> body =
+      many<Statement*>(parseStatement, tokens);
+
+    if (!tokens.nextCharIs(Token("}"))) {
+      return maybe<Statement*>();
+    }
+    tokens.parseChar();
+
+    return new BlockStmt(body);
+  }
   
   maybe<Statement*> parseStatementNoLabel(ParseState<Token>& tokens) {
     // Try to parse for loop
 
+    auto blockStmt = tryParse<Statement*>(parseBlockStmt, tokens);
+    if (blockStmt.has_value()) {
+      return blockStmt;
+    }
+    
     auto structStmt = tryParse<Statement*>(parseStructStmt, tokens);
     if (structStmt.has_value()) {
       return structStmt;
