@@ -964,9 +964,40 @@ namespace ahaHLS {
                     std::istreambuf_iterator<char>());
 
     auto tokens = tokenize(str);
+
     ParserModule parseMod = parse(tokens);
 
     return parseMod;
+  }
+
+  TEST_CASE("User defined structure") {
+      ParserModule parseM = parseSynthModule("./experiments/packet_example.cpp");
+      cout << "# of statements in module = " << parseM.getStatements().size() << endl;
+
+      SynthCppModule scppMod(parseM);
+
+
+
+      REQUIRE(scppMod.getFunctions().size() == 1);
+
+      auto arch = synthesizeVerilog(scppMod, "packet_example");
+
+      TestBenchSpec tb;
+      map<string, int> testLayout = {};
+      tb.runCycles = 70;
+      tb.maxCycles = 100;
+      tb.name = "independent_writes";
+      tb.useModSpecs = true;
+      map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+
+      map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
+    
+      // checkRAMContents(tb, 30, "arg_0", {0, 1, 2, 3, 4});
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      // // Need to figure out how to inline register specifications
+      REQUIRE(runIVerilogTest("packet_example_tb.v", "packed_example", " builtins.v packet_example.v RAM.v delay.v ram_primitives.v"));
+    
   }
   
   TEST_CASE("RAM pipelining tests") {

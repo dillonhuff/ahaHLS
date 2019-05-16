@@ -84,6 +84,7 @@ namespace ahaHLS {
     EXPRESSION_KIND_IDENTIFIER,
     EXPRESSION_KIND_NUM,
     EXPRESSION_KIND_METHOD_CALL,
+    EXPRESSION_KIND_FIELD_ACCESS,
     EXPRESSION_KIND_FUNCTION_CALL,
     EXPRESSION_KIND_BINOP,
   };
@@ -142,6 +143,30 @@ namespace ahaHLS {
   
   };
 
+  class FieldAccess : public Expression {
+
+  public:
+
+    Expression* base;
+    Token field;
+
+    FieldAccess(Expression* const base_, const Token field_) : 
+      base(base_), field(field_) {}
+
+    virtual ExpressionKind getKind() const override {
+      return EXPRESSION_KIND_FIELD_ACCESS;
+    }
+
+    static bool classof(Expression* e) {
+      return e->getKind() == EXPRESSION_KIND_FIELD_ACCESS;
+    }
+
+    virtual void print(std::ostream& out) const override {
+      out << *base << "." << field;
+    }
+  
+  };
+  
   class MethodCall : public Expression {
 
   public:
