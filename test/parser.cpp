@@ -1056,8 +1056,6 @@ namespace ahaHLS {
 
     REQUIRE(scppMod.getFunctions().size() == 1);
 
-    auto arch = synthesizeVerilog(scppMod, "custom_if");
-
     TestBenchSpec tb;
     map<string, int> testLayout = {};
     tb.runCycles = 70;
@@ -1087,41 +1085,66 @@ namespace ahaHLS {
     map_insert(tb.actionsOnCycles, 3, string("arg_3_wen <= 0;"));
     
     map_insert(tb.actionsOnCycles, 10, assertString("arg_0_rdata === 13"));    
+    
+    SECTION("Baseline test with no custom control") {
+      auto arch = synthesizeVerilog(scppMod, "custom_if");
+
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      // // Need to figure out how to inline register specifications
+      REQUIRE(runIVerilogTest("custom_if_tb.v", "custom_if", " builtins.v custom_if.v RAM.v delay.v ram_primitives.v"));
+    }
+
+    SECTION("With custom mux for if") {
+      // Q: How do I specify custom controllers?
+      // Intuitively the controller is a unit that implements a group
+      // of instructions
+      // Implemented by binding branch cond wires to inputs of module
+      // then binding phi instruction value to output wire of mux
+
+      // Q: How do I actually check that the substitution can be done?
+      // A: No other phi can depend on the edges subsumed by the unit
+      //    All of the blocks must be scheduled in the same cycle
+      //    Restriction: Control binding must be doable *before* scheduling to allow
+      //      user control
+      //    Eventually: Must be able to describe index var computations?
+
+      // Use control template to compute instruction mapping to FU?
+      // Will custom loop patterns end up being useful? Again, is there enough
+      // here to matter?
+      // versatility to make a general purpose system useful?
+    }
+  }
+  
+  TEST_CASE("User defined structure") {
+    ParserModule parseM = parseSynthModule("./experiments/packet_example.cpp");
+    cout << "# of statements in module = " << parseM.getStatements().size() << endl;
+
+    REQUIRE(parseM.getStatements().size() == 2);
+    
+    SynthCppModule scppMod(parseM);
+
+    REQUIRE(scppMod.getFunctions().size() == 1);
+
+    auto arch = synthesizeVerilog(scppMod, "packet_example");
+
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.runCycles = 70;
+    tb.maxCycles = 100;
+    tb.name = "packet_example";
+    tb.useModSpecs = true;
+    map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+
+    map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
+    
+    // checkRAMContents(tb, 30, "arg_0", {0, 1, 2, 3, 4});
     emitVerilogTestBench(tb, arch, testLayout);
 
     // // Need to figure out how to inline register specifications
-    REQUIRE(runIVerilogTest("custom_if_tb.v", "custom_if", " builtins.v custom_if.v RAM.v delay.v ram_primitives.v"));
+      REQUIRE(runIVerilogTest("packet_example_tb.v", "packed_example", " builtins.v packet_example.v RAM.v delay.v ram_primitives.v"));
+    
   }
-  
-  // TEST_CASE("User defined structure") {
-  //   ParserModule parseM = parseSynthModule("./experiments/packet_example.cpp");
-  //   cout << "# of statements in module = " << parseM.getStatements().size() << endl;
-
-  //   REQUIRE(parseM.getStatements().size() == 2);
-    
-  //   SynthCppModule scppMod(parseM);
-
-  //   REQUIRE(scppMod.getFunctions().size() == 1);
-
-  //   auto arch = synthesizeVerilog(scppMod, "packet_example");
-
-  //   TestBenchSpec tb;
-  //   map<string, int> testLayout = {};
-  //   tb.runCycles = 70;
-  //   tb.maxCycles = 100;
-  //   tb.name = "packet_example";
-  //   tb.useModSpecs = true;
-  //   map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
-
-  //   map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
-    
-  //   // checkRAMContents(tb, 30, "arg_0", {0, 1, 2, 3, 4});
-  //   emitVerilogTestBench(tb, arch, testLayout);
-
-  //   // // Need to figure out how to inline register specifications
-  //     REQUIRE(runIVerilogTest("packet_example_tb.v", "packed_example", " builtins.v packet_example.v RAM.v delay.v ram_primitives.v"));
-    
-  // }
   
   TEST_CASE("RAM pipelining tests") {
 

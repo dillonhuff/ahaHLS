@@ -3332,5 +3332,50 @@ namespace ahaHLS {
     arch.regControllers = {};
   }
 
+  class InstructionTemplate {
+  };
+
+  enum BasicBlockSection {
+    // Inner section of block with no control flow
+    BASIC_BLOCK_SECTION_INNER,
+
+    // Entire basic block from start to end
+    BASIC_BLOCK_SECTION_WHOLE,
+
+    // Just data processing and termination
+    BASIC_BLOCK_SECTION_BOTTOM,
+
+    // Just phi nodes at start and data processing
+    BASIC_BLOCK_SECTION_TOP    
+  };
+
+  // Builtin controllers I might want:
+  //   1. Fixed bound inner loops (canonical) (from counters?)
+  //   2. Loop nests
+  //   3. Muxes and mux groups
+  //   4. Stall loops
+  //   5. Reduce loops
+  //   6. Parallel loops (this is both unrolling and control synthesis)
+  //   7. For loops where entry is not guaranteed?
+
+  // Loop nests are an interesting one. How do we build controllers for larger
+  // groups of loop nests? Basic block templates maybe not best matching
+  // abstraction?
+
+  // Q: Maybe control signals that indicate where we are in program flow
+  // are the most important thing?
+  
+  class BasicBlockTemplate {
+  public:
+    BasicBlockSection section;
+    vector<InstructionTemplate> instrs;
+  };
+
+  // Maybe these template descriptions should go
+  class PrimitiveTemplates {
+  public:
+    
+  };
+
   
 }

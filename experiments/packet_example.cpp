@@ -1,4 +1,4 @@
-struct Packet {
+class Packet {
   int sport;
   int dport;
   int new_hop;
@@ -8,5 +8,5 @@ struct Packet {
 };
 
 void packet_example(Packet& in, Packet& out) {
-  out.sport = in.dport;
+  out.dport = in.dport;
 }

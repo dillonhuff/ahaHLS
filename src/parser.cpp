@@ -1082,11 +1082,12 @@ namespace ahaHLS {
     assert(StructType::classof(under));
 
     //StructType* stp = sc<StructType>(under);
-    StructDecl* decl = map_find(under, structDefs);
+    //StructDecl* decl = map_find(under, structDefs);
 
-    int fieldIndex = getIndex(fieldName, decl);
+    //int fieldIndex = getIndex(fieldName, decl);
+    int fieldIndex = 0; //getIndex(fieldName, decl);
     cout << "Index of " << fieldName << " is " << fieldIndex << endl;
-    assert(false);
+    return cgs.builder().CreateGEP(baseVal, mkInt(fieldIndex, 32));
   }
   
   llvm::Value* SynthCppModule::genFieldAccess(FieldAccess* const e) {
