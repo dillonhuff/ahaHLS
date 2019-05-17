@@ -5322,46 +5322,6 @@ namespace ahaHLS {
     REQUIRE(runIVerilogTB("complex_num"));
   }
 
-  void deleteLLVMLifetimeCalls(llvm::Function* f) {
-    std::set<Instruction*> toDel;
-    for (auto& bb : f->getBasicBlockList()) {
-      for (auto& instrV : bb) {
-        auto instrP = &instrV;
-        if (matchesCall("llvm.lifetime.start", instrP) ||
-            matchesCall("llvm.lifetime.end", instrP)) {
-          toDel.insert(instrP);
-        }
-      }
-    }
-
-    cout << "Calls to delete = " << toDel.size() << endl;
-
-    for (auto instr : toDel) {
-      instr->eraseFromParent();
-    }
-
-    toDel = {};
-    for (auto& bb : f->getBasicBlockList()) {
-      for (auto& instrV : bb) {
-        auto instrP = &instrV;
-        if (instrP->use_empty() &&
-            (GetElementPtrInst::classof(instrP) ||
-             BitCastInst::classof(instrP))) {
-          toDel.insert(instrP);
-        }
-      }
-    }
-
-    //cout << "Unused instructions = " << toDel.size() << endl;
-    for (auto instrP : toDel) {
-      //cout << "No uses for " << valueString(instrP) << endl;
-      instrP->eraseFromParent();
-    }
-    
-    //cout << "llvm after lifetime deletes" << endl;
-    //cout << valueString(f) << endl;
-  }
-
   TEST_CASE("Using a FIFO with compound type as argument") {
     SMDiagnostic Err;
     LLVMContext Context;

@@ -441,5 +441,6 @@ namespace ahaHLS {
   }
 
   llvm::BasicBlock* exitBlock(llvm::Function* const f);
-  
+
+  void deleteLLVMLifetimeCalls(llvm::Function* f);
 }

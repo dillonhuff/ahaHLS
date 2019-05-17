@@ -1252,5 +1252,28 @@ namespace ahaHLS {
 
   }
 
+  TEST_CASE("Matchlib crossbar") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+
+    std::unique_ptr<Module> Mod = loadLLFile(Context, Err, "dh_crossbar");
+    setGlobalLLVMModule(Mod.get());
+    
+    //std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "./experiments/dh_crossbar");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "dh_crossbar");
+
+    cout << "llvm function" << endl;
+    cout << valueString(f) << endl;
+
+    deleteLLVMLifetimeCalls(f);
+
+    cout << "llvm function after lifetime deletes" << endl;
+    cout << valueString(f) << endl;
+    
+  }
+
   
 }
