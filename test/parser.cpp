@@ -2,6 +2,7 @@
 
 #include "parser.h"
 
+#include "llvm/Analysis/CallGraph.h"
 #include "llvm/Transforms/Scalar/GVN.h"
 #include "llvm/Transforms/Scalar.h"
 #include <llvm/IR/LegacyPassManager.h>
@@ -1265,13 +1266,35 @@ namespace ahaHLS {
 
     Function* f = getFunctionByDemangledName(Mod.get(), "dh_crossbar");
 
-    cout << "llvm function" << endl;
-    cout << valueString(f) << endl;
+    CallGraph cg(*(Mod.get()));
+    CallGraphNode* fNode = cg[f];
+    for (auto calledN : *fNode) {
+      CallGraphNode* called = calledN.second;
+      cout << tab(1) << "Called function = " << called->getFunction() << endl;
 
-    deleteLLVMLifetimeCalls(f);
+      auto calledF = called->getFunction();
+      deleteLLVMLifetimeCalls(calledF);
 
-    cout << "llvm function after lifetime deletes" << endl;
-    cout << valueString(f) << endl;
+      cout << "llvm function after lifetime deletes" << endl;
+      cout << valueString(calledF) << endl;
+
+      for (auto calledByCross : *called) {
+        Function* usedByCross = calledByCross.second->getFunction();
+        string name = usedByCross->getName();
+        if (canDemangle(name)) {
+          cout << tab(2) << "Demangled name of called func = " << demangle(name) << endl;
+        }
+      }
+      
+    }
+
+    // cout << "llvm function" << endl;
+    // cout << valueString(f) << endl;
+
+    // deleteLLVMLifetimeCalls(f);
+
+    // cout << "llvm function after lifetime deletes" << endl;
+    // cout << valueString(f) << endl;
     
   }
 
