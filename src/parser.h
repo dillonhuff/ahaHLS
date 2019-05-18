@@ -91,7 +91,8 @@ namespace ahaHLS {
 
   static inline
   bool isBinop(const Token t) {
-    vector<string> binopStrings{"=", "==", "+", "&", "-", "/", "^", "%", "&&", "||", "<=", ">=", "<", ">", "*"};
+    //vector<string> binopStrings{"=", "==", "+", "&", "-", "/", "^", "%", "&&", "||", "<=", ">=", "<", ">", "*"};
+    vector<string> binopStrings{"==", "+", "&", "-", "/", "^", "%", "&&", "||", "<=", ">=", "<", ">", "*"};
     return elem(t.getStr(), binopStrings);
   }
 
@@ -499,10 +500,12 @@ namespace ahaHLS {
 
   class AssignStmt : public Statement {
   public:
-    Token var;
+    //Token var;
+    Expression* lhs;
     Expression* expr;
 
-    AssignStmt(Token var_, Expression* expr_) : var(var_), expr(expr_) {}
+    //AssignStmt(Token lhs_, Expression* expr_) : lhs(lhs_), expr(expr_) {}
+    AssignStmt(Expression* lhs_, Expression* expr_) : lhs(lhs_), expr(expr_) {}
 
     static bool classof(const Statement* const stmt) {
       return stmt->getKind() == STATEMENT_KIND_ASSIGN;
@@ -513,7 +516,7 @@ namespace ahaHLS {
     }
 
     virtual void print(std::ostream& out) const {
-      out << var << " = " << *expr;
+      out << *lhs << " = " << *expr;
     }
   
   };
@@ -1085,11 +1088,15 @@ namespace ahaHLS {
       return maybe<Statement*>();
     }
 
-    Token id = tokens.peekChar();
-    if (!id.isId()) {
+    maybe<Expression*> lhs = parseExpressionMaybe(tokens);
+    if (!lhs.has_value()) {
       return maybe<Statement*>();
     }
-    tokens.parseChar();
+    // Token id = tokens.peekChar();
+    // if (!id.isId()) {
+    //   return maybe<Statement*>();
+    // }
+    // tokens.parseChar();
 
     //cout << "After name remainder is \"" << tokens.remainder() << "\"" << endl;
 
@@ -1105,7 +1112,8 @@ namespace ahaHLS {
       return maybe<Statement*>();
     }
 
-    return new AssignStmt(id, r.get_value());
+    //return new AssignStmt(id, r.get_value());
+    return new AssignStmt(lhs.get_value(), r.get_value());
 
   }
 
@@ -1984,7 +1992,8 @@ namespace ahaHLS {
     void genLLVM(AssignStmt* const stmt) {
 
       // Note: Should really be an expression
-      Token t = stmt->var;
+      //Token t = stmt->var;
+      Expression* lhs = stmt->lhs;
       Expression* newVal = stmt->expr;
 
       Value* v = genLLVM(newVal);
@@ -2003,7 +2012,7 @@ namespace ahaHLS {
         labelsToInstructions[stmt->label] = last;
       }
 
-      Value* tV = getValueFor(t);
+      Value* tV = pointerToLocation(lhs); //getValueFor(t);
 
       genSetCode(tV, v);
     }
