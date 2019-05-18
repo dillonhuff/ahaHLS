@@ -93,6 +93,8 @@ namespace ahaHLS {
     return geps;
   }
 
+  int gepOffset(GetElementPtrInst* const gep);
+  
   map<Instruction*, Value*>
   gepSources(Function* const f) {
     map<Instruction*, Value*> gepSources;
@@ -923,6 +925,7 @@ namespace ahaHLS {
       unitName = "br_unit";
     } else if (GetElementPtrInst::classof(instr)) {
       if (isRAMAddressCompGEP(dyn_cast<GetElementPtrInst>(instr), memNames, memSrcs, hcs)) {
+        
         modName = "getelementptr_" + to_string(instr->getNumOperands() - 1);
         wiring = {{"base_addr", {true, 32, "base_addr_" + rStr}}};
 
@@ -931,8 +934,20 @@ namespace ahaHLS {
                 {true, 32, "gep_add_in" + to_string(i) + "_" + rStr}});
         }
         outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
+
       } else {
-        assert(false);
+        modName = "sliceOp";
+        Type* stp = getTypePointedTo(instr->getOperand(0)->getType());
+        int inWidth = getTypeBitWidth(stp);
+        Type* outSt = getTypePointedTo(instr->getType());
+        int outWidth = getTypeBitWidth(outSt);
+
+        int offset = gepOffset(dyn_cast<GetElementPtrInst>(instr));
+        
+        wiring = {{"in", {true, inWidth, "slice_in_" + rStr}}};
+        modParams = {{"IN_WIDTH", to_string(outWidth)}, {"OFFSET", to_string(offset)}, {"OUT_WIDTH", to_string(outWidth)}};
+        
+        outWires = {{"out", {false, outWidth, "getelementptr_out_" + rStr}}};
       }
     } else if (PHINode::classof(instr)) {
       PHINode* phi = dyn_cast<PHINode>(instr);
@@ -1521,25 +1536,29 @@ namespace ahaHLS {
             
     } else if(GetElementPtrInst::classof(instr)) {
 
-      auto numOperands = instr->getNumOperands();
+      if (addUnit.module.name != "sliceOp") {
+        auto numOperands = instr->getNumOperands();
 
-      assert((numOperands == 2) || (numOperands == 3));
+        assert((numOperands == 2) || (numOperands == 3));
 
-      auto arg0 = instr->getOperand(0);
+        auto arg0 = instr->getOperand(0);
 
-      //cout << "arg0 = " << valueString(arg0) << endl;
+        //cout << "arg0 = " << valueString(arg0) << endl;
 
-      auto arg0Name = outputWire(arg0, pos, arch);
+        auto arg0Name = outputWire(arg0, pos, arch);
 
-      assignments.insert({addUnit.portWires["base_addr"], arg0Name});
+        assignments.insert({addUnit.portWires["base_addr"], arg0Name});
 
-      for (int i = 1; i < (int) numOperands; i++) {
-        auto arg1 = instr->getOperand(i);
-        //cout << "Getting operand " << valueString(arg1) << endl;
-        auto arg1Name =
-          outputWire(arg1, pos, arch);
+        for (int i = 1; i < (int) numOperands; i++) {
+          auto arg1 = instr->getOperand(i);
+          //cout << "Getting operand " << valueString(arg1) << endl;
+          auto arg1Name =
+            outputWire(arg1, pos, arch);
 
-        assignments.insert({addUnit.portWires["in" + to_string(i)], arg1Name});
+          assignments.insert({addUnit.portWires["in" + to_string(i)], arg1Name});
+        }
+      } else {
+        assert(false);
       }
 
     } else if (PHINode::classof(instr)) {

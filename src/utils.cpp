@@ -378,5 +378,9 @@ namespace ahaHLS {
     assert(false);
   }
 
+  llvm::Type* getTypePointedTo(llvm::Type* const tp) {
+    assert(PointerType::classof(tp));
+    return dyn_cast<PointerType>(tp)->getElementType();
+  }
   
 }

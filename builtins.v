@@ -112,6 +112,14 @@ module ult(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [0:0] out);
    parameter WIDTH = 1;
    
    assign out = $unsigned(in0) < $unsigned(in1);
+endmodule // ult
+
+module sliceOp(input [IN_WIDTH - 1 : 0] in, output [OUT_WIDTH - 1 : 0] out);
+   parameter IN_WIDTH = 32;
+   parameter OUT_WIDTH = 32;
+   parameter OFFSET = 0;
+
+   assign out = in[OFFSET + OUT_WIDTH - 1 : OFFSET];
 endmodule
 
 module ret();
