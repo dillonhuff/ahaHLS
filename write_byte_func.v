@@ -1,10 +1,9 @@
-module write_byte_func(input [0:0] clk, input [0:0] rst, output [7:0] arg_0_raddr, output [7:0] arg_0_waddr, output [7:0] arg_0_wdata, output [0:0] arg_0_wen, input [7:0] arg_0_rdata, output [0:0] valid, output [0:0] arg_1_raddr, output [0:0] arg_1_waddr, output [0:0] arg_1_wdata, output [0:0] arg_1_wen, input [0:0] arg_1_rdata, output [0:0] arg_2_m_axis_tready, output [47:0] arg_2_s_eth_dest_mac, output [0:0] arg_2_s_eth_hdr_valid, output [7:0] arg_2_s_eth_payload_axis_tdata, output [0:0] arg_2_s_eth_payload_axis_tlast, output [0:0] arg_2_s_eth_payload_axis_tuser, output [0:0] arg_2_s_eth_payload_axis_tvalid, output [47:0] arg_2_s_eth_src_mac, output [15:0] arg_2_s_eth_type, input [0:0] arg_2_busy, input [0:0] arg_2_s_eth_hdr_ready, input [0:0] arg_2_s_eth_payload_axis_tready);
+module write_byte_func(input [0:0] clk, input [0:0] rst, output [7:0] arg_0_raddr, output [7:0] arg_0_waddr, output [7:0] arg_0_wdata, output [0:0] arg_0_wen, input [7:0] arg_0_rdata, output [0:0] arg_1_raddr, output [0:0] arg_1_waddr, output [0:0] arg_1_wdata, output [0:0] arg_1_wen, input [0:0] arg_1_rdata, output [0:0] arg_2_m_axis_tready, output [47:0] arg_2_s_eth_dest_mac, output [0:0] arg_2_s_eth_hdr_valid, output [7:0] arg_2_s_eth_payload_axis_tdata, output [0:0] arg_2_s_eth_payload_axis_tlast, output [0:0] arg_2_s_eth_payload_axis_tuser, output [0:0] arg_2_s_eth_payload_axis_tvalid, output [47:0] arg_2_s_eth_src_mac, output [15:0] arg_2_s_eth_type, input [0:0] arg_2_busy, input [0:0] arg_2_s_eth_hdr_ready, input [0:0] arg_2_s_eth_payload_axis_tready, output [0:0] valid);
 
 	reg [7:0] arg_0_raddr_reg;
 	reg [7:0] arg_0_waddr_reg;
 	reg [7:0] arg_0_wdata_reg;
 	reg [0:0] arg_0_wen_reg;
-	reg [0:0] valid_reg;
 	reg [0:0] arg_1_raddr_reg;
 	reg [0:0] arg_1_waddr_reg;
 	reg [0:0] arg_1_wdata_reg;
@@ -18,12 +17,12 @@ module write_byte_func(input [0:0] clk, input [0:0] rst, output [7:0] arg_0_radd
 	reg [0:0] arg_2_s_eth_payload_axis_tvalid_reg;
 	reg [47:0] arg_2_s_eth_src_mac_reg;
 	reg [15:0] arg_2_s_eth_type_reg;
+	reg [0:0] valid_reg;
 
 	assign arg_0_raddr = arg_0_raddr_reg;
 	assign arg_0_waddr = arg_0_waddr_reg;
 	assign arg_0_wdata = arg_0_wdata_reg;
 	assign arg_0_wen = arg_0_wen_reg;
-	assign valid = valid_reg;
 	assign arg_1_raddr = arg_1_raddr_reg;
 	assign arg_1_waddr = arg_1_waddr_reg;
 	assign arg_1_wdata = arg_1_wdata_reg;
@@ -37,6 +36,7 @@ module write_byte_func(input [0:0] clk, input [0:0] rst, output [7:0] arg_0_radd
 	assign arg_2_s_eth_payload_axis_tvalid = arg_2_s_eth_payload_axis_tvalid_reg;
 	assign arg_2_s_eth_src_mac = arg_2_s_eth_src_mac_reg;
 	assign arg_2_s_eth_type = arg_2_s_eth_type_reg;
+	assign valid = valid_reg;
 
 	// Start debug wires and ports
 
@@ -325,7 +325,7 @@ module write_byte_func(input [0:0] clk, input [0:0] rst, output [7:0] arg_0_radd
 	end
 	// controller for arg_2.arg_2_s_eth_payload_axis_tlast_reg
 	always @(*) begin
-		if (andOp_9_out) begin 
+		if (andOp_8_out) begin 
 			arg_2_s_eth_payload_axis_tlast_reg = arg_1_rdata;
 		end else begin
 			arg_2_s_eth_payload_axis_tlast_reg = 0;
@@ -333,7 +333,7 @@ module write_byte_func(input [0:0] clk, input [0:0] rst, output [7:0] arg_0_radd
 	end
 	// controller for arg_2.arg_2_s_eth_payload_axis_tvalid_reg
 	always @(*) begin
-		if (andOp_8_out) begin 
+		if (andOp_9_out) begin 
 			arg_2_s_eth_payload_axis_tvalid_reg = 32'd1;
 		end else begin
 			arg_2_s_eth_payload_axis_tvalid_reg = 0;

@@ -1548,9 +1548,9 @@ namespace ahaHLS {
         }
 
         cout << "Could not get llvm type for SynthCppStructType = " << *st << endl;
-        assert(false);
-        // Type* argTp = structType(st->getName());
-        // return argTp;
+        //assert(false);
+        Type* argTp = structType(st->getName());
+        return argTp;
         //}
       }
     }
@@ -1646,8 +1646,6 @@ namespace ahaHLS {
             if (ArgumentDecl::classof(subStmt)) {
               auto decl = sc<ArgumentDecl>(subStmt);
               c->memberVars[decl->name.getStr()] = decl->tp;
-
-              fields.push_back(llvmTypeFor(decl->tp));
               
             } else if (FunctionDecl::classof(subStmt)) {
               auto methodFuncDecl = sc<FunctionDecl>(subStmt);
@@ -1671,9 +1669,11 @@ namespace ahaHLS {
           cSpec.hasClock = true;
           cSpec.hasRst = true;
 
+          bool notIClass = true;
           for (auto vTp : c->memberVars) {
             auto tp = vTp.second;
             if (isPortType(tp)) {
+              notIClass = false;
               if (isOutputPort(tp)) {
                 addOutputPort(cSpec.ports, portWidth(tp), vTp.first);
               } else {
@@ -1689,11 +1689,25 @@ namespace ahaHLS {
             }
           }
 
+
+          // If this is not an interface class then do not make it an opaque struct
+          if (notIClass) {
+            for (auto vTp : c->memberVars) {
+              fields.push_back(llvmTypeFor(vTp.second));
+            }
+
+            c->llvmTp = StructType::create(fields, c->getName(), true);
+            
+          } else {
+            c->llvmTp = structType(c->getName());
+          }
+          
+
           cout << "class has name " << c->getName() << endl;
           hcs.typeSpecs[c->getName()] = [cSpec](StructType* tp) { return cSpec; };
           hcs.hasTypeSpec(c->getName());
 
-          c->llvmTp = StructType::create(fields, c->getName(), true);
+
 
           cgs.symtab.popTable();
           cgs.popClassContext();
