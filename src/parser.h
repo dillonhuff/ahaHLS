@@ -1909,7 +1909,24 @@ namespace ahaHLS {
       cout << "Error: Cannot find class with name " << id << endl;
       assert(false);
     }
-  
+
+    SynthCppClass* getClass(StructType* const classType) {
+      for (auto c : classes) {
+        cout << "Candidate class = " << c->getName() << endl;
+        if (c->getName() == classType->getName()) {
+          return c;
+        }
+      }
+
+      // If token has the type of the class we are currently
+      // parsing
+      if (cgs.getActiveClass()->getName() == classType->getName()) {
+        return cgs.getActiveClass();
+      }
+
+      assert(false);
+    }
+
     SynthCppClass* getClass(const Token id) {
       string idName = id.getStr();
       cout << "Getting class for " << idName << endl;
@@ -1917,24 +1934,27 @@ namespace ahaHLS {
 
       cout << "Got type for " << idName << endl;
 
-      auto classType = extractBaseStructType(tp);
+      SynthCppStructType* classType = extractBaseStructType(tp);
 
-      cout << "Got class type = " << *classType << endl;
+      assert(StructType::classof(llvmTypeFor(classType)));
+      return getClass(dyn_cast<StructType>(llvmTypeFor(classType)));
+
+      // cout << "Got class type = " << *classType << endl;
       
-      for (auto c : classes) {
-        cout << "Candidate class = " << c->name << endl;
-        if (c->name == classType->name) {
-          return c;
-        }
-      }
+      // for (auto c : classes) {
+      //   cout << "Candidate class = " << c->name << endl;
+      //   if (c->name == classType->name) {
+      //     return c;
+      //   }
+      // }
 
-      // If token has the type of the class we are currently
-      // parsing
-      if (cgs.getActiveClass()->name == classType->name) {
-        return cgs.getActiveClass();
-      }
+      // // If token has the type of the class we are currently
+      // // parsing
+      // if (cgs.getActiveClass()->name == classType->name) {
+      //   return cgs.getActiveClass();
+      // }
 
-      assert(false);
+      // assert(false);
     }
 
     BasicBlock*

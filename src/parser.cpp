@@ -1090,7 +1090,24 @@ namespace ahaHLS {
     //StructDecl* decl = map_find(under, structDefs);
 
     //int fieldIndex = getIndex(fieldName, decl);
+    auto structTp = dyn_cast<StructType>(under);
+    SynthCppClass* ctp = getClass(structTp);
+    
     int fieldIndex = 0; //getIndex(fieldName, decl);
+    bool foundField = false;
+    for (auto field : ctp->memberVars) {
+      if (field.first == fieldName) {
+        foundField = true;
+        break;
+      }
+      fieldIndex++;
+    }
+
+    if (!foundField) {
+      cout << "Error: Could not find field " << fieldName << " in class " << ctp->getName() << endl;
+    }
+    assert(foundField);
+    
     cout << "Index of " << fieldName << " is " << fieldIndex << endl;
     return cgs.builder().CreateGEP(baseVal, {mkInt(0, 64), mkInt(fieldIndex, 32)});
   }
