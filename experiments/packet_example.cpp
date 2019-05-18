@@ -8,5 +8,9 @@ class Packet {
 };
 
 void packet_example(Packet& in, Packet& out) {
-  out.dport = in.dport;
+  out.sport = in.sport;
+}
+
+void packet_mixed_assign(Packet& in, Packet& out) {
+  out.new_hop = in.next_hop;
 }

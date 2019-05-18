@@ -1129,7 +1129,7 @@ namespace ahaHLS {
     ParserModule parseM = parseSynthModule("./experiments/packet_example.cpp");
     cout << "# of statements in module = " << parseM.getStatements().size() << endl;
 
-    REQUIRE(parseM.getStatements().size() == 2);
+    REQUIRE(parseM.getStatements().size() >= 2);
 
     cout << "Second statment kind = " << parseM.getStatements()[1]->getKind() << endl;
     
