@@ -1095,8 +1095,8 @@ namespace ahaHLS {
     
     int fieldIndex = 0; //getIndex(fieldName, decl);
     bool foundField = false;
-    for (auto field : ctp->memberVars) {
-      if (field.first == fieldName) {
+    for (auto field : ctp->fieldOrder) {
+      if (field == fieldName) {
         foundField = true;
         break;
       }

@@ -16,26 +16,6 @@ using namespace llvm;
 
 namespace ahaHLS {
   
-  template<typename ResultType, typename InputType>
-  ResultType* sc(InputType* tp) {
-    return static_cast<ResultType*>(tp);
-  }
-
-  template<typename ResultType, typename InputType>
-  ResultType* extract(InputType* tp) {
-    assert(ResultType::classof(tp));
-    return sc<ResultType>(tp);
-  }
-
-  template<typename ResultType, typename InputType>
-  maybe<ResultType*> extractM(InputType* tp) {
-    if (ResultType::classof(tp)) {
-      return sc<ResultType>(tp);
-    }
-
-    return maybe<ResultType*>();
-  }
-
   template<typename T>
   class ParseState {
     std::vector<T> ts;
@@ -1290,6 +1270,7 @@ namespace ahaHLS {
     std::map<std::string, SynthCppFunction*> methods;
     vector<HazardSpec> hazards;
     StructType* llvmTp;
+    std::vector<std::string> fieldOrder;
 
     StructType* llvmStructType() { return llvmTp; }
 
@@ -1654,6 +1635,7 @@ namespace ahaHLS {
             if (ArgumentDecl::classof(subStmt)) {
               auto decl = sc<ArgumentDecl>(subStmt);
               c->memberVars[decl->name.getStr()] = decl->tp;
+              c->fieldOrder.push_back(decl->name.getStr());
               
             } else if (FunctionDecl::classof(subStmt)) {
               auto methodFuncDecl = sc<FunctionDecl>(subStmt);

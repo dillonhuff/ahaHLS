@@ -942,10 +942,24 @@ namespace ahaHLS {
         Type* outSt = getTypePointedTo(instr->getType());
         int outWidth = getTypeBitWidth(outSt);
 
+        GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(instr);
+        assert(gep->hasAllConstantIndices());
+        assert(gep->getNumIndices() == 2);
         int offset = gepOffset(dyn_cast<GetElementPtrInst>(instr));
+        assert(offset == 0);
+        Value* secondOffset = gep->getOperand(2);
+        assert(ConstantInt::classof(secondOffset));
+        ConstantInt* offC = dyn_cast<ConstantInt>(secondOffset);
+        int cOffset = offC->getValue().getLimitedValue();
+        int bitOffset = 0;
+        StructType* underlyingStruct = extract<StructType>(stp);
+        for (int i = 0; i < cOffset; i++) {
+          bitOffset += getTypeBitWidth(underlyingStruct->elements()[i]);
+        }
+        
         
         wiring = {{"in", {true, inWidth, "slice_in_" + rStr}}};
-        modParams = {{"IN_WIDTH", to_string(outWidth)}, {"OFFSET", to_string(offset)}, {"OUT_WIDTH", to_string(outWidth)}};
+        modParams = {{"IN_WIDTH", to_string(outWidth)}, {"OFFSET", to_string(bitOffset)}, {"OUT_WIDTH", to_string(outWidth)}};
         
         outWires = {{"out", {false, outWidth, "getelementptr_out_" + rStr}}};
       }
@@ -1542,9 +1556,6 @@ namespace ahaHLS {
         assert((numOperands == 2) || (numOperands == 3));
 
         auto arg0 = instr->getOperand(0);
-
-        //cout << "arg0 = " << valueString(arg0) << endl;
-
         auto arg0Name = outputWire(arg0, pos, arch);
 
         assignments.insert({addUnit.portWires["base_addr"], arg0Name});
@@ -1558,7 +1569,9 @@ namespace ahaHLS {
           assignments.insert({addUnit.portWires["in" + to_string(i)], arg1Name});
         }
       } else {
-        assert(false);
+        auto arg0 = instr->getOperand(0);
+        auto arg0Name = outputWire(arg0, pos, arch);
+        assignments.insert({addUnit.portWires["in"], arg0Name});
       }
 
     } else if (PHINode::classof(instr)) {

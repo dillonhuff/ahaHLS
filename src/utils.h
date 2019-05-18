@@ -1,5 +1,7 @@
 #pragma once
 
+#include "algorithm.h"
+
 #include <cmath>
 #include <vector>
 #include <set>
@@ -214,5 +216,25 @@ namespace ahaHLS {
 
   llvm::Type* getTypePointedTo(llvm::Type* const tp);
   std::string implies(const std::string& a, const std::string& b);  
-  
+
+  template<typename ResultType, typename InputType>
+  ResultType* sc(InputType* tp) {
+    return static_cast<ResultType*>(tp);
+  }
+
+  template<typename ResultType, typename InputType>
+  ResultType* extract(InputType* tp) {
+    assert(ResultType::classof(tp));
+    return sc<ResultType>(tp);
+  }
+
+  template<typename ResultType, typename InputType>
+  dbhc::maybe<ResultType*> extractM(InputType* tp) {
+    if (ResultType::classof(tp)) {
+      return sc<ResultType>(tp);
+    }
+
+    return dbhc::maybe<ResultType*>();
+  }
+
 }
