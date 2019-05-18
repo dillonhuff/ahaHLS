@@ -1994,6 +1994,8 @@ namespace ahaHLS {
       genSetCode(tV, v);
     }
 
+    llvm::Value* pointerToLocation(Expression* const e);
+
     void genLLVM(ReturnStmt* const stmt) {
       auto bd = cgs.builder();
 

@@ -1089,10 +1089,17 @@ namespace ahaHLS {
     cout << "Index of " << fieldName << " is " << fieldIndex << endl;
     return cgs.builder().CreateGEP(baseVal, {mkInt(0, 64), mkInt(fieldIndex, 32)});
   }
+
+  llvm::Value* SynthCppModule::pointerToLocation(Expression* const e) {
+    assert(Identifier::classof(e));
+    auto* id = extract<Identifier>(e);
+    Token name = id->name;
+    return getValueFor(name);
+  }
   
   llvm::Value* SynthCppModule::genFieldAccess(FieldAccess* const e) {
     cout << "Base expr = " << *(e->base) << endl;
-    Value* baseExpr = genLLVM(e->base);
+    Value* baseExpr = pointerToLocation(e->base); //genLLVM(e->base);
     return structFieldPtr(baseExpr, e->field.getStr());
   }
 
