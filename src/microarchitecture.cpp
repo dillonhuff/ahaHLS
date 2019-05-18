@@ -77,16 +77,44 @@ using namespace std;
 // is not the same as the difference in states. It is the min of the difference
 // between the branch connecting b0 and b1, and the value of b1
 
-// Assumption in Cong / Zhang:
-// Time from blk y: [i0; br x;] to blk x: [i1]; is:
-//   time from end(i0) to end(br x) + time from start(blk x) to i1?
-
-// timediff(i0, i1) is starttime(i0) - starttime(i1)
-// Start time relative to the start of dominator block of i1?
-// Unpipelined: starttime(i0) == stateNumber(i0) - starttime(blky)?
-// 
-
 namespace ahaHLS {
+
+  set<Instruction*> allGEPs(Function* f)  {
+    set<Instruction*> geps;
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instr : bb) {
+        if (GetElementPtrInst::classof(&instr)) {
+          geps.insert(&instr);
+        }
+      }
+    }
+    return geps;
+  }
+
+  map<Instruction*, Value*>
+  gepSources(Function* const f) {
+    map<Instruction*, Value*> gepSources;
+    set<Instruction*> geps = allGEPs(f);
+
+    while (geps.size() > 0) {
+
+      Instruction* toErase = nullptr;
+      for (auto gep : geps) {
+        Value* gepTarget = gep->getOperand(0);
+        if (Argument::classof(gepTarget)) {
+          gepSources[gep] = gepTarget;
+          toErase = gep;
+          break;
+        }
+      }
+
+      if (toErase != nullptr) {
+        geps.erase(toErase);
+      }
+    }
+    
+    return gepSources;
+  }
 
   Wire getLastStateReg(const StateId state, MicroArchitecture& arch);
   
@@ -3144,6 +3172,12 @@ namespace ahaHLS {
 
     auto f = stg.getFunction();
 
+    map<Instruction*, Value*> gs = gepSources(f);
+    cout << "GEP Sources" << endl;
+    for (auto gepS : gs) {
+      cout << tab(1) << valueString(gepS.first) << " -> " << valueString(gepS.second) << endl;
+    }
+    
     // TODO: Remove this duplicated function
     map<BasicBlock*, int> basicBlockNos = stg.basicBlockNos;
     //numberBasicBlocks(f);
