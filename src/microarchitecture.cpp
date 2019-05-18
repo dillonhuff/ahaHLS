@@ -9,6 +9,8 @@
 
 #include <fstream>
 
+#include "llvm_codegen.h"
+
 using namespace dbhc;
 using namespace llvm;
 using namespace std;
@@ -3165,6 +3167,16 @@ namespace ahaHLS {
       //}
     }
   }
+
+  int gepOffset(GetElementPtrInst* const gep) {
+    APInt offset;
+    bool constOffset = gep->accumulateConstantOffset(getGlobalLLVMModule().getDataLayout(), offset);
+    if (constOffset) {
+      return offset.getLimitedValue();
+    }
+
+    return -1;
+  }
   
   MicroArchitecture
   buildMicroArchitecture(const STG& stg,
@@ -3176,7 +3188,7 @@ namespace ahaHLS {
     map<Instruction*, Value*> gs = gepSources(f);
     cout << "GEP Sources" << endl;
     for (auto gepS : gs) {
-      cout << tab(1) << valueString(gepS.first) << " -> " << valueString(gepS.second) << endl;
+      cout << tab(1) << valueString(gepS.first) << " -> " << valueString(gepS.second) << ", offset = " << gepOffset(dyn_cast<GetElementPtrInst>(gepS.first)) << ", result type " << typeString(gepS.first->getType()) << " has width = " << getValueBitWidth(gepS.first) << endl;
     }
     
     // TODO: Remove this duplicated function
