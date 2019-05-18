@@ -1270,9 +1270,13 @@ namespace ahaHLS {
     CallGraphNode* fNode = cg[f];
     for (auto calledN : *fNode) {
       CallGraphNode* called = calledN.second;
-      cout << tab(1) << "Called function = " << called->getFunction() << endl;
 
       auto calledF = called->getFunction();
+      cout << tab(1) << "Called function = " << string(calledF->getName()) << endl;
+      if (canDemangle(string(calledF->getName()))) {
+        cout << tab(1) << "Demangled name = " << demangle(string(calledF->getName())) << endl;
+      }
+
       deleteLLVMLifetimeCalls(calledF);
 
       cout << "llvm function after lifetime deletes" << endl;
@@ -1284,7 +1288,59 @@ namespace ahaHLS {
         if (canDemangle(name)) {
           cout << tab(2) << "Demangled name of called func = " << demangle(name) << endl;
         }
+
       }
+
+      // Maybe there needs to be a value mapping that tells the compiler what
+      // each value represents in hardware?
+
+      // Values can be:
+      //  * On wires
+      //  * In registers
+      //  * In memory
+      
+      // A constant is:
+      //  * Data on a wire
+
+      // Value with a primitive or struct type can be:
+      //  * A piece of data (bit32)
+      //  * A
+
+      // The GetElementPtr value with constant bounds operating on a
+      // struct such as sc_uint can be interpreted in hardware as the
+      // wire that is coming out of the storage that is represented
+      // by the pointer to source_tmp
+
+      // The GetElementPtr value with variable bounds operating on pointers
+      // can be interpreted as reading a value out of an array
+
+      // Questions about named types in LLVM?
+      // Are they modules or are they data?
+      // If they are modules, pointers to them represent the collection of fields
+      // on the module, and no operations (except builtin ops) can be performed
+      // on them
+
+      // If they are data then pointers to them represent storage of instances
+      // of data. The pointer can be an array (of fixed length), or it can be
+      // a single instance
+
+      // Arrays can be mapped to different kinds of storage, an array can
+      // be stored in RAM, stored at a given offset in a RAM, stored in a
+      // bank of registers, or carried on wires.
+
+      // If an array is carried on wires as an input to a function then
+      // it must either be only read (an input), or only written (an output)
+      
+      cout << "All gep instrs" << endl;
+      for (auto& bb : calledF->getBasicBlockList()) {
+        for (auto& instr : bb) {
+          if (GetElementPtrInst::classof(&instr)) {
+            cout << tab(2) << valueString(&instr) << endl;
+            cout << tab(3) << "Result type = " << typeString(instr.getType()) << endl;
+          }
+        }
+      }
+      
       
     }
 
