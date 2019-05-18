@@ -1135,7 +1135,7 @@ namespace ahaHLS {
     
     SynthCppModule scppMod(parseM);
 
-    REQUIRE(scppMod.getFunctions().size() == 1);
+    REQUIRE(scppMod.getFunctions().size() >= 1);
 
     auto arch = synthesizeVerilog(scppMod, "packet_example");
 
