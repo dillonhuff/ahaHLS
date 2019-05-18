@@ -1673,10 +1673,6 @@ namespace ahaHLS {
 
           // TODO: Wrap this up in to a function
           // Add interface class module spec to hardware constraints
-          cSpec.name = c->getName();
-          cSpec.hasClock = true;
-          cSpec.hasRst = true;
-
           bool notIClass = true;
           for (auto vTp : c->memberVars) {
             auto tp = vTp.second;
@@ -1705,8 +1701,15 @@ namespace ahaHLS {
             }
 
             c->llvmTp = StructType::create(fields, c->getName(), true);
-            
+
+            cSpec = registerModSpec(getTypeBitWidth(c->llvmTp));
           } else {
+
+            cSpec.name = c->getName();
+            cSpec.hasClock = true;
+            cSpec.hasRst = true;
+
+            
             c->llvmTp = structType(c->getName());
           }
           
