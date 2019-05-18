@@ -1116,7 +1116,15 @@ namespace ahaHLS {
       // versatility to make a general purpose system useful?
     }
   }
-  
+
+  // Q: How do I want to deal with user-defined structures passed as arguments?
+  // Requirements:
+  //  1. Loads and stores need to be synthesized
+  //  2. GEPs need to be synthesized
+  //  3. Ideally: The argument would be passed to the module as multiple
+  //     smaller bit-vector fields, but when reading to and from a FIFO
+  //     or similar container the structure would be modeled as a single large
+  //     bit vector (bulk copy operations)
   TEST_CASE("User defined structure") {
     ParserModule parseM = parseSynthModule("./experiments/packet_example.cpp");
     cout << "# of statements in module = " << parseM.getStatements().size() << endl;
