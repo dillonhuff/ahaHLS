@@ -101,7 +101,8 @@ namespace ahaHLS {
       Instruction* toErase = nullptr;
       for (auto gep : geps) {
         Value* gepTarget = gep->getOperand(0);
-        if (Argument::classof(gepTarget)) {
+        if (Argument::classof(gepTarget) ||
+            AllocaInst::classof(gepTarget)) {
           gepSources[gep] = gepTarget;
           toErase = gep;
           break;
