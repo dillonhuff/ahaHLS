@@ -1091,10 +1091,15 @@ namespace ahaHLS {
   }
 
   llvm::Value* SynthCppModule::pointerToLocation(Expression* const e) {
-    assert(Identifier::classof(e));
-    auto* id = extract<Identifier>(e);
-    Token name = id->name;
-    return getValueFor(name);
+    if (Identifier::classof(e)) {
+      auto* id = extract<Identifier>(e);
+      Token name = id->name;
+      return getValueFor(name);
+    } else {
+      assert(FieldAccess::classof(e));
+      FieldAccess* fa = extract<FieldAccess>(e);
+      return genFieldAccess(fa);
+    }
   }
   
   llvm::Value* SynthCppModule::genFieldAccess(FieldAccess* const e) {
@@ -1343,7 +1348,8 @@ namespace ahaHLS {
       auto val = stoi(digits);
       return mkInt(val, 32);
     } else if (FieldAccess::classof(e)) {
-      return genFieldAccess(sc<FieldAccess>(e));
+      auto fa = genFieldAccess(sc<FieldAccess>(e));
+      return loadReg(bd, fa);
     } else {
       cout << "Unsupported expression in LLVM codegen" << endl;
       assert(false);      
