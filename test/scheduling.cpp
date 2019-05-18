@@ -3266,6 +3266,7 @@ namespace ahaHLS {
     setGlobalLLVMContext(&context);
 
     auto mod = llvm::make_unique<Module>("1 x 2 systolic array", context);
+    setGlobalLLVMModule(mod.get());
 
     int width = 32;
     std::vector<Type *> inputs{intType(32)->getPointerTo(),

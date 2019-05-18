@@ -854,7 +854,7 @@ namespace ahaHLS {
           cout << "Should set " << valueString(&arg) << " to be register" << endl;
           scppMod.getHardwareConstraints().modSpecs.insert({&arg, registerModSpec(getTypeBitWidth(underlying))});
           scppMod.getHardwareConstraints().memSpecs.insert({&arg, registerSpec(getTypeBitWidth(underlying))});
-        } else if (StructType::classof(underlying)) {
+        } else if (StructType::classof(underlying) && !dyn_cast<StructType>(underlying)->isOpaque()) {
           cout << "Should set " << valueString(&arg) << " to be register" << endl;
           scppMod.getHardwareConstraints().modSpecs.insert({&arg, registerModSpec(getTypeBitWidth(underlying))});
           scppMod.getHardwareConstraints().memSpecs.insert({&arg, registerSpec(getTypeBitWidth(underlying))});
