@@ -1207,6 +1207,8 @@ namespace ahaHLS {
         return bd.CreateSub(l, r);
       } else if (be->op.getStr() == "==") {
         return bd.CreateICmpEQ(l, r);
+      } else if (be->op.getStr() == ">") {
+        return bd.CreateICmpSGT(l, r);
       } else {
         cout << "Error: Unsupported binop: " << be->op << endl;
         assert(false);
