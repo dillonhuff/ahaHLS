@@ -1137,40 +1137,54 @@ namespace ahaHLS {
 
     REQUIRE(scppMod.getFunctions().size() >= 1);
 
-    auto arch = synthesizeVerilog(scppMod, "packet_example");
-
     TestBenchSpec tb;
     map<string, int> testLayout = {};
     tb.runCycles = 70;
     tb.maxCycles = 100;
-    tb.name = "packet_example";
     tb.useModSpecs = true;
     tb.settableWires.insert("arg_0_wen");
-    tb.settableWires.insert("arg_0_wdata");    
+    tb.settableWires.insert("arg_0_wdata");
 
-    // tb.settableWires.insert("arg_1_wen");
-    // tb.settableWires.insert("arg_1_wdata");    
+    SECTION("sport -> sport") {
+      tb.name = "packet_example";
 
-    map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
-    map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
-    map_insert(tb.actionsOnCycles, 5, string("rst_reg <= 0;"));
+      auto arch = synthesizeVerilog(scppMod, "packet_example");
 
-    map_insert(tb.actionsOnCycles, 3, string("arg_0_wen <= 1;"));
-    map_insert(tb.actionsOnCycles, 3, string("arg_0_wdata <= {160'd0, 32'd25};"));
-    map_insert(tb.actionsOnCycles, 4, string("arg_0_wen <= 0;"));
+      map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+      map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
+      map_insert(tb.actionsOnCycles, 5, string("rst_reg <= 0;"));
 
-    // map_insert(tb.actionsOnCycles, 3, string("arg_1_wen <= 1;"));
-    // map_insert(tb.actionsOnCycles, 3, string("arg_1_wdata <= {192'd0};"));
-    // map_insert(tb.actionsOnCycles, 4, string("arg_1_wen <= 0;"));
+      map_insert(tb.actionsOnCycles, 3, string("arg_0_wen <= 1;"));
+      map_insert(tb.actionsOnCycles, 3, string("arg_0_wdata <= {160'd0, 32'd25};"));
+      map_insert(tb.actionsOnCycles, 4, string("arg_0_wen <= 0;"));
+
+      map_insert(tb.actionsOnCycles, 9, assertString("arg_1_rdata[31:0] === 32'd25"));
+      map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
     
-    map_insert(tb.actionsOnCycles, 9, assertString("arg_1_rdata[31:0] === 32'd25"));
-    map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
-    
-    // checkRAMContents(tb, 30, "arg_0", {0, 1, 2, 3, 4});
-    emitVerilogTestBench(tb, arch, testLayout);
+      emitVerilogTestBench(tb, arch, testLayout);
+      REQUIRE(runIVerilogTest("packet_example_tb.v", "packed_example", " builtins.v packet_example.v RAM.v delay.v ram_primitives.v"));
+    }
 
-    // Need to figure out how to inline register specifications
-    REQUIRE(runIVerilogTest("packet_example_tb.v", "packed_example", " builtins.v packet_example.v RAM.v delay.v ram_primitives.v"));
+    SECTION("sport -> sport") {
+
+      tb.name = "packet_mixed_assign";
+      
+      auto arch = synthesizeVerilog(scppMod, "packet_mixed_assign");
+
+      map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+      map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
+      map_insert(tb.actionsOnCycles, 5, string("rst_reg <= 0;"));
+
+      map_insert(tb.actionsOnCycles, 3, string("arg_0_wen <= 1;"));
+      map_insert(tb.actionsOnCycles, 3, string("arg_0_wdata <= {32'd0, 32'd97, 128'd0};"));
+      map_insert(tb.actionsOnCycles, 4, string("arg_0_wen <= 0;"));
+
+      map_insert(tb.actionsOnCycles, 9, assertString("arg_1_rdata[(64 + 31):64] === 32'd97"));
+      map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
+    
+      emitVerilogTestBench(tb, arch, testLayout);
+      REQUIRE(runIVerilogTest("packet_mixed_assign_tb.v", "packed_mixed_assign", " builtins.v packet_mixed_assign.v RAM.v delay.v ram_primitives.v"));
+    }
     
   }
   
