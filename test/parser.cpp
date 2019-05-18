@@ -1330,7 +1330,26 @@ namespace ahaHLS {
 
       // If an array is carried on wires as an input to a function then
       // it must either be only read (an input), or only written (an output)
-      
+
+      // Build a binding from all pointers that are returned from functions
+      // to values in the source code?
+
+      // Q: What are the hardware mappings for GEP instructions that operate on
+      // fields of data? The GEP itself represents the wire coming off of the module
+      // that is built by the alloca instruction, but if the GEP is used in multiple
+      // places the values read out of the fields may be different?
+
+      // A: I guess a pointer to a type that can be interpreted as data (i8) represents
+      // the bundle of fields on a module that stores that data
+
+      // The fields of an LLVM struct that defines a piece of data each correspond
+      // to pairs of (in / out) ports on the module that will store that data (storeMod(data)).
+
+      // The fields of an LLVM struct compiled from a software IMPL class should also be ignored?
+      // Or for sc_uint they should be allowed to be interpreted if they can be 
+
+      // The fields of an LLVM struct that defines a module are ignored (the type is opaque)
+
       cout << "All gep instrs" << endl;
       for (auto& bb : calledF->getBasicBlockList()) {
         for (auto& instr : bb) {

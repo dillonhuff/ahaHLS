@@ -1087,7 +1087,7 @@ namespace ahaHLS {
     //int fieldIndex = getIndex(fieldName, decl);
     int fieldIndex = 0; //getIndex(fieldName, decl);
     cout << "Index of " << fieldName << " is " << fieldIndex << endl;
-    return cgs.builder().CreateGEP(baseVal, mkInt(fieldIndex, 32));
+    return cgs.builder().CreateGEP(baseVal, {mkInt(0, 64), mkInt(fieldIndex, 32)});
   }
   
   llvm::Value* SynthCppModule::genFieldAccess(FieldAccess* const e) {

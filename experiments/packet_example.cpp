@@ -1,10 +1,10 @@
 class Packet {
-  int sport;
-  int dport;
-  int new_hop;
-  int arrival;
-  int next_hop;
-  int id;
+  bit_32 sport;
+  bit_32 dport;
+  bit_32 new_hop;
+  bit_32 arrival;
+  bit_32 next_hop;
+  bit_32 id;
 };
 
 void packet_example(Packet& in, Packet& out) {

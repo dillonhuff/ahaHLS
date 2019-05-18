@@ -1237,28 +1237,6 @@ namespace ahaHLS {
     }
   }
 
-  static inline
-  llvm::Type* llvmTypeFor(SynthCppType* const tp) {
-    if (SynthCppPointerType::classof(tp)) {
-      return llvmTypeFor(sc<SynthCppPointerType>(tp)->getElementType())->getPointerTo();
-      //return llvmPointerFor(static_cast<SynthCppPointerType* const>(tp)->getElementType());
-    } else if (VoidType::classof(tp)) {
-      return voidType();
-    } else if (SynthCppBitsType::classof(tp)) {
-      return intType(extract<SynthCppBitsType>(tp)->getWidth());
-    } else {
-      assert(SynthCppStructType::classof(tp));
-      auto st = static_cast<SynthCppStructType* const>(tp);
-      // if (isPrimitiveStruct(st)) {
-      //   int width = getWidth(st);
-
-      // } else {
-      Type* argTp = structType(st->getName());
-      return argTp;
-      //}
-    }
-  }
-
   class SynthCppFunction {
   public:
     Token nameToken;
@@ -1296,16 +1274,6 @@ namespace ahaHLS {
     return out;
   }
 
-  static inline
-  SynthCppFunction* builtinStub(std::string name, std::vector<llvm::Type*>& args, SynthCppType* retType) {
-    SynthCppFunction* stub = new SynthCppFunction();
-    stub->nameToken = Token(name);
-    stub->retType = retType;
-    stub->func = mkFunc(args, llvmTypeFor(retType), name);
-  
-    return stub;
-  }
-
   class SynthCppClass {
   public:
 
@@ -1313,6 +1281,9 @@ namespace ahaHLS {
     std::map<std::string, SynthCppType*> memberVars;
     std::map<std::string, SynthCppFunction*> methods;
     vector<HazardSpec> hazards;
+    StructType* llvmTp;
+
+    StructType* llvmStructType() { return llvmTp; }
 
     std::string getName() const { return name.getStr(); }
 
@@ -1407,24 +1378,6 @@ namespace ahaHLS {
       string width = name.substr(prefix.size());
       return stoi(width);
     }
-  }
-
-  static inline
-  vector<Type*> functionInputs(FunctionDecl* fd) {
-    vector<Type*> inputTypes;
-    for (auto argDecl : fd->args) {
-      cout << "\targ = " << argDecl->name << endl;
-      Type* argTp = llvmTypeFor(argDecl->tp);
-
-      if (!SynthCppPointerType::classof(argDecl->tp)) {
-        assert(SynthCppDataType::classof(argDecl->tp));
-        inputTypes.push_back(argTp);
-      } else {
-        inputTypes.push_back(argTp);
-      }
-    }
-
-    return inputTypes;
   }
 
   static inline
@@ -1572,7 +1525,37 @@ namespace ahaHLS {
     
       return cgs.builder().CreateTrunc(value, destTp);
     }
-  
+
+    llvm::Type* llvmTypeFor(SynthCppType* const tp) {
+      if (SynthCppPointerType::classof(tp)) {
+        return llvmTypeFor(sc<SynthCppPointerType>(tp)->getElementType())->getPointerTo();
+        //return llvmPointerFor(static_cast<SynthCppPointerType* const>(tp)->getElementType());
+      } else if (VoidType::classof(tp)) {
+        return voidType();
+      } else if (SynthCppBitsType::classof(tp)) {
+        return intType(extract<SynthCppBitsType>(tp)->getWidth());
+      } else {
+        assert(SynthCppStructType::classof(tp));
+        auto st = static_cast<SynthCppStructType* const>(tp);
+        // if (isPrimitiveStruct(st)) {
+        //   int width = getWidth(st);
+
+        // } else {
+        for (auto c : getClasses()) {
+          if (c->getName() == st->getName()) {
+            return c->llvmStructType();
+          }
+        }
+
+        cout << "Could not get llvm type for SynthCppStructType = " << *st << endl;
+        assert(false);
+        // Type* argTp = structType(st->getName());
+        // return argTp;
+        //}
+      }
+    }
+
+    
     // argNum could be 1 if the function being synthesized is actually a
     // method
     void setArgumentSymbols(IRBuilder<>& b,
@@ -1618,6 +1601,24 @@ namespace ahaHLS {
 
     void addStructDecl(StructDecl* const stmt);    
 
+    vector<Type*> functionInputs(FunctionDecl* fd) {
+      vector<Type*> inputTypes;
+      for (auto argDecl : fd->args) {
+        cout << "\targ = " << argDecl->name << endl;
+        Type* argTp = llvmTypeFor(argDecl->tp);
+
+        if (!SynthCppPointerType::classof(argDecl->tp)) {
+          assert(SynthCppDataType::classof(argDecl->tp));
+          inputTypes.push_back(argTp);
+        } else {
+          inputTypes.push_back(argTp);
+        }
+      }
+
+      return inputTypes;
+    }
+
+    
     SynthCppModule(ParserModule& parseRes) {
       activeFunction = nullptr;
 
@@ -1638,11 +1639,16 @@ namespace ahaHLS {
           c->name = decl->name;
           cgs.symtab.pushTable(&(c->memberVars));
           cgs.pushClassContext(c);
+
+          vector<Type*> fields;
         
           for (auto subStmt: decl->body) {
             if (ArgumentDecl::classof(subStmt)) {
               auto decl = sc<ArgumentDecl>(subStmt);
               c->memberVars[decl->name.getStr()] = decl->tp;
+
+              fields.push_back(llvmTypeFor(decl->tp));
+              
             } else if (FunctionDecl::classof(subStmt)) {
               auto methodFuncDecl = sc<FunctionDecl>(subStmt);
               addMethodDecl(methodFuncDecl, cSpec);
@@ -1682,9 +1688,12 @@ namespace ahaHLS {
               }
             }
           }
+
           cout << "class has name " << c->getName() << endl;
           hcs.typeSpecs[c->getName()] = [cSpec](StructType* tp) { return cSpec; };
           hcs.hasTypeSpec(c->getName());
+
+          c->llvmTp = StructType::create(fields, c->getName(), true);
 
           cgs.symtab.popTable();
           cgs.popClassContext();
@@ -2131,6 +2140,16 @@ namespace ahaHLS {
     
     }
 
+    SynthCppFunction* builtinStub(std::string name, std::vector<llvm::Type*>& args, SynthCppType* retType) {
+      SynthCppFunction* stub = new SynthCppFunction();
+      stub->nameToken = Token(name);
+      stub->retType = retType;
+      stub->func = mkFunc(args, llvmTypeFor(retType), name);
+  
+      return stub;
+    }
+
+    
     SynthCppFunction* getFunction(const std::string& name) {
       cout << "Getting function for " << name << endl;
 
