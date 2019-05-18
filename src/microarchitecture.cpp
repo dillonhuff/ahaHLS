@@ -799,6 +799,32 @@ namespace ahaHLS {
     return unit;
   }
 
+  bool isRAMAddressCompGEP(GetElementPtrInst* const instr,
+                           map<Value*, std::string>& memNames,
+                           map<Instruction*, Value*>& memSrcs,
+                           HardwareConstraints& hcs) {
+    Value* memSrc = map_find(dyn_cast<Instruction>(instr), memSrcs);
+    cout << "MEM source for GEP " << valueString(instr) << " = " << valueString(memSrc) << endl;
+    
+    if (contains_key(memSrc, memNames)) {
+      cout << tab(1) << "Name of source = " << map_find(memSrc, memNames) << endl;
+      Type* srcTp = memSrc->getType();
+      assert(PointerType::classof(srcTp));
+      Type* uTp = dyn_cast<PointerType>(srcTp)->getElementType();
+      if (StructType::classof(uTp)) {
+        StructType* stp = dyn_cast<StructType>(uTp);
+        if (stp->isOpaque()) {
+          return true;
+        } else {
+          cout << "Found non address comp GEP" << endl;
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+  
   FunctionalUnit createUnit(std::string unitName,
                             map<Value*, std::string>& memNames,
                             map<Instruction*, Value*>& memSrcs,
@@ -896,14 +922,18 @@ namespace ahaHLS {
       modName = "br_dummy";
       unitName = "br_unit";
     } else if (GetElementPtrInst::classof(instr)) {
-      modName = "getelementptr_" + to_string(instr->getNumOperands() - 1);
-      wiring = {{"base_addr", {true, 32, "base_addr_" + rStr}}};
+      if (isRAMAddressCompGEP(dyn_cast<GetElementPtrInst>(instr), memNames, memSrcs, hcs)) {
+        modName = "getelementptr_" + to_string(instr->getNumOperands() - 1);
+        wiring = {{"base_addr", {true, 32, "base_addr_" + rStr}}};
 
-      for (int i = 1; i < (int) instr->getNumOperands(); i++) {
-        wiring.insert({"in" + to_string(i),
-              {true, 32, "gep_add_in" + to_string(i) + "_" + rStr}});
+        for (int i = 1; i < (int) instr->getNumOperands(); i++) {
+          wiring.insert({"in" + to_string(i),
+                {true, 32, "gep_add_in" + to_string(i) + "_" + rStr}});
+        }
+        outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
+      } else {
+        assert(false);
       }
-      outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
     } else if (PHINode::classof(instr)) {
       PHINode* phi = dyn_cast<PHINode>(instr);
 
@@ -1463,7 +1493,6 @@ namespace ahaHLS {
       assignments.insert({addUnit.input("raddr"), locValue});
 
       if (contains_key(string("ren"), addUnit.portWires)) {
-        //assignments.insert({addUnit.inputWire("ren"), "1"});
         assignments.insert({addUnit.input("ren"), constWire(1, 1)});
       }
 
