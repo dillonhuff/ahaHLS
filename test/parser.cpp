@@ -1162,10 +1162,10 @@ namespace ahaHLS {
       map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
     
       emitVerilogTestBench(tb, arch, testLayout);
-      REQUIRE(runIVerilogTest("packet_example_tb.v", "packed_example", " builtins.v packet_example.v RAM.v delay.v ram_primitives.v"));
+      REQUIRE(runIVerilogTest("packet_example_tb.v", "packet_example", " builtins.v packet_example.v RAM.v delay.v ram_primitives.v"));
     }
 
-    SECTION("sport -> sport") {
+    SECTION("Mixed assign") {
 
       tb.name = "packet_mixed_assign";
       
@@ -1183,7 +1183,7 @@ namespace ahaHLS {
       map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
     
       emitVerilogTestBench(tb, arch, testLayout);
-      REQUIRE(runIVerilogTest("packet_mixed_assign_tb.v", "packed_mixed_assign", " builtins.v packet_mixed_assign.v RAM.v delay.v ram_primitives.v"));
+      REQUIRE(runIVerilogTest("packet_mixed_assign_tb.v", "packet_mixed_assign", " builtins.v packet_mixed_assign.v RAM.v delay.v ram_primitives.v"));
     }
     
   }

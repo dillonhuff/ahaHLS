@@ -388,7 +388,7 @@ module register(input clk, input rst, input [WIDTH - 1:0] raddr, input [WIDTH - 
 
    parameter WIDTH = 32;
 
-   reg [31:0] data;
+   reg [WIDTH - 1:0] data;
 
    always @(posedge clk) begin
       if (wen) begin
