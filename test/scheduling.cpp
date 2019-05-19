@@ -5361,6 +5361,8 @@ namespace ahaHLS {
     int width = 64;
     hcs.typeSpecs["class.Fifo"] =
       [width](StructType* tp) { return fifoSpec(width, 32); };
+    hcs.typeSpecs["class.Fifo.0"] =
+      [width](StructType* tp) { return fifoSpec(width, 32); };
     hcs.typeSpecs["class.bus"] =
       [width](StructType* tp) { return busSpec(tp); };
 
