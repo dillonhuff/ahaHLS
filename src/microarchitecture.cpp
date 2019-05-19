@@ -429,12 +429,27 @@ namespace ahaHLS {
             pts.push_back(cpy);
           }
         } else {
-          cout << "Error: No module spec for argument " << valueString(argV) << endl;
+          cout << "No module spec for argument " << valueString(argV) << endl;
           assert(contains_key(argV, arch.memoryMap));
-          assert(false);
+          //assert(false);
         }
       }
     }
+
+    if (arch.memoryMap.size() > 0) {
+      // Add RAM ports?
+      for (int i = 0; i < 3; i++) {
+        pts.push_back(outputPort(32, "waddr_" + to_string(i)));
+        pts.push_back(outputPort(32, "wdata_" + to_string(i)));
+        pts.push_back(outputPort(1, "wen_" + to_string(i)));                
+
+        pts.push_back(outputPort(32, "raddr_" + to_string(i)));
+        pts.push_back(inputPort(32, "rdata_" + to_string(i)));
+        pts.push_back(outputPort(1, "ren_" + to_string(i)));                
+
+      }
+    }
+    
     // std::set<std::string> alreadyChecked;
     // for (auto instr : unitAssignment) {
     //   auto unit = instr.second;
