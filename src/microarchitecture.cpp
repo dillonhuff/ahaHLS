@@ -119,7 +119,29 @@ namespace ahaHLS {
     return geps;
   }
 
+  
   int gepOffset(GetElementPtrInst* const gep);
+  
+  int gepBitOffset(GetElementPtrInst* const gep) {
+    Type* stp = getTypePointedTo(gep->getOperand(0)->getType());
+    
+    assert(gep->hasAllConstantIndices());
+    assert(gep->getNumIndices() == 2);
+    int offset = gepOffset(gep);
+    assert(offset == 0);
+    Value* secondOffset = gep->getOperand(2);
+    assert(ConstantInt::classof(secondOffset));
+    ConstantInt* offC = dyn_cast<ConstantInt>(secondOffset);
+    int cOffset = offC->getValue().getLimitedValue();
+    
+    int bitOffset = 0;
+    StructType* underlyingStruct = extract<StructType>(stp);
+    for (int i = 0; i < cOffset; i++) {
+      bitOffset += getTypeBitWidth(underlyingStruct->elements()[i]);
+    }
+
+    return bitOffset;
+  }
   
   map<Instruction*, Value*>
   gepSources(Function* const f) {
@@ -752,6 +774,34 @@ namespace ahaHLS {
       Value* memVal = map_find(instr, memSrcs);
       string memSrc = memName(instr, memSrcs, memNames);
 
+      // If the store is a store to part of a register
+      // then we need to detect that and write a masked store?
+      Value* storeAddr = instr->getOperand(1);
+      if (GetElementPtrInst::classof(storeAddr)) {
+        GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(storeAddr);
+        if (!isRAMAddressCompGEP(gep, memNames, memSrcs, hcs)) {
+          cout << "Source of partial store is " << valueString(memVal) << endl;
+          cout << "Offset of gep store is " << gepBitOffset(gep) << endl;
+
+          // Q: What is the functional unit in this case?
+          // A: I guess the wiring of the *output* of the unit needs to be
+          // set in order for this to work? Or not:
+          // treat arg_1_wdata as an input to the unit, and pass out
+          // arg_1_wdata maked with offset?
+
+          // int inWidth = getValueBitWidth(gep);
+          // modParams = {{"WIDTH", to_string(inWidth)}};
+          // modName = "hls_wire";
+          // wiring = {{"in_data", reg(inWidth, unitName + "_in")}};
+          // outWires = {{"out_data", wire(inWidth, unitName + "_out")}};
+          // isExternal = false;
+          // FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
+          // return unit;
+        }
+      }
+
+      
+      
       if (!Argument::classof(memVal)) {
         //cout << "&&&& Memory unit Using unit " << memSrc << " for " << instructionString(instr) << endl;
         if (contains_key(memVal, hcs.memSpecs)) {
@@ -2197,7 +2247,7 @@ namespace ahaHLS {
   }
 
   bool stateless(FunctionalUnit& unit) {
-    vector<string> statelessUnits{"add", "sub", "shlOp", "mul", "phi", "getelementptr_2", "ne", "eq", "trunc", "sext", "slt", "andOp", "notOp", "sgt", "orOp", "concat"};
+    vector<string> statelessUnits{"add", "sub", "shlOp", "mul", "phi", "getelementptr_2", "ne", "eq", "trunc", "sext", "slt", "andOp", "notOp", "sgt", "orOp", "concat", "sliceOp"};
     return elem(unit.getModName(), statelessUnits);
   }
 
