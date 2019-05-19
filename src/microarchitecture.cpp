@@ -402,7 +402,7 @@ namespace ahaHLS {
   }
   
   std::vector<Port>
-  getPorts(const MicroArchitecture& arch) {
+  getPorts(MicroArchitecture& arch) {
     auto& unitAssignment = arch.unitAssignment;
 
     vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
@@ -420,14 +420,14 @@ namespace ahaHLS {
             cpy.isInput = !p.second.isInput;
             pts.push_back(cpy);
           }
-          // for (auto w : unit.portWires) {
-          //   pts.push_back(wireToOutputPort(w.second));
-          // }
-
-          // for (auto w : unit.outWires) {
-          //   pts.push_back(wireToInputPort(w.second));
-          // }
-          
+        } else if (arch.hcs.hasArgumentSpec(arg)) {
+          ModuleSpec modSpec = arch.hcs.getArgumentSpec(argV);
+          for (auto p : modSpec.ports) {
+            Port cpy = p.second;
+            cpy.name = string(arg->getName()) + "_" + p.second.name;
+            cpy.isInput = !p.second.isInput;
+            pts.push_back(cpy);
+          }
         }
       }
     }

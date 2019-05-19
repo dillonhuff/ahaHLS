@@ -659,7 +659,7 @@ namespace ahaHLS {
   std::string dataOutput(llvm::Instruction* instr0, const MicroArchitecture& arch);
 
   std::vector<Port>
-  getPorts(const MicroArchitecture& arch);
+  getPorts(MicroArchitecture& arch);
 
   std::string outputName(Value* val,
                          ControlFlowPosition& currentPosition,
