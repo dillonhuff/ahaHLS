@@ -405,25 +405,49 @@ namespace ahaHLS {
   getPorts(const MicroArchitecture& arch) {
     auto& unitAssignment = arch.unitAssignment;
 
-    vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst")};
+    vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
 
-    std::set<std::string> alreadyChecked;
-    for (auto instr : unitAssignment) {
-      auto unit = instr.second;
+    Function* f = arch.stg.getFunction();
+    for (int i = 0; i < f->arg_size(); i++) {
+      Value* arg = getArg(f, i);
+      if (PointerType::classof(arg->getType())) {
+        Value* argV = dyn_cast<Value>(arg);
+        if (contains_key(argV, arch.hcs.modSpecs)) {
+          ModuleSpec modSpec = map_find(argV, arch.hcs.modSpecs);
+          for (auto p : modSpec.ports) {
+            Port cpy = p.second;
+            cpy.name = string(arg->getName()) + "_" + p.second.name;
+            cpy.isInput = !p.second.isInput;
+            pts.push_back(cpy);
+          }
+          // for (auto w : unit.portWires) {
+          //   pts.push_back(wireToOutputPort(w.second));
+          // }
 
-      if (!elem(unit.instName, alreadyChecked) && unit.isExternal()) {
-        alreadyChecked.insert(unit.instName);
-
-        for (auto w : unit.portWires) {
-          pts.push_back(wireToOutputPort(w.second));
+          // for (auto w : unit.outWires) {
+          //   pts.push_back(wireToInputPort(w.second));
+          // }
+          
         }
-
-        for (auto w : unit.outWires) {
-          pts.push_back(wireToInputPort(w.second));
-        }
-
       }
     }
+    // std::set<std::string> alreadyChecked;
+    // for (auto instr : unitAssignment) {
+    //   auto unit = instr.second;
+
+    //   if (!elem(unit.instName, alreadyChecked) && unit.isExternal()) {
+    //     alreadyChecked.insert(unit.instName);
+
+    //     for (auto w : unit.portWires) {
+    //       pts.push_back(wireToOutputPort(w.second));
+    //     }
+
+    //     for (auto w : unit.outWires) {
+    //       pts.push_back(wireToInputPort(w.second));
+    //     }
+
+    //   }
+    // }
 
     // Add value parameters to architecture
     for (auto& arg : arch.stg.getFunction()->args()) {
@@ -781,8 +805,8 @@ namespace ahaHLS {
           int inWidth = getValueBitWidth(gep);
           modParams = {{"WIDTH", to_string(inWidth)}};
           modName = "hls_wire";
-          wiring = {{"in_data", wire(inWidth, unitName + "_in")}};
-          outWires = {{"out_data", reg(inWidth, unitName + "_out")}};
+          wiring = {{"in_data", reg(inWidth, unitName + "_in")}};
+          outWires = {{"out_data", wire(inWidth, unitName + "_out")}};
           isExternal = false;
           FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
           return unit;
