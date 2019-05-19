@@ -81,6 +81,32 @@ using namespace std;
 
 namespace ahaHLS {
 
+  bool isRAMAddressCompGEP(GetElementPtrInst* const instr,
+                           map<Value*, std::string>& memNames,
+                           map<Instruction*, Value*>& memSrcs,
+                           HardwareConstraints& hcs) {
+    Value* memSrc = map_find(dyn_cast<Instruction>(instr), memSrcs);
+    cout << "MEM source for GEP " << valueString(instr) << " = " << valueString(memSrc) << endl;
+    
+    if (contains_key(memSrc, memNames)) {
+      cout << tab(1) << "Name of source = " << map_find(memSrc, memNames) << endl;
+      Type* srcTp = memSrc->getType();
+      assert(PointerType::classof(srcTp));
+      Type* uTp = dyn_cast<PointerType>(srcTp)->getElementType();
+      if (StructType::classof(uTp)) {
+        StructType* stp = dyn_cast<StructType>(uTp);
+        if (stp->isOpaque()) {
+          return true;
+        } else {
+          cout << "Found non address comp GEP" << endl;
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+  
   set<Instruction*> allGEPs(Function* f)  {
     set<Instruction*> geps;
     for (auto& bb : f->getBasicBlockList()) {
@@ -747,6 +773,22 @@ namespace ahaHLS {
       string memSrc = memName(instr, memSrcs, memNames);
 
       // If we are loading from an internal RAM, not an argument
+
+      Value* loadArg = instr->getOperand(0);
+      if (GetElementPtrInst::classof(loadArg)) {
+        GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(loadArg);
+        if (!isRAMAddressCompGEP(gep, memNames, memSrcs, hcs)) {
+          int inWidth = getValueBitWidth(gep);
+          modParams = {{"WIDTH", to_string(inWidth)}};
+          modName = "hls_wire";
+          wiring = {{"in_data", wire(inWidth, unitName + "_in")}};
+          outWires = {{"out_data", reg(inWidth, unitName + "_out")}};
+          isExternal = false;
+          FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
+          return unit;
+        }
+      }
+      
       if (!Argument::classof(memVal)) {
         if (contains_key(memVal, hcs.memSpecs)) {
           string name = map_find(memVal, hcs.memSpecs).modSpec.name;
@@ -801,32 +843,6 @@ namespace ahaHLS {
     return unit;
   }
 
-  bool isRAMAddressCompGEP(GetElementPtrInst* const instr,
-                           map<Value*, std::string>& memNames,
-                           map<Instruction*, Value*>& memSrcs,
-                           HardwareConstraints& hcs) {
-    Value* memSrc = map_find(dyn_cast<Instruction>(instr), memSrcs);
-    cout << "MEM source for GEP " << valueString(instr) << " = " << valueString(memSrc) << endl;
-    
-    if (contains_key(memSrc, memNames)) {
-      cout << tab(1) << "Name of source = " << map_find(memSrc, memNames) << endl;
-      Type* srcTp = memSrc->getType();
-      assert(PointerType::classof(srcTp));
-      Type* uTp = dyn_cast<PointerType>(srcTp)->getElementType();
-      if (StructType::classof(uTp)) {
-        StructType* stp = dyn_cast<StructType>(uTp);
-        if (stp->isOpaque()) {
-          return true;
-        } else {
-          cout << "Found non address comp GEP" << endl;
-          return false;
-        }
-      }
-      return true;
-    }
-    return false;
-  }
-  
   FunctionalUnit createUnit(std::string unitName,
                             map<Value*, std::string>& memNames,
                             map<Instruction*, Value*>& memSrcs,
@@ -1511,7 +1527,6 @@ namespace ahaHLS {
 
       assignments.insert({addUnit.input("waddr"), locValue});
       assignments.insert({addUnit.input("wdata"), wdataName});
-      //assignments.insert({addUnit.inputWire("wen"), "1"});
       assignments.insert({addUnit.input("wen"), constWire(1, 1)});
 
     } else if (LoadInst::classof(instr)) {
@@ -1519,10 +1534,20 @@ namespace ahaHLS {
       Value* location = instr->getOperand(0);
       auto locValue = outputWire(location, pos, arch);
 
-      assignments.insert({addUnit.input("raddr"), locValue});
+      if (addUnit.module.name != "hls_wire") {
+        // if (GetElementPtrInst::classof(location) && ) {
+        //   GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(loadArg);
+        //   if (!isRAMAddressCompGEP(gep, memNames, memSrcs, hcs)) {
+        //   }
+        // }
 
-      if (contains_key(string("ren"), addUnit.portWires)) {
-        assignments.insert({addUnit.input("ren"), constWire(1, 1)});
+        assignments.insert({addUnit.input("raddr"), locValue});
+
+        if (contains_key(string("ren"), addUnit.portWires)) {
+          assignments.insert({addUnit.input("ren"), constWire(1, 1)});
+        }
+      } else {
+        assignments.insert({addUnit.input("in_data"), locValue});
       }
 
     } else if (TruncInst::classof(instr)) {
