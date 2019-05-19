@@ -428,6 +428,10 @@ namespace ahaHLS {
             cpy.isInput = !p.second.isInput;
             pts.push_back(cpy);
           }
+        } else {
+          cout << "Error: No module spec for argument " << valueString(argV) << endl;
+          assert(contains_key(argV, arch.memoryMap));
+          assert(false);
         }
       }
     }
