@@ -2558,6 +2558,7 @@ namespace ahaHLS {
     
     auto mod =
       llvm::make_unique<Module>("shift registered LLVM 1D stencil", context);
+    setGlobalLLVMModule(mod.get());
 
     std::vector<Type *> inputs{intType(32)->getPointerTo(),
         intType(32)->getPointerTo()};
@@ -2629,7 +2630,7 @@ namespace ahaHLS {
     setGlobalLLVMContext(&context);
 
     auto mod = llvm::make_unique<Module>("BB diamond", context);
-
+    setGlobalLLVMModule(mod.get());
     std::vector<Type *> inputs{intType(32)->getPointerTo(),
         intType(32)->getPointerTo()};
     Function* f = mkFunc(inputs, "bb_diamond", mod.get());
@@ -2722,7 +2723,7 @@ namespace ahaHLS {
     setGlobalLLVMContext(&context);
 
     auto mod = llvm::make_unique<Module>("BB diamond 2", context);
-
+    setGlobalLLVMModule(mod.get());
     std::vector<Type *> inputs{intType(32)->getPointerTo(),
         intType(32)->getPointerTo(),
         intType(32)->getPointerTo()};
@@ -2897,7 +2898,7 @@ namespace ahaHLS {
     setGlobalLLVMContext(&context);
 
     auto mod = llvm::make_unique<Module>("pipeline with resource constraints", context);
-
+    setGlobalLLVMModule(mod.get());
     std::vector<Type *> inputs{intType(32)->getPointerTo(),
         intType(32)->getPointerTo()};
     Function* f = mkFunc(inputs, "constrained_pipe", mod.get());
@@ -2972,7 +2973,7 @@ namespace ahaHLS {
     setGlobalLLVMContext(&context);
 
     auto mod = llvm::make_unique<Module>("pipeline with temp storage", context);
-
+    setGlobalLLVMModule(mod.get());
     std::vector<Type *> inputs{intType(32)->getPointerTo(),
         intType(32)->getPointerTo()};
     Function* f = mkFunc(inputs, "temp_storage_pipe", mod.get());
@@ -3051,7 +3052,7 @@ namespace ahaHLS {
     setGlobalLLVMContext(&context);
 
     auto mod = llvm::make_unique<Module>("pipeline with external read", context);
-
+    setGlobalLLVMModule(mod.get());
     std::vector<Type *> inputs{intType(32)->getPointerTo(),
         intType(32)->getPointerTo()};
     Function* f = mkFunc(inputs, "outer_read_pipe", mod.get());
@@ -3125,7 +3126,7 @@ namespace ahaHLS {
     setGlobalLLVMContext(&context);
 
     auto mod = llvm::make_unique<Module>("pipeline with memory dependence", context);
-
+    setGlobalLLVMModule(mod.get());
     std::vector<Type *> inputs{intType(32)->getPointerTo()};
     Function* f = mkFunc(inputs, "mem_dep_pipe", mod.get());
 
@@ -3194,7 +3195,7 @@ namespace ahaHLS {
     setGlobalLLVMContext(&context);
 
     auto mod = llvm::make_unique<Module>("pipeline with long memory dependence", context);
-
+    setGlobalLLVMModule(mod.get());
     std::vector<Type *> inputs{intType(32)->getPointerTo()};
     Function* f = mkFunc(inputs, "mem_dep_pipe_long", mod.get());
 
