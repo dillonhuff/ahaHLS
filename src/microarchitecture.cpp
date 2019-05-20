@@ -432,13 +432,19 @@ namespace ahaHLS {
     Function* f = arch.stg.getFunction();
     for (int i = 0; i < f->arg_size(); i++) {
       Value* arg = getArg(f, i);
+
+      string argName = arg->getName();
+      if (argName == "") {
+        argName = "arg_" + to_string(i);
+      }
+
       if (PointerType::classof(arg->getType())) {
         Value* argV = dyn_cast<Value>(arg);
         if (contains_key(argV, arch.hcs.modSpecs)) {
           ModuleSpec modSpec = map_find(argV, arch.hcs.modSpecs);
           for (auto p : modSpec.ports) {
             Port cpy = p.second;
-            cpy.name = string(arg->getName()) + "_" + p.second.name;
+            cpy.name = argName + "_" + p.second.name;
             cpy.isInput = !p.second.isInput;
             pts.push_back(cpy);
           }
@@ -446,7 +452,7 @@ namespace ahaHLS {
           ModuleSpec modSpec = arch.hcs.getArgumentSpec(argV);
           for (auto p : modSpec.ports) {
             Port cpy = p.second;
-            cpy.name = string(arg->getName()) + "_" + p.second.name;
+            cpy.name = argName + "_" + p.second.name;
             cpy.isInput = !p.second.isInput;
             pts.push_back(cpy);
           }
