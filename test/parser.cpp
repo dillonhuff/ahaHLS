@@ -1187,6 +1187,43 @@ namespace ahaHLS {
     }
     
   }
+
+  TEST_CASE("Banzai flowlets") {
+    ParserModule parseM = parseSynthModule("./experiments/flowlets.cpp");
+    cout << "# of statements in module = " << parseM.getStatements().size() << endl;
+
+    REQUIRE(parseM.getStatements().size() >= 2);
+
+    SynthCppModule scppMod(parseM);
+
+    REQUIRE(scppMod.getFunctions().size() >= 1);
+
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.runCycles = 70;
+    tb.maxCycles = 100;
+    tb.useModSpecs = true;
+    tb.settableWires.insert("arg_0_wen");
+    tb.settableWires.insert("arg_0_wdata");
+
+    tb.name = "flowlets";
+
+    auto arch = synthesizeVerilog(scppMod, "packet_example");
+
+    // map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+    // map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
+    // map_insert(tb.actionsOnCycles, 5, string("rst_reg <= 0;"));
+
+    // map_insert(tb.actionsOnCycles, 3, string("arg_0_wen <= 1;"));
+    // map_insert(tb.actionsOnCycles, 3, string("arg_0_wdata <= {160'd0, 32'd25};"));
+    // map_insert(tb.actionsOnCycles, 4, string("arg_0_wen <= 0;"));
+
+    // map_insert(tb.actionsOnCycles, 9, assertString("arg_1_rdata[31:0] === 32'd25"));
+    // map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
+    
+    emitVerilogTestBench(tb, arch, testLayout);
+    REQUIRE(runIVerilogTest("packet_example_tb.v", "packet_example", " builtins.v packet_example.v RAM.v delay.v ram_primitives.v"));
+  }
   
   TEST_CASE("RAM pipelining tests") {
 

@@ -15,7 +15,13 @@ using namespace std;
 using namespace llvm;
 
 namespace ahaHLS {
-  
+
+  static inline
+  bool oneCharToken(const char c) {
+    vector<char> chars = {'{', '}', ';', ')', '(', ',', '[', ']', ':', '-', '&', '+', '=', '>', '<', '*', '.', '%'};
+    return dbhc::elem(c, chars);
+  }
+
   template<typename T>
   class ParseState {
     std::vector<T> ts;
@@ -72,7 +78,7 @@ namespace ahaHLS {
   static inline
   bool isBinop(const Token t) {
     //vector<string> binopStrings{"=", "==", "+", "&", "-", "/", "^", "%", "&&", "||", "<=", ">=", "<", ">", "*"};
-    vector<string> binopStrings{"==", "+", "&", "-", "/", "^", "%", "&&", "||", "<=", ">=", "<", ">", "*"};
+    vector<string> binopStrings{"==", "+", "&", "-", "/", "^", "%", "&&", "||", "<=", ">=", "<", ">", "*", "%"};
     return elem(t.getStr(), binopStrings);
   }
 
@@ -415,6 +421,7 @@ namespace ahaHLS {
     STATEMENT_KIND_ARG_DECL,
     STATEMENT_KIND_STRUCT_DECL,      
     STATEMENT_KIND_ASSIGN,
+    STATEMENT_KIND_ASSIGN_DECL,    
     STATEMENT_KIND_FOR,
     STATEMENT_KIND_EXPRESSION,
     STATEMENT_KIND_RETURN,
@@ -501,6 +508,30 @@ namespace ahaHLS {
   
   };
 
+  class AssignDeclStmt : public Statement {
+  public:
+    //Token var;
+    SynthCppType* tp;
+    Expression* lhs;
+    Expression* expr;
+
+    //AssignStmt(Token lhs_, Expression* expr_) : lhs(lhs_), expr(expr_) {}
+    AssignDeclStmt(SynthCppType* tp_, Expression* lhs_, Expression* expr_) : tp(tp_), lhs(lhs_), expr(expr_) {}
+
+    static bool classof(const Statement* const stmt) {
+      return stmt->getKind() == STATEMENT_KIND_ASSIGN_DECL;
+    }
+
+    virtual StatementKind getKind() const {
+      return STATEMENT_KIND_ASSIGN_DECL;
+    }
+
+    virtual void print(std::ostream& out) const {
+      out << *tp << " " << *lhs << " = " << *expr << ";";
+    }
+  
+  };
+  
   class BlockStmt : public Statement {
   public:
     vector<Statement*> body;
@@ -857,7 +888,7 @@ namespace ahaHLS {
 
   static inline
   int precedence(Token op) {
-    map<string, int> prec{{"+", 100}, {"==", 99}, {"-", 100}, {"*", 100}, {"<", 99}, {">", 99}, {"<=", 99}, {">=", 99}};
+    map<string, int> prec{{"+", 100}, {"==", 99}, {"-", 100}, {"*", 100}, {"<", 99}, {">", 99}, {"<=", 99}, {">=", 99}, {"%", 100}};
     assert(contains_key(op.getStr(), prec));
     return map_find(op.getStr(), prec);
   }

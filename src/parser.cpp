@@ -385,6 +385,40 @@ namespace ahaHLS {
 
     return new BlockStmt(body);
   }
+
+
+  maybe<Statement*> parseAssignDeclare(ParseState<Token>& tokens) {
+    maybe<SynthCppType*> tp = tryParse<SynthCppType*>(parseType, tokens);
+    if (!tp.has_value()) {
+      return maybe<Statement*>();
+    }
+
+    // Create function declaration
+    //Token funcName = tokens.parseChar();
+    maybe<Expression*> lhs = parseExpressionMaybe(tokens);
+    if (!lhs.has_value()) {
+      return maybe<Statement*>();
+    }
+
+    if (tokens.peekChar() == Token("=")) {
+      tokens.parseChar();
+
+      maybe<Expression*> rhs = parseExpressionMaybe(tokens);
+      if (!rhs.has_value()) {
+        return maybe<Statement*>();
+      }
+
+      if (tokens.peekChar() == Token(";")) {
+        tokens.parseChar();
+        return new AssignDeclStmt(tp.get_value(), lhs.get_value(), rhs.get_value());
+      }
+
+      return maybe<Statement*>();
+    }
+
+    return maybe<Statement*>();
+
+  }
   
   maybe<Statement*> parseStatementNoLabel(ParseState<Token>& tokens) {
     // Try to parse for loop
@@ -463,11 +497,16 @@ namespace ahaHLS {
 
     maybe<Statement*> funcDecl =
       tryParse<Statement*>(parseFuncDecl, tokens);
-
     if (funcDecl.has_value()) {
       return funcDecl;
     }
 
+    maybe<Statement*> asgDecl =
+      tryParse<Statement*>(parseAssignDeclare, tokens);
+    if (asgDecl.has_value()) {
+      return asgDecl;
+    }
+    
     //cout << "Statement after trying funcDecl " << tokens.remainder() << endl;  
 
     auto assign = tryParse<Statement*>(parseAssignStmt, tokens);

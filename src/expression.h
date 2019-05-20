@@ -13,13 +13,6 @@ namespace ahaHLS {
     TOKEN_TYPE_KEYWORD,  
   };
 
-
-  static inline
-  bool oneCharToken(const char c) {
-    vector<char> chars = {'{', '}', ';', ')', '(', ',', '[', ']', ':', '-', '&', '+', '=', '>', '<', '*', '.'};
-    return dbhc::elem(c, chars);
-  }
-
   static inline
   bool isKeyword(const std::string& str) {
     vector<string> keywords{"void", "for", "return", "do", "while"};
