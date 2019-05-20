@@ -11,8 +11,16 @@ class Packet {
   bit_32 id; // array index
 };
 
-bit_32 last_time [NUM_FLOWLETS] = {0};
-bit_32 saved_hop [NUM_FLOWLETS] = {0};
+bit_32 last_time [NUM_FLOWLETS]; // = 0;
+bit_32 saved_hop [NUM_FLOWLETS]; // = 0;
+
+bit_32 hash3(bit_32& a, bit_32& b, bit_32& c) {
+  return 0;
+}
+
+bit_32 hash2(bit_32& a, bit_32& b, bit_32& c) {
+  return 0;
+}
 
 void flowlet(Packet& in, Packet& out) {
   out.new_hop = hash3(in.sport,
@@ -24,12 +32,12 @@ void flowlet(Packet& in, Packet& out) {
                   in.dport)
             % NUM_FLOWLETS;
 
-  if (in.arrival -
-      last_time[out.id] >
-      THRESHOLD) {
-    saved_hop[out.id] = out.new_hop;
-  }
+  // if (in.arrival -
+  //     last_time[out.id] >
+  //     THRESHOLD) {
+  //   saved_hop[out.id] = out.new_hop;
+  // }
 
-  last_time[out.id] = in.arrival;
-  out.next_hop = saved_hop[out.id];
+  // last_time[out.id] = in.arrival;
+  // out.next_hop = saved_hop[out.id];
 }
