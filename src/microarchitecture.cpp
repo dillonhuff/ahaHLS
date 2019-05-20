@@ -1633,17 +1633,20 @@ namespace ahaHLS {
       if (GetElementPtrInst::classof(location)) {
         GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(location);
 
-        int mainWidth = 192;
-        int innerWidth = getValueBitWidth(arg0);
-        int offset = gepBitOffset(gep);        
-        PortController& pc = makeMix(mainWidth,
-                                     innerWidth,
-                                     offset,
-                                     arch);
+        if (gep->hasAllConstantIndices() &&
+            (gep->getNumIndices() == 2)) {
+          int mainWidth = 192;
+          int innerWidth = getValueBitWidth(arg0);
+          int offset = gepBitOffset(gep);        
+          PortController& pc = makeMix(mainWidth,
+                                       innerWidth,
+                                       offset,
+                                       arch);
 
-        pc.setAlways("inner", wdataName);
-        pc.setAlways("main", constWire(192, 0));        
-        wdataName = pc.functionalUnit().outputWire();
+          pc.setAlways("inner", wdataName);
+          pc.setAlways("main", constWire(192, 0));        
+          wdataName = pc.functionalUnit().outputWire();
+        }
         // Wire sliceOutput = arch.();
         // Create the mixed bit vector
         // if (!isRAMAddressCompGEP(gep, memNames, memSrcs, hcs)) {
