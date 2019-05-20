@@ -82,29 +82,29 @@ using namespace std;
 namespace ahaHLS {
 
   bool isRAMAddressCompGEP(GetElementPtrInst* const instr,
-                           map<Value*, std::string>& memNames,
-                           map<Instruction*, Value*>& memSrcs,
-                           HardwareConstraints& hcs) {
+                           //map<Value*, std::string>& memNames,
+                           map<Instruction*, Value*>& memSrcs) {
+                           //HardwareConstraints& hcs) {
     Value* memSrc = map_find(dyn_cast<Instruction>(instr), memSrcs);
     cout << "MEM source for GEP " << valueString(instr) << " = " << valueString(memSrc) << endl;
     
-    if (contains_key(memSrc, memNames)) {
-      cout << tab(1) << "Name of source = " << map_find(memSrc, memNames) << endl;
-      Type* srcTp = memSrc->getType();
-      assert(PointerType::classof(srcTp));
-      Type* uTp = dyn_cast<PointerType>(srcTp)->getElementType();
-      if (StructType::classof(uTp)) {
-        StructType* stp = dyn_cast<StructType>(uTp);
-        if (stp->isOpaque()) {
-          return true;
-        } else {
-          cout << "Found non address comp GEP" << endl;
-          return false;
-        }
+    //if (contains_key(memSrc, memNames)) {
+    //cout << tab(1) << "Name of source = " << map_find(memSrc, memNames) << endl;
+    Type* srcTp = memSrc->getType();
+    assert(PointerType::classof(srcTp));
+    Type* uTp = dyn_cast<PointerType>(srcTp)->getElementType();
+    if (StructType::classof(uTp)) {
+      StructType* stp = dyn_cast<StructType>(uTp);
+      if (stp->isOpaque()) {
+        return true;
+      } else {
+        cout << "Found non address comp GEP" << endl;
+        return false;
       }
-      return true;
     }
-    return false;
+    return true;
+    // }
+    // return false;
   }
   
   set<Instruction*> allGEPs(Function* f)  {
@@ -459,7 +459,6 @@ namespace ahaHLS {
         } else {
           cout << "No module spec for argument " << valueString(argV) << endl;
           assert(contains_key(argV, arch.memoryMap));
-          //assert(false);
         }
       }
     }
@@ -785,7 +784,7 @@ namespace ahaHLS {
       Value* storeAddr = instr->getOperand(1);
       if (GetElementPtrInst::classof(storeAddr)) {
         GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(storeAddr);
-        if (!isRAMAddressCompGEP(gep, memNames, memSrcs, hcs)) {
+        if (!isRAMAddressCompGEP(gep, memSrcs)) {
           cout << "Source of partial store is " << valueString(memVal) << endl;
           cout << "Offset of gep store is " << gepBitOffset(gep) << endl;
 
@@ -876,7 +875,7 @@ namespace ahaHLS {
       Value* loadArg = instr->getOperand(0);
       if (GetElementPtrInst::classof(loadArg)) {
         GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(loadArg);
-        if (!isRAMAddressCompGEP(gep, memNames, memSrcs, hcs)) {
+        if (!isRAMAddressCompGEP(gep, memSrcs)) {
           int inWidth = getValueBitWidth(gep);
           modParams = {{"WIDTH", to_string(inWidth)}};
           modName = "hls_wire";
@@ -1039,7 +1038,7 @@ namespace ahaHLS {
       modName = "br_dummy";
       unitName = "br_unit";
     } else if (GetElementPtrInst::classof(instr)) {
-      if (isRAMAddressCompGEP(dyn_cast<GetElementPtrInst>(instr), memNames, memSrcs, hcs)) {
+      if (isRAMAddressCompGEP(dyn_cast<GetElementPtrInst>(instr), memSrcs)) {
         
         modName = "getelementptr_" + to_string(instr->getNumOperands() - 1);
         wiring = {{"base_addr", {true, 32, "base_addr_" + rStr}}};
@@ -1607,7 +1606,6 @@ namespace ahaHLS {
     if (ReturnInst::classof(instr)) {
       assert(addUnit.isExternal());
       
-      //assignments.insert({addUnit.inputWire("valid"), "1"});
       assignments.insert({addUnit.input("valid"), constWire(1, 1)});
 
       ReturnInst* ret = dyn_cast<ReturnInst>(instr);
@@ -1623,6 +1621,21 @@ namespace ahaHLS {
       
       Value* location = instr->getOperand(1);
       auto locValue = outputWire(location, pos, arch);
+      
+      // Im now violating the 1 instruction -> 1 functional unit
+      // invariant of the MicroArchitecture. I need to create a slice
+      // unit
+      if (GetElementPtrInst::classof(location)) {
+        GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(location);
+
+        // Create the mixed bit vector
+        
+        // if (!isRAMAddressCompGEP(gep, memNames, memSrcs, hcs)) {
+        //   cout << "Source of partial store is " << valueString(memVal) << endl;
+        //   cout << "Offset of gep store is " << gepBitOffset(gep) << endl;
+        // }
+      }
+      
 
       assignments.insert({addUnit.input("waddr"), locValue});
       assignments.insert({addUnit.input("wdata"), wdataName});
