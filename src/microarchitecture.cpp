@@ -81,6 +81,11 @@ using namespace std;
 
 namespace ahaHLS {
 
+  PortController& makeMix(const int mainWidth,
+                          const int innerWidth,
+                          const int offset,
+                          MicroArchitecture& arch);
+  
   bool isRAMAddressCompGEP(GetElementPtrInst* const instr,
                            //map<Value*, std::string>& memNames,
                            map<Instruction*, Value*>& memSrcs) {
@@ -1628,8 +1633,19 @@ namespace ahaHLS {
       if (GetElementPtrInst::classof(location)) {
         GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(location);
 
+        int mainWidth = 192;
+        int innerWidth = getValueBitWidth(arg0);
+        int offset = gepBitOffset(gep);        
+        PortController& pc = makeMix(mainWidth,
+                                     innerWidth,
+                                     offset,
+                                     arch);
+
+        pc.setAlways("inner", wdataName);
+        pc.setAlways("main", constWire(192, 0));        
+        wdataName = pc.functionalUnit().outputWire();
+        // Wire sliceOutput = arch.();
         // Create the mixed bit vector
-        
         // if (!isRAMAddressCompGEP(gep, memNames, memSrcs, hcs)) {
         //   cout << "Source of partial store is " << valueString(memVal) << endl;
         //   cout << "Offset of gep store is " << gepBitOffset(gep) << endl;
@@ -2266,7 +2282,7 @@ namespace ahaHLS {
   }
 
   bool stateless(FunctionalUnit& unit) {
-    vector<string> statelessUnits{"add", "sub", "shlOp", "mul", "phi", "getelementptr_2", "ne", "eq", "trunc", "sext", "slt", "andOp", "notOp", "sgt", "orOp", "concat", "sliceOp"};
+    vector<string> statelessUnits{"add", "sub", "shlOp", "mul", "phi", "getelementptr_2", "ne", "eq", "trunc", "sext", "slt", "andOp", "notOp", "sgt", "orOp", "concat", "sliceOp", "mixOp"};
     return elem(unit.getModName(), statelessUnits);
   }
 
@@ -2426,6 +2442,25 @@ namespace ahaHLS {
     unit.insensitivePorts = {"in0", "in1"};
     return unit;
   }
+
+  ModuleSpec mixSpec(const std::string& name,
+                     const int mainWidth,
+                     const int innerWidth,
+                     const int offset) {
+    ModuleSpec unit;
+    unit.name = name;
+    unit.hasClock = false;
+    unit.hasRst = false;
+    unit.params = {{"IN0_WIDTH", to_string(mainWidth)},
+                   {"IN1_WIDTH", to_string(innerWidth)},
+                   {"MAIN_OFFSET", to_string(offset)}};
+    
+    unit.ports = {{"main", inputPort(mainWidth, "main")},
+                  {"inner", inputPort(innerWidth, "inner")},
+                  {"out", outputPort(mainWidth, "out")}};
+    unit.insensitivePorts = {"main", "inner"};
+    return unit;
+  }
   
   ModuleSpec binopSpec(const std::string& name, const int width) {
     ModuleSpec unit;
@@ -2501,6 +2536,23 @@ namespace ahaHLS {
     arch.addPortController(unit);
     return arch.portController(unit.instName);
   }
+
+  PortController& makeMix(const int mainWidth,
+                          const int innerWidth,
+                          const int offset,
+                          MicroArchitecture& arch) {
+    assert(offset < mainWidth);
+
+    string eqName = arch.uniqueName("mixOp");
+    ModuleSpec eqSpec = mixSpec("mixOp", mainWidth, innerWidth, offset);
+    FunctionalUnit& unit = arch.makeUnit(eqName, eqSpec);
+
+    assert(unit.instName == eqName);
+    
+    arch.addPortController(unit);
+    return arch.portController(unit.instName);
+    
+  }
   
   PortController& makeAnd(const int width, MicroArchitecture& arch) {
     string eqName = arch.uniqueName("andOp");
@@ -2543,6 +2595,17 @@ namespace ahaHLS {
     PortController& controller = makeConcat(in0.width, in1.width, arch);
     controller.setAlways("in0", in0);
     controller.setAlways("in1", in1);
+
+    return controller.functionalUnit().outputWire();
+  }
+
+  Wire mixWires(const Wire main,
+                const Wire inner,
+                const int offset,
+                MicroArchitecture& arch) {
+    PortController& controller = makeMix(main.width, inner.width, offset, arch);
+    controller.setAlways("main", main);
+    controller.setAlways("inner", inner);
 
     return controller.functionalUnit().outputWire();
   }

@@ -120,6 +120,24 @@ module sliceOp(input [IN_WIDTH - 1 : 0] in, output [OUT_WIDTH - 1 : 0] out);
    parameter OFFSET = 0;
 
    assign out = in[OFFSET + OUT_WIDTH - 1 : OFFSET];
+endmodule // sliceOp
+
+module mixOp(input [IN0_WIDTH - 1 : 0] main,
+             input [IN1_WIDTH - 1 : 0] inner,
+             output [IN0_WIDTH - 1 : 0] out);
+
+   parameter IN0_WIDTH = 32;
+   parameter IN1_WIDTH = 1;
+   parameter MAIN_OFFSET = 10;
+   
+   //assign out = {main[IN0_WIDTH - 1 : IN1_WIDTH + MAIN_OFFSET], inner, main[MAIN_OFFSET -  1 : 0]};
+   generate
+      if (MAIN_OFFSET == 0)
+        assign out = {main[IN0_WIDTH - 1 : IN1_WIDTH + MAIN_OFFSET], inner};
+      else
+        assign out = {main[IN0_WIDTH - 1 : IN1_WIDTH + MAIN_OFFSET], inner, main[MAIN_OFFSET -  1 : 0]};
+   endgenerate
+   
 endmodule
 
 module ret();
