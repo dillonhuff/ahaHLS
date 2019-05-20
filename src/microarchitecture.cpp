@@ -1078,7 +1078,7 @@ namespace ahaHLS {
         
         
         wiring = {{"in", {true, inWidth, "slice_in_" + rStr}}};
-        modParams = {{"IN_WIDTH", to_string(outWidth)}, {"OFFSET", to_string(bitOffset)}, {"OUT_WIDTH", to_string(outWidth)}};
+        modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OFFSET", to_string(bitOffset)}, {"OUT_WIDTH", to_string(outWidth)}};
         
         outWires = {{"out", {false, outWidth, "getelementptr_out_" + rStr}}};
       }
