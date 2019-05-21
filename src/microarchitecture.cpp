@@ -159,7 +159,8 @@ namespace ahaHLS {
       for (auto gep : geps) {
         Value* gepTarget = gep->getOperand(0);
         if (Argument::classof(gepTarget) ||
-            AllocaInst::classof(gepTarget)) {
+            AllocaInst::classof(gepTarget) ||
+            GlobalVariable::classof(gepTarget)) {
           gepSources[gep] = gepTarget;
           toErase = gep;
           break;
@@ -703,6 +704,8 @@ namespace ahaHLS {
       modName = "orOp";
     } else if (instr->getOpcode() == Instruction::Shl) {
       modName = "shlOp";
+    } else if (instr->getOpcode() == Instruction::SRem) {
+      modName = "sremOp";
     } else {
       assert(false);
     }

@@ -383,6 +383,8 @@ namespace ahaHLS {
         latency = getLatency(OR_OP);
       } else if (opCode == Instruction::Shl) {
         latency = getLatency(SHL_OP);
+      } else if (opCode == Instruction::SRem) {
+        latency = getLatency(SREM_OP);
       } else {
         cout << "Error: Unknown instruction " << valueString(iptr) << endl;
         assert(false);
