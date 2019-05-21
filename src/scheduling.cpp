@@ -123,7 +123,9 @@ namespace ahaHLS {
     hcs.setLatency(ZEXT_OP, 0);
     hcs.setLatency(AND_OP, 0);
     hcs.setLatency(OR_OP, 0);
-    hcs.setLatency(SHL_OP, 0);    
+    hcs.setLatency(SHL_OP, 0);
+    hcs.setLatency(SREM_OP, 0);
+    
     return hcs;
   }
 
@@ -299,6 +301,8 @@ namespace ahaHLS {
         return OR_OP;        
       } else if (opCode == Instruction::Shl) {
         return SHL_OP;
+      } else if (opCode == Instruction::SRem) {
+        return SREM_OP;
       } else {
         assert(false);
       }

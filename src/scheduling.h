@@ -293,7 +293,8 @@ namespace ahaHLS {
     CALL_OP,
     AND_OP,
     OR_OP,
-    SHL_OP,    
+    SHL_OP,
+    SREM_OP
   };
 
   static inline std::vector<OperationType> allOps() {
@@ -318,7 +319,8 @@ namespace ahaHLS {
         CALL_OP,
         AND_OP,
         OR_OP,
-        SHL_OP        
+        SHL_OP,
+        SREM_OP        
         };
 
   }

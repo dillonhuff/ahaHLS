@@ -1221,7 +1221,7 @@ namespace ahaHLS {
 
     tb.name = "flowlets";
 
-    auto arch = synthesizeVerilog(scppMod, "packet_example");
+    auto arch = synthesizeVerilog(scppMod, "flowlet");
 
     // map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
     // map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));

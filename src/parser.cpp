@@ -1377,11 +1377,25 @@ namespace ahaHLS {
         assert((called->getName() == "rd") ||
                (called->getName() == "wr"));
         if (called->getName() == "rd") {
-          assert(false);
-          auto addr = genLLVM(called->args.at(1));
-          //auto getOffset = bd.CreateGEP();
+          assert(called->args.size() == 1);
+          auto addr = genLLVM(called->args.at(0));
+          auto val = mod.get()->getGlobalVariable(caller.getStr());
+          auto gepOffset = bd.CreateGEP(val, {mkInt(0, 32), addr});
+          cout << "Gep = " << valueString(gepOffset) << ", res tp = " << typeString(gepOffset->getType()) << endl;
+          auto ld = bd.CreateLoad(gepOffset);
+          cout << "Load value = " << valueString(ld) << endl;
+          return ld;
         } else {
-          assert(false);
+          assert(called->args.size() == 2);
+          auto addr = genLLVM(called->args.at(0));
+          auto arg = genLLVM(called->args.at(1));
+          auto val = mod.get()->getGlobalVariable(caller.getStr());
+          assert(val != nullptr);
+          auto gepOffset = bd.CreateGEP(val, {mkInt(0, 32), addr});
+          cout << "Gep = " << valueString(gepOffset) << ", res tp = " << typeString(gepOffset->getType()) << endl;
+          auto st = bd.CreateStore(arg, gepOffset);
+          cout << "store value = " << valueString(st) << endl;
+          return nullptr;
         }
       }
 
