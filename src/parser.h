@@ -1502,14 +1502,19 @@ namespace ahaHLS {
     SynthCppFunction* activeFunction;
     BasicBlock* activeBlock;
     int globalNum;
+    std::map<std::string, SynthCppType*> globalVars;
 
     SymbolTable symtab;
 
     bool inPipeline;
     PipelineSpec activePipeline;
 
-    CodeGenState() : activeBlock(nullptr), inPipeline(false) {}
+    CodeGenState() : activeBlock(nullptr), inPipeline(false) {
+      symtab.pushTable(&globalVars);
+    }
 
+    bool inTopLevel() const { return activeBlock == nullptr; }
+    
     BasicBlock& getActiveBlock() const { return *activeBlock; }
     void setActiveBlock(BasicBlock* blk) {
       activeBlock = blk;
@@ -1827,7 +1832,7 @@ namespace ahaHLS {
           cgs.symtab.popTable();
         } else if (StructDecl::classof(stmt)) {
           addStructDecl(sc<StructDecl>(stmt));
-        } else if (AssignDecl::classof(stmt)) {
+        } else if (AssignDeclStmt::classof(stmt)) {
           addAssignDecl(sc<AssignDeclStmt>(stmt));
         } else {
           cout << "Error: Unsupported statement kind " << stmt->getKind() << " in module" << endl;
@@ -2057,7 +2062,6 @@ namespace ahaHLS {
       Type* tp = llvmTypeFor(decl->tp);
       // TODO: add to name map?
       cgs.symtab.setType(valName, decl->tp);
-      //auto n = b.CreateAlloca(tp, nullptr, valName);
       auto n = bd.CreateAlloca(tp, nullptr, valName);
       // Add to constraints?
       int width = getTypeBitWidth(tp);

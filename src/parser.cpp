@@ -1453,6 +1453,46 @@ namespace ahaHLS {
     return new FieldAccess(base, field);
   }
 
+  void SynthCppModule::addAssignDecl(AssignDeclStmt* const stmt) {
+    auto* stp = stmt->tp;
+    auto* lhs = stmt->lhs;
+    Identifier* id = extract<Identifier>(lhs);
+    Token name = id->getName();
+
+    Expression* initValue = stmt->expr;
+
+    // TODO: Add label placement...
+    Type* tp = llvmTypeFor(stp);
+
+    if (cgs.inTopLevel()) {
+      // Create global variable?
+      auto global = mod.get()->getOrInsertGlobal(name.getStr(), tp);
+
+      cout << "New global = " << valueString(global) << endl;
+      cgs.symtab.setType(name.getStr(), stp);
+      
+      // Add to constraints?
+      // int width = getTypeBitWidth(tp);
+      // setMemSpec(n, getHardwareConstraints(), {0, 0, 1, 1, width, 1, false, {{{"width", std::to_string(width)}}, "register"}});
+      // setValue(decl->name, n);
+    } else {
+      assert(false);
+    }
+
+    // TODO: Need to check the context we are in
+    if (cgs.inTopLevel()) {
+      assert(false);
+
+      // TODO: Add 
+    } else {
+      assert(!SynthCppArrayType::classof(stp));
+      
+      Value* tV = pointerToLocation(lhs);
+      auto v = genLLVM(initValue);
+      genSetCode(tV, v);
+    }
+  }
+  
   void SynthCppModule::addStructDecl(StructDecl* const stmt) {
     string name = stmt->name.getStr();
     vector<llvm::Type*> elems;
