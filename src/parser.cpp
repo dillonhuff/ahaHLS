@@ -1462,11 +1462,19 @@ namespace ahaHLS {
     Expression* initValue = stmt->expr;
 
     // TODO: Add label placement...
+    cout << "stp of assigned value = " << *stp << endl;
     Type* tp = llvmTypeFor(stp);
 
+    GlobalVariable* global;
     if (cgs.inTopLevel()) {
-      // Create global variable?
-      auto global = mod.get()->getOrInsertGlobal(name.getStr(), tp);
+      global = new GlobalVariable(
+                                  *(mod.get()),
+                                  tp,
+                                  false,
+                                  GlobalValue::CommonLinkage,
+                                  0,
+                                  name.getStr());
+      //mod.get()->getOrInsertGlobal(name.getStr(), tp);
 
       cout << "New global = " << valueString(global) << endl;
       cgs.symtab.setType(name.getStr(), stp);
@@ -1481,9 +1489,13 @@ namespace ahaHLS {
 
     // TODO: Need to check the context we are in
     if (cgs.inTopLevel()) {
-      assert(false);
-
-      // TODO: Add 
+      if (SynthCppArrayType::classof(stp)) {
+        assert(false);
+      } else {
+        IntegerExpr* constVal = extract<IntegerExpr>(initValue);
+        int val = constVal->getInt();
+        global->setInitializer(mkInt(val, getTypeBitWidth(tp)));
+      }
     } else {
       assert(!SynthCppArrayType::classof(stp));
       
