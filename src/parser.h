@@ -283,7 +283,8 @@ namespace ahaHLS {
     SYNTH_CPP_TYPE_KIND_VOID,
     SYNTH_CPP_TYPE_KIND_POINTER,
     SYNTH_CPP_TYPE_KIND_LABEL,
-    SYNTH_CPP_TYPE_KIND_BITS
+    SYNTH_CPP_TYPE_KIND_BITS,
+    SYNTH_CPP_TYPE_KIND_ARRAY
   };
 
   class SynthCppType {
@@ -336,6 +337,24 @@ namespace ahaHLS {
   
   };
 
+  class SynthCppArrayType : public SynthCppType {
+  public:
+
+    SynthCppType* underlying;
+    Expression* len;
+
+    SynthCppArrayType(SynthCppType* underlying_, Expression* len_) : underlying(underlying_), len(len_) {}
+
+    virtual SynthCppTypeKind getKind() const override { return SYNTH_CPP_TYPE_KIND_ARRAY; }
+
+    static bool classof(const SynthCppType* const tp) { return tp->getKind() == SYNTH_CPP_TYPE_KIND_ARRAY; }
+
+    virtual void print(std::ostream& out) const override {
+      out << *underlying << "[" << *len << "]";
+    }
+  
+  };
+  
   class LabelType : public SynthCppType {
   public:
     static bool classof(const SynthCppType* const tp) {
@@ -932,12 +951,30 @@ namespace ahaHLS {
 
       if (tokens.atEnd() || (tokens.peekChar() != Token("<"))) {
         string name = tpName.getStr();
+        SynthCppType* base = nullptr;
         if (hasPrefix(name, "bit_") || hasPrefix(name, "sint_") || hasPrefix(name, "uint_")) {
           int width = getDataWidth(name);
-          return new SynthCppBitsType(width);
+          base = new SynthCppBitsType(width);
+        } else {
+          base = new SynthCppStructType(tpName);          
         }
 
-        return new SynthCppStructType(tpName);
+        assert(base != nullptr);
+
+        if (tokens.nextCharIs(Token("["))) {
+          cout << "Got array start at " << tokens.remainder() << endl;
+          tokens.parseChar();
+          auto arraySize = parseExpressionMaybe(tokens);
+          if (!arraySize.has_value() || !tokens.nextCharIs(Token("]"))) {
+            cout << "No value for array size?" << endl;
+            return maybe<SynthCppType*>();
+          } else {
+            tokens.parseChar();
+            return new SynthCppArrayType(base, arraySize.get_value());
+          }
+        } else {
+          return new SynthCppStructType(tpName);
+        }
       }
 
     }

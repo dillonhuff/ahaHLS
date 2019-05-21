@@ -11,8 +11,8 @@ class Packet {
   bit_32 id; // array index
 };
 
-bit_32 last_time [NUM_FLOWLETS] = 0;
-bit_32 saved_hop [NUM_FLOWLETS] = 0;
+bit_32[NUM_FLOWLETS] last_time = 0;
+bit_32[NUM_FLOWLETS] saved_hop = 0;
 
 bit_32 hash3(bit_32& a, bit_32& b, bit_32& c) {
   return 0;

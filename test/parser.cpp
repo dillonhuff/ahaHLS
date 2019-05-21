@@ -542,7 +542,20 @@ namespace ahaHLS {
 
     delete tp.get_value();
   }
-  
+
+  TEST_CASE("Array initializer") {
+    std::string str =
+      "bit_32[NUM_FLOWLETS] saved_hop = 0;";
+    ParseState<Token> st(tokenize(str));
+    auto tp = parseStatement(st);
+
+    REQUIRE(tp.has_value());
+
+    REQUIRE(st.atEnd());
+
+    delete tp.get_value();
+  }
+
   TEST_CASE("Pipeline statement") {
     std::string str =
       "pipeline(4) {"
