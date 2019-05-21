@@ -638,12 +638,19 @@ namespace ahaHLS {
 
     // return mems;
 
+    int totalMemOps = 0;
     for (auto& bb : f->getBasicBlockList()) {
+      totalMemOps += numMemOps(bb);
+    }
+    
+    //for (auto& bb : f->getBasicBlockList()) {
 
-      std::set<Instruction*> foundOps;
-      while (((int) foundOps.size()) < numMemOps(bb)) {
-        //cout << "FoundInstrs =  "<< foundOps.size() << endl;
+    std::set<Instruction*> foundOps;
+      //while (((int) foundOps.size()) < numMemOps(bb)) {
+    while (((int) foundOps.size()) < totalMemOps) {
+      //cout << "FoundInstrs =  "<< foundOps.size() << endl;
 
+      for (auto& bb : f->getBasicBlockList()) {
         for (auto& instrPtr : bb) {
 
           auto instr = &instrPtr;
@@ -665,13 +672,15 @@ namespace ahaHLS {
           } else if (GetElementPtrInst::classof(instr)) {
 
             Value* location = instr->getOperand(0);
-            cout << "Finding name for gep with source " << valueString(location) << endl;
             findLocation(location, instr, mems, foundOps);
 
+          } else {
+            //cout << "Not considering " << valueString(instr) << endl;
           }
         }
       }
     }
+        //}
 
     return mems;
   }
