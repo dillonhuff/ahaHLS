@@ -1265,6 +1265,8 @@ namespace ahaHLS {
         return bd.CreateICmpEQ(l, r);
       } else if (be->op.getStr() == ">") {
         return bd.CreateICmpSGT(l, r);
+      } else if (be->op.getStr() == "%") {
+        return bd.CreateSRem(l, r);
       } else {
         cout << "Error: Unsupported binop: " << be->op << endl;
         assert(false);
@@ -1478,7 +1480,8 @@ namespace ahaHLS {
 
       cout << "New global = " << valueString(global) << endl;
       cgs.symtab.setType(name.getStr(), stp);
-      
+
+      setValue(name, global);      
       // Add to constraints?
       // int width = getTypeBitWidth(tp);
       // setMemSpec(n, getHardwareConstraints(), {0, 0, 1, 1, width, 1, false, {{{"width", std::to_string(width)}}, "register"}});
@@ -1496,14 +1499,19 @@ namespace ahaHLS {
         int memDepth = constantLength(arTp->len);
         cout << "Depth of memory        = " << memDepth << endl;
         ArrayType* initTp = ArrayType::get(llvmTypeFor(arTp->underlying), memDepth);
-        vector<Constant*> vals;
+
         int memWidth = getTypeBitWidth(llvmTypeFor(arTp->underlying));
-        ConstantInt* entryValue(entryInit, memWidth);
+
+        //ConstantInt* entryValue = ConstantInt::get(intType(memWidth), entryInit, true);
+        ConstantInt* entryValue = ConstantInt::get(IntegerType::get(getGlobalLLVMContext(),memWidth), entryInit, true);
+
+        vector<Constant*> constValues;
         for (int i = 0; i < memDepth; i++) {
-          
+          constValues.push_back(entryValue);
         }
-        
-        global->setInitializer(initTp, constValues);
+        Constant* ci = ConstantArray::get(initTp, constValues);
+
+        global->setInitializer(ci);
       } else {
         IntegerExpr* constVal = extract<IntegerExpr>(initValue);
         int val = constVal->getInt();
