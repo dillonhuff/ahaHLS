@@ -1588,6 +1588,8 @@ namespace ahaHLS {
       return cgs.builder().CreateTrunc(value, destTp);
     }
 
+    int constantLength(Expression* expr);
+
     llvm::Type* llvmTypeFor(SynthCppType* const tp) {
       if (SynthCppPointerType::classof(tp)) {
         return llvmTypeFor(sc<SynthCppPointerType>(tp)->getElementType())->getPointerTo();
@@ -1596,13 +1598,15 @@ namespace ahaHLS {
         return voidType();
       } else if (SynthCppBitsType::classof(tp)) {
         return intType(extract<SynthCppBitsType>(tp)->getWidth());
+      } else if (SynthCppArrayType::classof(tp)) {
+        auto* arrTp = sc<SynthCppArrayType>(tp);
+
+        int len = constantLength(arrTp->len);
+        return ArrayType::get(llvmTypeFor(arrTp->underlying), len);
       } else {
         assert(SynthCppStructType::classof(tp));
         auto st = static_cast<SynthCppStructType* const>(tp);
-        // if (isPrimitiveStruct(st)) {
-        //   int width = getWidth(st);
 
-        // } else {
         for (auto c : getClasses()) {
           if (c->getName() == st->getName()) {
             return c->llvmStructType();
@@ -1610,10 +1614,10 @@ namespace ahaHLS {
         }
 
         cout << "Could not get llvm type for SynthCppStructType = " << *st << endl;
-        //assert(false);
+
         Type* argTp = structType(st->getName());
         return argTp;
-        //}
+
       }
     }
 

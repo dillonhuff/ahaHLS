@@ -1490,6 +1490,11 @@ namespace ahaHLS {
     // TODO: Need to check the context we are in
     if (cgs.inTopLevel()) {
       if (SynthCppArrayType::classof(stp)) {
+        auto arTp = sc<SynthCppArrayType>(stp);
+        int entryInit = constantLength(initValue);
+        cout << "Initializer for memory = " << entryInit << endl;
+        int memDepth = constantLength(arTp->len);
+        cout << "Depth of memory        = " << memDepth << endl;        
         assert(false);
       } else {
         IntegerExpr* constVal = extract<IntegerExpr>(initValue);
@@ -1515,6 +1520,22 @@ namespace ahaHLS {
     }
     auto sTp = StructType::create(context, elems, name, true);
     structDefs.insert({sTp, stmt});
+  }
+
+  int SynthCppModule::constantLength(Expression* expr) {
+    if (Identifier::classof(expr)) {
+      Identifier* id = sc<Identifier>(expr);
+      GlobalVariable* gv = mod.get()->getGlobalVariable(id->getName());
+      assert(gv != nullptr);
+      Constant* init = gv->getInitializer();
+      assert(ConstantInt::classof(init));
+
+      return dyn_cast<ConstantInt>(init)->getLimitedValue();
+    } else {
+      assert(IntegerExpr::classof(expr));
+      IntegerExpr* ie = sc<IntegerExpr>(expr);
+      return ie->getInt();
+    }
   }
   
 }
