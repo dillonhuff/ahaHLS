@@ -1376,7 +1376,13 @@ namespace ahaHLS {
       if (SynthCppArrayType::classof(cgs.symtab.getType(caller.getStr()))) {
         assert((called->getName() == "rd") ||
                (called->getName() == "wr"));
-        assert(false);
+        if (called->getName() == "rd") {
+          assert(false);
+          auto addr = genLLVM(called->args.at(1));
+          //auto getOffset = bd.CreateGEP();
+        } else {
+          assert(false);
+        }
       }
 
       SynthCppClass* cs = getClass(caller);
