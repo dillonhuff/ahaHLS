@@ -2194,6 +2194,8 @@ namespace ahaHLS {
     void genLLVM(IfStmt* const stmt);
     
     void genLLVM(Statement* const stmt) {
+      assert(stmt != nullptr);
+      
       auto bd = cgs.builder();
     
       if (ExpressionStmt::classof(stmt)) {

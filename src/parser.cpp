@@ -990,7 +990,9 @@ namespace ahaHLS {
 
 
     cgs.setActiveBlock(falseBlk);
-    genLLVM(elseClause);
+    if (elseClause != nullptr) {
+      genLLVM(elseClause);
+    }
     cgs.builder().CreateBr(continueBlk);
 
     cgs.setActiveBlock(continueBlk);

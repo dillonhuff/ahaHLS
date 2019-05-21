@@ -543,7 +543,10 @@ namespace ahaHLS {
     } else if (Argument::classof(location)) {
 
       return location;
+    } else if (GlobalVariable::classof(location)) {
+      return location;
     } else {
+      cout << "Cannot find name for " << valueString(location) << endl;
       return nullptr;
     }
 
@@ -662,6 +665,7 @@ namespace ahaHLS {
           } else if (GetElementPtrInst::classof(instr)) {
 
             Value* location = instr->getOperand(0);
+            cout << "Finding name for gep with source " << valueString(location) << endl;
             findLocation(location, instr, mems, foundOps);
 
           }

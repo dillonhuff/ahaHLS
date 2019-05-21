@@ -32,11 +32,11 @@ void flowlet(Packet& in, Packet& out) {
                   in.dport)
             % NUM_FLOWLETS;
 
-  // if (in.arrival -
-  //     last_time.rd(out.id) >
-  //     THRESHOLD) {
-  //   saved_hop.wr(out.id, out.new_hop);
-  // }
+  if (in.arrival -
+      last_time.rd(out.id) >
+      THRESHOLD) {
+    saved_hop.wr(out.id, out.new_hop); // New hop
+  }
 
   last_time.wr(out.id, in.arrival);
   out.next_hop = saved_hop.rd(out.id);
