@@ -973,7 +973,7 @@ namespace ahaHLS {
             return new SynthCppArrayType(base, arraySize.get_value());
           }
         } else {
-          return new SynthCppStructType(tpName);
+          return base; //new SynthCppStructType(tpName);
         }
       }
 
