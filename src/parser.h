@@ -1656,6 +1656,7 @@ namespace ahaHLS {
     void addHazard(HazardDecl* hazard, ModuleSpec& cSpec);
     void addMethodDecl(FunctionDecl* decl, ModuleSpec& cSpec);
 
+    void addAssignDecl(AssignDeclStmt* const stmt);
     void addStructDecl(StructDecl* const stmt);    
 
     vector<Type*> functionInputs(FunctionDecl* fd) {
@@ -1826,6 +1827,8 @@ namespace ahaHLS {
           cgs.symtab.popTable();
         } else if (StructDecl::classof(stmt)) {
           addStructDecl(sc<StructDecl>(stmt));
+        } else if (AssignDecl::classof(stmt)) {
+          addAssignDecl(sc<AssignDeclStmt>(stmt));
         } else {
           cout << "Error: Unsupported statement kind " << stmt->getKind() << " in module" << endl;
           assert(false);
