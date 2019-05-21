@@ -1558,7 +1558,8 @@ namespace ahaHLS {
     std::map<Token, BasicBlock*> labelsToBlockStarts;
     std::map<Token, BasicBlock*> labelsToBlockEnds;
     std::map<llvm::Type*, StructDecl*> structDefs;
-  
+    std::map<llvm::GlobalVariable*, int> globalVarValues;
+    
     std::string uniqueNumString() {
       auto s = std::to_string(globalNum);
       globalNum++;

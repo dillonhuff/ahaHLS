@@ -1212,12 +1212,18 @@ namespace ahaHLS {
 
       // TODO: Get SynthCppType instead?
       Type* tp = v->getType();
+      cout << "v  = " << valueString(v) << endl;      
+      cout << "tp = " << typeString(tp) << endl;
+      
       assert(PointerType::classof(tp));
       Type* underlying = dyn_cast<PointerType>(tp)->getElementType();
 
       if (isData(underlying)) {
         return loadReg(bd, getValueFor(id->name));
       } else {
+        if (!StructType::classof(underlying)) {
+          cout << "Error: Underlying value of " << valueString(v) << " is " << typeString(underlying) << endl;
+        }
         assert(StructType::classof(underlying));
         return getValueFor(id->name);
       }
@@ -1382,7 +1388,7 @@ namespace ahaHLS {
           assert(called->args.size() == 1);
           auto addr = genLLVM(called->args.at(0));
           auto val = mod.get()->getGlobalVariable(caller.getStr());
-          auto gepOffset = bd.CreateGEP(val, {mkInt(0, 32), addr});
+          auto gepOffset = bd.CreateGEP(val, {mkInt(0, 64), addr});
           cout << "Gep = " << valueString(gepOffset) << ", res tp = " << typeString(gepOffset->getType()) << endl;
           auto ld = bd.CreateLoad(gepOffset);
           cout << "Load value = " << valueString(ld) << endl;
@@ -1393,7 +1399,7 @@ namespace ahaHLS {
           auto arg = genLLVM(called->args.at(1));
           auto val = mod.get()->getGlobalVariable(caller.getStr());
           assert(val != nullptr);
-          auto gepOffset = bd.CreateGEP(val, {mkInt(0, 32), addr});
+          auto gepOffset = bd.CreateGEP(val, {mkInt(0, 64), addr});
           cout << "Gep = " << valueString(gepOffset) << ", res tp = " << typeString(gepOffset->getType()) << endl;
           auto st = bd.CreateStore(arg, gepOffset);
           cout << "store value = " << valueString(st) << endl;
@@ -1494,22 +1500,23 @@ namespace ahaHLS {
     // TODO: Add label placement...
     cout << "stp of assigned value = " << *stp << endl;
     Type* tp = llvmTypeFor(stp);
+    cout << "in addAssign tp = " << typeString(tp) << endl;
 
     GlobalVariable* global;
     if (cgs.inTopLevel()) {
       global = new GlobalVariable(
                                   *(mod.get()),
-                                  tp,
+                                  tp, //tp->getPointerTo(),
                                   false,
                                   GlobalValue::CommonLinkage,
                                   0,
                                   name.getStr());
       //mod.get()->getOrInsertGlobal(name.getStr(), tp);
 
-      cout << "New global = " << valueString(global) << endl;
+      cout << "New global = " << valueString(global) << " has type " << typeString(global->getType()) << endl;
       cgs.symtab.setType(name.getStr(), stp);
 
-      setValue(name, global);      
+      setValue(name, global);
       // Add to constraints?
       // int width = getTypeBitWidth(tp);
       // setMemSpec(n, getHardwareConstraints(), {0, 0, 1, 1, width, 1, false, {{{"width", std::to_string(width)}}, "register"}});
@@ -1530,7 +1537,6 @@ namespace ahaHLS {
 
         int memWidth = getTypeBitWidth(llvmTypeFor(arTp->underlying));
 
-        //ConstantInt* entryValue = ConstantInt::get(intType(memWidth), entryInit, true);
         ConstantInt* entryValue = ConstantInt::get(IntegerType::get(getGlobalLLVMContext(),memWidth), entryInit, true);
 
         vector<Constant*> constValues;
@@ -1543,6 +1549,8 @@ namespace ahaHLS {
       } else {
         IntegerExpr* constVal = extract<IntegerExpr>(initValue);
         int val = constVal->getInt();
+
+        globalVarValues[global] = val;
         global->setInitializer(mkInt(val, getTypeBitWidth(tp)));
       }
     } else {
@@ -1571,10 +1579,12 @@ namespace ahaHLS {
       Identifier* id = sc<Identifier>(expr);
       GlobalVariable* gv = mod.get()->getGlobalVariable(id->getName());
       assert(gv != nullptr);
-      Constant* init = gv->getInitializer();
-      assert(ConstantInt::classof(init));
 
-      return dyn_cast<ConstantInt>(init)->getLimitedValue();
+      return map_find(gv, globalVarValues);
+      // Constant* init = gv->getInitializer();
+      // assert(ConstantInt::classof(init));
+
+      // return dyn_cast<ConstantInt>(init)->getLimitedValue();
     } else {
       assert(IntegerExpr::classof(expr));
       IntegerExpr* ie = sc<IntegerExpr>(expr);

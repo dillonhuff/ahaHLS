@@ -15,11 +15,11 @@ bit_32[NUM_FLOWLETS] last_time = 0;
 bit_32[NUM_FLOWLETS] saved_hop = 0;
 
 bit_32 hash3(bit_32& a, bit_32& b, bit_32& c) {
-  return 0;
+  return 234;
 }
 
 bit_32 hash2(bit_32& a, bit_32& b, bit_32& c) {
-  return 0;
+  return 19;
 }
 
 void flowlet(Packet& in, Packet& out) {
