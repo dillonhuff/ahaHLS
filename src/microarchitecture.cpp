@@ -662,6 +662,8 @@ namespace ahaHLS {
           if (LoadInst::classof(instr)) {
 
             Value* location = instr->getOperand(0);
+            cout << "Load source = " << valueString(location) << endl;
+            cout << tab(1) << " source is instruction ? " << Instruction::classof(location) << endl;
             findLocation(location, instr, mems, foundOps);
 
           } else if (StoreInst::classof(instr)) {
