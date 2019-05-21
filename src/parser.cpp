@@ -1366,13 +1366,19 @@ namespace ahaHLS {
 
       return bd.CreateCall(calledFunc->llvmFunction(), args);      
     } else if (MethodCall::classof(e)) {
-      // Dummy code
       auto methodCall =
         static_cast<MethodCall* const>(e);
 
       // Should really be an expression
       Token caller = methodCall->callerName;
       FunctionCall* called = methodCall->called;
+
+      if (SynthCppArrayType::classof(cgs.symtab.getType(caller.getStr()))) {
+        assert((called->getName() == "rd") ||
+               (called->getName() == "wr"));
+        assert(false);
+      }
+
       SynthCppClass* cs = getClass(caller);
       SynthCppFunction* calledFunc = cs->getMethod(called->funcName);
 
