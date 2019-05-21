@@ -1494,8 +1494,16 @@ namespace ahaHLS {
         int entryInit = constantLength(initValue);
         cout << "Initializer for memory = " << entryInit << endl;
         int memDepth = constantLength(arTp->len);
-        cout << "Depth of memory        = " << memDepth << endl;        
-        assert(false);
+        cout << "Depth of memory        = " << memDepth << endl;
+        ArrayType* initTp = ArrayType::get(llvmTypeFor(arTp->underlying), memDepth);
+        vector<Constant*> vals;
+        int memWidth = getTypeBitWidth(llvmTypeFor(arTp->underlying));
+        ConstantInt* entryValue(entryInit, memWidth);
+        for (int i = 0; i < memDepth; i++) {
+          
+        }
+        
+        global->setInitializer(initTp, constValues);
       } else {
         IntegerExpr* constVal = extract<IntegerExpr>(initValue);
         int val = constVal->getInt();
