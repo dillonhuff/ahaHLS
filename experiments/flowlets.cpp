@@ -44,15 +44,17 @@ void flowlet(Packet& in, Packet& out) {
     last_id >
     THRESHOLD;
 
-  if (thresh) {
-    saved_hop_val = saved_hop.rd(out.id);
-    saved_hop.wr(out.id, out.new_hop);
-  }
+  saved_hop_val = saved_hop.rd(out.id);
+  saved_hop.wr(out.id, out.new_hop);
+  
+  // if (thresh) {
+  // }
 
 
-  if (thresh) {
-    out.next_hop = out.new_hop;
-  } else {
-    out.next_hop = saved_hop_val;
-  }//saved_hop.rd(out.id);
+  out.next_hop = out.new_hop;
+  // if (thresh) {
+  // out.next_hop = out.new_hop;
+  // } else {
+  //   out.next_hop = saved_hop_val;
+  // }//saved_hop.rd(out.id);
 }

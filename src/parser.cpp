@@ -823,8 +823,10 @@ namespace ahaHLS {
     for (auto& bb : f->getBasicBlockList()) {
       TerminatorInst* term = bb.getTerminator();
       if (BranchInst::classof(term)) {
-        for (BasicBlock* succ : successors(&bb)) {
-          exec.addConstraint(instrEnd(term) == start(succ));
+        if (dyn_cast<BranchInst>(term)->isConditional()) {
+          for (BasicBlock* succ : successors(&bb)) {
+            exec.addConstraint(instrEnd(term) == start(succ));
+          }
         }
       }
     }
