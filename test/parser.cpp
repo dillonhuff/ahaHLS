@@ -1221,7 +1221,10 @@ namespace ahaHLS {
 
     tb.name = "flowlets";
 
-    auto arch = synthesizeVerilog(scppMod, "flowlet");
+    auto graph = buildSTGFor(scppMod, "flowlet");
+
+    REQUIRE(graph.opStates.size() < 12);
+    // auto arch = synthesizeVerilog(scppMod, "flowlet");
 
     // map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
     // map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
@@ -1234,8 +1237,8 @@ namespace ahaHLS {
     // map_insert(tb.actionsOnCycles, 9, assertString("arg_1_rdata[31:0] === 32'd25"));
     // map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
     
-    emitVerilogTestBench(tb, arch, testLayout);
-    REQUIRE(runIVerilogTest("packet_example_tb.v", "packet_example", " builtins.v packet_example.v RAM.v delay.v ram_primitives.v"));
+    // emitVerilogTestBench(tb, arch, testLayout);
+    // REQUIRE(runIVerilogTest("packet_example_tb.v", "packet_example", " builtins.v packet_example.v RAM.v delay.v ram_primitives.v"));
   }
   
   TEST_CASE("RAM pipelining tests") {

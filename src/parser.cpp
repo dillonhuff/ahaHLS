@@ -814,6 +814,48 @@ namespace ahaHLS {
     return s;
   }
 
+  STG buildSTGFor(SynthCppModule& scppMod, const std::string& funcName) {
+
+    SynthCppFunction* f = scppMod.getFunction(funcName);
+
+    // Q: How do we pass the hardware constraints on f in to the synthesis flow?
+    cout << "Scheduling function" << endl;
+    cout << valueString(f->llvmFunction()) << endl;
+
+    cout << "In synthesize verilog: # of interface functions = " << scppMod.getInterfaceFunctions().constraints.size() << endl;
+    for (auto func : scppMod.getInterfaceFunctions().constraints) {
+      cout << tab(1) << "# of constraints on " <<
+        string(func.first->getName()) << " = " <<
+        func.second.constraints.size() << endl;
+    }
+
+    // Set pointers to primitives to be registers, not memories
+    for (auto& arg : f->llvmFunction()->args()) {
+      Type* argTp = arg.getType();
+      if (PointerType::classof(argTp)) {
+        Type* underlying = dyn_cast<PointerType>(argTp)->getElementType();
+        if (IntegerType::classof(underlying)) {
+          cout << "Should set " << valueString(&arg) << " to be register" << endl;
+          scppMod.getHardwareConstraints().modSpecs.insert({&arg, registerModSpec(getTypeBitWidth(underlying))});
+          scppMod.getHardwareConstraints().memSpecs.insert({&arg, registerSpec(getTypeBitWidth(underlying))});
+        } else if (StructType::classof(underlying) && !dyn_cast<StructType>(underlying)->isOpaque()) {
+          cout << "Should set " << valueString(&arg) << " to be register" << endl;
+          scppMod.getHardwareConstraints().modSpecs.insert({&arg, registerModSpec(getTypeBitWidth(underlying))});
+          scppMod.getHardwareConstraints().memSpecs.insert({&arg, registerSpec(getTypeBitWidth(underlying))});
+        }
+
+      }
+    }
+  
+    Schedule s =
+      scheduleInterfaceZeroReg(scppMod,
+                               f,
+                               scppMod.getInterfaceFunctions().getConstraints(f->llvmFunction()));
+
+    STG graph = buildSTG(s, f->llvmFunction());
+    return graph;
+  }
+
   pair<string, int> extractDefault(Statement* stmt) {
     auto eStmt = extract<ExpressionStmt>(stmt);
     auto expr = eStmt->expr;
@@ -871,54 +913,8 @@ namespace ahaHLS {
 
   MicroArchitecture
   synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
-    SynthCppFunction* f = scppMod.getFunction(funcName);
 
-    // Q: How do we pass the hardware constraints on f in to the synthesis flow?
-    cout << "Scheduling function" << endl;
-    cout << valueString(f->llvmFunction()) << endl;
-
-    cout << "In synthesize verilog: # of interface functions = " << scppMod.getInterfaceFunctions().constraints.size() << endl;
-    for (auto func : scppMod.getInterfaceFunctions().constraints) {
-      cout << tab(1) << "# of constraints on " <<
-        string(func.first->getName()) << " = " <<
-        func.second.constraints.size() << endl;
-    }
-
-    // Set pointers to primitives to be registers, not memories
-    for (auto& arg : f->llvmFunction()->args()) {
-      Type* argTp = arg.getType();
-      if (PointerType::classof(argTp)) {
-        Type* underlying = dyn_cast<PointerType>(argTp)->getElementType();
-        if (IntegerType::classof(underlying)) {
-          cout << "Should set " << valueString(&arg) << " to be register" << endl;
-          scppMod.getHardwareConstraints().modSpecs.insert({&arg, registerModSpec(getTypeBitWidth(underlying))});
-          scppMod.getHardwareConstraints().memSpecs.insert({&arg, registerSpec(getTypeBitWidth(underlying))});
-        } else if (StructType::classof(underlying) && !dyn_cast<StructType>(underlying)->isOpaque()) {
-          cout << "Should set " << valueString(&arg) << " to be register" << endl;
-          scppMod.getHardwareConstraints().modSpecs.insert({&arg, registerModSpec(getTypeBitWidth(underlying))});
-          scppMod.getHardwareConstraints().memSpecs.insert({&arg, registerSpec(getTypeBitWidth(underlying))});
-        }
-
-      }
-    }
-  
-    Schedule s =
-      scheduleInterfaceZeroReg(scppMod,
-                               f,
-                               scppMod.getInterfaceFunctions().getConstraints(f->llvmFunction()));
-
-    STG graph = buildSTG(s, f->llvmFunction());
-
-    // TODO: Generate these automatically, or change generation code
-    // to treat LLVM i<N> as builtin?
-
-    // cout << "Hardware memory constraints before " << endl;
-    // for (auto mspec : scppMod.getHardwareConstraints().memSpecs) {
-    //   cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
-    // }
-  
-    //setAllAllocaMemTypes(scppMod.getHardwareConstraints(), f->llvmFunction(), registerSpec(32));
-
+    STG graph = buildSTGFor(scppMod, funcName);    
     cout << "STG is" << endl;
     graph.print(cout);
 
