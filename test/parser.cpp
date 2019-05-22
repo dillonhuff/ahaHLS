@@ -1221,7 +1221,10 @@ namespace ahaHLS {
 
     tb.name = "flowlets";
 
-    auto graph = buildSTGFor(scppMod, "flowlet");
+    auto graph = scheduleBanzai(scppMod, "flowlet");
+
+    cout << "STG is" << endl;
+    graph.print(cout);
 
     REQUIRE(graph.opStates.size() < 12);
     // auto arch = synthesizeVerilog(scppMod, "flowlet");

@@ -2339,4 +2339,5 @@ namespace ahaHLS {
   synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName);
 
   STG buildSTGFor(SynthCppModule& mod, const std::string& funcName);
+  STG scheduleBanzai(SynthCppModule& mod, const std::string& funcName);  
 }

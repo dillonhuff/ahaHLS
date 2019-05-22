@@ -814,6 +814,70 @@ namespace ahaHLS {
     return s;
   }
 
+  STG scheduleBanzai(SynthCppModule& scppMod, const std::string& funcName) {
+    SynthCppFunction* sf = scppMod.getFunction(funcName);    
+    ExecutionConstraints& exec = *(sf->constraints);
+
+    // All branches must be in the same state
+    Function* f = sf->llvmFunction();
+    for (auto& bb : f->getBasicBlockList()) {
+      TerminatorInst* term = bb.getTerminator();
+      if (BranchInst::classof(term)) {
+        for (BasicBlock* succ : successors(&bb)) {
+          exec.addConstraint(instrEnd(term) == start(succ));
+        }
+      }
+    }
+
+    HardwareConstraints& hcs = scppMod.getHardwareConstraints();
+
+    // TODO: Use different ram spec with different width / depth for each variable
+    MemorySpec banzaiRam = ramSpec(0, 1, 1, 1, 32, 10000);
+    for (GlobalVariable& globalVar : scppMod.mod.get()->globals()) {
+      if (SynthCppArrayType::classof(scppMod.cgs.symtab.getType(globalVar.getName()))) {
+        hcs.memSpecs[&globalVar] = banzaiRam;
+      } else {
+        Type* btp = globalVar.getType();
+        assert(PointerType::classof(btp));
+        Type* under = dyn_cast<PointerType>(btp)->getElementType();
+        hcs.memSpecs[&globalVar] = registerSpec(getTypeBitWidth(under));        
+      }
+    }
+
+    map<Value*, set<Instruction*> > perRAMOps;
+    std::map<llvm::Instruction*, llvm::Value*>
+      memLocs = memoryOpLocations(f);
+
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instrR : bb) {
+        auto instr = &instrR;
+        if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
+          auto loc = map_find(instr, memLocs);
+          if (ArrayType::classof(getTypePointedTo(loc->getType()))) {
+            perRAMOps[loc].insert(instr);
+          }
+        }
+      }
+    }
+
+    for (auto opSet : perRAMOps) {
+      cout << "Ram source " << valueString(opSet.first) << " is used in memory operations:" << endl;
+      set<Instruction*> instrs = opSet.second;
+      for (auto i : instrs) {
+        cout << tab(1) << valueString(i) << endl;
+      }
+      
+      for (auto i0 : instrs) {
+        for (auto i1 : instrs) {
+          if (i0 != i1) {
+            exec.add(instrStart(i0) == instrStart(i1));
+          }
+        }
+      }
+    }
+    return buildSTGFor(scppMod, funcName);
+  }
+  
   STG buildSTGFor(SynthCppModule& scppMod, const std::string& funcName) {
 
     SynthCppFunction* f = scppMod.getFunction(funcName);
@@ -1591,5 +1655,5 @@ namespace ahaHLS {
       return ie->getInt();
     }
   }
-  
+
 }

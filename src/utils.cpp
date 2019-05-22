@@ -382,5 +382,5 @@ namespace ahaHLS {
     assert(PointerType::classof(tp));
     return dyn_cast<PointerType>(tp)->getElementType();
   }
-  
+
 }

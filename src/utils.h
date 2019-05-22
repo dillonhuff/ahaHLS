@@ -236,5 +236,4 @@ namespace ahaHLS {
 
     return dbhc::maybe<ResultType*>();
   }
-
 }
