@@ -1035,10 +1035,10 @@ namespace ahaHLS {
       vector<Type*> argTps =
         functionInputs(methodFuncDecl);
 
-      // cout << "Method " << methodFuncDecl->getName() << " has arg types before return value and this:" << endl;
-      // for (auto a : argTps) {
-      //   cout << tab(1) << typeString(a) << endl;
-      // }
+      cout << "Method " << methodFuncDecl->getName() << " has arg types before return value and this:" << endl;
+      for (auto a : argTps) {
+        cout << tab(1) << typeString(a) << endl;
+      }
             
       vector<Type*> tps;
       tps.push_back(llvmTypeFor(new SynthCppPointerType(new SynthCppStructType(cgs.getActiveClass()->name))));
@@ -1076,6 +1076,10 @@ namespace ahaHLS {
       // Set "this" to have value of first argument
       Value* thisArg = getArg(f, (hasReturn ? 1 : 0));
       setValue(Token("this"), thisArg);
+      cgs.symtab.setType("this", cgs.getActiveClass()->getType());
+
+      cout << "Set this in symtab" << endl;
+      
       for (auto stmt : methodFuncDecl->body) {
         cout << "Statement" << endl;
         genLLVM(stmt);

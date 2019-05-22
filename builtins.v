@@ -115,6 +115,8 @@ module ult(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [0:0] out);
 endmodule // ult
 
 module sremOp(input [WIDTH - 1 : 0] in0, input [WIDTH - 1 : 0] in1, output [WIDTH - 1 : 0] out);
+   parameter WIDTH = 32;
+   
    assign out = $signed(in0) % $signed(in1);
 endmodule
 
