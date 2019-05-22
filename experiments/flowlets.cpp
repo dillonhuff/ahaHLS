@@ -51,10 +51,9 @@ void flowlet(Packet& in, Packet& out) {
   // }
 
 
-  out.next_hop = out.new_hop;
-  // if (thresh) {
-  // out.next_hop = out.new_hop;
-  // } else {
-  //   out.next_hop = saved_hop_val;
-  // }//saved_hop.rd(out.id);
+  if (thresh) {
+    out.next_hop = out.new_hop;
+  } else {
+    out.next_hop = saved_hop_val;
+  }//saved_hop.rd(out.id);
 }

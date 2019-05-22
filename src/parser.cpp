@@ -825,7 +825,7 @@ namespace ahaHLS {
       if (BranchInst::classof(term)) {
         if (dyn_cast<BranchInst>(term)->isConditional()) {
           for (BasicBlock* succ : successors(&bb)) {
-            exec.addConstraint(instrEnd(term) == start(succ));
+            //exec.addConstraint(instrEnd(term) == start(succ));
           }
         }
       }
@@ -834,7 +834,7 @@ namespace ahaHLS {
     HardwareConstraints& hcs = scppMod.getHardwareConstraints();
 
     // TODO: Use different ram spec with different width / depth for each variable
-    MemorySpec banzaiRam = ramSpec(0, 1, 1, 1, 32, 10000);
+    MemorySpec banzaiRam = ramSpec(0, 1, 10, 10, 32, 10000);
     for (GlobalVariable& globalVar : scppMod.mod.get()->globals()) {
       if (SynthCppArrayType::classof(scppMod.cgs.symtab.getType(globalVar.getName()))) {
         hcs.memSpecs[&globalVar] = banzaiRam;
