@@ -1221,12 +1221,12 @@ namespace ahaHLS {
 
     tb.name = "flowlets";
 
-    auto graph = scheduleBanzai(scppMod, "flowlet");
+    // auto graph = scheduleBanzai(scppMod, "flowlet");
 
-    cout << "STG is" << endl;
-    graph.print(cout);
+    // cout << "STG is" << endl;
+    // graph.print(cout);
 
-    REQUIRE(graph.opStates.size() < 12);
+    // REQUIRE(graph.opStates.size() < 12);
     // auto arch = synthesizeVerilog(scppMod, "flowlet");
 
     // map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
