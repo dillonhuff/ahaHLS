@@ -1221,9 +1221,9 @@ namespace ahaHLS {
 
     tb.name = "flowlets";
 
-    // auto graph = buildSTGFor(scppMod, "flowlet");
+    auto graph = buildSTGFor(scppMod, "flowlet");
 
-    // REQUIRE(graph.opStates.size() < 12);
+    REQUIRE(graph.opStates.size() < 12);
     // auto arch = synthesizeVerilog(scppMod, "flowlet");
 
     // map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
