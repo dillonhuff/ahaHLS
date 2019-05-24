@@ -11,6 +11,49 @@ typedef Vadder adder;
 
 using namespace std;
 
+class AddWrapper {
+
+  adder innerMod;
+
+public:
+  AddWrapper() {
+    innerMod.rst = 0;
+    POSEDGE(&innerMod);
+    innerMod.rst = 1;
+    POSEDGE(&innerMod);
+    innerMod.rst = 0;
+    POSEDGE(&innerMod);    
+  }
+
+  int add(int a, int b) {
+    innerMod.input_a_stb = 1;
+    innerMod.input_a = a;
+
+    while (!innerMod.input_a_ack) {
+      POSEDGE(&innerMod);
+    }
+
+    innerMod.input_a_stb = 0;
+
+    POSEDGE(&innerMod);
+    
+    innerMod.input_b_stb = 1;
+    innerMod.input_b = b;
+
+    while (!innerMod.input_b_ack) {
+      cout << "Waiting on b ack" << endl;
+      POSEDGE(&innerMod);
+    }
+
+    assert(innerMod.output_z_stb);
+    
+    
+    return innerMod.output_z;
+  }
+};
+
+
+
 template<typename T, int Size>
 class Fifo {
   std::vector<T> elems;
@@ -169,4 +212,8 @@ int main() {
   float aVal = 10.0;
   float bVal = 23.6;
   assert((aVal + bVal) == result);
+
+  AddWrapper wrap;
+  float wrapRes = wrap.add(aVal, bVal);
+  assert(wrapRes == result);
 }
