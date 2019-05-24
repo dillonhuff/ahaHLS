@@ -73,6 +73,8 @@ module adder(
       begin
         s_input_a_ack <= 1;
         if (s_input_a_ack && input_a_stb) begin
+           $display("Going to state get_b");
+           
           a <= input_a;
           s_input_a_ack <= 0;
           state <= get_b;
@@ -80,7 +82,8 @@ module adder(
       end
 
       get_b:
-      begin
+        begin
+           $display("In state get_b");           
         s_input_b_ack <= 1;
         if (s_input_b_ack && input_b_stb) begin
           b <= input_b;

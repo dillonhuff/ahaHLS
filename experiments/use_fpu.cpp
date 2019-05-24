@@ -26,22 +26,56 @@ public:
   }
 
   int add(int a, int b) {
+    cout << "a ack ? " << (int) innerMod.input_a_ack << endl;
+      
+    // POSEDGE(&innerMod);
+
+    // cout << "a ack ? " << (int) innerMod.input_a_ack << endl;
+
+    // if (innerMod.input_a_ack == 1) {
+    //   POSEDGE(&innerMod);
+    // } else {
+    //   do {
+    //     POSEDGE(&innerMod);
+    //     cout << "a ack ? " << (int) innerMod.input_a_ack << endl;
+    //   } while (!innerMod.input_a_ack);
+    // }
+
     innerMod.input_a_stb = 1;
+    innerMod.input_b_stb = 0;
+    innerMod.output_z_ack = 0;    
+
     innerMod.input_a = a;
 
-    while (!innerMod.input_a_ack) {
-      POSEDGE(&innerMod);
-    }
+    // do {
+    //   cout << "in loop pre pos b ack ? " << (int) innerMod.input_b_ack << endl;
+    //   POSEDGE(&innerMod);
+    //   cout << "in loop b ack ? " << (int) innerMod.input_b_ack << endl;
 
-    innerMod.input_a_stb = 0;
+    // } while (!innerMod.input_a_ack);
+    
+    while (!innerMod.input_a_ack) {
+      cout << "in loop pre pos b ack ? " << (int) innerMod.input_b_ack << endl;
+      POSEDGE(&innerMod);
+      cout << "in loop b ack ? " << (int) innerMod.input_b_ack << endl;
+    }
 
     POSEDGE(&innerMod);
     
+    cout << "b ack ? " << (int) innerMod.input_b_ack << endl;
+    
+    cout << "a ack ? " << (int) innerMod.input_a_ack << endl;
+    cout << "b ack ? " << (int) innerMod.input_b_ack << endl;
+
     innerMod.input_b_stb = 1;
     innerMod.input_b = b;
 
     while (!innerMod.input_b_ack) {
-      cout << "Waiting on b ack" << endl;
+      //cout << "Waiting on b ack" << endl;
+      POSEDGE(&innerMod);
+    }
+
+    while (!innerMod.output_z_stb) {
       POSEDGE(&innerMod);
     }
 
@@ -214,6 +248,8 @@ int main() {
   assert((aVal + bVal) == result);
 
   AddWrapper wrap;
-  float wrapRes = wrap.add(aVal, bVal);
-  assert(wrapRes == result);
+  int wrapRes = wrap.add(bitCastToInt(aVal), bitCastToInt(bVal));
+  cout << "WrapRes = " << bitCastToFloat(wrapRes) << endl;
+  cout << "av + bv = " << aVal + bVal << endl;
+  assert(bitCastToFloat(wrapRes) == aVal + bVal);
 }
