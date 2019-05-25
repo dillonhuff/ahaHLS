@@ -1473,6 +1473,10 @@ namespace ahaHLS {
   string simWrapperTypeString(llvm::Type* const tp) {
     return typeString(tp);
   }
+
+  string simWrapperImpl(STG& stg) {
+    return tab(2) + "// implementation";
+  }
   
   vector<string> buildWrapperArgs(llvm::Function* const f) {
     vector<string> args;
@@ -1500,10 +1504,14 @@ namespace ahaHLS {
     }
 
     ofstream file("int_add_wrapper.h");
+    file << "typedef int i32;" << endl << endl;
+    
     file << "class int_add {" << endl;
+    file << "public:" << endl;
     for (auto& nameAndSTG : stgs) {
       vector<string> argList = buildWrapperArgs(nameAndSTG.second.getFunction());
       file << tab(1) << "void " << nameAndSTG.first << "(" << commaListString(argList) << ") {" << endl;
+      file << simWrapperImpl(nameAndSTG.second) << endl;
       file << tab(1) << "}" << endl;
     }
     file << "};" << endl;
@@ -1512,7 +1520,12 @@ namespace ahaHLS {
     // What is the next step? I guess write a function that emits
     // a cpp file containing the generated class
     //emitWrapper();
-      
+
+    int compileCppTest = runCmd("clang++ -o int_wrapper_tb int_wrapper_tb.cpp");
+    REQUIRE(compileCppTest);
+
+    int runCppTest = runCmd("./int_wrapper_tb");
+    REQUIRE(runCppTest);
   }
 
   
