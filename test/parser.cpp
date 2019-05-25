@@ -1475,12 +1475,16 @@ namespace ahaHLS {
     SynthCppModule scppMod(parseM);
 
     SynthCppClass* iClass = scppMod.getClass("int_add");
+    map<string, STG> stgs;
     for (auto mS : iClass->methods) {
       SynthCppFunction* m = mS.second;
       STG stg = buildSTGFor(scppMod, m);
       cout << "STG is " << endl;
       stg.print(cout);
+      stgs.insert({mS.first, stg});
     }
+    //emitWrapper();
+      
   }
 
   
