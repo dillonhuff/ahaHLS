@@ -1493,7 +1493,8 @@ namespace ahaHLS {
     ParserModule parseM = parseSynthModule("./experiments/int_add.cpp");
     SynthCppModule scppMod(parseM);
 
-    SynthCppClass* iClass = scppMod.getClass("int_add");
+    string className = "int_add";
+    SynthCppClass* iClass = scppMod.getClass(className);
     map<string, STG> stgs;
     for (auto mS : iClass->methods) {
       SynthCppFunction* m = mS.second;
@@ -1504,9 +1505,12 @@ namespace ahaHLS {
     }
 
     ofstream file("int_add_wrapper.h");
+    file << "#include \"verilated.h\"" << endl << endl;
+    file << "#include \"V" + className + ".h\"" << endl << endl;
     file << "typedef int i32;" << endl << endl;
     
     file << "class int_add {" << endl;
+    file << tab(1) << "V" + className << " inner;" << endl;
     file << "public:" << endl;
     for (auto& nameAndSTG : stgs) {
       vector<string> argList = buildWrapperArgs(nameAndSTG.second.getFunction());
@@ -1521,7 +1525,16 @@ namespace ahaHLS {
     // a cpp file containing the generated class
     //emitWrapper();
 
-    int compileCppTest = runCmd("clang++ -o int_wrapper_tb int_wrapper_tb.cpp");
+    string runVerilator = "verilator --cc ./experiments/int_add.v --exe int_wrapper_tb.cpp -Wno-lint";
+    int verilatorRan = runCmd(runVerilator);
+    REQUIRE(verilatorRan);
+
+    string compileVerilated = "make -j -C obj_dir -f Vint_add.mk Vint_add";
+    int verilatorMade = runCmd(compileVerilated);
+    REQUIRE(verilatorMade);
+    
+    string compileCmd = "clang++ int_wrapper_tb.cpp ./obj_dir/verilated.o ./obj_dir/Vint_add__ALL.a    -o int_wrapper_tb -lm -lstdc++ -I/usr/local/Cellar/verilator/3.920/share/verilator/include -I./obj_dir";
+    int compileCppTest = runCmd(compileCmd); //runCmd("clang++ -o int_wrapper_tb int_wrapper_tb.cpp");
     REQUIRE(compileCppTest);
 
     int runCppTest = runCmd("./int_wrapper_tb");
