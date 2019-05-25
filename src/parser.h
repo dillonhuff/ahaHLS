@@ -1962,6 +1962,17 @@ namespace ahaHLS {
       return cgs.symtab.getType(id.getStr());
     }
 
+    SynthCppClass* getClass(const std::string id) {
+      for (auto c : classes) {
+        if (c->getName() == id) {
+          return c;
+        }
+      }
+
+      cout << "Error: Cannot find class with name " << id << endl;
+      assert(false);
+    }
+    
     SynthCppClass* getClassByName(const Token id) {
       for (auto c : classes) {
         if (c->getName() == id.getStr()) {
@@ -2338,6 +2349,7 @@ namespace ahaHLS {
   MicroArchitecture
   synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName);
 
+  STG buildSTGFor(SynthCppModule& scppMod, SynthCppFunction* const f);  
   STG buildSTGFor(SynthCppModule& mod, const std::string& funcName);
   STG scheduleBanzai(SynthCppModule& mod, const std::string& funcName);  
 }

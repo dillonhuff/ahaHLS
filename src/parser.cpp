@@ -879,10 +879,8 @@ namespace ahaHLS {
     }
     return buildSTGFor(scppMod, funcName);
   }
-  
-  STG buildSTGFor(SynthCppModule& scppMod, const std::string& funcName) {
 
-    SynthCppFunction* f = scppMod.getFunction(funcName);
+  STG buildSTGFor(SynthCppModule& scppMod, SynthCppFunction* const f) {
 
     // Q: How do we pass the hardware constraints on f in to the synthesis flow?
     cout << "Scheduling function" << endl;
@@ -920,6 +918,11 @@ namespace ahaHLS {
 
     STG graph = buildSTG(s, f->llvmFunction());
     return graph;
+  }
+
+  STG buildSTGFor(SynthCppModule& scppMod, const std::string& funcName) {
+    SynthCppFunction* f = scppMod.getFunction(funcName);
+    return buildSTGFor(scppMod, f);
   }
 
   pair<string, int> extractDefault(Statement* stmt) {

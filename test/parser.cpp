@@ -1474,12 +1474,13 @@ namespace ahaHLS {
     ParserModule parseM = parseSynthModule("./experiments/int_add.cpp");
     SynthCppModule scppMod(parseM);
 
-    auto arch = synthesizeVerilog(scppMod, "int_add_func");
-
-    STG& stg = arch.stg;
-    cout << "STG is" << endl;
-    stg.print(cout);
-    
+    SynthCppClass* iClass = scppMod.getClass("int_add");
+    for (auto mS : iClass->methods) {
+      SynthCppFunction* m = mS.second;
+      STG stg = buildSTGFor(scppMod, m);
+      cout << "STG is " << endl;
+      stg.print(cout);
+    }
   }
 
   
