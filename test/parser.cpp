@@ -1470,6 +1470,21 @@ namespace ahaHLS {
     
   }
 
+  string simWrapperTypeString(llvm::Type* const tp) {
+    return typeString(tp);
+  }
+  
+  vector<string> buildWrapperArgs(llvm::Function* const f) {
+    vector<string> args;
+
+    // i = 1 to ignore the built in "this" argument to the function
+    for (int i = 1; i < (int) f->arg_size(); i++) {
+      Value* arg = getArg(f, i);
+      args.push_back(simWrapperTypeString(arg->getType()) + " " + string(arg->getName()));
+    }
+    return args;
+  }
+  
   TEST_CASE("Wrapper class for add module") {
     ParserModule parseM = parseSynthModule("./experiments/int_add.cpp");
     SynthCppModule scppMod(parseM);
@@ -1483,6 +1498,19 @@ namespace ahaHLS {
       stg.print(cout);
       stgs.insert({mS.first, stg});
     }
+
+    ofstream file("int_add_wrapper.h");
+    file << "class int_add {" << endl;
+    for (auto& nameAndSTG : stgs) {
+      vector<string> argList = buildWrapperArgs(nameAndSTG.second.getFunction());
+      file << tab(1) << "void " << nameAndSTG.first << "(" << commaListString(argList) << ") {" << endl;
+      file << tab(1) << "}" << endl;
+    }
+    file << "};" << endl;
+    file.close();
+
+    // What is the next step? I guess write a function that emits
+    // a cpp file containing the generated class
     //emitWrapper();
       
   }
