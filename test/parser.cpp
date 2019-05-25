@@ -1470,5 +1470,17 @@ namespace ahaHLS {
     
   }
 
+  TEST_CASE("Wrapper class for add module") {
+    ParserModule parseM = parseSynthModule("./experiments/int_add.cpp");
+    SynthCppModule scppMod(parseM);
+
+    auto arch = synthesizeVerilog(scppMod, "int_add_func");
+
+    STG& stg = arch.stg;
+    cout << "STG is" << endl;
+    stg.print(cout);
+    
+  }
+
   
 }
