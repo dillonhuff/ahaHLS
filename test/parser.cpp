@@ -1475,7 +1475,7 @@ namespace ahaHLS {
   }
 
   string simWrapperImpl(STG& stg) {
-    return tab(2) + "// implementation";
+    return tab(2) + "*arg_3 = *arg_1 + *arg_2;";
   }
   
   vector<string> buildWrapperArgs(llvm::Function* const f) {
@@ -1523,7 +1523,6 @@ namespace ahaHLS {
 
     // What is the next step? I guess write a function that emits
     // a cpp file containing the generated class
-    //emitWrapper();
 
     string runVerilator = "verilator --cc ./experiments/int_add.v --exe int_wrapper_tb.cpp -Wno-lint";
     int verilatorRan = runCmd(runVerilator);
