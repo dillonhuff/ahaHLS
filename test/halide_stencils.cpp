@@ -12,7 +12,19 @@ namespace ahaHLS {
 
   Type* halideType(Type* tp) {
     if (PointerType::classof(tp)) {
-      return tp;
+      Type* underlying = dyn_cast<PointerType>(tp)->getElementType();
+      return halideType(underlying)->getPointerTo();
+    } else if (StructType::classof(tp)) {
+      StructType* stp = dyn_cast<StructType>(tp);
+      string name = stp->getName();
+      if (hasPrefix(name, "class.AxiPackedStencil_")) {
+        int typeWidth = stencilTypeWidth(name);
+        int nRows = stencilNumRows(name);
+        int nCols = stencilNumCols(name);
+        return intType(typeWidth*nRows*nCols);
+      } else {
+        return tp;
+      }
     } else {
       return tp;
     }

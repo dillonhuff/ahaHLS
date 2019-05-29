@@ -1736,6 +1736,10 @@ namespace ahaHLS {
   bool isMethod(const std::string& className,
                 const std::string& methodName,
                 Function* const func);
+
+  int stencilTypeWidth(const std::string& name);
+  int stencilNumRows(const std::string& name);
+  int stencilNumCols(const std::string& name);
   
 }
 
