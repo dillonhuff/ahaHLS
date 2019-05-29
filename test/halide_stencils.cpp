@@ -89,6 +89,8 @@ namespace ahaHLS {
 
         rewrites[toRewrite] =
           b.CreateCall(func, argReplacements);
+      } else if (isMethod("AxiPackedStencil", "AxiPackedStencil", func)) {
+        assert(false);
       } else {
         cout << "Unsupported call" << valueString(toRewrite) << endl;
         assert(false);
