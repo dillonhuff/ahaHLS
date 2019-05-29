@@ -1732,6 +1732,10 @@ namespace ahaHLS {
   createMemoryConstraints(llvm::Function* f,
                           HardwareConstraints& hdc,
                           ExecutionConstraints& exe);
+
+  bool isMethod(const std::string& className,
+                const std::string& methodName,
+                Function* const func);
   
 }
 
