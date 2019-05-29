@@ -10,6 +10,12 @@ using namespace std;
 
 namespace ahaHLS {
 
+  Function* rewriteHalideStencils(Function* orig) {
+    vector<Type*> inputTypes;
+    Function* f = mkFunc(inputTypes, string(orig->getName()) + "_rewritten", &(getGlobalLLVMModule()));
+    assert(false);
+  }
+
   TEST_CASE("Rewrite stencils as int computation") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -20,6 +26,9 @@ namespace ahaHLS {
 
     Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
     cout << "Got function" << endl;
+
+    Function* rewritten =
+      rewriteHalideStencils(f);
   }
   
 }
