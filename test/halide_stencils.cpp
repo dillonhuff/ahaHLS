@@ -46,8 +46,15 @@ namespace ahaHLS {
 
   Value* findRewrite(Value* val, map<Value*, Value*>& rewrites) {
     if (ConstantInt::classof(val)) {
-      assert(false);
+      // TODO: Replace this with copy!!
+      return val;
     }
+
+    if (!contains_key(val, rewrites)) {
+      cout << "Error: No rewrite for " << valueString(val) << endl;
+    }
+    
+    assert(contains_key(val, rewrites));
     return map_find(val, rewrites);
   }
   
@@ -59,7 +66,8 @@ namespace ahaHLS {
     BasicBlock* repBB = map_find(toRewrite->getParent(), bbRewrites);
     IRBuilder<> b(repBB);
     if (AllocaInst::classof(toRewrite)) {
-      Type* allocTp = halideType(toRewrite->getType());
+      AllocaInst* alloc = dyn_cast<AllocaInst>(toRewrite);
+      Type* allocTp = halideType(alloc->getType()->getElementType());
       auto* rw = b.CreateAlloca(allocTp);
       rewrites[toRewrite] = rw;
     } else if (CallInst::classof(toRewrite)) {
@@ -68,17 +76,29 @@ namespace ahaHLS {
 
       if (isMethod("hls_stream_", "hls_stream", func)) {
         assert(false);
+      } else if (isMethod("AxiPackedStencil_", "get", func)) {
+
+        // TODO: Add indexing
+        rewrites[toRewrite] =
+          b.CreateLoad(findRewrite(toRewrite->getOperand(0), rewrites));
       } else if (isConstructor("hls_stream", func)) {
         // Do nothing, the constructor is a no-op
       } else {
         cout << "Unsupported call" << valueString(toRewrite) << endl;
-        assert(false);
+        //assert(false);
       }
     } else if (BranchInst::classof(toRewrite)) {
       BranchInst* bi = dyn_cast<BranchInst>(toRewrite);
       if (bi->isConditional()) {
-        cout << "Error: Conditional branch " << valueString(toRewrite) << endl;
-        assert(false);
+        //cout << "Error: Conditional branch " << valueString(toRewrite) << endl;
+        //assert(false);
+        assert(bi->getNumSuccessors() == 2);
+
+        auto cond = findRewrite(bi->getOperand(0), rewrites);
+        auto rLHS = map_find(bi->getSuccessor(0), bbRewrites);
+        auto rRHS = map_find(bi->getSuccessor(1), bbRewrites);
+
+        rewrites[toRewrite] = b.CreateCondBr(cond, rLHS, rRHS);
       } else {
         auto* targetInRewritten = map_find(bi->getSuccessor(0), bbRewrites);
         auto newBr = b.CreateBr(targetInRewritten);
@@ -100,6 +120,18 @@ namespace ahaHLS {
 
       cout << "Got binop" << endl;
       rewrites[toRewrite] = b.CreateBinOp(opcode, rLHS, rRHS);
+    } else if (ICmpInst::classof(toRewrite)) {
+      llvm::ICmpInst::Predicate pred =
+        dyn_cast<CmpInst>(toRewrite)->getPredicate();
+
+      auto rLHS = findRewrite(toRewrite->getOperand(0), rewrites);
+      auto rRHS = findRewrite(toRewrite->getOperand(1), rewrites);      
+
+      rewrites[toRewrite] = b.CreateICmp(pred, rLHS, rRHS);
+      
+    } else if (ReturnInst::classof(toRewrite)) {
+      assert(toRewrite->getType()->isVoidTy());
+      rewrites[toRewrite] = b.CreateRet(nullptr);
     } else {
       cout << "Error in Halide stencil rewrite: Unsupported instr = " << valueString(toRewrite) << endl;
       assert(false);
