@@ -74,18 +74,24 @@ namespace ahaHLS {
       CallInst* callToRW = dyn_cast<CallInst>(toRewrite);
       Function* func = callToRW->getCalledFunction();
 
-      if (isMethod("hls_stream_", "hls_stream", func)) {
-        assert(false);
-      } else if (isMethod("AxiPackedStencil_", "get", func)) {
-
+      if (isMethod("AxiPackedStencil_", "get", func)) {
         // TODO: Add indexing
         rewrites[toRewrite] =
           b.CreateLoad(findRewrite(toRewrite->getOperand(0), rewrites));
       } else if (isConstructor("hls_stream", func)) {
         // Do nothing, the constructor is a no-op
+      } else if (isMethod("hls_stream", "read", func)) {
+        vector<Value*> argReplacements;
+        for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
+          cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
+          argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
+        }
+
+        rewrites[toRewrite] =
+          b.CreateCall(func, argReplacements);
       } else {
         cout << "Unsupported call" << valueString(toRewrite) << endl;
-        //assert(false);
+        assert(false);
       }
     } else if (BranchInst::classof(toRewrite)) {
       BranchInst* bi = dyn_cast<BranchInst>(toRewrite);
