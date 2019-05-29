@@ -43,6 +43,13 @@ namespace ahaHLS {
 
     return false;
   }
+
+  Value* findRewrite(Value* val, map<Value*, Value*>& rewrites) {
+    if (ConstantInt::classof(val)) {
+      assert(false);
+    }
+    return map_find(val, rewrites);
+  }
   
   void rewriteInstr(Function* f,
                     Function* orig,
@@ -60,18 +67,18 @@ namespace ahaHLS {
       Function* func = callToRW->getCalledFunction();
 
       if (isMethod("hls_stream_", "hls_stream", func)) {
-        //assert(false);
+        assert(false);
       } else if (isConstructor("hls_stream", func)) {
         // Do nothing, the constructor is a no-op
       } else {
         cout << "Unsupported call" << valueString(toRewrite) << endl;
-        //assert(false);
+        assert(false);
       }
     } else if (BranchInst::classof(toRewrite)) {
       BranchInst* bi = dyn_cast<BranchInst>(toRewrite);
       if (bi->isConditional()) {
         cout << "Error: Conditional branch " << valueString(toRewrite) << endl;
-        //assert(false);
+        assert(false);
       } else {
         auto* targetInRewritten = map_find(bi->getSuccessor(0), bbRewrites);
         auto newBr = b.CreateBr(targetInRewritten);
@@ -82,9 +89,20 @@ namespace ahaHLS {
       int reservedVals = dyn_cast<PHINode>(toRewrite)->getNumIncomingValues();
       auto* replacement = b.CreatePHI(halideType(toRewrite->getType()), reservedVals);
       rewrites[toRewrite] = replacement;
+    } else if (BinaryOperator::classof(toRewrite)) {
+      llvm::Instruction::BinaryOps opcode =
+        dyn_cast<BinaryOperator>(toRewrite)->getOpcode();
+
+      cout << "Getting " << valueString(toRewrite->getOperand(0)) << endl;
+      auto rLHS = findRewrite(toRewrite->getOperand(0), rewrites);
+
+      auto rRHS = findRewrite(toRewrite->getOperand(1), rewrites);      
+
+      cout << "Got binop" << endl;
+      rewrites[toRewrite] = b.CreateBinOp(opcode, rLHS, rRHS);
     } else {
       cout << "Error in Halide stencil rewrite: Unsupported instr = " << valueString(toRewrite) << endl;
-      //assert(false);
+      assert(false);
     }
 
   }
