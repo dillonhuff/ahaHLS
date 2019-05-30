@@ -314,6 +314,41 @@ namespace ahaHLS {
     return f;
   }
 
+  int builtinFifoWidth(Type* tp) {
+    if (StructType::classof(tp)) {
+      return stoi(drop("builtin_fifo_", dyn_cast<StructType>(tp)->getName()));
+    }
+    assert(false);
+  }
+  
+  bool isBuiltinFifoType(Type* tp) {
+    if (StructType::classof(tp)) {
+      return hasPrefix(dyn_cast<StructType>(tp)->getName(), "builtin_fifo_");
+    }
+    return false;
+  }
+  
+  void assignModuleSpecs(Function* f, HardwareConstraints& hcs) {
+    
+    for (int i = 0; i < f->arg_size(); i++) {
+      auto argTp = getPointedToType(getArg(f, i)->getType());
+      if (isBuiltinFifoType(argTp)) {
+        hcs.modSpecs[getArg(f, i)] = fifoSpec(builtinFifoWidth(argTp), 128);
+      }
+    }
+    
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instrR : bb) {
+        auto instr = &instrR;
+        if (AllocaInst::classof(instr)) {
+          auto allocTp = getPointedToType(instr->getType());
+          if (isBuiltinFifoType(allocTp)) {
+            hcs.modSpecs[instr] = fifoSpec(builtinFifoWidth(allocTp), 128);
+          }
+        }
+      }
+    }
+  }
   TEST_CASE("Rewrite stencils as int computation") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -339,6 +374,8 @@ namespace ahaHLS {
 
     // Now: Populate HLS data structures
     HardwareConstraints hcs = standardConstraints();
+    assignModuleSpecs(f, hcs);
+
     InterfaceFunctions interfaces;
     set<string> funcs;
 
