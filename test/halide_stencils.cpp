@@ -74,6 +74,33 @@ namespace ahaHLS {
     assert(contains_key(val, rewrites));
     return map_find(val, rewrites);
   }
+
+  int streamWidth(const std::string& name) {
+    cout << "Stram name = " << name << endl;
+    string stencilName = streamStencilName(name);
+    int typeWidth = stencilTypeWidth(stencilName);
+    int nRows = stencilNumRows(stencilName);
+    int nCols = stencilNumCols(stencilName);
+
+    return typeWidth*nRows*nCols;
+  }
+
+  int streamWidth(Type* strm) {
+    StructType* tp = extract<StructType>(getPointedToType(strm));
+    string name = tp->getName();
+    return streamWidth(name);
+  }
+  
+  int streamWidth(Value* strm) {
+    Type* tp = strm->getType();
+    return streamWidth(tp);
+  }
+
+  llvm::Function* fifoReadRefFunction(const int width) {
+    vector<Type*> ins{intType(width)->getPointerTo(),
+        fifoType(width)};
+    return mkFunc(ins, voidType(), "fifo_read_ref." + to_string(width));
+  }
   
   void rewriteInstr(Function* f,
                     Function* orig,
@@ -110,8 +137,9 @@ namespace ahaHLS {
           argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
         }
 
+        auto replaceF = fifoReadRefFunction(streamWidth(toRewrite->getOperand(1)));
         rewrites[toRewrite] =
-          b.CreateCall(func, argReplacements);
+          b.CreateCall(replaceF, argReplacements);
       } else if (isMethod("hls_stream", "write", func)) {
         vector<Value*> argReplacements;
         for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
