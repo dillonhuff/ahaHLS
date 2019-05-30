@@ -98,8 +98,14 @@ namespace ahaHLS {
 
   llvm::Function* fifoReadRefFunction(const int width) {
     vector<Type*> ins{intType(width)->getPointerTo(),
-        fifoType(width)};
+        fifoType(width)->getPointerTo()};
     return mkFunc(ins, voidType(), "fifo_read_ref." + to_string(width));
+  }
+
+  llvm::Function* fifoWriteRefFunction(const int width) {
+    vector<Type*> ins{fifoType(width)->getPointerTo(),
+        intType(width)->getPointerTo()};
+    return mkFunc(ins, voidType(), "fifo_write_ref." + to_string(width));
   }
   
   void rewriteInstr(Function* f,
@@ -147,8 +153,9 @@ namespace ahaHLS {
           argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
         }
 
+        auto replaceF = fifoWriteRefFunction(streamWidth(toRewrite->getOperand(0)));
         rewrites[toRewrite] =
-          b.CreateCall(func, argReplacements);
+          b.CreateCall(replaceF, argReplacements);
       } else if (isConstructor("AxiPackedStencil_", func)) {
         cout << "Replacing stencil constructor " << valueString(toRewrite) << endl;
         
