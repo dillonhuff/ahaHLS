@@ -438,10 +438,10 @@ namespace ahaHLS {
     
     addDataConstraints(rewritten, exec);
 
-    //set<TaskSpec> tasks = halideTaskSpecs(rewritten);
+    set<TaskSpec> tasks = halideTaskSpecs(rewritten);
     // TODO: Need a better way to sanity check tasks
     //REQUIRE(tasks.size() == 2);
-    //exec.tasks = tasks;
+    exec.tasks = tasks;
     
     cout << "After inlining" << endl;
     cout << valueString(rewritten) << endl;
@@ -456,8 +456,8 @@ namespace ahaHLS {
     //   }
     // }
 
-    //SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, tasks, preds);
-    SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, preds);
+    SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, tasks, preds);
+    //SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, preds);
     exec.addConstraints(p, rewritten);
 
     map<Function*, SchedulingProblem> constraints{{rewritten, p}};
