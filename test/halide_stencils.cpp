@@ -436,6 +436,75 @@ namespace ahaHLS {
 
     std::map<Value*, int> memoryMap;
     MicroArchitecture arch = buildMicroArchitecture(graph, memoryMap, hcs);
+    {
+      auto in = dyn_cast<Argument>(getArg(f, 0));
+      auto out = dyn_cast<Argument>(getArg(f, 1));    
+
+      TestBenchSpec tb;
+      map<string, int> testLayout = {};
+      tb.memoryInit = {};
+      tb.memoryExpected = {};
+      tb.runCycles = 800;
+      tb.maxCycles = 1000;
+      tb.name = "vhls_target";
+      tb.useModSpecs = true;
+      tb.settablePort(in, "in_data");
+      tb.settablePort(in, "write_valid");
+      tb.settablePort(out, "read_valid");    
+
+      map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+
+      tb.setArgPort(out, "read_valid", 0, "1'b0");
+      tb.setArgPort(in, "write_valid", 0, "1'b0");        
+    
+      tb.setArgPort(in, "in_data", 2, "16'd28");
+      tb.setArgPort(in, "write_valid", 2, "1'b1");    
+
+      tb.setArgPort(in, "in_data", 3, "16'd10");
+      tb.setArgPort(in, "write_valid", 3, "1'b1");    
+
+      tb.setArgPort(in, "in_data", 4, "16'd7");
+      tb.setArgPort(in, "write_valid", 4, "1'b1");    
+
+      tb.setArgPort(in, "in_data", 5, "16'd3");
+      tb.setArgPort(in, "write_valid", 5, "1'b1");    
+    
+      tb.setArgPort(in, "write_valid", 6, "1'b0");
+
+      int endCycle = 700;
+      tb.setArgPort(out, "read_valid", endCycle + 2, "1'b1");
+      tb.setArgPort(out, "read_valid", endCycle + 3, "1'b0");
+      map_insert(tb.actionsOnCycles, endCycle + 3, assertString(string(out->getName()) + "_out_data === 16'd56"));
+
+      tb.setArgPort(out, "read_valid", endCycle + 4, "1'b1");
+      tb.setArgPort(out, "read_valid", endCycle + 5, "1'b0");
+      map_insert(tb.actionsOnCycles, endCycle + 5, assertString(string(out->getName()) + "_out_data === 16'd20"));
+
+      tb.setArgPort(out, "read_valid", endCycle + 6, "1'b1");
+      tb.setArgPort(out, "read_valid", endCycle + 7, "1'b0");
+      map_insert(tb.actionsOnCycles, endCycle + 7, assertString(string(out->getName()) + "_out_data === 16'd14"));
+
+      tb.setArgPort(out, "read_valid", endCycle + 8, "1'b1");
+      tb.setArgPort(out, "read_valid", endCycle + 9, "1'b0");
+      map_insert(tb.actionsOnCycles, endCycle + 9, assertString(string(out->getName()) + "_out_data === 16'd6"));
+    
+      map_insert(tb.actionsOnCycles, endCycle, assertString("valid === 1"));
+
+      VerilogDebugInfo info;
+      addControlSanityChecks(arch, info);
+
+      checkSignal(tb,
+                  "valid",
+                  {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {100, 1}, {103, 1}, {106, 1}, {112, 1}, {125, 1}, {150, 1}, {200, 1}});
+
+      checkSignal(tb,
+                  "arg_1_read_ready",
+                  {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {25, 0}, {37, 0}, {43, 0}, {47, 1}, {50, 1}, {100, 1}, {103, 1}, {106, 1}, {112, 1}, {125, 1}, {150, 1}, {200, 1}});
+      
+      emitVerilog("vhls_target", arch, info);
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      REQUIRE(runIVerilogTB("vhls_target"));      
+    }
   }
-  
 }
