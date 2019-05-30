@@ -2351,5 +2351,8 @@ namespace ahaHLS {
 
   STG buildSTGFor(SynthCppModule& scppMod, SynthCppFunction* const f);  
   STG buildSTGFor(SynthCppModule& mod, const std::string& funcName);
-  STG scheduleBanzai(SynthCppModule& mod, const std::string& funcName);  
+  STG scheduleBanzai(SynthCppModule& mod, const std::string& funcName);
+
+  void optimizeStores(llvm::Function* f);
+  void optimizeModuleLLVM(llvm::Module& mod);  
 }
