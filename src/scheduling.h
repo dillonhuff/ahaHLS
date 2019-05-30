@@ -1740,6 +1740,7 @@ namespace ahaHLS {
   int stencilTypeWidth(const std::string& name);
   int stencilNumRows(const std::string& name);
   int stencilNumCols(const std::string& name);
+  string streamStencilName(const std::string& streamName);
   
 }
 

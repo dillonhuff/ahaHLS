@@ -23,6 +23,12 @@ namespace ahaHLS {
         int nRows = stencilNumRows(name);
         int nCols = stencilNumCols(name);
         return intType(typeWidth*nRows*nCols);
+      } else if (hasPrefix(name, "class.hls_stream")) {
+        string stencilName = streamStencilName(name);        
+        int typeWidth = stencilTypeWidth(stencilName);
+        int nRows = stencilNumRows(stencilName);
+        int nCols = stencilNumCols(stencilName);
+        return fifoType(typeWidth*nRows*nCols);
       } else {
         return tp;
       }
