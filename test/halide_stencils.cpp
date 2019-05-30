@@ -410,9 +410,10 @@ namespace ahaHLS {
     cout << "Before inlining" << endl;
     cout << valueString(f) << endl;
 
-    std::set<BasicBlock*> toPipeline;
+    std::set<PipelineSpec> toPipeline;
     ExecutionConstraints exec;
-    
+
+    //addDataConstraints(rewritten, exec);    
     inlineWireCalls(rewritten, exec, interfaces);
 
     optimizeModuleLLVM(*(rewritten->getParent()));
@@ -421,11 +422,17 @@ namespace ahaHLS {
     clearExecutionConstraints(rewritten, exec);
     
     addDataConstraints(rewritten, exec);
+
+    set<TaskSpec> tasks = halideTaskSpecs(rewritten);
+    // TODO: Need a better way to sanity check tasks
+    //REQUIRE(tasks.size() == 2);
+    exec.tasks = tasks;
     
     cout << "After inlining" << endl;
     cout << valueString(rewritten) << endl;
 
-    SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline);
+    auto preds = buildControlPreds(rewritten);
+    SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, tasks, preds);
     exec.addConstraints(p, rewritten);
 
     map<Function*, SchedulingProblem> constraints{{rewritten, p}};
@@ -500,13 +507,14 @@ namespace ahaHLS {
       addDisplay("1", "arg_0_read_ready = %d", {"arg_0_read_ready"}, info);
       addDisplay("1", "arg_0_read_valid = %d", {"arg_0_read_valid"}, info);
       addDisplay("1", "arg_0_out_data = %d", {"arg_0_out_data"}, info);
+      addDisplay("1", "arg_1_out_data = %d", {"arg_1_out_data"}, info);
       printActiveBlocks(arch, info);
       addNoXChecks(arch, info);
       //addControlSanityChecks(arch, info);
 
-      checkSignal(tb,
-                  "valid",
-                  {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {100, 1}, {103, 1}, {106, 1}, {112, 1}, {125, 1}, {150, 1}, {200, 1}});
+      // checkSignal(tb,
+      //             "valid",
+      //             {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {100, 1}, {103, 1}, {106, 1}, {112, 1}, {125, 1}, {150, 1}, {200, 1}});
 
       // checkSignal(tb,
       //             "arg_1_read_ready",
