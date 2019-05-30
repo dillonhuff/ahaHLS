@@ -61,7 +61,7 @@ namespace ahaHLS {
     cout << "Module is " << endl;
     storeMod->print();    
 
-    c->runPasses({"rungenerators", "flatten", "flattentypes", "wireclocks-coreir"});
+    c->runPasses({"rungenerators", "flatten", "flattentypes", "wireclocks-coreir", "fold-constants", "removeconstduplicates", "deletedeadinstances"});
 
     cout << "After preprocessing module is " << endl;
     storeMod->print();    
@@ -86,6 +86,8 @@ namespace ahaHLS {
     sim.execute();
     sim.execute();
     sim.execute();
+    sim.execute();
+    sim.execute();        
 
     REQUIRE(sim.getBitVec("self.valid") == BitVec(1, 1));
 
