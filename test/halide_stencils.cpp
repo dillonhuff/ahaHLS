@@ -44,6 +44,16 @@ namespace ahaHLS {
     return false;
   }
 
+  Value* findSource(Value* val, map<Value*, Value*>& rewrites) {
+    for (auto& ent : rewrites) {
+      if (ent.second == val) {
+        return ent.first;
+      }
+    }
+    cout << "Error: No source entry for " << valueString(val) << endl;
+    assert(false);
+  }
+  
   Value* findRewrite(Value* val, map<Value*, Value*>& rewrites) {
     if (ConstantInt::classof(val)) {
       // TODO: Replace this with copy!!
@@ -195,6 +205,41 @@ namespace ahaHLS {
 
   }
 
+  void populatePHIs(Function* orig,
+                    Function* f,
+                    map<Value*, Value*>& rewrites,
+                    map<BasicBlock*, BasicBlock*>& bbRewrites) {
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instrR : bb) {
+        Instruction* instr = &instrR;
+        if (PHINode::classof(instr)) {
+
+          cout << "Found phi " << valueString(instr) << endl;
+          auto newPhi = dyn_cast<PHINode>(instr);
+          
+          auto origP = findSource(dyn_cast<Value>(instr), rewrites);
+          assert(PHINode::classof(origP));
+          auto origPhi = dyn_cast<PHINode>(origP);
+
+          cout << "Populating replacement for " << valueString(origPhi) << endl;
+          
+          for (int i = 0; i < origPhi->getNumIncomingValues(); i++) {
+            cout << "Getting " << i << "th block" << endl;
+            BasicBlock* replaceBB =
+              map_find(origPhi->getIncomingBlock(i), bbRewrites);
+            cout << "Getting " << i << "th value" << endl;            
+
+            Value* replaceVal =
+              findRewrite(origPhi->getIncomingValue(i), rewrites);
+
+            cout << "Getting " << i << "th value" << endl;                        
+            newPhi->addIncoming(replaceVal, replaceBB);
+          }
+        }
+      }
+    }
+  }
+  
   Function* rewriteHalideStencils(Function* orig) {
     vector<Type*> inputTypes;
     for (int i = 0; i < orig->arg_size(); i++) {
@@ -219,6 +264,8 @@ namespace ahaHLS {
         rewriteInstr(f, orig, bbRewrites, rewrites, instr);
       }
     }
+
+    populatePHIs(orig, f, rewrites, bbRewrites);
     return f;
   }
 
