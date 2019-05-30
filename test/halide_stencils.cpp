@@ -5,6 +5,8 @@
 #include "test_utils.h"
 #include "parser.h"
 
+#include <llvm/Analysis/CFG.h>
+
 using namespace dbhc;
 using namespace llvm;
 using namespace std;
@@ -352,6 +354,19 @@ namespace ahaHLS {
       }
     }
   }
+
+  bool precedes(BasicBlock* predBlk, BasicBlock* succBlk, vector<BasicBlock*> blkOrder) {
+    if (predBlk == succBlk) {
+      return false;
+    }
+    int predPos =
+      distance(blkOrder.begin(), find(blkOrder.begin(), blkOrder.end(), predBlk));
+
+    int succPos =
+      distance(blkOrder.begin(), find(blkOrder.begin(), blkOrder.end(), succBlk));
+
+    return (succPos - predPos) > 0;
+  }
   
   TEST_CASE("Rewrite stencils as int computation") {
     SMDiagnostic Err;
@@ -423,16 +438,26 @@ namespace ahaHLS {
     
     addDataConstraints(rewritten, exec);
 
-    set<TaskSpec> tasks = halideTaskSpecs(rewritten);
+    //set<TaskSpec> tasks = halideTaskSpecs(rewritten);
     // TODO: Need a better way to sanity check tasks
     //REQUIRE(tasks.size() == 2);
-    exec.tasks = tasks;
+    //exec.tasks = tasks;
     
     cout << "After inlining" << endl;
     cout << valueString(rewritten) << endl;
-
     auto preds = buildControlPreds(rewritten);
-    SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, tasks, preds);
+    vector<BasicBlock*> blockOrder =
+      topologicalSortOfBlocks(rewritten, preds);
+    for (auto& bb : rewritten->getBasicBlockList()) {
+      for (auto succ : successors(&bb)) {
+        if (precedes(&bb, succ, blockOrder)) {
+          exec.add(end(&bb) < start(succ));
+        }
+      }
+    }
+
+    //SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, tasks, preds);
+    SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, preds);
     exec.addConstraints(p, rewritten);
 
     map<Function*, SchedulingProblem> constraints{{rewritten, p}};

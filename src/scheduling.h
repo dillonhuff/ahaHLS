@@ -1603,6 +1603,8 @@ namespace ahaHLS {
 
   void implementRunMedian(llvm::Function* f, ExecutionConstraints& exec);
 
+  bool precedes(Instruction* pred, Instruction* succ, vector<BasicBlock*> blkOrder);
+  
   ModuleSpec ipReceiverSpec();
   ModuleSpec counterSpec();
 
