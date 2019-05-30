@@ -142,9 +142,9 @@ namespace ahaHLS {
 
         assert(argReplacements.size() == 2);
 
-        auto source = b.CreateLoad(argReplacements[0]);
+        auto source = b.CreateLoad(argReplacements[1]);
         rewrites[toRewrite] =
-          b.CreateStore(source, argReplacements[1]);
+          b.CreateStore(source, argReplacements[0]);
       } else if (isMethod("AxiPackedStencil_", "set_last", func)) {
         // Do nothing
       } else {
