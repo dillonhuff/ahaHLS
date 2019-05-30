@@ -4786,7 +4786,6 @@ namespace ahaHLS {
     cout << "Before inlining" << endl;
     cout << valueString(f) << endl;
 
-
     auto preds = buildControlPreds(f);
     addStencilCallConstraints(f, preds, exec);
 

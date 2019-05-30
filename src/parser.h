@@ -2354,5 +2354,9 @@ namespace ahaHLS {
   STG scheduleBanzai(SynthCppModule& mod, const std::string& funcName);
 
   void optimizeStores(llvm::Function* f);
-  void optimizeModuleLLVM(llvm::Module& mod);  
+  void optimizeModuleLLVM(llvm::Module& mod);
+
+  void clearExecutionConstraints(llvm::Function* const f,
+                                 ExecutionConstraints& exec);
+  
 }

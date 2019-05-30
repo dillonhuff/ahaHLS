@@ -403,7 +403,33 @@ namespace ahaHLS {
       }
     }
 
-    Schedule s = scheduleInterface(rewritten, hcs, interfaces);
+    cout << "Before inlining" << endl;
+    cout << valueString(f) << endl;
+
+    std::set<BasicBlock*> toPipeline;
+    ExecutionConstraints exec;
+    
+    //auto preds = buildControlPreds(rewritten, exec);
+    //addStencilCallConstraints(rewritten, preds, exec);
+
+    inlineWireCalls(rewritten, exec, interfaces);
+
+    optimizeModuleLLVM(*(rewritten->getParent()));
+    optimizeStores(rewritten);
+
+    clearExecutionConstraints(rewritten, exec);
+    
+    addDataConstraints(rewritten, exec);
+    
+    cout << "After inlining" << endl;
+    cout << valueString(rewritten) << endl;
+
+    SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline);
+    exec.addConstraints(p, rewritten);
+
+    map<Function*, SchedulingProblem> constraints{{rewritten, p}};
+    Schedule s = scheduleFunction(rewritten, hcs, toPipeline, constraints);
+
     STG graph = buildSTG(s, rewritten);
     cout << "STG is" << endl;
     graph.print(cout);
