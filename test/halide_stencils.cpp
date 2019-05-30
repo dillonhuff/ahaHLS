@@ -368,26 +368,7 @@ namespace ahaHLS {
     return (succPos - predPos) > 0;
   }
 
-  // TODO:
-  //  Remove the initial fifo loop via optimization
-  //  Use fifo definition that reads in same cycle that ready is high
-  //  Do CFG simplification
-  //  Do control signal simplification
-  //  Get coreir backend running
-  TEST_CASE("Rewrite stencils as int computation") {
-    SMDiagnostic Err;
-    LLVMContext Context;
-    setGlobalLLVMContext(&Context);
-    
-    std::unique_ptr<Module> Mod = loadLLFile(Context, Err, "vhls_target");
-    setGlobalLLVMModule(Mod.get());
-
-    Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
-    deleteLLVMLifetimeCalls(f);
-    
-    cout << "Origin function" << endl;
-    cout << valueString(f) << endl;
-
+  MicroArchitecture halideArch(Function* f) {
     Function* rewritten =
       rewriteHalideStencils(f);
 
@@ -475,6 +456,32 @@ namespace ahaHLS {
 
     std::map<Value*, int> memoryMap;
     MicroArchitecture arch = buildMicroArchitecture(graph, memoryMap, hcs);
+
+    return arch;
+  }
+
+  // TODO:
+  //  Remove the initial fifo loop via optimization
+  //  Use fifo definition that reads in same cycle that ready is high
+  //  Do CFG simplification
+  //  Do control signal simplification
+  //  Get coreir backend running
+  TEST_CASE("Rewrite stencils as int computation") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<Module> Mod = loadLLFile(Context, Err, "vhls_target");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
+    deleteLLVMLifetimeCalls(f);
+
+    cout << "Origin function" << endl;
+    cout << valueString(f) << endl;
+
+    MicroArchitecture arch = halideArch(f);
+    
     {
       auto in = dyn_cast<Argument>(getArg(f, 0));
       auto out = dyn_cast<Argument>(getArg(f, 1));    
@@ -557,5 +564,25 @@ namespace ahaHLS {
 
       REQUIRE(runIVerilogTB("vhls_target"));      
     }
+  }
+
+  TEST_CASE("Stencil cascade") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<Module> Mod = loadLLFile(Context, Err, "halide_cascade");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
+
+    // cout << "llvm function" << endl;
+    // cout << valueString(f) << endl;
+
+    deleteLLVMLifetimeCalls(f);
+
+    // cout << "After lifetime deletes" << endl;
+    // cout << valueString(f) << endl;
+    
   }
 }
