@@ -1,6 +1,8 @@
 #include "parser.h"
 
 #include "llvm/Transforms/Scalar/GVN.h"
+#include "llvm/Transforms/Scalar/LoopSimplifyCFG.h"
+#include "llvm/Transforms/Scalar/SimplifyCFG.h"
 #include "llvm/Transforms/Scalar.h"
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/Transforms/IPO/PassManagerBuilder.h>
@@ -972,8 +974,9 @@ namespace ahaHLS {
     pm.add(new TargetLibraryInfoWrapperPass());
     pm.add(createGVNPass());
     pm.add(createDeadStoreEliminationPass());
-      
+    pm.add(createLoopSimplifyCFGPass());
     pm.run(mod);
+
   }
 
   void optimizeModuleLLVM(SynthCppModule& scppMod) {

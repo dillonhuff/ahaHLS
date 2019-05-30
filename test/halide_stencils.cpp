@@ -290,8 +290,8 @@ namespace ahaHLS {
     Function* rewritten =
       rewriteHalideStencils(f);
 
-    optimizeModuleLLVM(*(f->getParent()));
-    //optimizeStores(f);
+    optimizeModuleLLVM(*(rewritten->getParent()));
+    optimizeStores(rewritten);
     
     cout << "Rewritten function" << endl;
     cout << valueString(rewritten) << endl;
