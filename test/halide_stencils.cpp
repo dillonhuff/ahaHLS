@@ -446,15 +446,15 @@ namespace ahaHLS {
     cout << "After inlining" << endl;
     cout << valueString(rewritten) << endl;
     auto preds = buildControlPreds(rewritten);
-    vector<BasicBlock*> blockOrder =
-      topologicalSortOfBlocks(rewritten, preds);
-    for (auto& bb : rewritten->getBasicBlockList()) {
-      for (auto succ : successors(&bb)) {
-        if (precedes(&bb, succ, blockOrder)) {
-          exec.add(end(&bb) < start(succ));
-        }
-      }
-    }
+    // vector<BasicBlock*> blockOrder =
+    //   topologicalSortOfBlocks(rewritten, preds);
+    // for (auto& bb : rewritten->getBasicBlockList()) {
+    //   for (auto succ : successors(&bb)) {
+    //     if (precedes(&bb, succ, blockOrder)) {
+    //       exec.add(end(&bb) < start(succ));
+    //     }
+    //   }
+    // }
 
     //SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, tasks, preds);
     SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, preds);
