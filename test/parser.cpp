@@ -1489,56 +1489,56 @@ namespace ahaHLS {
     return args;
   }
   
-  TEST_CASE("Wrapper class for add module") {
-    ParserModule parseM = parseSynthModule("./experiments/int_add.cpp");
-    SynthCppModule scppMod(parseM);
+  // TEST_CASE("Wrapper class for add module") {
+  //   ParserModule parseM = parseSynthModule("./experiments/int_add.cpp");
+  //   SynthCppModule scppMod(parseM);
 
-    string className = "int_add";
-    SynthCppClass* iClass = scppMod.getClass(className);
-    map<string, STG> stgs;
-    for (auto mS : iClass->methods) {
-      SynthCppFunction* m = mS.second;
-      STG stg = buildSTGFor(scppMod, m);
-      cout << "STG is " << endl;
-      stg.print(cout);
-      stgs.insert({mS.first, stg});
-    }
+  //   string className = "int_add";
+  //   SynthCppClass* iClass = scppMod.getClass(className);
+  //   map<string, STG> stgs;
+  //   for (auto mS : iClass->methods) {
+  //     SynthCppFunction* m = mS.second;
+  //     STG stg = buildSTGFor(scppMod, m);
+  //     cout << "STG is " << endl;
+  //     stg.print(cout);
+  //     stgs.insert({mS.first, stg});
+  //   }
 
-    ofstream file("int_add_wrapper.h");
-    file << "#include \"verilated.h\"" << endl << endl;
-    file << "#include \"V" + className + ".h\"" << endl << endl;
-    file << "typedef int i32;" << endl << endl;
+  //   ofstream file("int_add_wrapper.h");
+  //   file << "#include \"verilated.h\"" << endl << endl;
+  //   file << "#include \"V" + className + ".h\"" << endl << endl;
+  //   file << "typedef int i32;" << endl << endl;
     
-    file << "class int_add {" << endl;
-    file << tab(1) << "V" + className << " inner;" << endl;
-    file << "public:" << endl;
-    for (auto& nameAndSTG : stgs) {
-      vector<string> argList = buildWrapperArgs(nameAndSTG.second.getFunction());
-      file << tab(1) << "void " << nameAndSTG.first << "(" << commaListString(argList) << ") {" << endl;
-      file << simWrapperImpl(nameAndSTG.second) << endl;
-      file << tab(1) << "}" << endl;
-    }
-    file << "};" << endl;
-    file.close();
+  //   file << "class int_add {" << endl;
+  //   file << tab(1) << "V" + className << " inner;" << endl;
+  //   file << "public:" << endl;
+  //   for (auto& nameAndSTG : stgs) {
+  //     vector<string> argList = buildWrapperArgs(nameAndSTG.second.getFunction());
+  //     file << tab(1) << "void " << nameAndSTG.first << "(" << commaListString(argList) << ") {" << endl;
+  //     file << simWrapperImpl(nameAndSTG.second) << endl;
+  //     file << tab(1) << "}" << endl;
+  //   }
+  //   file << "};" << endl;
+  //   file.close();
 
-    // What is the next step? I guess write a function that emits
-    // a cpp file containing the generated class
+  //   // What is the next step? I guess write a function that emits
+  //   // a cpp file containing the generated class
 
-    string runVerilator = "verilator --cc ./experiments/int_add.v --exe int_wrapper_tb.cpp -Wno-lint";
-    int verilatorRan = runCmd(runVerilator);
-    REQUIRE(verilatorRan);
+  //   string runVerilator = "verilator --cc ./experiments/int_add.v --exe int_wrapper_tb.cpp -Wno-lint";
+  //   int verilatorRan = runCmd(runVerilator);
+  //   REQUIRE(verilatorRan);
 
-    string compileVerilated = "make -j -C obj_dir -f Vint_add.mk Vint_add";
-    int verilatorMade = runCmd(compileVerilated);
-    REQUIRE(verilatorMade);
+  //   string compileVerilated = "make -j -C obj_dir -f Vint_add.mk Vint_add";
+  //   int verilatorMade = runCmd(compileVerilated);
+  //   REQUIRE(verilatorMade);
     
-    string compileCmd = "clang++ int_wrapper_tb.cpp ./obj_dir/verilated.o ./obj_dir/Vint_add__ALL.a    -o int_wrapper_tb -lm -lstdc++ -I/usr/local/Cellar/verilator/3.920/share/verilator/include -I./obj_dir";
-    int compileCppTest = runCmd(compileCmd); //runCmd("clang++ -o int_wrapper_tb int_wrapper_tb.cpp");
-    REQUIRE(compileCppTest);
+  //   string compileCmd = "clang++ int_wrapper_tb.cpp ./obj_dir/verilated.o ./obj_dir/Vint_add__ALL.a    -o int_wrapper_tb -lm -lstdc++ -I/usr/local/Cellar/verilator/3.920/share/verilator/include -I./obj_dir";
+  //   int compileCppTest = runCmd(compileCmd); //runCmd("clang++ -o int_wrapper_tb int_wrapper_tb.cpp");
+  //   REQUIRE(compileCppTest);
 
-    int runCppTest = runCmd("./int_wrapper_tb");
-    REQUIRE(runCppTest);
-  }
+  //   int runCppTest = runCmd("./int_wrapper_tb");
+  //   REQUIRE(runCppTest);
+  // }
 
   
 }
