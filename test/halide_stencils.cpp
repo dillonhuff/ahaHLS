@@ -89,10 +89,14 @@ namespace ahaHLS {
 
         rewrites[toRewrite] =
           b.CreateCall(func, argReplacements);
-      } else if (isMethod("AxiPackedStencil", "AxiPackedStencil", func)) {
+      } else if (isConstructor("AxiPackedStencil_", func)) {
+        
         assert(false);
       } else {
         cout << "Unsupported call" << valueString(toRewrite) << endl;
+        if (canDemangle(func->getName())) {
+          cout << "\tDemangled name = " << demangle(func->getName()) << endl;
+        }
         assert(false);
       }
     } else if (BranchInst::classof(toRewrite)) {
@@ -188,11 +192,11 @@ namespace ahaHLS {
     cout << "Origin function" << endl;
     cout << valueString(f) << endl;
 
-    Function* rewritten =
-      rewriteHalideStencils(f);
+    // Function* rewritten =
+    //   rewriteHalideStencils(f);
 
-    cout << "Rewritten function" << endl;
-    cout << valueString(rewritten) << endl;
+    // cout << "Rewritten function" << endl;
+    // cout << valueString(rewritten) << endl;
     
   }
   
