@@ -2186,7 +2186,8 @@ namespace ahaHLS {
     auto setValid1 = exitBuilder.CreateCall(setValidF, {fifo, mkInt(1, 1)});
     auto readValue = exitBuilder.CreateCall(readInDataF, {fifo});
     auto store = exitBuilder.CreateStore(readValue, out);
-    exitBuilder.CreateRet(readValue);
+    //exitBuilder.CreateRet(readValue);
+    exitBuilder.CreateRet(nullptr);
 
     exec.add(end(stallBlk) + 1 == instrStart(setValid1));
     exec.add(instrStart(setValid1) + 1 == instrStart(readValue));

@@ -412,6 +412,7 @@ namespace ahaHLS {
 
     std::set<BasicBlock*> toPipeline;
     ExecutionConstraints exec;
+    
     inlineWireCalls(rewritten, exec, interfaces);
 
     optimizeModuleLLVM(*(rewritten->getParent()));
@@ -495,7 +496,13 @@ namespace ahaHLS {
       map_insert(tb.actionsOnCycles, endCycle, assertString("valid === 1"));
 
       VerilogDebugInfo info;
-      addControlSanityChecks(arch, info);
+      addDisplay("1", "global state = %d", {"global_state"}, info);
+      addDisplay("1", "arg_0_read_ready = %d", {"arg_0_read_ready"}, info);
+      addDisplay("1", "arg_0_read_valid = %d", {"arg_0_read_valid"}, info);
+      addDisplay("1", "arg_0_out_data = %d", {"arg_0_out_data"}, info);
+      printActiveBlocks(arch, info);
+      addNoXChecks(arch, info);
+      //addControlSanityChecks(arch, info);
 
       checkSignal(tb,
                   "valid",

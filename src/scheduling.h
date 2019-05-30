@@ -1621,8 +1621,8 @@ namespace ahaHLS {
                      const int width,
                      const std::string name);
 
-  // void sequentialCalls(llvm::Function* f,
-  //                      ExecutionConstraints& exec);
+  void sequentialCalls(llvm::Function* f,
+                       ExecutionConstraints& exec);
 
   ModuleSpec registerModSpec(const int width);
 
@@ -1742,7 +1742,8 @@ namespace ahaHLS {
   int stencilNumRows(const std::string& name);
   int stencilNumCols(const std::string& name);
   string streamStencilName(const std::string& streamName);
-  
+
+  std::string blkNameString(BasicBlock* const blk);  
 }
 
 

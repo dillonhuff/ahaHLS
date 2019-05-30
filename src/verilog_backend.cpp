@@ -1506,6 +1506,17 @@ namespace ahaHLS {
     //printEdgeTakenWires(arch, info);
     //printAllActiveStates(arch, info);
   }
+
+  void printActiveBlocks(MicroArchitecture& arch, VerilogDebugInfo& info) {
+    for (auto& bbR : *(arch.stg.getFunction())) {
+      BasicBlock* bb = &bbR;
+      //int num = arch.cs.getBasicBlockNo(bb);
+      for (auto st : arch.stg.opStates) {
+        StateId stateId = st.first;
+        addDisplay(blockActiveInState(stateId, bb, arch).valueString(), "block: " + blkNameString(bb) + " is active in state " + to_string(stateId), {}, info);
+      }
+    }
+  }
   
   void addNoXChecks(MicroArchitecture& arch,
                     VerilogDebugInfo& info) {
