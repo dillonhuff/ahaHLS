@@ -440,7 +440,7 @@ namespace ahaHLS {
               implementRVFifoWriteRef(func, interfaces.getConstraints(func));
             } else {
               cout << "Error: Unsupported call " << valueString(ci) << endl;
-              assert(false);
+              //assert(false);
             }
             funcs.insert(name);
           }

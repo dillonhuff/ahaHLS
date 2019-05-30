@@ -2638,7 +2638,7 @@ namespace ahaHLS {
       preBr->setSuccessor(0, map_find(&(called->getEntryBlock()), oldBlocksToClones));
       
       for (auto& bb : f->getBasicBlockList()) {
-        cout << "setting successors for " << valueString(&bb) << endl;
+        //cout << "setting successors for " << valueString(&bb) << endl;
         auto term = bb.getTerminator();
         assert(term != nullptr);
         if (BranchInst::classof(term)) {
@@ -2652,7 +2652,7 @@ namespace ahaHLS {
           }
         }
 
-        cout << "done" << endl;
+        //cout << "done" << endl;
       }
     }
 
