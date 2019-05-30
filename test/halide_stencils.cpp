@@ -104,6 +104,11 @@ namespace ahaHLS {
     return mkFunc(ins, voidType(), "fifo_read_ref." + to_string(width));
   }
 
+  llvm::Function* lbHasValidFunction(const int width) {
+    vector<Type*> ins{};
+    return mkFunc(ins, intType(1), "lb_has_valid." + to_string(width));
+  }
+  
   llvm::Function* fifoWriteRefFunction(const int width) {
     vector<Type*> ins{fifoType(width)->getPointerTo(),
         intType(width)->getPointerTo()};
@@ -190,6 +195,32 @@ namespace ahaHLS {
           b.CreateStore(source, argReplacements[0]);
       } else if (isMethod("AxiPackedStencil_", "set_last", func)) {
         // Do nothing
+      } else if (isMethod("ram_", "ram_write", func)) {
+        // TODO: Compile to constants
+      } else if (isMethod("ram_", "ram_read", func)) {
+        vector<Value*> argReplacements;
+        for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
+          argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
+        }
+
+        // TODO: Replace with builtin ram read function
+        rewrites[toRewrite] =
+          b.CreateCall(func, argReplacements);
+      } else if (isMethod("linebuffer_", "lb_write", func)) {
+        // TODO: Replace
+      } else if (isMethod("linebuffer_", "lb_read", func)) {
+        // TOOD: Replace
+      } else if (isMethod("linebuffer_", "has_valid_data", func)) {
+        vector<Value*> argReplacements;
+        for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
+          cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
+          argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
+        }
+
+        // TODO: Replace with real lb stats
+        auto replaceF = lbHasValidFunction(0);
+        rewrites[toRewrite] =
+          b.CreateCall(replaceF, argReplacements);
       } else {
         cout << "Unsupported call" << valueString(toRewrite) << endl;
         if (canDemangle(func->getName())) {
@@ -219,6 +250,14 @@ namespace ahaHLS {
       int reservedVals = dyn_cast<PHINode>(toRewrite)->getNumIncomingValues();
       auto* replacement = b.CreatePHI(halideType(toRewrite->getType()), reservedVals);
       rewrites[toRewrite] = replacement;
+    } else if (ZExtInst::classof(toRewrite)) {
+      auto rLHS = findRewrite(toRewrite->getOperand(0), rewrites);
+      rewrites[toRewrite] = b.CreateZExt(rLHS, toRewrite->getType());
+      
+    } else if (TruncInst::classof(toRewrite)) {
+      auto rLHS = findRewrite(toRewrite->getOperand(0), rewrites);
+      rewrites[toRewrite] = b.CreateTrunc(rLHS, toRewrite->getType());
+      
     } else if (BinaryOperator::classof(toRewrite)) {
       llvm::Instruction::BinaryOps opcode =
         dyn_cast<BinaryOperator>(toRewrite)->getOpcode();
@@ -575,14 +614,45 @@ namespace ahaHLS {
     setGlobalLLVMModule(Mod.get());
 
     Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
-
-    // cout << "llvm function" << endl;
-    // cout << valueString(f) << endl;
-
     deleteLLVMLifetimeCalls(f);
 
-    // cout << "After lifetime deletes" << endl;
-    // cout << valueString(f) << endl;
+    MicroArchitecture arch = halideArch(f);
+
+    auto in = dyn_cast<Argument>(getArg(f, 0));
+    auto out = dyn_cast<Argument>(getArg(f, 1));    
+
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 800;
+    tb.maxCycles = 1000;
+    tb.name = "vhls_target";
+    tb.useModSpecs = true;
+    tb.settablePort(in, "in_data");
+    tb.settablePort(in, "write_valid");
+    tb.settablePort(out, "read_valid");    
+
+    map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+
+    int endCycle = 200;
+    map_insert(tb.actionsOnCycles, endCycle, assertString("valid === 1"));
+
+    VerilogDebugInfo info;
+    // addDisplay("1", "global state = %d", {"global_state"}, info);
+    // addDisplay("1", "arg_0_read_ready = %d", {"arg_0_read_ready"}, info);
+    // addDisplay("1", "arg_0_read_valid = %d", {"arg_0_read_valid"}, info);
+    // addDisplay("1", "arg_0_out_data = %d", {"arg_0_out_data"}, info);
+    // addDisplay("1", "arg_1_out_data = %d", {"arg_1_out_data"}, info);
+    // addDisplay("1", "arg_1_write_ready = %d", {"arg_1_write_ready"}, info);      
+    //printActiveBlocks(arch, info);
+    addNoXChecks(arch, info);
+    
+    emitVerilog("halide_cascade", arch, info);
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    
+    REQUIRE(runIVerilogTB("halide_cascade"));      
     
   }
 }
