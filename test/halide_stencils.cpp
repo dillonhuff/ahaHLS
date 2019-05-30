@@ -528,13 +528,13 @@ namespace ahaHLS {
       map_insert(tb.actionsOnCycles, endCycle, assertString("valid === 1"));
 
       VerilogDebugInfo info;
-      addDisplay("1", "global state = %d", {"global_state"}, info);
-      addDisplay("1", "arg_0_read_ready = %d", {"arg_0_read_ready"}, info);
-      addDisplay("1", "arg_0_read_valid = %d", {"arg_0_read_valid"}, info);
-      addDisplay("1", "arg_0_out_data = %d", {"arg_0_out_data"}, info);
-      addDisplay("1", "arg_1_out_data = %d", {"arg_1_out_data"}, info);
-      addDisplay("1", "arg_1_write_ready = %d", {"arg_1_write_ready"}, info);      
-      printActiveBlocks(arch, info);
+      // addDisplay("1", "global state = %d", {"global_state"}, info);
+      // addDisplay("1", "arg_0_read_ready = %d", {"arg_0_read_ready"}, info);
+      // addDisplay("1", "arg_0_read_valid = %d", {"arg_0_read_valid"}, info);
+      // addDisplay("1", "arg_0_out_data = %d", {"arg_0_out_data"}, info);
+      // addDisplay("1", "arg_1_out_data = %d", {"arg_1_out_data"}, info);
+      // addDisplay("1", "arg_1_write_ready = %d", {"arg_1_write_ready"}, info);      
+      //printActiveBlocks(arch, info);
       addNoXChecks(arch, info);
       //addControlSanityChecks(arch, info);
 

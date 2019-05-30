@@ -284,6 +284,7 @@ namespace ahaHLS {
       }
 
       if (unit.module.hasReset()) {
+        cout << "Adding reset field for unit" << unit.instName << endl;
         wireConns.insert({"rst", "rst"});
       }
       

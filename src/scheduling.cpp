@@ -2809,7 +2809,7 @@ namespace ahaHLS {
       {"in_data", inputPort(width, "in_data")},
       {"read_valid", inputPort(1, "read_valid")},
       {"write_valid", inputPort(1, "write_valid")},
-      {"rst", inputPort(1, "rst")},
+      //{"rst", inputPort(1, "rst")},
 
       {"out_data", outputPort(width, "out_data")},
       {"read_ready", outputPort(1, "read_ready")},
