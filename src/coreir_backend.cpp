@@ -26,7 +26,7 @@ namespace ahaHLS {
     } else if (spec.name == "andOp") {
       return "coreir.and";
     } else if (spec.name == "coreir_reg") {
-      return "ahaHLS.reg";
+      return "ahaHLS.ahaReg";
     } else if (spec.name == "notOp") {
       return "coreir.not";
     } else {
@@ -36,21 +36,30 @@ namespace ahaHLS {
     }
   }
 
-  map<string, CoreIR::Value*> coreIRParams(ModuleSpec& spec,
+  map<string, CoreIR::Value*> coreIRParams(FunctionalUnit& unit,
                                            CoreIR::Context* c) {
+    ModuleSpec& spec = unit.module;
     map<string, CoreIR::Value*> params;
+
+    bool foundRst = false;
     for (auto p : spec.params) {
       if (p.first == "WIDTH") {
         params.insert({"width", CoreIR::Const::make(c, stoi(p.second))});
       } else if (p.first == "HAS_EN") {
         params.insert({"has_en", CoreIR::Const::make(c, stoi(p.second) == 1 ? true : false)});
       } else if (p.first == "RESET_VALUE") {
-        params.insert({"has_rst", CoreIR::Const::make(c, stoi(p.second) == 1 ? true : false)});
+        //params.insert({"has_clr", CoreIR::Const::make(c, stoi(p.second) == 1 ? true : false)});
+        foundRst = true;
       } else {
         cout << "Error: Unsupported parameter = " << p.first << endl;
         assert(false);
       }
     }
+
+    // if (!foundRst) {
+    //   params.insert({"has_clr", CoreIR::Const::make(c, stoi(p.second) == 1 ? true : false)});      
+    // }
+    
     return params;
   }
   
@@ -59,7 +68,7 @@ namespace ahaHLS {
     auto inst =
       def->addInstance(unit.instName,
                        unitCoreIRName(unit.module),
-                       coreIRParams(unit.module, def->getContext()));
+                       coreIRParams(unit, def->getContext()));
     return inst;
   }
   
@@ -258,17 +267,18 @@ namespace ahaHLS {
     Params wireParams = {{"width", c->Int()}};
     TypeGen* wireTp =
       ahaLib->newTypeGen(
-                        "reg",
+                         "ahaReg",
                         wireParams,
                         [](Context* c, Values genargs) {
                           uint width = genargs.at("width")->get<int>();
                           return c->Record({
                               {"in", c->BitIn()->Arr(width)},
-                              {"en", c->BitIn()->Arr(1)},                          
+                              {"en", c->BitIn()->Arr(1)},
+                                {"rst", c->BitIn()->Arr(1)},
                                 {"out",c->Bit()->Arr(width)}});
                         });
-    ahaLib->newGeneratorDecl("reg", wireTp, wireParams);
-    auto gen = ahaLib->getGenerator("reg");
+    ahaLib->newGeneratorDecl("ahaReg", wireTp, wireParams);
+    auto gen = ahaLib->getGenerator("ahaReg");
 
     std::function<void (Context*, Values, CoreIR::ModuleDef*)> genFun =
       [](Context* c, Values args, CoreIR::ModuleDef* def) {
@@ -276,10 +286,13 @@ namespace ahaHLS {
 
       def->addInstance("innerReg",
                        "mantle.reg",
-      {{"width", CoreIR::Const::make(c, width)}, {"has_en", CoreIR::Const::make(c, true)}, {"has_rst", CoreIR::Const::make(c, true)}});
+      {{"width", CoreIR::Const::make(c, width)},
+          {"has_en", CoreIR::Const::make(c, true)},
+          {"has_clr", CoreIR::Const::make(c, true)}});
 
       def->connect("self.in", "innerReg.in");
       def->connect("self.en.0", "innerReg.en");
+      def->connect("self.rst.0", "innerReg.clr");      
       def->connect("innerReg.out", "self.out");
     };
     gen->setGeneratorDefFromFun(genFun);
@@ -391,6 +404,17 @@ namespace ahaHLS {
         int width = arrayLen(w); //10; // TODO: set by checking width
         CoreIR::Select* inputWire = buildController(width, vals, functionalUnits, def, arch);
         def->connect(w, inputWire);
+      }
+    }
+
+    for (auto units : functionalUnits) {
+      auto inst = units.second;
+      string opName = inst->getModuleRef()->getNamespace()->getName() + "." + getOpName(*inst);
+      cout << "Opname = " << opName << endl;
+      
+      if (opName == "ahaHLS.ahaReg") {
+        cout << "Wiring up register reset" << endl;
+        def->connect(def->sel("self.rst"), units.second->sel("rst"));
       }
     }
 

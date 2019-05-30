@@ -367,7 +367,13 @@ namespace ahaHLS {
 
     return (succPos - predPos) > 0;
   }
-  
+
+  // TODO:
+  //  Remove the initial fifo loop via optimization
+  //  Use fifo definition that reads in same cycle that ready is high
+  //  Do CFG simplification
+  //  Do control signal simplification
+  //  Get coreir backend running
   TEST_CASE("Rewrite stencils as int computation") {
     SMDiagnostic Err;
     LLVMContext Context;
