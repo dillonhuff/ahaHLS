@@ -533,6 +533,7 @@ namespace ahaHLS {
       addDisplay("1", "arg_0_read_valid = %d", {"arg_0_read_valid"}, info);
       addDisplay("1", "arg_0_out_data = %d", {"arg_0_out_data"}, info);
       addDisplay("1", "arg_1_out_data = %d", {"arg_1_out_data"}, info);
+      addDisplay("1", "arg_1_write_ready = %d", {"arg_1_write_ready"}, info);      
       printActiveBlocks(arch, info);
       addNoXChecks(arch, info);
       //addControlSanityChecks(arch, info);
