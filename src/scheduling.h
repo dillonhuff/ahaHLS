@@ -1491,7 +1491,8 @@ namespace ahaHLS {
                                     ExecutionConstraints& exec);
   void implementRVFifoWriteRef(llvm::Function* writeFifo,
                                ExecutionConstraints& exec);
-
+  void implementRVFifoReadRef(llvm::Function* readFifo, ExecutionConstraints& exec);
+  
   void inlineWireCalls(llvm::Function* f,
                        ExecutionConstraints& exec,
                        InterfaceFunctions& interfaces);

@@ -336,6 +336,35 @@ namespace ahaHLS {
     
     cout << "Rewritten function" << endl;
     cout << valueString(rewritten) << endl;
+
+    // Now: Populate HLS data structures
+    HardwareConstraints hcs = standardConstraints();
+    InterfaceFunctions interfaces;
+    set<string> funcs;
+
+    for (auto& bb : rewritten->getBasicBlockList()) {
+      for (auto& instrR : bb) {
+        auto instr = &instrR;
+        if (CallInst::classof(instr)) {
+          CallInst* ci = dyn_cast<CallInst>(instr);
+          Function* func = ci->getCalledFunction();
+          string name = ci->getCalledFunction()->getName();
+          if (!elem(name, funcs)) {
+            if (hasPrefix(name, "fifo_read_ref")) {
+              interfaces.addFunction(func);
+              implementRVFifoReadRef(func, interfaces.getConstraints(func));
+            } else if (hasPrefix(name, "fifo_write_ref")) {
+              interfaces.addFunction(func);
+              implementRVFifoWriteRef(func, interfaces.getConstraints(func));
+            } else {
+              cout << "Error: Unsupported call " << valueString(ci) << endl;
+              assert(false);
+            }
+            funcs.insert(name);
+          }
+        }
+      }
+    }
     
   }
   

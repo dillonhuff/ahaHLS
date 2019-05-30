@@ -2158,6 +2158,42 @@ namespace ahaHLS {
     // addDataConstraints(readFifo, exec);
   }
 
+  void implementRVFifoReadRef(llvm::Function* readFifo, ExecutionConstraints& exec) {
+
+    auto out = getArg(readFifo, 0); //readFifoVal(readFifo);
+    auto fifo = getArg(readFifo, 1);
+    auto tp = getPointedToType(out->getType());
+
+    int width = getTypeBitWidth(tp); //readOutputType(readFifo));
+
+    auto entryBlk = mkBB("entry_block", readFifo);
+    auto stallBlk = mkBB("stall_block", readFifo);
+    auto exitBlk = mkBB("exit_block", readFifo);
+
+    auto readInDataF = readPort("out_data", width, tp);
+    auto readReadyF = readPort("read_ready", 1, tp);
+
+    auto setValidF = writePort("read_valid", 1, tp);
+    
+    IRBuilder<> entryBuilder(entryBlk);
+    entryBuilder.CreateBr(stallBlk);
+
+    IRBuilder<> stallBuilder(stallBlk);
+    auto readReady = stallBuilder.CreateCall(readReadyF, {fifo});    
+    stallBuilder.CreateCondBr(readReady, exitBlk, stallBlk);
+
+    IRBuilder<> exitBuilder(exitBlk);
+    auto setValid1 = exitBuilder.CreateCall(setValidF, {fifo, mkInt(1, 1)});
+    auto readValue = exitBuilder.CreateCall(readInDataF, {fifo});
+    auto store = exitBuilder.CreateStore(readValue, out);
+    exitBuilder.CreateRet(readValue);
+
+    exec.add(end(stallBlk) + 1 == instrStart(setValid1));
+    exec.add(instrStart(setValid1) + 1 == instrStart(readValue));
+    exec.add(instrStart(store) == instrEnd(readValue));
+
+    addDataConstraints(readFifo, exec);
+  }  
   void implementRVFifoWrite(llvm::Function* writeFifo, ExecutionConstraints& exec) {
 
     auto out = getArg(writeFifo, 1);
