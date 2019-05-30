@@ -408,10 +408,6 @@ namespace ahaHLS {
 
     std::set<BasicBlock*> toPipeline;
     ExecutionConstraints exec;
-    
-    //auto preds = buildControlPreds(rewritten, exec);
-    //addStencilCallConstraints(rewritten, preds, exec);
-
     inlineWireCalls(rewritten, exec, interfaces);
 
     optimizeModuleLLVM(*(rewritten->getParent()));
@@ -433,6 +429,9 @@ namespace ahaHLS {
     STG graph = buildSTG(s, rewritten);
     cout << "STG is" << endl;
     graph.print(cout);
+
+    std::map<std::string, int> memoryMap;    
+    MicroArchitecture arch = buildMicroArchitecture(graph, memoryMap, hcs);
   }
   
 }
