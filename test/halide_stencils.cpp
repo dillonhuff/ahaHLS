@@ -342,13 +342,17 @@ namespace ahaHLS {
         auto instr = &instrR;
         if (AllocaInst::classof(instr)) {
           auto allocTp = getPointedToType(instr->getType());
+          cout << "Allocating type " << typeString(allocTp) << endl;
           if (isBuiltinFifoType(allocTp)) {
             hcs.modSpecs[instr] = fifoSpec(builtinFifoWidth(allocTp), 128);
+          } else if (IntegerType::classof(allocTp)) {
+            hcs.memSpecs[instr] = registerSpec(getTypeBitWidth(allocTp));
           }
         }
       }
     }
   }
+  
   TEST_CASE("Rewrite stencils as int computation") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -374,7 +378,7 @@ namespace ahaHLS {
 
     // Now: Populate HLS data structures
     HardwareConstraints hcs = standardConstraints();
-    assignModuleSpecs(f, hcs);
+    assignModuleSpecs(rewritten, hcs);
 
     InterfaceFunctions interfaces;
     set<string> funcs;
@@ -430,7 +434,7 @@ namespace ahaHLS {
     cout << "STG is" << endl;
     graph.print(cout);
 
-    std::map<std::string, int> memoryMap;    
+    std::map<Value*, int> memoryMap;
     MicroArchitecture arch = buildMicroArchitecture(graph, memoryMap, hcs);
   }
   

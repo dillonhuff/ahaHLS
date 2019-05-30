@@ -764,13 +764,19 @@ namespace ahaHLS {
     if (instr->getName() != "") {
       unitName = instr->getName();
     } else {
-      unitName = sanitizeFormatForVerilogId(valueString(instr));      
+      unitName = sanitizeFormatForVerilogId(valueString(instr));
     }
 
-    assert(hcs.hasArgumentSpec(instr));
+    if (hcs.hasArgumentSpec(instr)) {
 
-    ModuleSpec mSpec = hcs.getArgumentSpec(instr);
-    return functionalUnitForSpec(unitName, mSpec);
+      ModuleSpec mSpec = hcs.getArgumentSpec(instr);
+      return functionalUnitForSpec(unitName, mSpec);
+    } else {
+      assert(contains_key(instr, hcs.modSpecs));
+
+      ModuleSpec mSpec = map_find(instr, hcs.modSpecs);
+      return functionalUnitForSpec(unitName, mSpec);
+    }
   }
   
   FunctionalUnit createMemUnit(std::string unitName,
