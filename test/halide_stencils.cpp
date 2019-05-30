@@ -3,6 +3,7 @@
 #include "verilog_backend.h"
 #include "llvm_codegen.h"
 #include "test_utils.h"
+#include "parser.h"
 
 using namespace dbhc;
 using namespace llvm;
@@ -266,6 +267,9 @@ namespace ahaHLS {
     }
 
     populatePHIs(orig, f, rewrites, bbRewrites);
+
+    sanityCheck(f);
+    
     return f;
   }
 
