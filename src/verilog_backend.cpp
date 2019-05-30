@@ -1513,7 +1513,7 @@ namespace ahaHLS {
       //int num = arch.cs.getBasicBlockNo(bb);
       for (auto st : arch.stg.opStates) {
         StateId stateId = st.first;
-        addDisplay(blockActiveInState(stateId, bb, arch).valueString(), "block: " + blkNameString(bb) + " is active in state " + to_string(stateId), {}, info);
+        addDisplay(blockActiveInState(stateId, bb, arch).valueString(), "block: " + sanitizeFormatForVerilogId(blkNameString(bb)) + " is active in state " + to_string(stateId), {}, info);
       }
     }
   }
