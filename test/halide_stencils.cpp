@@ -459,7 +459,7 @@ namespace ahaHLS {
     
       tb.setArgPort(in, "in_data", 2, "16'd28");
       tb.setArgPort(in, "write_valid", 2, "1'b1");    
-
+      
       tb.setArgPort(in, "in_data", 3, "16'd10");
       tb.setArgPort(in, "write_valid", 3, "1'b1");    
 
@@ -468,8 +468,12 @@ namespace ahaHLS {
 
       tb.setArgPort(in, "in_data", 5, "16'd3");
       tb.setArgPort(in, "write_valid", 5, "1'b1");    
-    
       tb.setArgPort(in, "write_valid", 6, "1'b0");
+      
+      tb.setArgPort(in, "in_data", 7, "16'd9");
+      tb.setArgPort(in, "write_valid", 7, "1'b1");
+      tb.setArgPort(in, "write_valid", 8, "1'b0");      
+
 
       int endCycle = 700;
       tb.setArgPort(out, "read_valid", endCycle + 2, "1'b1");
@@ -497,9 +501,9 @@ namespace ahaHLS {
                   "valid",
                   {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {100, 1}, {103, 1}, {106, 1}, {112, 1}, {125, 1}, {150, 1}, {200, 1}});
 
-      checkSignal(tb,
-                  "arg_1_read_ready",
-                  {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {25, 0}, {37, 0}, {43, 0}, {47, 1}, {50, 1}, {100, 1}, {103, 1}, {106, 1}, {112, 1}, {125, 1}, {150, 1}, {200, 1}});
+      // checkSignal(tb,
+      //             "arg_1_read_ready",
+      //             {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {25, 0}, {37, 0}, {43, 0}, {47, 1}, {50, 1}, {100, 1}, {103, 1}, {106, 1}, {112, 1}, {125, 1}, {150, 1}, {200, 1}});
       
       emitVerilog("vhls_target", arch, info);
       emitVerilogTestBench(tb, arch, testLayout);

@@ -39,15 +39,7 @@ module vhls_target_tb();
 	end
 
 	always @(posedge clk) begin
-		if (3 == total_cycles) begin if (!(arg_1_read_ready === 0)) begin $display("assertion(arg_1_read_ready === 0) failed:  on cycle 3"); $finish(); end end
-	end
-
-	always @(posedge clk) begin
 		if (10 == total_cycles) begin if (!(valid === 0)) begin $display("assertion(valid === 0) failed:  on cycle 10"); $finish(); end end
-	end
-
-	always @(posedge clk) begin
-		if (10 == total_cycles) begin if (!(arg_1_read_ready === 0)) begin $display("assertion(arg_1_read_ready === 0) failed:  on cycle 10"); $finish(); end end
 	end
 
 	always @(posedge clk) begin
@@ -55,35 +47,7 @@ module vhls_target_tb();
 	end
 
 	always @(posedge clk) begin
-		if (15 == total_cycles) begin if (!(arg_1_read_ready === 0)) begin $display("assertion(arg_1_read_ready === 0) failed:  on cycle 15"); $finish(); end end
-	end
-
-	always @(posedge clk) begin
 		if (17 == total_cycles) begin if (!(valid === 0)) begin $display("assertion(valid === 0) failed:  on cycle 17"); $finish(); end end
-	end
-
-	always @(posedge clk) begin
-		if (17 == total_cycles) begin if (!(arg_1_read_ready === 0)) begin $display("assertion(arg_1_read_ready === 0) failed:  on cycle 17"); $finish(); end end
-	end
-
-	always @(posedge clk) begin
-		if (25 == total_cycles) begin if (!(arg_1_read_ready === 0)) begin $display("assertion(arg_1_read_ready === 0) failed:  on cycle 25"); $finish(); end end
-	end
-
-	always @(posedge clk) begin
-		if (37 == total_cycles) begin if (!(arg_1_read_ready === 0)) begin $display("assertion(arg_1_read_ready === 0) failed:  on cycle 37"); $finish(); end end
-	end
-
-	always @(posedge clk) begin
-		if (43 == total_cycles) begin if (!(arg_1_read_ready === 0)) begin $display("assertion(arg_1_read_ready === 0) failed:  on cycle 43"); $finish(); end end
-	end
-
-	always @(posedge clk) begin
-		if (47 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1) failed:  on cycle 47"); $finish(); end end
-	end
-
-	always @(posedge clk) begin
-		if (50 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1) failed:  on cycle 50"); $finish(); end end
 	end
 
 	always @(posedge clk) begin
@@ -91,15 +55,7 @@ module vhls_target_tb();
 	end
 
 	always @(posedge clk) begin
-		if (100 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1) failed:  on cycle 100"); $finish(); end end
-	end
-
-	always @(posedge clk) begin
 		if (103 == total_cycles) begin if (!(valid === 1)) begin $display("assertion(valid === 1) failed:  on cycle 103"); $finish(); end end
-	end
-
-	always @(posedge clk) begin
-		if (103 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1) failed:  on cycle 103"); $finish(); end end
 	end
 
 	always @(posedge clk) begin
@@ -107,15 +63,7 @@ module vhls_target_tb();
 	end
 
 	always @(posedge clk) begin
-		if (106 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1) failed:  on cycle 106"); $finish(); end end
-	end
-
-	always @(posedge clk) begin
 		if (112 == total_cycles) begin if (!(valid === 1)) begin $display("assertion(valid === 1) failed:  on cycle 112"); $finish(); end end
-	end
-
-	always @(posedge clk) begin
-		if (112 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1) failed:  on cycle 112"); $finish(); end end
 	end
 
 	always @(posedge clk) begin
@@ -123,23 +71,11 @@ module vhls_target_tb();
 	end
 
 	always @(posedge clk) begin
-		if (125 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1) failed:  on cycle 125"); $finish(); end end
-	end
-
-	always @(posedge clk) begin
 		if (150 == total_cycles) begin if (!(valid === 1)) begin $display("assertion(valid === 1) failed:  on cycle 150"); $finish(); end end
 	end
 
 	always @(posedge clk) begin
-		if (150 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1) failed:  on cycle 150"); $finish(); end end
-	end
-
-	always @(posedge clk) begin
 		if (200 == total_cycles) begin if (!(valid === 1)) begin $display("assertion(valid === 1) failed:  on cycle 200"); $finish(); end end
-	end
-
-	always @(posedge clk) begin
-		if (200 == total_cycles) begin if (!(arg_1_read_ready === 1)) begin $display("assertion(arg_1_read_ready === 1) failed:  on cycle 200"); $finish(); end end
 	end
 
 	always @(posedge clk) begin
@@ -204,6 +140,18 @@ module vhls_target_tb();
 
 	always @(*) begin
 		if (6 == total_cycles) begin arg_0_write_valid = 1'b0; end
+	end
+
+	always @(*) begin
+		if (7 == total_cycles) begin arg_0_in_data = 16'd9; end
+	end
+
+	always @(*) begin
+		if (7 == total_cycles) begin arg_0_write_valid = 1'b1; end
+	end
+
+	always @(*) begin
+		if (8 == total_cycles) begin arg_0_write_valid = 1'b0; end
 	end
 
 	always @(*) begin
