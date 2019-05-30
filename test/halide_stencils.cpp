@@ -78,6 +78,12 @@ namespace ahaHLS {
         // TODO: Add indexing
         rewrites[toRewrite] =
           b.CreateLoad(findRewrite(toRewrite->getOperand(0), rewrites));
+      } else if (isMethod("AxiPackedStencil_", "set", func)) {
+        // TODO: Add indexing
+        rewrites[toRewrite] =
+          b.CreateStore(findRewrite(toRewrite->getOperand(1), rewrites),
+                        findRewrite(toRewrite->getOperand(0), rewrites));
+        
       } else if (isConstructor("hls_stream", func)) {
         // Do nothing, the constructor is a no-op
       } else if (isMethod("hls_stream", "read", func)) {
@@ -89,9 +95,47 @@ namespace ahaHLS {
 
         rewrites[toRewrite] =
           b.CreateCall(func, argReplacements);
+      } else if (isMethod("hls_stream", "write", func)) {
+        vector<Value*> argReplacements;
+        for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
+          cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
+          argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
+        }
+
+        rewrites[toRewrite] =
+          b.CreateCall(func, argReplacements);
       } else if (isConstructor("AxiPackedStencil_", func)) {
+        cout << "Replacing stencil constructor " << valueString(toRewrite) << endl;
         
-        assert(false);
+        vector<Value*> argReplacements;
+        for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
+          cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
+          argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
+        }
+
+        if (argReplacements.size() == 1) {
+          // Do nothing
+          return;
+        }
+        
+        assert(argReplacements.size() == 2);
+
+        auto source = b.CreateLoad(argReplacements[1]);
+        rewrites[toRewrite] =
+          b.CreateStore(source, argReplacements[0]);
+      } else if (isMethod("AxiPackedStencil_", "copy", func)) {
+        vector<Value*> argReplacements;
+        for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
+          argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
+        }
+
+        assert(argReplacements.size() == 2);
+
+        auto source = b.CreateLoad(argReplacements[0]);
+        rewrites[toRewrite] =
+          b.CreateStore(source, argReplacements[1]);
+      } else if (isMethod("AxiPackedStencil_", "set_last", func)) {
+        // Do nothing
       } else {
         cout << "Unsupported call" << valueString(toRewrite) << endl;
         if (canDemangle(func->getName())) {
@@ -192,11 +236,11 @@ namespace ahaHLS {
     cout << "Origin function" << endl;
     cout << valueString(f) << endl;
 
-    // Function* rewritten =
-    //   rewriteHalideStencils(f);
+    Function* rewritten =
+      rewriteHalideStencils(f);
 
-    // cout << "Rewritten function" << endl;
-    // cout << valueString(rewritten) << endl;
+    cout << "Rewritten function" << endl;
+    cout << valueString(rewritten) << endl;
     
   }
   
