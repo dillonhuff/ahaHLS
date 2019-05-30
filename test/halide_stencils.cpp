@@ -402,7 +402,11 @@ namespace ahaHLS {
         }
       }
     }
-    
+
+    Schedule s = scheduleInterface(rewritten, hcs, interfaces);
+    STG graph = buildSTG(s, rewritten);
+    cout << "STG is" << endl;
+    graph.print(cout);
   }
   
 }
