@@ -3933,7 +3933,20 @@ namespace ahaHLS {
 
     out << "--- # of tasks = " << sched.problem.taskSpecs.size() << endl;
     for (auto task : sched.problem.taskSpecs) {
-      out << tab(1) << "Task contains " << task.blks.size() << " blocks" << endl;
+      set<StateId> taskStates;
+      for (auto blk : task.blks) {
+        for (int s = blockStartState(blk); s <= blockEndState(blk); s++) {
+          taskStates.insert(s);
+        }
+        
+        // for (auto& instrR : *blk) {
+        //   auto instr = &instrR;
+        //   for (int s = instructionStart(instr); s <= instructionEnd(instr); s++) {
+        //     taskStates.insert(s);
+        //   }
+        // }
+      }
+      out << tab(1) << "Task contains " << task.blks.size() << " blocks, states [" << commaListString(taskStates) << "]" << endl;
 
       set<CFGJump> outOfTaskJumps =
         getOutOfTaskJumps(task, *this);

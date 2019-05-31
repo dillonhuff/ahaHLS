@@ -579,8 +579,8 @@ namespace ahaHLS {
 
         if (ConstantInt::classof(addr) &&
             ConstantInt::classof(val)) {
-          int addrI = getInt(addr);
-          int valI = getInt(val);
+          // int addrI = getInt(addr);
+          // int valI = getInt(val);
           
         }
         cout << tab(2) << valueString(ir.first) << " -> " << valueString(ir.second) << endl;
