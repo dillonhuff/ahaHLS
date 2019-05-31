@@ -146,8 +146,14 @@ namespace ahaHLS {
 
       if (isMethod("AxiPackedStencil_", "get", func)) {
         // TODO: Add indexing
-        rewrites[toRewrite] =
+        vector<int64_t> offsets;
+        for (int i = 2; i < (int) func->arg_size(); i++) {
+          
+        }
+
+        auto fullLoad =
           b.CreateLoad(findRewrite(toRewrite->getOperand(0), rewrites));
+        rewrites[toRewrite] = fullLoad;
       } else if (isMethod("AxiPackedStencil_", "set", func)) {
         // TODO: Add indexing
         rewrites[toRewrite] =
