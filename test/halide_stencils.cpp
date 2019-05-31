@@ -197,7 +197,20 @@ namespace ahaHLS {
       } else if (isMethod("AxiPackedStencil_", "set_last", func)) {
         // Do nothing
       } else if (isMethod("ram_", "ram_write", func)) {
-        // TODO: Compile to constants
+        vector<Value*> argReplacements;
+        for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
+          argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
+        }
+
+        // TODO: Replace with builtin ram read function
+        int w =
+          ramDataWidth(typeString(getPointedToType(getArg(func, 0)->getType())));
+        // asdf
+        int d =
+          ramDepth(typeString(getPointedToType(getArg(func, 0)->getType())));
+        auto replacement = ramStoreFunction(w, d);
+        rewrites[toRewrite] =
+          b.CreateCall(replacement, argReplacements);
       } else if (isMethod("ram_", "ram_read", func)) {
         vector<Value*> argReplacements;
         for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
@@ -205,8 +218,14 @@ namespace ahaHLS {
         }
 
         // TODO: Replace with builtin ram read function
+        int w =
+          ramDataWidth(typeString(getPointedToType(getArg(func, 0)->getType())));
+        // asdf
+        int d =
+          ramDepth(typeString(getPointedToType(getArg(func, 0)->getType())));
+        auto replacement = ramLoadFunction(w, d);
         rewrites[toRewrite] =
-          b.CreateCall(func, argReplacements);
+          b.CreateCall(replacement, argReplacements);
       } else if (isMethod("linebuffer_", "lb_write", func)) {
         // TODO: Replace
       } else if (isMethod("linebuffer_", "lb_read", func)) {

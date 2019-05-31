@@ -5459,6 +5459,13 @@ namespace ahaHLS {
     return (int) clog2(stoi(rest));
   }
 
+  int ramDepth(const std::string& ramName) {
+    string rName = drop("class.ram_", ramName);
+    string rest = dropType(rName);
+
+    return stoi(rest);
+  }
+  
   string dropInt(const std::string& ramName) {
     if (hasPrefix(ramName, "int")) {
       return drop("int", ramName);

@@ -1748,7 +1748,10 @@ namespace ahaHLS {
   int stencilNumCols(const std::string& name);
   string streamStencilName(const std::string& streamName);
 
-  std::string blkNameString(BasicBlock* const blk);  
+  std::string blkNameString(BasicBlock* const blk);
+  int ramDataWidth(const std::string& ramName);
+  int ramAddrWidth(const std::string& ramName);
+  int ramDepth(const std::string& ramName);      
 }
 
 
