@@ -104,8 +104,9 @@ namespace ahaHLS {
     return mkFunc(ins, voidType(), "fifo_read_ref." + to_string(width));
   }
 
-  llvm::Function* lbHasValidFunction(const int width) {
-    vector<Type*> ins{};
+  llvm::Function* lbHasValidFunction(Value* replacementLB) {
+    vector<Type*> ins{replacementLB->getType()};
+    int width = 0;
     return mkFunc(ins, intType(1), "lb_has_valid." + to_string(width));
   }
   
@@ -217,8 +218,10 @@ namespace ahaHLS {
           argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
         }
 
+        assert(argReplacements.size() > 0);
+        
         // TODO: Replace with real lb stats
-        auto replaceF = lbHasValidFunction(0);
+        auto replaceF = lbHasValidFunction(argReplacements[0]);
         rewrites[toRewrite] =
           b.CreateCall(replaceF, argReplacements);
       } else {
@@ -388,6 +391,8 @@ namespace ahaHLS {
             hcs.modSpecs[instr] = fifoSpec(builtinFifoWidth(allocTp), 128);
           } else if (IntegerType::classof(allocTp)) {
             hcs.memSpecs[instr] = registerSpec(getTypeBitWidth(allocTp));
+          } else {
+            cout << "Unrecognized alloc type = " << typeString(allocTp) << endl;
           }
         }
       }
@@ -417,10 +422,6 @@ namespace ahaHLS {
     cout << "Rewritten function" << endl;
     cout << valueString(rewritten) << endl;
 
-    // Now: Populate HLS data structures
-    HardwareConstraints hcs = standardConstraints();
-    assignModuleSpecs(rewritten, hcs);
-
     InterfaceFunctions interfaces;
     set<string> funcs;
 
@@ -438,9 +439,13 @@ namespace ahaHLS {
             } else if (hasPrefix(name, "fifo_write_ref")) {
               interfaces.addFunction(func);
               implementRVFifoWriteRef(func, interfaces.getConstraints(func));
+            } else if (hasPrefix(name, "lb_has_valid")) {
+              interfaces.addFunction(func);
+              implementLBHasValidData(func, interfaces.getConstraints(func));
             } else {
+              
               cout << "Error: Unsupported call " << valueString(ci) << endl;
-              //assert(false);
+              assert(false);
             }
             funcs.insert(name);
           }
@@ -468,6 +473,10 @@ namespace ahaHLS {
     // TODO: Need a better way to sanity check tasks
     //REQUIRE(tasks.size() == 2);
     exec.tasks = tasks;
+
+    // Now: Populate HLS data structures
+    HardwareConstraints hcs = standardConstraints();
+    assignModuleSpecs(rewritten, hcs);
     
     cout << "After inlining" << endl;
     cout << valueString(rewritten) << endl;

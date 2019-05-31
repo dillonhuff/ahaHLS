@@ -5346,12 +5346,12 @@ namespace ahaHLS {
     if (canDemangle(name)) {
       name = demangle(name);
 
-      cout << "IsMethod name = " << name << endl;
+      //cout << "IsMethod name = " << name << endl;
       if (hasPrefix(name, className)) {
         string mName = drop("::", name);
-        cout << "axi stencil method name = " << mName << endl;
+        //cout << "axi stencil method name = " << mName << endl;
         string rName = takeUntil("(", mName);
-        cout << "method name = " << rName << endl;        
+        //cout << "method name = " << rName << endl;        
         return rName == methodName;
       }
     }
@@ -5419,6 +5419,19 @@ namespace ahaHLS {
     eBuilder.CreateRet(readRes);
   }
 
+  void implementLBHasValidData(llvm::Function* lbM,
+                               ExecutionConstraints& exec) {
+    cout << "lb valid = " << endl;
+    cout << valueString(lbM) << endl;
+    assert(lbM->arg_size() > 0);
+    
+    auto lbMod = getArg(lbM, 0);
+    auto bb = mkBB("entry_block", lbM);
+    IRBuilder<> eBuilder(bb);
+    auto readRes = readPort(eBuilder, lbMod, 1, "valid");
+    eBuilder.CreateRet(readRes);
+  }
+  
   StructType* getStructTp(Type* ptrToStruct) {
     assert(PointerType::classof(ptrToStruct));
     Type* tp = dyn_cast<PointerType>(ptrToStruct)->getElementType();

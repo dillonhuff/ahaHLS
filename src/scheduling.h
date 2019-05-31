@@ -1608,6 +1608,9 @@ namespace ahaHLS {
   ModuleSpec ipReceiverSpec();
   ModuleSpec counterSpec();
 
+  void implementLBHasValidData(llvm::Function* lbM,
+                               ExecutionConstraints& exec);
+  
   void implementIncrement(llvm::Function* f, ExecutionConstraints& exec);
   void implementGetAddrsRV(llvm::Function* f, ExecutionConstraints& exec);
 
