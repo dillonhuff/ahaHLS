@@ -466,6 +466,37 @@ namespace ahaHLS {
     return (succPos - predPos) > 0;
   }
 
+  set<Instruction*> allInstrs(Function* f) {
+    set<Instruction*> instrs;
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instrR : bb) {
+        instrs.insert(&instrR);
+      }
+    }
+    return instrs;
+  }
+
+  bool isRAMWrite(Instruction* instr) {
+    if (CallInst::classof(instr)) {
+      CallInst* ci = dyn_cast<CallInst>(instr);
+      cout << "Name of called = "
+           << string(ci->getCalledFunction()->getName())
+           << endl;
+      return hasPrefix(ci->getCalledFunction()->getName(), "ram.write.");
+    }
+
+    return false;
+  }
+
+  bool isRAMRead(Instruction* instr) {
+    if (CallInst::classof(instr)) {
+      CallInst* ci = dyn_cast<CallInst>(instr);
+      return hasPrefix(ci->getCalledFunction()->getName(), "ram.read.");
+    }
+
+    return false;
+  }
+  
   MicroArchitecture halideArch(Function* f) {
     Function* rewritten =
       rewriteHalideStencils(f);
@@ -524,7 +555,40 @@ namespace ahaHLS {
     std::set<PipelineSpec> toPipeline;
     ExecutionConstraints exec;
 
-    //addDataConstraints(rewritten, exec);    
+    // RAM transformations?
+    set<Instruction*> ramOps;
+    map<Value*, map<Value*, Value*> > ramsToWrittenValues;
+    map<Value*, set<Value*> > ramsToReads;
+    for (auto instr : allInstrs(rewritten)) {
+      if (isRAMWrite(instr)) {
+        cout << valueString(instr) << " is ram write"  << endl;
+        ramsToWrittenValues[instr->getOperand(0)][instr->getOperand(1)] =
+          instr->getOperand(2);
+      } else if (isRAMRead(instr)) {
+        ramsToReads[instr->getOperand(0)].insert(instr->getOperand(1));
+      }
+    }
+
+    cout << "RAM writes" << endl;
+    map<Value*, map<int, int> > ramsToConstValues;
+    for (auto rm : ramsToWrittenValues) {
+      cout << tab(1) << valueString(rm.first) << endl;
+      for (auto ir : rm.second) {
+        Value* addr = ir.first;
+        Value* val = ir.second;
+
+        if (ConstantInt::classof(addr) &&
+            ConstantInt::classof(val)) {
+          int addrI = getInt(addr);
+          int valI = getInt(val);
+          
+        }
+        cout << tab(2) << valueString(ir.first) << " -> " << valueString(ir.second) << endl;
+
+      }
+    }
+
+    //addDataConstraints(rewritten, exec);
     inlineWireCalls(rewritten, exec, interfaces);
 
     optimizeModuleLLVM(*(rewritten->getParent()));
@@ -546,18 +610,8 @@ namespace ahaHLS {
     cout << "After inlining" << endl;
     cout << valueString(rewritten) << endl;
     auto preds = buildControlPreds(rewritten);
-    // vector<BasicBlock*> blockOrder =
-    //   topologicalSortOfBlocks(rewritten, preds);
-    // for (auto& bb : rewritten->getBasicBlockList()) {
-    //   for (auto succ : successors(&bb)) {
-    //     if (precedes(&bb, succ, blockOrder)) {
-    //       exec.add(end(&bb) < start(succ));
-    //     }
-    //   }
-    // }
 
     SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, tasks, preds);
-    //SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, preds);
     exec.addConstraints(p, rewritten);
 
     map<Function*, SchedulingProblem> constraints{{rewritten, p}};
@@ -575,6 +629,7 @@ namespace ahaHLS {
 
   // TODO:
   //  Remove one-to-one fifos
+  //  Specialize away constant RAMs
   //  Use fifo definition that reads in same cycle that ready is high
   //  Do CFG simplification
   //  Do control signal simplification
