@@ -636,14 +636,25 @@ namespace ahaHLS {
     }
 
     // For now assume only use of rams is as kernels
-    for (auto instr : allInstrs(f)) {
+    set<Instruction*> toErase;
+    for (auto instr : allInstrs(rewritten)) {
       if (isRAMWrite(instr)) {
-        instr->eraseFromParent();
+        toErase.insert(instr);
+        //instr->eraseFromParent();
       } else if (AllocaInst::classof(instr)) {
+        
         if (isRAMType(getPointedToType(instr->getType()))) {
-          instr->eraseFromParent();
+          //instr->eraseFromParent();
+          toErase.insert(instr);
         }
+      } else {
+        cout << "Not erasing " << valueString(instr) << endl;
       }
+    }
+
+    for (auto instr : toErase) {
+      cout << "Erasing instruction " << valueString(instr) << endl;
+      instr->eraseFromParent();
     }
     
     cout << "After RAM optimization" << endl;
