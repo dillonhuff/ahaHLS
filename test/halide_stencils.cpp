@@ -35,7 +35,7 @@ namespace ahaHLS {
 
     set<string> insensitivePorts{"in_data"};
     ModuleSpec modSpec = {{{"IN_WIDTH", to_string(inWidth)},
-                           {"OUT_WIDTH", to_string(outWidth)}}, "fifo", fifoPorts, defaults, insensitivePorts};
+                           {"OUT_WIDTH", to_string(outWidth)}}, "push_linebuf", fifoPorts, defaults, insensitivePorts};
     modSpec.hasClock = true;
     modSpec.hasRst = true;
     return modSpec;
@@ -162,13 +162,13 @@ namespace ahaHLS {
   }
 
   Function* lbWriteFunction(Value* replacementLB) {
-    int outWidth = 0;
+    int outWidth = 32;
     vector<Type*> ins{replacementLB->getType(), intType(outWidth)->getPointerTo()};
     return mkFunc(ins, voidType(), "lb_push." + to_string(outWidth));
   }
 
   Function* lbReadFunction(Value* replacementLB) {
-    int inWidth = 0;
+    int inWidth = 16;
     vector<Type*> ins{intType(inWidth)->getPointerTo(), replacementLB->getType()};
     return mkFunc(ins, voidType(), "lb_pop." + to_string(inWidth));
   }
@@ -666,6 +666,8 @@ namespace ahaHLS {
       }      
     }
 
+    set<Instruction*> toErase;
+    
     for (auto ram : ramsToReads) {
       if (contains_key(ram.first, ramsToConstValues)) {
         cout << valueString(ram.first) << "is const ram" << endl;
@@ -677,13 +679,13 @@ namespace ahaHLS {
           Value* value = mkInt(valueI, getValueBitWidth(rd));
           cout << "Replacing " << valueString(rd) << " with " << valueString(value) << endl;
           rd->replaceAllUsesWith(value);
-          dyn_cast<Instruction>(rd)->eraseFromParent();
+          toErase.insert(dyn_cast<Instruction>(rd));
+          //dyn_cast<Instruction>(rd)->eraseFromParent();
         }
       }
     }
 
     // For now assume only use of rams is as kernels
-    set<Instruction*> toErase;
     for (auto instr : allInstrs(rewritten)) {
       if (isRAMWrite(instr)) {
         toErase.insert(instr);
@@ -877,7 +879,7 @@ namespace ahaHLS {
     tb.memoryExpected = {};
     tb.runCycles = 800;
     tb.maxCycles = 1000;
-    tb.name = "vhls_target";
+    tb.name = "conv_2_1";
     tb.useModSpecs = true;
     tb.settablePort(in, "in_data");
     tb.settablePort(in, "write_valid");
@@ -898,11 +900,11 @@ namespace ahaHLS {
     //printActiveBlocks(arch, info);
     addNoXChecks(arch, info);
     
-    emitVerilog("halide_cascade", arch, info);
+    emitVerilog("conv_2_1", arch, info);
     emitVerilogTestBench(tb, arch, testLayout);
 
     
-    REQUIRE(runIVerilogTB("halide_cascade"));      
+    REQUIRE(runIVerilogTB("conv_2_1"));      
     
   }
   

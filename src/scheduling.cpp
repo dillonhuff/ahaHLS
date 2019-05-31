@@ -4129,9 +4129,13 @@ namespace ahaHLS {
     Value* inStencilPtr = getArg(func, 1);
     Value* lb = getArg(func, 0);
 
+    assert(inStencilPtr != nullptr);    
+
     int inWidth =
       getTypeBitWidth(getPointedToType(inStencilPtr->getType()));
 
+    cout << "About to print inStencilptr" << endl;
+    cout << "inStencilPtr = " << valueString(inStencilPtr) << endl;
     cout << "LB push In width " << inWidth << endl;
     //lbInWidth(lb);
 
@@ -4155,6 +4159,8 @@ namespace ahaHLS {
     Value* outStencilPtr = getArg(func, 0);
     Value* lb = getArg(func, 1);
 
+    assert(outStencilPtr != nullptr);
+    
     int outWidth =
       getTypeBitWidth(getPointedToType(outStencilPtr->getType()));
 

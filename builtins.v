@@ -1279,3 +1279,17 @@ module linebuffer_model(input clk,
    
    
 endmodule
+
+module push_linebuf(input clk,
+                    input  rst,
+                    input  wen,
+                    output valid,
+
+                    input [IN_WIDTH - 1 : 0] wdata,
+                    output [OUT_WIDTH -  1 : 0] rdata);
+
+   parameter IN_WIDTH = 16;
+   parameter OUT_WIDTH = 16;
+
+   
+endmodule
