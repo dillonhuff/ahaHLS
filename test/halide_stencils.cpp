@@ -13,6 +13,45 @@ using namespace std;
 
 namespace ahaHLS {
 
+  bool isBuiltinPushLBType(Type* allocTp) {
+    if (StructType::classof(allocTp)) {
+      return hasPrefix(dyn_cast<StructType>(allocTp)->getName(), "hls.lb.");
+    }
+    return false;
+  }
+
+  // TODO: Need to add image width
+  ModuleSpec pushLBModSpec(int inWidth, int outWidth) {
+    map<string, Port> fifoPorts = {
+      {"wdata", inputPort(inWidth, "wdata")},
+      {"wen", inputPort(1, "wen")},
+
+      {"rdata", outputPort(outWidth, "rdata")},
+      {"valid", outputPort(1, "valid")}
+    };
+
+    map<string, int> defaults;
+    defaults.insert({"wen", 0});
+
+    set<string> insensitivePorts{"in_data"};
+    ModuleSpec modSpec = {{{"IN_WIDTH", to_string(inWidth)},
+                           {"OUT_WIDTH", to_string(outWidth)}}, "fifo", fifoPorts, defaults, insensitivePorts};
+    modSpec.hasClock = true;
+    modSpec.hasRst = true;
+    return modSpec;
+  }
+
+  int lbInWidth(Type* lbTp) {
+    return 16;
+  }
+
+  int lbOutWidth(Type* lbTp) {
+    return 32;
+  }
+  
+  // bool 
+  //           hcs.modSpecs[instr] = pushLBModSpec(lbInWidth(allocTp), lbOutWidth(allocTp));
+  
   Type* halideType(Type* tp) {
     if (PointerType::classof(tp)) {
       Type* underlying = dyn_cast<PointerType>(tp)->getElementType();
@@ -31,6 +70,12 @@ namespace ahaHLS {
         int nRows = stencilNumRows(stencilName);
         int nCols = stencilNumCols(stencilName);
         return fifoType(typeWidth*nRows*nCols);
+      } else if (hasPrefix(name, "class.linebuffer")) {
+        // TODO: Actually compute these
+        HalideStencilTp stencilIn{16, 1, 1};
+        HalideStencilTp stencilOut{16, 1, 2};
+
+        return lbType(16, 16*2);
       } else {
         return tp;
       }
@@ -449,6 +494,8 @@ namespace ahaHLS {
           cout << "Allocating type " << typeString(allocTp) << endl;
           if (isBuiltinFifoType(allocTp)) {
             hcs.modSpecs[instr] = fifoSpec(builtinFifoWidth(allocTp), 128);
+          } else if (isBuiltinPushLBType(allocTp)) {
+            hcs.modSpecs[instr] = pushLBModSpec(lbInWidth(allocTp), lbOutWidth(allocTp));
           } else if (IntegerType::classof(allocTp)) {
             hcs.memSpecs[instr] = registerSpec(getTypeBitWidth(allocTp));
           } else {
@@ -664,8 +711,8 @@ namespace ahaHLS {
     //addDataConstraints(rewritten, exec);
     inlineWireCalls(rewritten, exec, interfaces);
 
-    optimizeModuleLLVM(*(rewritten->getParent()));
-    optimizeStores(rewritten);
+    // optimizeModuleLLVM(*(rewritten->getParent()));
+    // optimizeStores(rewritten);
 
     clearExecutionConstraints(rewritten, exec);
     

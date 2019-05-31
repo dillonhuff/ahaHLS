@@ -4131,6 +4131,8 @@ namespace ahaHLS {
 
     int inWidth =
       getTypeBitWidth(getPointedToType(inStencilPtr->getType()));
+
+    cout << "LB push In width " << inWidth << endl;
     //lbInWidth(lb);
 
     auto eb = mkBB("entry_block", func);
@@ -4138,6 +4140,7 @@ namespace ahaHLS {
     
     auto wValid = writePort(b, lb, 1, "wen", mkInt(1, 1));
     auto inDataLoad = b.CreateLoad(inStencilPtr);
+    cout << "LB Loaded data width " << getValueBitWidth(inDataLoad) << endl;
     auto wData = writePort(b, lb, inWidth, "wdata", inDataLoad);
 
     // All at once
@@ -5252,12 +5255,12 @@ namespace ahaHLS {
     return tasks;
   }
 
-  struct HalideStencilTp {
-  public:
-    int typeWidth;
-    int nRows;
-    int nCols;
-  };
+  // struct HalideStencilTp {
+  // public:
+  //   int typeWidth;
+  //   int nRows;
+  //   int nCols;
+  // };
 
   ModuleSpec linebufferSpec(const HalideStencilTp stencilIn,
                             const HalideStencilTp stencilOut,
@@ -5641,5 +5644,9 @@ namespace ahaHLS {
         }
       }
     }
+  }
+
+  StructType* lbType(const int inWidth, const int outWidth) {
+    return structType("hls.lb." + to_string(inWidth) + "." + to_string(outWidth));
   }
 }

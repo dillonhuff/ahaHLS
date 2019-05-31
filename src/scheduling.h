@@ -1756,7 +1756,16 @@ namespace ahaHLS {
   std::string blkNameString(BasicBlock* const blk);
   int ramDataWidth(const std::string& ramName);
   int ramAddrWidth(const std::string& ramName);
-  int ramDepth(const std::string& ramName);      
+  int ramDepth(const std::string& ramName);
+
+  struct HalideStencilTp {
+  public:
+    int typeWidth;
+    int nRows;
+    int nCols;
+  };
+
+  StructType* lbType(const int inWidth, const int outWidth);
 }
 
 
