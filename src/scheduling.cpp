@@ -4111,6 +4111,51 @@ namespace ahaHLS {
     b.CreateRet(nullptr);
   }
 
+  void implementLBPush(llvm::Function* const func,
+                        ExecutionConstraints& exec) {
+    Value* inStencilPtr = getArg(func, 1);
+    Value* lb = getArg(func, 0);
+
+    int inWidth =
+      getTypeBitWidth(getPointedToType(inStencilPtr->getType()));
+    //lbInWidth(lb);
+
+    auto eb = mkBB("entry_block", func);
+    IRBuilder<> b(eb);
+    
+    auto wValid = writePort(b, lb, 1, "wen", mkInt(1, 1));
+    auto inDataLoad = b.CreateLoad(inStencilPtr);
+    auto wData = writePort(b, lb, inWidth, "wdata", inDataLoad);
+
+    // All at once
+    exec.add(instrStart(wValid) == instrStart(wData));
+    exec.add(instrStart(wValid) == instrEnd(inDataLoad));
+    
+    b.CreateRet(nullptr);
+  }
+
+  void implementLBPop(llvm::Function* const func,
+                      ExecutionConstraints& exec) {
+    Value* outStencilPtr = getArg(func, 0);
+    Value* lb = getArg(func, 1);
+
+    int outWidth =
+      getTypeBitWidth(getPointedToType(outStencilPtr->getType()));
+
+    auto eb = mkBB("entry_block", func);
+    IRBuilder<> b(eb);
+
+    // Wait for valid == 1?
+    auto rdData = readPort(b, lb, outWidth, "rdata");
+    auto inDataStore = b.CreateStore(rdData, outStencilPtr);
+    //auto wData = writePort(b, lb, inWidth, "wdata", inDataLoad);
+
+    // All at once
+    exec.add(instrEnd(rdData) == instrStart(inDataStore));
+    
+    b.CreateRet(nullptr);
+  }
+  
   void implementLBWrite(llvm::Function* const func,
                         ExecutionConstraints& exec) {
 

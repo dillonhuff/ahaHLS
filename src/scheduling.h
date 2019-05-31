@@ -1608,6 +1608,11 @@ namespace ahaHLS {
   ModuleSpec ipReceiverSpec();
   ModuleSpec counterSpec();
 
+  void implementLBPush(llvm::Function* const func,
+                       ExecutionConstraints& exec);
+  void implementLBPop(llvm::Function* const func,
+                      ExecutionConstraints& exec);
+  
   void implementLBHasValidData(llvm::Function* lbM,
                                ExecutionConstraints& exec);
   

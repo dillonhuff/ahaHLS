@@ -115,6 +115,18 @@ namespace ahaHLS {
         intType(width)->getPointerTo()};
     return mkFunc(ins, voidType(), "fifo_write_ref." + to_string(width));
   }
+
+  Function* lbWriteFunction(Value* replacementLB) {
+    int outWidth = 0;
+    vector<Type*> ins{replacementLB->getType(), intType(outWidth)->getPointerTo()};
+    return mkFunc(ins, voidType(), "lb_push." + to_string(outWidth));
+  }
+
+  Function* lbReadFunction(Value* replacementLB) {
+    int inWidth = 0;
+    vector<Type*> ins{intType(inWidth)->getPointerTo(), replacementLB->getType()};
+    return mkFunc(ins, voidType(), "lb_pop." + to_string(inWidth));
+  }
   
   void rewriteInstr(Function* f,
                     Function* orig,
@@ -227,9 +239,32 @@ namespace ahaHLS {
         rewrites[toRewrite] =
           b.CreateCall(replacement, argReplacements);
       } else if (isMethod("linebuffer_", "lb_write", func)) {
-        // TODO: Replace
+        vector<Value*> argReplacements;
+        for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
+          cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
+          argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
+        }
+
+        assert(argReplacements.size() > 0);
+        
+        auto replaceF = lbWriteFunction(argReplacements[0]);
+        rewrites[toRewrite] =
+          b.CreateCall(replaceF, argReplacements);
+        
       } else if (isMethod("linebuffer_", "lb_read", func)) {
-        // TOOD: Replace
+        vector<Value*> argReplacements;
+        for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
+          cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
+          argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
+        }
+
+        assert(argReplacements.size() > 0);
+        
+        // TODO: Replace with real lb stats
+        auto replaceF = lbReadFunction(argReplacements[1]);
+        rewrites[toRewrite] =
+          b.CreateCall(replaceF, argReplacements);
+        
       } else if (isMethod("linebuffer_", "has_valid_data", func)) {
         vector<Value*> argReplacements;
         for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
@@ -461,8 +496,19 @@ namespace ahaHLS {
             } else if (hasPrefix(name, "lb_has_valid")) {
               interfaces.addFunction(func);
               implementLBHasValidData(func, interfaces.getConstraints(func));
+            } else if (hasPrefix(name, "ram.write.")) {
+              interfaces.addFunction(func);
+              implementRAMWrite0(func, interfaces.getConstraints(func));
+            } else if (hasPrefix(name, "ram.read.")) {
+              interfaces.addFunction(func);
+              implementRAMRead0(func, interfaces.getConstraints(func));
+            } else if (hasPrefix(name, "lb_push.")) {
+              interfaces.addFunction(func);
+              implementLBPush(func, interfaces.getConstraints(func));
+            } else if (hasPrefix(name, "lb_pop.")) {
+              interfaces.addFunction(func);
+              implementLBPop(func, interfaces.getConstraints(func));
             } else {
-              
               cout << "Error: Unsupported call " << valueString(ci) << endl;
               assert(false);
             }
@@ -473,7 +519,7 @@ namespace ahaHLS {
     }
 
     cout << "Before inlining" << endl;
-    cout << valueString(f) << endl;
+    cout << valueString(rewritten) << endl;
 
     std::set<PipelineSpec> toPipeline;
     ExecutionConstraints exec;
