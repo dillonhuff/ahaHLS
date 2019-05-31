@@ -574,7 +574,7 @@ namespace ahaHLS {
   }
 
   // TODO:
-  //  Remove the initial fifo loop via optimization
+  //  Remove one-to-one fifos
   //  Use fifo definition that reads in same cycle that ready is high
   //  Do CFG simplification
   //  Do control signal simplification
