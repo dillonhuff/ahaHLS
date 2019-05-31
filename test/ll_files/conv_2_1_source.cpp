@@ -1,4 +1,4 @@
-#include "vhls_target.h"
+#include "gen_classes.h"
 
 void vhls_target(
 hls_stream_AxiPackedStencil_uint16_t_1_1__ &arg_0,

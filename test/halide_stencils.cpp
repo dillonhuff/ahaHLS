@@ -502,6 +502,20 @@ namespace ahaHLS {
 
     return false;
   }
+
+  int64_t getInt(Value* val) {
+    assert(ConstantInt::classof(val));
+    int64_t ival = dyn_cast<ConstantInt>(val)->getSExtValue();
+    return ival;
+  }
+
+  bool isRAMType(Type* tp) {
+    if (StructType::classof(tp)) {
+      return hasPrefix(dyn_cast<StructType>(tp)->getName(), "class.ram_");
+    }
+
+    return false;
+  }
   
   MicroArchitecture halideArch(Function* f) {
     Function* rewritten =
@@ -571,7 +585,7 @@ namespace ahaHLS {
         ramsToWrittenValues[instr->getOperand(0)][instr->getOperand(1)] =
           instr->getOperand(2);
       } else if (isRAMRead(instr)) {
-        ramsToReads[instr->getOperand(0)].insert(instr->getOperand(1));
+        ramsToReads[instr->getOperand(0)].insert(instr); //instr->getOperand(1));
       }
     }
 
@@ -585,15 +599,57 @@ namespace ahaHLS {
 
         if (ConstantInt::classof(addr) &&
             ConstantInt::classof(val)) {
-          // int addrI = getInt(addr);
-          // int valI = getInt(val);
-          
+          int addrI = getInt(addr);
+          int valI = getInt(val);
+
+          ramsToConstValues[rm.first][addrI] = valI;
         }
         cout << tab(2) << valueString(ir.first) << " -> " << valueString(ir.second) << endl;
 
       }
     }
 
+    cout << "RAM constants" << endl;
+    for (auto rm : ramsToConstValues) {
+      cout << tab(1) << valueString(rm.first) << endl;
+      for (auto ir : rm.second) {
+        auto addr = ir.first;
+        auto val = ir.second;
+        cout << addr << " -> " << val << endl;
+      }      
+    }
+
+    for (auto ram : ramsToReads) {
+      if (contains_key(ram.first, ramsToConstValues)) {
+        cout << valueString(ram.first) << "is const ram" << endl;
+        for (auto rd : ram.second) {
+          cout << "rd = " << valueString(rd) << endl;
+          assert(Instruction::classof(rd));
+          int addr = getInt(dyn_cast<Instruction>(rd)->getOperand(1));
+          int valueI = map_find(addr, ramsToConstValues[ram.first]);
+          Value* value = mkInt(valueI, getValueBitWidth(rd));
+          cout << "Replacing " << valueString(rd) << " with " << valueString(value) << endl;
+          rd->replaceAllUsesWith(value);
+          dyn_cast<Instruction>(rd)->eraseFromParent();
+        }
+      }
+    }
+
+    // For now assume only use of rams is as kernels
+    for (auto instr : allInstrs(f)) {
+      if (isRAMWrite(instr)) {
+        instr->eraseFromParent();
+      } else if (AllocaInst::classof(instr)) {
+        if (isRAMType(getPointedToType(instr->getType()))) {
+          instr->eraseFromParent();
+        }
+      }
+    }
+    
+    cout << "After RAM optimization" << endl;
+    cout << valueString(rewritten) << endl;
+    
+    
     //addDataConstraints(rewritten, exec);
     inlineWireCalls(rewritten, exec, interfaces);
 
@@ -605,6 +661,7 @@ namespace ahaHLS {
     addDataConstraints(rewritten, exec);
 
     set<TaskSpec> tasks = halideTaskSpecs(rewritten);
+
     // TODO: Need a better way to sanity check tasks
     //REQUIRE(tasks.size() == 2);
     exec.tasks = tasks;
@@ -740,12 +797,12 @@ namespace ahaHLS {
     }
   }
 
-  TEST_CASE("conv_2_1") {
+  TEST_CASE("conv_2_1 to verilog") {
     SMDiagnostic Err;
     LLVMContext Context;
     setGlobalLLVMContext(&Context);
     
-    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "cascade_halide_first_lb");
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "conv_2_1_source");
     setGlobalLLVMModule(Mod.get());
 
     Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
