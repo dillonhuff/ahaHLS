@@ -262,6 +262,12 @@ PackedStencil_uint16_t_1_2_ lb_read();
 void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_8_8 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_16_16 {
 public:
 PackedStencil_uint16_t_3_3_ lb_read();

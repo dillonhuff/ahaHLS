@@ -1291,15 +1291,25 @@ module push_linebuf(input clk,
    parameter IN_WIDTH = 16;
    parameter OUT_WIDTH = 32;
 
-   parameter MEM_SIZE = 64*64;
+   parameter IMAGE_ROWS = 8;
+   parameter IMAGE_COLS = 8;
+   parameter MEM_SIZE = IMAGE_ROWS*IMAGE_COLS;
 
-   parameter WARM_UP_TIME = 64*1 + 2;
+   parameter WARM_UP_TIME = (OUT_ROWS - 1)*IMAGE_COLS + OUT_COLS;
+
+   parameter OUT_ROWS = 2;
+   parameter OUT_COLS = 1;
+   
+   parameter OUT_ELEMS = OUT_WIDTH / IN_WIDTH;
 
    reg [31:0]                                   next_write_addr;
    reg [31:0]                                   next_read_addr;
    
    reg [IN_WIDTH - 1 : 0]                       memory [MEM_SIZE - 1 : 0];
 
+   reg [16:0]                                   r0;
+   reg [16:0]                                   r1;   
+   
    always @(posedge clk) begin
       if (rst) begin
          next_write_addr <= 0;
@@ -1308,14 +1318,27 @@ module push_linebuf(input clk,
          if (wen) begin
             memory[next_write_addr] <= wdata;
             next_write_addr <= next_write_addr + 1;
+
+
+
+            r0 <= memory[next_write_addr - 1];
+            r1 <= memory[next_write_addr - 1 - IMAGE_COLS];
+            
          end
       end
    end
 
-   assign valid = next_write_addr > WARM_UP_TIME;
+   always @(posedge clk) begin
+      if (valid) begin
+         $display("Out data = %d, %d, next_write_addr = %d, warm up time = %d", r0, r1, next_write_addr, WARM_UP_TIME);
+      end
+   end
    
-   assign rdata = 597;
+   assign valid = next_write_addr >= WARM_UP_TIME;
 
-   assign rdata = memory[next_read_addr];
+   //assign rdata = {memory[next_write_addr - 1], memory[next_write_addr - 2]};
+   assign rdata = {r0, r1};
+   
+   //assign rdata = memory[next_write_addr - 1];
    
 endmodule

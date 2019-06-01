@@ -703,6 +703,7 @@ namespace ahaHLS {
 
     for (auto instr : toErase) {
       cout << "Erasing instruction " << valueString(instr) << endl;
+      assert(elem(instr, allInstrs(rewritten)));
       instr->eraseFromParent();
     }
     
@@ -713,8 +714,8 @@ namespace ahaHLS {
     //addDataConstraints(rewritten, exec);
     inlineWireCalls(rewritten, exec, interfaces);
 
-    // optimizeModuleLLVM(*(rewritten->getParent()));
-    // optimizeStores(rewritten);
+    optimizeModuleLLVM(*(rewritten->getParent()));
+    optimizeStores(rewritten);
 
     clearExecutionConstraints(rewritten, exec);
     
@@ -878,7 +879,7 @@ namespace ahaHLS {
     tb.memoryInit = {};
     tb.memoryExpected = {};
     tb.runCycles = 800;
-    tb.maxCycles = 1000;
+    tb.maxCycles = 2000;
     tb.name = "conv_2_1";
     tb.useModSpecs = true;
     tb.settablePort(in, "in_data");
@@ -886,8 +887,7 @@ namespace ahaHLS {
     tb.settablePort(out, "read_valid");
 
     vector<pair<int, int> > writeTimesAndValues;
-    for (int i = 0; i < 64*64; i++) {
-      //{{3, 5}, {6, 9}, {10, 11}};
+    for (int i = 0; i < 8*8; i++) {
       writeTimesAndValues.push_back({2*i, i});
     }
     setRVFifo(tb, "arg_0", writeTimesAndValues);
@@ -895,8 +895,8 @@ namespace ahaHLS {
 
     map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
 
-    int endCycle = 20;
-    map_insert(tb.actionsOnCycles, endCycle, assertString("valid === 1"));
+    //int endCycle = 20;
+    //map_insert(tb.actionsOnCycles, endCycle, assertString("valid === 1"));
 
     VerilogDebugInfo info;
     // addDisplay("1", "global state = %d", {"global_state"}, info);
