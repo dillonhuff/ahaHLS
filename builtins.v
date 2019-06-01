@@ -1307,8 +1307,8 @@ module push_linebuf(input clk,
    
    reg [IN_WIDTH - 1 : 0]                       memory [MEM_SIZE - 1 : 0];
 
-   reg [16:0]                                   r0;
-   reg [16:0]                                   r1;   
+   reg [15:0]                                   r0;
+   reg [15:0]                                   r1;   
    
    always @(posedge clk) begin
       if (rst) begin
@@ -1324,7 +1324,7 @@ module push_linebuf(input clk,
 
 
             r0 <= memory[next_write_addr - 1];
-            r1 <= memory[next_write_addr - 1 - IMAGE_COLS];
+            r1 <= memory[next_write_addr - IMAGE_COLS];
             
          end
       end
