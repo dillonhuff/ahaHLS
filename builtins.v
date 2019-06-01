@@ -1289,7 +1289,33 @@ module push_linebuf(input clk,
                     output [OUT_WIDTH -  1 : 0] rdata);
 
    parameter IN_WIDTH = 16;
-   parameter OUT_WIDTH = 16;
+   parameter OUT_WIDTH = 32;
 
+   parameter MEM_SIZE = 64*64;
+
+   parameter WARM_UP_TIME = 64*1 + 2;
+
+   reg [31:0]                                   next_write_addr;
+   reg [31:0]                                   next_read_addr;
+   
+   reg [IN_WIDTH - 1 : 0]                       memory [MEM_SIZE - 1 : 0];
+
+   always @(posedge clk) begin
+      if (rst) begin
+         next_write_addr <= 0;
+         next_read_addr <= 0;         
+      end else begin
+         if (wen) begin
+            memory[next_write_addr] <= wdata;
+            next_write_addr <= next_write_addr + 1;
+         end
+      end
+   end
+
+   assign valid = next_write_addr > WARM_UP_TIME;
+   
+   assign rdata = 597;
+
+   assign rdata = memory[next_read_addr];
    
 endmodule

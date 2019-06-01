@@ -883,11 +883,19 @@ namespace ahaHLS {
     tb.useModSpecs = true;
     tb.settablePort(in, "in_data");
     tb.settablePort(in, "write_valid");
-    tb.settablePort(out, "read_valid");    
+    tb.settablePort(out, "read_valid");
+
+    vector<pair<int, int> > writeTimesAndValues;
+    for (int i = 0; i < 64*64; i++) {
+      //{{3, 5}, {6, 9}, {10, 11}};
+      writeTimesAndValues.push_back({2*i, i});
+    }
+    setRVFifo(tb, "arg_0", writeTimesAndValues);
+    
 
     map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
 
-    int endCycle = 200;
+    int endCycle = 20;
     map_insert(tb.actionsOnCycles, endCycle, assertString("valid === 1"));
 
     VerilogDebugInfo info;
@@ -896,7 +904,7 @@ namespace ahaHLS {
     // addDisplay("1", "arg_0_read_valid = %d", {"arg_0_read_valid"}, info);
     // addDisplay("1", "arg_0_out_data = %d", {"arg_0_out_data"}, info);
     // addDisplay("1", "arg_1_out_data = %d", {"arg_1_out_data"}, info);
-    // addDisplay("1", "arg_1_write_ready = %d", {"arg_1_write_ready"}, info);      
+    // addDisplay("1", "arg_1_write_ready = %d", {"arg_1_write_ready"}, info);
     //printActiveBlocks(arch, info);
     addNoXChecks(arch, info);
     
