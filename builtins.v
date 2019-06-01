@@ -1316,6 +1316,8 @@ module push_linebuf(input clk,
          next_read_addr <= 0;         
       end else begin
          if (wen) begin
+            $display("writing %d to addr %d", wdata, next_write_addr);
+            
             memory[next_write_addr] <= wdata;
             next_write_addr <= next_write_addr + 1;
 
