@@ -196,13 +196,21 @@ namespace ahaHLS {
 
       if (isMethod("AxiPackedStencil_", "get", func)) {
         // TODO: Add indexing
-        vector<int64_t> offsets;
-        for (int i = 2; i < (int) func->arg_size(); i++) {
+        // TODO: Compute these strides
+        vector<int64_t> strides{0, 16, 0, 0, 0, 0};
+        int bitOffset = 0;
+        int stride = strides[0];
+        cout << "-- Starting stride comp for " << valueString(toRewrite) << endl;
+        for (int i = 1; i < (int) func->arg_size(); i++) {
           Value* index = toRewrite->getOperand(i);
-          cout << "Index = " << valueString(index) << ", on instr " << valueString(toRewrite) << endl;
+          cout << "Index = " << valueString(index) << endl;
           int64_t indI = getInt(index);
-          offsets.push_back(indI);
+          cout << "indI = " << indI << ", stride = " << stride << endl;
+          bitOffset += indI*stride;
+          stride = strides[i];
         }
+
+        cout << "Get bit offset in stencil reg = " << bitOffset << endl;
 
         auto fullLoad =
           b.CreateLoad(findRewrite(toRewrite->getOperand(0), rewrites));
