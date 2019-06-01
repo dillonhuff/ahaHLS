@@ -904,7 +904,8 @@ namespace ahaHLS {
           printInstrAtState(instr, activeState, arch, debugInfo); 
 
           string wireName = map_find(string("rdata"), unit.outWires).name;
-          addAssert(notAtState(activeState, arch) + " || " +
+          //addAssert(notAtState(activeState, arch) + " || " +
+          addAssert(notStr(blockActiveInState(activeState, instr->getParent(), arch).valueString()) + " || " +
                     wireName + " !== 'dx",
                     debugInfo);
         }
@@ -923,9 +924,16 @@ namespace ahaHLS {
           StateId activeState = st.first;
 
           string wireName = map_find(string("raddr"), unit.portWires).name;
-          addAssert(notAtState(activeState, arch) + " || " +
-                    wireName + " !== 'dx",
-                    debugInfo);
+          string valCheck = wireName + " !== 'dx";
+          
+          string activeStr =
+            blockActiveInState(activeState, instr->getParent(), arch).valueString();
+          
+          addAssert(implies(activeStr, valCheck), debugInfo);
+          
+          // addAssert(notAtState(activeState, arch) + " || " +
+          //           wireName + " !== 'dx",
+          //           debugInfo);
         }
       }
     }

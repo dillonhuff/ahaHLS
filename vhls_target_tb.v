@@ -35,7 +35,111 @@ module vhls_target_tb();
 	end
 
 	always @(posedge clk) begin
-		if (200 == total_cycles) begin if (!(valid === 1)) begin $display("assertion(valid === 1)"); $finish(); end end
+		if (700 == total_cycles) begin if (!(valid === 1)) begin $display("assertion(valid === 1)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (703 == total_cycles) begin if (!(arg_1_out_data === 16'd56)) begin $display("assertion(arg_1_out_data === 16'd56)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (705 == total_cycles) begin if (!(arg_1_out_data === 16'd20)) begin $display("assertion(arg_1_out_data === 16'd20)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (707 == total_cycles) begin if (!(arg_1_out_data === 16'd14)) begin $display("assertion(arg_1_out_data === 16'd14)"); $finish(); end end
+	end
+
+	always @(posedge clk) begin
+		if (709 == total_cycles) begin if (!(arg_1_out_data === 16'd6)) begin $display("assertion(arg_1_out_data === 16'd6)"); $finish(); end end
+	end
+
+	always @(*) begin
+		if (0 == total_cycles) begin arg_1_read_valid = 1'b0; end
+	end
+
+	always @(*) begin
+		if (0 == total_cycles) begin arg_0_write_valid = 1'b0; end
+	end
+
+	always @(*) begin
+		if (2 == total_cycles) begin arg_0_in_data = 16'd28; end
+	end
+
+	always @(*) begin
+		if (2 == total_cycles) begin arg_0_write_valid = 1'b1; end
+	end
+
+	always @(*) begin
+		if (3 == total_cycles) begin arg_0_in_data = 16'd10; end
+	end
+
+	always @(*) begin
+		if (3 == total_cycles) begin arg_0_write_valid = 1'b1; end
+	end
+
+	always @(*) begin
+		if (4 == total_cycles) begin arg_0_in_data = 16'd7; end
+	end
+
+	always @(*) begin
+		if (4 == total_cycles) begin arg_0_write_valid = 1'b1; end
+	end
+
+	always @(*) begin
+		if (5 == total_cycles) begin arg_0_in_data = 16'd3; end
+	end
+
+	always @(*) begin
+		if (5 == total_cycles) begin arg_0_write_valid = 1'b1; end
+	end
+
+	always @(*) begin
+		if (6 == total_cycles) begin arg_0_write_valid = 1'b0; end
+	end
+
+	always @(*) begin
+		if (7 == total_cycles) begin arg_0_in_data = 16'd9; end
+	end
+
+	always @(*) begin
+		if (7 == total_cycles) begin arg_0_write_valid = 1'b1; end
+	end
+
+	always @(*) begin
+		if (8 == total_cycles) begin arg_0_write_valid = 1'b0; end
+	end
+
+	always @(*) begin
+		if (702 == total_cycles) begin arg_1_read_valid = 1'b1; end
+	end
+
+	always @(*) begin
+		if (703 == total_cycles) begin arg_1_read_valid = 1'b0; end
+	end
+
+	always @(*) begin
+		if (704 == total_cycles) begin arg_1_read_valid = 1'b1; end
+	end
+
+	always @(*) begin
+		if (705 == total_cycles) begin arg_1_read_valid = 1'b0; end
+	end
+
+	always @(*) begin
+		if (706 == total_cycles) begin arg_1_read_valid = 1'b1; end
+	end
+
+	always @(*) begin
+		if (707 == total_cycles) begin arg_1_read_valid = 1'b0; end
+	end
+
+	always @(*) begin
+		if (708 == total_cycles) begin arg_1_read_valid = 1'b1; end
+	end
+
+	always @(*) begin
+		if (709 == total_cycles) begin arg_1_read_valid = 1'b0; end
 	end
 
 	always @(posedge clk) begin
