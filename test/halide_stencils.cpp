@@ -184,6 +184,9 @@ namespace ahaHLS {
                     map<Value*, Value*>& rewrites,
                     Instruction* toRewrite) {
     BasicBlock* repBB = map_find(toRewrite->getParent(), bbRewrites);
+
+    assert(repBB->getParent() == f);
+    
     IRBuilder<> b(repBB);
     if (AllocaInst::classof(toRewrite)) {
       AllocaInst* alloc = dyn_cast<AllocaInst>(toRewrite);
@@ -195,7 +198,6 @@ namespace ahaHLS {
       Function* func = callToRW->getCalledFunction();
 
       if (isMethod("AxiPackedStencil_", "get", func)) {
-        // TODO: Add indexing
         // TODO: Compute these strides
         vector<int64_t> strides{0, 16, 0, 0, 0, 0};
         int bitOffset = 0;
@@ -214,7 +216,18 @@ namespace ahaHLS {
 
         auto fullLoad =
           b.CreateLoad(findRewrite(toRewrite->getOperand(0), rewrites));
-        rewrites[toRewrite] = fullLoad;
+
+        int typeWidth = getValueBitWidth(toRewrite);
+        if (bitOffset > 0) {
+          cout << "Bit offset = " << bitOffset << " not zero" << endl;
+          auto shifted = b.CreateLShr(fullLoad, mkInt(bitOffset, typeWidth));
+          cout << "shift = " << valueString(shifted) << endl;
+
+          rewrites[toRewrite] = b.CreateTrunc(shifted, intType(typeWidth));
+          
+        } else {
+          rewrites[toRewrite] = fullLoad;
+        }
       } else if (isMethod("AxiPackedStencil_", "set", func)) {
         // TODO: Add indexing
         rewrites[toRewrite] =
@@ -474,6 +487,9 @@ namespace ahaHLS {
 
     populatePHIs(orig, f, rewrites, bbRewrites);
 
+    cout << "Immediately after rewrite " << endl;
+    cout << valueString(f) << endl;
+    
     sanityCheck(f);
     
     return f;
@@ -712,8 +728,9 @@ namespace ahaHLS {
     }
 
     for (auto instr : toErase) {
-      cout << "Erasing instruction " << valueString(instr) << endl;
       assert(elem(instr, allInstrs(rewritten)));
+      cout << "Erasing instruction " << valueString(instr) << endl;
+      
       instr->eraseFromParent();
     }
     
