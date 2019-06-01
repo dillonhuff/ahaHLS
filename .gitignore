@@ -173,3 +173,8 @@ hist_forwarded*
 pipelined_structural_hazard*
 pipelined_independent_writes*
 pipelined_memory_hazard*
+conv_2_1*
+custom_if*
+packet_example*
+packet_mixed_assign*
+primitive_assign*
