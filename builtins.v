@@ -1316,7 +1316,7 @@ module push_linebuf(input clk,
          next_read_addr <= 0;         
       end else begin
          if (wen) begin
-            $display("writing %d to addr %d", wdata, next_write_addr);
+            $display("lb pushing %d to addr %d", wdata, next_write_addr);
             
             memory[next_write_addr] <= wdata;
             next_write_addr <= next_write_addr + 1;
@@ -1337,10 +1337,6 @@ module push_linebuf(input clk,
    end
    
    assign valid = next_write_addr >= WARM_UP_TIME;
-
-   //assign rdata = {memory[next_write_addr - 1], memory[next_write_addr - 2]};
    assign rdata = {r0, r1};
-   
-   //assign rdata = memory[next_write_addr - 1];
    
 endmodule

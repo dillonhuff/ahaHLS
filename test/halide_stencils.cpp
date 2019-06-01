@@ -198,7 +198,10 @@ namespace ahaHLS {
         // TODO: Add indexing
         vector<int64_t> offsets;
         for (int i = 2; i < (int) func->arg_size(); i++) {
-          
+          Value* index = toRewrite->getOperand(i);
+          cout << "Index = " << valueString(index) << ", on instr " << valueString(toRewrite) << endl;
+          int64_t indI = getInt(index);
+          offsets.push_back(indI);
         }
 
         auto fullLoad =
@@ -840,25 +843,15 @@ namespace ahaHLS {
       // addDisplay("1", "arg_1_write_ready = %d", {"arg_1_write_ready"}, info);      
       //printActiveBlocks(arch, info);
       addNoXChecks(arch, info);
-      //addControlSanityChecks(arch, info);
-
-      // checkSignal(tb,
-      //             "valid",
-      //             {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {100, 1}, {103, 1}, {106, 1}, {112, 1}, {125, 1}, {150, 1}, {200, 1}});
-
-      // checkSignal(tb,
-      //             "arg_1_read_ready",
-      //             {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {25, 0}, {37, 0}, {43, 0}, {47, 1}, {50, 1}, {100, 1}, {103, 1}, {106, 1}, {112, 1}, {125, 1}, {150, 1}, {200, 1}});
       
       emitVerilog("vhls_target", arch, info);
       emitVerilogTestBench(tb, arch, testLayout);
 
-      //REQUIRE(runIVerilogTB("vhls_target"));      
+      REQUIRE(runIVerilogTB("vhls_target"));      
     }
   }
 
   // TODO:
-  //  Test 2 x 1 linebuffer independently
   //  Make sure store / load rewrites are correct
   //  Add sliced loads / stores
   TEST_CASE("conv_2_1 to verilog") {
@@ -894,8 +887,15 @@ namespace ahaHLS {
       writeTimesAndValues.push_back({2*i, i});
     }
     setRVFifo(tb, "arg_0", writeTimesAndValues);
-    
 
+    vector<pair<int, string> > expectedValuesAndTimes;
+    int offset = 100;
+    for (int i = 0; i < 8*8; i++) {
+      expectedValuesAndTimes.push_back({offset, to_string(i + (i + 8))});
+      offset += 2;
+    }
+    checkRVFifo(tb, "arg_1", expectedValuesAndTimes);
+    
     map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
 
     //int endCycle = 20;
@@ -906,6 +906,7 @@ namespace ahaHLS {
     // addDisplay("1", "arg_0_read_ready = %d", {"arg_0_read_ready"}, info);
     // addDisplay("1", "arg_0_read_valid = %d", {"arg_0_read_valid"}, info);
     // addDisplay("1", "arg_0_out_data = %d", {"arg_0_out_data"}, info);
+    addDisplay("arg_1_write_valid", "accelerator writing %d to output", {"arg_1_in_data"}, info);
     // addDisplay("1", "arg_1_out_data = %d", {"arg_1_out_data"}, info);
     // addDisplay("1", "arg_1_write_ready = %d", {"arg_1_write_ready"}, info);
     //printActiveBlocks(arch, info);
