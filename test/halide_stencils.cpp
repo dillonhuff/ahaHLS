@@ -718,10 +718,10 @@ namespace ahaHLS {
         //instr->eraseFromParent();
       } else if (AllocaInst::classof(instr)) {
         
-        if (isRAMType(getPointedToType(instr->getType()))) {
-          //instr->eraseFromParent();
-          toErase.insert(instr);
-        }
+        // if (isRAMType(getPointedToType(instr->getType()))) {
+        //   //instr->eraseFromParent();
+        //   toErase.insert(instr);
+        // }
       } else {
         cout << "Not erasing " << valueString(instr) << endl;
       }
@@ -731,6 +731,23 @@ namespace ahaHLS {
       assert(elem(instr, allInstrs(rewritten)));
       cout << "Erasing instruction " << valueString(instr) << endl;
       
+      instr->eraseFromParent();
+    }
+
+    toErase = {};
+    for (auto instr : allInstrs(rewritten)) {
+      if (AllocaInst::classof(instr)) {
+        
+        if (isRAMType(getPointedToType(instr->getType()))) {
+          //instr->eraseFromParent();
+          toErase.insert(instr);
+        }
+      } 
+    }
+
+    for (auto instr : toErase) {
+      assert(elem(instr, allInstrs(rewritten)));
+      cout << "Erasing instruction " << valueString(instr) << endl;
       instr->eraseFromParent();
     }
     
@@ -959,7 +976,7 @@ namespace ahaHLS {
     tb.memoryInit = {};
     tb.memoryExpected = {};
     tb.runCycles = 800;
-    tb.maxCycles = 1000;
+    tb.maxCycles = 10000;
     tb.name = "conv_2_1";
     tb.useModSpecs = true;
     tb.settablePort(in, "in_data");
@@ -973,7 +990,7 @@ namespace ahaHLS {
     setRVFifo(tb, "arg_0", writeTimesAndValues);
 
     vector<pair<int, string> > expectedValuesAndTimes;
-    int offset = 100;
+    int offset = 1000;
     for (int i = 0; i < 8*8; i++) {
       expectedValuesAndTimes.push_back({offset, to_string(i + (i + 8))});
       offset += 2;

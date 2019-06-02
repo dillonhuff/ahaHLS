@@ -2174,6 +2174,8 @@ namespace ahaHLS {
     auto fifo = getArg(readFifo, 1);
     auto tp = getPointedToType(out->getType());
 
+    cout << "Pointed to type in fifo read " << valueString(readFifo) << endl;
+    cout << " is " << typeString(tp) << " with width " << getTypeBitWidth(tp) << endl;
     int width = getTypeBitWidth(tp); //readOutputType(readFifo));
 
     auto entryBlk = mkBB("entry_block", readFifo);
