@@ -527,9 +527,9 @@ module fifo(input clk,
    assign next_read_addr = (DEPTH == (read_addr + 1)) ? 0 : read_addr + 1;
    assign next_write_addr = (DEPTH == (write_addr + 1)) ? 0 : write_addr + 1;
 
-   always @(*) begin
-      $display("READ data is %d, at address 0", ram[0]);
-   end
+   // always @(*) begin
+   //    $display("READ data is %d, at address 0", ram[0]);
+   // end
 
    always @(posedge clk) begin
       `assert(read_ready && read_valid && write_ready && write_valid, 1'd0)      

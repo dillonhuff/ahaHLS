@@ -748,11 +748,8 @@ namespace ahaHLS {
     
     addDataConstraints(rewritten, exec);
 
-    set<TaskSpec> tasks = halideTaskSpecs(rewritten);
-
-    // TODO: Need a better way to sanity check tasks
-    //REQUIRE(tasks.size() == 2);
-    exec.tasks = tasks;
+    //set<TaskSpec> tasks = halideTaskSpecs(rewritten);
+    //exec.tasks = tasks;
 
     // Now: Populate HLS data structures
     HardwareConstraints hcs = standardConstraints();
@@ -762,7 +759,8 @@ namespace ahaHLS {
     cout << valueString(rewritten) << endl;
     auto preds = buildControlPreds(rewritten);
 
-    SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, tasks, preds);
+    //SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, tasks, preds);
+    SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, preds);
     exec.addConstraints(p, rewritten);
 
     map<Function*, SchedulingProblem> constraints{{rewritten, p}};
@@ -909,14 +907,25 @@ namespace ahaHLS {
     vector<pair<int, string> > writeTimesAndValues{{10, "{16'd15, 16'd2}"}};
     setRVFifo(tb, "arg_0", writeTimesAndValues);
 
-    vector<pair<int, string> > expectedValuesAndTimes{{20, "16'd15"}};
+    vector<pair<int, string> > expectedValuesAndTimes{{30, "16'd15"}};
     checkRVFifo(tb, "arg_1", expectedValuesAndTimes);
     
     map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+    map_insert(tb.actionsOnCycles, 1, string("arg_0_write_valid <= 0;"));
+    map_insert(tb.actionsOnCycles, 1, string("arg_1_read_valid <= 0;"));        
 
     VerilogDebugInfo info;
     //addDisplay("arg_1_read_valid", "accelerator writing %d to output", {"arg_1_in_data"}, info);
-    addDisplay("1", "arg_1 output: %d", {"arg_1_out_data"}, info);
+    // addDisplay("arg_0_write_valid", "writing to arg_0: %d", {"arg_0_in_data"}, info);        
+    // addDisplay("arg_1_write_valid", "writing to arg_1: %d", {"arg_1_in_data"}, info);
+
+    // addDisplay("1", "arg_1_write_ready: %d", {"arg_1_write_ready"}, info);    
+    // addDisplay("1", "arg_1_out_data: %d", {"arg_1_out_data"}, info);    
+    // addDisplay("1", "arg_1_write_valid: %d", {"arg_1_write_valid"}, info);    
+    // addDisplay("1", "reading from arg_0: %d", {"arg_0_out_data"}, info);
+    // addDisplay("1", "global state: %d", {"global_state"}, info);    
+
+    //printActiveBlocks(arch, info);
     addNoXChecks(arch, info);
     
     emitVerilog("halide_stencil_get_01", arch, info);

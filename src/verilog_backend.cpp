@@ -1677,9 +1677,9 @@ namespace ahaHLS {
       int time = readTimesAndValues[i].first;
       string expectedVal = readTimesAndValues[i].second;
 
-      map_insert(tb.actionsOnCycles, time, fifoName + "_read_valid <= 1'b1;");
-      map_insert(tb.actionsOnCycles, time + 1, assertString(fifoName + "_out_data === " + expectedVal));
-      map_insert(tb.actionsOnCycles, time + 1, fifoName + "_read_valid <= 1'b0;");
+      map_insert(tb.actionsInCycles, time, fifoName + "_read_valid = 1'b1;");
+      map_insert(tb.actionsInCycles, time + 1, assertString(fifoName + "_out_data === " + expectedVal));
+      map_insert(tb.actionsInCycles, time + 1, fifoName + "_read_valid = 1'b0;");
     }    
 
   }  
