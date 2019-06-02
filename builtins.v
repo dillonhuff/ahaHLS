@@ -509,7 +509,7 @@ module fifo(input clk,
       if (!rst) begin
          if (write_valid && write_ready) begin
 
-            $display("writing %d to address %d", in_data, write_addr);
+            //$display("writing %d to address %d", in_data, write_addr);
 //            $display("write_addr = %b, next_write_addr = %b, depth = %b", write_addr, next_write_addr, DEPTH);            
             
             `assert(write_ready, 1'd1)
@@ -556,7 +556,7 @@ module fifo(input clk,
    always @(posedge clk) begin
       if (read_valid && read_ready) begin
          //$display("reading from address %d", read_addr);
-         $display("reading %d, from address %d", ram[read_addr], read_addr);
+         //$display("reading %d, from address %d", ram[read_addr], read_addr);
          
          out_data_reg <= ram[read_addr];
       end

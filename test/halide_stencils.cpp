@@ -589,8 +589,21 @@ namespace ahaHLS {
 
     return false;
   }
+
+  TaskSpec wholeFunctionTask(Function* const f) {
+    set<BasicBlock*> blks;
+    for (auto& bb : *f) {
+      blks.insert(&bb);
+    }
+    return {blks};
+  }
   
-  MicroArchitecture halideArch(Function* f) {
+  class HalideArchSettings {
+  public:
+    bool loopTasks;
+  };
+  
+  MicroArchitecture halideArch(Function* f, HalideArchSettings settings) {
     Function* rewritten =
       rewriteHalideStencils(f);
 
@@ -765,7 +778,12 @@ namespace ahaHLS {
     
     addDataConstraints(rewritten, exec);
 
-    set<TaskSpec> tasks = halideTaskSpecs(rewritten);
+    set<TaskSpec> tasks;
+    if (settings.loopTasks) {
+      tasks = halideTaskSpecs(rewritten);
+    } else {
+      tasks = {wholeFunctionTask(rewritten)};
+    }
     exec.tasks = tasks;
 
     // Now: Populate HLS data structures
@@ -814,7 +832,10 @@ namespace ahaHLS {
     cout << "Origin function" << endl;
     cout << valueString(f) << endl;
 
-    MicroArchitecture arch = halideArch(f);
+
+    HalideArchSettings archSettings;
+    archSettings.loopTasks = true;
+    MicroArchitecture arch = halideArch(f, archSettings);
     
     {
       auto in = dyn_cast<Argument>(getArg(f, 0));
@@ -904,8 +925,10 @@ namespace ahaHLS {
 
     cout << "Origin function" << endl;
     cout << valueString(f) << endl;
-    
-    MicroArchitecture arch = halideArch(f);
+
+    HalideArchSettings archSettings;
+    archSettings.loopTasks = false;
+    MicroArchitecture arch = halideArch(f, archSettings);
 
     auto in = dyn_cast<Argument>(getArg(f, 0));
     auto out = dyn_cast<Argument>(getArg(f, 1));    
@@ -966,7 +989,9 @@ namespace ahaHLS {
     Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
     deleteLLVMLifetimeCalls(f);
 
-    MicroArchitecture arch = halideArch(f);
+    HalideArchSettings archSettings;
+    archSettings.loopTasks = true;
+    MicroArchitecture arch = halideArch(f, archSettings);
 
     auto in = dyn_cast<Argument>(getArg(f, 0));
     auto out = dyn_cast<Argument>(getArg(f, 1));    
@@ -991,7 +1016,7 @@ namespace ahaHLS {
 
     vector<pair<int, string> > expectedValuesAndTimes;
     int offset = 1000;
-    for (int i = 0; i < 6*6; i++) {
+    for (int i = 0; i < 8*8; i++) {
       expectedValuesAndTimes.push_back({offset, to_string(i + (i + 8))});
       offset += 2;
     }
