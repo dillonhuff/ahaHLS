@@ -1314,6 +1314,8 @@ module push_linebuf(input clk,
    
    parameter OUT_ELEMS = OUT_WIDTH / IN_WIDTH;
 
+   reg                                          last_wen;
+   
    reg [31:0]                                   next_write_addr;
    reg [31:0]                                   next_read_addr;
    
@@ -1325,8 +1327,12 @@ module push_linebuf(input clk,
    always @(posedge clk) begin
       if (rst) begin
          next_write_addr <= 0;
-         next_read_addr <= 0;         
+         next_read_addr <= 0;
+         last_wen <= 0;
+         
       end else begin
+         last_wen <= wen;
+
          if (wen) begin
             $display("lb pushing %d to addr %d", wdata, next_write_addr);
             
@@ -1348,7 +1354,8 @@ module push_linebuf(input clk,
       end
    end
    
-   assign valid = next_write_addr >= WARM_UP_TIME;
+   assign valid = last_wen && (next_write_addr >= WARM_UP_TIME);
+   
    assign rdata = {r0, r1};
    
 endmodule

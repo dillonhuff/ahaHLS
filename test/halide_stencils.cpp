@@ -1007,17 +1007,17 @@ namespace ahaHLS {
 
     vector<pair<int, int> > writeTimesAndValues;
     for (int i = 0; i < 8*8; i++) {
-      writeTimesAndValues.push_back({2*i + 5, i});
+      writeTimesAndValues.push_back({7*i + 5, i});
     }
     setRVFifo(tb, "arg_0", writeTimesAndValues);
 
-    // vector<pair<int, string> > expectedValuesAndTimes;
-    // int offset = 100;
-    // for (int i = 0; i < 8*7; i++) {
-    //   expectedValuesAndTimes.push_back({offset, to_string(i + (i + 8))});
-    //   offset += 5;
-    // }
-    // checkRVFifo(tb, "arg_1", expectedValuesAndTimes);
+    vector<pair<int, string> > expectedValuesAndTimes;
+    int offset = 300;
+    for (int i = 0; i < 8*7; i++) {
+      expectedValuesAndTimes.push_back({offset, to_string(i + (i + 8))});
+      offset += 2;
+    }
+    checkRVFifo(tb, "arg_1", expectedValuesAndTimes);
     
     map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
 

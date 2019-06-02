@@ -78,15 +78,34 @@ module test();
         $display("On first valid rdata = %b, {%d, %d}", rdata, rdata[31:16], rdata[15:0]);
       
       `assert(valid, 1)
-      
       `assert(rdata[15:0], 16'd0)
       `assert(rdata[31:16], 16'd8)
 
-      // #1 wen = 1;
+      #1 wen = 0;
       // #1 wdata = 9;
 
-      `POSEDGE      
+      `POSEDGE
 
+      `assert(valid, 0)        
+
+      `POSEDGE
+      `POSEDGE
+      `POSEDGE
+
+      #1 wen = 1;
+      #1 wdata = 9;
+
+      `POSEDGE
+
+      #1 wen = 1;
+      #1 wdata = 10;
+        
+      `assert(valid, 1)
+      `assert(rdata[15:0], 16'd1)
+      `assert(rdata[31:16], 16'd9)
+
+      `POSEDGE      
+        
    end
    
    
