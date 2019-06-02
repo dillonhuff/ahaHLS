@@ -536,6 +536,8 @@ namespace ahaHLS {
         }
       }
     }
+
+    hcs.memoryMapping = memoryOpLocations(f);
   }
 
   bool precedes(BasicBlock* predBlk, BasicBlock* succBlk, vector<BasicBlock*> blkOrder) {

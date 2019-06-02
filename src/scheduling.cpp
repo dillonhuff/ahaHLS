@@ -349,6 +349,7 @@ namespace ahaHLS {
         }
       }
 
+      cout << "No memory mapping for " << valueString(iptr) << endl;
       // If no spec is given use default
       // TODO: Need to set defaults for internal loads vs external
       latency = getLatency(STORE_OP);
