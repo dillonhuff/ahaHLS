@@ -946,6 +946,9 @@ namespace ahaHLS {
     tb.settablePort(in, "write_valid");
     tb.settablePort(out, "read_valid");
 
+    tb.setArgPort(out, "read_valid", 0, "1'b0");
+    tb.setArgPort(in, "write_valid", 0, "1'b0");        
+    
     vector<pair<int, string> > writeTimesAndValues{{10, "{16'd15, 16'd2}"}};
     setRVFifo(tb, "arg_0", writeTimesAndValues);
 
@@ -1007,6 +1010,9 @@ namespace ahaHLS {
     tb.settablePort(in, "write_valid");
     tb.settablePort(out, "read_valid");
 
+    tb.setArgPort(out, "read_valid", 0, "1'b0");
+    tb.setArgPort(in, "write_valid", 0, "1'b0");        
+    
     vector<pair<int, int> > writeTimesAndValues;
     for (int i = 0; i < 8*8; i++) {
       writeTimesAndValues.push_back({7*i + 5, i});
@@ -1072,6 +1078,9 @@ namespace ahaHLS {
     tb.settablePort(in, "write_valid");
     tb.settablePort(out, "read_valid");
 
+    tb.setArgPort(out, "read_valid", 0, "1'b0");
+    tb.setArgPort(in, "write_valid", 0, "1'b0");        
+    
     vector<pair<int, int> > writeTimesAndValues;
     for (int i = 0; i < 8*8; i++) {
       writeTimesAndValues.push_back({2*i + 5, i});
