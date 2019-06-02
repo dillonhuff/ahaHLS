@@ -1002,7 +1002,7 @@ namespace ahaHLS {
     map<string, int> testLayout = {};
     tb.memoryInit = {};
     tb.memoryExpected = {};
-    tb.runCycles = 800;
+    tb.runCycles = 900;
     tb.maxCycles = 10000;
     tb.name = "conv_2_1_manually_optimized";
     tb.useModSpecs = true;
