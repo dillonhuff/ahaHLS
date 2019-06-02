@@ -1177,6 +1177,34 @@ namespace ahaHLS {
     }
            
   }
+
+  void noOutputXWhenProduced(MicroArchitecture& arch,
+                             VerilogDebugInfo& debugInfo,
+                             const std::string& moduleTypeName,
+                             const std::string& outputWireName) {
+    
+    for (auto st : arch.stg.opStates) {
+      for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
+        auto instr = instrG;
+        FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+        if (unit.getModName() == moduleTypeName) {
+          StateId activeState = st.first;
+
+          string iStr = instructionString(instr);
+          printInstrAtState(instr, activeState, arch, debugInfo);
+
+          Wire active = blockActiveInState(activeState, instr->getParent(), arch);
+
+          string outName = map_find(string(outputWireName), unit.outWires).name;
+          addAssert(implies(active.valueString(),
+                            outName + " !== " + to_string(getValueBitWidth(instr)) + "'dx"),
+                    debugInfo);
+
+        }
+      }
+    }
+    
+  }
   
   void noBinopsProduceXOutputs(MicroArchitecture& arch,
                                VerilogDebugInfo& debugInfo,
@@ -1532,7 +1560,10 @@ namespace ahaHLS {
     addControlSanityChecks(arch, info);
     noBinopsTakeXInputs(arch, info, "fadd");
     noBinopsTakeXInputs(arch, info, "lshrOp");
-    noBinopsTakeXInputs(arch, info, "ashrOp");    
+    noBinopsTakeXInputs(arch, info, "ashrOp");
+
+    noOutputXWhenProduced(arch, info, "lshrOp", "out");
+    noOutputXWhenProduced(arch, info, "trunc", "out");
     noBinopsProduceXOutputs(arch, info, "fadd");
     noFifoReadsX(arch, info);
     noFifoWritesX(arch, info);    
