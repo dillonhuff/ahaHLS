@@ -991,7 +991,7 @@ namespace ahaHLS {
 
     vector<pair<int, string> > expectedValuesAndTimes;
     int offset = 1000;
-    for (int i = 0; i < 8*8; i++) {
+    for (int i = 0; i < 6*6; i++) {
       expectedValuesAndTimes.push_back({offset, to_string(i + (i + 8))});
       offset += 2;
     }
