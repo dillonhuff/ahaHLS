@@ -178,3 +178,4 @@ custom_if*
 packet_example*
 packet_mixed_assign*
 primitive_assign*
+halide_stencil_get_01*
