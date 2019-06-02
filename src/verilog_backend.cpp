@@ -1531,6 +1531,8 @@ namespace ahaHLS {
                     VerilogDebugInfo& info) {
     addControlSanityChecks(arch, info);
     noBinopsTakeXInputs(arch, info, "fadd");
+    noBinopsTakeXInputs(arch, info, "lshrOp");
+    noBinopsTakeXInputs(arch, info, "ashrOp");    
     noBinopsProduceXOutputs(arch, info, "fadd");
     noFifoReadsX(arch, info);
     noFifoWritesX(arch, info);    
