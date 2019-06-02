@@ -104,7 +104,9 @@ module test();
       `assert(rdata[15:0], 16'd1)
       `assert(rdata[31:16], 16'd9)
 
-      `POSEDGE      
+      `POSEDGE
+
+        
         
    end
    
