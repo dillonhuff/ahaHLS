@@ -1335,7 +1335,7 @@ module push_linebuf(input clk,
 
 
 
-            r0 <= memory[next_write_addr - 1];
+            r0 <= wdata;
             r1 <= memory[next_write_addr - IMAGE_COLS];
             
          end

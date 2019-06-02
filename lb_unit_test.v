@@ -80,7 +80,7 @@ module test();
       `assert(valid, 1)
       
       `assert(rdata[15:0], 16'd0)
-      `assert(rdata[31:16], 16'd7)      
+      `assert(rdata[31:16], 16'd8)
 
       // #1 wen = 1;
       // #1 wdata = 9;
