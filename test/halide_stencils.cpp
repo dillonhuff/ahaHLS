@@ -5,6 +5,8 @@
 #include "test_utils.h"
 #include "parser.h"
 
+#include "llvm/Transforms/Utils/PromoteMemToReg.h"
+#include "llvm/IR/Dominators.h"
 #include <llvm/Analysis/CFG.h>
 
 using namespace dbhc;
@@ -772,6 +774,19 @@ namespace ahaHLS {
     
     //addDataConstraints(rewritten, exec);
     inlineWireCalls(rewritten, exec, interfaces);
+
+    DominatorTree DT(*rewritten);
+    SmallVector<AllocaInst *, 200> PromotableAllocas;
+
+    // For now assume all integer allocas are promotable
+    for (auto instr : allInstrs(rewritten)) {
+      if (AllocaInst::classof(instr)) {
+        if (IntegerType::classof(getPointedToType(instr->getType()))) {
+          PromotableAllocas.push_back(dyn_cast<AllocaInst>(instr));
+        }
+      }
+    }
+    PromoteMemToReg(PromotableAllocas, DT);    
 
     optimizeModuleLLVM(*(rewritten->getParent()));
     optimizeStores(rewritten);
