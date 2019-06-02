@@ -975,6 +975,66 @@ namespace ahaHLS {
     REQUIRE(runIVerilogTB("halide_stencil_get_01"));      
   }
 
+  TEST_CASE("conv_2_1 manually optimized") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "conv_2_1_manually_optimized");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
+    deleteLLVMLifetimeCalls(f);
+
+    HalideArchSettings archSettings;
+    archSettings.loopTasks = true;
+    MicroArchitecture arch = halideArch(f, archSettings);
+
+    auto in = dyn_cast<Argument>(getArg(f, 0));
+    auto out = dyn_cast<Argument>(getArg(f, 1));    
+
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 800;
+    tb.maxCycles = 10000;
+    tb.name = "conv_2_1_manually_optimized";
+    tb.useModSpecs = true;
+    tb.settablePort(in, "in_data");
+    tb.settablePort(in, "write_valid");
+    tb.settablePort(out, "read_valid");
+
+    vector<pair<int, int> > writeTimesAndValues;
+    for (int i = 0; i < 8*8; i++) {
+      writeTimesAndValues.push_back({2*i + 5, i});
+    }
+    setRVFifo(tb, "arg_0", writeTimesAndValues);
+
+    vector<pair<int, string> > expectedValuesAndTimes;
+    int offset = 1000;
+    for (int i = 0; i < 8*7; i++) {
+      expectedValuesAndTimes.push_back({offset, to_string(i + (i + 8))});
+      offset += 2;
+    }
+    checkRVFifo(tb, "arg_1", expectedValuesAndTimes);
+    
+    map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+
+    //int endCycle = 20;
+    //map_insert(tb.actionsOnCycles, endCycle, assertString("valid === 1"));
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+    
+    emitVerilog("conv_2_1_manually_optimized", arch, info);
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    
+    REQUIRE(runIVerilogTB("conv_2_1_manually_optimized"));
+    
+  }
+  
   // TODO:
   //  Make sure store / load rewrites are correct
   //  Add sliced loads / stores
