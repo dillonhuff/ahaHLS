@@ -169,15 +169,17 @@ namespace ahaHLS {
   }
 
   Function* lbWriteFunction(Value* replacementLB) {
-    int outWidth = 32;
-    vector<Type*> ins{replacementLB->getType(), intType(outWidth)->getPointerTo()};
-    return mkFunc(ins, voidType(), "lb_push." + to_string(outWidth));
+    // TODO: compute this width    
+    int inWidth = 16;
+    vector<Type*> ins{replacementLB->getType(), intType(inWidth)->getPointerTo()};
+    return mkFunc(ins, voidType(), "lb_push." + to_string(inWidth));
   }
 
   Function* lbReadFunction(Value* replacementLB) {
-    int inWidth = 16;
-    vector<Type*> ins{intType(inWidth)->getPointerTo(), replacementLB->getType()};
-    return mkFunc(ins, voidType(), "lb_pop." + to_string(inWidth));
+    // TODO: compute this width
+    int outWidth = 32;
+    vector<Type*> ins{intType(outWidth)->getPointerTo(), replacementLB->getType()};
+    return mkFunc(ins, voidType(), "lb_pop." + to_string(outWidth));
   }
   
   void rewriteInstr(Function* f,
@@ -812,7 +814,6 @@ namespace ahaHLS {
     auto preds = buildControlPreds(rewritten);
 
     SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, tasks, preds);
-    //SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, preds);
     exec.addConstraints(p, rewritten);
 
     map<Function*, SchedulingProblem> constraints{{rewritten, p}};

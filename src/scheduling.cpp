@@ -4176,6 +4176,9 @@ namespace ahaHLS {
     int outWidth =
       getTypeBitWidth(getPointedToType(outStencilPtr->getType()));
 
+    cout << "Output width of linebuffer pop call " << valueString(func) << endl;
+    cout << "is = " << outWidth << endl;
+
     auto eb = mkBB("entry_block", func);
     IRBuilder<> b(eb);
 
