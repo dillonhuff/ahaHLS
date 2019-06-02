@@ -228,10 +228,10 @@ namespace ahaHLS {
     string name = called->getName();
 
     if (isBuiltinPortRead(instr)) {
-      return name.substr(string("builtin_read_port_").size());
+      return takeUntil(".", name.substr(string("builtin_read_port_").size()));
     } else {
       assert(isBuiltinPortWrite(instr));
-      return name.substr(string("builtin_write_fifo_").size());
+      return takeUntil(".", name.substr(string("builtin_write_fifo_").size()));
     }
   }
 
