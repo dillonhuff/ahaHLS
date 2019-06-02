@@ -968,7 +968,7 @@ namespace ahaHLS {
 
     vector<pair<int, int> > writeTimesAndValues;
     for (int i = 0; i < 8*8; i++) {
-      writeTimesAndValues.push_back({2*i, i});
+      writeTimesAndValues.push_back({2*i + 5, i});
     }
     setRVFifo(tb, "arg_0", writeTimesAndValues);
 
