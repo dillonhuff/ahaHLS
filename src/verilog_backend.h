@@ -260,6 +260,10 @@ namespace ahaHLS {
                  const std::string fifoName,
                  const vector<pair<int, int> >& writeTimesAndValues);
 
+  void setRVFifo(TestBenchSpec& tb,
+                 const std::string fifoName,
+                 const vector<pair<int, std::string> >& writeTimesAndValues);
+  
   void
   checkRVFifo(TestBenchSpec& tb,
               const std::string& fifoName,

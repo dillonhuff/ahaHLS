@@ -32,6 +32,18 @@ module shlOp(input [WIDTH - 1:0]  in0, input [$clog2(WIDTH) - 1 : 0] in1, output
    assign out = in0 << in1;
 endmodule
 
+module lshrOp(input [WIDTH - 1:0]  in0, input [$clog2(WIDTH) - 1 : 0] in1, output [WIDTH - 1:0] out);
+
+   parameter WIDTH = 32;
+   assign out = in0 >> in1;
+endmodule
+
+module ashrOp(input [WIDTH - 1:0]  in0, input [$clog2(WIDTH) - 1 : 0] in1, output [WIDTH - 1:0] out);
+
+   parameter WIDTH = 32;
+   assign out = in0 >>> in1;
+endmodule
+
 module trunc(input [IN_WIDTH - 1:0]  in, output [OUT_WIDTH - 1:0] out);
 
    parameter IN_WIDTH = 32;

@@ -1704,6 +1704,22 @@ namespace ahaHLS {
 
   void setRVFifo(TestBenchSpec& tb,
                  const std::string fifoName,
+                 const vector<pair<int, std::string> >& writeTimesAndValues) {
+    tb.settableWires.insert(fifoName + "_write_valid");
+    tb.settableWires.insert(fifoName + "_in_data");
+    
+    for (int i = 0; i < (int) writeTimesAndValues.size(); i++) {
+      int time = writeTimesAndValues[i].first;
+      string val = writeTimesAndValues[i].second;
+
+      map_insert(tb.actionsOnCycles, time, fifoName + "_write_valid <= 1'b1;");
+      map_insert(tb.actionsOnCycles, time, fifoName + "_in_data <= " + val + ";");
+      map_insert(tb.actionsOnCycles, time + 1, fifoName + "_write_valid <= 1'b0;");
+    }    
+  }  
+
+  void setRVFifo(TestBenchSpec& tb,
+                 const std::string fifoName,
                  const vector<pair<int, int> >& writeTimesAndValues) {
     tb.settableWires.insert(fifoName + "_write_valid");
     tb.settableWires.insert(fifoName + "_in_data");

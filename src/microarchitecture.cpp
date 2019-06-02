@@ -431,7 +431,7 @@ namespace ahaHLS {
   
   std::vector<Port>
   getPorts(MicroArchitecture& arch) {
-    auto& unitAssignment = arch.unitAssignment;
+    //auto& unitAssignment = arch.unitAssignment;
 
     vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
 
@@ -706,6 +706,10 @@ namespace ahaHLS {
       modName = "shlOp";
     } else if (instr->getOpcode() == Instruction::SRem) {
       modName = "sremOp";
+    } else if (instr->getOpcode() == Instruction::AShr) {
+      modName = "ashrOp";
+    } else if (instr->getOpcode() == Instruction::LShr) {
+      modName = "lshrOp";
     } else {
       assert(false);
     }

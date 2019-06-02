@@ -294,6 +294,8 @@ namespace ahaHLS {
     AND_OP,
     OR_OP,
     SHL_OP,
+    LSHR_OP,
+    ASHR_OP,
     SREM_OP
   };
 
@@ -320,6 +322,8 @@ namespace ahaHLS {
         AND_OP,
         OR_OP,
         SHL_OP,
+        ASHR_OP,
+        LSHR_OP,
         SREM_OP        
         };
 

@@ -78,8 +78,8 @@ namespace ahaHLS {
         return fifoType(typeWidth*nRows*nCols);
       } else if (hasPrefix(name, "class.linebuffer")) {
         // TODO: Actually compute these
-        HalideStencilTp stencilIn{16, 1, 1};
-        HalideStencilTp stencilOut{16, 1, 2};
+        //HalideStencilTp stencilIn{16, 1, 1};
+        //HalideStencilTp stencilOut{16, 1, 2};
 
         return lbType(16, 16*2);
       } else {
@@ -220,7 +220,7 @@ namespace ahaHLS {
         int typeWidth = getValueBitWidth(toRewrite);
         if (bitOffset > 0) {
           cout << "Bit offset = " << bitOffset << " not zero" << endl;
-          auto shifted = b.CreateLShr(fullLoad, mkInt(bitOffset, typeWidth));
+          auto shifted = b.CreateLShr(fullLoad, mkInt(bitOffset, getValueBitWidth(fullLoad)));
           cout << "shift = " << valueString(shifted) << endl;
 
           rewrites[toRewrite] = b.CreateTrunc(shifted, intType(typeWidth));
@@ -411,7 +411,7 @@ namespace ahaHLS {
         dyn_cast<CmpInst>(toRewrite)->getPredicate();
 
       auto rLHS = findRewrite(toRewrite->getOperand(0), rewrites);
-      auto rRHS = findRewrite(toRewrite->getOperand(1), rewrites);      
+      auto rRHS = findRewrite(toRewrite->getOperand(1), rewrites);
 
       rewrites[toRewrite] = b.CreateICmp(pred, rLHS, rRHS);
       
@@ -874,6 +874,56 @@ namespace ahaHLS {
 
       REQUIRE(runIVerilogTB("vhls_target"));      
     }
+  }
+
+  TEST_CASE("get element 0 1 from stencil") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "halide_stencil_get_01");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
+    deleteLLVMLifetimeCalls(f);
+
+    cout << "Origin function" << endl;
+    cout << valueString(f) << endl;
+    
+    MicroArchitecture arch = halideArch(f);
+
+    auto in = dyn_cast<Argument>(getArg(f, 0));
+    auto out = dyn_cast<Argument>(getArg(f, 1));    
+
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.maxCycles = 100;
+    tb.name = "halide_stencil_get_01";
+    tb.useModSpecs = true;
+    tb.settablePort(in, "in_data");
+    tb.settablePort(in, "write_valid");
+    tb.settablePort(out, "read_valid");
+
+    vector<pair<int, string> > writeTimesAndValues{{10, "{16'd15, 16'd2}"}};
+    setRVFifo(tb, "arg_0", writeTimesAndValues);
+
+    vector<pair<int, string> > expectedValuesAndTimes{{20, "16'd15"}};
+    checkRVFifo(tb, "arg_1", expectedValuesAndTimes);
+    
+    map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+
+    VerilogDebugInfo info;
+    //addDisplay("arg_1_read_valid", "accelerator writing %d to output", {"arg_1_in_data"}, info);
+    addDisplay("1", "arg_1 output: %d", {"arg_1_out_data"}, info);
+    addNoXChecks(arch, info);
+    
+    emitVerilog("halide_stencil_get_01", arch, info);
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    
+    REQUIRE(runIVerilogTB("halide_stencil_get_01"));      
   }
 
   // TODO:

@@ -124,6 +124,8 @@ namespace ahaHLS {
     hcs.setLatency(AND_OP, 0);
     hcs.setLatency(OR_OP, 0);
     hcs.setLatency(SHL_OP, 0);
+    hcs.setLatency(ASHR_OP, 0);
+    hcs.setLatency(LSHR_OP, 0);        
     hcs.setLatency(SREM_OP, 0);
     
     return hcs;
@@ -301,6 +303,10 @@ namespace ahaHLS {
         return OR_OP;        
       } else if (opCode == Instruction::Shl) {
         return SHL_OP;
+      } else if (opCode == Instruction::LShr) {
+        return LSHR_OP;
+      } else if (opCode == Instruction::AShr) {
+        return ASHR_OP;
       } else if (opCode == Instruction::SRem) {
         return SREM_OP;
       } else {
@@ -383,6 +389,10 @@ namespace ahaHLS {
         latency = getLatency(OR_OP);
       } else if (opCode == Instruction::Shl) {
         latency = getLatency(SHL_OP);
+      } else if (opCode == Instruction::LShr) {
+        latency = getLatency(LSHR_OP);        
+      } else if (opCode == Instruction::AShr) {
+        latency = getLatency(ASHR_OP);                
       } else if (opCode == Instruction::SRem) {
         latency = getLatency(SREM_OP);
       } else {
