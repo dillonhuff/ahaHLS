@@ -1393,13 +1393,13 @@ module push_linebuf(input clk,
          $display("data valid, wdata = %d, warm up time = %d", wdata, WARM_UP_TIME);
          
          //$display("Out data = %d, %d, next_write_addr = %d, warm up time = %d", r0, r1, next_write_addr, WARM_UP_TIME);
+
+         $display("Valid window, top left: (%d, %d), # valid rows = %d, # valid_cols = %d", top_row, left_col, num_valid_rows, num_valid_cols);         
       end // if (valid)
 
       //$display("last wen = %d", last_wen);
 
-      $display("top_row = %d, left_col = %d, # valid rows = %d", top_row, left_col, num_valid_rows);
-      
-      
+
    end
 
    wire [31:0] top_row;
@@ -1421,7 +1421,7 @@ module push_linebuf(input clk,
    assign num_valid_cols = (IMAGE_COLS - $ceil(OUT_COLS / 2.0));
    
    wire out_window_out_of_bounds;
-   assign out_window_out_of_bounds = bot_row > num_valid_rows;
+   assign out_window_out_of_bounds = (bot_row > IMAGE_ROWS) || (right_col > IMAGE_COLS);
    
    assign valid = last_wen && (next_write_addr >= WARM_UP_TIME) && !out_window_out_of_bounds;
    
