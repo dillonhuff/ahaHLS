@@ -5,6 +5,7 @@
 #include "llvm/Transforms/Scalar/SimplifyCFG.h"
 #include "llvm/Transforms/Scalar.h"
 #include <llvm/IR/LegacyPassManager.h>
+#include <llvm/IR/PassManager.h>
 #include <llvm/Transforms/IPO/PassManagerBuilder.h>
 #include <llvm/Analysis/AliasAnalysis.h>
 #include <llvm/Analysis/LoopInfo.h>
@@ -976,6 +977,10 @@ namespace ahaHLS {
     pm.add(createDeadStoreEliminationPass());
     pm.add(createLoopSimplifyCFGPass());
     pm.run(mod);
+
+    // llvm::FunctionPassManager fm;
+    // fm.addPass(SimplifyCFGPass());
+    // fm.run(mod);
 
   }
 

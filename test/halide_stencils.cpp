@@ -5,6 +5,10 @@
 #include "test_utils.h"
 #include "parser.h"
 
+#include <llvm/Analysis/LoopInfo.h>
+#include <llvm/Analysis/LoopAccessAnalysis.h>
+#include <llvm/Analysis/ScalarEvolution.h>
+
 #include "llvm/Transforms/Utils/PromoteMemToReg.h"
 #include "llvm/IR/Dominators.h"
 #include <llvm/Analysis/CFG.h>
@@ -19,8 +23,9 @@ namespace ahaHLS {
   public:
     bool loopTasks;
     bool pushFifos;
+    bool forToWhile;
 
-    HalideArchSettings() : loopTasks(true), pushFifos(false) {}
+    HalideArchSettings() : loopTasks(true), pushFifos(false), forToWhile(false) {}
   };
 
   ModuleSpec pushFifoSpec(int width, int depth) {
@@ -720,6 +725,54 @@ namespace ahaHLS {
 
     addDataConstraints(readFifo, exec);
   }  
+
+  bool isPerfect(Loop* loop) {
+    if (loop->getSubLoops().size() == 0) {
+      return true;
+    }
+
+    return true;
+  }
+
+  class DataflowNestInfo {
+  public:
+    vector<int> tripCounts;
+    set<BasicBlock*> body;
+  };
+
+  DataflowNestInfo computeDataflowInfo(Loop* loop) {
+    DataflowNestInfo info;
+
+    Loop* activeLoop = loop;
+    while (activeLoop->getSubLoops().size() > 0) {
+      assert(activeLoop->getSubLoops().size() == 1);
+      activeLoop = activeLoop->getSubLoops()[0];
+    }
+
+    cout << "Body " << endl;
+    for (auto blk : activeLoop->getBlocks()) {
+      info.body.insert(blk);
+      cout << tab(1) << "Includes block" << endl;
+      cout << valueString(blk) << endl;
+    }
+    return info;
+  }
+
+  void forToWhileLoopOpt(Function* f, HalideArchSettings settings) {
+    DominatorTree dt(*f);
+    LoopInfo li(dt);
+
+    for (Loop* loop : li) {
+      cout << "Found loop in for to while conversion, depth = " << loop->getLoopDepth() << ", subloops = " << loop->getSubLoops().size() << endl;
+      
+      assert(isPerfect(loop));
+
+      // Q: What is the first thing to do?
+      // A: Compute trip counts for each inner loop, compute product of the trip counts and extract the body
+      DataflowNestInfo info = computeDataflowInfo(loop);
+    }
+    
+  }
   
   MicroArchitecture halideArch(Function* f, HalideArchSettings settings) {
     Function* rewritten =
@@ -778,9 +831,6 @@ namespace ahaHLS {
 
     cout << "Before inlining" << endl;
     cout << valueString(rewritten) << endl;
-
-    std::set<PipelineSpec> toPipeline;
-    ExecutionConstraints exec;
 
     // RAM transformations?
     set<Instruction*> ramOps;
@@ -887,8 +937,15 @@ namespace ahaHLS {
     
     cout << "After RAM optimization" << endl;
     cout << valueString(rewritten) << endl;
-    
-    
+
+
+    if (settings.forToWhile) {
+      forToWhileLoopOpt(rewritten, settings);
+    }
+
+    std::set<PipelineSpec> toPipeline;
+    ExecutionConstraints exec;
+
     //addDataConstraints(rewritten, exec);
     inlineWireCalls(rewritten, exec, interfaces);
 
@@ -944,9 +1001,18 @@ namespace ahaHLS {
     return arch;
   }
 
+  // Idea: Maybe just reconstruct the DAG of operations and build a true synchronous
+  // dataflow machine? What would I need to do?
+  // - Find loop nests
+  // - Find loop trip counts
+  // - Check that loops do not use loop indices for anything but exit computation
+  // - Remove dead RAM loops
+  // - Prove that each loop executes at least once (if LLVM cannot do this)
+  // - Restructure each loop in to
+  //     while (tripcount) { if (all inputs ready) { KERNEL<non-blocking reads> } }
+
   // TODO:
   //  Remove one-to-one fifos
-  //  Specialize away constant RAMs
   //  Use fifo definition that reads in same cycle that ready is high
   //  Do CFG simplification
   //  Do control signal simplification
@@ -1127,7 +1193,7 @@ namespace ahaHLS {
     MicroArchitecture arch = halideArch(f, archSettings);
 
     auto in = dyn_cast<Argument>(getArg(f, 0));
-    auto out = dyn_cast<Argument>(getArg(f, 1));    
+    auto out = dyn_cast<Argument>(getArg(f, 1));
 
     TestBenchSpec tb;
     map<string, int> testLayout = {};
@@ -1142,7 +1208,7 @@ namespace ahaHLS {
     tb.settablePort(out, "read_valid");
 
     tb.setArgPort(out, "read_valid", 0, "1'b0");
-    tb.setArgPort(in, "write_valid", 0, "1'b0");        
+    tb.setArgPort(in, "write_valid", 0, "1'b0");
     
     vector<pair<int, int> > writeTimesAndValues;
     for (int i = 0; i < 8*8; i++) {
@@ -1191,6 +1257,7 @@ namespace ahaHLS {
 
     HalideArchSettings archSettings;
     archSettings.loopTasks = true;
+    archSettings.forToWhile = true;
     MicroArchitecture arch = halideArch(f, archSettings);
 
     auto in = dyn_cast<Argument>(getArg(f, 0));
