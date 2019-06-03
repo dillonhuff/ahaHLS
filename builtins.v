@@ -1305,13 +1305,14 @@ module push_linebuf(input clk,
 
    parameter IMAGE_ROWS = 8;
    parameter IMAGE_COLS = 8;
-   parameter MEM_SIZE = IMAGE_ROWS*IMAGE_COLS;
 
    parameter WARM_UP_TIME = (OUT_ROWS - 1)*IMAGE_COLS + OUT_COLS;
 
    parameter OUT_ROWS = 2;
    parameter OUT_COLS = 1;
-   
+
+   // Determined parameters
+   parameter MEM_SIZE = IMAGE_ROWS*IMAGE_COLS;
    parameter OUT_ELEMS = OUT_WIDTH / IN_WIDTH;
 
    reg                                          last_wen;
@@ -1322,8 +1323,12 @@ module push_linebuf(input clk,
    reg [IN_WIDTH - 1 : 0]                       memory [MEM_SIZE - 1 : 0];
 
    reg [15:0]                                   r0;
-   reg [15:0]                                   r1;   
-   
+   reg [15:0]                                   r1;
+
+   reg [OUT_WIDTH - 1 : 0]                      out_data;
+
+   integer                                      i;
+
    always @(posedge clk) begin
       if (rst) begin
          next_write_addr <= 0;
@@ -1333,21 +1338,33 @@ module push_linebuf(input clk,
       end else begin
          last_wen <= wen;
 
+         
          if (wen) begin
             $display("lb pushing %d to addr %d", wdata, next_write_addr);
             
             memory[next_write_addr] <= wdata;
             next_write_addr <= next_write_addr + 1;
 
+            for (i = 0 ; i < OUT_ELEMS; i=i+1) begin
+               if (i == (OUT_ELEMS - 1)) begin
+                  out_data[i*IN_WIDTH +: IN_WIDTH] <= wdata;
+               end else begin
+                  $display("mem[%d] = %d", i, memory[next_write_addr - i*IMAGE_COLS]);
+                  
+                  out_data[i*IN_WIDTH +: IN_WIDTH] <= memory[next_write_addr - (i + 1)*IMAGE_COLS];
+               end
+               // out_reg = in[i*WIDTH +: WIDTH];
+               // found = 1;
+            end
 
-
+            
             r0 <= wdata;
             r1 <= memory[next_write_addr - IMAGE_COLS];
             
          end
       end
    end
-
+      
    always @(posedge clk) begin
       if (valid) begin
          $display("Out data = %d, %d, next_write_addr = %d, warm up time = %d", r0, r1, next_write_addr, WARM_UP_TIME);
@@ -1356,7 +1373,8 @@ module push_linebuf(input clk,
    
    assign valid = last_wen && (next_write_addr >= WARM_UP_TIME);
    
-   assign rdata = {r0, r1};
+   assign rdata = out_data;
+ //{r0, r1};
    
 endmodule
 
