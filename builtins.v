@@ -1377,7 +1377,7 @@ module push_linebuf(input clk,
    always @(*) begin
       for (r = 0 ; r < OUT_ROWS; r=r+1) begin      
          for (c = 0; c < OUT_COLS; c = c + 1) begin
-            rdata_reg[(r*OUT_COLS + c) +: IN_WIDTH] = memory[r*IMAGE_ROWS + c];
+            rdata_reg[(r*OUT_COLS + c)*IN_WIDTH +: IN_WIDTH] = memory[(next_write_addr - WARM_UP_TIME) + r*IMAGE_ROWS + c];
             //rdata_reg = memory[(r*IMAGE_ROWS + c) +: IN_WIDTH];
             //rdata_reg = memory[(r*IMAGE_ROWS + c) +: IN_WIDTH];
          end

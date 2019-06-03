@@ -97,6 +97,7 @@ module test();
 
       `POSEDGE
 
+        $display("On second valid rdata = %b, {%d, %d}", rdata, rdata[31:16], rdata[15:0]);        
       #1 wen = 1;
       #1 wdata = 10;
         
