@@ -1340,7 +1340,7 @@ module push_linebuf(input clk,
 
          
          if (wen) begin
-            $display("lb pushing %d to addr %d", wdata, next_write_addr);
+            //$display("lb pushing %d to addr %d", wdata, next_write_addr);
             
             memory[next_write_addr] <= wdata;
             next_write_addr <= next_write_addr + 1;
@@ -1349,7 +1349,7 @@ module push_linebuf(input clk,
                if (i == (OUT_ELEMS - 1)) begin
                   out_data[i*IN_WIDTH +: IN_WIDTH] <= wdata;
                end else begin
-                  $display("mem[%d] = %d", i, memory[next_write_addr - i*IMAGE_COLS]);
+                  //$display("mem[%d] = %d", i, memory[next_write_addr - i*IMAGE_COLS]);
                   
                   out_data[i*IN_WIDTH +: IN_WIDTH] <= memory[next_write_addr - (i + 1)*IMAGE_COLS];
                end
