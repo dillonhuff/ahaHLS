@@ -1396,10 +1396,34 @@ module push_linebuf(input clk,
       end // if (valid)
 
       //$display("last wen = %d", last_wen);
+
+      $display("top_row = %d, left_col = %d, # valid rows = %d", top_row, left_col, num_valid_rows);
+      
       
    end
+
+   wire [31:0] top_row;
+   assign top_row = top_left_location / IMAGE_COLS;
+
+   wire [31:0] left_col;
+   assign left_col = top_left_location % IMAGE_ROWS;
    
-   assign valid = last_wen && (next_write_addr >= WARM_UP_TIME);
+   wire [31:0] bot_row;
+   assign bot_row = top_row + OUT_ROWS;
+
+   wire [31:0] right_col;
+   assign right_col = left_col + OUT_COLS;
+   
+   wire [31:0] num_valid_rows;
+   assign num_valid_rows = (IMAGE_ROWS - $ceil(OUT_ROWS / 2.0));
+
+   wire [31:0] num_valid_cols;
+   assign num_valid_cols = (IMAGE_COLS - $ceil(OUT_COLS / 2.0));
+   
+   wire out_window_out_of_bounds;
+   assign out_window_out_of_bounds = bot_row > num_valid_rows;
+   
+   assign valid = last_wen && (next_write_addr >= WARM_UP_TIME) && !out_window_out_of_bounds;
    
    assign rdata = rdata_reg;   
 
