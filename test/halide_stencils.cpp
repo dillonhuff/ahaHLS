@@ -1132,7 +1132,7 @@ namespace ahaHLS {
     emitVerilogTestBench(tb, arch, testLayout);
 
     
-    //REQUIRE(runIVerilogTB("conv_2_1"));      
+    REQUIRE(runIVerilogTB("conv_2_1"));      
     
   }
   
