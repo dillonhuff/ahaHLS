@@ -1390,11 +1390,11 @@ module push_linebuf(input clk,
          //       $display("mem[%d] = %d", c + i*IMAGE_COLS, memory[c + i*IMAGE_COLS]);
          //    end
          // end
-         $display("data valid, wdata = %d, warm up time = %d", wdata, WARM_UP_TIME);
+         //$display("data valid, wdata = %d, warm up time = %d", wdata, WARM_UP_TIME);
          
          //$display("Out data = %d, %d, next_write_addr = %d, warm up time = %d", r0, r1, next_write_addr, WARM_UP_TIME);
 
-         $display("Valid window, top left: (%d, %d), # valid rows = %d, # valid_cols = %d", top_row, left_col, num_valid_rows, num_valid_cols);         
+         //$display("Valid window, top left: (%d, %d), # valid rows = %d, # valid_cols = %d", top_row, left_col, num_valid_rows, num_valid_cols);         
       end // if (valid)
 
       //$display("last wen = %d", last_wen);
