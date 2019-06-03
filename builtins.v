@@ -1322,14 +1322,9 @@ module push_linebuf(input clk,
 
    wire [31:0]                                  top_left_location;
 
-   assign top_left_location = next_write_addr - WARM_UP_TIME;
-
-   // reg [15:0]                                   r0;
-   // reg [15:0]                                   r1;
-
    reg [OUT_WIDTH -  1 : 0]                  rdata_reg;
    
-   reg [OUT_WIDTH - 1 : 0]                      out_data;
+   //reg [OUT_WIDTH - 1 : 0]                      out_data;
 
    integer                                      c;
    integer                                      i;
@@ -1349,21 +1344,21 @@ module push_linebuf(input clk,
             memory[next_write_addr] <= wdata;
             next_write_addr <= next_write_addr + 1;
 
-            for (c = 0; c < OUT_COLS; c = c + 1) begin
-               for (i = 0 ; i < OUT_ROWS; i=i+1) begin
+            // for (c = 0; c < OUT_COLS; c = c + 1) begin
+            //    for (i = 0 ; i < OUT_ROWS; i=i+1) begin
 
-                  if ((i == (OUT_ROWS - 1)) && (c == (OUT_COLS - 1))) begin
-                     out_data[(c*IN_WIDTH*IMAGE_ROWS + i*IN_WIDTH) +: IN_WIDTH] <= wdata;
-                     //$display("mem[%d] = %d", OUT_ROWS*c + i, wdata);
+            //       if ((i == (OUT_ROWS - 1)) && (c == (OUT_COLS - 1))) begin
+            //          out_data[(c*IN_WIDTH*IMAGE_ROWS + i*IN_WIDTH) +: IN_WIDTH] <= wdata;
+            //          //$display("mem[%d] = %d", OUT_ROWS*c + i, wdata);
                      
-                  end else begin
-                     //$display("mem[%d] = %d", i, memory[next_write_addr - i*IMAGE_COLS]);
-                     //$display("mem[%d] = %d", OUT_ROWS*c + i, memory[next_write_addr - (i + 1)*IMAGE_COLS - c]);
+            //       end else begin
+            //          //$display("mem[%d] = %d", i, memory[next_write_addr - i*IMAGE_COLS]);
+            //          //$display("mem[%d] = %d", OUT_ROWS*c + i, memory[next_write_addr - (i + 1)*IMAGE_COLS - c]);
                      
-                     out_data[(c*IN_WIDTH*IMAGE_ROWS + i*IN_WIDTH) +: IN_WIDTH] <= memory[next_write_addr - (i + 1)*IMAGE_COLS];
-                  end
-               end
-            end
+            //          out_data[(c*IN_WIDTH*IMAGE_ROWS + i*IN_WIDTH) +: IN_WIDTH] <= memory[next_write_addr - (i + 1)*IMAGE_COLS];
+            //       end
+            //    end
+            // end
             
             // r0 <= wdata;
             // r1 <= memory[next_write_addr - IMAGE_COLS];
@@ -1372,14 +1367,15 @@ module push_linebuf(input clk,
       end
    end
 
+   assign top_left_location = next_write_addr - WARM_UP_TIME;
+
    integer r;
    
    always @(*) begin
+      
       for (r = 0 ; r < OUT_ROWS; r=r+1) begin      
          for (c = 0; c < OUT_COLS; c = c + 1) begin
-            rdata_reg[(r*OUT_COLS + c)*IN_WIDTH +: IN_WIDTH] = memory[(next_write_addr - WARM_UP_TIME) + r*IMAGE_ROWS + c];
-            //rdata_reg = memory[(r*IMAGE_ROWS + c) +: IN_WIDTH];
-            //rdata_reg = memory[(r*IMAGE_ROWS + c) +: IN_WIDTH];
+            rdata_reg[(r*OUT_COLS + c)*IN_WIDTH +: IN_WIDTH] = memory[top_left_location + r*IMAGE_ROWS + c];
          end
       end
       
@@ -1387,21 +1383,24 @@ module push_linebuf(input clk,
    
    always @(posedge clk) begin
       if (valid) begin
+         $display("top_left_location = %d", top_left_location);
 
-         // for (c = 0; c < OUT_COLS; c = c + 1) begin
-         //    for (i = 0 ; i < OUT_ROWS; i=i+1) begin
-         //       $display("out[%d] = %d", OUT_ROWS + i*OUT_ROWS, out_data[(c*IN_WIDTH*IMAGE_ROWS + i*IN_WIDTH) +: IN_WIDTH]);
-         //    end
-         // end         
+         for (i = 0 ; i < IMAGE_ROWS; i=i+1) begin         
+            for (c = 0; c < IMAGE_COLS; c = c + 1) begin
+               $display("mem[%d] = %d", c + i*IMAGE_COLS, memory[c + i*IMAGE_COLS]);
+            end
+         end         
          $display("data valid, wdata = %d, warm up time = %d", wdata, WARM_UP_TIME);
          
          //$display("Out data = %d, %d, next_write_addr = %d, warm up time = %d", r0, r1, next_write_addr, WARM_UP_TIME);
-      end
+      end // if (valid)
+
+      //$display("last wen = %d", last_wen);
+      
    end
    
    assign valid = last_wen && (next_write_addr >= WARM_UP_TIME);
    
-   //assign rdata = out_data;
    assign rdata = rdata_reg;   
 
 endmodule
