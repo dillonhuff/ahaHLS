@@ -1769,7 +1769,21 @@ namespace ahaHLS {
     int nCols;
   };
 
-  StructType* lbType(const int inWidth, const int outWidth);
+  static inline
+  int bitWidth(HalideStencilTp stencil) {
+    return stencil.typeWidth*stencil.nRows*stencil.nCols;
+  }
+  
+  
+  class LBSpec {
+  public:
+    HalideStencilTp in;
+    HalideStencilTp out;
+    vector<int> imageBounds;
+  };
+
+  //StructType* lbType(const int inWidth, const int outWidth);
+  StructType* lbType(LBSpec& spec);  
 }
 
 

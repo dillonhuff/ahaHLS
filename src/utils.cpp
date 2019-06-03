@@ -383,4 +383,9 @@ namespace ahaHLS {
     return dyn_cast<PointerType>(tp)->getElementType();
   }
 
+  pair<string, string> splitOn(std::string pattern, const std::string& name) {
+    auto fst = takeUntil(pattern, name);
+    return {fst, drop(pattern, name)};
+  }
+
 }

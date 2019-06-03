@@ -5351,14 +5351,24 @@ namespace ahaHLS {
   }
   
   // TODO: Actually extract types
-  int stencilTypeWidth(const std::string& name) {
-    //cout << "Getting type width of " << name << endl;
+  int stencilTypeWidth(const std::string& origName) {
+    cout << "Getting type width of " << origName << endl;
 
+    string name = origName;
+    if (hasPrefix(origName, "class.")) {
+      name = drop("class.", origName);
+    }
     string stencilPrefix = "";
-    if (hasPrefix(name, "class.AxiPackedStencil_")) {
-      stencilPrefix = "class.AxiPackedStencil_";
+    // if (hasPrefix(name, "class.AxiPackedStencil_")) {
+    //   stencilPrefix = "class.AxiPackedStencil_";
+    // } else {
+    //   stencilPrefix = "class.PackedStencil_";
+    // }
+
+    if (hasPrefix(name, "AxiPackedStencil_")) {
+      stencilPrefix = "AxiPackedStencil_";
     } else {
-      stencilPrefix = "class.PackedStencil_";
+      stencilPrefix = "PackedStencil_";
     }
     
     //string nm = drop("class.AxiPackedStencil_", name);
@@ -5667,7 +5677,11 @@ namespace ahaHLS {
     }
   }
 
-  StructType* lbType(const int inWidth, const int outWidth) {
-    return structType("hls.lb." + to_string(inWidth) + "." + to_string(outWidth));
+  StructType* lbType(LBSpec& spec) { //const int inWidth, const int outWidth) {
+    int inWidth = bitWidth(spec.in);
+    cout << "lb InWidth = " << inWidth << endl;
+    int outWidth = bitWidth(spec.out);
+    cout << "lb OutWidth = " << outWidth << endl;    
+    return structType("hls.lb." + to_string(inWidth) + "." + to_string(outWidth) + "." + to_string(8));
   }
 }

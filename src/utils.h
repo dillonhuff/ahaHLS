@@ -203,6 +203,7 @@ namespace ahaHLS {
   bool canDemangle(const std::string& mangled);
   std::string demangledFuncName(const std::string& demangledName);
   std::string takeUntil(std::string pattern, const std::string& name);
+  std::pair<std::string, std::string> splitOn(std::string pattern, const std::string& name);  
   std::string drop(std::string pattern, const std::string& name);
 
   std::string ifStr(const std::string s);
