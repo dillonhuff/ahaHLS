@@ -611,6 +611,63 @@ namespace ahaHLS {
 
     HalideArchSettings() : loopTasks(true), pushFifos(true) {}
   };
+
+  void implementPushFifoWriteRef(llvm::Function* writeFifo,
+                                 ExecutionConstraints& exec) {
+
+    auto out = getArg(writeFifo, 0);
+
+
+    auto dataPtr = getArg(writeFifo, 1);
+
+    assert(PointerType::classof(dataPtr->getType()));
+
+    auto dataPtrTp = dyn_cast<PointerType>(dataPtr->getType());
+
+    auto tp = out->getType();
+    
+    int width = getTypeBitWidth(dataPtrTp->getElementType());
+    
+    auto writeDataF = writePort("in_data", width, tp);
+    auto setValidF = writePort("write_valid", 1, tp);
+
+    auto entryBlk = mkBB("entry_block", writeFifo);
+
+    IRBuilder<> entryBuilder(entryBlk);
+    auto setValid1 = entryBuilder.CreateCall(setValidF, {out, mkInt(1, 1)});
+    auto data = entryBuilder.CreateLoad(dataPtr);    
+    auto writeValue = entryBuilder.CreateCall(writeDataF, {out, data});
+    auto ret = entryBuilder.CreateRet(nullptr);
+
+    exec.add(instrEnd(data) == instrStart(writeValue));
+    exec.add(instrEnd(data) == instrStart(setValid1));
+    exec.add(instrStart(writeValue) + 1 == instrStart(ret));
+    
+    addDataConstraints(writeFifo, exec);
+  }
+  
+  void implementPushFifoReadRef(llvm::Function* readFifo, ExecutionConstraints& exec) {
+
+    auto out = getArg(readFifo, 0);
+    auto fifo = getArg(readFifo, 1);
+    auto tp = getPointedToType(out->getType());
+
+    int width = getTypeBitWidth(tp);
+
+    auto readInDataF = readPort("out_data", width, tp);
+    
+    auto entryBlk = mkBB("entry_block", readFifo);
+
+    IRBuilder<> entryBuilder(entryBlk);
+    auto readValue = entryBuilder.CreateCall(readInDataF, {fifo});    
+    auto store = entryBuilder.CreateStore(readValue, out);
+    auto ret = entryBuilder.CreateRet(nullptr);
+    
+    exec.add(instrStart(store) == instrEnd(readValue));
+    exec.add(instrEnd(store) == instrStart(ret));
+
+    addDataConstraints(readFifo, exec);
+  }  
   
   MicroArchitecture halideArch(Function* f, HalideArchSettings settings) {
     Function* rewritten =
@@ -633,26 +690,29 @@ namespace ahaHLS {
           Function* func = ci->getCalledFunction();
           string name = ci->getCalledFunction()->getName();
           if (!elem(name, funcs)) {
+            interfaces.addFunction(func);
+            
             if (hasPrefix(name, "fifo_read_ref")) {
-              interfaces.addFunction(func);
-              implementRVFifoReadRef(func, interfaces.getConstraints(func));
+              if (!settings.pushFifos) {
+                implementRVFifoReadRef(func, interfaces.getConstraints(func));
+              } else {
+                implementPushFifoReadRef(func, interfaces.getConstraints(func));
+              }
             } else if (hasPrefix(name, "fifo_write_ref")) {
-              interfaces.addFunction(func);
-              implementRVFifoWriteRef(func, interfaces.getConstraints(func));
+              if (!settings.pushFifos) {
+                implementRVFifoWriteRef(func, interfaces.getConstraints(func));
+              } else {
+                implementPushFifoWriteRef(func, interfaces.getConstraints(func));
+              }
             } else if (hasPrefix(name, "lb_has_valid")) {
-              interfaces.addFunction(func);
               implementLBHasValidData(func, interfaces.getConstraints(func));
             } else if (hasPrefix(name, "ram.write.")) {
-              interfaces.addFunction(func);
               implementRAMWrite0(func, interfaces.getConstraints(func));
             } else if (hasPrefix(name, "ram.read.")) {
-              interfaces.addFunction(func);
               implementRAMRead0(func, interfaces.getConstraints(func));
             } else if (hasPrefix(name, "lb_push.")) {
-              interfaces.addFunction(func);
               implementLBPush(func, interfaces.getConstraints(func));
             } else if (hasPrefix(name, "lb_pop.")) {
-              interfaces.addFunction(func);
               implementLBPop(func, interfaces.getConstraints(func));
             } else {
               cout << "Error: Unsupported call " << valueString(ci) << endl;
