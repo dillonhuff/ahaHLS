@@ -1,0 +1,5 @@
+conv_2_1 manually optimized
+Rewrite stencils as int computation
+get element 0 1 from stencil
+conv_2_1 to verilog
+conv_2_1 push architecture to verilog

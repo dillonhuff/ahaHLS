@@ -607,6 +607,9 @@ namespace ahaHLS {
   class HalideArchSettings {
   public:
     bool loopTasks;
+    bool pushFifos;
+
+    HalideArchSettings() : loopTasks(true), pushFifos(true) {}
   };
   
   MicroArchitecture halideArch(Function* f, HalideArchSettings settings) {
@@ -1062,8 +1065,7 @@ namespace ahaHLS {
   }
   
   // TODO:
-  //  Make sure store / load rewrites are correct
-  //  Add sliced loads / stores
+  //  Add sliced stores
   TEST_CASE("conv_2_1 to verilog") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -1133,6 +1135,79 @@ namespace ahaHLS {
 
     
     REQUIRE(runIVerilogTB("conv_2_1"));      
+    
+  }
+
+  TEST_CASE("conv_2_1 push architecture to verilog") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "conv_2_1_source");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
+    deleteLLVMLifetimeCalls(f);
+
+    HalideArchSettings archSettings;
+    archSettings.loopTasks = true;
+    archSettings.pushFifos = true;
+    MicroArchitecture arch = halideArch(f, archSettings);
+
+    auto in = dyn_cast<Argument>(getArg(f, 0));
+    auto out = dyn_cast<Argument>(getArg(f, 1));    
+
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 800;
+    tb.maxCycles = 5000;
+    tb.name = "conv_2_1_push";
+    tb.useModSpecs = true;
+    tb.settablePort(in, "in_data");
+    tb.settablePort(in, "write_valid");
+    tb.settablePort(out, "read_valid");
+
+    tb.setArgPort(out, "read_valid", 0, "1'b0");
+    tb.setArgPort(in, "write_valid", 0, "1'b0");
+    
+    vector<pair<int, int> > writeTimesAndValues;
+    for (int i = 0; i < 8*8; i++) {
+      writeTimesAndValues.push_back({3*i + 5, i});
+    }
+    setRVFifo(tb, "arg_0", writeTimesAndValues);
+
+    vector<pair<int, string> > expectedValuesAndTimes;
+    int offset = 1000;
+    for (int i = 0; i < 8*7; i++) {
+      expectedValuesAndTimes.push_back({offset, to_string(i + (i + 8))});
+      offset += 2;
+    }
+    checkRVFifo(tb, "arg_1", expectedValuesAndTimes);
+    
+    map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+
+    //int endCycle = 20;
+    //map_insert(tb.actionsOnCycles, endCycle, assertString("valid === 1"));
+
+    VerilogDebugInfo info;
+    // addDisplay("1", "global state = %d", {"global_state"}, info);
+    // addDisplay("1", "arg_0_read_ready = %d", {"arg_0_read_ready"}, info);
+    // addDisplay("1", "arg_0_read_valid = %d", {"arg_0_read_valid"}, info);
+    // addDisplay("1", "arg_0_out_data = %d", {"arg_0_out_data"}, info);
+    addDisplay("arg_1_write_valid", "accelerator writing %d to output", {"arg_1_in_data"}, info);
+    // addDisplay("1", "arg_1_read_ready = %d", {"arg_1_read_ready"}, info);
+    // addDisplay("1", "arg_1_out_data = %d", {"arg_1_out_data"}, info);
+    // addDisplay("1", "arg_1_write_ready = %d", {"arg_1_write_ready"}, info);
+    //printActiveBlocks(arch, info);
+    addNoXChecks(arch, info);
+    
+    emitVerilog("conv_2_1_push", arch, info);
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    
+    REQUIRE(runIVerilogTB("conv_2_1_push"));      
     
   }
   
