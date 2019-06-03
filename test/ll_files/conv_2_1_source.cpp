@@ -21,31 +21,14 @@ hls_stream_AxiPackedStencil_uint16_t_1_1__ &arg_1)
 
 // Now outputting a linebuffer
  linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_8_8 _lb__hw_input_stencil_update_stream_to__hw_input_stencil_stream;
-
- for (int i = 0; i < 8*8; i++) {
-   _lb__hw_input_stencil_update_stream_to__hw_input_stencil_stream.lb_write(_hw_input_stencil_update_stream.read());
- }
- //for (int i = 0; i < 9; i++) {
- // for (int i = 0; i < 10; i++) {
- //        	_lb__hw_input_stencil_update_stream_to__hw_input_stencil_stream.lb_write(_hw_input_stencil_update_stream.read());
- //        }
- //for (int i = 0; i < 55; i++) {
- // for (int i = 0; i < 54; i++) {
- //        	_lb__hw_input_stencil_update_stream_to__hw_input_stencil_stream.lb_write(_hw_input_stencil_update_stream.read());   
- //        	if (_lb__hw_input_stencil_update_stream_to__hw_input_stencil_stream.has_valid_data()) {
- //        		_hw_input_stencil_stream.write(_lb__hw_input_stencil_update_stream_to__hw_input_stencil_stream.lb_read());
- //        	} else {
- //        	}
-
- //        }
-
- for (int i = 0; i < 7*8; i++) {
-   while (!_lb__hw_input_stencil_update_stream_to__hw_input_stencil_stream.has_valid_data()) {}
-   _hw_input_stencil_stream.write(_lb__hw_input_stencil_update_stream_to__hw_input_stencil_stream.lb_read());   
-
- }
-
- // Steady state for loop to write and read (void)0;
+	for (int i = 0; i < 64; i++) {
+		_lb__hw_input_stencil_update_stream_to__hw_input_stencil_stream.lb_write(_hw_input_stencil_update_stream.read());
+	}
+	for (int i = 0; i < 56; i++) {
+		while (!_lb__hw_input_stencil_update_stream_to__hw_input_stencil_stream.has_valid_data()) {}
+			_hw_input_stencil_stream.write(_lb__hw_input_stencil_update_stream_to__hw_input_stencil_stream.lb_read());
+	}
+// Steady state for loop to write and read (void)0;
  // dispatch_stream(_hw_input_stencil_stream, 2, 1, 1, 8, 2, 1, 8, 1, "conv", 0, 0, 8, 0, 8);
  hls_stream_PackedStencil_uint16_t_1_2__ _hw_input_stencil_stream_to_conv;
 #pragma HLS STREAM variable=_hw_input_stencil_stream_to_conv depth=1
