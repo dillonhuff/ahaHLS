@@ -1385,11 +1385,11 @@ module push_linebuf(input clk,
       if (valid) begin
          $display("top_left_location = %d", top_left_location);
 
-         for (i = 0 ; i < IMAGE_ROWS; i=i+1) begin         
-            for (c = 0; c < IMAGE_COLS; c = c + 1) begin
-               $display("mem[%d] = %d", c + i*IMAGE_COLS, memory[c + i*IMAGE_COLS]);
-            end
-         end         
+         // for (i = 0 ; i < IMAGE_ROWS; i=i+1) begin         
+         //    for (c = 0; c < IMAGE_COLS; c = c + 1) begin
+         //       $display("mem[%d] = %d", c + i*IMAGE_COLS, memory[c + i*IMAGE_COLS]);
+         //    end
+         // end
          $display("data valid, wdata = %d, warm up time = %d", wdata, WARM_UP_TIME);
          
          //$display("Out data = %d, %d, next_write_addr = %d, warm up time = %d", r0, r1, next_write_addr, WARM_UP_TIME);
