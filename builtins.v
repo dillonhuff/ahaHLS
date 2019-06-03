@@ -1359,3 +1359,37 @@ module push_linebuf(input clk,
    assign rdata = {r0, r1};
    
 endmodule
+
+module push_fifo(input clk,
+                 input                  rst,
+
+                 input [WIDTH - 1 : 0]  in_data,
+                 input                  write_valid,
+
+                 output [WIDTH - 1 : 0] out_data,
+                 output read_valid);
+
+   parameter WIDTH = 32;
+   
+   reg                                  last_wv;
+   reg [WIDTH - 1 : 0]                  data;
+   
+
+   always @(posedge clk) begin
+      if (rst) begin
+         last_wv <= 0;
+
+         
+      end else begin
+         last_wv <= write_valid;
+
+         if (write_valid) begin
+            data <= in_data;
+         end
+      end
+   end
+
+   assign read_valid = last_wv;
+   assign out_data = data;
+   
+endmodule
