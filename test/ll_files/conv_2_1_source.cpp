@@ -25,7 +25,7 @@ hls_stream_AxiPackedStencil_uint16_t_1_1__ &arg_1)
 		_lb__hw_input_stencil_update_stream_to__hw_input_stencil_stream.lb_write(_hw_input_stencil_update_stream.read());
 	}
 	for (int i = 0; i < 56; i++) {
-		while (!_lb__hw_input_stencil_update_stream_to__hw_input_stencil_stream.has_valid_data()) {}
+          //while (!_lb__hw_input_stencil_update_stream_to__hw_input_stencil_stream.has_valid_data()) {}
 			_hw_input_stencil_stream.write(_lb__hw_input_stencil_update_stream_to__hw_input_stencil_stream.lb_read());
 	}
 // Steady state for loop to write and read (void)0;
@@ -39,10 +39,9 @@ hls_stream_AxiPackedStencil_uint16_t_1_1__ &arg_1)
  {
 #pragma HLS PIPELINE
   PackedStencil_uint16_t_1_2_ _tmp_stencil = _hw_input_stencil_stream.read();
-  if (_dim_0 >= 0 && _dim_0 <= 7 && _dim_1 >= 0 && _dim_1 <= 6)
-  {
+  //if (_dim_0 >= 0 && _dim_0 <= 7 && _dim_1 >= 0 && _dim_1 <= 6) {
    _hw_input_stencil_stream_to_conv.write(_tmp_stencil);
-  }
+   //}
  }
 // -- End of dispatch
  (void)0;
@@ -120,10 +119,9 @@ _conv_stencil_stream.write(_conv_stencil);
  {
 #pragma HLS PIPELINE
   PackedStencil_int32_t_1_1_ _tmp_stencil = _conv_stencil_stream.read();
-  if (_dim_0 >= 0 && _dim_0 <= 7 && _dim_1 >= 0 && _dim_1 <= 6)
-  {
+  //if (_dim_0 >= 0 && _dim_0 <= 7 && _dim_1 >= 0 && _dim_1 <= 6) {
    _conv_stencil_stream_to_hw_output.write(_tmp_stencil);
-  }
+   //}
  }
 // -- End of dispatch
  (void)0;
@@ -156,11 +154,11 @@ _hw_output_stencil.set(_303, 0, 0);
    // consume hw_output.stencil
    // Dag output kernel
 AxiPackedStencil_uint16_t_1_1_ _hw_output_stencil_packed = _hw_output_stencil;
-   if (_hw_output_x___scan_dim_0 == 7 && _hw_output_y___scan_dim_1 == 6) {
-    _hw_output_stencil_packed.set_last(1);
-   } else {
-    _hw_output_stencil_packed.set_last(0);
-   }
+   // if (_hw_output_x___scan_dim_0 == 7 && _hw_output_y___scan_dim_1 == 6) {
+   //  _hw_output_stencil_packed.set_last(1);
+   // } else {
+   //  _hw_output_stencil_packed.set_last(0);
+   // }
    _hw_output_stencil_stream.write(_hw_output_stencil_packed);
    (void)0;
   } // for _hw_output_x___scan_dim_0

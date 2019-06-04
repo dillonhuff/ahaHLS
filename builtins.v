@@ -1447,7 +1447,7 @@ module push_fifo(input clk,
    always @(posedge clk) begin
       if (rst) begin
          last_wv <= 0;
-
+         data <= 0;
          
       end else begin
          last_wv <= write_valid;
