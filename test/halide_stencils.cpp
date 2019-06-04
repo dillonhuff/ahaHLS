@@ -871,14 +871,22 @@ namespace ahaHLS {
           totalTripCount *= tc;
         }
         cout << "Total trip count of loop = " << totalTripCount << endl;
+        assert(totalTripCount < 300000);
+        
+        BasicBlock* bodyToReplace = *begin(info.body);
+        BasicBlock* replacement = mkBB(string(bodyToReplace->getName()) + "_flat", f);
+        IRBuilder<> b(replacement);
+        auto indVar = b.CreatePHI(intType(16), 2);
+        auto iNext = b.CreateAdd(indVar, mkInt(1, 16));
+        auto exitCond = b.CreateICmpEQ(iNext, mkInt(totalTripCount, 16));
       }
     }
 
-    // Now: I want to replace each existing loop with a single-for-loop
-    // How do I replace the loop?
-    // Build the basic block structure for the loops themselves,
-    // then find blocking read ops?
-    // Simplest: Delete loop each time and rebuild loop info?
+    cout << "After dataflow conversion opt" << endl;
+    cout << valueString(f) << endl;
+    sanityCheck(f);
+    
+    assert(false);
   }
   
   MicroArchitecture halideArch(Function* f, HalideArchSettings settings) {
