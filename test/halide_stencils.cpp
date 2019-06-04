@@ -910,10 +910,30 @@ namespace ahaHLS {
       // Need to delete all replaced loop nests
     }
 
-    for (auto blk : replacements) {
+    for (auto blk : replacements) { //asdf
+      // for (auto& bb : *f) {
+      //   bool isPred = false;
+      //   for (auto p : predecessors(&bb)) {
+      //     if (p == blk.first) {
+      //       isPred = true;
+      //       break;
+      //     }
+      //   }
+
+      //   if (isPred) {
+      //     bb.removePredecessor(blk.first);
+      //   }
+        
+      // }
+
       blk.first->replaceAllUsesWith(blk.second);
+      
     }
 
+    for (auto blk : replacements) {
+      blk.first->removeFromParent();
+    }
+    
     cout << "After loop flattening opt" << endl;
     cout << valueString(f) << endl;
     sanityCheck(f);
