@@ -5,12 +5,17 @@
 #include "test_utils.h"
 #include "parser.h"
 
+#include "llvm/Transforms/Utils/BasicBlockUtils.h"
+// for RecursivelyDeleteTriviallyDeadInstructions
+#include "llvm/Transforms/Utils/Local.h"
+
 #include <llvm/Analysis/LoopInfo.h>
 #include <llvm/Analysis/LoopAccessAnalysis.h>
 #include <llvm/Analysis/ScalarEvolution.h>
 
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Transforms/Scalar/SimplifyCFG.h"
+#include "llvm/Transforms/Scalar/DCE.h"
 #include "llvm/Transforms/Scalar/LoopSimplifyCFG.h"
 #include "llvm/Transforms/Utils/PromoteMemToReg.h"
 #include "llvm/IR/Dominators.h"
@@ -786,11 +791,22 @@ namespace ahaHLS {
     return info;
   }
 
+  void runCleanupPasses(Function* f) {
+    FunctionPassManager FPM;
+    FPM.addPass(DCEPass());        
+    FPM.addPass(SimplifyCFGPass());
+    FunctionAnalysisManager FAM;
+    PassBuilder PB;
+    PB.registerFunctionAnalyses(FAM);
+    FPM.run(*f, FAM);
+  }
+  
   // Bad name, should really be "dataFlowLoops" or something similar
   void forToWhileLoopOpt(Function* f, HalideArchSettings settings) {
 
     FunctionPassManager FPM;
     FPM.addPass(SimplifyCFGPass());
+    FPM.addPass(DCEPass());    
     FunctionAnalysisManager FAM;
     PassBuilder PB;
     PB.registerFunctionAnalyses(FAM);
@@ -858,6 +874,20 @@ namespace ahaHLS {
       exits[loop] = exit;
     }
 
+    map<Loop*, BasicBlock*> loopReplacements;
+    for (auto lpInfo : dataflowNests) {
+      Loop* loop = lpInfo.first;
+      DataflowNestInfo info = lpInfo.second;
+      assert(info.body.size() == 1);
+
+      if (info.tripCounts.size() > 1) {
+        BasicBlock* bodyToReplace = *begin(info.body);
+        BasicBlock* replacement = mkBB(string(bodyToReplace->getName()) + "_flat", f);
+
+        loopReplacements[loop] = replacement;
+      }
+    }
+
     cout << "# of top level loops = " << dataflowNests.size() << endl;
     map<BasicBlock*, BasicBlock*> replacements;
     for (auto lpInfo : dataflowNests) {
@@ -873,9 +903,10 @@ namespace ahaHLS {
         }
         cout << "Total trip count of loop = " << totalTripCount << endl;
         assert(totalTripCount < 300000);
+
+        BasicBlock* bodyToReplace = *begin(info.body);        
+        auto replacement = map_find(loop, loopReplacements);
         
-        BasicBlock* bodyToReplace = *begin(info.body);
-        BasicBlock* replacement = mkBB(string(bodyToReplace->getName()) + "_flat", f);
         IRBuilder<> b(replacement);
         auto indVar = b.CreatePHI(intType(16), 2);
         auto iNext = b.CreateAdd(indVar, mkInt(1, 16));
@@ -887,19 +918,36 @@ namespace ahaHLS {
         assert(Instruction::classof(exitCond));
         
         vector<Instruction*> toMove;
+        set<Instruction*> toErase;
         for (auto& instr : *bodyToReplace) {
           if (!TerminatorInst::classof(&instr)) {
             toMove.push_back(&instr);
+          } else {
+            toErase.insert(&instr);
           }
+        }
+
+        for (auto instr : toErase) {
+          instr->eraseFromParent();
         }
         
         for (auto instr : toMove) {
           instr->moveBefore(dyn_cast<Instruction>(exitCond));
         }
 
-        // Need to create branch instruction to terminate each block
+        // // Need to create branch instruction to terminate each block
+        // b.CreateCondBr(exitCond, map_find(loop, exits), replacement);
         b.CreateCondBr(exitCond, map_find(loop, exits), replacement);
+        //b.CreateCondBr(exitCond, replacement, replacement);
 
+        // for (auto& p : preds) {
+        //   if (p.second == bodyToReplace) {
+            
+        //   }
+        // }
+        // Now: Replace preds[
+
+        // replacements[bodyToReplace] = replacement;
         for (auto blk : loop->getBlocks()) {
           replacements[blk] = replacement;
         }
@@ -911,28 +959,41 @@ namespace ahaHLS {
     }
 
     for (auto blk : replacements) { //asdf
-      // for (auto& bb : *f) {
-      //   bool isPred = false;
-      //   for (auto p : predecessors(&bb)) {
-      //     if (p == blk.first) {
-      //       isPred = true;
-      //       break;
-      //     }
-      //   }
+    //   // for (auto& bb : *f) {
+    //   //   bool isPred = false;
+    //   //   for (auto p : predecessors(&bb)) {
+    //   //     if (p == blk.first) {
+    //   //       isPred = true;
+    //   //       break;
+    //   //     }
+    //   //   }
 
-      //   if (isPred) {
-      //     bb.removePredecessor(blk.first);
-      //   }
+    //   //   if (isPred) {
+    //   //     bb.removePredecessor(blk.first);
+    //   //   }
         
-      // }
+    //   // }
 
       blk.first->replaceAllUsesWith(blk.second);
       
     }
 
+    cout << "After adding new loops and replacing uses" << endl;
+    cout << valueString(f) << endl;
+    
     for (auto blk : replacements) {
-      blk.first->removeFromParent();
+    //   //blk.first->removeFromParent();
+
+    //   cout << "Deleting block" << endl;
+    //   assert(blk.first != nullptr);
+    //   //cout << valueString(blk.first) << endl;
+      
+      DeleteDeadBlock(blk.first);
     }
+
+    cout << "Done deleting blocks" << endl;
+
+    runCleanupPasses(f);
     
     cout << "After loop flattening opt" << endl;
     cout << valueString(f) << endl;
