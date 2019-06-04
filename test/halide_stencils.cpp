@@ -855,10 +855,11 @@ namespace ahaHLS {
         }
         assert(false);
       }
-      preds[loop] = exit;
+      exits[loop] = exit;
     }
 
     cout << "# of top level loops = " << dataflowNests.size() << endl;
+    map<BasicBlock*, BasicBlock*> replacements;
     for (auto lpInfo : dataflowNests) {
       Loop* loop = lpInfo.first;
       DataflowNestInfo info = lpInfo.second;
@@ -878,13 +879,46 @@ namespace ahaHLS {
         IRBuilder<> b(replacement);
         auto indVar = b.CreatePHI(intType(16), 2);
         auto iNext = b.CreateAdd(indVar, mkInt(1, 16));
+
+        indVar->addIncoming(iNext, replacement);
+        indVar->addIncoming(mkInt(0, 16), map_find(loop, preds));
+
         auto exitCond = b.CreateICmpEQ(iNext, mkInt(totalTripCount, 16));
+        assert(Instruction::classof(exitCond));
+        
+        vector<Instruction*> toMove;
+        for (auto& instr : *bodyToReplace) {
+          if (!TerminatorInst::classof(&instr)) {
+            toMove.push_back(&instr);
+          }
+        }
+        
+        for (auto instr : toMove) {
+          instr->moveBefore(dyn_cast<Instruction>(exitCond));
+        }
+
+        // Need to create branch instruction to terminate each block
+        b.CreateCondBr(exitCond, map_find(loop, exits), replacement);
+
+        for (auto blk : loop->getBlocks()) {
+          replacements[blk] = replacement;
+        }
+
+        // Set phi nodes
       }
+
+      // Need to delete all replaced loop nests
     }
 
-    cout << "After dataflow conversion opt" << endl;
+    for (auto blk : replacements) {
+      blk.first->replaceAllUsesWith(blk.second);
+    }
+
+    cout << "After loop flattening opt" << endl;
     cout << valueString(f) << endl;
     sanityCheck(f);
+
+    // Insert blocking check optimization here
     
     assert(false);
   }
