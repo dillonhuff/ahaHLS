@@ -11,6 +11,7 @@
 
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Transforms/Scalar/SimplifyCFG.h"
+#include "llvm/Transforms/Scalar/LoopSimplifyCFG.h"
 #include "llvm/Transforms/Utils/PromoteMemToReg.h"
 #include "llvm/IR/Dominators.h"
 #include <llvm/Analysis/CFG.h>
@@ -795,6 +796,13 @@ namespace ahaHLS {
     PB.registerFunctionAnalyses(FAM);
     FPM.run(*f, FAM);
 
+    // LoopPassManager LPM;
+    // LPM.addPass(SimplifyCFGPass());
+    // LoopAnalysisManager LAM;
+    // PassBuilder lbp;
+    // lbp.registerLoopAnalyses(LAM);
+    // lbp.run(*f, LAM);
+    
     cout << "Before Dataflow loop opts" << endl;
     cout << valueString(f) << endl;
     
@@ -819,22 +827,43 @@ namespace ahaHLS {
       DataflowNestInfo info = computeDataflowInfo(loop, scev);
       dataflowNests[loop]= info;
 
-      // BasicBlock* pred = loop->getLoopPredecessor();
-      // if (pred == nullptr) {
-      //   cout << "Loop does not have unique predecessor" << endl;        
-      //   assert(false);
-      // }
-      // preds[loop] = pred;
+      BasicBlock* pred = loop->getLoopPredecessor();
+      if (pred == nullptr) {
+        cout << "Loop does not have unique predecessor" << endl;        
+        assert(false);
+      }
+      preds[loop] = pred;
 
-      // BasicBlock* exit = loop->getExitBlock();
-      // if (exit != nullptr) {
-      //   cout << "Loop does not have unique exit block" << endl;
-      //   assert(false);
-      // }
-      // preds[loop] = exit;
+      BasicBlock* exit = loop->getUniqueExitBlock();
+      if (exit == nullptr) {
+        cout << "Loop does not have unique exit block" << endl;
+        SmallVector<BasicBlock*, 8> exitBlocks;
+        loop->getUniqueExitBlocks(exitBlocks);
+        for (auto blk : exitBlocks) {
+          cout << "Exit blk" << endl;
+          cout << valueString(blk) << endl;
+        }
+        
+        SmallVector<std::pair<const BasicBlock *, const BasicBlock *>, 8> exitEdges;
+        loop->getExitEdges(exitEdges);
+
+        for (auto edge : exitEdges) {
+          cout << "Out from " << endl;
+          cout << valueString(edge.first) << endl;
+          cout << "to" << endl;
+          cout << valueString(edge.second) << endl;          
+        }
+        assert(false);
+      }
+      preds[loop] = exit;
     }
 
     cout << "# of top level loops = " << dataflowNests.size() << endl;
+    for (auto lpInfo : dataflowNests) {
+      Loop* loop = lpInfo.first;
+      DataflowNestInfo info = lpInfo.second;
+      assert(info.body.size() == 1);
+    }
 
     // Now: I want to replace each existing loop with a single-for-loop
     // How do I replace the loop?

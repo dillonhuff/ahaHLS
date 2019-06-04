@@ -20,7 +20,7 @@ namespace ahaHLS {
     return ss.str();
   }
 
-  std::string valueString(Value* const iptr) {
+  std::string valueString(const Value* const iptr) {
     assert(iptr != nullptr);
     
     std::string str;
