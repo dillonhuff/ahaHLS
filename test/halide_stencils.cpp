@@ -9,6 +9,8 @@
 #include <llvm/Analysis/LoopAccessAnalysis.h>
 #include <llvm/Analysis/ScalarEvolution.h>
 
+#include "llvm/Passes/PassBuilder.h"
+#include "llvm/Transforms/Scalar/SimplifyCFG.h"
 #include "llvm/Transforms/Utils/PromoteMemToReg.h"
 #include "llvm/IR/Dominators.h"
 #include <llvm/Analysis/CFG.h>
@@ -739,6 +741,7 @@ namespace ahaHLS {
   public:
     vector<int> tripCounts;
     set<BasicBlock*> body;
+    set<Instruction*> blockingOps;
   };
 
   DataflowNestInfo computeDataflowInfo(Loop* loop, ScalarEvolution& scev) {
@@ -767,17 +770,18 @@ namespace ahaHLS {
       cout << valueString(blk) << endl;
     }
 
-    // Find all operations that may need to block
+    // Find all operations that we may need to block for
     for (auto blk : loop->getBlocks()) {
       for (auto& instrR : *blk) {
         auto instr = &instrR;
         if (matchesCall("lb_pop", instr) ||
             matchesCall("fifo_read_ref", instr)) {
           cout << tab(1) << "Blocking operation: " << valueString(instr) << endl;
+          info.blockingOps.insert(instr);
         }
       }
     }
-    
+
     return info;
   }
 
@@ -790,7 +794,10 @@ namespace ahaHLS {
     AssumptionCache ac(*f);
     ScalarEvolution scev(*f, tli, ac, dt, li);
 
-    vector<DataflowNestInfo> dataflowNests;
+    map<Loop*, DataflowNestInfo> dataflowNests;
+    map<Loop*, BasicBlock*> preds;
+    map<Loop*, BasicBlock*> exits;
+
     for (Loop* loop : li) {
       cout << "Found loop in for to while conversion, depth = " << loop->getLoopDepth() << ", subloops = " << loop->getSubLoops().size() << endl;
       
@@ -799,18 +806,21 @@ namespace ahaHLS {
       // Q: What is the first thing to do?
       // A: Compute trip counts for each inner loop, compute product of the trip counts and extract the body of the function
       DataflowNestInfo info = computeDataflowInfo(loop, scev);
-      dataflowNests.push_back(info);
+      dataflowNests[loop]= info;
 
-      BasicBlock* pred = loop->getLoopPredecessor();
-      if (pred != nullptr) {
-        cout << "Loop has unique predecessor" << endl;
-      }
+      // BasicBlock* pred = loop->getLoopPredecessor();
+      // if (pred == nullptr) {
+      //   cout << "Loop does not have unique predecessor" << endl;        
+      //   assert(false);
+      // }
+      // preds[loop] = pred;
 
-      BasicBlock* exit = loop->getExitBlock();
-      if (exit != nullptr) {
-        cout << "Loop has unique exit block" << endl;
-      }
-
+      // BasicBlock* exit = loop->getExitBlock();
+      // if (exit != nullptr) {
+      //   cout << "Loop does not have unique exit block" << endl;
+      //   assert(false);
+      // }
+      // preds[loop] = exit;
     }
 
     cout << "# of top level loops = " << dataflowNests.size() << endl;
@@ -819,6 +829,7 @@ namespace ahaHLS {
     // How do I replace the loop?
     // Build the basic block structure for the loops themselves,
     // then find blocking read ops?
+    // Simplest: Delete loop each time and rebuild loop info?
   }
   
   MicroArchitecture halideArch(Function* f, HalideArchSettings settings) {
@@ -1013,6 +1024,13 @@ namespace ahaHLS {
     optimizeModuleLLVM(*(rewritten->getParent()));
     optimizeStores(rewritten);
 
+    FunctionPassManager FPM;
+    FPM.addPass(SimplifyCFGPass());
+    FunctionAnalysisManager FAM;
+    PassBuilder PB;
+    PB.registerFunctionAnalyses(FAM);
+    FPM.run(*rewritten, FAM);
+
     clearExecutionConstraints(rewritten, exec);
     
     addDataConstraints(rewritten, exec);
@@ -1026,14 +1044,14 @@ namespace ahaHLS {
     exec.tasks = tasks;
 
     std::set<PipelineSpec> toPipeline;
-    for (auto task : exec.tasks) {
-      PipelineSpec s;
-      s.staticII = 1;
-      for (auto blk : task.blks) {
-        s.blks.insert(blk);
-      }
-      toPipeline.insert(s);
-    }
+    // for (auto task : exec.tasks) {
+    //   PipelineSpec s;
+    //   s.staticII = 1;
+    //   for (auto blk : task.blks) {
+    //     s.blks.insert(blk);
+    //   }
+    //   toPipeline.insert(s);
+    // }
     
     // Now: Populate HLS data structures
     HardwareConstraints hcs = standardConstraints();
