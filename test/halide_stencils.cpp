@@ -6,7 +6,6 @@
 #include "parser.h"
 
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
-// for RecursivelyDeleteTriviallyDeadInstructions
 #include "llvm/Transforms/Utils/Local.h"
 
 #include <llvm/Analysis/LoopInfo.h>
@@ -16,6 +15,7 @@
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Transforms/Scalar/SimplifyCFG.h"
 #include "llvm/Transforms/Scalar/DCE.h"
+#include "llvm/Transforms/Scalar/ADCE.h"
 #include "llvm/Transforms/Scalar/LoopSimplifyCFG.h"
 #include "llvm/Transforms/Utils/PromoteMemToReg.h"
 #include "llvm/IR/Dominators.h"
@@ -793,8 +793,8 @@ namespace ahaHLS {
 
   void runCleanupPasses(Function* f) {
     FunctionPassManager FPM;
-    FPM.addPass(DCEPass());        
-    FPM.addPass(SimplifyCFGPass());
+    FPM.addPass(ADCEPass());        
+    //FPM.addPass(SimplifyCFGPass());
     FunctionAnalysisManager FAM;
     PassBuilder PB;
     PB.registerFunctionAnalyses(FAM);
@@ -885,6 +885,23 @@ namespace ahaHLS {
         BasicBlock* replacement = mkBB(string(bodyToReplace->getName()) + "_flat", f);
 
         loopReplacements[loop] = replacement;
+
+        for (auto& pd : preds) {
+          if (loop->contains(pd.second)) {
+            cout << "Replacing block" << endl;
+            pd.second = replacement;
+            assert(preds[pd.first] == replacement);
+          }
+        }
+
+        for (auto& pd : exits) {
+          if (loop->contains(pd.second)) {
+            cout << "Replacing exit block" << endl;
+            pd.second = replacement;
+            assert(exits[pd.first] == replacement);
+          }
+        }
+
       }
     }
 
@@ -928,6 +945,7 @@ namespace ahaHLS {
         }
 
         for (auto instr : toErase) {
+          BasicBlock* oldLoopBody = instr->getParent();
           instr->eraseFromParent();
         }
         
@@ -938,6 +956,8 @@ namespace ahaHLS {
         // // Need to create branch instruction to terminate each block
         // b.CreateCondBr(exitCond, map_find(loop, exits), replacement);
         b.CreateCondBr(exitCond, map_find(loop, exits), replacement);
+
+        SimplifyInstructionsInBlock(replacement);
         //b.CreateCondBr(exitCond, replacement, replacement);
 
         // for (auto& p : preds) {
@@ -958,41 +978,101 @@ namespace ahaHLS {
       // Need to delete all replaced loop nests
     }
 
-    for (auto blk : replacements) { //asdf
-    //   // for (auto& bb : *f) {
-    //   //   bool isPred = false;
-    //   //   for (auto p : predecessors(&bb)) {
-    //   //     if (p == blk.first) {
-    //   //       isPred = true;
-    //   //       break;
-    //   //     }
-    //   //   }
+    for (auto pd : preds) {
+      Loop* l = pd.first;
+      if (contains_key(l, loopReplacements)) {
+        BasicBlock* newLoopBody = map_find(l, loopReplacements);
+        BasicBlock* pred = pd.second;
+        TerminatorInst* term = pred->getTerminator();
+        cout << "Terminator " << valueString(term) << " should now jump to " << valueString(newLoopBody) << endl;
+        //assert(BranchInst::classof(term));
+        BranchInst* br = extract<BranchInst>(term);
+        int numReplaced = 0;
+        for (int i = 0; i < (int) br->getNumSuccessors(); i++) {
+          if (l->contains(br->getSuccessor(i))) {
+            br->setSuccessor(i, newLoopBody);
+            numReplaced++;
+          }
+        }
 
-    //   //   if (isPred) {
-    //   //     bb.removePredecessor(blk.first);
-    //   //   }
-        
-    //   // }
-
-      blk.first->replaceAllUsesWith(blk.second);
-      
+        assert((numReplaced == 1) || (numReplaced == 0));
+      }
     }
+
+    // for (auto blk : replacements) { //asdf
+    // //   // for (auto& bb : *f) {
+    // //   //   bool isPred = false;
+    // //   //   for (auto p : predecessors(&bb)) {
+    // //   //     if (p == blk.first) {
+    // //   //       isPred = true;
+    // //   //       break;
+    // //   //     }
+    // //   //   }
+
+    // //   //   if (isPred) {
+    // //   //     bb.removePredecessor(blk.first);
+    // //   //   }
+        
+    // //   // }
+
+    //   for (auto& use : blk.first->uses()) {
+    //     use.eraseFromParent();
+    //   }
+    //   // blk.first->replaceAllUsesWith(blk.second);
+      
+    // }
 
     cout << "After adding new loops and replacing uses" << endl;
     cout << valueString(f) << endl;
+
+    //assert(false);
     
     for (auto blk : replacements) {
+
+      set<Instruction*> toDel;
+      for (auto&  instr : *(blk.first)) {
+        toDel.insert(&instr);
+      }
+      for (auto instr : toDel) {
+        instr->eraseFromParent();
+      }
+      // auto term = blk.first->getTerminator();
+      // if (term != nullptr) {
+      //   term->eraseFromParent();
+      // }
     //   //blk.first->removeFromParent();
 
     //   cout << "Deleting block" << endl;
     //   assert(blk.first != nullptr);
     //   //cout << valueString(blk.first) << endl;
+
+      // for (auto& use : blk.first->uses()) {
+      //   Value* u = use.get();
+      //   Instruction* iUser = extract<Instruction>(u);
+      //   iUser->eraseFromParent();
+      // }
       
-      DeleteDeadBlock(blk.first);
     }
 
-    cout << "Done deleting blocks" << endl;
+    for (auto blk : replacements) {
+      blk.first->replaceAllUsesWith(UndefValue::get(blk.first->getType()));
+    }
+    
+    for (auto blk : replacements) {
+      DeleteDeadBlock(blk.first);
+    }
+    cout << "Done clearing replacement blocks" << endl;
+    cout << valueString(f) << endl;
 
+    assert(false);
+    
+    // for (auto blk : replacements) {
+    //   DeleteDeadBlock(blk.first);
+    // }
+    
+    //assert(false);
+
+    //assert(false);
     runCleanupPasses(f);
     
     cout << "After loop flattening opt" << endl;
