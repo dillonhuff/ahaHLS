@@ -863,6 +863,15 @@ namespace ahaHLS {
       Loop* loop = lpInfo.first;
       DataflowNestInfo info = lpInfo.second;
       assert(info.body.size() == 1);
+
+      if (info.tripCounts.size() > 1) {
+        cout << "Flattening loop nest of depth " << info.tripCounts.size() << endl;
+        int totalTripCount = 1;
+        for (auto tc : info.tripCounts) {
+          totalTripCount *= tc;
+        }
+        cout << "Total trip count of loop = " << totalTripCount << endl;
+      }
     }
 
     // Now: I want to replace each existing loop with a single-for-loop
