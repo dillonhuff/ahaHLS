@@ -787,6 +787,17 @@ namespace ahaHLS {
 
   // Bad name, should really be "dataFlowLoops" or something similar
   void forToWhileLoopOpt(Function* f, HalideArchSettings settings) {
+
+    FunctionPassManager FPM;
+    FPM.addPass(SimplifyCFGPass());
+    FunctionAnalysisManager FAM;
+    PassBuilder PB;
+    PB.registerFunctionAnalyses(FAM);
+    FPM.run(*f, FAM);
+
+    cout << "Before Dataflow loop opts" << endl;
+    cout << valueString(f) << endl;
+    
     DominatorTree dt(*f);
     LoopInfo li(dt);
     TargetLibraryInfoImpl i;
@@ -1019,7 +1030,7 @@ namespace ahaHLS {
         }
       }
     }
-    PromoteMemToReg(PromotableAllocas, DT);    
+    PromoteMemToReg(PromotableAllocas, DT);
 
     optimizeModuleLLVM(*(rewritten->getParent()));
     optimizeStores(rewritten);
