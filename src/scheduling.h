@@ -4,6 +4,7 @@
 #include "utils.h"
 
 #include <llvm/IR/Module.h>
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instructions.h>
 
 using namespace llvm;
@@ -1783,7 +1784,13 @@ namespace ahaHLS {
   };
 
   //StructType* lbType(const int inWidth, const int outWidth);
-  StructType* lbType(LBSpec& spec);  
+  StructType* lbType(LBSpec& spec);
+
+  Instruction* readPort(IRBuilder<>& b,
+                        Value* const readMod,
+                        const int width,
+                        const std::string name);
+  
 }
 
 

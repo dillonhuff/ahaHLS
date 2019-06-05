@@ -845,6 +845,13 @@ namespace ahaHLS {
       set<Instruction*> blockingOps = getBlockingOps(opBlock);
       IRBuilder<> bbBuilder(bb);
       Value* allInputsValid = mkInt(1, 1);
+      for (auto op : blockingOps) {
+        if (matchesCall("fifo_read_ref", op)) {
+          CallInst* c = extract<CallInst>(op);
+          auto readDataValid = readPort(bbBuilder, c->getOperand(1), 1, "read_valid");
+          allInputsValid = bbBuilder.CreateAnd(allInputsValid, readDataValid);
+        }
+      }
       validCheckBr->eraseFromParent();
       bbBuilder.CreateCondBr(allInputsValid, opBlock, exitBlock);
     }
