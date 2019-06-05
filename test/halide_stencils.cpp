@@ -949,9 +949,9 @@ namespace ahaHLS {
           instr->eraseFromParent();
         }
         
-        for (auto instr : toMove) {
-          instr->moveBefore(dyn_cast<Instruction>(exitCond));
-        }
+        // for (auto instr : toMove) {
+        //   instr->moveBefore(dyn_cast<Instruction>(exitCond));
+        // }
 
         // // Need to create branch instruction to terminate each block
         // b.CreateCondBr(exitCond, map_find(loop, exits), replacement);
@@ -1055,16 +1055,29 @@ namespace ahaHLS {
     }
 
     for (auto blk : replacements) {
-      blk.first->replaceAllUsesWith(UndefValue::get(blk.first->getType()));
+      //blk.first->replaceAllUsesWith(UndefValue::get(blk.first->getType()));
+      //cout << "# of uses of blk = " << blk.first->uses().size() << endl;
+      for (auto& use : blk.first->uses()) {
+        
+        if (Instruction::classof(use.get())) {
+          cout << "Deleting block user instruction = " << valueString(use.get()) << endl;          
+          dyn_cast<Instruction>(use.get())->eraseFromParent();
+        } else {
+          cout << "User that is not instruction = " << valueString(use.get()) << endl;
+        }
+      }
     }
+
+    cout << "After clearing replacement block users" << endl;
+    cout << valueString(f) << endl;
     
-    for (auto blk : replacements) {
-      DeleteDeadBlock(blk.first);
-    }
+    // for (auto blk : replacements) {
+    //   DeleteDeadBlock(blk.first);
+    // }
     cout << "Done clearing replacement blocks" << endl;
     cout << valueString(f) << endl;
 
-    assert(false);
+    //assert(false);
     
     // for (auto blk : replacements) {
     //   DeleteDeadBlock(blk.first);
@@ -1081,7 +1094,7 @@ namespace ahaHLS {
 
     // Insert blocking check optimization here
     
-    assert(false);
+    //assert(false);
   }
   
   MicroArchitecture halideArch(Function* f, HalideArchSettings settings) {
