@@ -29,6 +29,72 @@ using namespace std;
 
 namespace ahaHLS {
 
+  set<Instruction*> allInstrs(Function* f) {
+    set<Instruction*> instrs;
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instrR : bb) {
+        instrs.insert(&instrR);
+      }
+    }
+    return instrs;
+  }
+
+  void
+  checkValidChannel(MicroArchitecture& arch,
+                    VerilogDebugInfo& info,
+                    Value* targetChannel,
+                    const std::string& validName,
+                    const std::string& dataName,
+                    const std::vector<std::string>& expectedWriteValues) {
+    Instruction* channelWrite = nullptr;
+    Instruction* channelValidCheck = nullptr;    
+
+    for (auto instr : allInstrs(arch.stg.getFunction())) {
+      if (isBuiltinPortWrite(instr)) {
+        string portName = getPortName(instr);
+
+        cout << "Checking port " << portName << " in instr " << valueString(instr) << endl;
+        cout << tab(1) << "channel = " << valueString(instr->getOperand(0)) << endl;
+        cout << tab(1) << "target  = " << valueString(targetChannel) << endl;        
+
+        if ((portName == dataName) &&
+            (instr->getOperand(0) == targetChannel)) {
+          channelWrite = instr;
+        }
+
+        if ((portName == validName) &&
+            (instr->getOperand(0) == targetChannel)) {
+          channelValidCheck = instr;
+        }
+      }
+    }
+    
+    assert(channelWrite != nullptr);
+    assert(channelValidCheck != nullptr);    
+
+    StateId writeValidCheckState = arch.stg.instructionStartState(channelValidCheck);
+    StateId writeDataState = arch.stg.instructionStartState(channelWrite);
+
+    assert(writeDataState == writeValidCheckState);
+
+    Wire resetCond = Wire(1, "rst");
+    Wire incrCond = blockActiveInState(writeValidCheckState, channelValidCheck->getParent(), arch);
+    // Wire ithValid = buildCounter(resetCond, incrCond, arch);
+    // for (int i = 0; i < (int) expectedWriteValues.size(); i++) {
+      
+    // }
+    
+    // Wire ithValid = buildCounter(, 32, arch);
+    // for (int i = 0; i < (int) expectedValues.size(); i++) {
+    //   string expectedVal = expectedValues[i];
+
+    //   tb.actionOnCondition(andStr(fifoName + " === " + to_string(i), fifoName + "_" + validName + " === 1"),
+    //                        assertString(fifoName + "_" + dataName + " === " + expectedVal));
+    // }    
+
+  }  
+  
+
   class HalideArchSettings {
   public:
     bool loopTasks;
@@ -630,16 +696,6 @@ namespace ahaHLS {
       distance(blkOrder.begin(), find(blkOrder.begin(), blkOrder.end(), succBlk));
 
     return (succPos - predPos) > 0;
-  }
-
-  set<Instruction*> allInstrs(Function* f) {
-    set<Instruction*> instrs;
-    for (auto& bb : f->getBasicBlockList()) {
-      for (auto& instrR : bb) {
-        instrs.insert(&instrR);
-      }
-    }
-    return instrs;
   }
 
   bool isRAMWrite(Instruction* instr) {
@@ -1829,8 +1885,8 @@ namespace ahaHLS {
     archSettings.forToWhile = true;    
     MicroArchitecture arch = halideArch(f, archSettings);
 
-    auto in = dyn_cast<Argument>(getArg(f, 0));
-    auto out = dyn_cast<Argument>(getArg(f, 1));    
+    auto in = dyn_cast<Argument>(getArg(arch.stg.getFunction(), 0));
+    auto out = dyn_cast<Argument>(getArg(arch.stg.getFunction(), 1));    
 
     TestBenchSpec tb;
     map<string, int> testLayout = {};
@@ -1852,18 +1908,16 @@ namespace ahaHLS {
     }
     setRVFifo(tb, "arg_0", writeTimesAndValues);
 
-    // vector<pair<int, string> > expectedValuesAndTimes;
-    // int offset = 1000;
-    // for (int i = 0; i < 8*7; i++) {
-    //   expectedValuesAndTimes.push_back({offset, to_string(i + (i + 8))});
-    //   offset += 2;
-    // }
-    // checkRVFifo(tb, "arg_1", expectedValuesAndTimes);
+    vector<string> expectedValues;
+    for (int i = 0; i < 8*7; i++) {
+      expectedValues.push_back(to_string(i + (i + 8)));
+    }
+    VerilogDebugInfo info;
+    checkValidChannel(arch, info, getArg(arch.stg.getFunction(), 1), "write_valid", "in_data", expectedValues);
     
     map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 1;"));
     map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 0;"));
     
-    VerilogDebugInfo info;
     addDisplay("arg_1_write_valid", "accelerator writing %d to output", {"arg_1_in_data"}, info);
     addNoXChecks(arch, info);
     
