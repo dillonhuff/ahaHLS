@@ -850,6 +850,10 @@ namespace ahaHLS {
           CallInst* c = extract<CallInst>(op);
           auto readDataValid = readPort(bbBuilder, c->getOperand(1), 1, "read_valid");
           allInputsValid = bbBuilder.CreateAnd(allInputsValid, readDataValid);
+        } else if (matchesCall("lb_pop", op)) {
+          CallInst* c = extract<CallInst>(op);
+          auto readDataValid = readPort(bbBuilder, c->getOperand(1), 1, "valid");
+          allInputsValid = bbBuilder.CreateAnd(allInputsValid, readDataValid);
         }
       }
       validCheckBr->eraseFromParent();
@@ -1001,7 +1005,8 @@ namespace ahaHLS {
           latchBr->eraseFromParent();
 
           IRBuilder<> lt(outerLatch);
-          lt.CreateCondBr(lt.CreateICmpEQ(outerInd, mkInt(totalTripCount, 16)), s0, s1);
+          //lt.CreateCondBr(lt.CreateICmpEQ(outerInd, mkInt(totalTripCount, 16)), s0, s1);
+          lt.CreateCondBr(lt.CreateICmpEQ(outerInd, mkInt(totalTripCount, 32)), s0, s1);
         }
 
         
