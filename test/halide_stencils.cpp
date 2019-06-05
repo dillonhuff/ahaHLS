@@ -1812,18 +1812,18 @@ namespace ahaHLS {
     tb.memoryInit = {};
     tb.memoryExpected = {};
     tb.runCycles = 800;
-    tb.maxCycles = 5000;
+    tb.maxCycles = 130;
     tb.name = "conv_2_1_push";
     tb.useModSpecs = true;
     tb.settablePort(in, "in_data");
     tb.settablePort(in, "write_valid");
 
-    // tb.setArgPort(out, "read_valid", 0, "1'b0");
+    tb.setArgPort(in, "write_valid", 0, "1'b0");
     
     vector<pair<int, int> > writeTimesAndValues;
     int resetTime = 1;
     for (int i = resetTime; i < 8*8; i++) {
-      writeTimesAndValues.push_back({i + 5, i});
+      writeTimesAndValues.push_back({2*i + 5, i});
     }
     setRVFifo(tb, "arg_0", writeTimesAndValues);
 
