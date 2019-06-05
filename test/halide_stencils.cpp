@@ -824,6 +824,7 @@ namespace ahaHLS {
       assert(loop->getBlocks().size() == 1);
 
       BasicBlock* bb = loop->getBlocks()[0];
+      auto* canonicalVar = loop->getCanonicalInductionVariable();
       auto* ind =
         loop->getCanonicalInductionVariable()->getNextNonDebugInstruction();
       assert(ind != nullptr);
@@ -834,12 +835,36 @@ namespace ahaHLS {
       cout << "opBlock = " << valueString(opBlock) << endl;
       
       auto* loopCond =
-        extract<Instruction>(extract<BranchInst>(opBlock->getTerminator())->getCondition());
+        //extract<Instruction>(extract<BranchInst>(opBlock->getTerminator()));
+        extract<ICmpInst>(extract<BranchInst>(opBlock->getTerminator())->getCondition());
 
       // TODO: Need to move this code
       cout << "Splitting at " << valueString(loopCond) << endl;
-      BasicBlock* exitBlock = opBlock->splitBasicBlock(loopCond);
 
+      BasicBlock* exitBlock = opBlock->splitBasicBlock(loopCond);
+      auto* branchCond =
+        extract<ICmpInst>(extract<BranchInst>(exitBlock->getTerminator())->getCondition());
+      cout << "Lifted loop latch cond = " << valueString(branchCond) << endl;
+      auto* lhs = branchCond->getOperand(0);
+      auto* rhs = branchCond->getOperand(1);
+
+      assert(ConstantInt::classof(rhs));
+      assert(Instruction::classof(lhs));
+      assert(dyn_cast<Instruction>(lhs)->getParent() == opBlock);
+
+      auto newLHS = PHINode::Create(lhs->getType(), 2);
+      newLHS->addIncoming(lhs, opBlock);
+      newLHS->addIncoming(canonicalVar, bb);
+      newLHS->insertBefore(branchCond);
+
+      cout << "Loop latch after adding new index = " << endl;
+      cout << valueString(dyn_cast<Instruction>(lhs)->getParent()) << endl;
+
+      branchCond->setOperand(0, newLHS);
+      // auto newBrCond = CmpInst::Create(ICmp::EQ, newLHS, rhs);
+      // branchCond->replaceAllUsesWidth(newBrCond);
+      // branchCond->eraseFromParent();
+      
       // This terminator needs to be replaced
       TerminatorInst* validCheckBr = bb->getTerminator();
       set<Instruction*> blockingOps = getBlockingOps(opBlock);
@@ -1006,7 +1031,7 @@ namespace ahaHLS {
 
           IRBuilder<> lt(outerLatch);
           //lt.CreateCondBr(lt.CreateICmpEQ(outerInd, mkInt(totalTripCount, 16)), s0, s1);
-          lt.CreateCondBr(lt.CreateICmpEQ(outerInd, mkInt(totalTripCount, 32)), s0, s1);
+          lt.CreateCondBr(lt.CreateICmpEQ(lt.CreateAdd(outerInd, mkInt(1, 32)), mkInt(totalTripCount, 32)), s0, s1);
         }
 
         
@@ -1812,7 +1837,7 @@ namespace ahaHLS {
     tb.memoryInit = {};
     tb.memoryExpected = {};
     tb.runCycles = 800;
-    tb.maxCycles = 130;
+    tb.maxCycles = 145;
     tb.name = "conv_2_1_push";
     tb.useModSpecs = true;
     tb.settablePort(in, "in_data");
@@ -1822,8 +1847,8 @@ namespace ahaHLS {
     
     vector<pair<int, int> > writeTimesAndValues;
     int resetTime = 1;
-    for (int i = resetTime; i < 8*8; i++) {
-      writeTimesAndValues.push_back({2*i + 5, i});
+    for (int i = resetTime; i < 8*8 + resetTime; i++) {
+      writeTimesAndValues.push_back({2*i + 5, i - resetTime});
     }
     setRVFifo(tb, "arg_0", writeTimesAndValues);
 
