@@ -598,6 +598,10 @@ namespace ahaHLS {
 
   };
 
+  Wire buildIncCounter(const Wire incrCond,
+                       const int width,
+                       MicroArchitecture& arch);
+  
   MicroArchitecture
   buildMicroArchitecture(const STG& stg,
                          std::map<std::string, int>& memoryMap);

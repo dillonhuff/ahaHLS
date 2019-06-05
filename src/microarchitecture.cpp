@@ -225,6 +225,27 @@ namespace ahaHLS {
     return output;
   }
 
+  Wire buildIncCounter(const Wire incrCond,
+                       const int width,
+                       MicroArchitecture& arch) {
+    // What should the counter be?
+    //   1. Register with reset value 0, defaults to itself + 1?
+
+    string name = arch.uniqueName("counter_");
+    arch.addController(name, width);
+    RegController& rc = arch.getController(name);
+    rc.resetValue = "0";
+    //rc.values[resetCond] = constWire(width, 0);
+    
+    Wire output = rc.reg;
+
+    rc.values[incrCond] = plusWire(output, constWire(width, 1), arch);
+    setDefaultValue(rc, output, arch);
+    //setDefaultValue(rc, plusWire(output, constWire(width, 1), arch), arch);
+
+    return output;
+  }
+  
   Wire checkEqual(const Wire valWire, const Wire w, MicroArchitecture& arch);
 
   Wire waitedNCycles(const Wire condWire,
