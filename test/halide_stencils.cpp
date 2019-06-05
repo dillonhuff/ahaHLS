@@ -793,8 +793,8 @@ namespace ahaHLS {
 
   void runCleanupPasses(Function* f) {
     FunctionPassManager FPM;
+    FPM.addPass(SimplifyCFGPass());
     FPM.addPass(ADCEPass());        
-    //FPM.addPass(SimplifyCFGPass());
     FunctionAnalysisManager FAM;
     PassBuilder PB;
     PB.registerFunctionAnalyses(FAM);
