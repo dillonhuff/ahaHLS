@@ -1767,6 +1767,7 @@ namespace ahaHLS {
       map_insert(tb.actionsOnCycles, time, fifoName + "_in_data <= " + val + ";");
       if (i < ((int) writeTimesAndValues.size()) - 1) {
         int nextTime = writeTimesAndValues[i + 1].first;
+        cout << "time = " << time << ", next write time = " << nextTime << endl;
         if (nextTime != (time + 1)) {
           map_insert(tb.actionsOnCycles, time + 1, fifoName + "_write_valid <= 1'b0;");
         }
@@ -1788,7 +1789,17 @@ namespace ahaHLS {
 
       map_insert(tb.actionsOnCycles, time, fifoName + "_write_valid <= 1'b1;");
       map_insert(tb.actionsOnCycles, time, fifoName + "_in_data <= " + to_string(val) + ";");
-      map_insert(tb.actionsOnCycles, time + 1, fifoName + "_write_valid <= 1'b0;");
+
+      if (i < ((int) writeTimesAndValues.size()) - 1) {
+        int nextTime = writeTimesAndValues[i + 1].first;
+        cout << "time = " << time << ", next write time = " << nextTime << endl;
+        if (nextTime != (time + 1)) {
+          map_insert(tb.actionsOnCycles, time + 1, fifoName + "_write_valid <= 1'b0;");
+        }
+      } else {
+        map_insert(tb.actionsOnCycles, time + 1, fifoName + "_write_valid <= 1'b0;");        
+      }
+
     }    
   }
   
