@@ -802,6 +802,57 @@ namespace ahaHLS {
     PB.registerFunctionAnalyses(FAM);
     FPM.run(*f, FAM);
   }
+
+  set<Instruction*> getBlockingOps(BasicBlock* const opBlock) {
+    set<Instruction*> blocking;
+    for (auto& instrR : *opBlock) {
+      auto instr = &instrR;
+      if (matchesCall("lb_pop", instr) ||
+          matchesCall("fifo_read_ref", instr)) {
+        blocking.insert(instr);
+      }
+    }
+    
+    return blocking;
+  }
+  
+  void liftBlockingOps(Function* f) {
+    DominatorTree dt(*f);
+    LoopInfo li(dt);
+
+    for (Loop* loop : li) {
+      assert(loop->getBlocks().size() == 1);
+
+      BasicBlock* bb = loop->getBlocks()[0];
+      auto* ind =
+        loop->getCanonicalInductionVariable()->getNextNonDebugInstruction();
+      assert(ind != nullptr);
+      assert(ind->getParent() == bb);
+
+      BasicBlock* opBlock = bb->splitBasicBlock(ind);
+
+      cout << "opBlock = " << valueString(opBlock) << endl;
+      
+      auto* loopCond =
+        extract<Instruction>(extract<BranchInst>(opBlock->getTerminator())->getCondition());
+
+      // TODO: Need to move this code
+      cout << "Splitting at " << valueString(loopCond) << endl;
+      BasicBlock* exitBlock = opBlock->splitBasicBlock(loopCond);
+
+      // This terminator needs to be replaced
+      TerminatorInst* validCheckBr = bb->getTerminator();
+      set<Instruction*> blockingOps = getBlockingOps(opBlock);
+      IRBuilder<> bbBuilder(bb);
+      Value* allInputsValid = mkInt(1, 1);
+      validCheckBr->eraseFromParent();
+      bbBuilder.CreateCondBr(allInputsValid, opBlock, exitBlock);
+    }
+
+    cout << "Done splitting" << endl;
+    cout << valueString(f) << endl;
+
+  }
   
   // Bad name, should really be "dataFlowLoops" or something similar
   void forToWhileLoopOpt(Function* f, HalideArchSettings settings) {
@@ -916,6 +967,37 @@ namespace ahaHLS {
         IRBuilder<> lt(innerLatch);
         lt.CreateBr(onlyNewDest);
         innerInd->removeIncomingValue(innerLatch);
+
+        // Change the bound on the new outer loop
+        {
+          int totalTripCount = 1;
+          for (auto tc : info.tripCounts) {
+            totalTripCount *= tc;
+          }
+          cout << "Total trip count of flattened = " << totalTripCount << endl;
+          // We only handle 16 bits on CGRA now
+          assert(totalTripCount < 300000);
+
+          BasicBlock* outerLatch = loop->getLoopLatch();
+
+          assert(outerLatch != nullptr);
+          
+          BranchInst* latchBr = extract<BranchInst>(outerLatch->getTerminator());
+
+          assert(latchBr->isConditional());          
+          assert(latchBr->getNumSuccessors() == 2);
+
+          //auto test = latchBr->getCondition();
+          auto s0 = latchBr->getSuccessor(0);
+          auto s1 = latchBr->getSuccessor(1);
+
+          latchBr->eraseFromParent();
+
+          IRBuilder<> lt(outerLatch);
+          lt.CreateCondBr(lt.CreateICmpEQ(outerInd, mkInt(totalTripCount, 16)), s0, s1);
+        }
+
+        
       }
     }
 
@@ -1137,9 +1219,7 @@ namespace ahaHLS {
     cout << valueString(f) << endl;
     sanityCheck(f);
 
-    // Insert blocking check optimization here
-    
-    //assert(false);
+    liftBlockingOps(f);
   }
   
   MicroArchitecture halideArch(Function* f, HalideArchSettings settings) {
