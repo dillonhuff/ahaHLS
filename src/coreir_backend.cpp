@@ -48,8 +48,8 @@ namespace ahaHLS {
       } else if (p.first == "HAS_EN") {
         params.insert({"has_en", CoreIR::Const::make(c, stoi(p.second) == 1 ? true : false)});
       } else if (p.first == "RESET_VALUE") {
-        params.insert({"has_clr", CoreIR::Const::make(c, stoi(p.second) == 1 ? true : false)});
-        params.insert({"has_clr", CoreIR::Const::make(c, stoi(p.second) == 1 ? true : false)});        
+        //params.insert({"rst_value", CoreIR::Const::make(c, stoi(p.second) == 1 ? true : false)});
+        params.insert({"rst_value", CoreIR::Const::make(c, stoi(p.second))});
         foundRst = true;
       } else {
         cout << "Error: Unsupported parameter = " << p.first << endl;
@@ -72,8 +72,7 @@ namespace ahaHLS {
     auto inst =
       def->addInstance(unit.instName,
                        unitCoreIRName(unit.module),
-                       coreIRParams(unit, def->getContext()),
-                       coreIRArgs(unit, def->getContext()));
+                       coreIRParams(unit, def->getContext()));
     return inst;
   }
   
@@ -269,7 +268,7 @@ namespace ahaHLS {
   void addRegGenerator(Namespace* ahaLib) {
     auto c = ahaLib->getContext();
     
-    Params wireParams = {{"width", c->Int()}};
+    Params wireParams = {{"width", c->Int()}, {"rst_value", c->Int()}};
     TypeGen* wireTp =
       ahaLib->newTypeGen(
                          "ahaReg",
@@ -288,16 +287,42 @@ namespace ahaHLS {
     std::function<void (Context*, Values, CoreIR::ModuleDef*)> genFun =
       [](Context* c, Values args, CoreIR::ModuleDef* def) {
       uint width = args.at("width")->get<int>();
+      int val = args.at("rst_value")->get<int>();
+
+      def->addInstance("rstConst",
+                       "coreir.const",
+      {{"width", CoreIR::Const::make(c, width)}},
+      {{"value", CoreIR::Const::make(c, BitVector(width, val))}});
 
       def->addInstance("innerReg",
-                       "mantle.reg",
-      {{"width", CoreIR::Const::make(c, width)},
-          {"has_en", CoreIR::Const::make(c, true)},
-          {"has_clr", CoreIR::Const::make(c, true)}});
+                       "coreir.reg",
+      {{"width",args["width"]}});
 
-      def->connect("self.in", "innerReg.in");
-      def->connect("self.en.0", "innerReg.en");
-      def->connect("self.rst.0", "innerReg.clr");      
+      def->addInstance("enMux", "coreir.mux", {{"width", args["width"]}});
+      def->addInstance("rstMux", "coreir.mux", {{"width", args["width"]}});
+
+      //, {"has_en", Const::make(c, true)}});
+      //      {{"has_en",Const::make(c,true)}});
+      
+      // def->addInstance("innerReg",
+      //                  "mantle.reg",
+      // {{"width", CoreIR::Const::make(c, width)},
+      //     {"has_en", CoreIR::Const::make(c, true)},
+      //     {"has_clr", CoreIR::Const::make(c, true)}});
+
+      //def->connect("self.in", "innerReg.in");
+
+      def->connect("innerReg.in", "rstMux.out");
+
+      def->connect("self.en.0", "enMux.sel");
+      def->connect("self.rst.0", "rstMux.sel");
+
+      def->connect("rstConst.out", "rstMux.in1");            
+      def->connect("enMux.out", "rstMux.in0");
+
+      def->connect("self.in", "enMux.in1");
+      def->connect("innerReg.out", "enMux.in0");
+      
       def->connect("innerReg.out", "self.out");
     };
     gen->setGeneratorDefFromFun(genFun);
