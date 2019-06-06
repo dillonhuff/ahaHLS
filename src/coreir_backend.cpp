@@ -23,6 +23,8 @@ namespace ahaHLS {
       return "ahaHLS.wire";
     } else if (spec.name == "eq") {
       return "ahaHLS.eq";
+    } else if (spec.name == "orOp") {
+      return "coreir.or";
     } else if (spec.name == "andOp") {
       return "coreir.and";
     } else if (spec.name == "coreir_reg") {
@@ -32,7 +34,7 @@ namespace ahaHLS {
     } else if (spec.name == "notOp") {
       return "coreir.not";
     } else if (spec.name == "trunc") {
-      return "ahaHLS.trunc";
+      return "coreir.slice";
     } else if (spec.name == "br_dummy") {
       return "ahaHLS.br_dummy";
     } else {
@@ -45,7 +47,28 @@ namespace ahaHLS {
   map<string, CoreIR::Value*> coreIRParams(FunctionalUnit& unit,
                                            CoreIR::Context* c) {
     ModuleSpec& spec = unit.module;
+
+    
     map<string, CoreIR::Value*> params;
+
+    if (spec.name == "br_dummy") {
+      params.insert({"width", CoreIR::Const::make(c, 1)});
+      return params;
+    }
+    
+    if (spec.name == "trunc") {
+      int inWidth = stoi(map_find(string("IN_WIDTH"), spec.params));
+      int outWidth = stoi(map_find(string("OUT_WIDTH"), spec.params));
+
+      int hi = outWidth;
+      int lo = 0;
+      int width = inWidth;
+      params.insert({"hi", CoreIR::Const::make(c, hi)});
+      params.insert({"lo", CoreIR::Const::make(c, lo)});
+      params.insert({"width", CoreIR::Const::make(c, width)});
+
+      return params;
+    }
 
     bool foundRst = false;
     for (auto p : spec.params) {
@@ -336,13 +359,17 @@ namespace ahaHLS {
   }
 
   void addBrGenerator(Namespace* ahaLib) {
-    Params wireParams = {};
+    auto c = ahaLib->getContext();
+    
+    Params wireParams = {{"width", c->Int()}};    
     TypeGen* wireTp =
       ahaLib->newTypeGen(
                         "br_dummy",
                         wireParams,
                         [](Context* c, Values genargs) {
+                          uint width = genargs.at("width")->get<int>();                          
                           return c->Record({
+                              {"in0", c->BitIn()->Arr(width)}
                             });
                         });
     ahaLib->newGeneratorDecl("br_dummy", wireTp, wireParams);
@@ -424,7 +451,8 @@ namespace ahaHLS {
 
     addRegGenerator(ahaLib);
     addEqGenerator(ahaLib);    
-    
+    addBrGenerator(ahaLib);        
+
     convertRegisterControllersToPortControllers(arch);
     
     vector<pair<string, CoreIR::Type*> > tps;
