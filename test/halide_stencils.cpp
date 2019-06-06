@@ -1523,7 +1523,7 @@ namespace ahaHLS {
         }
 
         if (isFifoWrite(instr) && (instr->getOperand(0) == oldReceiver)) {
-          instr->setOperand(0, newReceiver);
+          instr->setOperand(0, oldReceiver);
         }
         
       }
