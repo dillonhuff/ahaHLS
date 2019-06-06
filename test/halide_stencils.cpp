@@ -18,6 +18,7 @@
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Transforms/Scalar/SimplifyCFG.h"
 #include "llvm/Transforms/Scalar/DCE.h"
+#include "llvm/Transforms/Scalar/GVN.h"
 #include "llvm/Transforms/Scalar/ADCE.h"
 #include "llvm/Transforms/Scalar/LoopSimplifyCFG.h"
 #include "llvm/Transforms/Utils/PromoteMemToReg.h"
@@ -1326,6 +1327,24 @@ namespace ahaHLS {
     liftBlockingOps(f);
   }
 
+  bool isFifoWrite(Instruction* instr) {
+    if (matchesCall("fifo_write", instr) ||
+        matchesCall("lb_push", instr)) {
+      return true;
+    }
+
+    return false;
+  }
+  
+  bool isFifoRead(Instruction* instr) {
+    if (matchesCall("fifo_read", instr) ||
+        matchesCall("lb_pop", instr)) {
+      return true;
+    }
+
+    return false;
+  }
+  
   set<Instruction*> fifoReads(Loop* lp) {
     set<Instruction*> rds;
     for (auto* bb : lp->getBlocks()) {
@@ -1354,6 +1373,65 @@ namespace ahaHLS {
 
     return rds;
   }
+
+  std::vector<Instruction*> instrSequence(Instruction* start, const int sequenceLength) {
+    vector<Instruction*> instrs{start};
+
+    auto activeInstr = start;
+    for (int i = 0; i < sequenceLength - 1; i++) {
+      auto nextInstr = activeInstr->getNextNonDebugInstruction();
+      if (nextInstr == nullptr) {
+        return {};
+      }
+
+      instrs.push_back(nextInstr);
+      activeInstr = nextInstr;
+    }
+
+    assert(instrs.size() == sequenceLength);
+    return instrs;
+  }
+  
+  void peepholeOptimizeFifoWrites(Function* f) {
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instrR : bb) {
+        auto instr = &instrR;
+        if (isFifoRead(instr)) {
+          vector<Instruction*> instrs = instrSequence(instr, 4);
+          if (instrs.size() > 0) {
+            cout << "Found instruction sequence after " << valueString(instr) << endl;
+            for (auto i : instrs) {
+              cout << tab(1) << valueString(i) << endl;
+            }
+            auto rd = instrs[0];
+            auto pLd = instrs[1];
+            auto pSt = instrs[2];
+            auto pFw = instrs[3];
+
+            if (!LoadInst::classof(pLd) ||
+                !StoreInst::classof(pSt) ||
+                !isFifoWrite(pFw)) {
+              continue;
+            }
+
+            cout << "Found possible fifo rw opt sequence" << endl;
+            auto rdReg = rd->getOperand(0);
+            auto ldTarget = pLd->getOperand(0);
+            auto stValue = pSt->getOperand(0);
+            auto stTarget = pSt->getOperand(1);
+            auto writeReg = pFw->getOperand(1);
+
+            if ((rdReg == ldTarget) &&
+                (pLd == stValue) &&
+                (stTarget == writeReg)) {
+              cout << "-- Found rw sequence to remove" << endl;
+              pFw->setOperand(1, rdReg);
+            }
+          }
+        }
+      }
+    }
+  }
   
   void optimizeFifos(Function* f) {
     // How to go about optimizing fifos?
@@ -1366,12 +1444,15 @@ namespace ahaHLS {
     // to the output FIFO instead
 
     FunctionPassManager FPM;
-    FPM.addPass(PromotePass());    
+    FPM.addPass(PromotePass());
+    FPM.addPass(GVN());        
     FPM.addPass(SimplifyCFGPass());
     FunctionAnalysisManager FAM;
     PassBuilder PB;
     PB.registerFunctionAnalyses(FAM);
     FPM.run(*f, FAM);
+
+    peepholeOptimizeFifoWrites(f);
 
     DominatorTree dt(*f);
     LoopInfo li(dt);
@@ -1389,7 +1470,14 @@ namespace ahaHLS {
         auto wr = *begin(fwrites);
         if (dt.dominates(rd, wr)) {
           cout << "Possible fifo transfer loop" << endl;
-          
+
+          auto read = rd->getOperand(0);
+          cout << "Read    = " << valueString(read) << endl;
+          auto written = wr->getOperand(1);
+          cout << "Written = " << valueString(written) << endl;
+          if (read == written) {
+            cout << "Found fifo transfer loop" << endl;
+          }
         }
       }
     }
