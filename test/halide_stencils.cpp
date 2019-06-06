@@ -9,6 +9,7 @@
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/Transforms/Utils/Local.h"
+#include "llvm/Transforms/Utils/Mem2Reg.h"
 
 #include <llvm/Analysis/LoopInfo.h>
 #include <llvm/Analysis/LoopAccessAnalysis.h>
@@ -286,33 +287,43 @@ namespace ahaHLS {
   llvm::Function* fifoReadRefFunction(const int width) {
     vector<Type*> ins{intType(width)->getPointerTo(),
         fifoType(width)->getPointerTo()};
-    return mkFunc(ins, voidType(), "fifo_read_ref." + to_string(width));
+    auto f = mkFunc(ins, voidType(), "fifo_read_ref." + to_string(width));
+    f->addParamAttr(0, llvm::Attribute::ByVal);        
+    return f;
   }
 
   llvm::Function* lbHasValidFunction(Value* replacementLB) {
     vector<Type*> ins{replacementLB->getType()};
     int width = 0;
-    return mkFunc(ins, intType(1), "lb_has_valid." + to_string(width));
+    auto f = mkFunc(ins, intType(1), "lb_has_valid." + to_string(width));
+    return f;
   }
   
   llvm::Function* fifoWriteRefFunction(const int width) {
     vector<Type*> ins{fifoType(width)->getPointerTo(),
         intType(width)->getPointerTo()};
-    return mkFunc(ins, voidType(), "fifo_write_ref." + to_string(width));
+    auto f = mkFunc(ins, voidType(), "fifo_write_ref." + to_string(width));
+    f->addParamAttr(1, llvm::Attribute::ByVal);
+    return f;
   }
 
+  // W?
   Function* lbWriteFunction(Value* replacementLB) {
     // TODO: compute this width    
     int inWidth = 16;
     vector<Type*> ins{replacementLB->getType(), intType(inWidth)->getPointerTo()};
-    return mkFunc(ins, voidType(), "lb_push." + to_string(inWidth));
+    auto f = mkFunc(ins, voidType(), "lb_push." + to_string(inWidth));
+    f->addParamAttr(1, llvm::Attribute::ByVal);        
+    return f;
   }
 
   Function* lbReadFunction(Value* replacementLB) {
     // TODO: compute this width
     int outWidth = 32;
     vector<Type*> ins{intType(outWidth)->getPointerTo(), replacementLB->getType()};
-    return mkFunc(ins, voidType(), "lb_pop." + to_string(outWidth));
+    auto f = mkFunc(ins, voidType(), "lb_pop." + to_string(outWidth));
+    f->addParamAttr(0, llvm::Attribute::ByVal);    
+    return f;
   }
   
   void rewriteInstr(Function* f,
@@ -1353,6 +1364,15 @@ namespace ahaHLS {
 
     // Find the loop nest that writes to the input fifo and have it write
     // to the output FIFO instead
+
+    FunctionPassManager FPM;
+    FPM.addPass(PromotePass());    
+    FPM.addPass(SimplifyCFGPass());
+    FunctionAnalysisManager FAM;
+    PassBuilder PB;
+    PB.registerFunctionAnalyses(FAM);
+    FPM.run(*f, FAM);
+
     DominatorTree dt(*f);
     LoopInfo li(dt);
 
@@ -1369,6 +1389,7 @@ namespace ahaHLS {
         auto wr = *begin(fwrites);
         if (dt.dominates(rd, wr)) {
           cout << "Possible fifo transfer loop" << endl;
+          
         }
       }
     }
