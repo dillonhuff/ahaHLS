@@ -48,7 +48,8 @@ namespace ahaHLS {
       } else if (p.first == "HAS_EN") {
         params.insert({"has_en", CoreIR::Const::make(c, stoi(p.second) == 1 ? true : false)});
       } else if (p.first == "RESET_VALUE") {
-        //params.insert({"has_clr", CoreIR::Const::make(c, stoi(p.second) == 1 ? true : false)});
+        params.insert({"has_clr", CoreIR::Const::make(c, stoi(p.second) == 1 ? true : false)});
+        params.insert({"has_clr", CoreIR::Const::make(c, stoi(p.second) == 1 ? true : false)});        
         foundRst = true;
       } else {
         cout << "Error: Unsupported parameter = " << p.first << endl;
@@ -56,9 +57,12 @@ namespace ahaHLS {
       }
     }
 
-    // if (!foundRst) {
-    //   params.insert({"has_clr", CoreIR::Const::make(c, stoi(p.second) == 1 ? true : false)});      
-    // }
+    if (!foundRst) {
+      cout << "no reset for module " << spec.name << endl;
+    }
+    if (!foundRst && (spec.name == "coreir_reg")) {
+      params.insert({"has_clr", CoreIR::Const::make(c, 0)});
+    }
     
     return params;
   }
@@ -68,7 +72,8 @@ namespace ahaHLS {
     auto inst =
       def->addInstance(unit.instName,
                        unitCoreIRName(unit.module),
-                       coreIRParams(unit, def->getContext()));
+                       coreIRParams(unit, def->getContext()),
+                       coreIRArgs(unit, def->getContext()));
     return inst;
   }
   

@@ -81,9 +81,14 @@ namespace ahaHLS {
     
     sim.setValue("self.rst", BitVec(1, 0));
 
+    cout << "a_wdata_0 = " << sim.getBitVec("self.a_wdata_0") << endl;
 
     sim.execute();
+
+    cout << "a_wdata_0 = " << sim.getBitVec("self.a_wdata_0") << endl;    
     sim.execute();
+
+    cout << "a_wdata_0 = " << sim.getBitVec("self.a_wdata_0") << endl;        
     sim.execute();
     sim.execute();
     sim.execute();
