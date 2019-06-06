@@ -1523,6 +1523,7 @@ namespace ahaHLS {
         }
 
         if (isFifoWrite(instr) && (instr->getOperand(0) == oldReceiver)) {
+          // TODO: Deliberately wrong. Need to add tests until this fails
           instr->setOperand(0, oldReceiver);
         }
         
