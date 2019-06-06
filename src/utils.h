@@ -237,4 +237,6 @@ namespace ahaHLS {
 
     return dbhc::maybe<ResultType*>();
   }
+
+  std::set<llvm::Instruction*> allInstrs(llvm::Function* f);  
 }

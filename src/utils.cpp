@@ -388,4 +388,13 @@ namespace ahaHLS {
     return {fst, drop(pattern, name)};
   }
 
+  set<Instruction*> allInstrs(Function* f) {
+    set<Instruction*> instrs;
+    for (auto& bb : f->getBasicBlockList()) {
+      for (auto& instrR : bb) {
+        instrs.insert(&instrR);
+      }
+    }
+    return instrs;
+  }
 }
