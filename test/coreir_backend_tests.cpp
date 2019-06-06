@@ -77,24 +77,36 @@ namespace ahaHLS {
 
     sim.execute();
 
-    REQUIRE(sim.getBitVec("self.valid") == BitVec(1, 0));    
-    
     sim.setValue("self.rst", BitVec(1, 0));
+
+    cout << "a_wdata_0 = " << sim.getBitVec("self.a_wdata_0") << endl;
+
+    REQUIRE(sim.getBitVec("self.valid") == BitVec(1, 0));    
+    REQUIRE(sim.getBitVec("self.a_wdata_0") == BitVec(32, 5));
+    REQUIRE(sim.getBitVec("self.a_wen_0") == BitVec(1, 1));            
+    
+    sim.execute();
+
+    REQUIRE(sim.getBitVec("self.valid") == BitVec(1, 0));
+
+    REQUIRE(sim.getBitVec("self.a_wen_0") == BitVec(1, 0));
 
     cout << "a_wdata_0 = " << sim.getBitVec("self.a_wdata_0") << endl;
 
     sim.execute();
 
-    cout << "a_wdata_0 = " << sim.getBitVec("self.a_wdata_0") << endl;    
-    sim.execute();
+    REQUIRE(sim.getBitVec("self.valid") == BitVec(1, 0));        
 
     cout << "a_wdata_0 = " << sim.getBitVec("self.a_wdata_0") << endl;        
     sim.execute();
+
+    REQUIRE(sim.getBitVec("self.valid") == BitVec(1, 1));            
+
     sim.execute();
     sim.execute();
     sim.execute();        
 
-    //REQUIRE(sim.getBitVec("self.valid") == BitVec(1, 1));
+    REQUIRE(sim.getBitVec("self.valid") == BitVec(1, 1));
 
     deleteContext(c);
   }
