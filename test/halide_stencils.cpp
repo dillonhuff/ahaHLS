@@ -1327,6 +1327,10 @@ namespace ahaHLS {
     liftBlockingOps(f);
   }
 
+  bool isLB(Value* v) {
+    return isBuiltinPushLBType(v->getType());
+  }
+  
   bool isFifoWrite(Instruction* instr) {
     if (matchesCall("fifo_write", instr) ||
         matchesCall("lb_push", instr)) {
@@ -1494,6 +1498,10 @@ namespace ahaHLS {
             if (isFifo(rd->getOperand(1)) && isFifo(wr->getOperand(0))) {
               writeReplacements[rd->getOperand(1)] =
                 wr->getOperand(0);
+            } else if (isFifo(rd->getOperand(1)) && isLB(wr->getOperand(0))) {
+              cout << "Found lb replacement" << endl;
+              writeReplacements[rd->getOperand(1)] =
+                wr->getOperand(0);
             }
           }
         }
@@ -1523,8 +1531,7 @@ namespace ahaHLS {
         }
 
         if (isFifoWrite(instr) && (instr->getOperand(0) == oldReceiver)) {
-          // TODO: Deliberately wrong. Need to add tests until this fails
-          instr->setOperand(0, oldReceiver);
+          instr->setOperand(0, newReceiver);
         }
         
       }
