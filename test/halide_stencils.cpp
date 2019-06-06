@@ -110,16 +110,16 @@ namespace ahaHLS {
       map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
 
       tb.setArgPort(out, "read_valid", 0, "1'b0");
-      tb.setArgPort(in, "write_valid", 0, "1'b0");        
+      tb.setArgPort(in, "write_valid", 0, "1'b0");
     
       tb.setArgPort(in, "in_data", 2, "16'd28");
-      tb.setArgPort(in, "write_valid", 2, "1'b1");    
+      tb.setArgPort(in, "write_valid", 2, "1'b1");
       
       tb.setArgPort(in, "in_data", 3, "16'd10");
-      tb.setArgPort(in, "write_valid", 3, "1'b1");    
+      tb.setArgPort(in, "write_valid", 3, "1'b1");
 
       tb.setArgPort(in, "in_data", 4, "16'd7");
-      tb.setArgPort(in, "write_valid", 4, "1'b1");    
+      tb.setArgPort(in, "write_valid", 4, "1'b1");
 
       tb.setArgPort(in, "in_data", 5, "16'd3");
       tb.setArgPort(in, "write_valid", 5, "1'b1");    
@@ -127,8 +127,7 @@ namespace ahaHLS {
       
       tb.setArgPort(in, "in_data", 7, "16'd9");
       tb.setArgPort(in, "write_valid", 7, "1'b1");
-      tb.setArgPort(in, "write_valid", 8, "1'b0");      
-
+      tb.setArgPort(in, "write_valid", 8, "1'b0");
 
       int endCycle = 700;
       tb.setArgPort(out, "read_valid", endCycle + 2, "1'b1");

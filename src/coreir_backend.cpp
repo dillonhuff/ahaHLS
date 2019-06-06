@@ -27,8 +27,14 @@ namespace ahaHLS {
       return "coreir.and";
     } else if (spec.name == "coreir_reg") {
       return "ahaHLS.ahaReg";
+    } else if (spec.name == "lshrOp") {
+      return "coreir.lshr";
     } else if (spec.name == "notOp") {
       return "coreir.not";
+    } else if (spec.name == "trunc") {
+      return "ahaHLS.trunc";
+    } else if (spec.name == "br_dummy") {
+      return "ahaHLS.br_dummy";
     } else {
       cout << "Error: Unsupported modspec " << endl;
       cout << spec << endl;
@@ -329,6 +335,26 @@ namespace ahaHLS {
     
   }
 
+  void addBrGenerator(Namespace* ahaLib) {
+    Params wireParams = {};
+    TypeGen* wireTp =
+      ahaLib->newTypeGen(
+                        "br_dummy",
+                        wireParams,
+                        [](Context* c, Values genargs) {
+                          return c->Record({
+                            });
+                        });
+    ahaLib->newGeneratorDecl("br_dummy", wireTp, wireParams);
+    auto gen = ahaLib->getGenerator("br_dummy");
+
+    std::function<void (Context*, Values, CoreIR::ModuleDef*)> genFun =
+                          [](Context* c, Values args, CoreIR::ModuleDef* def) {
+    };
+    gen->setGeneratorDefFromFun(genFun);
+
+  }
+  
   void addEqGenerator(Namespace* ahaLib) {
     auto c = ahaLib->getContext();
     

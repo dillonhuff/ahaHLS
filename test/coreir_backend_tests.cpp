@@ -4,6 +4,7 @@
 
 #include "coreir_backend.h"
 #include "llvm_codegen.h"
+#include "halide_arch.h"
 #include "test_utils.h"
 
 #include "coreir/simulator/interpreter.h"
@@ -109,6 +110,59 @@ namespace ahaHLS {
     REQUIRE(sim.getBitVec("self.valid") == BitVec(1, 1));
 
     deleteContext(c);
+  }
+
+  TEST_CASE("Get stencil element 0 1") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<llvm::Module> Mod = loadCppModule(Context, Err, "halide_stencil_get_01");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
+    deleteLLVMLifetimeCalls(f);
+
+    cout << "Origin function" << endl;
+    cout << valueString(f) << endl;
+
+    HalideArchSettings archSettings;
+    archSettings.loopTasks = false;
+    MicroArchitecture arch = halideArch(f, archSettings);
+
+    CoreIR::Context* c = newContext();
+    emitCoreIR("single_store", arch, c, c->getGlobal());
+
+    CoreIR::Module* storeMod = c->getGlobal()->getModule("single_store");
+
+    REQUIRE(storeMod != nullptr);
+
+
+    cout << "Module is " << endl;
+    storeMod->print();    
+
+    c->runPasses({"rungenerators", "flatten", "flattentypes", "wireclocks-coreir", "fold-constants", "removeconstduplicates", "deletedeadinstances"});
+
+    cout << "After preprocessing module is " << endl;
+    storeMod->print();    
+
+    SimulatorState sim(storeMod);
+    sim.setValue("self.rst", BitVec(1, 0));
+
+    sim.setClock("self.clk", 0, 1);
+    sim.execute();
+
+    sim.setValue("self.rst", BitVec(1, 1));
+
+    sim.execute();
+
+    // Done reset
+
+    sim.setValue("self.rst", BitVec(1, 0));
+
+    //sim.setValue();
+
+    deleteContext(c);    
   }
   
 }
