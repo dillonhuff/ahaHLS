@@ -1432,6 +1432,19 @@ namespace ahaHLS {
       }
     }
   }
+
+  bool isFifo(Value* v) {
+    if (!PointerType::classof(v->getType())) {
+      return false;
+    }
+
+    Type* u = extract<PointerType>(v->getType())->getElementType();
+    if (!StructType::classof(u)) {
+      return false;
+    }
+
+    return hasPrefix(extract<StructType>(u)->getName(), "builtin_fifo");
+  }
   
   void optimizeFifos(Function* f) {
     // How to go about optimizing fifos?
@@ -1457,6 +1470,7 @@ namespace ahaHLS {
     DominatorTree dt(*f);
     LoopInfo li(dt);
 
+    map<Value*, Value*> writeReplacements;
     for (Loop* loop : li) {
       set<Instruction*> freads = fifoReads(loop);
       set<Instruction*> fwrites = fifoWrites(loop);
@@ -1477,9 +1491,46 @@ namespace ahaHLS {
           cout << "Written = " << valueString(written) << endl;
           if (read == written) {
             cout << "Found fifo transfer loop" << endl;
+            if (isFifo(rd->getOperand(1)) && isFifo(wr->getOperand(0))) {
+              writeReplacements[rd->getOperand(1)] =
+                wr->getOperand(0);
+            }
           }
         }
       }
+    }
+
+    // Delete all reads from keys in writeReplacements
+    // Delete all writes to values in writeReplacements
+    // Replace all writes to keys in writeReplacements with writes to corresponding values
+
+    set<Instruction*> toErase;
+    map<Instruction*, Instruction*> toInsertBefore;    
+    for (auto wr : writeReplacements) {
+      auto oldReceiver = wr.first;
+      auto newReceiver = wr.second;
+
+      cout << "Old receiver = " << valueString(oldReceiver) << endl;
+      cout << "New receiver = " << valueString(newReceiver) << endl;
+
+      for (auto instr : allInstrs(f)) {
+        if (isFifoRead(instr) && (instr->getOperand(1) == oldReceiver)) {
+          toErase.insert(instr);
+        }
+
+        if (isFifoWrite(instr) && (instr->getOperand(0) == newReceiver)) {
+          toErase.insert(instr);
+        }
+
+        if (isFifoWrite(instr) && (instr->getOperand(0) == oldReceiver)) {
+          instr->setOperand(0, newReceiver);
+        }
+        
+      }
+    }
+
+    for (auto e : toErase) {
+      e->eraseFromParent();
     }
 
     runCleanupPasses(f);
