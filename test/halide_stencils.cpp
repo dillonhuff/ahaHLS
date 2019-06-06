@@ -4,26 +4,6 @@
 #include "llvm_codegen.h"
 #include "test_utils.h"
 
-// #include <llvm/IR/LegacyPassManager.h>
-// #include "llvm/Transforms/Scalar.h"
-// #include "llvm/Transforms/Utils/BasicBlockUtils.h"
-// #include "llvm/Transforms/Utils/Local.h"
-// #include "llvm/Transforms/Utils/Mem2Reg.h"
-
-// #include <llvm/Analysis/LoopInfo.h>
-// #include <llvm/Analysis/LoopAccessAnalysis.h>
-// #include <llvm/Analysis/ScalarEvolution.h>
-
-// #include "llvm/Passes/PassBuilder.h"
-// #include "llvm/Transforms/Scalar/SimplifyCFG.h"
-// #include "llvm/Transforms/Scalar/DCE.h"
-// #include "llvm/Transforms/Scalar/GVN.h"
-// #include "llvm/Transforms/Scalar/ADCE.h"
-// #include "llvm/Transforms/Scalar/LoopSimplifyCFG.h"
-// #include "llvm/Transforms/Utils/PromoteMemToReg.h"
-// #include "llvm/IR/Dominators.h"
-// #include <llvm/Analysis/CFG.h>
-
 #include "llvm_codegen.h"
 #include "halide_arch.h"
 #include "test_utils.h"
