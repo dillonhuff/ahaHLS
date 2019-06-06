@@ -99,8 +99,9 @@ namespace ahaHLS {
     bool loopTasks;
     bool pushFifos;
     bool forToWhile;
+    bool optimizeFifos;
 
-    HalideArchSettings() : loopTasks(true), pushFifos(false), forToWhile(false) {}
+    HalideArchSettings() : loopTasks(true), pushFifos(false), forToWhile(false), optimizeFifos(false) {}
   };
 
   ModuleSpec pushFifoSpec(int width, int depth) {
@@ -1313,67 +1314,73 @@ namespace ahaHLS {
 
     liftBlockingOps(f);
   }
-  
-  MicroArchitecture halideArch(Function* f, HalideArchSettings settings) {
-    Function* rewritten =
-      rewriteHalideStencils(f);
 
-    optimizeModuleLLVM(*(rewritten->getParent()));
-    optimizeStores(rewritten);
-    
-    cout << "Rewritten function" << endl;
-    cout << valueString(rewritten) << endl;
-
-    InterfaceFunctions interfaces;
-    set<string> funcs;
-
-    for (auto& bb : rewritten->getBasicBlockList()) {
-      for (auto& instrR : bb) {
-        auto instr = &instrR;
-        if (CallInst::classof(instr)) {
-          CallInst* ci = dyn_cast<CallInst>(instr);
-          Function* func = ci->getCalledFunction();
-          string name = ci->getCalledFunction()->getName();
-          if (!elem(name, funcs)) {
-            interfaces.addFunction(func);
-            
-            if (hasPrefix(name, "fifo_read_ref")) {
-              if (!settings.pushFifos) {
-                implementRVFifoReadRef(func, interfaces.getConstraints(func));
-              } else {
-                cout << "Implementing push read" << endl;
-                implementPushFifoReadRef(func, interfaces.getConstraints(func));
-              }
-            } else if (hasPrefix(name, "fifo_write_ref")) {
-              if (!settings.pushFifos) {
-                implementRVFifoWriteRef(func, interfaces.getConstraints(func));
-              } else {
-                cout << "Implementing push write" << endl;                
-                implementPushFifoWriteRef(func, interfaces.getConstraints(func));
-              }
-            } else if (hasPrefix(name, "lb_has_valid")) {
-              implementLBHasValidData(func, interfaces.getConstraints(func));
-            } else if (hasPrefix(name, "ram.write.")) {
-              implementRAMWrite0(func, interfaces.getConstraints(func));
-            } else if (hasPrefix(name, "ram.read.")) {
-              implementRAMRead0(func, interfaces.getConstraints(func));
-            } else if (hasPrefix(name, "lb_push.")) {
-              implementLBPush(func, interfaces.getConstraints(func));
-            } else if (hasPrefix(name, "lb_pop.")) {
-              implementLBPop(func, interfaces.getConstraints(func));
-            } else {
-              cout << "Error: Unsupported call " << valueString(ci) << endl;
-              assert(false);
-            }
-            funcs.insert(name);
-          }
+  set<Instruction*> fifoReads(Loop* lp) {
+    set<Instruction*> rds;
+    for (auto* bb : lp->getBlocks()) {
+      for (auto& instr : *bb) {
+        if (matchesCall("fifo_read", &instr) ||
+            matchesCall("lb_pop", &instr)) {
+          rds.insert(&instr);
         }
       }
     }
 
-    cout << "Before inlining" << endl;
-    cout << valueString(rewritten) << endl;
+    return rds;
+  }
 
+  // Wr
+  set<Instruction*> fifoWrites(Loop* lp) {
+    set<Instruction*> rds;
+    for (auto* bb : lp->getBlocks()) {
+      for (auto& instr : *bb) {
+        if (matchesCall("fifo_write", &instr) ||
+            matchesCall("lb_push", &instr)) {
+          rds.insert(&instr);
+        }
+      }
+    }
+
+    return rds;
+  }
+  
+  void optimizeFifos(Function* f) {
+    // How to go about optimizing fifos?
+    // Find loop nests that do not contain a fifo (linebuffer) read and fifo (linebuffer) write
+    // then check that
+    // - the read precedes the write
+    // - the read value is immediately written to the output fifo
+
+    // Find the loop nest that writes to the input fifo and have it write
+    // to the output FIFO instead
+    DominatorTree dt(*f);
+    LoopInfo li(dt);
+
+    for (Loop* loop : li) {
+      set<Instruction*> freads = fifoReads(loop);
+      set<Instruction*> fwrites = fifoWrites(loop);
+
+      cout << "# of fifo reads  = " << freads.size() << endl;
+      cout << "# of fifo writes = " << fwrites.size() << endl;
+
+      if ((freads.size() == 1) &&
+          (fwrites.size() == 1)) {
+        auto rd = *begin(freads);
+        auto wr = *begin(fwrites);
+        if (dt.dominates(rd, wr)) {
+          cout << "Possible fifo transfer loop" << endl;
+        }
+      }
+    }
+
+    runCleanupPasses(f);
+
+    cout << "After fifo removal" << endl;
+    cout << valueString(f) << endl;
+    
+  }
+  
+  void optimizeRAMs(Function* rewritten) {
     // RAM transformations?
     set<Instruction*> ramOps;
     map<Value*, map<Value*, Value*> > ramsToWrittenValues;
@@ -1476,10 +1483,77 @@ namespace ahaHLS {
       cout << "Erasing instruction " << valueString(instr) << endl;
       instr->eraseFromParent();
     }
+  }
+  
+  MicroArchitecture halideArch(Function* f, HalideArchSettings settings) {
+    Function* rewritten =
+      rewriteHalideStencils(f);
+
+    optimizeModuleLLVM(*(rewritten->getParent()));
+    optimizeStores(rewritten);
+    
+    cout << "Rewritten function" << endl;
+    cout << valueString(rewritten) << endl;
+
+    InterfaceFunctions interfaces;
+    set<string> funcs;
+
+    for (auto& bb : rewritten->getBasicBlockList()) {
+      for (auto& instrR : bb) {
+        auto instr = &instrR;
+        if (CallInst::classof(instr)) {
+          CallInst* ci = dyn_cast<CallInst>(instr);
+          Function* func = ci->getCalledFunction();
+          string name = ci->getCalledFunction()->getName();
+          if (!elem(name, funcs)) {
+            interfaces.addFunction(func);
+            
+            if (hasPrefix(name, "fifo_read_ref")) {
+              if (!settings.pushFifos) {
+                implementRVFifoReadRef(func, interfaces.getConstraints(func));
+              } else {
+                cout << "Implementing push read" << endl;
+                implementPushFifoReadRef(func, interfaces.getConstraints(func));
+              }
+            } else if (hasPrefix(name, "fifo_write_ref")) {
+              if (!settings.pushFifos) {
+                implementRVFifoWriteRef(func, interfaces.getConstraints(func));
+              } else {
+                cout << "Implementing push write" << endl;                
+                implementPushFifoWriteRef(func, interfaces.getConstraints(func));
+              }
+            } else if (hasPrefix(name, "lb_has_valid")) {
+              implementLBHasValidData(func, interfaces.getConstraints(func));
+            } else if (hasPrefix(name, "ram.write.")) {
+              implementRAMWrite0(func, interfaces.getConstraints(func));
+            } else if (hasPrefix(name, "ram.read.")) {
+              implementRAMRead0(func, interfaces.getConstraints(func));
+            } else if (hasPrefix(name, "lb_push.")) {
+              implementLBPush(func, interfaces.getConstraints(func));
+            } else if (hasPrefix(name, "lb_pop.")) {
+              implementLBPop(func, interfaces.getConstraints(func));
+            } else {
+              cout << "Error: Unsupported call " << valueString(ci) << endl;
+              assert(false);
+            }
+            funcs.insert(name);
+          }
+        }
+      }
+    }
+
+
+    cout << "Before RAM opts" << endl;
+    cout << valueString(rewritten) << endl;
+
+    optimizeRAMs(rewritten);
     
     cout << "After RAM optimization" << endl;
     cout << valueString(rewritten) << endl;
 
+    if (settings.optimizeFifos) {
+      optimizeFifos(rewritten);
+    }
 
     if (settings.forToWhile) {
       forToWhileLoopOpt(rewritten, settings);
@@ -1881,7 +1955,8 @@ namespace ahaHLS {
     HalideArchSettings archSettings;
     archSettings.loopTasks = true;
     archSettings.pushFifos = true;
-    archSettings.forToWhile = true;    
+    archSettings.forToWhile = true;
+    archSettings.optimizeFifos = true;
     MicroArchitecture arch = halideArch(f, archSettings);
 
     auto in = dyn_cast<Argument>(getArg(arch.stg.getFunction(), 0));
