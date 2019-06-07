@@ -184,6 +184,79 @@ namespace ahaHLS {
 
     deleteContext(c);
   }
+
+  TEST_CASE("conv 2x1 with no fifos") {
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<llvm::Module> Mod = loadCppModule(Context, Err, "conv_2_1_manually_optimized");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
+    deleteLLVMLifetimeCalls(f);
+
+    cout << "Origin function" << endl;
+    cout << valueString(f) << endl;
+
+    HalideArchSettings archSettings;
+    archSettings.loopTasks = false;
+    MicroArchitecture arch = halideArch(f, archSettings);
+
+    CoreIR::Context* c = newContext();
+    emitCoreIR("conv_2_1_manual_coreir", arch, c, c->getGlobal());
+
+    CoreIR::Module* storeMod = c->getGlobal()->getModule("conv_2_1_manual_coreir");
+
+    REQUIRE(storeMod != nullptr);
+
+
+    cout << "Module is " << endl;
+    storeMod->print();    
+
+    c->runPasses({"rungenerators", "flatten", "flattentypes", "wireclocks-coreir", "fold-constants", "removeconstduplicates", "deletedeadinstances"});
+
+    cout << "After preprocessing module is " << endl;
+    storeMod->print();    
+
+    SimulatorState sim(storeMod);
+    sim.setValue("self.rst", BitVec(1, 0));
+    sim.setValue("self.arg_0_read_ready", BitVec(1, 1));
+    sim.setValue("self.arg_0_out_data", BitVec(32, (23 << 16) | (9)));
+    sim.setValue("self.arg_1_write_ready", BitVec(1, 1));
+
+    sim.setClock("self.clk", 0, 1);
+
+    sim.execute();
+
+    cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
+    cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << endl;
+
+    sim.setValue("self.rst", BitVec(1, 1));
+
+    sim.execute();
+
+    // Done reset
+
+    cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
+    cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << endl;
+    
+    sim.setValue("self.rst", BitVec(1, 0));
+
+    sim.execute();    
+
+    cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
+    cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << endl;
+
+    sim.execute();
+
+    cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
+    cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << endl;
+
+    REQUIRE(sim.getBitVec("self.arg_1_in_data") == BitVec(16, 23 + 9));
+
+    deleteContext(c);
+  }
   
 }
 

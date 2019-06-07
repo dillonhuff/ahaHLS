@@ -37,6 +37,8 @@ namespace ahaHLS {
       return "coreir.slice";
     } else if (spec.name == "br_dummy") {
       return "ahaHLS.br_dummy";
+    } else if (spec.name == "phi") {
+      return "ahaHLS.phi";
     } else {
       cout << "Error: Unsupported modspec " << endl;
       cout << spec << endl;
@@ -70,6 +72,16 @@ namespace ahaHLS {
       return params;
     }
 
+    if (spec.name == "phi") {
+      int width = stoi(map_find(string("WIDTH"), spec.params));
+      int nb_pair = stoi(map_find(string("NB_PAIR"), spec.params));
+
+      params.insert({"nb_pair", CoreIR::Const::make(c, nb_pair)});
+      params.insert({"width", CoreIR::Const::make(c, width)});
+
+      return params;
+    }
+    
     bool foundRst = false;
     for (auto p : spec.params) {
       if (p.first == "WIDTH") {
@@ -411,6 +423,43 @@ namespace ahaHLS {
       def->connect("self.in0", "innerReg.in0");
       def->connect("self.in1", "innerReg.in1");      
       def->connect("innerReg.out", "self.out.0");
+    };
+    gen->setGeneratorDefFromFun(genFun);
+    
+  }
+
+  void addPhiGenerator(Namespace* ahaLib) {
+    auto c = ahaLib->getContext();
+    
+    Params wireParams = {{"width", c->Int()}, {"nb_pair", c->Int()}};
+    TypeGen* wireTp =
+      ahaLib->newTypeGen(
+                        "phi",
+                        wireParams,
+                        [](Context* c, Values genargs) {
+                          uint width = genargs.at("width")->get<int>();
+                          uint nb_pair = genargs.at("nb_pair")->get<int>();
+                          
+                          return c->Record({
+                              {"last_block", c->BitIn()->Arr(32)},
+                                {"s", c->BitIn()->Arr(32*nb_pair)},
+                                  {"in", c->BitIn()->Arr(width*nb_pair)},
+                                  {"out",c->Bit()->Arr(width)}});
+                        });
+    ahaLib->newGeneratorDecl("phi", wireTp, wireParams);
+    auto gen = ahaLib->getGenerator("phi");
+
+    std::function<void (Context*, Values, CoreIR::ModuleDef*)> genFun =
+      [](Context* c, Values args, CoreIR::ModuleDef* def) {
+      // uint width = args.at("width")->get<int>();
+
+      // def->addInstance("innerReg",
+      //                  "coreir.phi",
+      // {{"width", CoreIR::Const::make(c, width)}});
+
+      // def->connect("self.in0", "innerReg.in0");
+      // def->connect("self.in1", "innerReg.in1");      
+      // def->connect("innerReg.out", "self.out.0");
     };
     gen->setGeneratorDefFromFun(genFun);
     
