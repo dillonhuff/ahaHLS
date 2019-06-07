@@ -511,7 +511,16 @@ namespace ahaHLS {
 
     std::function<void (Context*, Values, CoreIR::ModuleDef*)> genFun =
       [](Context* c, Values args, CoreIR::ModuleDef* def) {
+
       // uint width = args.at("width")->get<int>();
+      // uint nb_pair = args.at("nb_pair")->get<int>();
+
+      // // Create multiplexers to choose between each
+      // Select* phiValue = makeConstant("123", width, def);
+      // for (int i = 0; i < nb_pair; i++) {
+      //   // Select* activeS = ;
+      //   // phiValue = ite();
+      // }
 
       // def->addInstance("innerReg",
       //                  "coreir.phi",
