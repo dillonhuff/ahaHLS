@@ -200,7 +200,7 @@ namespace ahaHLS {
     cout << valueString(f) << endl;
 
     HalideArchSettings archSettings;
-    archSettings.loopTasks = false;
+    archSettings.loopTasks = true;
     MicroArchitecture arch = halideArch(f, archSettings);
 
     CoreIR::Context* c = newContext();
