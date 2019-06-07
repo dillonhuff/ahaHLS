@@ -149,13 +149,11 @@ namespace ahaHLS {
     SimulatorState sim(storeMod);
     sim.setValue("self.rst", BitVec(1, 0));
     sim.setValue("self.arg_0_read_ready", BitVec(1, 1));
-    sim.setValue("self.arg_0_out_data", BitVec(32, 23 << 16));    
+    sim.setValue("self.arg_0_out_data", BitVec(32, 23 << 16));
     sim.setValue("self.arg_1_write_ready", BitVec(1, 1));
 
     sim.setClock("self.clk", 0, 1);
 
-    //cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_write_valid");
-    
     sim.execute();
 
     cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
@@ -184,7 +182,7 @@ namespace ahaHLS {
 
     REQUIRE(sim.getBitVec("self.arg_1_in_data") == BitVec(16, 23));
 
-    deleteContext(c);    
+    deleteContext(c);
   }
   
 }
