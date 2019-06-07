@@ -15,18 +15,6 @@ using namespace dbhc;
 using namespace llvm;
 using namespace std;
 
-// Simple system TODO: Add valid time tests in TestBenchSpec
-
-// Yet another issue with default state transitions, this time the problem
-// is default transitions from one loop to another inside a successive loop pipeline.
-// It seems as though the problem is that the default transitions used to
-// guarantee that the pipeline waits on stores are also default transitioning
-// in to the state that contains the next loop body in sequential execution.
-// Inlining of stores in to a group of instructions with no delineated end
-// makes it hard for me to just add the directive that the default transitions
-// should stop at the end of the block, because that block does not stop at the end
-// of the store?
-
 // It seems as though the default schedule of this pipeline produces
 // overlapping state visits, though Im not sure if I see that in the state
 // transition code. It is ok for pipelined states to contain multiple branches,
@@ -47,37 +35,6 @@ using namespace std;
 // of the outer loop pipelines need to wait one cycle before reading.
 // This may not be the only problem with the outer loop pipeline, but it is
 // one problem
-
-// Issues:
-//   1. Hazard resolution / empty states
-//   2. More versatile datapath (FIFOs as connectors, buffers etc)
-//   3. Task parallelism
-
-// Hazards are tricky for a few reasons
-//   1. Scheduling code contains many versions of the same function
-//   2. Scheduling analyses use an LLVM pass to generate data structures
-//   3. ExecutionConstraints and SchedulingProblem are very similar but used
-//      in several places
-//   4. Even though I have two different constraint data structures I do not
-//      have an explicit way to represent different kinds of hazards.
-///  5. Inlining breaks up the instructions that create some types of hazards so
-//      that they are not as easy to find in the translation
-
-// Q: Could I look through execution constraints after the fact and find
-//    constraints that could be violated by pipeline scheduling?
-// A: The fact that a branch is pipelined means that the state number gap
-//    between read valid and write does not necessarily correspond to a delay
-//    in cycles between the two?
-//    How can I tell if a state gap between instructions is actually important
-//    to the correct execution of a program? Treat state ids as both states and
-//    times? For each branch compute the actual execution time of branches and then
-//    check whether the trace matches?
-
-// Note: Maybe static hazards can be resolved in constraint solving by pushing
-// the branch forward in the schedule (higher II?). Could say that the *time*
-// difference between actions in different basic blocks of the same pipeline
-// is not the same as the difference in states. It is the min of the difference
-// between the branch connecting b0 and b1, and the value of b1
 
 namespace ahaHLS {
 
@@ -2278,7 +2235,38 @@ namespace ahaHLS {
 
     c.values[noOtherCondTrue] = defaultValue;
   }
-  
+
+  set<CFGJump> intoTaskJumps(const TaskSpec& t, STG& stg) {
+    set<CFGJump> inJumps;
+    for (auto otherTask : stg.sched.problem.taskSpecs) {
+      if (otherTask != t) {
+        for (auto outJump : getOutOfTaskJumps(otherTask, stg)) {
+          if (getTask(outJump.jmp.second, stg) == t) {
+            inJumps.insert(outJump);
+          }
+        }
+      }
+    }
+
+    return inJumps;
+  }
+
+  StateId startState(const TaskSpec& t, STG& stg) {
+    set<CFGJump> inJumps = intoTaskJumps(t, stg);
+    if (inJumps.size() > 0) {
+      assert(inJumps.size() == 1);
+      return stg.blockStartState((*begin(inJumps)).jmp.second);
+    }
+    
+    for (auto blk : t.blks) {
+      if (blk == &(stg.getFunction()->getEntryBlock())) {
+        return stg.blockStartState(blk);
+      }
+    }
+
+    assert(false);
+  }
+
   // TODO: Remove resetValues field?
   void emitControlCode(MicroArchitecture& arch) {
 
@@ -2291,6 +2279,10 @@ namespace ahaHLS {
       arch.addController(active.name, active.width);
     }
 
+    for (auto t : arch.stg.sched.problem.taskSpecs) {
+      StateId taskStart = startState(t, arch.stg);
+    }
+    
     RegController& startController =
       stateActiveRegController(arch.stg.blockStartState(&(arch.stg.getFunction()->getEntryBlock())), arch);
     startController.resetValue = "1";
