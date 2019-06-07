@@ -170,7 +170,7 @@ namespace ahaHLS {
     LLVMContext Context;
     setGlobalLLVMContext(&Context);
     
-    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "halide_stencil_get_01");
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "halide_stencil_get_01"); 
     setGlobalLLVMModule(Mod.get());
 
     Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");

@@ -1372,6 +1372,28 @@ namespace ahaHLS {
         (dbhc::map_find(id, opStates).size() == 0);
     }
 
+    std::set<StateId> statesInTask(TaskSpec& t) {
+      std::set<StateId> taskStates;
+      for (auto blk : t.blks) {
+        for (int s = blockStartState(blk); s <= blockEndState(blk); s++) {
+          taskStates.insert(s);
+        }
+      }
+
+      return taskStates;
+    }
+
+    TaskSpec task(const StateId id) {
+      for (auto t : sched.problem.taskSpecs) {
+        for (StateId inTask : statesInTask(t)) {
+          if (inTask == id) {
+            return t;
+          }
+        }
+      }
+      assert(false);
+    }
+
     llvm::Instruction* pickInstructionAt(const StateId id) {
       auto instrs = opStates[id];
       if (instrs.size() == 0) {

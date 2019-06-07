@@ -3324,7 +3324,6 @@ namespace ahaHLS {
     std::map<StateId, std::set<Instruction*> > out;
   };
   
-  //std::map<StateId, std::set<Instruction*> >
   LiveVals
   findLiveValues(MicroArchitecture& arch) {
 
@@ -3333,7 +3332,6 @@ namespace ahaHLS {
 
     std::map<StateId, set<Instruction*> > maybeUsed;
     std::map<StateId, set<Instruction*> > alwaysDefined;
-
 
     for (auto st : arch.stg.opStates) {
       in[st.first] = {};
@@ -3354,9 +3352,7 @@ namespace ahaHLS {
       for (auto st : arch.stg.opStates) {
         StateId state = st.first;
         set<Instruction*> used = map_find(state, maybeUsed);
-        //usedInstrs(state, arch);
         set<Instruction*> defd = map_find(state, alwaysDefined);
-          //definedInstrs(state, arch);
         auto diff = difference(out[state], defd);
         set<Instruction*> uSet =
           setUnion(used, diff);
@@ -3368,8 +3364,10 @@ namespace ahaHLS {
         // Needs to include predecessor states?
         for (auto jmp : getOutOfStateTransitions(state, arch.stg)) {
           StateId destState = arch.stg.blockStartState(jmp.second);
-          auto succIns = in[destState];
-          newOut = setUnion(newOut, succIns);
+          if (arch.stg.task(destState) == arch.stg.task(state)) {
+            auto succIns = in[destState];
+            newOut = setUnion(newOut, succIns);
+          }
         }
 
         if (inProgressBlocks(state, arch.stg).size() > 0) {
