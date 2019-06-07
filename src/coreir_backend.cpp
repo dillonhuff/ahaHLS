@@ -39,6 +39,10 @@ namespace ahaHLS {
       return "ahaHLS.br_dummy";
     } else if (spec.name == "phi") {
       return "ahaHLS.phi";
+    } else if (spec.name == "push_linebuf") {
+      return "ahaHLS.push_linebuf";
+    } else if (spec.name == "concat") {
+      return "ahaHLS.concat";
     } else {
       cout << "Error: Unsupported modspec " << endl;
       cout << spec << endl;
@@ -53,6 +57,17 @@ namespace ahaHLS {
     
     map<string, CoreIR::Value*> params;
 
+    cout << "Getting params for " << spec.name << endl;
+    
+    if (spec.name == "push_linebuf") {
+
+      assert(contains_key(string("IN_WIDTH"), spec.params));
+      
+      params.insert({"in_width",
+            CoreIR::Const::make(c, stoi(map_find(string("IN_WIDTH"), spec.params)))});
+      return params;
+    }
+    
     if (spec.name == "br_dummy") {
       params.insert({"width", CoreIR::Const::make(c, 1)});
       return params;
@@ -68,6 +83,16 @@ namespace ahaHLS {
       params.insert({"hi", CoreIR::Const::make(c, hi)});
       params.insert({"lo", CoreIR::Const::make(c, lo)});
       params.insert({"width", CoreIR::Const::make(c, width)});
+
+      return params;
+    }
+
+    if (spec.name == "concat") {
+      int in0Width = stoi(map_find(string("IN0_WIDTH"), spec.params));
+      int in1Width = stoi(map_find(string("IN1_WIDTH"), spec.params));
+
+      params.insert({"in0_width", CoreIR::Const::make(c, in0Width)});
+      params.insert({"in1_width", CoreIR::Const::make(c, in1Width)});
 
       return params;
     }
@@ -428,6 +453,41 @@ namespace ahaHLS {
     
   }
 
+  void addConcatGenerator(Namespace* ahaLib) {
+    auto c = ahaLib->getContext();
+    
+    Params wireParams = {{"in0_width", c->Int()}, {"in1_width", c->Int()}};
+    TypeGen* wireTp =
+      ahaLib->newTypeGen(
+                        "concat",
+                        wireParams,
+                        [](Context* c, Values genargs) {
+                          uint in0W = genargs.at("in0_width")->get<int>();
+                          uint in1W = genargs.at("in1_width")->get<int>();                          
+                          return c->Record({
+                              {"in0", c->BitIn()->Arr(in0W)},
+                                {"in1", c->BitIn()->Arr(in1W)},
+                                  {"out",c->Bit()->Arr(in0W + in1W)}});
+                        });
+    ahaLib->newGeneratorDecl("concat", wireTp, wireParams);
+    auto gen = ahaLib->getGenerator("concat");
+
+    std::function<void (Context*, Values, CoreIR::ModuleDef*)> genFun =
+      [](Context* c, Values args, CoreIR::ModuleDef* def) {
+      // uint width = args.at("width")->get<int>();
+
+      // def->addInstance("innerReg",
+      //                  "coreir.concat",
+      // {{"width", CoreIR::Const::make(c, width)}});
+
+      // def->connect("self.in0", "innerReg.in0");
+      // def->connect("self.in1", "innerReg.in1");      
+      // def->connect("innerReg.out", "self.out.0");
+    };
+    gen->setGeneratorDefFromFun(genFun);
+    
+  }
+  
   void addPhiGenerator(Namespace* ahaLib) {
     auto c = ahaLib->getContext();
     
@@ -460,6 +520,37 @@ namespace ahaHLS {
       // def->connect("self.in0", "innerReg.in0");
       // def->connect("self.in1", "innerReg.in1");      
       // def->connect("innerReg.out", "self.out.0");
+    };
+    gen->setGeneratorDefFromFun(genFun);
+    
+  }
+
+  void addPushLinebufGenerator(Namespace* ahaLib) {
+    auto c = ahaLib->getContext();
+    
+    Params wireParams = {{"in_width", c->Int()}};
+    TypeGen* wireTp =
+      ahaLib->newTypeGen(
+                        "push_linebuf",
+                        wireParams,
+                        [](Context* c, Values genargs) {
+                          uint in_width = genargs.at("in_width")->get<int>();
+                          uint out_width = 32;
+                          
+                          return c->Record({
+                              {"wdata", c->BitIn()->Arr(in_width)},
+                                {"rdata", c->Bit()->Arr(out_width)},
+                                  {"wen", c->BitIn()->Arr(1)},
+                                    {"valid", c->Bit()->Arr(1)},
+                                      {"rst", c->BitIn()->Arr(1)}
+                            });
+                        });
+
+    ahaLib->newGeneratorDecl("push_linebuf", wireTp, wireParams);
+    auto gen = ahaLib->getGenerator("push_linebuf");
+
+    std::function<void (Context*, Values, CoreIR::ModuleDef*)> genFun =
+      [](Context* c, Values args, CoreIR::ModuleDef* def) {
     };
     gen->setGeneratorDefFromFun(genFun);
     
@@ -500,7 +591,10 @@ namespace ahaHLS {
 
     addRegGenerator(ahaLib);
     addEqGenerator(ahaLib);    
-    addBrGenerator(ahaLib);        
+    addBrGenerator(ahaLib);
+    addPhiGenerator(ahaLib);
+    addPushLinebufGenerator(ahaLib);
+    addConcatGenerator(ahaLib);    
 
     convertRegisterControllersToPortControllers(arch);
     
