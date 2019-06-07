@@ -2281,11 +2281,15 @@ namespace ahaHLS {
 
     for (auto t : arch.stg.sched.problem.taskSpecs) {
       StateId taskStart = startState(t, arch.stg);
+
+      RegController& startController =
+        stateActiveRegController(taskStart, arch);
+      startController.resetValue = "1";
     }
     
-    RegController& startController =
-      stateActiveRegController(arch.stg.blockStartState(&(arch.stg.getFunction()->getEntryBlock())), arch);
-    startController.resetValue = "1";
+    // RegController& startController =
+    //   stateActiveRegController(arch.stg.blockStartState(&(arch.stg.getFunction()->getEntryBlock())), arch);
+    // startController.resetValue = "1";
     
     for (auto state : arch.stg.opStates) {
       emitStateCode(state.first, arch);
