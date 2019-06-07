@@ -2306,9 +2306,6 @@ namespace ahaHLS {
 
     for (auto p : arch.pipelines) {
       PortController& pc = addPortController(p.inPipe.name, 1, arch);
-      // TODO: This will need to be an "or" over the active flags for all states
-      // in the pipeline
-
       Wire anyPipeStateActive = constWire(1, 0);
       for (auto st : p.p.getStates()) {
         anyPipeStateActive =
