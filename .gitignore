@@ -179,3 +179,7 @@ packet_example*
 packet_mixed_assign*
 primitive_assign*
 halide_stencil_get_01*
+lb_3x3
+lb_3x3_unit_test.v
+lb_basic
+lb_tb
