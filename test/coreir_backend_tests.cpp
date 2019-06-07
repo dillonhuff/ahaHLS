@@ -131,9 +131,9 @@ namespace ahaHLS {
     MicroArchitecture arch = halideArch(f, archSettings);
 
     CoreIR::Context* c = newContext();
-    emitCoreIR("single_store", arch, c, c->getGlobal());
+    emitCoreIR("vhls_target", arch, c, c->getGlobal());
 
-    CoreIR::Module* storeMod = c->getGlobal()->getModule("single_store");
+    CoreIR::Module* storeMod = c->getGlobal()->getModule("vhls_target");
 
     REQUIRE(storeMod != nullptr);
 
@@ -148,9 +148,18 @@ namespace ahaHLS {
 
     SimulatorState sim(storeMod);
     sim.setValue("self.rst", BitVec(1, 0));
+    sim.setValue("self.arg_0_read_ready", BitVec(1, 1));
+    sim.setValue("self.arg_0_out_data", BitVec(32, 23 << 16));    
+    sim.setValue("self.arg_1_write_ready", BitVec(1, 1));
 
     sim.setClock("self.clk", 0, 1);
+
+    //cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_write_valid");
+    
     sim.execute();
+
+    cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
+    cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << endl;
 
     sim.setValue("self.rst", BitVec(1, 1));
 
@@ -158,9 +167,22 @@ namespace ahaHLS {
 
     // Done reset
 
+    cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
+    cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << endl;
+    
     sim.setValue("self.rst", BitVec(1, 0));
 
-    //sim.setValue();
+    sim.execute();    
+
+    cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
+    cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << endl;
+
+    sim.execute();
+
+    cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
+    cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << endl;
+
+    REQUIRE(sim.getBitVec("self.arg_1_in_data") == BitVec(16, 23));
 
     deleteContext(c);    
   }
