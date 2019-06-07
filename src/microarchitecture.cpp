@@ -280,21 +280,23 @@ namespace ahaHLS {
   }
   
   Wire buildAtStateWire(const StateId state, MicroArchitecture& arch) {
-    if (arch.isPipelineState(state)) {
-      // auto p = arch.getPipeline(state);
-      // Wire active = checkAnd(p.inPipeWire(), p.stateIsActiveWire(state), arch);
-      // return active;
+    return stateActiveReg(state, arch);
+    
+    // if (arch.isPipelineState(state)) {
+    //   // auto p = arch.getPipeline(state);
+    //   // Wire active = checkAnd(p.inPipeWire(), p.stateIsActiveWire(state), arch);
+    //   // return active;
 
-      return stateActiveReg(state, arch);
-      //return active;
+    //   return stateActiveReg(state, arch);
+    //   //return active;
       
-    } else {
-      // TODO: This will need to become a check on the value of the
-      // state is active register
-      //Wire active = checkEqual(state, arch.cs.getGlobalState(), arch);
-      Wire active = stateActiveReg(state, arch); //checkEqual(state, arch.cs.getGlobalState(), arch);
-      return active;
-    }
+    // } else {
+    //   // TODO: This will need to become a check on the value of the
+    //   // state is active register
+    //   //Wire active = checkEqual(state, arch.cs.getGlobalState(), arch);
+    //   Wire active = stateActiveReg(state, arch); //checkEqual(state, arch.cs.getGlobalState(), arch);
+    //   return active;
+    // }
   }
 
   Wire atStateWire(const StateId state, MicroArchitecture& arch) {
