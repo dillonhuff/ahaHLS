@@ -1305,14 +1305,43 @@ namespace ahaHLS {
           }
         }
 
+        // NOTE: Assumes there is only one phi node to replace
+        for (auto& instrR : *exit) {
+          auto instr = &instrR;
+          if (PHINode::classof(instr)) {
+            auto phi = dyn_cast<PHINode>(instr);
+            cout << "Found phi = " << valueString(phi) << " in end block" << endl;
+            assert(phi->getNumIncomingValues() == 2);
+
+            Value* headerInd = phi->getIncomingValueForBlock(header);
+            Value* opInd = phi->getIncomingValueForBlock(opBlock);
+
+            cout << "headerInd = " << valueString(headerInd) << endl;
+            cout << "opInd     = " << valueString(opInd) << endl;
+            
+            // TODO: Check the branch ordering
+            SelectInst* sel = SelectInst::Create(brCond, opInd, headerInd);
+
+            sel->insertBefore(phi);
+            phi->replaceAllUsesWith(sel);
+
+            
+            //phi->eraseFromParent();
+
+            
+            break;
+          }
+        }
+
+        cout << "Done replacing phis" << endl;
+        cout << valueString(rewritten) << endl;
+        
         IRBuilder<> hBuilder(header);
         hBuilder.CreateBr(opBlock);
 
         exit->removePredecessor(header);
         headerBr->eraseFromParent();
       }
-
-      
     }
 
     runCleanupPasses(rewritten);
@@ -1332,7 +1361,7 @@ namespace ahaHLS {
         ramsToWrittenValues[instr->getOperand(0)][instr->getOperand(1)] =
           instr->getOperand(2);
       } else if (isRAMRead(instr)) {
-        ramsToReads[instr->getOperand(0)].insert(instr); //instr->getOperand(1));
+        ramsToReads[instr->getOperand(0)].insert(instr);
       }
     }
 
