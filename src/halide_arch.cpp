@@ -1040,7 +1040,11 @@ namespace ahaHLS {
   }
 
   bool isLB(Value* v) {
-    return isBuiltinPushLBType(v->getType());
+    if (!PointerType::classof(v->getType())) {
+      return false;
+    }
+
+    return isBuiltinPushLBType(extract<PointerType>(v->getType())->getElementType());
   }
   
   bool isFifoWrite(Instruction* instr) {
@@ -1187,6 +1191,7 @@ namespace ahaHLS {
     LoopInfo li(dt);
 
     map<Value*, Value*> writeReplacements;
+    map<Value*, Value*> readReplacements;    
     for (Loop* loop : li) {
       set<Instruction*> freads = fifoReads(loop);
       set<Instruction*> fwrites = fifoWrites(loop);
@@ -1211,11 +1216,34 @@ namespace ahaHLS {
               writeReplacements[rd->getOperand(1)] =
                 wr->getOperand(0);
             } else if (isFifo(rd->getOperand(1)) && isLB(wr->getOperand(0))) {
-              cout << "Found lb replacement" << endl;
-              writeReplacements[rd->getOperand(1)] =
+              // cout << "Found lb replacement" << endl;
+              // writeReplacements[rd->getOperand(1)] =
+              //   wr->getOperand(0);
+            } else if (isLB(rd->getOperand(1)) && isFifo(wr->getOperand(0))) {
+              cout << "Found unneeded transfer from lb to fifo" << endl;
+              readReplacements[rd->getOperand(1)] =
                 wr->getOperand(0);
+            } else {
+              cout << "-- Not replaceable bc no pattern recognized" << endl;
+              cout << tab(1) << "read source  = " << valueString(rd->getOperand(1));
+              cout << tab(1) << "write source = " << valueString(wr->getOperand(0));
             }
+          } else {
+            cout << "-- Not replaceable bc operands dont match" << endl;
+            cout << tab(1) << "read source  = " << valueString(rd->getOperand(1));
+            cout << tab(1) << "write source = " << valueString(wr->getOperand(0));
           }
+
+          // read = rd->getOperand(1);
+          // if (read == written) {
+          //   if (isLB(rd->getOperand(0)) && isFifo(wr->getOperand(0))) {
+          //     auto lb = rd->getOperand(0);
+          //     auto fifo = wr->getOperand(0);
+          //     cout << "Found write from lb to fifo" << endl;
+          //     readReplacements[wr->getOperand(0)] =
+          //       rd->getOperand(1);
+          //   }
+          // }
         }
       }
     }
@@ -1308,34 +1336,34 @@ namespace ahaHLS {
         }
       }
 
-      // Is there an existing way to do this deletion in LLVM?
-      set<Instruction*> toDel{node};
-      set<Instruction*> allDel;
-      while (toDel.size() > 0) {
-        Instruction* next = *begin(toDel);
+      // // Is there an existing way to do this deletion in LLVM?
+      // set<Instruction*> toDel{node};
+      // set<Instruction*> allDel;
+      // while (toDel.size() > 0) {
+      //   Instruction* next = *begin(toDel);
         
-        for (auto& use : next->uses()) {
-          auto user = use.getUser();
-          cout << "Maybe instr user " << valueString(user) << endl;
+      //   for (auto& use : next->uses()) {
+      //     auto user = use.getUser();
+      //     cout << "Maybe instr user " << valueString(user) << endl;
           
-          //if (Instruction::classof(dyn_cast<Instruction>(use.get()))) {
-          if (Instruction::classof(user)) {
-            Instruction* i = dyn_cast<Instruction>(user);
-            cout << "User " << valueString(i) << endl;
-            if (!elem(i, allDel)) {
-              toDel.insert(i);
-            }
-          }
-        }
-        allDel.insert(next);
-        toDel.erase(next);
-      }
+      //     //if (Instruction::classof(dyn_cast<Instruction>(use.get()))) {
+      //     if (Instruction::classof(user)) {
+      //       Instruction* i = dyn_cast<Instruction>(user);
+      //       cout << "User " << valueString(i) << endl;
+      //       if (!elem(i, allDel)) {
+      //         toDel.insert(i);
+      //       }
+      //     }
+      //   }
+      //   allDel.insert(next);
+      //   toDel.erase(next);
+      // }
 
-      cout << "Deleting bound instructions" << endl;
-      for (auto d : allDel) {
-        //cout << "Deleting " << valueString(d) << endl;
-        d->eraseFromParent();
-      }
+      // cout << "Deleting bound instructions" << endl;
+      // for (auto d : allDel) {
+      //   //cout << "Deleting " << valueString(d) << endl;
+      //   d->eraseFromParent();
+      // }
 
       cout << "Done deleting" << endl;
       // RecursivelyDeleteTriviallyDeadInstructions(oldCond);
