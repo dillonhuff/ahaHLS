@@ -10,8 +10,9 @@ namespace ahaHLS {
     bool pushFifos;
     bool forToWhile;
     bool optimizeFifos;
+    bool predicateFifoWrites;
 
-    HalideArchSettings() : loopTasks(true), pushFifos(false), forToWhile(false), optimizeFifos(false) {}
+    HalideArchSettings() : loopTasks(true), pushFifos(false), forToWhile(false), optimizeFifos(false), predicateFifoWrites(false) {}
   };
 
   MicroArchitecture halideArch(Function* f, HalideArchSettings settings);

@@ -1030,218 +1030,6 @@ namespace ahaHLS {
       }
     }
 
-    // map<Loop*, BasicBlock*> loopReplacements;
-    // for (auto lpInfo : dataflowNests) {
-    //   Loop* loop = lpInfo.first;
-    //   DataflowNestInfo info = lpInfo.second;
-    //   assert(info.body.size() == 1);
-
-    //   if (info.tripCounts.size() > 1) {
-    //     BasicBlock* bodyToReplace = *begin(info.body);
-    //     BasicBlock* replacement = mkBB(string(bodyToReplace->getName()) + "_flat", f);
-
-    //     loopReplacements[loop] = replacement;
-
-    //     for (auto& pd : preds) {
-    //       if (loop->contains(pd.second)) {
-    //         cout << "Replacing block" << endl;
-    //         pd.second = replacement;
-    //         assert(preds[pd.first] == replacement);
-    //       }
-    //     }
-
-    //     for (auto& pd : exits) {
-    //       if (loop->contains(pd.second)) {
-    //         cout << "Replacing exit block" << endl;
-    //         pd.second = replacement;
-    //         assert(exits[pd.first] == replacement);
-    //       }
-    //     }
-
-    //   }
-    // }
-
-    // cout << "# of top level loops = " << dataflowNests.size() << endl;
-    // map<BasicBlock*, BasicBlock*> replacements;
-    // for (auto lpInfo : dataflowNests) {
-    //   Loop* loop = lpInfo.first;
-    //   DataflowNestInfo info = lpInfo.second;
-    //   assert(info.body.size() == 1);
-
-    //   if (info.tripCounts.size() > 1) {
-    //     cout << "Flattening loop nest of depth " << info.tripCounts.size() << endl;
-    //     int totalTripCount = 1;
-    //     for (auto tc : info.tripCounts) {
-    //       totalTripCount *= tc;
-    //     }
-    //     cout << "Total trip count of loop = " << totalTripCount << endl;
-    //     assert(totalTripCount < 300000);
-
-    //     BasicBlock* bodyToReplace = *begin(info.body);        
-    //     auto replacement = map_find(loop, loopReplacements);
-        
-    //     IRBuilder<> b(replacement);
-    //     auto indVar = b.CreatePHI(intType(16), 2);
-    //     auto iNext = b.CreateAdd(indVar, mkInt(1, 16));
-
-    //     indVar->addIncoming(iNext, replacement);
-    //     indVar->addIncoming(mkInt(0, 16), map_find(loop, preds));
-
-    //     auto exitCond = b.CreateICmpEQ(iNext, mkInt(totalTripCount, 16));
-    //     assert(Instruction::classof(exitCond));
-        
-    //     vector<Instruction*> toMove;
-    //     set<Instruction*> toErase;
-    //     for (auto& instr : *bodyToReplace) {
-    //       if (!TerminatorInst::classof(&instr)) {
-    //         toMove.push_back(&instr);
-    //       } else {
-    //         toErase.insert(&instr);
-    //       }
-    //     }
-
-    //     for (auto instr : toErase) {
-    //       BasicBlock* oldLoopBody = instr->getParent();
-    //       instr->eraseFromParent();
-    //     }
-        
-    //     // for (auto instr : toMove) {
-    //     //   instr->moveBefore(dyn_cast<Instruction>(exitCond));
-    //     // }
-
-    //     // // Need to create branch instruction to terminate each block
-    //     // b.CreateCondBr(exitCond, map_find(loop, exits), replacement);
-    //     b.CreateCondBr(exitCond, map_find(loop, exits), replacement);
-
-    //     SimplifyInstructionsInBlock(replacement);
-    //     //b.CreateCondBr(exitCond, replacement, replacement);
-
-    //     // for (auto& p : preds) {
-    //     //   if (p.second == bodyToReplace) {
-            
-    //     //   }
-    //     // }
-    //     // Now: Replace preds[
-
-    //     // replacements[bodyToReplace] = replacement;
-    //     for (auto blk : loop->getBlocks()) {
-    //       replacements[blk] = replacement;
-    //     }
-
-    //     // Set phi nodes
-    //   }
-
-    //   // Need to delete all replaced loop nests
-    // }
-
-    // for (auto pd : preds) {
-    //   Loop* l = pd.first;
-    //   if (contains_key(l, loopReplacements)) {
-    //     BasicBlock* newLoopBody = map_find(l, loopReplacements);
-    //     BasicBlock* pred = pd.second;
-    //     TerminatorInst* term = pred->getTerminator();
-    //     cout << "Terminator " << valueString(term) << " should now jump to " << valueString(newLoopBody) << endl;
-    //     //assert(BranchInst::classof(term));
-    //     BranchInst* br = extract<BranchInst>(term);
-    //     int numReplaced = 0;
-    //     for (int i = 0; i < (int) br->getNumSuccessors(); i++) {
-    //       if (l->contains(br->getSuccessor(i))) {
-    //         br->setSuccessor(i, newLoopBody);
-    //         numReplaced++;
-    //       }
-    //     }
-
-    //     assert((numReplaced == 1) || (numReplaced == 0));
-    //   }
-    // }
-
-    // for (auto blk : replacements) { //asdf
-    // //   // for (auto& bb : *f) {
-    // //   //   bool isPred = false;
-    // //   //   for (auto p : predecessors(&bb)) {
-    // //   //     if (p == blk.first) {
-    // //   //       isPred = true;
-    // //   //       break;
-    // //   //     }
-    // //   //   }
-
-    // //   //   if (isPred) {
-    // //   //     bb.removePredecessor(blk.first);
-    // //   //   }
-        
-    // //   // }
-
-    //   for (auto& use : blk.first->uses()) {
-    //     use.eraseFromParent();
-    //   }
-    //   // blk.first->replaceAllUsesWith(blk.second);
-      
-    // }
-
-    // cout << "After adding new loops and replacing uses" << endl;
-    // cout << valueString(f) << endl;
-
-    // //assert(false);
-    
-    // for (auto blk : replacements) {
-
-    //   set<Instruction*> toDel;
-    //   for (auto&  instr : *(blk.first)) {
-    //     toDel.insert(&instr);
-    //   }
-    //   for (auto instr : toDel) {
-    //     instr->eraseFromParent();
-    //   }
-    //   // auto term = blk.first->getTerminator();
-    //   // if (term != nullptr) {
-    //   //   term->eraseFromParent();
-    //   // }
-    // //   //blk.first->removeFromParent();
-
-    // //   cout << "Deleting block" << endl;
-    // //   assert(blk.first != nullptr);
-    // //   //cout << valueString(blk.first) << endl;
-
-    //   // for (auto& use : blk.first->uses()) {
-    //   //   Value* u = use.get();
-    //   //   Instruction* iUser = extract<Instruction>(u);
-    //   //   iUser->eraseFromParent();
-    //   // }
-      
-    // }
-
-    // for (auto blk : replacements) {
-    //   //blk.first->replaceAllUsesWith(UndefValue::get(blk.first->getType()));
-    //   //cout << "# of uses of blk = " << blk.first->uses().size() << endl;
-    //   for (auto& use : blk.first->uses()) {
-        
-    //     if (Instruction::classof(use.get())) {
-    //       cout << "Deleting block user instruction = " << valueString(use.get()) << endl;          
-    //       dyn_cast<Instruction>(use.get())->eraseFromParent();
-    //     } else {
-    //       cout << "User that is not instruction = " << valueString(use.get()) << endl;
-    //     }
-    //   }
-    // }
-
-    // cout << "After clearing replacement block users" << endl;
-    // cout << valueString(f) << endl;
-    
-    // for (auto blk : replacements) {
-    //   DeleteDeadBlock(blk.first);
-    // }
-    cout << "Done clearing replacement blocks" << endl;
-    cout << valueString(f) << endl;
-
-    //assert(false);
-    
-    // for (auto blk : replacements) {
-    //   DeleteDeadBlock(blk.first);
-    // }
-    
-    //assert(false);
-
-    //assert(false);
     runCleanupPasses(f);
     
     cout << "After loop flattening opt" << endl;
@@ -1471,7 +1259,68 @@ namespace ahaHLS {
     cout << valueString(f) << endl;
     
   }
+
+  bool setWenOp(Instruction* instr) {
+    if (isBuiltinPortWrite(instr)) {
+      string name = getPortName(instr);
+      if ((name == "wen") || (name == "write_valid")) {
+        return true;
+      }
+    }
+
+    return false;
+  }
   
+  void predicateFifoWrites(Function* rewritten) {
+    DominatorTree dt(*rewritten);
+    LoopInfo li(dt);
+
+    for (Loop* loop : li) {
+      if (loop->getBlocks().size() == 3) {
+        cout << "Post inlining loop has blocks" << endl;
+        for (auto blk : loop->getBlocks()) {
+          cout << valueString(blk) << endl;
+        }
+
+        assert(loop->getBlocks().size() == 3);
+        BasicBlock* exit = loop->getExitingBlock();
+        assert(exit != nullptr);
+
+        BasicBlock* header = loop->getHeader();
+        assert(header != nullptr);
+
+        BranchInst* headerBr = extract<BranchInst>(header->getTerminator());
+        assert(headerBr->getNumSuccessors() == 2);
+
+        BasicBlock* opBlock =
+          headerBr->getSuccessor(0) == exit ? headerBr->getSuccessor(1) : headerBr->getSuccessor(0);
+
+        Value* brCond = headerBr->getOperand(0);
+        cout << "Header condition = " << valueString(brCond) << endl;
+
+        for (auto& instrR : *opBlock) {
+          auto instr = &instrR;
+          if (setWenOp(instr)) {
+            instr->setOperand(1, brCond);
+          }
+        }
+
+        IRBuilder<> hBuilder(header);
+        hBuilder.CreateBr(opBlock);
+
+        exit->removePredecessor(header);
+        headerBr->eraseFromParent();
+      }
+
+      
+    }
+
+    runCleanupPasses(rewritten);
+
+    cout << "After valid predication" << endl;
+    cout << valueString(rewritten) << endl;
+  }
+
   void optimizeRAMs(Function* rewritten) {
     // RAM transformations?
     set<Instruction*> ramOps;
@@ -1678,6 +1527,10 @@ namespace ahaHLS {
     PassBuilder PB;
     PB.registerFunctionAnalyses(FAM);
     FPM.run(*rewritten, FAM);
+
+    if (settings.predicateFifoWrites) {
+      predicateFifoWrites(rewritten);
+    }
 
     clearExecutionConstraints(rewritten, exec);
     
