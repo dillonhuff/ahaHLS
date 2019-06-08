@@ -203,8 +203,6 @@ namespace ahaHLS {
     return output;
   }
   
-  Wire checkEqual(const Wire valWire, const Wire w, MicroArchitecture& arch);
-
   Wire waitedNCycles(const Wire condWire,
                      const int cyclesToWait,
                      MicroArchitecture& arch) {

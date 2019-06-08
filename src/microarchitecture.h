@@ -642,7 +642,8 @@ namespace ahaHLS {
   Wire inAnyPipeline(MicroArchitecture& arch);
 
   Wire checkEqual(const int value, const Wire w, MicroArchitecture& arch);
-  
+  Wire checkEqual(const Wire valWire, const Wire w, MicroArchitecture& arch);
+
   PortController& addPortController(const std::string& name,
                                     const int width,
                                     MicroArchitecture& arch);
@@ -669,6 +670,10 @@ namespace ahaHLS {
                          ControlFlowPosition& currentPosition,
                          MicroArchitecture& arch);
 
+  Wire outputWire(Value* val,
+                  ControlFlowPosition& currentPosition,
+                  MicroArchitecture& arch);
+  
   bool isInsensitive(const std::string& port,
                      PortController& portController);
 

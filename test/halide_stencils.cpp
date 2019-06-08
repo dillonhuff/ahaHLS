@@ -50,15 +50,30 @@ namespace ahaHLS {
 
     assert(writeDataState == writeValidCheckState);
 
-    Wire incrCond = blockActiveInState(writeValidCheckState, channelValidCheck->getParent(), arch);
+    auto pos = position(writeValidCheckState, channelValidCheck, arch);
+
+    // Is one?
+    Wire validIsOneWire =
+      checkEqual(outputWire(channelValidCheck->getOperand(1), pos, arch), constWire(1, 1), arch);
+    
+    Wire incrCond = checkAnd(blockActiveInState(writeValidCheckState, channelValidCheck->getParent(), arch),
+                             validIsOneWire,
+                             arch);
+
+    //string validIsOne = validIsOneWire.valueString();
+    
     Wire ithValid = buildIncCounter(incrCond, 32, arch);
     for (int i = 0; i < (int) expectedWriteValues.size(); i++) {
       string expectedVal = expectedWriteValues[i];
 
-      auto pos = position(writeValidCheckState, channelValidCheck, arch);
       string ev =
         andStr(parens(ithValid.valueString() + " === " + to_string(i)),
                incrCond.valueString());
+      
+      // string ev =
+      //   andStr(andStr(parens(ithValid.valueString() + " === " + to_string(i)),
+      //                 incrCond.valueString()),
+      //          validIsOne);
       string writeIsExpectedVal =
         parens(outputName(channelWrite->getOperand(1), pos, arch) + " == " + expectedVal);
       addAssert(implies(ev, writeIsExpectedVal), info);
