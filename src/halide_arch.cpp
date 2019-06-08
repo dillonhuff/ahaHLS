@@ -1325,10 +1325,15 @@ namespace ahaHLS {
             sel->insertBefore(phi);
             phi->replaceAllUsesWith(sel);
 
-            
+            for (auto& piR : *header) {
+              auto pi = &piR;
+              if (PHINode::classof(pi)) {
+                auto phiN = dyn_cast<PHINode>(pi);
+                phiN->setIncomingValue(phiN->getBasicBlockIndex(exit), sel);
+              }
+            }
+            // opInd->replaceAllUsesWith(sel);
             //phi->eraseFromParent();
-
-            
             break;
           }
         }
