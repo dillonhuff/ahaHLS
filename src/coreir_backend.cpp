@@ -138,7 +138,8 @@ namespace ahaHLS {
     auto inst =
       def->addInstance(unit.instName,
                        unitCoreIRName(unit.module),
-                       coreIRParams(unit, def->getContext()));
+                       coreIRParams(unit, def->getContext()),
+                       {});
     return inst;
   }
   

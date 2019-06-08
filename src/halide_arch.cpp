@@ -1253,7 +1253,6 @@ namespace ahaHLS {
     // Replace all writes to keys in writeReplacements with writes to corresponding values
 
     set<Instruction*> toErase;
-    map<Instruction*, Instruction*> toInsertBefore;    
     for (auto wr : writeReplacements) {
       auto oldReceiver = wr.first;
       auto newReceiver = wr.second;
@@ -1277,6 +1276,43 @@ namespace ahaHLS {
       }
     }
 
+    // Delete all writes to receiver (value)
+    // Replace all reads from receiver with reads from source
+    //
+    // map<Instruction*, Instruction*> rdReplace;
+    // for (auto wr : readReplacements) {
+    //   auto oldSource = wr.first;
+    //   auto redundantReceiver = wr.second;
+
+    //   cout << "Old source   = " << valueString(oldSource) << endl;
+    //   cout << "Redundant rv = " << valueString(redundantReceiver) << endl;
+
+    //   for (auto instr : allInstrs(f)) {
+    //     if (isFifoWrite(instr) && (instr->getOperand(0) == redundantReceiver)) {
+    //       cout << "Erasing write to fifo that should be replaced by lb " << endl; //valueString(instr) << endl;
+    //       toErase.insert(instr);
+    //     } else if (isFifoRead(instr) && (instr->getOperand(1) == redundantReceiver)) {
+    //       CallInst* call = CallInst::Create(lbReadFunction(oldSource), {instr->getOperand(0), oldSource});
+    //       //call->insertBefore(instr);
+    //       rdReplace[instr] = call;
+    //       //instr->setOperand(0, oldSource);
+    //       toErase.insert(instr);
+    //     } else if (isFifoRead(instr) && (instr->getOperand(1) == oldSource)) {
+    //       toErase.insert(instr);
+    //     }
+    //     // if (isFifoWrite(instr) && (instr->getOperand(0) == oldReceiver)) {
+    //     //   instr->setOperand(0, newReceiver);
+    //     // }
+        
+    //   }
+    // }
+
+    // assert(false);
+
+    // for (auto rd : rdReplace) {
+    //   rd.first->insertBefore(rd.second);
+    // }
+    
     for (auto e : toErase) {
       e->eraseFromParent();
     }

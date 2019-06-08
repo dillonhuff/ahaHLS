@@ -257,6 +257,29 @@ namespace ahaHLS {
 
     // deleteContext(c);
   }
+
+  TEST_CASE("conv 2x1 from halide") {
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<llvm::Module> Mod =
+      loadCppModule(Context, Err, "conv_2_1_source");
+    setGlobalLLVMModule(Mod.get());
+
+    llvm::Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
+    deleteLLVMLifetimeCalls(f);
+
+    HalideArchSettings archSettings;
+    archSettings.loopTasks = true;
+    archSettings.pushFifos = true;
+    archSettings.forToWhile = true;
+    archSettings.optimizeFifos = true;
+    archSettings.predicateFifoWrites = true;
+    archSettings.removeLoopBounds = true;        
+    MicroArchitecture arch = halideArch(f, archSettings);
+  }
   
 }
 
