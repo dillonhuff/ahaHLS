@@ -385,7 +385,8 @@ namespace ahaHLS {
     archSettings.pushFifos = true;
     archSettings.forToWhile = true;
     archSettings.optimizeFifos = true;
-    archSettings.predicateFifoWrites = true;    
+    archSettings.predicateFifoWrites = true;
+    archSettings.removeLoopBounds = true;        
     MicroArchitecture arch = halideArch(f, archSettings);
 
     auto in = dyn_cast<Argument>(getArg(arch.stg.getFunction(), 0));

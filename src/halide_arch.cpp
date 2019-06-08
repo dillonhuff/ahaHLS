@@ -1270,6 +1270,84 @@ namespace ahaHLS {
 
     return false;
   }
+
+  void removeLoopBounds(Function* rewritten) {
+    DominatorTree dt(*rewritten);
+    LoopInfo li(dt);
+
+    for (Loop* loop : li) {
+      //assert(loop->getBlocks().size() == 1);
+      BasicBlock* latch = loop->getLoopLatch();
+      assert(latch != nullptr);
+
+      BranchInst* br = extract<BranchInst>(latch->getTerminator());
+      assert(br->getNumSuccessors() == 2);
+      BasicBlock* tBlk = br->getSuccessor(0);
+      BasicBlock* fBlk = br->getSuccessor(1);
+
+      int loopBlockInd = 0;
+      if (loop->contains(tBlk)) {
+        loopBlockInd = 0;
+      } else {
+        assert(loop->contains(fBlk));
+        loopBlockInd = 1;
+      }
+
+      Value* oldCond = br->getOperand(0);
+      if (loopBlockInd == 0) {
+        br->setOperand(0, mkInt(1, 1));
+      } else {
+        br->setOperand(0, mkInt(0, 1));
+      }
+
+      PHINode* node = nullptr;
+      for (auto& instrR : *latch) {
+        if (PHINode::classof(&instrR)) {
+          node = dyn_cast<PHINode>(&instrR);
+          break;
+        }
+      }
+
+      // Is there an existing way to do this deletion in LLVM?
+      set<Instruction*> toDel{node};
+      set<Instruction*> allDel;
+      while (toDel.size() > 0) {
+        Instruction* next = *begin(toDel);
+        
+        for (auto& use : next->uses()) {
+          auto user = use.getUser();
+          cout << "Maybe instr user " << valueString(user) << endl;
+          
+          //if (Instruction::classof(dyn_cast<Instruction>(use.get()))) {
+          if (Instruction::classof(user)) {
+            Instruction* i = dyn_cast<Instruction>(user);
+            cout << "User " << valueString(i) << endl;
+            if (!elem(i, allDel)) {
+              toDel.insert(i);
+            }
+          }
+        }
+        allDel.insert(next);
+        toDel.erase(next);
+      }
+
+      cout << "Deleting bound instructions" << endl;
+      for (auto d : allDel) {
+        //cout << "Deleting " << valueString(d) << endl;
+        d->eraseFromParent();
+      }
+
+      cout << "Done deleting" << endl;
+      // RecursivelyDeleteTriviallyDeadInstructions(oldCond);
+      // if (node != nullptr) {
+      //   RecursivelyDeleteDeadPHINode(node);
+      // }
+
+    }
+
+    cout << "After top level bounds deletion" << endl;
+    cout << valueString(rewritten) << endl;
+  }
   
   void predicateFifoWrites(Function* rewritten) {
     DominatorTree dt(*rewritten);
@@ -1566,6 +1644,10 @@ namespace ahaHLS {
       predicateFifoWrites(rewritten);
     }
 
+    if (settings.removeLoopBounds) {
+      removeLoopBounds(rewritten);
+    }
+    
     clearExecutionConstraints(rewritten, exec);
     
     addDataConstraints(rewritten, exec);

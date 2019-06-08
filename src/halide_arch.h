@@ -11,8 +11,14 @@ namespace ahaHLS {
     bool forToWhile;
     bool optimizeFifos;
     bool predicateFifoWrites;
+    bool removeLoopBounds;
 
-    HalideArchSettings() : loopTasks(true), pushFifos(false), forToWhile(false), optimizeFifos(false), predicateFifoWrites(false) {}
+    HalideArchSettings() : loopTasks(true),
+                           pushFifos(false),
+                           forToWhile(false),
+                           optimizeFifos(false),
+                           predicateFifoWrites(false),
+                           removeLoopBounds(false) {}
   };
 
   MicroArchitecture halideArch(Function* f, HalideArchSettings settings);
