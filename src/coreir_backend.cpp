@@ -594,7 +594,7 @@ namespace ahaHLS {
       def->connect("self.rst.0", "inner_lb.reset");
       def->connect("self.wen.0", "inner_lb.wen");
       def->connect("self.valid.0", "inner_lb.valid");
-      def->connect("self.clk", "inner_lb.clk");
+      // def->connect("self.clk", "inner_lb.clk");
 
       // for (int i = 0; i < nRows; i++) {
       //   for (int j = 0; j < nCols; j++) {
