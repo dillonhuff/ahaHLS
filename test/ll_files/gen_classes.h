@@ -1,48 +1,4 @@
-#include <cstdint>
 #include <cstdlib>
-
-class AxiPackedStencil_uint16_t_1_1_;
-
-class AxiPackedStencil_uint16_t_1_1_ {
-	uint16_t other_elems[1*1 + 20];
-	uint16_t elems[1*1];
-  public:
-	void set_last(const int);
-	void set(const uint16_t c, const size_t e0=0, const size_t e1=0, const size_t e2=0);
-	uint16_t get(const size_t e0=0, const size_t e1=0, const size_t e2=0);
-	AxiPackedStencil_uint16_t_1_1_();
-	AxiPackedStencil_uint16_t_1_1_(const AxiPackedStencil_uint16_t_1_1_&);
-	void copy(const AxiPackedStencil_uint16_t_1_1_& in);
-	AxiPackedStencil_uint16_t_1_1_ operator=(const AxiPackedStencil_uint16_t_1_1_&);
-};
-
-class AxiPackedStencil_int32_t_1_1_;
-
-class AxiPackedStencil_uint16_t_3_3_ {
-	uint16_t other_elems[3*3 + 20];
-	uint16_t elems[3*3];
-  public:
-	void set_last(const int);
-	void set(const uint16_t c, const size_t e0=0, const size_t e1=0, const size_t e2=0);
-	uint16_t get(const size_t e0=0, const size_t e1=0, const size_t e2=0);
-	AxiPackedStencil_uint16_t_3_3_();
-	AxiPackedStencil_uint16_t_3_3_(const AxiPackedStencil_uint16_t_3_3_&);
-	void copy(const AxiPackedStencil_uint16_t_3_3_& in);
-	AxiPackedStencil_uint16_t_3_3_ operator=(const AxiPackedStencil_uint16_t_3_3_&);
-};
-
-class AxiPackedStencil_uint16_t_1_2_ {
-	uint16_t other_elems[1*2 + 20];
-	uint16_t elems[1*2];
-  public:
-	void set_last(const int);
-	void set(const uint16_t c, const size_t e0=0, const size_t e1=0, const size_t e2=0);
-	uint16_t get(const size_t e0=0, const size_t e1=0, const size_t e2=0);
-	AxiPackedStencil_uint16_t_1_2_();
-	AxiPackedStencil_uint16_t_1_2_(const AxiPackedStencil_uint16_t_1_2_&);
-	void copy(const AxiPackedStencil_uint16_t_1_2_& in);
-	AxiPackedStencil_uint16_t_1_2_ operator=(const AxiPackedStencil_uint16_t_1_2_&);
-};
 
 class AxiPackedStencil_int32_t_1_1_ {
 	int32_t other_elems[1*1 + 20];
@@ -57,21 +13,23 @@ class AxiPackedStencil_int32_t_1_1_ {
 	AxiPackedStencil_int32_t_1_1_ operator=(const AxiPackedStencil_int32_t_1_1_&);
 };
 
-class AxiPackedStencil_int32_t_3_3_ {
-	int32_t other_elems[3*3 + 20];
-	int32_t elems[3*3];
+typedef AxiPackedStencil_int32_t_1_1_ PackedStencil_int32_t_1_1_;
+typedef AxiPackedStencil_int32_t_1_1_ Stencil_int32_t_1_1_;
+class AxiPackedStencil_uint32_t_1_1_ {
+	uint32_t other_elems[1*1 + 20];
+	uint32_t elems[1*1];
   public:
 	void set_last(const int);
-	void set(const int32_t c, const size_t e0=0, const size_t e1=0, const size_t e2=0);
-	int32_t get(const size_t e0=0, const size_t e1=0, const size_t e2=0);
-	AxiPackedStencil_int32_t_3_3_();
-	AxiPackedStencil_int32_t_3_3_(const AxiPackedStencil_int32_t_3_3_&);
-	void copy(const AxiPackedStencil_int32_t_3_3_& in);
-	AxiPackedStencil_int32_t_3_3_ operator=(const AxiPackedStencil_int32_t_3_3_&);
+	void set(const uint32_t c, const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	uint32_t get(const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	AxiPackedStencil_uint32_t_1_1_();
+	AxiPackedStencil_uint32_t_1_1_(const AxiPackedStencil_uint32_t_1_1_&);
+	void copy(const AxiPackedStencil_uint32_t_1_1_& in);
+	AxiPackedStencil_uint32_t_1_1_ operator=(const AxiPackedStencil_uint32_t_1_1_&);
 };
 
-class AxiPackedStencil_int16_t_1_1_;
-
+typedef AxiPackedStencil_uint32_t_1_1_ PackedStencil_uint32_t_1_1_;
+typedef AxiPackedStencil_uint32_t_1_1_ Stencil_uint32_t_1_1_;
 class AxiPackedStencil_int16_t_1_1_ {
 	int16_t other_elems[1*1 + 20];
 	int16_t elems[1*1];
@@ -85,6 +43,53 @@ class AxiPackedStencil_int16_t_1_1_ {
 	AxiPackedStencil_int16_t_1_1_ operator=(const AxiPackedStencil_int16_t_1_1_&);
 };
 
+typedef AxiPackedStencil_int16_t_1_1_ PackedStencil_int16_t_1_1_;
+typedef AxiPackedStencil_int16_t_1_1_ Stencil_int16_t_1_1_;
+class AxiPackedStencil_uint16_t_1_1_ {
+	uint16_t other_elems[1*1 + 20];
+	uint16_t elems[1*1];
+  public:
+	void set_last(const int);
+	void set(const uint16_t c, const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	uint16_t get(const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	AxiPackedStencil_uint16_t_1_1_();
+	AxiPackedStencil_uint16_t_1_1_(const AxiPackedStencil_uint16_t_1_1_&);
+	void copy(const AxiPackedStencil_uint16_t_1_1_& in);
+	AxiPackedStencil_uint16_t_1_1_ operator=(const AxiPackedStencil_uint16_t_1_1_&);
+};
+
+typedef AxiPackedStencil_uint16_t_1_1_ PackedStencil_uint16_t_1_1_;
+typedef AxiPackedStencil_uint16_t_1_1_ Stencil_uint16_t_1_1_;
+class AxiPackedStencil_int32_t_3_3_ {
+	int32_t other_elems[3*3 + 20];
+	int32_t elems[3*3];
+  public:
+	void set_last(const int);
+	void set(const int32_t c, const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	int32_t get(const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	AxiPackedStencil_int32_t_3_3_();
+	AxiPackedStencil_int32_t_3_3_(const AxiPackedStencil_int32_t_3_3_&);
+	void copy(const AxiPackedStencil_int32_t_3_3_& in);
+	AxiPackedStencil_int32_t_3_3_ operator=(const AxiPackedStencil_int32_t_3_3_&);
+};
+
+typedef AxiPackedStencil_int32_t_3_3_ PackedStencil_int32_t_3_3_;
+typedef AxiPackedStencil_int32_t_3_3_ Stencil_int32_t_3_3_;
+class AxiPackedStencil_uint32_t_3_3_ {
+	uint32_t other_elems[3*3 + 20];
+	uint32_t elems[3*3];
+  public:
+	void set_last(const int);
+	void set(const uint32_t c, const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	uint32_t get(const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	AxiPackedStencil_uint32_t_3_3_();
+	AxiPackedStencil_uint32_t_3_3_(const AxiPackedStencil_uint32_t_3_3_&);
+	void copy(const AxiPackedStencil_uint32_t_3_3_& in);
+	AxiPackedStencil_uint32_t_3_3_ operator=(const AxiPackedStencil_uint32_t_3_3_&);
+};
+
+typedef AxiPackedStencil_uint32_t_3_3_ PackedStencil_uint32_t_3_3_;
+typedef AxiPackedStencil_uint32_t_3_3_ Stencil_uint32_t_3_3_;
 class AxiPackedStencil_int16_t_3_3_ {
 	int16_t other_elems[3*3 + 20];
 	int16_t elems[3*3];
@@ -98,20 +103,83 @@ class AxiPackedStencil_int16_t_3_3_ {
 	AxiPackedStencil_int16_t_3_3_ operator=(const AxiPackedStencil_int16_t_3_3_&);
 };
 
-typedef AxiPackedStencil_uint16_t_1_1_ PackedStencil_uint16_t_1_1_;
-typedef AxiPackedStencil_uint16_t_1_1_ Stencil_uint16_t_1_1_;
-typedef AxiPackedStencil_uint16_t_1_2_ PackedStencil_uint16_t_1_2_;
-typedef AxiPackedStencil_uint16_t_1_2_ Stencil_uint16_t_1_2_;
-typedef AxiPackedStencil_int32_t_1_1_ PackedStencil_int32_t_1_1_;
-typedef AxiPackedStencil_int32_t_1_1_ Stencil_int32_t_1_1_;
-typedef AxiPackedStencil_int32_t_3_3_ Stencil_int32_t_3_3_;
-typedef AxiPackedStencil_int32_t_3_3_ PackedStencil_int32_t_3_3_;
+typedef AxiPackedStencil_int16_t_3_3_ PackedStencil_int16_t_3_3_;
+typedef AxiPackedStencil_int16_t_3_3_ Stencil_int16_t_3_3_;
+class AxiPackedStencil_uint16_t_3_3_ {
+	uint16_t other_elems[3*3 + 20];
+	uint16_t elems[3*3];
+  public:
+	void set_last(const int);
+	void set(const uint16_t c, const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	uint16_t get(const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	AxiPackedStencil_uint16_t_3_3_();
+	AxiPackedStencil_uint16_t_3_3_(const AxiPackedStencil_uint16_t_3_3_&);
+	void copy(const AxiPackedStencil_uint16_t_3_3_& in);
+	AxiPackedStencil_uint16_t_3_3_ operator=(const AxiPackedStencil_uint16_t_3_3_&);
+};
+
 typedef AxiPackedStencil_uint16_t_3_3_ PackedStencil_uint16_t_3_3_;
 typedef AxiPackedStencil_uint16_t_3_3_ Stencil_uint16_t_3_3_;
-typedef AxiPackedStencil_int16_t_1_1_ PackedStencil_int16_t_1_1_;
-typedef AxiPackedStencil_int16_t_1_1_ Stencil_int16_t_1_1_;
-typedef AxiPackedStencil_int16_t_1_1_ PackedStencil_int16_t_3_3_;
-typedef AxiPackedStencil_int16_t_1_1_ Stencil_int16_t_3_3_;
+class AxiPackedStencil_int32_t_1_2_ {
+	int32_t other_elems[1*2 + 20];
+	int32_t elems[1*2];
+  public:
+	void set_last(const int);
+	void set(const int32_t c, const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	int32_t get(const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	AxiPackedStencil_int32_t_1_2_();
+	AxiPackedStencil_int32_t_1_2_(const AxiPackedStencil_int32_t_1_2_&);
+	void copy(const AxiPackedStencil_int32_t_1_2_& in);
+	AxiPackedStencil_int32_t_1_2_ operator=(const AxiPackedStencil_int32_t_1_2_&);
+};
+
+typedef AxiPackedStencil_int32_t_1_2_ PackedStencil_int32_t_1_2_;
+typedef AxiPackedStencil_int32_t_1_2_ Stencil_int32_t_1_2_;
+class AxiPackedStencil_uint32_t_1_2_ {
+	uint32_t other_elems[1*2 + 20];
+	uint32_t elems[1*2];
+  public:
+	void set_last(const int);
+	void set(const uint32_t c, const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	uint32_t get(const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	AxiPackedStencil_uint32_t_1_2_();
+	AxiPackedStencil_uint32_t_1_2_(const AxiPackedStencil_uint32_t_1_2_&);
+	void copy(const AxiPackedStencil_uint32_t_1_2_& in);
+	AxiPackedStencil_uint32_t_1_2_ operator=(const AxiPackedStencil_uint32_t_1_2_&);
+};
+
+typedef AxiPackedStencil_uint32_t_1_2_ PackedStencil_uint32_t_1_2_;
+typedef AxiPackedStencil_uint32_t_1_2_ Stencil_uint32_t_1_2_;
+class AxiPackedStencil_int16_t_1_2_ {
+	int16_t other_elems[1*2 + 20];
+	int16_t elems[1*2];
+  public:
+	void set_last(const int);
+	void set(const int16_t c, const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	int16_t get(const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	AxiPackedStencil_int16_t_1_2_();
+	AxiPackedStencil_int16_t_1_2_(const AxiPackedStencil_int16_t_1_2_&);
+	void copy(const AxiPackedStencil_int16_t_1_2_& in);
+	AxiPackedStencil_int16_t_1_2_ operator=(const AxiPackedStencil_int16_t_1_2_&);
+};
+
+typedef AxiPackedStencil_int16_t_1_2_ PackedStencil_int16_t_1_2_;
+typedef AxiPackedStencil_int16_t_1_2_ Stencil_int16_t_1_2_;
+class AxiPackedStencil_uint16_t_1_2_ {
+	uint16_t other_elems[1*2 + 20];
+	uint16_t elems[1*2];
+  public:
+	void set_last(const int);
+	void set(const uint16_t c, const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	uint16_t get(const size_t e0=0, const size_t e1=0, const size_t e2=0);
+	AxiPackedStencil_uint16_t_1_2_();
+	AxiPackedStencil_uint16_t_1_2_(const AxiPackedStencil_uint16_t_1_2_&);
+	void copy(const AxiPackedStencil_uint16_t_1_2_& in);
+	AxiPackedStencil_uint16_t_1_2_ operator=(const AxiPackedStencil_uint16_t_1_2_&);
+};
+
+typedef AxiPackedStencil_uint16_t_1_2_ PackedStencil_uint16_t_1_2_;
+typedef AxiPackedStencil_uint16_t_1_2_ Stencil_uint16_t_1_2_;
 class hls_stream_AxiPackedStencil_uint16_t_1_1__ {
 	int index;
 	AxiPackedStencil_uint16_t_1_1_ elems[1000];
@@ -244,15 +312,1221 @@ PackedStencil_int32_t_3_3_ lb_read();
 void lb_write(const PackedStencil_int32_t_1_1_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_1___bnds_14_14 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_14_14 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_1___bnds_14_14 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_1___bnds_64_64 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_64_64 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_1___bnds_64_64 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_1___bnds_8_8 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_8_8 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_1___bnds_8_8 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_1___bnds_16_16 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_16_16 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_1___bnds_16_16 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_1___bnds_66_66 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_66_66 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_1___bnds_66_66 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_1___bnds_70_70 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_70_70 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_1___bnds_70_70 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_14_14 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_14_14 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_14_14 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_64_64 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_64_64 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_64_64 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_8_8 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_8_8 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_8_8 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_16_16 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_16_16 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_16_16 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_66_66 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_66_66 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_66_66 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_70_70 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_70_70 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_70_70 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_1___bnds_14_14 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_14_14 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_1___bnds_14_14 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_1___bnds_64_64 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_64_64 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_1___bnds_64_64 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_1___bnds_8_8 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_8_8 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_1___bnds_8_8 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_1___bnds_16_16 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_16_16 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_1___bnds_16_16 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_1___bnds_66_66 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_66_66 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_1___bnds_66_66 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_1___bnds_70_70 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_70_70 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_1___bnds_70_70 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_14_14 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_14_14 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_14_14 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_64_64 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_64_64 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_64_64 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_8_8 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_8_8 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_8_8 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_16_16 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_16_16 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_16_16 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_66_66 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_66_66 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_66_66 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_70_70 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_70_70 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_70_70 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_3_3___bnds_14_14 {
 public:
 PackedStencil_int32_t_3_3_ lb_read();
 void lb_write(const PackedStencil_int32_t_1_1_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_14_14 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_3_3___bnds_14_14 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_3_3___bnds_64_64 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_64_64 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_3_3___bnds_64_64 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_3_3___bnds_8_8 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_8_8 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_3_3___bnds_8_8 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_3_3___bnds_16_16 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_16_16 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_3_3___bnds_16_16 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_3_3___bnds_66_66 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_66_66 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_3_3___bnds_66_66 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_3_3___bnds_70_70 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_70_70 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_3_3___bnds_70_70 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_14_14 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_14_14 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_14_14 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_64_64 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_64_64 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_64_64 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_8_8 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_8_8 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_8_8 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_16_16 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_16_16 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_16_16 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_66_66 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_66_66 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_66_66 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_70_70 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_70_70 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_70_70 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_3_3___bnds_14_14 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_14_14 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_3_3___bnds_14_14 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_3_3___bnds_64_64 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_64_64 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_3_3___bnds_64_64 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_3_3___bnds_8_8 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_8_8 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_3_3___bnds_8_8 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_3_3___bnds_16_16 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_16_16 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_3_3___bnds_16_16 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_3_3___bnds_66_66 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_66_66 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_3_3___bnds_66_66 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_3_3___bnds_70_70 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_70_70 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_3_3___bnds_70_70 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_14_14 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_14_14 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_14_14 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_64_64 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_64_64 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_64_64 {
 public:
 PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_8_8 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_8_8 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_8_8 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_16_16 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_16_16 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_16_16 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_66_66 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_66_66 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_66_66 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_70_70 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_70_70 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_70_70 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_2___bnds_14_14 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_14_14 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_2___bnds_14_14 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_2___bnds_64_64 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_64_64 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_2___bnds_64_64 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_2___bnds_8_8 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_8_8 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_2___bnds_8_8 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_2___bnds_16_16 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_16_16 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_2___bnds_16_16 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_2___bnds_66_66 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_66_66 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_2___bnds_66_66 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_2___bnds_70_70 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_70_70 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_2___bnds_70_70 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_14_14 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_14_14 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_14_14 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_64_64 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_64_64 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_64_64 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_8_8 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_8_8 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_8_8 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_16_16 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_16_16 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_16_16 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_66_66 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_66_66 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_66_66 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_70_70 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_70_70 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_70_70 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_2___bnds_14_14 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_14_14 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_2___bnds_14_14 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_2___bnds_64_64 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_64_64 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_2___bnds_64_64 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_2___bnds_8_8 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_8_8 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_2___bnds_8_8 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_2___bnds_16_16 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_16_16 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_2___bnds_16_16 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_2___bnds_66_66 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_66_66 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_2___bnds_66_66 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_2___bnds_70_70 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_70_70 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_2___bnds_70_70 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_14_14 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_14_14 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_14_14 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_64_64 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_64_64 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
 void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
 bool has_valid_data();
 };
@@ -262,16 +1536,2668 @@ PackedStencil_uint16_t_1_2_ lb_read();
 void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_8_8 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_8_8 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_8_8 {
 public:
 PackedStencil_uint16_t_1_2_ lb_read();
 void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
 bool has_valid_data();
 };
-class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_16_16 {
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_16_16 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_16_16 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_16_16 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_66_66 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_66_66 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_66_66 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_70_70 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_70_70 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_70_70 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_1___bnds_14_14 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_14_14 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_1___bnds_14_14 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_1___bnds_64_64 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_64_64 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_1___bnds_64_64 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_1___bnds_8_8 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_8_8 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_1___bnds_8_8 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_1___bnds_16_16 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_16_16 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_1___bnds_16_16 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_1___bnds_66_66 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_66_66 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_1___bnds_66_66 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_1___bnds_70_70 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_70_70 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_1___bnds_70_70 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_14_14 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_14_14 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_14_14 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_64_64 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_64_64 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_64_64 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_8_8 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_8_8 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_8_8 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_16_16 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_16_16 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_16_16 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_66_66 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_66_66 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_66_66 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_70_70 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_70_70 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_70_70 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_1___bnds_14_14 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_14_14 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_1___bnds_14_14 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_1___bnds_64_64 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_64_64 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_1___bnds_64_64 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_1___bnds_8_8 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_8_8 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_1___bnds_8_8 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_1___bnds_16_16 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_16_16 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_1___bnds_16_16 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_1___bnds_66_66 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_66_66 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_1___bnds_66_66 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_1___bnds_70_70 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_70_70 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_1___bnds_70_70 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_14_14 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_14_14 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_14_14 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_64_64 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_64_64 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_64_64 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_8_8 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_8_8 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_8_8 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_16_16 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_16_16 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_16_16 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_66_66 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_66_66 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_66_66 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_70_70 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_70_70 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_70_70 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_3_3___bnds_14_14 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_14_14 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_3_3___bnds_14_14 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_3_3___bnds_64_64 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_64_64 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_3_3___bnds_64_64 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_3_3___bnds_8_8 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_8_8 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_3_3___bnds_8_8 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_3_3___bnds_16_16 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_16_16 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_3_3___bnds_16_16 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_3_3___bnds_66_66 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_66_66 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_3_3___bnds_66_66 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_3_3___bnds_70_70 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_70_70 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_3_3___bnds_70_70 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_14_14 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_14_14 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_14_14 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_64_64 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_64_64 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_64_64 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_8_8 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_8_8 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_8_8 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_16_16 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_16_16 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_16_16 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_66_66 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_66_66 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_66_66 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_70_70 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_70_70 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_70_70 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_3_3___bnds_14_14 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_14_14 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_3_3___bnds_14_14 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_3_3___bnds_64_64 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_64_64 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_3_3___bnds_64_64 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_3_3___bnds_8_8 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_8_8 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_3_3___bnds_8_8 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_3_3___bnds_16_16 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_16_16 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_3_3___bnds_16_16 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_3_3___bnds_66_66 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_66_66 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_3_3___bnds_66_66 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_3_3___bnds_70_70 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_70_70 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_3_3___bnds_70_70 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_14_14 {
 public:
 PackedStencil_uint16_t_3_3_ lb_read();
-void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_14_14 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_14_14 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_64_64 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_64_64 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_64_64 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_8_8 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_8_8 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_8_8 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_16_16 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_16_16 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_16_16 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_66_66 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_66_66 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_66_66 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_70_70 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_70_70 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_70_70 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_2___bnds_14_14 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_14_14 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_2___bnds_14_14 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_2___bnds_64_64 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_64_64 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_2___bnds_64_64 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_2___bnds_8_8 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_8_8 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_2___bnds_8_8 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_2___bnds_16_16 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_16_16 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_2___bnds_16_16 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_2___bnds_66_66 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_66_66 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_2___bnds_66_66 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_2___bnds_70_70 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_70_70 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_2___bnds_70_70 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_14_14 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_14_14 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_14_14 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_64_64 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_64_64 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_64_64 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_8_8 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_8_8 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_8_8 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_16_16 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_16_16 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_16_16 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_66_66 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_66_66 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_66_66 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_70_70 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_70_70 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_70_70 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_2___bnds_14_14 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_14_14 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_2___bnds_14_14 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_2___bnds_64_64 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_64_64 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_2___bnds_64_64 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_2___bnds_8_8 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_8_8 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_2___bnds_8_8 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_2___bnds_16_16 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_16_16 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_2___bnds_16_16 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_2___bnds_66_66 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_66_66 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_2___bnds_66_66 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_2___bnds_70_70 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_70_70 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_2___bnds_70_70 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_14_14 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_14_14 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_14_14 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_64_64 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_64_64 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_64_64 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_8_8 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_8_8 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_8_8 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_16_16 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_16_16 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_16_16 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_66_66 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_66_66 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_66_66 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_70_70 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_70_70 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_70_70 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_1___bnds_14_14 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_14_14 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_1___bnds_14_14 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_1___bnds_64_64 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_64_64 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_1___bnds_64_64 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_1___bnds_8_8 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_8_8 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_1___bnds_8_8 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_1___bnds_16_16 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_16_16 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_1___bnds_16_16 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_1___bnds_66_66 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_66_66 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_1___bnds_66_66 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_1___bnds_70_70 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_70_70 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_1___bnds_70_70 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_14_14 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_14_14 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_14_14 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_64_64 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_64_64 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_64_64 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_8_8 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_8_8 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_8_8 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_16_16 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_16_16 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_16_16 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_66_66 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_66_66 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_66_66 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_70_70 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_70_70 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_70_70 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_1___bnds_14_14 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_14_14 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_1___bnds_14_14 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_1___bnds_64_64 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_64_64 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_1___bnds_64_64 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_1___bnds_8_8 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_8_8 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_1___bnds_8_8 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_1___bnds_16_16 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_16_16 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_1___bnds_16_16 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_1___bnds_66_66 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_66_66 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_1___bnds_66_66 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_1___bnds_70_70 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_70_70 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_1___bnds_70_70 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_14_14 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_14_14 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_14_14 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_64_64 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_64_64 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_64_64 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_8_8 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_8_8 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_8_8 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_16_16 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_16_16 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_16_16 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_66_66 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_66_66 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_66_66 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_70_70 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_70_70 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_70_70 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_3_3___bnds_14_14 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_14_14 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_3_3___bnds_14_14 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_3_3___bnds_64_64 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_64_64 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_3_3___bnds_64_64 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_3_3___bnds_8_8 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_8_8 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_3_3___bnds_8_8 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_3_3___bnds_16_16 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_16_16 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_3_3___bnds_16_16 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_3_3___bnds_66_66 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_66_66 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_3_3___bnds_66_66 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_3_3___bnds_70_70 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_70_70 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_3_3___bnds_70_70 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_14_14 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_14_14 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_14_14 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_64_64 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_64_64 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_64_64 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_8_8 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_8_8 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_8_8 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_16_16 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_16_16 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_16_16 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_66_66 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_66_66 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_66_66 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_70_70 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_70_70 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_70_70 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_3_3___bnds_14_14 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_14_14 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_3_3___bnds_14_14 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_3_3___bnds_64_64 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_64_64 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_3_3___bnds_64_64 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_3_3___bnds_8_8 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_8_8 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_3_3___bnds_8_8 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_3_3___bnds_16_16 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_16_16 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_3_3___bnds_16_16 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_3_3___bnds_66_66 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_66_66 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_3_3___bnds_66_66 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_3_3___bnds_70_70 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_70_70 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_3_3___bnds_70_70 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_14_14 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_14_14 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_14_14 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_64_64 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_64_64 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_64_64 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_8_8 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_8_8 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_8_8 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_16_16 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_16_16 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_16_16 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_66_66 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_66_66 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_66_66 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_70_70 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_70_70 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_70_70 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_2___bnds_14_14 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_14_14 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_2___bnds_14_14 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_2___bnds_64_64 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_64_64 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_2___bnds_64_64 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_2___bnds_8_8 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_8_8 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_2___bnds_8_8 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_2___bnds_16_16 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_16_16 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_2___bnds_16_16 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_2___bnds_66_66 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_66_66 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_2___bnds_66_66 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_2___bnds_70_70 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_70_70 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_2___bnds_70_70 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_14_14 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_14_14 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_14_14 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_64_64 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_64_64 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_64_64 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_8_8 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_8_8 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_8_8 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_16_16 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_16_16 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_16_16 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_66_66 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_66_66 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_66_66 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_70_70 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_70_70 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_70_70 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_2___bnds_14_14 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_14_14 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_2___bnds_14_14 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_2___bnds_64_64 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_64_64 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_2___bnds_64_64 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_2___bnds_8_8 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_8_8 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_2___bnds_8_8 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_2___bnds_16_16 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_16_16 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_2___bnds_16_16 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_2___bnds_66_66 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_66_66 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_2___bnds_66_66 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_2___bnds_70_70 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_70_70 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_2___bnds_70_70 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_14_14 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_14_14 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_14_14 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_64_64 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_64_64 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_64_64 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_8_8 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_8_8 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_8_8 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_16_16 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_16_16 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_16_16 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_66_66 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_66_66 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_66_66 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_70_70 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_70_70 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_70_70 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
 bool has_valid_data();
 };
 class ram_int32_t_9 {

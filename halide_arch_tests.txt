@@ -3,3 +3,4 @@ Rewrite stencils as int computation
 get element 0 1 from stencil
 conv_2_1 to verilog
 conv_2_1 push architecture to verilog
+conv_3_3 push architecture to verilog
