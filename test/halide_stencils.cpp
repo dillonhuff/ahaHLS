@@ -477,29 +477,29 @@ namespace ahaHLS {
     archSettings.removeLoopBounds = true;        
     MicroArchitecture arch = halideArch(f, archSettings);
 
-    // auto in = dyn_cast<Argument>(getArg(arch.stg.getFunction(), 0));
-    // auto out = dyn_cast<Argument>(getArg(arch.stg.getFunction(), 1));    
+    auto in = dyn_cast<Argument>(getArg(arch.stg.getFunction(), 0));
+    auto out = dyn_cast<Argument>(getArg(arch.stg.getFunction(), 1));    
 
-    // TestBenchSpec tb;
-    // map<string, int> testLayout = {};
-    // tb.memoryInit = {};
-    // tb.memoryExpected = {};
-    // tb.runCycles = 800;
-    // tb.maxCycles = 145;
-    // tb.name = "conv_2_1_push";
-    // tb.useModSpecs = true;
-    // tb.settablePort(in, "in_data");
-    // tb.settablePort(in, "write_valid");
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 800;
+    tb.maxCycles = 145;
+    tb.name = "conv_3_3_push";
+    tb.useModSpecs = true;
+    tb.settablePort(in, "in_data");
+    tb.settablePort(in, "write_valid");
 
-    // tb.setArgPort(in, "write_valid", 0, "1'b0");
+    tb.setArgPort(in, "write_valid", 0, "1'b0");
 
 
-    // vector<string> expectedValues;
-    // for (int i = 0; i < 8*7; i++) {
-    //   expectedValues.push_back(to_string(i + (i + 8)));
-    // }
-    // VerilogDebugInfo info;
-    // checkValidChannel(arch, info, getArg(arch.stg.getFunction(), 1), "write_valid", "in_data", expectedValues);
+    vector<string> expectedValues;
+    for (int i = 0; i < 8*7; i++) {
+      expectedValues.push_back(to_string(i + (i + 8)));
+    }
+    VerilogDebugInfo info;
+    checkValidChannel(arch, info, getArg(arch.stg.getFunction(), 1), "write_valid", "in_data", expectedValues);
     
     // SECTION("Inputs at rate II == 2") {
     //   vector<pair<int, int> > writeTimesAndValues;
@@ -515,33 +515,33 @@ namespace ahaHLS {
     //   addDisplay("arg_1_write_valid", "accelerator writing %d to output", {"arg_1_in_data"}, info);
     //   addNoXChecks(arch, info);
     
-    //   emitVerilog("conv_2_1_push", arch, info);
+    //   emitVerilog("conv_3_3_push", arch, info);
     //   emitVerilogTestBench(tb, arch, testLayout);
 
     
-    //   REQUIRE(runIVerilogTB("conv_2_1_push"));
+    //   REQUIRE(runIVerilogTB("conv_3_3_push"));
     // }
 
-    // SECTION("Inputs at rate II == 1") {
-    //   vector<pair<int, int> > writeTimesAndValues;
-    //   int resetTime = 1;
-    //   for (int i = resetTime; i < 8*8 + resetTime; i++) {
-    //     writeTimesAndValues.push_back({i + 5, i - resetTime});
-    //   }
-    //   setRVFifo(tb, "arg_0", writeTimesAndValues);
+    SECTION("Inputs at rate II == 1") {
+      vector<pair<int, int> > writeTimesAndValues;
+      int resetTime = 1;
+      for (int i = resetTime; i < 8*8 + resetTime; i++) {
+        writeTimesAndValues.push_back({i + 5, i - resetTime});
+      }
+      setRVFifo(tb, "arg_0", writeTimesAndValues);
     
-    //   map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 1;"));
-    //   map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 0;"));
+      map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 1;"));
+      map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 0;"));
     
-    //   addDisplay("arg_1_write_valid", "accelerator writing %d to output", {"arg_1_in_data"}, info);
-    //   addNoXChecks(arch, info);
+      addDisplay("arg_1_write_valid", "accelerator writing %d to output", {"arg_1_in_data"}, info);
+      addNoXChecks(arch, info);
     
-    //   emitVerilog("conv_2_1_push", arch, info);
-    //   emitVerilogTestBench(tb, arch, testLayout);
+      emitVerilog("conv_3_3_push", arch, info);
+      emitVerilogTestBench(tb, arch, testLayout);
 
     
-    //   REQUIRE(runIVerilogTB("conv_2_1_push"));
-    // }
+      REQUIRE(runIVerilogTB("conv_3_3_push"));
+    }
     
   }
   
