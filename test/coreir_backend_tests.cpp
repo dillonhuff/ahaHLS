@@ -313,6 +313,10 @@ namespace ahaHLS {
 
     sim.execute();
 
+    sim.setValue("self.rst", BitVec(1, 0));
+
+    sim.execute();
+    
     for (int i = 0; i < 30; i++) {
       cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << endl;
       cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
