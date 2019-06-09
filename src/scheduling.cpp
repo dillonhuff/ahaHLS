@@ -5681,7 +5681,15 @@ namespace ahaHLS {
     int inWidth = bitWidth(spec.in);
     cout << "lb InWidth = " << inWidth << endl;
     int outWidth = bitWidth(spec.out);
+
+    int inRows = spec.in.nRows;
+    int inCols = spec.in.nCols;    
+
+    int outRows = spec.out.nRows;
+    int outCols = spec.out.nCols;    
+
+    // TODO: Add in rows, in cols, out rows, out cols to this spec
     cout << "lb OutWidth = " << outWidth << endl;    
-    return structType("hls.lb." + to_string(inWidth) + "." + to_string(outWidth) + "." + to_string(8));
+    return structType("hls.lb." + to_string(inWidth) + "." + to_string(outWidth) + "." + to_string(8) + "." + to_string(inRows) + "." + to_string(inCols) + "." + to_string(outRows) + "." + to_string(outCols));
   }
 }

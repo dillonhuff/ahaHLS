@@ -107,14 +107,36 @@ namespace ahaHLS {
     return {typeWidth, nRows, nCols};
   }
 
+  vector<string> splitRep(const std::string& pattern,
+                          const std::string& val) {
+    vector<string> vals;
+    string lastVal = val;
+    cout << "Dropping " << pattern << " from " << lastVal << endl;
+
+    pair<string, string> dropped;
+    do {
+      dropped = splitOn(pattern, lastVal);
+      lastVal = dropped.second;
+      vals.push_back(dropped.first);
+      cout << "dropped =  " << dropped.first << ", " << dropped.second << endl;
+    } while(dropped.first.size() != lastVal.size());
+    
+    return vals;
+  }
+  
   LBSpec lbSpecFromHLS(Type* allocTp) {
     string tpName = extract<StructType>(allocTp)->getName();
     string fields = drop("hls.lb.", tpName);
-    int inWidth = 16;
+    vector<string> fieldVals =
+      splitRep(".", fields);
+
+    assert(fieldVals.size() > 2);
+
+    int inWidth = stoi(fieldVals[0]);
     int inRows = 1;
     int inCols = 1;
 
-    int outWidth = 16;
+    int outWidth = stoi(fieldVals[1]);
     int outRows = 2;
     int outCols = 1;
     
