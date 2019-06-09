@@ -460,10 +460,11 @@ namespace ahaHLS {
                         [](Context* c, Values genargs) {
                           uint width = genargs.at("width")->get<int>();
                           return c->Record({
-                              {"in_data", c->BitIn()->Arr(width)},
-                                {"out_data", c->Bit()->Arr(width)},
-                                  {"read_valid", c->Bit()->Arr(1)},
-                                    {"write_valid", c->BitIn()->Arr(1)}});
+                              {"rst", c->BitIn()->Arr(1)},
+                                {"in_data", c->BitIn()->Arr(width)},
+                                  {"out_data", c->Bit()->Arr(width)},
+                                    {"read_valid", c->Bit()->Arr(1)},
+                                      {"write_valid", c->BitIn()->Arr(1)}});
                         });
     ahaLib->newGeneratorDecl("push_fifo", wireTp, wireParams);
     auto gen = ahaLib->getGenerator("push_fifo");
@@ -483,6 +484,10 @@ namespace ahaHLS {
       def->connect("self.in_data", "data_reg.in");
       def->connect("self.write_valid.0", "data_reg.en");
       def->connect("self.write_valid.0", "valid_reg.en");
+
+      // def->connect("self.rst.0", "data_reg.en");
+      // def->connect("self.write_valid.0", "valid_reg.en");
+      
       def->connect("self.write_valid", "valid_reg.in");
       
       def->connect("data_reg.out", "self.out_data");
@@ -682,7 +687,7 @@ namespace ahaHLS {
       Namespace* commonlib = CoreIRLoadLibrary_commonlib(c);      
       Generator* linebuffer = commonlib->getGenerator("linebuffer");
       
-      def->addInstance("inner_lb", linebuffer, {{"input_type", Const::make(c, inType)}, {"output_type", Const::make(c, outType)}, {"image_type", Const::make(c, imgType)}, {"has_valid", Const::make(c, true)}});
+      auto innerLb = def->addInstance("inner_lb", linebuffer, {{"input_type", Const::make(c, inType)}, {"output_type", Const::make(c, outType)}, {"image_type", Const::make(c, imgType)}, {"has_valid", Const::make(c, true)}});
 
       def->connect("self.rst.0", "inner_lb.reset");
       def->connect("self.wen.0", "inner_lb.wen");
@@ -696,14 +701,45 @@ namespace ahaHLS {
         }
       }
 
+      //Wireable* sel = nullptr; //def->sel("inner_lb.wdata.0.0");
       for (int i = 0; i < outRows; i++) {
         for (int j = 0; j < outCols; j++) {
-          auto n = def->addInstance("lb_slice_" + c->getUnique(), "coreir.slice", {{"lo", Const::make(c, i*outCols + j)}, {"hi", Const::make(c, i*outCols + j + outDataWidth)}, {"width", Const::make(c, outDataWidth*nRows*nCols)}});
-          def->connect(n->sel("in"), def->sel("inner_lb.wdata"));
-          def->connect({"self", "wdata"},
-                       {"inner_lb", "in", to_string(i), to_string(j)});
+
+          for (int z = 0; z < outDataWidth; z++) {
+            Wireable* ijzOutputBit = innerLb->sel("out")->sel(j)->sel(i)->sel(z);
+            string offsetBit =
+              to_string((i*outCols + j)*outDataWidth + z);
+            Wireable* ijzOutSelf = def->sel("self")->sel("rdata")->sel(offsetBit);
+
+            def->connect(ijzOutputBit, ijzOutSelf);
+          }
+          
+          // if (i == 0 && j == 0) {
+          //   sel = def->sel("inner_lb.out.0.0");
+          // }
+
+          // def->connect(def->sel("self.rdata." + to_string(bitVal) "." + ), sel);
+          // Values vals;
+          // vals.insert({"width0", Const::make(c, sel->getWidth())});
+          // vals.insert({"width0", Const::make(c, sel->getWidth())});          
+          // auto concatLast =
+          //   def->addInstance("lb_concat" + c->getUnique(), "coreir.concat", vals);
+          // def->connect(concatLast->sel("in0"), sel);
+          // def->connect(concatLast->sel("in1"), def->sel({"inner_lb", "out", to_string(i), to_string(j)}));
+
+          // sel = concatLast->sel("out");
+          
+          //auto n = def->addInstance("lb_slice_" + c->getUnique(), "coreir.slice", {{"lo", Const::make(c, i*outCols + j)}, {"hi", Const::make(c, i*outCols + j + outDataWidth)}, {"width", Const::make(c, outDataWidth*nRows*nCols)}});
+          //def->connect(n->sel("in"), def->sel("inner_lb.wdata"));
+
+          // def->connect({"self", "wdata"},
+          //              {"inner_lb", "in", to_string(i), to_string(j)});
+
+          // Concatenate the entire thing together and connect it to rdata?
         }
       }
+
+      //def->connect(def->sel("self.rdata"), sel);
 
       // def->connect("self.wdata", "inner_lb.in");
       // def->connect("self.rdata", "inner_lb.out");
@@ -807,6 +843,10 @@ namespace ahaHLS {
       if (opName == "ahaHLS.ahaReg") {
         cout << "Wiring up register reset" << endl;
         def->connect(def->sel("self.rst"), units.second->sel("rst"));
+      } else if (opName == "ahaHLS.push_linebuf") {
+        def->connect(def->sel("self.rst"), units.second->sel("rst"));
+      } else if (opName == "ahaHLS.push_fifo") {
+        def->connect(def->sel("self.rst"), units.second->sel("rst"));        
       }
     }
 

@@ -295,6 +295,49 @@ namespace ahaHLS {
 
     cout << "After preprocessing module is " << endl;
     storeMod->print();    
+
+    SimulatorState sim(storeMod);
+    sim.setValue("self.rst", BitVec(1, 0));
+
+    sim.setValue("self.arg_0_out_data", BitVec(16, 3));
+    sim.setValue("self.arg_0_read_valid", BitVec(1, 1));
+    
+    sim.setClock("self.clk", 0, 1);
+
+    sim.execute();
+
+    cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
+    cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << endl;
+
+    sim.setValue("self.rst", BitVec(1, 1));
+
+    sim.execute();
+
+    for (int i = 0; i < 30; i++) {
+      cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << endl;
+      cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
+      sim.execute();
+    }
+    // Done reset
+
+    // cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
+    // cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << endl;
+    
+    // sim.setValue("self.rst", BitVec(1, 0));
+
+    // sim.execute();    
+
+    // cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
+    // cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << endl;
+
+    // sim.execute();
+
+    // cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
+    // cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << endl;
+
+    // REQUIRE(sim.getBitVec("self.arg_1_in_data") == BitVec(16, 23 + 9));
+
+    deleteContext(c);
     
   }
   
