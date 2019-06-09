@@ -160,6 +160,10 @@ namespace ahaHLS {
     map<string, CoreIR::Instance*> instances;
 
     for (auto& unit : arch.functionalUnits) {
+      if (unit.module.name == "push_linebuf") {
+        assert(contains_key(string("IN_WIDTH"), unit.module.params));
+      }
+      
       if (contains_key(unit.instName, instances)) {
         continue;
       }
@@ -665,6 +669,12 @@ namespace ahaHLS {
     CoreIR::Module* mod = n->newModuleDecl(name, tp);
     CoreIR::ModuleDef* def = mod->newModuleDef();
 
+    for (auto& unit : arch.functionalUnits) {
+      if (unit.module.name == "push_linebuf") {
+        assert(contains_key(string("IN_WIDTH"), unit.module.params));
+      }
+    }
+    
     map<string, CoreIR::Instance*> functionalUnits =
       emitFunctionalUnits(arch, def);
 
