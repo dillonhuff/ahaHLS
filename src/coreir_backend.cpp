@@ -2,6 +2,8 @@
 
 #include "coreir_backend.h"
 
+#include "coreir/libs/commonlib.h"
+
 using namespace CoreIR;
 
 namespace ahaHLS {
@@ -61,6 +63,9 @@ namespace ahaHLS {
     
     if (spec.name == "push_linebuf") {
 
+      if (!contains_key(string("IN_WIDTH"), spec.params)) {
+        cout << "Params for " << spec << " do not contain IN_WIDTH!" << endl;
+      }
       assert(contains_key(string("IN_WIDTH"), spec.params));
       
       params.insert({"in_width",
@@ -132,6 +137,12 @@ namespace ahaHLS {
     
     return params;
   }
+
+  CoreIR::Values coreIRValues(FunctionalUnit& unit,
+                              CoreIR::Context* def) {
+    Values v;
+    return v;
+  }
   
   CoreIR::Instance* instanceForModule(FunctionalUnit& unit,
                               CoreIR::ModuleDef* def) {
@@ -139,7 +150,7 @@ namespace ahaHLS {
       def->addInstance(unit.instName,
                        unitCoreIRName(unit.module),
                        coreIRParams(unit, def->getContext()),
-                       {});
+                       coreIRValues(unit, def->getContext()));
     return inst;
   }
   
@@ -561,6 +572,29 @@ namespace ahaHLS {
 
     std::function<void (Context*, Values, CoreIR::ModuleDef*)> genFun =
       [](Context* c, Values args, CoreIR::ModuleDef* def) {
+
+      int nRows = 1;
+      int nCols = 1;
+
+      int outRows = 2;
+      int outCols = 1;
+
+      int inDataWidth = 16;
+      int outDataWidth = 16;
+      
+      auto inType = c->BitIn()->Arr(inDataWidth)->Arr(nRows)->Arr(nCols);
+      auto outType = c->Bit()->Arr(outDataWidth)->Arr(outRows)->Arr(outCols);
+      auto imgType = c->Bit()->Arr(outDataWidth)->Arr(8)->Arr(8);
+
+      Namespace* commonlib = CoreIRLoadLibrary_commonlib(c);      
+      Generator* linebuffer = commonlib->getGenerator("linebuffer");
+      
+      def->addInstance("inner_lb", linebuffer, {{"input_type", Const::make(c, inType)}, {"output_type", Const::make(c, outType)}, {"image_type", Const::make(c, imgType)}, {"has_valid", Const::make(c, true)}});
+
+      def->connect("self.rst.0", "inner_lb.reset");
+      def->connect("self.wen.0", "inner_lb.wen");
+      def->connect("self.wdata", "inner_lb.in");
+      def->connect("self.rdata", "inner_lb.out");
     };
     gen->setGeneratorDefFromFun(genFun);
     
@@ -639,7 +673,8 @@ namespace ahaHLS {
         cout << tab(1) << "Wireable for port " << portName << " is " << *w << endl;
 
         int width = arrayLen(w); //10; // TODO: set by checking width
-        CoreIR::Select* inputWire = buildController(width, vals, functionalUnits, def, arch);
+        CoreIR::Select* inputWire =
+          buildController(width, vals, functionalUnits, def, arch);
         def->connect(w, inputWire);
       }
     }
