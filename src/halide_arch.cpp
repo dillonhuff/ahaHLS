@@ -62,8 +62,20 @@ namespace ahaHLS {
     return false;
   }
 
+  int lbInWidth(LBSpec& spec) {
+    return 16;
+  }
+
+  int lbOutWidth(LBSpec& spec) {
+    return 32;
+  }
+  
   // TODO: Need to add image width
-  ModuleSpec pushLBModSpec(int inWidth, int outWidth) {
+  ModuleSpec pushLBModSpec(LBSpec& spec) { //int inWidth, int outWidth) {
+
+    int inWidth = lbInWidth(spec);
+    int outWidth = lbOutWidth(spec);
+    
     map<string, Port> fifoPorts = {
       {"wdata", inputPort(inWidth, "wdata")},
       {"wen", inputPort(1, "wen")},
@@ -88,6 +100,22 @@ namespace ahaHLS {
     int nRows = stencilNumRows(stencilName);
     int nCols = stencilNumCols(stencilName);
     return {typeWidth, nRows, nCols};
+  }
+
+  LBSpec lbSpecFromHLS(Type* allocTp) {
+    string tpName = extract<StructType>(allocTp)->getName();
+    string fields = drop("hls.lb.", tpName);
+    int inWidth = 16;
+    int inRows = 1;
+    int inCols = 2;
+    int outWidth = 32;
+    int outRows = 2;
+    int outCols = 1;
+    
+    HalideStencilTp in{inWidth, inRows, inCols};
+    HalideStencilTp out{outWidth, outRows, outCols};
+
+    return LBSpec{in, out};
   }
   
   LBSpec lbSpec(const std::string& lbName) {
@@ -608,7 +636,8 @@ namespace ahaHLS {
               hcs.modSpecs[instr] = pushFifoSpec(builtinFifoWidth(allocTp), 128);
             }
           } else if (isBuiltinPushLBType(allocTp)) {
-            hcs.modSpecs[instr] = pushLBModSpec(lbInWidth(allocTp), lbOutWidth(allocTp));
+            LBSpec spec = lbSpecFromHLS(allocTp);
+            hcs.modSpecs[instr] = pushLBModSpec(spec); //lbInWidth(allocTp), lbOutWidth(allocTp));
           } else if (IntegerType::classof(allocTp)) {
             hcs.memSpecs[instr] = registerSpec(getTypeBitWidth(allocTp));
           } else {
