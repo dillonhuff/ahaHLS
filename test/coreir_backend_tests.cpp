@@ -203,21 +203,21 @@ namespace ahaHLS {
     archSettings.loopTasks = true;
     MicroArchitecture arch = halideArch(f, archSettings);
 
-    CoreIR::Context* c = newContext();
-    emitCoreIR("conv_2_1_manual_coreir", arch, c, c->getGlobal());
+    // CoreIR::Context* c = newContext();
+    // emitCoreIR("conv_2_1_manual_coreir", arch, c, c->getGlobal());
 
-    CoreIR::Module* storeMod = c->getGlobal()->getModule("conv_2_1_manual_coreir");
+    // CoreIR::Module* storeMod = c->getGlobal()->getModule("conv_2_1_manual_coreir");
 
-    REQUIRE(storeMod != nullptr);
+    // REQUIRE(storeMod != nullptr);
 
 
-    cout << "Module is " << endl;
-    storeMod->print();    
+    // cout << "Module is " << endl;
+    // storeMod->print();    
 
-    c->runPasses({"rungenerators", "flatten", "flattentypes", "wireclocks-coreir", "fold-constants", "removeconstduplicates", "deletedeadinstances"});
+    // c->runPasses({"rungenerators", "flatten", "flattentypes", "wireclocks-coreir", "fold-constants", "removeconstduplicates", "deletedeadinstances"});
 
-    cout << "After preprocessing module is " << endl;
-    storeMod->print();    
+    // cout << "After preprocessing module is " << endl;
+    // storeMod->print();    
 
     // SimulatorState sim(storeMod);
     // sim.setValue("self.rst", BitVec(1, 0));

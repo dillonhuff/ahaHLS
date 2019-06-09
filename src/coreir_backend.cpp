@@ -606,6 +606,16 @@ namespace ahaHLS {
                        {"inner_lb", "in", to_string(i), to_string(j)});
         }
       }
+
+      for (int i = 0; i < outRows; i++) {
+        for (int j = 0; j < outCols; j++) {
+          auto n = def->addInstance("lb_slice_" + c->getUnique(), "coreir.slice", {{"lo", Const::make(c, i*outCols + j)}, {"hi", Const::make(c, i*outCols + j + outDataWidth)}, {"width", Const::make(c, outDataWidth*nRows*nCols)}});
+          def->connect(n->sel("in"), def->sel("inner_lb.wdata"));
+          def->connect({"self", "wdata"},
+                       {"inner_lb", "in", to_string(i), to_string(j)});
+        }
+      }
+
       // def->connect("self.wdata", "inner_lb.in");
       // def->connect("self.rdata", "inner_lb.out");
     };

@@ -1372,6 +1372,11 @@ namespace ahaHLS {
         }
       }
 
+      auto nodeReplace = mkInt(0, getTypeBitWidth(node->getType()));
+      node->replaceAllUsesWith(nodeReplace);
+      node->eraseFromParent();
+      RecursivelyDeleteTriviallyDeadInstructions(oldCond);
+
       // // Is there an existing way to do this deletion in LLVM?
       // set<Instruction*> toDel{node};
       // set<Instruction*> allDel;
