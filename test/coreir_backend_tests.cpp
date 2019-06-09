@@ -299,8 +299,8 @@ namespace ahaHLS {
     SimulatorState sim(storeMod);
     sim.setValue("self.rst", BitVec(1, 0));
 
-    sim.setValue("self.arg_0_out_data", BitVec(16, 3));
-    sim.setValue("self.arg_0_read_valid", BitVec(1, 1));
+    sim.setValue("self.arg_0_out_data", BitVec(16, 0));
+    sim.setValue("self.arg_0_read_valid", BitVec(1, 0));
     
     sim.setClock("self.clk", 0, 1);
 
@@ -318,6 +318,10 @@ namespace ahaHLS {
     sim.execute();
     
     for (int i = 0; i < 30; i++) {
+
+      sim.setValue("self.arg_0_out_data", BitVec(16, i));
+      sim.setValue("self.arg_0_read_valid", BitVec(1, 1));
+      
       cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << endl;
       cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
       sim.execute();

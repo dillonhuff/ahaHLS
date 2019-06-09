@@ -681,7 +681,7 @@ namespace ahaHLS {
       int outDataWidth = 16;
       
       auto inType = c->BitIn()->Arr(inDataWidth)->Arr(nRows)->Arr(nCols);
-      auto outType = c->Bit()->Arr(outDataWidth)->Arr(outRows)->Arr(outCols);
+      auto outType = c->Bit()->Arr(outDataWidth)->Arr(outCols)->Arr(outRows);
       auto imgType = c->Bit()->Arr(outDataWidth)->Arr(8)->Arr(8);
 
       Namespace* commonlib = CoreIRLoadLibrary_commonlib(c);      
@@ -706,7 +706,7 @@ namespace ahaHLS {
         for (int j = 0; j < outCols; j++) {
 
           for (int z = 0; z < outDataWidth; z++) {
-            Wireable* ijzOutputBit = innerLb->sel("out")->sel(j)->sel(i)->sel(z);
+            Wireable* ijzOutputBit = innerLb->sel("out")->sel(i)->sel(j)->sel(z);
             string offsetBit =
               to_string((i*outCols + j)*outDataWidth + z);
             Wireable* ijzOutSelf = def->sel("self")->sel("rdata")->sel(offsetBit);
