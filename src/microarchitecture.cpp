@@ -1161,7 +1161,8 @@ namespace ahaHLS {
         insensitivePorts = modSpec.insensitivePorts;
         allPorts = modSpec.ports; 
         hasRst = modSpec.hasReset();
-        hasClock = modSpec.isSequential();        
+        hasClock = modSpec.isSequential();
+        modParams = modSpec.params;
 
         if (Argument::classof(fuPtr) && (unitName == "")) {
           int i = 0;
