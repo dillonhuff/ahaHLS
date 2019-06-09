@@ -279,6 +279,23 @@ namespace ahaHLS {
     archSettings.predicateFifoWrites = true;
     archSettings.removeLoopBounds = true;        
     MicroArchitecture arch = halideArch(f, archSettings);
+
+    CoreIR::Context* c = newContext();
+    emitCoreIR("conv_2_1_push_coreir", arch, c, c->getGlobal());
+
+    CoreIR::Module* storeMod = c->getGlobal()->getModule("conv_2_1_push_coreir");
+
+    REQUIRE(storeMod != nullptr);
+
+
+    cout << "Module is " << endl;
+    storeMod->print();    
+
+    c->runPasses({"rungenerators", "flatten", "flattentypes", "wireclocks-coreir", "fold-constants", "removeconstduplicates", "deletedeadinstances"});
+
+    cout << "After preprocessing module is " << endl;
+    storeMod->print();    
+    
   }
   
 }

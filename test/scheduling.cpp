@@ -6518,7 +6518,7 @@ namespace ahaHLS {
     tb.maxCycles = 5000;
     tb.name = "cascade_halide_first_lb";
     tb.useModSpecs = true;
-    map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));    
+    map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
     map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
     map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));    
 

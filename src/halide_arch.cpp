@@ -1377,41 +1377,7 @@ namespace ahaHLS {
       node->eraseFromParent();
       RecursivelyDeleteTriviallyDeadInstructions(oldCond);
 
-      // // Is there an existing way to do this deletion in LLVM?
-      // set<Instruction*> toDel{node};
-      // set<Instruction*> allDel;
-      // while (toDel.size() > 0) {
-      //   Instruction* next = *begin(toDel);
-        
-      //   for (auto& use : next->uses()) {
-      //     auto user = use.getUser();
-      //     cout << "Maybe instr user " << valueString(user) << endl;
-          
-      //     //if (Instruction::classof(dyn_cast<Instruction>(use.get()))) {
-      //     if (Instruction::classof(user)) {
-      //       Instruction* i = dyn_cast<Instruction>(user);
-      //       cout << "User " << valueString(i) << endl;
-      //       if (!elem(i, allDel)) {
-      //         toDel.insert(i);
-      //       }
-      //     }
-      //   }
-      //   allDel.insert(next);
-      //   toDel.erase(next);
-      // }
-
-      // cout << "Deleting bound instructions" << endl;
-      // for (auto d : allDel) {
-      //   //cout << "Deleting " << valueString(d) << endl;
-      //   d->eraseFromParent();
-      // }
-
       cout << "Done deleting" << endl;
-      // RecursivelyDeleteTriviallyDeadInstructions(oldCond);
-      // if (node != nullptr) {
-      //   RecursivelyDeleteDeadPHINode(node);
-      // }
-
     }
 
     cout << "After top level bounds deletion" << endl;

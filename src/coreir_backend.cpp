@@ -45,6 +45,10 @@ namespace ahaHLS {
       return "ahaHLS.push_linebuf";
     } else if (spec.name == "concat") {
       return "ahaHLS.concat";
+    } else if (spec.name == "push_fifo") {
+      return "ahaHLS.push_fifo";
+    } else if (spec.name == "zext") {
+      return "ahaHLS.zext";
     } else {
       cout << "Error: Unsupported modspec " << endl;
       cout << spec << endl;
@@ -108,6 +112,16 @@ namespace ahaHLS {
 
       params.insert({"nb_pair", CoreIR::Const::make(c, nb_pair)});
       params.insert({"width", CoreIR::Const::make(c, width)});
+
+      return params;
+    }
+
+    if (spec.name == "zext") {
+      int inWidth = stoi(map_find(string("IN_WIDTH"), spec.params));
+      int outWidth = stoi(map_find(string("OUT_WIDTH"), spec.params));
+
+      params.insert({"in_width", CoreIR::Const::make(c, inWidth)});
+      params.insert({"out_width", CoreIR::Const::make(c, outWidth)});
 
       return params;
     }
@@ -434,6 +448,49 @@ namespace ahaHLS {
     gen->setGeneratorDefFromFun(genFun);
 
   }
+
+  void addPushFifoGenerator(Namespace* ahaLib) {
+    auto c = ahaLib->getContext();
+    
+    Params wireParams = {{"width", c->Int()}};
+    TypeGen* wireTp =
+      ahaLib->newTypeGen(
+                        "push_fifo",
+                        wireParams,
+                        [](Context* c, Values genargs) {
+                          uint width = genargs.at("width")->get<int>();
+                          return c->Record({
+                              {"in_data", c->BitIn()->Arr(width)},
+                                {"out_data", c->Bit()->Arr(width)},
+                                  {"read_valid", c->Bit()->Arr(1)},
+                                    {"write_valid", c->BitIn()->Arr(1)}});
+                        });
+    ahaLib->newGeneratorDecl("push_fifo", wireTp, wireParams);
+    auto gen = ahaLib->getGenerator("push_fifo");
+
+    std::function<void (Context*, Values, CoreIR::ModuleDef*)> genFun =
+      [](Context* c, Values args, CoreIR::ModuleDef* def) {
+      uint width = args.at("width")->get<int>();
+
+      def->addInstance("data_reg",
+                       "mantle.reg",
+      {{"width", CoreIR::Const::make(c, width)}, {"has_en", CoreIR::Const::make(c, true)}});
+
+      def->addInstance("valid_reg",
+                       "mantle.reg",
+      {{"width", CoreIR::Const::make(c, 1)}, {"has_en", CoreIR::Const::make(c, true)}});
+      
+      def->connect("self.in_data", "data_reg.in");
+      def->connect("self.write_valid.0", "data_reg.en");
+      def->connect("self.write_valid.0", "valid_reg.en");
+      def->connect("self.write_valid", "valid_reg.in");
+      
+      def->connect("data_reg.out", "self.out_data");
+      def->connect("valid_reg.out", "self.read_valid");
+    };
+    gen->setGeneratorDefFromFun(genFun);
+    
+  }
   
   void addEqGenerator(Namespace* ahaLib) {
     auto c = ahaLib->getContext();
@@ -499,6 +556,38 @@ namespace ahaHLS {
       // def->connect("self.in0", "innerReg.in0");
       // def->connect("self.in1", "innerReg.in1");      
       // def->connect("innerReg.out", "self.out.0");
+    };
+    gen->setGeneratorDefFromFun(genFun);
+    
+  }
+
+  void addZextGenerator(Namespace* ahaLib) {
+    auto c = ahaLib->getContext();
+    
+    Params wireParams = {{"in_width", c->Int()}, {"out_width", c->Int()}};
+    TypeGen* wireTp =
+      ahaLib->newTypeGen(
+                        "zext",
+                        wireParams,
+                        [](Context* c, Values genargs) {
+                          uint inWidth = genargs.at("in_width")->get<int>();
+                          uint outWidth = genargs.at("out_width")->get<int>();
+                          return c->Record({
+                              {"in", c->BitIn()->Arr(inWidth)},
+                                  {"out",c->Bit()->Arr(outWidth)}});
+                        });
+    ahaLib->newGeneratorDecl("zext", wireTp, wireParams);
+    auto gen = ahaLib->getGenerator("zext");
+
+    std::function<void (Context*, Values, CoreIR::ModuleDef*)> genFun =
+      [](Context* c, Values args, CoreIR::ModuleDef* def) {
+      uint inWidth = args.at("in_width")->get<int>();
+      uint outWidth = args.at("out_width")->get<int>();
+      
+      def->addInstance("innerZ", "coreir.zext", {{"width_in", Const::make(c, inWidth)}, {"width_out", Const::make(c, outWidth)}});
+
+      def->connect("innerZ.in", "self.in");      
+      def->connect("innerZ.out", "self.out");
     };
     gen->setGeneratorDefFromFun(genFun);
     
@@ -657,10 +746,12 @@ namespace ahaHLS {
     gen->setGeneratorDefFromFun(genFun);
 
     addRegGenerator(ahaLib);
-    addEqGenerator(ahaLib);    
+    addEqGenerator(ahaLib);
+    addZextGenerator(ahaLib);        
     addBrGenerator(ahaLib);
     addPhiGenerator(ahaLib);
     addPushLinebufGenerator(ahaLib);
+    addPushFifoGenerator(ahaLib);
     addConcatGenerator(ahaLib);    
 
     convertRegisterControllersToPortControllers(arch);
