@@ -63,11 +63,11 @@ namespace ahaHLS {
   }
 
   int lbInWidth(LBSpec& spec) {
-    return 16;
+    return spec.in.typeWidth*spec.in.nRows*spec.in.nCols;    
   }
 
   int lbOutWidth(LBSpec& spec) {
-    return 32;
+    return spec.out.typeWidth*spec.out.nRows*spec.out.nCols;
   }
   
   // TODO: Need to add image width
@@ -77,7 +77,7 @@ namespace ahaHLS {
     int outWidth = lbOutWidth(spec);
 
     int outRows = spec.out.nRows;
-    int outCols = spec.out.nCols;    
+    int outCols = spec.out.nCols;
     
     map<string, Port> fifoPorts = {
       {"wdata", inputPort(inWidth, "wdata")},
@@ -112,8 +112,9 @@ namespace ahaHLS {
     string fields = drop("hls.lb.", tpName);
     int inWidth = 16;
     int inRows = 1;
-    int inCols = 2;
-    int outWidth = 32;
+    int inCols = 1;
+
+    int outWidth = 16;
     int outRows = 2;
     int outCols = 1;
     
