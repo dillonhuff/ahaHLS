@@ -75,6 +75,9 @@ namespace ahaHLS {
 
     int inWidth = lbInWidth(spec);
     int outWidth = lbOutWidth(spec);
+
+    int outRows = spec.out.nRows;
+    int outCols = spec.out.nCols;    
     
     map<string, Port> fifoPorts = {
       {"wdata", inputPort(inWidth, "wdata")},
@@ -89,7 +92,9 @@ namespace ahaHLS {
 
     set<string> insensitivePorts{"in_data"};
     ModuleSpec modSpec = {{{"IN_WIDTH", to_string(inWidth)},
-                           {"OUT_WIDTH", to_string(outWidth)}}, "push_linebuf", fifoPorts, defaults, insensitivePorts};
+                           {"OUT_WIDTH", to_string(outWidth)},
+                           {"OUT_ROWS", to_string(outRows)},
+                           {"OUT_COLS", to_string(outCols)}}, "push_linebuf", fifoPorts, defaults, insensitivePorts};
     modSpec.hasClock = true;
     modSpec.hasRst = true;
     return modSpec;
