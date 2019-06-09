@@ -600,11 +600,12 @@ namespace ahaHLS {
       def->connect("self.valid.0", "inner_lb.valid");
       // def->connect("self.clk", "inner_lb.clk");
 
-      // for (int i = 0; i < nRows; i++) {
-      //   for (int j = 0; j < nCols; j++) {
-      //     def->connect({"self", "wdata", to_string(i), to_string(j)}, {"inner_lb", "in"});
-      //   }
-      // }
+      for (int i = 0; i < nRows; i++) {
+        for (int j = 0; j < nCols; j++) {
+          def->connect({"self", "wdata"},
+                       {"inner_lb", "in", to_string(i), to_string(j)});
+        }
+      }
       // def->connect("self.wdata", "inner_lb.in");
       // def->connect("self.rdata", "inner_lb.out");
     };
