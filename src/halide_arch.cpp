@@ -120,7 +120,8 @@ namespace ahaHLS {
       vals.push_back(dropped.first);
       cout << "dropped =  " << dropped.first << ", " << dropped.second << endl;
     } while(dropped.first.size() != lastVal.size());
-    
+    vals.push_back(dropped.second);
+
     return vals;
   }
   
@@ -131,17 +132,18 @@ namespace ahaHLS {
       splitRep(".", fields);
 
     assert(fieldVals.size() > 2);
+    cout << "Field size = " << fieldVals.size() << endl;
 
     int inWidth = stoi(fieldVals[0]);
-    int inRows = 1;
-    int inCols = 1;
+    int inRows = stoi(fieldVals[3]);
+    int inCols = stoi(fieldVals[3]);
 
     int outWidth = stoi(fieldVals[1]);
-    int outRows = 2;
-    int outCols = 1;
-    
-    HalideStencilTp in{inWidth, inRows, inCols};
-    HalideStencilTp out{outWidth, outRows, outCols};
+    int outRows = stoi(fieldVals[5]);
+    int outCols = stoi(fieldVals[6]);
+
+    HalideStencilTp in{inWidth / (inRows * inCols), inRows, inCols};
+    HalideStencilTp out{outWidth / (outRows * outCols), outRows, outCols};
 
     return LBSpec{in, out};
   }
