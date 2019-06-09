@@ -316,16 +316,32 @@ namespace ahaHLS {
     sim.setValue("self.rst", BitVec(1, 0));
 
     sim.execute();
+
+    int outputNum = 0;
+    vector<int> expectedOutputs;
+    for (int i = 0; i < 56; i++) {
+      expectedOutputs.push_back(i + (i + 8));
+    }
     
-    for (int i = 0; i < 30; i++) {
+    for (int i = 0; i < 64 + 1; i++) {
 
       sim.setValue("self.arg_0_out_data", BitVec(16, i));
       sim.setValue("self.arg_0_read_valid", BitVec(1, 1));
       
-      cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << endl;
-      cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
       sim.execute();
+
+      cout << "---- Clock after data input = " << (i) << endl;
+      cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << ", decimal = " << sim.getBitVec("self.arg_1_in_data").to_type<int>() << endl;
+      cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
+      if (sim.getBitVec("self.arg_1_write_valid").get(0) == 1) {
+        REQUIRE(sim.getBitVec("self.arg_1_in_data").to_type<int>() == expectedOutputs[outputNum]);
+        outputNum++;
+      }
+
     }
+    
+    cout << "Output num = " << outputNum << endl;
+    REQUIRE(outputNum == 56);
     // Done reset
 
     // cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
