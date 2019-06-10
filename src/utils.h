@@ -211,7 +211,8 @@ namespace ahaHLS {
   std::string ifStr(const std::string s);
 
   bool matchesCall(std::string str, llvm::Instruction* const iptr);
-
+  bool matchesCallDemangled(std::string str, llvm::Instruction* const iptr);
+  
   llvm::Type* getPointedToType(llvm::Type* tp);
 
   llvm::Function*

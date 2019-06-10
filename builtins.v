@@ -8,6 +8,18 @@ endmodule // load
 module store();
 endmodule // store
 
+module minOp(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [0:0] out);
+   parameter WIDTH = 1;
+   
+   assign out = in0 >= in1 ? in1 : in0;
+endmodule
+
+module maxOp(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [0:0] out);
+   parameter WIDTH = 1;
+   
+   assign out = in0 >= in1 ? in0 : in1;
+endmodule
+
 module ne(input [WIDTH - 1:0]  in0, input [WIDTH - 1:0] in1, output [0:0] out);
    parameter WIDTH = 1;
    

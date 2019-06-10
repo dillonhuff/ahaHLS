@@ -296,6 +296,22 @@ namespace ahaHLS {
     f->addParamAttr(0, llvm::Attribute::ByVal);    
     return f;
   }
+
+  Function* hlsMaxFunction(Value* in0) {
+    Type* argTp = in0->getType();
+    assert(IntegerType::classof(argTp));
+    int tpWidth = getTypeBitWidth(argTp);
+    vector<Type*> ins{argTp, argTp};
+    return mkFunc(ins, argTp, "hls.max." + to_string(tpWidth));
+  }
+
+  Function* hlsMinFunction(Value* in0) {
+    Type* argTp = in0->getType();
+    assert(IntegerType::classof(argTp));
+    int tpWidth = getTypeBitWidth(argTp);
+    vector<Type*> ins{argTp, argTp};
+    return mkFunc(ins, argTp, "hls.min." + to_string(tpWidth));
+  }
   
   void rewriteInstr(Function* f,
                     Function* orig,
@@ -496,6 +512,33 @@ namespace ahaHLS {
         auto replaceF = lbHasValidFunction(argReplacements[0]);
         rewrites[toRewrite] =
           b.CreateCall(replaceF, argReplacements);
+      } else if (matchesCallDemangled("halide_cpp_min", toRewrite)) {
+
+        vector<Value*> argReplacements;
+        for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
+          cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
+          argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
+        }
+
+        assert(argReplacements.size() > 0);
+        
+        auto replaceF = hlsMinFunction(argReplacements[0]);
+        rewrites[toRewrite] =
+          b.CreateCall(replaceF, argReplacements);
+      } else if (matchesCallDemangled("halide_cpp_max", toRewrite)) {
+
+        vector<Value*> argReplacements;
+        for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
+          cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
+          argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
+        }
+
+        assert(argReplacements.size() > 0);
+        
+        auto replaceF = hlsMaxFunction(argReplacements[0]);
+        rewrites[toRewrite] =
+          b.CreateCall(replaceF, argReplacements);
+        
       } else {
         cout << "Unsupported call" << valueString(toRewrite) << endl;
         if (canDemangle(func->getName())) {
@@ -556,6 +599,15 @@ namespace ahaHLS {
     } else if (ReturnInst::classof(toRewrite)) {
       assert(toRewrite->getType()->isVoidTy());
       rewrites[toRewrite] = b.CreateRet(nullptr);
+    } else if (SExtInst::classof(toRewrite)) {
+      auto rLHS = findRewrite(toRewrite->getOperand(0), rewrites);
+      rewrites[toRewrite] = b.CreateSExt(rLHS, toRewrite->getType());
+    } else if (SelectInst::classof(toRewrite)) {
+      auto cond = findRewrite(toRewrite->getOperand(0), rewrites);
+      auto tv = findRewrite(toRewrite->getOperand(1), rewrites);
+      auto fv = findRewrite(toRewrite->getOperand(2), rewrites);
+
+      rewrites[toRewrite] = b.CreateSelect(cond, tv, fv);
     } else {
       cout << "Error in Halide stencil rewrite: Unsupported instr = " << valueString(toRewrite) << endl;
       assert(false);
@@ -1661,7 +1713,9 @@ namespace ahaHLS {
           string name = ci->getCalledFunction()->getName();
           if (!elem(name, funcs)) {
 
-            if (hasPrefix(name, "hls.slice")) {
+            if (hasPrefix(name, "hls.slice") ||
+                hasPrefix(name, "hls.max") ||
+                hasPrefix(name, "hls.min")) {
               continue;
             }
 
@@ -1691,7 +1745,9 @@ namespace ahaHLS {
               implementLBPush(func, interfaces.getConstraints(func));
             } else if (hasPrefix(name, "lb_pop.")) {
               implementLBPop(func, interfaces.getConstraints(func));
-            } else if (hasPrefix(name, "hls.slice")) {
+            } else if (hasPrefix(name, "hls.slice") ||
+                       hasPrefix(name, "hls.max") ||
+                       hasPrefix(name, "hls.min")) {
             } else {
               cout << "Error: Unsupported call " << valueString(ci) << endl;
               assert(false);

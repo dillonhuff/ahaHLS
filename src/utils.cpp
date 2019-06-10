@@ -89,6 +89,26 @@ namespace ahaHLS {
     // return dyn_cast<IntegerType>(tp)->getBitWidth();
   }
 
+  bool matchesCallDemangled(std::string str, llvm::Instruction* const iptr) {
+    if (!CallInst::classof(iptr)) {
+      return false;
+    }
+
+    CallInst* call = dyn_cast<CallInst>(iptr);
+    Function* called = call->getCalledFunction();
+
+    string name = called->getName();
+    if (!canDemangle(name)) {
+      return false;
+    }
+
+    if (hasPrefix(demangle(name), str)) {
+      return true;
+    }
+    return false;
+    
+  }
+  
   bool matchesCall(std::string str, llvm::Instruction* const iptr) {
     if (!CallInst::classof(iptr)) {
       return false;

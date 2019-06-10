@@ -60,7 +60,14 @@ namespace ahaHLS {
     return stoi(fields[2]);
   }
   
+  int getMinWidth(Instruction* const instr) {
+    return stoi(drop("hls.min.", string(dyn_cast<CallInst>(instr)->getCalledFunction()->getName())));
+  }
 
+  int getMaxWidth(Instruction* const instr) {
+    return stoi(drop("hls.max.", string(dyn_cast<CallInst>(instr)->getCalledFunction()->getName())));
+  }
+  
   PortController& makeMix(const int mainWidth,
                           const int innerWidth,
                           const int offset,
@@ -1056,6 +1063,27 @@ namespace ahaHLS {
       
       cout << "Creating slice op" << endl;
       
+    } else if (matchesCall("hls.min.", instr)) {
+      modName = "minOp";
+
+      int inWidth = getMinWidth(instr);
+
+      modParams = {{"WIDTH", to_string(inWidth)}};
+      wiring = {{"in0", {true, inWidth, "min_in_" + rStr}}, {"in1", {true, inWidth, "min_in_" + rStr}}};
+      outWires = {{"out", {false, inWidth, "min_out_" + rStr}}};
+      allPorts = {{"in0", inputPort(inWidth, "in0")}, {"in0", inputPort(inWidth, "in0")}, {"out", outputPort(inWidth, "out")}};
+      
+    } else if (matchesCall("hls.max.", instr)) {
+
+      modName = "maxOp";
+      
+      int inWidth = getMaxWidth(instr);
+
+      modParams = {{"WIDTH", to_string(inWidth)}};
+      wiring = {{"in0", {true, inWidth, "max_in_" + rStr}}, {"in1", {true, inWidth, "max_in_" + rStr}}};
+      outWires = {{"out", {false, inWidth, "max_out_" + rStr}}};
+      allPorts = {{"in0", inputPort(inWidth, "in0")}, {"in0", inputPort(inWidth, "in0")}, {"out", outputPort(inWidth, "out")}};
+      
     } else if (TruncInst::classof(instr)) {
       modName = "trunc";
 
@@ -1827,6 +1855,12 @@ namespace ahaHLS {
 
     } else if (isBuiltinSlice(instr)) {
       assignments.insert({addUnit.portWires["in"], outputWire(instr->getOperand(0), pos, arch)});
+    } else if (matchesCall("hls.min.", instr)) {
+      assignments.insert({addUnit.portWires["in0"], outputWire(instr->getOperand(0), pos, arch)});
+      assignments.insert({addUnit.portWires["in1"], outputWire(instr->getOperand(1), pos, arch)});            
+    } else if (matchesCall("hls.max.", instr)) {
+      assignments.insert({addUnit.portWires["in0"], outputWire(instr->getOperand(0), pos, arch)});
+      assignments.insert({addUnit.portWires["in1"], outputWire(instr->getOperand(1), pos, arch)});            
     } else if (CallInst::classof(instr)) {
 
       if (isBuiltinPortWrite(instr)) {
