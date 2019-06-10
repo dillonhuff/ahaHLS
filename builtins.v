@@ -137,6 +137,10 @@ module sliceOp(input [IN_WIDTH - 1 : 0] in, output [OUT_WIDTH - 1 : 0] out);
    parameter OUT_WIDTH = 32;
    parameter OFFSET = 0;
 
+   always @(*) begin
+      $display("in = %d", in);
+      
+   end
    assign out = in[OFFSET + OUT_WIDTH - 1 : OFFSET];
 endmodule // sliceOp
 

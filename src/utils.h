@@ -113,6 +113,8 @@ namespace ahaHLS {
 
   bool isBuiltinStallCall(llvm::Instruction* const instr);
 
+  bool isBuiltinSlice(llvm::Instruction* const instr);
+  
   bool isBuiltinFifoWrite(llvm::Instruction* const instr);
   bool isBuiltinFifoRead(llvm::Instruction* const instr);
 

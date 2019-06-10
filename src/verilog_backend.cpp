@@ -1247,7 +1247,22 @@ namespace ahaHLS {
     }
 
   }
-    
+
+  void printSlices(MicroArchitecture& arch,
+                   VerilogDebugInfo& debugInfo) {
+    for (auto st : arch.stg.opStates) {
+      for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
+        auto instr = instrG;
+        if (isBuiltinSlice(instr)) {
+          StateId activeState = st.first;
+
+          printInstrAtState(instr, activeState, arch, debugInfo);
+        }
+      }
+    }
+
+  }
+  
   void noCompareOpsTakeXInputs(MicroArchitecture& arch,
                                VerilogDebugInfo& debugInfo,
                                const std::string& opName) {
@@ -1574,7 +1589,8 @@ namespace ahaHLS {
                     VerilogDebugInfo& info) {
 
     printPortReads(arch, info);
-    
+    printSlices(arch, info);    
+
     addControlSanityChecks(arch, info);
     noBinopsTakeXInputs(arch, info, "fadd");
     noBinopsTakeXInputs(arch, info, "lshrOp");

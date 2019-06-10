@@ -1052,6 +1052,9 @@ namespace ahaHLS {
       modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}, {"OFFSET", to_string(offset)}};
       wiring = {{"in", {true, inWidth, "slice_in_" + rStr}}};
       outWires = {{"out", {false, outWidth, "slice_out_" + rStr}}};
+      allPorts = {{"in", inputPort(inWidth, "in")}, {"out", outputPort(outWidth, "out")}};
+      
+      cout << "Creating slice op" << endl;
       
     } else if (TruncInst::classof(instr)) {
       modName = "trunc";
@@ -1445,6 +1448,7 @@ namespace ahaHLS {
     } else if (isBuiltinSlice(instr0)) {
       cout << "Found slice " << valueString(instr0) << endl;
       cout << "Unit modspec = " << unit0Src.module << endl;
+
       return unit0Src.outputWire();
     } else {
       if (!(unit0Src.outWires.size() == 1)) {
@@ -1821,6 +1825,8 @@ namespace ahaHLS {
       assignments.insert({addUnit.portWires["in1"], trueName});
       assignments.insert({addUnit.portWires["sel"], condName});
 
+    } else if (isBuiltinSlice(instr)) {
+      assignments.insert({addUnit.portWires["in"], outputWire(instr->getOperand(0), pos, arch)});
     } else if (CallInst::classof(instr)) {
 
       if (isBuiltinPortWrite(instr)) {
