@@ -2784,12 +2784,13 @@ namespace ahaHLS {
             Function* inlineFunc = call->getCalledFunction();
             if (interfaces.containsFunction(inlineFunc)) {
 
+              cout << "Inlining call " << valueString(&instr) << endl;
               inlineFunctionWithConstraints(f, exec, call, interfaces.getConstraints(inlineFunc));
               replaced = true;
             
               break;
             } else if (canDemangle(inlineFunc->getName())) {
-              //cout << "Can demangle" << endl;
+              cout << "Can demangle " << valueString(&instr) << endl;
               string dmName =
                 demangledFuncName(demangle(inlineFunc->getName()));
               if (contains_key(dmName, interfaces.functionTemplates)) {

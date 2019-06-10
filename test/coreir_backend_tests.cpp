@@ -305,56 +305,57 @@ namespace ahaHLS {
     cout << "Module is " << endl;
     storeMod->print();    
 
-    c->runPasses({"rungenerators", "flatten", "flattentypes", "wireclocks-coreir", "fold-constants", "removeconstduplicates", "deletedeadinstances"});
+    //c->runPasses({"rungenerators", "flatten", "flattentypes", "wireclocks-coreir", "fold-constants", "removeconstduplicates", "deletedeadinstances"});
+    c->runPasses({"rungenerators", "flatten", "flattentypes", "wireclocks-coreir", "removeconstduplicates", "deletedeadinstances"});
 
     cout << "After preprocessing module is " << endl;
     storeMod->print();    
 
-    // SimulatorState sim(storeMod);
-    // sim.setValue("self.rst", BitVec(1, 0));
+    SimulatorState sim(storeMod);
+    sim.setValue("self.rst", BitVec(1, 0));
 
-    // sim.setValue("self.arg_0_out_data", BitVec(16, 0));
-    // sim.setValue("self.arg_0_read_valid", BitVec(1, 0));
+    sim.setValue("self.arg_0_out_data", BitVec(16, 0));
+    sim.setValue("self.arg_0_read_valid", BitVec(1, 0));
     
-    // sim.setClock("self.clk", 0, 1);
+    sim.setClock("self.clk", 0, 1);
 
-    // sim.execute();
+    sim.execute();
 
-    // cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
-    // cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << endl;
+    cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
+    cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << endl;
 
-    // sim.setValue("self.rst", BitVec(1, 1));
+    sim.setValue("self.rst", BitVec(1, 1));
 
-    // sim.execute();
+    sim.execute();
 
-    // sim.setValue("self.rst", BitVec(1, 0));
+    sim.setValue("self.rst", BitVec(1, 0));
 
-    // sim.execute();
+    sim.execute();
 
-    // int outputNum = 0;
+    int outputNum = 0;
     // vector<int> expectedOutputs;
     // for (int i = 0; i < 56; i++) {
     //   expectedOutputs.push_back(i + (i + 8));
     // }
     
-    // for (int i = 0; i < 64 + 1; i++) {
+    for (int i = 0; i < 64 + 1; i++) {
 
-    //   sim.setValue("self.arg_0_out_data", BitVec(16, i));
-    //   sim.setValue("self.arg_0_read_valid", BitVec(1, 1));
+      sim.setValue("self.arg_0_out_data", BitVec(16, i));
+      sim.setValue("self.arg_0_read_valid", BitVec(1, 1));
       
-    //   sim.execute();
+      sim.execute();
 
-    //   cout << "---- Clock after data input = " << (i) << endl;
-    //   cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << ", decimal = " << sim.getBitVec("self.arg_1_in_data").to_type<int>() << endl;
-    //   cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
-    //   if (sim.getBitVec("self.arg_1_write_valid").get(0) == 1) {
-    //     REQUIRE(sim.getBitVec("self.arg_1_in_data").to_type<int>() == expectedOutputs[outputNum]);
-    //     outputNum++;
-    //   }
+      cout << "---- Clock after data input = " << (i) << endl;
+      cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << ", decimal = " << sim.getBitVec("self.arg_1_in_data").to_type<int>() << endl;
+      cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
+      // if (sim.getBitVec("self.arg_1_write_valid").get(0) == 1) {
+      //   REQUIRE(sim.getBitVec("self.arg_1_in_data").to_type<int>() == expectedOutputs[outputNum]);
+      //   outputNum++;
+      // }
 
-    // }
+    }
     
-    // cout << "Output num = " << outputNum << endl;
+    cout << "Output num = " << outputNum << endl;
     // REQUIRE(outputNum == 56);
 
     deleteContext(c);

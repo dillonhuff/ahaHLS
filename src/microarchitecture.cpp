@@ -38,6 +38,29 @@ using namespace std;
 
 namespace ahaHLS {
 
+  bool isBuiltinSlice(Instruction* const instr) {
+    return matchesCall("hls.slice.", instr);
+  }
+
+  int getSliceInWidth(Instruction* const instr) {
+    assert(isBuiltinSlice(instr));
+    vector<string> fields = splitRep(".", drop("hls.slice.", string(dyn_cast<CallInst>(instr)->getCalledFunction()->getName())));
+    return stoi(fields[0]);
+  }
+
+  int getSliceOffset(Instruction* const instr) {
+    assert(isBuiltinSlice(instr));
+    vector<string> fields = splitRep(".", drop("hls.slice.", string(dyn_cast<CallInst>(instr)->getCalledFunction()->getName())));
+    return stoi(fields[1]);
+  }
+
+  int getSliceOutWidth(Instruction* const instr) {
+    assert(isBuiltinSlice(instr));
+    vector<string> fields = splitRep(".", drop("hls.slice.", string(dyn_cast<CallInst>(instr)->getCalledFunction()->getName())));
+    return stoi(fields[2]);
+  }
+  
+
   PortController& makeMix(const int mainWidth,
                           const int innerWidth,
                           const int offset,
@@ -387,7 +410,7 @@ namespace ahaHLS {
         BranchInst::classof(instr) ||
         AllocaInst::classof(instr) ||
         BitCastInst::classof(instr) ||
-        (CallInst::classof(instr) && !isBuiltinFifoRead(instr) && !isBuiltinPortRead(instr)) ||
+        (CallInst::classof(instr) && !isBuiltinFifoRead(instr) && !isBuiltinPortRead(instr) && !isBuiltinSlice(instr)) ||
         ReturnInst::classof(instr)) {
       return false;
     }
@@ -1020,6 +1043,16 @@ namespace ahaHLS {
       }
       outWires = {};
           
+    } else if (isBuiltinSlice(instr)) {
+      modName = "sliceOp";
+      int inWidth = getSliceInWidth(instr);
+      int offset = getSliceOffset(instr);
+      int outWidth = getSliceOutWidth(instr);
+
+      modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}, {"OFFSET", to_string(offset)}};
+      wiring = {{"in", {true, inWidth, "slice_in_" + rStr}}};
+      outWires = {{"out", {false, outWidth, "slice_out_" + rStr}}};
+      
     } else if (TruncInst::classof(instr)) {
       modName = "trunc";
 
@@ -1372,7 +1405,7 @@ namespace ahaHLS {
                                  MicroArchitecture& arch) {
     
 
-    //cout << "Getting most recent location of " << valueString(result) << " for instruction " << valueString(currentPosition.instr) << endl;
+    cout << "Getting most recent location of " << valueString(result) << " for instruction " << valueString(currentPosition.instr) << endl;
 
     StateId currentPos = currentPosition.stateId();
 
@@ -1389,6 +1422,7 @@ namespace ahaHLS {
         assert(false);
       }
     } else {
+      cout << "Error: Could not find temp storage for " << valueString(result) << " from position " << valueString(currentPosition.instr) << endl << ", state " << currentPos << " has inputs " << endl;      
       assert(false);
     }
 
@@ -1408,6 +1442,10 @@ namespace ahaHLS {
         assert(false);
       }
       return map_find(string(portName), unit0Src.outWires);
+    } else if (isBuiltinSlice(instr0)) {
+      cout << "Found slice " << valueString(instr0) << endl;
+      cout << "Unit modspec = " << unit0Src.module << endl;
+      return unit0Src.outputWire();
     } else {
       if (!(unit0Src.outWires.size() == 1)) {
         cout << "Error: Cannot find 1 output wire for " << valueString(instr0) << endl;

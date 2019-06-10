@@ -107,24 +107,6 @@ namespace ahaHLS {
     return {typeWidth, nRows, nCols};
   }
 
-  vector<string> splitRep(const std::string& pattern,
-                          const std::string& val) {
-    vector<string> vals;
-    string lastVal = val;
-    cout << "Dropping " << pattern << " from " << lastVal << endl;
-
-    pair<string, string> dropped;
-    do {
-      dropped = splitOn(pattern, lastVal);
-      lastVal = dropped.second;
-      vals.push_back(dropped.first);
-      cout << "dropped =  " << dropped.first << ", " << dropped.second << endl;
-    } while(dropped.first.size() != lastVal.size());
-    vals.push_back(dropped.second);
-
-    return vals;
-  }
-  
   LBSpec lbSpecFromHLS(Type* allocTp) {
     string tpName = extract<StructType>(allocTp)->getName();
     string fields = drop("hls.lb.", tpName);
@@ -267,6 +249,12 @@ namespace ahaHLS {
     return streamWidth(tp);
   }
 
+  llvm::Function* sliceFunc(const int inWidth, const int bitOffset, const int outWidth) {
+    vector<Type*> ins{intType(inWidth)};
+    auto f = mkFunc(ins, intType(outWidth), "hls.slice." + to_string(inWidth) + "." + to_string(bitOffset) + "." + to_string(outWidth));
+    return f;
+  }
+  
   llvm::Function* fifoReadRefFunction(const int width) {
     vector<Type*> ins{intType(width)->getPointerTo(),
         fifoType(width)->getPointerTo()};
@@ -364,11 +352,16 @@ namespace ahaHLS {
 
         int typeWidth = getValueBitWidth(toRewrite);
         if (bitOffset > 0) {
-          cout << "Bit offset = " << bitOffset << " not zero" << endl;
-          auto shifted = b.CreateLShr(fullLoad, mkInt(bitOffset, getValueBitWidth(fullLoad)));
-          cout << "shift = " << valueString(shifted) << endl;
+          // Create hls.slice?
+          auto hlsSlice = sliceFunc(getValueBitWidth(fullLoad), bitOffset, typeWidth);
+          auto sliceCall = b.CreateCall(hlsSlice, {fullLoad});
+          rewrites[toRewrite] = sliceCall;
+          
+          // cout << "Bit offset = " << bitOffset << " not zero" << endl;
+          // auto shifted = b.CreateLShr(fullLoad, mkInt(bitOffset, getValueBitWidth(fullLoad)));
+          // cout << "shift = " << valueString(shifted) << endl;
 
-          rewrites[toRewrite] = b.CreateTrunc(shifted, intType(typeWidth));
+          // rewrites[toRewrite] = b.CreateTrunc(shifted, intType(typeWidth));
           
         } else {
           rewrites[toRewrite] = b.CreateTrunc(fullLoad, intType(getValueBitWidth(toRewrite)));
@@ -1667,6 +1660,11 @@ namespace ahaHLS {
           Function* func = ci->getCalledFunction();
           string name = ci->getCalledFunction()->getName();
           if (!elem(name, funcs)) {
+
+            if (hasPrefix(name, "hls.slice")) {
+              continue;
+            }
+
             interfaces.addFunction(func);
             
             if (hasPrefix(name, "fifo_read_ref")) {
@@ -1693,6 +1691,7 @@ namespace ahaHLS {
               implementLBPush(func, interfaces.getConstraints(func));
             } else if (hasPrefix(name, "lb_pop.")) {
               implementLBPop(func, interfaces.getConstraints(func));
+            } else if (hasPrefix(name, "hls.slice")) {
             } else {
               cout << "Error: Unsupported call " << valueString(ci) << endl;
               assert(false);

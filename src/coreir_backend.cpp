@@ -738,8 +738,6 @@ namespace ahaHLS {
             def->connect(ijzInputBit, ijzInSelf);
           }
           
-          // def->connect({"self", "wdata"},
-          //              {"inner_lb", "in", to_string(i), to_string(j)});
         }
       }
 

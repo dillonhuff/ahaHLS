@@ -397,4 +397,23 @@ namespace ahaHLS {
     }
     return instrs;
   }
+
+  vector<string> splitRep(const std::string& pattern,
+                          const std::string& val) {
+    vector<string> vals;
+    string lastVal = val;
+    cout << "Dropping " << pattern << " from " << lastVal << endl;
+
+    pair<string, string> dropped;
+    do {
+      dropped = splitOn(pattern, lastVal);
+      lastVal = dropped.second;
+      vals.push_back(dropped.first);
+      cout << "dropped =  " << dropped.first << ", " << dropped.second << endl;
+    } while(dropped.first.size() != lastVal.size());
+    vals.push_back(dropped.second);
+
+    return vals;
+  }
+  
 }

@@ -238,5 +238,8 @@ namespace ahaHLS {
     return dbhc::maybe<ResultType*>();
   }
 
-  std::set<llvm::Instruction*> allInstrs(llvm::Function* f);  
+  std::set<llvm::Instruction*> allInstrs(llvm::Function* f);
+
+  std::vector<std::string> splitRep(const std::string& pattern,
+                                    const std::string& val);
 }
