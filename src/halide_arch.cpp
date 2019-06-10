@@ -124,6 +124,9 @@ namespace ahaHLS {
     int outRows = stoi(fieldVals[5]);
     int outCols = stoi(fieldVals[6]);
 
+    int imgRows = stoi(fieldVals[7]);
+    int imgCols = stoi(fieldVals[8]);    
+
     HalideStencilTp in{inWidth / (inRows * inCols), inRows, inCols};
     HalideStencilTp out{outWidth / (outRows * outCols), outRows, outCols};
 
@@ -138,7 +141,12 @@ namespace ahaHLS {
     auto inSpec = stencilSpec(drop("hls_stream_", inAndOutBnds.first));
     auto outSpec = stencilSpec(drop("hls_stream", outAndBnds.first));
 
-    return LBSpec{inSpec, outSpec};
+    cout << "lb bounds string = " << outAndBnds.second << endl;
+    auto imageBounds = splitOn("_", outAndBnds.second);
+    int rows = stoi(imageBounds.first);
+    int cols = stoi(imageBounds.second);    
+
+    return LBSpec{inSpec, outSpec, {rows, cols}};
   }
 
   LBSpec lbSpec(Type* const lbName) {

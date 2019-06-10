@@ -5678,7 +5678,7 @@ namespace ahaHLS {
     }
   }
 
-  StructType* lbType(LBSpec& spec) { //const int inWidth, const int outWidth) {
+  StructType* lbType(LBSpec& spec) {
     int inWidth = bitWidth(spec.in);
     cout << "lb InWidth = " << inWidth << endl;
     int outWidth = bitWidth(spec.out);
@@ -5689,9 +5689,14 @@ namespace ahaHLS {
     int outRows = spec.out.nRows;
     int outCols = spec.out.nCols;    
 
+    assert(spec.imageBounds.size() == 2);
+    
     // TODO: Add in rows, in cols, out rows, out cols to this spec
     cout << "lb OutWidth = " << outWidth << endl;
     string name = "hls.lb." + to_string(inWidth) + "." + to_string(outWidth) + "." + to_string(8) + "." + to_string(inRows) + "." + to_string(inCols) + "." + to_string(outRows) + "." + to_string(outCols);
+    for (auto bnd : spec.imageBounds) {
+      name += "." + to_string(bnd);
+    }
     return structType(name);
   }
 }
