@@ -511,23 +511,6 @@ namespace ahaHLS {
     for (auto v : convValues(kernel)) {
       expectedValues.push_back(to_string(v));
     }
-    
-    // for (int i = 0; i < 8 - 2; i++) {
-    //   for (int j = 0; j < 8 - 2; j++) {
-
-    //     int res = 0;
-    //     for (int ic = 0; ic < 3; ic++) {
-    //       for (int jc = 0; jc < 3; jc++) {
-    //         int kern = kernel[(ic)*3 + jc];
-    //         int val = ((i + ic)*8 + j + jc);
-    //         res += kern*val;
-    //       }
-    //     }
-
-        
-    //     expectedValues.push_back(to_string(res));
-    //   }
-    // }
 
     VerilogDebugInfo info;
     checkValidChannel(arch, info, getArg(arch.stg.getFunction(), 1), "write_valid", "in_data", expectedValues);
@@ -554,55 +537,74 @@ namespace ahaHLS {
     }
     
   }
+
+  TEST_CASE("cascade to verilog") {
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "cascade");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
+    deleteLLVMLifetimeCalls(f);
+
+    HalideArchSettings archSettings;
+    archSettings.loopTasks = true;
+    archSettings.pushFifos = true;
+    archSettings.forToWhile = true;
+    archSettings.optimizeFifos = true;
+    archSettings.predicateFifoWrites = true;
+    archSettings.removeLoopBounds = true;        
+    MicroArchitecture arch = halideArch(f, archSettings);
+
+    auto in = dyn_cast<Argument>(getArg(arch.stg.getFunction(), 0));
+    auto out = dyn_cast<Argument>(getArg(arch.stg.getFunction(), 1));    
+
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 800;
+    tb.maxCycles = 145;
+    tb.name = "cascade_push";
+    tb.useModSpecs = true;
+    tb.settablePort(in, "in_data");
+    tb.settablePort(in, "write_valid");
+
+    tb.setArgPort(in, "write_valid", 0, "1'b0");
+
+    vector<int> kernel{11, 12, 13, 14, 0, 16, 17, 18, 19};
+    vector<string> expectedValues;
+    for (auto v : convValues(kernel)) {
+      expectedValues.push_back(to_string(v));
+    }
+
+    VerilogDebugInfo info;
+    checkValidChannel(arch, info, getArg(arch.stg.getFunction(), 1), "write_valid", "in_data", expectedValues);
+    
+    SECTION("Inputs at rate II == 1") {
+      vector<pair<int, int> > writeTimesAndValues;
+      int resetTime = 1;
+      for (int i = resetTime; i < 8*8 + resetTime; i++) {
+        writeTimesAndValues.push_back({i + 5, i - resetTime});
+      }
+      setRVFifo(tb, "arg_0", writeTimesAndValues);
+    
+      map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 1;"));
+      map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 0;"));
+    
+      addDisplay("arg_1_write_valid", "accelerator writing %d to output", {"arg_1_in_data"}, info);
+      addNoXChecks(arch, info);
+    
+      emitVerilog("cascade_push", arch, info);
+      emitVerilogTestBench(tb, arch, testLayout);
+
+    
+      REQUIRE(runIVerilogTB("cascade_push"));
+    }
+    
+  }
   
-  // TEST_CASE("Stencil cascade") {
-  //   SMDiagnostic Err;
-  //   LLVMContext Context;
-  //   setGlobalLLVMContext(&Context);
-    
-  //   std::unique_ptr<Module> Mod = loadLLFile(Context, Err, "halide_cascade");
-  //   setGlobalLLVMModule(Mod.get());
-
-  //   Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
-  //   deleteLLVMLifetimeCalls(f);
-
-  //   MicroArchitecture arch = halideArch(f);
-
-  //   auto in = dyn_cast<Argument>(getArg(f, 0));
-  //   auto out = dyn_cast<Argument>(getArg(f, 1));    
-
-  //   TestBenchSpec tb;
-  //   map<string, int> testLayout = {};
-  //   tb.memoryInit = {};
-  //   tb.memoryExpected = {};
-  //   tb.runCycles = 800;
-  //   tb.maxCycles = 1000;
-  //   tb.name = "vhls_target";
-  //   tb.useModSpecs = true;
-  //   tb.settablePort(in, "in_data");
-  //   tb.settablePort(in, "write_valid");
-  //   tb.settablePort(out, "read_valid");    
-
-  //   map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
-
-  //   int endCycle = 200;
-  //   map_insert(tb.actionsOnCycles, endCycle, assertString("valid === 1"));
-
-  //   VerilogDebugInfo info;
-  //   // addDisplay("1", "global state = %d", {"global_state"}, info);
-  //   // addDisplay("1", "arg_0_read_ready = %d", {"arg_0_read_ready"}, info);
-  //   // addDisplay("1", "arg_0_read_valid = %d", {"arg_0_read_valid"}, info);
-  //   // addDisplay("1", "arg_0_out_data = %d", {"arg_0_out_data"}, info);
-  //   // addDisplay("1", "arg_1_out_data = %d", {"arg_1_out_data"}, info);
-  //   // addDisplay("1", "arg_1_write_ready = %d", {"arg_1_write_ready"}, info);      
-  //   //printActiveBlocks(arch, info);
-  //   addNoXChecks(arch, info);
-    
-  //   emitVerilog("halide_cascade", arch, info);
-  //   emitVerilogTestBench(tb, arch, testLayout);
-
-    
-  //   //REQUIRE(runIVerilogTB("halide_cascade"));      
-    
-  // }
 }

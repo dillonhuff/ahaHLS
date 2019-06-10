@@ -1,5 +1,4 @@
 #include <cstdlib>
-
 class AxiPackedStencil_int32_t_1_1_ {
 	int32_t other_elems[1*1 + 20];
 	int32_t elems[1*1];
@@ -420,6 +419,24 @@ PackedStencil_int32_t_1_1_ lb_read();
 void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_1___bnds_6_6 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_6_6 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_1___bnds_6_6 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_14_14 {
 public:
 PackedStencil_uint32_t_1_1_ lb_read();
@@ -523,6 +540,24 @@ void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
 bool has_valid_data();
 };
 class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_70_70 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_6_6 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_6_6 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_6_6 {
 public:
 PackedStencil_uint32_t_1_1_ lb_read();
 void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
@@ -636,6 +671,24 @@ PackedStencil_int16_t_1_1_ lb_read();
 void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_1___bnds_6_6 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_6_6 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_1___bnds_6_6 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_14_14 {
 public:
 PackedStencil_uint16_t_1_1_ lb_read();
@@ -739,6 +792,24 @@ void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
 bool has_valid_data();
 };
 class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_70_70 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_6_6 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_6_6 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_6_6 {
 public:
 PackedStencil_uint16_t_1_1_ lb_read();
 void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
@@ -852,6 +923,24 @@ PackedStencil_int32_t_3_3_ lb_read();
 void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_3_3___bnds_6_6 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_6_6 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_3_3___bnds_6_6 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_14_14 {
 public:
 PackedStencil_uint32_t_3_3_ lb_read();
@@ -955,6 +1044,24 @@ void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
 bool has_valid_data();
 };
 class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_70_70 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_6_6 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_6_6 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_6_6 {
 public:
 PackedStencil_uint32_t_3_3_ lb_read();
 void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
@@ -1068,6 +1175,24 @@ PackedStencil_int16_t_3_3_ lb_read();
 void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_3_3___bnds_6_6 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_6_6 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_3_3___bnds_6_6 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_14_14 {
 public:
 PackedStencil_uint16_t_3_3_ lb_read();
@@ -1171,6 +1296,24 @@ void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
 bool has_valid_data();
 };
 class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_70_70 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_6_6 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_6_6 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_6_6 {
 public:
 PackedStencil_uint16_t_3_3_ lb_read();
 void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
@@ -1284,6 +1427,24 @@ PackedStencil_int32_t_1_2_ lb_read();
 void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_2___bnds_6_6 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_6_6 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_1___to_hls_stream_PackedStencil_int32_t_1_2___bnds_6_6 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_1_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_14_14 {
 public:
 PackedStencil_uint32_t_1_2_ lb_read();
@@ -1387,6 +1548,24 @@ void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
 bool has_valid_data();
 };
 class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_70_70 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_6_6 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_6_6 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_1___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_6_6 {
 public:
 PackedStencil_uint32_t_1_2_ lb_read();
 void lb_write(const AxiPackedStencil_uint32_t_1_1_& stencil);
@@ -1500,6 +1679,24 @@ PackedStencil_int16_t_1_2_ lb_read();
 void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_2___bnds_6_6 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_6_6 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_1___to_hls_stream_PackedStencil_int16_t_1_2___bnds_6_6 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_1_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_14_14 {
 public:
 PackedStencil_uint16_t_1_2_ lb_read();
@@ -1603,6 +1800,24 @@ void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
 bool has_valid_data();
 };
 class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_70_70 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_6_6 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_6_6 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_1___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_6_6 {
 public:
 PackedStencil_uint16_t_1_2_ lb_read();
 void lb_write(const AxiPackedStencil_uint16_t_1_1_& stencil);
@@ -1716,6 +1931,24 @@ PackedStencil_int32_t_1_1_ lb_read();
 void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_1___bnds_6_6 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_6_6 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_1___bnds_6_6 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_14_14 {
 public:
 PackedStencil_uint32_t_1_1_ lb_read();
@@ -1819,6 +2052,24 @@ void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
 bool has_valid_data();
 };
 class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_70_70 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_6_6 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_6_6 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_6_6 {
 public:
 PackedStencil_uint32_t_1_1_ lb_read();
 void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
@@ -1932,6 +2183,24 @@ PackedStencil_int16_t_1_1_ lb_read();
 void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_1___bnds_6_6 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_6_6 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_1___bnds_6_6 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_14_14 {
 public:
 PackedStencil_uint16_t_1_1_ lb_read();
@@ -2035,6 +2304,24 @@ void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
 bool has_valid_data();
 };
 class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_70_70 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_6_6 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_6_6 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_6_6 {
 public:
 PackedStencil_uint16_t_1_1_ lb_read();
 void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
@@ -2148,6 +2435,24 @@ PackedStencil_int32_t_3_3_ lb_read();
 void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_3_3___bnds_6_6 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_6_6 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_3_3___bnds_6_6 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_14_14 {
 public:
 PackedStencil_uint32_t_3_3_ lb_read();
@@ -2251,6 +2556,24 @@ void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
 bool has_valid_data();
 };
 class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_70_70 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_6_6 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_6_6 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_6_6 {
 public:
 PackedStencil_uint32_t_3_3_ lb_read();
 void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
@@ -2364,6 +2687,24 @@ PackedStencil_int16_t_3_3_ lb_read();
 void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_3_3___bnds_6_6 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_6_6 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_3_3___bnds_6_6 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_14_14 {
 public:
 PackedStencil_uint16_t_3_3_ lb_read();
@@ -2467,6 +2808,24 @@ void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
 bool has_valid_data();
 };
 class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_70_70 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_6_6 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_6_6 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_6_6 {
 public:
 PackedStencil_uint16_t_3_3_ lb_read();
 void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
@@ -2580,6 +2939,24 @@ PackedStencil_int32_t_1_2_ lb_read();
 void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_2___bnds_6_6 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_6_6 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_3_3___to_hls_stream_PackedStencil_int32_t_1_2___bnds_6_6 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_3_3_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_14_14 {
 public:
 PackedStencil_uint32_t_1_2_ lb_read();
@@ -2683,6 +3060,24 @@ void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
 bool has_valid_data();
 };
 class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_70_70 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_6_6 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_6_6 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_3_3___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_6_6 {
 public:
 PackedStencil_uint32_t_1_2_ lb_read();
 void lb_write(const AxiPackedStencil_uint32_t_3_3_& stencil);
@@ -2796,6 +3191,24 @@ PackedStencil_int16_t_1_2_ lb_read();
 void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_2___bnds_6_6 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_6_6 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_3_3___to_hls_stream_PackedStencil_int16_t_1_2___bnds_6_6 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_3_3_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_14_14 {
 public:
 PackedStencil_uint16_t_1_2_ lb_read();
@@ -2899,6 +3312,24 @@ void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
 bool has_valid_data();
 };
 class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_70_70 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_6_6 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_6_6 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_3_3___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_6_6 {
 public:
 PackedStencil_uint16_t_1_2_ lb_read();
 void lb_write(const AxiPackedStencil_uint16_t_3_3_& stencil);
@@ -3012,6 +3443,24 @@ PackedStencil_int32_t_1_1_ lb_read();
 void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_1___bnds_6_6 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_1_1___bnds_6_6 {
+public:
+AxiPackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_1___bnds_6_6 {
+public:
+PackedStencil_int32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_14_14 {
 public:
 PackedStencil_uint32_t_1_1_ lb_read();
@@ -3115,6 +3564,24 @@ void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
 bool has_valid_data();
 };
 class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_70_70 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_6_6 {
+public:
+PackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_1_1___bnds_6_6 {
+public:
+AxiPackedStencil_uint32_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_1___bnds_6_6 {
 public:
 PackedStencil_uint32_t_1_1_ lb_read();
 void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
@@ -3228,6 +3695,24 @@ PackedStencil_int16_t_1_1_ lb_read();
 void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_1___bnds_6_6 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_1_1___bnds_6_6 {
+public:
+AxiPackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_1___bnds_6_6 {
+public:
+PackedStencil_int16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_14_14 {
 public:
 PackedStencil_uint16_t_1_1_ lb_read();
@@ -3331,6 +3816,24 @@ void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
 bool has_valid_data();
 };
 class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_70_70 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_6_6 {
+public:
+PackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_1_1___bnds_6_6 {
+public:
+AxiPackedStencil_uint16_t_1_1_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_1___bnds_6_6 {
 public:
 PackedStencil_uint16_t_1_1_ lb_read();
 void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
@@ -3444,6 +3947,24 @@ PackedStencil_int32_t_3_3_ lb_read();
 void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_3_3___bnds_6_6 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_3_3___bnds_6_6 {
+public:
+AxiPackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_3_3___bnds_6_6 {
+public:
+PackedStencil_int32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_14_14 {
 public:
 PackedStencil_uint32_t_3_3_ lb_read();
@@ -3547,6 +4068,24 @@ void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
 bool has_valid_data();
 };
 class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_70_70 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_6_6 {
+public:
+PackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_3_3___bnds_6_6 {
+public:
+AxiPackedStencil_uint32_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_3_3___bnds_6_6 {
 public:
 PackedStencil_uint32_t_3_3_ lb_read();
 void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
@@ -3660,6 +4199,24 @@ PackedStencil_int16_t_3_3_ lb_read();
 void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_3_3___bnds_6_6 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_3_3___bnds_6_6 {
+public:
+AxiPackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_3_3___bnds_6_6 {
+public:
+PackedStencil_int16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_14_14 {
 public:
 PackedStencil_uint16_t_3_3_ lb_read();
@@ -3763,6 +4320,24 @@ void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
 bool has_valid_data();
 };
 class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_70_70 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_6_6 {
+public:
+PackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_3_3___bnds_6_6 {
+public:
+AxiPackedStencil_uint16_t_3_3_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_3_3___bnds_6_6 {
 public:
 PackedStencil_uint16_t_3_3_ lb_read();
 void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
@@ -3876,6 +4451,24 @@ PackedStencil_int32_t_1_2_ lb_read();
 void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_2___bnds_6_6 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_AxiPackedStencil_int32_t_1_2___bnds_6_6 {
+public:
+AxiPackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int32_t_1_2___to_hls_stream_PackedStencil_int32_t_1_2___bnds_6_6 {
+public:
+PackedStencil_int32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int32_t_1_2_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_14_14 {
 public:
 PackedStencil_uint32_t_1_2_ lb_read();
@@ -3979,6 +4572,24 @@ void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
 bool has_valid_data();
 };
 class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_70_70 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_6_6 {
+public:
+PackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_AxiPackedStencil_uint32_t_1_2___bnds_6_6 {
+public:
+AxiPackedStencil_uint32_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint32_t_1_2___to_hls_stream_PackedStencil_uint32_t_1_2___bnds_6_6 {
 public:
 PackedStencil_uint32_t_1_2_ lb_read();
 void lb_write(const AxiPackedStencil_uint32_t_1_2_& stencil);
@@ -4092,6 +4703,24 @@ PackedStencil_int16_t_1_2_ lb_read();
 void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
 bool has_valid_data();
 };
+class linebuffer_hls_stream_PackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_2___bnds_6_6 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_AxiPackedStencil_int16_t_1_2___bnds_6_6 {
+public:
+AxiPackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_int16_t_1_2___to_hls_stream_PackedStencil_int16_t_1_2___bnds_6_6 {
+public:
+PackedStencil_int16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_int16_t_1_2_& stencil);
+bool has_valid_data();
+};
 class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_14_14 {
 public:
 PackedStencil_uint16_t_1_2_ lb_read();
@@ -4195,6 +4824,24 @@ void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
 bool has_valid_data();
 };
 class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_70_70 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_PackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_6_6 {
+public:
+PackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const PackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_AxiPackedStencil_uint16_t_1_2___bnds_6_6 {
+public:
+AxiPackedStencil_uint16_t_1_2_ lb_read();
+void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
+bool has_valid_data();
+};
+class linebuffer_hls_stream_AxiPackedStencil_uint16_t_1_2___to_hls_stream_PackedStencil_uint16_t_1_2___bnds_6_6 {
 public:
 PackedStencil_uint16_t_1_2_ lb_read();
 void lb_write(const AxiPackedStencil_uint16_t_1_2_& stencil);
