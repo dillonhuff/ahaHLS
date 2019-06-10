@@ -559,52 +559,73 @@ namespace ahaHLS {
     archSettings.removeLoopBounds = true;        
     MicroArchitecture arch = halideArch(f, archSettings);
 
-    auto in = dyn_cast<Argument>(getArg(arch.stg.getFunction(), 0));
-    auto out = dyn_cast<Argument>(getArg(arch.stg.getFunction(), 1));    
+    // auto in = dyn_cast<Argument>(getArg(arch.stg.getFunction(), 0));
+    // auto out = dyn_cast<Argument>(getArg(arch.stg.getFunction(), 1));    
 
-    TestBenchSpec tb;
-    map<string, int> testLayout = {};
-    tb.memoryInit = {};
-    tb.memoryExpected = {};
-    tb.runCycles = 800;
-    tb.maxCycles = 145;
-    tb.name = "cascade_push";
-    tb.useModSpecs = true;
-    tb.settablePort(in, "in_data");
-    tb.settablePort(in, "write_valid");
+    // TestBenchSpec tb;
+    // map<string, int> testLayout = {};
+    // tb.memoryInit = {};
+    // tb.memoryExpected = {};
+    // tb.runCycles = 800;
+    // tb.maxCycles = 145;
+    // tb.name = "cascade_push";
+    // tb.useModSpecs = true;
+    // tb.settablePort(in, "in_data");
+    // tb.settablePort(in, "write_valid");
 
-    tb.setArgPort(in, "write_valid", 0, "1'b0");
+    // tb.setArgPort(in, "write_valid", 0, "1'b0");
 
-    vector<int> kernel{11, 12, 13, 14, 0, 16, 17, 18, 19};
-    vector<string> expectedValues;
-    for (auto v : convValues(kernel)) {
-      expectedValues.push_back(to_string(v));
-    }
+    // vector<int> kernel{11, 12, 13, 14, 0, 16, 17, 18, 19};
+    // vector<string> expectedValues;
+    // for (auto v : convValues(kernel)) {
+    //   expectedValues.push_back(to_string(v));
+    // }
 
-    VerilogDebugInfo info;
-    checkValidChannel(arch, info, getArg(arch.stg.getFunction(), 1), "write_valid", "in_data", expectedValues);
+    // VerilogDebugInfo info;
+    // checkValidChannel(arch, info, getArg(arch.stg.getFunction(), 1), "write_valid", "in_data", expectedValues);
     
-    SECTION("Inputs at rate II == 1") {
-      vector<pair<int, int> > writeTimesAndValues;
-      int resetTime = 1;
-      for (int i = resetTime; i < 8*8 + resetTime; i++) {
-        writeTimesAndValues.push_back({i + 5, i - resetTime});
-      }
-      setRVFifo(tb, "arg_0", writeTimesAndValues);
+    // SECTION("Inputs at rate II == 1") {
+    //   vector<pair<int, int> > writeTimesAndValues;
+    //   int resetTime = 1;
+    //   for (int i = resetTime; i < 8*8 + resetTime; i++) {
+    //     writeTimesAndValues.push_back({i + 5, i - resetTime});
+    //   }
+    //   setRVFifo(tb, "arg_0", writeTimesAndValues);
     
-      map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 1;"));
-      map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 0;"));
+    //   map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 1;"));
+    //   map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 0;"));
     
-      addDisplay("arg_1_write_valid", "accelerator writing %d to output", {"arg_1_in_data"}, info);
-      addNoXChecks(arch, info);
+    //   addDisplay("arg_1_write_valid", "accelerator writing %d to output", {"arg_1_in_data"}, info);
+    //   addNoXChecks(arch, info);
     
-      emitVerilog("cascade_push", arch, info);
-      emitVerilogTestBench(tb, arch, testLayout);
+    //   emitVerilog("cascade_push", arch, info);
+    //   emitVerilogTestBench(tb, arch, testLayout);
 
     
-      REQUIRE(runIVerilogTB("cascade_push"));
-    }
+    //   REQUIRE(runIVerilogTB("cascade_push"));
+    // }
     
   }
-  
+
+  TEST_CASE("harris to verilog") {
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "harris");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
+    deleteLLVMLifetimeCalls(f);
+
+    HalideArchSettings archSettings;
+    archSettings.loopTasks = true;
+    archSettings.pushFifos = true;
+    archSettings.forToWhile = true;
+    archSettings.optimizeFifos = true;
+    archSettings.predicateFifoWrites = true;
+    archSettings.removeLoopBounds = true;        
+    MicroArchitecture arch = halideArch(f, archSettings);
+  }  
 }
