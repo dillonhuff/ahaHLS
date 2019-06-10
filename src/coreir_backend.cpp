@@ -76,6 +76,16 @@ namespace ahaHLS {
       
       params.insert({"in_width",
             CoreIR::Const::make(c, stoi(map_find(string("IN_WIDTH"), spec.params)))});
+
+      params.insert({"out_width",
+            CoreIR::Const::make(c, stoi(map_find(string("OUT_WIDTH"), spec.params)))});
+
+      params.insert({"out_rows",
+            CoreIR::Const::make(c, stoi(map_find(string("OUT_ROWS"), spec.params)))});
+
+      params.insert({"out_cols",
+            CoreIR::Const::make(c, stoi(map_find(string("OUT_COLS"), spec.params)))});
+      
       return params;
     }
     
@@ -273,22 +283,36 @@ namespace ahaHLS {
     return findWireableFor(w.valueString(), functionalUnits, def, arch);
   }
 
-  CoreIR::Select* truncateTo(int len,
-                     CoreIR::Select* data,
-                     CoreIR::ModuleDef* def,
-                     MicroArchitecture& arch) {
+  CoreIR::Select* truncateOrExtendTo(int len,
+                                     CoreIR::Select* data,
+                                     CoreIR::ModuleDef* def,
+                                     MicroArchitecture& arch) {
     Context* c = def->getContext();
 
     cout << "Data = " << *data << endl;
     int inLen = arrayLen(data);
-    auto trunc = def->addInstance(arch.uniqueName("trunc"),
-                                  "coreir.slice",
-                                  {{"width", CoreIR::Const::make(c, inLen)},
-                                      {"lo", CoreIR::Const::make(c, 0)},
-                                        {"hi", CoreIR::Const::make(c, len)}});
+    cout << "inLen = " << inLen << endl;
+    cout << "len   = " << len << endl;
 
-    def->connect(trunc->sel("in"), data);
-    return trunc->sel("out");
+    if (len <= inLen) {
+      auto trunc = def->addInstance(arch.uniqueName("trunc"),
+                                    "coreir.slice",
+                                    {{"width", CoreIR::Const::make(c, inLen)},
+                                        {"lo", CoreIR::Const::make(c, 0)},
+                                          {"hi", CoreIR::Const::make(c, len)}});
+
+      def->connect(trunc->sel("in"), data);
+      return trunc->sel("out");
+    } else {
+      auto ext =
+        def->addInstance(arch.uniqueName("zext"),
+                         "coreir.zext",
+                         {{"width_in", CoreIR::Const::make(c, inLen)},
+                             {"width_out", CoreIR::Const::make(c, len)}});
+
+      def->connect(ext->sel("in"), data);
+      return ext->sel("out");
+    }
   }
 
   CoreIR::Select* buildController(int dataWidth,
@@ -324,10 +348,10 @@ namespace ahaHLS {
       def->connect(mux->sel("sel"), wireCond->sel(0));
 
       if (arrayLen(dataValue) != arrayLen(mux->sel("in1"))) {
-        def->connect(mux->sel("in1"), truncateTo(arrayLen(mux->sel("in1")),
-                                                 dataValue,
-                                                 def,
-                                                 arch));
+        def->connect(mux->sel("in1"), truncateOrExtendTo(arrayLen(mux->sel("in1")),
+                                                         dataValue,
+                                                         def,
+                                                         arch));
       } else {
         def->connect(mux->sel("in1"), dataValue);
       }
@@ -649,7 +673,7 @@ namespace ahaHLS {
   void addPushLinebufGenerator(Namespace* ahaLib) {
     auto c = ahaLib->getContext();
     
-    Params wireParams = {{"in_width", c->Int()}};
+    Params wireParams = {{"in_width", c->Int()}, {"out_width", c->Int()}, {"out_rows", c->Int()}, {"out_cols", c->Int()}};
     TypeGen* wireTp =
       ahaLib->newTypeGen(
                         "push_linebuf",
@@ -676,11 +700,11 @@ namespace ahaHLS {
       int nRows = 1;
       int nCols = 1;
 
-      int outRows = 2;
-      int outCols = 1;
+      int outRows = args.at("out_rows")->get<int>();
+      int outCols = args.at("out_cols")->get<int>();
 
-      int inDataWidth = 16;
-      int outDataWidth = 16;
+      int inDataWidth = args.at("in_width")->get<int>();
+      int outDataWidth = args.at("out_width")->get<int>() / (outRows * outCols);
       
       auto inType = c->BitIn()->Arr(inDataWidth)->Arr(nRows)->Arr(nCols);
       auto outType = c->Bit()->Arr(outDataWidth)->Arr(outCols)->Arr(outRows);
@@ -698,8 +722,18 @@ namespace ahaHLS {
 
       for (int i = 0; i < nRows; i++) {
         for (int j = 0; j < nCols; j++) {
-          def->connect({"self", "wdata"},
-                       {"inner_lb", "in", to_string(i), to_string(j)});
+
+          for (int z = 0; z < inDataWidth; z++) {
+            Wireable* ijzInputBit = innerLb->sel("in")->sel(i)->sel(j)->sel(z);
+            string offsetBit =
+              to_string((i*nCols + j)*inDataWidth + z);
+            Wireable* ijzInSelf = def->sel("self")->sel("wdata")->sel(offsetBit);
+
+            def->connect(ijzInputBit, ijzInSelf);
+          }
+          
+          // def->connect({"self", "wdata"},
+          //              {"inner_lb", "in", to_string(i), to_string(j)});
         }
       }
 
@@ -716,35 +750,9 @@ namespace ahaHLS {
             def->connect(ijzOutputBit, ijzOutSelf);
           }
           
-          // if (i == 0 && j == 0) {
-          //   sel = def->sel("inner_lb.out.0.0");
-          // }
-
-          // def->connect(def->sel("self.rdata." + to_string(bitVal) "." + ), sel);
-          // Values vals;
-          // vals.insert({"width0", Const::make(c, sel->getWidth())});
-          // vals.insert({"width0", Const::make(c, sel->getWidth())});          
-          // auto concatLast =
-          //   def->addInstance("lb_concat" + c->getUnique(), "coreir.concat", vals);
-          // def->connect(concatLast->sel("in0"), sel);
-          // def->connect(concatLast->sel("in1"), def->sel({"inner_lb", "out", to_string(i), to_string(j)}));
-
-          // sel = concatLast->sel("out");
-          
-          //auto n = def->addInstance("lb_slice_" + c->getUnique(), "coreir.slice", {{"lo", Const::make(c, i*outCols + j)}, {"hi", Const::make(c, i*outCols + j + outDataWidth)}, {"width", Const::make(c, outDataWidth*nRows*nCols)}});
-          //def->connect(n->sel("in"), def->sel("inner_lb.wdata"));
-
-          // def->connect({"self", "wdata"},
-          //              {"inner_lb", "in", to_string(i), to_string(j)});
-
-          // Concatenate the entire thing together and connect it to rdata?
         }
       }
 
-      //def->connect(def->sel("self.rdata"), sel);
-
-      // def->connect("self.wdata", "inner_lb.in");
-      // def->connect("self.rdata", "inner_lb.out");
     };
     gen->setGeneratorDefFromFun(genFun);
     
