@@ -76,6 +76,9 @@ namespace ahaHLS {
     int inWidth = lbInWidth(spec);
     int outWidth = lbOutWidth(spec);
 
+    int imgRows = spec.imageBounds.at(0);
+    int imgCols = spec.imageBounds.at(1);
+
     int outRows = spec.out.nRows;
     int outCols = spec.out.nCols;
     
@@ -94,7 +97,9 @@ namespace ahaHLS {
     ModuleSpec modSpec = {{{"IN_WIDTH", to_string(inWidth)},
                            {"OUT_WIDTH", to_string(outWidth)},
                            {"OUT_ROWS", to_string(outRows)},
-                           {"OUT_COLS", to_string(outCols)}}, "push_linebuf", fifoPorts, defaults, insensitivePorts};
+                           {"OUT_COLS", to_string(outCols)},
+                           {"IMAGE_ROWS", to_string(imgRows)},
+                           {"IMAGE_COLS", to_string(imgCols)}}, "push_linebuf", fifoPorts, defaults, insensitivePorts};
     modSpec.hasClock = true;
     modSpec.hasRst = true;
     return modSpec;
@@ -130,7 +135,7 @@ namespace ahaHLS {
     HalideStencilTp in{inWidth / (inRows * inCols), inRows, inCols};
     HalideStencilTp out{outWidth / (outRows * outCols), outRows, outCols};
 
-    return LBSpec{in, out};
+    return LBSpec{in, out, {imgRows, imgCols}};
   }
   
   LBSpec lbSpec(const std::string& lbName) {
