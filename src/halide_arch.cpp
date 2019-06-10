@@ -329,10 +329,23 @@ namespace ahaHLS {
       Function* func = callToRW->getCalledFunction();
 
       if (isMethod("AxiPackedStencil_", "get", func)) {
-        // TODO: Compute these strides
-        vector<int64_t> strides{0, 16, 0, 0, 0, 0};
+        // datawidth, datawidth*nCols, asdf
+
+        Type* stp = toRewrite->getOperand(0)->getType();
+        string stencilName =
+          extract<StructType>(getPointedToType(stp))->getName();
+        auto st = stencilSpec(stencilName);
+        int dataWidth = st.typeWidth;
+        int nCols = st.nCols;
+        vector<int64_t> strides{dataWidth, dataWidth*nCols, 0, 0, 0, 0};
         int bitOffset = 0;
         int stride = strides[0];
+        cout << "axi_get ";
+        for (int i = 1; i < (int) func->arg_size(); i++) {
+          cout << valueString(toRewrite->getOperand(i)) << ", ";
+        }
+        cout << endl << endl;
+        
         cout << "-- Starting stride comp for " << valueString(toRewrite) << endl;
         for (int i = 1; i < (int) func->arg_size(); i++) {
           Value* index = toRewrite->getOperand(i);

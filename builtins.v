@@ -1340,7 +1340,7 @@ module push_linebuf(input clk,
          
          if (wen) begin
             //$display("lb pushing %d to addr %d", wdata, next_write_addr);
-            
+
             memory[next_write_addr] <= wdata;
             next_write_addr <= next_write_addr + 1;
 
@@ -1385,6 +1385,12 @@ module push_linebuf(input clk,
       if (valid) begin
          $display("top_left_location = %d", top_left_location);
 
+                $display("later, Valid out window =\n%d %d %d\n%d %d %d\n%d %d %d",
+                         rdata[1*16 - 1:0*16], rdata[31:16], rdata[47:32],
+                         rdata[4*16 - 1:3*16], rdata[5*16 - 1:4*16], rdata[6*16 - 1:5*16],
+                         rdata[7*16 - 1:6*16], rdata[8*16 - 1:7*16], rdata[9*16 - 1:8*16]);
+            
+         
          // for (i = 0 ; i < IMAGE_ROWS; i=i+1) begin         
          //    for (c = 0; c < IMAGE_COLS; c = c + 1) begin
          //       $display("mem[%d] = %d", c + i*IMAGE_COLS, memory[c + i*IMAGE_COLS]);
