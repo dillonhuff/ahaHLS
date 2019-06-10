@@ -49,6 +49,8 @@ namespace ahaHLS {
       return "ahaHLS.concat";
     } else if (spec.name == "push_fifo") {
       return "ahaHLS.push_fifo";
+    } else if (spec.name == "sliceOp") {
+      return "ahaHLS.slice";
     } else if (spec.name == "zext") {
       return "ahaHLS.zext";
     } else {
@@ -66,6 +68,20 @@ namespace ahaHLS {
     map<string, CoreIR::Value*> params;
 
     cout << "Getting params for " << spec.name << endl;
+
+    if (spec.name == "sliceOp") {
+      params.insert({"in_width",
+            CoreIR::Const::make(c, stoi(map_find(string("IN_WIDTH"), spec.params)))});
+      params.insert({"out_width",
+            CoreIR::Const::make(c, stoi(map_find(string("OUT_WIDTH"), spec.params)))});
+      params.insert({"offset",
+            CoreIR::Const::make(c, stoi(map_find(string("OFFSET"), spec.params)))});
+
+      // params.insert(CoreIR::Const::make(c, {"out_width", stoi(map_find(string("OUT_WIDTH")), spec.params)}));
+      // params.insert({"offset", stoi(map_find(string("OFFSET")), spec.params)});
+
+      return params;
+    }
     
     if (spec.name == "push_linebuf") {
 
@@ -592,6 +608,44 @@ namespace ahaHLS {
     
   }
 
+  void addSliceGenerator(Namespace* ahaLib) {
+    auto c = ahaLib->getContext();
+    
+    Params wireParams = {{"in_width", c->Int()}, {"out_width", c->Int()}, {"offset", c->Int()}};
+    TypeGen* wireTp =
+      ahaLib->newTypeGen(
+                        "slice",
+                        wireParams,
+                        [](Context* c, Values genargs) {
+                          uint inWidth = genargs.at("in_width")->get<int>();
+                          uint outWidth = genargs.at("out_width")->get<int>();                          
+                          return c->Record({
+                              {"in", c->BitIn()->Arr(inWidth)},
+                                {"out",c->Bit()->Arr(outWidth)}
+                            });
+                        });
+    ahaLib->newGeneratorDecl("slice", wireTp, wireParams);
+    auto gen = ahaLib->getGenerator("slice");
+
+    std::function<void (Context*, Values, CoreIR::ModuleDef*)> genFun =
+      [](Context* c, Values args, CoreIR::ModuleDef* def) {
+      int inWidth = args.at("in_width")->get<int>();
+      int outWidth = args.at("out_width")->get<int>();
+      int offset = args.at("offset")->get<int>();
+
+      Values params;
+      params.insert({"width", CoreIR::Const::make(c, inWidth)});
+      params.insert({"lo", CoreIR::Const::make(c, offset)});
+      params.insert({"hi", CoreIR::Const::make(c, outWidth + offset)});
+      
+      auto inst = def->addInstance("innerSlice", "coreir.slice", params);
+      def->connect(inst->sel("in"), def->sel("self")->sel("in"));
+      def->connect(inst->sel("out"), def->sel("self")->sel("out"));      
+    };
+    gen->setGeneratorDefFromFun(genFun);
+    
+  }
+  
   void addZextGenerator(Namespace* ahaLib) {
     auto c = ahaLib->getContext();
     
@@ -797,6 +851,7 @@ namespace ahaHLS {
 
     addRegGenerator(ahaLib);
     addEqGenerator(ahaLib);
+    addSliceGenerator(ahaLib);
     addZextGenerator(ahaLib);        
     addBrGenerator(ahaLib);
     addPhiGenerator(ahaLib);
