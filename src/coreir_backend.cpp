@@ -21,6 +21,8 @@ namespace ahaHLS {
   string unitCoreIRName(ModuleSpec& spec) {
     if (spec.name == "add") {
       return "coreir.add";
+    } else if (spec.name == "mul") {
+      return "coreir.mul";
     } else if (spec.name == "hls_wire") {
       return "ahaHLS.wire";
     } else if (spec.name == "eq") {

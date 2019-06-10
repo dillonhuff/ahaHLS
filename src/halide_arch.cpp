@@ -337,7 +337,7 @@ namespace ahaHLS {
         auto st = stencilSpec(stencilName);
         int dataWidth = st.typeWidth;
         int nCols = st.nCols;
-        //vector<int64_t> strides{dataWidth, dataWidth*nCols, 0, 0, 0, 0};
+
         vector<int64_t> strides{dataWidth*nCols, dataWidth, 0, 0, 0, 0};
         int bitOffset = 0;
         int stride = strides[0];
