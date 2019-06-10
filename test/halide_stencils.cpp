@@ -494,10 +494,39 @@ namespace ahaHLS {
     tb.setArgPort(in, "write_valid", 0, "1'b0");
 
 
+    // Kernel:
+    // 11 12 13
+    // 14  0 16
+    // 17 18 19
+
+    int val =
+      0*11 + 1*12 + 2*13 +
+      14*8 + 0*9 + 16*10 +
+      17*16 + 18*18 + 19*18;
+
+    cout << "First value = " << val << endl;
+    
+    vector<int> kernel{11, 12, 13, 14, 0, 16, 17, 18, 19};
     vector<string> expectedValues;
-    for (int i = 0; i < 8*7; i++) {
-      expectedValues.push_back(to_string(i + (i + 8)));
+    for (int i = 0; i < 8 - 2; i++) {
+      for (int j = 0; j < 8 - 2; j++) {
+
+        int res = 0;
+        for (int ic = 0; ic < 3; ic++) {
+          for (int jc = 0; jc < 3; jc++) {
+            int kern = kernel[(ic)*3 + jc];
+            int val = ((i + ic)*8 + j + jc);
+            res += kern*val;
+          }
+        }
+
+        
+        expectedValues.push_back(to_string(res));
+      }
     }
+    // for (int i = 0; i < 8*7; i++) {
+    //   expectedValues.push_back(to_string(i + (i + 8)));
+    // }
     VerilogDebugInfo info;
     checkValidChannel(arch, info, getArg(arch.stg.getFunction(), 1), "write_valid", "in_data", expectedValues);
     
