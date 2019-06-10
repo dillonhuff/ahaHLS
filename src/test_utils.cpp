@@ -143,5 +143,27 @@ namespace ahaHLS {
                        const std::string& exeName) {
     std::string otherFiles = " RAM.v RAM2.v RAM3.v axil_ram.v delay.v builtins.v";
     return runIVerilogTest(mainName, exeName, otherFiles);
-  }  
+  }
+
+  vector<int> convValues(const std::vector<int>& kernel) {
+    vector<int> expected;
+    for (int i = 0; i < 8 - 2; i++) {
+      for (int j = 0; j < 8 - 2; j++) {
+
+        int res = 0;
+        for (int ic = 0; ic < 3; ic++) {
+          for (int jc = 0; jc < 3; jc++) {
+            int kern = kernel[(ic)*3 + jc];
+            int val = ((i + ic)*8 + j + jc);
+            res += kern*val;
+          }
+        }
+
+        
+        expected.push_back(res);
+      }
+    }
+    
+    return expected;
+  }
 }

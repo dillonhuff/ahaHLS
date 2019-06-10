@@ -32,5 +32,5 @@ namespace ahaHLS {
                        const std::string& exeName,
                        const std::string& otherFiles);
   
-
+  std::vector<int> convValues(const std::vector<int>& kernel);  
 }

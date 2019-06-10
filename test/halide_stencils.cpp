@@ -508,49 +508,30 @@ namespace ahaHLS {
     
     vector<int> kernel{11, 12, 13, 14, 0, 16, 17, 18, 19};
     vector<string> expectedValues;
-    for (int i = 0; i < 8 - 2; i++) {
-      for (int j = 0; j < 8 - 2; j++) {
+    for (auto v : convValues(kernel)) {
+      expectedValues.push_back(to_string(v));
+    }
+    
+    // for (int i = 0; i < 8 - 2; i++) {
+    //   for (int j = 0; j < 8 - 2; j++) {
 
-        int res = 0;
-        for (int ic = 0; ic < 3; ic++) {
-          for (int jc = 0; jc < 3; jc++) {
-            int kern = kernel[(ic)*3 + jc];
-            int val = ((i + ic)*8 + j + jc);
-            res += kern*val;
-          }
-        }
+    //     int res = 0;
+    //     for (int ic = 0; ic < 3; ic++) {
+    //       for (int jc = 0; jc < 3; jc++) {
+    //         int kern = kernel[(ic)*3 + jc];
+    //         int val = ((i + ic)*8 + j + jc);
+    //         res += kern*val;
+    //       }
+    //     }
 
         
-        expectedValues.push_back(to_string(res));
-      }
-    }
-    // for (int i = 0; i < 8*7; i++) {
-    //   expectedValues.push_back(to_string(i + (i + 8)));
+    //     expectedValues.push_back(to_string(res));
+    //   }
     // }
+
     VerilogDebugInfo info;
     checkValidChannel(arch, info, getArg(arch.stg.getFunction(), 1), "write_valid", "in_data", expectedValues);
     
-    // SECTION("Inputs at rate II == 2") {
-    //   vector<pair<int, int> > writeTimesAndValues;
-    //   int resetTime = 1;
-    //   for (int i = resetTime; i < 8*8 + resetTime; i++) {
-    //     writeTimesAndValues.push_back({2*i + 5, i - resetTime});
-    //   }
-    //   setRVFifo(tb, "arg_0", writeTimesAndValues);
-
-    //   map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 1;"));
-    //   map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 0;"));
-    
-    //   addDisplay("arg_1_write_valid", "accelerator writing %d to output", {"arg_1_in_data"}, info);
-    //   addNoXChecks(arch, info);
-    
-    //   emitVerilog("conv_3_3_push", arch, info);
-    //   emitVerilogTestBench(tb, arch, testLayout);
-
-    
-    //   REQUIRE(runIVerilogTB("conv_3_3_push"));
-    // }
-
     SECTION("Inputs at rate II == 1") {
       vector<pair<int, int> > writeTimesAndValues;
       int resetTime = 1;
