@@ -333,10 +333,9 @@ namespace ahaHLS {
     sim.execute();
 
     int outputNum = 0;
-    // vector<int> expectedOutputs;
-    // for (int i = 0; i < 56; i++) {
-    //   expectedOutputs.push_back(i + (i + 8));
-    // }
+
+    vector<int> kernel{11, 12, 13, 14, 0, 16, 17, 18, 19};
+    vector<int> expectedOutputs = convValues(kernel);
     
     for (int i = 0; i < 64 + 1; i++) {
 
@@ -348,10 +347,10 @@ namespace ahaHLS {
       cout << "---- Clock after data input = " << (i) << endl;
       cout << "arg_1_in_data = " << sim.getBitVec("self.arg_1_in_data") << ", decimal = " << sim.getBitVec("self.arg_1_in_data").to_type<int>() << endl;
       cout << "arg_1_write_valid = " << sim.getBitVec("self.arg_1_write_valid") << endl;
-      // if (sim.getBitVec("self.arg_1_write_valid").get(0) == 1) {
-      //   REQUIRE(sim.getBitVec("self.arg_1_in_data").to_type<int>() == expectedOutputs[outputNum]);
-      //   outputNum++;
-      // }
+      if (sim.getBitVec("self.arg_1_write_valid").get(0) == 1) {
+        REQUIRE(sim.getBitVec("self.arg_1_in_data").to_type<int>() == expectedOutputs[outputNum]);
+        outputNum++;
+      }
 
     }
     
