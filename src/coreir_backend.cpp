@@ -679,8 +679,14 @@ namespace ahaHLS {
                         "push_linebuf",
                         wireParams,
                         [](Context* c, Values genargs) {
-                          uint in_width = genargs.at("in_width")->get<int>();
-                          uint out_width = 32;
+                          int in_width = genargs.at("in_width")->get<int>();
+                          int out_width = genargs.at("out_width")->get<int>();                          
+
+                          // int outRows = genargs.at("out_rows")->get<int>();
+                          // int outCols = genargs.at("out_cols")->get<int>();
+
+                          // int inDataWidth = genargs.at("in_width")->get<int>();
+                          // int outDataWidth = out_width / (outRows * outCols);
                           
                           return c->Record({
                               {"wdata", c->BitIn()->Arr(in_width)},
