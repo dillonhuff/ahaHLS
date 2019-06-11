@@ -117,6 +117,7 @@ namespace ahaHLS {
     hcs.setLatency(BR_OP, 0);
     hcs.setLatency(ADD_OP, 0);
     hcs.setLatency(FADD_OP, 20);
+    hcs.setLatency(FMUL_OP, 3);    
     hcs.setLatency(SUB_OP, 0);    
     hcs.setLatency(MUL_OP, 0);
     hcs.setLatency(SEXT_OP, 0);
@@ -295,6 +296,8 @@ namespace ahaHLS {
         return MUL_OP;
       } else if (opCode == Instruction::Sub) {
         return SUB_OP;
+      } else if (opCode == Instruction::FMul) {
+        return FMUL_OP;
       } else if (opCode == Instruction::FAdd) {
         return FADD_OP;
       } else if (opCode == Instruction::And) {
@@ -380,6 +383,8 @@ namespace ahaHLS {
         latency = getLatency(ADD_OP);
       } else if (opCode == Instruction::FAdd) {
         latency = getLatency(FADD_OP);        
+      } else if (opCode == Instruction::FMul) { 
+        latency = getLatency(FMUL_OP);
       } else if (opCode == Instruction::Mul) {
         latency = getLatency(MUL_OP);
       } else if (opCode == Instruction::Sub) {

@@ -1927,6 +1927,7 @@ namespace ahaHLS {
     
     // Now: Populate HLS data structures
     HardwareConstraints hcs = standardConstraints();
+    hcs.setLatency(FADD_OP, 2);
     assignModuleSpecs(rewritten, hcs, settings);
     
     cout << "After inlining" << endl;

@@ -297,7 +297,8 @@ namespace ahaHLS {
     SHL_OP,
     LSHR_OP,
     ASHR_OP,
-    SREM_OP
+    SREM_OP,
+    FMUL_OP
   };
 
   static inline std::vector<OperationType> allOps() {
@@ -325,7 +326,8 @@ namespace ahaHLS {
         SHL_OP,
         ASHR_OP,
         LSHR_OP,
-        SREM_OP        
+        SREM_OP,
+        FMUL_OP
         };
 
   }
