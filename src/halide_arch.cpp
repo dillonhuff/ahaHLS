@@ -659,6 +659,16 @@ namespace ahaHLS {
       auto fv = findRewrite(toRewrite->getOperand(2), rewrites);
 
       rewrites[toRewrite] = b.CreateSelect(cond, tv, fv);
+    } else if (FPToUIInst::classof(toRewrite)) {
+      auto ci = dyn_cast<FPToUIInst>(toRewrite);
+      int srcWidth = getTypeBitWidth(ci->getSrcTy());
+      
+      Type* dstType = ci->getDestTy();
+      assert(IntegerType::classof(dstType));
+      int dstWidth = getTypeBitWidth(dstType);
+
+      auto f = mkFunc({intType(srcWidth)}, dstType, "hls.FPToUI." + to_string(srcWidth) + "." + to_string(dstWidth));
+      rewrites[toRewrite] = b.CreateCall(f, findRewrite(toRewrite->getOperand(0), rewrites));
     } else {
       cout << "Error in Halide stencil rewrite: Unsupported instr = " << valueString(toRewrite) << endl;
       assert(false);
@@ -702,6 +712,10 @@ namespace ahaHLS {
   }
   
   Function* rewriteHalideStencils(Function* orig) {
+
+    cout << "Function to rewrite"<< endl;
+    cout << valueString(orig) << endl;
+    
     vector<Type*> inputTypes;
     for (int i = 0; i < orig->arg_size(); i++) {
       Type* rwTp = halideType(getArg(orig, i)->getType());
@@ -1792,7 +1806,8 @@ namespace ahaHLS {
 
             if (hasPrefix(name, "hls.slice") ||
                 hasPrefix(name, "hls.max") ||
-                hasPrefix(name, "hls.min")) {
+                hasPrefix(name, "hls.min")||
+                hasPrefix(name, "hls.FPToUI")) {
               continue;
             }
 
