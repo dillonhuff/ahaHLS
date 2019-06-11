@@ -572,14 +572,21 @@ namespace ahaHLS {
 
     tb.setArgPort(in, "write_valid", 0, "1'b0");
 
-    // vector<int> kernel{11, 12, 13, 14, 0, 16, 17, 18, 19};
-    // vector<string> expectedValues;
-    // for (auto v : convValues(kernel)) {
-    //   expectedValues.push_back(to_string(v));
-    // }
+    vector<int> kernel{1, 2, 1, 2, 4, 2, 1, 2, 1};
+    vector<int> conv1 = convValues(kernel);
+    Image<int> k(3, 3, kernel);
+    Image<int> conv1Res(6, 6, conv1);
+
+    Image<int> output = conv(k, conv1Res);
+    vector<string> expectedValues;
+    cout << "cascade expected values" << endl;
+    for (auto pix : output.getPixels()) {
+      cout << tab(1) << pix << endl;
+      expectedValues.push_back(to_string(pix));
+    }
 
     VerilogDebugInfo info;
-    // checkValidChannel(arch, info, getArg(arch.stg.getFunction(), 1), "write_valid", "in_data", expectedValues);
+    checkValidChannel(arch, info, getArg(arch.stg.getFunction(), 1), "write_valid", "in_data", expectedValues);
     
     SECTION("Inputs at rate II == 1") {
       vector<pair<int, int> > writeTimesAndValues;
