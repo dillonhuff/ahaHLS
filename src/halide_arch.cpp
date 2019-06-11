@@ -1602,13 +1602,15 @@ namespace ahaHLS {
   void optimizeRAMs(Function* rewritten) {
     // RAM transformations?
     set<Instruction*> ramOps;
-    map<Value*, map<Value*, Value*> > ramsToWrittenValues;
+    //map<Value*, map<Value*, Value*> > ramsToWrittenValues;
+    map<Value*, map<Value*, set<Value*> > > ramsToWrittenValues;
     map<Value*, set<Value*> > ramsToReads;
     for (auto instr : allInstrs(rewritten)) {
       if (isRAMWrite(instr)) {
         cout << valueString(instr) << " is ram write"  << endl;
-        ramsToWrittenValues[instr->getOperand(0)][instr->getOperand(1)] =
-          instr->getOperand(2);
+        
+        ramsToWrittenValues[instr->getOperand(0)][instr->getOperand(1)]
+          .insert(instr->getOperand(2));
       } else if (isRAMRead(instr)) {
         ramsToReads[instr->getOperand(0)].insert(instr);
       }
@@ -1618,9 +1620,36 @@ namespace ahaHLS {
     map<Value*, map<int, int> > ramsToConstValues;
     for (auto rm : ramsToWrittenValues) {
       cout << tab(1) << valueString(rm.first) << endl;
-      for (auto ir : rm.second) {
-        Value* addr = ir.first;
-        Value* val = ir.second;
+      for (auto addrAndWrites : rm.second) {
+
+        auto writes = addrAndWrites.second;
+        
+        assert(writes.size() < 3);
+
+        // Value* addr = ir.first;
+        // Value* val = ir.second;
+
+        Value* addr = addrAndWrites.first; //nullptr;
+        Value* val = nullptr;;
+
+        // TODO: Replace with control flow analysis of last write
+        if (writes.size() == 1) {
+          val = *begin(writes);
+        } else if (writes.size() == 2) {
+          Value* a0 = *begin(writes);
+          writes.erase(a0);
+          Value* a1 = *begin(writes);
+          if ((getInt(a0) == 0) &&
+              (getInt(a1) != 0)) {
+            cout << "Setting val to " << valueString(a1) << endl;            
+            val = a1;
+          } else {
+            cout << "Setting val to " << valueString(a0) << endl;
+            val = a0;
+          }
+        }
+
+        assert(val != nullptr);
 
         if (ConstantInt::classof(addr) &&
             ConstantInt::classof(val)) {
@@ -1629,7 +1658,7 @@ namespace ahaHLS {
 
           ramsToConstValues[rm.first][addrI] = valI;
         }
-        cout << tab(2) << valueString(ir.first) << " -> " << valueString(ir.second) << endl;
+        cout << tab(2) << valueString(addr) << " -> " << valueString(val) << endl;
 
       }
     }
@@ -1655,7 +1684,7 @@ namespace ahaHLS {
           int addr = getInt(dyn_cast<Instruction>(rd)->getOperand(1));
           int valueI = map_find(addr, ramsToConstValues[ram.first]);
           Value* value = mkInt(valueI, getValueBitWidth(rd));
-          cout << "Replacing " << valueString(rd) << " with " << valueString(value) << endl;
+          cout << "Replacing ram read " << valueString(rd) << " with " << valueString(value) << endl;
           rd->replaceAllUsesWith(value);
           toErase.insert(dyn_cast<Instruction>(rd));
           //dyn_cast<Instruction>(rd)->eraseFromParent();
@@ -1667,13 +1696,8 @@ namespace ahaHLS {
     for (auto instr : allInstrs(rewritten)) {
       if (isRAMWrite(instr)) {
         toErase.insert(instr);
-        //instr->eraseFromParent();
       } else if (AllocaInst::classof(instr)) {
         
-        // if (isRAMType(getPointedToType(instr->getType()))) {
-        //   //instr->eraseFromParent();
-        //   toErase.insert(instr);
-        // }
       } else {
         cout << "Not erasing " << valueString(instr) << endl;
       }
