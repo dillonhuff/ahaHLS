@@ -231,6 +231,16 @@ namespace ahaHLS {
   Value* findRewrite(Value* val, map<Value*, Value*>& rewrites) {
     if (ConstantInt::classof(val)) {
       return mkInt(getInt(val), getValueBitWidth(val)); //val;
+    } else if (ConstantFP::classof(val)) {
+      cout << "Found float constant" << endl;
+      APInt intBits = dyn_cast<ConstantFP>(val)->getValueAPF().bitcastToAPInt();
+
+      string floatBits = intBits.toString(2, false);
+      cout << "bits = " << floatBits << endl;
+      
+      return llvm::ConstantInt::get(getGlobalLLVMContext(), intBits);
+      //cout << "bits = " << intBits << endl;
+      //assert(false);
     }
 
     if (!contains_key(val, rewrites)) {
@@ -331,6 +341,9 @@ namespace ahaHLS {
                     map<BasicBlock*, BasicBlock*>& bbRewrites,
                     map<Value*, Value*>& rewrites,
                     Instruction* toRewrite) {
+
+    cout << "rewriting " << valueString(toRewrite) << endl;
+    
     BasicBlock* repBB = map_find(toRewrite->getParent(), bbRewrites);
 
     assert(repBB->getParent() == f);
@@ -461,15 +474,23 @@ namespace ahaHLS {
           argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
         }
 
-        // TODO: Replace with builtin ram read function
+
+        cout << "Replacing ram write call" << endl;
+        
         int w =
           ramDataWidth(typeString(getPointedToType(getArg(func, 0)->getType())));
-        // asdf
+
+        cout << "Got width" << endl;
+        
         int d =
           ramDepth(typeString(getPointedToType(getArg(func, 0)->getType())));
+
+        cout << "Got depth" << endl;        
         auto replacement = ramStoreFunction(w, d);
         rewrites[toRewrite] =
           b.CreateCall(replacement, argReplacements);
+
+        cout << "Done" << endl;                
       } else if (isMethod("ram_", "ram_read", func)) {
         vector<Value*> argReplacements;
         for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
@@ -551,6 +572,23 @@ namespace ahaHLS {
         auto replaceF = hlsMaxFunction(argReplacements[0]);
         rewrites[toRewrite] =
           b.CreateCall(replaceF, argReplacements);
+        
+      } else if (matchesCallDemangled("float_from_bits", toRewrite)) {
+        vector<Value*> argReplacements;
+        for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
+          cout << "replacing arg " << i << " = " << valueString(toRewrite->getOperand(i)) << endl;
+          argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
+        }
+
+        assert(argReplacements.size() > 0);
+        
+        //auto replaceF = argRe//hlsMaxFunction(argReplacements[0]);
+
+        // TODO: Maybe should be trunc?
+        rewrites[toRewrite] = argReplacements[0];
+            //b.CreateCall(replaceF, argReplacements);
+
+        cout << "Done replacing " << valueString(toRewrite) << endl;
         
       } else {
         cout << "Unsupported call" << valueString(toRewrite) << endl;
@@ -688,6 +726,8 @@ namespace ahaHLS {
       }
     }
 
+    cout << "Done with rewrites" << endl;
+    
     populatePHIs(orig, f, rewrites, bbRewrites);
 
     cout << "Immediately after rewrite " << endl;

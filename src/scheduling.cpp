@@ -5351,7 +5351,18 @@ namespace ahaHLS {
     return str.substr(i);
   }
   
-  // TODO: Actually extract types
+  int cTypeWidth(const std::string& nm) {
+    if (hasPrefix(nm, "int")) {
+      return stoi(takeDigits(drop("int", nm)));
+    } else if (hasPrefix(nm, "float")) {
+      return 32;
+    } else {
+      assert(hasPrefix(nm, "uint"));
+      //cout << "nm = " << nm << endl;
+      return stoi(takeDigits(drop("uint", nm)));
+    }
+  }
+  
   int stencilTypeWidth(const std::string& origName) {
     cout << "Getting type width of " << origName << endl;
 
@@ -5375,15 +5386,7 @@ namespace ahaHLS {
     //string nm = drop("class.AxiPackedStencil_", name);
     string nm = drop(stencilPrefix, name);
 
-    if (hasPrefix(nm, "int")) {
-      return stoi(takeDigits(drop("int", nm)));
-    } else if (hasPrefix(nm, "float")) {
-      return 32;
-    } else {
-      assert(hasPrefix(nm, "uint"));
-      //cout << "nm = " << nm << endl;
-      return stoi(takeDigits(drop("uint", nm)));
-    }
+    return cTypeWidth(nm);
 
     //return 16;
   }
@@ -5575,6 +5578,8 @@ namespace ahaHLS {
       string digits = drop("int", rName);
       string rest = dropDigits(digits);
       return drop("_t_", rest);
+    } else if (hasPrefix(rName, "float")) {
+      return drop("float_", rName);
     } else {
       assert(false);
     }
@@ -5591,22 +5596,32 @@ namespace ahaHLS {
     string rName = drop("class.ram_", ramName);
     string rest = dropType(rName);
 
+    cout << "ram reset in ramDepth = " << rest << endl;
+
     return stoi(rest);
   }
   
   string dropInt(const std::string& ramName) {
     if (hasPrefix(ramName, "int")) {
       return drop("int", ramName);
+    } else if (hasPrefix(ramName, "float")) {
+      return drop("float", ramName);
     } else {
-      hasPrefix(ramName, "uint");
+      assert(hasPrefix(ramName, "uint"));
       return drop("uint", ramName);      
     }
   }
 
   int ramDataWidth(const std::string& ramName) {
     string rName = drop("class.ram_", ramName);
-    string rest = dropInt(rName);
-    return stoi(takeDigits(rest));
+    cout << "rName = " << rName << endl;
+    // string rest = dropInt(rName);
+
+    // cout << "rest of ram " << rest << endl;
+
+    return cTypeWidth(rName);
+    
+    //return stoi(takeDigits(rest));
   }
   
   void populateHalideStencils(Function* f,
