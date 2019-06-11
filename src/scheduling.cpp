@@ -5377,6 +5377,8 @@ namespace ahaHLS {
 
     if (hasPrefix(nm, "int")) {
       return stoi(takeDigits(drop("int", nm)));
+    } else if (hasPrefix(nm, "float")) {
+      return 32;
     } else {
       assert(hasPrefix(nm, "uint"));
       //cout << "nm = " << nm << endl;
@@ -5385,6 +5387,21 @@ namespace ahaHLS {
 
     //return 16;
   }
+
+  string dropStencilPrefix(const std::string& name) {
+    string stencilPrefix = "";
+    if (hasPrefix(name, "class.AxiPackedStencil_")) {
+      stencilPrefix = "class.AxiPackedStencil_";
+    } else if (hasPrefix(name, "_PackedStencil_")) {
+      stencilPrefix = "_PackedStencil_";
+    } else {
+      stencilPrefix = "class.PackedStencil_";
+    }
+    
+    string nm = drop(stencilPrefix, name);
+
+    return nm;
+  }
   
   int stencilNumRows(const std::string& name) {
     cout << "Stencil name in nrows = " << name << endl;
@@ -5392,14 +5409,21 @@ namespace ahaHLS {
     string stencilPrefix = "";
     if (hasPrefix(name, "class.AxiPackedStencil_")) {
       stencilPrefix = "class.AxiPackedStencil_";
+    } else if (hasPrefix(name, "_PackedStencil_")) {
+      stencilPrefix = "_PackedStencil_";
     } else {
       stencilPrefix = "class.PackedStencil_";
     }
     
     string nm = drop(stencilPrefix, name);
 
-    cout << "NumRows nm = " << nm << endl;
-    string res = drop("_", dropDigits(drop("_", drop("_t", nm))));
+    string res;
+    if (hasPrefix("float", nm)) {
+      res = drop("float_", nm);
+    } else {
+      cout << "NumRows nm = " << nm << endl;
+      res = drop("_", dropDigits(drop("_", drop("_t", nm))));
+    }
 
     
     cout << "res = " << res << endl;
@@ -5407,19 +5431,30 @@ namespace ahaHLS {
   }
 
   int stencilNumCols(const std::string& name) {
+    cout << "Getting numCols for " << name << endl;
+    
     string stencilPrefix = "";
     if (hasPrefix(name, "class.AxiPackedStencil_")) {
       stencilPrefix = "class.AxiPackedStencil_";
+    } else if (hasPrefix(name, "AxiPackedStencil_")) {
+      stencilPrefix = "AxiPackedStencil_";
+    } else if (hasPrefix(name, "_PackedStencil_")) {
+      stencilPrefix = "_PackedStencil_";
     } else {
       stencilPrefix = "class.PackedStencil_";
     }
     
     string nm = drop(stencilPrefix, name);
 
-    cout << "NumRows nm = " << nm << endl;
-    string res = drop("_", drop("_t", nm));
+    cout << "NumCols nm = " << nm << endl;
+    string res;
+    if (hasPrefix("float", nm)) {
+      res = drop("_", drop("float_", nm));
+    }  else {
+      res = drop("_", drop("_t", nm));
+    }
 
-    cout << "res = " << res << endl;
+    cout << "res cols = " << res << endl;
     return stoi(takeDigits(res));
     // cout << "NumRows "
     // return 1;
