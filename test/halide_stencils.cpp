@@ -386,7 +386,8 @@ namespace ahaHLS {
     archSettings.forToWhile = true;
     archSettings.optimizeFifos = true;
     archSettings.predicateFifoWrites = true;
-    archSettings.removeLoopBounds = true;        
+    archSettings.removeLoopBounds = true;
+    archSettings.pipelineLoops = true;            
     MicroArchitecture arch = halideArch(f, archSettings);
 
     auto in = dyn_cast<Argument>(getArg(arch.stg.getFunction(), 0));
@@ -474,7 +475,8 @@ namespace ahaHLS {
     archSettings.forToWhile = true;
     archSettings.optimizeFifos = true;
     archSettings.predicateFifoWrites = true;
-    archSettings.removeLoopBounds = true;        
+    archSettings.removeLoopBounds = true;
+    archSettings.pipelineLoops = true;                
     MicroArchitecture arch = halideArch(f, archSettings);
 
     auto in = dyn_cast<Argument>(getArg(arch.stg.getFunction(), 0));
@@ -556,7 +558,8 @@ namespace ahaHLS {
     archSettings.forToWhile = true;
     archSettings.optimizeFifos = true;
     archSettings.predicateFifoWrites = true;
-    archSettings.removeLoopBounds = true;        
+    archSettings.removeLoopBounds = true;
+    archSettings.pipelineLoops = true;                
     MicroArchitecture arch = halideArch(f, archSettings);
 
     auto in = dyn_cast<Argument>(getArg(arch.stg.getFunction(), 0));
@@ -629,7 +632,8 @@ namespace ahaHLS {
     archSettings.forToWhile = true;
     archSettings.optimizeFifos = true;
     archSettings.predicateFifoWrites = true;
-    archSettings.removeLoopBounds = true;        
+    archSettings.removeLoopBounds = true;
+    archSettings.pipelineLoops = true;                
     MicroArchitecture arch = halideArch(f, archSettings);
   }
 
@@ -652,7 +656,8 @@ namespace ahaHLS {
     archSettings.forToWhile = true;
     archSettings.optimizeFifos = true;
     archSettings.predicateFifoWrites = true;
-    archSettings.removeLoopBounds = true;        
+    archSettings.removeLoopBounds = true;
+    archSettings.pipelineLoops = true;                
     MicroArchitecture arch = halideArch(f, archSettings);
   }
 

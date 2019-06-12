@@ -1916,14 +1916,16 @@ namespace ahaHLS {
     exec.tasks = tasks;
 
     std::set<PipelineSpec> toPipeline;
-    // for (auto task : exec.tasks) {
-    //   PipelineSpec s;
-    //   s.staticII = 1;
-    //   for (auto blk : task.blks) {
-    //     s.blks.insert(blk);
-    //   }
-    //   toPipeline.insert(s);
-    // }
+    if (settings.pipelineLoops) {
+      for (auto task : exec.tasks) {
+        PipelineSpec s;
+        s.staticII = 1;
+        for (auto blk : task.blks) {
+          s.blks.insert(blk);
+        }
+        toPipeline.insert(s);
+      }
+    }
     
     // Now: Populate HLS data structures
     HardwareConstraints hcs = standardConstraints();
