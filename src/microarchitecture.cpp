@@ -74,14 +74,11 @@ namespace ahaHLS {
                           MicroArchitecture& arch);
   
   bool isRAMAddressCompGEP(GetElementPtrInst* const instr,
-                           //map<Value*, std::string>& memNames,
                            map<Instruction*, Value*>& memSrcs) {
-                           //HardwareConstraints& hcs) {
+
     Value* memSrc = map_find(dyn_cast<Instruction>(instr), memSrcs);
-    cout << "MEM source for GEP " << valueString(instr) << " = " << valueString(memSrc) << endl;
+    //cout << "MEM source for GEP " << valueString(instr) << " = " << valueString(memSrc) << endl;
     
-    //if (contains_key(memSrc, memNames)) {
-    //cout << tab(1) << "Name of source = " << map_find(memSrc, memNames) << endl;
     Type* srcTp = memSrc->getType();
     assert(PointerType::classof(srcTp));
     Type* uTp = dyn_cast<PointerType>(srcTp)->getElementType();
@@ -90,13 +87,11 @@ namespace ahaHLS {
       if (stp->isOpaque()) {
         return true;
       } else {
-        cout << "Found non address comp GEP" << endl;
+        //cout << "Found non address comp GEP" << endl;
         return false;
       }
     }
     return true;
-    // }
-    // return false;
   }
   
   set<Instruction*> allGEPs(Function* f)  {
@@ -111,7 +106,6 @@ namespace ahaHLS {
     return geps;
   }
 
-  
   int gepOffset(GetElementPtrInst* const gep);
   
   int gepBitOffset(GetElementPtrInst* const gep) {
@@ -555,7 +549,7 @@ namespace ahaHLS {
     } else if (GlobalVariable::classof(location)) {
       return location;
     } else {
-      cout << "Cannot find name for " << valueString(location) << endl;
+      //cout << "Cannot find name for " << valueString(location) << endl;
       return nullptr;
     }
 
@@ -671,8 +665,8 @@ namespace ahaHLS {
           if (LoadInst::classof(instr)) {
 
             Value* location = instr->getOperand(0);
-            cout << "Load source = " << valueString(location) << endl;
-            cout << tab(1) << " source is instruction ? " << Instruction::classof(location) << endl;
+            //cout << "Load source = " << valueString(location) << endl;
+            //cout << tab(1) << " source is instruction ? " << Instruction::classof(location) << endl;
             findLocation(location, instr, mems, foundOps);
 
           } else if (StoreInst::classof(instr)) {
@@ -826,8 +820,8 @@ namespace ahaHLS {
       if (GetElementPtrInst::classof(storeAddr)) {
         GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(storeAddr);
         if (!isRAMAddressCompGEP(gep, memSrcs)) {
-          cout << "Source of partial store is " << valueString(memVal) << endl;
-          cout << "Offset of gep store is " << gepBitOffset(gep) << endl;
+          //cout << "Source of partial store is " << valueString(memVal) << endl;
+          //cout << "Offset of gep store is " << gepBitOffset(gep) << endl;
 
           // Q: What is the functional unit in this case?
           // A: I guess the wiring of the *output* of the unit needs to be
@@ -1014,7 +1008,7 @@ namespace ahaHLS {
       int w1 = getValueBitWidth(instr->getOperand(1));
 
       if (w0 != w1) {
-        cout << "Binops do not match widths " << valueString(instr) << endl;
+        //cout << "Binops do not match widths " << valueString(instr) << endl;
       }
       assert(w0 == w1);
 
@@ -1061,7 +1055,7 @@ namespace ahaHLS {
       outWires = {{"out", {false, outWidth, "slice_out_" + rStr}}};
       allPorts = {{"in", inputPort(inWidth, "in")}, {"out", outputPort(outWidth, "out")}};
       
-      cout << "Creating slice op" << endl;
+      //cout << "Creating slice op" << endl;
       
     } else if (matchesCall("hls.min.", instr)) {
       modName = "minOp";
@@ -1207,7 +1201,7 @@ namespace ahaHLS {
 
           StructType* structT = dyn_cast<StructType>(fuDerefTp);
 
-          cout << "Struct name = " << string(structT->getName()) << endl;
+          //cout << "Struct name = " << string(structT->getName()) << endl;
 
           if (!hcs.hasArgumentSpec(fuPtr)) {
             cout << "Error: No spec... possible choices" << endl;
@@ -1259,11 +1253,11 @@ namespace ahaHLS {
         // No action
       }
     } else if (AllocaInst::classof(instr)) {
-      cout << "Alloca instruction = " << valueString(instr) << endl;
+      //cout << "Alloca instruction = " << valueString(instr) << endl;
       AllocaInst* allocInst = dyn_cast<AllocaInst>(instr);
       Type* allocatedType = allocInst->getType()->getElementType();
       if (StructType::classof(allocatedType)) {
-        cout << "Allocating struct of type " << typeString(allocatedType) << endl;
+        //cout << "Allocating struct of type " << typeString(allocatedType) << endl;
         return structFunctionalUnit(allocInst, hcs);
       }
     } else if (BitCastInst::classof(instr)) {
@@ -1436,7 +1430,7 @@ namespace ahaHLS {
                                  MicroArchitecture& arch) {
     
 
-    cout << "Getting most recent location of " << valueString(result) << " for instruction " << valueString(currentPosition.instr) << endl;
+    //cout << "Getting most recent location of " << valueString(result) << " for instruction " << valueString(currentPosition.instr) << endl;
 
     StateId currentPos = currentPosition.stateId();
 
@@ -1474,8 +1468,8 @@ namespace ahaHLS {
       }
       return map_find(string(portName), unit0Src.outWires);
     } else if (isBuiltinSlice(instr0)) {
-      cout << "Found slice " << valueString(instr0) << endl;
-      cout << "Unit modspec = " << unit0Src.module << endl;
+      //cout << "Found slice " << valueString(instr0) << endl;
+      //cout << "Unit modspec = " << unit0Src.module << endl;
 
       return unit0Src.outputWire();
     } else {
@@ -1497,7 +1491,7 @@ namespace ahaHLS {
                   MicroArchitecture& arch) {
     
     //cout << "Getting name of " << valueString(val) << endl;
-    Instruction* instr = currentPosition.instr;
+    // Instruction* instr = currentPosition.instr;
     //cout << "In instruction " << valueString(instr) << endl;
     
     if (Instruction::classof(val)) {
@@ -1638,15 +1632,15 @@ namespace ahaHLS {
 
       return constWire(tpWidth, dyn_cast<ConstantInt>(val)->getSExtValue());
     } else {
-      cout << "Getting name of value " << valueString(val) << " of type " << typeString(val->getType()) << endl;
+      //cout << "Getting name of value " << valueString(val) << " of type " << typeString(val->getType()) << endl;
       assert(ConstantFP::classof(val));
 
       ConstantFP* fpVal = dyn_cast<ConstantFP>(val);
 
-      cout << "Float value = " << valueString(fpVal) << endl;
+      //cout << "Float value = " << valueString(fpVal) << endl;
       string floatBits = fpVal->getValueAPF().bitcastToAPInt().toString(2, false);
 
-      cout << "Bitcast     = " << floatBits << endl;
+      //cout << "Bitcast     = " << floatBits << endl;
 
       //return "32'b" + zeroExtend(floatBits, 32);
       return constWire(32, fpVal->getValueAPF().bitcastToAPInt().getLimitedValue());
@@ -1866,7 +1860,7 @@ namespace ahaHLS {
       if (isBuiltinPortWrite(instr)) {
 
         std::string portName = getPortName(instr);
-        cout << "Port name = " << portName << endl;
+        //cout << "Port name = " << portName << endl;
         auto val = outputWire(instr->getOperand(1), pos, arch);
 
         assignments.insert({addUnit.input(portName), val});
@@ -3138,7 +3132,7 @@ namespace ahaHLS {
     // For each state:
     //   If the state is active: Set each worldState variable based on prior state
 
-    Function* f = arch.stg.getFunction();
+    //Function* f = arch.stg.getFunction();
     
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
@@ -3382,7 +3376,7 @@ namespace ahaHLS {
       }
 
       if (dominatesAllExits && appearsInAllOrders) {
-        cout << valueString(instr) << " occurs in every activation of state " << state << endl;
+        //cout << valueString(instr) << " occurs in every activation of state " << state << endl;
         alwaysDefined.insert(instr);
       }
     }
@@ -3474,19 +3468,19 @@ namespace ahaHLS {
       
     }
 
-    cout << "Final live values" << endl;
-    for (auto st : arch.stg.opStates) {
-      cout << tab(1) << "-------" << endl;
-      cout << tab(1) << st.first << " live in  = " << in[st.first].size() << endl;
-      for (auto v : in[st.first]) {
-        cout << tab(2) << valueString(v) << endl;
-      }
-      cout << tab(1) << st.first << " live out = " << out[st.first].size() << endl;
-      for (auto v : out[st.first]) {
-        cout << tab(2) << valueString(v) << endl;
-      }
+    // cout << "Final live values" << endl;
+    // for (auto st : arch.stg.opStates) {
+    //   cout << tab(1) << "-------" << endl;
+    //   cout << tab(1) << st.first << " live in  = " << in[st.first].size() << endl;
+    //   for (auto v : in[st.first]) {
+    //     cout << tab(2) << valueString(v) << endl;
+    //   }
+    //   cout << tab(1) << st.first << " live out = " << out[st.first].size() << endl;
+    //   for (auto v : out[st.first]) {
+    //     cout << tab(2) << valueString(v) << endl;
+    //   }
       
-    }
+    // }
     
     return {in, out};
   }
@@ -3494,18 +3488,18 @@ namespace ahaHLS {
   void buildDataPathWires(MicroArchitecture& arch) {
     set<Instruction*> allValues = allDataInFunction(arch.stg.getFunction());
 
-    cout << "# of values in function = " << allValues.size() << endl;
-    for (auto v : allValues) {
-      cout << tab(1) << valueString(v) << endl;
-    }
+    // cout << "# of values in function = " << allValues.size() << endl;
+    // for (auto v : allValues) {
+    //   cout << tab(1) << valueString(v) << endl;
+    // }
 
     set<Instruction*> allValuesMayNeedStorage =
       allValuesThatMayNeedStorage(arch.stg.getFunction(), arch.stg);
 
-    cout << "# of values in function that may need storage = " << allValuesMayNeedStorage.size() << endl;
-    for (auto v : allValuesMayNeedStorage) {
-      cout << tab(1) << valueString(v) << endl;
-    }
+    //cout << "# of values in function that may need storage = " << allValuesMayNeedStorage.size() << endl;
+    // for (auto v : allValuesMayNeedStorage) {
+    //   cout << tab(1) << valueString(v) << endl;
+    // }
 
     allValues = allValuesMayNeedStorage;
 
@@ -3569,10 +3563,10 @@ namespace ahaHLS {
     auto f = stg.getFunction();
 
     map<Instruction*, Value*> gs = gepSources(f);
-    cout << "GEP Sources" << endl;
-    for (auto gepS : gs) {
-      cout << tab(1) << valueString(gepS.first) << " -> " << valueString(gepS.second) << ", offset = " << gepOffset(dyn_cast<GetElementPtrInst>(gepS.first)) << ", result type " << typeString(gepS.first->getType()) << " has width = " << getValueBitWidth(gepS.first) << endl;
-    }
+    // cout << "GEP Sources" << endl;
+    // for (auto gepS : gs) {
+    //   cout << tab(1) << valueString(gepS.first) << " -> " << valueString(gepS.second) << ", offset = " << gepOffset(dyn_cast<GetElementPtrInst>(gepS.first)) << ", result type " << typeString(gepS.first->getType()) << " has width = " << getValueBitWidth(gepS.first) << endl;
+    // }
     
     // TODO: Remove this duplicated function
     map<BasicBlock*, int> basicBlockNos = stg.basicBlockNos;
@@ -3712,7 +3706,7 @@ namespace ahaHLS {
         }
 
         for (auto& er : toErase) {
-          cout << "Erasing " << er.valueString() << " from portVals" << endl;
+          //cout << "Erasing " << er.valueString() << " from portVals" << endl;
           pv.portVals.erase(er);
         }
 

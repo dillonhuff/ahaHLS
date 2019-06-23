@@ -352,7 +352,7 @@ namespace ahaHLS {
         }
       }
 
-      cout << "No memory mapping for " << valueString(iptr) << endl;
+      //cout << "No memory mapping for " << valueString(iptr) << endl;
       // If no spec is given use default
       // TODO: Need to set defaults for internal loads vs external
       latency = getLatency(STORE_OP);
@@ -5229,13 +5229,13 @@ namespace ahaHLS {
     LoopInfo li(dt);
 
     set<TaskSpec> tasks;
-    cout << "-- Loops in 2 x 2" << endl;
+    //cout << "-- Loops in 2 x 2" << endl;
 
     set<BasicBlock*> allBlksInTasks;
     for (Loop* loop : li) {
       //  Dump
-      cout << "- loop" << endl;
-      cout << valueString(loop->getHeader()) << endl;
+      // cout << "- loop" << endl;
+      // cout << valueString(loop->getHeader()) << endl;
 
       TaskSpec loopTask;
       for (BasicBlock* blk : loop->getBlocks()) {
@@ -5249,8 +5249,8 @@ namespace ahaHLS {
     for (auto& bb : f->getBasicBlockList()) {
       if (!elem(&bb, allBlksInTasks)) {
 
-        cout << "Basic block not in loop task" << endl;
-        cout << valueString(&bb) << endl;
+        // cout << "Basic block not in loop task" << endl;
+        // cout << valueString(&bb) << endl;
 
         TaskSpec blockTask{{&bb}};
         tasks.insert(blockTask);

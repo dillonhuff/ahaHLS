@@ -371,23 +371,23 @@ namespace ahaHLS {
         vector<int64_t> strides{dataWidth*nCols, dataWidth, 0, 0, 0, 0};
         int bitOffset = 0;
         int stride = strides[0];
-        cout << "axi_get ";
-        for (int i = 1; i < (int) func->arg_size(); i++) {
-          cout << valueString(toRewrite->getOperand(i)) << ", ";
-        }
-        cout << endl << endl;
+        // cout << "axi_get ";
+        // for (int i = 1; i < (int) func->arg_size(); i++) {
+        //   cout << valueString(toRewrite->getOperand(i)) << ", ";
+        // }
+        // cout << endl << endl;
         
-        cout << "-- Starting stride comp for " << valueString(toRewrite) << endl;
+        //cout << "-- Starting stride comp for " << valueString(toRewrite) << endl;
         for (int i = 1; i < (int) func->arg_size(); i++) {
           Value* index = toRewrite->getOperand(i);
-          cout << "Index = " << valueString(index) << endl;
+          //cout << "Index = " << valueString(index) << endl;
           int64_t indI = getInt(index);
-          cout << "indI = " << indI << ", stride = " << stride << endl;
+          //cout << "indI = " << indI << ", stride = " << stride << endl;
           bitOffset += indI*stride;
           stride = strides[i];
         }
 
-        cout << "Get bit offset in stencil reg = " << bitOffset << endl;
+        //cout << "Get bit offset in stencil reg = " << bitOffset << endl;
 
         auto fullLoad =
           b.CreateLoad(findRewrite(toRewrite->getOperand(0), rewrites));
@@ -419,7 +419,7 @@ namespace ahaHLS {
       } else if (isMethod("hls_stream", "read", func)) {
         vector<Value*> argReplacements;
         for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
-          cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
+          //cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
           argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
         }
 
@@ -429,7 +429,7 @@ namespace ahaHLS {
       } else if (isMethod("hls_stream", "write", func)) {
         vector<Value*> argReplacements;
         for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
-          cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
+          //cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
           argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
         }
 
@@ -437,11 +437,11 @@ namespace ahaHLS {
         rewrites[toRewrite] =
           b.CreateCall(replaceF, argReplacements);
       } else if (isConstructor("AxiPackedStencil_", func)) {
-        cout << "Replacing stencil constructor " << valueString(toRewrite) << endl;
+        //cout << "Replacing stencil constructor " << valueString(toRewrite) << endl;
         
         vector<Value*> argReplacements;
         for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
-          cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
+          //cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
           argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
         }
 
@@ -475,22 +475,22 @@ namespace ahaHLS {
         }
 
 
-        cout << "Replacing ram write call" << endl;
+        //cout << "Replacing ram write call" << endl;
         
         int w =
           ramDataWidth(typeString(getPointedToType(getArg(func, 0)->getType())));
 
-        cout << "Got width" << endl;
+        //cout << "Got width" << endl;
         
         int d =
           ramDepth(typeString(getPointedToType(getArg(func, 0)->getType())));
 
-        cout << "Got depth" << endl;        
+        //cout << "Got depth" << endl;        
         auto replacement = ramStoreFunction(w, d);
         rewrites[toRewrite] =
           b.CreateCall(replacement, argReplacements);
 
-        cout << "Done" << endl;                
+        //cout << "Done" << endl;                
       } else if (isMethod("ram_", "ram_read", func)) {
         vector<Value*> argReplacements;
         for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
@@ -509,7 +509,7 @@ namespace ahaHLS {
       } else if (isMethod("linebuffer_", "lb_write", func)) {
         vector<Value*> argReplacements;
         for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
-          cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
+          //cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
           argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
         }
 
@@ -522,7 +522,7 @@ namespace ahaHLS {
       } else if (isMethod("linebuffer_", "lb_read", func)) {
         vector<Value*> argReplacements;
         for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
-          cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
+          //cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
           argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
         }
 
@@ -536,7 +536,7 @@ namespace ahaHLS {
       } else if (isMethod("linebuffer_", "has_valid_data", func)) {
         vector<Value*> argReplacements;
         for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
-          cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
+          //cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
           argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
         }
 
@@ -550,7 +550,7 @@ namespace ahaHLS {
 
         vector<Value*> argReplacements;
         for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
-          cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
+          //cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
           argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
         }
 
@@ -563,7 +563,7 @@ namespace ahaHLS {
 
         vector<Value*> argReplacements;
         for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
-          cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
+          //cout << "replacing " << valueString(toRewrite->getOperand(i)) << endl;
           argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
         }
 
@@ -576,7 +576,7 @@ namespace ahaHLS {
       } else if (matchesCallDemangled("float_from_bits", toRewrite)) {
         vector<Value*> argReplacements;
         for (int i = 0; i < toRewrite->getNumOperands() - 1; i++) {
-          cout << "replacing arg " << i << " = " << valueString(toRewrite->getOperand(i)) << endl;
+          //cout << "replacing arg " << i << " = " << valueString(toRewrite->getOperand(i)) << endl;
           argReplacements.push_back(findRewrite(toRewrite->getOperand(i), rewrites));
         }
 
@@ -588,7 +588,7 @@ namespace ahaHLS {
         rewrites[toRewrite] = argReplacements[0];
             //b.CreateCall(replaceF, argReplacements);
 
-        cout << "Done replacing " << valueString(toRewrite) << endl;
+        //cout << "Done replacing " << valueString(toRewrite) << endl;
         
       } else {
         cout << "Unsupported call" << valueString(toRewrite) << endl;
@@ -631,12 +631,12 @@ namespace ahaHLS {
       llvm::Instruction::BinaryOps opcode =
         dyn_cast<BinaryOperator>(toRewrite)->getOpcode();
 
-      cout << "Getting " << valueString(toRewrite->getOperand(0)) << endl;
+      //cout << "Getting " << valueString(toRewrite->getOperand(0)) << endl;
       auto rLHS = findRewrite(toRewrite->getOperand(0), rewrites);
 
       auto rRHS = findRewrite(toRewrite->getOperand(1), rewrites);      
 
-      cout << "Got binop" << endl;
+      //cout << "Got binop" << endl;
       rewrites[toRewrite] = b.CreateBinOp(opcode, rLHS, rRHS);
     } else if (ICmpInst::classof(toRewrite)) {
       llvm::ICmpInst::Predicate pred =
@@ -685,25 +685,25 @@ namespace ahaHLS {
         Instruction* instr = &instrR;
         if (PHINode::classof(instr)) {
 
-          cout << "Found phi " << valueString(instr) << endl;
+          //cout << "Found phi " << valueString(instr) << endl;
           auto newPhi = dyn_cast<PHINode>(instr);
           
           auto origP = findSource(dyn_cast<Value>(instr), rewrites);
           assert(PHINode::classof(origP));
           auto origPhi = dyn_cast<PHINode>(origP);
 
-          cout << "Populating replacement for " << valueString(origPhi) << endl;
+          //cout << "Populating replacement for " << valueString(origPhi) << endl;
           
           for (int i = 0; i < origPhi->getNumIncomingValues(); i++) {
-            cout << "Getting " << i << "th block" << endl;
+            //cout << "Getting " << i << "th block" << endl;
             BasicBlock* replaceBB =
               map_find(origPhi->getIncomingBlock(i), bbRewrites);
-            cout << "Getting " << i << "th value" << endl;            
+            //cout << "Getting " << i << "th value" << endl;            
 
             Value* replaceVal =
               findRewrite(origPhi->getIncomingValue(i), rewrites);
 
-            cout << "Getting " << i << "th value" << endl;                        
+            //cout << "Getting " << i << "th value" << endl;                        
             newPhi->addIncoming(replaceVal, replaceBB);
           }
         }
@@ -784,7 +784,7 @@ namespace ahaHLS {
         auto instr = &instrR;
         if (AllocaInst::classof(instr)) {
           auto allocTp = getPointedToType(instr->getType());
-          cout << "Allocating type " << typeString(allocTp) << endl;
+          //cout << "Allocating type " << typeString(allocTp) << endl;
           if (isBuiltinFifoType(allocTp)) {
             if (!settings.pushFifos) {
               hcs.modSpecs[instr] = fifoSpec(builtinFifoWidth(allocTp), 128);
@@ -822,9 +822,9 @@ namespace ahaHLS {
   bool isRAMWrite(Instruction* instr) {
     if (CallInst::classof(instr)) {
       CallInst* ci = dyn_cast<CallInst>(instr);
-      cout << "Name of called = "
-           << string(ci->getCalledFunction()->getName())
-           << endl;
+      // cout << "Name of called = "
+      //      << string(ci->getCalledFunction()->getName())
+      //      << endl;
       return hasPrefix(ci->getCalledFunction()->getName(), "ram.write.");
     }
 
@@ -937,7 +937,7 @@ namespace ahaHLS {
       assert(activeLoop->getSubLoops().size() == 1);
 
       unsigned tc = scev.getSmallConstantTripCount(activeLoop);
-      cout << "Trip count of activeLoop = " << tc << endl;
+      //cout << "Trip count of activeLoop = " << tc << endl;
       info.tripCounts.push_back(tc);
       
       activeLoop = activeLoop->getSubLoops()[0];
@@ -945,14 +945,14 @@ namespace ahaHLS {
     }
 
     unsigned tc = scev.getSmallConstantTripCount(activeLoop);
-    cout << "Trip count of base loop = " << tc << endl;
+    //cout << "Trip count of base loop = " << tc << endl;
     info.tripCounts.push_back(tc);
     
-    cout << "Body " << endl;
+    //cout << "Body " << endl;
     for (auto blk : activeLoop->getBlocks()) {
       info.body.insert(blk);
-      cout << tab(1) << "Includes block" << endl;
-      cout << valueString(blk) << endl;
+      // cout << tab(1) << "Includes block" << endl;
+      // cout << valueString(blk) << endl;
     }
 
     // Find all operations that we may need to block for
@@ -961,7 +961,7 @@ namespace ahaHLS {
         auto instr = &instrR;
         if (matchesCall("lb_pop", instr) ||
             matchesCall("fifo_read_ref", instr)) {
-          cout << tab(1) << "Blocking operation: " << valueString(instr) << endl;
+          //cout << tab(1) << "Blocking operation: " << valueString(instr) << endl;
           info.blockingOps.insert(instr);
         }
       }
@@ -1009,19 +1009,19 @@ namespace ahaHLS {
 
       BasicBlock* opBlock = bb->splitBasicBlock(ind);
 
-      cout << "opBlock = " << valueString(opBlock) << endl;
+      //cout << "opBlock = " << valueString(opBlock) << endl;
       
       auto* loopCond =
         //extract<Instruction>(extract<BranchInst>(opBlock->getTerminator()));
         extract<ICmpInst>(extract<BranchInst>(opBlock->getTerminator())->getCondition());
 
       // TODO: Need to move this code
-      cout << "Splitting at " << valueString(loopCond) << endl;
+      //cout << "Splitting at " << valueString(loopCond) << endl;
 
       BasicBlock* exitBlock = opBlock->splitBasicBlock(loopCond);
       auto* branchCond =
         extract<ICmpInst>(extract<BranchInst>(exitBlock->getTerminator())->getCondition());
-      cout << "Lifted loop latch cond = " << valueString(branchCond) << endl;
+      //cout << "Lifted loop latch cond = " << valueString(branchCond) << endl;
       auto* lhs = branchCond->getOperand(0);
       auto* rhs = branchCond->getOperand(1);
 
@@ -1034,8 +1034,8 @@ namespace ahaHLS {
       newLHS->addIncoming(canonicalVar, bb);
       newLHS->insertBefore(branchCond);
 
-      cout << "Loop latch after adding new index = " << endl;
-      cout << valueString(dyn_cast<Instruction>(lhs)->getParent()) << endl;
+      //cout << "Loop latch after adding new index = " << endl;
+      //cout << valueString(dyn_cast<Instruction>(lhs)->getParent()) << endl;
 
       branchCond->setOperand(0, newLHS);
       // auto newBrCond = CmpInst::Create(ICmp::EQ, newLHS, rhs);
@@ -1062,8 +1062,8 @@ namespace ahaHLS {
       bbBuilder.CreateCondBr(allInputsValid, opBlock, exitBlock);
     }
 
-    cout << "Done splitting" << endl;
-    cout << valueString(f) << endl;
+    // cout << "Done splitting" << endl;
+    // cout << valueString(f) << endl;
 
   }
   
