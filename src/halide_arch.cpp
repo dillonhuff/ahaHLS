@@ -1870,6 +1870,10 @@ namespace ahaHLS {
     ExecutionConstraints exec;
 
     //addDataConstraints(rewritten, exec);
+
+    // cout << "Just before inlining halide" << endl;
+    // cout << valueString(rewritten) << endl;
+
     inlineWireCalls(rewritten, exec, interfaces);
 
     DominatorTree DT(*rewritten);
@@ -1902,6 +1906,14 @@ namespace ahaHLS {
     if (settings.removeLoopBounds) {
       removeLoopBounds(rewritten);
     }
+
+    DominatorTree dt(*rewritten);
+    LoopInfo li(dt);
+    cout << "### loops after loop bounds removal" << endl;
+    for (Loop* loop : li) {
+      cout << tab(1) << "header:" << endl;
+      cout << valueString(loop->getLoopLatch());
+    }
     
     clearExecutionConstraints(rewritten, exec);
     
@@ -1932,8 +1944,8 @@ namespace ahaHLS {
     hcs.setLatency(FADD_OP, 2);
     assignModuleSpecs(rewritten, hcs, settings);
     
-    // cout << "After inlining" << endl;
-    // cout << valueString(rewritten) << endl;
+    cout << "After inlining" << endl;
+    cout << valueString(rewritten) << endl;
     auto preds = buildControlPreds(rewritten);
 
     SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, tasks, preds);
@@ -1943,8 +1955,8 @@ namespace ahaHLS {
     Schedule s = scheduleFunction(rewritten, hcs, toPipeline, constraints);
 
     STG graph = buildSTG(s, rewritten);
-    // cout << "STG is" << endl;
-    // graph.print(cout);
+    cout << "STG is" << endl;
+    graph.print(cout);
 
     std::map<Value*, int> memoryMap;
     MicroArchitecture arch = buildMicroArchitecture(graph, memoryMap, hcs);
