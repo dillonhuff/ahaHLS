@@ -2789,13 +2789,13 @@ namespace ahaHLS {
             Function* inlineFunc = call->getCalledFunction();
             if (interfaces.containsFunction(inlineFunc)) {
 
-              cout << "Inlining call " << valueString(&instr) << endl;
+              //cout << "Inlining call " << valueString(&instr) << endl;
               inlineFunctionWithConstraints(f, exec, call, interfaces.getConstraints(inlineFunc));
               replaced = true;
             
               break;
             } else if (canDemangle(inlineFunc->getName())) {
-              cout << "Can demangle " << valueString(&instr) << endl;
+              //cout << "Can demangle " << valueString(&instr) << endl;
               string dmName =
                 demangledFuncName(demangle(inlineFunc->getName()));
               if (contains_key(dmName, interfaces.functionTemplates)) {
@@ -4152,9 +4152,9 @@ namespace ahaHLS {
     int inWidth =
       getTypeBitWidth(getPointedToType(inStencilPtr->getType()));
 
-    cout << "About to print inStencilptr" << endl;
-    cout << "inStencilPtr = " << valueString(inStencilPtr) << endl;
-    cout << "LB push In width " << inWidth << endl;
+    // cout << "About to print inStencilptr" << endl;
+    // cout << "inStencilPtr = " << valueString(inStencilPtr) << endl;
+    // cout << "LB push In width " << inWidth << endl;
     //lbInWidth(lb);
 
     auto eb = mkBB("entry_block", func);
@@ -4162,7 +4162,7 @@ namespace ahaHLS {
     
     auto wValid = writePort(b, lb, 1, "wen", mkInt(1, 1));
     auto inDataLoad = b.CreateLoad(inStencilPtr);
-    cout << "LB Loaded data width " << getValueBitWidth(inDataLoad) << endl;
+    //cout << "LB Loaded data width " << getValueBitWidth(inDataLoad) << endl;
     auto wData = writePort(b, lb, inWidth, "wdata", inDataLoad);
 
     // All at once
@@ -4182,8 +4182,8 @@ namespace ahaHLS {
     int outWidth =
       getTypeBitWidth(getPointedToType(outStencilPtr->getType()));
 
-    cout << "Output width of linebuffer pop call " << valueString(func) << endl;
-    cout << "is = " << outWidth << endl;
+    // cout << "Output width of linebuffer pop call " << valueString(func) << endl;
+    // cout << "is = " << outWidth << endl;
 
     auto eb = mkBB("entry_block", func);
     IRBuilder<> b(eb);
@@ -4511,7 +4511,7 @@ namespace ahaHLS {
       return;
     }
 
-    cout << "# of args = " << stencilCall->arg_size() << " to " << valueString(stencilCall) << endl;
+    //cout << "# of args = " << stencilCall->arg_size() << " to " << valueString(stencilCall) << endl;
     assert(stencilCall->arg_size() == 2);
 
     auto eb = mkBB("entry_block", stencilCall);
@@ -4872,8 +4872,8 @@ namespace ahaHLS {
                              std::set<BasicBlock*>& toPipeline,
                              ExecutionConstraints& exec) {
 
-    cout << "Before inlining" << endl;
-    cout << valueString(f) << endl;
+    // cout << "Before inlining" << endl;
+    // cout << valueString(f) << endl;
 
     auto preds = buildControlPreds(f);
     addStencilCallConstraints(f, preds, exec);
@@ -4884,8 +4884,8 @@ namespace ahaHLS {
     // will be destroyed by inlining
     addDataConstraints(f, exec);
     
-    cout << "After inlining" << endl;
-    cout << valueString(f) << endl;
+    // cout << "After inlining" << endl;
+    // cout << valueString(f) << endl;
 
     // cout << "Constraints after inlining" << endl;
     // for (auto c : exec.constraints) {
@@ -5369,7 +5369,7 @@ namespace ahaHLS {
   }
   
   int stencilTypeWidth(const std::string& origName) {
-    cout << "Getting type width of " << origName << endl;
+    //cout << "Getting type width of " << origName << endl;
 
     string name = origName;
     if (hasPrefix(origName, "class.")) {
@@ -5412,7 +5412,7 @@ namespace ahaHLS {
   }
   
   int stencilNumRows(const std::string& name) {
-    cout << "Stencil name in nrows = " << name << endl;
+    //cout << "Stencil name in nrows = " << name << endl;
 
     string stencilPrefix = "";
     if (hasPrefix(name, "class.AxiPackedStencil_")) {
@@ -5429,17 +5429,17 @@ namespace ahaHLS {
     if (hasPrefix("float", nm)) {
       res = drop("float_", nm);
     } else {
-      cout << "NumRows nm = " << nm << endl;
+      //cout << "NumRows nm = " << nm << endl;
       res = drop("_", dropDigits(drop("_", drop("_t", nm))));
     }
 
     
-    cout << "res = " << res << endl;
+    //cout << "res = " << res << endl;
     return stoi(takeDigits(res));
   }
 
   int stencilNumCols(const std::string& name) {
-    cout << "Getting numCols for " << name << endl;
+    //cout << "Getting numCols for " << name << endl;
     
     string stencilPrefix = "";
     if (hasPrefix(name, "class.AxiPackedStencil_")) {
@@ -5454,7 +5454,7 @@ namespace ahaHLS {
     
     string nm = drop(stencilPrefix, name);
 
-    cout << "NumCols nm = " << nm << endl;
+    //cout << "NumCols nm = " << nm << endl;
     string res;
     if (hasPrefix("float", nm)) {
       res = drop("_", drop("float_", nm));
@@ -5462,7 +5462,7 @@ namespace ahaHLS {
       res = drop("_", drop("_t", nm));
     }
 
-    cout << "res cols = " << res << endl;
+    //cout << "res cols = " << res << endl;
     return stoi(takeDigits(res));
     // cout << "NumRows "
     // return 1;
@@ -5557,8 +5557,8 @@ namespace ahaHLS {
 
   void implementLBHasValidData(llvm::Function* lbM,
                                ExecutionConstraints& exec) {
-    cout << "lb valid = " << endl;
-    cout << valueString(lbM) << endl;
+    //cout << "lb valid = " << endl;
+    //cout << valueString(lbM) << endl;
     assert(lbM->arg_size() > 0);
     
     auto lbMod = getArg(lbM, 0);
@@ -5601,7 +5601,7 @@ namespace ahaHLS {
     string rName = drop("class.ram_", ramName);
     string rest = dropType(rName);
 
-    cout << "ram reset in ramDepth = " << rest << endl;
+    //cout << "ram reset in ramDepth = " << rest << endl;
 
     return stoi(rest);
   }
@@ -5619,7 +5619,7 @@ namespace ahaHLS {
 
   int ramDataWidth(const std::string& ramName) {
     string rName = drop("class.ram_", ramName);
-    cout << "rName = " << rName << endl;
+    //cout << "rName = " << rName << endl;
     // string rest = dropInt(rName);
 
     // cout << "rest of ram " << rest << endl;
@@ -5634,7 +5634,7 @@ namespace ahaHLS {
                               HardwareConstraints& hcs) {
     Module* mod = f->getParent();
 
-    cout << "Building stencil, stream, and linebuffer info for func" << endl;
+    //cout << "Building stencil, stream, and linebuffer info for func" << endl;
     //for (auto& g : mod->globals()) {
     for (auto* stp : mod->getIdentifiedStructTypes()) {
       //cout << typeString(stp) << endl;
@@ -5657,7 +5657,7 @@ namespace ahaHLS {
         int nRows = stencilNumRows(stencilName);
         int nCols = stencilNumCols(stencilName);
 
-        cout << "Is stream" << endl;
+        //cout << "Is stream" << endl;
         hcs.typeSpecs[name] =
           [typeWidth, nRows, nCols](StructType* axiStencil) {
           return streamAxiPackedStencilSpec(typeWidth, nRows, nCols);
@@ -5686,7 +5686,7 @@ namespace ahaHLS {
           return ramSpec(typeWidth, depth);
         };
       } else {
-        cout << "Unrecognized halide struct " << name << endl;
+        //cout << "Unrecognized halide struct " << name << endl;
       }
     }
 
@@ -5735,7 +5735,7 @@ namespace ahaHLS {
 
   StructType* lbType(LBSpec& spec) {
     int inWidth = bitWidth(spec.in);
-    cout << "lb InWidth = " << inWidth << endl;
+    //cout << "lb InWidth = " << inWidth << endl;
     int outWidth = bitWidth(spec.out);
 
     int inRows = spec.in.nRows;
@@ -5747,7 +5747,7 @@ namespace ahaHLS {
     assert(spec.imageBounds.size() == 2);
     
     // TODO: Add in rows, in cols, out rows, out cols to this spec
-    cout << "lb OutWidth = " << outWidth << endl;
+    //cout << "lb OutWidth = " << outWidth << endl;
     string name = "hls.lb." + to_string(inWidth) + "." + to_string(outWidth) + "." + to_string(8) + "." + to_string(inRows) + "." + to_string(inCols) + "." + to_string(outRows) + "." + to_string(outCols);
     for (auto bnd : spec.imageBounds) {
       name += "." + to_string(bnd);

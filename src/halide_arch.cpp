@@ -342,7 +342,7 @@ namespace ahaHLS {
                     map<Value*, Value*>& rewrites,
                     Instruction* toRewrite) {
 
-    cout << "rewriting " << valueString(toRewrite) << endl;
+    //cout << "rewriting " << valueString(toRewrite) << endl;
     
     BasicBlock* repBB = map_find(toRewrite->getParent(), bbRewrites);
 
@@ -744,8 +744,8 @@ namespace ahaHLS {
     
     populatePHIs(orig, f, rewrites, bbRewrites);
 
-    cout << "Immediately after rewrite " << endl;
-    cout << valueString(f) << endl;
+    // cout << "Immediately after rewrite " << endl;
+    // cout << valueString(f) << endl;
     
     sanityCheck(f);
     
@@ -1093,8 +1093,8 @@ namespace ahaHLS {
     // lbp.registerLoopAnalyses(LAM);
     // lbp.run(*f, LAM);
     
-    cout << "Before Dataflow loop opts" << endl;
-    cout << valueString(f) << endl;
+    // cout << "Before Dataflow loop opts" << endl;
+    // cout << valueString(f) << endl;
     
     DominatorTree dt(*f);
     LoopInfo li(dt);
@@ -1108,7 +1108,7 @@ namespace ahaHLS {
     map<Loop*, BasicBlock*> exits;
 
     for (Loop* loop : li) {
-      cout << "Found loop in for to while conversion, depth = " << loop->getLoopDepth() << ", subloops = " << loop->getSubLoops().size() << endl;
+      //cout << "Found loop in for to while conversion, depth = " << loop->getLoopDepth() << ", subloops = " << loop->getSubLoops().size() << endl;
       
       assert(isPerfect(loop));
 
@@ -1126,23 +1126,23 @@ namespace ahaHLS {
 
       BasicBlock* exit = loop->getUniqueExitBlock();
       if (exit == nullptr) {
-        cout << "Loop does not have unique exit block" << endl;
+        //cout << "Loop does not have unique exit block" << endl;
         SmallVector<BasicBlock*, 8> exitBlocks;
         loop->getUniqueExitBlocks(exitBlocks);
-        for (auto blk : exitBlocks) {
-          cout << "Exit blk" << endl;
-          cout << valueString(blk) << endl;
-        }
+        // for (auto blk : exitBlocks) {
+        //   cout << "Exit blk" << endl;
+        //   cout << valueString(blk) << endl;
+        // }
         
         SmallVector<std::pair<const BasicBlock *, const BasicBlock *>, 8> exitEdges;
         loop->getExitEdges(exitEdges);
 
-        for (auto edge : exitEdges) {
-          cout << "Out from " << endl;
-          cout << valueString(edge.first) << endl;
-          cout << "to" << endl;
-          cout << valueString(edge.second) << endl;          
-        }
+        // for (auto edge : exitEdges) {
+        //   cout << "Out from " << endl;
+        //   cout << valueString(edge.first) << endl;
+        //   cout << "to" << endl;
+        //   cout << valueString(edge.second) << endl;          
+        // }
         assert(false);
       }
       exits[loop] = exit;
@@ -1187,7 +1187,7 @@ namespace ahaHLS {
           for (auto tc : info.tripCounts) {
             totalTripCount *= tc;
           }
-          cout << "Total trip count of flattened = " << totalTripCount << endl;
+          //cout << "Total trip count of flattened = " << totalTripCount << endl;
           // We only handle 16 bits on CGRA now
           assert(totalTripCount < 300000);
 
@@ -1217,8 +1217,8 @@ namespace ahaHLS {
 
     runCleanupPasses(f);
     
-    cout << "After loop flattening opt" << endl;
-    cout << valueString(f) << endl;
+    // cout << "After loop flattening opt" << endl;
+    // cout << valueString(f) << endl;
     sanityCheck(f);
 
     liftBlockingOps(f);
@@ -1304,10 +1304,10 @@ namespace ahaHLS {
         if (isFifoRead(instr)) {
           vector<Instruction*> instrs = instrSequence(instr, 4);
           if (instrs.size() > 0) {
-            cout << "Found instruction sequence after " << valueString(instr) << endl;
-            for (auto i : instrs) {
-              cout << tab(1) << valueString(i) << endl;
-            }
+            // cout << "Found instruction sequence after " << valueString(instr) << endl;
+            // for (auto i : instrs) {
+            //   cout << tab(1) << valueString(i) << endl;
+            // }
             auto rd = instrs[0];
             auto pLd = instrs[1];
             auto pSt = instrs[2];
@@ -1319,7 +1319,7 @@ namespace ahaHLS {
               continue;
             }
 
-            cout << "Found possible fifo rw opt sequence" << endl;
+            //cout << "Found possible fifo rw opt sequence" << endl;
             auto rdReg = rd->getOperand(0);
             auto ldTarget = pLd->getOperand(0);
             auto stValue = pSt->getOperand(0);
@@ -1329,7 +1329,7 @@ namespace ahaHLS {
             if ((rdReg == ldTarget) &&
                 (pLd == stValue) &&
                 (stTarget == writeReg)) {
-              cout << "-- Found rw sequence to remove" << endl;
+              //cout << "-- Found rw sequence to remove" << endl;
               pFw->setOperand(1, rdReg);
             }
           }
@@ -1381,22 +1381,22 @@ namespace ahaHLS {
       set<Instruction*> freads = fifoReads(loop);
       set<Instruction*> fwrites = fifoWrites(loop);
 
-      cout << "# of fifo reads  = " << freads.size() << endl;
-      cout << "# of fifo writes = " << fwrites.size() << endl;
+      // cout << "# of fifo reads  = " << freads.size() << endl;
+      // cout << "# of fifo writes = " << fwrites.size() << endl;
 
       if ((freads.size() == 1) &&
           (fwrites.size() == 1)) {
         auto rd = *begin(freads);
         auto wr = *begin(fwrites);
         if (dt.dominates(rd, wr)) {
-          cout << "Possible fifo transfer loop" << endl;
+          //cout << "Possible fifo transfer loop" << endl;
 
           auto read = rd->getOperand(0);
-          cout << "Read    = " << valueString(read) << endl;
+          //cout << "Read    = " << valueString(read) << endl;
           auto written = wr->getOperand(1);
-          cout << "Written = " << valueString(written) << endl;
+          //cout << "Written = " << valueString(written) << endl;
           if (read == written) {
-            cout << "Found fifo transfer loop" << endl;
+            //cout << "Found fifo transfer loop" << endl;
             if (isFifo(rd->getOperand(1)) && isFifo(wr->getOperand(0))) {
               writeReplacements[rd->getOperand(1)] =
                 wr->getOperand(0);
@@ -1405,18 +1405,18 @@ namespace ahaHLS {
               // writeReplacements[rd->getOperand(1)] =
               //   wr->getOperand(0);
             } else if (isLB(rd->getOperand(1)) && isFifo(wr->getOperand(0))) {
-              cout << "Found unneeded transfer from lb to fifo" << endl;
+              //cout << "Found unneeded transfer from lb to fifo" << endl;
               readReplacements[rd->getOperand(1)] =
                 wr->getOperand(0);
             } else {
-              cout << "-- Not replaceable bc no pattern recognized" << endl;
-              cout << tab(1) << "read source  = " << valueString(rd->getOperand(1));
-              cout << tab(1) << "write source = " << valueString(wr->getOperand(0));
+              // cout << "-- Not replaceable bc no pattern recognized" << endl;
+              // cout << tab(1) << "read source  = " << valueString(rd->getOperand(1));
+              // cout << tab(1) << "write source = " << valueString(wr->getOperand(0));
             }
           } else {
-            cout << "-- Not replaceable bc operands dont match" << endl;
-            cout << tab(1) << "read source  = " << valueString(rd->getOperand(1));
-            cout << tab(1) << "write source = " << valueString(wr->getOperand(0));
+            // cout << "-- Not replaceable bc operands dont match" << endl;
+            // cout << tab(1) << "read source  = " << valueString(rd->getOperand(1));
+            // cout << tab(1) << "write source = " << valueString(wr->getOperand(0));
           }
 
           // read = rd->getOperand(1);
@@ -1442,8 +1442,8 @@ namespace ahaHLS {
       auto oldReceiver = wr.first;
       auto newReceiver = wr.second;
 
-      cout << "Old receiver = " << valueString(oldReceiver) << endl;
-      cout << "New receiver = " << valueString(newReceiver) << endl;
+      // cout << "Old receiver = " << valueString(oldReceiver) << endl;
+      // cout << "New receiver = " << valueString(newReceiver) << endl;
 
       for (auto instr : allInstrs(f)) {
         if (isFifoRead(instr) && (instr->getOperand(1) == oldReceiver)) {
@@ -1504,8 +1504,8 @@ namespace ahaHLS {
 
     runCleanupPasses(f);
 
-    cout << "After fifo removal" << endl;
-    cout << valueString(f) << endl;
+    // cout << "After fifo removal" << endl;
+    // cout << valueString(f) << endl;
     
   }
 
@@ -1562,11 +1562,11 @@ namespace ahaHLS {
       node->eraseFromParent();
       RecursivelyDeleteTriviallyDeadInstructions(oldCond);
 
-      cout << "Done deleting" << endl;
+      //cout << "Done deleting" << endl;
     }
 
-    cout << "After top level bounds deletion" << endl;
-    cout << valueString(rewritten) << endl;
+    // cout << "After top level bounds deletion" << endl;
+    // cout << valueString(rewritten) << endl;
   }
   
   void predicateFifoWrites(Function* rewritten) {
@@ -1575,10 +1575,10 @@ namespace ahaHLS {
 
     for (Loop* loop : li) {
       if (loop->getBlocks().size() == 3) {
-        cout << "Post inlining loop has blocks" << endl;
-        for (auto blk : loop->getBlocks()) {
-          cout << valueString(blk) << endl;
-        }
+        // cout << "Post inlining loop has blocks" << endl;
+        // for (auto blk : loop->getBlocks()) {
+        //   cout << valueString(blk) << endl;
+        // }
 
         assert(loop->getBlocks().size() == 3);
         BasicBlock* exit = loop->getExitingBlock();
@@ -1594,7 +1594,7 @@ namespace ahaHLS {
           headerBr->getSuccessor(0) == exit ? headerBr->getSuccessor(1) : headerBr->getSuccessor(0);
 
         Value* brCond = headerBr->getOperand(0);
-        cout << "Header condition = " << valueString(brCond) << endl;
+        //cout << "Header condition = " << valueString(brCond) << endl;
 
         for (auto& instrR : *opBlock) {
           auto instr = &instrR;
@@ -1608,14 +1608,14 @@ namespace ahaHLS {
           auto instr = &instrR;
           if (PHINode::classof(instr)) {
             auto phi = dyn_cast<PHINode>(instr);
-            cout << "Found phi = " << valueString(phi) << " in end block" << endl;
+            //cout << "Found phi = " << valueString(phi) << " in end block" << endl;
             assert(phi->getNumIncomingValues() == 2);
 
             Value* headerInd = phi->getIncomingValueForBlock(header);
             Value* opInd = phi->getIncomingValueForBlock(opBlock);
 
-            cout << "headerInd = " << valueString(headerInd) << endl;
-            cout << "opInd     = " << valueString(opInd) << endl;
+            //cout << "headerInd = " << valueString(headerInd) << endl;
+            //cout << "opInd     = " << valueString(opInd) << endl;
             
             // TODO: Check the branch ordering
             SelectInst* sel = SelectInst::Create(brCond, opInd, headerInd);
@@ -1636,8 +1636,8 @@ namespace ahaHLS {
           }
         }
 
-        cout << "Done replacing phis" << endl;
-        cout << valueString(rewritten) << endl;
+        // cout << "Done replacing phis" << endl;
+        // cout << valueString(rewritten) << endl;
         
         IRBuilder<> hBuilder(header);
         hBuilder.CreateBr(opBlock);
@@ -1649,8 +1649,8 @@ namespace ahaHLS {
 
     runCleanupPasses(rewritten);
 
-    cout << "After valid predication" << endl;
-    cout << valueString(rewritten) << endl;
+    // cout << "After valid predication" << endl;
+    // cout << valueString(rewritten) << endl;
   }
 
   void optimizeRAMs(Function* rewritten) {
@@ -1731,14 +1731,14 @@ namespace ahaHLS {
     
     for (auto ram : ramsToReads) {
       if (contains_key(ram.first, ramsToConstValues)) {
-        cout << valueString(ram.first) << "is const ram" << endl;
+        //cout << valueString(ram.first) << "is const ram" << endl;
         for (auto rd : ram.second) {
-          cout << "rd = " << valueString(rd) << endl;
+          //cout << "rd = " << valueString(rd) << endl;
           assert(Instruction::classof(rd));
           int addr = getInt(dyn_cast<Instruction>(rd)->getOperand(1));
           int valueI = map_find(addr, ramsToConstValues[ram.first]);
           Value* value = mkInt(valueI, getValueBitWidth(rd));
-          cout << "Replacing ram read " << valueString(rd) << " with " << valueString(value) << endl;
+          //cout << "Replacing ram read " << valueString(rd) << " with " << valueString(value) << endl;
           rd->replaceAllUsesWith(value);
           toErase.insert(dyn_cast<Instruction>(rd));
           //dyn_cast<Instruction>(rd)->eraseFromParent();
@@ -1753,13 +1753,13 @@ namespace ahaHLS {
       } else if (AllocaInst::classof(instr)) {
         
       } else {
-        cout << "Not erasing " << valueString(instr) << endl;
+        //cout << "Not erasing " << valueString(instr) << endl;
       }
     }
 
     for (auto instr : toErase) {
       assert(elem(instr, allInstrs(rewritten)));
-      cout << "Erasing instruction " << valueString(instr) << endl;
+      //cout << "Erasing instruction " << valueString(instr) << endl;
       
       instr->eraseFromParent();
     }
@@ -1777,7 +1777,7 @@ namespace ahaHLS {
 
     for (auto instr : toErase) {
       assert(elem(instr, allInstrs(rewritten)));
-      cout << "Erasing instruction " << valueString(instr) << endl;
+      //cout << "Erasing instruction " << valueString(instr) << endl;
       instr->eraseFromParent();
     }
   }
@@ -1789,8 +1789,8 @@ namespace ahaHLS {
     optimizeModuleLLVM(*(rewritten->getParent()));
     optimizeStores(rewritten);
     
-    cout << "Rewritten function" << endl;
-    cout << valueString(rewritten) << endl;
+    // cout << "Rewritten function" << endl;
+    // cout << valueString(rewritten) << endl;
 
     InterfaceFunctions interfaces;
     set<string> funcs;
@@ -1817,14 +1817,14 @@ namespace ahaHLS {
               if (!settings.pushFifos) {
                 implementRVFifoReadRef(func, interfaces.getConstraints(func));
               } else {
-                cout << "Implementing push read" << endl;
+                //cout << "Implementing push read" << endl;
                 implementPushFifoReadRef(func, interfaces.getConstraints(func));
               }
             } else if (hasPrefix(name, "fifo_write_ref")) {
               if (!settings.pushFifos) {
                 implementRVFifoWriteRef(func, interfaces.getConstraints(func));
               } else {
-                cout << "Implementing push write" << endl;                
+                //cout << "Implementing push write" << endl;                
                 implementPushFifoWriteRef(func, interfaces.getConstraints(func));
               }
             } else if (hasPrefix(name, "lb_has_valid")) {
@@ -1851,13 +1851,13 @@ namespace ahaHLS {
     }
 
 
-    cout << "Before RAM opts" << endl;
-    cout << valueString(rewritten) << endl;
+    // cout << "Before RAM opts" << endl;
+    // cout << valueString(rewritten) << endl;
 
     optimizeRAMs(rewritten);
     
-    cout << "After RAM optimization" << endl;
-    cout << valueString(rewritten) << endl;
+    // cout << "After RAM optimization" << endl;
+    // cout << valueString(rewritten) << endl;
 
     if (settings.optimizeFifos) {
       optimizeFifos(rewritten);
@@ -1932,8 +1932,8 @@ namespace ahaHLS {
     hcs.setLatency(FADD_OP, 2);
     assignModuleSpecs(rewritten, hcs, settings);
     
-    cout << "After inlining" << endl;
-    cout << valueString(rewritten) << endl;
+    // cout << "After inlining" << endl;
+    // cout << valueString(rewritten) << endl;
     auto preds = buildControlPreds(rewritten);
 
     SchedulingProblem p = createSchedulingProblem(rewritten, hcs, toPipeline, tasks, preds);
@@ -1943,8 +1943,8 @@ namespace ahaHLS {
     Schedule s = scheduleFunction(rewritten, hcs, toPipeline, constraints);
 
     STG graph = buildSTG(s, rewritten);
-    cout << "STG is" << endl;
-    graph.print(cout);
+    // cout << "STG is" << endl;
+    // graph.print(cout);
 
     std::map<Value*, int> memoryMap;
     MicroArchitecture arch = buildMicroArchitecture(graph, memoryMap, hcs);
