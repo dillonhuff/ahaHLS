@@ -638,28 +638,28 @@ namespace ahaHLS {
   }
 
 
-  TEST_CASE("fp_conv_3_3 to verilog") {
+  // TEST_CASE("fp_conv_3_3 to verilog") {
 
-    SMDiagnostic Err;
-    LLVMContext Context;
-    setGlobalLLVMContext(&Context);
+  //   SMDiagnostic Err;
+  //   LLVMContext Context;
+  //   setGlobalLLVMContext(&Context);
     
-    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "fp_conv_3_3");
-    setGlobalLLVMModule(Mod.get());
+  //   std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "fp_conv_3_3");
+  //   setGlobalLLVMModule(Mod.get());
 
-    Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
-    deleteLLVMLifetimeCalls(f);
+  //   Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
+  //   deleteLLVMLifetimeCalls(f);
 
-    HalideArchSettings archSettings;
-    archSettings.loopTasks = true;
-    archSettings.pushFifos = true;
-    archSettings.forToWhile = true;
-    archSettings.optimizeFifos = true;
-    archSettings.predicateFifoWrites = true;
-    archSettings.removeLoopBounds = true;
-    archSettings.pipelineLoops = true;                
-    MicroArchitecture arch = halideArch(f, archSettings);
-  }
+  //   HalideArchSettings archSettings;
+  //   archSettings.loopTasks = true;
+  //   archSettings.pushFifos = true;
+  //   archSettings.forToWhile = true;
+  //   archSettings.optimizeFifos = true;
+  //   archSettings.predicateFifoWrites = true;
+  //   archSettings.removeLoopBounds = true;
+  //   archSettings.pipelineLoops = true;                
+  //   MicroArchitecture arch = halideArch(f, archSettings);
+  // }
 
   
 }
