@@ -218,6 +218,12 @@ namespace ahaHLS {
     cout << "Module is " << endl;
     storeMod->print();    
 
+
+    c->runPasses({"rungenerators", "wireclocks-coreir", "fold-constants", "removeconstduplicates", "deletedeadinstances"});
+    
+    cout << "After constant folding module is " << endl;
+    storeMod->print();    
+    
     c->runPasses({"rungenerators", "flatten", "flattentypes", "wireclocks-coreir", "fold-constants", "removeconstduplicates", "deletedeadinstances"});
 
     cout << "After preprocessing module is " << endl;
