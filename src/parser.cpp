@@ -1443,10 +1443,29 @@ namespace ahaHLS {
       // Generate llvm for each argument
       vector<Value*> args;
 
+      int synthFuncIndex = 0;
+      Function* calledLLVM = calledFunc->llvmFunction();      
       for (auto arg : called->args) {
 
-        // TODO: Add argument binding code from method calls here
-        args.push_back(genLLVM(arg));
+        auto argParam = getArg(calledLLVM, synthFuncIndex);
+        auto argLLVM = genLLVM(arg);
+        // Check if the argument being passed was a value
+        if (!PointerType::classof(argLLVM->getType()) &&
+            PointerType::classof(argParam->getType())) {
+          //cout << "Argument " << valueString(argLLVM) << " is value but bound type of parameter is " << valueString(getArg(calledLLVM, synthFuncIndex + 1)) << " (pointer), need to create temp first" << endl;
+
+          auto argStorage = bd.CreateAlloca(argLLVM->getType());
+          bd.CreateStore(argLLVM, argStorage);
+          argLLVM = argStorage;
+        } else if (PointerType::classof(argLLVM->getType()) &&
+                   !PointerType::classof(argParam->getType())) {
+          //cout << "Argument " << valueString(argLLVM) << " is pointer but bound type of parameter is " << valueString(getArg(calledLLVM, synthFuncIndex + 1)) << " (value), need to dereference first" << endl;
+          assert(false);
+        }
+
+        args.push_back(argLLVM); //genLLVM(arg));
+
+        synthFuncIndex++;
       }
 
       return bd.CreateCall(calledFunc->llvmFunction(), args);      
