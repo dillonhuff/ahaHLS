@@ -276,7 +276,7 @@ class axi_ram {
     bit_9 read_burst_size;
     read_burst_size = burst_size + 1;
 
-    this->start_read_burst(5, 1, read_burst_size, start_loc);
+    this->start_read_burst(4, 1, read_burst_size, start_loc);
     bit_9 read_burst_no;
   
     for (read_burst_no = 0;

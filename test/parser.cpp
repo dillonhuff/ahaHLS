@@ -742,7 +742,7 @@ namespace ahaHLS {
 
         emitVerilogTestBench(tb, arch, testLayout);
 
-        //REQUIRE(runIVerilogTest("axi_write_burst_tb.v", "axi_write_burst", " builtins.v axi_write_burst.v RAM.v delay.v ram_primitives.v axi_ram.v"));
+        REQUIRE(runIVerilogTest("axi_write_burst_tb.v", "axi_write_burst", " builtins.v axi_write_burst.v RAM.v delay.v ram_primitives.v axi_ram.v"));
       }
 
       {
