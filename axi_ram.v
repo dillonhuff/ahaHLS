@@ -177,6 +177,13 @@ assign s_axi_rvalid = PIPELINE_OUTPUT ? s_axi_rvalid_pipe_reg : s_axi_rvalid_reg
    
 integer i, j;
 
+   always @(posedge clk) begin
+      if (s_axi_awready && s_axi_awvalid) begin
+         $display("on transaction start awaddr = %d", s_axi_awaddr);
+      end
+      
+   end
+
 initial begin
     // two nested loops for smaller number of iterations per loop
     // workaround for synthesizer complaints about large loop counts
