@@ -639,7 +639,7 @@ namespace ahaHLS {
     tb.setArgPort(size, "wen", 5, "0");      
 
     tb.setArgPort(startLoc, "wen", 4, "1");
-    tb.setArgPort(startLoc, "wdata", 4, "10");      
+    tb.setArgPort(startLoc, "wdata", 4, "345");      
     tb.setArgPort(startLoc, "wen", 5, "0");
       
     tb.setArgPort(result, "read_valid", 0, "0");
@@ -669,6 +669,7 @@ namespace ahaHLS {
     map_insert(tb.actionsOnCycles, checkStart + 3, assertString("arg_0_out_data === (3)"));
     map_insert(tb.actionsOnCycles, checkStart + 4, assertString("arg_0_out_data === (4)")); 
 
+    // TODO: Add verilog debug info?
     emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTest("axi_write_burst_tb.v", "axi_write_burst", " builtins.v axi_write_burst.v RAM.v delay.v ram_primitives.v axi_ram.v"));
