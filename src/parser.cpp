@@ -823,16 +823,16 @@ namespace ahaHLS {
 
     // All branches must be in the same state
     Function* f = sf->llvmFunction();
-    for (auto& bb : f->getBasicBlockList()) {
-      TerminatorInst* term = bb.getTerminator();
-      if (BranchInst::classof(term)) {
-        if (dyn_cast<BranchInst>(term)->isConditional()) {
-          for (BasicBlock* succ : successors(&bb)) {
-            //exec.addConstraint(instrEnd(term) == start(succ));
-          }
-        }
-      }
-    }
+    // for (auto& bb : f->getBasicBlockList()) {
+    //   TerminatorInst* term = bb.getTerminator();
+    //   if (BranchInst::classof(term)) {
+    //     if (dyn_cast<BranchInst>(term)->isConditional()) {
+    //       for (BasicBlock* succ : successors(&bb)) {
+    //         //exec.addConstraint(instrEnd(term) == start(succ));
+    //       }
+    //     }
+    //   }
+    // }
 
     HardwareConstraints& hcs = scppMod.getHardwareConstraints();
 
@@ -989,7 +989,9 @@ namespace ahaHLS {
   }
 
   MicroArchitecture
-  synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
+  synthesizeVerilog(SynthCppModule& scppMod,
+                    const std::string& funcName,
+                    VerilogDebugInfo& info) {
 
     STG graph = buildSTGFor(scppMod, funcName);    
     cout << "STG is" << endl;
@@ -998,10 +1000,15 @@ namespace ahaHLS {
     map<Value*, int> layout;  
     auto arch = buildMicroArchitecture(graph, layout, scppMod.getHardwareConstraints());
 
-    VerilogDebugInfo info;
     emitVerilog(arch, info);
 
     return arch;
+  }
+
+  MicroArchitecture
+  synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
+    VerilogDebugInfo info;
+    return synthesizeVerilog(scppMod, funcName, info);
   }
 
   BasicBlock*

@@ -602,9 +602,22 @@ namespace ahaHLS {
     cout << parseMod << endl;
     
     SynthCppModule scppMod(parseMod);
-    auto arch = synthesizeVerilog(scppMod, "axi_write_burst");
 
-    map<llvm::Value*, int> layout = {};
+    STG graph = buildSTGFor(scppMod, "axi_write_burst");    
+    cout << "STG is" << endl;
+    graph.print(cout);
+
+    map<Value*, int> arlayout;  
+    auto arch = buildMicroArchitecture(graph, arlayout, scppMod.getHardwareConstraints());
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(arch, info);
+    
+    //auto arch = synthesizeVerilog(scppMod, "axi_write_burst", info);
+
+    //map<llvm::Value*, int> layout = {};
     TestBenchSpec tb;
     auto result =
       sc<Argument>(getArg(scppMod.getFunction("axi_write_burst")->llvmFunction(),
