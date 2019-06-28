@@ -269,5 +269,8 @@ namespace ahaHLS {
               const std::string& fifoName,
               const std::vector<std::pair<int, std::string> >& readTimesAndValues);
   
+  void noPortXWrites(const std::string& portName,
+                     MicroArchitecture& arch,
+                     VerilogDebugInfo& info);
   
 }

@@ -611,6 +611,7 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(graph, arlayout, scppMod.getHardwareConstraints());
 
     VerilogDebugInfo info;
+    //noPortXWrites("s_axi_awaddr", arch, info);
     addNoXChecks(arch, info);
 
     emitVerilog(arch, info);
@@ -647,13 +648,13 @@ namespace ahaHLS {
     tb.settablePort(startLoc, "wen");
     tb.settablePort(startLoc, "wdata");            
 
-    tb.setArgPort(size, "wen", 4, "1");
-    tb.setArgPort(size, "wdata", 4, "4");
-    tb.setArgPort(size, "wen", 5, "0");      
+    tb.setArgPort(size, "wen", 1, "1");
+    tb.setArgPort(size, "wdata", 1, "4");
+    tb.setArgPort(size, "wen", 2, "0");      
 
-    tb.setArgPort(startLoc, "wen", 4, "1");
-    tb.setArgPort(startLoc, "wdata", 4, "345");      
-    tb.setArgPort(startLoc, "wen", 5, "0");
+    tb.setArgPort(startLoc, "wen", 1, "1");
+    tb.setArgPort(startLoc, "wdata", 1, "345");      
+    tb.setArgPort(startLoc, "wen", 2, "0");
       
     tb.setArgPort(result, "read_valid", 0, "0");
     map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
