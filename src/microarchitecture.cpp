@@ -2352,14 +2352,8 @@ namespace ahaHLS {
   // TODO: Remove resetValues field?
   void emitControlCode(MicroArchitecture& arch) {
 
-    arch.addController("global_state", 32);
     arch.getController("global_state").resetValue =
       map_find(wire(32, "global_state"), arch.resetValues);
-
-    for (auto state : arch.stg.opStates) {
-      Wire active = stateActiveReg(state.first, arch);
-      arch.addController(active.name, active.width);
-    }
 
     for (auto t : arch.stg.sched.problem.taskSpecs) {
       StateId taskStart = startState(t, arch.stg);
@@ -3565,6 +3559,12 @@ namespace ahaHLS {
   void buildControlWires(MicroArchitecture& arch)  {
     addBasicBlockControllers(arch);
     buildAtStateWires(arch);
+
+    arch.addController("global_state", 32);
+    for (auto state : arch.stg.opStates) {
+      Wire active = stateActiveReg(state.first, arch);
+      arch.addController(active.name, active.width);
+    }
   }
   
   MicroArchitecture
