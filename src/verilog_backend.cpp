@@ -1584,10 +1584,25 @@ namespace ahaHLS {
       }
     }
   }
-  
+
+  void printAllInstructions(MicroArchitecture& arch,
+                            VerilogDebugInfo& debugInfo) {
+    for (auto st : arch.stg.opStates) {
+      for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
+        auto instr = instrG;
+        StateId activeState = st.first;
+
+        string iStr = instructionString(instr);
+        printInstrAtState(instr, activeState, arch, debugInfo);
+      }
+    }
+    
+  }
+
   void addNoXChecks(MicroArchitecture& arch,
                     VerilogDebugInfo& info) {
 
+    printAllInstructions(arch, info);
     printPortReads(arch, info);
     printSlices(arch, info);    
 
