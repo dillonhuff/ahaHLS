@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <cstdlib>
 float float_from_bits(const uint64_t val);
 int16_t halide_cpp_min(const int16_t a, const int16_t b);
