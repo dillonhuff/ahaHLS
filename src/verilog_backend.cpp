@@ -901,7 +901,7 @@ namespace ahaHLS {
           FunctionalUnit unit = map_find(instr, arch.unitAssignment);
           StateId activeState = st.first;
 
-          printInstrAtState(instr, activeState, arch, debugInfo); 
+          //printInstrAtState(instr, activeState, arch, debugInfo); 
 
           string wireName = map_find(string("rdata"), unit.outWires).name;
           //addAssert(notAtState(activeState, arch) + " || " +
@@ -985,7 +985,7 @@ namespace ahaHLS {
           StateId activeState = st.first;
 
           string iStr = instructionString(instr);
-          printInstrAtState(instr, activeState, arch, debugInfo);
+          //printInstrAtState(instr, activeState, arch, debugInfo);
           
           string wireName = unit.onlyOutputVar();
 
@@ -1010,7 +1010,7 @@ namespace ahaHLS {
           StateId activeState = st.first;
           string iStr = instructionString(instr);
 
-          printInstrAtState(instr, activeState, arch, debugInfo);
+          //printInstrAtState(instr, activeState, arch, debugInfo);
           
           string wireName = dataOutput(instr, arch);
 
@@ -1033,7 +1033,7 @@ namespace ahaHLS {
           StateId activeState = st.first;
           string iStr = instructionString(instr);
 
-          printInstrAtState(instr, activeState, arch, debugInfo);
+          //printInstrAtState(instr, activeState, arch, debugInfo);
 
           FunctionalUnit unit = map_find(instr, arch.unitAssignment);   
           string in0Name = map_find(string("in_data"), unit.portWires).name;
@@ -1055,7 +1055,7 @@ namespace ahaHLS {
         if (isBuiltinPortWrite(instr)) {
           string portName = getPortName(instr);
           if (portName == "set_data") {
-            printInstrAtState(instr, arch.stg.instructionStartState(instr), arch, info);
+            //printInstrAtState(instr, arch.stg.instructionStartState(instr), arch, info);
           }
 
           if (portName == "in_data_bus") {
@@ -1098,7 +1098,7 @@ namespace ahaHLS {
             StateId activeState = st.first;
 
             string iStr = instructionString(instr);
-            printInstrAtState(instr, activeState, arch, debugInfo);
+            //printInstrAtState(instr, activeState, arch, debugInfo);
           
             string in0Name = map_find(string("in0"), unit.portWires).name;
             string in1Name = map_find(string("in1"), unit.portWires).name;
@@ -1135,7 +1135,7 @@ namespace ahaHLS {
             Wire active = blockActiveInState(activeState, blk, arch);
 
             string iStr = instructionString(instr);
-            printInstrAtState(instr, activeState, arch, info);
+            //printInstrAtState(instr, activeState, arch, info);
 
             cout << "Operand 1 to " << portName << " = " << valueString(instr->getOperand(1)) << endl;
             auto pos = position(activeState, instr, arch);
@@ -1165,7 +1165,7 @@ namespace ahaHLS {
             StateId activeState = st.first;
 
             string iStr = instructionString(instr);
-            printInstrAtState(instr, activeState, arch, info);
+            //printInstrAtState(instr, activeState, arch, info);
 
             string outName = map_find(portName, unit.outWires).name;
             addAssert(notAtState(activeState, arch) + " || " +
@@ -1191,7 +1191,7 @@ namespace ahaHLS {
           StateId activeState = st.first;
 
           string iStr = instructionString(instr);
-          printInstrAtState(instr, activeState, arch, debugInfo);
+          //printInstrAtState(instr, activeState, arch, debugInfo);
 
           Wire active = blockActiveInState(activeState, instr->getParent(), arch);
 
@@ -1219,7 +1219,7 @@ namespace ahaHLS {
             StateId activeState = st.first;
 
             string iStr = instructionString(instr);
-            printInstrAtState(instr, activeState, arch, debugInfo);
+            //printInstrAtState(instr, activeState, arch, debugInfo);
 
             string outName = map_find(string("out"), unit.outWires).name;
             addAssert(notAtState(activeState, arch) + " || " +
@@ -1241,7 +1241,7 @@ namespace ahaHLS {
         if (isBuiltinPortRead(instr)) {
           StateId activeState = st.first;
 
-          printInstrAtState(instr, activeState, arch, debugInfo);
+          //printInstrAtState(instr, activeState, arch, debugInfo);
         }
       }
     }
@@ -1256,7 +1256,7 @@ namespace ahaHLS {
         if (isBuiltinSlice(instr)) {
           StateId activeState = st.first;
 
-          printInstrAtState(instr, activeState, arch, debugInfo);
+          //printInstrAtState(instr, activeState, arch, debugInfo);
         }
       }
     }
@@ -1276,7 +1276,7 @@ namespace ahaHLS {
             StateId activeState = st.first;
 
             string iStr = instructionString(instr);
-            printInstrAtState(instr, activeState, arch, debugInfo);
+            //printInstrAtState(instr, activeState, arch, debugInfo);
           
             string in0Name = map_find(string("in0"), unit.portWires).name;
             string in1Name = map_find(string("in1"), unit.portWires).name;
@@ -1602,9 +1602,9 @@ namespace ahaHLS {
   void addNoXChecks(MicroArchitecture& arch,
                     VerilogDebugInfo& info) {
 
-    printAllInstructions(arch, info);
-    printPortReads(arch, info);
-    printSlices(arch, info);    
+    //printAllInstructions(arch, info);
+    // printPortReads(arch, info);
+    // printSlices(arch, info);    
 
     addControlSanityChecks(arch, info);
     noBinopsTakeXInputs(arch, info, "fadd");
