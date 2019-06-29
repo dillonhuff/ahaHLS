@@ -2929,8 +2929,8 @@ namespace ahaHLS {
           Wire atContainerPos =
             blockActiveInState(branchEndState, br->getParent(), arch);
 
-          Wire notStalled = constWire(1, 1);
-          atContainerPos = checkAnd(atContainerPos, notStalled, arch);
+          // Wire notStalled = constWire(1, 1);
+          // atContainerPos = checkAnd(atContainerPos, notStalled, arch);
 
           string hName = "br_" + blkString + "_happened_in_state_" + to_string(state);
           auto& happenedController = addPortController(hName, 1, arch);
@@ -3595,6 +3595,9 @@ namespace ahaHLS {
       arch.functionalUnits.push_back(unit.second);
     }
 
+    // I would like to re-structure this so that all
+    // state wires are instantiated before any of them
+    // are wired up
     buildDataPathWires(arch);
     buildAtStateWires(arch);
     buildBasicBlockEnableLogic(arch);
