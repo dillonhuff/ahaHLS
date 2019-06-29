@@ -2829,8 +2829,6 @@ namespace ahaHLS {
         nextBlockController.values[jumpHappened] =
           constWire(32, arch.cs.getBasicBlockNo(destBlock));
       }
-    // } else {
-    // }
   }
 
   // The predecessor wires check the predecessor of a block
@@ -2895,7 +2893,9 @@ namespace ahaHLS {
         auto blkString = to_string(blkNo);
 
         string name = "bb_" + blkString + "_active_in_state_" + to_string(state);
-        addPortController(name, 1, arch);        
+        addPortController(name, 1, arch);
+
+        // TODO: Maybe remove this duplicate of predecessor_in_state?
         string w = "bb_" + to_string(blkNo) + "_predecessor_in_state_" + to_string(state);
         addPortController(w, 32, arch);
       }
@@ -3512,17 +3512,7 @@ namespace ahaHLS {
       arch.dp.stateData[state] = {};
       
       for (Instruction* val : allValues) {
-        //cout << "Possibly adding " << valueString(val) << endl;
-
-        // if (defCouldReachThisState(val, state, arch) &&
-        //     userReachableFromState(val, state, arch)) {
-
-        //if (elem(val, liveVals[state])) {
-        //if (userReachableFromState(val, state, arch)) {
-
-          //if (elem(val, liveOut[state]) || elem(val, liveIn[state])) {
           if (elem(val, liveOut[state])) {
-            //if (true) {
             string tmpName =
               arch.uniqueName("data_store_" + to_string(state));
 
@@ -3530,7 +3520,6 @@ namespace ahaHLS {
             arch.addController(tmpReg.valueString(), tmpReg.width);
             auto& rc = arch.getController(tmpReg);
             arch.dp.stateData[state].values[val] = rc.reg;
-            //}
           }
           if (elem(val, liveIn[state])) {
             // Should be all values live on input?
@@ -3541,7 +3530,6 @@ namespace ahaHLS {
               pc.functionalUnit().outputWire();
           }
       }
-      //}
     }
   }
 
