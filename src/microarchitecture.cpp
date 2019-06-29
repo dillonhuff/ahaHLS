@@ -2844,7 +2844,10 @@ namespace ahaHLS {
       for (auto blk : blocksInState(state, arch.stg)) {
         
         int thisBlkNo = arch.cs.getBasicBlockNo(blk);
+        string w0 = predecessor(state, blk, arch).valueString();
         string w = "bb_" + to_string(thisBlkNo) + "_predecessor_in_state_" + to_string(state);
+
+        assert(w == w0);
 
         PortController& predController = arch.portController(w);
 
