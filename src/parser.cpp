@@ -610,9 +610,9 @@ namespace ahaHLS {
 
             if (allStores) {
 
-              cout << "All uses of " << valueString(&instr) << " are stores" << endl;
+              //cout << "All uses of " << valueString(&instr) << " are stores" << endl;
               for (auto& user : instr.uses()) {
-                cout << "Erasing " << valueString(user) << endl;
+                //cout << "Erasing " << valueString(user) << endl;
                 dyn_cast<Instruction>(user.getUser())->eraseFromParent();
               }
 
@@ -723,8 +723,8 @@ namespace ahaHLS {
     //   }
     // }
 
-    cout << "Before inlining" << endl;
-    cout << valueString(f) << endl;
+    // cout << "Before inlining" << endl;
+    // cout << valueString(f) << endl;
 
     addDataConstraints(f, exec);
 
@@ -767,16 +767,16 @@ namespace ahaHLS {
 
     inlineWireCalls(f, exec, interfaces);
 
-    cout << "Immediately after inlining" << endl;
-    cout << valueString(f) << endl;
+    // cout << "Immediately after inlining" << endl;
+    // cout << valueString(f) << endl;
     
     // TODO: Where to put this stuff
     optimizeModuleLLVM(*(f->getParent()));
     optimizeStores(f);
     clearExecutionConstraints(f, exec);
   
-    cout << "After inlining and store optimization" << endl;
-    cout << valueString(f) << endl;
+    // cout << "After inlining and store optimization" << endl;
+    // cout << valueString(f) << endl;
 
     setAllAllocaMemTypes(hcs, f, pss(32));
     hcs.memoryMapping =

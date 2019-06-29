@@ -1603,8 +1603,8 @@ namespace ahaHLS {
                     VerilogDebugInfo& info) {
 
     //printAllInstructions(arch, info);
-    // printPortReads(arch, info);
-    // printSlices(arch, info);    
+    //printPortReads(arch, info);
+    //printSlices(arch, info);    
 
     addControlSanityChecks(arch, info);
     noBinopsTakeXInputs(arch, info, "fadd");
