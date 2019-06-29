@@ -2945,7 +2945,9 @@ namespace ahaHLS {
           // atContainerPos = checkAnd(atContainerPos, notStalled, arch);
 
           string hName = "br_" + blkString + "_happened_in_state_" + to_string(state);
-          auto& happenedController = addPortController(hName, 1, arch);
+          //auto& happenedController = addPortController(hName, 1, arch);
+          addPortController(hName, 1, arch);
+          auto& happenedController = arch.portController(hName);
           happenedController.setCond("in_data", atContainerPos, constWire(1, 1));
           happenedController.setCond("in_data", checkNotWire(atContainerPos, arch), constWire(1, 0));
           
