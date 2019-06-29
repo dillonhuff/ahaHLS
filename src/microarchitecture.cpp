@@ -2912,6 +2912,13 @@ namespace ahaHLS {
         // TODO: Maybe remove this duplicate of predecessor_in_state?
         string w = "bb_" + to_string(blkNo) + "_predecessor_in_state_" + to_string(state);
         addPortController(w, 32, arch);
+
+        TerminatorInst* term = blk->getTerminator();
+
+        if (BranchInst::classof(term)) {
+          string hName = "br_" + to_string(blkNo) + "_happened_in_state_" + to_string(state);
+          addPortController(hName, 1, arch);
+        }
       }
     }
   }
@@ -2946,7 +2953,7 @@ namespace ahaHLS {
 
           string hName = "br_" + blkString + "_happened_in_state_" + to_string(state);
           //auto& happenedController = addPortController(hName, 1, arch);
-          addPortController(hName, 1, arch);
+          //addPortController(hName, 1, arch);
           auto& happenedController = arch.portController(hName);
           happenedController.setCond("in_data", atContainerPos, constWire(1, 1));
           happenedController.setCond("in_data", checkNotWire(atContainerPos, arch), constWire(1, 0));
