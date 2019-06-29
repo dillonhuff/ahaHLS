@@ -2845,7 +2845,6 @@ namespace ahaHLS {
         
         int thisBlkNo = arch.cs.getBasicBlockNo(blk);
         string w = "bb_" + to_string(thisBlkNo) + "_predecessor_in_state_" + to_string(state);
-        //addPortController(w, 32, arch);
 
         PortController& predController = arch.portController(w);
 
@@ -2899,15 +2898,13 @@ namespace ahaHLS {
         string w = "bb_" + to_string(blkNo) + "_predecessor_in_state_" + to_string(state);
         addPortController(w, 32, arch);
       }
-      
     }
-
   }
   
   // TODO: Pull apart control variable declaration and the wiring
   // up of control variables
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
-    addBasicBlockControllers(arch);
+    //addBasicBlockControllers(arch);
     
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
@@ -3542,6 +3539,10 @@ namespace ahaHLS {
 
     return -1;
   }
+
+  void buildControlWires(MicroArchitecture& arch)  {
+    addBasicBlockControllers(arch);    
+  }
   
   MicroArchitecture
   buildMicroArchitecture(const STG& stg,
@@ -3586,6 +3587,7 @@ namespace ahaHLS {
     // I would like to re-structure this so that all
     // state wires are instantiated before any of them
     // are wired up
+    buildControlWires(arch);
     buildDataPathWires(arch);
     buildAtStateWires(arch);
     buildBasicBlockEnableLogic(arch);

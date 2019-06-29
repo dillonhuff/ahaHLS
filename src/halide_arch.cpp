@@ -119,7 +119,7 @@ namespace ahaHLS {
       splitRep(".", fields);
 
     assert(fieldVals.size() > 2);
-    cout << "Field size = " << fieldVals.size() << endl;
+    //cout << "Field size = " << fieldVals.size() << endl;
 
     int inWidth = stoi(fieldVals[0]);
     int inRows = stoi(fieldVals[3]);
@@ -146,7 +146,7 @@ namespace ahaHLS {
     auto inSpec = stencilSpec(drop("hls_stream_", inAndOutBnds.first));
     auto outSpec = stencilSpec(drop("hls_stream", outAndBnds.first));
 
-    cout << "lb bounds string = " << outAndBnds.second << endl;
+    //cout << "lb bounds string = " << outAndBnds.second << endl;
     auto imageBounds = splitOn("_", outAndBnds.second);
     int rows = stoi(imageBounds.first);
     int cols = stoi(imageBounds.second);    
@@ -232,11 +232,11 @@ namespace ahaHLS {
     if (ConstantInt::classof(val)) {
       return mkInt(getInt(val), getValueBitWidth(val)); //val;
     } else if (ConstantFP::classof(val)) {
-      cout << "Found float constant" << endl;
+      //cout << "Found float constant" << endl;
       APInt intBits = dyn_cast<ConstantFP>(val)->getValueAPF().bitcastToAPInt();
 
       string floatBits = intBits.toString(2, false);
-      cout << "bits = " << floatBits << endl;
+      //cout << "bits = " << floatBits << endl;
       
       return llvm::ConstantInt::get(getGlobalLLVMContext(), intBits);
       //cout << "bits = " << intBits << endl;
