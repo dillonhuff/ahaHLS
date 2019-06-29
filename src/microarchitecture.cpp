@@ -1652,7 +1652,16 @@ namespace ahaHLS {
                          MicroArchitecture& arch) {
     return outputWire(val, currentPosition, arch).valueString();
   }
-  
+
+  PortController&
+  predecessorController(const StateId state,
+                        BasicBlock* const bb,
+                        MicroArchitecture& arch) {
+    int blkNo = arch.cs.getBasicBlockNo(bb);    
+    string activeName = "bb_" + to_string(blkNo) + "_predecessor_in_state_" + to_string(state);
+    return arch.portController(activeName);
+  }
+
   Wire predecessor(const StateId state, BasicBlock* const bb, MicroArchitecture& arch) {
     int blkNo = arch.cs.getBasicBlockNo(bb);
     //string activeName = "bb_" + to_string(blkNo) + "_predecessor";
@@ -2835,8 +2844,6 @@ namespace ahaHLS {
   // in the same state?
   void buildPredecessorBlockWires(MicroArchitecture& arch) {
 
-    //Function* f = arch.stg.getFunction();
-
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
 
@@ -2844,12 +2851,17 @@ namespace ahaHLS {
       for (auto blk : blocksInState(state, arch.stg)) {
         
         int thisBlkNo = arch.cs.getBasicBlockNo(blk);
-        string w0 = predecessor(state, blk, arch).valueString();
-        string w = "bb_" + to_string(thisBlkNo) + "_predecessor_in_state_" + to_string(state);
 
-        assert(w == w0);
+        //string w = predecessorControllerName(state, blk, arch);
+        // string w0 = predecessor(state, blk, arch).valueString();
+        // string w = "bb_" + to_string(thisBlkNo) + "_predecessor_in_state_" + to_string(state);
 
-        PortController& predController = arch.portController(w);
+        // cout << "w0 = " << w0 << endl;
+        // cout << "w  = " << w << endl;
+        // assert(w == w0);
+
+        //PortController& predController = arch.portController(w);
+        PortController& predController = predecessorController(state, blk, arch);
 
         Wire nextBlkIsThisBlk =
           // NOTE: Im not clear on whether this is the right structure for a
