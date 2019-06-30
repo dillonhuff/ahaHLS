@@ -1378,18 +1378,18 @@ namespace ahaHLS {
     return pos;
   }
 
-  bool producedInPipeline(llvm::Instruction* instr,
-                          ElaboratedPipeline& p,
-                          MicroArchitecture& arch) {
-    for (auto st : p.p.getStates()) {
-      for (auto instrG : arch.stg.instructionsFinishingAt(st)) {
-        if (instrG == instr) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
+  // bool producedInPipeline(llvm::Instruction* instr,
+  //                         ElaboratedPipeline& p,
+  //                         MicroArchitecture& arch) {
+  //   for (auto st : p.p.getStates()) {
+  //     for (auto instrG : arch.stg.instructionsFinishingAt(st)) {
+  //       if (instrG == instr) {
+  //         return true;
+  //       }
+  //     }
+  //   }
+  //   return false;
+  // }
 
   Wire mostRecentStorageLocation(Instruction* result,
                                  ControlFlowPosition& currentPosition,
@@ -2847,8 +2847,6 @@ namespace ahaHLS {
   }
 
   void addBasicBlockControllers(MicroArchitecture& arch) {
-    Function* f = arch.stg.getFunction();
-    
     for (auto st : arch.stg.opStates) {
 
       StateId state = st.first;
@@ -2873,8 +2871,6 @@ namespace ahaHLS {
     }
   }
   
-  // TODO: Pull apart control variable declaration and the wiring
-  // up of control variables
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
     
     for (auto st : arch.stg.opStates) {
