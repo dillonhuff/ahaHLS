@@ -456,7 +456,7 @@ namespace ahaHLS {
     STG stg;
     std::map<llvm::Instruction*, FunctionalUnit> unitAssignment;
     std::map<llvm::Value*, int> memoryMap;
-    std::map<llvm::Instruction*, Wire> names;
+    //std::map<llvm::Instruction*, Wire> names;
     std::vector<ElaboratedPipeline> pipelines;
 
     std::map<Wire, std::string> resetValues;
@@ -554,7 +554,7 @@ namespace ahaHLS {
       stg(stg_),
       unitAssignment(unitAssignment_),
       memoryMap(memoryMap_),
-      names(names_),
+      //names(names_),
       pipelines(pipelines_),
       hcs(hcs_),
       uniqueNum(0) {
