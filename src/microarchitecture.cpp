@@ -1313,40 +1313,40 @@ namespace ahaHLS {
     return units;
   }
 
-  map<Instruction*, Wire> createInstrNames(const STG& stg) {
-    map<Instruction*, Wire> resultNames;
+  // map<Instruction*, Wire> createInstrNames(const STG& stg) {
+  //   map<Instruction*, Wire> resultNames;
 
-    int resSuffix = 0;
-    for (auto state : stg.opStates) {
-      for (auto instrG : state.second) {
-        Instruction* instr = instrG;
+  //   int resSuffix = 0;
+  //   for (auto state : stg.opStates) {
+  //     for (auto instrG : state.second) {
+  //       Instruction* instr = instrG;
 
-        // TODO: Replace with hasOutput?
-        if (StoreInst::classof(instr) ||
-            BranchInst::classof(instr) ||
-            AllocaInst::classof(instr) ||
-            (CallInst::classof(instr) && !isBuiltinFifoRead(instr) && !isBuiltinPortRead(instr)) ||
-            BitCastInst::classof(instr)) {
-          continue;
-        }
+  //       // TODO: Replace with hasOutput?
+  //       if (StoreInst::classof(instr) ||
+  //           BranchInst::classof(instr) ||
+  //           AllocaInst::classof(instr) ||
+  //           (CallInst::classof(instr) && !isBuiltinFifoRead(instr) && !isBuiltinPortRead(instr)) ||
+  //           BitCastInst::classof(instr)) {
+  //         continue;
+  //       }
         
-        if (ReturnInst::classof(instr)) {
-          resultNames[instr] = {true, 1, string(instr->getOpcodeName()) + "_tmp_" + to_string(resSuffix)};
-          resSuffix++;
-          continue;
-        }
+  //       if (ReturnInst::classof(instr)) {
+  //         resultNames[instr] = {true, 1, string(instr->getOpcodeName()) + "_tmp_" + to_string(resSuffix)};
+  //         resSuffix++;
+  //         continue;
+  //       }
 
-        auto schedVars = map_find(instr, stg.sched.instrTimes);
+  //       auto schedVars = map_find(instr, stg.sched.instrTimes);
 
-        if (state.first == schedVars.front()) {
-          resultNames[instr] = {true, getValueBitWidth(instr), string(instr->getOpcodeName()) + "_tmp_" + to_string(resSuffix)};
-          resSuffix++;
-        }
-      }
-    }
+  //       if (state.first == schedVars.front()) {
+  //         resultNames[instr] = {true, getValueBitWidth(instr), string(instr->getOpcodeName()) + "_tmp_" + to_string(resSuffix)};
+  //         resSuffix++;
+  //       }
+  //     }
+  //   }
 
-    return resultNames;
-  }
+  //   return resultNames;
+  // }
 
   std::ostream& operator<<(std::ostream& out, ControlFlowPosition& pos) {
     out << "Control Pos " << pos.stateId() << ": ";
@@ -3546,7 +3546,8 @@ namespace ahaHLS {
     //   cout << "has number " << p.second << endl;
     // }
 
-    map<Instruction*, Wire> names = createInstrNames(stg);
+    //map<Instruction*, Wire> names = createInstrNames(stg);
+    map<Instruction*, Wire> names;
     vector<ElaboratedPipeline> pipelines =
       buildPipelines(f, stg);
 
