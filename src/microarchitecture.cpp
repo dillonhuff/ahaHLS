@@ -2850,17 +2850,8 @@ namespace ahaHLS {
     Function* f = arch.stg.getFunction();
     
     for (auto st : arch.stg.opStates) {
+
       StateId state = st.first;
-      string lastName = "state_" + to_string(state) + "_last_BB_reg";
-      arch.addController(lastName, 32);
-      arch.lastBBWires.insert({state, arch.getController(lastName).reg});
-
-      string entryName = "state_" + to_string(state) + "_entry_BB_reg";
-      arch.addController(entryName, 32);
-      arch.getController(entryName).resetValue =
-        to_string(arch.cs.getBasicBlockNo(&(f->getEntryBlock())));
-      arch.entryBBWires.insert({state, arch.getController(entryName).reg});
-
       for (auto blk : blocksInState(state, arch.stg)) {
 
         int blkNo = arch.cs.getBasicBlockNo(blk);
@@ -2981,16 +2972,6 @@ namespace ahaHLS {
 
     buildPredecessorBlockWires(arch);
   }
-
-  // void buildAtStateWires(MicroArchitecture& arch) {
-  //   for (auto st : arch.stg.opStates) {
-  //     Wire w = buildAtStateWire(st.first, arch);
-  //     arch.atStateWires[st.first] = w;
-
-  //     Wire lastState = buildLastStateWire(st.first, arch);
-  //     arch.lastStateWires[st.first] = lastState;
-  //   }
-  // }
 
   std::set<Instruction*>
   allValuesThatMayNeedStorage(Function* const f,
@@ -3517,17 +3498,30 @@ namespace ahaHLS {
 
   void buildControlWires(MicroArchitecture& arch)  {
     addBasicBlockControllers(arch);
-    //buildAtStateWires(arch);
 
     arch.addController("global_state", 32);
+
+    Function* f = arch.stg.getFunction();
     for (auto state : arch.stg.opStates) {
 
+      string lastName = "state_" + to_string(state.first) + "_last_BB_reg";
+      arch.addController(lastName, 32);
+      arch.lastBBWires.insert({state.first, arch.getController(lastName).reg});
+
+      string entryName = "state_" + to_string(state.first) + "_entry_BB_reg";
+      arch.addController(entryName, 32);
+      arch.getController(entryName).resetValue =
+        to_string(arch.cs.getBasicBlockNo(&(f->getEntryBlock())));
+      arch.entryBBWires.insert({state.first, arch.getController(entryName).reg});
+      
       Wire w = buildAtStateWire(state.first, arch);
       arch.atStateWires[state.first] = w;
 
       Wire lastState = buildLastStateWire(state.first, arch);
       arch.lastStateWires[state.first] = lastState;
-      
+
+      // Not a controller, but a nice code-saving mechanism to compute
+      // at state wires
       Wire active = stateActiveReg(state.first, arch);
       arch.addController(active.name, active.width);
     }
