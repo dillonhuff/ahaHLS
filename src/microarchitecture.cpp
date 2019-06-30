@@ -2982,20 +2982,15 @@ namespace ahaHLS {
     buildPredecessorBlockWires(arch);
   }
 
-  void buildAtStateWires(MicroArchitecture& arch) {
-    for (auto st : arch.stg.opStates) {
-      Wire w = buildAtStateWire(st.first, arch);
-      arch.atStateWires[st.first] = w;
+  // void buildAtStateWires(MicroArchitecture& arch) {
+  //   for (auto st : arch.stg.opStates) {
+  //     Wire w = buildAtStateWire(st.first, arch);
+  //     arch.atStateWires[st.first] = w;
 
-      Wire lastState = buildLastStateWire(st.first, arch);
-      arch.lastStateWires[st.first] = lastState;
-    }
-
-    // for (auto p : arch.pipelines) {
-    //   Wire w = buildAtStateWire(p.stateId, arch);
-    //   arch.atStateWires[p.stateId] = w;
-    // }
-  }
+  //     Wire lastState = buildLastStateWire(st.first, arch);
+  //     arch.lastStateWires[st.first] = lastState;
+  //   }
+  // }
 
   std::set<Instruction*>
   allValuesThatMayNeedStorage(Function* const f,
@@ -3522,10 +3517,17 @@ namespace ahaHLS {
 
   void buildControlWires(MicroArchitecture& arch)  {
     addBasicBlockControllers(arch);
-    buildAtStateWires(arch);
+    //buildAtStateWires(arch);
 
     arch.addController("global_state", 32);
     for (auto state : arch.stg.opStates) {
+
+      Wire w = buildAtStateWire(state.first, arch);
+      arch.atStateWires[state.first] = w;
+
+      Wire lastState = buildLastStateWire(state.first, arch);
+      arch.lastStateWires[state.first] = lastState;
+      
       Wire active = stateActiveReg(state.first, arch);
       arch.addController(active.name, active.width);
     }
