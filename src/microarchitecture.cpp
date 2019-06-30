@@ -303,22 +303,6 @@ namespace ahaHLS {
   
   Wire buildAtStateWire(const StateId state, MicroArchitecture& arch) {
     return stateActiveReg(state, arch);
-    
-    // if (arch.isPipelineState(state)) {
-    //   // auto p = arch.getPipeline(state);
-    //   // Wire active = checkAnd(p.inPipeWire(), p.stateIsActiveWire(state), arch);
-    //   // return active;
-
-    //   return stateActiveReg(state, arch);
-    //   //return active;
-      
-    // } else {
-    //   // TODO: This will need to become a check on the value of the
-    //   // state is active register
-    //   //Wire active = checkEqual(state, arch.cs.getGlobalState(), arch);
-    //   Wire active = stateActiveReg(state, arch); //checkEqual(state, arch.cs.getGlobalState(), arch);
-    //   return active;
-    // }
   }
 
   Wire atStateWire(const StateId state, MicroArchitecture& arch) {
@@ -485,24 +469,6 @@ namespace ahaHLS {
       }
     }
     
-    // std::set<std::string> alreadyChecked;
-    // for (auto instr : unitAssignment) {
-    //   auto unit = instr.second;
-
-    //   if (!elem(unit.instName, alreadyChecked) && unit.isExternal()) {
-    //     alreadyChecked.insert(unit.instName);
-
-    //     for (auto w : unit.portWires) {
-    //       pts.push_back(wireToOutputPort(w.second));
-    //     }
-
-    //     for (auto w : unit.outWires) {
-    //       pts.push_back(wireToInputPort(w.second));
-    //     }
-
-    //   }
-    // }
-
     // Add value parameters to architecture
     for (auto& arg : arch.stg.getFunction()->args()) {
       if (!PointerType::classof(arg.getType())) {
@@ -2903,7 +2869,6 @@ namespace ahaHLS {
         string name = "bb_" + blkString + "_active_in_state_" + to_string(state);
         addPortController(name, 1, arch);
 
-        // TODO: Maybe remove this duplicate of predecessor_in_state?
         string w = "bb_" + to_string(blkNo) + "_predecessor_in_state_" + to_string(state);
         addPortController(w, 32, arch);
 
@@ -2920,7 +2885,6 @@ namespace ahaHLS {
   // TODO: Pull apart control variable declaration and the wiring
   // up of control variables
   void buildBasicBlockEnableLogic(MicroArchitecture& arch) {
-    //addBasicBlockControllers(arch);
     
     for (auto st : arch.stg.opStates) {
       StateId state = st.first;
@@ -3027,10 +2991,10 @@ namespace ahaHLS {
       arch.lastStateWires[st.first] = lastState;
     }
 
-    for (auto p : arch.pipelines) {
-      Wire w = buildAtStateWire(p.stateId, arch);
-      arch.atStateWires[p.stateId] = w;
-    }
+    // for (auto p : arch.pipelines) {
+    //   Wire w = buildAtStateWire(p.stateId, arch);
+    //   arch.atStateWires[p.stateId] = w;
+    // }
   }
 
   std::set<Instruction*>
