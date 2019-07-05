@@ -1275,12 +1275,16 @@ namespace ahaHLS {
         
         modName = "getelementptr_" + to_string(instr->getNumOperands() - 1);
         wiring = {{"base_addr", {true, 32, "base_addr_" + rStr}}};
-
+        allPorts.insert({"base_addr", inputPort(32, "base_addr")});
+        
         for (int i = 1; i < (int) instr->getNumOperands(); i++) {
+          allPorts.insert({"in" + to_string(i),
+                inputPort(32, "in" + to_string(i))});
           wiring.insert({"in" + to_string(i),
                 {true, 32, "gep_add_in" + to_string(i) + "_" + rStr}});
         }
         outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
+        allPorts.insert({"out", outputPort(32, "out")});
 
       } else {
         modName = "sliceOp";
@@ -1304,11 +1308,13 @@ namespace ahaHLS {
           bitOffset += getTypeBitWidth(underlyingStruct->elements()[i]);
         }
         
-        
         wiring = {{"in", {true, inWidth, "slice_in_" + rStr}}};
         modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OFFSET", to_string(bitOffset)}, {"OUT_WIDTH", to_string(outWidth)}};
         
         outWires = {{"out", {false, outWidth, "getelementptr_out_" + rStr}}};
+
+        allPorts.insert({"in", inputPort(inWidth, "in")});
+        allPorts.insert({"out", outputPort(outWidth, "out")});        
       }
     } else if (PHINode::classof(instr)) {
       PHINode* phi = dyn_cast<PHINode>(instr);
@@ -1503,7 +1509,6 @@ namespace ahaHLS {
     
     if (BinaryOperator::classof(instr)) {
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
-      
       return functionalUnitForSpec(unitName, modSpec);
 
     } else if (ReturnInst::classof(instr)) {
@@ -1535,103 +1540,65 @@ namespace ahaHLS {
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
       return functionalUnitForSpec(unitName, modSpec);
       
-      // int inWidth = getValueBitWidth(instr->getOperand(0));
-      // int outWidth = getValueBitWidth(instr);
-
-      // modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}};
-      // wiring = {{"in", {true, inWidth, "trunc_in_" + rStr}}};
-      // outWires = {{"out", {false, outWidth, "trunc_out_" + rStr}}};
-      
     } else if (CmpInst::classof(instr)) {
 
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
       return functionalUnitForSpec(unitName, modSpec);
       
-      // CmpInst::Predicate pred = dyn_cast<CmpInst>(instr)->getPredicate();
-
-      // int w0 = getValueBitWidth(instr->getOperand(0));
-      // int w1 = getValueBitWidth(instr->getOperand(1));
-
-      // assert(w0 == w1);
-
-      // modParams = {{"WIDTH", to_string(w0)}};
-      // wiring = {{"in0", {true, w0, "cmp_in0_" + rStr}}, {"in1", {true, w0, "cmp_in1_" + rStr}}};
-      // outWires = {{"out", {false, 1, "cmp_out_" + rStr}}};
-          
     } else if (BranchInst::classof(instr)) {
       unitName = "br_unit";
     } else if (GetElementPtrInst::classof(instr)) {
-      if (isRAMAddressCompGEP(dyn_cast<GetElementPtrInst>(instr), memSrcs)) {
-        
-        wiring = {{"base_addr", {true, 32, "base_addr_" + rStr}}};
 
-        for (int i = 1; i < (int) instr->getNumOperands(); i++) {
-          wiring.insert({"in" + to_string(i),
-                {true, 32, "gep_add_in" + to_string(i) + "_" + rStr}});
-        }
-        outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
+      unitName = string(instr->getOpcodeName()) + "_" + rStr;
+      return functionalUnitForSpec(unitName, modSpec);
+      
+      // if (isRAMAddressCompGEP(dyn_cast<GetElementPtrInst>(instr), memSrcs)) {
+        
+      //   wiring = {{"base_addr", {true, 32, "base_addr_" + rStr}}};
 
-      } else {
-        Type* stp = getTypePointedTo(instr->getOperand(0)->getType());
-        int inWidth = getTypeBitWidth(stp);
-        Type* outSt = getTypePointedTo(instr->getType());
-        int outWidth = getTypeBitWidth(outSt);
+      //   for (int i = 1; i < (int) instr->getNumOperands(); i++) {
+      //     wiring.insert({"in" + to_string(i),
+      //           {true, 32, "gep_add_in" + to_string(i) + "_" + rStr}});
+      //   }
+      //   outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
 
-        GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(instr);
-        assert(gep->hasAllConstantIndices());
-        assert(gep->getNumIndices() == 2);
-        int offset = gepOffset(dyn_cast<GetElementPtrInst>(instr));
-        assert(offset == 0);
-        Value* secondOffset = gep->getOperand(2);
-        assert(ConstantInt::classof(secondOffset));
-        ConstantInt* offC = dyn_cast<ConstantInt>(secondOffset);
-        int cOffset = offC->getValue().getLimitedValue();
-        int bitOffset = 0;
-        StructType* underlyingStruct = extract<StructType>(stp);
-        for (int i = 0; i < cOffset; i++) {
-          bitOffset += getTypeBitWidth(underlyingStruct->elements()[i]);
-        }
+      // } else {
+      //   Type* stp = getTypePointedTo(instr->getOperand(0)->getType());
+      //   int inWidth = getTypeBitWidth(stp);
+      //   Type* outSt = getTypePointedTo(instr->getType());
+      //   int outWidth = getTypeBitWidth(outSt);
+
+      //   GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(instr);
+      //   assert(gep->hasAllConstantIndices());
+      //   assert(gep->getNumIndices() == 2);
+      //   int offset = gepOffset(dyn_cast<GetElementPtrInst>(instr));
+      //   assert(offset == 0);
+      //   Value* secondOffset = gep->getOperand(2);
+      //   assert(ConstantInt::classof(secondOffset));
+      //   ConstantInt* offC = dyn_cast<ConstantInt>(secondOffset);
+      //   int cOffset = offC->getValue().getLimitedValue();
+      //   int bitOffset = 0;
+      //   StructType* underlyingStruct = extract<StructType>(stp);
+      //   for (int i = 0; i < cOffset; i++) {
+      //     bitOffset += getTypeBitWidth(underlyingStruct->elements()[i]);
+      //   }
         
         
-        wiring = {{"in", {true, inWidth, "slice_in_" + rStr}}};
-        modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OFFSET", to_string(bitOffset)}, {"OUT_WIDTH", to_string(outWidth)}};
+      //   wiring = {{"in", {true, inWidth, "slice_in_" + rStr}}};
+      //   modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OFFSET", to_string(bitOffset)}, {"OUT_WIDTH", to_string(outWidth)}};
         
-        outWires = {{"out", {false, outWidth, "getelementptr_out_" + rStr}}};
-      }
+      //   outWires = {{"out", {false, outWidth, "getelementptr_out_" + rStr}}};
+      // }
     } else if (PHINode::classof(instr)) {
 
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
       return functionalUnitForSpec(unitName, modSpec);
       
-      // PHINode* phi = dyn_cast<PHINode>(instr);
-
-      // wiring = {{"last_block", {true, 32, "phi_last_block_" + rStr}}};
-
-      // int w0 = getValueBitWidth(phi);
-      // int nb = (int) phi->getNumIncomingValues();
-      // modParams = {{"WIDTH", to_string(w0)}, {"NB_PAIR", to_string(nb)}};
-
-      // wiring.insert({"s", {true, 32*nb, string("phi_s") + "_" + rStr}});
-      // wiring.insert({"in", {true, w0*nb, string("phi_in_") + rStr}});
-      
-      // outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
-
     } else if (SelectInst::classof(instr)) {
 
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
       return functionalUnitForSpec(unitName, modSpec);
       
-      // int w0 = getValueBitWidth(instr->getOperand(1));
-      // int w1 = getValueBitWidth(instr->getOperand(2));
-
-      // assert(w0 == w1);
-
-      // modParams = {{"WIDTH", to_string(w0)}};
-      // wiring = {{"in0", {true, w0, "sel_in0_" + rStr}},
-      //           {"in1", {true, w0, "sel_in1_" + rStr}},
-      //           {"sel", {true, 1, "sel_sel_" + rStr}}};
-      // outWires = {{"out", {false, w0, "sel_out_" + rStr}}};
-            
     } else if (CallInst::classof(instr)) {
 
       if (isBuiltinPortCall(instr)) {
@@ -1713,19 +1680,11 @@ namespace ahaHLS {
 
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
       return functionalUnitForSpec(unitName, modSpec);
-      
-      // wiring = {{"in", {true, 32, "sgt_in0_" + rStr}}};
-      // outWires = {{"out", {false, 64, "sgt_out_" + rStr}}};
+
     } else if (ZExtInst::classof(instr)) {
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
       return functionalUnitForSpec(unitName, modSpec);
       
-      // int outWidth = getValueBitWidth(instr);
-      // int inWidth = getValueBitWidth(instr->getOperand(0));
-      
-      // wiring = {{"in", {true, inWidth, "zext_in_" + rStr}}};
-      // outWires = {{"out", {false, 64, "zext_out_" + rStr}}};
-      // modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}};
     } else {
       cout << "Unsupported instruction = " << instructionString(instr) << endl;
       assert(false);
