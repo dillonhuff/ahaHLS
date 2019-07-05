@@ -1279,25 +1279,25 @@ namespace ahaHLS {
     //  3. Creating predictable API for external resource ports
     //  4. Units that handle more than one operation per cycle on different ports
 
-    int globalSuffix = 0;
-
     int readNum = 0; // Keeping these state-unique, need global suffix as well
     int writeNum = 0;
     int resSuffix = 0;
     
-    
     for (auto state : stg.opStates) {
 
+      int globalSuffix = 10;
+      
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
 
         Instruction* instr = instrG;
 
-        auto rStr = to_string(resSuffix);
-        if (!hcs.isLimitedResource(opType(instr))) {
-          rStr = to_string(globalSuffix);
-        }
+        //auto rStr = to_string(resSuffix);
+        //if (!hcs.isLimitedResource(opType(instr))) {
+        //string rStr = to_string(globalSuffix);
+          //}
 
-        string unitName = string(instr->getOpcodeName()) + "_" + rStr;
+        //string unitName = string(instr->getOpcodeName()) + "_" + rStr;
+        string unitName = string(instr->getOpcodeName()) + "_nooo";
         auto unit =
           createUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
 
@@ -1307,6 +1307,11 @@ namespace ahaHLS {
         resSuffix++;
         globalSuffix++;
       }
+    }
+
+    cout << "Final unit mapping" << endl;
+    for (auto mapping : units) {
+      cout << valueString(mapping.first) << " -> " << mapping.second.instName << endl;
     }
     
     return units;
