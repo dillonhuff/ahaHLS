@@ -1253,6 +1253,13 @@ namespace ahaHLS {
 
     return unit;
   }
+
+  class ResourceUsage {
+  public:
+
+    int numReads;
+    int numWrites;
+  };
   
   std::map<Instruction*, FunctionalUnit>
   assignFunctionalUnits(const STG& stg,
@@ -1282,22 +1289,25 @@ namespace ahaHLS {
     int readNum = 0; // Keeping these state-unique, need global suffix as well
     int writeNum = 0;
     int resSuffix = 0;
+    int globalSuffix = 0;
     
+    ResourceUsage used;
     for (auto state : stg.opStates) {
 
-      int globalSuffix = 10;
+
       
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
 
         Instruction* instr = instrG;
 
-        //auto rStr = to_string(resSuffix);
-        //if (!hcs.isLimitedResource(opType(instr))) {
-        //string rStr = to_string(globalSuffix);
-          //}
+        auto rStr = to_string(resSuffix);
+        if (!hcs.isLimitedResource(opType(instr))) {
+          rStr = to_string(globalSuffix);
+        }
 
         //string unitName = string(instr->getOpcodeName()) + "_" + rStr;
-        string unitName = string(instr->getOpcodeName()) + "_nooo";
+        //string unitName = string(instr->getOpcodeName()) + "_" + to_string(used.);
+        string unitName = string(instr->getOpcodeName()) + "_" + rStr;
         auto unit =
           createUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
 
