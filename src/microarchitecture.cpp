@@ -790,28 +790,11 @@ namespace ahaHLS {
       // If the store is a store to part of a register
       // then we need to detect that and write a masked store?
       Value* storeAddr = instr->getOperand(1);
-      if (GetElementPtrInst::classof(storeAddr)) {
-        GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(storeAddr);
-        if (!isRAMAddressCompGEP(gep, memSrcs)) {
-          //cout << "Source of partial store is " << valueString(memVal) << endl;
-          //cout << "Offset of gep store is " << gepBitOffset(gep) << endl;
-
-          // Q: What is the functional unit in this case?
-          // A: I guess the wiring of the *output* of the unit needs to be
-          // set in order for this to work? Or not:
-          // treat arg_1_wdata as an input to the unit, and pass out
-          // arg_1_wdata maked with offset?
-
-          // int inWidth = getValueBitWidth(gep);
-          // modParams = {{"WIDTH", to_string(inWidth)}};
-          // modName = "hls_wire";
-          // wiring = {{"in_data", reg(inWidth, unitName + "_in")}};
-          // outWires = {{"out_data", wire(inWidth, unitName + "_out")}};
-          // isExternal = false;
-          // FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
-          // return unit;
-        }
-      }
+      // if (GetElementPtrInst::classof(storeAddr)) {
+      //   GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(storeAddr);
+      //   // if (!isRAMAddressCompGEP(gep, memSrcs)) {
+      //   // }
+      // }
 
       
       
@@ -949,8 +932,7 @@ namespace ahaHLS {
     return unit;
   }
 
-  FunctionalUnit createUnit(std::string unitName,
-                            map<Value*, std::string>& memNames,
+  FunctionalUnit createUnit(map<Value*, std::string>& memNames,
                             map<Instruction*, Value*>& memSrcs,
                             HardwareConstraints& hcs,
                             ResourceUsage& usage,
@@ -958,6 +940,7 @@ namespace ahaHLS {
                             // int& writeNum,
                             llvm::Instruction* instr) {
 
+    string unitName = instr->getOpcodeName() + to_string(usage.resSuffix);
     string modName = "add";
 
     auto rStr = unitName;
@@ -1284,11 +1267,6 @@ namespace ahaHLS {
       }
     }
 
-    // int readNum = 0; // Keeping these state-unique, need global suffix as well
-    // int writeNum = 0;
-    // int resSuffix = 0;
-    //int globalSuffix = 0;
-    
     ResourceUsage used;
     for (auto state : stg.opStates) {
       
@@ -1297,21 +1275,14 @@ namespace ahaHLS {
         Instruction* instr = instrG;
 
         auto rStr = to_string(used.resSuffix);
-        //auto rStr = to_string(resSuffix);
-        // if (!hcs.isLimitedResource(opType(instr))) {
-        //   rStr = to_string(globalSuffix);
-        // }
-
-        string unitName = string(instr->getOpcodeName()) + "_" + rStr;
+        //string unitName = string(instr->getOpcodeName()) + "_" + rStr;
         auto unit =
-          //createUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
-          createUnit(unitName, memNames, memSrcs, hcs, used, instr);
+          createUnit(memNames, memSrcs, hcs, used, instr);
 
         //cout << "-- Created unit " << unit.instName << endl;
         units[instr] = unit;
 
         used.resSuffix++;
-        //globalSuffix++;
       }
     }
 
