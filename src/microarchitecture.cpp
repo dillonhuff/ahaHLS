@@ -1452,6 +1452,7 @@ namespace ahaHLS {
                             llvm::Instruction* instr) {
 
     string unitName = instr->getOpcodeName() + to_string(usage.resSuffix);
+    //string modName = modSpec.name; //"add";
     string modName = "add";
 
     auto rStr = unitName;
@@ -1467,7 +1468,8 @@ namespace ahaHLS {
 
     bool hasRst = false;
     bool hasClock = false;
-    
+
+
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
       return createMemUnit(memNames, memSrcs, hcs, usage, instr);
     } else if (BinaryOperator::classof(instr)) {
@@ -1750,7 +1752,7 @@ namespace ahaHLS {
 
     ModuleSpec modSpec =
       buildModSpec(memNames, memSrcs, hcs, usage, instr);
-
+    
     FunctionalUnit unit = {modSpec, unitName, wiring, outWires, isExternal};
 
     return unit;
