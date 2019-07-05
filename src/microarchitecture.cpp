@@ -1466,8 +1466,8 @@ namespace ahaHLS {
     //map<string, Port> allPorts;
     //cout << "Creating a unit for " << valueString(instr) << endl;
 
-    bool hasRst = false;
-    bool hasClock = false;
+    // bool hasRst = false;
+    // bool hasClock = false;
 
 
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
@@ -1688,8 +1688,8 @@ namespace ahaHLS {
         //defaults = modSpec.defaultValues;
         //insensitivePorts = modSpec.insensitivePorts;
         //allPorts = modSpec.ports; 
-        hasRst = modSpec.hasReset();
-        hasClock = modSpec.isSequential();
+        // hasRst = modSpec.hasReset();
+        // hasClock = modSpec.isSequential();
         modParams = modSpec.params;
 
         if (Argument::classof(fuPtr) && (unitName == "")) {

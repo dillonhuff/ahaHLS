@@ -58,7 +58,7 @@ module write_header_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call1();
+	add call0();
 
 	reg [0:0] bb_0_active_in_state_0_in_data;
 	wire [0:0] bb_0_active_in_state_0_out_data;
@@ -255,8 +255,8 @@ module write_header_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	// controller for andOp_11.andOp_11_in0
 	// controller for andOp_11.andOp_11_in1
 	// Insensitive connections
-	assign andOp_11_in0 = bb_0_active_in_state_0_out_data;
-	assign andOp_11_in1 = state_0_is_active;
+	assign andOp_11_in0 = bb_0_active_in_state_1_out_data;
+	assign andOp_11_in1 = state_1_is_active;
 	// controller for andOp_12.andOp_12_in0
 	// controller for andOp_12.andOp_12_in1
 	// Insensitive connections
@@ -315,8 +315,8 @@ module write_header_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	// controller for andOp_7.andOp_7_in0
 	// controller for andOp_7.andOp_7_in1
 	// Insensitive connections
-	assign andOp_7_in0 = bb_0_active_in_state_1_out_data;
-	assign andOp_7_in1 = state_1_is_active;
+	assign andOp_7_in0 = bb_0_active_in_state_0_out_data;
+	assign andOp_7_in1 = state_0_is_active;
 	// controller for andOp_8.andOp_8_in0
 	// controller for andOp_8.andOp_8_in1
 	// Insensitive connections
@@ -337,7 +337,7 @@ module write_header_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	end
 	// controller for arg_1.arg_1_raddr_reg
 	always @(*) begin
-		if (andOp_14_out) begin 
+		if (andOp_12_out) begin 
 			arg_1_raddr_reg = arg_1_rdata;
 		end else begin
 			arg_1_raddr_reg = 0;
@@ -345,7 +345,7 @@ module write_header_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	end
 	// controller for arg_2.arg_2_raddr_reg
 	always @(*) begin
-		if (andOp_12_out) begin 
+		if (andOp_14_out) begin 
 			arg_2_raddr_reg = arg_2_rdata;
 		end else begin
 			arg_2_raddr_reg = 0;
@@ -353,7 +353,7 @@ module write_header_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	end
 	// controller for arg_3.arg_3_s_eth_dest_mac_reg
 	always @(*) begin
-		if (andOp_9_out) begin 
+		if (andOp_8_out) begin 
 			arg_3_s_eth_dest_mac_reg = arg_0_rdata;
 		end else begin
 			arg_3_s_eth_dest_mac_reg = 0;
@@ -361,7 +361,7 @@ module write_header_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	end
 	// controller for arg_3.arg_3_s_eth_hdr_valid_reg
 	always @(*) begin
-		if (andOp_8_out) begin 
+		if (andOp_10_out) begin 
 			arg_3_s_eth_hdr_valid_reg = 32'd1;
 		end else begin
 			arg_3_s_eth_hdr_valid_reg = 0;
@@ -369,7 +369,7 @@ module write_header_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	end
 	// controller for arg_3.arg_3_s_eth_src_mac_reg
 	always @(*) begin
-		if (andOp_10_out) begin 
+		if (andOp_9_out) begin 
 			arg_3_s_eth_src_mac_reg = arg_1_rdata;
 		end else begin
 			arg_3_s_eth_src_mac_reg = 0;
@@ -377,7 +377,7 @@ module write_header_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	end
 	// controller for arg_3.arg_3_s_eth_type_reg
 	always @(*) begin
-		if (andOp_7_out) begin 
+		if (andOp_11_out) begin 
 			arg_3_s_eth_type_reg = arg_2_rdata;
 		end else begin
 			arg_3_s_eth_type_reg = 0;
