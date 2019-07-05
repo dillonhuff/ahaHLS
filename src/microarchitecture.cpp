@@ -998,13 +998,13 @@ namespace ahaHLS {
       if (!Argument::classof(memVal)) {
         //cout << "&&&& Memory unit Using unit " << memSrc << " for " << instructionString(instr) << endl;
         if (contains_key(memVal, hcs.memSpecs)) {
-          modName = map_find(memVal, hcs.memSpecs).modSpec.name;
+          //modName = map_find(memVal, hcs.memSpecs).modSpec.name;
         } else {
-          modName = "register";
+          //modName = "register";
         }
 
         int dataWidth = getValueBitWidth(instr->getOperand(0));
-        modParams = {{"WIDTH", to_string(dataWidth)}};
+        //modParams = {{"WIDTH", to_string(dataWidth)}};
         //assert(inputWidth == dataWidth);
 
         //cout << "Got name for op" << endl;
@@ -1031,7 +1031,7 @@ namespace ahaHLS {
           return fu;
 
         } else {
-          modName = "store";
+          //modName = "store";
           isExternal = true;
 
           int inputWidth = getValueBitWidth(instr->getOperand(0));
@@ -1045,7 +1045,7 @@ namespace ahaHLS {
           wiring = {{"wen", {true, 1, "wen_" + wStr}}, {"waddr", {true, 32, "waddr_" + wStr}}, {"wdata", {true, inputWidth, "wdata_" + wStr}}};
 
           outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
-          defaults.insert({"wen", 0});            
+          //defaults.insert({"wen", 0});            
 
           //usage.writeNum++;
         }
@@ -1065,8 +1065,8 @@ namespace ahaHLS {
         GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(loadArg);
         if (!isRAMAddressCompGEP(gep, memSrcs)) {
           int inWidth = getValueBitWidth(gep);
-          modParams = {{"WIDTH", to_string(inWidth)}};
-          modName = "hls_wire";
+          //modParams = {{"WIDTH", to_string(inWidth)}};
+          //modName = "hls_wire";
           wiring = {{"in_data", reg(inWidth, unitName + "_in")}};
           outWires = {{"out_data", wire(inWidth, unitName + "_out")}};
           isExternal = false;
@@ -1082,15 +1082,15 @@ namespace ahaHLS {
         if (contains_key(memVal, hcs.memSpecs)) {
           string name = map_find(memVal, hcs.memSpecs).modSpec.name;
           //cout << "Setting " << valueString(memVal) << " to " << name << endl;
-          modName = name;
+          //modName = name;
         } else {
-          modName = "register";
+          //modName = "register";
         }
         
         //modName = "register";
 
         int dataWidth = getValueBitWidth(instr->getOperand(0));
-        modParams = {{"WIDTH", to_string(dataWidth)}};
+        //modParams = {{"WIDTH", to_string(dataWidth)}};
         
         unitName = memSrc;
 
@@ -1110,7 +1110,7 @@ namespace ahaHLS {
         } else {
           isExternal = true;
         
-          modName = "load";
+          //modName = "load";
 
           unitName = string(instr->getOpcodeName()) + "_" + to_string(usage.readNum);
           int inputWidth = getValueBitWidth(instr);
@@ -1119,7 +1119,7 @@ namespace ahaHLS {
 
           // Note: I think the "_reg not found" error is caused by the default
           // value of the functional unit not containing the ren default entry?
-          defaults.insert({"ren", 0});
+          //defaults.insert({"ren", 0});
 
           outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(usage.readNum)}}};
 
