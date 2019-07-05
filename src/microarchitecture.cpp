@@ -759,8 +759,7 @@ namespace ahaHLS {
     ResourceUsage() : readNum(0), writeNum(0), resSuffix(0) {}
   };
   
-  FunctionalUnit createMemUnit(std::string unitName,
-                               map<Value*, std::string>& memNames,
+  FunctionalUnit createMemUnit(map<Value*, std::string>& memNames,
                                map<Instruction*, Value*>& memSrcs,
                                HardwareConstraints& hcs,
                                ResourceUsage& usage,
@@ -770,6 +769,8 @@ namespace ahaHLS {
     // for (auto mspec : hcs.memSpecs) {
     //   cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
     // }
+
+    string unitName = instr->getOpcodeName() + to_string(usage.resSuffix);    
     
     assert(LoadInst::classof(instr) || StoreInst::classof(instr));
     string modName = "add";
@@ -959,7 +960,8 @@ namespace ahaHLS {
     
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
       //return createMemUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
-      return createMemUnit(unitName, memNames, memSrcs, hcs, usage, instr);
+      //return createMemUnit(unitName, memNames, memSrcs, hcs, usage, instr);
+      return createMemUnit(memNames, memSrcs, hcs, usage, instr);
     } else if (BinaryOperator::classof(instr)) {
       modName = binopName(instr);
       int w0 = getValueBitWidth(instr->getOperand(0));
