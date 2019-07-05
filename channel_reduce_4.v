@@ -43,7 +43,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [31:0] rdata_ram_0;
 	register #(.WIDTH(32)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
 
-	add call_21();
+	add call_20();
 
 	wire [63:0] phi_in_phi_5;
 	wire [31:0] phi_last_block_phi_5;
@@ -1129,12 +1129,12 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for andOp_134.andOp_134_in0
 	// controller for andOp_134.andOp_134_in1
 	// Insensitive connections
-	assign andOp_134_in0 = bb_6_active_in_state_4_out_data;
+	assign andOp_134_in0 = bb_7_active_in_state_4_out_data;
 	assign andOp_134_in1 = state_4_is_active;
 	// controller for andOp_135.andOp_135_in0
 	// controller for andOp_135.andOp_135_in1
 	// Insensitive connections
-	assign andOp_135_in0 = bb_7_active_in_state_4_out_data;
+	assign andOp_135_in0 = bb_6_active_in_state_4_out_data;
 	assign andOp_135_in1 = state_4_is_active;
 	// controller for andOp_136.andOp_136_in0
 	// controller for andOp_136.andOp_136_in1
@@ -2170,7 +2170,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	assign orOp_79_in1 = andOp_39_out;
 	// controller for out.out_in_data_reg
 	always @(*) begin
-		if (andOp_135_out) begin 
+		if (andOp_133_out) begin 
 			out_in_data_reg = rdata_ram_0;
 		end else begin
 			out_in_data_reg = 0;
@@ -2178,7 +2178,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	end
 	// controller for out.out_write_valid_reg
 	always @(*) begin
-		if (andOp_133_out) begin 
+		if (andOp_134_out) begin 
 			out_write_valid_reg = -(1'd1);
 		end else begin
 			out_write_valid_reg = 0;
@@ -2231,7 +2231,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 			wen_ram_0_reg = 0;
 		end
 	end
-	// controller for ret_22.valid_reg
+	// controller for ret_21.valid_reg
 	always @(*) begin
 		if (andOp_132_out) begin 
 			valid_reg = 1'd1;

@@ -748,13 +748,22 @@ namespace ahaHLS {
       return functionalUnitForSpec(unitName, mSpec);
     }
   }
+
+  class ResourceUsage {
+  public:
+
+    int readNum; 
+    int writeNum;
+    int resSuffix;
+
+    ResourceUsage() : readNum(0), writeNum(0), resSuffix(0) {}
+  };
   
   FunctionalUnit createMemUnit(std::string unitName,
                                map<Value*, std::string>& memNames,
                                map<Instruction*, Value*>& memSrcs,
                                HardwareConstraints& hcs,
-                               int& readNum,
-                               int& writeNum,
+                               ResourceUsage& usage,
                                llvm::Instruction* instr) {
 
     // cout << "Hardware memory storage names in createMemUnit" << endl;
@@ -849,7 +858,7 @@ namespace ahaHLS {
           // These names need to match names created in the portlist. So
           // maybe this should be used to create the port list? Generate the
           // names here and then write ports for them?
-          string wStr = to_string(writeNum);
+          string wStr = to_string(usage.writeNum);
 
           unitName = string(instr->getOpcodeName()) + "_" + wStr;
                                                                         
@@ -858,7 +867,7 @@ namespace ahaHLS {
           outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
           defaults.insert({"wen", 0});            
 
-          writeNum++;
+          usage.writeNum++;
         }
       }
 
@@ -919,18 +928,18 @@ namespace ahaHLS {
         
           modName = "load";
 
-          unitName = string(instr->getOpcodeName()) + "_" + to_string(readNum);
+          unitName = string(instr->getOpcodeName()) + "_" + to_string(usage.readNum);
           int inputWidth = getValueBitWidth(instr);
 
-          wiring = {{"raddr", {true, 32, "raddr_" + to_string(readNum)}}, {"ren", {true, 1, "ren_" + to_string(readNum)}}};
+          wiring = {{"raddr", {true, 32, "raddr_" + to_string(usage.readNum)}}, {"ren", {true, 1, "ren_" + to_string(usage.readNum)}}};
 
           // Note: I think the "_reg not found" error is caused by the default
           // value of the functional unit not containing the ren default entry?
           defaults.insert({"ren", 0});
 
-          outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(readNum)}}};
+          outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(usage.readNum)}}};
 
-          readNum++;
+          usage.readNum++;
         }
       }
 
@@ -944,8 +953,9 @@ namespace ahaHLS {
                             map<Value*, std::string>& memNames,
                             map<Instruction*, Value*>& memSrcs,
                             HardwareConstraints& hcs,
-                            int& readNum,
-                            int& writeNum,
+                            ResourceUsage& usage,
+                            // int& readNum,
+                            // int& writeNum,
                             llvm::Instruction* instr) {
 
     string modName = "add";
@@ -965,7 +975,8 @@ namespace ahaHLS {
     bool hasClock = false;
     
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
-      return createMemUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
+      //return createMemUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
+      return createMemUnit(unitName, memNames, memSrcs, hcs, usage, instr);
     } else if (BinaryOperator::classof(instr)) {
       modName = binopName(instr);
       int w0 = getValueBitWidth(instr->getOperand(0));
@@ -1254,16 +1265,6 @@ namespace ahaHLS {
     return unit;
   }
 
-  class ResourceUsage {
-  public:
-
-    int readNum; 
-    int writeNum;
-    int resSuffix;
-
-    ResourceUsage() : readNum(0), writeNum(writeNum), resSuffix(0) {}
-  };
-  
   std::map<Instruction*, FunctionalUnit>
   assignFunctionalUnits(const STG& stg,
                         HardwareConstraints& hcs) {
@@ -1283,15 +1284,9 @@ namespace ahaHLS {
       }
     }
 
-    // A few issues:
-    //  1. Limited vs unlimited
-    //  2. Internal (adders) vs external (some memories)
-    //  3. Creating predictable API for external resource ports
-    //  4. Units that handle more than one operation per cycle on different ports
-
-    int readNum = 0; // Keeping these state-unique, need global suffix as well
-    int writeNum = 0;
-    int resSuffix = 0;
+    // int readNum = 0; // Keeping these state-unique, need global suffix as well
+    // int writeNum = 0;
+    // int resSuffix = 0;
     //int globalSuffix = 0;
     
     ResourceUsage used;
@@ -1309,7 +1304,8 @@ namespace ahaHLS {
 
         string unitName = string(instr->getOpcodeName()) + "_" + rStr;
         auto unit =
-          createUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
+          //createUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
+          createUnit(unitName, memNames, memSrcs, hcs, used, instr);
 
         //cout << "-- Created unit " << unit.instName << endl;
         units[instr] = unit;
