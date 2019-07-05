@@ -1520,24 +1520,32 @@ namespace ahaHLS {
       return functionalUnitForSpec(unitName, modSpec);
       
     } else if (TruncInst::classof(instr)) {
-      int inWidth = getValueBitWidth(instr->getOperand(0));
-      int outWidth = getValueBitWidth(instr);
 
-      modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}};
-      wiring = {{"in", {true, inWidth, "trunc_in_" + rStr}}};
-      outWires = {{"out", {false, outWidth, "trunc_out_" + rStr}}};
+      unitName = string(instr->getOpcodeName()) + "_" + rStr;
+      return functionalUnitForSpec(unitName, modSpec);
+      
+      // int inWidth = getValueBitWidth(instr->getOperand(0));
+      // int outWidth = getValueBitWidth(instr);
+
+      // modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}};
+      // wiring = {{"in", {true, inWidth, "trunc_in_" + rStr}}};
+      // outWires = {{"out", {false, outWidth, "trunc_out_" + rStr}}};
       
     } else if (CmpInst::classof(instr)) {
-      CmpInst::Predicate pred = dyn_cast<CmpInst>(instr)->getPredicate();
 
-      int w0 = getValueBitWidth(instr->getOperand(0));
-      int w1 = getValueBitWidth(instr->getOperand(1));
+      unitName = string(instr->getOpcodeName()) + "_" + rStr;
+      return functionalUnitForSpec(unitName, modSpec);
+      
+      // CmpInst::Predicate pred = dyn_cast<CmpInst>(instr)->getPredicate();
 
-      assert(w0 == w1);
+      // int w0 = getValueBitWidth(instr->getOperand(0));
+      // int w1 = getValueBitWidth(instr->getOperand(1));
 
-      modParams = {{"WIDTH", to_string(w0)}};
-      wiring = {{"in0", {true, w0, "cmp_in0_" + rStr}}, {"in1", {true, w0, "cmp_in1_" + rStr}}};
-      outWires = {{"out", {false, 1, "cmp_out_" + rStr}}};
+      // assert(w0 == w1);
+
+      // modParams = {{"WIDTH", to_string(w0)}};
+      // wiring = {{"in0", {true, w0, "cmp_in0_" + rStr}}, {"in1", {true, w0, "cmp_in1_" + rStr}}};
+      // outWires = {{"out", {false, 1, "cmp_out_" + rStr}}};
           
     } else if (BranchInst::classof(instr)) {
       unitName = "br_unit";
@@ -1683,15 +1691,22 @@ namespace ahaHLS {
       // TODO: Add test case that uses casts
       // No action for this instruction type (YET)
     } else if (SExtInst::classof(instr)) {
-      wiring = {{"in", {true, 32, "sgt_in0_" + rStr}}};
-      outWires = {{"out", {false, 64, "sgt_out_" + rStr}}};
-    } else if (ZExtInst::classof(instr)) {
-      int outWidth = getValueBitWidth(instr);
-      int inWidth = getValueBitWidth(instr->getOperand(0));
+
+      unitName = string(instr->getOpcodeName()) + "_" + rStr;
+      return functionalUnitForSpec(unitName, modSpec);
       
-      wiring = {{"in", {true, inWidth, "zext_in_" + rStr}}};
-      outWires = {{"out", {false, 64, "zext_out_" + rStr}}};
-      modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}};
+      // wiring = {{"in", {true, 32, "sgt_in0_" + rStr}}};
+      // outWires = {{"out", {false, 64, "sgt_out_" + rStr}}};
+    } else if (ZExtInst::classof(instr)) {
+      unitName = string(instr->getOpcodeName()) + "_" + rStr;
+      return functionalUnitForSpec(unitName, modSpec);
+      
+      // int outWidth = getValueBitWidth(instr);
+      // int inWidth = getValueBitWidth(instr->getOperand(0));
+      
+      // wiring = {{"in", {true, inWidth, "zext_in_" + rStr}}};
+      // outWires = {{"out", {false, 64, "zext_out_" + rStr}}};
+      // modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}};
     } else {
       cout << "Unsupported instruction = " << instructionString(instr) << endl;
       assert(false);
