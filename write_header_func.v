@@ -361,7 +361,7 @@ module write_header_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	end
 	// controller for arg_3.arg_3_s_eth_hdr_valid_reg
 	always @(*) begin
-		if (andOp_8_out) begin 
+		if (andOp_7_out) begin 
 			arg_3_s_eth_hdr_valid_reg = 32'd1;
 		end else begin
 			arg_3_s_eth_hdr_valid_reg = 0;
@@ -369,7 +369,7 @@ module write_header_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	end
 	// controller for arg_3.arg_3_s_eth_src_mac_reg
 	always @(*) begin
-		if (andOp_7_out) begin 
+		if (andOp_10_out) begin 
 			arg_3_s_eth_src_mac_reg = arg_1_rdata;
 		end else begin
 			arg_3_s_eth_src_mac_reg = 0;
@@ -377,7 +377,7 @@ module write_header_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	end
 	// controller for arg_3.arg_3_s_eth_type_reg
 	always @(*) begin
-		if (andOp_10_out) begin 
+		if (andOp_8_out) begin 
 			arg_3_s_eth_type_reg = arg_2_rdata;
 		end else begin
 			arg_3_s_eth_type_reg = 0;

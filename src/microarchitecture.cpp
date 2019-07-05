@@ -1180,15 +1180,15 @@ namespace ahaHLS {
                   {"in1", inputPort(width, "in1")},
                   {"out", outputPort(width, "out")}};
       
-      wiring = {{"in0", {true, width, opCodeName + "_in0_" + rStr}},
-                {"in1", {true, width, opCodeName + "_in1_" + rStr}}};
+      // wiring = {{"in0", {true, width, opCodeName + "_in0_" + rStr}},
+      //           {"in1", {true, width, opCodeName + "_in1_" + rStr}}};
 
       if (modName == "fadd") {
-        wiring.insert({"en", {true, 1, opCodeName + "_en_" + rStr}});
+        //wiring.insert({"en", {true, 1, opCodeName + "_en_" + rStr}});
         allPorts.insert({"en", inputPort(1, "en")});
         defaults.insert({"en", 0});
       }
-      outWires = {{"out", {false, width, opCodeName + "_out_" + rStr}}};
+      //outWires = {{"out", {false, width, opCodeName + "_out_" + rStr}}};
     } else if (ReturnInst::classof(instr)) {
       isExternal = true;
       modName = "ret";
@@ -1485,30 +1485,6 @@ namespace ahaHLS {
       
       return functionalUnitForSpec(unitName, modSpec);
 
-      // string modName = binopName(instr);
-      // int w0 = getValueBitWidth(instr->getOperand(0));
-      // int w1 = getValueBitWidth(instr->getOperand(1));
-
-      // if (w0 != w1) {
-      //   //cout << "Binops do not match widths " << valueString(instr) << endl;
-      // }
-      // assert(w0 == w1);
-
-      // //unitName = string(instr->getOpcodeName()) + "_" + rStr;
-
-      // string opCodeName = instr->getOpcodeName();
-      // int width = getValueBitWidth(instr);
-      // if (modName != "fadd") {
-      //   modParams = {{"WIDTH", to_string(width)}};
-      // }
-
-      // wiring = {{"in0", {true, width, opCodeName + "_in0_" + rStr}},
-      //           {"in1", {true, width, opCodeName + "_in1_" + rStr}}};
-
-      // if (modName == "fadd") {
-      //   wiring.insert({"en", {true, 1, opCodeName + "_en_" + rStr}});
-      // }
-      // outWires = {{"out", {false, width, opCodeName + "_out_" + rStr}}};
     } else if (ReturnInst::classof(instr)) {
       isExternal = true;
 
@@ -1525,33 +1501,13 @@ namespace ahaHLS {
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
       return functionalUnitForSpec(unitName, modSpec);
       
-      // int inWidth = getSliceInWidth(instr);
-      // int offset = getSliceOffset(instr);
-      // int outWidth = getSliceOutWidth(instr);
-
-      // modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}, {"OFFSET", to_string(offset)}};
-      // wiring = {{"in", {true, inWidth, "slice_in_" + rStr}}};
-      // outWires = {{"out", {false, outWidth, "slice_out_" + rStr}}};
-      
     } else if (matchesCall("hls.min.", instr)) {
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
       return functionalUnitForSpec(unitName, modSpec);
       
-      // int inWidth = getMinWidth(instr);
-
-      // modParams = {{"WIDTH", to_string(inWidth)}};
-      // wiring = {{"in0", {true, inWidth, "min_in_" + rStr}}, {"in1", {true, inWidth, "min_in_" + rStr}}};
-      // outWires = {{"out", {false, inWidth, "min_out_" + rStr}}};
-      
     } else if (matchesCall("hls.max.", instr)) {
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
       return functionalUnitForSpec(unitName, modSpec);
-
-      // int inWidth = getMaxWidth(instr);
-
-      // modParams = {{"WIDTH", to_string(inWidth)}};
-      // wiring = {{"in0", {true, inWidth, "max_in_" + rStr}}, {"in1", {true, inWidth, "max_in_" + rStr}}};
-      // outWires = {{"out", {false, inWidth, "max_out_" + rStr}}};
       
     } else if (TruncInst::classof(instr)) {
       int inWidth = getValueBitWidth(instr->getOperand(0));
