@@ -1226,7 +1226,7 @@ namespace ahaHLS {
       modParams = {{"WIDTH", to_string(inWidth)}};
       wiring = {{"in0", {true, inWidth, "min_in_" + rStr}}, {"in1", {true, inWidth, "min_in_" + rStr}}};
       outWires = {{"out", {false, inWidth, "min_out_" + rStr}}};
-      allPorts = {{"in0", inputPort(inWidth, "in0")}, {"in0", inputPort(inWidth, "in0")}, {"out", outputPort(inWidth, "out")}};
+      allPorts = {{"in0", inputPort(inWidth, "in0")}, {"in1", inputPort(inWidth, "in1")}, {"out", outputPort(inWidth, "out")}};
       
     } else if (matchesCall("hls.max.", instr)) {
 
@@ -1237,7 +1237,7 @@ namespace ahaHLS {
       modParams = {{"WIDTH", to_string(inWidth)}};
       wiring = {{"in0", {true, inWidth, "max_in_" + rStr}}, {"in1", {true, inWidth, "max_in_" + rStr}}};
       outWires = {{"out", {false, inWidth, "max_out_" + rStr}}};
-      allPorts = {{"in0", inputPort(inWidth, "in0")}, {"in0", inputPort(inWidth, "in0")}, {"out", outputPort(inWidth, "out")}};
+      allPorts = {{"in0", inputPort(inWidth, "in0")}, {"in1", inputPort(inWidth, "in1")}, {"out", outputPort(inWidth, "out")}};
       
     } else if (TruncInst::classof(instr)) {
       modName = "trunc";
@@ -1522,13 +1522,17 @@ namespace ahaHLS {
       outWires = {};
           
     } else if (isBuiltinSlice(instr)) {
-      int inWidth = getSliceInWidth(instr);
-      int offset = getSliceOffset(instr);
-      int outWidth = getSliceOutWidth(instr);
+      unitName = string(instr->getOpcodeName()) + "_" + rStr;
+      
+      return functionalUnitForSpec(unitName, modSpec);
+      
+      // int inWidth = getSliceInWidth(instr);
+      // int offset = getSliceOffset(instr);
+      // int outWidth = getSliceOutWidth(instr);
 
-      modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}, {"OFFSET", to_string(offset)}};
-      wiring = {{"in", {true, inWidth, "slice_in_" + rStr}}};
-      outWires = {{"out", {false, outWidth, "slice_out_" + rStr}}};
+      // modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}, {"OFFSET", to_string(offset)}};
+      // wiring = {{"in", {true, inWidth, "slice_in_" + rStr}}};
+      // outWires = {{"out", {false, outWidth, "slice_out_" + rStr}}};
       
     } else if (matchesCall("hls.min.", instr)) {
       int inWidth = getMinWidth(instr);
