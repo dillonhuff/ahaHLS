@@ -1047,7 +1047,7 @@ namespace ahaHLS {
           outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
           defaults.insert({"wen", 0});            
 
-          usage.writeNum++;
+          //usage.writeNum++;
         }
       }
 
@@ -1123,7 +1123,7 @@ namespace ahaHLS {
 
           outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(usage.readNum)}}};
 
-          usage.readNum++;
+          //usage.readNum++;
         }
       }
 
@@ -1461,7 +1461,14 @@ namespace ahaHLS {
     map<string, Wire> outWires;
 
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
-      return createMemUnit(memNames, memSrcs, hcs, usage, instr);
+      FunctionalUnit memUnit = createMemUnit(memNames, memSrcs, hcs, usage, instr);
+
+      ModuleSpec modSpec =
+        buildModSpec(memNames, memSrcs, hcs, usage, instr);
+
+      memUnit.module = modSpec;
+      
+      return memUnit;
     } else if (BinaryOperator::classof(instr)) {
       string modName = binopName(instr);
       int w0 = getValueBitWidth(instr->getOperand(0));
