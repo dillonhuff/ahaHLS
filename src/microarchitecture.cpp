@@ -1469,11 +1469,9 @@ namespace ahaHLS {
     bool hasClock = false;
     
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
-      //return createMemUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
-      //return createMemUnit(unitName, memNames, memSrcs, hcs, usage, instr);
       return createMemUnit(memNames, memSrcs, hcs, usage, instr);
     } else if (BinaryOperator::classof(instr)) {
-      modName = binopName(instr);
+      string modName = binopName(instr);
       int w0 = getValueBitWidth(instr->getOperand(0));
       int w1 = getValueBitWidth(instr->getOperand(1));
 
@@ -1500,7 +1498,7 @@ namespace ahaHLS {
       outWires = {{"out", {false, width, opCodeName + "_out_" + rStr}}};
     } else if (ReturnInst::classof(instr)) {
       isExternal = true;
-      modName = "ret";
+      //modName =  "ret";
 
       defaults.insert({"valid", 0});
       wiring = {{"valid", {true, 1, "valid"}}};
@@ -1515,7 +1513,7 @@ namespace ahaHLS {
       outWires = {};
           
     } else if (isBuiltinSlice(instr)) {
-      modName = "sliceOp";
+      //modName =  "sliceOp";
       int inWidth = getSliceInWidth(instr);
       int offset = getSliceOffset(instr);
       int outWidth = getSliceOutWidth(instr);
@@ -1528,7 +1526,7 @@ namespace ahaHLS {
       //cout << "Creating slice op" << endl;
       
     } else if (matchesCall("hls.min.", instr)) {
-      modName = "minOp";
+      //modName =  "minOp";
 
       int inWidth = getMinWidth(instr);
 
@@ -1539,7 +1537,7 @@ namespace ahaHLS {
       
     } else if (matchesCall("hls.max.", instr)) {
 
-      modName = "maxOp";
+      //modName =  "maxOp";
       
       int inWidth = getMaxWidth(instr);
 
@@ -1549,7 +1547,7 @@ namespace ahaHLS {
       allPorts = {{"in0", inputPort(inWidth, "in0")}, {"in0", inputPort(inWidth, "in0")}, {"out", outputPort(inWidth, "out")}};
       
     } else if (TruncInst::classof(instr)) {
-      modName = "trunc";
+      //modName =  "trunc";
 
       int inWidth = getValueBitWidth(instr->getOperand(0));
       int outWidth = getValueBitWidth(instr);
@@ -1560,7 +1558,7 @@ namespace ahaHLS {
       
     } else if (CmpInst::classof(instr)) {
       CmpInst::Predicate pred = dyn_cast<CmpInst>(instr)->getPredicate();
-      modName = cmpName(pred);
+      //modName =  cmpName(pred);
 
       int w0 = getValueBitWidth(instr->getOperand(0));
       int w1 = getValueBitWidth(instr->getOperand(1));
@@ -1574,12 +1572,12 @@ namespace ahaHLS {
     } else if (BranchInst::classof(instr)) {
       // Branches are not scheduled, they are encoded in the
       // STG transitions
-      modName = "br_dummy";
+      //modName =  "br_dummy";
       unitName = "br_unit";
     } else if (GetElementPtrInst::classof(instr)) {
       if (isRAMAddressCompGEP(dyn_cast<GetElementPtrInst>(instr), memSrcs)) {
         
-        modName = "getelementptr_" + to_string(instr->getNumOperands() - 1);
+        //modName =  "getelementptr_" + to_string(instr->getNumOperands() - 1);
         wiring = {{"base_addr", {true, 32, "base_addr_" + rStr}}};
 
         for (int i = 1; i < (int) instr->getNumOperands(); i++) {
@@ -1589,7 +1587,7 @@ namespace ahaHLS {
         outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
 
       } else {
-        modName = "sliceOp";
+        //modName =  "sliceOp";
         Type* stp = getTypePointedTo(instr->getOperand(0)->getType());
         int inWidth = getTypeBitWidth(stp);
         Type* outSt = getTypePointedTo(instr->getType());
@@ -1619,7 +1617,7 @@ namespace ahaHLS {
     } else if (PHINode::classof(instr)) {
       PHINode* phi = dyn_cast<PHINode>(instr);
 
-      modName = "phi";
+      //modName =  "phi";
 
       wiring = {{"last_block", {true, 32, "phi_last_block_" + rStr}}};
 
@@ -1633,7 +1631,7 @@ namespace ahaHLS {
       outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
 
     } else if (SelectInst::classof(instr)) {
-      modName = "select";
+      //modName =  "select";
       int w0 = getValueBitWidth(instr->getOperand(1));
       int w1 = getValueBitWidth(instr->getOperand(2));
 
@@ -1683,7 +1681,7 @@ namespace ahaHLS {
           modSpec = map_find(string(structT->getName()), hcs.typeSpecs)(structT);
         }
 
-        modName = modSpec.name;
+        //modName = modSpec.name;
         unitName = fuPtr->getName();
         defaults = modSpec.defaultValues;
         insensitivePorts = modSpec.insensitivePorts;
@@ -1734,11 +1732,11 @@ namespace ahaHLS {
       // TODO: Add test case that uses casts
       // No action for this instruction type (YET)
     } else if (SExtInst::classof(instr)) {
-      modName = "sext";
+      //modName = "sext";
       wiring = {{"in", {true, 32, "sgt_in0_" + rStr}}};
       outWires = {{"out", {false, 64, "sgt_out_" + rStr}}};
     } else if (ZExtInst::classof(instr)) {
-      modName = "zext";
+      //modName = "zext";
       int outWidth = getValueBitWidth(instr);
       int inWidth = getValueBitWidth(instr->getOperand(0));
       
@@ -1749,10 +1747,6 @@ namespace ahaHLS {
       cout << "Unsupported instruction = " << instructionString(instr) << endl;
       assert(false);
     }
-
-    // ModuleSpec modSpec = {modParams, modName, allPorts, defaults, insensitivePorts};
-    // modSpec.hasRst = hasRst;
-    // modSpec.hasClock = hasClock;
 
     ModuleSpec modSpec =
       buildModSpec(memNames, memSrcs, hcs, usage, instr);
