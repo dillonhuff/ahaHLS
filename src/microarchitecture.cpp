@@ -1461,9 +1461,9 @@ namespace ahaHLS {
 
     map<string, Wire> wiring;
     map<string, Wire> outWires;
-    map<string, int> defaults;
-    set<string> insensitivePorts;
-    map<string, Port> allPorts;
+    //map<string, int> defaults;
+    //set<string> insensitivePorts;
+    //map<string, Port> allPorts;
     //cout << "Creating a unit for " << valueString(instr) << endl;
 
     bool hasRst = false;
@@ -1495,22 +1495,22 @@ namespace ahaHLS {
 
       if (modName == "fadd") {
         wiring.insert({"en", {true, 1, opCodeName + "_en_" + rStr}});
-        defaults.insert({"en", 0});
+        //defaults.insert({"en", 0});
       }
       outWires = {{"out", {false, width, opCodeName + "_out_" + rStr}}};
     } else if (ReturnInst::classof(instr)) {
       isExternal = true;
       //modName =  "ret";
 
-      defaults.insert({"valid", 0});
+      //defaults.insert({"valid", 0});
       wiring = {{"valid", {true, 1, "valid"}}};
 
       ReturnInst* ret = dyn_cast<ReturnInst>(instr);
       if (ret->getReturnValue() != nullptr) {
         auto val = ret->getReturnValue();
         wiring.insert({"return_value", {true, getValueBitWidth(val), "return_value"}});
-        defaults.insert({"return_value", 0});
-        insensitivePorts.insert("return_value");
+        //defaults.insert({"return_value", 0});
+        //insensitivePorts.insert("return_value");
       }
       outWires = {};
           
@@ -1523,7 +1523,7 @@ namespace ahaHLS {
       modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}, {"OFFSET", to_string(offset)}};
       wiring = {{"in", {true, inWidth, "slice_in_" + rStr}}};
       outWires = {{"out", {false, outWidth, "slice_out_" + rStr}}};
-      allPorts = {{"in", inputPort(inWidth, "in")}, {"out", outputPort(outWidth, "out")}};
+      //allPorts = {{"in", inputPort(inWidth, "in")}, {"out", outputPort(outWidth, "out")}};
       
       //cout << "Creating slice op" << endl;
       
@@ -1535,7 +1535,7 @@ namespace ahaHLS {
       modParams = {{"WIDTH", to_string(inWidth)}};
       wiring = {{"in0", {true, inWidth, "min_in_" + rStr}}, {"in1", {true, inWidth, "min_in_" + rStr}}};
       outWires = {{"out", {false, inWidth, "min_out_" + rStr}}};
-      allPorts = {{"in0", inputPort(inWidth, "in0")}, {"in0", inputPort(inWidth, "in0")}, {"out", outputPort(inWidth, "out")}};
+      //allPorts = {{"in0", inputPort(inWidth, "in0")}, {"in0", inputPort(inWidth, "in0")}, {"out", outputPort(inWidth, "out")}};
       
     } else if (matchesCall("hls.max.", instr)) {
 
@@ -1546,7 +1546,7 @@ namespace ahaHLS {
       modParams = {{"WIDTH", to_string(inWidth)}};
       wiring = {{"in0", {true, inWidth, "max_in_" + rStr}}, {"in1", {true, inWidth, "max_in_" + rStr}}};
       outWires = {{"out", {false, inWidth, "max_out_" + rStr}}};
-      allPorts = {{"in0", inputPort(inWidth, "in0")}, {"in0", inputPort(inWidth, "in0")}, {"out", outputPort(inWidth, "out")}};
+      //allPorts = {{"in0", inputPort(inWidth, "in0")}, {"in0", inputPort(inWidth, "in0")}, {"out", outputPort(inWidth, "out")}};
       
     } else if (TruncInst::classof(instr)) {
       //modName =  "trunc";
@@ -1685,9 +1685,9 @@ namespace ahaHLS {
 
         //modName = modSpec.name;
         unitName = fuPtr->getName();
-        defaults = modSpec.defaultValues;
-        insensitivePorts = modSpec.insensitivePorts;
-        allPorts = modSpec.ports; 
+        //defaults = modSpec.defaultValues;
+        //insensitivePorts = modSpec.insensitivePorts;
+        //allPorts = modSpec.ports; 
         hasRst = modSpec.hasReset();
         hasClock = modSpec.isSequential();
         modParams = modSpec.params;
