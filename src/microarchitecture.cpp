@@ -417,8 +417,6 @@ namespace ahaHLS {
   
   std::vector<Port>
   getPorts(MicroArchitecture& arch) {
-    //auto& unitAssignment = arch.unitAssignment;
-
     vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
 
     Function* f = arch.stg.getFunction();
@@ -963,8 +961,8 @@ namespace ahaHLS {
     map<string, Port> allPorts;
     //cout << "Creating a unit for " << valueString(instr) << endl;
 
-    bool hasRst = false; //modSpec.hasReset();
-    bool hasClock = false; //modSpec.isSequential();        
+    bool hasRst = false;
+    bool hasClock = false;
     
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
       return createMemUnit(unitName, memNames, memSrcs, hcs, readNum, writeNum, instr);
@@ -1283,12 +1281,13 @@ namespace ahaHLS {
 
     int globalSuffix = 0;
 
+    int readNum = 0; // Keeping these state-unique, need global suffix as well
+    int writeNum = 0;
+    int resSuffix = 0;
+    
+    
     for (auto state : stg.opStates) {
 
-      int readNum = 0; // Keeping these state-unique, need global suffix as well
-      int writeNum = 0;
-      int resSuffix = 0;
-    
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
 
         Instruction* instr = instrG;
@@ -1312,41 +1311,6 @@ namespace ahaHLS {
     
     return units;
   }
-
-  // map<Instruction*, Wire> createInstrNames(const STG& stg) {
-  //   map<Instruction*, Wire> resultNames;
-
-  //   int resSuffix = 0;
-  //   for (auto state : stg.opStates) {
-  //     for (auto instrG : state.second) {
-  //       Instruction* instr = instrG;
-
-  //       // TODO: Replace with hasOutput?
-  //       if (StoreInst::classof(instr) ||
-  //           BranchInst::classof(instr) ||
-  //           AllocaInst::classof(instr) ||
-  //           (CallInst::classof(instr) && !isBuiltinFifoRead(instr) && !isBuiltinPortRead(instr)) ||
-  //           BitCastInst::classof(instr)) {
-  //         continue;
-  //       }
-        
-  //       if (ReturnInst::classof(instr)) {
-  //         resultNames[instr] = {true, 1, string(instr->getOpcodeName()) + "_tmp_" + to_string(resSuffix)};
-  //         resSuffix++;
-  //         continue;
-  //       }
-
-  //       auto schedVars = map_find(instr, stg.sched.instrTimes);
-
-  //       if (state.first == schedVars.front()) {
-  //         resultNames[instr] = {true, getValueBitWidth(instr), string(instr->getOpcodeName()) + "_tmp_" + to_string(resSuffix)};
-  //         resSuffix++;
-  //       }
-  //     }
-  //   }
-
-  //   return resultNames;
-  // }
 
   std::ostream& operator<<(std::ostream& out, ControlFlowPosition& pos) {
     out << "Control Pos " << pos.stateId() << ": ";
@@ -1377,19 +1341,6 @@ namespace ahaHLS {
     }
     return pos;
   }
-
-  // bool producedInPipeline(llvm::Instruction* instr,
-  //                         ElaboratedPipeline& p,
-  //                         MicroArchitecture& arch) {
-  //   for (auto st : p.p.getStates()) {
-  //     for (auto instrG : arch.stg.instructionsFinishingAt(st)) {
-  //       if (instrG == instr) {
-  //         return true;
-  //       }
-  //     }
-  //   }
-  //   return false;
-  // }
 
   Wire mostRecentStorageLocation(Instruction* result,
                                  ControlFlowPosition& currentPosition,

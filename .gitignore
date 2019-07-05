@@ -183,3 +183,5 @@ lb_3x3
 lb_3x3_unit_test.v
 lb_basic
 lb_tb
+cascade_push*
+conv_3_3*
