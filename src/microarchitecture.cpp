@@ -1195,11 +1195,13 @@ namespace ahaHLS {
 
       defaults.insert({"valid", 0});
       wiring = {{"valid", {true, 1, "valid"}}};
+      allPorts.insert({"valid", outputPort(1, "valid")});
 
       ReturnInst* ret = dyn_cast<ReturnInst>(instr);
       if (ret->getReturnValue() != nullptr) {
         auto val = ret->getReturnValue();
         wiring.insert({"return_value", {true, getValueBitWidth(val), "return_value"}});
+        allPorts.insert({"return_valud", outputPort(getValueBitWidth(val), "return_value")});
         defaults.insert({"return_value", 0});
         insensitivePorts.insert("return_value");
       }
@@ -1248,6 +1250,8 @@ namespace ahaHLS {
       modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}};
       wiring = {{"in", {true, inWidth, "trunc_in_" + rStr}}};
       outWires = {{"out", {false, outWidth, "trunc_out_" + rStr}}};
+
+      allPorts = {{"in", inputPort(inWidth, "in")}, {"out", outputPort(outWidth, "out")}};      
       
     } else if (CmpInst::classof(instr)) {
       CmpInst::Predicate pred = dyn_cast<CmpInst>(instr)->getPredicate();
@@ -1261,10 +1265,9 @@ namespace ahaHLS {
       modParams = {{"WIDTH", to_string(w0)}};
       wiring = {{"in0", {true, w0, "cmp_in0_" + rStr}}, {"in1", {true, w0, "cmp_in1_" + rStr}}};
       outWires = {{"out", {false, 1, "cmp_out_" + rStr}}};
-          
+
+      allPorts = {{"in0", inputPort(w0, "in0")}, {"in1", inputPort(w0, "in1")}, {"out", outputPort(1, "out")}};            
     } else if (BranchInst::classof(instr)) {
-      // Branches are not scheduled, they are encoded in the
-      // STG transitions
       modName = "br_dummy";
       unitName = "br_unit";
     } else if (GetElementPtrInst::classof(instr)) {
@@ -1429,6 +1432,10 @@ namespace ahaHLS {
       modName = "sext";
       wiring = {{"in", {true, 32, "sgt_in0_" + rStr}}};
       outWires = {{"out", {false, 64, "sgt_out_" + rStr}}};
+
+      allPorts.insert({"in", inputPort(32, "in")});
+      allPorts.insert({"out", outputPort(64, "out")});
+      
     } else if (ZExtInst::classof(instr)) {
       modName = "zext";
       int outWidth = getValueBitWidth(instr);
@@ -1437,6 +1444,9 @@ namespace ahaHLS {
       wiring = {{"in", {true, inWidth, "zext_in_" + rStr}}};
       outWires = {{"out", {false, 64, "zext_out_" + rStr}}};
       modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}};
+
+      allPorts.insert({"in", inputPort(inWidth, "in")});
+      allPorts.insert({"out", outputPort(outWidth, "out")});
     } else {
       cout << "Unsupported instruction = " << instructionString(instr) << endl;
       assert(false);
