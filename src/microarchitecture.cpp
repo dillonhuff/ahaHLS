@@ -1523,7 +1523,6 @@ namespace ahaHLS {
           
     } else if (isBuiltinSlice(instr)) {
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
-      
       return functionalUnitForSpec(unitName, modSpec);
       
       // int inWidth = getSliceInWidth(instr);
@@ -1535,19 +1534,24 @@ namespace ahaHLS {
       // outWires = {{"out", {false, outWidth, "slice_out_" + rStr}}};
       
     } else if (matchesCall("hls.min.", instr)) {
-      int inWidth = getMinWidth(instr);
+      unitName = string(instr->getOpcodeName()) + "_" + rStr;
+      return functionalUnitForSpec(unitName, modSpec);
+      
+      // int inWidth = getMinWidth(instr);
 
-      modParams = {{"WIDTH", to_string(inWidth)}};
-      wiring = {{"in0", {true, inWidth, "min_in_" + rStr}}, {"in1", {true, inWidth, "min_in_" + rStr}}};
-      outWires = {{"out", {false, inWidth, "min_out_" + rStr}}};
+      // modParams = {{"WIDTH", to_string(inWidth)}};
+      // wiring = {{"in0", {true, inWidth, "min_in_" + rStr}}, {"in1", {true, inWidth, "min_in_" + rStr}}};
+      // outWires = {{"out", {false, inWidth, "min_out_" + rStr}}};
       
     } else if (matchesCall("hls.max.", instr)) {
+      unitName = string(instr->getOpcodeName()) + "_" + rStr;
+      return functionalUnitForSpec(unitName, modSpec);
 
-      int inWidth = getMaxWidth(instr);
+      // int inWidth = getMaxWidth(instr);
 
-      modParams = {{"WIDTH", to_string(inWidth)}};
-      wiring = {{"in0", {true, inWidth, "max_in_" + rStr}}, {"in1", {true, inWidth, "max_in_" + rStr}}};
-      outWires = {{"out", {false, inWidth, "max_out_" + rStr}}};
+      // modParams = {{"WIDTH", to_string(inWidth)}};
+      // wiring = {{"in0", {true, inWidth, "max_in_" + rStr}}, {"in1", {true, inWidth, "max_in_" + rStr}}};
+      // outWires = {{"out", {false, inWidth, "max_out_" + rStr}}};
       
     } else if (TruncInst::classof(instr)) {
       int inWidth = getValueBitWidth(instr->getOperand(0));
