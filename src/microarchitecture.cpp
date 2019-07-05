@@ -1176,11 +1176,16 @@ namespace ahaHLS {
         modParams = {{"WIDTH", to_string(width)}};
       }
 
+      allPorts = {{"in0", inputPort(width, "in0")},
+                  {"in1", inputPort(width, "in1")},
+                  {"out", outputPort(width, "out")}};
+      
       wiring = {{"in0", {true, width, opCodeName + "_in0_" + rStr}},
                 {"in1", {true, width, opCodeName + "_in1_" + rStr}}};
 
       if (modName == "fadd") {
         wiring.insert({"en", {true, 1, opCodeName + "_en_" + rStr}});
+        allPorts.insert({"en", inputPort(1, "en")});
         defaults.insert({"en", 0});
       }
       outWires = {{"out", {false, width, opCodeName + "_out_" + rStr}}};
@@ -1470,31 +1475,40 @@ namespace ahaHLS {
       memUnit.module = modSpec;
       
       return memUnit;
-    } else if (BinaryOperator::classof(instr)) {
-      string modName = binopName(instr);
-      int w0 = getValueBitWidth(instr->getOperand(0));
-      int w1 = getValueBitWidth(instr->getOperand(1));
+    } //else if (BinaryOperator::classof(instr)) {
 
-      if (w0 != w1) {
-        //cout << "Binops do not match widths " << valueString(instr) << endl;
-      }
-      assert(w0 == w1);
-
+    ModuleSpec modSpec =
+      buildModSpec(memNames, memSrcs, hcs, usage, instr);
+    
+    if (BinaryOperator::classof(instr)) {
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
+      
+      return functionalUnitForSpec(unitName, modSpec);
 
-      string opCodeName = instr->getOpcodeName();
-      int width = getValueBitWidth(instr);
-      if (modName != "fadd") {
-        modParams = {{"WIDTH", to_string(width)}};
-      }
+      // string modName = binopName(instr);
+      // int w0 = getValueBitWidth(instr->getOperand(0));
+      // int w1 = getValueBitWidth(instr->getOperand(1));
 
-      wiring = {{"in0", {true, width, opCodeName + "_in0_" + rStr}},
-                {"in1", {true, width, opCodeName + "_in1_" + rStr}}};
+      // if (w0 != w1) {
+      //   //cout << "Binops do not match widths " << valueString(instr) << endl;
+      // }
+      // assert(w0 == w1);
 
-      if (modName == "fadd") {
-        wiring.insert({"en", {true, 1, opCodeName + "_en_" + rStr}});
-      }
-      outWires = {{"out", {false, width, opCodeName + "_out_" + rStr}}};
+      // //unitName = string(instr->getOpcodeName()) + "_" + rStr;
+
+      // string opCodeName = instr->getOpcodeName();
+      // int width = getValueBitWidth(instr);
+      // if (modName != "fadd") {
+      //   modParams = {{"WIDTH", to_string(width)}};
+      // }
+
+      // wiring = {{"in0", {true, width, opCodeName + "_in0_" + rStr}},
+      //           {"in1", {true, width, opCodeName + "_in1_" + rStr}}};
+
+      // if (modName == "fadd") {
+      //   wiring.insert({"en", {true, 1, opCodeName + "_en_" + rStr}});
+      // }
+      // outWires = {{"out", {false, width, opCodeName + "_out_" + rStr}}};
     } else if (ReturnInst::classof(instr)) {
       isExternal = true;
 
@@ -1709,9 +1723,6 @@ namespace ahaHLS {
       assert(false);
     }
 
-    ModuleSpec modSpec =
-      buildModSpec(memNames, memSrcs, hcs, usage, instr);
-    
     FunctionalUnit unit = {modSpec, unitName, wiring, outWires, isExternal};
 
     return unit;
