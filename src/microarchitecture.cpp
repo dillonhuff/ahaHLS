@@ -1130,6 +1130,7 @@ namespace ahaHLS {
     }
 
     FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
+    //FunctionalUnit unit = {modSpec, unitName, wiring, outWires, isExternal};
     return unit;
   }
 
