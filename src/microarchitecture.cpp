@@ -1315,16 +1315,22 @@ namespace ahaHLS {
 
       modName = "phi";
 
+      allPorts.insert({"last_block", inputPort(32, "last_block")});
       wiring = {{"last_block", {true, 32, "phi_last_block_" + rStr}}};
 
       int w0 = getValueBitWidth(phi);
       int nb = (int) phi->getNumIncomingValues();
       modParams = {{"WIDTH", to_string(w0)}, {"NB_PAIR", to_string(nb)}};
 
+      allPorts.insert({"s", inputPort(32*nb, "s")});
+      allPorts.insert({"in", inputPort(w0*nb, "in")});
+
       wiring.insert({"s", {true, 32*nb, string("phi_s") + "_" + rStr}});
       wiring.insert({"in", {true, w0*nb, string("phi_in_") + rStr}});
       
       outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
+
+      allPorts.insert({"out", outputPort(32, "out")});
 
     } else if (SelectInst::classof(instr)) {
       modName = "select";
@@ -1338,7 +1344,12 @@ namespace ahaHLS {
                 {"in1", {true, w0, "sel_in1_" + rStr}},
                 {"sel", {true, 1, "sel_sel_" + rStr}}};
       outWires = {{"out", {false, w0, "sel_out_" + rStr}}};
-            
+
+      allPorts.insert({"in0", inputPort(w0, "in0")});
+      allPorts.insert({"in1", inputPort(w0, "in1")});
+      allPorts.insert({"sel", inputPort(1, "in1")});
+      allPorts.insert({"out", outputPort(10, "out")});                        
+
     } else if (CallInst::classof(instr)) {
 
       if (isBuiltinPortCall(instr)) {
@@ -1588,30 +1599,38 @@ namespace ahaHLS {
         outWires = {{"out", {false, outWidth, "getelementptr_out_" + rStr}}};
       }
     } else if (PHINode::classof(instr)) {
-      PHINode* phi = dyn_cast<PHINode>(instr);
 
-      wiring = {{"last_block", {true, 32, "phi_last_block_" + rStr}}};
-
-      int w0 = getValueBitWidth(phi);
-      int nb = (int) phi->getNumIncomingValues();
-      modParams = {{"WIDTH", to_string(w0)}, {"NB_PAIR", to_string(nb)}};
-
-      wiring.insert({"s", {true, 32*nb, string("phi_s") + "_" + rStr}});
-      wiring.insert({"in", {true, w0*nb, string("phi_in_") + rStr}});
+      unitName = string(instr->getOpcodeName()) + "_" + rStr;
+      return functionalUnitForSpec(unitName, modSpec);
       
-      outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
+      // PHINode* phi = dyn_cast<PHINode>(instr);
+
+      // wiring = {{"last_block", {true, 32, "phi_last_block_" + rStr}}};
+
+      // int w0 = getValueBitWidth(phi);
+      // int nb = (int) phi->getNumIncomingValues();
+      // modParams = {{"WIDTH", to_string(w0)}, {"NB_PAIR", to_string(nb)}};
+
+      // wiring.insert({"s", {true, 32*nb, string("phi_s") + "_" + rStr}});
+      // wiring.insert({"in", {true, w0*nb, string("phi_in_") + rStr}});
+      
+      // outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
 
     } else if (SelectInst::classof(instr)) {
-      int w0 = getValueBitWidth(instr->getOperand(1));
-      int w1 = getValueBitWidth(instr->getOperand(2));
 
-      assert(w0 == w1);
+      unitName = string(instr->getOpcodeName()) + "_" + rStr;
+      return functionalUnitForSpec(unitName, modSpec);
+      
+      // int w0 = getValueBitWidth(instr->getOperand(1));
+      // int w1 = getValueBitWidth(instr->getOperand(2));
 
-      modParams = {{"WIDTH", to_string(w0)}};
-      wiring = {{"in0", {true, w0, "sel_in0_" + rStr}},
-                {"in1", {true, w0, "sel_in1_" + rStr}},
-                {"sel", {true, 1, "sel_sel_" + rStr}}};
-      outWires = {{"out", {false, w0, "sel_out_" + rStr}}};
+      // assert(w0 == w1);
+
+      // modParams = {{"WIDTH", to_string(w0)}};
+      // wiring = {{"in0", {true, w0, "sel_in0_" + rStr}},
+      //           {"in1", {true, w0, "sel_in1_" + rStr}},
+      //           {"sel", {true, 1, "sel_sel_" + rStr}}};
+      // outWires = {{"out", {false, w0, "sel_out_" + rStr}}};
             
     } else if (CallInst::classof(instr)) {
 
