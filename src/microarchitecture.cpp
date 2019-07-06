@@ -1114,18 +1114,18 @@ namespace ahaHLS {
       modName = "ret";
 
       defaults.insert({"valid", 0});
-      wiring = {{"valid", {true, 1, "valid"}}};
+      //wiring = {{"valid", {true, 1, "valid"}}};
       allPorts.insert({"valid", inputPort(1, "valid")});
 
       ReturnInst* ret = dyn_cast<ReturnInst>(instr);
       if (ret->getReturnValue() != nullptr) {
         auto val = ret->getReturnValue();
-        wiring.insert({"return_value", {true, getValueBitWidth(val), "return_value"}});
+        //wiring.insert({"return_value", {true, getValueBitWidth(val), "return_value"}});
         allPorts.insert({"return_valud", inputPort(getValueBitWidth(val), "return_value")});
         defaults.insert({"return_value", 0});
         insensitivePorts.insert("return_value");
       }
-      outWires = {};
+      //outWires = {};
           
     } else if (isBuiltinSlice(instr)) {
       modName = "sliceOp";
@@ -1134,8 +1134,8 @@ namespace ahaHLS {
       int outWidth = getSliceOutWidth(instr);
 
       modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}, {"OFFSET", to_string(offset)}};
-      wiring = {{"in", {true, inWidth, "slice_in_" + rStr}}};
-      outWires = {{"out", {false, outWidth, "slice_out_" + rStr}}};
+      //wiring = {{"in", {true, inWidth, "slice_in_" + rStr}}};
+      //outWires = {{"out", {false, outWidth, "slice_out_" + rStr}}};
       allPorts = {{"in", inputPort(inWidth, "in")}, {"out", outputPort(outWidth, "out")}};
       
       //cout << "Creating slice op" << endl;
@@ -1146,8 +1146,8 @@ namespace ahaHLS {
       int inWidth = getMinWidth(instr);
 
       modParams = {{"WIDTH", to_string(inWidth)}};
-      wiring = {{"in0", {true, inWidth, "min_in_" + rStr}}, {"in1", {true, inWidth, "min_in_" + rStr}}};
-      outWires = {{"out", {false, inWidth, "min_out_" + rStr}}};
+      //wiring = {{"in0", {true, inWidth, "min_in_" + rStr}}, {"in1", {true, inWidth, "min_in_" + rStr}}};
+      //outWires = {{"out", {false, inWidth, "min_out_" + rStr}}};
       allPorts = {{"in0", inputPort(inWidth, "in0")}, {"in1", inputPort(inWidth, "in1")}, {"out", outputPort(inWidth, "out")}};
       
     } else if (matchesCall("hls.max.", instr)) {
@@ -1157,8 +1157,8 @@ namespace ahaHLS {
       int inWidth = getMaxWidth(instr);
 
       modParams = {{"WIDTH", to_string(inWidth)}};
-      wiring = {{"in0", {true, inWidth, "max_in_" + rStr}}, {"in1", {true, inWidth, "max_in_" + rStr}}};
-      outWires = {{"out", {false, inWidth, "max_out_" + rStr}}};
+      //wiring = {{"in0", {true, inWidth, "max_in_" + rStr}}, {"in1", {true, inWidth, "max_in_" + rStr}}};
+      //outWires = {{"out", {false, inWidth, "max_out_" + rStr}}};
       allPorts = {{"in0", inputPort(inWidth, "in0")}, {"in1", inputPort(inWidth, "in1")}, {"out", outputPort(inWidth, "out")}};
       
     } else if (TruncInst::classof(instr)) {
@@ -1168,8 +1168,8 @@ namespace ahaHLS {
       int outWidth = getValueBitWidth(instr);
 
       modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}};
-      wiring = {{"in", {true, inWidth, "trunc_in_" + rStr}}};
-      outWires = {{"out", {false, outWidth, "trunc_out_" + rStr}}};
+      //wiring = {{"in", {true, inWidth, "trunc_in_" + rStr}}};
+      //outWires = {{"out", {false, outWidth, "trunc_out_" + rStr}}};
 
       allPorts = {{"in", inputPort(inWidth, "in")}, {"out", outputPort(outWidth, "out")}};      
       
@@ -1183,8 +1183,8 @@ namespace ahaHLS {
       assert(w0 == w1);
 
       modParams = {{"WIDTH", to_string(w0)}};
-      wiring = {{"in0", {true, w0, "cmp_in0_" + rStr}}, {"in1", {true, w0, "cmp_in1_" + rStr}}};
-      outWires = {{"out", {false, 1, "cmp_out_" + rStr}}};
+      //wiring = {{"in0", {true, w0, "cmp_in0_" + rStr}}, {"in1", {true, w0, "cmp_in1_" + rStr}}};
+      //outWires = {{"out", {false, 1, "cmp_out_" + rStr}}};
 
       allPorts = {{"in0", inputPort(w0, "in0")}, {"in1", inputPort(w0, "in1")}, {"out", outputPort(1, "out")}};            
     } else if (BranchInst::classof(instr)) {
@@ -1194,16 +1194,16 @@ namespace ahaHLS {
       if (isRAMAddressCompGEP(dyn_cast<GetElementPtrInst>(instr), memSrcs)) {
         
         modName = "getelementptr_" + to_string(instr->getNumOperands() - 1);
-        wiring = {{"base_addr", {true, 32, "base_addr_" + rStr}}};
+        //wiring = {{"base_addr", {true, 32, "base_addr_" + rStr}}};
         allPorts.insert({"base_addr", inputPort(32, "base_addr")});
         
         for (int i = 1; i < (int) instr->getNumOperands(); i++) {
           allPorts.insert({"in" + to_string(i),
                 inputPort(32, "in" + to_string(i))});
-          wiring.insert({"in" + to_string(i),
-                {true, 32, "gep_add_in" + to_string(i) + "_" + rStr}});
+          //wiring.insert({"in" + to_string(i),
+          //                {true, 32, "gep_add_in" + to_string(i) + "_" + rStr}});
         }
-        outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
+        //outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
         allPorts.insert({"out", outputPort(32, "out")});
 
       } else {
@@ -1228,10 +1228,10 @@ namespace ahaHLS {
           bitOffset += getTypeBitWidth(underlyingStruct->elements()[i]);
         }
         
-        wiring = {{"in", {true, inWidth, "slice_in_" + rStr}}};
+        //wiring = {{"in", {true, inWidth, "slice_in_" + rStr}}};
         modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OFFSET", to_string(bitOffset)}, {"OUT_WIDTH", to_string(outWidth)}};
         
-        outWires = {{"out", {false, outWidth, "getelementptr_out_" + rStr}}};
+        //outWires = {{"out", {false, outWidth, "getelementptr_out_" + rStr}}};
 
         allPorts.insert({"in", inputPort(inWidth, "in")});
         allPorts.insert({"out", outputPort(outWidth, "out")});        
@@ -1242,7 +1242,7 @@ namespace ahaHLS {
       modName = "phi";
 
       allPorts.insert({"last_block", inputPort(32, "last_block")});
-      wiring = {{"last_block", {true, 32, "phi_last_block_" + rStr}}};
+      //wiring = {{"last_block", {true, 32, "phi_last_block_" + rStr}}};
 
       int w0 = getValueBitWidth(phi);
       int nb = (int) phi->getNumIncomingValues();
@@ -1251,10 +1251,10 @@ namespace ahaHLS {
       allPorts.insert({"s", inputPort(32*nb, "s")});
       allPorts.insert({"in", inputPort(w0*nb, "in")});
 
-      wiring.insert({"s", {true, 32*nb, string("phi_s") + "_" + rStr}});
-      wiring.insert({"in", {true, w0*nb, string("phi_in_") + rStr}});
+      //wiring.insert({"s", {true, 32*nb, string("phi_s") + "_" + rStr}});
+      //wiring.insert({"in", {true, w0*nb, string("phi_in_") + rStr}});
       
-      outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
+      //outWires = {{"out", {false, 32, "phi_out_" + rStr}}};
 
       allPorts.insert({"out", outputPort(32, "out")});
 
@@ -1266,10 +1266,10 @@ namespace ahaHLS {
       assert(w0 == w1);
 
       modParams = {{"WIDTH", to_string(w0)}};
-      wiring = {{"in0", {true, w0, "sel_in0_" + rStr}},
-                {"in1", {true, w0, "sel_in1_" + rStr}},
-                {"sel", {true, 1, "sel_sel_" + rStr}}};
-      outWires = {{"out", {false, w0, "sel_out_" + rStr}}};
+      //wiring = {{"in0", {true, w0, "sel_in0_" + rStr}},
+                // {"in1", {true, w0, "sel_in1_" + rStr}},
+                // {"sel", {true, 1, "sel_sel_" + rStr}}};
+      //outWires = {{"out", {false, w0, "sel_out_" + rStr}}};
 
       allPorts.insert({"in0", inputPort(w0, "in0")});
       allPorts.insert({"in1", inputPort(w0, "in1")});
@@ -1343,11 +1343,11 @@ namespace ahaHLS {
 
         for (auto pt : modSpec.ports) {
           if (pt.second.input()) {
-            wiring.insert({pt.first, {true, pt.second.width, unitName + "_" + pt.second.name}});
+            //wiring.insert({pt.first, {true, pt.second.width, unitName + "_" + pt.second.name}});
 
             allPorts.insert({pt.first, inputPort(pt.second.width, pt.second.name)});
           } else {
-            outWires.insert({pt.first, {false, pt.second.width, unitName + "_" + pt.second.name}});
+            //outWires.insert({pt.first, {false, pt.second.width, unitName + "_" + pt.second.name}});
 
             allPorts.insert({pt.first, outputPort(pt.second.width, pt.second.name)});
           }
@@ -1371,8 +1371,8 @@ namespace ahaHLS {
       // No action for this instruction type (YET)
     } else if (SExtInst::classof(instr)) {
       modName = "sext";
-      wiring = {{"in", {true, 32, "sgt_in0_" + rStr}}};
-      outWires = {{"out", {false, 64, "sgt_out_" + rStr}}};
+      //wiring = {{"in", {true, 32, "sgt_in0_" + rStr}}};
+      //outWires = {{"out", {false, 64, "sgt_out_" + rStr}}};
 
       allPorts.insert({"in", inputPort(32, "in")});
       allPorts.insert({"out", outputPort(64, "out")});
@@ -1382,8 +1382,8 @@ namespace ahaHLS {
       int outWidth = getValueBitWidth(instr);
       int inWidth = getValueBitWidth(instr->getOperand(0));
       
-      wiring = {{"in", {true, inWidth, "zext_in_" + rStr}}};
-      outWires = {{"out", {false, 64, "zext_out_" + rStr}}};
+      ////wiring = {{"in", {true, inWidth, "zext_in_" + rStr}}};
+      //outWires = {{"out", {false, 64, "zext_out_" + rStr}}};
       modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OUT_WIDTH", to_string(outWidth)}};
 
       allPorts.insert({"in", inputPort(inWidth, "in")});
