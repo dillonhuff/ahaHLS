@@ -878,7 +878,7 @@ namespace ahaHLS {
       for (auto instrG : arch.stg.instructionsStartingAt(st.first)) {
         auto instr = instrG;
         if (StoreInst::classof(instr)) {
-          FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment).unit;
           StateId activeState = st.first;
 
           string wireName = map_find(string("wdata"), unit.portWires).name;
@@ -898,7 +898,7 @@ namespace ahaHLS {
         auto instr = instrG;
         if (LoadInst::classof(instr)) {
 
-          FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment).unit;
           StateId activeState = st.first;
 
           //printInstrAtState(instr, activeState, arch, debugInfo); 
@@ -920,7 +920,7 @@ namespace ahaHLS {
       for (auto instrG : arch.stg.instructionsStartingAt(st.first)) {
         auto instr = instrG;
         if (LoadInst::classof(instr)) {
-          FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment).unit;
           StateId activeState = st.first;
 
           string wireName = map_find(string("raddr"), unit.portWires).name;
@@ -981,7 +981,7 @@ namespace ahaHLS {
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
         auto instr = instrG;
         if (PHINode::classof(instr)) {
-          FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment).unit;
           StateId activeState = st.first;
 
           string iStr = instructionString(instr);
@@ -1035,7 +1035,7 @@ namespace ahaHLS {
 
           //printInstrAtState(instr, activeState, arch, debugInfo);
 
-          FunctionalUnit unit = map_find(instr, arch.unitAssignment);   
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment).unit;   
           string in0Name = map_find(string("in_data"), unit.portWires).name;
 
           string valCheck = in0Name + " !== " + to_string(getValueBitWidth(instr->getOperand(0))) + "'dx";
@@ -1093,7 +1093,7 @@ namespace ahaHLS {
       for (auto instrG : arch.stg.instructionsStartingAt(st.first)) {
         auto instr = instrG;
         if (BinaryOperator::classof(instr)) {
-          FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment).unit;
           if (unit.getModName() == opName) {
             StateId activeState = st.first;
 
@@ -1127,7 +1127,7 @@ namespace ahaHLS {
       for (auto instr : arch.stg.instructionsFinishingAt(st.first)) {
         if (isBuiltinPortWrite(instr)) {
           if (getPortName(instr) == portName) {
-            FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+            FunctionalUnit unit = map_find(instr, arch.unitAssignment).unit;
 
             StateId activeState = st.first;
             BasicBlock* blk = instr->getParent();
@@ -1160,7 +1160,7 @@ namespace ahaHLS {
       for (auto instr : arch.stg.instructionsFinishingAt(st.first)) {
         if (isBuiltinPortRead(instr)) {
           if (getPortName(instr) == portName) {
-            FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+            FunctionalUnit unit = map_find(instr, arch.unitAssignment).unit;
 
             StateId activeState = st.first;
 
@@ -1186,7 +1186,7 @@ namespace ahaHLS {
     for (auto st : arch.stg.opStates) {
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
         auto instr = instrG;
-        FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+        FunctionalUnit unit = map_find(instr, arch.unitAssignment).unit;
         if (unit.getModName() == moduleTypeName) {
           StateId activeState = st.first;
 
@@ -1214,7 +1214,7 @@ namespace ahaHLS {
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
         auto instr = instrG;
         if (BinaryOperator::classof(instr)) {
-          FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment).unit;
           if (unit.getModName() == opName) {
             StateId activeState = st.first;
 
@@ -1271,7 +1271,7 @@ namespace ahaHLS {
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
         auto instr = instrG;
         if (CmpInst::classof(instr)) {
-          FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+          FunctionalUnit unit = map_find(instr, arch.unitAssignment).unit;
           if (unit.getModName() == opName) {
             StateId activeState = st.first;
 

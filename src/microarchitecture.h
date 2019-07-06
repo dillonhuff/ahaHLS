@@ -245,68 +245,33 @@ namespace ahaHLS {
     }
   };
 
+  class InstructionBinding {
+  public:
+    FunctionalUnit unit;
+    std::map<llvm::Instruction*, std::string> instrWires;
+
+    InstructionBinding() {}
+    InstructionBinding(const FunctionalUnit& unit_) : unit(unit_), instrWires({}) {}
+  };
+
   class ElaboratedPipeline {
   public:
     Pipeline p;
-    //std::vector<Wire> valids;
     Wire inPipe;
     StateId stateId;
 
-    // std::vector<std::map<llvm::Instruction*, Wire> > pipelineRegisters;
-    // Instruction* exitBranch;
-    
     ElaboratedPipeline(const Pipeline& p_) : p(p_) {}
 
     Wire inPipeWire() const {
       return wire(1, inPipe.name + "_out_data");
     }
 
-    // Wire stateIsActiveWire(const StateId state) const {
-    //   return valids.at(stageForState(state));
-    // }
-    
-    // llvm::BranchInst* getExitBranch() const {
-    //   llvm::Instruction* repeat = exitBranch;
-    //   assert(llvm::BranchInst::classof(repeat));
-    //   llvm::BranchInst* pipelineB = llvm::dyn_cast<llvm::BranchInst>(repeat);
-
-    //   assert(pipelineB->isConditional());
-
-    //   return pipelineB;
-    // }
-
     int II() const {
       return p.II();
     }
 
-    // llvm::BasicBlock* getEntryBlock() const {
-    //   return (exitBranch)->getParent();
-    // }
-    
-    // llvm::Value* getExitCondition() const {
-    //   llvm::Instruction* repeat = exitBranch;
-    //   assert(llvm::BranchInst::classof(repeat));
-    //   llvm::BranchInst* pipelineB = llvm::dyn_cast<llvm::BranchInst>(repeat);
-
-    //   assert(pipelineB->isConditional());
-
-    //   return pipelineB->getCondition();
-    // }
-
-    // int numStages() const {
-    //   return p.getStates().size();
-    // }
-
     int stateIndex(const StateId id) const {
       return id - p.startState();
-      //assert(false);
-      // for (int i = 0; i < (int) p.getStates().size(); i++) {
-      //   if (p.getStates().at(i) == id) {
-      //     return i;
-      //   }
-      // }
-
-      // return -1;
     }
 
     int stageForState(const StateId id) const {
@@ -315,8 +280,6 @@ namespace ahaHLS {
 
     int stateForStage(const int stageNo) const {
       return p.startState() + stageNo;
-      //assert(false);
-      //return p.getStates().at(stageNo);
     }
     
   };
@@ -454,7 +417,8 @@ namespace ahaHLS {
     ControlState cs;
 
     STG stg;
-    std::map<llvm::Instruction*, FunctionalUnit> unitAssignment;
+    //std::map<llvm::Instruction*, FunctionalUnit> unitAssignment;
+    std::map<llvm::Instruction*, InstructionBinding> unitAssignment;
     std::map<llvm::Value*, int> memoryMap;
     //std::map<llvm::Instruction*, Wire> names;
     std::vector<ElaboratedPipeline> pipelines;
@@ -544,7 +508,8 @@ namespace ahaHLS {
     MicroArchitecture(const ControlState& cs_,
                       //const ArchOptions& archOptions_,
                       const STG& stg_,
-                      const std::map<llvm::Instruction*, FunctionalUnit>& unitAssignment_,
+                      //const std::map<llvm::Instruction*, FunctionalUnit>& unitAssignment_,
+                      const std::map<llvm::Instruction*, InstructionBinding>& unitAssignment_,
                       const std::map<llvm::Value*, int>& memoryMap_,
                       const std::map<llvm::Instruction*, Wire>& names_,
                       const std::vector<ElaboratedPipeline>& pipelines_,
@@ -576,10 +541,10 @@ namespace ahaHLS {
       int n = 0;
       std::set<std::string> alreadyAdded;
       for (auto ua : unitAssignment) {
-        if (!dbhc::elem(ua.second.instName, alreadyAdded) && (ua.second.getModName() == name)) {
+        if (!dbhc::elem(ua.second.unit.instName, alreadyAdded) && (ua.second.unit.getModName() == name)) {
           n++;
         }
-        alreadyAdded.insert(ua.second.instName);
+        alreadyAdded.insert(ua.second.unit.instName);
       }
       return n;
     }

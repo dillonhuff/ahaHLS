@@ -1445,11 +1445,13 @@ namespace ahaHLS {
     return modSpec;
   }
   
-  FunctionalUnit createUnit(map<Value*, std::string>& memNames,
-                            map<Instruction*, Value*>& memSrcs,
-                            HardwareConstraints& hcs,
-                            ResourceUsage& usage,
-                            llvm::Instruction* instr) {
+  //FunctionalUnit
+  InstructionBinding
+  createUnit(map<Value*, std::string>& memNames,
+             map<Instruction*, Value*>& memSrcs,
+             HardwareConstraints& hcs,
+             ResourceUsage& usage,
+             llvm::Instruction* instr) {
 
     string unitName = instr->getOpcodeName() + to_string(usage.resSuffix);
 
@@ -1613,11 +1615,13 @@ namespace ahaHLS {
     return unit;
   }
 
-  std::map<Instruction*, FunctionalUnit>
+  //std::map<Instruction*, FunctionalUnit>
+  std::map<Instruction*, InstructionBinding>
   assignFunctionalUnits(const STG& stg,
                         HardwareConstraints& hcs) {
 
-    std::map<Instruction*, FunctionalUnit> units;
+    //std::map<Instruction*, FunctionalUnit> units;
+    std::map<Instruction*, InstructionBinding> units;
 
     auto memSrcs = memoryOpLocations(stg.getFunction());
 
@@ -1651,7 +1655,7 @@ namespace ahaHLS {
 
     cout << "Final unit mapping" << endl;
     for (auto mapping : units) {
-      cout << valueString(mapping.first) << " -> " << mapping.second.instName << endl;
+      cout << valueString(mapping.first) << " -> " << mapping.second.unit.instName << endl;
     }
     
     return units;
@@ -1717,7 +1721,7 @@ namespace ahaHLS {
 
   Wire dataOutputWire(llvm::Instruction* instr0, const MicroArchitecture& arch) {
     auto unit0Src =
-      map_find(instr0, arch.unitAssignment);
+      map_find(instr0, arch.unitAssignment).unit;
 
     if (isBuiltinFifoRead(instr0)) {
       return map_find(string("out_data"), unit0Src.outWires);
@@ -1946,7 +1950,7 @@ namespace ahaHLS {
     //cout << "Generating code for " << valueString(pos.instr) << endl;
 
     auto instr = pos.instr;
-    auto addUnit = map_find(instr, arch.unitAssignment);
+    auto addUnit = map_find(instr, arch.unitAssignment).unit;
 
     map<Wire, Wire> assignments;
 
@@ -2689,7 +2693,7 @@ namespace ahaHLS {
 
         Instruction* instr = instrG;
 
-        FunctionalUnit unit = map_find(instr, arch.unitAssignment);
+        FunctionalUnit unit = map_find(instr, arch.unitAssignment).unit;
         bool alreadyIn = false;
         for (auto& u : assignment) {
           if (u.unit.instName == unit.instName) {
@@ -3847,9 +3851,12 @@ namespace ahaHLS {
     vector<ElaboratedPipeline> pipelines =
       buildPipelines(f, stg);
 
-    map<Instruction*, FunctionalUnit> unitAssignment =
+    map<Instruction*, InstructionBinding> unitAssignment =
       assignFunctionalUnits(stg, hcs);
 
+    // map<Instruction*, FunctionalUnit> unitAssignment =
+    //   assignFunctionalUnits(stg, hcs);
+    
     ControlState cs;
     for (auto bb : basicBlockNos) {
       cs.setBasicBlockNo(bb.first, bb.second);
@@ -3857,7 +3864,7 @@ namespace ahaHLS {
 
     MicroArchitecture arch(cs, stg, unitAssignment, memMap, names, pipelines, hcs);
     for (auto& unit : unitAssignment) {
-      arch.functionalUnits.push_back(unit.second);
+      arch.functionalUnits.push_back(unit.second.unit);
     }
 
     // I would like to re-structure this so that all
