@@ -563,48 +563,6 @@ namespace ahaHLS {
   memoryOpLocations(Function* f) {
     map<Instruction*, llvm::Value*> mems;
 
-    // // TODO: Eventually all examples that use this should be removable
-    // really need to figure out what pass by value vs reference means as well?
-    // Maybe non-primitive return values on functions should be banned for now?
-    // It is hard to predict what calling convention will show when using pass
-    // by value, and it is hard to interpret a returned pointer value in an
-    // ordinary function
-
-    // Again: The compiler defined vs. code defined distinction is relevant.
-    // port list predictability does not matter for below-top-level code.
-
-    // No returning pointers maybe is the right rule?
-    // -- No dynamic allocation
-    // -- No returning a reference to a piece of state on your "stack"?
-    // -- Could take in 2 pointers and return one of them? Arbiters?
-    //    This is an important case...
-    // -- I guess you could say that each call to the function that gets a
-    //    pointer is like a barrell shifter, whose inputs must remain
-    //    constant for the lifetime of the pointer? But this creates a new
-    //    lifetime analysis problem...
-
-    // Maybe the invariant of this system is that each pointer points
-    // to a single instance of a module?
-    // You can call the copy constructor of the underlying type on 2
-    // pointers, but you cannot set the value of a pointer to be
-    // another pointer?
-    // Q: Would the implementation of a barrel shift register selector
-    //    produce this problem if it was actually implemented?
-
-    // No passing RAMs by value?
-    // Or / And: No getelementptr with variable arguments?
-    // Value: a wire (registered or not)
-    // Passing by value means connecting 2 wires (at some time?)
-    // Passing by reference means including one modules ports
-    //   in the port list of the interface of the receiving module?
-
-    // Maybe the real issue is not returning pointers, but assigning one
-    // pointer to another? Both are an issue. Returning a pointer creates
-    // problems as does passing a pointer, because each of them can create
-    // confusion about the mapping between pointer values and resources
-
-    // return mems;
-
     int totalMemOps = 0;
     for (auto& bb : f->getBasicBlockList()) {
       totalMemOps += numMemOps(bb);
@@ -808,13 +766,6 @@ namespace ahaHLS {
       // If the store is a store to part of a register
       // then we need to detect that and write a masked store?
       Value* storeAddr = instr->getOperand(1);
-      // if (GetElementPtrInst::classof(storeAddr)) {
-      //   GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(storeAddr);
-      //   // if (!isRAMAddressCompGEP(gep, memSrcs)) {
-      //   // }
-      // }
-
-      
       
       if (!Argument::classof(memVal)) {
         //cout << "&&&& Memory unit Using unit " << memSrc << " for " << instructionString(instr) << endl;
@@ -846,11 +797,6 @@ namespace ahaHLS {
 
           assert(memVal->getName() != "");
           return map_find(memVal, hcs.modSpecs);
-          // string name = string(memVal->getName());
-          // FunctionalUnit fu =
-          //   functionalUnitForSpec(name, map_find(memVal, hcs.modSpecs));
-          // fu.external = true;
-          // return fu;
 
         } else {
           modName = "store";
@@ -1089,7 +1035,8 @@ namespace ahaHLS {
 
           wiring = {{"raddr", {true, 32, "raddr_" + to_string(usage.readNum)}}, {"ren", {true, 1, "ren_" + to_string(usage.readNum)}}};
 
-          ports = {{instr->getOperand(0), "raddr_" + to_string(usage.readNum)}, {instr, "rdata_" + to_string(usage.readNum)}, {mkInt(1, 1), "ren_" + to_string(usage.readNum)}};
+          ports = {{instr->getOperand(0), "raddr_" + to_string(usage.readNum)},
+                   {mkInt(1, 1), "ren_" + to_string(usage.readNum)}};
           // Note: I think the "_reg not found" error is caused by the default
           // value of the functional unit not containing the ren default entry?
           //defaults.insert({"ren", 0});
@@ -1664,7 +1611,7 @@ namespace ahaHLS {
     for (auto mapping : units) {
       cout << valueString(mapping.first) << " -> " << mapping.second.unit.instName << endl;
       for (auto m : mapping.second.instrWires) {
-        cout << tab(1) << valueString(m.first) << " -> " << m.second << endl;
+        cout << tab(1) << "Imap: " << valueString(m.first) << " -> " << m.second << endl;
       }
     }
     
@@ -1961,6 +1908,8 @@ namespace ahaHLS {
 
     auto instr = pos.instr;
     auto addUnit = map_find(instr, arch.unitAssignment).unit;
+    //auto wireAssigns = map_find(instr, arch.unitAssignment).instrWires;
+    auto inWires = map_find(instr, arch.unitAssignment).instrWires;
 
     map<Wire, Wire> assignments;
 
@@ -2022,6 +1971,13 @@ namespace ahaHLS {
       auto locValue = outputWire(location, pos, arch);
 
       if (addUnit.module.name != "hls_wire") {
+
+        // for (auto valToWire : inWires) {
+        //   Value* v = valToWire.first;
+        //   auto locValue = outputWire(location, pos, arch);
+        //   assignments.insert({addUnit.input(valToWire.second), locValue});
+        // }
+        
         // if (GetElementPtrInst::classof(location) && ) {
         //   GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(loadArg);
         //   if (!isRAMAddressCompGEP(gep, memNames, memSrcs, hcs)) {
