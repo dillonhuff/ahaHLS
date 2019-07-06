@@ -1617,9 +1617,9 @@ namespace ahaHLS {
           isExternal = true;
         }
 
-        ModuleSpec modSpec;
+        ModuleSpec mSpec;
         if (contains_key(fuPtr, hcs.modSpecs)) {
-          modSpec = map_find(fuPtr, hcs.modSpecs);
+          mSpec = map_find(fuPtr, hcs.modSpecs);
         } else {
           Type* fuTp = fuPtr->getType();
 
@@ -1638,11 +1638,11 @@ namespace ahaHLS {
             }
             assert(hcs.hasArgumentSpec(fuPtr));
           }
-          modSpec = map_find(string(structT->getName()), hcs.typeSpecs)(structT);
+          mSpec = map_find(string(structT->getName()), hcs.typeSpecs)(structT);
         }
 
         unitName = fuPtr->getName();
-        modParams = modSpec.params;
+        modParams = mSpec.params;
 
         if (Argument::classof(fuPtr) && (unitName == "")) {
           int i = 0;
@@ -1662,7 +1662,7 @@ namespace ahaHLS {
           unitName = sanitizeFormatForVerilogId(valueString(fuPtr));
         }
 
-        for (auto pt : modSpec.ports) {
+        for (auto pt : mSpec.ports) {
           if (pt.second.input()) {
             wiring.insert({pt.first, {true, pt.second.width, unitName + "_" + pt.second.name}});
           } else {
@@ -1674,6 +1674,10 @@ namespace ahaHLS {
 
         // No action
       }
+
+      FunctionalUnit unit = {modSpec, unitName, wiring, outWires, isExternal};
+      return unit;
+      
     } else if (AllocaInst::classof(instr)) {
       //cout << "Alloca instruction = " << valueString(instr) << endl;
       AllocaInst* allocInst = dyn_cast<AllocaInst>(instr);
