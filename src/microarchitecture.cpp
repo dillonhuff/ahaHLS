@@ -1612,10 +1612,17 @@ namespace ahaHLS {
       Type* allocatedType = allocInst->getType()->getElementType();
       if (StructType::classof(allocatedType)) {
         //cout << "Allocating struct of type " << typeString(allocatedType) << endl;
-        return structFunctionalUnit(allocInst, hcs);
+        //return structFunctionalUnit(allocInst, hcs);
 
+        string unitName;
+        if (instr->getName() != "") {
+          unitName = instr->getName();
+        } else {
+          unitName = sanitizeFormatForVerilogId(valueString(instr));
+        }
+        
         // unitName = string(instr->getOpcodeName()) + "_" + rStr;
-        // return functionalUnitForSpec(unitName, modSpec);
+        return functionalUnitForSpec(unitName, modSpec);
         
       }
 
