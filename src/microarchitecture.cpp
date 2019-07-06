@@ -1561,43 +1561,6 @@ namespace ahaHLS {
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
       return functionalUnitForSpec(unitName, modSpec);
       
-      // if (isRAMAddressCompGEP(dyn_cast<GetElementPtrInst>(instr), memSrcs)) {
-        
-      //   wiring = {{"base_addr", {true, 32, "base_addr_" + rStr}}};
-
-      //   for (int i = 1; i < (int) instr->getNumOperands(); i++) {
-      //     wiring.insert({"in" + to_string(i),
-      //           {true, 32, "gep_add_in" + to_string(i) + "_" + rStr}});
-      //   }
-      //   outWires = {{"out", {false, 32, "getelementptr_out_" + rStr}}};
-
-      // } else {
-      //   Type* stp = getTypePointedTo(instr->getOperand(0)->getType());
-      //   int inWidth = getTypeBitWidth(stp);
-      //   Type* outSt = getTypePointedTo(instr->getType());
-      //   int outWidth = getTypeBitWidth(outSt);
-
-      //   GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(instr);
-      //   assert(gep->hasAllConstantIndices());
-      //   assert(gep->getNumIndices() == 2);
-      //   int offset = gepOffset(dyn_cast<GetElementPtrInst>(instr));
-      //   assert(offset == 0);
-      //   Value* secondOffset = gep->getOperand(2);
-      //   assert(ConstantInt::classof(secondOffset));
-      //   ConstantInt* offC = dyn_cast<ConstantInt>(secondOffset);
-      //   int cOffset = offC->getValue().getLimitedValue();
-      //   int bitOffset = 0;
-      //   StructType* underlyingStruct = extract<StructType>(stp);
-      //   for (int i = 0; i < cOffset; i++) {
-      //     bitOffset += getTypeBitWidth(underlyingStruct->elements()[i]);
-      //   }
-        
-        
-      //   wiring = {{"in", {true, inWidth, "slice_in_" + rStr}}};
-      //   modParams = {{"IN_WIDTH", to_string(inWidth)}, {"OFFSET", to_string(bitOffset)}, {"OUT_WIDTH", to_string(outWidth)}};
-        
-      //   outWires = {{"out", {false, outWidth, "getelementptr_out_" + rStr}}};
-      // }
     } else if (PHINode::classof(instr)) {
 
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
@@ -1617,32 +1580,7 @@ namespace ahaHLS {
           isExternal = true;
         }
 
-        //ModuleSpec mSpec;
-        // if (contains_key(fuPtr, hcs.modSpecs)) {
-        //   //mSpec = map_find(fuPtr, hcs.modSpecs);
-        // } else {
-        //   Type* fuTp = fuPtr->getType();
-
-        //   assert(PointerType::classof(fuTp));
-
-        //   Type* fuDerefTp = dyn_cast<PointerType>(fuTp)->getElementType();
-
-        //   assert(StructType::classof(fuDerefTp));
-
-        //   StructType* structT = dyn_cast<StructType>(fuDerefTp);
-
-        //   if (!hcs.hasArgumentSpec(fuPtr)) {
-        //     cout << "Error: No spec... possible choices" << endl;
-        //     for (auto spec : hcs.typeSpecs) {
-        //       cout << tab(1) << spec.first << endl;
-        //     }
-        //     assert(hcs.hasArgumentSpec(fuPtr));
-        //   }
-        //   //mSpec = map_find(string(structT->getName()), hcs.typeSpecs)(structT);
-        // }
-
         unitName = fuPtr->getName();
-        //modParams = mSpec.params;
 
         if (Argument::classof(fuPtr) && (unitName == "")) {
           int i = 0;
@@ -1662,24 +1600,10 @@ namespace ahaHLS {
           unitName = sanitizeFormatForVerilogId(valueString(fuPtr));
         }
 
-        // for (auto pt : mSpec.ports) {
-        //   if (pt.second.input()) {
-        //     wiring.insert({pt.first, {true, pt.second.width, unitName + "_" + pt.second.name}});
-        //   } else {
-        //     outWires.insert({pt.first, {false, pt.second.width, unitName + "_" + pt.second.name}});            
-        //   }
-        // }
-
-      } else {
-
-        // No action
       }
-
-      //unitName = string(instr->getOpcodeName()) + "_" + rStr;
       FunctionalUnit unit = functionalUnitForSpec(unitName, modSpec);
       unit.external = isExternal;
-      
-      //FunctionalUnit unit = {modSpec, unitName, wiring, outWires, isExternal};
+
       return unit;
       
     } else if (AllocaInst::classof(instr)) {
