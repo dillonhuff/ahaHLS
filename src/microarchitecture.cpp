@@ -1195,13 +1195,13 @@ namespace ahaHLS {
 
       defaults.insert({"valid", 0});
       wiring = {{"valid", {true, 1, "valid"}}};
-      allPorts.insert({"valid", outputPort(1, "valid")});
+      allPorts.insert({"valid", inputPort(1, "valid")});
 
       ReturnInst* ret = dyn_cast<ReturnInst>(instr);
       if (ret->getReturnValue() != nullptr) {
         auto val = ret->getReturnValue();
         wiring.insert({"return_value", {true, getValueBitWidth(val), "return_value"}});
-        allPorts.insert({"return_valud", outputPort(getValueBitWidth(val), "return_value")});
+        allPorts.insert({"return_valud", inputPort(getValueBitWidth(val), "return_value")});
         defaults.insert({"return_value", 0});
         insensitivePorts.insert("return_value");
       }
@@ -1512,8 +1512,8 @@ namespace ahaHLS {
       return functionalUnitForSpec(unitName, modSpec);
 
     } else if (ReturnInst::classof(instr)) {
-      isExternal = true;
 
+      isExternal = true;
       wiring = {{"valid", {true, 1, "valid"}}};
 
       ReturnInst* ret = dyn_cast<ReturnInst>(instr);
@@ -1522,7 +1522,12 @@ namespace ahaHLS {
         wiring.insert({"return_value", {true, getValueBitWidth(val), "return_value"}});
       }
       outWires = {};
-          
+
+      // unitName = string(instr->getOpcodeName()) + "_" + rStr;
+      // auto fu = functionalUnitForSpec(unitName, modSpec);
+      // fu.external = true;      
+      // return fu;
+      
     } else if (isBuiltinSlice(instr)) {
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
       return functionalUnitForSpec(unitName, modSpec);
