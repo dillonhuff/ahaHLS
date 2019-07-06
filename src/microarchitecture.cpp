@@ -1618,6 +1618,9 @@ namespace ahaHLS {
         // return functionalUnitForSpec(unitName, modSpec);
         
       }
+
+      FunctionalUnit unit = {modSpec, unitName, wiring, outWires, isExternal};
+      return unit;
     } else if (BitCastInst::classof(instr)) {
       // TODO: Add test case that uses casts
       // No action for this instruction type (YET)
