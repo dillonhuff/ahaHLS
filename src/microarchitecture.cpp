@@ -987,25 +987,10 @@ namespace ahaHLS {
       // If the store is a store to part of a register
       // then we need to detect that and write a masked store?
       Value* storeAddr = instr->getOperand(1);
-      // if (GetElementPtrInst::classof(storeAddr)) {
-      //   GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(storeAddr);
-      //   // if (!isRAMAddressCompGEP(gep, memSrcs)) {
-      //   // }
-      // }
-
-      
       
       if (!Argument::classof(memVal)) {
         //cout << "&&&& Memory unit Using unit " << memSrc << " for " << instructionString(instr) << endl;
-        if (contains_key(memVal, hcs.memSpecs)) {
-          //modName = map_find(memVal, hcs.memSpecs).modSpec.name;
-        } else {
-          //modName = "register";
-        }
-
         int dataWidth = getValueBitWidth(instr->getOperand(0));
-        //modParams = {{"WIDTH", to_string(dataWidth)}};
-        //assert(inputWidth == dataWidth);
 
         //cout << "Got name for op" << endl;
         unitName = memSrc;
@@ -1031,7 +1016,6 @@ namespace ahaHLS {
           return fu;
 
         } else {
-          //modName = "store";
           isExternal = true;
 
           int inputWidth = getValueBitWidth(instr->getOperand(0));
@@ -1045,9 +1029,6 @@ namespace ahaHLS {
           wiring = {{"wen", {true, 1, "wen_" + wStr}}, {"waddr", {true, 32, "waddr_" + wStr}}, {"wdata", {true, inputWidth, "wdata_" + wStr}}};
 
           outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
-          //defaults.insert({"wen", 0});            
-
-          //usage.writeNum++;
         }
       }
 
@@ -1065,14 +1046,11 @@ namespace ahaHLS {
         GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(loadArg);
         if (!isRAMAddressCompGEP(gep, memSrcs)) {
           int inWidth = getValueBitWidth(gep);
-          //modParams = {{"WIDTH", to_string(inWidth)}};
-          //modName = "hls_wire";
           wiring = {{"in_data", reg(inWidth, unitName + "_in")}};
           outWires = {{"out_data", wire(inWidth, unitName + "_out")}};
           isExternal = false;
 
           // ModuleSpec mSpec{modParams, modName, {}, defaults};
-          // return mSpec;
           FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
           return unit;
         }
@@ -1082,16 +1060,9 @@ namespace ahaHLS {
         if (contains_key(memVal, hcs.memSpecs)) {
           string name = map_find(memVal, hcs.memSpecs).modSpec.name;
           //cout << "Setting " << valueString(memVal) << " to " << name << endl;
-          //modName = name;
-        } else {
-          //modName = "register";
         }
         
-        //modName = "register";
-
         int dataWidth = getValueBitWidth(instr->getOperand(0));
-        //modParams = {{"WIDTH", to_string(dataWidth)}};
-        
         unitName = memSrc;
 
         wiring = {{"raddr", {true, 32, "raddr_" + unitName + "_reg"}}, {"wen", {true, 1, "wen_" + unitName + "_reg"}}, {"waddr", {true, 32, "waddr_" + unitName + "_reg"}}, {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}}};
@@ -1101,7 +1072,6 @@ namespace ahaHLS {
 
         if (contains_key(memVal, hcs.modSpecs)) {
           assert(memVal->getName() != "");
-          // return map_find(memVal, hcs.modSpecs);
           string name = string(memVal->getName());
           FunctionalUnit fu =
             functionalUnitForSpec(name, map_find(memVal, hcs.modSpecs));
@@ -1110,8 +1080,6 @@ namespace ahaHLS {
         } else {
           isExternal = true;
         
-          //modName = "load";
-
           unitName = string(instr->getOpcodeName()) + "_" + to_string(usage.readNum);
           int inputWidth = getValueBitWidth(instr);
 
@@ -1122,15 +1090,12 @@ namespace ahaHLS {
           //defaults.insert({"ren", 0});
 
           outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(usage.readNum)}}};
-
-          //usage.readNum++;
         }
       }
 
     }
 
     FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
-    //FunctionalUnit unit = {modSpec, unitName, wiring, outWires, isExternal};
     return unit;
   }
 
