@@ -1424,8 +1424,12 @@ namespace ahaHLS {
         for (auto pt : modSpec.ports) {
           if (pt.second.input()) {
             wiring.insert({pt.first, {true, pt.second.width, unitName + "_" + pt.second.name}});
+
+            allPorts.insert({pt.first, inputPort(pt.second.width, pt.second.name)});
           } else {
-            outWires.insert({pt.first, {false, pt.second.width, unitName + "_" + pt.second.name}});            
+            outWires.insert({pt.first, {false, pt.second.width, unitName + "_" + pt.second.name}});
+
+            allPorts.insert({pt.first, outputPort(pt.second.width, pt.second.name)});
           }
         }
 
@@ -1677,6 +1681,10 @@ namespace ahaHLS {
       if (StructType::classof(allocatedType)) {
         //cout << "Allocating struct of type " << typeString(allocatedType) << endl;
         return structFunctionalUnit(allocInst, hcs);
+
+        // unitName = string(instr->getOpcodeName()) + "_" + rStr;
+        // return functionalUnitForSpec(unitName, modSpec);
+        
       }
     } else if (BitCastInst::classof(instr)) {
       // TODO: Add test case that uses casts
