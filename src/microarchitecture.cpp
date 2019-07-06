@@ -815,7 +815,7 @@ namespace ahaHLS {
           outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
           defaults.insert({"wen", 0});            
 
-          usage.writeNum++;
+          //usage.writeNum++;
         }
       }
 
@@ -891,7 +891,7 @@ namespace ahaHLS {
 
           outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(usage.readNum)}}};
 
-          usage.readNum++;
+
         }
       }
 
@@ -979,6 +979,7 @@ namespace ahaHLS {
           wiring = {{"wen", {true, 1, "wen_" + wStr}}, {"waddr", {true, 32, "waddr_" + wStr}}, {"wdata", {true, inputWidth, "wdata_" + wStr}}};
 
           outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
+          usage.writeNum++;
         }
       }
 
@@ -1036,12 +1037,14 @@ namespace ahaHLS {
           wiring = {{"raddr", {true, 32, "raddr_" + to_string(usage.readNum)}}, {"ren", {true, 1, "ren_" + to_string(usage.readNum)}}};
 
           ports = {{instr->getOperand(0), "raddr_" + to_string(usage.readNum)},
+                   {instr, "rdata_" + to_string(usage.readNum)},
                    {mkInt(1, 1), "ren_" + to_string(usage.readNum)}};
           // Note: I think the "_reg not found" error is caused by the default
           // value of the functional unit not containing the ren default entry?
           //defaults.insert({"ren", 0});
 
           outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(usage.readNum)}}};
+          usage.readNum++;
         }
       }
 
@@ -1417,11 +1420,12 @@ namespace ahaHLS {
     map<string, Wire> outWires;
 
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
-      InstructionBinding memUnit =
-        createMemUnit(memNames, memSrcs, hcs, usage, instr);
 
       ModuleSpec modSpec =
         buildModSpec(memNames, memSrcs, hcs, usage, instr);
+
+      InstructionBinding memUnit =
+        createMemUnit(memNames, memSrcs, hcs, usage, instr);
 
       memUnit.unit.module = modSpec;
       
@@ -1978,12 +1982,6 @@ namespace ahaHLS {
         //   assignments.insert({addUnit.input(valToWire.second), locValue});
         // }
         
-        // if (GetElementPtrInst::classof(location) && ) {
-        //   GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(loadArg);
-        //   if (!isRAMAddressCompGEP(gep, memNames, memSrcs, hcs)) {
-        //   }
-        // }
-
         assignments.insert({addUnit.input("raddr"), locValue});
 
         if (contains_key(string("ren"), addUnit.portWires)) {
