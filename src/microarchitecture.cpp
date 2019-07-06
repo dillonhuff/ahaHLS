@@ -1506,7 +1506,7 @@ namespace ahaHLS {
       memUnit.module = modSpec;
       
       return memUnit;
-    } //else if (BinaryOperator::classof(instr)) {
+    }
 
     ModuleSpec modSpec =
       buildModSpec(memNames, memSrcs, hcs, usage, instr);
