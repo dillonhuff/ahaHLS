@@ -1527,11 +1527,9 @@ namespace ahaHLS {
       }
       outWires = {};
 
-      // unitName = string(instr->getOpcodeName()) + "_" + rStr;
-      // auto fu = functionalUnitForSpec(unitName, modSpec);
-      // fu.external = true;      
-      // return fu;
-      
+      FunctionalUnit unit = {modSpec, unitName, wiring, outWires, isExternal};
+      return unit;
+
     } else if (isBuiltinSlice(instr)) {
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
       return functionalUnitForSpec(unitName, modSpec);
