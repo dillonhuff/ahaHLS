@@ -1419,23 +1419,19 @@ namespace ahaHLS {
     map<string, Wire> wiring;
     map<string, Wire> outWires;
 
+
+    ModuleSpec modSpec =
+      buildModSpec(memNames, memSrcs, hcs, usage, instr);
+
+    
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
-
-      ModuleSpec modSpec =
-        buildModSpec(memNames, memSrcs, hcs, usage, instr);
-
       InstructionBinding memUnit =
         createMemUnit(memNames, memSrcs, hcs, usage, instr);
 
       memUnit.unit.module = modSpec;
       
       return memUnit;
-    }
-
-    ModuleSpec modSpec =
-      buildModSpec(memNames, memSrcs, hcs, usage, instr);
-    
-    if (BinaryOperator::classof(instr)) {
+    } else if (BinaryOperator::classof(instr)) {
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
       return functionalUnitForSpec(unitName, modSpec);
 
