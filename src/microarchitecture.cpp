@@ -1617,32 +1617,32 @@ namespace ahaHLS {
           isExternal = true;
         }
 
-        ModuleSpec mSpec;
-        if (contains_key(fuPtr, hcs.modSpecs)) {
-          mSpec = map_find(fuPtr, hcs.modSpecs);
-        } else {
-          Type* fuTp = fuPtr->getType();
+        //ModuleSpec mSpec;
+        // if (contains_key(fuPtr, hcs.modSpecs)) {
+        //   //mSpec = map_find(fuPtr, hcs.modSpecs);
+        // } else {
+        //   Type* fuTp = fuPtr->getType();
 
-          assert(PointerType::classof(fuTp));
+        //   assert(PointerType::classof(fuTp));
 
-          Type* fuDerefTp = dyn_cast<PointerType>(fuTp)->getElementType();
+        //   Type* fuDerefTp = dyn_cast<PointerType>(fuTp)->getElementType();
 
-          assert(StructType::classof(fuDerefTp));
+        //   assert(StructType::classof(fuDerefTp));
 
-          StructType* structT = dyn_cast<StructType>(fuDerefTp);
+        //   StructType* structT = dyn_cast<StructType>(fuDerefTp);
 
-          if (!hcs.hasArgumentSpec(fuPtr)) {
-            cout << "Error: No spec... possible choices" << endl;
-            for (auto spec : hcs.typeSpecs) {
-              cout << tab(1) << spec.first << endl;
-            }
-            assert(hcs.hasArgumentSpec(fuPtr));
-          }
-          mSpec = map_find(string(structT->getName()), hcs.typeSpecs)(structT);
-        }
+        //   if (!hcs.hasArgumentSpec(fuPtr)) {
+        //     cout << "Error: No spec... possible choices" << endl;
+        //     for (auto spec : hcs.typeSpecs) {
+        //       cout << tab(1) << spec.first << endl;
+        //     }
+        //     assert(hcs.hasArgumentSpec(fuPtr));
+        //   }
+        //   //mSpec = map_find(string(structT->getName()), hcs.typeSpecs)(structT);
+        // }
 
         unitName = fuPtr->getName();
-        modParams = mSpec.params;
+        //modParams = mSpec.params;
 
         if (Argument::classof(fuPtr) && (unitName == "")) {
           int i = 0;
@@ -1662,13 +1662,13 @@ namespace ahaHLS {
           unitName = sanitizeFormatForVerilogId(valueString(fuPtr));
         }
 
-        for (auto pt : mSpec.ports) {
-          if (pt.second.input()) {
-            wiring.insert({pt.first, {true, pt.second.width, unitName + "_" + pt.second.name}});
-          } else {
-            outWires.insert({pt.first, {false, pt.second.width, unitName + "_" + pt.second.name}});            
-          }
-        }
+        // for (auto pt : mSpec.ports) {
+        //   if (pt.second.input()) {
+        //     wiring.insert({pt.first, {true, pt.second.width, unitName + "_" + pt.second.name}});
+        //   } else {
+        //     outWires.insert({pt.first, {false, pt.second.width, unitName + "_" + pt.second.name}});            
+        //   }
+        // }
 
       } else {
 
