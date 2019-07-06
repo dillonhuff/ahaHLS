@@ -765,7 +765,7 @@ namespace ahaHLS {
 
       // If the store is a store to part of a register
       // then we need to detect that and write a masked store?
-      Value* storeAddr = instr->getOperand(1);
+      //Value* storeAddr = instr->getOperand(1);
       
       if (!Argument::classof(memVal)) {
         //cout << "&&&& Memory unit Using unit " << memSrc << " for " << instructionString(instr) << endl;
@@ -777,19 +777,18 @@ namespace ahaHLS {
 
         int dataWidth = getValueBitWidth(instr->getOperand(0));
         modParams = {{"WIDTH", to_string(dataWidth)}};
-        //assert(inputWidth == dataWidth);
 
         //cout << "Got name for op" << endl;
-        unitName = memSrc;
+        //unitName = memSrc;
         // These names need to match names created in the portlist. So
         // maybe this should be used to create the port list? Generate the
         // names here and then write ports for them?
-        wiring = {{"wen", {true, 1, "wen_" + unitName + "_reg"}},
-                  {"waddr", {true, 32, "waddr_" + unitName + "_reg"}},
-                  {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}},
-                  {"raddr", {true, 32, "raddr_" + unitName + "_reg"}}};
+        // wiring = {{"wen", {true, 1, "wen_" + unitName + "_reg"}},
+        //           {"waddr", {true, 32, "waddr_" + unitName + "_reg"}},
+        //           {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}},
+        //           {"raddr", {true, 32, "raddr_" + unitName + "_reg"}}};
 
-        outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
+        // outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
 
       } else {
         if (contains_key(memVal, hcs.modSpecs)) {
@@ -808,14 +807,12 @@ namespace ahaHLS {
           // names here and then write ports for them?
           string wStr = to_string(usage.writeNum);
 
-          unitName = string(instr->getOpcodeName()) + "_" + wStr;
+          //unitName = string(instr->getOpcodeName()) + "_" + wStr;
                                                                         
-          wiring = {{"wen", {true, 1, "wen_" + wStr}}, {"waddr", {true, 32, "waddr_" + wStr}}, {"wdata", {true, inputWidth, "wdata_" + wStr}}};
+          //wiring = {{"wen", {true, 1, "wen_" + wStr}}, {"waddr", {true, 32, "waddr_" + wStr}}, {"wdata", {true, inputWidth, "wdata_" + wStr}}};
 
-          outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
+          //outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
           defaults.insert({"wen", 0});            
-
-          //usage.writeNum++;
         }
       }
 
@@ -835,9 +832,9 @@ namespace ahaHLS {
           int inWidth = getValueBitWidth(gep);
           modParams = {{"WIDTH", to_string(inWidth)}};
           modName = "hls_wire";
-          wiring = {{"in_data", reg(inWidth, unitName + "_in")}};
-          outWires = {{"out_data", wire(inWidth, unitName + "_out")}};
-          isExternal = false;
+          //wiring = {{"in_data", reg(inWidth, unitName + "_in")}};
+          //outWires = {{"out_data", wire(inWidth, unitName + "_out")}};
+          //isExternal = false;
           // FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
           // return unit;
 
@@ -860,36 +857,35 @@ namespace ahaHLS {
         int dataWidth = getValueBitWidth(instr->getOperand(0));
         modParams = {{"WIDTH", to_string(dataWidth)}};
         
-        unitName = memSrc;
+        //unitName = memSrc;
 
-        wiring = {{"raddr", {true, 32, "raddr_" + unitName + "_reg"}}, {"wen", {true, 1, "wen_" + unitName + "_reg"}}, {"waddr", {true, 32, "waddr_" + unitName + "_reg"}}, {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}}};
-        outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
+        //wiring = {{"raddr", {true, 32, "raddr_" + unitName + "_reg"}}, {"wen", {true, 1, "wen_" + unitName + "_reg"}}, {"waddr", {true, 32, "waddr_" + unitName + "_reg"}}, {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}}};
+        //outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
             
       } else {
 
         if (contains_key(memVal, hcs.modSpecs)) {
           assert(memVal->getName() != "");
           return map_find(memVal, hcs.modSpecs);
-          // string name = string(memVal->getName());
-          // FunctionalUnit fu =
-          //   functionalUnitForSpec(name, map_find(memVal, hcs.modSpecs));
-          // fu.external = true;
-          // return fu;
+
         } else {
           isExternal = true;
         
           modName = "load";
 
-          unitName = string(instr->getOpcodeName()) + "_" + to_string(usage.readNum);
+          //unitName = string(instr->getOpcodeName()) + "_" + to_string(usage.readNum);
           int inputWidth = getValueBitWidth(instr);
 
-          wiring = {{"raddr", {true, 32, "raddr_" + to_string(usage.readNum)}}, {"ren", {true, 1, "ren_" + to_string(usage.readNum)}}};
+          //wiring = {{"raddr", {true, 32, "raddr_" + to_string(usage.readNum)}}, {"ren", {true, 1, "ren_" + to_string(usage.readNum)}}};
 
           // Note: I think the "_reg not found" error is caused by the default
           // value of the functional unit not containing the ren default entry?
           defaults.insert({"ren", 0});
 
-          outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(usage.readNum)}}};
+          //outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(usage.readNum)}}};
+
+          // Add allPorts variable here
+          // Then: Compute number of reads from external memories
 
 
         }
@@ -900,8 +896,7 @@ namespace ahaHLS {
     ModuleSpec mSpec = {modParams, modName, {}, defaults};
     return mSpec;
   }
-  
-  //FunctionalUnit
+
   InstructionBinding
   createMemUnit(map<Value*, std::string>& memNames,
                 map<Instruction*, Value*>& memSrcs,
@@ -914,7 +909,7 @@ namespace ahaHLS {
     //   cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
     // }
 
-    string unitName = instr->getOpcodeName() + to_string(usage.resSuffix);    
+    string unitName = instr->getOpcodeName() + to_string(usage.resSuffix);
     
     assert(LoadInst::classof(instr) || StoreInst::classof(instr));
     string modName = "add";
@@ -936,7 +931,7 @@ namespace ahaHLS {
 
       // If the store is a store to part of a register
       // then we need to detect that and write a masked store?
-      Value* storeAddr = instr->getOperand(1);
+      // Value* storeAddr = instr->getOperand(1);
       
       if (!Argument::classof(memVal)) {
         //cout << "&&&& Memory unit Using unit " << memSrc << " for " << instructionString(instr) << endl;
