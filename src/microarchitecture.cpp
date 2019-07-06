@@ -1675,7 +1675,11 @@ namespace ahaHLS {
         // No action
       }
 
-      FunctionalUnit unit = {modSpec, unitName, wiring, outWires, isExternal};
+      //unitName = string(instr->getOpcodeName()) + "_" + rStr;
+      FunctionalUnit unit = functionalUnitForSpec(unitName, modSpec);
+      unit.external = isExternal;
+      
+      //FunctionalUnit unit = {modSpec, unitName, wiring, outWires, isExternal};
       return unit;
       
     } else if (AllocaInst::classof(instr)) {
