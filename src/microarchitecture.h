@@ -248,10 +248,13 @@ namespace ahaHLS {
   class InstructionBinding {
   public:
     FunctionalUnit unit;
-    std::map<llvm::Instruction*, std::string> instrWires;
+    std::map<llvm::Value*, std::string> instrWires;
 
     InstructionBinding() {}
     InstructionBinding(const FunctionalUnit& unit_) : unit(unit_), instrWires({}) {}
+    InstructionBinding(const FunctionalUnit& unit_,
+                       const std::map<llvm::Value*, std::string>& wires_) :
+      unit(unit_), instrWires(wires_) {}    
   };
 
   class ElaboratedPipeline {

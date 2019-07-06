@@ -955,11 +955,13 @@ namespace ahaHLS {
     return mSpec;
   }
   
-  FunctionalUnit createMemUnit(map<Value*, std::string>& memNames,
-                               map<Instruction*, Value*>& memSrcs,
-                               HardwareConstraints& hcs,
-                               ResourceUsage& usage,
-                               llvm::Instruction* instr) {
+  //FunctionalUnit
+  InstructionBinding
+  createMemUnit(map<Value*, std::string>& memNames,
+                map<Instruction*, Value*>& memSrcs,
+                HardwareConstraints& hcs,
+                ResourceUsage& usage,
+                llvm::Instruction* instr) {
 
     // cout << "Hardware memory storage names in createMemUnit" << endl;
     // for (auto mspec : hcs.memSpecs) {
@@ -979,6 +981,8 @@ namespace ahaHLS {
     map<string, Wire> outWires;
     map<string, int> defaults;
 
+    map<llvm::Value*, string> ports;
+    
     if (StoreInst::classof(instr)) {
 
       Value* memVal = map_find(instr, memSrcs);
@@ -1085,6 +1089,7 @@ namespace ahaHLS {
 
           wiring = {{"raddr", {true, 32, "raddr_" + to_string(usage.readNum)}}, {"ren", {true, 1, "ren_" + to_string(usage.readNum)}}};
 
+          ports = {{instr->getOperand(0), "raddr_" + to_string(usage.readNum)}, {instr, "rdata_" + to_string(usage.readNum)}, {mkInt(1, 1), "ren_" + to_string(usage.readNum)}};
           // Note: I think the "_reg not found" error is caused by the default
           // value of the functional unit not containing the ren default entry?
           //defaults.insert({"ren", 0});
@@ -1096,7 +1101,7 @@ namespace ahaHLS {
     }
 
     FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
-    return unit;
+    return {unit, ports};
   }
 
   ModuleSpec buildModSpec(map<Value*, std::string>& memNames,
@@ -1465,12 +1470,13 @@ namespace ahaHLS {
     map<string, Wire> outWires;
 
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
-      FunctionalUnit memUnit = createMemUnit(memNames, memSrcs, hcs, usage, instr);
+      InstructionBinding memUnit =
+        createMemUnit(memNames, memSrcs, hcs, usage, instr);
 
       ModuleSpec modSpec =
         buildModSpec(memNames, memSrcs, hcs, usage, instr);
 
-      memUnit.module = modSpec;
+      memUnit.unit.module = modSpec;
       
       return memUnit;
     }
@@ -1615,6 +1621,7 @@ namespace ahaHLS {
     return unit;
   }
 
+  
   //std::map<Instruction*, FunctionalUnit>
   std::map<Instruction*, InstructionBinding>
   assignFunctionalUnits(const STG& stg,
@@ -1656,6 +1663,9 @@ namespace ahaHLS {
     cout << "Final unit mapping" << endl;
     for (auto mapping : units) {
       cout << valueString(mapping.first) << " -> " << mapping.second.unit.instName << endl;
+      for (auto m : mapping.second.instrWires) {
+        cout << tab(1) << valueString(m.first) << " -> " << m.second << endl;
+      }
     }
     
     return units;
