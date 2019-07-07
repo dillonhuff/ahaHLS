@@ -345,6 +345,7 @@ namespace ahaHLS {
     std::map<llvm::Instruction*, llvm::Value*> memoryMapping;
     std::map<llvm::Value*, ModuleSpec> modSpecs;
     std::map<std::string, std::function<ModuleSpec(llvm::StructType*)> > typeSpecs;
+    std::map<llvm::Value*, ModuleSpec> hardwareTypeMapping;
 
     int getLatency(const OperationType op) const {
       return dbhc::map_find(op, latencies);

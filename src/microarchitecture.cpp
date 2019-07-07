@@ -765,7 +765,7 @@ namespace ahaHLS {
 
       // If the store is a store to part of a register
       // then we need to detect that and write a masked store?
-      //Value* storeAddr = instr->getOperand(1);
+      // Value* storeAddr = instr->getOperand(1);
       
       if (!Argument::classof(memVal)) {
         //cout << "&&&& Memory unit Using unit " << memSrc << " for " << instructionString(instr) << endl;
