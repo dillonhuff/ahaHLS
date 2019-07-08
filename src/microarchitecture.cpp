@@ -777,18 +777,6 @@ namespace ahaHLS {
         int dataWidth = getValueBitWidth(instr->getOperand(0));
         modParams = {{"WIDTH", to_string(dataWidth)}};
 
-        //cout << "Got name for op" << endl;
-        //unitName = memSrc;
-        // These names need to match names created in the portlist. So
-        // maybe this should be used to create the port list? Generate the
-        // names here and then write ports for them?
-        // wiring = {{"wen", {true, 1, "wen_" + unitName + "_reg"}},
-        //           {"waddr", {true, 32, "waddr_" + unitName + "_reg"}},
-        //           {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}},
-        //           {"raddr", {true, 32, "raddr_" + unitName + "_reg"}}};
-
-        // outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
-
       } else {
         if (contains_key(memVal, hcs.modSpecs)) {
           assert(memVal->getName() != "");
@@ -799,19 +787,9 @@ namespace ahaHLS {
         } else {
           modName = "store";
           isExternal = true;
-
-          //int inputWidth = getValueBitWidth(instr->getOperand(0));
-          // These names need to match names created in the portlist. So
-          // maybe this should be used to create the port list? Generate the
-          // names here and then write ports for them?
           string wStr = to_string(usage.writeNum);
 
-          //unitName = string(instr->getOpcodeName()) + "_" + wStr;
-                                                                        
-          //wiring = {{"wen", {true, 1, "wen_" + wStr}}, {"waddr", {true, 32, "waddr_" + wStr}}, {"wdata", {true, inputWidth, "wdata_" + wStr}}};
-
-          //outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
-          defaults.insert({"wen", 0});            
+          defaults.insert({"wen", 0});
         }
       }
 
@@ -831,11 +809,6 @@ namespace ahaHLS {
           int inWidth = getValueBitWidth(gep);
           modParams = {{"WIDTH", to_string(inWidth)}};
           modName = "hls_wire";
-          //wiring = {{"in_data", reg(inWidth, unitName + "_in")}};
-          //outWires = {{"out_data", wire(inWidth, unitName + "_out")}};
-          //isExternal = false;
-          // FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
-          // return unit;
 
           ModuleSpec mSpec{modParams, modName, {}, defaults};
           return mSpec;
@@ -845,22 +818,14 @@ namespace ahaHLS {
       if (!Argument::classof(memVal)) {
         if (contains_key(memVal, hcs.memSpecs)) {
           string name = map_find(memVal, hcs.memSpecs).modSpec.name;
-          //cout << "Setting " << valueString(memVal) << " to " << name << endl;
           modName = name;
         } else {
           modName = "register";
         }
         
-        //modName = "register";
-
         int dataWidth = getValueBitWidth(instr->getOperand(0));
         modParams = {{"WIDTH", to_string(dataWidth)}};
         
-        //unitName = memSrc;
-
-        //wiring = {{"raddr", {true, 32, "raddr_" + unitName + "_reg"}}, {"wen", {true, 1, "wen_" + unitName + "_reg"}}, {"waddr", {true, 32, "waddr_" + unitName + "_reg"}}, {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}}};
-        //outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
-            
       } else {
 
         if (contains_key(memVal, hcs.modSpecs)) {
@@ -872,21 +837,9 @@ namespace ahaHLS {
         
           modName = "load";
 
-          //unitName = string(instr->getOpcodeName()) + "_" + to_string(usage.readNum);
-          //int inputWidth = getValueBitWidth(instr);
-
-          //wiring = {{"raddr", {true, 32, "raddr_" + to_string(usage.readNum)}}, {"ren", {true, 1, "ren_" + to_string(usage.readNum)}}};
-
           // Note: I think the "_reg not found" error is caused by the default
           // value of the functional unit not containing the ren default entry?
           defaults.insert({"ren", 0});
-
-          //outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(usage.readNum)}}};
-
-          // Add allPorts variable here
-          // Then: Compute number of reads from external memories
-
-
         }
       }
 
