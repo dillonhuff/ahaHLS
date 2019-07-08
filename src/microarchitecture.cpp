@@ -749,12 +749,8 @@ namespace ahaHLS {
     assert(LoadInst::classof(instr) || StoreInst::classof(instr));
     string modName = "add";
 
-    bool isExternal = false;
     auto rStr = unitName;
     map<string, string> modParams;
-
-    map<string, Wire> wiring;
-    map<string, Wire> outWires;
     map<string, int> defaults;
 
     if (StoreInst::classof(instr)) {
@@ -786,7 +782,7 @@ namespace ahaHLS {
 
         } else {
           modName = "store";
-          isExternal = true;
+          //isExternal = true;
           string wStr = to_string(usage.writeNum);
 
           defaults.insert({"wen", 0});
@@ -833,7 +829,7 @@ namespace ahaHLS {
           return map_find(memVal, hcs.modSpecs);
 
         } else {
-          isExternal = true;
+          //isExternal = true;
         
           modName = "load";
 
@@ -1537,6 +1533,17 @@ namespace ahaHLS {
     }
 
     ResourceUsage used;
+
+    // for (auto state : stg.opStates) {
+    //   for (auto instrG : stg.instructionsStartingAt(state.first)) {
+    //     Instruction* instr = instrG;
+
+    //     auto unit =
+    //       buildModSpec(memNames, memSrcs, hcs, used, instr);
+    //     hcs.hardwareTypeMapping[instr] = unit;
+    //   }
+    // }
+
     for (auto state : stg.opStates) {
       
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
