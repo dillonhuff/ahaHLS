@@ -1,5 +1,4 @@
 #include "microarchitecture.h"
-
 #include "utils.h"
 
 #include <llvm/IR/Dominators.h>
@@ -801,7 +800,7 @@ namespace ahaHLS {
           modName = "store";
           isExternal = true;
 
-          int inputWidth = getValueBitWidth(instr->getOperand(0));
+          //int inputWidth = getValueBitWidth(instr->getOperand(0));
           // These names need to match names created in the portlist. So
           // maybe this should be used to create the port list? Generate the
           // names here and then write ports for them?
@@ -874,7 +873,7 @@ namespace ahaHLS {
           modName = "load";
 
           //unitName = string(instr->getOpcodeName()) + "_" + to_string(usage.readNum);
-          int inputWidth = getValueBitWidth(instr);
+          //int inputWidth = getValueBitWidth(instr);
 
           //wiring = {{"raddr", {true, 32, "raddr_" + to_string(usage.readNum)}}, {"ren", {true, 1, "ren_" + to_string(usage.readNum)}}};
 
@@ -1050,10 +1049,10 @@ namespace ahaHLS {
   }
 
   ModuleSpec buildModSpec(map<Value*, std::string>& memNames,
-                            map<Instruction*, Value*>& memSrcs,
-                            HardwareConstraints& hcs,
-                            ResourceUsage& usage,
-                            llvm::Instruction* instr) {
+                          map<Instruction*, Value*>& memSrcs,
+                          HardwareConstraints& hcs,
+                          ResourceUsage& usage,
+                          llvm::Instruction* instr) {
     string unitName = instr->getOpcodeName() + to_string(usage.resSuffix);
     string modName = "add";
 
@@ -1417,7 +1416,6 @@ namespace ahaHLS {
 
     ModuleSpec modSpec =
       buildModSpec(memNames, memSrcs, hcs, usage, instr);
-
     
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
       InstructionBinding memUnit =
@@ -2461,6 +2459,15 @@ namespace ahaHLS {
         //cout << "Adding out of task transitions" << endl;
         // Q: Will this pass with control sanity checks disabled?
         //edgeTakenWire = constWire(1, 1);
+
+        // edge is taken on reset?
+        // I want all tasks to start on reset and all task branches
+        // to be taken on reset
+        // edgeTakenWire = checkEqual(constWire(1, 1), wire(1, "rst"), arch);
+
+        // arch.getController(entryName).resetValue =
+        //   to_string(arch.cs.getBasicBlockNo(&(f->getEntryBlock())));
+        
         edgeTakenWire =
           blockActiveInState(entryState(arch.stg),
                              &(arch.stg.getFunction()->getEntryBlock()),
@@ -3821,6 +3828,24 @@ namespace ahaHLS {
     for (auto& unit : unitAssignment) {
       arch.functionalUnits.push_back(unit.second.unit);
     }
+
+    // For each task print out the entry to the task?
+    // Maybe I should have a set of state transition rules
+    // printed out for each piece of code?
+    // Im really struggling with figuring out how to clear up this
+    // microarchitecture code.
+    // Q: What are the complications?
+    //  1. Binding code is still messy
+    //  2. Port controller syntax is awkward
+    //  3. Port and register controllers together are weird duplicate code
+    //  4. Pipelining and hazards / delays are awkward
+    //  5. I dont really understand what I did on the datapath
+    //     and it isnt neatly integrated in to the rest of the system
+
+    // First thing to do: Move the modspec generation in to pre-scheduling code
+    // Then: See what I can do to make things clearer after that?
+    // Maybe clear up the memory stuff? Add some coherent representation of
+    // hazards?
 
     // I would like to re-structure this so that all
     // state wires are instantiated before any of them
