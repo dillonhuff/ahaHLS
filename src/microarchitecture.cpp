@@ -1345,7 +1345,8 @@ namespace ahaHLS {
   
   //FunctionalUnit
   InstructionBinding
-  createUnit(map<Value*, std::string>& memNames,
+  createUnit(ModuleSpec& modSpec,
+             map<Value*, std::string>& memNames,
              map<Instruction*, Value*>& memSrcs,
              HardwareConstraints& hcs,
              ResourceUsage& usage,
@@ -1363,9 +1364,6 @@ namespace ahaHLS {
     map<string, Wire> outWires;
 
 
-    ModuleSpec modSpec =
-      buildModSpec(memNames, memSrcs, hcs, usage, instr);
-    
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
       InstructionBinding memUnit =
         createMemUnit(memNames, memSrcs, hcs, usage, instr);
@@ -1550,8 +1548,11 @@ namespace ahaHLS {
 
         Instruction* instr = instrG;
 
+        ModuleSpec modSpec =
+          buildModSpec(memNames, memSrcs, hcs, used, instr);
+
         auto unit =
-          createUnit(memNames, memSrcs, hcs, used, instr);
+          createUnit(modSpec, memNames, memSrcs, hcs, used, instr);
 
         //cout << "-- Created unit " << unit.instName << endl;
         units[instr] = unit;
