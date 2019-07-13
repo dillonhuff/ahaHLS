@@ -418,6 +418,11 @@ namespace ahaHLS {
   getPorts(MicroArchitecture& arch) {
     vector<Port> pts = {inputPort(1, "clk"), inputPort(1, "rst"), outputPort(1, "valid")};
 
+    // I want to reduce this to looking up values in the HardwareConstraints
+    // hardwareTypeMapping...
+    // Also: Is there any need for hardwareTypeMapping, or should I just
+    // use modSpecs?
+    
     Function* f = arch.stg.getFunction();
     for (int i = 0; i < f->arg_size(); i++) {
       Value* arg = getArg(f, i);
@@ -1541,6 +1546,8 @@ namespace ahaHLS {
     //     hcs.hardwareTypeMapping[instr] = unit;
     //   }
     // }
+
+    // Also: Need to bind all arguments to functional units...
 
     for (auto state : stg.opStates) {
       
