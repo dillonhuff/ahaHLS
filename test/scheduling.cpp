@@ -2899,8 +2899,11 @@ namespace ahaHLS {
 
     auto mod = llvm::make_unique<Module>("pipeline with resource constraints", context);
     setGlobalLLVMModule(mod.get());
-    std::vector<Type *> inputs{intType(32)->getPointerTo(),
-        intType(32)->getPointerTo()};
+    // std::vector<Type *> inputs{intType(32)->getPointerTo(),
+    //     intType(32)->getPointerTo()};
+
+    std::vector<Type *> inputs{sramType(32, 16)->getPointerTo()};
+    
     Function* f = mkFunc(inputs, "constrained_pipe", mod.get());
 
     auto entryBlock = mkBB("entry_block", f);
@@ -2910,10 +2913,12 @@ namespace ahaHLS {
     ConstantInt* zero = mkInt("0", 32);
 
     auto bodyF = [f](IRBuilder<>& builder, Value* i) {
-      auto v = loadVal(builder, getArg(f, 0), i);
+      //auto v = loadVal(builder, getArg(f, 0), i);
+      auto v = loadRAMVal(builder, getArg(f, 0), i);
       auto z = builder.CreateMul(v, v);
       auto r = builder.CreateMul(z, v);
-      storeVal(builder, getArg(f, 1), i, r);
+      //storeVal(builder, getArg(f, 1), i, r);
+      storeRAMVal(builder, getArg(f, 0), r, builder.CreateAdd(i, mkInt(6, 32)));
     };
     auto loopBlock = sivLoop(f, entryBlock, exitBlock, zero, loopBound, bodyF);
 
@@ -2929,9 +2934,23 @@ namespace ahaHLS {
     HardwareConstraints hcs = standardConstraints();
     hcs.setCount(MUL_OP, 1);
 
+    hcs.typeSpecs[string("SRAM_32_16")] =
+      [](StructType* tp) { return ramSpec(32, 16); };
+    InterfaceFunctions interfaces;
+    Function* ramRead = ramLoadFunction(getArg(f, 0));
+    interfaces.addFunction(ramRead);
+    implementRAMRead0(ramRead,
+                      interfaces.getConstraints(ramRead));
+
+    Function* ramWrite = ramStoreFunction(getArg(f, 0));
+    interfaces.addFunction(ramWrite);
+    implementRAMWrite0(ramWrite,
+                       interfaces.getConstraints(ramWrite));
+    
     set<BasicBlock*> blocksToPipeline;
-    blocksToPipeline.insert(loopBlock);    
-    Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
+    blocksToPipeline.insert(loopBlock);
+    Schedule s = //scheduleFunction(f, hcs, blocksToPipeline);
+      scheduleInterface(f, hcs, interfaces, blocksToPipeline);
 
     REQUIRE(s.pipelineSchedules.size() == 1);
     REQUIRE(begin(s.pipelineSchedules)->second == 2);
@@ -2945,7 +2964,8 @@ namespace ahaHLS {
     REQUIRE(graph.pipelines[0].II() == 2);
 
     map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 15}};
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 15}};
+    //map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 15}};
+    map<llvm::Value*, int> layout;
     auto arch = buildMicroArchitecture(graph, layout);
 
     VerilogDebugInfo info;

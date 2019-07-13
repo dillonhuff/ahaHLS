@@ -1253,7 +1253,7 @@ namespace ahaHLS {
           //cout << "Struct name = " << string(structT->getName()) << endl;
 
           if (!hcs.hasArgumentSpec(fuPtr)) {
-            cout << "Error: No spec... possible choices" << endl;
+            cout << "Error: No spec... for " << valueString(fuPtr) << ", possible choices" << endl;
             for (auto spec : hcs.typeSpecs) {
               cout << tab(1) << spec.first << endl;
             }
