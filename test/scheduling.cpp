@@ -2918,7 +2918,7 @@ namespace ahaHLS {
       auto z = builder.CreateMul(v, v);
       auto r = builder.CreateMul(z, v);
       //storeVal(builder, getArg(f, 1), i, r);
-      storeRAMVal(builder, getArg(f, 0), r, builder.CreateAdd(i, mkInt(6, 32)));
+      storeRAMVal(builder, getArg(f, 0), r, builder.CreateAdd(i, mkInt(5, 32)));
     };
     auto loopBlock = sivLoop(f, entryBlock, exitBlock, zero, loopBound, bodyF);
 
@@ -2963,10 +2963,10 @@ namespace ahaHLS {
     REQUIRE(graph.pipelines.size() == 1);
     REQUIRE(graph.pipelines[0].II() == 2);
 
-    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 15}};
+    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 5}};
     //map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 15}};
     map<llvm::Value*, int> layout;
-    auto arch = buildMicroArchitecture(graph, layout);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -2975,14 +2975,18 @@ namespace ahaHLS {
 
     // Create testing infrastructure
     map<string, vector<int> > memoryInit{{"arg_0", {6, 4, 5, 2, 1}}};
-    map<string, vector<int> > memoryExpected{{"arg_1", {6*6*6, 4*4*4, 5*5*5, 2*2*2, 1*1*1}}};
+    map<string, vector<int> > memoryExpected{{"arg_0", {6, 4, 5, 2, 1, 6*6*6, 4*4*4, 5*5*5, 2*2*2, 1*1*1}}};
 
     TestBenchSpec tb;
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
     tb.runCycles = 30;
     tb.maxCycles = 42;
+    tb.useModSpecs = true;
     tb.name = "constrained_pipe";
+
+    setRAM(tb, 1, "arg_0", memoryInit, testLayout);
+    checkRAM(tb, 20, "arg_0", memoryExpected, testLayout);
     emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("constrained_pipe"));
