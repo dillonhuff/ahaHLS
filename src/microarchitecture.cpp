@@ -436,8 +436,6 @@ namespace ahaHLS {
 
         Value* argV = dyn_cast<Value>(arg);        
 
-        // if (contains_key(argV, arch.hcs.modSpecs) ||
-        //     arch.hcs.hasArgumentSpec(argV)) {
         if (arch.hcs.hasModSpec(argV)) {
 
           cout << "Contains key = " << contains_key(argV, arch.hcs.modSpecs) << endl;
@@ -699,16 +697,17 @@ namespace ahaHLS {
       unitName = sanitizeFormatForVerilogId(valueString(instr));
     }
 
-    if (hcs.hasArgumentSpec(instr)) {
+    return functionalUnitForSpec(unitName, hcs.getModSpec(instr));
+    // if (hcs.hasArgumentSpec(instr)) {
 
-      ModuleSpec mSpec = hcs.getArgumentSpec(instr);
-      return functionalUnitForSpec(unitName, mSpec);
-    } else {
-      assert(contains_key(instr, hcs.modSpecs));
+    //   ModuleSpec mSpec = hcs.getArgumentSpec(instr);
+    //   return functionalUnitForSpec(unitName, mSpec);
+    // } else {
+    //   assert(contains_key(instr, hcs.modSpecs));
 
-      ModuleSpec mSpec = map_find(instr, hcs.modSpecs);
-      return functionalUnitForSpec(unitName, mSpec);
-    }
+    //   ModuleSpec mSpec = map_find(instr, hcs.modSpecs);
+    //   return functionalUnitForSpec(unitName, mSpec);
+    // }
   }
 
   ModuleSpec structModuleSpec(Value* instr,
