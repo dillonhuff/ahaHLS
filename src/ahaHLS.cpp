@@ -40,11 +40,6 @@ int main(int argc, char** argv) {
       return 1;
     }  
 
-  // cout << "# of args = " << argc << endl;
-  // assert(argc == 2);
-  // char* targetFile = argv[1];
-  // cout << "Target file = " << targetFile << endl;
-
   string targetFile = args::get(targetFileOption);
 
   cout << "TargetFile = " << targetFile << endl;

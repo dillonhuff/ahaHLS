@@ -6,6 +6,8 @@
 using namespace std;
 using namespace llvm;
 
+#include "utils.h"
+
 namespace ahaHLS {
 
 
@@ -30,6 +32,20 @@ namespace ahaHLS {
 
     return Mod;
   }
+
+  std::unique_ptr<Module> loadLLFileRawPath(LLVMContext& Context,
+                                            SMDiagnostic& Err,
+                                            const std::string& name) {
+    string modFile = name;
+    cout << "Parsing ir file " << modFile << endl;
+    std::unique_ptr<Module> Mod(parseIRFile(modFile, Err, Context));
+    if (!Mod) {
+      outs() << "Error: No mod\n";
+      assert(false);
+    }
+
+    return Mod;
+  }
   
   std::unique_ptr<Module> loadModule(LLVMContext& Context,
                                      SMDiagnostic& Err,
@@ -45,7 +61,7 @@ namespace ahaHLS {
                                         const std::string& name) {
     int res = createCppLLFile("./test/ll_files/" + name + ".cpp");
     assert(res == 0);
-    
+
     return loadLLFile(Context, Err, name);
   }
 
@@ -54,8 +70,10 @@ namespace ahaHLS {
                                      const std::string& path) {
     int res = createCppLLFile(path);
     assert(res == 0);
+
+    string llPath = takeUntil(".cpp", path) + ".ll";
     
-    return loadLLFile(Context, Err, path);
+    return loadLLFileRawPath(Context, Err, llPath);
   }
   
   bool runCmd(const std::string& cmd) {
