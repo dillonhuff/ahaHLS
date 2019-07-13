@@ -185,3 +185,7 @@ lb_basic
 lb_tb
 cascade_push*
 conv_3_3*
+aha-HLS
+convs.v
+int_add_func.v
+int_add_wrapper.h

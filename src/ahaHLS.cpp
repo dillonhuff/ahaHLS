@@ -41,8 +41,11 @@ int main(int argc, char** argv) {
     }  
 
   string targetFile = args::get(targetFileOption);
+  string topFunction = args::get(topFunctionOption);
 
-  cout << "TargetFile = " << targetFile << endl;
+  cout << "TargetFile  = " << targetFile << endl;
+  cout << "TopFunction = " << topFunction << endl;
+  
   SMDiagnostic Err;
   LLVMContext Context;
   setGlobalLLVMContext(&Context);
@@ -50,11 +53,57 @@ int main(int argc, char** argv) {
   std::unique_ptr<Module> Mod = loadCppMod(Context, Err, string(targetFile)); 
   setGlobalLLVMModule(Mod.get());
 
-  // Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
-  // deleteLLVMLifetimeCalls(f);
+  Function* f = getFunctionByDemangledName(Mod.get(), topFunction);
+  deleteLLVMLifetimeCalls(f);
 
-  // cout << "Origin function" << endl;
-  // cout << valueString(f) << endl;
+  cout << "Original function" << endl;
+  cout << valueString(f) << endl;
+
+  ExecutionConstraints exec;
+  InterfaceFunctions interfaces;
+  interfaces.functionTemplates[string("read")] = implementRVFifoRead;
+  interfaces.functionTemplates[string("write")] = implementRVFifoWriteTemplate;
+
+  inlineWireCalls(f, exec, interfaces);
+
+  cout << "After inlining" << endl;
+  cout << valueString(f) << endl;
+
+  // TODO: How do I extract the hardware mapping from argument types
+  // to module specs?
+  int width = 32;
+  HardwareConstraints hcs = standardConstraints();
+  hcs.memoryMapping = memoryOpLocations(f);
+  // Set registers
+  setAllAllocaMemTypes(hcs, f, registerSpec(width));
+  hcs.typeSpecs["class.ahaHLS::Fifo"] =
+    [width](StructType* tp) { return fifoSpec(width, 128); };
+    
+  addDataConstraints(f, exec);
+
+  cout << "LLVM function after inlining reads" << endl;
+  cout << valueString(f) << endl;
+
+  set<BasicBlock*> toPipeline;
+  SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
+  exec.addConstraints(p, f);
+
+  map<Function*, SchedulingProblem> constraints{{f, p}};
+  Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+
+  STG graph = buildSTG(s, f);
+
+  cout << "STG is " << endl;
+  graph.print(cout);
+    
+  map<llvm::Value*, int> layout = {};
+  // ArchOptions options;
+  auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+  VerilogDebugInfo info;
+  addNoXChecks(arch, info);
+
+  emitVerilog(topFunction, arch, info);
   
   cout << "Done." << endl;
 }

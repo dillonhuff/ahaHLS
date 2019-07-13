@@ -16,7 +16,8 @@ namespace ahaHLS {
   }
 
   int createCppLLFile(const std::string& moduleName) {
-    return system(("clang++ -O1 -D__SYNTHESIS__ -c -S -emit-llvm " + moduleName + " -o " + moduleName + ".ll").c_str());
+    string llPath = takeUntil(".cpp", moduleName) + ".ll";
+    return system(("clang++ -O1 -D__SYNTHESIS__ -c -S -emit-llvm " + moduleName + " -o " + llPath).c_str());
   }
   
   std::unique_ptr<Module> loadLLFile(LLVMContext& Context,

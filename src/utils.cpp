@@ -55,8 +55,9 @@ namespace ahaHLS {
     } else if (PointerType::classof(tp)) {
       PointerType* pTp = dyn_cast<PointerType>(tp);
 
-      //cout << "Element type = " << typeString(pTp->getElementType()) << endl;
-
+      if (!IntegerType::classof(pTp->getElementType())) {
+        cout << "Element type = " << typeString(pTp->getElementType()) << endl;
+      }
       assert(IntegerType::classof(pTp->getElementType()));
 
       IntegerType* iTp = dyn_cast<IntegerType>(pTp->getElementType());
