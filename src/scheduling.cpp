@@ -340,12 +340,12 @@ namespace ahaHLS {
   }
 
   ModuleSpec HardwareConstraints::getModSpec(llvm::Value* const val) {
-    cout << "Getting modspec for " << valueString(val) << endl;
+    //cout << "Getting modspec for " << valueString(val) << endl;
     if (dbhc::contains_key(val, modSpecs)) {
-      cout << "In modspecs" << endl;
+      //cout << "In modspecs" << endl;
       return dbhc::map_find(val, modSpecs);
     } else {
-      cout << "Not in modspecs" << endl;
+      //cout << "Not in modspecs" << endl;
       assert(hasArgumentSpec(val));
       return getArgumentSpec(val);
     }
