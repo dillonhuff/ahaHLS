@@ -719,18 +719,19 @@ namespace ahaHLS {
       unitName = sanitizeFormatForVerilogId(valueString(instr));
     }
 
-    if (hcs.hasArgumentSpec(instr)) {
+    return hcs.getModSpec(instr);
+    // if (hcs.hasArgumentSpec(instr)) {
 
-      ModuleSpec mSpec = hcs.getArgumentSpec(instr);
-      return mSpec;
-      //return functionalUnitForSpec(unitName, mSpec);
-    } else {
-      assert(contains_key(instr, hcs.modSpecs));
+    //   ModuleSpec mSpec = hcs.getArgumentSpec(instr);
+    //   return mSpec;
+    //   //return functionalUnitForSpec(unitName, mSpec);
+    // } else {
+    //   assert(contains_key(instr, hcs.modSpecs));
 
-      ModuleSpec mSpec = map_find(instr, hcs.modSpecs);
-      return mSpec;
-      //return functionalUnitForSpec(unitName, mSpec);
-    }
+    //   ModuleSpec mSpec = map_find(instr, hcs.modSpecs);
+    //   return mSpec;
+    //   //return functionalUnitForSpec(unitName, mSpec);
+    // }
   }
   
   class ResourceUsage {
