@@ -2918,7 +2918,7 @@ namespace ahaHLS {
       auto z = builder.CreateMul(v, v);
       auto r = builder.CreateMul(z, v);
       //storeVal(builder, getArg(f, 1), i, r);
-      storeRAMVal(builder, getArg(f, 0), r, builder.CreateAdd(i, mkInt(5, 32)));
+      storeRAMVal(builder, getArg(f, 0), builder.CreateAdd(i, mkInt(5, 32)), r);
     };
     auto loopBlock = sivLoop(f, entryBlock, exitBlock, zero, loopBound, bodyF);
 
@@ -2985,7 +2985,10 @@ namespace ahaHLS {
     tb.useModSpecs = true;
     tb.name = "constrained_pipe";
 
-    setRAM(tb, 1, "arg_0", memoryInit, testLayout);
+    map_insert(tb.actionsInCycles, 1, string("rst_reg = 1;"));
+    map_insert(tb.actionsInCycles, 2, string("rst_reg = 0;"));
+
+    setRAM(tb, 0, "arg_0", memoryInit, testLayout);
     checkRAM(tb, 20, "arg_0", memoryExpected, testLayout);
     emitVerilogTestBench(tb, arch, testLayout);
 
