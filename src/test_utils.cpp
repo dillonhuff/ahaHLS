@@ -14,7 +14,7 @@ namespace ahaHLS {
   }
 
   int createCppLLFile(const std::string& moduleName) {
-    return system(("clang++ -O1 -D__SYNTHESIS__ -c -S -emit-llvm " + moduleName + ".cpp -o " + moduleName + ".ll").c_str());
+    return system(("clang++ -O1 -D__SYNTHESIS__ -c -S -emit-llvm " + moduleName + " -o " + moduleName + ".ll").c_str());
   }
   
   std::unique_ptr<Module> loadLLFile(LLVMContext& Context,
@@ -43,10 +43,19 @@ namespace ahaHLS {
   std::unique_ptr<Module> loadCppModule(LLVMContext& Context,
                                         SMDiagnostic& Err,
                                         const std::string& name) {
-    int res = createCppLLFile("./test/ll_files/" + name);
+    int res = createCppLLFile("./test/ll_files/" + name + ".cpp");
     assert(res == 0);
     
     return loadLLFile(Context, Err, name);
+  }
+
+  std::unique_ptr<Module> loadCppMod(LLVMContext& Context,
+                                     SMDiagnostic& Err,
+                                     const std::string& path) {
+    int res = createCppLLFile(path);
+    assert(res == 0);
+    
+    return loadLLFile(Context, Err, path);
   }
   
   bool runCmd(const std::string& cmd) {

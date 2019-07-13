@@ -1239,7 +1239,7 @@ namespace ahaHLS {
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
         auto instr = instrG;
         if (isBuiltinPortRead(instr)) {
-          StateId activeState = st.first;
+          //StateId activeState = st.first;
 
           //printInstrAtState(instr, activeState, arch, debugInfo);
         }
@@ -1254,7 +1254,7 @@ namespace ahaHLS {
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
         auto instr = instrG;
         if (isBuiltinSlice(instr)) {
-          StateId activeState = st.first;
+          //StateId activeState = st.first;
 
           //printInstrAtState(instr, activeState, arch, debugInfo);
         }

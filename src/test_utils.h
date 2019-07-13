@@ -13,6 +13,10 @@ namespace ahaHLS {
                                            llvm::SMDiagnostic& Err,
                                            const std::string& name);
 
+  std::unique_ptr<llvm::Module> loadCppMod(llvm::LLVMContext& Context,
+                                           llvm::SMDiagnostic& Err,
+                                           const std::string& path);
+  
   std::unique_ptr<llvm::Module> loadModule(llvm::LLVMContext& Context,
                                            llvm::SMDiagnostic& Err,
                                            const std::string& name);
