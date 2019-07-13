@@ -1007,7 +1007,7 @@ namespace ahaHLS {
       for (auto instrG : arch.stg.instructionsFinishingAt(st.first)) {
         auto instr = instrG;
         if (isBuiltinFifoRead(instr)) {
-          StateId activeState = st.first;
+          //StateId activeState = st.first;
           string iStr = instructionString(instr);
 
           //printInstrAtState(instr, activeState, arch, debugInfo);
@@ -1030,7 +1030,7 @@ namespace ahaHLS {
       for (auto instrG : arch.stg.instructionsStartingAt(st.first)) {
         auto instr = instrG;
         if (isBuiltinFifoWrite(instr)) {
-          StateId activeState = st.first;
+          //StateId activeState = st.first;
           string iStr = instructionString(instr);
 
           //printInstrAtState(instr, activeState, arch, debugInfo);
@@ -1095,7 +1095,7 @@ namespace ahaHLS {
         if (BinaryOperator::classof(instr)) {
           FunctionalUnit unit = map_find(instr, arch.unitAssignment).unit;
           if (unit.getModName() == opName) {
-            StateId activeState = st.first;
+            //StateId activeState = st.first;
 
             string iStr = instructionString(instr);
             //printInstrAtState(instr, activeState, arch, debugInfo);

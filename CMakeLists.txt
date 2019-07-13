@@ -71,3 +71,7 @@ target_link_libraries(synthesize-interface-functions ahahls ${llvm_libs})
 SET(ALL_PARSER_FILES experiments/parser.cpp)
 add_executable(parser ${ALL_PARSER_FILES})
 target_link_libraries(parser ahahls ${llvm_libs})
+
+SET(AHAHLS_EXE_FILES src/ahaHLS.cpp)
+add_executable(aha-HLS ${AHAHLS_EXE_FILES})
+target_link_libraries(aha-HLS ahahls ${llvm_libs})
