@@ -347,6 +347,7 @@ namespace ahaHLS {
     std::map<std::string, std::function<ModuleSpec(llvm::StructType*)> > typeSpecs;
     std::map<llvm::Value*, ModuleSpec> hardwareTypeMapping;
 
+    bool hasModSpec(llvm::Value* const val);
     ModuleSpec getModSpec(llvm::Value* const val);
     
     int getLatency(const OperationType op) const {

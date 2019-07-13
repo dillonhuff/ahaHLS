@@ -339,6 +339,11 @@ namespace ahaHLS {
 
   }
 
+  bool HardwareConstraints::hasModSpec(llvm::Value* const val) {
+    return contains_key(val, modSpecs) ||
+      hasArgumentSpec(val);
+  }
+  
   ModuleSpec HardwareConstraints::getModSpec(llvm::Value* const val) {
     //cout << "Getting modspec for " << valueString(val) << endl;
     if (dbhc::contains_key(val, modSpecs)) {

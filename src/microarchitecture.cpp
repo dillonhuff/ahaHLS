@@ -435,36 +435,14 @@ namespace ahaHLS {
       if (PointerType::classof(arg->getType())) {
 
         Value* argV = dyn_cast<Value>(arg);        
-        // if (!contains_key(argV, arch.memoryMap)) {
-        //   cout << "Getting modspec for " << valueString(argV) << endl;
-        //   ModuleSpec modSpec = arch.hcs.getModSpec(argV);          
-          
-        //   for (auto p : modSpec.ports) {
-        //     Port cpy = p.second;
-        //     cpy.name = argName + "_" + p.second.name;
-        //     cpy.isInput = !p.second.isInput;
-        //     pts.push_back(cpy);
-        //   }
-        // }
-        
-        // Value* argV = dyn_cast<Value>(arg);
-        if (contains_key(argV, arch.hcs.modSpecs) ||
-            arch.hcs.hasArgumentSpec(argV)) {
+
+        // if (contains_key(argV, arch.hcs.modSpecs) ||
+        //     arch.hcs.hasArgumentSpec(argV)) {
+        if (arch.hcs.hasModSpec(argV)) {
 
           cout << "Contains key = " << contains_key(argV, arch.hcs.modSpecs) << endl;
           cout << "Has arg spec = " << arch.hcs.hasArgumentSpec(argV) << endl;
           
-        //   ModuleSpec modSpec = map_find(argV, arch.hcs.modSpecs);
-        //   for (auto p : modSpec.ports) {
-        //     Port cpy = p.second;
-        //     cpy.name = argName + "_" + p.second.name;
-        //     cpy.isInput = !p.second.isInput;
-        //     pts.push_back(cpy);
-        //   }
-        // } else if (arch.hcs.hasArgumentSpec(arg)) {
-
-            //ModuleSpec modSpec = arch.hcs.getArgumentSpec(argV);
-
           ModuleSpec modSpec = arch.hcs.getModSpec(argV);          
           for (auto p : modSpec.ports) {
             Port cpy = p.second;
