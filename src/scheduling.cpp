@@ -92,14 +92,6 @@ namespace ahaHLS {
   //   1. Move control predecessors up in to code outside the
   //   2. Remove stall instructions from fifo reads and writes
 
-  // void
-  // addMemoryConstraints(llvm::Function* f,
-  //                      HardwareConstraints& hdc,
-  //                      std::set<BasicBlock*>& toPipeline,
-  //                      AAResults& aliasAnalysis,
-  //                      ScalarEvolution& sc,
-  //                      SchedulingProblem& p);
-
   ExecutionConstraints
   addMemoryConstraints(llvm::Function* f,
                        HardwareConstraints& hdc,
@@ -240,9 +232,6 @@ namespace ahaHLS {
 
           SchedulingProblem p = createSchedulingProblem(f, hdc, exe);
         
-          // SchedulingProblem p =
-          //   createSchedulingProblem(&F, hdc, toPipeline, a, sc);
-
           schedule = buildFromModel(p);
           schedule.problem = p;
           schedule.controlPredecessors =
@@ -962,39 +951,6 @@ namespace ahaHLS {
     }
   }
 
-  // bool hasStructCall(BasicBlock* blk, const std::string& stencilPrefix) {
-  //   for (auto& instrR : *blk) {
-  //     Instruction* instr = &instrR;
-  //     if (isBuiltinPortCall(instr)) {
-        
-  //       Value* val = instr->getOperand(0);
-  //       Type* argTp = val->getType();
-  //       assert(PointerType::classof(argTp));
-
-  //       Type* underlying = dyn_cast<PointerType>(argTp)->getElementType();
-
-  //       assert(StructType::classof(underlying));
-
-  //       StructType* stp = dyn_cast<StructType>(underlying);
-
-  //       //cout << "Checking struct " << string(stp->getName()) << " has stencil" << endl;
-
-  //       if (hasPrefix(stp->getName(), stencilPrefix)) { //"class.AxiPackedStencil")) {
-  //         //cout << "Found stencil call" << endl;
-  //         return true;
-  //       }
-  //     }
-  //   }
-  //   return false;
-  // }
-
-  // bool hasStencilCall(BasicBlock* a,
-  //                     BasicBlock* b) {
-  //   bool aHasStencil = hasStructCall(a, "class.AxiPackedStencil");
-  //   bool bHasStencil = hasStructCall(b, "class.AxiPackedStencil");
-  //   return aHasStencil || bHasStencil;
-  // }
-
   std::map<BasicBlock*, vector<BasicBlock*> >
   buildControlPreds(llvm::Function* f) {
     std::deque<BasicBlock*> toVisit{&(f->getEntryBlock())};
@@ -1313,23 +1269,6 @@ namespace ahaHLS {
     return createSchedulingProblem(f, hdc, toPipeline, controlPredecessors);
   }
   
-  // Solution to binding: Assume always unique, then modify program later
-  // to reflect resource constraints?
-  // void
-  // addMemoryConstraints(llvm::Function* f,
-  //                      HardwareConstraints& hdc,
-  //                      std::set<BasicBlock*>& toPipeline,
-  //                      AAResults& aliasAnalysis,
-  //                      ScalarEvolution& sc,
-  //                      SchedulingProblem& p) {
-
-  //   set<PipelineSpec> pipe;
-  //   for (auto p : toPipeline) {
-  //     pipe.insert({true, {p}});
-  //   }
-  //   addMemoryConstraints(f, hdc, pipe, aliasAnalysis, sc, p);
-  // }
-
   void
   addOrderConstraints(vector<vector<Instruction*> >& iGroups,
                       ExecutionConstraints& exe,
@@ -1885,102 +1824,10 @@ namespace ahaHLS {
     return exe;
   }
 
-  // Dewarping, shading?
-  SchedulingProblem
-  createSchedulingProblem(llvm::Function* f,
-                          HardwareConstraints& hdc,
-                          std::set<PipelineSpec>& toPipeline,
-                          AAResults& aliasAnalysis,
-                          ScalarEvolution& sc) {
-    auto p = createSchedulingProblem(f, hdc, toPipeline);
-    addMemoryConstraints(f, hdc, toPipeline, aliasAnalysis, sc, p);
-    return p;
-  }
-  
   Schedule scheduleFunction(llvm::Function* f, HardwareConstraints& hdc) {
     set<BasicBlock*> toPipeline;
     return scheduleFunction(f, hdc, toPipeline);
   }
-
-  // void computeTransitions(BasicBlock* bb,
-  //                         vector<Condition>& conditions,
-  //                         map<BasicBlock*, vector<pair<BasicBlock*, vector<Condition> > > >& transitions) {
-  //   assert(!contains_key(bb, transitions));
-  //   return;
-  // }
-
-  // vector<vector<Atom> > allPathConditions(BasicBlock* src,
-  //                                         BasicBlock* target,
-  //                                         std::set<BasicBlock*>& considered) {
-
-  //   if (elem(src, considered)) {
-  //     return {};
-  //   }
-
-  //   if (src == target) {
-  //     return {{}};
-  //   }
-
-  //   considered.insert(src);
-
-  //   auto termInst = src->getTerminator();
-
-  //   if (ReturnInst::classof(termInst)) {
-  //     return {};
-  //   } else if (BranchInst::classof(termInst)) {
-  //     BranchInst* br = dyn_cast<BranchInst>(termInst);
-  //     if (!br->isConditional()) {
-  //       assert(br->getNumSuccessors() == 1);
-
-  //       BasicBlock* nextB = br->getSuccessor(0);
-
-  //       // Does the true or false condition on this block executing in
-  //       // the given state need to be considered when making this pathing
-  //       // decision?
-
-  //       // True values are not represented
-  //       return allPathConditions(nextB, target, considered);
-  //     } else {
-  //       assert(br->getNumSuccessors() == 2);
-
-  //       cout << "Found cond branch" << endl;
-
-  //       BasicBlock* trueB = br->getSuccessor(0);
-  //       BasicBlock* falseB = br->getSuccessor(1);
-
-  //       Value* cond = br->getCondition();
-
-  //       Atom trueCond(cond);
-  //       Atom falseCond(cond, true);
-        
-  //       vector<vector<Atom> > truePaths =
-  //         allPathConditions(trueB, target, considered);
-
-  //       vector<vector<Atom> > falsePaths =
-  //         allPathConditions(falseB, target, considered);
-
-  //       vector<vector<Atom> > allPaths;
-  //       for (auto p : truePaths) {
-  //         auto pCpy = p;
-  //         pCpy.push_back(trueCond);
-  //         allPaths.push_back(pCpy);
-  //       }
-
-  //       for (auto p : falsePaths) {
-  //         auto pCpy = p;
-  //         pCpy.push_back(falseCond);
-  //         allPaths.push_back(pCpy);
-  //       }
-
-  //       return allPaths;
-        
-  //     }
-      
-  //   }
-
-  //   assert(false);
-
-  // }
 
   STG buildSTG(Schedule& sched,
                BasicBlock* entryBlock,

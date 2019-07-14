@@ -3162,25 +3162,36 @@ namespace ahaHLS {
     Function* f = mkFunc(inputs, "mem_dep_pipe", mod.get());
 
     auto entryBlock = mkBB("entry_block", f);
-    auto exitBlock = mkBB("exit_block", f);        
+    auto exitBlock = mkBB("exit_block", f);
+
+    auto loopBlock = mkBB("loop_block", f);            
 
     ConstantInt* loopBound = mkInt("5", 32);
     ConstantInt* one = mkInt("1", 32);
 
-    IRBuilder<> entryBuilder(entryBlock);    
-    auto bodyF = [f, one](IRBuilder<>& builder, Value* i) {
-      auto ind = builder.CreateSub(i, one);
-      
-      //auto v = loadVal(builder, getArg(f, 0), ind);
-      auto v = loadRAMVal(builder, getArg(f, 0), ind);
-      auto final = builder.CreateAdd(v, one);
-
-      //storeVal(builder, getArg(f, 0), i, final);
-      storeRAMVal(builder, getArg(f, 0), i, final);
-    };
-    auto loopBlock = sivLoop(f, entryBlock, exitBlock, one, loopBound, bodyF);
-
+    IRBuilder<> entryBuilder(entryBlock);
     entryBuilder.CreateBr(loopBlock);
+
+    IRBuilder<> loopBuilder(loopBlock);
+    //auto bodyF = [f, one](IRBuilder<>& builder, Value* i) {
+    auto i = loopBuilder.CreatePHI(intType(32), 2);
+    auto ind = loopBuilder.CreateSub(i, one);
+    auto nextInd = loopBuilder.CreateAdd(i, one);
+      
+    auto v = loadRAMVal(loopBuilder, getArg(f, 0), ind);
+    auto final = loopBuilder.CreateAdd(v, one);
+
+    storeRAMVal(loopBuilder, getArg(f, 0), i, final);
+
+    auto shouldExit = loopBuilder.CreateICmpEQ(nextInd, loopBound);
+    loopBuilder.CreateCondBr(shouldExit, exitBlock, loopBlock);
+
+    i->addIncoming(one, entryBlock);
+    i->addIncoming(nextInd, loopBlock);    
+    // };
+    // auto loopBlock = sivLoop(f, entryBlock, exitBlock, one, loopBound, bodyF);
+
+
 
     IRBuilder<> exitBuilder(exitBlock);
     exitBuilder.CreateRet(nullptr);
@@ -3194,8 +3205,10 @@ namespace ahaHLS {
     addRAMFunctions(getArg(f, 0), hcs, interfaces);
     
     set<BasicBlock*> blocksToPipeline;
-    blocksToPipeline.insert(loopBlock);    
-    Schedule s = scheduleInterface(f, hcs, interfaces, blocksToPipeline);
+    blocksToPipeline.insert(loopBlock);
+
+    ExecutionConstraints exec;
+    Schedule s = scheduleInterface(f, hcs, interfaces, blocksToPipeline, exec);
     STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
