@@ -801,6 +801,10 @@ namespace ahaHLS {
       return instr->getOperand(1);
     }
 
+    if (matchesCall("ram.write", instr)) {
+      return instr->getOperand(1);
+    }
+
     assert(false);
   }
 
@@ -809,23 +813,30 @@ namespace ahaHLS {
       return load->getOperand(0);
     }
 
+    if (matchesCall("ram.read", load)) {
+      return load->getOperand(1);
+    }
+    
     assert(false);
   }
   
-  int rawMemoryDD(StoreInst* const maybeWriter,
-                  LoadInst* const maybeReader,
+  int rawMemoryDD(Instruction* const maybeWriter,
+                  Instruction* const maybeReader,
                   AliasAnalysis& aliasAnalysis,
                   ScalarEvolution& scalarEvolution) {
 
+    cout << "Getting dd from " << valueString(maybeWriter) << " to " << valueString(maybeReader) << endl;
     //Value* storeLoc = maybeWriter->getOperand(1);
     //Value* loadLoc = maybeReader->getOperand(0);    
 
     Value* storeLoc = storeAddr(maybeWriter);
     Value* loadLoc = loadAddr(maybeReader);
-              
-    AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
-    if (aliasRes == NoAlias) {
-      return -1;
+
+    if (StoreInst::classof(maybeWriter) && LoadInst::classof(maybeReader)) {
+      AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
+      if (aliasRes == NoAlias) {
+        return -1;
+      }
     }
 
     bool lexicallyForward = appearsBefore(maybeWriter, maybeReader);
@@ -1039,16 +1050,6 @@ namespace ahaHLS {
             exe.addConstraint(instrEnd(iptr) <= instrStart(userInstr));
           }
         }
-
-        // Instructions must finish before their basic block terminator,
-        // this is not true anymore in pipelining
-        // if (iptr != term) {
-        //   exe.addConstraint(instrEnd(iptr) <= instrStart(term));
-        // }
-
-        // if (iptr != term) {
-        //   exe.add(instrEnd(iptr) <= end(&bb));
-        // }
 
       }
     }
@@ -1507,10 +1508,10 @@ namespace ahaHLS {
       return true;
     }
 
-    cout << "No raw dep between " << valueString(before) << " and " << valueString(after) << endl;
+    //cout << "No raw dep between " << valueString(before) << " and " << valueString(after) << endl;
 
     if (isRAMStore(before) && isRAMLoad(after)) {
-      assert(false);
+      return true;
     }
     return false;
   }
@@ -1522,7 +1523,17 @@ namespace ahaHLS {
                           AAResults& aliasAnalysis,
                           ScalarEvolution& sc) {
 
+    cout << "Adding mem constraints for " << endl;
+    cout << valueString(f) << endl;
+    
     auto& toPipeline = exe.toPipeline;
+    cout << "# of pipelines = " << toPipeline.size() << endl;
+    for (auto p : toPipeline) {
+      cout << tab(1) << "--- Pipeline" << endl;
+      for (auto blk : p.blks) {
+        cout << tab(1) << valueString(blk) << endl;
+      }
+    }
     
     // Instructions must finish before their dependencies
     for (auto& bb : f->getBasicBlockList()) {
@@ -1678,6 +1689,8 @@ namespace ahaHLS {
     cout << "Checking memory constraints in pipelines" << endl;
     DominatorTree domTree(*f);
     for (auto& bb : f->getBasicBlockList()) {
+      cout << "Checking block" << endl;
+      cout << valueString(&bb) << endl;
       if (inAnyPipeline(&bb, toPipeline)) {
 
         cout << "Found basic block in pipeline" << endl;
@@ -1686,16 +1699,6 @@ namespace ahaHLS {
         for (Instruction& instrA : bb) {
           for (Instruction& instrB : bb) {
 
-            // Q: How do I translate port names in C++ hazard descriptions
-            // in to port values in the real hazard?
-
-            // Once the system detects a possible hazard pair, what should it do?
-            // 1. Extract the hazard condition expression
-            // 2. Compile it to Z3
-            // 3. If DD >= 0 then:
-            // 4. Compile the hazard timing restriction to LinearExpr
-            // 5. Add timing_restriction + DD*II_var to execution constraints
-            
             maybe<HazardSpec> hm = findHazard(&instrA, &instrB, hdc);
             if (hm.has_value()) {
               HazardSpec h = hm.get_value();
@@ -1718,13 +1721,19 @@ namespace ahaHLS {
               exe.add(ddC);
             }
 
-            // if (StoreInst::classof(&instrA) &&
-            //     LoadInst::classof(&instrB)) {
             if (couldHaveRAWDep(&instrA, &instrB)) {
-              int memRawDD = rawMemoryDD(dyn_cast<StoreInst>(&instrA),
-                                         dyn_cast<LoadInst>(&instrB),
+              // int memRawDD = rawMemoryDD(dyn_cast<StoreInst>(&instrA),
+              //                            dyn_cast<LoadInst>(&instrB),
+              //                            aliasAnalysis,
+              //                            sc);
+
+              int memRawDD = rawMemoryDD(&instrA,
+                                         &instrB,
                                          aliasAnalysis,
                                          sc);
+
+              cout << "raw DD between " << valueString(&instrA) << " and " << valueString(&instrB) << " = " << memRawDD << endl;
+              
               if (memRawDD > 0) {
 
                 Ordered* ddC = instrEnd(&instrA) < instrStart(&instrB);

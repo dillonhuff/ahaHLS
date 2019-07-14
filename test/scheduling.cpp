@@ -3208,6 +3208,8 @@ namespace ahaHLS {
     blocksToPipeline.insert(loopBlock);
 
     ExecutionConstraints exec;
+    exec.toPipeline = {{true, {loopBlock}}};
+    createMemoryConstraints(f, hcs, exec);
     Schedule s = scheduleInterface(f, hcs, interfaces, blocksToPipeline, exec);
     STG graph = buildSTG(s, f);
 
@@ -3215,7 +3217,7 @@ namespace ahaHLS {
     graph.print(cout);
 
     REQUIRE(graph.pipelines.size() == 1);
-    REQUIRE(graph.pipelines[0].II() == 2);
+    REQUIRE(graph.pipelines[0].II() > 1);
     
     map<string, int> testLayout = {{"arg_0", 0}};
     //map<llvm::Value*, int> layout = {{getArg(f, 0), 0}};
