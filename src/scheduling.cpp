@@ -807,13 +807,32 @@ namespace ahaHLS {
     }
   }
 
+  Value* storeAddr(Instruction* const instr) {
+    if (StoreInst::classof(instr)) {
+      return instr->getOperand(1);
+    }
+
+    assert(false);
+  }
+
+  Value* loadAddr(Instruction* const load) {
+    if (LoadInst::classof(load)) {
+      return load->getOperand(0);
+    }
+
+    assert(false);
+  }
+  
   int rawMemoryDD(StoreInst* const maybeWriter,
                   LoadInst* const maybeReader,
                   AliasAnalysis& aliasAnalysis,
                   ScalarEvolution& scalarEvolution) {
 
-    Value* storeLoc = maybeWriter->getOperand(1);
-    Value* loadLoc = maybeReader->getOperand(0);
+    //Value* storeLoc = maybeWriter->getOperand(1);
+    //Value* loadLoc = maybeReader->getOperand(0);    
+
+    Value* storeLoc = storeAddr(maybeWriter);
+    Value* loadLoc = loadAddr(maybeReader);
               
     AliasResult aliasRes = aliasAnalysis.alias(storeLoc, loadLoc);
     if (aliasRes == NoAlias) {
@@ -1536,11 +1555,24 @@ namespace ahaHLS {
     return instrEnd(a) <= instrStart(b);
   }
 
+  bool isRAMStore(Instruction* before) {
+    return matchesCall("ram.write", before);
+  }
+
+  bool isRAMLoad(Instruction* before) {
+    return matchesCall("ram.read", before);    
+  }
+  
   bool couldHaveRAWDep(Instruction* before, Instruction* after) {
     if (StoreInst::classof(before) && LoadInst::classof(after)) {
       return true;
     }
 
+    cout << "No raw dep between " << valueString(before) << " and " << valueString(after) << endl;
+
+    if (isRAMStore(before) && isRAMLoad(after)) {
+      assert(false);
+    }
     return false;
   }
   
