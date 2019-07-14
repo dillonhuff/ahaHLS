@@ -1536,7 +1536,6 @@ namespace ahaHLS {
   };
 
   pair<string, int> extractDefault(Statement* stmt);
-  void sanityCheck(llvm::Function* f);
   
   class SynthCppModule {
 

@@ -380,4 +380,6 @@ namespace ahaHLS {
                            const int width,
                            llvm::Type* argType);
 
+  void sanityCheck(llvm::Function* f);
+
 }

@@ -2438,21 +2438,6 @@ namespace ahaHLS {
   // is to allow the HLS tool itself to determine a mapping from abstract data
   // objects on to storage. Perhaps the idea of a "store" which can receive
   // input data is essential as a builtin in order to express this concept?
-
-  // Maybe *conditioned* wire reads and writes are the basic abstraction, where
-  // the conditions are outputs of the control path? and writes can also
-  // be to inputs of the control path?
-
-  // Currently the scheduler only knows about task parallelism, but perhaps in
-  // order to do pipelining and task splitting correctly the scheduler also
-  // needs to know about storage elements like FIFOs and RAMs? Or at least
-  // it needs to know something about what is being produced by functional units?
-
-  // Is it the same to say "this output wire needs to be connected to this input
-  // wire at this time" and "this output value needs to get to this input wire
-  // eventually?" ?? Can difference logic schedulers convey this distinction
-  // or is it implicit in the FSM construcion done after the finite state machine
-  // is created?
   void inlineFunctionWithConstraints(Function* const f,
                                      ExecutionConstraints& exec,
                                      CallInst* const toInline,

@@ -3044,7 +3044,7 @@ namespace ahaHLS {
     hcs.setCount(MUL_OP, 1);
     InterfaceFunctions interfaces;    
     addRAMFunctions(getArg(f, 0), hcs, interfaces);
-    addRAMFunctions(getArg(f, 1), hcs, interfaces);    
+    //addRAMFunctions(getArg(f, 1), hcs, interfaces);    
 
     set<BasicBlock*> blocksToPipeline;
     blocksToPipeline.insert(loopBlock);    
@@ -3076,7 +3076,7 @@ namespace ahaHLS {
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
-    printAllInstructions(arch, info);
+    //printAllInstructions(arch, info);
 
     emitVerilog(arch, info);
 
