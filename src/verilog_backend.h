@@ -213,6 +213,9 @@ namespace ahaHLS {
                          MicroArchitecture& arch,
                          VerilogDebugInfo& debugInfo);
 
+  void printAllInstructions(MicroArchitecture& arch,
+                            VerilogDebugInfo& debugInfo);
+  
   void printActiveBlocks(MicroArchitecture& arch, VerilogDebugInfo& info);
   
   void addDisplay(const std::string& cond,
