@@ -2317,8 +2317,7 @@ namespace ahaHLS {
 
     auto mod = llvm::make_unique<Module>("simple LLVM 1D stencil", context);
     setGlobalLLVMModule(mod.get());
-    // std::vector<Type *> inputs{intType(32)->getPointerTo(),
-    //     intType(32)->getPointerTo()};
+
     std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
         sramType(32, 16)->getPointerTo()};
     Function* srUser = mkFunc(inputs, "one_d_stencil", mod.get());
@@ -2430,8 +2429,6 @@ namespace ahaHLS {
     auto mod = llvm::make_unique<Module>("program that uses a register", context);
     setGlobalLLVMModule(mod.get());
 
-    // std::vector<Type *> inputs{intType(32)->getPointerTo(),
-    //     intType(32)->getPointerTo()};
     std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
         sramType(32, 16)->getPointerTo()};
     Function* srUser = mkFunc(inputs, "one_register", mod.get());
@@ -3004,8 +3001,13 @@ namespace ahaHLS {
 
     auto mod = llvm::make_unique<Module>("pipeline with temp storage", context);
     setGlobalLLVMModule(mod.get());
-    std::vector<Type *> inputs{intType(32)->getPointerTo(),
-        intType(32)->getPointerTo()};
+
+    // std::vector<Type *> inputs{intType(32)->getPointerTo(),
+    //     intType(32)->getPointerTo()};
+
+    std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
+        sramType(32, 16)->getPointerTo()};
+
     Function* f = mkFunc(inputs, "temp_storage_pipe", mod.get());
 
     auto entryBlock = mkBB("entry_block", f);
@@ -3015,14 +3017,17 @@ namespace ahaHLS {
     ConstantInt* zero = mkInt("0", 32);
 
     auto bodyF = [f](IRBuilder<>& builder, Value* i) {
-      auto v = loadVal(builder, getArg(f, 0), i);
+      //auto v = loadVal(builder, getArg(f, 0), i);
+      auto v = loadRAMVal(builder, getArg(f, 0), i);
       auto three = mkInt("3", 32);
       auto seven = mkInt("7", 32);      
 
       auto z = builder.CreateMul(v, three);
       auto r = builder.CreateMul(v, seven);
       auto c = builder.CreateAdd(z, r);
-      storeVal(builder, getArg(f, 1), i, c);
+
+      //storeVal(builder, getArg(f, 1), i, c);
+      storeRAMVal(builder, getArg(f, 1), i, c);
     };
     auto loopBlock = sivLoop(f, entryBlock, exitBlock, zero, loopBound, bodyF);
 
@@ -3037,10 +3042,19 @@ namespace ahaHLS {
 
     HardwareConstraints hcs = standardConstraints();
     hcs.setCount(MUL_OP, 1);
+    InterfaceFunctions interfaces;    
+    addRAMFunctions(getArg(f, 0), hcs, interfaces);
+    addRAMFunctions(getArg(f, 1), hcs, interfaces);    
 
     set<BasicBlock*> blocksToPipeline;
     blocksToPipeline.insert(loopBlock);    
-    Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
+
+    ExecutionConstraints exec;
+    exec.toPipeline = {{true, {loopBlock}}};
+    createMemoryConstraints(f, hcs, exec);
+
+    //Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
+    Schedule s = scheduleInterface(f, hcs, interfaces, blocksToPipeline, exec);
 
     REQUIRE(s.pipelineSchedules.size() == 1);
     REQUIRE(begin(s.pipelineSchedules)->second == 2);
@@ -3053,9 +3067,12 @@ namespace ahaHLS {
     REQUIRE(graph.pipelines.size() == 1);
     REQUIRE(graph.pipelines[0].II() == 2);
 
-    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 15}};
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 15}};
-    auto arch = buildMicroArchitecture(graph, layout);
+    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 0}};
+    //map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 15}};
+    //map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 15}};
+    map<llvm::Value*, int> layout;
+    //auto arch = buildMicroArchitecture(graph, layout);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -3067,11 +3084,17 @@ namespace ahaHLS {
     map<string, vector<int> > memoryExpected{{"arg_1", {6*3 + 6*7, 4*3 + 4*7, 5*3 + 5*7, 2*3 + 2*7, 1*3 + 1*7}}};
 
     TestBenchSpec tb;
-    tb.memoryInit = memoryInit;
-    tb.memoryExpected = memoryExpected;
-    tb.runCycles = 30;
+    // tb.memoryInit = memoryInit;
+    // tb.memoryExpected = memoryExpected;
+    // tb.runCycles = 30;
     tb.maxCycles = 42;
+    tb.useModSpecs = true;
     tb.name = "temp_storage_pipe";
+
+    resetOnCycle(1, tb);
+    setRAM(tb, 0, "arg_0", memoryInit, testLayout);
+    checkRAM(tb, 30, "arg_1", memoryExpected, testLayout);
+    
     emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("temp_storage_pipe"));
@@ -3335,133 +3358,6 @@ namespace ahaHLS {
     emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("mem_dep_pipe_long"));
-  }
-
-  TEST_CASE("1 x 2 systolic array") {
-    LLVMContext context;
-    setGlobalLLVMContext(&context);
-
-    auto mod = llvm::make_unique<Module>("1 x 2 systolic array", context);
-    setGlobalLLVMModule(mod.get());
-
-    int width = 32;
-    std::vector<Type *> inputs{intType(32)->getPointerTo(),
-        intType(32)->getPointerTo(),
-        intType(32)->getPointerTo(),
-        intType(32)->getPointerTo()};
-    Function* f = mkFunc(inputs, "sys_array_1_2", mod.get());
-
-    auto entryBlock = mkBB("entry_block", f);
-    IRBuilder<> entryBuilder(entryBlock);
-
-    auto aRow0 = getArg(f, 0);
-
-    auto bCol0 = getArg(f, 1);
-    auto bCol1 = getArg(f, 2);
-
-    auto cRow0 = getArg(f, 3);
-
-    vector<Value*> rightRegisters;
-    for (int i = 0; i < 1; i++) {
-      auto reg =
-        entryBuilder.CreateAlloca(intType(width), nullptr, "right_" + to_string(i));
-      storeReg(entryBuilder, reg, mkInt(0, 32));
-      rightRegisters.push_back(reg);
-    }
-
-    vector<Value*> accumRegisters;
-    for (int i = 0; i < 2; i++) {
-      auto reg =
-        entryBuilder.CreateAlloca(intType(width), nullptr, "accum_" + to_string(i));
-      storeReg(entryBuilder, reg, mkInt(0, 32));
-      accumRegisters.push_back(reg);
-    }
-
-    for (int i = 0; i < 3; i++) {
-      cout << "i = " << i << endl;
-
-      auto ind = mkInt(i, 32);
-
-      auto iStr = to_string(i);
-      auto aRow0V = loadVal(entryBuilder, aRow0, ind, "aRow0_" + iStr);
-      auto left0 = loadVal(entryBuilder, rightRegisters[0], mkInt(0, 32), "left0_" + iStr);
-      auto bCol0V = loadVal(entryBuilder, bCol0, ind, "bCol0_" + iStr);
-      auto bCol1V = loadVal(entryBuilder, bCol1, ind, "bCol1_" + iStr);
-
-      cout << "Storing computed values" << endl;
-      
-      // Store to new down / left registers
-      auto newAccum0 =
-        entryBuilder.CreateAdd(loadReg(entryBuilder, accumRegisters[0]),
-                               entryBuilder.CreateMul(aRow0V, bCol0V));
-
-      auto newAccum1 =
-        entryBuilder.CreateAdd(loadReg(entryBuilder, accumRegisters[1]),
-                               entryBuilder.CreateMul(left0, bCol1V));
-
-      cout << "Storing regs" << endl;
-
-      storeReg(entryBuilder, accumRegisters[0], newAccum0);
-      storeReg(entryBuilder, accumRegisters[1], newAccum1);
-
-      // Transfer left to right
-      storeReg(entryBuilder, rightRegisters[0], aRow0V);
-
-    }
-
-    // Store out final results
-    storeVal(entryBuilder, cRow0, mkInt(0, 32), loadReg(entryBuilder, accumRegisters[0]));
-    storeVal(entryBuilder, cRow0, mkInt(1, 32), loadReg(entryBuilder, accumRegisters[1]));
-
-    entryBuilder.CreateRet(nullptr);
-
-    cout << "LLVM Function" << endl;
-    cout << valueString(f) << endl;
-
-    HardwareConstraints hcs = standardConstraints();
-    // TODO: Do this by default
-    hcs.memoryMapping = memoryOpLocations(f);
-
-    setAllAllocaMemTypes(hcs, f, registerSpec(32));
-
-    hcs.setCount(MUL_OP, 2);
-
-    Schedule s = scheduleFunction(f, hcs);
-    STG graph = buildSTG(s, f);
-
-    cout << "STG Is" << endl;
-    graph.print(cout);
-
-    // TODO: Build layout and test layout from one data structure so they must
-    // match
-    // TODO: Pass hardware constraints through the whole flow
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0},
-                                     {getArg(f, 1), 3},
-                                     {getArg(f, 2), 6},
-                                     {getArg(f, 3), 10}};
-    // ArchOptions options;
-    auto arch = buildMicroArchitecture(graph, layout, hcs);
-
-    VerilogDebugInfo info;
-    addNoXChecks(arch, info);
-
-    emitVerilog(arch, info);
-
-    // Create testing infrastructure
-    map<string, int> testLayout =
-      {{"aRow0", 0}, {"bCol0", 3}, {"bCol1", 6}, {"cRow0", 10}};
-    map<string, vector<int> > memoryInit{{"aRow0", {1, 2, 0}}, {"bCol0", {4, 6, 0}}, {"bCol1", {0, 5, 7}}};
-    map<string, vector<int> > memoryExpected{{"cRow0", {16, 19}}};
-    
-    TestBenchSpec tb;
-    tb.memoryInit = memoryInit;
-    tb.memoryExpected = memoryExpected;
-    tb.runCycles = 20;
-    tb.maxCycles = 41;
-    tb.name = "sys_array_1_2";
-    emitVerilogTestBench(tb, arch, testLayout);
-
-    //REQUIRE(runIVerilogTB("sys_array_1_2"));
   }
 
   TEST_CASE("Builtin FIFO as argument to function") {
@@ -6636,80 +6532,4 @@ namespace ahaHLS {
     
   }
   
-  // TEST_CASE("Cascade from Halide") {
-  //   SMDiagnostic Err;
-  //   LLVMContext Context;
-  //   setGlobalLLVMContext(&Context);
-    
-  //   std::unique_ptr<Module> Mod = loadLLFile(Context, Err, "halide_cascade");
-  //   setGlobalLLVMModule(Mod.get());
-
-  //   Function* f = getFunctionByDemangledName(Mod.get(), "vhls_target");
-
-  //   // cout << "llvm function" << endl;
-  //   // cout << valueString(f) << endl;
-
-  //   deleteLLVMLifetimeCalls(f);
-
-  //   // cout << "After lifetime deletes" << endl;
-  //   // cout << valueString(f) << endl;
-
-  //   InterfaceFunctions interfaces;
-  //   HardwareConstraints hcs = standardConstraints();
-  //   populateHalideStencils(f, interfaces, hcs);
-
-  //   ExecutionConstraints exec;
-  //   //sequentialCalls(f, exec);
-
-  //   TestBenchSpec tb;
-  //   map<string, int> testLayout = {};
-  //   tb.memoryInit = {};
-  //   tb.memoryExpected = {};
-  //   tb.runCycles = 6000;
-  //   tb.maxCycles = 7000;
-  //   tb.name = "halide_cascade";
-  //   tb.useModSpecs = true;
-  //   map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));    
-  //   map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
-  //   map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));    
-    
-  //   SECTION("No task parallelism or pipelining") {
-  //     set<BasicBlock*> toPipeline;
-  //     Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
-  //     STG graph = buildSTG(s, f);
-    
-  //     cout << "STG Is" << endl;
-  //     graph.print(cout);
-
-  //     map<llvm::Value*, int> layout = {};
-  //     auto arch = buildMicroArchitecture(graph, layout, hcs);
-
-  //     VerilogDebugInfo info;
-  //     addNoXChecks(arch, info);
-
-  //     checkSignal(tb,
-  //                 "valid",
-  //                 {{3, 0}, {10, 0}, {15, 0}, {600, 0}, {5000, 1}});
-
-  //     // Later
-  //     // checkSignal(tb,
-  //     //             "arg_1_read_ready",
-  //     //             {{3, 0}, {10, 0}, {15, 0}, {17, 0}, {25, 0}, {37, 0}, {43, 0}, {47, 0}, {50, 1}, {100, 1}, {103, 1}, {106, 1}, {112, 1}, {125, 1}, {150, 1}, {200, 1}});
-      
-  //     emitVerilog("halide_cascade", arch, info);
-
-  //     int numIns = 16*16;
-  //     int writeTime = 3;
-  //     vector<pair<int, int> > fifoIns;
-  //     for (int i = 0; i < numIns; i++) {
-  //       fifoIns.push_back({writeTime, i});
-  //       writeTime += 2;
-  //     }
-  //     // CS
-  //     setRVChannel(tb, "arg_0", fifoIns);
-  //     emitVerilogTestBench(tb, arch, testLayout);
-
-  //     //REQUIRE(runIVerilogTB("halide_cascade"));
-  //   }
-  // }  
 }
