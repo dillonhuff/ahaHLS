@@ -2661,7 +2661,7 @@ namespace ahaHLS {
     
     resetOnCycle(1, tb);
     setRAM(tb, 0, "arg_0", memoryInit, testLayout);
-    checkRAM(tb, 20, "arg_0", memoryExpected, testLayout);
+    checkRAM(tb, 20, "arg_1", memoryExpected, testLayout);
 
     emitVerilogTestBench(tb, arch, testLayout);
 
@@ -2674,8 +2674,12 @@ namespace ahaHLS {
 
     auto mod = llvm::make_unique<Module>("BB diamond", context);
     setGlobalLLVMModule(mod.get());
-    std::vector<Type *> inputs{intType(32)->getPointerTo(),
-        intType(32)->getPointerTo()};
+    // std::vector<Type *> inputs{intType(32)->getPointerTo(),
+    //     intType(32)->getPointerTo()};
+
+    std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
+        sramType(32, 16)->getPointerTo()};
+
     Function* f = mkFunc(inputs, "bb_diamond", mod.get());
 
     auto entryBlock = mkBB("entry_block", f);
@@ -2687,8 +2691,12 @@ namespace ahaHLS {
     ConstantInt* one = mkInt("1", 32);    
 
     IRBuilder<> builder(entryBlock);
-    auto condVal = builder.CreateTrunc(loadVal(builder, getArg(f, 0), zero),
+    // auto condVal = builder.CreateTrunc(loadVal(builder, getArg(f, 0), zero),
+    //                                    intType(1));
+
+    auto condVal = builder.CreateTrunc(loadRAMVal(builder, getArg(f, 0), zero),
                                        intType(1));
+
     builder.CreateCondBr(condVal, tBlock, fBlock);
 
     IRBuilder<> fBuilder(fBlock);
@@ -2703,10 +2711,15 @@ namespace ahaHLS {
     valPhi->addIncoming(one, tBlock);
     valPhi->addIncoming(zero, fBlock);
 
-    storeVal(exitBuilder,
-             getArg(f, 1),
-             zero,
-             valPhi);
+    storeRAMVal(exitBuilder,
+                getArg(f, 1),
+                zero,
+                valPhi);
+    
+    // storeVal(exitBuilder,
+    //          getArg(f, 1),
+    //          zero,
+    //          valPhi);
     
     exitBuilder.CreateRet(nullptr);
 
@@ -2714,16 +2727,26 @@ namespace ahaHLS {
     cout << valueString(f) << endl;
 
     HardwareConstraints hcs = standardConstraints();
-    Schedule s = scheduleFunction(f, hcs);
+    hcs.memoryMapping = memoryOpLocations(f);
+    InterfaceFunctions interfaces;    
+    addRAMFunctions(getArg(f, 0), hcs, interfaces);
+    
+    //Schedule s = scheduleFunction(f, hcs);
+    set<BasicBlock*> blocksToPipeline;    
+    Schedule s =
+      scheduleInterface(f, hcs, interfaces, blocksToPipeline);
+    
 
     STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
+    //map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
+    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 0}};    
+    map<string, int> layout;
 
-    auto arch = buildMicroArchitecture(graph, layout);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -2740,7 +2763,13 @@ namespace ahaHLS {
       tb.memoryExpected = memoryExpected;
       tb.runCycles = 30;
       tb.name = "bb_diamond";
-      emitVerilogTestBench(tb, arch, layout);
+      tb.useModSpecs = true;
+
+      resetOnCycle(1, tb);
+      setRAM(tb, 0, "arg_0", memoryInit, testLayout);
+      checkRAM(tb, 20, "arg_1", memoryExpected, testLayout);
+      
+      emitVerilogTestBench(tb, arch, testLayout);
 
       REQUIRE(runIVerilogTB("bb_diamond"));
     }
@@ -2754,8 +2783,14 @@ namespace ahaHLS {
       tb.memoryExpected = memoryExpected;
       tb.runCycles = 30;
       tb.name = "bb_diamond";
+      tb.useModSpecs = true;
+      
       emitVerilogTestBench(tb, arch, layout);
 
+      resetOnCycle(1, tb);
+      setRAM(tb, 0, "arg_0", memoryInit, testLayout);
+      checkRAM(tb, 20, "arg_1", memoryExpected, testLayout);
+      
       REQUIRE(runIVerilogTB("bb_diamond"));
     }
 
