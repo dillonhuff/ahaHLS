@@ -3107,8 +3107,12 @@ namespace ahaHLS {
 
     auto mod = llvm::make_unique<Module>("pipeline with external read", context);
     setGlobalLLVMModule(mod.get());
-    std::vector<Type *> inputs{intType(32)->getPointerTo(),
-        intType(32)->getPointerTo()};
+    // std::vector<Type *> inputs{intType(32)->getPointerTo(),
+    //     intType(32)->getPointerTo()};
+
+    std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
+        sramType(32, 16)->getPointerTo()};
+
     Function* f = mkFunc(inputs, "outer_read_pipe", mod.get());
 
     auto entryBlock = mkBB("entry_block", f);
@@ -3118,9 +3122,12 @@ namespace ahaHLS {
     ConstantInt* zero = mkInt("0", 32);
 
     IRBuilder<> entryBuilder(entryBlock);    
-    auto q = loadVal(entryBuilder, getArg(f, 0), zero);
+    //auto q = loadVal(entryBuilder, getArg(f, 0), zero);
+
+    auto q = loadRAMVal(entryBuilder, getArg(f, 0), zero);
     auto bodyF = [f, q](IRBuilder<>& builder, Value* i) {
-      auto v = loadVal(builder, getArg(f, 0), i);
+      //auto v = loadVal(builder, getArg(f, 0), i);
+      auto v = loadRAMVal(builder, getArg(f, 0), i);
       auto three = mkInt("3", 32);
       auto seven = mkInt("7", 32);      
 
@@ -3128,7 +3135,8 @@ namespace ahaHLS {
       auto r = builder.CreateMul(v, seven);
       auto c = builder.CreateAdd(z, r);
       auto final = builder.CreateAdd(c, q);
-      storeVal(builder, getArg(f, 1), i, final);
+      //storeVal(builder, getArg(f, 1), i, final);
+      storeRAMVal(builder, getArg(f, 1), i, final);
     };
     auto loopBlock = sivLoop(f, entryBlock, exitBlock, zero, loopBound, bodyF);
 
@@ -3142,18 +3150,31 @@ namespace ahaHLS {
 
     HardwareConstraints hcs = standardConstraints();
     hcs.setCount(MUL_OP, 1);
+    InterfaceFunctions interfaces;    
+    addRAMFunctions(getArg(f, 0), hcs, interfaces);
 
     set<BasicBlock*> blocksToPipeline;
     blocksToPipeline.insert(loopBlock);    
-    Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
+
+    ExecutionConstraints exec;
+    exec.toPipeline = {{true, {loopBlock}}};
+    createMemoryConstraints(f, hcs, exec);
+
+    //Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
+    Schedule s = scheduleInterface(f, hcs, interfaces, blocksToPipeline, exec);
+    
     STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 15}};
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 15}};
-    auto arch = buildMicroArchitecture(graph, layout);
+    //map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 15}};
+    //map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 15}};
+
+    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 0}};
+    map<llvm::Value*, int> layout;
+    //auto arch = buildMicroArchitecture(graph, layout);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -3165,11 +3186,17 @@ namespace ahaHLS {
     map<string, vector<int> > memoryExpected{{"arg_1", {6*3 + 6*7 + 6, 4*3 + 4*7 + 6, 5*3 + 5*7 + 6, 2*3 + 2*7 + 6, 1*3 + 1*7 + 6}}};
 
     TestBenchSpec tb;
-    tb.memoryInit = memoryInit;
-    tb.memoryExpected = memoryExpected;
-    tb.runCycles = 30;
+    // tb.memoryInit = memoryInit;
+    // tb.memoryExpected = memoryExpected;
+    // tb.runCycles = 30;
     tb.maxCycles = 42;
     tb.name = "outer_read_pipe";
+    tb.useModSpecs = true;
+
+    resetOnCycle(1, tb);
+    setRAM(tb, 0, "arg_0", memoryInit, testLayout);
+    checkRAM(tb, 30, "arg_1", memoryExpected, testLayout);
+    
     emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("outer_read_pipe"));
