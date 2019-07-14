@@ -3844,8 +3844,12 @@ namespace ahaHLS {
     auto mod = llvm::make_unique<Module>("BB diamond 4", context);
     setGlobalLLVMModule(mod.get());
     
-    std::vector<Type *> inputs{intType(width)->getPointerTo(),
-        intType(width)->getPointerTo()};
+    // std::vector<Type *> inputs{intType(width)->getPointerTo(),
+    //     intType(width)->getPointerTo()};
+
+    std::vector<Type *> inputs{sramType(width, 16)->getPointerTo(),
+        sramType(width, 16)->getPointerTo()};
+
     Function* f = mkFunc(inputs, "bb_diamond_4", mod.get());
 
     auto entryBlock = mkBB("entry_block", f);
@@ -3866,7 +3870,8 @@ namespace ahaHLS {
     ConstantInt* three = mkInt("3", width);    
 
     IRBuilder<> builder(entryBlock);
-    auto condVal = loadVal(builder, getArg(f, 0), zero);
+    //auto condVal = loadVal(builder, getArg(f, 0), zero);
+    auto condVal = loadRAMVal(builder, getArg(f, 0), zero);
     auto lt2 = builder.CreateICmpULT(condVal, two);
     auto lt1 = builder.CreateICmpULT(condVal, one);
     auto lt3 = builder.CreateICmpULT(condVal, three);
@@ -3897,10 +3902,15 @@ namespace ahaHLS {
     valPhi->addIncoming(one, tfBlock);
     valPhi->addIncoming(zero, ttBlock);    
     
-    storeVal(exitBuilder,
+    storeRAMVal(exitBuilder,
              getArg(f, 1),
              zero,
              valPhi);
+
+    // storeVal(exitBuilder,
+    //          getArg(f, 1),
+    //          zero,
+    //          valPhi);
     
     exitBuilder.CreateRet(nullptr);
 
@@ -3908,16 +3918,26 @@ namespace ahaHLS {
     cout << valueString(f) << endl;
 
     HardwareConstraints hcs = standardConstraints();
-    Schedule s = scheduleFunction(f, hcs);
+    hcs.memoryMapping = memoryOpLocations(f);
+    InterfaceFunctions interfaces;    
+    addRAMFunctions(getArg(f, 0), hcs, interfaces);
 
+    //Schedule s = scheduleFunction(f, hcs);
+
+    set<BasicBlock*> blocksToPipeline;    
+    Schedule s =
+      scheduleInterface(f, hcs, interfaces, blocksToPipeline);
+    
     STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
     graph.print(cout);
 
-    map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
+    //map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
+    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 0}};
+    map<llvm::Value*, int> layout;
 
-    auto arch = buildMicroArchitecture(graph, layout);
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
@@ -3934,7 +3954,13 @@ namespace ahaHLS {
       tb.memoryExpected = memoryExpected;
       tb.runCycles = 30;
       tb.name = "bb_diamond_4";
-      emitVerilogTestBench(tb, arch, layout);
+      tb.useModSpecs = true;
+
+      resetOnCycle(1, tb);
+      setRAM(tb, 0, "arg_0", memoryInit, testLayout);
+      checkRAM(tb, 20, "arg_1", memoryExpected, testLayout);
+      
+      emitVerilogTestBench(tb, arch, testLayout);
 
       REQUIRE(runIVerilogTB("bb_diamond_4"));
     }
@@ -3948,7 +3974,13 @@ namespace ahaHLS {
       tb.memoryExpected = memoryExpected;
       tb.runCycles = 30;
       tb.name = "bb_diamond_4";
-      emitVerilogTestBench(tb, arch, layout);
+      tb.useModSpecs = true;
+
+      resetOnCycle(1, tb);
+      setRAM(tb, 0, "arg_0", memoryInit, testLayout);
+      checkRAM(tb, 20, "arg_1", memoryExpected, testLayout);
+      
+      emitVerilogTestBench(tb, arch, testLayout);
 
       REQUIRE(runIVerilogTB("bb_diamond_4"));
     }
@@ -3962,7 +3994,13 @@ namespace ahaHLS {
       tb.memoryExpected = memoryExpected;
       tb.runCycles = 30;
       tb.name = "bb_diamond_4";
-      emitVerilogTestBench(tb, arch, layout);
+      tb.useModSpecs = true;
+
+      resetOnCycle(1, tb);
+      setRAM(tb, 0, "arg_0", memoryInit, testLayout);
+      checkRAM(tb, 20, "arg_1", memoryExpected, testLayout);
+      
+      emitVerilogTestBench(tb, arch, testLayout);
 
       REQUIRE(runIVerilogTB("bb_diamond_4"));
     }
@@ -3976,7 +4014,13 @@ namespace ahaHLS {
       tb.memoryExpected = memoryExpected;
       tb.runCycles = 30;
       tb.name = "bb_diamond_4";
-      emitVerilogTestBench(tb, arch, layout);
+      tb.useModSpecs = true;
+
+      resetOnCycle(1, tb);
+      setRAM(tb, 0, "arg_0", memoryInit, testLayout);
+      checkRAM(tb, 20, "arg_1", memoryExpected, testLayout);
+      
+      emitVerilogTestBench(tb, arch, testLayout);
 
       REQUIRE(runIVerilogTB("bb_diamond_4"));
     }
