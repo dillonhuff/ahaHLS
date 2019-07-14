@@ -3076,6 +3076,7 @@ namespace ahaHLS {
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
+    printAllInstructions(arch, info);
 
     emitVerilog(arch, info);
 
@@ -3087,13 +3088,13 @@ namespace ahaHLS {
     // tb.memoryInit = memoryInit;
     // tb.memoryExpected = memoryExpected;
     // tb.runCycles = 30;
-    tb.maxCycles = 42;
+    tb.maxCycles = 50;
     tb.useModSpecs = true;
     tb.name = "temp_storage_pipe";
 
     resetOnCycle(1, tb);
     setRAM(tb, 0, "arg_0", memoryInit, testLayout);
-    checkRAM(tb, 30, "arg_1", memoryExpected, testLayout);
+    checkRAM(tb, 40, "arg_1", memoryExpected, testLayout);
     
     emitVerilogTestBench(tb, arch, testLayout);
 

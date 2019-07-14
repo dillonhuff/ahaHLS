@@ -1527,13 +1527,13 @@ namespace ahaHLS {
     cout << valueString(f) << endl;
     
     auto& toPipeline = exe.toPipeline;
-    cout << "# of pipelines = " << toPipeline.size() << endl;
-    for (auto p : toPipeline) {
-      cout << tab(1) << "--- Pipeline" << endl;
-      for (auto blk : p.blks) {
-        cout << tab(1) << valueString(blk) << endl;
-      }
-    }
+    // cout << "# of pipelines = " << toPipeline.size() << endl;
+    // for (auto p : toPipeline) {
+    //   cout << tab(1) << "--- Pipeline" << endl;
+    //   for (auto blk : p.blks) {
+    //     cout << tab(1) << valueString(blk) << endl;
+    //   }
+    // }
     
     // Instructions must finish before their dependencies
     for (auto& bb : f->getBasicBlockList()) {
@@ -1689,8 +1689,8 @@ namespace ahaHLS {
     cout << "Checking memory constraints in pipelines" << endl;
     DominatorTree domTree(*f);
     for (auto& bb : f->getBasicBlockList()) {
-      cout << "Checking block" << endl;
-      cout << valueString(&bb) << endl;
+      // cout << "Checking block" << endl;
+      // cout << valueString(&bb) << endl;
       if (inAnyPipeline(&bb, toPipeline)) {
 
         cout << "Found basic block in pipeline" << endl;
