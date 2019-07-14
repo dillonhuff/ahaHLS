@@ -2744,7 +2744,7 @@ namespace ahaHLS {
 
     //map<string, int> layout = {{"arg_0", 0}, {"arg_1", 10}};
     map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 0}};    
-    map<string, int> layout;
+    map<llvm::Value*, int> layout;
 
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
@@ -2785,7 +2785,7 @@ namespace ahaHLS {
       tb.name = "bb_diamond";
       tb.useModSpecs = true;
       
-      emitVerilogTestBench(tb, arch, layout);
+      emitVerilogTestBench(tb, arch, testLayout);
 
       resetOnCycle(1, tb);
       setRAM(tb, 0, "arg_0", memoryInit, testLayout);
