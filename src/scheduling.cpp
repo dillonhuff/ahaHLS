@@ -1535,6 +1535,14 @@ namespace ahaHLS {
   Ordered* extractHazardConstraint(Instruction* a, Instruction* b, HazardSpec& hdc) {
     return instrEnd(a) <= instrStart(b);
   }
+
+  bool couldHaveRAWDep(Instruction* before, Instruction* after) {
+    if (StoreInst::classof(before) && LoadInst::classof(after)) {
+      return true;
+    }
+
+    return false;
+  }
   
   void
   createMemoryConstraints(llvm::Function* f,
@@ -1739,8 +1747,9 @@ namespace ahaHLS {
               exe.add(ddC);
             }
 
-            if (StoreInst::classof(&instrA) &&
-                LoadInst::classof(&instrB)) {
+            // if (StoreInst::classof(&instrA) &&
+            //     LoadInst::classof(&instrB)) {
+            if (couldHaveRAWDep(&instrA, &instrB)) {
               int memRawDD = rawMemoryDD(dyn_cast<StoreInst>(&instrA),
                                          dyn_cast<LoadInst>(&instrB),
                                          aliasAnalysis,
