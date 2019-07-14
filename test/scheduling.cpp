@@ -2890,6 +2890,29 @@ namespace ahaHLS {
     REQUIRE(runIVerilogTB("mem_16_test"));
   }
 
+  void resetOnCycle(const int rstCycle, TestBenchSpec& tb) {
+    map_insert(tb.actionsInCycles, rstCycle, string("rst_reg = 1;"));
+    map_insert(tb.actionsInCycles, rstCycle + 1, string("rst_reg = 0;"));
+  }
+
+  void addRAMFunctions(Value* ramArg,
+                       HardwareConstraints& hcs,
+                       InterfaceFunctions& interfaces) {
+
+    hcs.typeSpecs[string("SRAM_32_16")] =
+      [](StructType* tp) { return ramSpec(32, 16); };
+
+    Function* ramRead = ramLoadFunction(ramArg);
+    interfaces.addFunction(ramRead);
+    implementRAMRead0(ramRead,
+                      interfaces.getConstraints(ramRead));
+
+    Function* ramWrite = ramStoreFunction(ramArg);
+    interfaces.addFunction(ramWrite);
+    implementRAMWrite0(ramWrite,
+                       interfaces.getConstraints(ramWrite));
+  }
+  
   // Critical issue: How to add pipelining constraints
   // before scheduling so that the scheduler is aware of II
   // constraints?
@@ -2899,8 +2922,6 @@ namespace ahaHLS {
 
     auto mod = llvm::make_unique<Module>("pipeline with resource constraints", context);
     setGlobalLLVMModule(mod.get());
-    // std::vector<Type *> inputs{intType(32)->getPointerTo(),
-    //     intType(32)->getPointerTo()};
 
     std::vector<Type *> inputs{sramType(32, 16)->getPointerTo()};
     
@@ -2913,11 +2934,9 @@ namespace ahaHLS {
     ConstantInt* zero = mkInt("0", 32);
 
     auto bodyF = [f](IRBuilder<>& builder, Value* i) {
-      //auto v = loadVal(builder, getArg(f, 0), i);
       auto v = loadRAMVal(builder, getArg(f, 0), i);
       auto z = builder.CreateMul(v, v);
       auto r = builder.CreateMul(z, v);
-      //storeVal(builder, getArg(f, 1), i, r);
       storeRAMVal(builder, getArg(f, 0), builder.CreateAdd(i, mkInt(5, 32)), r);
     };
     auto loopBlock = sivLoop(f, entryBlock, exitBlock, zero, loopBound, bodyF);
@@ -2933,23 +2952,12 @@ namespace ahaHLS {
 
     HardwareConstraints hcs = standardConstraints();
     hcs.setCount(MUL_OP, 1);
-
-    hcs.typeSpecs[string("SRAM_32_16")] =
-      [](StructType* tp) { return ramSpec(32, 16); };
-    InterfaceFunctions interfaces;
-    Function* ramRead = ramLoadFunction(getArg(f, 0));
-    interfaces.addFunction(ramRead);
-    implementRAMRead0(ramRead,
-                      interfaces.getConstraints(ramRead));
-
-    Function* ramWrite = ramStoreFunction(getArg(f, 0));
-    interfaces.addFunction(ramWrite);
-    implementRAMWrite0(ramWrite,
-                       interfaces.getConstraints(ramWrite));
+    InterfaceFunctions interfaces;    
+    addRAMFunctions(getArg(f, 0), hcs, interfaces);
     
     set<BasicBlock*> blocksToPipeline;
     blocksToPipeline.insert(loopBlock);
-    Schedule s = //scheduleFunction(f, hcs, blocksToPipeline);
+    Schedule s =
       scheduleInterface(f, hcs, interfaces, blocksToPipeline);
 
     REQUIRE(s.pipelineSchedules.size() == 1);
@@ -2963,8 +2971,7 @@ namespace ahaHLS {
     REQUIRE(graph.pipelines.size() == 1);
     REQUIRE(graph.pipelines[0].II() == 2);
 
-    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 5}};
-    //map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 15}};
+    map<string, int> testLayout = {{"arg_0", 0}}; //, {"arg_1", 5}};
     map<llvm::Value*, int> layout;
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
@@ -2978,15 +2985,14 @@ namespace ahaHLS {
     map<string, vector<int> > memoryExpected{{"arg_0", {6, 4, 5, 2, 1, 6*6*6, 4*4*4, 5*5*5, 2*2*2, 1*1*1}}};
 
     TestBenchSpec tb;
-    tb.memoryInit = memoryInit;
-    tb.memoryExpected = memoryExpected;
-    tb.runCycles = 30;
+    // tb.memoryInit = memoryInit;
+    // tb.memoryExpected = memoryExpected;
+    // tb.runCycles = 30;
     tb.maxCycles = 42;
     tb.useModSpecs = true;
     tb.name = "constrained_pipe";
 
-    map_insert(tb.actionsInCycles, 1, string("rst_reg = 1;"));
-    map_insert(tb.actionsInCycles, 2, string("rst_reg = 0;"));
+    resetOnCycle(1, tb);
 
     setRAM(tb, 0, "arg_0", memoryInit, testLayout);
     checkRAM(tb, 20, "arg_0", memoryExpected, testLayout);
