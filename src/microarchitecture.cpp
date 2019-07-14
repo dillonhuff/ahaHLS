@@ -455,19 +455,19 @@ namespace ahaHLS {
       }
     }
 
-    if (arch.memoryMap.size() > 0) {
-      // Add RAM ports?
-      for (int i = 0; i < 3; i++) {
-        pts.push_back(outputPort(32, "waddr_" + to_string(i)));
-        pts.push_back(outputPort(32, "wdata_" + to_string(i)));
-        pts.push_back(outputPort(1, "wen_" + to_string(i)));                
+    // if (arch.memoryMap.size() > 0) {
+    //   // Add RAM ports?
+    //   for (int i = 0; i < 3; i++) {
+    //     pts.push_back(outputPort(32, "waddr_" + to_string(i)));
+    //     pts.push_back(outputPort(32, "wdata_" + to_string(i)));
+    //     pts.push_back(outputPort(1, "wen_" + to_string(i)));                
 
-        pts.push_back(outputPort(32, "raddr_" + to_string(i)));
-        pts.push_back(inputPort(32, "rdata_" + to_string(i)));
-        pts.push_back(outputPort(1, "ren_" + to_string(i)));                
+    //     pts.push_back(outputPort(32, "raddr_" + to_string(i)));
+    //     pts.push_back(inputPort(32, "rdata_" + to_string(i)));
+    //     pts.push_back(outputPort(1, "ren_" + to_string(i)));                
 
-      }
-    }
+    //   }
+    // }
     
     // Add value parameters to architecture
     for (auto& arg : arch.stg.getFunction()->args()) {
