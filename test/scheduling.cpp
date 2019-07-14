@@ -2903,70 +2903,70 @@ namespace ahaHLS {
 
   }
 
-  TEST_CASE("Using 16 bit external memory instead of 32 bit external memory") {
-    LLVMContext context;
-    setGlobalLLVMContext(&context);
+  // TEST_CASE("Using 16 bit external memory instead of 32 bit external memory") {
+  //   LLVMContext context;
+  //   setGlobalLLVMContext(&context);
     
-    auto mod = llvm::make_unique<Module>("16 bit mem test", context);
-    setGlobalLLVMModule(mod.get());
-    std::vector<Type *> inputs{Type::getInt16Ty(context)->getPointerTo(),
-        Type::getInt16Ty(context)->getPointerTo()};
-    Function *srUser = mkFunc(inputs, voidType(), "mem_16_test");    
+  //   auto mod = llvm::make_unique<Module>("16 bit mem test", context);
+  //   setGlobalLLVMModule(mod.get());
+  //   std::vector<Type *> inputs{Type::getInt16Ty(context)->getPointerTo(),
+  //       Type::getInt16Ty(context)->getPointerTo()};
+  //   Function *srUser = mkFunc(inputs, voidType(), "mem_16_test");    
 
-    int ramWidth = 16;
-    int ramDepth = 8;
+  //   int ramWidth = 16;
+  //   int ramDepth = 8;
     
-    auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
-    ConstantInt* zero = mkInt("0", ramWidth);
-    ConstantInt* five = mkInt("5", ramWidth);
+  //   auto entryBlock = BasicBlock::Create(context, "entry_block", srUser);
+  //   ConstantInt* zero = mkInt("0", ramWidth);
+  //   ConstantInt* five = mkInt("5", ramWidth);
 
-    cout << "five bit width = " << getValueBitWidth(five) << endl;
+  //   cout << "five bit width = " << getValueBitWidth(five) << endl;
 
-    REQUIRE(getValueBitWidth(five) == ramWidth);
+  //   REQUIRE(getValueBitWidth(five) == ramWidth);
     
-    IRBuilder<> builder(entryBlock);
-    auto ldA = loadVal(builder, getArg(srUser, 0), zero);
-    auto plus = builder.CreateAdd(ldA, five);
-    storeVal(builder, getArg(srUser, 1), zero, plus);
-    builder.CreateRet(nullptr);
+  //   IRBuilder<> builder(entryBlock);
+  //   auto ldA = loadVal(builder, getArg(srUser, 0), zero);
+  //   auto plus = builder.CreateAdd(ldA, five);
+  //   storeVal(builder, getArg(srUser, 1), zero, plus);
+  //   builder.CreateRet(nullptr);
 
-    HardwareConstraints hcs = standardConstraints();
-    setMemSpec(getArg(srUser, 0), hcs, ramSpec(1, 3, 2, 1, ramWidth, ramDepth));
-    setMemSpec(getArg(srUser, 1), hcs, ramSpec(1, 3, 2, 1, ramWidth, ramDepth));
+  //   HardwareConstraints hcs = standardConstraints();
+  //   setMemSpec(getArg(srUser, 0), hcs, ramSpec(1, 3, 2, 1, ramWidth, ramDepth));
+  //   setMemSpec(getArg(srUser, 1), hcs, ramSpec(1, 3, 2, 1, ramWidth, ramDepth));
 
-    cout << "LLVM Function" << endl;
-    cout << valueString(srUser) << endl;
+  //   cout << "LLVM Function" << endl;
+  //   cout << valueString(srUser) << endl;
 
-    Schedule s = scheduleFunction(srUser, hcs);
+  //   Schedule s = scheduleFunction(srUser, hcs);
 
-    STG graph = buildSTG(s, srUser);
+  //   STG graph = buildSTG(s, srUser);
 
-    cout << "STG Is" << endl;
-    graph.print(cout);
+  //   cout << "STG Is" << endl;
+  //   graph.print(cout);
 
-    // 3 x 3
-    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 1}};
-    map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 1}};
-    // ArchOptions options;
-    auto arch = buildMicroArchitecture(graph, layout, hcs);
+  //   // 3 x 3
+  //   map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 1}};
+  //   map<llvm::Value*, int> layout = {{getArg(srUser, 0), 0}, {getArg(srUser, 1), 1}};
+  //   // ArchOptions options;
+  //   auto arch = buildMicroArchitecture(graph, layout, hcs);
 
-    VerilogDebugInfo info;
-    addNoXChecks(arch, info);
+  //   VerilogDebugInfo info;
+  //   addNoXChecks(arch, info);
 
-    emitVerilog(arch, info);
+  //   emitVerilog(arch, info);
 
-    map<string, vector<int> > memoryInit{{"arg_0", {(1 << 16) - 1}}};
-    map<string, vector<int> > memoryExpected{{"arg_1", {4}}};
+  //   map<string, vector<int> > memoryInit{{"arg_0", {(1 << 16) - 1}}};
+  //   map<string, vector<int> > memoryExpected{{"arg_1", {4}}};
 
-    TestBenchSpec tb;
-    tb.memoryInit = memoryInit;
-    tb.memoryExpected = memoryExpected;
-    tb.runCycles = 10;
-    tb.name = "mem_16_test";
-    emitVerilogTestBench(tb, arch, testLayout);
+  //   TestBenchSpec tb;
+  //   tb.memoryInit = memoryInit;
+  //   tb.memoryExpected = memoryExpected;
+  //   tb.runCycles = 10;
+  //   tb.name = "mem_16_test";
+  //   emitVerilogTestBench(tb, arch, testLayout);
 
-    REQUIRE(runIVerilogTB("mem_16_test"));
-  }
+  //   REQUIRE(runIVerilogTB("mem_16_test"));
+  // }
 
   // Critical issue: How to add pipelining constraints
   // before scheduling so that the scheduler is aware of II
@@ -4122,52 +4122,52 @@ namespace ahaHLS {
     REQUIRE(runIVerilogTB("fifo_in_loop"));
   }
 
-  TEST_CASE("Reduce loop") {
-    LLVMContext context;
-    SMDiagnostic err;
-    setGlobalLLVMContext(&context);
+  // TEST_CASE("Reduce loop") {
+  //   LLVMContext context;
+  //   SMDiagnostic err;
+  //   setGlobalLLVMContext(&context);
 
-    auto mod = loadModule(context, err, "add_reduce_15");
-    setGlobalLLVMModule(mod.get());
+  //   auto mod = loadModule(context, err, "add_reduce_15");
+  //   setGlobalLLVMModule(mod.get());
     
-    Function* f = mod->getFunction("add_reduce_15");
+  //   Function* f = mod->getFunction("add_reduce_15");
 
-    cout << "LLVM Function" << endl;
-    cout << valueString(f) << endl;
+  //   cout << "LLVM Function" << endl;
+  //   cout << valueString(f) << endl;
 
-    HardwareConstraints hcs = standardConstraints();
-    hcs.setCount(ADD_OP, 1);
+  //   HardwareConstraints hcs = standardConstraints();
+  //   hcs.setCount(ADD_OP, 1);
 
-    set<BasicBlock*> blocksToPipeline;
-    Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
-    STG graph = buildSTG(s, f);
+  //   set<BasicBlock*> blocksToPipeline;
+  //   Schedule s = scheduleFunction(f, hcs, blocksToPipeline);
+  //   STG graph = buildSTG(s, f);
 
-    cout << "STG Is" << endl;
-    graph.print(cout);
+  //   cout << "STG Is" << endl;
+  //   graph.print(cout);
 
-    map<string, int> testLayout = {{"in", 0}, {"out", 17}};
-    map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 17}};
-    auto arch = buildMicroArchitecture(graph, layout);
+  //   map<string, int> testLayout = {{"in", 0}, {"out", 17}};
+  //   map<llvm::Value*, int> layout = {{getArg(f, 0), 0}, {getArg(f, 1), 17}};
+  //   auto arch = buildMicroArchitecture(graph, layout);
 
-    VerilogDebugInfo info;
-    addNoXChecks(arch, info);
+  //   VerilogDebugInfo info;
+  //   addNoXChecks(arch, info);
 
-    emitVerilog(arch, info);
+  //   emitVerilog(arch, info);
 
-    // Create testing infrastructure
-    map<string, vector<int> > memoryInit{{"in", {4, 8, 6, 12, 3, 1, 3, 1, 5, 2, 5, 2, 5, 2, 7}}};
-    map<string, vector<int> > memoryExpected{{"out", {4 + 8 + 6 + 12 + 3 + 1 + 3 + 1 + 5 + 2 + 5 + 2 + 5 + 2 + 7}}};
+  //   // Create testing infrastructure
+  //   map<string, vector<int> > memoryInit{{"in", {4, 8, 6, 12, 3, 1, 3, 1, 5, 2, 5, 2, 5, 2, 7}}};
+  //   map<string, vector<int> > memoryExpected{{"out", {4 + 8 + 6 + 12 + 3 + 1 + 3 + 1 + 5 + 2 + 5 + 2 + 5 + 2 + 7}}};
 
-    TestBenchSpec tb;
-    tb.memoryInit = memoryInit;
-    tb.memoryExpected = memoryExpected;
-    tb.runCycles = 100;
-    tb.maxCycles = 200;
-    tb.name = "add_reduce_15";
-    emitVerilogTestBench(tb, arch, testLayout);
+  //   TestBenchSpec tb;
+  //   tb.memoryInit = memoryInit;
+  //   tb.memoryExpected = memoryExpected;
+  //   tb.runCycles = 100;
+  //   tb.maxCycles = 200;
+  //   tb.name = "add_reduce_15";
+  //   emitVerilogTestBench(tb, arch, testLayout);
 
-    REQUIRE(runIVerilogTB("add_reduce_15"));
-  }
+  //   REQUIRE(runIVerilogTB("add_reduce_15"));
+  // }
 
   TEST_CASE("Timed wire reduction") {
     LLVMContext context;
