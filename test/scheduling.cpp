@@ -16,6 +16,29 @@ using namespace std;
 
 namespace ahaHLS {
 
+  void resetOnCycle(const int rstCycle, TestBenchSpec& tb) {
+    map_insert(tb.actionsInCycles, rstCycle, string("rst_reg = 1;"));
+    map_insert(tb.actionsInCycles, rstCycle + 1, string("rst_reg = 0;"));
+  }
+
+  void addRAMFunctions(Value* ramArg,
+                       HardwareConstraints& hcs,
+                       InterfaceFunctions& interfaces) {
+
+    hcs.typeSpecs[string("SRAM_32_16")] =
+      [](StructType* tp) { return ramSpec(32, 16); };
+
+    Function* ramRead = ramLoadFunction(ramArg);
+    interfaces.addFunction(ramRead);
+    implementRAMRead0(ramRead,
+                      interfaces.getConstraints(ramRead));
+
+    Function* ramWrite = ramStoreFunction(ramArg);
+    interfaces.addFunction(ramWrite);
+    implementRAMWrite0(ramWrite,
+                       interfaces.getConstraints(ramWrite));
+  }
+  
   TestBenchSpec buildTB(std::string name,
                         map<string, vector<int> >& memoryInit,
                         map<string, vector<int> >& memoryExpected,
@@ -2557,8 +2580,11 @@ namespace ahaHLS {
       llvm::make_unique<Module>("shift registered LLVM 1D stencil", context);
     setGlobalLLVMModule(mod.get());
 
-    std::vector<Type *> inputs{intType(32)->getPointerTo(),
-        intType(32)->getPointerTo()};
+    // std::vector<Type *> inputs{intType(32)->getPointerTo(),
+    //     intType(32)->getPointerTo()};
+    std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
+        sramType(32, 16)->getPointerTo()};
+    
     Function* srUser = mkFunc(inputs, "shift_register_1", mod.get());
 
     auto entryBlock = mkBB("entry_block", srUser);
@@ -2568,7 +2594,8 @@ namespace ahaHLS {
     IRBuilder<> builder(entryBlock);
 
     ShiftRegister sr(32, 3);
-    auto inVal = loadVal(builder, getArg(srUser, 0), zero);
+    //auto inVal = loadVal(builder, getArg(srUser, 0), zero);
+    auto inVal = loadRAMVal(builder, getArg(srUser, 0), zero);
     sr.init(builder);
 
     for (int i = 0; i < sr.depth; i++) {
@@ -2577,10 +2604,15 @@ namespace ahaHLS {
     }
 
     auto lastVal = loadVal(builder, sr.registers[0], zero);
-    storeVal(builder,
-             getArg(srUser, 1),
-             zero,
-             lastVal);
+    storeRAMVal(builder,
+                getArg(srUser, 1),
+                zero,
+                lastVal);
+    
+    // storeVal(builder,
+    //          getArg(srUser, 1),
+    //          zero,
+    //          lastVal);
 
     builder.CreateRet(nullptr);
     
@@ -2590,7 +2622,14 @@ namespace ahaHLS {
     HardwareConstraints hcs = standardConstraints();
     addMemInfo(hcs, sr.regTypes);
     hcs.memoryMapping = memoryOpLocations(srUser);
-    Schedule s = scheduleFunction(srUser, hcs);
+    InterfaceFunctions interfaces;    
+    addRAMFunctions(getArg(srUser, 0), hcs, interfaces);
+    
+    //Schedule s = scheduleFunction(srUser, hcs);
+    set<BasicBlock*> blocksToPipeline;    
+    Schedule s =
+      scheduleInterface(srUser, hcs, interfaces, blocksToPipeline);
+    
 
     STG graph = buildSTG(s, srUser);
 
@@ -2611,12 +2650,19 @@ namespace ahaHLS {
     // Create testing infrastructure
     map<string, vector<int> > memoryInit{{"arg_0", {19}}};
     map<string, vector<int> > memoryExpected{{"arg_1", {19}}};
-    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 10}};
+    //map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 10}};
+    map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 0}};
     TestBenchSpec tb;
     tb.memoryInit = memoryInit;
     tb.memoryExpected = memoryExpected;
-    tb.runCycles = 100;
+    tb.maxCycles = 100;
     tb.name = "shift_register_1";
+    tb.useModSpecs = true;
+    
+    resetOnCycle(1, tb);
+    setRAM(tb, 0, "arg_0", memoryInit, testLayout);
+    checkRAM(tb, 20, "arg_0", memoryExpected, testLayout);
+
     emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("shift_register_1"));
@@ -2887,29 +2933,6 @@ namespace ahaHLS {
     REQUIRE(runIVerilogTB("mem_16_test"));
   }
 
-  void resetOnCycle(const int rstCycle, TestBenchSpec& tb) {
-    map_insert(tb.actionsInCycles, rstCycle, string("rst_reg = 1;"));
-    map_insert(tb.actionsInCycles, rstCycle + 1, string("rst_reg = 0;"));
-  }
-
-  void addRAMFunctions(Value* ramArg,
-                       HardwareConstraints& hcs,
-                       InterfaceFunctions& interfaces) {
-
-    hcs.typeSpecs[string("SRAM_32_16")] =
-      [](StructType* tp) { return ramSpec(32, 16); };
-
-    Function* ramRead = ramLoadFunction(ramArg);
-    interfaces.addFunction(ramRead);
-    implementRAMRead0(ramRead,
-                      interfaces.getConstraints(ramRead));
-
-    Function* ramWrite = ramStoreFunction(ramArg);
-    interfaces.addFunction(ramWrite);
-    implementRAMWrite0(ramWrite,
-                       interfaces.getConstraints(ramWrite));
-  }
-  
   // Critical issue: How to add pipelining constraints
   // before scheduling so that the scheduler is aware of II
   // constraints?
@@ -2987,7 +3010,6 @@ namespace ahaHLS {
     tb.name = "constrained_pipe";
 
     resetOnCycle(1, tb);
-
     setRAM(tb, 0, "arg_0", memoryInit, testLayout);
     checkRAM(tb, 20, "arg_0", memoryExpected, testLayout);
     emitVerilogTestBench(tb, arch, testLayout);
