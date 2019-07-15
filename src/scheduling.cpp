@@ -683,9 +683,6 @@ namespace ahaHLS {
     pm.run(*(f->getParent()));
 
     Schedule s = skeleton->schedule;
-    // if (contains_key(f, constraints)) {
-    //   s.controlPredecessors = map_find(f, constraints).controlPredecessors;
-    // }
     
     return s;
   }

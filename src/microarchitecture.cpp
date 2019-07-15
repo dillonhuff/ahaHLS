@@ -1520,13 +1520,10 @@ namespace ahaHLS {
     return unit;
   }
 
-  
-  //std::map<Instruction*, FunctionalUnit>
   std::map<Instruction*, InstructionBinding>
   assignFunctionalUnits(const STG& stg,
                         HardwareConstraints& hcs) {
 
-    //std::map<Instruction*, FunctionalUnit> units;
     std::map<Instruction*, InstructionBinding> units;
 
     auto memSrcs = memoryOpLocations(stg.getFunction());
@@ -1542,8 +1539,6 @@ namespace ahaHLS {
       }
     }
 
-    ResourceUsage used;
-
     for (auto state : stg.opStates) {
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
         Instruction* instr = instrG;
@@ -1555,8 +1550,7 @@ namespace ahaHLS {
       }
     }
 
-    // Also: Need to bind all arguments to functional units...
-
+    ResourceUsage used;
     for (auto state : stg.opStates) {
       
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
