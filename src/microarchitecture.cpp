@@ -786,6 +786,7 @@ namespace ahaHLS {
           return map_find(memVal, hcs.modSpecs);
 
         } else {
+          assert(false);
           modName = "store";
           //isExternal = true;
           string wStr = to_string(usage.writeNum);
@@ -818,6 +819,7 @@ namespace ahaHLS {
       
       if (!Argument::classof(memVal)) {
         if (contains_key(memVal, hcs.memSpecs)) {
+          //assert(false);
           string name = map_find(memVal, hcs.memSpecs).modSpec.name;
           modName = name;
         } else {
@@ -834,6 +836,7 @@ namespace ahaHLS {
           return map_find(memVal, hcs.modSpecs);
 
         } else {
+          assert(false);
           //isExternal = true;
         
           modName = "load";
