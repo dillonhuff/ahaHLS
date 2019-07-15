@@ -54,44 +54,6 @@ namespace ahaHLS {
     int depth;
   };
 
-  class Wire {
-  public:
-    bool registered;
-    int width;
-    std::string name;
-    bool isConst;
-    int constVal;
-
-    Wire() : isConst(false) {}
-    Wire(const int width_, const std::string& name_) : 
-      registered(false), width(width_), name(name_), isConst(false) {}
-
-    Wire(const int width_, const int value_) : 
-      registered(false), width(width_), name(""), isConst(true), constVal(value_) {}
-    
-    Wire(const bool registered_, const int width_, const std::string& name_) : 
-      registered(registered_), width(width_), name(name_), isConst(false) {}
-
-    bool isConstant() const { return isConst; }
-    
-    std::string valueString() const {
-      if (isConst) {
-        if (constVal >= 0) {
-          return std::to_string(width) + "'d" + std::to_string(constVal);
-        } else {
-          return "-" + parens(std::to_string(width) + "'d" + std::to_string(-constVal));
-        }
-      } else {
-        return name;
-      }
-    }
-
-    std::string toString() const {
-      assert(!isConst);
-      return std::string(registered ? "reg" : "wire") + " [" + std::to_string(width - 1) + ":0] " + name;
-    }
-  };
-
   static inline
   Wire wire(const int width, const std::string& name) {
     return {false, width, name};

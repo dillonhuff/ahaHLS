@@ -5650,4 +5650,32 @@ namespace ahaHLS {
     }
     return structType(name);
   }
+
+
+  void bindUnits(const STG& stg, HardwareConstraints& hcs) {
+
+    auto memSrcs = memoryOpLocations(stg.getFunction());
+
+    map<Value*, std::string> memNames;
+    int i = 0;
+    for (auto src : memSrcs) {
+      if ((src.first)->getName() != "") {
+        memNames.insert({src.second, (src.second)->getName()});
+      } else {
+        memNames.insert({src.second, "ram_" + to_string(i)});
+        i++;
+      }
+    }
+
+    for (auto state : stg.opStates) {
+      for (auto instrG : stg.instructionsStartingAt(state.first)) {
+        Instruction* instr = instrG;
+
+        auto unit =
+          buildModSpec(memNames, memSrcs, hcs, instr);
+        hcs.modSpecs[instr] = unit;
+      }
+    }
+
+  }
 }

@@ -7,6 +7,9 @@
 #include <cxxabi.h>
 #include <sstream>
 
+#include "llvm_codegen.h"
+
+using namespace dbhc;
 using namespace llvm;
 using namespace std;
 
@@ -436,5 +439,200 @@ namespace ahaHLS {
 
     return vals;
   }
+
+  bool isBuiltinSlice(Instruction* const instr) {
+    return matchesCall("hls.slice.", instr);
+  }
+
+  int getSliceInWidth(Instruction* const instr) {
+    assert(isBuiltinSlice(instr));
+    vector<string> fields = splitRep(".", drop("hls.slice.", string(dyn_cast<CallInst>(instr)->getCalledFunction()->getName())));
+    return stoi(fields[0]);
+  }
+
+  int getSliceOffset(Instruction* const instr) {
+    assert(isBuiltinSlice(instr));
+    vector<string> fields = splitRep(".", drop("hls.slice.", string(dyn_cast<CallInst>(instr)->getCalledFunction()->getName())));
+    return stoi(fields[1]);
+  }
+
+  int getSliceOutWidth(Instruction* const instr) {
+    assert(isBuiltinSlice(instr));
+    vector<string> fields = splitRep(".", drop("hls.slice.", string(dyn_cast<CallInst>(instr)->getCalledFunction()->getName())));
+    return stoi(fields[2]);
+  }
+  
+  int getMinWidth(Instruction* const instr) {
+    return stoi(drop("hls.min.", string(dyn_cast<CallInst>(instr)->getCalledFunction()->getName())));
+  }
+
+  int getMaxWidth(Instruction* const instr) {
+    return stoi(drop("hls.max.", string(dyn_cast<CallInst>(instr)->getCalledFunction()->getName())));
+  }
+  
+  std::string memName(llvm::Instruction* instr,
+                      const std::map<Instruction*, llvm::Value*>& memSrcs,
+                      const std::map<llvm::Value*, std::string>& memNames) {
+    return map_find(map_find(instr, memSrcs), memNames);
+  }
+
+  
+  bool isRAMAddressCompGEP(GetElementPtrInst* const instr,
+                           map<Instruction*, Value*>& memSrcs) {
+
+    Value* memSrc = map_find(dyn_cast<Instruction>(instr), memSrcs);
+    //cout << "MEM source for GEP " << valueString(instr) << " = " << valueString(memSrc) << endl;
+    
+    Type* srcTp = memSrc->getType();
+    assert(PointerType::classof(srcTp));
+    Type* uTp = dyn_cast<PointerType>(srcTp)->getElementType();
+    if (StructType::classof(uTp)) {
+      StructType* stp = dyn_cast<StructType>(uTp);
+      if (stp->isOpaque()) {
+        return true;
+      } else {
+        //cout << "Found non address comp GEP" << endl;
+        return false;
+      }
+    }
+    return true;
+  }
+
+  int gepOffset(GetElementPtrInst* const gep) {
+    APInt offset;
+    bool constOffset = gep->accumulateConstantOffset(getGlobalLLVMModule().getDataLayout(), offset);
+    if (constOffset) {
+      return offset.getLimitedValue();
+    }
+
+    return -1;
+  }
+
+  // Issue: what is the name of each register?
+  llvm::Value* getRAMName(Value* location,
+                          std::map<llvm::Instruction*, llvm::Value*>& ramNames) {
+    
+    //cout << "Finding location of " << valueString(location) << endl;
+    
+    if (Instruction::classof(location)) {
+      Instruction* locInstr = dyn_cast<Instruction>(location);
+
+      if (!AllocaInst::classof(locInstr)) {
+        if (!contains_key(locInstr, ramNames)) {
+          return nullptr;
+        }
+
+        Value* src = map_find(locInstr, ramNames);
+        return src;
+      } else {
+
+        return locInstr;
+      }
+      
+    } else if (Argument::classof(location)) {
+
+      return location;
+    } else if (GlobalVariable::classof(location)) {
+      return location;
+    } else {
+      //cout << "Cannot find name for " << valueString(location) << endl;
+      return nullptr;
+    }
+
+  }
+
+  int numMemOps(const std::vector<Instruction*>& instrs) {
+    int ind = 0;
+    for (auto instr : instrs) {
+      if (StoreInst::classof(instr) ||
+          LoadInst::classof(instr) ||
+          GetElementPtrInst::classof(instr)) {
+        ind++;
+      }
+    }
+    return ind;
+  }
+
+  int numMemOps(BasicBlock& bb) {
+    int ind = 0;
+
+    for (auto& instr : bb) {
+      if (StoreInst::classof(&instr) ||
+          LoadInst::classof(&instr) ||
+          GetElementPtrInst::classof(&instr)) {
+        ind++;
+      }
+    }
+    return ind;
+  }
+
+  void findLocation(Value* location,
+                    Instruction* instr,
+                    std::map<Instruction*, llvm::Value*>& mems,
+                    std::set<Instruction*>& foundOps) {
+
+    Value* val = getRAMName(location, mems);
+    if (val != nullptr) {
+      mems[instr] = val;
+      foundOps.insert(instr);
+    } else {
+      //cout << "No source for " << instructionString(instr) << endl;
+    }
+  }
+
+  // TODO: Turn this in to a proper dataflow analysis using LLVM dataflow builtins
+  std::map<llvm::Instruction*, llvm::Value*>
+  memoryOpLocations(Function* f) {
+    map<Instruction*, llvm::Value*> mems;
+
+    int totalMemOps = 0;
+    for (auto& bb : f->getBasicBlockList()) {
+      totalMemOps += numMemOps(bb);
+    }
+    
+    //for (auto& bb : f->getBasicBlockList()) {
+
+    std::set<Instruction*> foundOps;
+      //while (((int) foundOps.size()) < numMemOps(bb)) {
+    while (((int) foundOps.size()) < totalMemOps) {
+      //cout << "FoundInstrs =  "<< foundOps.size() << endl;
+
+      for (auto& bb : f->getBasicBlockList()) {
+        for (auto& instrPtr : bb) {
+
+          auto instr = &instrPtr;
+
+          if (elem(instr, foundOps)) {
+            continue;
+          }
+
+          if (LoadInst::classof(instr)) {
+
+            Value* location = instr->getOperand(0);
+            //cout << "Load source = " << valueString(location) << endl;
+            //cout << tab(1) << " source is instruction ? " << Instruction::classof(location) << endl;
+            findLocation(location, instr, mems, foundOps);
+
+          } else if (StoreInst::classof(instr)) {
+
+            Value* location = instr->getOperand(1);
+            findLocation(location, instr, mems, foundOps);
+
+          } else if (GetElementPtrInst::classof(instr)) {
+
+            Value* location = instr->getOperand(0);
+            findLocation(location, instr, mems, foundOps);
+
+          } else {
+            //cout << "Not considering " << valueString(instr) << endl;
+          }
+        }
+      }
+    }
+        //}
+
+    return mems;
+  }
+
   
 }

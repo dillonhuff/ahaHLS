@@ -245,4 +245,27 @@ namespace ahaHLS {
 
   std::vector<std::string> splitRep(const std::string& pattern,
                                     const std::string& val);
+
+  int getSliceOffset(llvm::Instruction* const instr);
+
+  int getSliceInWidth(llvm::Instruction* const instr);  
+  int getSliceOutWidth(llvm::Instruction* const instr);
+
+  int getMinWidth(llvm::Instruction* const instr);
+
+  int getMaxWidth(llvm::Instruction* const instr);
+
+  std::string memName(llvm::Instruction* instr,
+                      const std::map<llvm::Instruction*, llvm::Value*>& memSrcs,
+                      const std::map<llvm::Value*, std::string>& memNames);
+
+  bool isRAMAddressCompGEP(llvm::GetElementPtrInst* const instr,
+                           std::map<llvm::Instruction*, llvm::Value*>& memSrcs);
+
+  int gepOffset(llvm::GetElementPtrInst* const gep);
+
+  std::map<llvm::Instruction*, llvm::Value*>
+  memoryOpLocations(llvm::Function* f);
+  
+  
 }
