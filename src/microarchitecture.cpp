@@ -748,14 +748,14 @@ namespace ahaHLS {
   ModuleSpec createMemSpec(map<Value*, std::string>& memNames,
                            map<Instruction*, Value*>& memSrcs,
                            HardwareConstraints& hcs,
-                           ResourceUsage& usage,
+                           //ResourceUsage& usage,
                            llvm::Instruction* instr) {
-    string unitName = instr->getOpcodeName() + to_string(usage.resSuffix);    
+    //string unitName = instr->getOpcodeName() + to_string(usage.resSuffix);    
     
     assert(LoadInst::classof(instr) || StoreInst::classof(instr));
     string modName = "add";
 
-    auto rStr = unitName;
+    //auto rStr = unitName;
     map<string, string> modParams;
     map<string, int> defaults;
 
@@ -1013,10 +1013,10 @@ namespace ahaHLS {
                           HardwareConstraints& hcs,
                           ResourceUsage& usage,
                           llvm::Instruction* instr) {
-    string unitName = instr->getOpcodeName() + to_string(usage.resSuffix);
+    //string unitName = instr->getOpcodeName() + to_string(usage.resSuffix);
     string modName = "add";
 
-    auto rStr = unitName;
+    //auto rStr = unitName;
     map<string, string> modParams;
     bool isExternal = false;
 
@@ -1031,7 +1031,8 @@ namespace ahaHLS {
     bool hasClock = false;
     
     if (LoadInst::classof(instr) || StoreInst::classof(instr)) {
-      return createMemSpec(memNames, memSrcs, hcs, usage, instr);
+      //return createMemSpec(memNames, memSrcs, hcs, usage, instr);
+      return createMemSpec(memNames, memSrcs, hcs, instr);
     } else if (BinaryOperator::classof(instr)) {
       modName = binopName(instr);
       int w0 = getValueBitWidth(instr->getOperand(0));
@@ -1042,7 +1043,7 @@ namespace ahaHLS {
       }
       assert(w0 == w1);
 
-      unitName = string(instr->getOpcodeName()) + "_" + rStr;
+      //unitName = string(instr->getOpcodeName()) + "_" + rStr;
 
       string opCodeName = instr->getOpcodeName();
       int width = getValueBitWidth(instr);
@@ -1143,7 +1144,7 @@ namespace ahaHLS {
       allPorts = {{"in0", inputPort(w0, "in0")}, {"in1", inputPort(w0, "in1")}, {"out", outputPort(1, "out")}};            
     } else if (BranchInst::classof(instr)) {
       modName = "br_dummy";
-      unitName = "br_unit";
+      //unitName = "br_unit";
     } else if (GetElementPtrInst::classof(instr)) {
       if (isRAMAddressCompGEP(dyn_cast<GetElementPtrInst>(instr), memSrcs)) {
         
@@ -1269,7 +1270,7 @@ namespace ahaHLS {
         }
 
         modName = modSpec.name;
-        unitName = fuPtr->getName();
+        string unitName = fuPtr->getName();
         defaults = modSpec.defaultValues;
         insensitivePorts = modSpec.insensitivePorts;
         allPorts = modSpec.ports; 
