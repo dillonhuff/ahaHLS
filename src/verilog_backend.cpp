@@ -780,14 +780,17 @@ namespace ahaHLS {
       for (int i = 0; i < (int) f->arg_size(); i++) {
 
         if (arch.hcs.hasArgumentSpec(getArg(f, i)) ||
-            contains_key(getArg(f, i), arch.hcs.modSpecs)) {
+            arch.hcs.builtModSpec(getArg(f, i))) {
+            //contains_key(getArg(f, i), arch.hcs.modSpecs)) {
           cout << valueString(getArg(f, i)) << "is modspeced" << endl;
 
           ModuleSpec s;
           if (arch.hcs.hasArgumentSpec(getArg(f, i))) {
             s = arch.hcs.getArgumentSpec(getArg(f, i));
           } else {
-            s = map_find(getArg(f, i), arch.hcs.modSpecs);
+            // 
+            //s = map_find(getArg(f, i), arch.hcs.modSpecs);
+            s = arch.hcs.getModSpec(getArg(f, i));
           }
 
           cout << "spec is " << s << endl;

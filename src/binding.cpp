@@ -7,6 +7,16 @@ using namespace llvm;
 
 namespace ahaHLS {
 
+  bool HardwareConstraints::builtModSpec(llvm::Value* const val) {
+    return contains_key(val, modSpecs);
+  }
+
+  void
+  HardwareConstraints::bindValue(llvm::Value* const val,
+                                 const ModuleSpec& spec) {
+    modSpecs[val] = spec;
+  }
+  
   std::string binopName(Instruction* instr) {
     string modName;
     if (instr->getOpcode() == Instruction::Add) {
@@ -102,7 +112,8 @@ namespace ahaHLS {
         modParams = {{"WIDTH", to_string(dataWidth)}};
 
       } else {
-        if (contains_key(memVal, hcs.modSpecs)) {
+        //if (contains_key(memVal, hcs.modSpecs)) {
+        if (hcs.builtModSpec(memVal)) {
           assert(memVal->getName() != "");
 
           assert(memVal->getName() != "");
@@ -156,7 +167,8 @@ namespace ahaHLS {
         
       } else {
 
-        if (contains_key(memVal, hcs.modSpecs)) {
+        //if (contains_key(memVal, hcs.modSpecs)) {
+        if (hcs.builtModSpec(memVal)) {
           assert(memVal->getName() != "");
           //return map_find(memVal, hcs.modSpecs);
           return hcs.getModSpec(memVal);
@@ -414,7 +426,8 @@ namespace ahaHLS {
         }
 
         ModuleSpec modSpec;
-        if (contains_key(fuPtr, hcs.modSpecs)) {
+        //if (contains_key(fuPtr, hcs.modSpecs)) {
+        if (hcs.builtModSpec((fuPtr))) {
           //modSpec = map_find(fuPtr, hcs.modSpecs);
           modSpec = hcs.getModSpec(fuPtr);
         } else {

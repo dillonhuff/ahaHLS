@@ -529,7 +529,8 @@ namespace ahaHLS {
         outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
 
       } else {
-        if (contains_key(memVal, hcs.modSpecs)) {
+        //if (contains_key(memVal, hcs.modSpecs)) {
+        if (hcs.builtModSpec(memVal)) {
           assert(memVal->getName() != "");
 
           assert(memVal->getName() != "");
@@ -597,7 +598,8 @@ namespace ahaHLS {
             
       } else {
 
-        if (contains_key(memVal, hcs.modSpecs)) {
+        //if (contains_key(memVal, hcs.modSpecs)) {
+        if (hcs.builtModSpec(memVal)) {
           assert(memVal->getName() != "");
           string name = string(memVal->getName());
           FunctionalUnit fu =
@@ -1051,14 +1053,16 @@ namespace ahaHLS {
         } else {
           assert(val->getName() != "");
 
-          if (!contains_key(val, arch.hcs.modSpecs)) {
-            cout << "Error: No module spec for " << valueString(val) << endl;
-            for (auto m : arch.hcs.modSpecs) {
-              cout << tab(1) << "Module " << valueString(m.first) << " has spec "
-                   << m.second << endl;
-            }
-          }
-          assert(contains_key(val, arch.hcs.modSpecs));
+          //if (!contains_key(val, arch.hcs.modSpecs)) {
+          // if (!hcs.builtModSpec(val)) {
+          //   cout << "Error: No module spec for " << valueString(val) << endl;
+          //   for (auto m : arch.hcs.modSpecs) {
+          //     cout << tab(1) << "Module " << valueString(m.first) << " has spec "
+          //          << m.second << endl;
+          //   }
+          // }
+          //assert(contains_key(val, arch.hcs.modSpecs));
+          assert(arch.hcs.builtModSpec(val));
           //ModuleSpec mSpec = map_find(val, arch.hcs.modSpecs);
           ModuleSpec mSpec = arch.hcs.getModSpec(val);
           //cout << "Module spec for " << valueString(val) << " is " << mSpec << endl;
