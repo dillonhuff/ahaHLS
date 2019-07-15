@@ -385,8 +385,8 @@ namespace ahaHLS {
 
         if (arch.hcs.hasModSpec(argV)) {
 
-          cout << "Contains key = " << contains_key(argV, arch.hcs.modSpecs) << endl;
-          cout << "Has arg spec = " << arch.hcs.hasArgumentSpec(argV) << endl;
+          //cout << "Contains key = " << contains_key(argV, arch.hcs.modSpecs) << endl;
+          //cout << "Has arg spec = " << arch.hcs.hasArgumentSpec(argV) << endl;
           
           ModuleSpec modSpec = arch.hcs.getModSpec(argV);          
           for (auto p : modSpec.ports) {
@@ -535,7 +535,8 @@ namespace ahaHLS {
           assert(memVal->getName() != "");
           string name = string(memVal->getName());
           FunctionalUnit fu =
-            functionalUnitForSpec(name, map_find(memVal, hcs.modSpecs));
+            //functionalUnitForSpec(name, map_find(memVal, hcs.modSpecs));
+            functionalUnitForSpec(name, hcs.getModSpec(memVal)); //map_find(memVal, hcs.modSpecs));
           fu.external = true;
           return fu;
 
@@ -600,7 +601,8 @@ namespace ahaHLS {
           assert(memVal->getName() != "");
           string name = string(memVal->getName());
           FunctionalUnit fu =
-            functionalUnitForSpec(name, map_find(memVal, hcs.modSpecs));
+            //functionalUnitForSpec(name, map_find(memVal, hcs.modSpecs));
+            functionalUnitForSpec(name, hcs.getModSpec(memVal));
           fu.external = true;
           return fu;
         } else {
@@ -824,7 +826,8 @@ namespace ahaHLS {
 
         Instruction* instr = instrG;
 
-        ModuleSpec modSpec = map_find(dyn_cast<Value>(instr), hcs.modSpecs);
+        //ModuleSpec modSpec = map_find(dyn_cast<Value>(instr), hcs.modSpecs);
+        ModuleSpec modSpec = hcs.getModSpec(instr); //map_find(dyn_cast<Value>(instr), hcs.modSpecs);
         // ModuleSpec modSpec =
         //   buildModSpec(memNames, memSrcs, hcs, used, instr);
 
