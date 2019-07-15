@@ -64,18 +64,6 @@ namespace ahaHLS {
     }
 
     return hcs.getModSpec(instr);
-    // if (hcs.hasArgumentSpec(instr)) {
-
-    //   ModuleSpec mSpec = hcs.getArgumentSpec(instr);
-    //   return mSpec;
-    //   //return functionalUnitForSpec(unitName, mSpec);
-    // } else {
-    //   assert(contains_key(instr, hcs.modSpecs));
-
-    //   ModuleSpec mSpec = map_find(instr, hcs.modSpecs);
-    //   return mSpec;
-    //   //return functionalUnitForSpec(unitName, mSpec);
-    // }
   }
   
   ModuleSpec createMemSpec(map<Value*, std::string>& memNames,
@@ -105,6 +93,7 @@ namespace ahaHLS {
         //cout << "&&&& Memory unit Using unit " << memSrc << " for " << instructionString(instr) << endl;
         if (contains_key(memVal, hcs.memSpecs)) {
           modName = map_find(memVal, hcs.memSpecs).modSpec.name;
+          //modName = hcs.getModSpec(memVal).modSpec.name;
         } else {
           modName = "register";
         }
@@ -117,7 +106,8 @@ namespace ahaHLS {
           assert(memVal->getName() != "");
 
           assert(memVal->getName() != "");
-          return map_find(memVal, hcs.modSpecs);
+          //return map_find(memVal, hcs.modSpecs);
+          return hcs.getModSpec(memVal);
 
         } else {
           assert(false);
@@ -155,6 +145,7 @@ namespace ahaHLS {
         if (contains_key(memVal, hcs.memSpecs)) {
           //assert(false);
           string name = map_find(memVal, hcs.memSpecs).modSpec.name;
+          //string name = hcs.getModSpec(memVal).modSpec.name;
           modName = name;
         } else {
           modName = "register";
@@ -167,7 +158,8 @@ namespace ahaHLS {
 
         if (contains_key(memVal, hcs.modSpecs)) {
           assert(memVal->getName() != "");
-          return map_find(memVal, hcs.modSpecs);
+          //return map_find(memVal, hcs.modSpecs);
+          return hcs.getModSpec(memVal);
 
         } else {
           assert(false);
@@ -423,7 +415,8 @@ namespace ahaHLS {
 
         ModuleSpec modSpec;
         if (contains_key(fuPtr, hcs.modSpecs)) {
-          modSpec = map_find(fuPtr, hcs.modSpecs);
+          //modSpec = map_find(fuPtr, hcs.modSpecs);
+          modSpec = hcs.getModSpec(fuPtr);
         } else {
           Type* fuTp = fuPtr->getType();
 
