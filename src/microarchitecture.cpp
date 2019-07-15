@@ -917,6 +917,7 @@ namespace ahaHLS {
           return fu;
 
         } else {
+          assert(false);
           isExternal = true;
 
           int inputWidth = getValueBitWidth(instr->getOperand(0));
@@ -980,6 +981,7 @@ namespace ahaHLS {
           fu.external = true;
           return fu;
         } else {
+          assert(false);
           isExternal = true;
         
           unitName = string(instr->getOpcodeName()) + "_" + to_string(usage.readNum);
