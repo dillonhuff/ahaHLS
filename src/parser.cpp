@@ -903,12 +903,19 @@ namespace ahaHLS {
         Type* underlying = dyn_cast<PointerType>(argTp)->getElementType();
         if (IntegerType::classof(underlying)) {
           cout << "Should set " << valueString(&arg) << " to be register" << endl;
-          scppMod.getHardwareConstraints().modSpecs.insert({&arg, registerModSpec(getTypeBitWidth(underlying))});
+          //scppMod.getHardwareConstraints().modSpecs.insert({&arg, registerModSpec(getTypeBitWidth(underlying))});
+          scppMod.getHardwareConstraints().bindValue(&arg, registerModSpec(getTypeBitWidth(underlying)));
+          
           scppMod.getHardwareConstraints().memSpecs.insert({&arg, registerSpec(getTypeBitWidth(underlying))});
+          
         } else if (StructType::classof(underlying) && !dyn_cast<StructType>(underlying)->isOpaque()) {
           cout << "Should set " << valueString(&arg) << " to be register" << endl;
-          scppMod.getHardwareConstraints().modSpecs.insert({&arg, registerModSpec(getTypeBitWidth(underlying))});
+          // scppMod.getHardwareConstraints().modSpecs.insert({&arg, registerModSpec(getTypeBitWidth(underlying))});
           scppMod.getHardwareConstraints().memSpecs.insert({&arg, registerSpec(getTypeBitWidth(underlying))});
+
+          scppMod.getHardwareConstraints().bindValue(&arg, registerModSpec(getTypeBitWidth(underlying)));
+          //scppMod.getHardwareConstraints().bindValue(&arg, registerSpec(getTypeBitWidth(underlying)));
+          
         }
 
       }

@@ -565,7 +565,8 @@ namespace ahaHLS {
       auto instr = &instrG;
       auto unit =
         buildModSpec(memNames, memSrcs, hcs, instr);
-      hcs.modSpecs[instr] = unit;
+      //hcs.modSpecs[instr] = unit;
+      hcs.bindValue(instr, unit);
       //      }
     }
 
