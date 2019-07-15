@@ -1059,7 +1059,8 @@ namespace ahaHLS {
             }
           }
           assert(contains_key(val, arch.hcs.modSpecs));
-          ModuleSpec mSpec = map_find(val, arch.hcs.modSpecs);
+          //ModuleSpec mSpec = map_find(val, arch.hcs.modSpecs);
+          ModuleSpec mSpec = arch.hcs.getModSpec(val);
           //cout << "Module spec for " << valueString(val) << " is " << mSpec << endl;
           assert(mSpec.name == "register");
 
