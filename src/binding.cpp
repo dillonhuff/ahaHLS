@@ -1,5 +1,7 @@
 #include "binding.h"
 
+#include <llvm/IR/InstIterator.h>
+
 using namespace dbhc;
 using namespace llvm;
 
@@ -530,6 +532,37 @@ namespace ahaHLS {
     modSpec.hasClock = hasClock;
 
     return modSpec;
+  }
+
+  //void bindUnits(const STG& stg, HardwareConstraints& hcs) {
+  void bindUnits(llvm::Function* f, HardwareConstraints& hcs) {
+
+    //auto f = stg.getFunction();
+    auto memSrcs = memoryOpLocations(f);
+      //memoryOpLocations(stg.getFunction());
+
+    map<Value*, std::string> memNames;
+    int i = 0;
+    for (auto src : memSrcs) {
+      if ((src.first)->getName() != "") {
+        memNames.insert({src.second, (src.second)->getName()});
+      } else {
+        memNames.insert({src.second, "ram_" + to_string(i)});
+        i++;
+      }
+    }
+
+    // for (auto state : stg.opStates) {
+    //   for (auto instrG : stg.instructionsStartingAt(state.first)) {
+    //     Instruction* instr = instrG;
+    for (Instruction& instrG : instructions(f)) {
+      auto instr = &instrG;
+      auto unit =
+        buildModSpec(memNames, memSrcs, hcs, instr);
+      hcs.modSpecs[instr] = unit;
+      //      }
+    }
+
   }
   
 }

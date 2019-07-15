@@ -515,5 +515,6 @@ namespace ahaHLS {
                           std::map<llvm::Instruction*, llvm::Value*>& memSrcs,
                           HardwareConstraints& hcs,
                           llvm::Instruction* instr);
-  
+
+  void bindUnits(llvm::Function* f, HardwareConstraints& hcs);   
 }
