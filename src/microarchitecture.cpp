@@ -1543,15 +1543,15 @@ namespace ahaHLS {
 
     ResourceUsage used;
 
-    // for (auto state : stg.opStates) {
-    //   for (auto instrG : stg.instructionsStartingAt(state.first)) {
-    //     Instruction* instr = instrG;
+    for (auto state : stg.opStates) {
+      for (auto instrG : stg.instructionsStartingAt(state.first)) {
+        Instruction* instr = instrG;
 
-    //     auto unit =
-    //       buildModSpec(memNames, memSrcs, hcs, used, instr);
-    //     hcs.hardwareTypeMapping[instr] = unit;
-    //   }
-    // }
+        auto unit =
+          buildModSpec(memNames, memSrcs, hcs, used, instr);
+        hcs.modSpecs[instr] = unit;
+      }
+    }
 
     // Also: Need to bind all arguments to functional units...
 
@@ -1561,8 +1561,9 @@ namespace ahaHLS {
 
         Instruction* instr = instrG;
 
-        ModuleSpec modSpec =
-          buildModSpec(memNames, memSrcs, hcs, used, instr);
+        ModuleSpec modSpec = map_find(dyn_cast<Value>(instr), hcs.modSpecs);
+        // ModuleSpec modSpec =
+        //   buildModSpec(memNames, memSrcs, hcs, used, instr);
 
         auto unit =
           createUnit(modSpec, memNames, memSrcs, hcs, used, instr);
