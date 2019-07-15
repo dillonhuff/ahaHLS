@@ -1011,7 +1011,7 @@ namespace ahaHLS {
   ModuleSpec buildModSpec(map<Value*, std::string>& memNames,
                           map<Instruction*, Value*>& memSrcs,
                           HardwareConstraints& hcs,
-                          ResourceUsage& usage,
+                          //ResourceUsage& usage,
                           llvm::Instruction* instr) {
     //string unitName = instr->getOpcodeName() + to_string(usage.resSuffix);
     string modName = "add";
@@ -1549,7 +1549,8 @@ namespace ahaHLS {
         Instruction* instr = instrG;
 
         auto unit =
-          buildModSpec(memNames, memSrcs, hcs, used, instr);
+          //buildModSpec(memNames, memSrcs, hcs, used, instr);
+          buildModSpec(memNames, memSrcs, hcs, instr);
         hcs.modSpecs[instr] = unit;
       }
     }
