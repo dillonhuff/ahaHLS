@@ -826,7 +826,9 @@ namespace ahaHLS {
       }
     }
 
-    bindUnits(stg, hcs);
+    // No more binding 
+    //bindUnits(stg, hcs);
+    //bindUnits(stg.getFunction(), hcs);
     
     ResourceUsage used;
     for (auto state : stg.opStates) {

@@ -1351,7 +1351,8 @@ namespace ahaHLS {
                         const int width,
                         const std::string name);
 
-  void bindUnits(const STG& stg, HardwareConstraints& hcs);  
+  //void bindUnits(const STG& stg, HardwareConstraints& hcs);
+  void bindUnits(llvm::Function* f, HardwareConstraints& hcs);  
   
 }
 
