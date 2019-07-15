@@ -737,11 +737,12 @@ namespace ahaHLS {
   class ResourceUsage {
   public:
 
-    int readNum; 
-    int writeNum;
+    // int readNum; 
+    // int writeNum;
     int resSuffix;
 
-    ResourceUsage() : readNum(0), writeNum(0), resSuffix(0) {}
+    //ResourceUsage() : readNum(0), writeNum(0), resSuffix(0) {}
+    ResourceUsage() : resSuffix(0) {}
   };
 
   ModuleSpec createMemSpec(map<Value*, std::string>& memNames,
@@ -787,11 +788,11 @@ namespace ahaHLS {
 
         } else {
           assert(false);
-          modName = "store";
-          //isExternal = true;
-          string wStr = to_string(usage.writeNum);
+          // modName = "store";
+          // //isExternal = true;
+          // string wStr = to_string(usage.writeNum);
 
-          defaults.insert({"wen", 0});
+          // defaults.insert({"wen", 0});
         }
       }
 
@@ -837,13 +838,13 @@ namespace ahaHLS {
 
         } else {
           assert(false);
-          //isExternal = true;
+          // //isExternal = true;
         
-          modName = "load";
+          // modName = "load";
 
-          // Note: I think the "_reg not found" error is caused by the default
-          // value of the functional unit not containing the ren default entry?
-          defaults.insert({"ren", 0});
+          // // Note: I think the "_reg not found" error is caused by the default
+          // // value of the functional unit not containing the ren default entry?
+          // defaults.insert({"ren", 0});
         }
       }
 
@@ -918,20 +919,20 @@ namespace ahaHLS {
 
         } else {
           assert(false);
-          isExternal = true;
+          // isExternal = true;
 
-          int inputWidth = getValueBitWidth(instr->getOperand(0));
-          // These names need to match names created in the portlist. So
-          // maybe this should be used to create the port list? Generate the
-          // names here and then write ports for them?
-          string wStr = to_string(usage.writeNum);
+          // int inputWidth = getValueBitWidth(instr->getOperand(0));
+          // // These names need to match names created in the portlist. So
+          // // maybe this should be used to create the port list? Generate the
+          // // names here and then write ports for them?
+          // string wStr = to_string(usage.writeNum);
 
-          unitName = string(instr->getOpcodeName()) + "_" + wStr;
+          // unitName = string(instr->getOpcodeName()) + "_" + wStr;
                                                                         
-          wiring = {{"wen", {true, 1, "wen_" + wStr}}, {"waddr", {true, 32, "waddr_" + wStr}}, {"wdata", {true, inputWidth, "wdata_" + wStr}}};
+          // wiring = {{"wen", {true, 1, "wen_" + wStr}}, {"waddr", {true, 32, "waddr_" + wStr}}, {"wdata", {true, inputWidth, "wdata_" + wStr}}};
 
-          outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
-          usage.writeNum++;
+          // outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
+          // usage.writeNum++;
         }
       }
 
@@ -982,22 +983,22 @@ namespace ahaHLS {
           return fu;
         } else {
           assert(false);
-          isExternal = true;
+          // isExternal = true;
         
-          unitName = string(instr->getOpcodeName()) + "_" + to_string(usage.readNum);
-          int inputWidth = getValueBitWidth(instr);
+          // unitName = string(instr->getOpcodeName()) + "_" + to_string(usage.readNum);
+          // int inputWidth = getValueBitWidth(instr);
 
-          wiring = {{"raddr", {true, 32, "raddr_" + to_string(usage.readNum)}}, {"ren", {true, 1, "ren_" + to_string(usage.readNum)}}};
+          // wiring = {{"raddr", {true, 32, "raddr_" + to_string(usage.readNum)}}, {"ren", {true, 1, "ren_" + to_string(usage.readNum)}}};
 
-          ports = {{instr->getOperand(0), "raddr_" + to_string(usage.readNum)},
-                   {instr, "rdata_" + to_string(usage.readNum)},
-                   {mkInt(1, 1), "ren_" + to_string(usage.readNum)}};
-          // Note: I think the "_reg not found" error is caused by the default
-          // value of the functional unit not containing the ren default entry?
-          //defaults.insert({"ren", 0});
+          // ports = {{instr->getOperand(0), "raddr_" + to_string(usage.readNum)},
+          //          {instr, "rdata_" + to_string(usage.readNum)},
+          //          {mkInt(1, 1), "ren_" + to_string(usage.readNum)}};
+          // // Note: I think the "_reg not found" error is caused by the default
+          // // value of the functional unit not containing the ren default entry?
+          // //defaults.insert({"ren", 0});
 
-          outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(usage.readNum)}}};
-          usage.readNum++;
+          // outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(usage.readNum)}}};
+          // usage.readNum++;
         }
       }
 
