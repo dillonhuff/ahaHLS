@@ -466,26 +466,13 @@ namespace ahaHLS {
     }
 
     return functionalUnitForSpec(unitName, hcs.getModSpec(instr));
-    // if (hcs.hasArgumentSpec(instr)) {
-
-    //   ModuleSpec mSpec = hcs.getArgumentSpec(instr);
-    //   return functionalUnitForSpec(unitName, mSpec);
-    // } else {
-    //   assert(contains_key(instr, hcs.modSpecs));
-
-    //   ModuleSpec mSpec = map_find(instr, hcs.modSpecs);
-    //   return functionalUnitForSpec(unitName, mSpec);
-    // }
   }
 
   class ResourceUsage {
   public:
 
-    // int readNum; 
-    // int writeNum;
     int resSuffix;
 
-    //ResourceUsage() : readNum(0), writeNum(0), resSuffix(0) {}
     ResourceUsage() : resSuffix(0) {}
   };
 

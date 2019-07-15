@@ -383,7 +383,7 @@ namespace ahaHLS {
     std::map<llvm::Instruction*, llvm::Value*> memoryMapping;
     std::map<llvm::Value*, ModuleSpec> modSpecs;
     std::map<std::string, std::function<ModuleSpec(llvm::StructType*)> > typeSpecs;
-    std::map<llvm::Value*, ModuleSpec> hardwareTypeMapping;
+    //std::map<llvm::Value*, ModuleSpec> hardwareTypeMapping;
 
     bool hasModSpec(llvm::Value* const val);
     ModuleSpec getModSpec(llvm::Value* const val);
