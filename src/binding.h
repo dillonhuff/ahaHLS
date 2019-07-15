@@ -376,14 +376,13 @@ namespace ahaHLS {
 
     std::map<OperationType, int> latencies;
     std::map<OperationType, int> counts;
+    std::map<llvm::Value*, ModuleSpec> modSpecs;
     
   public:
 
     std::map<llvm::Value*, MemorySpec> memSpecs;
     std::map<llvm::Instruction*, llvm::Value*> memoryMapping;
-    std::map<llvm::Value*, ModuleSpec> modSpecs;
     std::map<std::string, std::function<ModuleSpec(llvm::StructType*)> > typeSpecs;
-    //std::map<llvm::Value*, ModuleSpec> hardwareTypeMapping;
 
     bool builtModSpec(llvm::Value* const val);
 

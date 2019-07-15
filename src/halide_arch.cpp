@@ -772,9 +772,11 @@ namespace ahaHLS {
       auto argTp = getPointedToType(getArg(f, i)->getType());
       if (isBuiltinFifoType(argTp)) {
         if (!settings.pushFifos) {
-          hcs.modSpecs[getArg(f, i)] = fifoSpec(builtinFifoWidth(argTp), 128);
+          //hcs.modSpecs[getArg(f, i)] = fifoSpec(builtinFifoWidth(argTp), 128);
+          hcs.bindValue(getArg(f, i), fifoSpec(builtinFifoWidth(argTp), 128));
         } else {
-          hcs.modSpecs[getArg(f, i)] = pushFifoSpec(builtinFifoWidth(argTp), 128);
+          //hcs.modSpecs[getArg(f, i)] = pushFifoSpec(builtinFifoWidth(argTp), 128);
+          hcs.bindValue(getArg(f, i), pushFifoSpec(builtinFifoWidth(argTp), 128));
         }
       }
     }
@@ -787,13 +789,16 @@ namespace ahaHLS {
           //cout << "Allocating type " << typeString(allocTp) << endl;
           if (isBuiltinFifoType(allocTp)) {
             if (!settings.pushFifos) {
-              hcs.modSpecs[instr] = fifoSpec(builtinFifoWidth(allocTp), 128);
+              //hcs.modSpecs[instr] = fifoSpec(builtinFifoWidth(allocTp), 128);
+              hcs.bindValue(instr, fifoSpec(builtinFifoWidth(allocTp), 128));
             } else {
-              hcs.modSpecs[instr] = pushFifoSpec(builtinFifoWidth(allocTp), 128);
+              //hcs.modSpecs[instr] = pushFifoSpec(builtinFifoWidth(allocTp), 128);
+              hcs.bindValue(instr, pushFifoSpec(builtinFifoWidth(allocTp), 128));
             }
           } else if (isBuiltinPushLBType(allocTp)) {
             LBSpec spec = lbSpecFromHLS(allocTp);
-            hcs.modSpecs[instr] = pushLBModSpec(spec); //lbInWidth(allocTp), lbOutWidth(allocTp));
+            //hcs.modSpecs[instr] = pushLBModSpec(spec); //lbInWidth(allocTp), lbOutWidth(allocTp));
+            hcs.bindValue(instr, pushLBModSpec(spec)); //lbInWidth(allocTp), lbOutWidth(allocTp));
           } else if (IntegerType::classof(allocTp)) {
             hcs.memSpecs[instr] = registerSpec(getTypeBitWidth(allocTp));
           } else {
