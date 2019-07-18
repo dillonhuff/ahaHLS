@@ -524,9 +524,22 @@ namespace ahaHLS {
         int dataWidth = getValueBitWidth(instr->getOperand(0));
         unitName = memSrc;
 
+        // string name = string(memVal->getName());
+        ModuleSpec mSpec = hcs.getModSpec(instr);
+        // cout << "Module spec for register " << mSpec << endl;
+        
+        // FunctionalUnit fu =
+        //   functionalUnitForSpec(name, mSpec);
+        // // fu.external = true;
+        // return fu;
+        
         wiring = {{"raddr", {true, 32, "raddr_" + unitName + "_reg"}}, {"wen", {true, 1, "wen_" + unitName + "_reg"}}, {"waddr", {true, 32, "waddr_" + unitName + "_reg"}}, {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}}};
         outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
-            
+
+        //FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
+        FunctionalUnit unit = {modSpec, unitName, wiring, outWires, isExternal};
+        return {unit, ports};
+        
       } else {
 
         assert(hcs.builtModSpec(memVal));
