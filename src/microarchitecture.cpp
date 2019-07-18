@@ -472,7 +472,6 @@ namespace ahaHLS {
 
       // If the store is a store to part of a register
       // then we need to detect that and write a masked store?
-      // Value* storeAddr = instr->getOperand(1);
       
       if (!Argument::classof(memVal)) {
         //cout << "&&&& Memory unit Using unit " << memSrc << " for " << instructionString(instr) << endl;
@@ -493,19 +492,12 @@ namespace ahaHLS {
       } else {
         assert(hcs.builtModSpec(memVal));
         
-        if (hcs.builtModSpec(memVal)) {
-          assert(memVal->getName() != "");
-
-          assert(memVal->getName() != "");
-          string name = string(memVal->getName());
-          FunctionalUnit fu =
-            functionalUnitForSpec(name, hcs.getModSpec(memVal));
-          fu.external = true;
-          return fu;
-
-        } else {
-          assert(false);
-        }
+        assert(memVal->getName() != "");
+        string name = string(memVal->getName());
+        FunctionalUnit fu =
+          functionalUnitForSpec(name, hcs.getModSpec(memVal));
+        fu.external = true;
+        return fu;
       }
 
     } else if (LoadInst::classof(instr)) {
@@ -529,11 +521,6 @@ namespace ahaHLS {
       }
       
       if (!Argument::classof(memVal)) {
-        if (contains_key(memVal, hcs.memSpecs)) {
-          string name = map_find(memVal, hcs.memSpecs).modSpec.name;
-          //cout << "Setting " << valueString(memVal) << " to " << name << endl;
-        }
-        
         int dataWidth = getValueBitWidth(instr->getOperand(0));
         unitName = memSrc;
 
@@ -544,17 +531,12 @@ namespace ahaHLS {
 
         assert(hcs.builtModSpec(memVal));
 
-        if (hcs.builtModSpec(memVal)) {
-          assert(memVal->getName() != "");
-          string name = string(memVal->getName());
-          FunctionalUnit fu =
-            //functionalUnitForSpec(name, map_find(memVal, hcs.modSpecs));
-            functionalUnitForSpec(name, hcs.getModSpec(memVal));
-          fu.external = true;
-          return fu;
-        } else {
-          assert(false);
-        }
+        assert(memVal->getName() != "");
+        string name = string(memVal->getName());
+        FunctionalUnit fu =
+          functionalUnitForSpec(name, hcs.getModSpec(memVal));
+        fu.external = true;
+        return fu;
       }
 
     }
