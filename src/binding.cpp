@@ -108,13 +108,9 @@ namespace ahaHLS {
 
       } else {
         assert(hcs.builtModSpec(memVal));
-        if (hcs.builtModSpec(memVal)) {
-          assert(memVal->getName() != "");
+        assert(memVal->getName() != "");
 
-          return hcs.getModSpec(memVal);
-        } else {
-          assert(false);
-        }
+        return hcs.getModSpec(memVal);
       }
 
     } else if (LoadInst::classof(instr)) {
@@ -151,14 +147,9 @@ namespace ahaHLS {
         modParams = {{"WIDTH", to_string(dataWidth)}};
         
       } else {
-
         assert(hcs.builtModSpec(memVal));
-        if (hcs.builtModSpec(memVal)) {
-          assert(memVal->getName() != "");
-          return hcs.getModSpec(memVal);
-        } else {
-          assert(false);
-        }
+        assert(memVal->getName() != "");
+        return hcs.getModSpec(memVal);
       }
 
     }
