@@ -124,7 +124,7 @@ namespace ahaHLS {
 
       Value* loadArg = instr->getOperand(0);
       if (GetElementPtrInst::classof(loadArg)) {
-        assert(false);
+        //assert(false);
         
         GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(loadArg);
         if (!isRAMAddressCompGEP(gep, memSrcs)) {
