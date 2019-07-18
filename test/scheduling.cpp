@@ -2464,11 +2464,13 @@ namespace ahaHLS {
     auto reg = builder.CreateAlloca(intType(32), nullptr, "dhsreg");
     auto ldA = loadRAMVal(builder, getArg(srUser, 0), zero);
 
-    auto gpr = builder.CreateGEP(reg, zero);
+    //auto gpr = builder.CreateGEP(reg, zero);
 
-    builder.CreateStore(ldA, gpr);
+    //builder.CreateStore(ldA, gpr);
+    builder.CreateStore(ldA, reg);
     
-    auto v = builder.CreateLoad(gpr);
+    //auto v = builder.CreateLoad(gpr);
+    auto v = builder.CreateLoad(reg);
     storeRAMVal(builder, getArg(srUser, 1), zero, v);
     builder.CreateRet(nullptr);
 
@@ -2563,8 +2565,10 @@ namespace ahaHLS {
 
     void shift(IRBuilder<>& builder) {
       for (int i = 0; i < depth - 1; i++) {
-        auto ldVal = loadVal(builder,registers[i + 1], mkInt("0", 32));
-        storeVal(builder, registers[i], mkInt("0", 32), ldVal);
+        //auto ldVal = loadVal(builder,registers[i + 1], mkInt("0", 32));
+        auto ldVal = builder.CreateLoad(registers[i + 1]);
+        //storeVal(builder, registers[i], mkInt("0", 32), ldVal);
+        builder.CreateStore(ldVal, registers[i]);
       }
     }
 
@@ -2600,10 +2604,12 @@ namespace ahaHLS {
 
     for (int i = 0; i < sr.depth; i++) {
       sr.shift(builder);
-      storeVal(builder, sr.registers[sr.depth - 1], zero, inVal);
+      //storeVal(builder, sr.registers[sr.depth - 1], zero, inVal);
+      builder.CreateStore(inVal, sr.registers[sr.depth - 1]);
     }
 
-    auto lastVal = loadVal(builder, sr.registers[0], zero);
+    //auto lastVal = loadVal(builder, sr.registers[0], zero);
+    auto lastVal = builder.CreateLoad(sr.registers[0]);
     storeRAMVal(builder,
                 getArg(srUser, 1),
                 zero,
