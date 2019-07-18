@@ -14,27 +14,6 @@ using namespace dbhc;
 using namespace llvm;
 using namespace std;
 
-// It seems as though the default schedule of this pipeline produces
-// overlapping state visits, though Im not sure if I see that in the state
-// transition code. It is ok for pipelined states to contain multiple branches,
-// but if a basic block is pipelined, with its branch possibly going to a subsequent
-// block in the pipeline then that subsequent block must be scheduled separately
-// since it cannot have multiple blocks active at a time.
-// OR: I could allow states to activate from multiple sources as long as
-// the basic blocks connecting them could never overlap
-// OR: I could set basic blocks in a pipeline to finish before another block
-// starts, due to branch movement this wouldnt force sequential execution, but
-// would avoid state overlap. The problem is that it would force small blocks
-// to be split across states when that really is not needed.
-// OR: I could add some real hazard resolution that would distinguish between
-// states where operations are actually happening and wait times between operations
-// with side effects
-
-// Hazard resolution is now the big problem. It shows up first because
-// of the outer loop pipelines need to wait one cycle before reading.
-// This may not be the only problem with the outer loop pipeline, but it is
-// one problem
-
 namespace ahaHLS {
 
   PortController& makeMix(const int mainWidth,
@@ -402,20 +381,6 @@ namespace ahaHLS {
       }
     }
 
-    // if (arch.memoryMap.size() > 0) {
-    //   // Add RAM ports?
-    //   for (int i = 0; i < 3; i++) {
-    //     pts.push_back(outputPort(32, "waddr_" + to_string(i)));
-    //     pts.push_back(outputPort(32, "wdata_" + to_string(i)));
-    //     pts.push_back(outputPort(1, "wen_" + to_string(i)));                
-
-    //     pts.push_back(outputPort(32, "raddr_" + to_string(i)));
-    //     pts.push_back(inputPort(32, "rdata_" + to_string(i)));
-    //     pts.push_back(outputPort(1, "ren_" + to_string(i)));                
-
-    //   }
-    // }
-    
     // Add value parameters to architecture
     for (auto& arg : arch.stg.getFunction()->args()) {
       if (!PointerType::classof(arg.getType())) {
@@ -529,46 +494,29 @@ namespace ahaHLS {
         outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
 
       } else {
-        //if (contains_key(memVal, hcs.modSpecs)) {
+        assert(hcs.builtModSpec(memVal));
+        
         if (hcs.builtModSpec(memVal)) {
           assert(memVal->getName() != "");
 
           assert(memVal->getName() != "");
           string name = string(memVal->getName());
           FunctionalUnit fu =
-            //functionalUnitForSpec(name, map_find(memVal, hcs.modSpecs));
-            functionalUnitForSpec(name, hcs.getModSpec(memVal)); //map_find(memVal, hcs.modSpecs));
+            functionalUnitForSpec(name, hcs.getModSpec(memVal));
           fu.external = true;
           return fu;
 
         } else {
           assert(false);
-          // isExternal = true;
-
-          // int inputWidth = getValueBitWidth(instr->getOperand(0));
-          // // These names need to match names created in the portlist. So
-          // // maybe this should be used to create the port list? Generate the
-          // // names here and then write ports for them?
-          // string wStr = to_string(usage.writeNum);
-
-          // unitName = string(instr->getOpcodeName()) + "_" + wStr;
-                                                                        
-          // wiring = {{"wen", {true, 1, "wen_" + wStr}}, {"waddr", {true, 32, "waddr_" + wStr}}, {"wdata", {true, inputWidth, "wdata_" + wStr}}};
-
-          // outWires = {{"rdata", {false, inputWidth, "rdata_" + unitName}}};
-          // usage.writeNum++;
         }
       }
 
     } else if (LoadInst::classof(instr)) {
 
-      //cout << "Finding memories for " << valueString(instr) << endl;
-      
       Value* memVal = map_find(instr, memSrcs);          
       string memSrc = memName(instr, memSrcs, memNames);
 
       // If we are loading from an internal RAM, not an argument
-
       Value* loadArg = instr->getOperand(0);
       if (GetElementPtrInst::classof(loadArg)) {
         GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(loadArg);
@@ -578,7 +526,6 @@ namespace ahaHLS {
           outWires = {{"out_data", wire(inWidth, unitName + "_out")}};
           isExternal = false;
 
-          // ModuleSpec mSpec{modParams, modName, {}, defaults};
           FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
           return unit;
         }
@@ -598,7 +545,8 @@ namespace ahaHLS {
             
       } else {
 
-        //if (contains_key(memVal, hcs.modSpecs)) {
+        assert(hcs.builtModSpec(memVal));
+
         if (hcs.builtModSpec(memVal)) {
           assert(memVal->getName() != "");
           string name = string(memVal->getName());
@@ -609,22 +557,6 @@ namespace ahaHLS {
           return fu;
         } else {
           assert(false);
-          // isExternal = true;
-        
-          // unitName = string(instr->getOpcodeName()) + "_" + to_string(usage.readNum);
-          // int inputWidth = getValueBitWidth(instr);
-
-          // wiring = {{"raddr", {true, 32, "raddr_" + to_string(usage.readNum)}}, {"ren", {true, 1, "ren_" + to_string(usage.readNum)}}};
-
-          // ports = {{instr->getOperand(0), "raddr_" + to_string(usage.readNum)},
-          //          {instr, "rdata_" + to_string(usage.readNum)},
-          //          {mkInt(1, 1), "ren_" + to_string(usage.readNum)}};
-          // // Note: I think the "_reg not found" error is caused by the default
-          // // value of the functional unit not containing the ren default entry?
-          // //defaults.insert({"ren", 0});
-
-          // outWires = {{"rdata", {false, inputWidth, "rdata_" + to_string(usage.readNum)}}};
-          // usage.readNum++;
         }
       }
 
