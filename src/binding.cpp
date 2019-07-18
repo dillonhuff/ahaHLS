@@ -81,12 +81,9 @@ namespace ahaHLS {
                            HardwareConstraints& hcs,
                            //ResourceUsage& usage,
                            llvm::Instruction* instr) {
-    //string unitName = instr->getOpcodeName() + to_string(usage.resSuffix);    
-    
     assert(LoadInst::classof(instr) || StoreInst::classof(instr));
     string modName = "add";
 
-    //auto rStr = unitName;
     map<string, string> modParams;
     map<string, int> defaults;
 
@@ -97,13 +94,11 @@ namespace ahaHLS {
 
       // If the store is a store to part of a register
       // then we need to detect that and write a masked store?
-      // Value* storeAddr = instr->getOperand(1);
       
       if (!Argument::classof(memVal)) {
         //cout << "&&&& Memory unit Using unit " << memSrc << " for " << instructionString(instr) << endl;
         if (contains_key(memVal, hcs.memSpecs)) {
           modName = map_find(memVal, hcs.memSpecs).modSpec.name;
-          //modName = hcs.getModSpec(memVal).modSpec.name;
         } else {
           modName = "register";
         }
@@ -112,21 +107,13 @@ namespace ahaHLS {
         modParams = {{"WIDTH", to_string(dataWidth)}};
 
       } else {
-        //if (contains_key(memVal, hcs.modSpecs)) {
+        assert(hcs.builtModSpec(memVal));
         if (hcs.builtModSpec(memVal)) {
           assert(memVal->getName() != "");
 
-          assert(memVal->getName() != "");
-          //return map_find(memVal, hcs.modSpecs);
           return hcs.getModSpec(memVal);
-
         } else {
           assert(false);
-          // modName = "store";
-          // //isExternal = true;
-          // string wStr = to_string(usage.writeNum);
-
-          // defaults.insert({"wen", 0});
         }
       }
 
@@ -154,9 +141,7 @@ namespace ahaHLS {
       
       if (!Argument::classof(memVal)) {
         if (contains_key(memVal, hcs.memSpecs)) {
-          //assert(false);
           string name = map_find(memVal, hcs.memSpecs).modSpec.name;
-          //string name = hcs.getModSpec(memVal).modSpec.name;
           modName = name;
         } else {
           modName = "register";
@@ -167,21 +152,12 @@ namespace ahaHLS {
         
       } else {
 
-        //if (contains_key(memVal, hcs.modSpecs)) {
+        assert(hcs.builtModSpec(memVal));
         if (hcs.builtModSpec(memVal)) {
           assert(memVal->getName() != "");
-          //return map_find(memVal, hcs.modSpecs);
           return hcs.getModSpec(memVal);
-
         } else {
           assert(false);
-          // //isExternal = true;
-        
-          // modName = "load";
-
-          // // Note: I think the "_reg not found" error is caused by the default
-          // // value of the functional unit not containing the ren default entry?
-          // defaults.insert({"ren", 0});
         }
       }
 

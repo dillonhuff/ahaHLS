@@ -364,9 +364,6 @@ namespace ahaHLS {
 
         if (arch.hcs.hasModSpec(argV)) {
 
-          //cout << "Contains key = " << contains_key(argV, arch.hcs.modSpecs) << endl;
-          //cout << "Has arg spec = " << arch.hcs.hasArgumentSpec(argV) << endl;
-          
           ModuleSpec modSpec = arch.hcs.getModSpec(argV);          
           for (auto p : modSpec.ports) {
             Port cpy = p.second;
