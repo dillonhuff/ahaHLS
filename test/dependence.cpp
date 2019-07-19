@@ -17,6 +17,7 @@ using namespace std;
 
 namespace ahaHLS {
 
+  // Now: What do I want to do with 
   class SymFrame {
   public:
     SymFrame* lastFrame;
@@ -47,6 +48,26 @@ namespace ahaHLS {
         return blk == b;
       }
       return false;
+    }
+
+    void printPaths() {
+      cout << "Printing paths" << endl;
+      
+      assert(active.size() > 0);
+      for (auto f : active) {
+        SymFrame* lastFrame = f; //active.back();
+        deque<SymFrame*> frames;
+        do {
+          frames.push_back(lastFrame);
+          lastFrame = lastFrame->lastFrame;
+        } while (lastFrame != nullptr);
+
+        cout << "Path length " << frames.size() << endl;
+        reverse(frames);
+        for (auto f : frames) {
+          cout << tab(1) << valueString(f->activeInstruction) << ", " << f->lastBlock << endl;
+        }
+      }
     }
     
     void processNextFrame() {
@@ -131,10 +152,12 @@ namespace ahaHLS {
         trace.setStartBlock(h);
 
         cout << "# of active blocks " << trace.active.size() << endl;
-        for (int i = 0; i < 500; i++) {
+        for (int i = 0; i < 50; i++) {
           //cout << "# of active blocks " << trace.active.size() << endl;
           trace.processNextFrame();
         }
+
+        trace.printPaths();
 
         cout << "Done" << endl;
       }
