@@ -525,7 +525,7 @@ namespace ahaHLS {
         unitName = memSrc;
 
         // string name = string(memVal->getName());
-        ModuleSpec mSpec = hcs.getModSpec(instr);
+        ModuleSpec modSpec = hcs.getModSpec(instr);
         // cout << "Module spec for register " << mSpec << endl;
         
         // FunctionalUnit fu =
