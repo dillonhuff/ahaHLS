@@ -11,6 +11,7 @@
 #include <llvm/IR/Dominators.h>
 #include <llvm/Analysis/LoopInfo.h>
 
+using namespace dbhc;
 using namespace llvm;
 using namespace std;
 
@@ -18,26 +19,90 @@ namespace ahaHLS {
 
   class SymFrame {
   public:
+    SymFrame* lastFrame;
     BasicBlock* lastBlock;
+    Instruction* activeInstruction;
   };
 
   class SymTrace {
   public:
-    
+
+    Loop* loop;
+    std::deque<SymFrame*> processed;
     std::deque<SymFrame*> active;
 
     void setStartBlock(BasicBlock* blk) {
       for (auto pred : predecessors(blk)) {
         auto frame = new SymFrame();
         frame->lastBlock = pred;
+        frame->activeInstruction = &(blk->front());
+        frame->lastFrame = nullptr;
+        
         active.push_back(frame);
       }
     }
 
+    bool inLoop(BasicBlock* blk) {
+      for (auto b : loop->getBlocks()) {
+        return blk == b;
+      }
+      return false;
+    }
+    
+    void processNextFrame() {
+      auto frame = active.front();
+      active.pop_front();
+
+      Instruction* instr =
+        frame->activeInstruction;
+      assert(instr != nullptr);
+
+      cout << "Processing " << valueString(instr) << endl;
+
+      // TODO: Add constraints for instruction
+      // Generate new states
+      // Add states to active queue
+
+      if (BranchInst::classof(instr)) {
+        //cout << "Error: Cant handle branches yet" << endl;
+        cout << "Branch " << valueString(instr) << " splitting" << endl;
+        for (BasicBlock* succ : successors(instr->getParent())) {
+          // Ignore out of loop branches
+          if (inLoop(succ)) {
+            SymFrame* nextF = new SymFrame();
+
+            nextF->lastBlock = instr->getParent();
+            nextF->activeInstruction = &(succ->front());
+            assert(nextF->activeInstruction != nullptr);          
+            nextF->lastFrame = frame;
+        
+            active.push_back(nextF);
+          }
+        }
+      } else {
+        SymFrame* nextF = new SymFrame();
+        nextF->lastBlock = frame->lastBlock;
+        nextF->activeInstruction = instr->getNextNonDebugInstruction();
+        assert(nextF->activeInstruction != nullptr);
+        nextF->lastFrame = frame;
+        
+        active.push_back(nextF);
+      }
+
+      processed.push_back(frame);
+    }
+
     ~SymTrace() {
+
+      for (auto frame : processed) {
+        delete frame;
+      }
+      
       for (auto frame : active) {
         delete frame;
       }
+
+      
     }
   };
   
@@ -62,9 +127,16 @@ namespace ahaHLS {
         cout << valueString(h) << endl;
 
         SymTrace trace;
+        trace.loop = loop;
         trace.setStartBlock(h);
 
         cout << "# of active blocks " << trace.active.size() << endl;
+        for (int i = 0; i < 500; i++) {
+          //cout << "# of active blocks " << trace.active.size() << endl;
+          trace.processNextFrame();
+        }
+
+        cout << "Done" << endl;
       }
     }
   };
