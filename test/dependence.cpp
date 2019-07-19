@@ -50,12 +50,18 @@ namespace ahaHLS {
       return false;
     }
 
+    // Q: What info do I want to add to each frame
+    // Idea: II = 1 but sequential inside the loop pruning?
+    // Q: Are hazard assumptions (phi values, ram address value assumptions
+    // branch condition assumptions?) Branch conditions probably require
+    // more inference to use because the value of a branch condition variable
+    // may not itself be used
     void printPaths() {
       cout << "Printing paths" << endl;
       
       assert(active.size() > 0);
       for (auto f : active) {
-        SymFrame* lastFrame = f; //active.back();
+        SymFrame* lastFrame = f;
         deque<SymFrame*> frames;
         do {
           frames.push_back(lastFrame);
