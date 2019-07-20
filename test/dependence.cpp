@@ -21,11 +21,24 @@ namespace ahaHLS {
   
   class Assumption {
   public:
+    bool areEqua;
+    SymFrame* a;
+    SymFrame* b;    
   };
 
+  Assumption equal(SymFrame* a, SymFrame* b) {
+    return {true, a, b};
+  }
+
+  Assumption notEqual(SymFrame* a, SymFrame* b) {
+    return {false, a, b};
+  }
+  
   class SymHazard {
   public:
     SymFrame* source;
+
+    SymHazard(SymFrame* source_) : source(source_) {}
   };
 
   class SymFrame {
@@ -37,12 +50,49 @@ namespace ahaHLS {
     vector<Assumption*> assumptions;
     vector<SymHazard*> hazards;
 
+    SymFrame* getOperand(const int operandNum) {
+      SymFrame* toSearch = lastFrame;
+      Value* toSearchFor = activeInstruction->getOperand(operandNum);
+
+      assert(Instruction::classof(toSearchFor));
+      
+      while (toSearch != nullptr) {
+        if (toSearch->activeInstruction == toSearchFor) {
+          break;
+        }
+
+        toSearch = toSearch->lastFrame;
+      }
+
+      assert(toSearch != nullptr);
+
+      return toSearch;
+    }
+    
+    void addAssumption(const Assumption& a) {
+      assumptions.push_back(new Assumption(a));
+    }
+
+    void addHazard(const SymHazard& h) {
+      hazards.push_back(new SymHazard(h));
+    }
+
     SymFrame() : lastFrame(nullptr),
                  lastBlock(nullptr),
                  activeInstruction(nullptr),
                  tripDepth(0),
                  assumptions({}),
                  hazards({}) {}
+
+    ~SymFrame() {
+      for (auto a : assumptions) {
+        delete a;
+      }
+
+      for (auto h : hazards) {
+        delete h;
+      }
+    }
   };
 
   std::ostream& operator<<(std::ostream& out, const SymFrame& frame) {
@@ -147,41 +197,78 @@ namespace ahaHLS {
             active.push_back(nextF);
           }
         }
-      } // else if (matchesCall("ram.read", instr)) {
-        // cout << "Handling load " << valueString(instr) << endl;
-        // Value* ram = instr->getOperand(0);
-        // Value* addr = instr->getOperand(1);
+      } else if (matchesCall("ram.read", instr)) {
+        cout << "Handling load " << valueString(instr) << endl;
+        Value* ram = instr->getOperand(0);
+        Value* addr = instr->getOperand(1);
 
-        // // This instruction depends on every data operands most recent
-        // // definition
-        // //SymFrame* mrd = mostRecentDefinition(addr, frame);
+        // This instruction depends on every data operands most recent
+        // definition
+        //SymFrame* mrd = mostRecentDefinition(addr, frame);
 
-        // // This instruction has hazard with every earlier store instruction
-        // // to the RAM that might have had the same address
+        // This instruction has hazard with every earlier store instruction
+        // to the RAM that might have had the same address
 
-        // cout << "Splitting on value of addres " << valueString(addr) << endl;
-        // // vector<SymFrame*> allHazardStores =
-        // //   findEarlierStoresToSameLocation(ram, addr);
+        cout << "Splitting on value of addres " << valueString(addr) << endl;
+        vector<SymFrame*> allHazardStores =
+          findEarlierStoresToSameLocation(ram, addr, frame);
 
-        
+        cout << "Possible hazards" << endl;
+        for (auto st : allHazardStores) {
+          cout << tab(1) << *st << endl;
+        }
 
-        // //assert(false);
-      //}
-      else {
-        // Handling instructions with no conditional dependencies
-        SymFrame* nextF = new SymFrame();
-        nextF->lastBlock = frame->lastBlock;
-        nextF->activeInstruction = instr->getNextNonDebugInstruction();
-        assert(nextF->activeInstruction != nullptr);
-        nextF->lastFrame = frame;
-        nextF->tripDepth = frame->tripDepth;
-        
+        if (allHazardStores.size() == 0) {
+          SymFrame* nextF = nextFrame(frame);
+          active.push_back(nextF);
+        } else {
+          assert(allHazardStores.size() == 1);
+          SymFrame* hazardStore = allHazardStores.at(0);
+
+          SymFrame* nextFTrue = nextFrame(frame);
+          nextFTrue->addAssumption(equal(frame, hazardStore->getOperand(1)));
+          nextFTrue->addHazard(SymHazard(hazardStore));
+
+          SymFrame* nextFFalse = nextFrame(frame);
+          nextFFalse->addAssumption(notEqual(frame, hazardStore->getOperand(1)));
+
+          active.push_back(nextFTrue);
+          active.push_back(nextFFalse);                    
+        }
+    } else {
+        SymFrame* nextF = nextFrame(frame);
         active.push_back(nextF);
       }
 
       processed.push_back(frame);
     }
 
+    SymFrame* nextFrame(SymFrame* frame) {
+      auto instr = frame->activeInstruction;
+      SymFrame* nextF = new SymFrame();
+      nextF->lastBlock = frame->lastBlock;
+      nextF->activeInstruction = instr->getNextNonDebugInstruction();
+      assert(nextF->activeInstruction != nullptr);
+      nextF->lastFrame = frame;
+      nextF->tripDepth = frame->tripDepth;
+      return nextF;
+    }
+
+    vector<SymFrame*> findEarlierStoresToSameLocation(Value* ram, Value* addr, SymFrame* source) {
+      vector<SymFrame*> hazards;
+      SymFrame* currentH = source;
+      while (currentH != nullptr) {
+        auto i = currentH->activeInstruction;
+        if (matchesCall("ram.write", i)) {
+          if (i->getOperand(0) == ram) {
+            hazards.push_back(currentH);
+          }
+        }
+        currentH = currentH->lastFrame;
+      }
+      return hazards;
+    }
+    
     ~SymTrace() {
 
       for (auto frame : processed) {
