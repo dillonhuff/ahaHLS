@@ -17,14 +17,40 @@ using namespace std;
 
 namespace ahaHLS {
 
-  // Now: What do I want to do with 
+  class SymFrame;
+  
+  class Assumption {
+  public:
+  };
+
+  class SymHazard {
+  public:
+    SymFrame* source;
+  };
+
   class SymFrame {
   public:
     SymFrame* lastFrame;
     BasicBlock* lastBlock;
     Instruction* activeInstruction;
+    int tripDepth;
+    vector<Assumption*> assumptions;
+    vector<SymHazard*> hazards;
+
+    SymFrame() : lastFrame(nullptr),
+                 lastBlock(nullptr),
+                 activeInstruction(nullptr),
+                 tripDepth(0),
+                 assumptions({}),
+                 hazards({}) {}
   };
 
+  std::ostream& operator<<(std::ostream& out, const SymFrame& frame) {
+    out << valueString(frame.activeInstruction);
+    out << ": " << frame.tripDepth;
+    return out;
+  }
+  
   class SymTrace {
   public:
 
@@ -71,9 +97,18 @@ namespace ahaHLS {
         cout << "Path length " << frames.size() << endl;
         reverse(frames);
         for (auto f : frames) {
-          cout << tab(1) << valueString(f->activeInstruction) << ", " << f->lastBlock << endl;
+          cout << tab(1) << *f << endl;
+          //cout << tab(1) << valueString(f->activeInstruction) << ", " << f->lastBlock << endl;
         }
       }
+    }
+
+    bool isBackwardJump(BasicBlock* src, BasicBlock* dest) {
+      if (dest == loop->getHeader()) {
+        return true;
+      }
+
+      return false;
     }
     
     void processNextFrame() {
@@ -102,6 +137,12 @@ namespace ahaHLS {
             nextF->activeInstruction = &(succ->front());
             assert(nextF->activeInstruction != nullptr);          
             nextF->lastFrame = frame;
+
+            if (isBackwardJump(frame->activeInstruction->getParent(), succ)) {
+              nextF->tripDepth = frame->tripDepth + 1;
+            } else {
+              nextF->tripDepth = frame->tripDepth;              
+            }
         
             active.push_back(nextF);
           }
@@ -112,6 +153,7 @@ namespace ahaHLS {
         nextF->activeInstruction = instr->getNextNonDebugInstruction();
         assert(nextF->activeInstruction != nullptr);
         nextF->lastFrame = frame;
+        nextF->tripDepth = frame->tripDepth;
         
         active.push_back(nextF);
       }
