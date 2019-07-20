@@ -20,6 +20,8 @@ namespace ahaHLS {
   class SymFrame;
 
   std::ostream& operator<<(std::ostream& out, const SymFrame& frame);
+
+  void printDefinedValue(std::ostream& out, const SymFrame& frame);
   
   class Assumption {
   public:
@@ -29,7 +31,9 @@ namespace ahaHLS {
   };
 
   std::ostream& operator<<(std::ostream& out, const Assumption& a) {
-    out << *(a.a) << (a.areEqual ? " == " : " != ") << *(a.b);
+    printDefinedValue(out, *(a.a));
+    out << (a.areEqual ? " == " : " != ");
+    printDefinedValue(out, *(a.b));    
     return out;
   }
 
@@ -102,9 +106,17 @@ namespace ahaHLS {
     }
   };
 
+  void printDefinedValue(std::ostream& out, const SymFrame& frame) {
+    out << valueString(frame.activeInstruction) << ": " << frame.tripDepth;
+  }
+  
   std::ostream& operator<<(std::ostream& out, const SymFrame& frame) {
-    out << valueString(frame.activeInstruction);
-    out << ": " << frame.tripDepth;
+    printDefinedValue(out, frame);
+
+    out << ", assume: ";
+    for (auto a : frame.assumptions) {
+      out << *a << ", ";
+    }
     return out;
   }
   
