@@ -18,13 +18,20 @@ using namespace std;
 namespace ahaHLS {
 
   class SymFrame;
+
+  std::ostream& operator<<(std::ostream& out, const SymFrame& frame);
   
   class Assumption {
   public:
-    bool areEqua;
+    bool areEqual;
     SymFrame* a;
     SymFrame* b;    
   };
+
+  std::ostream& operator<<(std::ostream& out, const Assumption& a) {
+    out << *(a.a) << (a.areEqual ? " == " : " != ") << *(a.b);
+    return out;
+  }
 
   Assumption equal(SymFrame* a, SymFrame* b) {
     return {true, a, b};
@@ -201,13 +208,6 @@ namespace ahaHLS {
         cout << "Handling load " << valueString(instr) << endl;
         Value* ram = instr->getOperand(0);
         Value* addr = instr->getOperand(1);
-
-        // This instruction depends on every data operands most recent
-        // definition
-        //SymFrame* mrd = mostRecentDefinition(addr, frame);
-
-        // This instruction has hazard with every earlier store instruction
-        // to the RAM that might have had the same address
 
         cout << "Splitting on value of addres " << valueString(addr) << endl;
         vector<SymFrame*> allHazardStores =
