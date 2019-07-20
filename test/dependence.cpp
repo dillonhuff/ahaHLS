@@ -147,7 +147,13 @@ namespace ahaHLS {
             active.push_back(nextF);
           }
         }
+      } else if (matchesCall("ram.read", instr)) {
+        cout << "Handling load " << valueString(instr) << endl;
+        Value* ram = instr->getOperand(0);
+        Value* addr = instr->getOperand(1);
+        assert(false);
       } else {
+        // Handling instructions with no conditional dependencies
         SymFrame* nextF = new SymFrame();
         nextF->lastBlock = frame->lastBlock;
         nextF->activeInstruction = instr->getNextNonDebugInstruction();
