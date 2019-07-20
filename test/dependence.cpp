@@ -147,12 +147,27 @@ namespace ahaHLS {
             active.push_back(nextF);
           }
         }
-      } else if (matchesCall("ram.read", instr)) {
-        cout << "Handling load " << valueString(instr) << endl;
-        Value* ram = instr->getOperand(0);
-        Value* addr = instr->getOperand(1);
-        assert(false);
-      } else {
+      } // else if (matchesCall("ram.read", instr)) {
+        // cout << "Handling load " << valueString(instr) << endl;
+        // Value* ram = instr->getOperand(0);
+        // Value* addr = instr->getOperand(1);
+
+        // // This instruction depends on every data operands most recent
+        // // definition
+        // //SymFrame* mrd = mostRecentDefinition(addr, frame);
+
+        // // This instruction has hazard with every earlier store instruction
+        // // to the RAM that might have had the same address
+
+        // cout << "Splitting on value of addres " << valueString(addr) << endl;
+        // // vector<SymFrame*> allHazardStores =
+        // //   findEarlierStoresToSameLocation(ram, addr);
+
+        
+
+        // //assert(false);
+      //}
+      else {
         // Handling instructions with no conditional dependencies
         SymFrame* nextF = new SymFrame();
         nextF->lastBlock = frame->lastBlock;
