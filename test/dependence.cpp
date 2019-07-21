@@ -17,6 +17,14 @@ using namespace std;
 
 namespace ahaHLS {
 
+  // Maybe: In each frame:
+  // Assumptions are eq / not equal on symbolic values
+  // Map from active instruction to its value (if the value exists)
+  class SymValue {
+  public:
+    std::string name;
+  };
+  
   class SymFrame;
 
   std::ostream& operator<<(std::ostream& out, const SymFrame& frame);
@@ -62,6 +70,7 @@ namespace ahaHLS {
     int tripDepth;
     vector<Assumption*> assumptions;
     vector<SymHazard*> hazards;
+    SymValue* instructionValue;
 
     SymFrame* getOperand(const int operandNum) {
       SymFrame* toSearch = lastFrame;
@@ -95,9 +104,12 @@ namespace ahaHLS {
                  activeInstruction(nullptr),
                  tripDepth(0),
                  assumptions({}),
-                 hazards({}) {}
+                 hazards({}),
+                 instructionValue(nullptr) {}
 
     ~SymFrame() {
+      delete instructionValue;
+      
       for (auto a : assumptions) {
         delete a;
       }
