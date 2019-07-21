@@ -634,5 +634,13 @@ namespace ahaHLS {
     return mems;
   }
 
+  bool isRAMStore(Instruction* before) {
+    return matchesCall("ram.write", before);
+  }
+
+  bool isRAMLoad(Instruction* before) {
+    return matchesCall("ram.read", before);    
+  }
+  
   
 }

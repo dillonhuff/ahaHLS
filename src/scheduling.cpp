@@ -1507,14 +1507,6 @@ namespace ahaHLS {
     return instrEnd(a) <= instrStart(b);
   }
 
-  bool isRAMStore(Instruction* before) {
-    return matchesCall("ram.write", before);
-  }
-
-  bool isRAMLoad(Instruction* before) {
-    return matchesCall("ram.read", before);    
-  }
-  
   bool couldHaveRAWDep(Instruction* before, Instruction* after) {
     if (StoreInst::classof(before) && LoadInst::classof(after)) {
       return true;

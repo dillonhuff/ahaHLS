@@ -30,7 +30,7 @@ namespace ahaHLS {
   std::ostream& operator<<(std::ostream& out, const SymFrame& frame);
 
   void printDefinedValue(std::ostream& out, const SymFrame& frame);
-  
+
   class Assumption {
   public:
     bool areEqual;
@@ -55,9 +55,12 @@ namespace ahaHLS {
   
   class SymHazard {
   public:
+    std::string typeName;
     SymFrame* source;
 
-    SymHazard(SymFrame* source_) : source(source_) {}
+    SymHazard(const std::string& typeName_, SymFrame* source_) :
+      typeName(typeName_),
+      source(source_) {}
   };
 
   // TODO: Create symbolic value class (and move activeInstruction to it?)
@@ -89,6 +92,11 @@ namespace ahaHLS {
       assert(toSearch != nullptr);
 
       return toSearch;
+    }
+
+    int dd(const SymHazard& h) const {
+      int dd = tripDepth - h.source->tripDepth;
+      return dd;
     }
     
     void addAssumption(const Assumption& a) {
@@ -150,6 +158,18 @@ namespace ahaHLS {
         
         active.push_back(frame);
       }
+    }
+
+    std::set<SymFrame*> allNodes() const {
+      set<SymFrame*> allN;
+      for (auto n : processed) {
+        allN.insert(n);
+      }
+      for (auto n : active) {
+        allN.insert(n);
+      }
+
+      return allN;
     }
 
     bool inLoop(BasicBlock* blk) {
@@ -267,7 +287,7 @@ namespace ahaHLS {
 
             SymFrame* nextFTrue = nextFrame(frame);
             nextFTrue->addAssumption(equal(nextFTrue->getOperand(1), hazardStore->getOperand(1)));
-            nextFTrue->addHazard(SymHazard(hazardStore));
+            nextFTrue->addHazard(SymHazard("ram_RAW", hazardStore));
 
             SymFrame* nextFFalse = nextFrame(frame);
             nextFFalse->addAssumption(notEqual(nextFFalse->getOperand(1), hazardStore->getOperand(1)));
@@ -382,12 +402,29 @@ namespace ahaHLS {
         while (processedNode) {
           processedNode = trace.processNextFrame(depth);          
         }
-        // // Now: Check that every 
-        // cout << "# of active blocks " << trace.active.size() << endl;
-        // for (int i = 0; i < 40; i++) {
-        //   //cout << "# of active blocks " << trace.active.size() << endl;
-        //   bool processedNode = trace.processNextFrame();
-        // }
+
+        for (auto node : trace.allNodes()) {
+          if (isRAMLoad(node->activeInstruction)) {
+            for (auto hazard : node->hazards) {
+              cout << "Found hazard... " << *node << ", DD = " << node->dd(*hazard) << ", type = " << hazard->typeName << endl;
+
+              SyntaxHazard sh;
+              sh.name = hazard->typeName;
+              sh.source = hazard->source->activeInstruction;
+              sh.impeded = node->activeInstruction;
+
+              if (!contains_key(sh, hazardDDs)) {
+                hazardDDs[sh] = node->dd(*hazard);
+              } else {
+                int currentDD = hazardDDs.at(sh);
+                int newDD = node->dd(*hazard);
+                if (newDD < currentDD) {
+                  hazardDDs[sh] = newDD;
+                }
+              }
+            }
+          }
+        }
 
         trace.printPaths();
 
@@ -401,7 +438,9 @@ namespace ahaHLS {
 
     int rawDD(llvm::Instruction* load,
               llvm::Instruction* store) {
-      return 1;
+      assert(contains_key({"ram_RAW", store, load}, hazardDDs));
+      
+      return map_find({"ram_RAW", store, load}, hazardDDs);
     }
   };
   

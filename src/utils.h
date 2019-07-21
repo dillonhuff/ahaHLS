@@ -267,5 +267,8 @@ namespace ahaHLS {
   std::map<llvm::Instruction*, llvm::Value*>
   memoryOpLocations(llvm::Function* f);
   
+  bool isRAMStore(llvm::Instruction* before);
+
+  bool isRAMLoad(llvm::Instruction* before);
   
 }
