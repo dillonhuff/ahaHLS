@@ -238,11 +238,11 @@ namespace ahaHLS {
           SymFrame* hazardStore = allHazardStores.at(0);
 
           SymFrame* nextFTrue = nextFrame(frame);
-          nextFTrue->addAssumption(equal(frame, hazardStore->getOperand(1)));
+          nextFTrue->addAssumption(equal(frame->getOperand(1), hazardStore->getOperand(1)));
           nextFTrue->addHazard(SymHazard(hazardStore));
 
           SymFrame* nextFFalse = nextFrame(frame);
-          nextFFalse->addAssumption(notEqual(frame, hazardStore->getOperand(1)));
+          nextFFalse->addAssumption(notEqual(frame->getOperand(1), hazardStore->getOperand(1)));
 
           active.push_back(nextFTrue);
           active.push_back(nextFFalse);                    
