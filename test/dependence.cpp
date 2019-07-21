@@ -333,12 +333,32 @@ namespace ahaHLS {
       
     }
   };
+
+  class SyntaxHazard {
+  public:
+    std::string name;
+    Instruction* source;
+    Instruction* impeded;
+  };
+
+#define CMP_FIELDS(x, y, fieldName) if (x.fieldName < y.fieldName) { return true; } if (x.fieldName > y.fieldName) { return false; }
+
+  bool operator<(const SyntaxHazard& x,
+                 const SyntaxHazard& y) {
+    CMP_FIELDS(x, y, name);
+    CMP_FIELDS(x, y, source);
+    CMP_FIELDS(x, y, impeded);
+
+    return false;
+  }
   
   class SymExe {
 
   public:
 
     llvm::Function* f;
+
+    map<SyntaxHazard, int> hazardDDs;
 
     SymExe(llvm::Function* f_) : f(f_) {}
 
