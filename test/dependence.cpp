@@ -173,10 +173,11 @@ namespace ahaHLS {
     }
 
     bool inLoop(BasicBlock* blk) {
-      for (auto b : loop->getBlocks()) {
-        return blk == b;
-      }
-      return false;
+      return loop->contains(blk);
+      // for (BasicBlock* b : loop->getBlocks()) {
+      //   return blk == b;
+      // }
+      // return false;
     }
 
     // Q: What info do I want to add to each frame
@@ -215,14 +216,24 @@ namespace ahaHLS {
     }
     
     bool processNextFrame(const int maxDepth) {
-      auto frame = active.front();
-      active.pop_front();
 
-      if ((frame->tripDepth == (maxDepth - 1)) &&
-          isLatchBranch(frame->activeInstruction)) {
-        active.push_back(frame);
+      SymFrame* frame = nullptr;
+      for (auto fr : active) {
+        if ((fr->tripDepth == (maxDepth - 1)) &&
+            isLatchBranch(fr->activeInstruction)) {
+          active.push_back(frame);
+          return false;
+        }
+      }
+
+      // Nothing left to process
+      if (frame == nullptr) {
         return false;
       }
+
+      //auto frame = active.front();
+      active.pop_front();
+
 
       Instruction* instr =
         frame->activeInstruction;
@@ -240,6 +251,7 @@ namespace ahaHLS {
         for (BasicBlock* succ : successors(instr->getParent())) {
           // Ignore out of loop branches
           if (inLoop(succ)) {
+
             SymFrame* nextF = new SymFrame();
 
             nextF->lastBlock = instr->getParent();
@@ -247,6 +259,7 @@ namespace ahaHLS {
             assert(nextF->activeInstruction != nullptr);          
             nextF->lastFrame = frame;
 
+            cout << "Branching to " << valueString(nextF->activeInstruction) << endl;
             if (isBackwardJump(frame->activeInstruction->getParent(), succ)) {
               nextF->tripDepth = frame->tripDepth + 1;
             } else {
@@ -254,8 +267,16 @@ namespace ahaHLS {
             }
         
             active.push_back(nextF);
+          } else {
+            cout << "block " << valueString(succ) << " not in loop" << endl;
+            cout << "Loop has " << loop->getBlocks().size() << " bbs" << endl;
+            for (auto blk : loop->getBlocks()) {
+              cout << valueString(blk) << endl;
+            }
           }
         }
+
+        cout << "Done with branch..." << endl;
       } else {
         auto nextInstr = instr->getNextNonDebugInstruction();
         
@@ -333,6 +354,7 @@ namespace ahaHLS {
     }
 
     bool isLatchBranch(Instruction* instr) {
+      cout << "Checking if " << valueString(instr) << " is loop exiting" << endl;
       if (BranchInst::classof(instr)) {
         return loop->isLoopExiting(instr->getParent());
       }
@@ -510,6 +532,9 @@ namespace ahaHLS {
 
     auto entryBlock = mkBB("entry_block", f);
     auto loopBlock = mkBB("loop_block", f);
+    auto loopForwardBlock = mkBB("loop_forward_block", f);
+    auto loopLoadBlock = mkBB("loop_load_block", f);
+    auto loopEndBlock = mkBB("loop_end_block", f);    
     auto exitBlock = mkBB("exit_block", f);
 
     ConstantInt* loopBound = mkInt("8", 32);
@@ -530,31 +555,47 @@ namespace ahaHLS {
     auto notFirstIter = loopBuilder.CreatePHI(intType(32), 2);
 
     auto pix = loadRAMVal(loopBuilder, imgRam, indPhi);
-    auto count = loadRAMVal(loopBuilder, histRam, pix);
-    auto nextCountN = loopBuilder.CreateAdd(count, one);
     auto lastCountInc = loopBuilder.CreateAdd(lastCount, one);    
 
     auto lastPixIsThisPix =
       loopBuilder.CreateAnd(notFirstIter, loopBuilder.CreateICmpEQ(pix, lastPix));
-    auto nextCount =
-      loopBuilder.CreateSelect(lastPixIsThisPix, lastCountInc, nextCountN);
-    auto storeNewCount = storeRAMVal(loopBuilder, histRam, pix, nextCount);
-    auto nextInd = loopBuilder.CreateAdd(indPhi, one);
-    auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
+    loopBuilder.CreateCondBr(lastPixIsThisPix, loopForwardBlock, loopLoadBlock);
 
+
+    IRBuilder<> loadBuilder(loopLoadBlock);
+    auto count = loadRAMVal(loadBuilder, histRam, pix);
+    auto nextCountN = loadBuilder.CreateAdd(count, one);
+    loadBuilder.CreateBr(loopEndBlock);
+
+    IRBuilder<> fwdBuilder(loopForwardBlock);
+    fwdBuilder.CreateBr(loopEndBlock);
+    
+    // auto nextCount =
+    //   loopBuilder.CreateSelect(lastPixIsThisPix, lastCountInc, nextCountN);
+
+    IRBuilder<> loopEndBuilder(loopEndBlock);
+    auto nextCount =
+      loopEndBuilder.CreatePHI(intType(32), 2);
+    auto storeNewCount = storeRAMVal(loopEndBuilder, histRam, pix, nextCount);
+    auto nextInd = loopEndBuilder.CreateAdd(indPhi, one);
+    auto exitCond = loopEndBuilder.CreateICmpNE(nextInd, loopBound);
+
+    nextCount->addIncoming(lastCountInc, loopForwardBlock);
+    nextCount->addIncoming(nextCountN, loopLoadBlock);
+    
     indPhi->addIncoming(zero, entryBlock);
-    indPhi->addIncoming(nextInd, loopBlock);
+    indPhi->addIncoming(nextInd, loopEndBlock);
 
     lastPix->addIncoming(zero, entryBlock);
-    lastPix->addIncoming(pix, loopBlock);
+    lastPix->addIncoming(pix, loopEndBlock);
 
     lastCount->addIncoming(zero, entryBlock);
-    lastCount->addIncoming(nextCount, loopBlock);
+    lastCount->addIncoming(nextCount, loopEndBlock);
 
     notFirstIter->addIncoming(mkInt(0, 1), entryBlock);
-    notFirstIter->addIncoming(mkInt(1, 1), loopBlock);
+    notFirstIter->addIncoming(mkInt(1, 1), loopEndBlock);
     
-    loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
+    loopEndBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
 
     IRBuilder<> exitBuilder(exitBlock);
     exitBuilder.CreateRet(nullptr);
