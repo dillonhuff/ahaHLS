@@ -417,6 +417,77 @@ namespace ahaHLS {
     engine.analyzeLoops(2);
   }
 
+  TEST_CASE("Symbolic analysis of histogram with forwarding") {
+    LLVMContext context;
+    setGlobalLLVMContext(&context);
+
+    auto mod = llvm::make_unique<Module>("Histogram with forwarding", context);
+    setGlobalLLVMModule(mod.get());
+
+    std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
+        sramType(32, 16)->getPointerTo()};
+    Function* f = mkFunc(inputs, "histogram", mod.get());
+
+    auto entryBlock = mkBB("entry_block", f);
+    auto loopBlock = mkBB("loop_block", f);
+    auto exitBlock = mkBB("exit_block", f);
+
+    ConstantInt* loopBound = mkInt("8", 32);
+    ConstantInt* zero = mkInt("0", 32);    
+    ConstantInt* one = mkInt("1", 32);    
+
+    IRBuilder<> builder(entryBlock);
+    builder.CreateBr(loopBlock);
+
+    auto histRam = getArg(f, 0);
+    auto imgRam = getArg(f, 1);    
+
+    IRBuilder<> loopBuilder(loopBlock);
+    auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
+
+    auto lastCount = loopBuilder.CreatePHI(intType(32), 2);
+    auto lastPix = loopBuilder.CreatePHI(intType(32), 2);
+    auto notFirstIter = loopBuilder.CreatePHI(intType(32), 2);
+
+    auto pix = loadRAMVal(loopBuilder, imgRam, indPhi);
+    auto count = loadRAMVal(loopBuilder, histRam, pix);
+    auto nextCountN = loopBuilder.CreateAdd(count, one);
+    auto lastCountInc = loopBuilder.CreateAdd(lastCount, one);    
+
+    auto lastPixIsThisPix =
+      loopBuilder.CreateAnd(notFirstIter, loopBuilder.CreateICmpEQ(pix, lastPix));
+    auto nextCount =
+      loopBuilder.CreateSelect(lastPixIsThisPix, lastCountInc, nextCountN);
+    storeRAMVal(loopBuilder, histRam, pix, nextCount);
+    auto nextInd = loopBuilder.CreateAdd(indPhi, one);
+    auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
+
+    indPhi->addIncoming(zero, entryBlock);
+    indPhi->addIncoming(nextInd, loopBlock);
+
+    lastPix->addIncoming(zero, entryBlock);
+    lastPix->addIncoming(pix, loopBlock);
+
+    lastCount->addIncoming(zero, entryBlock);
+    lastCount->addIncoming(nextCount, loopBlock);
+
+    notFirstIter->addIncoming(mkInt(0, 1), entryBlock);
+    notFirstIter->addIncoming(mkInt(1, 1), loopBlock);
+    
+    loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
+
+    IRBuilder<> exitBuilder(exitBlock);
+    exitBuilder.CreateRet(nullptr);
+
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
+    // Try to show that in any trace of depth 2
+    // either the load from image is to a different location than
+    // the prior iterations store, or that the loaded value is dead
+    SymExe engine(f);
+    engine.analyzeLoops(2);
+  }  
   // TEST_CASE("Computing dependence distances via loop vectorizer") {
   //   LLVMContext context;
   //   setGlobalLLVMContext(&context);
