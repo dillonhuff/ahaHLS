@@ -52,6 +52,8 @@ namespace ahaHLS {
     SymHazard(SymFrame* source_) : source(source_) {}
   };
 
+  // TODO: Create symbolic value class (and move activeInstruction to it?)
+  // Move assumption handling up in the hierarchy
   class SymFrame {
   public:
     SymFrame* lastFrame;
@@ -216,40 +218,49 @@ namespace ahaHLS {
             active.push_back(nextF);
           }
         }
-      } else if (matchesCall("ram.read", instr)) {
-        cout << "Handling load " << valueString(instr) << endl;
-        Value* ram = instr->getOperand(0);
-        Value* addr = instr->getOperand(1);
+      } else {
+        auto nextInstr = instr->getNextNonDebugInstruction();
+        
+        if (matchesCall("ram.read", nextInstr)) {
+          cout << "Handling load " << valueString(nextInstr) << endl;
+          Value* ram = nextInstr->getOperand(0);
+          Value* addr = nextInstr->getOperand(1);
 
-        cout << "Splitting on value of addres " << valueString(addr) << endl;
-        vector<SymFrame*> allHazardStores =
-          findEarlierStoresToSameLocation(ram, addr, frame);
+          cout << "Splitting on value of addres " << valueString(addr) << endl;
+          vector<SymFrame*> allHazardStores =
+            findEarlierStoresToSameLocation(ram, addr, frame);
 
-        cout << "Possible hazards" << endl;
-        for (auto st : allHazardStores) {
-          cout << tab(1) << *st << endl;
-        }
+          cout << "Possible hazards" << endl;
+          for (auto st : allHazardStores) {
+            cout << tab(1) << *st << endl;
+          }
 
-        if (allHazardStores.size() == 0) {
+          if (allHazardStores.size() == 0) {
+            SymFrame* nextF = nextFrame(frame);
+            active.push_back(nextF);
+          } else {
+
+            if (allHazardStores.size() != 1) {
+              printPaths();
+            }
+            
+            assert(allHazardStores.size() == 1);
+            SymFrame* hazardStore = allHazardStores.at(0);
+
+            SymFrame* nextFTrue = nextFrame(frame);
+            nextFTrue->addAssumption(equal(nextFTrue->getOperand(1), hazardStore->getOperand(1)));
+            nextFTrue->addHazard(SymHazard(hazardStore));
+
+            SymFrame* nextFFalse = nextFrame(frame);
+            nextFFalse->addAssumption(notEqual(nextFFalse->getOperand(1), hazardStore->getOperand(1)));
+
+            active.push_back(nextFTrue);
+            active.push_back(nextFFalse);                    
+          }
+        } else {
           SymFrame* nextF = nextFrame(frame);
           active.push_back(nextF);
-        } else {
-          assert(allHazardStores.size() == 1);
-          SymFrame* hazardStore = allHazardStores.at(0);
-
-          SymFrame* nextFTrue = nextFrame(frame);
-          nextFTrue->addAssumption(equal(frame->getOperand(1), hazardStore->getOperand(1)));
-          nextFTrue->addHazard(SymHazard(hazardStore));
-
-          SymFrame* nextFFalse = nextFrame(frame);
-          nextFFalse->addAssumption(notEqual(frame->getOperand(1), hazardStore->getOperand(1)));
-
-          active.push_back(nextFTrue);
-          active.push_back(nextFFalse);                    
         }
-    } else {
-        SymFrame* nextF = nextFrame(frame);
-        active.push_back(nextF);
       }
 
       processed.push_back(frame);
@@ -320,7 +331,7 @@ namespace ahaHLS {
         trace.setStartBlock(h);
 
         cout << "# of active blocks " << trace.active.size() << endl;
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 40; i++) {
           //cout << "# of active blocks " << trace.active.size() << endl;
           trace.processNextFrame();
         }
