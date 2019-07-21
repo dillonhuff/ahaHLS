@@ -165,7 +165,7 @@ namespace ahaHLS {
           lastFrame = lastFrame->lastFrame;
         } while (lastFrame != nullptr);
 
-        cout << "Path length " << frames.size() << endl;
+        cout << "---- Path length " << frames.size() << endl;
         reverse(frames);
         for (auto f : frames) {
           cout << tab(1) << *f << endl;
@@ -182,9 +182,15 @@ namespace ahaHLS {
       return false;
     }
     
-    void processNextFrame() {
+    bool processNextFrame(const int maxDepth) {
       auto frame = active.front();
       active.pop_front();
+
+      if ((frame->tripDepth == (maxDepth - 1)) &&
+          isLatchBranch(frame->activeInstruction)) {
+        active.push_back(frame);
+        return false;
+      }
 
       Instruction* instr =
         frame->activeInstruction;
@@ -264,6 +270,8 @@ namespace ahaHLS {
       }
 
       processed.push_back(frame);
+
+      return true;
     }
 
     SymFrame* nextFrame(SymFrame* frame) {
@@ -291,6 +299,14 @@ namespace ahaHLS {
       }
       return hazards;
     }
+
+    bool isLatchBranch(Instruction* instr) {
+      if (BranchInst::classof(instr)) {
+        return loop->isLoopExiting(instr->getParent());
+      }
+
+      return false;
+    }
     
     ~SymTrace() {
 
@@ -314,7 +330,7 @@ namespace ahaHLS {
 
     SymExe(llvm::Function* f_) : f(f_) {}
 
-    void analyzeLoops() {
+    void analyzeLoops(const int depth) {
       DominatorTree dt(*f);
       LoopInfo li(dt);
 
@@ -330,16 +346,25 @@ namespace ahaHLS {
         trace.loop = loop;
         trace.setStartBlock(h);
 
-        cout << "# of active blocks " << trace.active.size() << endl;
-        for (int i = 0; i < 40; i++) {
-          //cout << "# of active blocks " << trace.active.size() << endl;
-          trace.processNextFrame();
+        bool processedNode = true;
+        while (processedNode) {
+          processedNode = trace.processNextFrame(depth);          
         }
+        // // Now: Check that every 
+        // cout << "# of active blocks " << trace.active.size() << endl;
+        // for (int i = 0; i < 40; i++) {
+        //   //cout << "# of active blocks " << trace.active.size() << endl;
+        //   bool processedNode = trace.processNextFrame();
+        // }
 
         trace.printPaths();
 
-        cout << "Done" << endl;
+        for (auto frame : trace.active) {
+          assert(frame->tripDepth == (depth - 1));
+          assert(trace.isLatchBranch(frame->activeInstruction));
+        }
       }
+      
     }
   };
   
@@ -389,11 +414,7 @@ namespace ahaHLS {
     cout << valueString(f) << endl;
 
     SymExe engine(f);
-    engine.analyzeLoops();
-    
-    // HardwareConstraints hcs = standardConstraints();
-
-    // scheduleFunction(f, hcs);
+    engine.analyzeLoops(2);
   }
 
   // TEST_CASE("Computing dependence distances via loop vectorizer") {
