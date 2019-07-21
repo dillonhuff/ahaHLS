@@ -378,6 +378,11 @@ namespace ahaHLS {
       }
       
     }
+
+    int rawDD(llvm::Instruction* load,
+              llvm::Instruction* store) {
+      return 1;
+    }
   };
   
   TEST_CASE("Symbolic analysis of histogram") {
@@ -410,7 +415,7 @@ namespace ahaHLS {
     auto pix = loadRAMVal(loopBuilder, imgRam, indPhi);
     auto count = loadRAMVal(loopBuilder, histRam, pix);
     auto nextCount = loopBuilder.CreateAdd(count, one);
-    storeRAMVal(loopBuilder, histRam, pix, nextCount);
+    auto storeNewCount = storeRAMVal(loopBuilder, histRam, pix, nextCount);
     auto nextInd = loopBuilder.CreateAdd(indPhi, one);
     auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
 
@@ -427,6 +432,8 @@ namespace ahaHLS {
 
     SymExe engine(f);
     engine.analyzeLoops(2);
+
+    REQUIRE(engine.rawDD(count, storeNewCount) == 1);    
   }
 
   TEST_CASE("Symbolic analysis of histogram with forwarding") {
@@ -470,7 +477,7 @@ namespace ahaHLS {
       loopBuilder.CreateAnd(notFirstIter, loopBuilder.CreateICmpEQ(pix, lastPix));
     auto nextCount =
       loopBuilder.CreateSelect(lastPixIsThisPix, lastCountInc, nextCountN);
-    storeRAMVal(loopBuilder, histRam, pix, nextCount);
+    auto storeNewCount = storeRAMVal(loopBuilder, histRam, pix, nextCount);
     auto nextInd = loopBuilder.CreateAdd(indPhi, one);
     auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
 
@@ -499,6 +506,11 @@ namespace ahaHLS {
     // the prior iterations store, or that the loaded value is dead
     SymExe engine(f);
     engine.analyzeLoops(2);
+
+    // TODO: Add check that minimum DD between load and store to
+    // histogram memory is at least 2
+
+    REQUIRE(engine.rawDD(count, storeNewCount) >= 2);
   }  
   // TEST_CASE("Computing dependence distances via loop vectorizer") {
   //   LLVMContext context;
