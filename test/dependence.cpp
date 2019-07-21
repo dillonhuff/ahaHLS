@@ -438,7 +438,9 @@ namespace ahaHLS {
 
     int rawDD(llvm::Instruction* load,
               llvm::Instruction* store) {
-      assert(contains_key({"ram_RAW", store, load}, hazardDDs));
+      if (!(contains_key({"ram_RAW", store, load}, hazardDDs))) {
+        return -1;
+      }
       
       return map_find({"ram_RAW", store, load}, hazardDDs);
     }
