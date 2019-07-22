@@ -191,6 +191,23 @@ namespace ahaHLS {
     // branch condition assumptions?) Branch conditions probably require
     // more inference to use because the value of a branch condition variable
     // may not itself be used
+
+    void printPathSoFar(SymFrame* f) {
+      SymFrame* lastFrame = f;
+      deque<SymFrame*> frames;
+      do {
+        frames.push_back(lastFrame);
+        lastFrame = lastFrame->lastFrame;
+      } while (lastFrame != nullptr);
+
+      cout << "---- Path length " << frames.size() << endl;
+      reverse(frames);
+      for (auto f : frames) {
+        cout << tab(1) << *f << endl;
+      }
+      
+    }
+    
     void printPaths() {
       cout << "Printing " << completed.size() << " paths" << endl;
       
@@ -212,6 +229,17 @@ namespace ahaHLS {
     }
 
     bool isBackwardJump(BasicBlock* src, BasicBlock* dest) {
+      auto header = loop->getHeader();
+      assert(header != nullptr);
+
+      if ((src == header) && (dest == header)) {
+        return true;
+      }
+
+      if (src == dest) {
+        return false;
+      }
+      
       if (dest == loop->getHeader()) {
         return true;
       }
@@ -219,6 +247,14 @@ namespace ahaHLS {
       return false;
     }
 
+    bool isBackwardJump(Instruction* src, Instruction* dest) {
+      if (!BranchInst::classof(src)) {
+        return false;
+      }
+
+      return isBackwardJump(src->getParent(), dest->getParent());
+    }
+    
     void handleNextInstr(SymFrame* frame, Instruction* nextInstr) {
         
       if (matchesCall("ram.read", nextInstr)) {
@@ -231,12 +267,18 @@ namespace ahaHLS {
           findEarlierStoresToSameLocation(ram, addr, frame);
 
         cout << "Possible hazards" << endl;
+
         for (auto st : allHazardStores) {
           cout << tab(1) << *st << endl;
         }
 
+        cout << "Path so far" << endl;
+        if (allHazardStores.size() > 1) {
+          printPathSoFar(frame);
+        }
+        
         if (allHazardStores.size() == 0) {
-          SymFrame* nextF = nextFrame(frame);
+          SymFrame* nextF = nextFrame(frame, nextInstr);
           active.push_back(nextF);
         } else {
 
@@ -247,11 +289,11 @@ namespace ahaHLS {
           assert(allHazardStores.size() == 1);
           SymFrame* hazardStore = allHazardStores.at(0);
 
-          SymFrame* nextFTrue = nextFrame(frame);
+          SymFrame* nextFTrue = nextFrame(frame, nextInstr);
           nextFTrue->addAssumption(equal(nextFTrue->getOperand(1), hazardStore->getOperand(1)));
           nextFTrue->addHazard(SymHazard("ram_RAW", hazardStore));
 
-          SymFrame* nextFFalse = nextFrame(frame);
+          SymFrame* nextFFalse = nextFrame(frame, nextInstr);
           nextFFalse->addAssumption(notEqual(nextFFalse->getOperand(1), hazardStore->getOperand(1)));
 
           active.push_back(nextFTrue);
@@ -259,7 +301,7 @@ namespace ahaHLS {
         }
       } else {
         cout << "Handling non-load instruction " << valueString(nextInstr) << endl;
-        SymFrame* nextF = nextFrame(frame);
+        SymFrame* nextF = nextFrame(frame, nextInstr);
         active.push_back(nextF);
       }
     }
@@ -311,6 +353,7 @@ namespace ahaHLS {
           if (inLoop(succ)) {
 
             handleNextInstr(frame, &(succ->front()));
+            
             // // Should be: handleNextInstruction
             // SymFrame* nextF = new SymFrame();
 
@@ -348,14 +391,30 @@ namespace ahaHLS {
       return true;
     }
 
-    SymFrame* nextFrame(SymFrame* frame) {
-      auto instr = frame->activeInstruction;
+    SymFrame* nextFrame(SymFrame* frame, Instruction* nextInstr) {
+      //auto instr = frame->activeInstruction;
+
       SymFrame* nextF = new SymFrame();
       nextF->lastBlock = frame->lastBlock;
-      nextF->activeInstruction = instr->getNextNonDebugInstruction();
+      //nextF->activeInstruction = instr->getNextNonDebugInstruction();
+      nextF->activeInstruction = nextInstr;
       assert(nextF->activeInstruction != nullptr);
       nextF->lastFrame = frame;
-      nextF->tripDepth = frame->tripDepth;
+      //nextF->tripDepth = frame->tripDepth;
+
+      bool isBack = isBackwardJump(frame->activeInstruction, nextInstr);
+        // isBackwardJump(frame->activeInstruction->getParent(),
+        //                nextInstr->getParent());
+
+      cout << "Jump from " << valueString(frame->activeInstruction->getParent())
+           << " to " << valueString(nextInstr->getParent())
+           << " is backward ? " << isBack << endl;
+      if (isBack) {
+        nextF->tripDepth = frame->tripDepth + 1;
+      } else {
+        nextF->tripDepth = frame->tripDepth;
+      }
+      
       return nextF;
     }
 
