@@ -1,5 +1,7 @@
 #include "catch.hpp"
 
+#include "z3++.h"
+
 #include "algorithm.h"
 
 #include "scheduling.h"
@@ -14,6 +16,7 @@
 using namespace dbhc;
 using namespace llvm;
 using namespace std;
+using namespace z3;
 
 namespace ahaHLS {
 
@@ -191,6 +194,17 @@ namespace ahaHLS {
     // branch condition assumptions?) Branch conditions probably require
     // more inference to use because the value of a branch condition variable
     // may not itself be used
+
+    std::vector<SymFrame*> getTraceSoFar(SymFrame* f) {
+      SymFrame* lastFrame = f;
+      vector<SymFrame*> frames;
+      do {
+        frames.push_back(lastFrame);
+        lastFrame = lastFrame->lastFrame;
+      } while (lastFrame != nullptr);
+
+      return frames;
+    }
 
     void printPathSoFar(SymFrame* f) {
       SymFrame* lastFrame = f;
@@ -371,11 +385,11 @@ namespace ahaHLS {
         
             // active.push_back(nextF);
           } else {
-            cout << "block " << valueString(succ) << " not in loop" << endl;
-            cout << "Loop has " << loop->getBlocks().size() << " bbs" << endl;
-            for (auto blk : loop->getBlocks()) {
-              cout << valueString(blk) << endl;
-            }
+            //cout << "block " << valueString(succ) << " not in loop" << endl;
+            // cout << "Loop has " << loop->getBlocks().size() << " bbs" << endl;
+            // for (auto blk : loop->getBlocks()) {
+            //   cout << valueString(blk) << endl;
+            // }
           }
         }
 
@@ -406,9 +420,9 @@ namespace ahaHLS {
         // isBackwardJump(frame->activeInstruction->getParent(),
         //                nextInstr->getParent());
 
-      cout << "Jump from " << valueString(frame->activeInstruction->getParent())
-           << " to " << valueString(nextInstr->getParent())
-           << " is backward ? " << isBack << endl;
+      // cout << "Jump from " << valueString(frame->activeInstruction->getParent())
+      //      << " to " << valueString(nextInstr->getParent())
+      //      << " is backward ? " << isBack << endl;
       if (isBack) {
         nextF->tripDepth = frame->tripDepth + 1;
       } else {
@@ -540,9 +554,58 @@ namespace ahaHLS {
         for (auto frame : trace.completed) {
           assert(frame->tripDepth == (depth - 1));
           assert(trace.isLatchBranch(frame->activeInstruction));
+
+          auto tr = trace.getTraceSoFar(frame);
+          checkTrace(tr);
         }
       }
       
+    }
+
+    expr operandExpr(context& c,
+                     map<SymFrame*, string>& satValues,
+                     SymFrame* f) {
+      string name = satValues[f];
+      return c.bv_const(name.c_str(), getValueBitWidth(f->activeInstruction));
+    }
+    
+    void checkTrace(const std::vector<SymFrame*>& trace) {
+      context c;
+      solver s(c);
+      map<SymFrame*, string> satValues;
+      int i = 0;
+      for (auto frame : trace) {
+        Instruction* instr = frame->activeInstruction;
+        if (!AllocaInst::classof(instr) && instr->getType() != voidType()) {
+
+          string exprName = string("instr_") + to_string(i);
+
+          cout << "Adding variable: " << exprName << ", for " << valueString(instr) << endl;
+          c.bv_const(exprName.c_str(), getTypeBitWidth(instr->getType()));
+          satValues[frame] = exprName;
+          i++;
+
+          if (BinaryOperator::classof(instr)) {
+            auto opCode = instr->getOpcode();
+            if (opCode == Instruction::Add) {
+              // expr op0 = operandExpr(c, satValues, frame->getOperand(0));
+              // expr op1 = operandExpr(c, satValues, frame->getOperand(1));
+              expr res = operandExpr(c, satValues, frame);
+
+              //s.add(res == op0 + op1);
+              s.add(res == 1);
+            }
+          }
+        }
+      }
+
+      auto res = s.check();
+      if (res == sat || res == unknown) {
+        cout << "Possibly legal trace" << endl;
+        cout << s.get_model() << endl;
+      } else {
+        cout << "Impossible trace" << endl;
+      }
     }
 
     int rawDD(llvm::Instruction* load,
