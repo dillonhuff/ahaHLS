@@ -25,7 +25,7 @@ namespace ahaHLS {
   // Map from active instruction to its value (if the value exists)
   class SymValue {
   public:
-    std::string name;
+    llvm::Value* llvmValue;
   };
   
   class SymFrame;
@@ -66,8 +66,6 @@ namespace ahaHLS {
       source(source_) {}
   };
 
-  // TODO: Create symbolic value class (and move activeInstruction to it?)
-  // Move assumption handling up in the hierarchy
   class SymFrame {
   public:
     SymFrame* lastFrame;
@@ -159,6 +157,9 @@ namespace ahaHLS {
         frame->lastBlock = pred;
         frame->activeInstruction = &(blk->front());
         frame->lastFrame = nullptr;
+        auto sVal = new SymValue();
+        sVal->llvmValue = frame->activeInstruction;
+        frame->instructionValue = sVal;
         
         active.push_back(frame);
       }
@@ -368,22 +369,6 @@ namespace ahaHLS {
 
             handleNextInstr(frame, &(succ->front()));
             
-            // // Should be: handleNextInstruction
-            // SymFrame* nextF = new SymFrame();
-
-            // nextF->lastBlock = instr->getParent();
-            // nextF->activeInstruction = &(succ->front());
-            // assert(nextF->activeInstruction != nullptr);          
-            // nextF->lastFrame = frame;
-
-            // cout << "Branching to " << valueString(nextF->activeInstruction) << endl;
-            // if (isBackwardJump(frame->activeInstruction->getParent(), succ)) {
-            //   nextF->tripDepth = frame->tripDepth + 1;
-            // } else {
-            //   nextF->tripDepth = frame->tripDepth;              
-            // }
-        
-            // active.push_back(nextF);
           } else {
             //cout << "block " << valueString(succ) << " not in loop" << endl;
             // cout << "Loop has " << loop->getBlocks().size() << " bbs" << endl;
@@ -406,23 +391,17 @@ namespace ahaHLS {
     }
 
     SymFrame* nextFrame(SymFrame* frame, Instruction* nextInstr) {
-      //auto instr = frame->activeInstruction;
-
       SymFrame* nextF = new SymFrame();
       nextF->lastBlock = frame->lastBlock;
-      //nextF->activeInstruction = instr->getNextNonDebugInstruction();
       nextF->activeInstruction = nextInstr;
       assert(nextF->activeInstruction != nullptr);
       nextF->lastFrame = frame;
-      //nextF->tripDepth = frame->tripDepth;
 
+      auto sVal = new SymValue();
+      sVal->llvmValue = nextInstr;
+      nextF->instructionValue = sVal;
+      
       bool isBack = isBackwardJump(frame->activeInstruction, nextInstr);
-        // isBackwardJump(frame->activeInstruction->getParent(),
-        //                nextInstr->getParent());
-
-      // cout << "Jump from " << valueString(frame->activeInstruction->getParent())
-      //      << " to " << valueString(nextInstr->getParent())
-      //      << " is backward ? " << isBack << endl;
       if (isBack) {
         nextF->tripDepth = frame->tripDepth + 1;
       } else {
@@ -565,6 +544,8 @@ namespace ahaHLS {
     expr operandExpr(context& c,
                      map<SymFrame*, string>& satValues,
                      SymFrame* f) {
+      assert(contains_key(f, satValues));
+      
       string name = satValues[f];
       return c.bv_const(name.c_str(), getValueBitWidth(f->activeInstruction));
     }
@@ -578,25 +559,38 @@ namespace ahaHLS {
         Instruction* instr = frame->activeInstruction;
         if (!AllocaInst::classof(instr) && instr->getType() != voidType()) {
 
-          string exprName = string("instr_") + to_string(i);
+          string exprName = valueString(instr) + to_string(i);
 
           cout << "Adding variable: " << exprName << ", for " << valueString(instr) << endl;
           c.bv_const(exprName.c_str(), getTypeBitWidth(instr->getType()));
           satValues[frame] = exprName;
           i++;
 
+        }
+      }
+
+      for (auto frame : trace) {
+        Instruction* instr = frame->activeInstruction;
+        if (!AllocaInst::classof(instr) && instr->getType() != voidType()) {
           if (BinaryOperator::classof(instr)) {
             auto opCode = instr->getOpcode();
             if (opCode == Instruction::Add) {
-              // expr op0 = operandExpr(c, satValues, frame->getOperand(0));
-              // expr op1 = operandExpr(c, satValues, frame->getOperand(1));
-              expr res = operandExpr(c, satValues, frame);
 
-              //s.add(res == op0 + op1);
-              s.add(res == 1);
+              // Value* op0V = frame->activeInstruction->getOperand(0);
+              // expr op0;
+              // if (!ConstantInt::classof(op0V)) {
+              //   op0 = operandExpr(c, satValues, frame->getOperand(0));
+              // } else {
+              //   op0 = c.bv_value(getValueBitWidth(op0V),
+              //                    intValue(op0V));
+              // }
+              // expr op1 = operandExpr(c, satValues, frame->getOperand(1));
+              // expr res = operandExpr(c, satValues, frame);
+
+              // s.add(res == op0 + op1);
             }
           }
-        }
+        }        
       }
 
       auto res = s.check();
