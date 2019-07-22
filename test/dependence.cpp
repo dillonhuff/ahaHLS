@@ -148,6 +148,7 @@ namespace ahaHLS {
     Loop* loop;
     std::deque<SymFrame*> processed;
     std::deque<SymFrame*> active;
+    std::set<SymFrame*> completed;
 
     void setStartBlock(BasicBlock* blk) {
       for (auto pred : predecessors(blk)) {
@@ -169,6 +170,10 @@ namespace ahaHLS {
         allN.insert(n);
       }
 
+      for (auto n : completed) {
+        allN.insert(n);
+      }
+      
       return allN;
     }
 
@@ -187,10 +192,10 @@ namespace ahaHLS {
     // more inference to use because the value of a branch condition variable
     // may not itself be used
     void printPaths() {
-      cout << "Printing paths" << endl;
+      cout << "Printing " << completed.size() << " paths" << endl;
       
-      assert(active.size() > 0);
-      for (auto f : active) {
+      //assert(active.size() > 0);
+      for (auto f : completed) {
         SymFrame* lastFrame = f;
         deque<SymFrame*> frames;
         do {
@@ -202,7 +207,6 @@ namespace ahaHLS {
         reverse(frames);
         for (auto f : frames) {
           cout << tab(1) << *f << endl;
-          //cout << tab(1) << valueString(f->activeInstruction) << ", " << f->lastBlock << endl;
         }
       }
     }
@@ -217,22 +221,31 @@ namespace ahaHLS {
     
     bool processNextFrame(const int maxDepth) {
 
-      SymFrame* frame = nullptr;
-      for (auto fr : active) {
-        if ((fr->tripDepth == (maxDepth - 1)) &&
-            isLatchBranch(fr->activeInstruction)) {
-          active.push_back(frame);
-          return false;
-        }
-      }
-
-      // Nothing left to process
-      if (frame == nullptr) {
+      if (active.size() == 0) {
         return false;
       }
 
-      //auto frame = active.front();
+      // SymFrame* frame = nullptr;
+      // for (auto fr : active) {
+      //   if ((fr->tripDepth == (maxDepth - 1)) &&
+      //       isLatchBranch(fr->activeInstruction)) {
+      //     active.push_back(frame);
+      //     return false;
+      //   }
+      // }
+
+      // // Nothing left to process
+      // if (frame == nullptr) {
+      //   return false;
+      // }
+
+      auto frame = active.front();
       active.pop_front();
+      if ((frame->tripDepth == (maxDepth - 1)) &&
+          isLatchBranch(frame->activeInstruction)) {
+        completed.insert(frame);
+        return true;
+      }
 
 
       Instruction* instr =
@@ -285,7 +298,7 @@ namespace ahaHLS {
           Value* ram = nextInstr->getOperand(0);
           Value* addr = nextInstr->getOperand(1);
 
-          cout << "Splitting on value of addres " << valueString(addr) << endl;
+          cout << "Splitting on value of address " << valueString(addr) << endl;
           vector<SymFrame*> allHazardStores =
             findEarlierStoresToSameLocation(ram, addr, frame);
 
@@ -354,7 +367,7 @@ namespace ahaHLS {
     }
 
     bool isLatchBranch(Instruction* instr) {
-      cout << "Checking if " << valueString(instr) << " is loop exiting" << endl;
+      //cout << "Checking if " << valueString(instr) << " is loop exiting" << endl;
       if (BranchInst::classof(instr)) {
         return loop->isLoopExiting(instr->getParent());
       }
@@ -372,6 +385,10 @@ namespace ahaHLS {
         delete frame;
       }
 
+      for (auto frame : completed) {
+        delete frame;
+      }
+      
       
     }
   };
@@ -450,7 +467,7 @@ namespace ahaHLS {
 
         trace.printPaths();
 
-        for (auto frame : trace.active) {
+        for (auto frame : trace.completed) {
           assert(frame->tripDepth == (depth - 1));
           assert(trace.isLatchBranch(frame->activeInstruction));
         }
