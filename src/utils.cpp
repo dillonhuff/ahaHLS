@@ -641,6 +641,21 @@ namespace ahaHLS {
   bool isRAMLoad(Instruction* before) {
     return matchesCall("ram.read", before);    
   }
+
+  std::set<llvm::BasicBlock*>
+  findPipelinedBlocks(llvm::Function* const f) {
+    set<BasicBlock*> blks;
+    for (auto& bb : *f) {
+      for (auto& instrR : bb) {
+        Instruction* instr = &instrR;
+        if (matchesCallDemangled("ahahls_pipeline", instr)) {
+          blks.insert(&bb);
+        }
+      }
+    }
+
+    return blks;
+  }
   
   
 }

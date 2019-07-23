@@ -763,32 +763,31 @@ namespace ahaHLS {
     Function* f = getFunctionByDemangledName(Mod.get(), "loop_add_4_6_iters");
     getArg(f, 0)->setName("ram");
 
+    cout << "LLVM Function" << endl;
+    cout << valueString(f) << endl;
+
     HardwareConstraints hcs = standardConstraints();
     hcs.typeSpecs["class.RAM"] = ramSpecFunc;
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
-    
-    // hcs.setLatency(STORE_OP, 3);
-    // hcs.setLatency(LOAD_OP, 1);
-    // hcs.setLatency(CMP_OP, 0);
-    // hcs.setLatency(BR_OP, 0);
-    // hcs.setLatency(ADD_OP, 0);
 
+    std::set<BasicBlock*> blocksToPipeline = findPipelinedBlocks(f);
     
-    std::set<BasicBlock*> blocksToPipeline;
-    for (auto& bb : f->getBasicBlockList()) {
-      auto term = bb.getTerminator();
-      if (BranchInst::classof(term)) {
-        BranchInst* branch = dyn_cast<BranchInst>(term);
-        if (branch->isConditional()) {
-          for (auto succ : branch->successors()) {
-            if (succ == &bb) {
-              cout << "Found looped basic block" << endl;
-              blocksToPipeline.insert(&bb);
-            }
-          }
-        }
-      }
-    }
+    // std::set<BasicBlock*> blocksToPipeline;
+    // findPipelinedBlocks();
+    // for (auto& bb : f->getBasicBlockList()) {
+    //   auto term = bb.getTerminator();
+    //   if (BranchInst::classof(term)) {
+    //     BranchInst* branch = dyn_cast<BranchInst>(term);
+    //     if (branch->isConditional()) {
+    //       for (auto succ : branch->successors()) {
+    //         if (succ == &bb) {
+    //           cout << "Found looped basic block" << endl;
+    //           blocksToPipeline.insert(&bb);
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
 
     // Pipelined
     ExecutionConstraints exec;

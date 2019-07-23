@@ -270,5 +270,8 @@ namespace ahaHLS {
   bool isRAMStore(llvm::Instruction* before);
 
   bool isRAMLoad(llvm::Instruction* before);
+
+  std::set<llvm::BasicBlock*>
+  findPipelinedBlocks(llvm::Function* const f);
   
 }
