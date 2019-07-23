@@ -663,101 +663,101 @@ namespace ahaHLS {
     REQUIRE(engine.rawDD(count, storeNewCount) == 1);    
   }
 
-  TEST_CASE("Symbolic analysis of histogram with forwarding") {
-    LLVMContext context;
-    setGlobalLLVMContext(&context);
+  // TEST_CASE("Symbolic analysis of histogram with forwarding") {
+  //   LLVMContext context;
+  //   setGlobalLLVMContext(&context);
 
-    auto mod = llvm::make_unique<Module>("Histogram with forwarding", context);
-    setGlobalLLVMModule(mod.get());
+  //   auto mod = llvm::make_unique<Module>("Histogram with forwarding", context);
+  //   setGlobalLLVMModule(mod.get());
 
-    std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
-        sramType(32, 16)->getPointerTo()};
-    Function* f = mkFunc(inputs, "histogram", mod.get());
+  //   std::vector<Type *> inputs{sramType(32, 16)->getPointerTo(),
+  //       sramType(32, 16)->getPointerTo()};
+  //   Function* f = mkFunc(inputs, "histogram", mod.get());
 
-    auto entryBlock = mkBB("entry_block", f);
-    auto loopBlock = mkBB("loop_block", f);
-    auto loopForwardBlock = mkBB("loop_forward_block", f);
-    auto loopLoadBlock = mkBB("loop_load_block", f);
-    auto loopEndBlock = mkBB("loop_end_block", f);    
-    auto exitBlock = mkBB("exit_block", f);
+  //   auto entryBlock = mkBB("entry_block", f);
+  //   auto loopBlock = mkBB("loop_block", f);
+  //   auto loopForwardBlock = mkBB("loop_forward_block", f);
+  //   auto loopLoadBlock = mkBB("loop_load_block", f);
+  //   auto loopEndBlock = mkBB("loop_end_block", f);    
+  //   auto exitBlock = mkBB("exit_block", f);
 
-    ConstantInt* loopBound = mkInt("8", 32);
-    ConstantInt* zero = mkInt("0", 32);    
-    ConstantInt* one = mkInt("1", 32);    
+  //   ConstantInt* loopBound = mkInt("8", 32);
+  //   ConstantInt* zero = mkInt("0", 32);    
+  //   ConstantInt* one = mkInt("1", 32);    
 
-    IRBuilder<> builder(entryBlock);
-    builder.CreateBr(loopBlock);
+  //   IRBuilder<> builder(entryBlock);
+  //   builder.CreateBr(loopBlock);
 
-    auto histRam = getArg(f, 0);
-    auto imgRam = getArg(f, 1);    
+  //   auto histRam = getArg(f, 0);
+  //   auto imgRam = getArg(f, 1);    
 
-    IRBuilder<> loopBuilder(loopBlock);
-    auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
+  //   IRBuilder<> loopBuilder(loopBlock);
+  //   auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
 
-    auto lastCount = loopBuilder.CreatePHI(intType(32), 2);
-    auto lastPix = loopBuilder.CreatePHI(intType(32), 2);
-    auto notFirstIter = loopBuilder.CreatePHI(intType(32), 2);
+  //   auto lastCount = loopBuilder.CreatePHI(intType(32), 2);
+  //   auto lastPix = loopBuilder.CreatePHI(intType(32), 2);
+  //   auto notFirstIter = loopBuilder.CreatePHI(intType(32), 2);
 
-    auto pix = loadRAMVal(loopBuilder, imgRam, indPhi);
-    auto lastCountInc = loopBuilder.CreateAdd(lastCount, one);    
+  //   auto pix = loadRAMVal(loopBuilder, imgRam, indPhi);
+  //   auto lastCountInc = loopBuilder.CreateAdd(lastCount, one);    
 
-    auto lastPixIsThisPix =
-      loopBuilder.CreateAnd(notFirstIter, loopBuilder.CreateICmpEQ(pix, lastPix));
-    loopBuilder.CreateCondBr(lastPixIsThisPix, loopForwardBlock, loopLoadBlock);
+  //   auto lastPixIsThisPix =
+  //     loopBuilder.CreateAnd(notFirstIter, loopBuilder.CreateICmpEQ(pix, lastPix));
+  //   loopBuilder.CreateCondBr(lastPixIsThisPix, loopForwardBlock, loopLoadBlock);
 
 
-    IRBuilder<> loadBuilder(loopLoadBlock);
-    auto count = loadRAMVal(loadBuilder, histRam, pix);
-    auto nextCountN = loadBuilder.CreateAdd(count, one);
-    loadBuilder.CreateBr(loopEndBlock);
+  //   IRBuilder<> loadBuilder(loopLoadBlock);
+  //   auto count = loadRAMVal(loadBuilder, histRam, pix);
+  //   auto nextCountN = loadBuilder.CreateAdd(count, one);
+  //   loadBuilder.CreateBr(loopEndBlock);
 
-    IRBuilder<> fwdBuilder(loopForwardBlock);
-    fwdBuilder.CreateBr(loopEndBlock);
+  //   IRBuilder<> fwdBuilder(loopForwardBlock);
+  //   fwdBuilder.CreateBr(loopEndBlock);
     
-    // auto nextCount =
-    //   loopBuilder.CreateSelect(lastPixIsThisPix, lastCountInc, nextCountN);
+  //   // auto nextCount =
+  //   //   loopBuilder.CreateSelect(lastPixIsThisPix, lastCountInc, nextCountN);
 
-    IRBuilder<> loopEndBuilder(loopEndBlock);
-    auto nextCount =
-      loopEndBuilder.CreatePHI(intType(32), 2);
-    auto storeNewCount = storeRAMVal(loopEndBuilder, histRam, pix, nextCount);
-    auto nextInd = loopEndBuilder.CreateAdd(indPhi, one);
-    auto exitCond = loopEndBuilder.CreateICmpNE(nextInd, loopBound);
+  //   IRBuilder<> loopEndBuilder(loopEndBlock);
+  //   auto nextCount =
+  //     loopEndBuilder.CreatePHI(intType(32), 2);
+  //   auto storeNewCount = storeRAMVal(loopEndBuilder, histRam, pix, nextCount);
+  //   auto nextInd = loopEndBuilder.CreateAdd(indPhi, one);
+  //   auto exitCond = loopEndBuilder.CreateICmpNE(nextInd, loopBound);
 
-    nextCount->addIncoming(lastCountInc, loopForwardBlock);
-    nextCount->addIncoming(nextCountN, loopLoadBlock);
+  //   nextCount->addIncoming(lastCountInc, loopForwardBlock);
+  //   nextCount->addIncoming(nextCountN, loopLoadBlock);
     
-    indPhi->addIncoming(zero, entryBlock);
-    indPhi->addIncoming(nextInd, loopEndBlock);
+  //   indPhi->addIncoming(zero, entryBlock);
+  //   indPhi->addIncoming(nextInd, loopEndBlock);
 
-    lastPix->addIncoming(zero, entryBlock);
-    lastPix->addIncoming(pix, loopEndBlock);
+  //   lastPix->addIncoming(zero, entryBlock);
+  //   lastPix->addIncoming(pix, loopEndBlock);
 
-    lastCount->addIncoming(zero, entryBlock);
-    lastCount->addIncoming(nextCount, loopEndBlock);
+  //   lastCount->addIncoming(zero, entryBlock);
+  //   lastCount->addIncoming(nextCount, loopEndBlock);
 
-    notFirstIter->addIncoming(mkInt(0, 1), entryBlock);
-    notFirstIter->addIncoming(mkInt(1, 1), loopEndBlock);
+  //   notFirstIter->addIncoming(mkInt(0, 1), entryBlock);
+  //   notFirstIter->addIncoming(mkInt(1, 1), loopEndBlock);
     
-    loopEndBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
+  //   loopEndBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
 
-    IRBuilder<> exitBuilder(exitBlock);
-    exitBuilder.CreateRet(nullptr);
+  //   IRBuilder<> exitBuilder(exitBlock);
+  //   exitBuilder.CreateRet(nullptr);
 
-    cout << "LLVM Function" << endl;
-    cout << valueString(f) << endl;
+  //   cout << "LLVM Function" << endl;
+  //   cout << valueString(f) << endl;
 
-    // Try to show that in any trace of depth 2
-    // either the load from image is to a different location than
-    // the prior iterations store, or that the loaded value is dead
-    SymExe engine(f);
-    engine.analyzeLoops(2);
+  //   // Try to show that in any trace of depth 2
+  //   // either the load from image is to a different location than
+  //   // the prior iterations store, or that the loaded value is dead
+  //   SymExe engine(f);
+  //   engine.analyzeLoops(2);
 
-    // TODO: Add check that minimum DD between load and store to
-    // histogram memory is at least 2
+  //   // TODO: Add check that minimum DD between load and store to
+  //   // histogram memory is at least 2
 
-    //REQUIRE(engine.rawDD(count, storeNewCount) >= 2);
-  }  
+  //   //REQUIRE(engine.rawDD(count, storeNewCount) >= 2);
+  // }  
   // TEST_CASE("Computing dependence distances via loop vectorizer") {
   //   LLVMContext context;
   //   setGlobalLLVMContext(&context);
