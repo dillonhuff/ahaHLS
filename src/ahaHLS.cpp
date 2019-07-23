@@ -64,6 +64,10 @@ int main(int argc, char** argv) {
   interfaces.functionTemplates[string("read")] = implementRVFifoRead;
   interfaces.functionTemplates[string("write")] = implementRVFifoWriteTemplate;
 
+  interfaces.functionTemplates[string("read_0")] = implementRAMRead0;
+  interfaces.functionTemplates[string("read_1")] = implementRAMRead1;    
+  interfaces.functionTemplates[string("write_0")] = implementRAMWrite0;
+  
   inlineWireCalls(f, exec, interfaces);
 
   cout << "After inlining" << endl;
@@ -73,6 +77,9 @@ int main(int argc, char** argv) {
   // to module specs?
   int width = 32;
   HardwareConstraints hcs = standardConstraints();
+  hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+  hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
+  
   hcs.memoryMapping = memoryOpLocations(f);
   // Set registers
   setAllAllocaMemTypes(hcs, f, registerSpec(width));
@@ -84,7 +91,7 @@ int main(int argc, char** argv) {
   cout << "LLVM function after inlining reads" << endl;
   cout << valueString(f) << endl;
 
-  set<BasicBlock*> toPipeline;
+  set<BasicBlock*> toPipeline = findPipelinedBlocks(f);
   SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
   exec.addConstraints(p, f);
 

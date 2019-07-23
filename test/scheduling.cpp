@@ -772,23 +772,6 @@ namespace ahaHLS {
 
     std::set<BasicBlock*> blocksToPipeline = findPipelinedBlocks(f);
     
-    // std::set<BasicBlock*> blocksToPipeline;
-    // findPipelinedBlocks();
-    // for (auto& bb : f->getBasicBlockList()) {
-    //   auto term = bb.getTerminator();
-    //   if (BranchInst::classof(term)) {
-    //     BranchInst* branch = dyn_cast<BranchInst>(term);
-    //     if (branch->isConditional()) {
-    //       for (auto succ : branch->successors()) {
-    //         if (succ == &bb) {
-    //           cout << "Found looped basic block" << endl;
-    //           blocksToPipeline.insert(&bb);
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
-
     // Pipelined
     ExecutionConstraints exec;
 
