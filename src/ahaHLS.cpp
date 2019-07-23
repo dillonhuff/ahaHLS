@@ -15,8 +15,8 @@ int main(int argc, char** argv) {
 
   args::ArgumentParser parser("This is a simple open source high level synthesis program.", "Please file an issue on github if any errors are discovered.");
   args::HelpFlag help(parser, "help", "Usage: aha-HLS -top-function foo -target-file file.cpp", {'h', "help"});
-  args::ValueFlag<string> topFunctionOption(parser, "top-function", "The top function to be synthesized", {'t'});
-  args::ValueFlag<string> targetFileOption(parser, "target-file", "The file to be synthesized", {'p'});  
+  args::ValueFlag<string> topFunctionOption(parser, "top-function", "The top function to be synthesized", {'t', "top-function"});
+  args::ValueFlag<string> targetFileOption(parser, "target-file", "The file to be synthesized", {'p', "target-file"});  
   
   args::CompletionFlag completion(parser, {"complete"});
   try
@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
       std::cerr << e.what() << std::endl;
       std::cerr << parser;
       return 1;
-    }  
+    } 
 
   string targetFile = args::get(targetFileOption);
   string topFunction = args::get(topFunctionOption);

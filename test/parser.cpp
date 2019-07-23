@@ -919,7 +919,7 @@ namespace ahaHLS {
       REQUIRE(mod.getStatements().size() >= 1);
 
       {
-        SynthCppModule scppMod(mod);    
+        SynthCppModule scppMod(mod);
         auto arch = synthesizeVerilog(scppMod, "write_header_func");
       }
 
