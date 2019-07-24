@@ -500,13 +500,19 @@ namespace ahaHLS {
       if (GetElementPtrInst::classof(loadArg)) {
         GetElementPtrInst* gep = dyn_cast<GetElementPtrInst>(loadArg);
         if (!isRAMAddressCompGEP(gep, memSrcs)) {
-          int inWidth = getValueBitWidth(gep);
-          wiring = {{"in_data", reg(inWidth, unitName + "_in")}};
-          outWires = {{"out_data", wire(inWidth, unitName + "_out")}};
-          isExternal = false;
+          // ?
+          FunctionalUnit fu =
+            functionalUnitForSpec(unitName, hcs.getModSpec(instr));
+          return fu;
+          
+          // int inWidth = getValueBitWidth(gep);
+          // wiring = {{"in_data", reg(inWidth, unitName + "_in")}};
+          // outWires = {{"out_data", wire(inWidth, unitName + "_out")}};
+          // isExternal = false;
 
-          FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
-          return unit;
+          //FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
+          //FunctionalUnit unit = {hcs.getModSpec(), unitName, wiring, outWires, isExternal};
+          //return unit;
         } else {
           assert(false);
         }

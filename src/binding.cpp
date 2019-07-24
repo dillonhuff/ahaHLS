@@ -150,7 +150,10 @@ namespace ahaHLS {
           modParams = {{"WIDTH", to_string(inWidth)}};
           modName = "hls_wire";
 
+
           ModuleSpec mSpec{modParams, modName, {}, defaults};
+          mSpec.ports.insert({"in_data", inputPort(inWidth, "in_data")});
+          mSpec.ports.insert({"out_data", outputPort(inWidth, "out_data")});
           return mSpec;
         } else {
           assert(false);
@@ -158,13 +161,6 @@ namespace ahaHLS {
       }
       
       if (!Argument::classof(memVal)) {
-        // if (contains_key(memVal, hcs.memSpecs)) {
-        //   string name = map_find(memVal, hcs.memSpecs).modSpec.name;
-        //   modName = name;
-        // } else {
-        //   modName = "register";
-        // }
-        
         int dataWidth = getValueBitWidth(instr->getOperand(0));
         return registerModSpec(dataWidth);
         
