@@ -464,11 +464,10 @@ namespace ahaHLS {
     map<string, int> defaults;
 
     map<llvm::Value*, string> ports;
-    
-    if (StoreInst::classof(instr)) {
 
-      Value* memVal = map_find(instr, memSrcs);
-      string memSrc = memName(instr, memSrcs, memNames);
+    Value* memVal = map_find(instr, memSrcs);
+    string memSrc = memName(instr, memSrcs, memNames);
+    if (StoreInst::classof(instr)) {
 
       // If the store is a store to part of a register
       // then we need to detect that and write a masked store?
@@ -502,8 +501,8 @@ namespace ahaHLS {
 
     } else if (LoadInst::classof(instr)) {
 
-      Value* memVal = map_find(instr, memSrcs);          
-      string memSrc = memName(instr, memSrcs, memNames);
+      // Value* memVal = map_find(instr, memSrcs);          
+      // string memSrc = memName(instr, memSrcs, memNames);
 
       // If we are loading from an internal RAM, not an argument
       Value* loadArg = instr->getOperand(0);
