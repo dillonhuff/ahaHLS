@@ -553,7 +553,7 @@ namespace ahaHLS {
       InstructionBinding memUnit =
         createMemUnit(memNames, memSrcs, hcs, usage, instr);
 
-      memUnit.unit.module = modSpec;
+      //memUnit.unit.module = modSpec;
       
       return memUnit;
     } else if (BinaryOperator::classof(instr)) {
