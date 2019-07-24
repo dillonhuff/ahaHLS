@@ -508,13 +508,13 @@ namespace ahaHLS {
         // No action
       }
     } else if (AllocaInst::classof(instr)) {
-      //cout << "Alloca instruction = " << valueString(instr) << endl;
       AllocaInst* allocInst = dyn_cast<AllocaInst>(instr);
       Type* allocatedType = allocInst->getType()->getElementType();
       if (StructType::classof(allocatedType)) {
         //cout << "Allocating struct of type " << typeString(allocatedType) << endl;
-        //return structFunctionalUnit(allocInst, hcs);
         return structModuleSpec(allocInst, hcs);
+      } else {
+        return registerModSpec(getTypeBitWidth(allocatedType));
       }
     } else if (BitCastInst::classof(instr)) {
       // TODO: Add test case that uses casts
@@ -550,12 +550,9 @@ namespace ahaHLS {
     return modSpec;
   }
 
-  //void bindUnits(const STG& stg, HardwareConstraints& hcs) {
   void bindUnits(llvm::Function* f, HardwareConstraints& hcs) {
 
-    //auto f = stg.getFunction();
     auto memSrcs = memoryOpLocations(f);
-      //memoryOpLocations(stg.getFunction());
 
     map<Value*, std::string> memNames;
     int i = 0;
@@ -568,16 +565,13 @@ namespace ahaHLS {
       }
     }
 
-    // for (auto state : stg.opStates) {
-    //   for (auto instrG : stg.instructionsStartingAt(state.first)) {
-    //     Instruction* instr = instrG;
     for (Instruction& instrG : instructions(f)) {
       auto instr = &instrG;
       auto unit =
         buildModSpec(memNames, memSrcs, hcs, instr);
-      //hcs.modSpecs[instr] = unit;
+
       hcs.bindValue(instr, unit);
-      //      }
+
     }
 
   }
