@@ -329,7 +329,7 @@ module write_header_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	assign andOp_9_in1 = state_1_is_active;
 	// controller for arg_0.arg_0_raddr_reg
 	always @(*) begin
-		if (andOp_13_out) begin 
+		if (andOp_12_out) begin 
 			arg_0_raddr_reg = arg_0_rdata;
 		end else begin
 			arg_0_raddr_reg = 0;
@@ -345,7 +345,7 @@ module write_header_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	end
 	// controller for arg_2.arg_2_raddr_reg
 	always @(*) begin
-		if (andOp_12_out) begin 
+		if (andOp_13_out) begin 
 			arg_2_raddr_reg = arg_2_rdata;
 		end else begin
 			arg_2_raddr_reg = 0;
@@ -353,7 +353,7 @@ module write_header_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	end
 	// controller for arg_3.arg_3_s_eth_dest_mac_reg
 	always @(*) begin
-		if (andOp_9_out) begin 
+		if (andOp_11_out) begin 
 			arg_3_s_eth_dest_mac_reg = arg_0_rdata;
 		end else begin
 			arg_3_s_eth_dest_mac_reg = 0;
@@ -369,7 +369,7 @@ module write_header_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	end
 	// controller for arg_3.arg_3_s_eth_src_mac_reg
 	always @(*) begin
-		if (andOp_11_out) begin 
+		if (andOp_9_out) begin 
 			arg_3_s_eth_src_mac_reg = arg_1_rdata;
 		end else begin
 			arg_3_s_eth_src_mac_reg = 0;

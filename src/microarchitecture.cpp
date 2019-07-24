@@ -445,11 +445,6 @@ namespace ahaHLS {
                 ResourceUsage& usage,
                 llvm::Instruction* instr) {
 
-    // cout << "Hardware memory storage names in createMemUnit" << endl;
-    // for (auto mspec : hcs.memSpecs) {
-    //   cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
-    // }
-
     string unitName = instr->getOpcodeName() + to_string(usage.resSuffix);
     
     assert(LoadInst::classof(instr) || StoreInst::classof(instr));
