@@ -75,11 +75,14 @@ namespace ahaHLS {
 
     return hcs.getModSpec(instr);
   }
-  
+
+  // I want to eliminate memVal and memSrc, or at least I want
+  // to make sure they are not duplicated in binding and microarchitecture
+  // generation. What are they actually used for?
+  //  1. 
   ModuleSpec createMemSpec(map<Value*, std::string>& memNames,
                            map<Instruction*, Value*>& memSrcs,
                            HardwareConstraints& hcs,
-                           //ResourceUsage& usage,
                            llvm::Instruction* instr) {
     assert(LoadInst::classof(instr) || StoreInst::classof(instr));
     string modName = "add";
@@ -106,6 +109,16 @@ namespace ahaHLS {
         int dataWidth = getValueBitWidth(instr->getOperand(0));
         modParams = {{"WIDTH", to_string(dataWidth)}};
 
+        ModuleSpec mSpec = {modParams, modName, {}, defaults};
+        mSpec.ports.insert({"raddr", inputPort(32, "raddr")});
+        mSpec.ports.insert({"rdata", outputPort(dataWidth, "rdata")});
+        mSpec.ports.insert({"wen", inputPort(1, "wen")});
+        mSpec.ports.insert({"wdata", inputPort(dataWidth, "wdata")});
+        mSpec.ports.insert({"waddr", inputPort(32, "waddr")});
+        
+        mSpec.defaultValues.insert({"wen", 0});
+        return mSpec;
+        
       } else {
         assert(hcs.builtModSpec(memVal));
         assert(memVal->getName() != "");
@@ -147,7 +160,6 @@ namespace ahaHLS {
         
         int dataWidth = getValueBitWidth(instr->getOperand(0));
         modParams = {{"WIDTH", to_string(dataWidth)}};
-
 
         ModuleSpec mSpec = {modParams, modName, {}, defaults};
         mSpec.ports.insert({"raddr", inputPort(32, "raddr")});

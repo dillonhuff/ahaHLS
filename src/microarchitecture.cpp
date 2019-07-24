@@ -479,19 +479,26 @@ namespace ahaHLS {
       
       if (!Argument::classof(memVal)) {
         //cout << "&&&& Memory unit Using unit " << memSrc << " for " << instructionString(instr) << endl;
-        int dataWidth = getValueBitWidth(instr->getOperand(0));
+        //int dataWidth = getValueBitWidth(instr->getOperand(0));
 
         //cout << "Got name for op" << endl;
         unitName = memSrc;
-        // These names need to match names created in the portlist. So
-        // maybe this should be used to create the port list? Generate the
-        // names here and then write ports for them?
-        wiring = {{"wen", {true, 1, "wen_" + unitName + "_reg"}},
-                  {"waddr", {true, 32, "waddr_" + unitName + "_reg"}},
-                  {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}},
-                  {"raddr", {true, 32, "raddr_" + unitName + "_reg"}}};
 
-        outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
+        ModuleSpec modSpec = hcs.getModSpec(instr);
+        FunctionalUnit fu =
+          functionalUnitForSpec(unitName, modSpec);
+
+        return fu;
+        
+        // // These names need to match names created in the portlist. So
+        // // maybe this should be used to create the port list? Generate the
+        // // names here and then write ports for them?
+        // wiring = {{"wen", {true, 1, "wen_" + unitName + "_reg"}},
+        //           {"waddr", {true, 32, "waddr_" + unitName + "_reg"}},
+        //           {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}},
+        //           {"raddr", {true, 32, "raddr_" + unitName + "_reg"}}};
+
+        // outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
 
       } else {
         assert(hcs.builtModSpec(memVal));
@@ -520,26 +527,34 @@ namespace ahaHLS {
           return unit;
         }
       }
+
+        assert(hcs.builtModSpec(memVal));
+
+        // assert(memVal->getName() != "");
+        // string name = string(memVal->getName());
+        // FunctionalUnit fu =
+        //   functionalUnitForSpec(name, hcs.getModSpec(memVal));
+        // fu.external = true;
+        // return fu;
       
       if (!Argument::classof(memVal)) {
-        int dataWidth = getValueBitWidth(instr->getOperand(0));
+        //int dataWidth = getValueBitWidth(instr->getOperand(0));
         unitName = memSrc;
 
-        // string name = string(memVal->getName());
         ModuleSpec modSpec = hcs.getModSpec(instr);
-        // cout << "Module spec for register " << mSpec << endl;
-        
-        // FunctionalUnit fu =
-        //   functionalUnitForSpec(name, mSpec);
-        // // fu.external = true;
-        // return fu;
-        
-        wiring = {{"raddr", {true, 32, "raddr_" + unitName + "_reg"}}, {"wen", {true, 1, "wen_" + unitName + "_reg"}}, {"waddr", {true, 32, "waddr_" + unitName + "_reg"}}, {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}}};
-        outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
 
-        //FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
-        FunctionalUnit unit = {modSpec, unitName, wiring, outWires, isExternal};
-        return {unit, ports};
+        FunctionalUnit fu =
+          functionalUnitForSpec(unitName, modSpec);
+
+        return fu;
+        
+        // // cout << "Module spec for register " << mSpec << endl;
+        
+        // wiring = {{"raddr", {true, 32, "raddr_" + unitName + "_reg"}}, {"wen", {true, 1, "wen_" + unitName + "_reg"}}, {"waddr", {true, 32, "waddr_" + unitName + "_reg"}}, {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}}};
+        // outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
+
+        // FunctionalUnit unit = {modSpec, unitName, wiring, outWires, isExternal};
+        // return {unit, ports};
         
       } else {
 
@@ -1125,10 +1140,13 @@ namespace ahaHLS {
       }
       
 
+      cout << "Getting assignments for store " << valueString(instr) << endl;
+      
       assignments.insert({addUnit.input("waddr"), locValue});
       assignments.insert({addUnit.input("wdata"), wdataName});
       assignments.insert({addUnit.input("wen"), constWire(1, 1)});
 
+      cout << "Done getting assignments for store " << valueString(instr) << endl;
     } else if (LoadInst::classof(instr)) {
 
       Value* location = instr->getOperand(0);
