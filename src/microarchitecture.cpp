@@ -467,6 +467,11 @@ namespace ahaHLS {
 
     Value* memVal = map_find(instr, memSrcs);
     string memSrc = memName(instr, memSrcs, memNames);
+
+    if (memVal != instr) {
+      cout << "MemVal of " << valueString(instr) << " is: " << valueString(memVal) << endl;
+    }
+    
     if (StoreInst::classof(instr)) {
 
       // If the store is a store to part of a register
@@ -500,9 +505,6 @@ namespace ahaHLS {
       }
 
     } else if (LoadInst::classof(instr)) {
-
-      // Value* memVal = map_find(instr, memSrcs);          
-      // string memSrc = memName(instr, memSrcs, memNames);
 
       // If we are loading from an internal RAM, not an argument
       Value* loadArg = instr->getOperand(0);
