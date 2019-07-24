@@ -114,11 +114,11 @@ namespace ahaHLS {
       
       if (!Argument::classof(memVal)) {
         //cout << "&&&& Memory unit Using unit " << memSrc << " for " << instructionString(instr) << endl;
-        if (contains_key(memVal, hcs.memSpecs)) {
-          modName = map_find(memVal, hcs.memSpecs).modSpec.name;
-        } else {
-          modName = "register";
-        }
+        // if (contains_key(memVal, hcs.memSpecs)) {
+        //   modName = map_find(memVal, hcs.memSpecs).modSpec.name;
+        // } else {
+        //   modName = "register";
+        // }
 
         int dataWidth = getValueBitWidth(instr->getOperand(0));
 
@@ -158,12 +158,12 @@ namespace ahaHLS {
       }
       
       if (!Argument::classof(memVal)) {
-        if (contains_key(memVal, hcs.memSpecs)) {
-          string name = map_find(memVal, hcs.memSpecs).modSpec.name;
-          modName = name;
-        } else {
-          modName = "register";
-        }
+        // if (contains_key(memVal, hcs.memSpecs)) {
+        //   string name = map_find(memVal, hcs.memSpecs).modSpec.name;
+        //   modName = name;
+        // } else {
+        //   modName = "register";
+        // }
         
         int dataWidth = getValueBitWidth(instr->getOperand(0));
         return registerModSpec(dataWidth);
