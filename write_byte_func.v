@@ -317,7 +317,7 @@ module write_byte_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 	end
 	// controller for arg_2.arg_2_s_eth_payload_axis_tdata_reg
 	always @(*) begin
-		if (andOp_10_out) begin 
+		if (andOp_8_out) begin 
 			arg_2_s_eth_payload_axis_tdata_reg = arg_0_rdata;
 		end else begin
 			arg_2_s_eth_payload_axis_tdata_reg = 0;
@@ -325,7 +325,7 @@ module write_byte_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 	end
 	// controller for arg_2.arg_2_s_eth_payload_axis_tlast_reg
 	always @(*) begin
-		if (andOp_9_out) begin 
+		if (andOp_10_out) begin 
 			arg_2_s_eth_payload_axis_tlast_reg = arg_1_rdata;
 		end else begin
 			arg_2_s_eth_payload_axis_tlast_reg = 0;
@@ -333,7 +333,7 @@ module write_byte_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 	end
 	// controller for arg_2.arg_2_s_eth_payload_axis_tvalid_reg
 	always @(*) begin
-		if (andOp_8_out) begin 
+		if (andOp_9_out) begin 
 			arg_2_s_eth_payload_axis_tvalid_reg = 32'd1;
 		end else begin
 			arg_2_s_eth_payload_axis_tvalid_reg = 0;

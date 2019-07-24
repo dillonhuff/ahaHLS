@@ -479,9 +479,6 @@ namespace ahaHLS {
       
       if (!Argument::classof(memVal)) {
         //cout << "&&&& Memory unit Using unit " << memSrc << " for " << instructionString(instr) << endl;
-        //int dataWidth = getValueBitWidth(instr->getOperand(0));
-
-        //cout << "Got name for op" << endl;
         unitName = memSrc;
 
         ModuleSpec modSpec = hcs.getModSpec(instr);
@@ -489,16 +486,6 @@ namespace ahaHLS {
           functionalUnitForSpec(unitName, modSpec);
 
         return fu;
-        
-        // // These names need to match names created in the portlist. So
-        // // maybe this should be used to create the port list? Generate the
-        // // names here and then write ports for them?
-        // wiring = {{"wen", {true, 1, "wen_" + unitName + "_reg"}},
-        //           {"waddr", {true, 32, "waddr_" + unitName + "_reg"}},
-        //           {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}},
-        //           {"raddr", {true, 32, "raddr_" + unitName + "_reg"}}};
-
-        // outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
 
       } else {
         assert(hcs.builtModSpec(memVal));
@@ -530,15 +517,7 @@ namespace ahaHLS {
 
         assert(hcs.builtModSpec(memVal));
 
-        // assert(memVal->getName() != "");
-        // string name = string(memVal->getName());
-        // FunctionalUnit fu =
-        //   functionalUnitForSpec(name, hcs.getModSpec(memVal));
-        // fu.external = true;
-        // return fu;
-      
       if (!Argument::classof(memVal)) {
-        //int dataWidth = getValueBitWidth(instr->getOperand(0));
         unitName = memSrc;
 
         ModuleSpec modSpec = hcs.getModSpec(instr);
@@ -547,14 +526,6 @@ namespace ahaHLS {
           functionalUnitForSpec(unitName, modSpec);
 
         return fu;
-        
-        // // cout << "Module spec for register " << mSpec << endl;
-        
-        // wiring = {{"raddr", {true, 32, "raddr_" + unitName + "_reg"}}, {"wen", {true, 1, "wen_" + unitName + "_reg"}}, {"waddr", {true, 32, "waddr_" + unitName + "_reg"}}, {"wdata", {true, dataWidth, "wdata_" + unitName + "_reg"}}};
-        // outWires = {{"rdata", {false, dataWidth, "rdata_" + unitName}}};
-
-        // FunctionalUnit unit = {modSpec, unitName, wiring, outWires, isExternal};
-        // return {unit, ports};
         
       } else {
 
