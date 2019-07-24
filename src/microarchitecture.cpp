@@ -540,6 +540,8 @@ namespace ahaHLS {
         return fu;
       }
 
+    } else {
+      assert(false);
     }
 
     // FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
