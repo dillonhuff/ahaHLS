@@ -512,19 +512,20 @@ namespace ahaHLS {
 
           FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
           return unit;
+        } else {
+          assert(false);
         }
       }
 
-        assert(hcs.builtModSpec(memVal));
+      assert(hcs.builtModSpec(memVal));
+
 
       if (!Argument::classof(memVal)) {
         unitName = memSrc;
 
         ModuleSpec modSpec = hcs.getModSpec(instr);
-
         FunctionalUnit fu =
           functionalUnitForSpec(unitName, modSpec);
-
         return fu;
         
       } else {
@@ -541,8 +542,8 @@ namespace ahaHLS {
 
     }
 
-    FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
-    return {unit, ports};
+    // FunctionalUnit unit = {{modParams, modName, {}, defaults}, unitName, wiring, outWires, isExternal};
+    // return {unit, ports};
   }
 
   InstructionBinding
