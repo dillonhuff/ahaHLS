@@ -76,6 +76,20 @@ namespace ahaHLS {
     return hcs.getModSpec(instr);
   }
 
+
+  // ModuleSpec registerModSpec(const int dataWidth) {
+  //   map<string, string> modParams = {{"WIDTH", to_string(dataWidth)}};    
+  //   ModuleSpec mSpec = {modParams, "register", {}, {}};
+  //   mSpec.ports.insert({"raddr", inputPort(32, "raddr")});
+  //   mSpec.ports.insert({"rdata", outputPort(dataWidth, "rdata")});
+  //   mSpec.ports.insert({"wen", inputPort(1, "wen")});
+  //   mSpec.ports.insert({"wdata", inputPort(dataWidth, "wdata")});
+  //   mSpec.ports.insert({"waddr", inputPort(32, "waddr")});
+        
+  //   mSpec.defaultValues.insert({"wen", 0});
+  //   return mSpec;
+  // }
+  
   // I want to eliminate memVal and memSrc, or at least I want
   // to make sure they are not duplicated in binding and microarchitecture
   // generation. What are they actually used for?
@@ -107,17 +121,19 @@ namespace ahaHLS {
         }
 
         int dataWidth = getValueBitWidth(instr->getOperand(0));
-        modParams = {{"WIDTH", to_string(dataWidth)}};
 
-        ModuleSpec mSpec = {modParams, modName, {}, defaults};
-        mSpec.ports.insert({"raddr", inputPort(32, "raddr")});
-        mSpec.ports.insert({"rdata", outputPort(dataWidth, "rdata")});
-        mSpec.ports.insert({"wen", inputPort(1, "wen")});
-        mSpec.ports.insert({"wdata", inputPort(dataWidth, "wdata")});
-        mSpec.ports.insert({"waddr", inputPort(32, "waddr")});
+        return registerModSpec(dataWidth);
+        // modParams = {{"WIDTH", to_string(dataWidth)}};
+
+        // ModuleSpec mSpec = {modParams, modName, {}, defaults};
+        // mSpec.ports.insert({"raddr", inputPort(32, "raddr")});
+        // mSpec.ports.insert({"rdata", outputPort(dataWidth, "rdata")});
+        // mSpec.ports.insert({"wen", inputPort(1, "wen")});
+        // mSpec.ports.insert({"wdata", inputPort(dataWidth, "wdata")});
+        // mSpec.ports.insert({"waddr", inputPort(32, "waddr")});
         
-        mSpec.defaultValues.insert({"wen", 0});
-        return mSpec;
+        // mSpec.defaultValues.insert({"wen", 0});
+        // return mSpec;
         
       } else {
         assert(hcs.builtModSpec(memVal));
@@ -159,17 +175,18 @@ namespace ahaHLS {
         }
         
         int dataWidth = getValueBitWidth(instr->getOperand(0));
-        modParams = {{"WIDTH", to_string(dataWidth)}};
+        return registerModSpec(dataWidth);
+        // modParams = {{"WIDTH", to_string(dataWidth)}};
 
-        ModuleSpec mSpec = {modParams, modName, {}, defaults};
-        mSpec.ports.insert({"raddr", inputPort(32, "raddr")});
-        mSpec.ports.insert({"rdata", outputPort(dataWidth, "rdata")});
-        mSpec.ports.insert({"wen", inputPort(1, "wen")});
-        mSpec.ports.insert({"wdata", inputPort(dataWidth, "wdata")});
-        mSpec.ports.insert({"waddr", inputPort(32, "waddr")});
+        // ModuleSpec mSpec = {modParams, modName, {}, defaults};
+        // mSpec.ports.insert({"raddr", inputPort(32, "raddr")});
+        // mSpec.ports.insert({"rdata", outputPort(dataWidth, "rdata")});
+        // mSpec.ports.insert({"wen", inputPort(1, "wen")});
+        // mSpec.ports.insert({"wdata", inputPort(dataWidth, "wdata")});
+        // mSpec.ports.insert({"waddr", inputPort(32, "waddr")});
         
-        mSpec.defaultValues.insert({"wen", 0});
-        return mSpec;
+        // mSpec.defaultValues.insert({"wen", 0});
+        // return mSpec;
         
         
       } else {
@@ -564,5 +581,39 @@ namespace ahaHLS {
     }
 
   }
+
+  ModuleSpec registerModSpec(const int width) {
+    map<string, string> modParams{{"WIDTH", to_string(width)}};
+    
+    map<string, Port> ports;
+    addOutputPort(ports, width, "rdata");
+    addInputPort(ports, width, "raddr");    
+
+    addInputPort(ports, width, "wdata");
+    addInputPort(ports, width, "waddr");    
+    addInputPort(ports, 1, "wen");
+
+    map<string, int> defaults{{"wen", 0}};
+
+    set<string> insensitivePorts = {"raddr", "waddr", "wdata"};
+    
+    ModuleSpec mSpec = {modParams, "register", ports, defaults, insensitivePorts};
+    mSpec.hasClock = true;
+    mSpec.hasRst = true;
+    return mSpec;
+  }
+
+  void addInputPort(map<string, Port>& ports,
+                    const int width,
+                    const std::string name) {
+    ports.insert({name, inputPort(width, name)});
+  }
+
+  void addOutputPort(map<string, Port>& ports,
+                     const int width,
+                     const std::string name) {
+   ports.insert({name, outputPort(width, name)});
+  }
+  
   
 }

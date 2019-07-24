@@ -4519,27 +4519,6 @@ namespace ahaHLS {
     return ramSpec(width, depth, 1, 1);
   }
 
-  ModuleSpec registerModSpec(const int width) {
-    map<string, string> modParams{{"WIDTH", to_string(width)}};
-    
-    map<string, Port> ports;
-    addOutputPort(ports, width, "rdata");
-    addInputPort(ports, width, "raddr");    
-
-    addInputPort(ports, width, "wdata");
-    addInputPort(ports, width, "waddr");    
-    addInputPort(ports, 1, "wen");
-
-    map<string, int> defaults{{"wen", 0}};
-
-    set<string> insensitivePorts = {"raddr", "waddr", "wdata"};
-    
-    ModuleSpec mSpec = {modParams, "register", ports, defaults, insensitivePorts};
-    mSpec.hasClock = true;
-    mSpec.hasRst = true;
-    return mSpec;
-  }
-
   void implementRAMRead(Function* ramRead1,
                         ExecutionConstraints& exec,
                         const int portNo,
@@ -4810,18 +4789,6 @@ namespace ahaHLS {
     return scheduleInterface(f, hcs, interfaces, toPipeline);
   }
 
-  void addInputPort(map<string, Port>& ports,
-                    const int width,
-                    const std::string name) {
-    ports.insert({name, inputPort(width, name)});
-  }
-
-  void addOutputPort(map<string, Port>& ports,
-                     const int width,
-                     const std::string name) {
-   ports.insert({name, outputPort(width, name)});
-  }
-  
   ModuleSpec axiRamSpec(llvm::StructType* tp) {
     int addrWidth = 16;
     int dataWidth = 32;    

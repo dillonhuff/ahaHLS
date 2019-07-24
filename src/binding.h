@@ -519,5 +519,16 @@ namespace ahaHLS {
                           HardwareConstraints& hcs,
                           llvm::Instruction* instr);
 
-  void bindUnits(llvm::Function* f, HardwareConstraints& hcs);   
+  void bindUnits(llvm::Function* f, HardwareConstraints& hcs);
+
+  ModuleSpec registerModSpec(const int width);
+
+  void addOutputPort(map<string, Port>& ports,
+                     const int width,
+                     const std::string name);
+
+  void addInputPort(map<string, Port>& ports,
+                    const int width,
+                    const std::string name);
+  
 }
