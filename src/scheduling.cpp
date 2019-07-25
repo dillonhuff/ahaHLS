@@ -586,7 +586,7 @@ namespace ahaHLS {
   
   void SchedulingProblem::addBasicBlock(llvm::BasicBlock* const bb,
                                         std::set<PipelineSpec>& toPipeline) {
-                                        //std::set<BasicBlock*>& toPipeline) {
+
     std::string snkPre = "basic_block_end_state_";
     std::string srcPre = "basic_block_start_state_";
 
@@ -671,19 +671,6 @@ namespace ahaHLS {
                             std::map<Function*, ExecutionConstraints>& exeConstraints,
                             std::map<Function*, SchedulingProblem>& constraints) {
 
-    // auto memSrcs = memoryOpLocations(f);
-
-    // map<Value*, std::string> memNames;
-    // int i = 0;
-    // for (auto src : memSrcs) {
-    //   if ((src.first)->getName() != "") {
-    //     memNames.insert({src.second, (src.second)->getName()});
-    //   } else {
-    //     memNames.insert({src.second, "ram_" + to_string(i)});
-    //     i++;
-    //   }
-    // }
-    
     bindUnits(f, hdc);
     
     llvm::legacy::PassManager pm;
@@ -1664,7 +1651,6 @@ namespace ahaHLS {
             iGroups.push_back(instrs);
           }
 
-          //addOrderConstraints(iGroups, exe, p, toPipeline, bb);
           addOrderConstraints(iGroups, exe, toPipeline, bb);
         }
       }
@@ -1683,7 +1669,6 @@ namespace ahaHLS {
               }
             }
 
-            //addOrderConstraints(iGroups, exe, p, toPipeline, bb);
             addOrderConstraints(iGroups, exe, toPipeline, bb);
           }
         }
