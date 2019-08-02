@@ -24,6 +24,14 @@ bool isUnknownValue(const SCEV* ss) {
   return false;
 }
 
+bool affine(const SCEV* ss) {
+  if (!SCEVAddRecExpr::classof(ss)) {
+    return false;
+  }
+
+  return dyn_cast<SCEVAddRecExpr>(ss)->isAffine();
+}
+
 // TODO: Filter loops that call functions that contain loops
 void printLoopInfo(Loop* loop, ScalarEvolution& scev) {
   if (loop->getSubLoops().size() == 0) {
@@ -38,7 +46,11 @@ void printLoopInfo(Loop* loop, ScalarEvolution& scev) {
           const SCEV* ss = scev.getSCEV(source);
 
           if (isUnknownValue(ss)) {
-            if (!scev.isLoopInvariant(ss, loop)) {
+            if (!scev.isLoopInvariant(ss, loop) && !(affine(ss))) {
+              cout << tab(1) << "Loop contains load from " << valueString(source) << " that SCEV cannot analyze" << endl;
+            }
+          } else {
+            if (!scev.isLoopInvariant(ss, loop) && !(affine(ss))) {
               cout << tab(1) << "Loop contains load from " << valueString(source) << " that SCEV cannot analyze" << endl;
             }
           }
@@ -51,10 +63,14 @@ void printLoopInfo(Loop* loop, ScalarEvolution& scev) {
           cout << tab(1) << "Store to source " << valueString(source) << " has scev " << scevStr(ss) << endl;
 
           if (isUnknownValue(ss)) {
-            if (!scev.isLoopInvariant(ss, loop)) {
-              cout << tab(1) << "Loop contains store to: " << valueString(source) << " that SCEV cannot analyze" << endl;
+            if (!scev.isLoopInvariant(ss, loop) && !(affine(ss))) {
+              cout << tab(1) << "Loop contains store to: " << valueString(source) << " that SCEV cannot analyze or is not affine..." << endl;
             } else {
               cout << tab(1) << "Loop contains store to unknown loop invariant value: " << valueString(source) << " that SCEV cannot analyze" << endl;              
+            }
+          } else {
+            if (!scev.isLoopInvariant(ss, loop) && !(affine(ss))) {
+              cout << tab(1) << "Loop contains store to: " << valueString(source) << " that SCEV cannot analyze or is not affine..." << endl;
             }
           }
         }
