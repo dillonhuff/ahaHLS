@@ -9,6 +9,10 @@ namespace ahaHLS {
 
   int createLLFile(const std::string& moduleName);
 
+  std::unique_ptr<llvm::Module> loadLLFileRawPath(llvm::LLVMContext& Context,
+                                                  llvm::SMDiagnostic& Err,
+                                                  const std::string& name);
+  
   std::unique_ptr<llvm::Module> loadLLFile(llvm::LLVMContext& Context,
                                            llvm::SMDiagnostic& Err,
                                            const std::string& name);

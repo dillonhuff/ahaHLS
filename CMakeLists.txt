@@ -76,3 +76,7 @@ target_link_libraries(parser ahahls ${llvm_libs})
 SET(AHAHLS_EXE_FILES src/ahaHLS.cpp)
 add_executable(aha-HLS ${AHAHLS_EXE_FILES})
 target_link_libraries(aha-HLS ahahls ${llvm_libs})
+
+SET(AHAHLS_EXE_FILES src/survey.cpp)
+add_executable(survey-benchmarks ${AHAHLS_EXE_FILES})
+target_link_libraries(survey-benchmarks ahahls ${llvm_libs})

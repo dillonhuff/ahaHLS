@@ -501,7 +501,6 @@ namespace ahaHLS {
         buildModSpec(memNames, memSrcs, hcs, instr);
 
       hcs.bindValue(instr, unit);
-
     }
 
   }
