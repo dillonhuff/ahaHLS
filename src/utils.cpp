@@ -656,6 +656,14 @@ namespace ahaHLS {
 
     return blks;
   }
+
+  std::string scevStr(const SCEV* scev) {
+    std::string str;
+    llvm::raw_string_ostream ss(str);
+    ss << *scev;
+    return ss.str();    
+  }
+
   
   
 }

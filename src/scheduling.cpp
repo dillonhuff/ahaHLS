@@ -742,13 +742,6 @@ namespace ahaHLS {
     return sortedOrder;
   }
 
-  std::string scevStr(const SCEV* scev) {
-    std::string str;
-    llvm::raw_string_ostream ss(str);
-    ss << *scev;
-    return ss.str();    
-  }
-
   bool appearsBefore(Instruction* const maybeBefore,
                      Instruction* const maybeAfter) {
 

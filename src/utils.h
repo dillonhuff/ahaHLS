@@ -8,6 +8,7 @@
 #include <string>
 
 #include <llvm/IR/Instructions.h>
+#include <llvm/Analysis/ScalarEvolution.h>
 
 namespace ahaHLS {
 
@@ -273,5 +274,6 @@ namespace ahaHLS {
 
   std::set<llvm::BasicBlock*>
   findPipelinedBlocks(llvm::Function* const f);
-  
+
+  std::string scevStr(const llvm::SCEV* scev);  
 }
