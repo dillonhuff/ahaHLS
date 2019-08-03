@@ -1566,5 +1566,46 @@ namespace ahaHLS {
   //   REQUIRE(runCppTest);
   // }
 
+  TEST_CASE("Filter") {
+    ifstream t("./experiments/median_filter.cpp");
+    std::string str((std::istreambuf_iterator<char>(t)),
+                    std::istreambuf_iterator<char>());
+
+    auto tokens = tokenize(str);
+    ParserModule parseMod = parse(tokens);
+
+    cout << parseMod << endl;
+    
+    SynthCppModule scppMod(parseMod);
+
+    STG graph = buildSTGFor(scppMod, "run_median_func");
+
+    map<Value*, int> arlayout;
+    auto arch = buildMicroArchitecture(graph, arlayout, scppMod.getHardwareConstraints());
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+
+    emitVerilog(arch, info);
+
+    // TestBenchSpec tb;
+    // map<string, int> testLayout = {};
+    // tb.runCycles = 70;
+    // tb.maxCycles = 100;
+    // tb.name = "pipelined_memory_hazard";
+    // tb.useModSpecs = true;
+    // map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+
+    // // TODO: Reintroduce after figuring out cross-call constraints
+    // // map_insert(tb.actionsOnCycles, 75, assertString("valid === 1"));
+    // setRAMContents(tb, 0, "arg_0", {0});
+
+    // checkRAMContents(tb, 50, "arg_0", {0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
+    // emitVerilogTestBench(tb, arch, testLayout);
+
+    // REQUIRE(runIVerilogTest("pipelined_memory_hazard_tb.v", "pipelined_memory_hazard", " builtins.v pipelined_memory_hazard.v RAM.v delay.v ram_primitives.v"));
+    
+  }
+
   
 }
