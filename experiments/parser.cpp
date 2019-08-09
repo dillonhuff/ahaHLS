@@ -31,7 +31,8 @@ public:
   string srcName;
   string destName;
   bool srcStart;
-  bool destStart; 
+  bool destStart;
+  // TODO: Add offset support
   ZCondition orderCond;
 };
 
@@ -90,7 +91,6 @@ void sequentialCalls(llvm::Function* f,
             maybe<ICHazard> h = findHazard(firstCallName, secondCallName, hazards);
             if (h.has_value()) {
               cout << "Found possible hazard or loosening" << endl;
-              //exec.addConstraint(instrEnd(first) <= instrStart(second));
               exec.addConstraint(buildConstraint(first, second, h.get_value()));
             } else {
               exec.addConstraint(instrEnd(first) < instrStart(second));
@@ -2445,8 +2445,11 @@ public:
           hazards.push_back({"hread", "hwrite", true, true, CMP_LTEZ});
           hazards.push_back({"hwrite", "hread", false, true, CMP_LTEZ});
         }
+
+        // TODO: Add pipeline calls here as well?
         sequentialCalls(f, interfaces.getConstraints(f), hazards);
 
+        
         functions.push_back(sf);
         activeFunction = nullptr;
 
