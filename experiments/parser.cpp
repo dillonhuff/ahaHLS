@@ -3832,7 +3832,7 @@ int main() {
   }
 
   {
-    ifstream t("./experiments/ram_iclass.cpp");
+    ifstream t("./experiments/hist_rams.cpp");
     std::string str((std::istreambuf_iterator<char>(t)),
                     std::istreambuf_iterator<char>());
 
@@ -3870,7 +3870,7 @@ int main() {
     emitVerilogTestBench(tb, arch, testLayout);
 
     // Need to figure out how to inline register specifications
-    assert(runIVerilogTest("histogram_tb.v", "histogram", " builtins.v RAM.v delay.v ram_primitives.v histogram.v"));
+    assert(runIVerilogTest("histogram_tb.v", "histogram", " builtins.v RAM.v delay.v ram_primitives.v histogram.v HistRAM.v ImgRAM.v"));
   }
   
   {

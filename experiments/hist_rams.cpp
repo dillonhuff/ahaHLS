@@ -14,7 +14,7 @@ class HistRAM {
   input_8 raddr_0;
   output_32 rdata_0;
 
-  void write(bit_8& addr, bit_32& data) {
+  void hwrite(bit_8& addr, bit_32& data) {
   set_wen:
     set_port(wen_0, 1);
   set_wdata:
@@ -29,7 +29,7 @@ class HistRAM {
     add_constraint(start(set_wen) + 3 == end(ret));
   }
 
-  bit_32 read(bit_8& addr) {
+  bit_32 hread(bit_8& addr) {
   set_addr:
     set_port(raddr_0, addr);
 
@@ -101,9 +101,9 @@ void histogram(ImgRAM& img, HistRAM& hist) {
   i = 0;
   do {
     pix = img.read(i);
-    count = hist.read(pix);
+    count = hist.hread(pix);
     count = count + 1;
-    hist.write(pix, count);
+    hist.hwrite(pix, count);
     i = i + 1;
   } while (i < 100);
 }
