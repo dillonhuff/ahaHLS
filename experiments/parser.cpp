@@ -3854,6 +3854,50 @@ int main() {
     assert(scppMod.getFunctions().size() >= 1);
 
     auto arch = synthesizeVerilog(scppMod, "histogram");
+      TestBenchSpec tb;
+      map<string, int> testLayout = {};
+      tb.memoryInit = {};
+      tb.memoryExpected = {};
+      tb.runCycles = 200;
+      tb.maxCycles = 300;
+      tb.name = "histogram";
+      tb.useModSpecs = true;
+      // tb.settablePort(tx, "m_axis_tready");
+      // tb.settablePort(dest_mac, "wdata");
+      // tb.settablePort(src_mac, "wdata");
+      // tb.settablePort(type, "wdata");
+      // tb.settablePort(payload, "wdata");                  
+
+      // tb.settablePort(dest_mac, "wen");
+      // tb.settablePort(src_mac, "wen");
+      // tb.settablePort(type, "wen");
+      // tb.settablePort(payload, "wen");                  
+
+      // map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+      // map_insert(tb.actionsInCycles, 1, string("arg_0_wdata <= 25;"));
+      // map_insert(tb.actionsInCycles, 1, string("arg_1_wdata <= 13;"));
+      // map_insert(tb.actionsInCycles, 1, string("arg_2_wdata <= 8;"));
+      // map_insert(tb.actionsInCycles, 1, string("arg_3_wdata <= 49;"));
+
+      // map_insert(tb.actionsInCycles, 1, string("arg_0_wen <= 1;"));
+      // map_insert(tb.actionsInCycles, 1, string("arg_1_wen <= 1;"));
+      // map_insert(tb.actionsInCycles, 1, string("arg_2_wen <= 1;"));
+      // map_insert(tb.actionsInCycles, 1, string("arg_3_wen <= 1;"));
+
+      // map_insert(tb.actionsInCycles, 2, string("arg_0_wen <= 0;"));
+      // map_insert(tb.actionsInCycles, 2, string("arg_1_wen <= 0;"));
+      // map_insert(tb.actionsInCycles, 2, string("arg_2_wen <= 0;"));
+      // map_insert(tb.actionsInCycles, 2, string("arg_3_wen <= 0;"));
+      
+      // map_insert(tb.actionsInCycles, 0, string("arg_4_m_axis_tready = 1;"));
+      // map_insert(tb.actionsOnCycles, 200, assertString("valid === 1"));
+    
+      emitVerilogTestBench(tb, arch, testLayout);
+
+      // Need to figure out how to inline register specifications
+      assert(runIVerilogTest("histogram_tb.v", "histogram", " builtins.v RAM.v delay.v ram_primitives.v histogram.v"));
+
+    
   }
   
   {
