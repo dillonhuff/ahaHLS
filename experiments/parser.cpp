@@ -26,6 +26,39 @@ class SynthCppModule;
 void optimizeModuleLLVM(SynthCppModule& mod);
 void optimizeModuleLLVM(llvm::Module& mod);
 
+class ICHazard {
+public:
+  string srcName;
+  string destName;
+  bool srcStart;
+  bool destStart; 
+  ZCondition orderCond;
+};
+
+void sequentialCalls(llvm::Function* f,
+                     ExecutionConstraints& exec,
+                     vector<ICHazard>& hazards) {
+  for (auto& bb : f->getBasicBlockList()) {
+    Instruction* first = nullptr;
+    Instruction* second = nullptr;
+    for (auto& instrP : bb) {
+      auto instr = &instrP;
+      if (CallInst::classof(instr)) {
+        first = second;
+        second = instr;
+        if ((second != nullptr) && (first != nullptr)) {
+
+          if (f->getName() == "histogram") {
+            exec.addConstraint(instrEnd(first) <= instrStart(second));            
+          } else {
+            exec.addConstraint(instrEnd(first) < instrStart(second));
+          }
+        }
+      }
+    }
+  }
+}
+
 void setZeroRows(TestBenchSpec& tb, const int cycleNo, const int stencilWidth, const int loadWidth, vector<Argument*> words) {
   for (int row = 0; row < stencilWidth; row++) {
     auto word = words[row];
@@ -2364,7 +2397,12 @@ public:
         // IC: Need to loosen this based on IC constraints
         // And: Need to add hazard handling for pipelines
         // Set all calls to be sequential by default
-        sequentialCalls(f, interfaces.getConstraints(f));
+        vector<ICHazard> hazards;
+        if (f->getName() == "histogram") {
+          hazards.push_back({"hread", "hwrite", true, true, CMP_LTEZ});
+          hazards.push_back({"hwrite", "hread", false, true, CMP_LTEZ});
+        }
+        sequentialCalls(f, interfaces.getConstraints(f), hazards);
 
         functions.push_back(sf);
         activeFunction = nullptr;
