@@ -49,3 +49,17 @@ class RAM {
 void filter_ram(RAM& mem) {
   mem.write(10, mem.read(0) + mem.read(1));
 }
+
+void histogram(RAM& img, RAM& hist) {
+  bit_8 i;
+  bit_8 pix;
+  bit_32 count;
+  i = 0;
+  do {
+    pix = img.read(i);
+    count = hist.read(pix);
+    count = count + 1;
+    hist.write(pix, count);
+    i = i + 1;
+  } while (i < 100);
+}

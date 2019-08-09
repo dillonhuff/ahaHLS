@@ -3789,7 +3789,7 @@ int main() {
         string(func.first->getName()) << " = " <<
         func.second.constraints.size() << endl;
     }
-    
+
     auto arch = synthesizeVerilog(scppMod, "filter_ram");
 
     map<llvm::Value*, int> layout = {};
@@ -3831,6 +3831,31 @@ int main() {
     assert(runIVerilogTest("filter_ram_tb.v", "filter_ram", " builtins.v filter_ram.v RAM.v delay.v ram_primitives.v"));
   }
 
+  {
+    ifstream t("./experiments/ram_iclass.cpp");
+    std::string str((std::istreambuf_iterator<char>(t)),
+                    std::istreambuf_iterator<char>());
+
+    auto tokens = tokenize(str);
+    cout << "Tokens" << endl;
+    for (auto t : tokens) {
+      cout << "\t" << t.getStr() << endl;
+    }
+
+    ParserModule parseMod = parse(tokens);
+
+    cout << parseMod << endl;
+
+    assert(parseMod.getStatements().size() >= 2);
+
+    SynthCppModule scppMod(parseMod);
+
+    assert(scppMod.getClasses().size() >= 1);
+    assert(scppMod.getFunctions().size() >= 1);
+
+    auto arch = synthesizeVerilog(scppMod, "histogram");
+  }
+  
   {
     ifstream t("./experiments/eth_axi_tx.cpp");
     std::string str((std::istreambuf_iterator<char>(t)),
@@ -3932,47 +3957,47 @@ int main() {
 
   }
 
-  {
-    ifstream t("./experiments/fadd.cpp");
-    std::string str((std::istreambuf_iterator<char>(t)),
-                    std::istreambuf_iterator<char>());
+  // {
+  //   ifstream t("./experiments/fadd.cpp");
+  //   std::string str((std::istreambuf_iterator<char>(t)),
+  //                   std::istreambuf_iterator<char>());
 
-    auto tokens = tokenize(str);
-    ParserModule mod = parse(tokens);
+  //   auto tokens = tokenize(str);
+  //   ParserModule mod = parse(tokens);
     
-    SynthCppModule scppMod(mod);
+  //   SynthCppModule scppMod(mod);
 
-    cout << "-- Float adder" << endl;
-    SynthCppClass* c = scppMod.getClassByName(Token("adder"));
-    cout << *c << endl;
-    cout << "-- End of adder" << endl;
+  //   cout << "-- Float adder" << endl;
+  //   SynthCppClass* c = scppMod.getClassByName(Token("adder"));
+  //   cout << *c << endl;
+  //   cout << "-- End of adder" << endl;
 
-    auto arch = synthesizeVerilog(scppMod, "fadd_32");
+  //   auto arch = synthesizeVerilog(scppMod, "fadd_32");
 
-    map<llvm::Value*, int> layout = {};
+  //   map<llvm::Value*, int> layout = {};
 
-    auto in0 =
-      sc<Argument>(getArg(scppMod.getFunction("fadd_32")->llvmFunction(), 0));
-    auto in1 =
-      sc<Argument>(getArg(scppMod.getFunction("fadd_32")->llvmFunction(), 1));
-    TestBenchSpec tb;
-    map<string, int> testLayout = {};
-    tb.memoryInit = {};
-    tb.memoryExpected = {};
-    tb.runCycles = 200;
-    tb.maxCycles = 300;
-    tb.name = "fadd_32";
-    tb.useModSpecs = true;
-    tb.settablePort(in0, "in_data");
-    tb.settablePort(in1, "in_data");
+  //   auto in0 =
+  //     sc<Argument>(getArg(scppMod.getFunction("fadd_32")->llvmFunction(), 0));
+  //   auto in1 =
+  //     sc<Argument>(getArg(scppMod.getFunction("fadd_32")->llvmFunction(), 1));
+  //   TestBenchSpec tb;
+  //   map<string, int> testLayout = {};
+  //   tb.memoryInit = {};
+  //   tb.memoryExpected = {};
+  //   tb.runCycles = 200;
+  //   tb.maxCycles = 300;
+  //   tb.name = "fadd_32";
+  //   tb.useModSpecs = true;
+  //   tb.settablePort(in0, "in_data");
+  //   tb.settablePort(in1, "in_data");
       
-    map_insert(tb.actionsOnCycles, 200, assertString("valid === 1"));
+  //   map_insert(tb.actionsOnCycles, 200, assertString("valid === 1"));
     
-    emitVerilogTestBench(tb, arch, testLayout);
+  //   emitVerilogTestBench(tb, arch, testLayout);
 
-    // Need to figure out how to inline register specifications
-    //assert(runIVerilogTest("fadd_32_tb.v", "fadd_32", " builtins.v fadd_32.v"));
-  }
+  //   // Need to figure out how to inline register specifications
+  //   //assert(runIVerilogTest("fadd_32_tb.v", "fadd_32", " builtins.v fadd_32.v"));
+  // }
 
   class Img {
     vector<int> values;
@@ -4007,99 +4032,100 @@ int main() {
     
     SynthCppModule scppMod(mod);
 
-    auto arch = synthesizeVerilog(scppMod, "run_median_func");
+    // auto arch = synthesizeVerilog(scppMod, "run_median_func");
 
-    {
-      int imgWidth = 5;
-      Img image(imgWidth, imgWidth);
-      for (int i = 0; i < imgWidth; i++) {
-        for (int j = 0; j < imgWidth; j++) {
-          image.set(i, j, i*imgWidth + j);
-        }
-      }
+    // {
+    //   int imgWidth = 5;
+    //   Img image(imgWidth, imgWidth);
+    //   for (int i = 0; i < imgWidth; i++) {
+    //     for (int j = 0; j < imgWidth; j++) {
+    //       image.set(i, j, i*imgWidth + j);
+    //     }
+    //   }
 
-      auto word0 =
-        sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 1));
-      auto word1 =
-        sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 2));
-      auto word2 =
-        sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 3));
+    //   auto word0 =
+    //     sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 1));
+    //   auto word1 =
+    //     sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 2));
+    //   auto word2 =
+    //     sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 3));
 
-      TestBenchSpec tb;
-      map<string, int> testLayout = {};
-      tb.memoryInit = {};
-      tb.memoryExpected = {};
-      tb.runCycles = 30;
-      tb.maxCycles = 50;
-      tb.name = "run_median_func";
-      tb.useModSpecs = true;
+    //   TestBenchSpec tb;
+    //   map<string, int> testLayout = {};
+    //   tb.memoryInit = {};
+    //   tb.memoryExpected = {};
+    //   tb.runCycles = 30;
+    //   tb.maxCycles = 50;
+    //   tb.name = "run_median_func";
+    //   tb.useModSpecs = true;
 
-      map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
-      map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
-      map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+    //   map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+    //   map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
+    //   map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
     
-      tb.actionOnCondition("1", "$display(\"pixel1 = %d, pixel2 = %d, pixel3 = %d, pixel4 = %d\", arg_4_in_wire, arg_5_in_wire, arg_6_in_wire, arg_7_in_wire);");
+    //   tb.actionOnCondition("1", "$display(\"pixel1 = %d, pixel2 = %d, pixel3 = %d, pixel4 = %d\", arg_4_in_wire, arg_5_in_wire, arg_6_in_wire, arg_7_in_wire);");
 
-      int loadWidth = 4;
-      int startLoadCycle = 3;
-      int stencilWidth = 3;
+    //   int loadWidth = 4;
+    //   int startLoadCycle = 3;
+    //   int stencilWidth = 3;
 
-      int activeCycle = startLoadCycle;
-      vector<Argument*> rows{word0, word1, word2};
+    //   int activeCycle = startLoadCycle;
+    //   vector<Argument*> rows{word0, word1, word2};
 
-      //for (int i = 0; i < imgWidth - (stencilWidth - 1); i++) {
-      for (int i = 0; i < imgWidth - 1; i++) {
+    //   //for (int i = 0; i < imgWidth - (stencilWidth - 1); i++) {
+    //   for (int i = 0; i < imgWidth - 1; i++) {
 
-        // Clear row
-        for (int k = 0; k < 3; k++) {
-          setZeroRows(tb, activeCycle, stencilWidth, loadWidth, rows);
-          activeCycle++;
-        }
+    //     // Clear row
+    //     for (int k = 0; k < 3; k++) {
+    //       setZeroRows(tb, activeCycle, stencilWidth, loadWidth, rows);
+    //       activeCycle++;
+    //     }
         
-        for (int j = 0; j < imgWidth - (loadWidth - 1); j += loadWidth) {
-        //for (int j = 0; j < imgWidth; j += loadWidth) {
-          // Assemble values;
-          for (int row = 0; row < stencilWidth; row++) {
-            auto word = rows[row];
-            string values = "";
-            for (int col = 0; col < loadWidth; col++) {
-              if ((i + row) < imgWidth) {
-                values += "8'd" + to_string(image.get(i + row, j + col));
-              } else {
-                values += "8'hff";
-              }
+    //     for (int j = 0; j < imgWidth - (loadWidth - 1); j += loadWidth) {
+    //     //for (int j = 0; j < imgWidth; j += loadWidth) {
+    //       // Assemble values;
+    //       for (int row = 0; row < stencilWidth; row++) {
+    //         auto word = rows[row];
+    //         string values = "";
+    //         for (int col = 0; col < loadWidth; col++) {
+    //           if ((i + row) < imgWidth) {
+    //             values += "8'd" + to_string(image.get(i + row, j + col));
+    //           } else {
+    //             values += "8'hff";
+    //           }
 
-              if (col != (loadWidth - 1)) {
-                values += ",";
-              }
-            }
-            tb.setArgPort(word, "in_wire", activeCycle,
-                          //startLoadCycle + i + (j / loadWidth),
-                          "{" + values + "}");
-          }
-          activeCycle++;            
+    //           if (col != (loadWidth - 1)) {
+    //             values += ",";
+    //           }
+    //         }
+    //         tb.setArgPort(word, "in_wire", activeCycle,
+    //                       //startLoadCycle + i + (j / loadWidth),
+    //                       "{" + values + "}");
+    //       }
+    //       activeCycle++;            
           
 
-        }
+    //     }
 
-        // setZeroRows(tb, activeCycle, stencilWidth, loadWidth, rows);
-        // activeCycle++;
-      }
+    //     // setZeroRows(tb, activeCycle, stencilWidth, loadWidth, rows);
+    //     // activeCycle++;
+    //   }
 
-      // for (int k = 0; k < 3; k++) {
-      //   setZeroRows(tb, activeCycle, stencilWidth, loadWidth, rows);
-      //   activeCycle++;
-      // }
+    //   // for (int k = 0; k < 3; k++) {
+    //   //   setZeroRows(tb, activeCycle, stencilWidth, loadWidth, rows);
+    //   //   activeCycle++;
+    //   // }
       
-      tb.settablePort(word0, "in_wire");
-      tb.settablePort(word1, "in_wire");
-      tb.settablePort(word2, "in_wire");    
+    //   tb.settablePort(word0, "in_wire");
+    //   tb.settablePort(word1, "in_wire");
+    //   tb.settablePort(word2, "in_wire");    
 
-      //map_insert(tb.actionsOnCycles, 200, assertString("valid === 1"));
+    //   //map_insert(tb.actionsOnCycles, 200, assertString("valid === 1"));
     
-      emitVerilogTestBench(tb, arch, testLayout);
-      assert(runIVerilogTest("run_median_func_tb.v", "run_median_func", " builtins.v run_median_func.v RAM.v delay.v ram_primitives.v eth_axis_tx.v median_wires.v median.v state_machine.v node.v common_network.v dff_3_pipe.v pixel_network.v"));
-    }
+    //   emitVerilogTestBench(tb, arch, testLayout);
+    //   assert(runIVerilogTest("run_median_func_tb.v", "run_median_func", " builtins.v run_median_func.v RAM.v delay.v ram_primitives.v eth_axis_tx.v median_wires.v median.v state_machine.v node.v common_network.v dff_3_pipe.v pixel_network.v"));
+    // }
+
   }
   
 }
