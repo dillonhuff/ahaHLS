@@ -26,7 +26,7 @@ class HistRAM {
 
     add_constraint(start(set_wen) == start(set_wdata));
     add_constraint(start(set_wen) == start(set_waddr));
-    add_constraint(start(set_wen) + 3 == end(ret));
+    add_constraint(start(set_wen) + 1 == end(ret));
   }
 
   bit_32 hread(bit_8& addr) {
@@ -40,7 +40,7 @@ class HistRAM {
 
     return res;
 
-    add_constraint(end(set_addr) + 1 == start(read_data));
+    add_constraint(end(set_addr) == start(read_data));
     add_constraint(start(read_data) == start(ret));
   }
 
@@ -74,7 +74,7 @@ class ImgRAM {
 
     add_constraint(start(set_wen) == start(set_wdata));
     add_constraint(start(set_wen) == start(set_waddr));
-    add_constraint(start(set_wen) + 3 == end(ret));
+    add_constraint(start(set_wen) == end(ret));
   }
 
   bit_8 read(bit_12& addr) {
@@ -88,7 +88,7 @@ class ImgRAM {
 
     return res;
 
-    add_constraint(end(set_addr) + 1 == start(read_data));
+    add_constraint(end(set_addr) == start(read_data));
     add_constraint(start(read_data) == start(ret));
   }
 

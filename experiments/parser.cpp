@@ -2361,6 +2361,8 @@ public:
           cgs.builder().CreateRet(nullptr);
         }
 
+        // IC: Need to loosen this based on IC constraints
+        // And: Need to add hazard handling for pipelines
         // Set all calls to be sequential by default
         sequentialCalls(f, interfaces.getConstraints(f));
 
