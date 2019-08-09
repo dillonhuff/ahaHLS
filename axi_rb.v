@@ -68,44 +68,43 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 	// End debug wires and ports
 
 	// Start Functional Units
-	reg [15:0] phi_in_phi_10;
-	reg [31:0] phi_last_block_phi_10;
-	reg [63:0] phi_s_phi_10;
-	wire [31:0] phi_out_phi_10;
-	phi #(.NB_PAIR(2), .WIDTH(8)) phi_10(.in(phi_in_phi_10), .last_block(phi_last_block_phi_10), .out(phi_out_phi_10), .s(phi_s_phi_10));
-
 	br_dummy br_unit();
 
-	reg [31:0] sgt_in0_sext_11;
-	wire [63:0] sgt_out_sext_11;
-	sext sext_11(.in(sgt_in0_sext_11), .out(sgt_out_sext_11));
+	reg [31:0] sgt_in0_sext_10;
+	wire [63:0] sgt_out_sext_10;
+	sext sext_10(.in(sgt_in0_sext_10), .out(sgt_out_sext_10));
 
-	reg [31:0] add_in0_add_12;
-	reg [31:0] add_in1_add_12;
-	wire [31:0] add_out_add_12;
-	add #(.WIDTH(32)) add_add_12(.in0(add_in0_add_12), .in1(add_in1_add_12), .out(add_out_add_12));
+	reg [31:0] add_in0_add_11;
+	reg [31:0] add_in1_add_11;
+	wire [31:0] add_out_add_11;
+	add #(.WIDTH(32)) add_add_11(.in0(add_in0_add_11), .in1(add_in1_add_11), .out(add_out_add_11));
 
 	reg [7:0] cmp_in0_icmp_22;
 	reg [7:0] cmp_in1_icmp_22;
 	wire [0:0] cmp_out_icmp_22;
 	slt #(.WIDTH(8)) icmp_22(.in0(cmp_in0_icmp_22), .in1(cmp_in1_icmp_22), .out(cmp_out_icmp_22));
 
-	reg [31:0] trunc_in_trunc_13;
-	wire [7:0] trunc_out_trunc_13;
-	trunc #(.IN_WIDTH(32), .OUT_WIDTH(8)) trunc_13(.in(trunc_in_trunc_13), .out(trunc_out_trunc_13));
+	reg [31:0] trunc_in_trunc_12;
+	wire [7:0] trunc_out_trunc_12;
+	trunc #(.IN_WIDTH(32), .OUT_WIDTH(8)) trunc_12(.in(trunc_in_trunc_12), .out(trunc_out_trunc_12));
+
+	reg [15:0] phi_in_phi_13;
+	reg [31:0] phi_last_block_phi_13;
+	reg [63:0] phi_s_phi_13;
+	wire [31:0] phi_out_phi_13;
+	phi #(.NB_PAIR(2), .WIDTH(8)) phi_13(.in(phi_in_phi_13), .last_block(phi_last_block_phi_13), .out(phi_out_phi_13), .s(phi_s_phi_13));
 
 	add call_2();
 
 	add call_15();
 
-	add call_19();
+	add call_17();
 
 	// End Functional Units
 
 	// Start instruction result storage
 	reg [7:0] load_tmp_0;
-	reg [31:0] call_tmp_8;
-	reg [7:0] trunc_tmp_6;
+	reg [7:0] trunc_tmp_5;
 	// End instruction result storage
 
 	// Start pipeline variables
@@ -149,13 +148,9 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 			if ((global_state == 3)) begin
 			end
 			if ((global_state == 4)) begin
-			end
-			if ((global_state == 5)) begin
-			end
-			if ((global_state == 6)) begin
 					last_BB_reg <= 1;
 			end
-			if ((global_state == 7)) begin
+			if ((global_state == 5)) begin
 					last_BB_reg <= 2;
 			end
 		end
@@ -189,7 +184,7 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 				// Condition = True
 
 				if (1) begin
-				if (arg_3_s_axi_rvalid) begin 
+				if (arg_3_s_axi_rvalid && arg_0_write_ready) begin 
 					global_state <= 3;
 				end
 				end
@@ -204,12 +199,13 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 			end
 			if ((global_state == 4)) begin 
 				// Next state transition logic
-				// Condition = True
-
-				if (1) begin
-				if (arg_0_write_ready) begin 
-					global_state <= 5;
+				// Condition = (  %10 = icmp slt i8 %9, %0)
+				if ((cmp_out_icmp_22)) begin
+					global_state <= 2;
 				end
+				// Condition = (!(  %10 = icmp slt i8 %9, %0))
+				if (!(cmp_out_icmp_22)) begin
+					global_state <= 5;
 				end
 			end
 			if ((global_state == 5)) begin 
@@ -217,26 +213,7 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 				// Condition = True
 
 				if (1) begin
-					global_state <= 6;
-				end
-			end
-			if ((global_state == 6)) begin 
-				// Next state transition logic
-				// Condition = (  %10 = icmp slt i8 %9, %0)
-				if ((cmp_out_icmp_22)) begin
-					global_state <= 2;
-				end
-				// Condition = (!(  %10 = icmp slt i8 %9, %0))
-				if (!(cmp_out_icmp_22)) begin
-					global_state <= 7;
-				end
-			end
-			if ((global_state == 7)) begin 
-				// Next state transition logic
-				// Condition = True
-
-				if (1) begin
-					global_state <= 7;
+					global_state <= 5;
 				end
 			end
 
@@ -254,31 +231,20 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 			end
 			if ((global_state == 2)) begin 
 				// Temporary storage
-				if (arg_3_s_axi_rvalid) begin
+				if (arg_3_s_axi_rvalid && arg_0_write_ready) begin
 				// Store data computed at the stage
-					trunc_tmp_6 <= trunc_out_trunc_13;
+					trunc_tmp_5 <= trunc_out_trunc_12;
 				end
 			end
 			if ((global_state == 3)) begin 
 				// Temporary storage
 				// Store data computed at the stage
-					call_tmp_8 <= arg_3_s_axi_rdata;
 			end
 			if ((global_state == 4)) begin 
 				// Temporary storage
-				if (arg_0_write_ready) begin
 				// Store data computed at the stage
-				end
 			end
 			if ((global_state == 5)) begin 
-				// Temporary storage
-				// Store data computed at the stage
-			end
-			if ((global_state == 6)) begin 
-				// Temporary storage
-				// Store data computed at the stage
-			end
-			if ((global_state == 7)) begin 
 				// Temporary storage
 				// Store data computed at the stage
 			end
@@ -338,31 +304,31 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 	always @(*) begin
 		arg_2_raddr_reg = valid ? arg_2_rdata : arg_2_rdata;
 	end
-	// controller for phi_10.phi_in_phi_10
-	// controller for phi_10.phi_last_block_phi_10
-	// controller for phi_10.phi_s_phi_10
+	// controller for sext_10.sgt_in0_sext_10
 	// Insensitive connections
 	always @(*) begin
-		phi_in_phi_10 = valid ? {trunc_tmp_6, (8'd0)} : {trunc_tmp_6, (8'd0)};
-		phi_last_block_phi_10 = valid ? last_BB_reg : last_BB_reg;
-		phi_s_phi_10 = valid ? {32'd1, 32'd0} : {32'd1, 32'd0};
+		sgt_in0_sext_10 = valid ? phi_out_phi_13 : phi_out_phi_13;
 	end
-	// controller for sext_11.sgt_in0_sext_11
+	// controller for add_add_11.add_in0_add_11
+	// controller for add_add_11.add_in1_add_11
 	// Insensitive connections
 	always @(*) begin
-		sgt_in0_sext_11 = valid ? phi_out_phi_10 : phi_out_phi_10;
+		add_in0_add_11 = valid ? sgt_out_sext_10 : sgt_out_sext_10;
+		add_in1_add_11 = valid ? (32'd1) : (32'd1);
 	end
-	// controller for add_add_12.add_in0_add_12
-	// controller for add_add_12.add_in1_add_12
+	// controller for trunc_12.trunc_in_trunc_12
 	// Insensitive connections
 	always @(*) begin
-		add_in0_add_12 = valid ? sgt_out_sext_11 : sgt_out_sext_11;
-		add_in1_add_12 = valid ? (32'd1) : (32'd1);
+		trunc_in_trunc_12 = valid ? add_out_add_11 : add_out_add_11;
 	end
-	// controller for trunc_13.trunc_in_trunc_13
+	// controller for phi_13.phi_in_phi_13
+	// controller for phi_13.phi_last_block_phi_13
+	// controller for phi_13.phi_s_phi_13
 	// Insensitive connections
 	always @(*) begin
-		trunc_in_trunc_13 = valid ? add_out_add_12 : add_out_add_12;
+		phi_in_phi_13 = valid ? {trunc_tmp_5, (8'd0)} : {trunc_tmp_5, (8'd0)};
+		phi_last_block_phi_13 = valid ? last_BB_reg : last_BB_reg;
+		phi_s_phi_13 = valid ? {32'd1, 32'd0} : {32'd1, 32'd0};
 	end
 	// Insensitive connections
 	always @(*) begin
@@ -370,7 +336,7 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 	// controller for arg_0.arg_0_in_data_reg
 	// controller for arg_0.arg_0_write_valid_reg
 	always @(*) begin
-		if ((global_state == 5)) begin 
+		if ((global_state == 3)) begin 
 			if (1) begin
 				arg_0_write_valid_reg = (32'd1);
 			end else begin
@@ -382,7 +348,7 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 	end
 	// Insensitive connections
 	always @(*) begin
-		arg_0_in_data_reg = valid ? call_tmp_8 : call_tmp_8;
+		arg_0_in_data_reg = valid ? arg_3_s_axi_rdata : arg_3_s_axi_rdata;
 	end
 	// Insensitive connections
 	always @(*) begin
@@ -391,12 +357,12 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 	// controller for icmp_22.cmp_in1_icmp_22
 	// Insensitive connections
 	always @(*) begin
-		cmp_in0_icmp_22 = valid ? trunc_tmp_6 : trunc_tmp_6;
+		cmp_in0_icmp_22 = valid ? trunc_tmp_5 : trunc_tmp_5;
 		cmp_in1_icmp_22 = valid ? load_tmp_0 : load_tmp_0;
 	end
 	// controller for ret_24.valid_reg
 	always @(*) begin
-		if ((global_state == 7)) begin 
+		if ((global_state == 5)) begin 
 			if (1) begin
 				valid_reg = 1;
 			end else begin

@@ -35,6 +35,12 @@ public:
   ZCondition orderCond;
 };
 
+maybe<ICHazard> findHazard(const string& firstCallName,
+                           const string& secondCallName,
+                           vector<ICHazard>& hazards) {
+  return {};
+}
+
 void sequentialCalls(llvm::Function* f,
                      ExecutionConstraints& exec,
                      vector<ICHazard>& hazards) {
@@ -46,12 +52,26 @@ void sequentialCalls(llvm::Function* f,
       if (CallInst::classof(instr)) {
         first = second;
         second = instr;
-        if ((second != nullptr) && (first != nullptr)) {
 
-          if (f->getName() == "histogram") {
-            exec.addConstraint(instrEnd(first) <= instrStart(second));            
-          } else {
-            exec.addConstraint(instrEnd(first) < instrStart(second));
+        
+        if ((second != nullptr) && (first != nullptr)) {
+          CallInst* firstCall = dyn_cast<CallInst>(first);
+          CallInst* secondCall = dyn_cast<CallInst>(second);
+
+          string firstCallName = string(firstCall->getCalledFunction()->getName());
+          string secondCallName = string(secondCall->getCalledFunction()->getName());
+          cout << "First call  = " << string(firstCall->getCalledFunction()->getName()) << endl;
+          cout << "Second call = " << string(secondCall->getCalledFunction()->getName()) << endl;
+
+          
+          if (first->getOperand(0) == second->getOperand(0)) {
+            cout << "\tCould possibly have internal hazard" << endl;
+            maybe<ICHazard> h = findHazard(firstCallName, secondCallName, hazards);
+            if (f->getName() == "histogram") {
+              exec.addConstraint(instrEnd(first) <= instrStart(second));
+            } else {
+              exec.addConstraint(instrEnd(first) < instrStart(second));
+            }
           }
         }
       }
