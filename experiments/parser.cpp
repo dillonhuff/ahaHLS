@@ -35,9 +35,30 @@ public:
   ZCondition orderCond;
 };
 
+ExecutionConstraint*
+buildConstraint(Instruction* first,
+                Instruction* second,
+                ICHazard h) {
+  auto sVal = h.srcStart ? instrStart(first) : instrEnd(first);
+  auto eVal = h.srcStart ? instrStart(second) : instrEnd(second);
+  if (h.orderCond == CMP_LTEZ) {
+    return sVal <= eVal;
+  } else if (h.orderCond == CMP_LTZ) {
+    return sVal < eVal;
+  } else {
+    assert(false);
+  }
+}
+
 maybe<ICHazard> findHazard(const string& firstCallName,
                            const string& secondCallName,
                            vector<ICHazard>& hazards) {
+  for (auto h : hazards) {
+    if ((firstCallName == h.srcName) &&
+        (secondCallName == h.destName)) {
+      return h;
+    }
+  }
   return {};
 }
 
@@ -67,8 +88,10 @@ void sequentialCalls(llvm::Function* f,
           if (first->getOperand(0) == second->getOperand(0)) {
             cout << "\tCould possibly have internal hazard" << endl;
             maybe<ICHazard> h = findHazard(firstCallName, secondCallName, hazards);
-            if (f->getName() == "histogram") {
-              exec.addConstraint(instrEnd(first) <= instrStart(second));
+            if (h.has_value()) {
+              cout << "Found possible hazard or loosening" << endl;
+              //exec.addConstraint(instrEnd(first) <= instrStart(second));
+              exec.addConstraint(buildConstraint(first, second, h.get_value()));
             } else {
               exec.addConstraint(instrEnd(first) < instrStart(second));
             }
