@@ -222,7 +222,7 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 
 				if (1) begin
 					global_state <= 200000;
-					pipeline_stage_0_valid <= 1;
+					//pipeline_stage_0_valid <= 1;
 				end
 			end
 			if ((in_pipeline_0 && pipeline_stage_0_valid)) begin 
