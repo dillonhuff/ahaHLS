@@ -3221,6 +3221,19 @@ void checkRAMContents(const std::string& ramName,
                       int startCycle,
                       vector<string>& expectedValues,
                       TestBenchSpec& tb) {
+  for (int i = 0; i < expectedValues.size(); i++) {
+    string next = expectedValues[i];
+    int time = startCycle + i;
+    //tb.actionOnCondition("total_cycles == " + to_string(time), ramName + "_debug_addr <= 1;");
+
+    tb.actionsInCycles[time].push_back(ramName + "_debug_addr <= " + to_string(i) + ";");
+    string cond = ramName + "_debug_data === " + next;
+    string assertString = "if (!(" + cond + ")) begin $display(\"ERROR in cycle %d: addr " + to_string(i) + " should be " + next + "\", total_cycles); $finish(1); end";
+    
+    tb.actionsInCycles[time].push_back(assertString);
+    
+    //("total_cycles == " + to_string(time + 1), assertString);
+  }
 }
 
 void setRAM(const std::string& ramName,
@@ -3288,10 +3301,12 @@ int main() {
     tb.maxCycles = 500;
     tb.name = "histogram";
     tb.useModSpecs = true;
+    tb.settablePort(result, "debug_addr");    
     tb.settablePort(result, "debug_write_addr");
     tb.settablePort(result, "debug_write_data");
     tb.settablePort(result, "debug_write_en");
 
+    tb.settablePort(h, "debug_addr");        
     tb.settablePort(h, "debug_write_addr");
     tb.settablePort(h, "debug_write_data");
     tb.settablePort(h, "debug_write_en");
@@ -3309,7 +3324,7 @@ int main() {
 
     vector<string> hValues;
     for (int i = 0; i < 256; i++) {
-      hValues.push_back(to_string(0));
+      hValues.push_back(to_string(1));
     }
     setRAM("arg_1", 1, hValues, tb);
     
@@ -3317,7 +3332,7 @@ int main() {
     for (int i = 0; i < 100; i++) {
       expectedValues.push_back(to_string(1));
     }
-    checkRAMContents("arg_1", 300, values, tb);
+    checkRAMContents("arg_1", 300, expectedValues, tb);
     
     emitVerilogTestBench(tb, arch, testLayout);
 
