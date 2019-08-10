@@ -14,6 +14,10 @@ class RAM {
   input_5 raddr_0;
   output_32 rdata_0;
 
+  void defaults() {
+    write_port(wen_0, 0);    
+  }
+
   void write(bit_5& addr, bit_32& data) {
   set_wen:
     set_port(wen_0, 1);

@@ -14,6 +14,10 @@ class HistRAM {
   input_8 raddr_0;
   output_32 rdata_0;
 
+  void defaults() {
+    write_port(wen_0, 0);    
+  }
+  
   void hwrite(bit_8& addr, bit_32& data) {
   set_wen:
     set_port(wen_0, 1);
@@ -62,6 +66,10 @@ class ImgRAM {
   input_12 raddr_0;
   output_8 rdata_0;
 
+  void defaults() {
+    write_port(wen_0, 0);    
+  }
+  
   void write(bit_12& addr, bit_8& data) {
   set_wen:
     set_port(wen_0, 1);
