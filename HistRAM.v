@@ -38,9 +38,12 @@ module HistRAM(input clk,
       end
 
       if (debug_write_en) begin
+         $display("hist setting %d to %d", debug_write_addr, debug_write_data);
          data[debug_write_addr] <= debug_write_data;
       end
 
+      $display("reading value %d from %d", data[raddr_0], raddr_0);
+      
       rdata_0_reg <= data[raddr_0];
       
    end

@@ -3232,7 +3232,7 @@ void setRAM(const std::string& ramName,
     int time = startCycle + i;
     tb.actionOnCondition("total_cycles == " + to_string(time), ramName + "_debug_write_en <= 1;");
     tb.actionOnCondition("total_cycles == " + to_string(time), ramName + "_debug_write_addr <= " + to_string(i) + ";");
-    tb.actionOnCondition("total_cycles == " + to_string(time), ramName + "_debug_write_data <= " + to_string(i) + ";");
+    tb.actionOnCondition("total_cycles == " + to_string(time), ramName + "_debug_write_data <= " + next + ";");
   }
 
   tb.actionOnCondition("total_cycles == " + to_string(startCycle + values.size()), ramName + "_debug_write_en <= 0;");
