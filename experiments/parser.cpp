@@ -3226,9 +3226,10 @@ void checkRAMContents(const std::string& ramName,
     int time = startCycle + i;
     //tb.actionOnCondition("total_cycles == " + to_string(time), ramName + "_debug_addr <= 1;");
 
-    tb.actionsInCycles[time].push_back(ramName + "_debug_addr <= " + to_string(i) + ";");
+    tb.actionsInCycles[time].push_back(ramName + "_debug_addr = " + to_string(i) + ";");
+    string argData = ramName + "_debug_data";
     string cond = ramName + "_debug_data === " + next;
-    string assertString = "if (!(" + cond + ")) begin $display(\"ERROR in cycle %d: addr " + to_string(i) + " should be " + next + "\", total_cycles); $finish(1); end";
+    string assertString = "if (!(" + cond + ")) begin $display(\"ERROR in cycle %d: addr " + to_string(i) + " should be " + next + ", but is %d\", total_cycles, " + argData + "); $finish(1); end";
     
     tb.actionsInCycles[time].push_back(assertString);
     
@@ -3324,7 +3325,7 @@ int main() {
 
     vector<string> hValues;
     for (int i = 0; i < 256; i++) {
-      hValues.push_back(to_string(1));
+      hValues.push_back(to_string(0));
     }
     setRAM("arg_1", 1, hValues, tb);
     
