@@ -2448,7 +2448,6 @@ public:
 
         // TODO: Add pipeline calls here as well?
         sequentialCalls(f, interfaces.getConstraints(f), hazards);
-
         
         functions.push_back(sf);
         activeFunction = nullptr;
