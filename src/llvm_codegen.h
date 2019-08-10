@@ -360,7 +360,7 @@ namespace ahaHLS {
                            llvm::Type* argType) {
 
     // TODO: Add typestring to name
-    auto name = "builtin_read_port_" + portName;
+    auto name = "builtin_read_port_" + portName + "." + std::to_string(width);
 
     auto& m = getGlobalLLVMModule();
     llvm::Function* fifoRead = m.getFunction(name);

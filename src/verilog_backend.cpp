@@ -1003,6 +1003,7 @@ namespace ahaHLS {
       //cout << "looking for " << portName << endl;
       if (!contains_key(string(portName), unit0Src.outWires)) {
         cout << "looking for " << portName << " for instruction " << valueString(instr0) << endl;
+        cout << unit0Src << endl;
         assert(false);
       }
       return map_find(string(portName), unit0Src.outWires).name;

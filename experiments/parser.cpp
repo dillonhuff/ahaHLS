@@ -2798,6 +2798,8 @@ public:
         auto f =
           readPort(labelId->name.getStr(), outWidth, structType->getPointerTo());
 
+        cout << "read port function = " << valueString(f) << endl;
+        
         assert(activeFunction != nullptr);
         assert(activeFunction->llvmFunction() != nullptr);
 

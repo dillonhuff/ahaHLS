@@ -50,7 +50,7 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_0();
+	add call_1();
 
 	// End Functional Units
 
@@ -153,9 +153,6 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 	// Start pipeline stages
 	// End pipeline instruction code
 
-	// Insensitive connections
-	always @(*) begin
-	end
 	// controller for arg_2.arg_2_s_eth_payload_axis_tdata_reg
 	// controller for arg_2.arg_2_s_eth_payload_axis_tlast_reg
 	// controller for arg_2.arg_2_s_eth_payload_axis_tvalid_reg
@@ -174,6 +171,9 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 	always @(*) begin
 		arg_2_s_eth_payload_axis_tdata_reg = valid ? arg_0_rdata : arg_0_rdata;
 		arg_2_s_eth_payload_axis_tlast_reg = valid ? arg_1_rdata : arg_1_rdata;
+	end
+	// Insensitive connections
+	always @(*) begin
 	end
 	// controller for arg_0.arg_0_raddr_reg
 	// Insensitive connections
