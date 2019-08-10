@@ -90,8 +90,6 @@ module run_median_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 	end
 	// End pipeline reset block
 
-	// End pipeline valid chain block
-
 	always @(posedge clk) begin
 	end
 	always @(posedge clk) begin

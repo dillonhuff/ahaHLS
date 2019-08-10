@@ -73,8 +73,6 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 	end
 	// End pipeline reset block
 
-	// End pipeline valid chain block
-
 	always @(posedge clk) begin
 	end
 	always @(posedge clk) begin

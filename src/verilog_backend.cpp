@@ -2648,7 +2648,7 @@ namespace ahaHLS {
                       llvm::Function* f,
                       const std::vector<ElaboratedPipeline>& pipelines,
                       MicroArchitecture& arch) {
-    out << "\talways @(posedge clk) begin" << endl;
+    //out << "\talways @(posedge clk) begin" << endl;
 
     out << "\t\tif (rst) begin" << endl;
     out << "\t\t\tlast_BB_reg <= " << arch.cs.getBasicBlockNo(&(f->getEntryBlock())) << ";" << endl;
@@ -2696,7 +2696,7 @@ namespace ahaHLS {
 
     out << "\t\tend" << endl;
 
-    out << "\tend" << endl;
+    //out << "\tend" << endl;
   }
 
   void
@@ -2838,27 +2838,24 @@ namespace ahaHLS {
     emitPipelineVariables(out, arch.pipelines);
     emitGlobalStateVariables(out, arch);
 
-    emitPipelineResetBlock(out, arch.pipelines, arch);
-    emitPipelineValidChainBlock(out, arch);
-    emitPipelineRegisterChains(out, arch);
-
-    emitPipelineInitiationBlock(out, arch);
-
-    // TODO: Remove pipelines arch, it is now a field of arch
-    emitLastBBCode(out, f, arch.pipelines, arch);
-
     out << endl;
     for (auto p : arch.pipelines) {
       out << "\tassign " << p.inPipe.name << " = global_state == " << p.stateId << ";"<< endl;
     }
+    out << endl;
+    
+    emitPipelineResetBlock(out, arch.pipelines, arch);
+    emitPipelineRegisterChains(out, arch);
+
 
     out << "\talways @(posedge clk) begin" << endl;
-
+    emitLastBBCode(out, f, arch.pipelines, arch);    
     emitResetCode(out, arch);
 
     emitControlCode(out, arch); //, arch.stg, arch.unitAssignment, arch.names, arch.pipelines);
     out << "\t\tend" << endl; // This closes and end statement in emitResetCode
     out << "\tend" << endl;
+
     out << endl << endl;
 
     emitPipelineInstructionCode(out, arch.pipelines, arch);
