@@ -48,9 +48,15 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 	// End debug wires and ports
 
 	// Start Functional Units
+	reg [15:0] phi_in_phi_1;
+	reg [31:0] phi_last_block_phi_1;
+	reg [63:0] phi_s_phi_1;
+	wire [31:0] phi_out_phi_1;
+	phi #(.NB_PAIR(2), .WIDTH(8)) phi_1(.in(phi_in_phi_1), .last_block(phi_last_block_phi_1), .out(phi_out_phi_1), .s(phi_s_phi_1));
+
 	br_dummy br_unit();
 
-	add alloca_1();
+	add alloca_2();
 
 	reg [31:0] raddr_ram_0_reg;
 	reg [31:0] waddr_ram_0_reg;
@@ -59,48 +65,38 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 	wire [7:0] rdata_ram_0;
 	reg_passthrough #(.WIDTH(8)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
 
-	reg [31:0] sgt_in0_sext_3;
-	wire [63:0] sgt_out_sext_3;
-	sext sext_3(.in(sgt_in0_sext_3), .out(sgt_out_sext_3));
+	reg [31:0] sgt_in0_sext_4;
+	wire [63:0] sgt_out_sext_4;
+	sext sext_4(.in(sgt_in0_sext_4), .out(sgt_out_sext_4));
 
-	reg [31:0] add_in0_add_12;
-	reg [31:0] add_in1_add_12;
-	wire [31:0] add_out_add_12;
-	add #(.WIDTH(32)) add_add_12(.in0(add_in0_add_12), .in1(add_in1_add_12), .out(add_out_add_12));
+	reg [31:0] add_in0_add_11;
+	reg [31:0] add_in1_add_11;
+	wire [31:0] add_out_add_11;
+	add #(.WIDTH(32)) add_add_11(.in0(add_in0_add_11), .in1(add_in1_add_11), .out(add_out_add_11));
 
-	reg [31:0] add_in0_add_4;
-	reg [31:0] add_in1_add_4;
-	wire [31:0] add_out_add_4;
-	add #(.WIDTH(32)) add_add_4(.in0(add_in0_add_4), .in1(add_in1_add_4), .out(add_out_add_4));
+	reg [31:0] add_in0_add_5;
+	reg [31:0] add_in1_add_5;
+	wire [31:0] add_out_add_5;
+	add #(.WIDTH(32)) add_add_5(.in0(add_in0_add_5), .in1(add_in1_add_5), .out(add_out_add_5));
 
-	reg [31:0] trunc_in_trunc_5;
-	wire [7:0] trunc_out_trunc_5;
-	trunc #(.IN_WIDTH(32), .OUT_WIDTH(8)) trunc_5(.in(trunc_in_trunc_5), .out(trunc_out_trunc_5));
+	reg [31:0] trunc_in_trunc_6;
+	wire [7:0] trunc_out_trunc_6;
+	trunc #(.IN_WIDTH(32), .OUT_WIDTH(8)) trunc_6(.in(trunc_in_trunc_6), .out(trunc_out_trunc_6));
 
-	reg [31:0] sgt_in0_sext_17;
-	wire [63:0] sgt_out_sext_17;
-	sext sext_17(.in(sgt_in0_sext_17), .out(sgt_out_sext_17));
+	reg [31:0] sgt_in0_sext_16;
+	wire [63:0] sgt_out_sext_16;
+	sext sext_16(.in(sgt_in0_sext_16), .out(sgt_out_sext_16));
 
-	reg [31:0] cmp_in0_icmp_18;
-	reg [31:0] cmp_in1_icmp_18;
-	wire [0:0] cmp_out_icmp_18;
-	slt #(.WIDTH(32)) icmp_18(.in0(cmp_in0_icmp_18), .in1(cmp_in1_icmp_18), .out(cmp_out_icmp_18));
-
-	reg [31:0] trunc_in_trunc_10;
-	wire [7:0] trunc_out_trunc_10;
-	trunc #(.IN_WIDTH(32), .OUT_WIDTH(8)) trunc_10(.in(trunc_in_trunc_10), .out(trunc_out_trunc_10));
-
-	reg [15:0] phi_in_phi_8;
-	reg [31:0] phi_last_block_phi_8;
-	reg [63:0] phi_s_phi_8;
-	wire [31:0] phi_out_phi_8;
-	phi #(.NB_PAIR(2), .WIDTH(8)) phi_8(.in(phi_in_phi_8), .last_block(phi_last_block_phi_8), .out(phi_out_phi_8), .s(phi_s_phi_8));
+	reg [31:0] cmp_in0_icmp_17;
+	reg [31:0] cmp_in1_icmp_17;
+	wire [0:0] cmp_out_icmp_17;
+	slt #(.WIDTH(32)) icmp_17(.in0(cmp_in0_icmp_17), .in1(cmp_in1_icmp_17), .out(cmp_out_icmp_17));
 
 	// End Functional Units
 
 	// Start instruction result storage
-	reg [7:0] trunc_tmp_2;
-	reg [7:0] trunc_tmp_6;
+	reg [7:0] trunc_tmp_3;
+	reg [7:0] call_tmp_5;
 	// End instruction result storage
 
 	// Start pipeline variables
@@ -112,44 +108,41 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 	reg [0:0] pipeline_stage_3_valid;
 	// Start stage registers
 	// Start stage
-	reg [31:0] pipeline_sext0_0_0;
-	reg [31:0] pipeline_add0_0_1;
-	reg [31:0] pipeline_trunc0_0_2;
-	reg [31:0] pipeline_load0_0_3;
-	reg [31:0] pipeline_phi0_0_4;
+	reg [31:0] pipeline_phi0_0_0;
+	reg [31:0] pipeline_sext0_0_1;
+	reg [31:0] pipeline_add0_0_2;
+	reg [31:0] pipeline_trunc0_0_3;
+	reg [31:0] pipeline_load0_0_4;
 	// End stage
 	// Start stage
-	reg [31:0] pipeline_sext_0_1_5;
-	reg [31:0] pipeline_add_0_1_6;
-	reg [31:0] pipeline_trunc_0_1_7;
-	reg [31:0] pipeline_load_0_1_8;
+	reg [31:0] pipeline_phi_0_1_5;
+	reg [31:0] pipeline_sext_0_1_6;
+	reg [31:0] pipeline_add_0_1_7;
+	reg [31:0] pipeline_trunc_0_1_8;
+	reg [31:0] pipeline_load_0_1_9;
 	reg [31:0] pipeline_call0_1_10;
-	reg [31:0] pipeline_trunc0_1_11;
-	reg [31:0] pipeline_phi_0_1_9;
 	// End stage
 	// Start stage
+	reg [31:0] pipeline_phi_0_2_11;
 	reg [31:0] pipeline_sext_0_2_12;
-	reg [31:0] pipeline_add0_2_19;
+	reg [31:0] pipeline_add0_2_17;
 	reg [31:0] pipeline_add_0_2_13;
 	reg [31:0] pipeline_trunc_0_2_14;
-	reg [31:0] pipeline_call0_2_20;
+	reg [31:0] pipeline_call0_2_18;
 	reg [31:0] pipeline_load_0_2_15;
 	reg [31:0] pipeline_call_0_2_16;
-	reg [31:0] pipeline_trunc_0_2_17;
-	reg [31:0] pipeline_phi_0_2_18;
 	// End stage
 	// Start stage
-	reg [31:0] pipeline_sext_0_3_21;
+	reg [31:0] pipeline_phi_0_3_19;
+	reg [31:0] pipeline_sext_0_3_20;
+	reg [31:0] pipeline_add_0_3_21;
 	reg [31:0] pipeline_add_0_3_22;
-	reg [31:0] pipeline_add_0_3_23;
-	reg [31:0] pipeline_trunc_0_3_24;
-	reg [31:0] pipeline_sext0_3_30;
-	reg [31:0] pipeline_icmp0_3_31;
-	reg [31:0] pipeline_call_0_3_25;
-	reg [31:0] pipeline_load_0_3_26;
-	reg [31:0] pipeline_call_0_3_27;
-	reg [31:0] pipeline_trunc_0_3_28;
-	reg [31:0] pipeline_phi_0_3_29;
+	reg [31:0] pipeline_trunc_0_3_23;
+	reg [31:0] pipeline_sext0_3_27;
+	reg [31:0] pipeline_icmp0_3_28;
+	reg [31:0] pipeline_call_0_3_24;
+	reg [31:0] pipeline_load_0_3_25;
+	reg [31:0] pipeline_call_0_3_26;
 	// End stage
 	// End stage registers
 	// End pipeline variables
@@ -189,27 +182,26 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 		// Pipeline register chain
 		// Register transfer from stage 0 to 1
 		// Register transfer from stage 1 to 2
-		pipeline_sext_0_2_12 <= pipeline_sext_0_1_5;
-		pipeline_add_0_2_13 <= pipeline_add_0_1_6;
-		pipeline_trunc_0_2_14 <= pipeline_trunc_0_1_7;
-		pipeline_load_0_2_15 <= pipeline_load_0_1_8;
-		pipeline_phi_0_2_18 <= pipeline_phi_0_1_9;
+		pipeline_phi_0_2_11 <= pipeline_phi_0_1_5;
+		pipeline_sext_0_2_12 <= pipeline_sext_0_1_6;
+		pipeline_add_0_2_13 <= pipeline_add_0_1_7;
+		pipeline_trunc_0_2_14 <= pipeline_trunc_0_1_8;
+		pipeline_load_0_2_15 <= pipeline_load_0_1_9;
 		// Register transfer from stage 2 to 3
-		pipeline_sext_0_3_21 <= pipeline_sext_0_2_12;
-		pipeline_add_0_3_23 <= pipeline_add_0_2_13;
-		pipeline_trunc_0_3_24 <= pipeline_trunc_0_2_14;
-		pipeline_load_0_3_26 <= pipeline_load_0_2_15;
-		pipeline_call_0_3_27 <= pipeline_call_0_2_16;
-		pipeline_trunc_0_3_28 <= pipeline_trunc_0_2_17;
-		pipeline_phi_0_3_29 <= pipeline_phi_0_2_18;
+		pipeline_phi_0_3_19 <= pipeline_phi_0_2_11;
+		pipeline_sext_0_3_20 <= pipeline_sext_0_2_12;
+		pipeline_add_0_3_22 <= pipeline_add_0_2_13;
+		pipeline_trunc_0_3_23 <= pipeline_trunc_0_2_14;
+		pipeline_load_0_3_25 <= pipeline_load_0_2_15;
+		pipeline_call_0_3_26 <= pipeline_call_0_2_16;
 		// Register transfer from stage 3 to regular storage
-		trunc_tmp_2 <= pipeline_trunc_0_3_24;
-		trunc_tmp_6 <= pipeline_trunc_0_3_28;
+		trunc_tmp_3 <= pipeline_trunc_0_3_23;
+		call_tmp_5 <= pipeline_call_0_3_26;
 	end
 	// Start pipeline initiation block
 	always @(posedge clk) begin
 			if ((in_pipeline_0 && pipeline_stage_1_valid)) begin
-					if(!(cmp_out_icmp_18)) begin
+					if(!(cmp_out_icmp_17)) begin
 						pipeline_stage_0_valid <= 0;
 					end else begin
 						pipeline_stage_0_valid <= 1;
@@ -275,12 +267,12 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 			end
 			if ((in_pipeline_0 && pipeline_stage_3_valid)) begin 
 				// Next state transition logic
-				// Condition = (  %11 = icmp slt i32 %10, 100)
-				if ((cmp_out_icmp_18)) begin
+				// Condition = (  %10 = icmp slt i32 %9, 100)
+				if ((cmp_out_icmp_17)) begin
 					global_state <= 200000;
 				end
-				// Condition = (!(  %11 = icmp slt i32 %10, 100))
-				if (!(cmp_out_icmp_18) && (!pipeline_stage_0_valid && !pipeline_stage_1_valid && !pipeline_stage_2_valid)) begin
+				// Condition = (!(  %10 = icmp slt i32 %9, 100))
+				if (!(cmp_out_icmp_17) && (!pipeline_stage_0_valid && !pipeline_stage_1_valid && !pipeline_stage_2_valid)) begin
 					global_state <= 5;
 				end
 			end
@@ -301,12 +293,12 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 			if ((in_pipeline_0 && pipeline_stage_0_valid)) begin 
 				// Temporary storage
 				// Store data computed at the stage
-					pipeline_trunc_0_1_7 <= trunc_out_trunc_5;
+					pipeline_trunc_0_1_8 <= trunc_out_trunc_6;
 			end
 			if ((in_pipeline_0 && pipeline_stage_1_valid)) begin 
 				// Temporary storage
 				// Store data computed at the stage
-					pipeline_trunc_0_2_17 <= trunc_out_trunc_10;
+					pipeline_call_0_2_16 <= arg_0_rdata_0;
 			end
 			if ((in_pipeline_0 && pipeline_stage_2_valid)) begin 
 				// Temporary storage
@@ -328,29 +320,36 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 	// Start pipeline stages
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_0_valid)) begin
+				phi_in_phi_1 = {pipeline_trunc_0_2_14, (8'd0)};
+				phi_last_block_phi_1 = last_BB_reg;
+				phi_s_phi_1 = {32'd1, 32'd0};
+		end
+	end
+	always @(*) begin
+		if ((in_pipeline_0 && pipeline_stage_0_valid)) begin
 		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_0_valid)) begin
 				waddr_ram_0_reg = 0;
-				wdata_ram_0_reg = phi_out_phi_8;
+				wdata_ram_0_reg = phi_out_phi_1;
 				wen_ram_0_reg = 1;
 		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_0_valid)) begin
-				sgt_in0_sext_3 = phi_out_phi_8;
+				sgt_in0_sext_4 = phi_out_phi_1;
 		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_0_valid)) begin
-				add_in0_add_4 = sgt_out_sext_3;
-				add_in1_add_4 = (32'd1);
+				add_in0_add_5 = sgt_out_sext_4;
+				add_in1_add_5 = (32'd1);
 		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_0_valid)) begin
-				trunc_in_trunc_5 = add_out_add_4;
+				trunc_in_trunc_6 = add_out_add_5;
 		end
 	end
 	always @(*) begin
@@ -364,39 +363,22 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 		end
 	end
 	always @(*) begin
-		if ((in_pipeline_0 && pipeline_stage_0_valid)) begin
-				phi_in_phi_8 = {pipeline_trunc_0_2_14, (8'd0)};
-				phi_last_block_phi_8 = last_BB_reg;
-				phi_s_phi_8 = {32'd1, 32'd0};
-		end
-	end
-	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_1_valid)) begin
 		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_1_valid)) begin
-				trunc_in_trunc_10 = arg_0_rdata_0;
-		end
-	end
-	always @(*) begin
-		if ((in_pipeline_0 && pipeline_stage_1_valid)) begin
-				arg_1_raddr_0_reg = trunc_out_trunc_10;
+				arg_1_raddr_0_reg = arg_0_rdata_0;
 		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
-				add_in0_add_12 = arg_1_rdata_0;
-				add_in1_add_12 = (32'd1);
+				add_in0_add_11 = arg_1_rdata_0;
+				add_in1_add_11 = (32'd1);
 		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
-		end
-	end
-	always @(*) begin
-		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
-				arg_1_wdata_0_reg = add_out_add_12;
 		end
 	end
 	always @(*) begin
@@ -406,18 +388,23 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
-				arg_1_waddr_0_reg = pipeline_trunc_0_2_17;
+				arg_1_wdata_0_reg = add_out_add_11;
+		end
+	end
+	always @(*) begin
+		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
+				arg_1_waddr_0_reg = pipeline_call_0_2_16;
 		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_3_valid)) begin
-				sgt_in0_sext_17 = pipeline_trunc_0_3_24;
+				sgt_in0_sext_16 = pipeline_trunc_0_3_23;
 		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_3_valid)) begin
-				cmp_in0_icmp_18 = sgt_out_sext_17;
-				cmp_in1_icmp_18 = (32'd100);
+				cmp_in0_icmp_17 = sgt_out_sext_16;
+				cmp_in1_icmp_17 = (32'd100);
 		end
 	end
 	always @(*) begin
@@ -426,7 +413,7 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 	end
 	// End pipeline instruction code
 
-	// controller for ret_20.valid_reg
+	// controller for ret_19.valid_reg
 	always @(*) begin
 		if ((global_state == 5)) begin 
 			if (1) begin
