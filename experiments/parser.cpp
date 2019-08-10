@@ -124,30 +124,6 @@ void sequentialCalls(llvm::Function* f,
               }
             }
 
-          //   {
-          //     // Compute backward dep
-          //     maybe<ICHazard> h = findHazard(secondCallName, firstCallName, hazards);
-
-          //     if (h.has_value()) {
-          //       cout << "Found possible hazard or loosening in II" << endl;
-          //       int dd = 1; //computeDD(h.get_value(), first, second, sc);
-
-          //       cout << "Dependence distance between " << valueString(first) << " and " << valueString(second) << " = " << dd << endl;
-
-          //       auto ccO =
-          //         buildConstraint(second, first, h.get_value());
-          //       assert(ccO->type() == CONSTRAINT_TYPE_ORDERED);
-          //       auto cc = static_cast<Ordered*>(ccO);
-          //       cc->isPipelineConstraint = true;
-          //       cc->pipeline = &bb;
-          //       cc->dd = dd;
-              
-          //       exec.addConstraint(cc);
-          //     } else {
-          //     }
-          //   }
-
-
           }
         }
       }
@@ -3241,6 +3217,27 @@ synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
   return arch;
 }
 
+void checkRAMContents(const std::string& ramName,
+                      int startCycle,
+                      vector<string>& expectedValues,
+                      TestBenchSpec& tb) {
+}
+
+void setRAM(const std::string& ramName,
+            int startCycle,
+            vector<string>& values,
+            TestBenchSpec& tb) {
+  for (int i = 0; i < values.size(); i++) {
+    string next = values[i];
+    int time = startCycle + i;
+    tb.actionOnCondition("total_cycles == " + to_string(time), ramName + "_debug_write_en <= 1;");
+    tb.actionOnCondition("total_cycles == " + to_string(time), ramName + "_debug_write_addr <= " + to_string(i) + ";");
+    tb.actionOnCondition("total_cycles == " + to_string(time), ramName + "_debug_write_data <= " + to_string(i) + ";");
+  }
+
+  tb.actionOnCondition("total_cycles == " + to_string(startCycle + values.size()), ramName + "_debug_write_en <= 0;");
+}
+
 int main() {
 
   {
@@ -3275,14 +3272,39 @@ int main() {
     cout << "Pipeline ii = " << p.II() << endl;
     assert(p.II() == 2);
 
+    auto result =
+      sc<Argument>(getArg(scppMod.getFunction("histogram")->llvmFunction(),
+                          0));
+      
     TestBenchSpec tb;
     map<string, int> testLayout = {};
     tb.memoryInit = {};
     tb.memoryExpected = {};
-    tb.runCycles = 200;
-    tb.maxCycles = 300;
+    tb.runCycles = 600;
+    tb.maxCycles = 600;
     tb.name = "histogram";
     tb.useModSpecs = true;
+    tb.settablePort(result, "debug_write_addr");
+    tb.settablePort(result, "debug_write_data");
+    tb.settablePort(result, "debug_write_en");
+    
+    map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+
+    map_insert(tb.actionsOnCycles, 100, string("rst_reg <= 1;"));
+    map_insert(tb.actionsOnCycles, 100, string("rst_reg <= 0;"));
+
+    // Note: No forwarding yet
+    vector<string> values;
+    for (int i = 0; i < 100; i++) {
+      values.push_back(to_string(i));
+    }
+    setRAM("arg_0", 1, values, tb);
+
+    vector<string> expectedValues;
+    for (int i = 0; i < 100; i++) {
+      expectedValues.push_back(to_string(1));
+    }
+    checkRAMContents("arg_1", 300, values, tb);
     
     emitVerilogTestBench(tb, arch, testLayout);
 
