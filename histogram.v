@@ -156,7 +156,13 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 			pipeline_stage_1_valid <= 0;
 			pipeline_stage_2_valid <= 0;
 			pipeline_stage_3_valid <= 0;
-		end
+		end else begin
+                   if (in_pipeline_0) begin
+			pipeline_stage_1_valid <= pipeline_stage_0_valid;
+			pipeline_stage_2_valid <= pipeline_stage_1_valid;
+			pipeline_stage_3_valid <= pipeline_stage_2_valid;
+                   end
+                end
 	end
 	// End pipeline reset block
 
@@ -166,9 +172,6 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 	end
 
 		if (!rst) begin
-			pipeline_stage_1_valid <= pipeline_stage_0_valid;
-			pipeline_stage_2_valid <= pipeline_stage_1_valid;
-			pipeline_stage_3_valid <= pipeline_stage_2_valid;
 		end
 	end
 	// End pipeline valid chain block
