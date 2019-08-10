@@ -147,8 +147,12 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 	// End stage registers
 	// End pipeline variables
 
+
+   
 	reg [31:0] global_state;
 	reg [31:0] last_BB_reg;
+
+	assign in_pipeline_0 = global_state == 200000;   
 	// Start pipeline reset block
 	always @(posedge clk) begin
 		if (rst) begin
@@ -184,12 +188,12 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
                                    
                         end
 		 end
-	end
-	// End pipeline reset block
+	// end
+	// // End pipeline reset block
 
-	// End pipeline valid chain block
+	// // End pipeline valid chain block
 
-	always @(posedge clk) begin
+	// always @(posedge clk) begin
 		// Pipeline register chain
 		// Register transfer from stage 0 to 1
 		// Register transfer from stage 1 to 2
@@ -208,8 +212,8 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 		// Register transfer from stage 3 to regular storage
 		trunc_tmp_3 <= pipeline_trunc_0_3_23;
 		call_tmp_5 <= pipeline_call_0_3_25;
-	end
-	always @(posedge clk) begin
+	// end
+	// always @(posedge clk) begin
 		if (rst) begin
 			last_BB_reg <= 0;
 		end else begin
@@ -223,10 +227,9 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 					last_BB_reg <= 2;
 			end
 		end
-	end
+	// end
 
-	assign in_pipeline_0 = global_state == 200000;
-	always @(posedge clk) begin
+	// always @(posedge clk) begin
 		if (rst) begin
 			global_state <= 0;
 		end else begin
