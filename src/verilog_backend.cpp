@@ -1676,6 +1676,12 @@ namespace ahaHLS {
     
   }
 
+  bool notSensitive(FunctionalUnit& fu) {
+    string m = fu.module.name;
+    vector<string> iMods{"add", "phi", "trunc", "sext", "slt", "eq", "neq"};
+    return elem(m, iMods);
+  }
+  
   void emitConditionalInstruction(std::ostream& out,
                                   Instruction* instrG,
                                   const StateId state,
@@ -1684,16 +1690,38 @@ namespace ahaHLS {
                                   MicroArchitecture& arch) {
 
     Wire valid = p.valids[i];
-    
-    out << "\talways @(*) begin" << endl;
 
-    out << tab(2) << "if (" << atState(state, arch) << ") begin" << endl;
+    FunctionalUnit u = map_find(instrG, arch.unitAssignment);
+    int nUsers = 0;
+    for (auto p : arch.unitAssignment) {
+      if (p.second.instName == u.instName) {
+        nUsers++;
+      }
+    }
+
+    if (nUsers == 1) {
+      cout << "Exactly one user for unit " << u << ", " << endl << "instr = " << valueString(instrG) << endl;
+    }
+
     auto pos = pipelinePosition(instrG, state, i);
+    
+    if ((nUsers == 1) && notSensitive(u)) {
+      auto assignments = instructionPortAssignments(pos, arch);
+      for (auto a : assignments) {
+        out << "\tassign " << a.first << " = " << a.second << ";" << endl;
+      }
+    } else {
 
-    instructionVerilog(out, pos, arch);
+      out << "\talways @(*) begin" << endl;
 
-    out << "\t\tend" << endl;
-    out << "\tend" << endl;
+      out << tab(2) << "if (" << atState(state, arch) << ") begin" << endl;
+
+
+      instructionVerilog(out, pos, arch);
+
+      out << "\t\tend" << endl;
+      out << "\tend" << endl;
+    }
   }
 
   void emitPipelineInstructionCode(std::ostream& out,
