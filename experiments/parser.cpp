@@ -3444,6 +3444,86 @@ int main() {
 
     assert(runIVerilogTest("histogram_fwd_tb.v", "histogram_fwd", " builtins.v RAM.v delay.v ram_primitives.v histogram_fwd.v FwdHistRAM.v ImgRAM.v"));
   }
+
+  {
+    ifstream t("./experiments/hist_rams.cpp");
+    std::string str((std::istreambuf_iterator<char>(t)),
+                    std::istreambuf_iterator<char>());
+    auto tokens = tokenize(str);
+    ParserModule parseMod = parse(tokens);
+
+    cout << parseMod << endl;
+
+    assert(parseMod.getStatements().size() >= 2);
+
+    SynthCppModule scppMod(parseMod);
+
+    assert(scppMod.getClasses().size() >= 1);
+    assert(scppMod.getFunctions().size() >= 1);
+
+    auto arch = synthesizeVerilog(scppMod, "histogram_fwd");
+
+    cout << "Histogram STG" << endl;
+    arch.stg.print(cout);
+
+    assert(arch.stg.pipelines.size() == 1);
+    Pipeline p = *begin(arch.stg.pipelines);
+    cout << "Pipeline ii = " << p.II() << endl;
+    
+    assert(p.II() == 1);
+
+    auto result =
+      sc<Argument>(getArg(scppMod.getFunction("histogram_fwd")->llvmFunction(),
+                          0));
+
+    auto h =
+      sc<Argument>(getArg(scppMod.getFunction("histogram_fwd")->llvmFunction(),
+                          1));
+    
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.maxCycles = 500;
+    tb.name = "histogram_fwd";
+    tb.useModSpecs = true;
+    tb.settablePort(result, "debug_addr");    
+    tb.settablePort(result, "debug_write_addr");
+    tb.settablePort(result, "debug_write_data");
+    tb.settablePort(result, "debug_write_en");
+
+    tb.settablePort(h, "debug_addr");        
+    tb.settablePort(h, "debug_write_addr");
+    tb.settablePort(h, "debug_write_data");
+    tb.settablePort(h, "debug_write_en");
+    
+    map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 1;"));
+    map_insert(tb.actionsOnCycles, 110, string("rst_reg <= 1;"));
+    map_insert(tb.actionsOnCycles, 111, string("rst_reg <= 0;"));
+
+    // Note: No forwarding yet
+    vector<string> values;
+    for (int i = 0; i < 100; i++) {
+      values.push_back(to_string(i));
+    }
+    setRAM("arg_0", 1, values, tb);
+
+    vector<string> hValues;
+    for (int i = 0; i < 256; i++) {
+      hValues.push_back(to_string(0));
+    }
+    setRAM("arg_1", 1, hValues, tb);
+    
+    vector<string> expectedValues;
+    for (int i = 0; i < 100; i++) {
+      expectedValues.push_back(to_string(1));
+    }
+    checkRAMContents("arg_1", 400, expectedValues, tb);
+    
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    assert(runIVerilogTest("histogram_fwd_tb.v", "histogram_fwd", " builtins.v RAM.v delay.v ram_primitives.v histogram_fwd.v FwdHistRAM.v ImgRAM.v"));
+  }
   
   {
     string test = "class ip_header { };";
