@@ -1681,6 +1681,43 @@ namespace ahaHLS {
     vector<string> iMods{"add", "phi", "trunc", "sext", "slt", "eq", "neq"};
     return elem(m, iMods);
   }
+
+  bool inAnyPipeline(Instruction* instr, MicroArchitecture& arch) {
+    for (auto p : arch.pipelines) {
+      for (auto st : p.p.getStates()) {
+        if (elem(instr, arch.stg.instructionsStartingAt(st))) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
+  bool allUsersInPipeline(FunctionalUnit& u,
+                          MicroArchitecture& arch) {
+    for (auto p : arch.unitAssignment) {
+      if (p.second.instName == u.instName) {
+        Instruction* instr = p.first;
+        if (!inAnyPipeline(instr, arch)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+  
+  int numUsers(FunctionalUnit& u,
+               MicroArchitecture& arch) {
+    int nUsers = 0;
+    for (auto p : arch.unitAssignment) {
+      if (p.second.instName == u.instName) {
+        nUsers++;
+      }
+    }
+
+    return nUsers;
+  }
   
   void emitConditionalInstruction(std::ostream& out,
                                   Instruction* instrG,
@@ -1692,12 +1729,7 @@ namespace ahaHLS {
     Wire valid = p.valids[i];
 
     FunctionalUnit u = map_find(instrG, arch.unitAssignment);
-    int nUsers = 0;
-    for (auto p : arch.unitAssignment) {
-      if (p.second.instName == u.instName) {
-        nUsers++;
-      }
-    }
+    int nUsers = numUsers(u, arch);
 
     if (nUsers == 1) {
       cout << "Exactly one user for unit " << u << ", " << endl << "instr = " << valueString(instrG) << endl;
@@ -1706,6 +1738,15 @@ namespace ahaHLS {
     auto pos = pipelinePosition(instrG, state, i);
     
     if ((nUsers == 1) && notSensitive(u)) {
+      // // This does not change anything?
+      // for (auto& fu : arch.unitAssignment) {
+      //   if (fu.second.instName == u.instName) {
+      //     for (auto& w : fu.second.portWires) {
+      //       w.second.registered = false;
+      //     }
+      //   }
+      // }
+      
       auto assignments = instructionPortAssignments(pos, arch);
       for (auto a : assignments) {
         out << "\tassign " << a.first << " = " << a.second << ";" << endl;
@@ -2134,9 +2175,12 @@ namespace ahaHLS {
     }
 
   }
+
   
   void emitFunctionalUnits(std::ostream& out,
-                           map<Instruction*, FunctionalUnit>& unitAssignment) {
+                           MicroArchitecture& arch) {
+    //map<Instruction*, FunctionalUnit>& unitAssignment) {
+    auto& unitAssignment = arch.unitAssignment;
 
     // The issue of how to create builtins also comes up here. Should I have
     // parametric modules I can use for each one?
@@ -2159,8 +2203,14 @@ namespace ahaHLS {
         continue;
       }
 
+      bool usedOnceInPipeline =
+        (numUsers(unit, arch) == 1) && notSensitive(unit) && allUsersInPipeline(unit, arch);
+    
       map<string, string> wireConns;
       for (auto w : unit.portWires) {
+        if (usedOnceInPipeline) {
+          w.second.registered = false;
+        }
         out << "\t" << w.second << ";" << endl;
         wireConns.insert({w.first, w.second.name});        
       }
@@ -2733,7 +2783,7 @@ namespace ahaHLS {
     emitComponents(out, debugInfo);
     out << endl << tab(1) << "// End debug wires and ports" << endl;
     
-    emitFunctionalUnits(out, arch.unitAssignment);
+    emitFunctionalUnits(out, arch);
     emitRegisterStorage(out, arch);
 
     emitPipelineVariables(out, arch.pipelines);
