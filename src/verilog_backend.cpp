@@ -2273,7 +2273,7 @@ namespace ahaHLS {
                               MicroArchitecture& arch) {
     
     out << "\t// Start pipeline reset block" << endl;
-    out << "\talways @(posedge clk) begin" << endl;
+    //out << "\talways @(posedge clk) begin" << endl;
     out << "\t\tif (rst) begin" << endl;
     for (auto p : pipelines) {
 
@@ -2330,7 +2330,7 @@ namespace ahaHLS {
     }
     
     out << "\t\t end" << endl;
-    out << "\tend" << endl;
+    //out << "\tend" << endl;
     out << "\t// End pipeline reset block" << endl << endl;
   }
 
@@ -2384,7 +2384,7 @@ namespace ahaHLS {
 
   void emitPipelineRegisterChains(std::ostream& out,
                                   MicroArchitecture& arch) {
-    out << tab(1) << "always @(posedge clk) begin" << endl;
+    //out << tab(1) << "always @(posedge clk) begin" << endl;
     for (auto p : arch.pipelines) {
 
       out << tab(2) << "// Pipeline register chain" << endl;
@@ -2426,7 +2426,7 @@ namespace ahaHLS {
         }
       }
     }
-    out << tab(1) << "end" << endl;
+    //out << tab(1) << "end" << endl;
   }
   
   void emitPipelineValidChainBlock(std::ostream& out,
@@ -2844,11 +2844,12 @@ namespace ahaHLS {
     }
     out << endl;
     
-    emitPipelineResetBlock(out, arch.pipelines, arch);
-    emitPipelineRegisterChains(out, arch);
 
 
     out << "\talways @(posedge clk) begin" << endl;
+
+    emitPipelineResetBlock(out, arch.pipelines, arch);
+    emitPipelineRegisterChains(out, arch);
     emitLastBBCode(out, f, arch.pipelines, arch);    
     emitResetCode(out, arch);
 

@@ -32,16 +32,12 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_6();
-
 	reg [31:0] raddr_ram_0_reg;
 	reg [31:0] waddr_ram_0_reg;
 	reg [31:0] wdata_ram_0_reg;
 	reg [0:0] wen_ram_0_reg;
 	wire [31:0] rdata_ram_0;
 	register #(.WIDTH(32)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
-
-	add call_17();
 
 	add alloca_0();
 
@@ -53,26 +49,30 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 
 	add call_18();
 
-	reg [63:0] phi_in_phi_7;
-	reg [31:0] phi_last_block_phi_7;
-	reg [63:0] phi_s_phi_7;
-	wire [31:0] phi_out_phi_7;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_7(.in(phi_in_phi_7), .last_block(phi_last_block_phi_7), .out(phi_out_phi_7), .s(phi_s_phi_7));
+	reg [63:0] phi_in_phi_6;
+	reg [31:0] phi_last_block_phi_6;
+	reg [63:0] phi_s_phi_6;
+	wire [31:0] phi_out_phi_6;
+	phi #(.NB_PAIR(2), .WIDTH(32)) phi_6(.in(phi_in_phi_6), .last_block(phi_last_block_phi_6), .out(phi_out_phi_6), .s(phi_s_phi_6));
 
-	reg [31:0] add_in0_add_14;
-	reg [31:0] add_in1_add_14;
-	wire [31:0] add_out_add_14;
-	add #(.WIDTH(32)) add_add_14(.in0(add_in0_add_14), .in1(add_in1_add_14), .out(add_out_add_14));
+	reg [31:0] add_in0_add_12;
+	reg [31:0] add_in1_add_12;
+	wire [31:0] add_out_add_12;
+	add #(.WIDTH(32)) add_add_12(.in0(add_in0_add_12), .in1(add_in1_add_12), .out(add_out_add_12));
 
-	reg [31:0] add_in0_add_9;
-	reg [31:0] add_in1_add_9;
-	wire [31:0] add_out_add_9;
-	add #(.WIDTH(32)) add_add_9(.in0(add_in0_add_9), .in1(add_in1_add_9), .out(add_out_add_9));
+	reg [31:0] add_in0_add_8;
+	reg [31:0] add_in1_add_8;
+	wire [31:0] add_out_add_8;
+	add #(.WIDTH(32)) add_add_8(.in0(add_in0_add_8), .in1(add_in1_add_8), .out(add_out_add_8));
 
-	reg [31:0] cmp_in0_icmp_10;
-	reg [31:0] cmp_in1_icmp_10;
-	wire [0:0] cmp_out_icmp_10;
-	eq #(.WIDTH(32)) icmp_10(.in0(cmp_in0_icmp_10), .in1(cmp_in1_icmp_10), .out(cmp_out_icmp_10));
+	reg [31:0] cmp_in0_icmp_9;
+	reg [31:0] cmp_in1_icmp_9;
+	wire [0:0] cmp_out_icmp_9;
+	eq #(.WIDTH(32)) icmp_9(.in0(cmp_in0_icmp_9), .in1(cmp_in1_icmp_9), .out(cmp_out_icmp_9));
+
+	add call_19();
+
+	add call_10();
 
 	// End Functional Units
 
@@ -89,20 +89,16 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	reg [31:0] last_BB_reg;
 
 
-	// Start pipeline reset block
 	always @(posedge clk) begin
+	// Start pipeline reset block
 		if (rst) begin
 		end
 		 else begin
 
 
 		 end
-	end
 	// End pipeline reset block
 
-	always @(posedge clk) begin
-	end
-	always @(posedge clk) begin
 		if (rst) begin
 			last_BB_reg <= 0;
 		end else begin
@@ -226,8 +222,8 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 				if (in_read_ready) begin
 				// Store data computed at the stage
 					load_tmp_2 <= rdata_ram_0;
-					add_tmp_3 <= add_out_add_9;
-					icmp_tmp_4 <= cmp_out_icmp_10;
+					add_tmp_3 <= add_out_add_8;
+					icmp_tmp_4 <= cmp_out_icmp_9;
 				end
 			end
 			if ((global_state == 3)) begin 
@@ -319,7 +315,7 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 			end
 		end else if ((global_state == 4)) begin 
 			if (1) begin
-				wdata_ram_0_reg = add_out_add_14;
+				wdata_ram_0_reg = add_out_add_12;
 			end else begin
 				wdata_ram_0_reg = 0;
 			end
@@ -369,44 +365,38 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	// Insensitive connections
 	always @(*) begin
 	end
+	// controller for phi_6.phi_in_phi_6
+	// controller for phi_6.phi_last_block_phi_6
+	// controller for phi_6.phi_s_phi_6
 	// Insensitive connections
 	always @(*) begin
+		phi_in_phi_6 = valid ? {(32'd0), add_tmp_3} : {(32'd0), add_tmp_3};
+		phi_last_block_phi_6 = valid ? last_BB_reg : last_BB_reg;
+		phi_s_phi_6 = valid ? {32'd0, 32'd2} : {32'd0, 32'd2};
 	end
-	// controller for phi_7.phi_in_phi_7
-	// controller for phi_7.phi_last_block_phi_7
-	// controller for phi_7.phi_s_phi_7
+	// controller for add_add_8.add_in0_add_8
+	// controller for add_add_8.add_in1_add_8
 	// Insensitive connections
 	always @(*) begin
-		phi_in_phi_7 = valid ? {(32'd0), add_tmp_3} : {(32'd0), add_tmp_3};
-		phi_last_block_phi_7 = valid ? last_BB_reg : last_BB_reg;
-		phi_s_phi_7 = valid ? {32'd0, 32'd2} : {32'd0, 32'd2};
+		add_in0_add_8 = valid ? phi_out_phi_6 : phi_out_phi_6;
+		add_in1_add_8 = valid ? (32'd1) : (32'd1);
 	end
-	// controller for add_add_9.add_in0_add_9
-	// controller for add_add_9.add_in1_add_9
+	// controller for icmp_9.cmp_in0_icmp_9
+	// controller for icmp_9.cmp_in1_icmp_9
 	// Insensitive connections
 	always @(*) begin
-		add_in0_add_9 = valid ? phi_out_phi_7 : phi_out_phi_7;
-		add_in1_add_9 = valid ? (32'd1) : (32'd1);
-	end
-	// controller for icmp_10.cmp_in0_icmp_10
-	// controller for icmp_10.cmp_in1_icmp_10
-	// Insensitive connections
-	always @(*) begin
-		cmp_in0_icmp_10 = valid ? add_out_add_9 : add_out_add_9;
-		cmp_in1_icmp_10 = valid ? (32'd4) : (32'd4);
-	end
-	// controller for add_add_14.add_in0_add_14
-	// controller for add_add_14.add_in1_add_14
-	// Insensitive connections
-	always @(*) begin
-		add_in0_add_14 = valid ? load_tmp_2 : load_tmp_2;
-		add_in1_add_14 = valid ? in_out_data : in_out_data;
+		cmp_in0_icmp_9 = valid ? add_out_add_8 : add_out_add_8;
+		cmp_in1_icmp_9 = valid ? (32'd4) : (32'd4);
 	end
 	// Insensitive connections
 	always @(*) begin
 	end
+	// controller for add_add_12.add_in0_add_12
+	// controller for add_add_12.add_in1_add_12
 	// Insensitive connections
 	always @(*) begin
+		add_in0_add_12 = valid ? load_tmp_2 : load_tmp_2;
+		add_in1_add_12 = valid ? in_out_data : in_out_data;
 	end
 	// controller for out.out_in_data_reg
 	// controller for out.out_write_valid_reg
@@ -431,7 +421,13 @@ module channel_reduce_4_inner(input [0:0] clk, input [0:0] rst, output [31:0] ou
 	always @(*) begin
 		out_in_data_reg = valid ? rdata_ram_0 : rdata_ram_0;
 	end
-	// controller for ret_24.valid_reg
+	// Insensitive connections
+	always @(*) begin
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
+	// controller for ret_23.valid_reg
 	always @(*) begin
 		if ((global_state == 8)) begin 
 			if (1) begin

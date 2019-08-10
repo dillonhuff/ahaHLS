@@ -112,20 +112,18 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 
 	reg [31:0] global_state;
 	reg [31:0] last_BB_reg;
-	// Start pipeline reset block
+
+
 	always @(posedge clk) begin
+	// Start pipeline reset block
 		if (rst) begin
 		end
 		 else begin
 
 
 		 end
-	end
 	// End pipeline reset block
 
-	always @(posedge clk) begin
-	end
-	always @(posedge clk) begin
 		if (rst) begin
 			last_BB_reg <= 0;
 		end else begin
@@ -145,9 +143,6 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 					last_BB_reg <= 2;
 			end
 		end
-	end
-
-	always @(posedge clk) begin
 		if (rst) begin
 			global_state <= 0;
 		end else begin

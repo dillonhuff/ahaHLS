@@ -79,20 +79,18 @@ module run_median_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 
 	reg [31:0] global_state;
 	reg [31:0] last_BB_reg;
-	// Start pipeline reset block
+
+
 	always @(posedge clk) begin
+	// Start pipeline reset block
 		if (rst) begin
 		end
 		 else begin
 
 
 		 end
-	end
 	// End pipeline reset block
 
-	always @(posedge clk) begin
-	end
-	always @(posedge clk) begin
 		if (rst) begin
 			last_BB_reg <= 0;
 		end else begin
@@ -110,9 +108,6 @@ module run_median_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_
 					last_BB_reg <= 2;
 			end
 		end
-	end
-
-	always @(posedge clk) begin
 		if (rst) begin
 			global_state <= 0;
 		end else begin

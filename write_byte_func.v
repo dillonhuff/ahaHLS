@@ -50,7 +50,7 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_1();
+	add call_0();
 
 	// End Functional Units
 
@@ -62,20 +62,18 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 
 	reg [31:0] global_state;
 	reg [31:0] last_BB_reg;
-	// Start pipeline reset block
+
+
 	always @(posedge clk) begin
+	// Start pipeline reset block
 		if (rst) begin
 		end
 		 else begin
 
 
 		 end
-	end
 	// End pipeline reset block
 
-	always @(posedge clk) begin
-	end
-	always @(posedge clk) begin
 		if (rst) begin
 			last_BB_reg <= 0;
 		end else begin
@@ -87,9 +85,6 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 					last_BB_reg <= 0;
 			end
 		end
-	end
-
-	always @(posedge clk) begin
 		if (rst) begin
 			global_state <= 0;
 		end else begin
@@ -144,6 +139,9 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 	// Start pipeline stages
 	// End pipeline instruction code
 
+	// Insensitive connections
+	always @(*) begin
+	end
 	// controller for arg_2.arg_2_s_eth_payload_axis_tdata_reg
 	// controller for arg_2.arg_2_s_eth_payload_axis_tlast_reg
 	// controller for arg_2.arg_2_s_eth_payload_axis_tvalid_reg
@@ -162,9 +160,6 @@ module write_byte_func_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_
 	always @(*) begin
 		arg_2_s_eth_payload_axis_tdata_reg = valid ? arg_0_rdata : arg_0_rdata;
 		arg_2_s_eth_payload_axis_tlast_reg = valid ? arg_1_rdata : arg_1_rdata;
-	end
-	// Insensitive connections
-	always @(*) begin
 	end
 	// controller for arg_0.arg_0_raddr_reg
 	// Insensitive connections
