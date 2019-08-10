@@ -15,7 +15,7 @@ module HistRAM(input clk,
            
 
    parameter WIDTH=32;
-   parameter DEPTH=16;
+   parameter DEPTH=256;
    parameter ADDR_WIDTH = $clog2(DEPTH);
 
    reg [WIDTH - 1 : 0]            rdata_0_reg;
@@ -38,9 +38,12 @@ module HistRAM(input clk,
       if (debug_write_en) begin
          data[debug_write_addr] <= debug_write_data;
       end
+
+      rdata_0_reg <= data[raddr_0];
       
    end
 
-   assign rdata_0 = data[raddr_0];
+   //assign rdata_0 = data[raddr_0];
+   assign rdata_0 = rdata_0_reg;
 
 endmodule

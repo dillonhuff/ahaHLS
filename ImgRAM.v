@@ -15,7 +15,7 @@ module ImgRAM(input clk,
            
 
    parameter WIDTH=8;
-   parameter DEPTH=16;
+   parameter DEPTH=64*64;
    parameter ADDR_WIDTH = $clog2(DEPTH);
 
    reg [WIDTH - 1 : 0]            rdata_0_reg;
@@ -36,11 +36,17 @@ module ImgRAM(input clk,
       end
 
       if (debug_write_en) begin
+         $display("setting %d to %d", debug_write_addr, debug_write_data);
+         
          data[debug_write_addr] <= debug_write_data;
       end
+
+      rdata_0_reg <= data[raddr_0];
       
    end
 
-   assign rdata_0 = data[raddr_0];
+   //assign rdata_0 = data[raddr_0];
+   assign rdata_0 = rdata_0_reg;
+   
 
 endmodule

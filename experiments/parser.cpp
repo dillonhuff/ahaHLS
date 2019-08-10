@@ -3275,7 +3275,11 @@ int main() {
     auto result =
       sc<Argument>(getArg(scppMod.getFunction("histogram")->llvmFunction(),
                           0));
-      
+
+    auto h =
+      sc<Argument>(getArg(scppMod.getFunction("histogram")->llvmFunction(),
+                          1));
+    
     TestBenchSpec tb;
     map<string, int> testLayout = {};
     tb.memoryInit = {};
@@ -3287,11 +3291,14 @@ int main() {
     tb.settablePort(result, "debug_write_addr");
     tb.settablePort(result, "debug_write_data");
     tb.settablePort(result, "debug_write_en");
-    
-    map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
 
-    map_insert(tb.actionsOnCycles, 100, string("rst_reg <= 1;"));
-    map_insert(tb.actionsOnCycles, 100, string("rst_reg <= 0;"));
+    tb.settablePort(h, "debug_write_addr");
+    tb.settablePort(h, "debug_write_data");
+    tb.settablePort(h, "debug_write_en");
+    
+    map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 1;"));
+    map_insert(tb.actionsOnCycles, 110, string("rst_reg <= 1;"));
+    map_insert(tb.actionsOnCycles, 111, string("rst_reg <= 0;"));
 
     // Note: No forwarding yet
     vector<string> values;
@@ -3300,6 +3307,12 @@ int main() {
     }
     setRAM("arg_0", 1, values, tb);
 
+    vector<string> hValues;
+    for (int i = 0; i < 256; i++) {
+      hValues.push_back(to_string(0));
+    }
+    setRAM("arg_1", 1, hValues, tb);
+    
     vector<string> expectedValues;
     for (int i = 0; i < 100; i++) {
       expectedValues.push_back(to_string(1));
