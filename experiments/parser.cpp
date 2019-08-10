@@ -26,6 +26,19 @@ class SynthCppModule;
 void optimizeModuleLLVM(SynthCppModule& mod);
 void optimizeModuleLLVM(llvm::Module& mod);
 
+int computeDD(ICHazard h, Instruction* src, Instruction* dest) {
+  assert(src->getParent() == dest->getParent());
+  
+  OrderedBasicBlock obb(src->getParent());
+
+  if (obb.dominates(src, dest)) {
+    return 0;
+  } else {
+    return 1;
+  }
+}
+
+
 void sequentialCalls(llvm::Function* f,
                      ExecutionConstraints& exec,
                      vector<ICHazard>& hazards) {
@@ -122,7 +135,7 @@ void sequentialCalls(llvm::Function* f,
 
               if (h.has_value()) {
                 cout << "Found possible hazard or loosening in II" << endl;
-                int dd = 1; //computeDD(h.get_value(), first, second, sc);
+                int dd = computeDD(h.get_value(), first, second);
 
                 cout << "Dependence distance between " << valueString(first) << " and " << valueString(second) << " = " << dd << endl;
 
