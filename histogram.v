@@ -161,13 +161,28 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 			pipeline_stage_1_valid <= pipeline_stage_0_valid;
 			pipeline_stage_2_valid <= pipeline_stage_1_valid;
 			pipeline_stage_3_valid <= pipeline_stage_2_valid;
+
+
 			if ((in_pipeline_0 && pipeline_stage_1_valid)) begin
-					if(!(cmp_out_icmp_17)) begin
-						pipeline_stage_0_valid <= 0;
-					end else begin
-						pipeline_stage_0_valid <= 1;
-					end
-				end else if (in_pipeline_0) begin pipeline_stage_0_valid <= 0; end
+			   if(!(cmp_out_icmp_17)) begin
+			      pipeline_stage_0_valid <= 0;
+			   end else begin
+			      pipeline_stage_0_valid <= 1;
+			   end
+			end else if (in_pipeline_0) begin
+                           pipeline_stage_0_valid <= 0;
+                        end else begin
+			   if ((global_state == 0)) begin 
+			      // Next state transition logic
+			      // Condition = True
+                              
+			      if (1) begin
+				 global_state <= 200000;
+				 pipeline_stage_0_valid <= 1;
+			      end
+			   end
+                                   
+                        end
 		 end
 	end
 	// End pipeline reset block
@@ -216,15 +231,6 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 			global_state <= 0;
 		end else begin
 			// Control code
-			if ((global_state == 0)) begin 
-				// Next state transition logic
-				// Condition = True
-
-				if (1) begin
-					global_state <= 200000;
-					//pipeline_stage_0_valid <= 1;
-				end
-			end
 			if ((in_pipeline_0 && pipeline_stage_0_valid)) begin 
 				// Next state transition logic
 				// Condition = True
