@@ -135,6 +135,8 @@ void sequentialCalls(llvm::Function* f,
 
               if (h.has_value()) {
                 cout << "Found possible hazard or loosening in II" << endl;
+
+                // TODO: Add scev analysis?
                 int dd = computeDD(h.get_value(), first, second);
 
                 cout << "Dependence distance between " << valueString(first) << " and " << valueString(second) << " = " << dd << endl;
@@ -2787,10 +2789,12 @@ public:
 
         // TODO: Replace with more general
         int outWidth = cgs.activeClass->getPortWidth(labelId->getName());
+        cout << "Width of port " << labelId->getName() << " in class " << cgs.activeClass->getName() << " is " << outWidth << endl;
 
         SynthCppClass* sExpr = cgs.getActiveClass();
         SynthCppType* classTp = new SynthCppStructType(sExpr->name);
         Type* structType = llvmTypeFor(classTp);
+
         auto f =
           readPort(labelId->name.getStr(), outWidth, structType->getPointerTo());
 
@@ -2799,12 +2803,10 @@ public:
 
         cout << "Active function = " << activeFunction->nameToken << endl;
         cout << valueString(activeFunction->llvmFunction()) << endl;
-
+        
         int thisOffset = 0;
         return bd.CreateCall(f, {getArg(activeFunction->llvmFunction(), thisOffset)});
       }
-      
-      SynthCppFunction* calledFunc = getFunction(called->funcName.getStr());
 
       // Generate llvm for each argument
       vector<Value*> args;
@@ -2812,6 +2814,19 @@ public:
       for (auto arg : called->args) {
         args.push_back(genLLVM(arg));
       }
+
+      // TODO: Need to change width here
+      string fName = called->funcName.getStr();
+      cout << "fName = " << fName << endl;
+      SynthCppFunction* calledFunc = nullptr;
+      if ((fName == "read_port")) {
+        assert(false);
+      } else if (fName == "set_port") {
+        assert(false);
+      } else {
+        calledFunc = getFunction(called->funcName.getStr());
+      }
+      assert(calledFunc != nullptr);
 
       return bd.CreateCall(calledFunc->llvmFunction(), args);      
     } else if (MethodCall::classof(e)) {
@@ -3106,12 +3121,8 @@ public:
   SynthCppFunction* getFunction(const std::string& name) {
     cout << "Getting function for " << name << endl;
 
-    // TODO: Generalize to work for any width input
     if (name == "set_port") {
-      vector<Type*> inputs =
-        {intType(32)->getPointerTo(), intType(32)->getPointerTo()};
-      SynthCppFunction* stb = builtinStub("set_port", inputs, new VoidType());
-      return stb;
+      assert(false);
     }
 
     if (name == "add_constraint") {
@@ -3138,10 +3149,7 @@ public:
     }
 
     if (name == "read_port") {
-      vector<Type*> inputs =
-        {intType(32)->getPointerTo()};
-      SynthCppFunction* stb = builtinStub("read_port", inputs, new SynthCppStructType(Token("bit_32")));
-      return stb;
+      assert(false);
     }
     
     for (auto f : functions) {
