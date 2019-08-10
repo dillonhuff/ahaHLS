@@ -37,7 +37,11 @@ module FwdHistRAM(input clk,
       if (rst) begin
          do_fwd <= 0;
       end else begin
-         do_fwd <= waddr_0 == raddr_0;
+         if (wen_0) begin
+            do_fwd <= waddr_0 == raddr_0;
+         end else begin
+            do_fwd <= 0;
+         end
       end
 
       fwd_data <= wdata_0;
@@ -47,6 +51,8 @@ module FwdHistRAM(input clk,
          data[waddr_0] <= wdata_0;
       end
 
+      //$display("fwd ? %d", do_fwd);
+      
       if (debug_write_en) begin
          //$display("hist setting %d to %d", debug_write_addr, debug_write_data);
          data[debug_write_addr] <= debug_write_data;
