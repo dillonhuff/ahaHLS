@@ -371,6 +371,12 @@ namespace ahaHLS {
 
     cout << "Constraints" << endl;
     cout << s << endl;
+
+    if (p.IInames.size() > 0) {
+      p.optimize = true;
+      p.objectiveFunction = p.getII(begin(p.IInames)->first);
+    }
+    
     if (p.optimize) {
       cout << "Objective function = " << p.objectiveFunction << endl;
       optimize::handle h = s.minimize(toZ3(c, p.objectiveFunction));

@@ -40,7 +40,7 @@ class HistRAM {
 
     return res;
 
-    add_constraint(end(set_addr) == start(read_data));
+    add_constraint(end(set_addr) + 1 == start(read_data));
     add_constraint(start(read_data) == start(ret));
   }
 
@@ -88,7 +88,7 @@ class ImgRAM {
 
     return res;
 
-    add_constraint(end(set_addr) == start(read_data));
+    add_constraint(end(set_addr) + 1 == start(read_data));
     add_constraint(start(read_data) == start(ret));
   }
 
