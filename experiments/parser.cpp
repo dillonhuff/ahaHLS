@@ -100,6 +100,22 @@ void sequentialCalls(llvm::Function* f,
             //   exec.addConstraint(cc);
             // }
 
+
+            // if ((firstCallName == "fhread") &&
+            //     (secondCallName == "fhwrite")) {
+
+            //   cout << "Forcing read / write constraint" << endl;
+
+            //   auto ccO = instrStart(second) <= instrStart(first);
+            //   //buildConstraint(first, second, h.get_value());
+            //   assert(ccO->type() == CONSTRAINT_TYPE_ORDERED);
+            //   auto cc = static_cast<Ordered*>(ccO);
+            //   cc->isPipelineConstraint = true;
+            //   cc->pipeline = &bb;
+            //   cc->dd = 1;
+            //   exec.addConstraint(cc);
+            // }
+            
             {
               // Compute forward dep
               maybe<ICHazard> h = findHazard(firstCallName, secondCallName, hazards);
@@ -2493,6 +2509,9 @@ public:
         if (f->getName() == "histogram") {
           hazards.push_back({"hread", "hwrite", true, true, 0, CMP_LTEZ});
           hazards.push_back({"hwrite", "hread", false, true, 0, CMP_LTEZ});
+        } else if (f->getName() == "histogram_fwd") {
+          hazards.push_back({"fhread", "fhwrite", true, true, 0, CMP_LTEZ});
+          hazards.push_back({"fhwrite", "fhread", true, true, 0, CMP_LTEZ});
         }
 
         // TODO: Add pipeline calls here as well?
