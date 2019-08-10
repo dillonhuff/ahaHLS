@@ -1,29 +1,29 @@
-module run_median_func_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_1_in_wire, input [31:0] arg_1_out_wire, output [7:0] arg_6_in_wire, input [7:0] arg_6_out_wire, output [0:0] valid, output [0:0] arg_0_rst_n, output [31:0] arg_0_word0, output [31:0] arg_0_word1, output [31:0] arg_0_word2, input [7:0] arg_0_pixel1, input [7:0] arg_0_pixel2, input [7:0] arg_0_pixel3, input [7:0] arg_0_pixel4, output [31:0] arg_3_in_wire, input [31:0] arg_3_out_wire, output [31:0] arg_2_in_wire, input [31:0] arg_2_out_wire, output [7:0] arg_4_in_wire, input [7:0] arg_4_out_wire, output [7:0] arg_5_in_wire, input [7:0] arg_5_out_wire, output [7:0] arg_7_in_wire, input [7:0] arg_7_out_wire);
+module run_median_func_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg_2_in_wire, input [31:0] arg_2_out_wire, output [31:0] arg_3_in_wire, input [31:0] arg_3_out_wire, output [0:0] arg_0_rst_n, output [31:0] arg_0_word0, output [31:0] arg_0_word1, output [31:0] arg_0_word2, input [7:0] arg_0_pixel1, input [7:0] arg_0_pixel2, input [7:0] arg_0_pixel3, input [7:0] arg_0_pixel4, output [7:0] arg_4_in_wire, input [7:0] arg_4_out_wire, output [0:0] valid, output [31:0] arg_1_in_wire, input [31:0] arg_1_out_wire, output [7:0] arg_5_in_wire, input [7:0] arg_5_out_wire, output [7:0] arg_6_in_wire, input [7:0] arg_6_out_wire, output [7:0] arg_7_in_wire, input [7:0] arg_7_out_wire);
 
-	reg [31:0] arg_1_in_wire_reg;
-	reg [7:0] arg_6_in_wire_reg;
-	reg [0:0] valid_reg;
+	reg [31:0] arg_2_in_wire_reg;
+	reg [31:0] arg_3_in_wire_reg;
 	reg [0:0] arg_0_rst_n_reg;
 	reg [31:0] arg_0_word0_reg;
 	reg [31:0] arg_0_word1_reg;
 	reg [31:0] arg_0_word2_reg;
-	reg [31:0] arg_3_in_wire_reg;
-	reg [31:0] arg_2_in_wire_reg;
 	reg [7:0] arg_4_in_wire_reg;
+	reg [0:0] valid_reg;
+	reg [31:0] arg_1_in_wire_reg;
 	reg [7:0] arg_5_in_wire_reg;
+	reg [7:0] arg_6_in_wire_reg;
 	reg [7:0] arg_7_in_wire_reg;
 
-	assign arg_1_in_wire = arg_1_in_wire_reg;
-	assign arg_6_in_wire = arg_6_in_wire_reg;
-	assign valid = valid_reg;
+	assign arg_2_in_wire = arg_2_in_wire_reg;
+	assign arg_3_in_wire = arg_3_in_wire_reg;
 	assign arg_0_rst_n = arg_0_rst_n_reg;
 	assign arg_0_word0 = arg_0_word0_reg;
 	assign arg_0_word1 = arg_0_word1_reg;
 	assign arg_0_word2 = arg_0_word2_reg;
-	assign arg_3_in_wire = arg_3_in_wire_reg;
-	assign arg_2_in_wire = arg_2_in_wire_reg;
 	assign arg_4_in_wire = arg_4_in_wire_reg;
+	assign valid = valid_reg;
+	assign arg_1_in_wire = arg_1_in_wire_reg;
 	assign arg_5_in_wire = arg_5_in_wire_reg;
+	assign arg_6_in_wire = arg_6_in_wire_reg;
 	assign arg_7_in_wire = arg_7_in_wire_reg;
 
 	// Start debug wires and ports
@@ -38,40 +38,40 @@ module run_median_func_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg
 	// End debug wires and ports
 
 	// Start Functional Units
-	reg [31:0] sgt_in0_sext_5;
-	wire [63:0] sgt_out_sext_5;
-	sext sext_5(.in(sgt_in0_sext_5), .out(sgt_out_sext_5));
+	reg [31:0] sgt_in0_sext_4;
+	wire [63:0] sgt_out_sext_4;
+	sext sext_4(.in(sgt_in0_sext_4), .out(sgt_out_sext_4));
 
-	reg [31:0] cmp_in0_icmp_6;
-	reg [31:0] cmp_in1_icmp_6;
-	wire [0:0] cmp_out_icmp_6;
-	slt #(.WIDTH(32)) icmp_6(.in0(cmp_in0_icmp_6), .in1(cmp_in1_icmp_6), .out(cmp_out_icmp_6));
+	reg [31:0] add_in0_add_5;
+	reg [31:0] add_in1_add_5;
+	wire [31:0] add_out_add_5;
+	add #(.WIDTH(32)) add_add_5(.in0(add_in0_add_5), .in1(add_in1_add_5), .out(add_out_add_5));
+
+	reg [31:0] trunc_in_trunc_6;
+	wire [19:0] trunc_out_trunc_6;
+	trunc #(.IN_WIDTH(32), .OUT_WIDTH(20)) trunc_6(.in(trunc_in_trunc_6), .out(trunc_out_trunc_6));
+
+	reg [31:0] cmp_in0_icmp_7;
+	reg [31:0] cmp_in1_icmp_7;
+	wire [0:0] cmp_out_icmp_7;
+	slt #(.WIDTH(32)) icmp_7(.in0(cmp_in0_icmp_7), .in1(cmp_in1_icmp_7), .out(cmp_out_icmp_7));
 
 	br_dummy br_unit();
 
-	reg [31:0] sgt_in0_sext_16;
-	wire [63:0] sgt_out_sext_16;
-	sext sext_16(.in(sgt_in0_sext_16), .out(sgt_out_sext_16));
+	reg [31:0] sgt_in0_sext_17;
+	wire [63:0] sgt_out_sext_17;
+	sext sext_17(.in(sgt_in0_sext_17), .out(sgt_out_sext_17));
 
-	reg [31:0] add_in0_add_17;
-	reg [31:0] add_in1_add_17;
-	wire [31:0] add_out_add_17;
-	add #(.WIDTH(32)) add_add_17(.in0(add_in0_add_17), .in1(add_in1_add_17), .out(add_out_add_17));
-
-	reg [31:0] trunc_in_trunc_18;
-	wire [19:0] trunc_out_trunc_18;
-	trunc #(.IN_WIDTH(32), .OUT_WIDTH(20)) trunc_18(.in(trunc_in_trunc_18), .out(trunc_out_trunc_18));
-
-	reg [39:0] phi_in_phi_23;
-	reg [31:0] phi_last_block_phi_23;
-	reg [63:0] phi_s_phi_23;
-	wire [31:0] phi_out_phi_23;
-	phi #(.NB_PAIR(2), .WIDTH(20)) phi_23(.in(phi_in_phi_23), .last_block(phi_last_block_phi_23), .out(phi_out_phi_23), .s(phi_s_phi_23));
+	reg [39:0] phi_in_phi_22;
+	reg [31:0] phi_last_block_phi_22;
+	reg [63:0] phi_s_phi_22;
+	wire [31:0] phi_out_phi_22;
+	phi #(.NB_PAIR(2), .WIDTH(20)) phi_22(.in(phi_in_phi_22), .last_block(phi_last_block_phi_22), .out(phi_out_phi_22), .s(phi_s_phi_22));
 
 	// End Functional Units
 
 	// Start instruction result storage
-	reg [19:0] trunc_tmp_9;
+	reg [19:0] trunc_tmp_2;
 	// End instruction result storage
 
 	// Start pipeline variables
@@ -83,15 +83,11 @@ module run_median_func_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg
 	always @(posedge clk) begin
 		if (rst) begin
 		end
+		 else begin
+		 end
 	end
 	// End pipeline reset block
 
-	// Start pipeline valid chain block
-	always @(posedge clk) begin
-
-		if (!rst) begin
-		end
-	end
 	// End pipeline valid chain block
 
 	always @(posedge clk) begin
@@ -153,11 +149,11 @@ module run_median_func_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg
 			if ((global_state == 3)) begin 
 				// Next state transition logic
 				// Condition = (  %12 = icmp slt i32 %11, 101125)
-				if ((cmp_out_icmp_6)) begin
+				if ((cmp_out_icmp_7)) begin
 					global_state <= 3;
 				end
 				// Condition = (!(  %12 = icmp slt i32 %11, 101125))
-				if (!(cmp_out_icmp_6)) begin
+				if (!(cmp_out_icmp_7)) begin
 					global_state <= 4;
 				end
 			end
@@ -186,7 +182,7 @@ module run_median_func_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg
 			if ((global_state == 3)) begin 
 				// Temporary storage
 				// Store data computed at the stage
-					trunc_tmp_9 <= trunc_out_trunc_18;
+					trunc_tmp_2 <= trunc_out_trunc_6;
 			end
 			if ((global_state == 4)) begin 
 				// Temporary storage
@@ -233,45 +229,32 @@ module run_median_func_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg
 		arg_0_word1_reg = valid ? arg_2_out_wire : arg_2_out_wire;
 		arg_0_word2_reg = valid ? arg_3_out_wire : arg_3_out_wire;
 	end
+	// controller for sext_4.sgt_in0_sext_4
 	// Insensitive connections
 	always @(*) begin
+		sgt_in0_sext_4 = valid ? phi_out_phi_22 : phi_out_phi_22;
 	end
-	// controller for sext_5.sgt_in0_sext_5
+	// controller for add_add_5.add_in0_add_5
+	// controller for add_add_5.add_in1_add_5
 	// Insensitive connections
 	always @(*) begin
-		sgt_in0_sext_5 = valid ? trunc_out_trunc_18 : trunc_out_trunc_18;
+		add_in0_add_5 = valid ? sgt_out_sext_4 : sgt_out_sext_4;
+		add_in1_add_5 = valid ? (32'd1) : (32'd1);
 	end
-	// controller for icmp_6.cmp_in0_icmp_6
-	// controller for icmp_6.cmp_in1_icmp_6
+	// controller for trunc_6.trunc_in_trunc_6
 	// Insensitive connections
 	always @(*) begin
-		cmp_in0_icmp_6 = valid ? sgt_out_sext_5 : sgt_out_sext_5;
-		cmp_in1_icmp_6 = valid ? (32'd101125) : (32'd101125);
+		trunc_in_trunc_6 = valid ? add_out_add_5 : add_out_add_5;
 	end
-	// controller for arg_6.arg_6_in_wire_reg
+	// controller for icmp_7.cmp_in0_icmp_7
+	// controller for icmp_7.cmp_in1_icmp_7
 	// Insensitive connections
 	always @(*) begin
-		arg_6_in_wire_reg = valid ? arg_0_pixel3 : arg_0_pixel3;
+		cmp_in0_icmp_7 = valid ? sgt_out_sext_17 : sgt_out_sext_17;
+		cmp_in1_icmp_7 = valid ? (32'd101125) : (32'd101125);
 	end
 	// Insensitive connections
 	always @(*) begin
-	end
-	// controller for sext_16.sgt_in0_sext_16
-	// Insensitive connections
-	always @(*) begin
-		sgt_in0_sext_16 = valid ? phi_out_phi_23 : phi_out_phi_23;
-	end
-	// controller for add_add_17.add_in0_add_17
-	// controller for add_add_17.add_in1_add_17
-	// Insensitive connections
-	always @(*) begin
-		add_in0_add_17 = valid ? sgt_out_sext_16 : sgt_out_sext_16;
-		add_in1_add_17 = valid ? (32'd1) : (32'd1);
-	end
-	// controller for trunc_18.trunc_in_trunc_18
-	// Insensitive connections
-	always @(*) begin
-		trunc_in_trunc_18 = valid ? add_out_add_17 : add_out_add_17;
 	end
 	// Insensitive connections
 	always @(*) begin
@@ -281,19 +264,32 @@ module run_median_func_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg
 	always @(*) begin
 		arg_4_in_wire_reg = valid ? arg_0_pixel1 : arg_0_pixel1;
 	end
+	// controller for sext_17.sgt_in0_sext_17
+	// Insensitive connections
+	always @(*) begin
+		sgt_in0_sext_17 = valid ? trunc_out_trunc_6 : trunc_out_trunc_6;
+	end
+	// Insensitive connections
+	always @(*) begin
+	end
 	// controller for arg_5.arg_5_in_wire_reg
 	// Insensitive connections
 	always @(*) begin
 		arg_5_in_wire_reg = valid ? arg_0_pixel2 : arg_0_pixel2;
 	end
-	// controller for phi_23.phi_in_phi_23
-	// controller for phi_23.phi_last_block_phi_23
-	// controller for phi_23.phi_s_phi_23
+	// controller for phi_22.phi_in_phi_22
+	// controller for phi_22.phi_last_block_phi_22
+	// controller for phi_22.phi_s_phi_22
 	// Insensitive connections
 	always @(*) begin
-		phi_in_phi_23 = valid ? {trunc_tmp_9, (20'd0)} : {trunc_tmp_9, (20'd0)};
-		phi_last_block_phi_23 = valid ? last_BB_reg : last_BB_reg;
-		phi_s_phi_23 = valid ? {32'd1, 32'd0} : {32'd1, 32'd0};
+		phi_in_phi_22 = valid ? {trunc_tmp_2, (20'd0)} : {trunc_tmp_2, (20'd0)};
+		phi_last_block_phi_22 = valid ? last_BB_reg : last_BB_reg;
+		phi_s_phi_22 = valid ? {32'd1, 32'd0} : {32'd1, 32'd0};
+	end
+	// controller for arg_6.arg_6_in_wire_reg
+	// Insensitive connections
+	always @(*) begin
+		arg_6_in_wire_reg = valid ? arg_0_pixel3 : arg_0_pixel3;
 	end
 	// controller for arg_7.arg_7_in_wire_reg
 	// Insensitive connections
@@ -317,7 +313,7 @@ module run_median_func_inner(input [0:0] clk, input [0:0] rst, output [31:0] arg
 	end
 endmodule
 
-module run_median_func(input [0:0] clk, input [0:0] rst, output [31:0] arg_1_in_wire, input [31:0] arg_1_out_wire, output [7:0] arg_6_in_wire, input [7:0] arg_6_out_wire, output [0:0] valid, output [0:0] arg_0_rst_n, output [31:0] arg_0_word0, output [31:0] arg_0_word1, output [31:0] arg_0_word2, input [7:0] arg_0_pixel1, input [7:0] arg_0_pixel2, input [7:0] arg_0_pixel3, input [7:0] arg_0_pixel4, output [31:0] arg_3_in_wire, input [31:0] arg_3_out_wire, output [31:0] arg_2_in_wire, input [31:0] arg_2_out_wire, output [7:0] arg_4_in_wire, input [7:0] arg_4_out_wire, output [7:0] arg_5_in_wire, input [7:0] arg_5_out_wire, output [7:0] arg_7_in_wire, input [7:0] arg_7_out_wire);
+module run_median_func(input [0:0] clk, input [0:0] rst, output [31:0] arg_2_in_wire, input [31:0] arg_2_out_wire, output [31:0] arg_3_in_wire, input [31:0] arg_3_out_wire, output [0:0] arg_0_rst_n, output [31:0] arg_0_word0, output [31:0] arg_0_word1, output [31:0] arg_0_word2, input [7:0] arg_0_pixel1, input [7:0] arg_0_pixel2, input [7:0] arg_0_pixel3, input [7:0] arg_0_pixel4, output [7:0] arg_4_in_wire, input [7:0] arg_4_out_wire, output [0:0] valid, output [31:0] arg_1_in_wire, input [31:0] arg_1_out_wire, output [7:0] arg_5_in_wire, input [7:0] arg_5_out_wire, output [7:0] arg_6_in_wire, input [7:0] arg_6_out_wire, output [7:0] arg_7_in_wire, input [7:0] arg_7_out_wire);
 
 
 	initial begin

@@ -118,15 +118,11 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 	always @(posedge clk) begin
 		if (rst) begin
 		end
+		 else begin
+		 end
 	end
 	// End pipeline reset block
 
-	// Start pipeline valid chain block
-	always @(posedge clk) begin
-
-		if (!rst) begin
-		end
-	end
 	// End pipeline valid chain block
 
 	always @(posedge clk) begin

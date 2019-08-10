@@ -2281,6 +2281,18 @@ namespace ahaHLS {
       }
     }
     out << "\t\tend" << endl;
+
+    out << "\t\t else begin" << endl;
+
+    for (auto p : pipelines) {
+
+      //      for (auto validVar : p.valids) {
+      for (int i = 0; i < ((int) p.valids.size()) - 1; i++) {
+        out << "\t\t\t" << p.valids[i + 1].name << " <= " << p.valids[i].name << ";" << endl;
+      }
+    }
+    out << "\t\t end" << endl;
+    
     out << "\tend" << endl;
     out << "\t// End pipeline reset block" << endl << endl;
   }
@@ -2384,33 +2396,33 @@ namespace ahaHLS {
                                    MicroArchitecture& arch) {
     auto pipelines = arch.pipelines;
     
-    out << "\t// Start pipeline valid chain block" << endl;
-    out << "\talways @(posedge clk) begin" << endl;
+    // out << "\t// Start pipeline valid chain block" << endl;
+    // out << "\talways @(posedge clk) begin" << endl;
 
-    for (auto p : pipelines) {
+    // for (auto p : pipelines) {
 
-      out << tab(1) << "if (" << p.inPipe.name << ") begin";
-      out << "\t\t$display(\"// CLK Cycle\");" << endl;
-      out << "\t\t$display(\"" << p.inPipe.name << " = %d\", " << p.inPipe.name << ");" << endl;
-      for (int i = 0; i < (int) p.valids.size(); i++) {
-        out << "\t\t$display(\"" << p.valids[i].name << " = %d\", " << p.valids[i].name << ");" << endl;
-      }
+    //   out << tab(1) << "if (" << p.inPipe.name << ") begin";
+    //   out << "\t\t$display(\"// CLK Cycle\");" << endl;
+    //   out << "\t\t$display(\"" << p.inPipe.name << " = %d\", " << p.inPipe.name << ");" << endl;
+    //   for (int i = 0; i < (int) p.valids.size(); i++) {
+    //     out << "\t\t$display(\"" << p.valids[i].name << " = %d\", " << p.valids[i].name << ");" << endl;
+    //   }
 
-      out << tab(1) << "end" << endl;
-    }
+    //   out << tab(1) << "end" << endl;
+    // }
 
-    out << endl;
+    // out << endl;
 
-    out << "\t\tif (!rst) begin" << endl;
-    for (auto p : pipelines) {
+    // out << "\t\tif (!rst) begin" << endl;
+    // for (auto p : pipelines) {
 
-      //      for (auto validVar : p.valids) {
-      for (int i = 0; i < ((int) p.valids.size()) - 1; i++) {
-        out << "\t\t\t" << p.valids[i + 1].name << " <= " << p.valids[i].name << ";" << endl;
-      }
-    }
-    out << "\t\tend" << endl;
-    out << "\tend" << endl;
+    //   //      for (auto validVar : p.valids) {
+    //   for (int i = 0; i < ((int) p.valids.size()) - 1; i++) {
+    //     out << "\t\t\t" << p.valids[i + 1].name << " <= " << p.valids[i].name << ";" << endl;
+    //   }
+    // }
+    // out << "\t\tend" << endl;
+    // out << "\tend" << endl;
     out << "\t// End pipeline valid chain block" << endl << endl;
   }
 
