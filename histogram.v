@@ -161,6 +161,13 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 			pipeline_stage_1_valid <= pipeline_stage_0_valid;
 			pipeline_stage_2_valid <= pipeline_stage_1_valid;
 			pipeline_stage_3_valid <= pipeline_stage_2_valid;
+			if ((in_pipeline_0 && pipeline_stage_1_valid)) begin
+					if(!(cmp_out_icmp_17)) begin
+						pipeline_stage_0_valid <= 0;
+					end else begin
+						pipeline_stage_0_valid <= 1;
+					end
+				end else if (in_pipeline_0) begin pipeline_stage_0_valid <= 0; end
 		 end
 	end
 	// End pipeline reset block
@@ -187,18 +194,6 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 		trunc_tmp_3 <= pipeline_trunc_0_3_23;
 		call_tmp_5 <= pipeline_call_0_3_25;
 	end
-	// Start pipeline initiation block
-	always @(posedge clk) begin
-			if ((in_pipeline_0 && pipeline_stage_1_valid)) begin
-					if(!(cmp_out_icmp_17)) begin
-						pipeline_stage_0_valid <= 0;
-					end else begin
-						pipeline_stage_0_valid <= 1;
-					end
-				end else if (in_pipeline_0) begin pipeline_stage_0_valid <= 0; end
-	end
-	// End pipeline initiation block
-
 	always @(posedge clk) begin
 		if (rst) begin
 			last_BB_reg <= 0;

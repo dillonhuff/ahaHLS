@@ -2269,7 +2269,8 @@ namespace ahaHLS {
   }
 
   void emitPipelineResetBlock(std::ostream& out,
-                              const std::vector<ElaboratedPipeline>& pipelines) {
+                              const std::vector<ElaboratedPipeline>& pipelines,
+                              MicroArchitecture& arch) {
     
     out << "\t// Start pipeline reset block" << endl;
     out << "\talways @(posedge clk) begin" << endl;
@@ -2284,27 +2285,15 @@ namespace ahaHLS {
 
     out << "\t\t else begin" << endl;
 
-    for (auto p : pipelines) {
+    // Pipeline not reseting
 
-      //      for (auto validVar : p.valids) {
+    for (auto p : pipelines) {
       for (int i = 0; i < ((int) p.valids.size()) - 1; i++) {
         out << "\t\t\t" << p.valids[i + 1].name << " <= " << p.valids[i].name << ";" << endl;
       }
     }
-    out << "\t\t end" << endl;
-    
-    out << "\tend" << endl;
-    out << "\t// End pipeline reset block" << endl << endl;
-  }
 
-  void
-  emitPipelineInitiationBlock(std::ostream& out,
-                              MicroArchitecture& arch) {
-
-    auto& pipelines = arch.pipelines;
-
-    out << "\t// Start pipeline initiation block" << endl;
-    out << "\talways @(posedge clk) begin" << endl;
+    out << endl << endl;
 
     for (auto p : pipelines) {
       int stage = p.II() - 1;
@@ -2339,9 +2328,57 @@ namespace ahaHLS {
       out << "\t\t\t\tend else if (" << p.inPipe.name << ") begin " << p.valids.at(0).name << " <= 0; end" << endl;
 
     }
-
+    
+    out << "\t\t end" << endl;
     out << "\tend" << endl;
-    out << "\t// End pipeline initiation block" << endl << endl;
+    out << "\t// End pipeline reset block" << endl << endl;
+  }
+
+  void
+  emitPipelineInitiationBlock(std::ostream& out,
+                              MicroArchitecture& arch) {
+
+    // auto& pipelines = arch.pipelines;
+
+    // out << "\t// Start pipeline initiation block" << endl;
+    // out << "\talways @(posedge clk) begin" << endl;
+
+    // for (auto p : pipelines) {
+    //   int stage = p.II() - 1;
+    //   StateId st = p.stateForStage(stage);
+
+    //   out << tab(3) << "if (" << atState(st, arch) << ") begin" << endl;
+    //   std::map<llvm::Value*, int> memMap;
+
+    //   assert(Instruction::classof(p.getExitCondition()));
+    //   ControlFlowPosition pos =
+    //     pipelinePosition(dyn_cast<Instruction>(p.getExitCondition()), p.stateForStage(p.II() - 1), p.II() - 1);
+
+    //   string testCond = outputName(p.getExitCondition(), pos, arch);
+    //   auto br = p.getExitBranch();
+
+    //   auto trueBlock = br->getSuccessor(0);
+    //   BasicBlock* pBlock = p.getEntryBlock();
+
+    //   // Does a true value in the branch conditional imply doing another iteration
+    //   // of the loop
+    //   if (trueBlock == pBlock) {
+    //     testCond = "!" + parens(testCond);
+    //   }
+    //   out << "\t\t\t\t\tif(" << testCond  << ") begin" << endl;
+    //   vector<RAM> rams;
+    //   out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 0;" << endl;
+
+    //   out << "\t\t\t\t\tend else begin" << endl;
+
+    //   out << "\t\t\t\t\t\t" << p.valids.at(0).name << " <= 1;" << endl;
+    //   out << "\t\t\t\t\tend" << endl;
+    //   out << "\t\t\t\tend else if (" << p.inPipe.name << ") begin " << p.valids.at(0).name << " <= 0; end" << endl;
+
+    // }
+
+    // out << "\tend" << endl;
+    // out << "\t// End pipeline initiation block" << endl << endl;
     
   }
 
@@ -2801,7 +2838,7 @@ namespace ahaHLS {
     emitPipelineVariables(out, arch.pipelines);
     emitGlobalStateVariables(out, arch);
 
-    emitPipelineResetBlock(out, arch.pipelines);
+    emitPipelineResetBlock(out, arch.pipelines, arch);
     emitPipelineValidChainBlock(out, arch);
     emitPipelineRegisterChains(out, arch);
 

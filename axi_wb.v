@@ -127,11 +127,6 @@ module axi_wb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 
 	always @(posedge clk) begin
 	end
-	// Start pipeline initiation block
-	always @(posedge clk) begin
-	end
-	// End pipeline initiation block
-
 	always @(posedge clk) begin
 		if (rst) begin
 			last_BB_reg <= 0;
