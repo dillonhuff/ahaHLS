@@ -3400,7 +3400,7 @@ int main() {
     // Note: No forwarding yet
     vector<string> values;
     for (int i = 0; i < 100; i++) {
-      values.push_back(to_string(i));
+      values.push_back(to_string(10));
     }
     setRAM("arg_0", 1, values, tb);
 
@@ -3412,9 +3412,14 @@ int main() {
     
     vector<string> expectedValues;
     for (int i = 0; i < 100; i++) {
-      expectedValues.push_back(to_string(1));
+      if (i == 10) {
+        expectedValues.push_back(to_string(100));        
+      } else {
+        expectedValues.push_back("0");
+      }
+      //expectedValues.push_back(to_string(1));
     }
-    checkRAMContents("arg_1", 300, expectedValues, tb);
+    checkRAMContents("arg_1", 400, expectedValues, tb);
     
     emitVerilogTestBench(tb, arch, testLayout);
 

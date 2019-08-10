@@ -61,6 +61,9 @@ module FwdHistRAM(input clk,
       //$display("reading value %d from %d", data[raddr_0], raddr_0);
       
       rdata_0_reg <= data[raddr_0];
+
+      $display("reading %d from %d, forwarding ? ", rdata_0, raddr_0, do_fwd);
+      
       
    end
 
