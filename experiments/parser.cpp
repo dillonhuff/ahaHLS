@@ -85,44 +85,44 @@ void sequentialCalls(llvm::Function* f,
           
           if (first->getOperand(0) == second->getOperand(0)) {
 
-            if ((firstCallName == "hread") &&
-                (secondCallName == "hwrite")) {
+            // if ((firstCallName == "hread") &&
+            //     (secondCallName == "hwrite")) {
 
-              cout << "Forcing read / write constraint" << endl;
+            //   cout << "Forcing read / write constraint" << endl;
 
-              auto ccO = instrEnd(second) <= instrStart(first);
-              //buildConstraint(first, second, h.get_value());
-              assert(ccO->type() == CONSTRAINT_TYPE_ORDERED);
-              auto cc = static_cast<Ordered*>(ccO);
-              cc->isPipelineConstraint = true;
-              cc->pipeline = &bb;
-              cc->dd = 1;
-              exec.addConstraint(cc);
-            }
+            //   auto ccO = instrEnd(second) <= instrStart(first);
+            //   //buildConstraint(first, second, h.get_value());
+            //   assert(ccO->type() == CONSTRAINT_TYPE_ORDERED);
+            //   auto cc = static_cast<Ordered*>(ccO);
+            //   cc->isPipelineConstraint = true;
+            //   cc->pipeline = &bb;
+            //   cc->dd = 1;
+            //   exec.addConstraint(cc);
+            // }
 
-          //   {
-          //     // Compute forward dep
-          //     maybe<ICHazard> h = findHazard(firstCallName, secondCallName, hazards);
+            {
+              // Compute forward dep
+              maybe<ICHazard> h = findHazard(firstCallName, secondCallName, hazards);
 
-          //     if (h.has_value()) {
-          //       cout << "Found possible hazard or loosening in II" << endl;
-          //       int dd = 1; //computeDD(h.get_value(), first, second, sc);
+              if (h.has_value()) {
+                cout << "Found possible hazard or loosening in II" << endl;
+                int dd = 1; //computeDD(h.get_value(), first, second, sc);
 
-          //       cout << "Dependence distance between " << valueString(first) << " and " << valueString(second) << " = " << dd << endl;
+                cout << "Dependence distance between " << valueString(first) << " and " << valueString(second) << " = " << dd << endl;
 
 
-          //       auto ccO =
-          //         buildConstraint(first, second, h.get_value());
-          //       assert(ccO->type() == CONSTRAINT_TYPE_ORDERED);
-          //       auto cc = static_cast<Ordered*>(ccO);
-          //       cc->isPipelineConstraint = true;
-          //       cc->pipeline = &bb;
-          //       cc->dd = dd;
+                auto ccO =
+                  buildConstraint(first, second, h.get_value());
+                assert(ccO->type() == CONSTRAINT_TYPE_ORDERED);
+                auto cc = static_cast<Ordered*>(ccO);
+                cc->isPipelineConstraint = true;
+                cc->pipeline = &bb;
+                cc->dd = dd;
               
-          //       exec.addConstraint(cc);
-          //     } else {
-          //     }
-          //   }
+                exec.addConstraint(cc);
+              } else {
+              }
+            }
 
           //   {
           //     // Compute backward dep

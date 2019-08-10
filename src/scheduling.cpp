@@ -372,7 +372,7 @@ namespace ahaHLS {
     cout << "Constraints" << endl;
     cout << s << endl;
 
-    if (p.IInames.size() > 0) {
+    if (!p.optimize && (p.IInames.size() > 0)) {
       p.optimize = true;
       p.objectiveFunction = p.getII(begin(p.IInames)->first);
     }
@@ -3307,11 +3307,11 @@ buildConstraint(Instruction* first,
                 Instruction* second,
                 ICHazard h) {
   auto sVal = h.srcStart ? instrStart(first) : instrEnd(first);
-  auto eVal = h.srcStart ? instrStart(second) : instrEnd(second);
+  auto eVal = h.destStart ? instrStart(second) : instrEnd(second);
   if (h.orderCond == CMP_LTEZ) {
-    return sVal <= eVal;
+    return sVal <= eVal + h.offset;
   } else if (h.orderCond == CMP_LTZ) {
-    return sVal < eVal;
+    return sVal < eVal + h.offset;
   } else {
     assert(false);
   }
