@@ -105,13 +105,13 @@ class ImgRAM {
 void histogram(ImgRAM& img, HistRAM& hist) {
   bit_8 i;
   bit_8 pix;
-  bit_32 count;
+  //bit_32 count;
   i = 0;
   do {
     pix = img.read(i);
-    count = hist.hread(pix);
-    count = count + 1;
-    hist.hwrite(pix, count);
+    //count = hist.hread(pix);
+    //count = count + 1;
+    hist.hwrite(pix, hist.hread(pix) + 1);
     i = i + 1;
   } while (i < 100);
 }

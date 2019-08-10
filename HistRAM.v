@@ -32,6 +32,8 @@ module HistRAM(input clk,
    always @(posedge clk) begin
       
       if (wen_0) begin
+         $display("hist setting %d to %d", waddr_0, wdata_0);
+         
          data[waddr_0] <= wdata_0;
       end
 

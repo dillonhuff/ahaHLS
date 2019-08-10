@@ -119,7 +119,7 @@ void sequentialCalls(llvm::Function* f,
                 cc->pipeline = &bb;
                 cc->dd = dd;
               
-                exec.addConstraint(cc);
+                //exec.addConstraint(cc);
               } else {
               }
             }
@@ -296,22 +296,22 @@ Schedule scheduleInterfaceZeroReg(llvm::Function* f,
   //   cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
   // }
 
-  if (f->getName() == "histogram") {
+  // if (f->getName() == "histogram") {
 
-    for (auto& bb : f->getBasicBlockList()) {
-      auto term = bb.getTerminator();
-      if (BranchInst::classof(term)) {
-        BranchInst* branch = dyn_cast<BranchInst>(term);
-        if (branch->isConditional()) {
-          for (auto succ : branch->successors()) {
-            if (succ == &bb) {
-              toPipeline.insert(&bb);
-            }
-          }
-        }
-      }
-    }
-  }
+  //   for (auto& bb : f->getBasicBlockList()) {
+  //     auto term = bb.getTerminator();
+  //     if (BranchInst::classof(term)) {
+  //       BranchInst* branch = dyn_cast<BranchInst>(term);
+  //       if (branch->isConditional()) {
+  //         for (auto succ : branch->successors()) {
+  //           if (succ == &bb) {
+  //             toPipeline.insert(&bb);
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
   SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
   exec.addConstraints(p, f);
@@ -3267,10 +3267,11 @@ int main() {
     cout << "Histogram STG" << endl;
     arch.stg.print(cout);
 
-    assert(arch.stg.pipelines.size() == 1);
-    Pipeline p = *begin(arch.stg.pipelines);
-    cout << "Pipeline ii = " << p.II() << endl;
-    assert(p.II() == 2);
+    //assert(arch.stg.pipelines.size() == 1);
+    // Pipeline p = *begin(arch.stg.pipelines);
+    // cout << "Pipeline ii = " << p.II() << endl;
+    
+    //assert(p.II() == 2);
 
     auto result =
       sc<Argument>(getArg(scppMod.getFunction("histogram")->llvmFunction(),
@@ -3284,8 +3285,7 @@ int main() {
     map<string, int> testLayout = {};
     tb.memoryInit = {};
     tb.memoryExpected = {};
-    tb.runCycles = 600;
-    tb.maxCycles = 600;
+    tb.maxCycles = 500;
     tb.name = "histogram";
     tb.useModSpecs = true;
     tb.settablePort(result, "debug_write_addr");
@@ -4247,9 +4247,9 @@ int main() {
     
     SynthCppModule scppMod(mod);
 
-    // auto arch = synthesizeVerilog(scppMod, "run_median_func");
+    auto arch = synthesizeVerilog(scppMod, "run_median_func");
 
-    // {
+    {
     //   int imgWidth = 5;
     //   Img image(imgWidth, imgWidth);
     //   for (int i = 0; i < imgWidth; i++) {
@@ -4258,25 +4258,25 @@ int main() {
     //     }
     //   }
 
-    //   auto word0 =
-    //     sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 1));
-    //   auto word1 =
-    //     sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 2));
-    //   auto word2 =
-    //     sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 3));
+      auto word0 =
+        sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 1));
+      auto word1 =
+        sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 2));
+      auto word2 =
+        sc<Argument>(getArg(scppMod.getFunction("run_median_func")->llvmFunction(), 3));
 
-    //   TestBenchSpec tb;
-    //   map<string, int> testLayout = {};
-    //   tb.memoryInit = {};
-    //   tb.memoryExpected = {};
-    //   tb.runCycles = 30;
-    //   tb.maxCycles = 50;
-    //   tb.name = "run_median_func";
-    //   tb.useModSpecs = true;
+      TestBenchSpec tb;
+      map<string, int> testLayout = {};
+      tb.memoryInit = {};
+      tb.memoryExpected = {};
+      tb.runCycles = 30;
+      tb.maxCycles = 50;
+      tb.name = "run_median_func";
+      tb.useModSpecs = true;
 
-    //   map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
-    //   map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
-    //   map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
+      map_insert(tb.actionsOnCycles, 1, string("rst_reg <= 0;"));
+      map_insert(tb.actionsOnCycles, 2, string("rst_reg <= 1;"));
+      map_insert(tb.actionsOnCycles, 3, string("rst_reg <= 0;"));
     
     //   tb.actionOnCondition("1", "$display(\"pixel1 = %d, pixel2 = %d, pixel3 = %d, pixel4 = %d\", arg_4_in_wire, arg_5_in_wire, arg_6_in_wire, arg_7_in_wire);");
 
@@ -4331,15 +4331,15 @@ int main() {
     //   //   activeCycle++;
     //   // }
       
-    //   tb.settablePort(word0, "in_wire");
-    //   tb.settablePort(word1, "in_wire");
-    //   tb.settablePort(word2, "in_wire");    
+      tb.settablePort(word0, "in_wire");
+      tb.settablePort(word1, "in_wire");
+      tb.settablePort(word2, "in_wire");    
 
-    //   //map_insert(tb.actionsOnCycles, 200, assertString("valid === 1"));
+      //map_insert(tb.actionsOnCycles, 200, assertString("valid === 1"));
     
-    //   emitVerilogTestBench(tb, arch, testLayout);
-    //   assert(runIVerilogTest("run_median_func_tb.v", "run_median_func", " builtins.v run_median_func.v RAM.v delay.v ram_primitives.v eth_axis_tx.v median_wires.v median.v state_machine.v node.v common_network.v dff_3_pipe.v pixel_network.v"));
-    // }
+      emitVerilogTestBench(tb, arch, testLayout);
+      assert(runIVerilogTest("run_median_func_tb.v", "run_median_func", " builtins.v run_median_func.v RAM.v delay.v ram_primitives.v eth_axis_tx.v median_wires.v median.v state_machine.v node.v common_network.v dff_3_pipe.v pixel_network.v"));
+    }
 
   }
   
