@@ -1,27 +1,27 @@
-module run_median_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [0:0] arg_0_rst_n, output [31:0] arg_0_word0, output [31:0] arg_0_word1, output [31:0] arg_0_word2, input [7:0] arg_0_pixel1, input [7:0] arg_0_pixel2, input [7:0] arg_0_pixel3, input [7:0] arg_0_pixel4, output [7:0] arg_4_in_wire, input [7:0] arg_4_out_wire, output [31:0] arg_3_in_wire, input [31:0] arg_3_out_wire, output [31:0] arg_1_in_wire, input [31:0] arg_1_out_wire, output [31:0] arg_2_in_wire, input [31:0] arg_2_out_wire, output [7:0] arg_5_in_wire, input [7:0] arg_5_out_wire, output [7:0] arg_6_in_wire, input [7:0] arg_6_out_wire, output [7:0] arg_7_in_wire, input [7:0] arg_7_out_wire);
+module run_median_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] arg_0_rst_n, output [31:0] arg_0_word0, output [31:0] arg_0_word1, output [31:0] arg_0_word2, input [7:0] arg_0_pixel1, input [7:0] arg_0_pixel2, input [7:0] arg_0_pixel3, input [7:0] arg_0_pixel4, output [0:0] valid, output [7:0] arg_4_in_wire, input [7:0] arg_4_out_wire, output [31:0] arg_2_in_wire, input [31:0] arg_2_out_wire, output [31:0] arg_1_in_wire, input [31:0] arg_1_out_wire, output [31:0] arg_3_in_wire, input [31:0] arg_3_out_wire, output [7:0] arg_5_in_wire, input [7:0] arg_5_out_wire, output [7:0] arg_6_in_wire, input [7:0] arg_6_out_wire, output [7:0] arg_7_in_wire, input [7:0] arg_7_out_wire);
 
-	reg [0:0] valid_reg;
 	reg [0:0] arg_0_rst_n_reg;
 	reg [31:0] arg_0_word0_reg;
 	reg [31:0] arg_0_word1_reg;
 	reg [31:0] arg_0_word2_reg;
+	reg [0:0] valid_reg;
 	reg [7:0] arg_4_in_wire_reg;
-	reg [31:0] arg_3_in_wire_reg;
-	reg [31:0] arg_1_in_wire_reg;
 	reg [31:0] arg_2_in_wire_reg;
+	reg [31:0] arg_1_in_wire_reg;
+	reg [31:0] arg_3_in_wire_reg;
 	reg [7:0] arg_5_in_wire_reg;
 	reg [7:0] arg_6_in_wire_reg;
 	reg [7:0] arg_7_in_wire_reg;
 
-	assign valid = valid_reg;
 	assign arg_0_rst_n = arg_0_rst_n_reg;
 	assign arg_0_word0 = arg_0_word0_reg;
 	assign arg_0_word1 = arg_0_word1_reg;
 	assign arg_0_word2 = arg_0_word2_reg;
+	assign valid = valid_reg;
 	assign arg_4_in_wire = arg_4_in_wire_reg;
-	assign arg_3_in_wire = arg_3_in_wire_reg;
-	assign arg_1_in_wire = arg_1_in_wire_reg;
 	assign arg_2_in_wire = arg_2_in_wire_reg;
+	assign arg_1_in_wire = arg_1_in_wire_reg;
+	assign arg_3_in_wire = arg_3_in_wire_reg;
 	assign arg_5_in_wire = arg_5_in_wire_reg;
 	assign arg_6_in_wire = arg_6_in_wire_reg;
 	assign arg_7_in_wire = arg_7_in_wire_reg;
@@ -317,7 +317,7 @@ module run_median_func_inner(input [0:0] clk, input [0:0] rst, output [0:0] vali
 	end
 endmodule
 
-module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [0:0] arg_0_rst_n, output [31:0] arg_0_word0, output [31:0] arg_0_word1, output [31:0] arg_0_word2, input [7:0] arg_0_pixel1, input [7:0] arg_0_pixel2, input [7:0] arg_0_pixel3, input [7:0] arg_0_pixel4, output [7:0] arg_4_in_wire, input [7:0] arg_4_out_wire, output [31:0] arg_3_in_wire, input [31:0] arg_3_out_wire, output [31:0] arg_1_in_wire, input [31:0] arg_1_out_wire, output [31:0] arg_2_in_wire, input [31:0] arg_2_out_wire, output [7:0] arg_5_in_wire, input [7:0] arg_5_out_wire, output [7:0] arg_6_in_wire, input [7:0] arg_6_out_wire, output [7:0] arg_7_in_wire, input [7:0] arg_7_out_wire);
+module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] arg_0_rst_n, output [31:0] arg_0_word0, output [31:0] arg_0_word1, output [31:0] arg_0_word2, input [7:0] arg_0_pixel1, input [7:0] arg_0_pixel2, input [7:0] arg_0_pixel3, input [7:0] arg_0_pixel4, output [0:0] valid, output [7:0] arg_4_in_wire, input [7:0] arg_4_out_wire, output [31:0] arg_2_in_wire, input [31:0] arg_2_out_wire, output [31:0] arg_1_in_wire, input [31:0] arg_1_out_wire, output [31:0] arg_3_in_wire, input [31:0] arg_3_out_wire, output [7:0] arg_5_in_wire, input [7:0] arg_5_out_wire, output [7:0] arg_6_in_wire, input [7:0] arg_6_out_wire, output [7:0] arg_7_in_wire, input [7:0] arg_7_out_wire);
 
 
 	initial begin

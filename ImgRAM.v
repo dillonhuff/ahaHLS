@@ -36,7 +36,7 @@ module ImgRAM(input clk,
       end
 
       if (debug_write_en) begin
-         $display("setting %d to %d", debug_write_addr, debug_write_data);
+         //$display("setting %d to %d", debug_write_addr, debug_write_data);
          
          data[debug_write_addr] <= debug_write_data;
       end
