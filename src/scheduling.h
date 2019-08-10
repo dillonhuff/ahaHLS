@@ -1272,6 +1272,10 @@ namespace ahaHLS {
 
   class Ordered : public ExecutionConstraint {
   public:
+    bool isPipelineConstraint;
+    int dd;
+    BasicBlock* pipeline;
+    
     InstructionTime before;
     InstructionTime after;
 
@@ -1280,6 +1284,9 @@ namespace ahaHLS {
     Ordered(const InstructionTime before_,
             const InstructionTime after_,
             const OrderRestriction restriction_) :
+      isPipelineConstraint(false),
+      dd(-1),
+      pipeline(nullptr),
       before(before_),
       after(after_),
       restriction(restriction_) {}
@@ -1295,7 +1302,11 @@ namespace ahaHLS {
     virtual ExecutionConstraint* clone() const override {
       InstructionTime beforeCpy(before);
       InstructionTime afterCpy(after);      
-      return new Ordered(beforeCpy, afterCpy, restriction);
+      auto ord = new Ordered(beforeCpy, afterCpy, restriction);
+      ord->isPipelineConstraint = isPipelineConstraint;
+      ord->dd = dd;
+      ord->pipeline = pipeline;
+      return ord;
     }
     
     virtual void replaceAction(ExecutionAction& toReplace,
@@ -1313,14 +1324,30 @@ namespace ahaHLS {
     virtual void addSelfTo(SchedulingProblem& p, Function* f) override {
       LinearExpression aTime = toLinearExpression(after, p);
       LinearExpression bTime = toLinearExpression(before, p);
-      if (restriction == ORDER_RESTRICTION_SIMULTANEOUS) {
-        p.addConstraint(bTime == aTime);
-      } else if (restriction == ORDER_RESTRICTION_BEFORE) {
-        p.addConstraint(bTime < aTime);
-      } else if (restriction == ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS) {
-        p.addConstraint(bTime <= aTime);        
+      if (!isPipelineConstraint) {
+        if (restriction == ORDER_RESTRICTION_SIMULTANEOUS) {
+          p.addConstraint(bTime == aTime);
+        } else if (restriction == ORDER_RESTRICTION_BEFORE) {
+          p.addConstraint(bTime < aTime);
+        } else if (restriction == ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS) {
+          p.addConstraint(bTime <= aTime);        
+        } else {
+          assert(false);
+        }
       } else {
-        assert(false);
+        // Print
+        cout << "Adding pipeline constraint with dd = " << dd << " to problem" << endl;
+        LinearExpression II = p.getII(pipeline);
+        if (restriction == ORDER_RESTRICTION_SIMULTANEOUS) {
+          p.addConstraint(bTime == aTime + II*dd);
+        } else if (restriction == ORDER_RESTRICTION_BEFORE) {
+          p.addConstraint(bTime < aTime + II*dd);
+        } else if (restriction == ORDER_RESTRICTION_BEFORE_OR_SIMULTANEOUS) {
+          p.addConstraint(bTime <= aTime + II*dd);        
+        } else {
+          assert(false);
+        }
+        
       }
     }
   };

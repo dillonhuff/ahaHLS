@@ -326,8 +326,8 @@ namespace ahaHLS {
 
     model m = s.get_model();
 
-    // cout << "Final model" << endl;
-    // cout << m << endl;
+    cout << "Final model" << endl;
+    cout << m << endl;
     
     //cout << "Final schedule" << endl;
     Schedule sched;
@@ -360,11 +360,17 @@ namespace ahaHLS {
   }
 
   Schedule buildFromModel(SchedulingProblem& p) {
+    cout << "Scheduling problem constraints" << endl;
+    for (auto cn : p.constraints) {
+      cout << cn << endl;
+    }
+    cout << "End of constraints" << endl;
+    
     context c;
     optimize s(c);
 
-    // cout << "Constraints" << endl;
-    // cout << s << endl;
+    cout << "Constraints" << endl;
+    cout << s << endl;
     if (p.optimize) {
       cout << "Objective function = " << p.objectiveFunction << endl;
       optimize::handle h = s.minimize(toZ3(c, p.objectiveFunction));
@@ -1818,6 +1824,8 @@ namespace ahaHLS {
       oldBlocksToClones[&(*begin(called->getBasicBlockList()))] =
         toInline->getParent();
     } else {
+
+      // TODO: Set target pipeline?
       preCall = toInline->getParent();
       atCall = toInline->getParent()->splitBasicBlock(toInline);
       for (auto& bb : called->getBasicBlockList()) {

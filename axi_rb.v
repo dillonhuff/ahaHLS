@@ -79,14 +79,14 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [7:0] arg_1_raddr, 
 	wire [31:0] add_out_add_11;
 	add #(.WIDTH(32)) add_add_11(.in0(add_in0_add_11), .in1(add_in1_add_11), .out(add_out_add_11));
 
-	reg [31:0] trunc_in_trunc_12;
-	wire [7:0] trunc_out_trunc_12;
-	trunc #(.IN_WIDTH(32), .OUT_WIDTH(8)) trunc_12(.in(trunc_in_trunc_12), .out(trunc_out_trunc_12));
-
 	reg [7:0] cmp_in0_icmp_22;
 	reg [7:0] cmp_in1_icmp_22;
 	wire [0:0] cmp_out_icmp_22;
 	slt #(.WIDTH(8)) icmp_22(.in0(cmp_in0_icmp_22), .in1(cmp_in1_icmp_22), .out(cmp_out_icmp_22));
+
+	reg [31:0] trunc_in_trunc_12;
+	wire [7:0] trunc_out_trunc_12;
+	trunc #(.IN_WIDTH(32), .OUT_WIDTH(8)) trunc_12(.in(trunc_in_trunc_12), .out(trunc_out_trunc_12));
 
 	add call_2();
 

@@ -63,6 +63,98 @@ void sequentialCalls(llvm::Function* f,
       }
     }
   }
+
+  // Add pipeline hazards
+  for (auto& bb : f->getBasicBlockList()) {
+
+    for (auto& instrP : bb) {
+      auto first = &instrP;
+
+      for (auto& instrQ : bb) {
+        auto second = &instrQ;
+
+        if (CallInst::classof(first) && CallInst::classof(second)) {
+          CallInst* firstCall = dyn_cast<CallInst>(first);
+          CallInst* secondCall = dyn_cast<CallInst>(second);
+
+          string firstCallName = string(firstCall->getCalledFunction()->getName());
+          string secondCallName = string(secondCall->getCalledFunction()->getName());
+          cout << "First call  = " << string(firstCall->getCalledFunction()->getName()) << endl;
+          cout << "Second call = " << string(secondCall->getCalledFunction()->getName()) << endl;
+
+          
+          if (first->getOperand(0) == second->getOperand(0)) {
+
+            if ((firstCallName == "hread") &&
+                (secondCallName == "hwrite")) {
+
+              cout << "Forcing read / write constraint" << endl;
+
+              auto ccO = instrEnd(second) < instrStart(first);
+              //buildConstraint(first, second, h.get_value());
+              assert(ccO->type() == CONSTRAINT_TYPE_ORDERED);
+              auto cc = static_cast<Ordered*>(ccO);
+              cc->isPipelineConstraint = true;
+              cc->pipeline = &bb;
+              cc->dd = 1;
+              exec.addConstraint(cc);
+            }
+
+            {
+              // Compute forward dep
+              maybe<ICHazard> h = findHazard(firstCallName, secondCallName, hazards);
+
+              if (h.has_value()) {
+                cout << "Found possible hazard or loosening in II" << endl;
+                int dd = 1; //computeDD(h.get_value(), first, second, sc);
+
+                cout << "Dependence distance between " << valueString(first) << " and " << valueString(second) << " = " << dd << endl;
+
+
+                auto ccO =
+                  buildConstraint(first, second, h.get_value());
+                assert(ccO->type() == CONSTRAINT_TYPE_ORDERED);
+                auto cc = static_cast<Ordered*>(ccO);
+                cc->isPipelineConstraint = true;
+                cc->pipeline = &bb;
+                cc->dd = dd;
+              
+                exec.addConstraint(cc);
+              } else {
+              }
+            }
+
+            {
+              // Compute backward dep
+              maybe<ICHazard> h = findHazard(secondCallName, firstCallName, hazards);
+
+              if (h.has_value()) {
+                cout << "Found possible hazard or loosening in II" << endl;
+                int dd = 1; //computeDD(h.get_value(), first, second, sc);
+
+                cout << "Dependence distance between " << valueString(first) << " and " << valueString(second) << " = " << dd << endl;
+
+                auto ccO =
+                  buildConstraint(second, first, h.get_value());
+                assert(ccO->type() == CONSTRAINT_TYPE_ORDERED);
+                auto cc = static_cast<Ordered*>(ccO);
+                cc->isPipelineConstraint = true;
+                cc->pipeline = &bb;
+                cc->dd = dd;
+              
+                exec.addConstraint(cc);
+              } else {
+              }
+            }
+
+
+          }
+        }
+            
+      }
+    }
+  }
+
 }
 
 void setZeroRows(TestBenchSpec& tb, const int cycleNo, const int stencilWidth, const int loadWidth, vector<Argument*> words) {
