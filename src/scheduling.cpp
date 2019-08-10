@@ -777,6 +777,57 @@ namespace ahaHLS {
     return p;
   }
 
+  void
+  addCrossCallConstraints(llvm::Function* f,
+                          HardwareConstraints& hdc,
+                          std::set<BasicBlock*>& toPipeline,
+                          AAResults& aliasAnalysis,
+                          ScalarEvolution& sc,
+                          SchedulingProblem& p) {
+    if (f->getName() == "histogram") {
+
+      vector<ICHazard> hazards;
+      if (f->getName() == "histogram") {
+        hazards.push_back({"hread", "hwrite", true, true, CMP_LTEZ});
+        hazards.push_back({"hwrite", "hread", false, true, CMP_LTEZ});
+      }
+      
+      for (auto& bb : f->getBasicBlockList()) {
+        Instruction* first = nullptr;
+        Instruction* second = nullptr;
+        for (auto& instrP : bb) {
+          auto instr = &instrP;
+          if (CallInst::classof(instr)) {
+            first = second;
+            second = instr;
+
+        
+            if ((second != nullptr) && (first != nullptr)) {
+              CallInst* firstCall = dyn_cast<CallInst>(first);
+              CallInst* secondCall = dyn_cast<CallInst>(second);
+
+              string firstCallName = string(firstCall->getCalledFunction()->getName());
+              string secondCallName = string(secondCall->getCalledFunction()->getName());
+              cout << "First call  = " << string(firstCall->getCalledFunction()->getName()) << endl;
+              cout << "Second call = " << string(secondCall->getCalledFunction()->getName()) << endl;
+
+          
+              if (first->getOperand(0) == second->getOperand(0)) {
+                cout << "\tCould possibly have internal hazard" << endl;
+                maybe<ICHazard> h = findHazard(firstCallName, secondCallName, hazards);
+                if (h.has_value()) {
+                  cout << "Found possible hazard or loosening" << endl;
+                  //exec.addConstraint(buildConstraint(first, second, h.get_value()));
+                } else {
+                  //exec.addConstraint(instrEnd(first) < instrStart(second));
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   // Solution to binding: Assume always unique, then modify program later
   // to reflect resource constraints?
 
@@ -993,6 +1044,7 @@ namespace ahaHLS {
 
     exe.addConstraints(p, f);
 
+    addCrossCallConstraints(f, hdc, toPipeline, aliasAnalysis, sc, p);
   }
   
   SchedulingProblem
@@ -3223,5 +3275,33 @@ namespace ahaHLS {
       }
     }
   }
+
+ExecutionConstraint*
+buildConstraint(Instruction* first,
+                Instruction* second,
+                ICHazard h) {
+  auto sVal = h.srcStart ? instrStart(first) : instrEnd(first);
+  auto eVal = h.srcStart ? instrStart(second) : instrEnd(second);
+  if (h.orderCond == CMP_LTEZ) {
+    return sVal <= eVal;
+  } else if (h.orderCond == CMP_LTZ) {
+    return sVal < eVal;
+  } else {
+    assert(false);
+  }
+}
+
+maybe<ICHazard> findHazard(const string& firstCallName,
+                           const string& secondCallName,
+                           vector<ICHazard>& hazards) {
+  for (auto h : hazards) {
+    if ((firstCallName == h.srcName) &&
+        (secondCallName == h.destName)) {
+      return h;
+    }
+  }
+  return {};
+}
+
   
 }

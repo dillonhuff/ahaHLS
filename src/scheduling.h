@@ -1577,6 +1577,27 @@ namespace ahaHLS {
                        ExecutionConstraints& exec);
 
   ModuleSpec registerModSpec(const int width);
+
+  class ICHazard {
+  public:
+    string srcName;
+    string destName;
+    bool srcStart;
+    bool destStart;
+    int offset;
+    ZCondition orderCond;
+  };
+
+  ExecutionConstraint*
+  buildConstraint(llvm::Instruction* first,
+                  llvm::Instruction* second,
+                  ICHazard h);
+  
+
+  dbhc::maybe<ICHazard> findHazard(const std::string& firstCallName,
+                                   const std::string& secondCallName,
+                                   std::vector<ICHazard>& hazards);
+  
 }
 
 

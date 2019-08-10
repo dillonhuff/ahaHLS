@@ -26,43 +26,6 @@ class SynthCppModule;
 void optimizeModuleLLVM(SynthCppModule& mod);
 void optimizeModuleLLVM(llvm::Module& mod);
 
-class ICHazard {
-public:
-  string srcName;
-  string destName;
-  bool srcStart;
-  bool destStart;
-  // TODO: Add offset support
-  ZCondition orderCond;
-};
-
-ExecutionConstraint*
-buildConstraint(Instruction* first,
-                Instruction* second,
-                ICHazard h) {
-  auto sVal = h.srcStart ? instrStart(first) : instrEnd(first);
-  auto eVal = h.srcStart ? instrStart(second) : instrEnd(second);
-  if (h.orderCond == CMP_LTEZ) {
-    return sVal <= eVal;
-  } else if (h.orderCond == CMP_LTZ) {
-    return sVal < eVal;
-  } else {
-    assert(false);
-  }
-}
-
-maybe<ICHazard> findHazard(const string& firstCallName,
-                           const string& secondCallName,
-                           vector<ICHazard>& hazards) {
-  for (auto h : hazards) {
-    if ((firstCallName == h.srcName) &&
-        (secondCallName == h.destName)) {
-      return h;
-    }
-  }
-  return {};
-}
-
 void sequentialCalls(llvm::Function* f,
                      ExecutionConstraints& exec,
                      vector<ICHazard>& hazards) {
@@ -2460,8 +2423,8 @@ public:
         // Set all calls to be sequential by default
         vector<ICHazard> hazards;
         if (f->getName() == "histogram") {
-          hazards.push_back({"hread", "hwrite", true, true, CMP_LTEZ});
-          hazards.push_back({"hwrite", "hread", false, true, CMP_LTEZ});
+          hazards.push_back({"hread", "hwrite", true, true, 0, CMP_LTEZ});
+          hazards.push_back({"hwrite", "hread", false, true, 0, CMP_LTEZ});
         }
 
         // TODO: Add pipeline calls here as well?
