@@ -296,22 +296,22 @@ Schedule scheduleInterfaceZeroReg(llvm::Function* f,
   //   cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
   // }
 
-  // if (f->getName() == "histogram") {
+  if (f->getName() == "histogram") {
 
-  //   for (auto& bb : f->getBasicBlockList()) {
-  //     auto term = bb.getTerminator();
-  //     if (BranchInst::classof(term)) {
-  //       BranchInst* branch = dyn_cast<BranchInst>(term);
-  //       if (branch->isConditional()) {
-  //         for (auto succ : branch->successors()) {
-  //           if (succ == &bb) {
-  //             toPipeline.insert(&bb);
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
+    for (auto& bb : f->getBasicBlockList()) {
+      auto term = bb.getTerminator();
+      if (BranchInst::classof(term)) {
+        BranchInst* branch = dyn_cast<BranchInst>(term);
+        if (branch->isConditional()) {
+          for (auto succ : branch->successors()) {
+            if (succ == &bb) {
+              toPipeline.insert(&bb);
+            }
+          }
+        }
+      }
+    }
+  }
 
   SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
   exec.addConstraints(p, f);
