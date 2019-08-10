@@ -266,10 +266,28 @@ Schedule scheduleInterfaceZeroReg(llvm::Function* f,
   //   cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
   // }
 
+  if (f->getName() == "histogram") {
+
+    for (auto& bb : f->getBasicBlockList()) {
+      auto term = bb.getTerminator();
+      if (BranchInst::classof(term)) {
+        BranchInst* branch = dyn_cast<BranchInst>(term);
+        if (branch->isConditional()) {
+          for (auto succ : branch->successors()) {
+            if (succ == &bb) {
+              toPipeline.insert(&bb);
+            }
+          }
+        }
+      }
+    }
+  }
+
   SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
   exec.addConstraints(p, f);
 
   map<Function*, SchedulingProblem> constraints{{f, p}};
+  
   Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
 
   return s;
@@ -3170,6 +3188,54 @@ synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
 }
 
 int main() {
+
+  {
+    ifstream t("./experiments/hist_rams.cpp");
+    std::string str((std::istreambuf_iterator<char>(t)),
+                    std::istreambuf_iterator<char>());
+
+    auto tokens = tokenize(str);
+    cout << "Tokens" << endl;
+    for (auto t : tokens) {
+      cout << "\t" << t.getStr() << endl;
+    }
+
+    ParserModule parseMod = parse(tokens);
+
+    cout << parseMod << endl;
+
+    assert(parseMod.getStatements().size() >= 2);
+
+    SynthCppModule scppMod(parseMod);
+
+    assert(scppMod.getClasses().size() >= 1);
+    assert(scppMod.getFunctions().size() >= 1);
+
+    auto arch = synthesizeVerilog(scppMod, "histogram");
+
+    cout << "Histogram STG" << endl;
+    arch.stg.print(cout);
+
+    assert(arch.stg.pipelines.size() == 1);
+    Pipeline p = *begin(arch.stg.pipelines);
+    cout << "Pipeline ii = " << p.II() << endl;
+    assert(p.II() == 2);
+
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 200;
+    tb.maxCycles = 300;
+    tb.name = "histogram";
+    tb.useModSpecs = true;
+    
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    // Need to figure out how to inline register specifications
+    assert(runIVerilogTest("histogram_tb.v", "histogram", " builtins.v RAM.v delay.v ram_primitives.v histogram.v HistRAM.v ImgRAM.v"));
+  }
+  
   {
     string test = "class ip_header { };";
     vector<Token> tokens = tokenize(test);
@@ -3916,48 +3982,6 @@ int main() {
     assert(runIVerilogTest("filter_ram_tb.v", "filter_ram", " builtins.v filter_ram.v RAM.v delay.v ram_primitives.v"));
   }
 
-  {
-    ifstream t("./experiments/hist_rams.cpp");
-    std::string str((std::istreambuf_iterator<char>(t)),
-                    std::istreambuf_iterator<char>());
-
-    auto tokens = tokenize(str);
-    cout << "Tokens" << endl;
-    for (auto t : tokens) {
-      cout << "\t" << t.getStr() << endl;
-    }
-
-    ParserModule parseMod = parse(tokens);
-
-    cout << parseMod << endl;
-
-    assert(parseMod.getStatements().size() >= 2);
-
-    SynthCppModule scppMod(parseMod);
-
-    assert(scppMod.getClasses().size() >= 1);
-    assert(scppMod.getFunctions().size() >= 1);
-
-    auto arch = synthesizeVerilog(scppMod, "histogram");
-
-    cout << "Histogram STG" << endl;
-    arch.stg.print(cout);
-    
-    TestBenchSpec tb;
-    map<string, int> testLayout = {};
-    tb.memoryInit = {};
-    tb.memoryExpected = {};
-    tb.runCycles = 200;
-    tb.maxCycles = 300;
-    tb.name = "histogram";
-    tb.useModSpecs = true;
-    
-    emitVerilogTestBench(tb, arch, testLayout);
-
-    // Need to figure out how to inline register specifications
-    assert(runIVerilogTest("histogram_tb.v", "histogram", " builtins.v RAM.v delay.v ram_primitives.v histogram.v HistRAM.v ImgRAM.v"));
-  }
-  
   {
     ifstream t("./experiments/eth_axi_tx.cpp");
     std::string str((std::istreambuf_iterator<char>(t)),

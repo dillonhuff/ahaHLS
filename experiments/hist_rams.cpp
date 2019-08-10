@@ -74,7 +74,7 @@ class ImgRAM {
 
     add_constraint(start(set_wen) == start(set_wdata));
     add_constraint(start(set_wen) == start(set_waddr));
-    add_constraint(start(set_wen) == end(ret));
+    add_constraint(start(set_wen) + 1 == end(ret));
   }
 
   bit_8 read(bit_12& addr) {
