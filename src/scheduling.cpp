@@ -777,6 +777,13 @@ namespace ahaHLS {
     return p;
   }
 
+  int computeDD(ICHazard h,
+                Instruction* first,
+                Instruction* second,
+                ScalarEvolution& sc) {
+    return 1;
+  }
+  
   void
   addCrossCallConstraints(llvm::Function* f,
                           HardwareConstraints& hdc,
@@ -793,16 +800,14 @@ namespace ahaHLS {
       }
       
       for (auto& bb : f->getBasicBlockList()) {
-        Instruction* first = nullptr;
-        Instruction* second = nullptr;
-        for (auto& instrP : bb) {
-          auto instr = &instrP;
-          if (CallInst::classof(instr)) {
-            first = second;
-            second = instr;
 
-        
-            if ((second != nullptr) && (first != nullptr)) {
+        for (auto& instrP : bb) {
+          auto first = &instrP;
+
+          for (auto& instrQ : bb) {
+            auto second = &instrQ;
+
+            if (CallInst::classof(first) && CallInst::classof(second)) {
               CallInst* firstCall = dyn_cast<CallInst>(first);
               CallInst* secondCall = dyn_cast<CallInst>(second);
 
@@ -816,13 +821,20 @@ namespace ahaHLS {
                 cout << "\tCould possibly have internal hazard" << endl;
                 maybe<ICHazard> h = findHazard(firstCallName, secondCallName, hazards);
                 if (h.has_value()) {
-                  cout << "Found possible hazard or loosening" << endl;
+                  cout << "Found possible hazard or loosening in II" << endl;
+                  int dd = computeDD(h.get_value(), first, second, sc);
+
+                  cout << "Dependence distance between " << valueString(first) << " and " << valueString(second) << " = " << dd << endl;
+
+                  LinearExpression II = p.getII(&bb);
+                  p.addConstraint(p.instrEnd(first) <= p.instrStart(second) + II*dd);
                   //exec.addConstraint(buildConstraint(first, second, h.get_value()));
                 } else {
                   //exec.addConstraint(instrEnd(first) < instrStart(second));
                 }
               }
             }
+            
           }
         }
       }
