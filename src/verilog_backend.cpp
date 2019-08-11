@@ -1738,15 +1738,6 @@ namespace ahaHLS {
     auto pos = pipelinePosition(instrG, state, i);
     
     if ((nUsers == 1) && notSensitive(u)) {
-      // // This does not change anything?
-      // for (auto& fu : arch.unitAssignment) {
-      //   if (fu.second.instName == u.instName) {
-      //     for (auto& w : fu.second.portWires) {
-      //       w.second.registered = false;
-      //     }
-      //   }
-      // }
-      
       auto assignments = instructionPortAssignments(pos, arch);
       for (auto a : assignments) {
         out << "\tassign " << a.first << " = " << a.second << ";" << endl;
@@ -1756,11 +1747,19 @@ namespace ahaHLS {
       out << "\talways @(*) begin" << endl;
 
       out << tab(2) << "if (" << atState(state, arch) << ") begin" << endl;
-
-
       instructionVerilog(out, pos, arch);
-
       out << "\t\tend" << endl;
+
+      //if (nUsers == 1) {
+        auto assignments = instructionPortAssignments(pos, arch);        
+        out << "\t\telse begin" << endl;
+        for (auto a : assignments) {
+          out << "\t\t\t" << a.first << " = " << "0" << ";" << endl;
+        }
+        out << "\t\tend" << endl;
+        //}
+
+
       out << "\tend" << endl;
     }
   }
