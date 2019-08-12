@@ -3355,6 +3355,27 @@ Value* findArg(ICHazard& h,
 }
 
 expr toZ3(Expression* e, map<Expression*, const SCEV*>& exprSCEVs) {
+  if (BinopExpr::classof(e)) {
+    auto b = static_cast<BinopExpr*>(e);
+    auto lhsE = toZ3(b->lhs, exprSCEVs);
+    auto rhsE = toZ3(b->rhs, exprSCEVs);
+    string op = b->op.getStr();
+    if (op == "==") {
+      return lhsE == rhsE;
+    } else if (op == "+") {
+      return lhsE + rhsE;
+    } else if (op == "-") {
+      return lhsE - rhsE;      
+    }
+  } else if (Identifier::classof(e)) {
+    Identifier* id = static_cast<Identifier*>(e);
+    assert(contains_key(e, exprSCEVs));
+    assert(false);
+    //return map_find(e, exprSCEVS);
+  } else {
+    cout << "Error: Unsupported expr: " << *e << endl;
+    assert(false);
+  }
   assert(false);
 }
 
