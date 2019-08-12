@@ -3505,17 +3505,26 @@ bool couldHappen(ICHazard h,
         return true;
       }
 
+      cout << "scev for " << *arg << " is " << scevStr(sc) << endl;
       map<Value*, vector<expr> > valueNames;      
       expr writeBase = scevToExpr(wScev->getStart(), valueNames, c);
       expr writeInc = scevToExpr(wScev->getOperand(1), valueNames, c);
 
       cout << "Getting base and inc" << endl;
-      s.add(c.int_const(arg->getName().c_str()) == writeBase*T + writeInc);
+      expr eq = c.int_const(arg->getName().c_str()) == writeBase + writeInc*T;
+      cout << "Equality constraint: " << eq << endl;
+      s.add(eq);
+
+      cout << "WriteBase = " << writeBase << endl;
     }
 
+    // cout << "Constraints..." << endl;
+    // cout << c << endl;
+    
     cout << "Now checking model" << endl;
     auto satRes = s.check();
     if (satRes == unsat) {
+      cout << "Hazard is actually impossible" << endl;
       return false;
     }
     model m = s.get_model();
@@ -3563,7 +3572,7 @@ int main() {
     Pipeline p = *begin(arch.stg.pipelines);
     cout << "Pipeline ii = " << p.II() << endl;
     
-    // assert(p.II() == 1);
+    assert(p.II() == 1);
 
     // assert(false);
   }
