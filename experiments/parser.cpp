@@ -3378,39 +3378,45 @@ expr toZ3(context& c, Expression* e, map<Expression*, const SCEV*>& exprSCEVs) {
   assert(false);
 }
 
-bool couldHappen(ICHazard h,
-                 Instruction* first,
-                 Instruction* second,
-                 ScalarEvolution& scalarEvolution) {
-  cout << "Hazard expr = " << *(h.condition) << endl;
-  // TODO: Check if condition is true or false
-
-  vector<Identifier*> args =
-    extractArgs(h.condition);
-
-  cout << "Expr args..." << endl;
+map<Expression*, const SCEV*>
+getSCEVs(ICHazard& h, Instruction* first, Instruction* second, vector<Identifier*> args, ScalarEvolution& scalarEvolution) {
   map<Expression*, const SCEV*> exprSCEVs;
-  bool allAnalyzable = true;
   for (auto expr : args) {
     cout << "\tArg = " << *expr << endl;
     Value* argVal = findArg(h, first, second, expr);
     const SCEV* s = scalarEvolution.getSCEV(argVal);
 
     if (!SCEVAddRecExpr::classof(s)) {
-      allAnalyzable = false;
       break;
     }
 
     auto wScev = dyn_cast<SCEVAddRecExpr>(s);
 
     if (!wScev->isAffine()) {
-      allAnalyzable = false;
       break;
     }
 
     exprSCEVs[expr] = s;
   }
-  // if the scevs are done
+
+  return exprSCEVs;
+}
+
+bool couldHappen(ICHazard h,
+                 Instruction* first,
+                 Instruction* second,
+                 ScalarEvolution& scalarEvolution) {
+  cout << "Hazard expr = " << *(h.condition) << endl;
+  // TODO: Check if condition is true or false as an optimization?
+
+  vector<Identifier*> args =
+    extractArgs(h.condition);
+
+  cout << "Expr args..." << endl;
+  map<Expression*, const SCEV*> exprSCEVs =
+    getSCEVs(h, first, second, args, scalarEvolution);
+  bool allAnalyzable = exprSCEVs.size() == args.size();
+
   if (allAnalyzable) {
     cout << "All scevs in argument are analyzable" << endl;
     // Evaluate in z3
