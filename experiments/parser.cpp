@@ -3395,11 +3395,24 @@ bool couldHappen(ICHazard h,
     cout << "\tArg = " << *expr << endl;
     Value* argVal = findArg(h, first, second, expr);
     const SCEV* s = scalarEvolution.getSCEV(argVal);
+
+    if (!SCEVAddRecExpr::classof(s)) {
+      allAnalyzable = false;
+      break;
+    }
+
+    auto wScev = dyn_cast<SCEVAddRecExpr>(s);
+
+    if (!wScev->isAffine()) {
+      allAnalyzable = false;
+      break;
+    }
+
     exprSCEVs[expr] = s;
-    // TODO: Set not analyzable if not affine...
   }
   // if the scevs are done
   if (allAnalyzable) {
+    cout << "All scevs in argument are analyzable" << endl;
     // Evaluate in z3
 
     context c;
