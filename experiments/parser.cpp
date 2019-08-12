@@ -2327,17 +2327,13 @@ public:
 
   }
 
-  
   SynthCppModule(ParserModule& parseRes) {
     vector<ICHazard> hazards;
     Expression* rdEqWrite = new BinopExpr(new Identifier(Token("raddr")), Token("=="), new Identifier(Token("waddr")));
-    //if (f->getName() == "histogram") {
     hazards.push_back({"hread", {"raddr"}, "hwrite", {"waddr", "wdata"}, rdEqWrite, true, true, 0, CMP_LTEZ});
     hazards.push_back({"hwrite", {"waddr", "wdata"}, "hread", {"raddr"}, rdEqWrite, false, true, 0, CMP_LTEZ});
-    //} else if (f->getName() == "histogram_fwd") {
     hazards.push_back({"fhread", {"raddr"}, "fhwrite", {"waddr", "wdata"}, rdEqWrite, true, true, 0, CMP_LTEZ});
     hazards.push_back({"fhwrite", {"waddr", "wdata"}, "fhread", {"raddr"}, rdEqWrite, true, true, 0, CMP_LTEZ});
-    //}
 
     buildMod(parseRes, hazards);
   }
@@ -3450,7 +3446,29 @@ bool couldHappen(ICHazard h,
 }
 
 int main() {
+  {
+    ifstream t("./experiments/contrived.cpp");
+    std::string str((std::istreambuf_iterator<char>(t)),
+                    std::istreambuf_iterator<char>());
 
+    auto tokens = tokenize(str);
+    ParserModule parseMod = parse(tokens);
+
+    cout << parseMod << endl;
+
+    assert(parseMod.getStatements().size() >= 2);
+
+    SynthCppModule scppMod(parseMod);
+
+    assert(scppMod.getClasses().size() >= 1);
+    assert(scppMod.getFunctions().size() >= 1);
+
+    auto arch = synthesizeVerilog(scppMod, "can_pipeline");
+    cout << "can_pipeline STG is:" << endl;
+    arch.stg.print(cout);
+    assert(false);
+  }
+  
   {
     ifstream t("./experiments/hist_rams.cpp");
     std::string str((std::istreambuf_iterator<char>(t)),

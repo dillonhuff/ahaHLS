@@ -1,4 +1,4 @@
-module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_araddr, output [1:0] arg_3_s_axi_arburst, output [7:0] arg_3_s_axi_arlen, output [2:0] arg_3_s_axi_arsize, output [0:0] arg_3_s_axi_arvalid, output [15:0] arg_3_s_axi_awaddr, output [1:0] arg_3_s_axi_awburst, output [7:0] arg_3_s_axi_awlen, output [2:0] arg_3_s_axi_awsize, output [0:0] arg_3_s_axi_awvalid, output [0:0] arg_3_s_axi_bready, output [0:0] arg_3_s_axi_rready, output [31:0] arg_3_s_axi_wdata, output [3:0] arg_3_s_axi_wstrb, output [0:0] arg_3_s_axi_wvalid, input [0:0] arg_3_s_axi_arready, input [0:0] arg_3_s_axi_awready, input [0:0] arg_3_s_axi_bvalid, input [31:0] arg_3_s_axi_rdata, input [0:0] arg_3_s_axi_rvalid, input [0:0] arg_3_s_axi_wready, output [7:0] arg_1_raddr, output [7:0] arg_1_waddr, output [7:0] arg_1_wdata, output [0:0] arg_1_wen, input [7:0] arg_1_rdata, output [15:0] arg_2_raddr, output [15:0] arg_2_waddr, output [15:0] arg_2_wdata, output [0:0] arg_2_wen, input [15:0] arg_2_rdata, output [31:0] arg_0_in_data, output [0:0] arg_0_read_valid, output [0:0] arg_0_write_valid, input [31:0] arg_0_out_data, input [0:0] arg_0_read_ready, input [0:0] arg_0_write_ready, output [0:0] valid);
+module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_araddr, output [1:0] arg_3_s_axi_arburst, output [7:0] arg_3_s_axi_arlen, output [2:0] arg_3_s_axi_arsize, output [0:0] arg_3_s_axi_arvalid, output [15:0] arg_3_s_axi_awaddr, output [1:0] arg_3_s_axi_awburst, output [7:0] arg_3_s_axi_awlen, output [2:0] arg_3_s_axi_awsize, output [0:0] arg_3_s_axi_awvalid, output [0:0] arg_3_s_axi_bready, output [0:0] arg_3_s_axi_rready, output [31:0] arg_3_s_axi_wdata, output [3:0] arg_3_s_axi_wstrb, output [0:0] arg_3_s_axi_wvalid, input [0:0] arg_3_s_axi_arready, input [0:0] arg_3_s_axi_awready, input [0:0] arg_3_s_axi_bvalid, input [31:0] arg_3_s_axi_rdata, input [0:0] arg_3_s_axi_rvalid, input [0:0] arg_3_s_axi_wready, output [0:0] valid, output [15:0] arg_2_raddr, output [15:0] arg_2_waddr, output [15:0] arg_2_wdata, output [0:0] arg_2_wen, input [15:0] arg_2_rdata, output [7:0] arg_1_raddr, output [7:0] arg_1_waddr, output [7:0] arg_1_wdata, output [0:0] arg_1_wen, input [7:0] arg_1_rdata, output [31:0] arg_0_in_data, output [0:0] arg_0_read_valid, output [0:0] arg_0_write_valid, input [31:0] arg_0_out_data, input [0:0] arg_0_read_ready, input [0:0] arg_0_write_ready);
 
 	reg [15:0] arg_3_s_axi_araddr_reg;
 	reg [1:0] arg_3_s_axi_arburst_reg;
@@ -15,18 +15,18 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_
 	reg [31:0] arg_3_s_axi_wdata_reg;
 	reg [3:0] arg_3_s_axi_wstrb_reg;
 	reg [0:0] arg_3_s_axi_wvalid_reg;
-	reg [7:0] arg_1_raddr_reg;
-	reg [7:0] arg_1_waddr_reg;
-	reg [7:0] arg_1_wdata_reg;
-	reg [0:0] arg_1_wen_reg;
+	reg [0:0] valid_reg;
 	reg [15:0] arg_2_raddr_reg;
 	reg [15:0] arg_2_waddr_reg;
 	reg [15:0] arg_2_wdata_reg;
 	reg [0:0] arg_2_wen_reg;
+	reg [7:0] arg_1_raddr_reg;
+	reg [7:0] arg_1_waddr_reg;
+	reg [7:0] arg_1_wdata_reg;
+	reg [0:0] arg_1_wen_reg;
 	reg [31:0] arg_0_in_data_reg;
 	reg [0:0] arg_0_read_valid_reg;
 	reg [0:0] arg_0_write_valid_reg;
-	reg [0:0] valid_reg;
 
 	assign arg_3_s_axi_araddr = arg_3_s_axi_araddr_reg;
 	assign arg_3_s_axi_arburst = arg_3_s_axi_arburst_reg;
@@ -43,18 +43,18 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_
 	assign arg_3_s_axi_wdata = arg_3_s_axi_wdata_reg;
 	assign arg_3_s_axi_wstrb = arg_3_s_axi_wstrb_reg;
 	assign arg_3_s_axi_wvalid = arg_3_s_axi_wvalid_reg;
-	assign arg_1_raddr = arg_1_raddr_reg;
-	assign arg_1_waddr = arg_1_waddr_reg;
-	assign arg_1_wdata = arg_1_wdata_reg;
-	assign arg_1_wen = arg_1_wen_reg;
+	assign valid = valid_reg;
 	assign arg_2_raddr = arg_2_raddr_reg;
 	assign arg_2_waddr = arg_2_waddr_reg;
 	assign arg_2_wdata = arg_2_wdata_reg;
 	assign arg_2_wen = arg_2_wen_reg;
+	assign arg_1_raddr = arg_1_raddr_reg;
+	assign arg_1_waddr = arg_1_waddr_reg;
+	assign arg_1_wdata = arg_1_wdata_reg;
+	assign arg_1_wen = arg_1_wen_reg;
 	assign arg_0_in_data = arg_0_in_data_reg;
 	assign arg_0_read_valid = arg_0_read_valid_reg;
 	assign arg_0_write_valid = arg_0_write_valid_reg;
-	assign valid = valid_reg;
 
 	// Start debug wires and ports
 
@@ -68,43 +68,43 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_
 	// End debug wires and ports
 
 	// Start Functional Units
-	add call_10();
+	add call_0();
 
-	reg [15:0] phi_in_phi_12;
-	reg [31:0] phi_last_block_phi_12;
-	reg [63:0] phi_s_phi_12;
-	wire [31:0] phi_out_phi_12;
-	phi #(.NB_PAIR(2), .WIDTH(8)) phi_12(.in(phi_in_phi_12), .last_block(phi_last_block_phi_12), .out(phi_out_phi_12), .s(phi_s_phi_12));
+	reg [31:0] sgt_in0_sext_10;
+	wire [63:0] sgt_out_sext_10;
+	sext sext_10(.in(sgt_in0_sext_10), .out(sgt_out_sext_10));
 
-	br_dummy br_unit();
-
-	reg [31:0] sgt_in0_sext_14;
-	wire [63:0] sgt_out_sext_14;
-	sext sext_14(.in(sgt_in0_sext_14), .out(sgt_out_sext_14));
-
-	reg [31:0] add_in0_add_15;
-	reg [31:0] add_in1_add_15;
-	wire [31:0] add_out_add_15;
-	add #(.WIDTH(32)) add_add_15(.in0(add_in0_add_15), .in1(add_in1_add_15), .out(add_out_add_15));
+	reg [31:0] add_in0_add_11;
+	reg [31:0] add_in1_add_11;
+	wire [31:0] add_out_add_11;
+	add #(.WIDTH(32)) add_add_11(.in0(add_in0_add_11), .in1(add_in1_add_11), .out(add_out_add_11));
 
 	reg [7:0] cmp_in0_icmp_22;
 	reg [7:0] cmp_in1_icmp_22;
 	wire [0:0] cmp_out_icmp_22;
 	slt #(.WIDTH(8)) icmp_22(.in0(cmp_in0_icmp_22), .in1(cmp_in1_icmp_22), .out(cmp_out_icmp_22));
 
-	reg [31:0] trunc_in_trunc_16;
-	wire [7:0] trunc_out_trunc_16;
-	trunc #(.IN_WIDTH(32), .OUT_WIDTH(8)) trunc_16(.in(trunc_in_trunc_16), .out(trunc_out_trunc_16));
+	br_dummy br_unit();
 
-	add call_2();
+	reg [31:0] trunc_in_trunc_12;
+	wire [7:0] trunc_out_trunc_12;
+	trunc #(.IN_WIDTH(32), .OUT_WIDTH(8)) trunc_12(.in(trunc_in_trunc_12), .out(trunc_out_trunc_12));
+
+	add call_14();
+
+	reg [15:0] phi_in_phi_15;
+	reg [31:0] phi_last_block_phi_15;
+	reg [63:0] phi_s_phi_15;
+	wire [31:0] phi_out_phi_15;
+	phi #(.NB_PAIR(2), .WIDTH(8)) phi_15(.in(phi_in_phi_15), .last_block(phi_last_block_phi_15), .out(phi_out_phi_15), .s(phi_s_phi_15));
 
 	add call_17();
 
 	// End Functional Units
 
 	// Start instruction result storage
-	reg [7:0] load_tmp_1;
-	reg [7:0] trunc_tmp_8;
+	reg [7:0] trunc_tmp_5;
+	reg [7:0] load_tmp_0;
 	// End instruction result storage
 
 	// Start pipeline variables
@@ -208,7 +208,7 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_
 				// Temporary storage
 				if (arg_3_s_axi_arready) begin
 				// Store data computed at the stage
-					load_tmp_1 <= arg_1_rdata;
+					load_tmp_0 <= arg_1_rdata;
 				end
 			end
 			if ((global_state == 1)) begin 
@@ -219,7 +219,7 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_
 				// Temporary storage
 				if (arg_3_s_axi_rvalid && arg_0_write_ready) begin
 				// Store data computed at the stage
-					trunc_tmp_8 <= trunc_out_trunc_16;
+					trunc_tmp_5 <= trunc_out_trunc_12;
 				end
 			end
 			if ((global_state == 3)) begin 
@@ -242,6 +242,14 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_
 	// Start pipeline stages
 	// End pipeline instruction code
 
+	// Insensitive connections
+	always @(*) begin
+	end
+	// controller for arg_1.arg_1_raddr_reg
+	// Insensitive connections
+	always @(*) begin
+		arg_1_raddr_reg = valid ? arg_1_rdata : arg_1_rdata;
+	end
 	// controller for arg_3.arg_3_s_axi_araddr_reg
 	// controller for arg_3.arg_3_s_axi_arburst_reg
 	// controller for arg_3.arg_3_s_axi_arlen_reg
@@ -274,33 +282,42 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_
 	always @(*) begin
 		arg_3_s_axi_araddr_reg = valid ? arg_2_rdata : arg_2_rdata;
 		arg_3_s_axi_arburst_reg = valid ? (2'd1) : (2'd1);
-		arg_3_s_axi_arlen_reg = valid ? load_tmp_1 : load_tmp_1;
+		arg_3_s_axi_arlen_reg = valid ? load_tmp_0 : load_tmp_0;
 		arg_3_s_axi_arsize_reg = valid ? -(3'd3) : -(3'd3);
-	end
-	// controller for arg_1.arg_1_raddr_reg
-	// Insensitive connections
-	always @(*) begin
-		arg_1_raddr_reg = valid ? arg_1_rdata : arg_1_rdata;
-	end
-	// Insensitive connections
-	always @(*) begin
 	end
 	// controller for arg_2.arg_2_raddr_reg
 	// Insensitive connections
 	always @(*) begin
 		arg_2_raddr_reg = valid ? arg_2_rdata : arg_2_rdata;
 	end
+	// controller for sext_10.sgt_in0_sext_10
+	// Insensitive connections
+	always @(*) begin
+		sgt_in0_sext_10 = valid ? phi_out_phi_15 : phi_out_phi_15;
+	end
+	// controller for add_add_11.add_in0_add_11
+	// controller for add_add_11.add_in1_add_11
+	// Insensitive connections
+	always @(*) begin
+		add_in0_add_11 = valid ? sgt_out_sext_10 : sgt_out_sext_10;
+		add_in1_add_11 = valid ? (32'd1) : (32'd1);
+	end
+	// controller for trunc_12.trunc_in_trunc_12
+	// Insensitive connections
+	always @(*) begin
+		trunc_in_trunc_12 = valid ? add_out_add_11 : add_out_add_11;
+	end
 	// Insensitive connections
 	always @(*) begin
 	end
-	// controller for phi_12.phi_in_phi_12
-	// controller for phi_12.phi_last_block_phi_12
-	// controller for phi_12.phi_s_phi_12
+	// controller for phi_15.phi_in_phi_15
+	// controller for phi_15.phi_last_block_phi_15
+	// controller for phi_15.phi_s_phi_15
 	// Insensitive connections
 	always @(*) begin
-		phi_in_phi_12 = valid ? {trunc_tmp_8, (8'd0)} : {trunc_tmp_8, (8'd0)};
-		phi_last_block_phi_12 = valid ? last_BB_reg : last_BB_reg;
-		phi_s_phi_12 = valid ? {32'd1, 32'd0} : {32'd1, 32'd0};
+		phi_in_phi_15 = valid ? {trunc_tmp_5, (8'd0)} : {trunc_tmp_5, (8'd0)};
+		phi_last_block_phi_15 = valid ? last_BB_reg : last_BB_reg;
+		phi_s_phi_15 = valid ? {32'd1, 32'd0} : {32'd1, 32'd0};
 	end
 	// controller for arg_0.arg_0_in_data_reg
 	// controller for arg_0.arg_0_write_valid_reg
@@ -319,23 +336,6 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_
 	always @(*) begin
 		arg_0_in_data_reg = valid ? arg_3_s_axi_rdata : arg_3_s_axi_rdata;
 	end
-	// controller for sext_14.sgt_in0_sext_14
-	// Insensitive connections
-	always @(*) begin
-		sgt_in0_sext_14 = valid ? phi_out_phi_12 : phi_out_phi_12;
-	end
-	// controller for add_add_15.add_in0_add_15
-	// controller for add_add_15.add_in1_add_15
-	// Insensitive connections
-	always @(*) begin
-		add_in0_add_15 = valid ? sgt_out_sext_14 : sgt_out_sext_14;
-		add_in1_add_15 = valid ? (32'd1) : (32'd1);
-	end
-	// controller for trunc_16.trunc_in_trunc_16
-	// Insensitive connections
-	always @(*) begin
-		trunc_in_trunc_16 = valid ? add_out_add_15 : add_out_add_15;
-	end
 	// Insensitive connections
 	always @(*) begin
 	end
@@ -343,8 +343,8 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_
 	// controller for icmp_22.cmp_in1_icmp_22
 	// Insensitive connections
 	always @(*) begin
-		cmp_in0_icmp_22 = valid ? trunc_tmp_8 : trunc_tmp_8;
-		cmp_in1_icmp_22 = valid ? load_tmp_1 : load_tmp_1;
+		cmp_in0_icmp_22 = valid ? trunc_tmp_5 : trunc_tmp_5;
+		cmp_in1_icmp_22 = valid ? load_tmp_0 : load_tmp_0;
 	end
 	// controller for ret_24.valid_reg
 	always @(*) begin
@@ -363,7 +363,7 @@ module axi_rb_inner(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_
 	end
 endmodule
 
-module axi_rb(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_araddr, output [1:0] arg_3_s_axi_arburst, output [7:0] arg_3_s_axi_arlen, output [2:0] arg_3_s_axi_arsize, output [0:0] arg_3_s_axi_arvalid, output [15:0] arg_3_s_axi_awaddr, output [1:0] arg_3_s_axi_awburst, output [7:0] arg_3_s_axi_awlen, output [2:0] arg_3_s_axi_awsize, output [0:0] arg_3_s_axi_awvalid, output [0:0] arg_3_s_axi_bready, output [0:0] arg_3_s_axi_rready, output [31:0] arg_3_s_axi_wdata, output [3:0] arg_3_s_axi_wstrb, output [0:0] arg_3_s_axi_wvalid, input [0:0] arg_3_s_axi_arready, input [0:0] arg_3_s_axi_awready, input [0:0] arg_3_s_axi_bvalid, input [31:0] arg_3_s_axi_rdata, input [0:0] arg_3_s_axi_rvalid, input [0:0] arg_3_s_axi_wready, output [7:0] arg_1_raddr, output [7:0] arg_1_waddr, output [7:0] arg_1_wdata, output [0:0] arg_1_wen, input [7:0] arg_1_rdata, output [15:0] arg_2_raddr, output [15:0] arg_2_waddr, output [15:0] arg_2_wdata, output [0:0] arg_2_wen, input [15:0] arg_2_rdata, output [31:0] arg_0_in_data, output [0:0] arg_0_read_valid, output [0:0] arg_0_write_valid, input [31:0] arg_0_out_data, input [0:0] arg_0_read_ready, input [0:0] arg_0_write_ready, output [0:0] valid);
+module axi_rb(input [0:0] clk, input [0:0] rst, output [15:0] arg_3_s_axi_araddr, output [1:0] arg_3_s_axi_arburst, output [7:0] arg_3_s_axi_arlen, output [2:0] arg_3_s_axi_arsize, output [0:0] arg_3_s_axi_arvalid, output [15:0] arg_3_s_axi_awaddr, output [1:0] arg_3_s_axi_awburst, output [7:0] arg_3_s_axi_awlen, output [2:0] arg_3_s_axi_awsize, output [0:0] arg_3_s_axi_awvalid, output [0:0] arg_3_s_axi_bready, output [0:0] arg_3_s_axi_rready, output [31:0] arg_3_s_axi_wdata, output [3:0] arg_3_s_axi_wstrb, output [0:0] arg_3_s_axi_wvalid, input [0:0] arg_3_s_axi_arready, input [0:0] arg_3_s_axi_awready, input [0:0] arg_3_s_axi_bvalid, input [31:0] arg_3_s_axi_rdata, input [0:0] arg_3_s_axi_rvalid, input [0:0] arg_3_s_axi_wready, output [0:0] valid, output [15:0] arg_2_raddr, output [15:0] arg_2_waddr, output [15:0] arg_2_wdata, output [0:0] arg_2_wen, input [15:0] arg_2_rdata, output [7:0] arg_1_raddr, output [7:0] arg_1_waddr, output [7:0] arg_1_wdata, output [0:0] arg_1_wen, input [7:0] arg_1_rdata, output [31:0] arg_0_in_data, output [0:0] arg_0_read_valid, output [0:0] arg_0_write_valid, input [31:0] arg_0_out_data, input [0:0] arg_0_read_ready, input [0:0] arg_0_write_ready);
 
 
 	initial begin
