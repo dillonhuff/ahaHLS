@@ -2329,6 +2329,20 @@ public:
 
   
   SynthCppModule(ParserModule& parseRes) {
+    vector<ICHazard> hazards;
+    Expression* rdEqWrite = new BinopExpr(new Identifier(Token("raddr")), Token("=="), new Identifier(Token("waddr")));
+    //if (f->getName() == "histogram") {
+    hazards.push_back({"hread", {"raddr"}, "hwrite", {"waddr", "wdata"}, rdEqWrite, true, true, 0, CMP_LTEZ});
+    hazards.push_back({"hwrite", {"waddr", "wdata"}, "hread", {"raddr"}, rdEqWrite, false, true, 0, CMP_LTEZ});
+    //} else if (f->getName() == "histogram_fwd") {
+    hazards.push_back({"fhread", {"raddr"}, "fhwrite", {"waddr", "wdata"}, rdEqWrite, true, true, 0, CMP_LTEZ});
+    hazards.push_back({"fhwrite", {"waddr", "wdata"}, "fhread", {"raddr"}, rdEqWrite, true, true, 0, CMP_LTEZ});
+    //}
+
+    buildMod(parseRes, hazards);
+  }
+
+  void buildMod(ParserModule& parseRes, vector<ICHazard>& hazards) {    
     activeFunction = nullptr;
 
     globalNum = 0;
@@ -2506,20 +2520,6 @@ public:
           cout << "Basic block " << valueString(activeBlock) << "has no terminator" << endl;
           cgs.builder().CreateRet(nullptr);
         }
-
-        // IC: Need to loosen this based on IC constraints
-        // And: Need to add hazard handling for pipelines
-        // Set all calls to be sequential by default
-        vector<ICHazard> hazards;
-        Expression* rdEqWrite = new BinopExpr(new Identifier(Token("raddr")), Token("=="), new Identifier(Token("waddr")));
-        if (f->getName() == "histogram") {
-          hazards.push_back({"hread", {"raddr"}, "hwrite", {"waddr", "wdata"}, rdEqWrite, true, true, 0, CMP_LTEZ});
-          hazards.push_back({"hwrite", {"waddr", "wdata"}, "hread", {"raddr"}, rdEqWrite, false, true, 0, CMP_LTEZ});
-        } else if (f->getName() == "histogram_fwd") {
-          hazards.push_back({"fhread", {"raddr"}, "fhwrite", {"waddr", "wdata"}, rdEqWrite, true, true, 0, CMP_LTEZ});
-          hazards.push_back({"fhwrite", {"waddr", "wdata"}, "fhread", {"raddr"}, rdEqWrite, true, true, 0, CMP_LTEZ});
-        }
-
         sequentialCalls(f, interfaces.getConstraints(f), hazards);
         
         functions.push_back(sf);
@@ -3354,7 +3354,7 @@ Value* findArg(ICHazard& h,
   }
 }
 
-expr toZ3(context& c, Expression* e, map<Expression*, const SCEV*>& exprSCEVs) {
+expr toZ3(context& c, Expression* e, map<Identifier*, const SCEV*>& exprSCEVs) {
   if (BinopExpr::classof(e)) {
     auto b = static_cast<BinopExpr*>(e);
     auto lhsE = toZ3(c, b->lhs, exprSCEVs);
@@ -3369,7 +3369,7 @@ expr toZ3(context& c, Expression* e, map<Expression*, const SCEV*>& exprSCEVs) {
     }
   } else if (Identifier::classof(e)) {
     Identifier* id = static_cast<Identifier*>(e);
-    assert(contains_key(e, exprSCEVs));
+    assert(contains_key(id, exprSCEVs));
     return c.int_const(id->getName().c_str());
   } else {
     cout << "Error: Unsupported expr: " << *e << endl;
@@ -3378,23 +3378,27 @@ expr toZ3(context& c, Expression* e, map<Expression*, const SCEV*>& exprSCEVs) {
   assert(false);
 }
 
-map<Expression*, const SCEV*>
-getSCEVs(ICHazard& h, Instruction* first, Instruction* second, vector<Identifier*> args, ScalarEvolution& scalarEvolution) {
-  map<Expression*, const SCEV*> exprSCEVs;
+map<Identifier*, const SCEV*>
+getSCEVs(ICHazard& h,
+         Instruction* first,
+         Instruction* second,
+         vector<Identifier*> args,
+         ScalarEvolution& scalarEvolution) {
+  map<Identifier*, const SCEV*> exprSCEVs;
   for (auto expr : args) {
     cout << "\tArg = " << *expr << endl;
     Value* argVal = findArg(h, first, second, expr);
     const SCEV* s = scalarEvolution.getSCEV(argVal);
 
-    if (!SCEVAddRecExpr::classof(s)) {
-      break;
-    }
+    // if (!SCEVAddRecExpr::classof(s)) {
+    //   break;
+    // }
 
-    auto wScev = dyn_cast<SCEVAddRecExpr>(s);
+    // auto wScev = dyn_cast<SCEVAddRecExpr>(s);
 
-    if (!wScev->isAffine()) {
-      break;
-    }
+    // if (!wScev->isAffine()) {
+    //   break;
+    // }
 
     exprSCEVs[expr] = s;
   }
@@ -3413,21 +3417,22 @@ bool couldHappen(ICHazard h,
     extractArgs(h.condition);
 
   cout << "Expr args..." << endl;
-  map<Expression*, const SCEV*> exprSCEVs =
+  map<Identifier*, const SCEV*> exprSCEVs =
     getSCEVs(h, first, second, args, scalarEvolution);
   bool allAnalyzable = exprSCEVs.size() == args.size();
 
   if (allAnalyzable) {
     cout << "All scevs in argument are analyzable" << endl;
-    // Evaluate in z3
-
     context c;
     solver s(c);
 
     expr z3Expr = toZ3(c, h.condition, exprSCEVs);
     s.add(z3Expr);
-
-    // TODO: Add equals conds
+    for (auto s : exprSCEVs) {
+      Identifier* arg = s.first;
+      const SCEV* sc = s.second;
+      // Replace
+    }
     
     auto satRes = s.check();
     if (satRes == unsat) {
