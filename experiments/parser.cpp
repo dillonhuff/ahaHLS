@@ -3419,7 +3419,7 @@ bool couldHappen(ICHazard h,
                  Instruction* first,
                  Instruction* second,
                  ScalarEvolution& scalarEvolution) {
-  cout << "Hazard expr = " << *(h.condition) << endl;
+  cout << "Hazard expr = " << *(h.condition) << " for " << valueString(first) << " to " << valueString(second) << endl;
   // TODO: Check if condition is true or false as an optimization?
 
   vector<Identifier*> args =
@@ -3465,21 +3465,34 @@ int main() {
                     std::istreambuf_iterator<char>());
 
     auto tokens = tokenize(str);
+
+    vector<ICHazard> hazards;
+    Expression* rdEqWrite = new BinopExpr(new Identifier(Token("raddr")), Token("=="), new Identifier(Token("waddr")));
+    hazards.push_back({"hread", {"raddr"}, "hwrite", {"waddr", "wdata"}, rdEqWrite, true, true, 0, CMP_LTEZ});
+    hazards.push_back({"hwrite", {"waddr", "wdata"}, "hread", {"raddr"}, rdEqWrite, false, true, 0, CMP_LTEZ});
+    hazards.push_back({"fhread", {"raddr"}, "fhwrite", {"waddr", "wdata"}, rdEqWrite, true, true, 0, CMP_LTEZ});
+    hazards.push_back({"fhwrite", {"waddr", "wdata"}, "fhread", {"raddr"}, rdEqWrite, true, true, 0, CMP_LTEZ});
+
     ParserModule parseMod = parse(tokens);
 
     cout << parseMod << endl;
 
     assert(parseMod.getStatements().size() >= 2);
 
-    // SynthCppModule scppMod(parseMod);
+    SynthCppModule scppMod(parseMod, hazards, true);
 
-    // assert(scppMod.getClasses().size() >= 1);
-    // assert(scppMod.getFunctions().size() >= 1);
+    assert(scppMod.getClasses().size() >= 1);
+    assert(scppMod.getFunctions().size() >= 1);
 
-    // auto arch = synthesizeVerilog(scppMod, "can_pipeline");
-    // cout << "can_pipeline STG is:" << endl;
-    // arch.stg.print(cout);
-    // assert(false);
+    auto arch = synthesizeVerilog(scppMod, "can_pipeline");
+    cout << "can_pipeline STG is:" << endl;
+    arch.stg.print(cout);
+
+    assert(arch.stg.pipelines.size() == 1);
+    Pipeline p = *begin(arch.stg.pipelines);
+    cout << "Pipeline ii = " << p.II() << endl;
+    
+    assert(p.II() == 1);
   }
   
   {
