@@ -18,7 +18,7 @@ class HistRAM {
     write_port(wen_0, 0);    
   }
   
-  void hwrite(bit_8& addr, bit_32& data) {
+  void hwrite(bit_8 addr, bit_32 data) {
   set_wen:
     set_port(wen_0, 1);
   set_wdata:
@@ -33,7 +33,7 @@ class HistRAM {
     add_constraint(start(set_wen) + 1 == end(ret));
   }
 
-  bit_32 hread(bit_8& addr) {
+  bit_32 hread(bit_8 addr) {
   set_addr:
     set_port(raddr_0, addr);
 

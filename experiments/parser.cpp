@@ -2506,6 +2506,13 @@ public:
           cout << "Basic block " << valueString(activeBlock) << "has no terminator" << endl;
           cgs.builder().CreateRet(nullptr);
         }
+
+        optimizeModuleLLVM(*(f->getParent()));
+        optimizeStores(f);
+        //clearExecutionConstraints(sf, sf->constraints);
+
+        cout << "Before creating call constraints" << endl;
+        cout << valueString(f) << endl;
         sequentialCalls(f, interfaces.getConstraints(f), hazards);
         
         functions.push_back(sf);
@@ -3397,6 +3404,9 @@ getSCEVs(ICHazard& h,
   for (auto expr : args) {
     cout << "\tArg = " << *expr << endl;
     Value* argVal = findArg(h, first, second, expr);
+    if (PointerType::classof(argVal->getType())) {
+      cout << "Arg " << valueString(argVal) << " is a pointer" << endl;
+    }
     const SCEV* s = scalarEvolution.getSCEV(argVal);
 
     // if (!SCEVAddRecExpr::classof(s)) {
@@ -3553,7 +3563,9 @@ int main() {
     Pipeline p = *begin(arch.stg.pipelines);
     cout << "Pipeline ii = " << p.II() << endl;
     
-    assert(p.II() == 1);
+    // assert(p.II() == 1);
+
+    // assert(false);
   }
   
   {

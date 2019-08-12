@@ -61,6 +61,15 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [11:0] arg_0_deb
 	wire [31:0] phi_out_phi_3;
 	phi #(.NB_PAIR(2), .WIDTH(8)) phi_3(.in(phi_in_phi_3), .last_block(phi_last_block_phi_3), .out(phi_out_phi_3), .s(phi_s_phi_3));
 
+	wire [31:0] sgt_in0_sext_16;
+	wire [63:0] sgt_out_sext_16;
+	sext sext_16(.in(sgt_in0_sext_16), .out(sgt_out_sext_16));
+
+	wire [31:0] cmp_in0_icmp_17;
+	wire [31:0] cmp_in1_icmp_17;
+	wire [0:0] cmp_out_icmp_17;
+	slt #(.WIDTH(32)) icmp_17(.in0(cmp_in0_icmp_17), .in1(cmp_in1_icmp_17), .out(cmp_out_icmp_17));
+
 	br_dummy br_unit();
 
 	add alloca_4();
@@ -78,15 +87,6 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [11:0] arg_0_deb
 	wire [31:0] add_in1_add_7;
 	wire [31:0] add_out_add_7;
 	add #(.WIDTH(32)) add_add_7(.in0(add_in0_add_7), .in1(add_in1_add_7), .out(add_out_add_7));
-
-	wire [31:0] sgt_in0_sext_16;
-	wire [63:0] sgt_out_sext_16;
-	sext sext_16(.in(sgt_in0_sext_16), .out(sgt_out_sext_16));
-
-	wire [31:0] cmp_in0_icmp_17;
-	wire [31:0] cmp_in1_icmp_17;
-	wire [0:0] cmp_out_icmp_17;
-	slt #(.WIDTH(32)) icmp_17(.in0(cmp_in0_icmp_17), .in1(cmp_in1_icmp_17), .out(cmp_out_icmp_17));
 
 	wire [31:0] trunc_in_trunc_8;
 	wire [7:0] trunc_out_trunc_8;
@@ -115,16 +115,16 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [11:0] arg_0_deb
 	reg [31:0] pipeline_trunc0_0_4;
 	// End stage
 	// Start stage
-	reg [31:0] pipeline_call0_1_10;
 	reg [31:0] pipeline_load_0_1_5;
+	reg [31:0] pipeline_call0_1_10;
 	reg [31:0] pipeline_phi_0_1_6;
 	reg [31:0] pipeline_sext_0_1_7;
 	reg [31:0] pipeline_add_0_1_8;
 	reg [31:0] pipeline_trunc_0_1_9;
 	// End stage
 	// Start stage
-	reg [31:0] pipeline_call_0_2_11;
-	reg [31:0] pipeline_load_0_2_12;
+	reg [31:0] pipeline_load_0_2_11;
+	reg [31:0] pipeline_call_0_2_12;
 	reg [31:0] pipeline_call0_2_17;
 	reg [31:0] pipeline_phi_0_2_13;
 	reg [31:0] pipeline_add0_2_18;
@@ -133,15 +133,15 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [11:0] arg_0_deb
 	reg [31:0] pipeline_trunc_0_2_16;
 	// End stage
 	// Start stage
-	reg [31:0] pipeline_call_0_3_19;
-	reg [31:0] pipeline_load_0_3_20;
+	reg [31:0] pipeline_load_0_3_19;
+	reg [31:0] pipeline_call_0_3_20;
 	reg [31:0] pipeline_call_0_3_21;
 	reg [31:0] pipeline_phi_0_3_22;
+	reg [31:0] pipeline_sext0_3_27;
+	reg [31:0] pipeline_icmp0_3_28;
 	reg [31:0] pipeline_add_0_3_23;
 	reg [31:0] pipeline_sext_0_3_24;
 	reg [31:0] pipeline_add_0_3_25;
-	reg [31:0] pipeline_sext0_3_27;
-	reg [31:0] pipeline_icmp0_3_28;
 	reg [31:0] pipeline_trunc_0_3_26;
 	// End stage
 	// End stage registers
@@ -179,20 +179,20 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [11:0] arg_0_deb
 		// Pipeline register chain
 		// Register transfer from stage 0 to 1
 		// Register transfer from stage 1 to 2
-		pipeline_load_0_2_12 <= pipeline_load_0_1_5;
+		pipeline_load_0_2_11 <= pipeline_load_0_1_5;
 		pipeline_phi_0_2_13 <= pipeline_phi_0_1_6;
 		pipeline_sext_0_2_14 <= pipeline_sext_0_1_7;
 		pipeline_add_0_2_15 <= pipeline_add_0_1_8;
 		pipeline_trunc_0_2_16 <= pipeline_trunc_0_1_9;
 		// Register transfer from stage 2 to 3
-		pipeline_call_0_3_19 <= pipeline_call_0_2_11;
-		pipeline_load_0_3_20 <= pipeline_load_0_2_12;
+		pipeline_load_0_3_19 <= pipeline_load_0_2_11;
+		pipeline_call_0_3_20 <= pipeline_call_0_2_12;
 		pipeline_phi_0_3_22 <= pipeline_phi_0_2_13;
 		pipeline_sext_0_3_24 <= pipeline_sext_0_2_14;
 		pipeline_add_0_3_25 <= pipeline_add_0_2_15;
 		pipeline_trunc_0_3_26 <= pipeline_trunc_0_2_16;
 		// Register transfer from stage 3 to regular storage
-		call_tmp_5 <= pipeline_call_0_3_19;
+		call_tmp_5 <= pipeline_call_0_3_20;
 		trunc_tmp_4 <= pipeline_trunc_0_3_26;
 		if (rst) begin
 			last_BB_reg <= 0;
@@ -277,7 +277,7 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [11:0] arg_0_deb
 			if ((in_pipeline_0 && pipeline_stage_1_valid)) begin 
 				// Temporary storage
 				// Store data computed at the stage
-					pipeline_call_0_2_11 <= arg_0_rdata_0;
+					pipeline_call_0_2_12 <= arg_0_rdata_0;
 			end
 			if ((in_pipeline_0 && pipeline_stage_2_valid)) begin 
 				// Temporary storage
@@ -332,21 +332,21 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [11:0] arg_0_deb
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
+		end
+	end
+	always @(*) begin
+		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
 				arg_1_wdata_0_reg = add_out_add_15;
 		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
-				arg_1_waddr_0_reg = pipeline_call_0_2_11;
-		end
-	end
-	always @(*) begin
-		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
-		end
-	end
-	always @(*) begin
-		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
 				arg_1_wen_0_reg = (32'd1);
+		end
+	end
+	always @(*) begin
+		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
+				arg_1_waddr_0_reg = pipeline_call_0_2_12;
 		end
 	end
 	assign add_in0_add_15 = arg_1_rdata_0;
