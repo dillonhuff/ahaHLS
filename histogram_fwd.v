@@ -65,23 +65,19 @@ module histogram_fwd_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 	wire [7:0] rdata_ram_0;
 	reg_passthrough #(.WIDTH(8)) ram_0(.clk(clk), .raddr(raddr_ram_0_reg), .rdata(rdata_ram_0), .rst(rst), .waddr(waddr_ram_0_reg), .wdata(wdata_ram_0_reg), .wen(wen_ram_0_reg));
 
-	wire [31:0] sgt_in0_sext_4;
-	wire [63:0] sgt_out_sext_4;
-	sext sext_4(.in(sgt_in0_sext_4), .out(sgt_out_sext_4));
-
 	wire [31:0] add_in0_add_11;
 	wire [31:0] add_in1_add_11;
 	wire [31:0] add_out_add_11;
 	add #(.WIDTH(32)) add_add_11(.in0(add_in0_add_11), .in1(add_in1_add_11), .out(add_out_add_11));
 
+	wire [31:0] sgt_in0_sext_4;
+	wire [63:0] sgt_out_sext_4;
+	sext sext_4(.in(sgt_in0_sext_4), .out(sgt_out_sext_4));
+
 	wire [31:0] add_in0_add_5;
 	wire [31:0] add_in1_add_5;
 	wire [31:0] add_out_add_5;
 	add #(.WIDTH(32)) add_add_5(.in0(add_in0_add_5), .in1(add_in1_add_5), .out(add_out_add_5));
-
-	wire [31:0] trunc_in_trunc_6;
-	wire [7:0] trunc_out_trunc_6;
-	trunc #(.IN_WIDTH(32), .OUT_WIDTH(8)) trunc_6(.in(trunc_in_trunc_6), .out(trunc_out_trunc_6));
 
 	wire [31:0] sgt_in0_sext_16;
 	wire [63:0] sgt_out_sext_16;
@@ -91,6 +87,10 @@ module histogram_fwd_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 	wire [31:0] cmp_in1_icmp_17;
 	wire [0:0] cmp_out_icmp_17;
 	slt #(.WIDTH(32)) icmp_17(.in0(cmp_in0_icmp_17), .in1(cmp_in1_icmp_17), .out(cmp_out_icmp_17));
+
+	wire [31:0] trunc_in_trunc_6;
+	wire [7:0] trunc_out_trunc_6;
+	trunc #(.IN_WIDTH(32), .OUT_WIDTH(8)) trunc_6(.in(trunc_in_trunc_6), .out(trunc_out_trunc_6));
 
 	// End Functional Units
 
@@ -124,24 +124,24 @@ module histogram_fwd_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 	// End stage
 	// Start stage
 	reg [31:0] pipeline_phi_0_2_11;
-	reg [31:0] pipeline_sext_0_2_12;
 	reg [31:0] pipeline_add0_2_17;
+	reg [31:0] pipeline_sext_0_2_12;
 	reg [31:0] pipeline_add_0_2_13;
 	reg [31:0] pipeline_trunc_0_2_14;
-	reg [31:0] pipeline_call0_2_18;
 	reg [31:0] pipeline_load_0_2_15;
 	reg [31:0] pipeline_call_0_2_16;
+	reg [31:0] pipeline_call0_2_18;
 	// End stage
 	// Start stage
 	reg [31:0] pipeline_phi_0_3_19;
-	reg [31:0] pipeline_sext_0_3_20;
-	reg [31:0] pipeline_add_0_3_21;
+	reg [31:0] pipeline_add_0_3_20;
+	reg [31:0] pipeline_sext_0_3_21;
 	reg [31:0] pipeline_add_0_3_22;
-	reg [31:0] pipeline_trunc_0_3_23;
 	reg [31:0] pipeline_sext0_3_27;
 	reg [31:0] pipeline_icmp0_3_28;
-	reg [31:0] pipeline_call_0_3_24;
-	reg [31:0] pipeline_load_0_3_25;
+	reg [31:0] pipeline_trunc_0_3_23;
+	reg [31:0] pipeline_load_0_3_24;
+	reg [31:0] pipeline_call_0_3_25;
 	reg [31:0] pipeline_call_0_3_26;
 	// End stage
 	// End stage registers
@@ -186,14 +186,14 @@ module histogram_fwd_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 		pipeline_load_0_2_15 <= pipeline_load_0_1_9;
 		// Register transfer from stage 2 to 3
 		pipeline_phi_0_3_19 <= pipeline_phi_0_2_11;
-		pipeline_sext_0_3_20 <= pipeline_sext_0_2_12;
+		pipeline_sext_0_3_21 <= pipeline_sext_0_2_12;
 		pipeline_add_0_3_22 <= pipeline_add_0_2_13;
 		pipeline_trunc_0_3_23 <= pipeline_trunc_0_2_14;
-		pipeline_load_0_3_25 <= pipeline_load_0_2_15;
-		pipeline_call_0_3_26 <= pipeline_call_0_2_16;
+		pipeline_load_0_3_24 <= pipeline_load_0_2_15;
+		pipeline_call_0_3_25 <= pipeline_call_0_2_16;
 		// Register transfer from stage 3 to regular storage
 		trunc_tmp_3 <= pipeline_trunc_0_3_23;
-		call_tmp_5 <= pipeline_call_0_3_26;
+		call_tmp_5 <= pipeline_call_0_3_25;
 		if (rst) begin
 			last_BB_reg <= 0;
 		end else begin
@@ -323,11 +323,11 @@ module histogram_fwd_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_1_valid)) begin
+				arg_1_raddr_0_reg = arg_0_rdata_0;
 		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_1_valid)) begin
-				arg_1_raddr_0_reg = arg_0_rdata_0;
 		end
 	end
 	assign add_in0_add_11 = arg_1_rdata_0;

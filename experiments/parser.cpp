@@ -3354,11 +3354,11 @@ Value* findArg(ICHazard& h,
   }
 }
 
-expr toZ3(Expression* e, map<Expression*, const SCEV*>& exprSCEVs) {
+expr toZ3(context& c, Expression* e, map<Expression*, const SCEV*>& exprSCEVs) {
   if (BinopExpr::classof(e)) {
     auto b = static_cast<BinopExpr*>(e);
-    auto lhsE = toZ3(b->lhs, exprSCEVs);
-    auto rhsE = toZ3(b->rhs, exprSCEVs);
+    auto lhsE = toZ3(c, b->lhs, exprSCEVs);
+    auto rhsE = toZ3(c, b->rhs, exprSCEVs);
     string op = b->op.getStr();
     if (op == "==") {
       return lhsE == rhsE;
@@ -3370,8 +3370,7 @@ expr toZ3(Expression* e, map<Expression*, const SCEV*>& exprSCEVs) {
   } else if (Identifier::classof(e)) {
     Identifier* id = static_cast<Identifier*>(e);
     assert(contains_key(e, exprSCEVs));
-    assert(false);
-    //return map_find(e, exprSCEVS);
+    return c.int_const(id->getName().c_str());
   } else {
     cout << "Error: Unsupported expr: " << *e << endl;
     assert(false);
@@ -3402,9 +3401,11 @@ bool couldHappen(ICHazard h,
   // if the scevs are done
   if (allAnalyzable) {
     // Evaluate in z3
-    expr z3Expr = toZ3(h.condition, exprSCEVs);
+
     context c;
     solver s(c);
+
+    expr z3Expr = toZ3(c, h.condition, exprSCEVs);    
     s.add(z3Expr);
     auto satRes = s.check();
     if (satRes == unsat) {
