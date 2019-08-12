@@ -3415,6 +3415,47 @@ getSCEVs(ICHazard& h,
   return exprSCEVs;
 }
 
+  std::string scevStr(const SCEV* scev) {
+    std::string str;
+    llvm::raw_string_ostream ss(str);
+    ss << *scev;
+    return ss.str();    
+  }
+
+  expr scevToExpr(const SCEV* scev, map<Value*, vector<expr > >& valueNames, context& c) {
+    if (SCEVConstant::classof(scev)) {
+      auto sConst = dyn_cast<SCEVConstant>(scev);
+      auto val = sConst->getValue()->getValue().getLimitedValue();
+      cout << "Value of " << scevStr(scev) << " is " << val << endl;
+      return c.int_val(val);
+    } else if (SCEVAddExpr::classof(scev)) {
+      auto sExpr = dyn_cast<SCEVAddExpr>(scev);
+      auto arg0 = scevToExpr(sExpr->getOperand(0), valueNames, c);
+      auto arg1 = scevToExpr(sExpr->getOperand(1), valueNames, c);
+      return arg0 + arg1;
+    } else if (SCEVUnknown::classof(scev)) {
+      auto uExpr = dyn_cast<SCEVUnknown>(scev);
+
+      Value* v = uExpr->getValue();
+      if (contains_key(v, valueNames)) {
+        return map_find(v, valueNames).at(0);
+      }
+
+      string name = "scev_val_";
+      if (v->getName() != "") {
+        name = v->getName().str() + "_";
+      }
+      name += to_string(valueNames.size());
+      expr e = c.int_const(name.c_str());
+      valueNames[v] = {e};
+
+      return e;
+    } else {
+      cout << "ERROR: Unsupported SCEV " << scevStr(scev) << " in scevToExpr" << endl;
+      assert(false);
+    }
+  }
+
 bool couldHappen(ICHazard h,
                  Instruction* first,
                  Instruction* second,
@@ -3437,12 +3478,32 @@ bool couldHappen(ICHazard h,
 
     expr z3Expr = toZ3(c, h.condition, exprSCEVs);
     s.add(z3Expr);
-    for (auto s : exprSCEVs) {
-      Identifier* arg = s.first;
-      const SCEV* sc = s.second;
-      // Replace
+    expr T = c.int_const("loop_trip_num");
+    for (auto asc : exprSCEVs) {
+      Identifier* arg = asc.first;
+      const SCEV* sc = asc.second;
+
+      if (!SCEVAddRecExpr::classof(sc)) {
+        cout << "Scev for " << *arg << " is not addrec: " << scevStr(sc) << endl;
+        return true;
+      }
+
+      auto wScev = dyn_cast<SCEVAddRecExpr>(sc);
+
+      if (!wScev->isAffine()) {
+        cout << "Scev for " << *arg << " is not affine" << endl;        
+        return true;
+      }
+
+      map<Value*, vector<expr> > valueNames;      
+      expr writeBase = scevToExpr(wScev->getStart(), valueNames, c);
+      expr writeInc = scevToExpr(wScev->getOperand(1), valueNames, c);
+
+      cout << "Getting base and inc" << endl;
+      s.add(c.int_const(arg->getName().c_str()) == writeBase*T + writeInc);
     }
-    
+
+    cout << "Now checking model" << endl;
     auto satRes = s.check();
     if (satRes == unsat) {
       return false;
