@@ -3405,8 +3405,11 @@ bool couldHappen(ICHazard h,
     context c;
     solver s(c);
 
-    expr z3Expr = toZ3(c, h.condition, exprSCEVs);    
+    expr z3Expr = toZ3(c, h.condition, exprSCEVs);
     s.add(z3Expr);
+
+    // TODO: Add equals conds
+    
     auto satRes = s.check();
     if (satRes == unsat) {
       return false;
