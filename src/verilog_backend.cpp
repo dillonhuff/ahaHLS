@@ -1750,13 +1750,14 @@ namespace ahaHLS {
       instructionVerilog(out, pos, arch);
       out << "\t\tend" << endl;
 
+      // TODO: Reintroduce when we have port occupancy checking
       //if (nUsers == 1) {
-        auto assignments = instructionPortAssignments(pos, arch);        
-        out << "\t\telse begin" << endl;
-        for (auto a : assignments) {
-          out << "\t\t\t" << a.first << " = " << "0" << ";" << endl;
-        }
-        out << "\t\tend" << endl;
+        // auto assignments = instructionPortAssignments(pos, arch);        
+        // out << "\t\telse begin" << endl;
+        // for (auto a : assignments) {
+        //   out << "\t\t\t" << a.first << " = " << "0" << ";" << endl;
+        // }
+        // out << "\t\tend" << endl;
         //}
 
 

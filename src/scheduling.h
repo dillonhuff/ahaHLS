@@ -1608,7 +1608,9 @@ namespace ahaHLS {
   class ICHazard {
   public:
     string srcName;
+    vector<string> srcArgs;
     string destName;
+    vector<string> destArgs;
     bool srcStart;
     bool destStart;
     int offset;

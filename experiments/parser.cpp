@@ -38,6 +38,13 @@ int computeDD(ICHazard h, Instruction* src, Instruction* dest) {
   }
 }
 
+bool couldHappen(ICHazard h,
+                 Instruction* first,
+                 Instruction* second,
+                 ScalarEvolution& scalarEvolution) {
+  
+  return true;
+}
 
 void sequentialCalls(llvm::Function* f,
                      ExecutionConstraints& exec,
@@ -74,7 +81,9 @@ void sequentialCalls(llvm::Function* f,
             maybe<ICHazard> h = findHazard(firstCallName, secondCallName, hazards);
             if (h.has_value()) {
               cout << "Found possible hazard or loosening" << endl;
-              exec.addConstraint(buildConstraint(first, second, h.get_value()));
+              if (couldHappen(h.get_value(), first, second, scev)) {
+                exec.addConstraint(buildConstraint(first, second, h.get_value()));
+              }
             } else {
               exec.addConstraint(instrEnd(first) < instrStart(second));
             }
@@ -2529,11 +2538,11 @@ public:
         // Set all calls to be sequential by default
         vector<ICHazard> hazards;
         if (f->getName() == "histogram") {
-          hazards.push_back({"hread", "hwrite", true, true, 0, CMP_LTEZ});
-          hazards.push_back({"hwrite", "hread", false, true, 0, CMP_LTEZ});
+          hazards.push_back({"hread", {"raddr"}, "hwrite", {"waddr", "wdata"}, true, true, 0, CMP_LTEZ});
+          hazards.push_back({"hwrite", {"waddr", "wdata"}, "hread", {"raddr", "rdata"}, false, true, 0, CMP_LTEZ});
         } else if (f->getName() == "histogram_fwd") {
-          hazards.push_back({"fhread", "fhwrite", true, true, 0, CMP_LTEZ});
-          hazards.push_back({"fhwrite", "fhread", true, true, 0, CMP_LTEZ});
+          hazards.push_back({"fhread", {"raddr"}, "fhwrite", {"waddr", "wdata"}, true, true, 0, CMP_LTEZ});
+          hazards.push_back({"fhwrite", {"waddr", "wdata"}, "fhread", {"raddr"}, true, true, 0, CMP_LTEZ});
         }
 
         // TODO: Add pipeline calls here as well?

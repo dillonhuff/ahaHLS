@@ -1,14 +1,6 @@
-module histogram_fwd_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [7:0] arg_1_debug_addr, output [7:0] arg_1_debug_write_addr, output [31:0] arg_1_debug_write_data, output [0:0] arg_1_debug_write_en, output [7:0] arg_1_raddr_0, output [7:0] arg_1_waddr_0, output [31:0] arg_1_wdata_0, output [0:0] arg_1_wen_0, input [31:0] arg_1_debug_data, input [31:0] arg_1_rdata_0, output [11:0] arg_0_debug_addr, output [11:0] arg_0_debug_write_addr, output [7:0] arg_0_debug_write_data, output [0:0] arg_0_debug_write_en, output [11:0] arg_0_raddr_0, output [11:0] arg_0_waddr_0, output [7:0] arg_0_wdata_0, output [0:0] arg_0_wen_0, input [7:0] arg_0_debug_data, input [7:0] arg_0_rdata_0);
+module histogram_fwd_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [11:0] arg_0_debug_addr, output [11:0] arg_0_debug_write_addr, output [7:0] arg_0_debug_write_data, output [0:0] arg_0_debug_write_en, output [11:0] arg_0_raddr_0, output [11:0] arg_0_waddr_0, output [7:0] arg_0_wdata_0, output [0:0] arg_0_wen_0, input [7:0] arg_0_debug_data, input [7:0] arg_0_rdata_0, output [7:0] arg_1_debug_addr, output [7:0] arg_1_debug_write_addr, output [31:0] arg_1_debug_write_data, output [0:0] arg_1_debug_write_en, output [7:0] arg_1_raddr_0, output [7:0] arg_1_waddr_0, output [31:0] arg_1_wdata_0, output [0:0] arg_1_wen_0, input [31:0] arg_1_debug_data, input [31:0] arg_1_rdata_0);
 
 	reg [0:0] valid_reg;
-	reg [7:0] arg_1_debug_addr_reg;
-	reg [7:0] arg_1_debug_write_addr_reg;
-	reg [31:0] arg_1_debug_write_data_reg;
-	reg [0:0] arg_1_debug_write_en_reg;
-	reg [7:0] arg_1_raddr_0_reg;
-	reg [7:0] arg_1_waddr_0_reg;
-	reg [31:0] arg_1_wdata_0_reg;
-	reg [0:0] arg_1_wen_0_reg;
 	reg [11:0] arg_0_debug_addr_reg;
 	reg [11:0] arg_0_debug_write_addr_reg;
 	reg [7:0] arg_0_debug_write_data_reg;
@@ -17,16 +9,16 @@ module histogram_fwd_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 	reg [11:0] arg_0_waddr_0_reg;
 	reg [7:0] arg_0_wdata_0_reg;
 	reg [0:0] arg_0_wen_0_reg;
+	reg [7:0] arg_1_debug_addr_reg;
+	reg [7:0] arg_1_debug_write_addr_reg;
+	reg [31:0] arg_1_debug_write_data_reg;
+	reg [0:0] arg_1_debug_write_en_reg;
+	reg [7:0] arg_1_raddr_0_reg;
+	reg [7:0] arg_1_waddr_0_reg;
+	reg [31:0] arg_1_wdata_0_reg;
+	reg [0:0] arg_1_wen_0_reg;
 
 	assign valid = valid_reg;
-	assign arg_1_debug_addr = arg_1_debug_addr_reg;
-	assign arg_1_debug_write_addr = arg_1_debug_write_addr_reg;
-	assign arg_1_debug_write_data = arg_1_debug_write_data_reg;
-	assign arg_1_debug_write_en = arg_1_debug_write_en_reg;
-	assign arg_1_raddr_0 = arg_1_raddr_0_reg;
-	assign arg_1_waddr_0 = arg_1_waddr_0_reg;
-	assign arg_1_wdata_0 = arg_1_wdata_0_reg;
-	assign arg_1_wen_0 = arg_1_wen_0_reg;
 	assign arg_0_debug_addr = arg_0_debug_addr_reg;
 	assign arg_0_debug_write_addr = arg_0_debug_write_addr_reg;
 	assign arg_0_debug_write_data = arg_0_debug_write_data_reg;
@@ -35,6 +27,14 @@ module histogram_fwd_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 	assign arg_0_waddr_0 = arg_0_waddr_0_reg;
 	assign arg_0_wdata_0 = arg_0_wdata_0_reg;
 	assign arg_0_wen_0 = arg_0_wen_0_reg;
+	assign arg_1_debug_addr = arg_1_debug_addr_reg;
+	assign arg_1_debug_write_addr = arg_1_debug_write_addr_reg;
+	assign arg_1_debug_write_data = arg_1_debug_write_data_reg;
+	assign arg_1_debug_write_en = arg_1_debug_write_en_reg;
+	assign arg_1_raddr_0 = arg_1_raddr_0_reg;
+	assign arg_1_waddr_0 = arg_1_waddr_0_reg;
+	assign arg_1_wdata_0 = arg_1_wdata_0_reg;
+	assign arg_1_wen_0 = arg_1_wen_0_reg;
 
 	// Start debug wires and ports
 
@@ -128,9 +128,9 @@ module histogram_fwd_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 	reg [31:0] pipeline_sext_0_2_12;
 	reg [31:0] pipeline_add_0_2_13;
 	reg [31:0] pipeline_trunc_0_2_14;
-	reg [31:0] pipeline_call0_2_18;
 	reg [31:0] pipeline_load_0_2_15;
 	reg [31:0] pipeline_call_0_2_16;
+	reg [31:0] pipeline_call0_2_18;
 	// End stage
 	// Start stage
 	reg [31:0] pipeline_phi_0_3_19;
@@ -140,8 +140,8 @@ module histogram_fwd_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 	reg [31:0] pipeline_sext0_3_27;
 	reg [31:0] pipeline_icmp0_3_28;
 	reg [31:0] pipeline_trunc_0_3_23;
-	reg [31:0] pipeline_call_0_3_24;
-	reg [31:0] pipeline_load_0_3_25;
+	reg [31:0] pipeline_load_0_3_24;
+	reg [31:0] pipeline_call_0_3_25;
 	reg [31:0] pipeline_call_0_3_26;
 	// End stage
 	// End stage registers
@@ -189,11 +189,11 @@ module histogram_fwd_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 		pipeline_sext_0_3_21 <= pipeline_sext_0_2_12;
 		pipeline_add_0_3_22 <= pipeline_add_0_2_13;
 		pipeline_trunc_0_3_23 <= pipeline_trunc_0_2_14;
-		pipeline_load_0_3_25 <= pipeline_load_0_2_15;
-		pipeline_call_0_3_26 <= pipeline_call_0_2_16;
+		pipeline_load_0_3_24 <= pipeline_load_0_2_15;
+		pipeline_call_0_3_25 <= pipeline_call_0_2_16;
 		// Register transfer from stage 3 to regular storage
 		trunc_tmp_3 <= pipeline_trunc_0_3_23;
-		call_tmp_5 <= pipeline_call_0_3_26;
+		call_tmp_5 <= pipeline_call_0_3_25;
 		if (rst) begin
 			last_BB_reg <= 0;
 		end else begin
@@ -306,11 +306,6 @@ module histogram_fwd_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 				wdata_ram_0_reg = phi_out_phi_1;
 				wen_ram_0_reg = 1;
 		end
-		else begin
-			waddr_ram_0_reg = 0;
-			wdata_ram_0_reg = 0;
-			wen_ram_0_reg = 0;
-		end
 	end
 	assign sgt_in0_sext_4 = phi_out_phi_1;
 	assign add_in0_add_5 = sgt_out_sext_4;
@@ -318,32 +313,21 @@ module histogram_fwd_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 	assign trunc_in_trunc_6 = add_out_add_5;
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_0_valid)) begin
-				raddr_ram_0_reg = 0;
-		end
-		else begin
-			raddr_ram_0_reg = 0;
+				arg_0_raddr_0_reg = rdata_ram_0;
 		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_0_valid)) begin
-				arg_0_raddr_0_reg = rdata_ram_0;
-		end
-		else begin
-			arg_0_raddr_0_reg = 0;
+				raddr_ram_0_reg = 0;
 		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_1_valid)) begin
-		end
-		else begin
 		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_1_valid)) begin
 				arg_1_raddr_0_reg = arg_0_rdata_0;
-		end
-		else begin
-			arg_1_raddr_0_reg = 0;
 		end
 	end
 	assign add_in0_add_11 = arg_1_rdata_0;
@@ -351,31 +335,20 @@ module histogram_fwd_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
 		end
-		else begin
-		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
 				arg_1_wen_0_reg = (32'd1);
-		end
-		else begin
-			arg_1_wen_0_reg = 0;
 		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
 				arg_1_wdata_0_reg = add_out_add_11;
 		end
-		else begin
-			arg_1_wdata_0_reg = 0;
-		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
 				arg_1_waddr_0_reg = pipeline_call_0_2_16;
-		end
-		else begin
-			arg_1_waddr_0_reg = 0;
 		end
 	end
 	assign sgt_in0_sext_16 = pipeline_trunc_0_3_23;
@@ -383,8 +356,6 @@ module histogram_fwd_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 	assign cmp_in1_icmp_17 = (32'd100);
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_3_valid)) begin
-		end
-		else begin
 		end
 	end
 	// End pipeline instruction code
@@ -406,7 +377,7 @@ module histogram_fwd_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid,
 	end
 endmodule
 
-module histogram_fwd(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [7:0] arg_1_debug_addr, output [7:0] arg_1_debug_write_addr, output [31:0] arg_1_debug_write_data, output [0:0] arg_1_debug_write_en, output [7:0] arg_1_raddr_0, output [7:0] arg_1_waddr_0, output [31:0] arg_1_wdata_0, output [0:0] arg_1_wen_0, input [31:0] arg_1_debug_data, input [31:0] arg_1_rdata_0, output [11:0] arg_0_debug_addr, output [11:0] arg_0_debug_write_addr, output [7:0] arg_0_debug_write_data, output [0:0] arg_0_debug_write_en, output [11:0] arg_0_raddr_0, output [11:0] arg_0_waddr_0, output [7:0] arg_0_wdata_0, output [0:0] arg_0_wen_0, input [7:0] arg_0_debug_data, input [7:0] arg_0_rdata_0);
+module histogram_fwd(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [11:0] arg_0_debug_addr, output [11:0] arg_0_debug_write_addr, output [7:0] arg_0_debug_write_data, output [0:0] arg_0_debug_write_en, output [11:0] arg_0_raddr_0, output [11:0] arg_0_waddr_0, output [7:0] arg_0_wdata_0, output [0:0] arg_0_wen_0, input [7:0] arg_0_debug_data, input [7:0] arg_0_rdata_0, output [7:0] arg_1_debug_addr, output [7:0] arg_1_debug_write_addr, output [31:0] arg_1_debug_write_data, output [0:0] arg_1_debug_write_en, output [7:0] arg_1_raddr_0, output [7:0] arg_1_waddr_0, output [31:0] arg_1_wdata_0, output [0:0] arg_1_wen_0, input [31:0] arg_1_debug_data, input [31:0] arg_1_rdata_0);
 
 
 	initial begin

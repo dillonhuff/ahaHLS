@@ -127,8 +127,8 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 	reg [31:0] pipeline_add0_2_17;
 	reg [31:0] pipeline_add_0_2_12;
 	reg [31:0] pipeline_trunc_0_2_13;
-	reg [31:0] pipeline_load_0_2_14;
 	reg [31:0] pipeline_call0_2_18;
+	reg [31:0] pipeline_load_0_2_14;
 	reg [31:0] pipeline_call_0_2_15;
 	reg [31:0] pipeline_phi_0_2_16;
 	// End stage
@@ -139,8 +139,8 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 	reg [31:0] pipeline_trunc_0_3_22;
 	reg [31:0] pipeline_sext0_3_27;
 	reg [31:0] pipeline_icmp0_3_28;
-	reg [31:0] pipeline_load_0_3_23;
-	reg [31:0] pipeline_call_0_3_24;
+	reg [31:0] pipeline_call_0_3_23;
+	reg [31:0] pipeline_load_0_3_24;
 	reg [31:0] pipeline_call_0_3_25;
 	reg [31:0] pipeline_phi_0_3_26;
 	// End stage
@@ -188,7 +188,7 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 		pipeline_sext_0_3_19 <= pipeline_sext_0_2_11;
 		pipeline_add_0_3_21 <= pipeline_add_0_2_12;
 		pipeline_trunc_0_3_22 <= pipeline_trunc_0_2_13;
-		pipeline_load_0_3_23 <= pipeline_load_0_2_14;
+		pipeline_load_0_3_24 <= pipeline_load_0_2_14;
 		pipeline_call_0_3_25 <= pipeline_call_0_2_15;
 		pipeline_phi_0_3_26 <= pipeline_phi_0_2_16;
 		// Register transfer from stage 3 to regular storage
@@ -303,11 +303,6 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 				wdata_ram_0_reg = phi_out_phi_8;
 				wen_ram_0_reg = 1;
 		end
-		else begin
-			waddr_ram_0_reg = 0;
-			wdata_ram_0_reg = 0;
-			wen_ram_0_reg = 0;
-		end
 	end
 	assign sgt_in0_sext_3 = phi_out_phi_8;
 	assign add_in0_add_4 = sgt_out_sext_3;
@@ -317,16 +312,10 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 		if ((in_pipeline_0 && pipeline_stage_0_valid)) begin
 				raddr_ram_0_reg = 0;
 		end
-		else begin
-			raddr_ram_0_reg = 0;
-		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_0_valid)) begin
 				arg_0_raddr_0_reg = rdata_ram_0;
-		end
-		else begin
-			arg_0_raddr_0_reg = 0;
 		end
 	end
 	assign phi_in_phi_8 = {pipeline_trunc_0_2_13, (8'd0)};
@@ -335,15 +324,10 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_1_valid)) begin
 		end
-		else begin
-		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_1_valid)) begin
 				arg_1_raddr_0_reg = arg_0_rdata_0;
-		end
-		else begin
-			arg_1_raddr_0_reg = 0;
 		end
 	end
 	assign add_in0_add_11 = arg_1_rdata_0;
@@ -351,31 +335,20 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
 		end
-		else begin
-		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
 				arg_1_wen_0_reg = (32'd1);
-		end
-		else begin
-			arg_1_wen_0_reg = 0;
 		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
 				arg_1_wdata_0_reg = add_out_add_11;
 		end
-		else begin
-			arg_1_wdata_0_reg = 0;
-		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
 				arg_1_waddr_0_reg = pipeline_call_0_2_15;
-		end
-		else begin
-			arg_1_waddr_0_reg = 0;
 		end
 	end
 	assign sgt_in0_sext_16 = pipeline_trunc_0_3_22;
@@ -383,8 +356,6 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 	assign cmp_in1_icmp_17 = (32'd100);
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_3_valid)) begin
-		end
-		else begin
 		end
 	end
 	// End pipeline instruction code
