@@ -42,6 +42,13 @@ int computeDD(ICHazard h, Instruction* src, Instruction* dest) {
 void sequentialCalls(llvm::Function* f,
                      ExecutionConstraints& exec,
                      vector<ICHazard>& hazards) {
+  DominatorTree dt(*f);
+  LoopInfo li(dt);
+  TargetLibraryInfoImpl i;
+  TargetLibraryInfo tli(i);
+  AssumptionCache ac(*f);
+  ScalarEvolution scev(*f, tli, ac, dt, li);
+  
   for (auto& bb : f->getBasicBlockList()) {
     Instruction* first = nullptr;
     Instruction* second = nullptr;
