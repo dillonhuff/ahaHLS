@@ -2,6 +2,7 @@
 
 #include "algorithm.h"
 #include "utils.h"
+#include "expression.h"
 
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Instructions.h>
@@ -1611,6 +1612,7 @@ namespace ahaHLS {
     vector<string> srcArgs;
     string destName;
     vector<string> destArgs;
+    Expression* condition;
     bool srcStart;
     bool destStart;
     int offset;

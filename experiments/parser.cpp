@@ -1,5 +1,7 @@
 #include "algorithm.h"
 
+#include "z3++.h"
+
 #include "llvm/Transforms/Scalar/GVN.h"
 #include "llvm/Transforms/Scalar.h"
 #include <llvm/IR/LegacyPassManager.h>
@@ -21,6 +23,7 @@
 using namespace dbhc;
 using namespace ahaHLS;
 using namespace std;
+using namespace z3;
 
 class SynthCppModule;
 void optimizeModuleLLVM(SynthCppModule& mod);
@@ -41,10 +44,7 @@ int computeDD(ICHazard h, Instruction* src, Instruction* dest) {
 bool couldHappen(ICHazard h,
                  Instruction* first,
                  Instruction* second,
-                 ScalarEvolution& scalarEvolution) {
-  
-  return true;
-}
+                 ScalarEvolution& scalarEvolution);
 
 void sequentialCalls(llvm::Function* f,
                      ExecutionConstraints& exec,
@@ -732,32 +732,6 @@ std::vector<Token> tokenize(const std::string& classCode) {
   }
 
   return tokens;
-}
-
-enum ExpressionKind {
-  EXPRESSION_KIND_IDENTIFIER,
-  EXPRESSION_KIND_NUM,
-  EXPRESSION_KIND_METHOD_CALL,
-  EXPRESSION_KIND_FUNCTION_CALL,
-  EXPRESSION_KIND_BINOP,
-};
-
-class Expression {
-public:
-
-  virtual ExpressionKind getKind() const = 0;
-
-  virtual void print(std::ostream& out) const {
-    assert(false);
-  }
-
-  virtual ~Expression() {}
-  
-};
-
-std::ostream& operator<<(std::ostream& out, const Expression& e) {
-  e.print(out);
-  return out;
 }
 
 class FunctionCall : public Expression {
@@ -2537,15 +2511,15 @@ public:
         // And: Need to add hazard handling for pipelines
         // Set all calls to be sequential by default
         vector<ICHazard> hazards;
+        Expression* rdEqWrite = new BinopExpr(new Identifier(Token("raddr")), Token("=="), new Identifier(Token("waddr")));
         if (f->getName() == "histogram") {
-          hazards.push_back({"hread", {"raddr"}, "hwrite", {"waddr", "wdata"}, true, true, 0, CMP_LTEZ});
-          hazards.push_back({"hwrite", {"waddr", "wdata"}, "hread", {"raddr", "rdata"}, false, true, 0, CMP_LTEZ});
+          hazards.push_back({"hread", {"raddr"}, "hwrite", {"waddr", "wdata"}, rdEqWrite, true, true, 0, CMP_LTEZ});
+          hazards.push_back({"hwrite", {"waddr", "wdata"}, "hread", {"raddr"}, rdEqWrite, false, true, 0, CMP_LTEZ});
         } else if (f->getName() == "histogram_fwd") {
-          hazards.push_back({"fhread", {"raddr"}, "fhwrite", {"waddr", "wdata"}, true, true, 0, CMP_LTEZ});
-          hazards.push_back({"fhwrite", {"waddr", "wdata"}, "fhread", {"raddr"}, true, true, 0, CMP_LTEZ});
+          hazards.push_back({"fhread", {"raddr"}, "fhwrite", {"waddr", "wdata"}, rdEqWrite, true, true, 0, CMP_LTEZ});
+          hazards.push_back({"fhwrite", {"waddr", "wdata"}, "fhread", {"raddr"}, rdEqWrite, true, true, 0, CMP_LTEZ});
         }
 
-        // TODO: Add pipeline calls here as well?
         sequentialCalls(f, interfaces.getConstraints(f), hazards);
         
         functions.push_back(sf);
@@ -3309,6 +3283,121 @@ void setRAM(const std::string& ramName,
   }
 
   tb.actionOnCondition("total_cycles == " + to_string(startCycle + values.size()), ramName + "_debug_write_en <= 0;");
+}
+
+vector<Identifier*> extractArgs(Expression* s) {
+  vector<Identifier*> ids;
+
+  deque<Expression*> subExprs{s};
+  while (subExprs.size() > 0) {
+    auto e = subExprs.front();
+    subExprs.pop_front();
+    if (BinopExpr::classof(e)) {
+      auto b = static_cast<BinopExpr*>(e);
+      subExprs.push_back(b->lhs);
+      subExprs.push_back(b->rhs);      
+    } else if (Identifier::classof(e))  {
+      ids.push_back(static_cast<Identifier*>(e));
+    } else {
+      cout << "Error: Unsupported expr " << *e << endl;
+      assert(false);
+    }
+  }
+
+  return ids;
+}
+
+int argOffsetDest(ICHazard& h, Identifier* e) {
+  int i = 0;
+  for (auto arg : h.destArgs) {
+    cout << "Arg = " << arg << endl;
+    if (arg == e->getName()) {
+      cout << "Found " << e->getName() << " at " << i << endl;      
+      return i;
+    }
+
+    cout << e->getName() << " != " << arg << endl;    
+    i++;
+  }
+
+  return -1;
+}
+
+int argOffsetSrc(ICHazard& h, Identifier* e) {
+  int i = 0;
+  for (auto arg : h.srcArgs) {
+    cout << "Arg = " << arg << endl;
+    if (arg == e->getName()) {
+      cout << "Found " << e->getName() << " at " << i << endl;
+      return i;
+    }
+    cout << e->getName() << " != " << arg << endl;
+    i++;
+  }
+
+  return -1;
+}
+
+Value* findArg(ICHazard& h,
+               Instruction* first,
+               Instruction* second,
+               Identifier* e) {
+  cout << "Finding arg for " << *e << endl;
+  int offset = argOffsetSrc(h, e);
+  if (offset < 0) {
+    offset = argOffsetDest(h, e);
+    cout << "Offset for " << *e << " is " << offset << endl;    
+    assert(offset >= 0);
+    return second->getOperand(offset + 1);
+  } else {
+    return first->getOperand(offset + 1);
+  }
+}
+
+expr toZ3(Expression* e, map<Expression*, const SCEV*>& exprSCEVs) {
+  assert(false);
+}
+
+bool couldHappen(ICHazard h,
+                 Instruction* first,
+                 Instruction* second,
+                 ScalarEvolution& scalarEvolution) {
+  cout << "Hazard expr = " << *(h.condition) << endl;
+  // TODO: Check if condition is true or false
+
+  vector<Identifier*> args =
+    extractArgs(h.condition);
+
+  cout << "Expr args..." << endl;
+  map<Expression*, const SCEV*> exprSCEVs;
+  bool allAnalyzable = true;
+  for (auto expr : args) {
+    cout << "\tArg = " << *expr << endl;
+    Value* argVal = findArg(h, first, second, expr);
+    const SCEV* s = scalarEvolution.getSCEV(argVal);
+    exprSCEVs[expr] = s;
+    // TODO: Set not analyzable if not affine...
+  }
+  // if the scevs are done
+  if (allAnalyzable) {
+    // Evaluate in z3
+    expr z3Expr = toZ3(h.condition, exprSCEVs);
+    context c;
+    solver s(c);
+    s.add(z3Expr);
+    auto satRes = s.check();
+    if (satRes == unsat) {
+      return false;
+    }
+    model m = s.get_model();
+    cout << "Hazard could happen when..." << endl;
+    cout << m << endl;
+    return true;
+  }
+
+  // If we cannot analyze the hazard condition we must be
+  // conservative and assume it could happen
+  return true;
 }
 
 int main() {

@@ -338,12 +338,12 @@ module histogram_inner(input [0:0] clk, input [0:0] rst, output [0:0] valid, out
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
-				arg_1_wen_0_reg = (32'd1);
+				arg_1_wdata_0_reg = add_out_add_11;
 		end
 	end
 	always @(*) begin
 		if ((in_pipeline_0 && pipeline_stage_2_valid)) begin
-				arg_1_wdata_0_reg = add_out_add_11;
+				arg_1_wen_0_reg = (32'd1);
 		end
 	end
 	always @(*) begin
