@@ -41,6 +41,11 @@ int computeDD(ICHazard h, Instruction* src, Instruction* dest) {
   }
 }
 
+int generalDD(ICHazard h,
+              Instruction* first,
+              Instruction* second,
+              ScalarEvolution& scalarEvolution);
+
 bool couldHappen(ICHazard h,
                  Instruction* first,
                  Instruction* second,
@@ -153,20 +158,23 @@ void sequentialCalls(llvm::Function* f,
                 cout << "Found possible hazard or loosening in II" << endl;
 
                 // TODO: Add scev analysis?
-                int dd = computeDD(h.get_value(), first, second);
+                //int dd = computeDD(h.get_value(), first, second);
+                int dd = generalDD(h.get_value(), first, second, scev);
+
 
                 cout << "Dependence distance between " << valueString(first) << " and " << valueString(second) << " = " << dd << endl;
 
-
-                auto ccO =
-                  buildConstraint(first, second, h.get_value());
-                assert(ccO->type() == CONSTRAINT_TYPE_ORDERED);
-                auto cc = static_cast<Ordered*>(ccO);
-                cc->isPipelineConstraint = true;
-                cc->pipeline = &bb;
-                cc->dd = dd;
+                if (dd >= 0) {
+                  auto ccO =
+                    buildConstraint(first, second, h.get_value());
+                  assert(ccO->type() == CONSTRAINT_TYPE_ORDERED);
+                  auto cc = static_cast<Ordered*>(ccO);
+                  cc->isPipelineConstraint = true;
+                  cc->pipeline = &bb;
+                  cc->dd = dd;
               
-                exec.addConstraint(cc);
+                  exec.addConstraint(cc);
+                }
               } else {
               }
             }
@@ -3465,6 +3473,120 @@ getSCEVs(ICHazard& h,
       assert(false);
     }
   }
+
+bool isArg(Identifier* arg, std::vector<string>& args) {
+  for (auto a : args) {
+    if (arg->getName() == a) {
+      return true;
+    }
+  }
+  return false;
+}
+
+int generalDD(ICHazard h,
+              Instruction* first,
+              Instruction* second,
+              ScalarEvolution& scalarEvolution) {
+  cout << "DD Hazard expr = " << *(h.condition) << " for " << valueString(first) << " to " << valueString(second) << endl;
+
+  bool lexicallyForward = appearsBefore(first, second);
+  int minDD = lexicallyForward ? 0 : 1;
+
+  cout << "Minium DD = " << minDD << endl;
+  
+  vector<Identifier*> args =
+    extractArgs(h.condition);
+
+  cout << "Expr args..." << endl;
+  map<Identifier*, const SCEV*> exprSCEVs =
+    getSCEVs(h, first, second, args, scalarEvolution);
+  bool allAnalyzable = exprSCEVs.size() == args.size();
+
+  if (allAnalyzable) {
+    cout << "All scevs in argument are analyzable" << endl;
+    context c;
+    optimize opt(c);
+
+    expr I = c.int_const("I_lc");
+    expr J = c.int_const("J_lc");
+    expr DD = c.int_const("DD");
+    opt.add(0 <= I);
+    opt.add(0 <= J);
+    opt.add(minDD <= DD);
+    opt.add(DD == (J - I));
+
+    if (lexicallyForward) {
+      opt.add(I <= J);
+    } else {
+      opt.add(I < J);
+    }
+    
+    expr z3Expr = toZ3(c, h.condition, exprSCEVs);
+    opt.add(z3Expr);
+
+    for (auto asc : exprSCEVs) {
+      Identifier* arg = asc.first;
+      const SCEV* sc = asc.second;
+
+      if (!SCEVAddRecExpr::classof(sc)) {
+        cout << "Scev for " << *arg << " is not addrec: " << scevStr(sc) << endl;
+        return minDD;
+      }
+
+      auto wScev = dyn_cast<SCEVAddRecExpr>(sc);
+
+      if (!wScev->isAffine()) {
+        cout << "Scev for " << *arg << " is not affine" << endl;        
+        return minDD;
+      }
+
+      cout << "scev for " << *arg << " is " << scevStr(sc) << endl;
+      map<Value*, vector<expr> > valueNames;      
+      expr writeBase = scevToExpr(wScev->getStart(), valueNames, c);
+      expr writeInc = scevToExpr(wScev->getOperand(1), valueNames, c);
+
+      cout << "Getting base and inc" << endl;
+
+      // Set to I if earlier or J if later
+      if (isArg(arg, h.srcArgs)) {
+        expr eq = c.int_const(arg->getName().c_str()) == writeBase + writeInc*I;
+        cout << "Equality constraint: " << eq << endl;
+        opt.add(eq);
+      } else {
+        assert(isArg(arg, h.destArgs));
+        expr eq = c.int_const(arg->getName().c_str()) == writeBase + writeInc*J;
+        cout << "Equality constraint: " << eq << endl;
+        opt.add(eq);
+      }
+
+      cout << "WriteBase = " << writeBase << endl;
+    }
+
+    // cout << "Constraints..." << endl;
+    // cout << c << endl;
+    optimize::handle h1 = opt.minimize(DD);
+    
+    cout << "Now checking model" << endl;
+    auto satRes = opt.check();
+    if (satRes == unsat) {
+      cout << "DD Hazard is actually impossible" << endl;
+      return -1;
+    }
+
+
+    model m = opt.get_model();
+    cout << "DD Hazard could happen when..." << endl;
+    cout << m << endl;
+
+
+    return opt.lower(h1).get_numeral_int64();
+  }
+
+  // If we cannot analyze the hazard condition we must be
+  // conservative and assume it could as soon as possible
+  return minDD;
+  
+}
 
 bool couldHappen(ICHazard h,
                  Instruction* first,

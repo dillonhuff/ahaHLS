@@ -56,7 +56,7 @@ void can_pipeline(HistRAM& a) {
   i = 0;
   do {
     r = a.hread(i) + 1;
-    a.hwrite(i + 1, r);
+    a.hwrite(i + 3, r);
     i = i + 1;
   } while (i < 10);
 

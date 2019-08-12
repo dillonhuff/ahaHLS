@@ -1628,7 +1628,9 @@ namespace ahaHLS {
   dbhc::maybe<ICHazard> findHazard(const std::string& firstCallName,
                                    const std::string& secondCallName,
                                    std::vector<ICHazard>& hazards);
-  
+
+  bool appearsBefore(llvm::Instruction* const maybeBefore,
+                     llvm::Instruction* const maybeAfter);
 }
 
 
