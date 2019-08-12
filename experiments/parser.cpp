@@ -343,24 +343,6 @@ Schedule scheduleInterfaceZeroReg(llvm::Function* f,
   //   cout << valueString(mspec.first) << " -> " << mspec.second.modSpec.name << endl;
   // }
 
-  if ((f->getName() == "histogram") ||
-      (f->getName() == "histogram_fwd")) {
-
-    for (auto& bb : f->getBasicBlockList()) {
-      auto term = bb.getTerminator();
-      if (BranchInst::classof(term)) {
-        BranchInst* branch = dyn_cast<BranchInst>(term);
-        if (branch->isConditional()) {
-          for (auto succ : branch->successors()) {
-            if (succ == &bb) {
-              toPipeline.insert(&bb);
-            }
-          }
-        }
-      }
-    }
-  }
-
   SchedulingProblem p = createSchedulingProblem(f, hcs, toPipeline);
   exec.addConstraints(p, f);
 
@@ -2261,6 +2243,8 @@ public:
   std::map<Token, Instruction*> labelsToInstructions;
   std::map<Token, BasicBlock*> labelsToBlockStarts;
   std::map<Token, BasicBlock*> labelsToBlockEnds;
+
+  bool pipelineLoops;
   
   std::string uniqueNumString() {
     auto s = std::to_string(globalNum);
@@ -2327,18 +2311,24 @@ public:
 
   }
 
-  SynthCppModule(ParserModule& parseRes) {
-    vector<ICHazard> hazards;
-    Expression* rdEqWrite = new BinopExpr(new Identifier(Token("raddr")), Token("=="), new Identifier(Token("waddr")));
-    hazards.push_back({"hread", {"raddr"}, "hwrite", {"waddr", "wdata"}, rdEqWrite, true, true, 0, CMP_LTEZ});
-    hazards.push_back({"hwrite", {"waddr", "wdata"}, "hread", {"raddr"}, rdEqWrite, false, true, 0, CMP_LTEZ});
-    hazards.push_back({"fhread", {"raddr"}, "fhwrite", {"waddr", "wdata"}, rdEqWrite, true, true, 0, CMP_LTEZ});
-    hazards.push_back({"fhwrite", {"waddr", "wdata"}, "fhread", {"raddr"}, rdEqWrite, true, true, 0, CMP_LTEZ});
-
-    buildMod(parseRes, hazards);
+  SynthCppModule(ParserModule& parseRes,
+                 vector<ICHazard>& hazards,
+                 bool pl) {
+    pipelineLoops = pl;
+    buildMod(parseRes, hazards, pipelineLoops);
   }
 
-  void buildMod(ParserModule& parseRes, vector<ICHazard>& hazards) {    
+
+  
+  SynthCppModule(ParserModule& parseRes) {
+    vector<ICHazard> hazards;
+    pipelineLoops = false;
+    buildMod(parseRes, hazards, false);
+  }
+
+  void buildMod(ParserModule& parseRes,
+                vector<ICHazard>& hazards,
+                bool pipelineLoops) {    
     activeFunction = nullptr;
 
     globalNum = 0;
@@ -2522,7 +2512,6 @@ public:
         activeFunction = nullptr;
 
         sanityCheck(f);
-
         cgs.symtab.popTable();
       }
     }
@@ -3158,6 +3147,10 @@ public:
     return interfaces;
   }
 
+  void pipelineBlock(BasicBlock* bb) {
+    blocksToPipeline.insert(bb);
+  }
+  
   std::set<BasicBlock*>& getBlocksToPipeline() {
     return blocksToPipeline;
   }
@@ -3214,6 +3207,26 @@ synthesizeVerilog(SynthCppModule& scppMod, const std::string& funcName) {
       }
     }
   }
+
+  // if ((f->getName() == "histogram") ||
+  //     (f->getName() == "histogram_fwd")) {
+
+  if (scppMod.pipelineLoops) {
+    for (auto& bb : f->llvmFunction()->getBasicBlockList()) {
+      auto term = bb.getTerminator();
+      if (BranchInst::classof(term)) {
+        BranchInst* branch = dyn_cast<BranchInst>(term);
+        if (branch->isConditional()) {
+          for (auto succ : branch->successors()) {
+            if (succ == &bb) {
+              scppMod.pipelineBlock(&bb);
+            }
+          }
+        }
+      }
+    }
+  }
+
   
   Schedule s =
     scheduleInterfaceZeroReg(f->llvmFunction(),
@@ -3458,15 +3471,15 @@ int main() {
 
     assert(parseMod.getStatements().size() >= 2);
 
-    SynthCppModule scppMod(parseMod);
+    // SynthCppModule scppMod(parseMod);
 
-    assert(scppMod.getClasses().size() >= 1);
-    assert(scppMod.getFunctions().size() >= 1);
+    // assert(scppMod.getClasses().size() >= 1);
+    // assert(scppMod.getFunctions().size() >= 1);
 
-    auto arch = synthesizeVerilog(scppMod, "can_pipeline");
-    cout << "can_pipeline STG is:" << endl;
-    arch.stg.print(cout);
-    assert(false);
+    // auto arch = synthesizeVerilog(scppMod, "can_pipeline");
+    // cout << "can_pipeline STG is:" << endl;
+    // arch.stg.print(cout);
+    // assert(false);
   }
   
   {
@@ -3486,7 +3499,14 @@ int main() {
 
     assert(parseMod.getStatements().size() >= 2);
 
-    SynthCppModule scppMod(parseMod);
+    vector<ICHazard> hazards;
+    Expression* rdEqWrite = new BinopExpr(new Identifier(Token("raddr")), Token("=="), new Identifier(Token("waddr")));
+    hazards.push_back({"hread", {"raddr"}, "hwrite", {"waddr", "wdata"}, rdEqWrite, true, true, 0, CMP_LTEZ});
+    hazards.push_back({"hwrite", {"waddr", "wdata"}, "hread", {"raddr"}, rdEqWrite, false, true, 0, CMP_LTEZ});
+    hazards.push_back({"fhread", {"raddr"}, "fhwrite", {"waddr", "wdata"}, rdEqWrite, true, true, 0, CMP_LTEZ});
+    hazards.push_back({"fhwrite", {"waddr", "wdata"}, "fhread", {"raddr"}, rdEqWrite, true, true, 0, CMP_LTEZ});
+    
+    SynthCppModule scppMod(parseMod, hazards, true);
 
     assert(scppMod.getClasses().size() >= 1);
     assert(scppMod.getFunctions().size() >= 1);
@@ -3566,7 +3586,14 @@ int main() {
 
     assert(parseMod.getStatements().size() >= 2);
 
-    SynthCppModule scppMod(parseMod);
+    vector<ICHazard> hazards;
+    Expression* rdEqWrite = new BinopExpr(new Identifier(Token("raddr")), Token("=="), new Identifier(Token("waddr")));
+    hazards.push_back({"hread", {"raddr"}, "hwrite", {"waddr", "wdata"}, rdEqWrite, true, true, 0, CMP_LTEZ});
+    hazards.push_back({"hwrite", {"waddr", "wdata"}, "hread", {"raddr"}, rdEqWrite, false, true, 0, CMP_LTEZ});
+    hazards.push_back({"fhread", {"raddr"}, "fhwrite", {"waddr", "wdata"}, rdEqWrite, true, true, 0, CMP_LTEZ});
+    hazards.push_back({"fhwrite", {"waddr", "wdata"}, "fhread", {"raddr"}, rdEqWrite, true, true, 0, CMP_LTEZ});
+    
+    SynthCppModule scppMod(parseMod, hazards, true);
 
     assert(scppMod.getClasses().size() >= 1);
     assert(scppMod.getFunctions().size() >= 1);
@@ -3651,7 +3678,14 @@ int main() {
 
     assert(parseMod.getStatements().size() >= 2);
 
-    SynthCppModule scppMod(parseMod);
+    vector<ICHazard> hazards;
+    Expression* rdEqWrite = new BinopExpr(new Identifier(Token("raddr")), Token("=="), new Identifier(Token("waddr")));
+    hazards.push_back({"hread", {"raddr"}, "hwrite", {"waddr", "wdata"}, rdEqWrite, true, true, 0, CMP_LTEZ});
+    hazards.push_back({"hwrite", {"waddr", "wdata"}, "hread", {"raddr"}, rdEqWrite, false, true, 0, CMP_LTEZ});
+    hazards.push_back({"fhread", {"raddr"}, "fhwrite", {"waddr", "wdata"}, rdEqWrite, true, true, 0, CMP_LTEZ});
+    hazards.push_back({"fhwrite", {"waddr", "wdata"}, "fhread", {"raddr"}, rdEqWrite, true, true, 0, CMP_LTEZ});
+    
+    SynthCppModule scppMod(parseMod, hazards, true);
 
     assert(scppMod.getClasses().size() >= 1);
     assert(scppMod.getFunctions().size() >= 1);
