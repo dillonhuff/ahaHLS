@@ -3661,6 +3661,29 @@ bool couldHappen(ICHazard h,
 }
 
 int main() {
+
+  
+  {
+    ifstream t("./experiments/fadd.cpp");
+    std::string str((std::istreambuf_iterator<char>(t)),
+                    std::istreambuf_iterator<char>());
+
+    auto tokens = tokenize(str);
+    ParserModule parseMod = parse(tokens);
+
+    cout << parseMod << endl;
+
+    assert(parseMod.getStatements().size() >= 2);
+
+    vector<ICHazard> hazards;
+    SynthCppModule scppMod(parseMod, hazards, true);
+
+    assert(scppMod.getClasses().size() >= 1);
+    assert(scppMod.getFunctions().size() >= 1);
+
+    auto arch = synthesizeVerilog(scppMod, "do_add");
+  }
+  
   {
     ifstream t("./experiments/contrived.cpp");
     std::string str((std::istreambuf_iterator<char>(t)),
@@ -3695,8 +3718,6 @@ int main() {
     cout << "Pipeline ii = " << p.II() << endl;
     
     assert(p.II() == 1);
-
-    // assert(false);
   }
   
   {
