@@ -3682,6 +3682,48 @@ int main() {
     assert(scppMod.getFunctions().size() >= 1);
 
     auto arch = synthesizeVerilog(scppMod, "do_add");
+    cout << "STG for do_add" << endl;
+    arch.stg.print(cout);
+
+    float af = 3.0;
+    float bf = 4.0;
+    float cf = af + bf;
+    
+    TestBenchSpec tb;
+    map<string, int> testLayout = {};
+    tb.memoryInit = {};
+    tb.memoryExpected = {};
+    tb.runCycles = 30;
+    tb.maxCycles = 50;
+    tb.name = "do_add";
+    tb.useModSpecs = true;    
+
+    tb.settableWires.insert("arg_1_wen");
+    tb.settableWires.insert("arg_1_wdata");    
+    tb.settableWires.insert("arg_2_wen");
+    tb.settableWires.insert("arg_2_wdata");    
+
+
+    map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 1;"));
+    map_insert(tb.actionsOnCycles, 5, string("rst_reg <= 1;"));
+    map_insert(tb.actionsOnCycles, 6, string("rst_reg <= 0;"));        
+
+    map_insert(tb.actionsOnCycles, 28, assertString("return_value == " + floatBits(cf)));
+
+    map_insert(tb.actionsInCycles, 1, string("arg_1_wdata = " + floatBits(af) + ";"));
+    map_insert(tb.actionsInCycles, 1, string("arg_1_wen = 1;"));
+    map_insert(tb.actionsInCycles, 2, string("arg_1_wen = 0;"));    
+
+    map_insert(tb.actionsInCycles, 1, string("arg_2_wdata = " + floatBits(bf) + ";"));
+    map_insert(tb.actionsInCycles, 1, string("arg_2_wen = 1;"));
+    map_insert(tb.actionsInCycles, 2, string("arg_2_wen = 0;"));    
+    
+    //map_insert(tb.actionsInCycles, 1, string("arg_2_rdata = " + floatBits(bf) + ";"));
+    //map_insert(tb.actionsInCycles, 8, string("$display(\"arg_2_in_data = %d\", arg_2_in_data);"));
+    emitVerilogTestBench(tb, arch, testLayout);
+    
+    assert(runIVerilogTB("do_add"));
+    
   }
   
   {
