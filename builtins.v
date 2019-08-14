@@ -1146,7 +1146,7 @@ module adder(
       $display("input_b_stb    = %d", input_b_stb);
       $display("input_b_ack    = %d", input_b_ack);
       $display("output_z_stb   = %d", output_z_stb);
-      $display("output_z       = %d", output_z);                  
+      $display("output_z       = %b", output_z);                  
       $display("rst            = %d", rst);            
    end
 
