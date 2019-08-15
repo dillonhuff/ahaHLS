@@ -5603,4 +5603,31 @@ namespace ahaHLS {
     return structType(name);
   }
 
+  ExecutionConstraint*
+  buildConstraint(Instruction* first,
+                  Instruction* second,
+                  ICHazard h) {
+    auto sVal = h.srcStart ? instrStart(first) : instrEnd(first);
+    auto eVal = h.destStart ? instrStart(second) : instrEnd(second);
+    if (h.orderCond == CMP_LTEZ) {
+      return sVal <= eVal + h.offset;
+    } else if (h.orderCond == CMP_LTZ) {
+      return sVal < eVal + h.offset;
+    } else {
+      assert(false);
+    }
+  }
+
+  maybe<ICHazard> findHazard(const string& firstCallName,
+                             const string& secondCallName,
+                             vector<ICHazard>& hazards) {
+    for (auto h : hazards) {
+      if ((firstCallName == h.srcName) &&
+          (secondCallName == h.destName)) {
+        return h;
+      }
+    }
+    return {};
+  }
+  
 }
