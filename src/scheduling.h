@@ -1,7 +1,10 @@
 #pragma once
 
+#include "z3++.h"
 #include "binding.h"
 #include "expression.h"
+
+#include <llvm/Analysis/ScalarEvolution.h>
 
 namespace ahaHLS {
 
@@ -1385,7 +1388,8 @@ namespace ahaHLS {
 
   bool appearsBefore(llvm::Instruction* const maybeBefore,
                      llvm::Instruction* const maybeAfter);
-  
+
+  z3::expr scevToExpr(const llvm::SCEV* scev, std::map<llvm::Value*, std::vector<z3::expr > >& valueNames, z3::context& c);
 }
 
 
