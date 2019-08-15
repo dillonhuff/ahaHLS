@@ -25,6 +25,139 @@ using namespace z3;
 
 namespace ahaHLS {
 
+  bool isArg(Identifier* arg, std::vector<string>& args) {
+    for (auto a : args) {
+      if (arg->getName() == a) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  vector<Identifier*> extractArgs(Expression* s) {
+    vector<Identifier*> ids;
+
+    deque<Expression*> subExprs{s};
+    while (subExprs.size() > 0) {
+      auto e = subExprs.front();
+      subExprs.pop_front();
+      if (BinopExpr::classof(e)) {
+        auto b = static_cast<BinopExpr*>(e);
+        subExprs.push_back(b->lhs);
+        subExprs.push_back(b->rhs);      
+      } else if (Identifier::classof(e))  {
+        ids.push_back(static_cast<Identifier*>(e));
+      } else {
+        cout << "Error: Unsupported expr " << *e << endl;
+        assert(false);
+      }
+    }
+
+    return ids;
+  }
+
+  int argOffsetDest(ICHazard& h, Identifier* e) {
+    int i = 0;
+    for (auto arg : h.destArgs) {
+      cout << "Arg = " << arg << endl;
+      if (arg == e->getName()) {
+        cout << "Found " << e->getName() << " at " << i << endl;      
+        return i;
+      }
+
+      cout << e->getName() << " != " << arg << endl;    
+      i++;
+    }
+
+    return -1;
+  }
+
+  int argOffsetSrc(ICHazard& h, Identifier* e) {
+    int i = 0;
+    for (auto arg : h.srcArgs) {
+      cout << "Arg = " << arg << endl;
+      if (arg == e->getName()) {
+        cout << "Found " << e->getName() << " at " << i << endl;
+        return i;
+      }
+      cout << e->getName() << " != " << arg << endl;
+      i++;
+    }
+
+    return -1;
+  }
+
+  Value* findArg(ICHazard& h,
+                 Instruction* first,
+                 Instruction* second,
+                 Identifier* e) {
+    cout << "Finding arg for " << *e << endl;
+    int offset = argOffsetSrc(h, e);
+    if (offset < 0) {
+      offset = argOffsetDest(h, e);
+      cout << "Offset for " << *e << " is " << offset << endl;    
+      assert(offset >= 0);
+      return second->getOperand(offset + 1);
+    } else {
+      return first->getOperand(offset + 1);
+    }
+  }
+
+  expr toZ3(context& c, Expression* e, map<Identifier*, const SCEV*>& exprSCEVs) {
+    if (BinopExpr::classof(e)) {
+      auto b = static_cast<BinopExpr*>(e);
+      auto lhsE = toZ3(c, b->lhs, exprSCEVs);
+      auto rhsE = toZ3(c, b->rhs, exprSCEVs);
+      string op = b->op.getStr();
+      if (op == "==") {
+        return lhsE == rhsE;
+      } else if (op == "+") {
+        return lhsE + rhsE;
+      } else if (op == "-") {
+        return lhsE - rhsE;      
+      }
+    } else if (Identifier::classof(e)) {
+      Identifier* id = static_cast<Identifier*>(e);
+      assert(contains_key(id, exprSCEVs));
+      return c.int_const(id->getName().c_str());
+    } else {
+      cout << "Error: Unsupported expr: " << *e << endl;
+      assert(false);
+    }
+    assert(false);
+  }
+  
+  map<Identifier*, const SCEV*>
+  getSCEVs(ICHazard& h,
+           Instruction* first,
+           Instruction* second,
+           vector<Identifier*> args,
+           ScalarEvolution& scalarEvolution) {
+    map<Identifier*, const SCEV*> exprSCEVs;
+    for (auto expr : args) {
+      cout << "\tArg = " << *expr << endl;
+      Value* argVal = findArg(h, first, second, expr);
+      if (PointerType::classof(argVal->getType())) {
+        cout << "Arg " << valueString(argVal) << " is a pointer" << endl;
+      }
+      const SCEV* s = scalarEvolution.getSCEV(argVal);
+
+      // if (!SCEVAddRecExpr::classof(s)) {
+      //   break;
+      // }
+
+      // auto wScev = dyn_cast<SCEVAddRecExpr>(s);
+
+      // if (!wScev->isAffine()) {
+      //   break;
+      // }
+
+      exprSCEVs[expr] = s;
+    }
+
+    return exprSCEVs;
+  }
+  
   int generalDD(ICHazard h,
                 Instruction* first,
                 Instruction* second,
