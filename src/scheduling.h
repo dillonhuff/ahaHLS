@@ -562,6 +562,9 @@ namespace ahaHLS {
 
   class Ordered : public ExecutionConstraint {
   public:
+    bool isPipelineConstraint;
+    BasicBlock* pipeline;
+    int dd;
     InstructionTime before;
     InstructionTime after;
 
@@ -589,7 +592,11 @@ namespace ahaHLS {
     virtual ExecutionConstraint* clone() const override {
       InstructionTime beforeCpy(before);
       InstructionTime afterCpy(after);      
-      return new Ordered(beforeCpy, afterCpy, restriction);
+      auto ord = new Ordered(beforeCpy, afterCpy, restriction);
+      ord->dd = dd;
+      ord->isPipelineConstraint = true;
+      ord->pipeline = pipeline;
+      return ord;
     }
     
     virtual void replaceAction(ExecutionAction& toReplace,
