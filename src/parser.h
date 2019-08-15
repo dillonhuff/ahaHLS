@@ -1571,6 +1571,8 @@ namespace ahaHLS {
       cgs.builder().CreateCall(mkFunc({receiver->getType(), source->getType()}, voidType(), "copy_" + typeString(receiver->getType())), {receiver, source});
     }
 
+    void convertWaitsToConstraints(llvm::Function* f);
+    
     llvm::Value* bvCastTo(Value* value, Type* const destTp) {
       int vWidth = getTypeBitWidth(value->getType());
       int rWidth = getTypeBitWidth(destTp);

@@ -48,11 +48,13 @@ class RAM {
   set_waddr:
     set_port(waddr_0, addr);
 
+    wait(3);
+    
   ret: return;
 
-    add_constraint(start(set_wen) == start(set_wdata));
-    add_constraint(start(set_wen) == start(set_waddr));
-    add_constraint(start(set_wen) + 3 == end(ret));
+    // add_constraint(start(set_wen) == start(set_wdata));
+    // add_constraint(start(set_wen) == start(set_waddr));
+    // add_constraint(start(set_wen) + 3 == end(ret));
   }
 
   bit_32 read(bit_5 addr) {

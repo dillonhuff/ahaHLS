@@ -25,6 +25,12 @@ using namespace z3;
 
 namespace ahaHLS {
 
+  llvm::Function* waitFunc() {
+    vector<Type*> inputs{intType(32)};
+    auto f = mkFunc(inputs, voidType(), "wait");
+    return f;
+  }
+
   bool isArg(Identifier* arg, std::vector<string>& args) {
     for (auto a : args) {
       if (arg->getName() == a) {
@@ -142,16 +148,6 @@ namespace ahaHLS {
       }
       const SCEV* s = scalarEvolution.getSCEV(argVal);
 
-      // if (!SCEVAddRecExpr::classof(s)) {
-      //   break;
-      // }
-
-      // auto wScev = dyn_cast<SCEVAddRecExpr>(s);
-
-      // if (!wScev->isAffine()) {
-      //   break;
-      // }
-
       exprSCEVs[expr] = s;
     }
 
@@ -236,50 +232,17 @@ namespace ahaHLS {
           
             if (first->getOperand(0) == second->getOperand(0)) {
 
-              // if ((firstCallName == "hread") &&
-              //     (secondCallName == "hwrite")) {
-
-              //   cout << "Forcing read / write constraint" << endl;
-
-              //   auto ccO = instrEnd(second) <= instrStart(first);
-              //   //buildConstraint(first, second, h.get_value());
-              //   assert(ccO->type() == CONSTRAINT_TYPE_ORDERED);
-              //   auto cc = static_cast<Ordered*>(ccO);
-              //   cc->isPipelineConstraint = true;
-              //   cc->pipeline = &bb;
-              //   cc->dd = 1;
-              //   exec.addConstraint(cc);
-              // }
-
-
-              // if ((firstCallName == "fhread") &&
-              //     (secondCallName == "fhwrite")) {
-
-              //   cout << "Forcing read / write constraint" << endl;
-
-              //   auto ccO = instrStart(second) <= instrStart(first);
-              //   //buildConstraint(first, second, h.get_value());
-              //   assert(ccO->type() == CONSTRAINT_TYPE_ORDERED);
-              //   auto cc = static_cast<Ordered*>(ccO);
-              //   cc->isPipelineConstraint = true;
-              //   cc->pipeline = &bb;
-              //   cc->dd = 1;
-              //   exec.addConstraint(cc);
-              // }
-            
               {
                 // Compute forward dep
-                maybe<ICHazard> h = findHazard(firstCallName, secondCallName, hazards);
+                maybe<ICHazard> h =
+                  findHazard(firstCallName, secondCallName, hazards);
 
                 if (h.has_value()) {
                   cout << "Found possible hazard or loosening in II" << endl;
 
-                  // TODO: Add scev analysis?
-                  //int dd = computeDD(h.get_value(), first, second);
                   int dd = generalDD(h.get_value(), first, second, scev);
-
-
-                  cout << "Dependence distance between " << valueString(first) << " and " << valueString(second) << " = " << dd << endl;
+                  cout << "Dependence distance between " << valueString(first)
+                       << " and " << valueString(second) << " = " << dd << endl;
 
                   if (dd >= 0) {
                     auto ccO =
@@ -1362,19 +1325,15 @@ namespace ahaHLS {
         Type* underlying = dyn_cast<PointerType>(argTp)->getElementType();
         if (IntegerType::classof(underlying)) {
           cout << "Should set " << valueString(&arg) << " to be register" << endl;
-          //scppMod.getHardwareConstraints().modSpecs.insert({&arg, registerModSpec(getTypeBitWidth(underlying))});
           scppMod.getHardwareConstraints().bindValue(&arg, registerModSpec(getTypeBitWidth(underlying)));
           
           scppMod.getHardwareConstraints().memSpecs.insert({&arg, registerSpec(getTypeBitWidth(underlying))});
           
         } else if (StructType::classof(underlying) && !dyn_cast<StructType>(underlying)->isOpaque()) {
           cout << "Should set " << valueString(&arg) << " to be register" << endl;
-          // scppMod.getHardwareConstraints().modSpecs.insert({&arg, registerModSpec(getTypeBitWidth(underlying))});
           scppMod.getHardwareConstraints().memSpecs.insert({&arg, registerSpec(getTypeBitWidth(underlying))});
 
           scppMod.getHardwareConstraints().bindValue(&arg, registerModSpec(getTypeBitWidth(underlying)));
-          //scppMod.getHardwareConstraints().bindValue(&arg, registerSpec(getTypeBitWidth(underlying)));
-          
         }
 
       }
@@ -1643,6 +1602,8 @@ namespace ahaHLS {
         cgs.builder().CreateRet(nullptr);
       }
 
+      convertWaitsToConstraints(activeFunction->llvmFunction()); //sf->llvmFunction());
+
       cout << "Just generated code for method " << endl;
       cout << valueString(sf->llvmFunction()) << endl;
       cgs.getActiveClass()->methods[sf->getName()] = sf;
@@ -1654,6 +1615,42 @@ namespace ahaHLS {
       activeFunction = nullptr;
     }
     
+  }
+
+  void SynthCppModule::convertWaitsToConstraints(Function* f) {
+    // TODO: Extend to full basic block order
+
+    for (auto& bb : f->getBasicBlockList()) {
+      vector<Instruction*> instrs;
+      for (auto& instr : bb) {
+        instrs.push_back(&instr);
+      }
+
+      vector<vector<Instruction*> > groups =
+        group_unary(instrs, [](Instruction* i) { return matchesCall("wait", i); });
+      cout << "Instruction groups" << endl;
+
+      ExecutionConstraints& exe =
+        getInterfaceFunctions().getConstraints(f);
+      
+      for (int i = 0; i < (int) groups.size(); i++) {
+        vector<Instruction*> ig = groups[i];
+        if (matchesCall("wait", ig.front()) && (i > 0)) {
+          Value* arg0 = ig.front()->getOperand(0);
+          assert(ConstantInt::classof(arg0));
+          int delay = dyn_cast<ConstantInt>(arg0)->getValue().getLimitedValue();
+
+          cout << "wait delay = " << delay << endl;
+          vector<Instruction*> lastGroups = groups[i - 1];
+
+          for (auto lastI : lastGroups) {
+            for (auto instr : ig) {
+              exe.add(instrEnd(lastI) == instrStart(instr) + delay);
+            }
+          }
+        }
+      }
+    }
   }
 
   int getIndex(const std::string& fieldName,
@@ -1847,6 +1844,23 @@ namespace ahaHLS {
         return nullptr;
       }
 
+      if (name == "wait") {
+        cout << "Generating code for wait" << endl;
+        assert(called != nullptr);
+        assert(called->args.size() == 1);
+
+        cout << "Correct # of args" << endl;
+        Expression* delay = called->args[0];
+
+        assert(delay != nullptr);
+        assert(IntegerExpr::classof(delay));
+        
+        cout << "Generating llvm for wait delay " << *delay << endl;
+        auto dExpr = genLLVM(delay);
+        cout << "Done" << endl;
+        return bd.CreateCall(waitFunc(), {dExpr});
+      }
+
       if ((name == "set_port") || (name == "write_port")) {
         assert(called->args.size() == 2);
         
@@ -2011,8 +2025,10 @@ namespace ahaHLS {
       return bd.CreateCall(calledFunc->llvmFunction(), args);
 
     } else if (IntegerExpr::classof(e)) {
+      cout << "Generating code for integer expr" << endl;
       IntegerExpr* i = static_cast<IntegerExpr* const>(e);
       string digits = i->digits;
+      cout << "Digits = " << digits << endl;
       auto val = stoi(digits);
       return mkInt(val, 32);
     } else if (FieldAccess::classof(e)) {

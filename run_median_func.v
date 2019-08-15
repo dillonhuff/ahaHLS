@@ -173,19 +173,19 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_79_out) || trunc_trunc16_out !== 20'dx))) begin $display("assertion((!(andOp_79_out) || trunc_trunc16_out !== 20'dx))"); $finish(); end
+		if (!((!(andOp_79_out) || trunc_trunc17_out !== 20'dx))) begin $display("assertion((!(andOp_79_out) || trunc_trunc17_out !== 20'dx))"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_80_out) || add_add15_in0 !== 32'dx)) begin $display("assertion(!(andOp_80_out) || add_add15_in0 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_80_out) || add_add16_in0 !== 32'dx)) begin $display("assertion(!(andOp_80_out) || add_add16_in0 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_80_out) || add_add15_in1 !== 32'dx)) begin $display("assertion(!(andOp_80_out) || add_add15_in1 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_80_out) || add_add16_in1 !== 32'dx)) begin $display("assertion(!(andOp_80_out) || add_add16_in1 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_81_out) || phi_phi13_out !== 'dx))) begin $display("assertion((!(andOp_81_out) || phi_phi13_out !== 'dx))"); $finish(); end
+		if (!((!(andOp_81_out) || phi_phi5_out !== 'dx))) begin $display("assertion((!(andOp_81_out) || phi_phi5_out !== 'dx))"); $finish(); end
 	end
 
 
@@ -196,33 +196,33 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	// Start Functional Units
 	br_dummy br_unit();
 
+	wire [39:0] phi_phi5_in;
+	wire [31:0] phi_phi5_last_block;
+	wire [63:0] phi_phi5_s;
+	wire [31:0] phi_phi5_out;
+	phi #(.NB_PAIR(2), .WIDTH(20)) phi_phi5(.in(phi_phi5_in), .last_block(phi_phi5_last_block), .out(phi_phi5_out), .s(phi_phi5_s));
+
+	wire [31:0] sext_sext11_in;
+	wire [63:0] sext_sext11_out;
+	sext sext_sext11(.in(sext_sext11_in), .out(sext_sext11_out));
+
 	wire [31:0] icmp_icmp12_in0;
 	wire [31:0] icmp_icmp12_in1;
 	wire [0:0] icmp_icmp12_out;
 	slt #(.WIDTH(32)) icmp_icmp12(.in0(icmp_icmp12_in0), .in1(icmp_icmp12_in1), .out(icmp_icmp12_out));
 
-	wire [39:0] phi_phi13_in;
-	wire [31:0] phi_phi13_last_block;
-	wire [63:0] phi_phi13_s;
-	wire [31:0] phi_phi13_out;
-	phi #(.NB_PAIR(2), .WIDTH(20)) phi_phi13(.in(phi_phi13_in), .last_block(phi_phi13_last_block), .out(phi_phi13_out), .s(phi_phi13_s));
+	wire [31:0] sext_sext15_in;
+	wire [63:0] sext_sext15_out;
+	sext sext_sext15(.in(sext_sext15_in), .out(sext_sext15_out));
 
-	wire [31:0] sext_sext14_in;
-	wire [63:0] sext_sext14_out;
-	sext sext_sext14(.in(sext_sext14_in), .out(sext_sext14_out));
+	wire [31:0] add_add16_in0;
+	wire [31:0] add_add16_in1;
+	wire [31:0] add_add16_out;
+	add #(.WIDTH(32)) add_add16(.in0(add_add16_in0), .in1(add_add16_in1), .out(add_add16_out));
 
-	wire [31:0] add_add15_in0;
-	wire [31:0] add_add15_in1;
-	wire [31:0] add_add15_out;
-	add #(.WIDTH(32)) add_add15(.in0(add_add15_in0), .in1(add_add15_in1), .out(add_add15_out));
-
-	wire [31:0] trunc_trunc16_in;
-	wire [19:0] trunc_trunc16_out;
-	trunc #(.IN_WIDTH(32), .OUT_WIDTH(20)) trunc_trunc16(.in(trunc_trunc16_in), .out(trunc_trunc16_out));
-
-	wire [31:0] sext_sext17_in;
-	wire [63:0] sext_sext17_out;
-	sext sext_sext17(.in(sext_sext17_in), .out(sext_sext17_out));
+	wire [31:0] trunc_trunc17_in;
+	wire [19:0] trunc_trunc17_out;
+	trunc #(.IN_WIDTH(32), .OUT_WIDTH(20)) trunc_trunc17(.in(trunc_trunc17_in), .out(trunc_trunc17_out));
 
 	reg [0:0] bb_0_active_in_state_0_in_data;
 	wire [0:0] bb_0_active_in_state_0_out_data;
@@ -470,25 +470,25 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	wire [0:0] andOp_43_out;
 	andOp #(.WIDTH(1)) andOp_43(.in0(andOp_43_in0), .in1(andOp_43_in1), .out(andOp_43_out));
 
-	wire [0:0] andOp_44_in0;
-	wire [0:0] andOp_44_in1;
-	wire [0:0] andOp_44_out;
-	andOp #(.WIDTH(1)) andOp_44(.in0(andOp_44_in0), .in1(andOp_44_in1), .out(andOp_44_out));
+	wire [19:0] concat_44_in0;
+	wire [19:0] concat_44_in1;
+	wire [39:0] concat_44_out;
+	concat #(.IN0_WIDTH(20), .IN1_WIDTH(20)) concat_44(.in0(concat_44_in0), .in1(concat_44_in1), .out(concat_44_out));
 
-	wire [0:0] andOp_45_in0;
-	wire [0:0] andOp_45_in1;
-	wire [0:0] andOp_45_out;
-	andOp #(.WIDTH(1)) andOp_45(.in0(andOp_45_in0), .in1(andOp_45_in1), .out(andOp_45_out));
+	wire [31:0] concat_45_in0;
+	wire [31:0] concat_45_in1;
+	wire [63:0] concat_45_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_45(.in0(concat_45_in0), .in1(concat_45_in1), .out(concat_45_out));
 
-	wire [19:0] concat_46_in0;
-	wire [19:0] concat_46_in1;
-	wire [39:0] concat_46_out;
-	concat #(.IN0_WIDTH(20), .IN1_WIDTH(20)) concat_46(.in0(concat_46_in0), .in1(concat_46_in1), .out(concat_46_out));
+	wire [0:0] andOp_46_in0;
+	wire [0:0] andOp_46_in1;
+	wire [0:0] andOp_46_out;
+	andOp #(.WIDTH(1)) andOp_46(.in0(andOp_46_in0), .in1(andOp_46_in1), .out(andOp_46_out));
 
-	wire [31:0] concat_47_in0;
-	wire [31:0] concat_47_in1;
-	wire [63:0] concat_47_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_47(.in0(concat_47_in0), .in1(concat_47_in1), .out(concat_47_out));
+	wire [0:0] andOp_47_in0;
+	wire [0:0] andOp_47_in1;
+	wire [0:0] andOp_47_out;
+	andOp #(.WIDTH(1)) andOp_47(.in0(andOp_47_in0), .in1(andOp_47_in1), .out(andOp_47_out));
 
 	wire [0:0] andOp_48_in0;
 	wire [0:0] andOp_48_in1;
@@ -679,11 +679,11 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	reg [31:0] state_3_last_BB_reg;
 	reg [31:0] state_3_last_state;
 
-	// controller for add_add15.add_add15_in0
-	// controller for add_add15.add_add15_in1
+	// controller for add_add16.add_add16_in0
+	// controller for add_add16.add_add16_in1
 	// Insensitive connections
-	assign add_add15_in0 = sext_sext14_out;
-	assign add_add15_in1 = 32'd1;
+	assign add_add16_in0 = sext_sext15_out;
+	assign add_add16_in1 = 32'd1;
 	// controller for andOp_10.andOp_10_in0
 	// controller for andOp_10.andOp_10_in1
 	// Insensitive connections
@@ -774,16 +774,16 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	// Insensitive connections
 	assign andOp_43_in0 = bb_1_active_in_state_3_out_data;
 	assign andOp_43_in1 = state_3_is_active;
-	// controller for andOp_44.andOp_44_in0
-	// controller for andOp_44.andOp_44_in1
+	// controller for andOp_46.andOp_46_in0
+	// controller for andOp_46.andOp_46_in1
 	// Insensitive connections
-	assign andOp_44_in0 = bb_1_active_in_state_3_out_data;
-	assign andOp_44_in1 = state_3_is_active;
-	// controller for andOp_45.andOp_45_in0
-	// controller for andOp_45.andOp_45_in1
+	assign andOp_46_in0 = bb_1_active_in_state_3_out_data;
+	assign andOp_46_in1 = state_3_is_active;
+	// controller for andOp_47.andOp_47_in0
+	// controller for andOp_47.andOp_47_in1
 	// Insensitive connections
-	assign andOp_45_in0 = bb_1_active_in_state_3_out_data;
-	assign andOp_45_in1 = state_3_is_active;
+	assign andOp_47_in0 = bb_1_active_in_state_3_out_data;
+	assign andOp_47_in1 = state_3_is_active;
 	// controller for andOp_48.andOp_48_in0
 	// controller for andOp_48.andOp_48_in1
 	// Insensitive connections
@@ -913,7 +913,7 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	end
 	// controller for arg_0.arg_0_word0_reg
 	always @(*) begin
-		if (andOp_39_out) begin 
+		if (andOp_35_out) begin 
 			arg_0_word0_reg = arg_1_out_wire;
 		end else begin
 			arg_0_word0_reg = 0;
@@ -921,7 +921,7 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	end
 	// controller for arg_0.arg_0_word1_reg
 	always @(*) begin
-		if (andOp_41_out) begin 
+		if (andOp_37_out) begin 
 			arg_0_word1_reg = arg_2_out_wire;
 		end else begin
 			arg_0_word1_reg = 0;
@@ -929,7 +929,7 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	end
 	// controller for arg_0.arg_0_word2_reg
 	always @(*) begin
-		if (andOp_36_out) begin 
+		if (andOp_38_out) begin 
 			arg_0_word2_reg = arg_3_out_wire;
 		end else begin
 			arg_0_word2_reg = 0;
@@ -937,7 +937,7 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	end
 	// controller for arg_4.arg_4_in_wire_reg
 	always @(*) begin
-		if (andOp_57_out) begin 
+		if (andOp_56_out) begin 
 			arg_4_in_wire_reg = arg_0_pixel1;
 		end else begin
 			arg_4_in_wire_reg = 0;
@@ -945,7 +945,7 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	end
 	// controller for arg_5.arg_5_in_wire_reg
 	always @(*) begin
-		if (andOp_56_out) begin 
+		if (andOp_55_out) begin 
 			arg_5_in_wire_reg = arg_0_pixel2;
 		end else begin
 			arg_5_in_wire_reg = 0;
@@ -953,7 +953,7 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	end
 	// controller for arg_6.arg_6_in_wire_reg
 	always @(*) begin
-		if (andOp_55_out) begin 
+		if (andOp_53_out) begin 
 			arg_6_in_wire_reg = arg_0_pixel3;
 		end else begin
 			arg_6_in_wire_reg = 0;
@@ -1089,16 +1089,16 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 			br_1_happened_in_state_3_in_data = 0;
 		end
 	end
-	// controller for concat_46.concat_46_in0
-	// controller for concat_46.concat_46_in1
+	// controller for concat_44.concat_44_in0
+	// controller for concat_44.concat_44_in1
 	// Insensitive connections
-	assign concat_46_in0 = 20'd0;
-	assign concat_46_in1 = data_in_3_7_out_data;
-	// controller for concat_47.concat_47_in0
-	// controller for concat_47.concat_47_in1
+	assign concat_44_in0 = 20'd0;
+	assign concat_44_in1 = data_in_3_7_out_data;
+	// controller for concat_45.concat_45_in0
+	// controller for concat_45.concat_45_in1
 	// Insensitive connections
-	assign concat_47_in0 = 32'd0;
-	assign concat_47_in1 = 32'd1;
+	assign concat_45_in0 = 32'd0;
+	assign concat_45_in1 = 32'd1;
 	// controller for data_in_0_1.data_in_0_1_in_data
 	always @(*) begin
 		if (eq_71_out) begin 
@@ -1225,7 +1225,7 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	// controller for icmp_icmp12.icmp_icmp12_in0
 	// controller for icmp_icmp12.icmp_icmp12_in1
 	// Insensitive connections
-	assign icmp_icmp12_in0 = sext_sext17_out;
+	assign icmp_icmp12_in0 = sext_sext11_out;
 	assign icmp_icmp12_in1 = 32'd101125;
 	// controller for notOp_11.notOp_11_in0
 	// Insensitive connections
@@ -1265,13 +1265,13 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	// Insensitive connections
 	assign orOp_24_in0 = eq_23_out;
 	assign orOp_24_in1 = andOp_18_out;
-	// controller for phi_phi13.phi_phi13_in
-	// controller for phi_phi13.phi_phi13_last_block
-	// controller for phi_phi13.phi_phi13_s
+	// controller for phi_phi5.phi_phi5_in
+	// controller for phi_phi5.phi_phi5_last_block
+	// controller for phi_phi5.phi_phi5_s
 	// Insensitive connections
-	assign phi_phi13_in = concat_46_out;
-	assign phi_phi13_last_block = bb_1_predecessor_in_state_3_out_data;
-	assign phi_phi13_s = concat_47_out;
+	assign phi_phi5_in = concat_44_out;
+	assign phi_phi5_last_block = bb_1_predecessor_in_state_3_out_data;
+	assign phi_phi5_s = concat_45_out;
 	// controller for ret4.valid_reg
 	always @(*) begin
 		if (andOp_42_out) begin 
@@ -1280,15 +1280,15 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 			valid_reg = 0;
 		end
 	end
-	// controller for sext_sext14.sext_sext14_in
+	// controller for sext_sext11.sext_sext11_in
 	// Insensitive connections
-	assign sext_sext14_in = phi_phi13_out;
-	// controller for sext_sext17.sext_sext17_in
+	assign sext_sext11_in = trunc_trunc17_out;
+	// controller for sext_sext15.sext_sext15_in
 	// Insensitive connections
-	assign sext_sext17_in = trunc_trunc16_out;
-	// controller for trunc_trunc16.trunc_trunc16_in
+	assign sext_sext15_in = phi_phi5_out;
+	// controller for trunc_trunc17.trunc_trunc17_in
 	// Insensitive connections
-	assign trunc_trunc16_in = add_add15_out;
+	assign trunc_trunc17_in = add_add16_out;
 	// Register controllers
 	always @(posedge clk) begin
 		if (rst) begin
@@ -1325,7 +1325,7 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 			data_store_3_6 <= 0;
 		end else begin
 			if (andOp_78_out) begin
-				data_store_3_6 <= trunc_trunc16_out;
+				data_store_3_6 <= trunc_trunc17_out;
 			end
 		end
 	end

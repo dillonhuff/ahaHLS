@@ -2342,8 +2342,7 @@ namespace ahaHLS {
   }
 
   ExecutionAction
-  findReplacement(//Instruction* instr,
-                  ExecutionAction& toReplace,
+  findReplacement(ExecutionAction& toReplace,
                   std::map<Instruction*, Instruction*>& oldInstrsToClones,
                   std::map<BasicBlock*, BasicBlock*>& oldBlocksToClones,
                   ExecutionAction& functionAction) {
@@ -2353,6 +2352,12 @@ namespace ahaHLS {
         return functionAction;
       }
 
+      assert(instr != nullptr);
+
+      if (!contains_key(instr, oldInstrsToClones)) {
+        cout << "Error: No replacement for " << valueString(instr) << endl;
+      }
+      assert(contains_key(instr, oldInstrsToClones));
       return map_find(instr, oldInstrsToClones);
     } else if (toReplace.type() == EXECUTION_ACTION_BASIC_BLOCK) {
       return map_find(toReplace.getBasicBlock(), oldBlocksToClones);
