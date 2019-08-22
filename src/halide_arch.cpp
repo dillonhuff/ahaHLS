@@ -1352,6 +1352,40 @@ namespace ahaHLS {
 
     return hasPrefix(extract<StructType>(u)->getName(), "builtin_fifo");
   }
+ 
+
+  void replaceFIFOWith(Value* redundantReceiver, Value* replacement, Function* f) {
+    int numReads = 0;
+
+    set<Instruction*> toErase;
+    for (auto instr : allInstrs(f)) {
+  
+      if (isFifoRead(instr) && (instr->getOperand(1) == redundantReceiver)) {
+       
+        instr->setOperand(1, replacement); 
+        //toErase.insert(instr);
+      }
+
+      if (isFifoWrite(instr) && (instr->getOperand(0) == replacement)) {
+        //toErase.insert(instr);
+      }
+
+      if (isFifoWrite(instr) && (instr->getOperand(0) == redundantReceiver)) {
+        //instr->setOperand(0, replacement);
+        toErase.insert(instr);
+      }
+        
+    }
+  
+    for (auto instr : toErase) {
+      instr->eraseFromParent();
+    }
+  
+  
+    runCleanupPasses(f);
+  
+  }
+  
   
   void optimizeFifos(Function* f) {
     // How to go about optimizing fifos?
@@ -1374,66 +1408,138 @@ namespace ahaHLS {
 
     peepholeOptimizeFifoWrites(f);
 
-    DominatorTree dt(*f);
-    LoopInfo li(dt);
+    bool replacedFifo = true;
+    while (replacedFifo) {
+      replacedFifo = false;
+      
+      DominatorTree dt(*f);
+      LoopInfo li(dt);
+      for (Loop* loop : li) {
 
-    map<Value*, Value*> writeReplacements;
-    map<Value*, Value*> readReplacements;    
-    for (Loop* loop : li) {
-      set<Instruction*> freads = fifoReads(loop);
-      set<Instruction*> fwrites = fifoWrites(loop);
+        set<Instruction*> freads = fifoReads(loop);
+        set<Instruction*> fwrites = fifoWrites(loop);
 
-      // cout << "# of fifo reads  = " << freads.size() << endl;
-      // cout << "# of fifo writes = " << fwrites.size() << endl;
+        // cout << "# of fifo reads  = " << freads.size() << endl;
+        // cout << "# of fifo writes = " << fwrites.size() << endl;
 
-      if ((freads.size() == 1) &&
-          (fwrites.size() == 1)) {
-        auto rd = *begin(freads);
-        auto wr = *begin(fwrites);
-        if (dt.dominates(rd, wr)) {
-          //cout << "Possible fifo transfer loop" << endl;
+        if ((freads.size() == 1) &&
+            (fwrites.size() == 1)) {
+          auto rd = *begin(freads);
+          auto wr = *begin(fwrites);
+          if (dt.dominates(rd, wr)) {
 
-          auto read = rd->getOperand(0);
-          //cout << "Read    = " << valueString(read) << endl;
-          auto written = wr->getOperand(1);
-          //cout << "Written = " << valueString(written) << endl;
-          if (read == written) {
-            //cout << "Found fifo transfer loop" << endl;
-            if (isFifo(rd->getOperand(1)) && isFifo(wr->getOperand(0))) {
-              writeReplacements[rd->getOperand(1)] =
-                wr->getOperand(0);
-            } else if (isFifo(rd->getOperand(1)) && isLB(wr->getOperand(0))) {
-              // cout << "Found lb replacement" << endl;
-              // writeReplacements[rd->getOperand(1)] =
-              //   wr->getOperand(0);
-            } else if (isLB(rd->getOperand(1)) && isFifo(wr->getOperand(0))) {
-              //cout << "Found unneeded transfer from lb to fifo" << endl;
-              readReplacements[rd->getOperand(1)] =
-                wr->getOperand(0);
-            } else {
-              // cout << "-- Not replaceable bc no pattern recognized" << endl;
-              // cout << tab(1) << "read source  = " << valueString(rd->getOperand(1));
-              // cout << tab(1) << "write source = " << valueString(wr->getOperand(0));
+
+            //cout << "Possible fifo transfer loop" << endl;
+
+            auto readValue = rd->getOperand(0);
+            cout << "Read    = " << valueString(readValue) << endl;
+            auto writtenValue = wr->getOperand(1);
+            cout << "Written = " << valueString(writtenValue) << endl;
+            if (readValue == writtenValue) {
+              cout << "Found fifo transfer loop" << endl;
+
+              // If the receiver FIFO has only one reader and the
+              // receiver is actually a fifo, and it is not an argument
+              // then: Replace the read from the receiver with a read from
+              // the source and delete all writes to the receiver
+
+              if (isFifo(wr->getOperand(0))) {
+                Value* redundantReceiver = wr->getOperand(0);
+                Value* source = rd->getOperand(1);
+                cout << "Should remove redundant fifo " << valueString(redundantReceiver) << endl;              
+                replaceFIFOWith(redundantReceiver, source, f); 
+                replacedFifo = true;
+              }
             }
-          } else {
-            // cout << "-- Not replaceable bc operands dont match" << endl;
-            // cout << tab(1) << "read source  = " << valueString(rd->getOperand(1));
-            // cout << tab(1) << "write source = " << valueString(wr->getOperand(0));
           }
-
-          // read = rd->getOperand(1);
-          // if (read == written) {
-          //   if (isLB(rd->getOperand(0)) && isFifo(wr->getOperand(0))) {
-          //     auto lb = rd->getOperand(0);
-          //     auto fifo = wr->getOperand(0);
-          //     cout << "Found write from lb to fifo" << endl;
-          //     readReplacements[wr->getOperand(0)] =
-          //       rd->getOperand(1);
-          //   }
-          // }
+        }
+        if (replacedFifo) {
+          break;
         }
       }
+          
+          
+          
+          
+          
     }
+    
+    
+    //DominatorTree dt(*f);
+    //LoopInfo li(dt);
+
+    //map<Value*, Value*> writeReplacements;
+    //map<Value*, Value*> readReplacements;    
+    //for (Loop* loop : li) {
+      //set<Instruction*> freads = fifoReads(loop);
+      //set<Instruction*> fwrites = fifoWrites(loop);
+
+      //// cout << "# of fifo reads  = " << freads.size() << endl;
+      //// cout << "# of fifo writes = " << fwrites.size() << endl;
+
+      //if ((freads.size() == 1) &&
+          //(fwrites.size() == 1)) {
+        //auto rd = *begin(freads);
+        //auto wr = *begin(fwrites);
+        //if (dt.dominates(rd, wr)) {
+          
+          
+          ////cout << "Possible fifo transfer loop" << endl;
+
+          //auto readValue = rd->getOperand(0);
+          //cout << "Read    = " << valueString(readValue) << endl;
+          //auto writtenValue = wr->getOperand(1);
+          //cout << "Written = " << valueString(writtenValue) << endl;
+          //if (readValue == writtenValue) {
+            //cout << "Found fifo transfer loop" << endl;
+
+            //// If the receiver FIFO has only one reader and the
+            //// receiver is actually a fifo, and it is not an argument
+            //// then: Replace the read from the receiver with a read from
+            //// the source and delete all writes to the receiver
+
+            //if (isFifo(wr->getOperand(0))) {
+              //Value* redundantReceiver = wr->getOperand(0);
+              //Value* source = rd->getOperand(1);
+              //cout << "Should remove redundant fifo " << valueString(redundantReceiver) << endl;              
+              //replaceFIFOWith(redundantReceiver, source, f); 
+            
+            //}
+            ////if (isFifo(rd->getOperand(1)) && isFifo(wr->getOperand(0))) {
+              ////writeReplacements[rd->getOperand(1)] =
+                ////wr->getOperand(0);
+            ////} else if (isFifo(rd->getOperand(1)) && isLB(wr->getOperand(0))) {
+              ////// cout << "Found lb replacement" << endl;
+              ////// writeReplacements[rd->getOperand(1)] =
+              //////   wr->getOperand(0);
+            ////} else if (isLB(rd->getOperand(1)) && isFifo(wr->getOperand(0))) {
+              //////cout << "Found unneeded transfer from lb to fifo" << endl;
+              ////readReplacements[rd->getOperand(1)] =
+                ////wr->getOperand(0);
+            ////} else {
+              ////// cout << "-- Not replaceable bc no pattern recognized" << endl;
+              ////// cout << tab(1) << "read source  = " << valueString(rd->getOperand(1));
+              ////// cout << tab(1) << "write source = " << valueString(wr->getOperand(0));
+            ////}
+          //} else {
+            //// cout << "-- Not replaceable bc operands dont match" << endl;
+            //// cout << tab(1) << "read source  = " << valueString(rd->getOperand(1));
+            //// cout << tab(1) << "write source = " << valueString(wr->getOperand(0));
+          //}
+
+          //// read = rd->getOperand(1);
+          //// if (read == written) {
+          ////   if (isLB(rd->getOperand(0)) && isFifo(wr->getOperand(0))) {
+          ////     auto lb = rd->getOperand(0);
+          ////     auto fifo = wr->getOperand(0);
+          ////     cout << "Found write from lb to fifo" << endl;
+          ////     readReplacements[wr->getOperand(0)] =
+          ////       rd->getOperand(1);
+          ////   }
+          //// }
+        //}
+      //}
+    //}
 
     // Restructuring: Maybe I the right structure:
     // 1. Iteratively find and replace useless FIFOs
@@ -1444,72 +1550,72 @@ namespace ahaHLS {
     // Delete all writes to values in writeReplacements
     // Replace all writes to keys in writeReplacements with writes to corresponding values
 
-    set<Instruction*> toErase;
-    for (auto wr : writeReplacements) {
-      auto oldReceiver = wr.first;
-      auto newReceiver = wr.second;
+    //set<Instruction*> toErase;
+    //for (auto wr : writeReplacements) {
+      //auto oldReceiver = wr.first;
+      //auto newReceiver = wr.second;
 
       // cout << "Old receiver = " << valueString(oldReceiver) << endl;
       // cout << "New receiver = " << valueString(newReceiver) << endl;
 
-      for (auto instr : allInstrs(f)) {
-        if (isFifoRead(instr) && (instr->getOperand(1) == oldReceiver)) {
-          toErase.insert(instr);
-        }
+      //for (auto instr : allInstrs(f)) {
+        //if (isFifoRead(instr) && (instr->getOperand(1) == oldReceiver)) {
+          //toErase.insert(instr);
+        //}
 
-        if (isFifoWrite(instr) && (instr->getOperand(0) == newReceiver)) {
-          toErase.insert(instr);
-        }
+        //if (isFifoWrite(instr) && (instr->getOperand(0) == newReceiver)) {
+          //toErase.insert(instr);
+        //}
 
-        if (isFifoWrite(instr) && (instr->getOperand(0) == oldReceiver)) {
-          instr->setOperand(0, newReceiver);
-        }
+        //if (isFifoWrite(instr) && (instr->getOperand(0) == oldReceiver)) {
+          //instr->setOperand(0, newReceiver);
+        //}
         
-      }
-    }
+      //}
+    //}
 
-    // Delete all writes to receiver (value)
-    // Replace all reads from receiver with reads from source
-    //
-    // map<Instruction*, Instruction*> rdReplace;
+    //// Delete all writes to receiver (value)
+    //// Replace all reads from receiver with reads from source
+    ////
+    //// map<Instruction*, Instruction*> rdReplace;
 
-    cout << "Read replacements for " << string(f->getName()) << endl; 
-    // key is a linebuffer, value is a fifo 
-    for (auto wr : readReplacements) {
-       auto lbSource = wr.first;
-       auto redundantFifo = wr.second;
+    //cout << "Read replacements for " << string(f->getName()) << endl; 
+    //// key is a linebuffer, value is a fifo 
+    //for (auto wr : readReplacements) {
+       //auto lbSource = wr.first;
+       //auto redundantFifo = wr.second;
 
-       cout << "Old source   = " << valueString(lbSource) << endl;
-       cout << "Redundant rv = " << valueString(redundantFifo) << endl;
+       //cout << "Old source   = " << valueString(lbSource) << endl;
+       //cout << "Redundant rv = " << valueString(redundantFifo) << endl;
 
-       // Now: Delete all writes to redundant fifo, then replace all reads from it
-       // with reads from lbSource?
-       for (auto instr : allInstrs(f)) {
-         if (isFifoWrite(instr) && instr->getOperand(0) == redundantFifo) {
-           cout << "Should erase write: " << valueString(instr) << endl;
-         }
+       //// Now: Delete all writes to redundant fifo, then replace all reads from it
+       //// with reads from lbSource?
+       //for (auto instr : allInstrs(f)) {
+         //if (isFifoWrite(instr) && instr->getOperand(0) == redundantFifo) {
+           //cout << "Should erase write: " << valueString(instr) << endl;
+         //}
 
-         if (isFifoRead(instr) && instr->getOperand(1) == redundantFifo) {
-           cout << "Should replace read from " << valueString(instr) << endl;
-         }
-    //     if (isFifoWrite(instr) && (instr->getOperand(0) == redundantReceiver)) {
-    //       cout << "Erasing write to fifo that should be replaced by lb " << endl; //valueString(instr) << endl;
-    //       toErase.insert(instr);
-    //     } else if (isFifoRead(instr) && (instr->getOperand(1) == redundantReceiver)) {
-    //       CallInst* call = CallInst::Create(lbReadFunction(oldSource), {instr->getOperand(0), oldSource});
-    //       //call->insertBefore(instr);
-    //       rdReplace[instr] = call;
-    //       //instr->setOperand(0, oldSource);
-    //       toErase.insert(instr);
-    //     } else if (isFifoRead(instr) && (instr->getOperand(1) == oldSource)) {
-    //       toErase.insert(instr);
-    //     }
-    //     // if (isFifoWrite(instr) && (instr->getOperand(0) == oldReceiver)) {
-    //     //   instr->setOperand(0, newReceiver);
-    //     // }
+         //if (isFifoRead(instr) && instr->getOperand(1) == redundantFifo) {
+           //cout << "Should replace read from " << valueString(instr) << endl;
+         //}
+    ////     if (isFifoWrite(instr) && (instr->getOperand(0) == redundantReceiver)) {
+    ////       cout << "Erasing write to fifo that should be replaced by lb " << endl; //valueString(instr) << endl;
+    ////       toErase.insert(instr);
+    ////     } else if (isFifoRead(instr) && (instr->getOperand(1) == redundantReceiver)) {
+    ////       CallInst* call = CallInst::Create(lbReadFunction(oldSource), {instr->getOperand(0), oldSource});
+    ////       //call->insertBefore(instr);
+    ////       rdReplace[instr] = call;
+    ////       //instr->setOperand(0, oldSource);
+    ////       toErase.insert(instr);
+    ////     } else if (isFifoRead(instr) && (instr->getOperand(1) == oldSource)) {
+    ////       toErase.insert(instr);
+    ////     }
+    ////     // if (isFifoWrite(instr) && (instr->getOperand(0) == oldReceiver)) {
+    ////     //   instr->setOperand(0, newReceiver);
+    ////     // }
         
-       }
-     }
+       //}
+     //}
 
     // assert(false);
 
@@ -1517,12 +1623,14 @@ namespace ahaHLS {
     //   rd.first->insertBefore(rd.second);
     // }
     
-    for (auto e : toErase) {
-      e->eraseFromParent();
-    }
+    //for (auto e : toErase) {
+      //e->eraseFromParent();
+    //}
 
     runCleanupPasses(f);
 
+    cout << "After optimizing fifos f is..." << endl;
+    cout << valueString(f) << endl;
     // cout << "After fifo removal" << endl;
     // cout << valueString(f) << endl;
     

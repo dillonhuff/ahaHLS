@@ -989,7 +989,7 @@ namespace ahaHLS {
 
       return constWire(tpWidth, dyn_cast<ConstantInt>(val)->getSExtValue());
     } else {
-      //cout << "Getting name of value " << valueString(val) << " of type " << typeString(val->getType()) << endl;
+      cout << "Getting name of value " << valueString(val) << " of type " << typeString(val->getType()) << endl;
       assert(ConstantFP::classof(val));
 
       ConstantFP* fpVal = dyn_cast<ConstantFP>(val);
