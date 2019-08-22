@@ -3701,6 +3701,53 @@ namespace ahaHLS {
 
     return r;
   }
+
+  set<StateId> taskStates(TaskSpec& task, STG& stg) {
+    set<StateId> states;
+    for (auto blk : task.blks) {
+
+      for (int s = stg.blockStartState(blk); s <= stg.blockEndState(blk); s++) {
+        states.insert(s);
+      }
+    }
+
+    return states; 
+  }
+
+  bool isTaskEntryState(const StateId state, TaskSpec& task, STG& stg) {
+    BasicBlock* entry = &(stg.getFunction()->getEntryBlock());
+    if (stg.blockStartState(entry) == state) {
+      return true;
+    }
+    for (auto otherTask : stg.sched.problem.taskSpecs) {
+      if (otherTask != task) {
+        for (auto outJmp : getOutOfTaskJumps(otherTask, stg)) {
+          if (elem(outJmp.jmp.second, task.blks)) {
+            StateId targetState = stg.blockStartState(outJmp.jmp.second);
+            if (targetState == state) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+  
+  StateId taskEntryState(TaskSpec& task, STG& stg) {
+    set<StateId> entryStates; 
+    for (auto st : taskStates(task, stg)) {
+      if (isTaskEntryState(st, task, stg)) {
+        entryStates.insert(st);
+      }
+    }
+    cout << "Task entry states size = " << entryStates.size() << "..." << endl;
+
+    assert(entryStates.size() == 1);
+    return *begin(entryStates);
+  }
+  
+  
   
   void StateTransitionGraph::print(std::ostream& out) {
     out << "--- # of states = " << opStates.size() << std::endl;
@@ -3842,16 +3889,11 @@ namespace ahaHLS {
         for (int s = blockStartState(blk); s <= blockEndState(blk); s++) {
           taskStates.insert(s);
         }
-        
-        // for (auto& instrR : *blk) {
-        //   auto instr = &instrR;
-        //   for (int s = instructionStart(instr); s <= instructionEnd(instr); s++) {
-        //     taskStates.insert(s);
-        //   }
-        // }
       }
       out << tab(1) << "Task contains " << task.blks.size() << " blocks, states [" << commaListString(taskStates) << "]" << endl;
 
+      StateId entryState = taskEntryState(task, *this);
+      out << "Entry State = " << entryState << endl;
       set<CFGJump> outOfTaskJumps =
         getOutOfTaskJumps(task, *this);
       out << tab(2) << "-- Out of task jumps" << endl;
