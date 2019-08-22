@@ -1469,13 +1469,16 @@ namespace ahaHLS {
     // map<Instruction*, Instruction*> rdReplace;
 
     cout << "Read replacements for " << string(f->getName()) << endl; 
+    // key is a linebuffer, value is a fifo 
     for (auto wr : readReplacements) {
-       auto oldSource = wr.first;
-       auto redundantReceiver = wr.second;
+       auto lbSource = wr.first;
+       auto redundantFifo = wr.second;
 
-       cout << "Old source   = " << valueString(oldSource) << endl;
-       cout << "Redundant rv = " << valueString(redundantReceiver) << endl;
+       cout << "Old source   = " << valueString(lbSource) << endl;
+       cout << "Redundant rv = " << valueString(redundantFifo) << endl;
 
+       // Now: Delete all writes to redundant fifo, then replace all reads from it
+       // with reads from lbSource?
     //   for (auto instr : allInstrs(f)) {
     //     if (isFifoWrite(instr) && (instr->getOperand(0) == redundantReceiver)) {
     //       cout << "Erasing write to fifo that should be replaced by lb " << endl; //valueString(instr) << endl;
