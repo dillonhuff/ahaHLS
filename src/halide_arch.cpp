@@ -1435,6 +1435,11 @@ namespace ahaHLS {
       }
     }
 
+    // Restructuring: Maybe I the right structure:
+    // 1. Iteratively find and replace useless FIFOs
+    // 2. When replacing the FIFO find the source, and
+    //    replace all reads from the FIFO with reads from the
+    //    source
     // Delete all reads from keys in writeReplacements
     // Delete all writes to values in writeReplacements
     // Replace all writes to keys in writeReplacements with writes to corresponding values
@@ -1479,7 +1484,14 @@ namespace ahaHLS {
 
        // Now: Delete all writes to redundant fifo, then replace all reads from it
        // with reads from lbSource?
-    //   for (auto instr : allInstrs(f)) {
+       for (auto instr : allInstrs(f)) {
+         if (isFifoWrite(instr) && instr->getOperand(0) == redundantFifo) {
+           cout << "Should erase write: " << valueString(instr) << endl;
+         }
+
+         if (isFifoRead(instr) && instr->getOperand(1) == redundantFifo) {
+           cout << "Should replace read from " << valueString(instr) << endl;
+         }
     //     if (isFifoWrite(instr) && (instr->getOperand(0) == redundantReceiver)) {
     //       cout << "Erasing write to fifo that should be replaced by lb " << endl; //valueString(instr) << endl;
     //       toErase.insert(instr);
@@ -1496,7 +1508,7 @@ namespace ahaHLS {
     //     //   instr->setOperand(0, newReceiver);
     //     // }
         
-    //   }
+       }
      }
 
     // assert(false);
