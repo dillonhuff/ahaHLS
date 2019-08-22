@@ -1443,7 +1443,8 @@ namespace ahaHLS {
               // then: Replace the read from the receiver with a read from
               // the source and delete all writes to the receiver
 
-              if (isFifo(wr->getOperand(0))) {
+              if (isFifo(rd->getOperand(1)) && isFifo(wr->getOperand(0))) {
+                cout << "Removing fifo " << valueString(wr->getOperand(0)) << endl;
                 Value* redundantReceiver = wr->getOperand(0);
                 Value* source = rd->getOperand(1);
                 cout << "Should remove redundant fifo " << valueString(redundantReceiver) << endl;              
