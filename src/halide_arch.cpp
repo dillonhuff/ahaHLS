@@ -1467,12 +1467,14 @@ namespace ahaHLS {
     // Replace all reads from receiver with reads from source
     //
     // map<Instruction*, Instruction*> rdReplace;
-    // for (auto wr : readReplacements) {
-    //   auto oldSource = wr.first;
-    //   auto redundantReceiver = wr.second;
 
-    //   cout << "Old source   = " << valueString(oldSource) << endl;
-    //   cout << "Redundant rv = " << valueString(redundantReceiver) << endl;
+    cout << "Read replacements for " << string(f->getName()) << endl; 
+    for (auto wr : readReplacements) {
+       auto oldSource = wr.first;
+       auto redundantReceiver = wr.second;
+
+       cout << "Old source   = " << valueString(oldSource) << endl;
+       cout << "Redundant rv = " << valueString(redundantReceiver) << endl;
 
     //   for (auto instr : allInstrs(f)) {
     //     if (isFifoWrite(instr) && (instr->getOperand(0) == redundantReceiver)) {
@@ -1492,7 +1494,7 @@ namespace ahaHLS {
     //     // }
         
     //   }
-    // }
+     }
 
     // assert(false);
 
