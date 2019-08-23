@@ -1372,10 +1372,10 @@ namespace ahaHLS {
         toErase.insert(instr);
       }
 
-      if (isFifoRead(instr) && (instr->getOperand(1) == replacement)) {
-        cout << "Remove read to lb" << endl;
-        toErase.insert(instr);
-      }
+      //if (isFifoRead(instr) && (instr->getOperand(1) == replacement)) {
+        //cout << "Remove read to lb" << endl;
+        //toErase.insert(instr);
+      //}
       
       if (isFifoWrite(instr) && (instr->getOperand(0) == redundantReceiver)) {
         toErase.insert(instr);
