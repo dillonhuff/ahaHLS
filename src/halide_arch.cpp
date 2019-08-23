@@ -1352,31 +1352,67 @@ namespace ahaHLS {
 
     return hasPrefix(extract<StructType>(u)->getName(), "builtin_fifo");
   }
- 
 
-  void replaceFIFOWith(Value* redundantReceiver, Value* replacement, Function* f) {
-    int numReads = 0;
-
+  // TODO: Delete existing reads from replacement. The replacement should
+  // not be read by other users
+  void replaceFIFOWithLB(Value* redundantReceiver, Value* replacement, Function* f) {
     set<Instruction*> toErase;
-    for (auto instr : allInstrs(f)) {
-  
-      if (isFifoRead(instr) && (instr->getOperand(1) == redundantReceiver)) {
-       
-        instr->setOperand(1, replacement); 
-        //toErase.insert(instr);
-      }
 
-      if (isFifoWrite(instr) && (instr->getOperand(0) == replacement)) {
-        //toErase.insert(instr);
+    set<Instruction*> readsFromRedundant; 
+    for (auto instr : allInstrs(f)) {
+      if (isFifoRead(instr) && (instr->getOperand(1) == redundantReceiver)) {
+        // Replace read from this FIFO with read from linebuffer
+        readsFromRedundant.insert(instr);
+        toErase.insert(instr);
       }
 
       if (isFifoWrite(instr) && (instr->getOperand(0) == redundantReceiver)) {
-        //instr->setOperand(0, replacement);
+        toErase.insert(instr);
+      }
+    }
+
+    cout << "Done selecting instrs, readsFromRedundant = " << readsFromRedundant.size() << endl;
+
+    for (auto instr : readsFromRedundant) {
+
+        auto readF = lbReadFunction(replacement);
+        auto callInst = CallInst::Create(readF, {replacement}); 
+        instr->insertBefore(callInst);
+        instr->replaceAllUsesWith(callInst);
+    }
+    cout << "Erasing instructions after adding linebuffer" << endl;
+    for (auto instr : toErase) {
+      instr->eraseFromParent();
+    }
+
+    runCleanupPasses(f); 
+  }
+
+  void replaceFIFOWith(Value* redundantReceiver, Value* replacement, Function* f) {
+
+    set<Instruction*> toErase;
+    set<Instruction*> readsFromRedundant;
+    for (auto instr : allInstrs(f)) {
+  
+      if (isFifoRead(instr) && (instr->getOperand(1) == redundantReceiver)) {
+        //instr->setOperand(1, replacement); 
+        readsFromRedundant.insert(instr);
+      }
+
+      // Need to delete reads from replacement since the current read from replacement
+      // is the read that will be fed to the redundant code
+      if (isFifoRead(instr) && (instr->getOperand(1) == replacement)) {
+        toErase.insert(instr);
+      }
+      if (isFifoWrite(instr) && (instr->getOperand(0) == redundantReceiver)) {
         toErase.insert(instr);
       }
         
     }
-  
+
+    for (auto instr : readsFromRedundant) {
+      instr->setOperand(1, replacement);
+    }
     for (auto instr : toErase) {
       instr->eraseFromParent();
     }
@@ -1409,6 +1445,10 @@ namespace ahaHLS {
     peepholeOptimizeFifoWrites(f);
 
     bool replacedFifo = true;
+
+    int numFifosReplaced = 0; 
+    int transferLoops = 0;
+    int transferSameReadWrite = 0;
     while (replacedFifo) {
       replacedFifo = false;
       
@@ -1430,6 +1470,7 @@ namespace ahaHLS {
 
 
             //cout << "Possible fifo transfer loop" << endl;
+            transferLoops++;
 
             auto readValue = rd->getOperand(0);
             cout << "Read    = " << valueString(readValue) << endl;
@@ -1437,11 +1478,20 @@ namespace ahaHLS {
             cout << "Written = " << valueString(writtenValue) << endl;
             if (readValue == writtenValue) {
               cout << "Found fifo transfer loop" << endl;
-
+              transferSameReadWrite++;
               // If the receiver FIFO has only one reader and the
               // receiver is actually a fifo, and it is not an argument
               // then: Replace the read from the receiver with a read from
               // the source and delete all writes to the receiver
+
+              if (isLB(rd->getOperand(1)) && isFifo(wr->getOperand(0))) {
+                cout << "Replacing fifo with linebuffer" << endl;
+                Value* redundantReceiver = wr->getOperand(0);
+                Value* source = rd->getOperand(1);
+                //replaceFIFOWithLB(redundantReceiver, source, f);
+                //replacedFifo = true;
+                //numFifosReplaced++;
+              }
 
               if (isFifo(rd->getOperand(1)) && isFifo(wr->getOperand(0))) {
                 cout << "Removing fifo " << valueString(wr->getOperand(0)) << endl;
@@ -1450,6 +1500,7 @@ namespace ahaHLS {
                 cout << "Should remove redundant fifo " << valueString(redundantReceiver) << endl;              
                 replaceFIFOWith(redundantReceiver, source, f); 
                 replacedFifo = true;
+                numFifosReplaced++;
               }
             }
           }
@@ -1630,7 +1681,9 @@ namespace ahaHLS {
 
     runCleanupPasses(f);
 
-    cout << "After optimizing fifos f is..." << endl;
+    cout << "After optimizing away " << numFifosReplaced << " fifos f is..." << endl;
+    cout << "\ttransfer loops = " << transferLoops << endl;
+    cout << "\ttransfer rw    = " << transferSameReadWrite << endl;
     cout << valueString(f) << endl;
     // cout << "After fifo removal" << endl;
     // cout << valueString(f) << endl;
