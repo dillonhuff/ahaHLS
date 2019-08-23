@@ -381,10 +381,11 @@ namespace ahaHLS {
         } else {
           Type* fuTp = fuPtr->getType();
 
-          //cout << "Functional unit type = " << typeString(fuTp) << endl;
+          cout << "Functional unit type = " << typeString(fuTp) << endl;
           assert(PointerType::classof(fuTp));
 
           Type* fuDerefTp = dyn_cast<PointerType>(fuTp)->getElementType();
+
 
           assert(StructType::classof(fuDerefTp));
 

@@ -1341,6 +1341,8 @@ namespace ahaHLS {
   }
 
   bool isFifo(Value* v) {
+    assert(v != nullptr);
+
     if (!PointerType::classof(v->getType())) {
       return false;
     }
@@ -1356,6 +1358,9 @@ namespace ahaHLS {
   // TODO: Delete existing reads from replacement. The replacement should
   // not be read by other users
   void replaceFIFOWithLB(Value* redundantReceiver, Value* replacement, Function* f) {
+    assert(!Argument::classof(redundantReceiver));
+    assert(redundantReceiver != replacement);
+
     set<Instruction*> toErase;
 
     set<Instruction*> readsFromRedundant; 
@@ -1366,6 +1371,10 @@ namespace ahaHLS {
         toErase.insert(instr);
       }
 
+      //if (isFifoRead(instr) && (instr->getOperand(1) == replacement)) {
+        //cout << "Remove read to lb" << endl;
+        //toErase.insert(instr);
+      //}
       
       if (isFifoWrite(instr) && (instr->getOperand(0) == redundantReceiver)) {
         toErase.insert(instr);
@@ -1377,7 +1386,7 @@ namespace ahaHLS {
     for (auto instr : readsFromRedundant) {
 
         auto readF = lbReadFunction(replacement);
-        auto callInst = CallInst::Create(readF, {replacement}); 
+        auto callInst = CallInst::Create(readF, {instr->getOperand(0), replacement}); 
         callInst->insertBefore(instr);
         instr->replaceAllUsesWith(callInst);
     }
@@ -1386,10 +1395,13 @@ namespace ahaHLS {
       instr->eraseFromParent();
     }
 
+    cout << "Done erasing instructions" << endl;
+
     runCleanupPasses(f); 
   }
 
   void replaceFIFOWith(Value* redundantReceiver, Value* replacement, Function* f) {
+    assert(!Argument::classof(redundantReceiver));
 
     set<Instruction*> toErase;
     set<Instruction*> readsFromRedundant;
