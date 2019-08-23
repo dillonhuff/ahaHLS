@@ -1366,6 +1366,7 @@ namespace ahaHLS {
         toErase.insert(instr);
       }
 
+      
       if (isFifoWrite(instr) && (instr->getOperand(0) == redundantReceiver)) {
         toErase.insert(instr);
       }
@@ -1377,7 +1378,7 @@ namespace ahaHLS {
 
         auto readF = lbReadFunction(replacement);
         auto callInst = CallInst::Create(readF, {replacement}); 
-        instr->insertBefore(callInst);
+        callInst->insertBefore(instr);
         instr->replaceAllUsesWith(callInst);
     }
     cout << "Erasing instructions after adding linebuffer" << endl;
