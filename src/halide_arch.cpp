@@ -1372,6 +1372,8 @@ namespace ahaHLS {
         toErase.insert(instr);
       }
 
+      // Not sure why replacing a one use FIFO with the linebuffer that
+      // feeds it is causing errors
       //if (isFifoRead(instr) && (instr->getOperand(1) == replacement)) {
         //cout << "Remove read to lb" << endl;
         //toErase.insert(instr);
@@ -1437,7 +1439,34 @@ namespace ahaHLS {
   
   }
   
-  
+
+  class DataFlowInfo {
+    public:
+      map<Loop*, set<Value*> > sources;
+      map<Loop*, set<Value*> > destinations;
+      map<Loop*, set<Instruction*> > fifoReads;
+      map<Loop*, set<Instruction*> > fifoWrites;
+  };
+
+  void buildDataFlowInfo(Function* f) {
+    DominatorTree dt(*f);
+    LoopInfo li(dt);
+    DataFlowInfo dataflow;
+    for (Loop* loop : li) {
+      set<Instruction*> reads = fifoReads(loop);
+      set<Instruction*> writes = fifoWrites(loop);
+      dataflow.fifoReads[loop] = reads;
+      dataflow.fifoWrites[loop] = writes;
+
+      for (auto instr : reads) {
+        dataflow.sources[loop].insert(instr->getOperand(1));
+      }
+
+      for (auto instr : writes) {
+        dataflow.destinations[loop].insert(instr->getOperand(0));
+      }
+    }
+  }
   void optimizeFifos(Function* f) {
     // How to go about optimizing fifos?
     // Find loop nests that do not contain a fifo (linebuffer) read and fifo (linebuffer) write
@@ -1464,6 +1493,45 @@ namespace ahaHLS {
 
     bool replacedFifo = true;
 
+    set<Instruction*> localFifos;
+    map<Instruction*, set<Instruction*> > localFifoReads;
+    map<Instruction*, set<Instruction*> > localFifoWrites;
+    for (auto instr : allInstrs(f)) {
+      if (isFifo(instr)) {
+        cout << "Found fifo: " << valueString(instr) << endl;
+        localFifos.insert(instr);
+        localFifoReads[instr] = {};
+      }
+    }
+
+    for (auto instr : allInstrs(f)) {
+      if (isFifoRead(instr)) {
+
+        Value* readFrom = instr->getOperand(1);
+        if (Instruction::classof(readFrom)) {
+          auto readFromI = dyn_cast<Instruction>(readFrom);
+
+        
+          if (elem(readFromI, localFifos)) {
+            assert(contains_key(readFromI, localFifoReads));
+            localFifoReads[readFromI].insert(instr);
+          }
+        }
+      }    
+    }
+
+    // Print out more fifo info, find the sources
+    // of each fifos data. What fifos can be removed?
+    // I think for an II == 1 push architecture, all of them can be eliminated
+    // so what we need to do is: Remove all temp fifos, replacing
+    // reads from them with reads from 
+    cout << "Fifo read info..." << endl;
+    for (auto f : localFifoReads) {
+      cout << "\t" << valueString(f.first) << endl;
+      for (auto r : f.second) {
+        cout << "\t\t" << valueString(r) << endl;
+      }
+    }
     int numFifosReplaced = 0; 
     int transferLoops = 0;
     int transferSameReadWrite = 0;
