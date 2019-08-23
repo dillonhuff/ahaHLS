@@ -1503,12 +1503,12 @@ namespace ahaHLS {
               // the source and delete all writes to the receiver
 
               if (isLB(rd->getOperand(1)) && isFifo(wr->getOperand(0))) {
-                cout << "Replacing fifo with linebuffer" << endl;
-                Value* redundantReceiver = wr->getOperand(0);
-                Value* source = rd->getOperand(1);
-                replaceFIFOWithLB(redundantReceiver, source, f);
-                replacedFifo = true;
-                numFifosReplaced++;
+                //cout << "Replacing fifo with linebuffer" << endl;
+                //Value* redundantReceiver = wr->getOperand(0);
+                //Value* source = rd->getOperand(1);
+                //replaceFIFOWithLB(redundantReceiver, source, f);
+                //replacedFifo = true;
+                //numFifosReplaced++;
               } else if(isFifo(rd->getOperand(1)) && isFifo(wr->getOperand(0))) {
                 cout << "Removing fifo " << valueString(wr->getOperand(0)) << endl;
                 Value* redundantReceiver = wr->getOperand(0);
