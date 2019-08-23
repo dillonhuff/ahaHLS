@@ -1361,6 +1361,7 @@ namespace ahaHLS {
     assert(!Argument::classof(redundantReceiver));
     assert(redundantReceiver != replacement);
 
+    cout << "Replacing fifo " << valueString(redundantReceiver) << " with " << valueString(replacement) << endl;
     set<Instruction*> toErase;
 
     set<Instruction*> readsFromRedundant; 
@@ -1371,10 +1372,10 @@ namespace ahaHLS {
         toErase.insert(instr);
       }
 
-      //if (isFifoRead(instr) && (instr->getOperand(1) == replacement)) {
-        //cout << "Remove read to lb" << endl;
-        //toErase.insert(instr);
-      //}
+      if (isFifoRead(instr) && (instr->getOperand(1) == replacement)) {
+        cout << "Remove read to lb" << endl;
+        toErase.insert(instr);
+      }
       
       if (isFifoWrite(instr) && (instr->getOperand(0) == redundantReceiver)) {
         toErase.insert(instr);
@@ -1403,6 +1404,7 @@ namespace ahaHLS {
   void replaceFIFOWith(Value* redundantReceiver, Value* replacement, Function* f) {
     assert(!Argument::classof(redundantReceiver));
 
+    cout << "replacing " << valueString(redundantReceiver) << " with " << valueString(replacement) << endl;
     set<Instruction*> toErase;
     set<Instruction*> readsFromRedundant;
     for (auto instr : allInstrs(f)) {
@@ -1457,6 +1459,9 @@ namespace ahaHLS {
 
     peepholeOptimizeFifoWrites(f);
 
+    cout << "Starting to optimize fifos for " << endl;
+    cout << valueString(f) << endl;
+
     bool replacedFifo = true;
 
     int numFifosReplaced = 0; 
@@ -1501,12 +1506,10 @@ namespace ahaHLS {
                 cout << "Replacing fifo with linebuffer" << endl;
                 Value* redundantReceiver = wr->getOperand(0);
                 Value* source = rd->getOperand(1);
-                //replaceFIFOWithLB(redundantReceiver, source, f);
-                //replacedFifo = true;
-                //numFifosReplaced++;
-              }
-
-              if (isFifo(rd->getOperand(1)) && isFifo(wr->getOperand(0))) {
+                replaceFIFOWithLB(redundantReceiver, source, f);
+                replacedFifo = true;
+                numFifosReplaced++;
+              } else if(isFifo(rd->getOperand(1)) && isFifo(wr->getOperand(0))) {
                 cout << "Removing fifo " << valueString(wr->getOperand(0)) << endl;
                 Value* redundantReceiver = wr->getOperand(0);
                 Value* source = rd->getOperand(1);
