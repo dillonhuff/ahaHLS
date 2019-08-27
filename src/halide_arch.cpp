@@ -1452,6 +1452,25 @@ namespace ahaHLS {
       map<Loop*, DataFlowFifoInfo> info;
   };
 
+
+  bool isDispatchLoop(Loop* l, DataFlowInfo& info) {
+    DataFlowFifoInfo fInfo = map_find(l, info.info);
+    if (fInfo.fifoReads.size() != 1) {
+      return false;
+    }
+    if (fInfo.fifoWrites.size() != 1) {
+      return false;
+    }
+
+    Instruction* rd = *begin(fInfo.fifoReads);
+    Instruction* wr = *begin(fInfo.fifoWrites);
+
+    if (rd->getOperand(0) == wr->getOperand(1)) {
+      return true;
+    }
+    return false;
+  }
+
   std::ostream& operator<<(std::ostream& out, DataFlowInfo& info) {
     out << "Dataflow info" << endl;
 
@@ -1475,10 +1494,13 @@ namespace ahaHLS {
       for (auto wr : loopInfo.second.fifoWrites) {
         out << tab(2) << valueString(wr) << endl;
       }
+
+      if (isDispatchLoop(loopInfo.first, info)) {
+        cout << tab(1) << "--- This is a dispatch loop" << endl;
+      }
     }
     return out;
   }
-
   DataFlowInfo buildDataFlowInfo(Function* f) {
     DominatorTree dt(*f);
     LoopInfo li(dt);
