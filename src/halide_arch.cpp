@@ -1438,34 +1438,67 @@ namespace ahaHLS {
     runCleanupPasses(f);
   
   }
-  
+ 
+  class DataFlowFifoInfo {
+    public:
+      set<Value*> sources;
+      set<Value*> destinations;
+      set<Instruction*> fifoReads;
+      set<Instruction*> fifoWrites;
+  };
 
   class DataFlowInfo {
     public:
-      map<Loop*, set<Value*> > sources;
-      map<Loop*, set<Value*> > destinations;
-      map<Loop*, set<Instruction*> > fifoReads;
-      map<Loop*, set<Instruction*> > fifoWrites;
+      map<Loop*, DataFlowFifoInfo> info;
   };
 
-  void buildDataFlowInfo(Function* f) {
+  std::ostream& operator<<(std::ostream& out, DataFlowInfo& info) {
+    out << "Dataflow info" << endl;
+
+    for (auto loopInfo : info.info) {
+      out << "Loop dataflow info..." << endl;
+      out << tab(1) << "Loop has sources" << endl;
+      for (auto src : loopInfo.second.sources) {
+        out << tab(2) << valueString(src) << endl;
+      }
+      out << tab(1) << "Loop has dests" << endl;
+      for (auto dest : loopInfo.second.destinations) {
+        out << tab(2) << valueString(dest) << endl;
+      }
+
+      out << tab(1) << "Fifo reads..." << endl;
+      for (auto rd : loopInfo.second.fifoReads) {
+        out << tab(2) << valueString(rd) << endl;
+      }
+
+      out << tab(1) << "Fifo writes..." << endl;
+      for (auto wr : loopInfo.second.fifoWrites) {
+        out << tab(2) << valueString(wr) << endl;
+      }
+    }
+    return out;
+  }
+
+  DataFlowInfo buildDataFlowInfo(Function* f) {
     DominatorTree dt(*f);
     LoopInfo li(dt);
     DataFlowInfo dataflow;
     for (Loop* loop : li) {
-      set<Instruction*> reads = fifoReads(loop);
-      set<Instruction*> writes = fifoWrites(loop);
-      dataflow.fifoReads[loop] = reads;
-      dataflow.fifoWrites[loop] = writes;
+      DataFlowFifoInfo fInfo;
+      fInfo.fifoReads = fifoReads(loop);
+      fInfo.fifoWrites = fifoWrites(loop);
 
-      for (auto instr : reads) {
-        dataflow.sources[loop].insert(instr->getOperand(1));
+      for (auto instr : fInfo.fifoReads) {
+        fInfo.sources.insert(instr->getOperand(1));
       }
 
-      for (auto instr : writes) {
-        dataflow.destinations[loop].insert(instr->getOperand(0));
+      for (auto instr : fInfo.fifoWrites) {
+        fInfo.destinations.insert(instr->getOperand(0));
       }
+      dataflow.info.insert({loop, fInfo});
     }
+
+    return dataflow;
   }
   void optimizeFifos(Function* f) {
     // How to go about optimizing fifos?
@@ -1491,6 +1524,10 @@ namespace ahaHLS {
     cout << "Starting to optimize fifos for " << endl;
     cout << valueString(f) << endl;
 
+    DataFlowInfo dfi = buildDataFlowInfo(f);
+    cout << "Dataflow info" << endl;
+    cout << dfi << endl;
+    
     bool replacedFifo = true;
 
     set<Instruction*> localFifos;
