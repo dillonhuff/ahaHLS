@@ -56,8 +56,8 @@ namespace ahaHLS {
     // Build verilog
 
     HardwareConstraints hcs = standardConstraints();
-    hcs.typeSpecs[string("SRAM_32_16")] =
-      [](StructType* tp) { return ramSpec(32, 16); };
+    hcs.typeSpecs[string("SRAM_32_512")] =
+      [](StructType* tp) { return ramSpec(32, 512); };
     InterfaceFunctions interfaces;
     Function* ramRead = ramLoadFunction(getArg(f, 0));
     interfaces.addFunction(ramRead);
