@@ -335,7 +335,7 @@ namespace ahaHLS {
           interfaces.getConstraints(ramRead));
 
 
-      Function* ramRead0 = ramLoadFunction(getArg(f, 0));
+      Function* ramRead0 = ramLoadFunction(getArg(f, 1));
       interfaces.addFunction(ramRead0);
       implementRAMRead0(ramRead0,
           interfaces.getConstraints(ramRead0));
