@@ -361,7 +361,7 @@ namespace ahaHLS {
 
       allPorts.insert({"in0", inputPort(w0, "in0")});
       allPorts.insert({"in1", inputPort(w0, "in1")});
-      allPorts.insert({"sel", inputPort(1, "in1")});
+      allPorts.insert({"sel", inputPort(1, "sel")});
       allPorts.insert({"out", outputPort(10, "out")});                        
 
     } else if (CallInst::classof(instr)) {

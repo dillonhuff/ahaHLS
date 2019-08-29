@@ -150,12 +150,18 @@ namespace ahaHLS {
     LLVMContext context;
     setGlobalLLVMContext(&context);
   } 
+  
   TEST_CASE("Histogram") {
     SMDiagnostic err;
     LLVMContext context;
     setGlobalLLVMContext(&context);
 
-    TestBenchSpec tb = newTB("histogram", 1000);
+    TestBenchSpec tb = newTB("histogram", 5000);
+   
+    int startRunCycle = 1000;
+    map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+    map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+    
     vector<int> imageValues;
     for (int i = 0; i < 1024; i++) {
       imageValues.push_back((i*3 + 17) % 256);
@@ -175,7 +181,7 @@ namespace ahaHLS {
     }
 
     int setMemCycle = 1;
-    int checkMemCycle = 400;
+    int checkMemCycle = 2500;
     setRAM(tb, setMemCycle, "arg_0", imageValues);
     setRAM(tb, setMemCycle, "arg_1", allZerosValues);
     checkRAM(tb, checkMemCycle, "arg_1", correct);
@@ -283,6 +289,8 @@ namespace ahaHLS {
 
       map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 0}};
       emitVerilogTestBench(tb, arch, testLayout);
+
+      REQUIRE(runIVerilogTB("histogram"));
     }
 
     SECTION("no forwarding") {
