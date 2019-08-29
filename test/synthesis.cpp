@@ -204,6 +204,8 @@ namespace ahaHLS {
       IRBuilder<> loopBuilder(loopBlock);
 
       auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
+      auto lastCnt = loopBuilder.CreatePHI(intType(32), 2);
+      auto lastPix = loopBuilder.CreatePHI(intType(8), 2);
       auto nextInd = loopBuilder.CreateAdd(indPhi, one);
 
       auto pix = loadRAMVal(loopBuilder, getArg(f, 0), indPhi);
@@ -212,8 +214,15 @@ namespace ahaHLS {
       storeRAMVal(loopBuilder, getArg(f, 1), pix, cntN);
       auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
       loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
+
       indPhi->addIncoming(zero, entryBlock);
       indPhi->addIncoming(nextInd, loopBlock);
+
+      lastCnt->addIncoming(zero, entryBlock);
+      lastCnt->addIncoming(cntN, loopBlock);
+
+      lastPix->addIncoming(mkInt(0, 8), loopBlock);
+      lastPix->addIncoming(pix, loopBlock);
 
       IRBuilder<> exitBuilder(exitBlock);
       exitBuilder.CreateRet(nullptr);
