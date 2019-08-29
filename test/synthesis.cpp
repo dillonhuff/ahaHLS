@@ -180,7 +180,7 @@ namespace ahaHLS {
     setRAM(tb, setMemCycle, "arg_0", imageValues);
     setRAM(tb, setMemCycle, "arg_1", allZerosValues);
     checkRAM(tb, checkMemCycle, "arg_1", correct);
-
+    
     SECTION("without forwarding") {
 
       auto mod = llvm::make_unique<Module>("histogram in LLVM", context);
@@ -188,70 +188,74 @@ namespace ahaHLS {
 
       std::vector<Type *> inputs{sramType(8, 1024)->getPointerTo(),
         sramType(32, 256)->getPointerTo()};
-      Function* f = mkFunc(inputs, "vadd", mod.get());
+      Function* f = mkFunc(inputs, "histogram", mod.get());
 
-    auto entryBlock = mkBB("entry_block", f);
-    auto loopBlock = mkBB("loop_block", f);
-    auto exitBlock = mkBB("exit_block", f);        
+      auto entryBlock = mkBB("entry_block", f);
+      auto loopBlock = mkBB("loop_block", f);
+      auto exitBlock = mkBB("exit_block", f);        
 
-    IRBuilder<> entryBuilder(entryBlock);
-    
-    ConstantInt* loopBound = mkInt("1024", 32);
-    ConstantInt* zero = mkInt("0", 32);    
-    ConstantInt* one = mkInt("1", 32);    
-    entryBuilder.CreateBr(loopBlock);
+      IRBuilder<> entryBuilder(entryBlock);
 
-    IRBuilder<> loopBuilder(loopBlock);
+      ConstantInt* loopBound = mkInt("1024", 32);
+      ConstantInt* zero = mkInt("0", 32);    
+      ConstantInt* one = mkInt("1", 32);    
+      entryBuilder.CreateBr(loopBlock);
 
-    auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
-    auto nextInd = loopBuilder.CreateAdd(indPhi, one);
+      IRBuilder<> loopBuilder(loopBlock);
 
-    auto pix = loadRAMVal(loopBuilder, getArg(f, 0), indPhi);
-    auto cnt = loadRAMVal(loopBuilder, getArg(f, 1), pix);
-    auto cntN = loopBuilder.CreateAdd(cnt, one);
-    storeRAMVal(loopBuilder, getArg(f, 1), pix, cntN);
-    auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
-    loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
-    indPhi->addIncoming(zero, entryBlock);
-    indPhi->addIncoming(nextInd, loopBlock);
+      auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
+      auto nextInd = loopBuilder.CreateAdd(indPhi, one);
 
-    IRBuilder<> exitBuilder(exitBlock);
-    exitBuilder.CreateRet(nullptr);
-    // Build verilog
+      auto pix = loadRAMVal(loopBuilder, getArg(f, 0), indPhi);
+      auto cnt = loadRAMVal(loopBuilder, getArg(f, 1), pix);
+      auto cntN = loopBuilder.CreateAdd(cnt, one);
+      storeRAMVal(loopBuilder, getArg(f, 1), pix, cntN);
+      auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
+      loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
+      indPhi->addIncoming(zero, entryBlock);
+      indPhi->addIncoming(nextInd, loopBlock);
 
-    HardwareConstraints hcs = standardConstraints();
-    hcs.typeSpecs[string("SRAM_8_1024")] =
-      [](StructType* tp) { return ramSpec(32, 512); };
-    hcs.typeSpecs[string("SRAM_32_256")] =
-      [](StructType* tp) { return ramSpec(32, 256); };
+      IRBuilder<> exitBuilder(exitBlock);
+      exitBuilder.CreateRet(nullptr);
+      // Build verilog
 
-    InterfaceFunctions interfaces;
-    Function* ramRead = ramLoadFunction(getArg(f, 0));
-    interfaces.addFunction(ramRead);
-    implementRAMRead0(ramRead,
-                      interfaces.getConstraints(ramRead));
+      HardwareConstraints hcs = standardConstraints();
+      hcs.typeSpecs[string("SRAM_8_1024")] =
+        [](StructType* tp) { return ramSpec(32, 512); };
+      hcs.typeSpecs[string("SRAM_32_256")] =
+        [](StructType* tp) { return ramSpec(32, 256); };
 
-    Function* ramWrite = ramStoreFunction(getArg(f, 1));
-    interfaces.addFunction(ramWrite);
-    implementRAMWrite0(ramWrite,
-                       interfaces.getConstraints(ramWrite));
+      InterfaceFunctions interfaces;
+      Function* ramRead = ramLoadFunction(getArg(f, 0));
+      interfaces.addFunction(ramRead);
+      implementRAMRead0(ramRead,
+          interfaces.getConstraints(ramRead));
 
-    ExecutionConstraints exec;
-    set<BasicBlock*> toPipeline{loopBlock};
-    Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
-    STG graph = buildSTG(s, f);
+      Function* ramWrite = ramStoreFunction(getArg(f, 1));
+      interfaces.addFunction(ramWrite);
+      implementRAMWrite0(ramWrite,
+          interfaces.getConstraints(ramWrite));
 
-    cout << "Histogram STG Is" << endl;
-    graph.print(cout);
+      ExecutionConstraints exec;
+      set<BasicBlock*> toPipeline{loopBlock};
+      Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
+      STG graph = buildSTG(s, f);
 
-    map<llvm::Value*, int> layout;
-    auto arch = buildMicroArchitecture(graph, layout, hcs);
+      cout << "Histogram STG Is" << endl;
+      graph.print(cout);
 
-    VerilogDebugInfo info;
-    addNoXChecks(arch, info);
-    //printAllInstructions(arch, info);
+      map<llvm::Value*, int> layout;
+      auto arch = buildMicroArchitecture(graph, layout, hcs);
 
-    emitVerilog(arch, info);
+      VerilogDebugInfo info;
+      addNoXChecks(arch, info);
+      //printAllInstructions(arch, info);
+
+      emitVerilog(arch, info);
+
+      map<string, int> testLayout = {{"arg_0", 0}, {"arg_1", 0}};
+      emitVerilogTestBench(tb, arch, testLayout);
+
     }
 
     SECTION("forwarding") {
