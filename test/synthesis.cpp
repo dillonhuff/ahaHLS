@@ -236,14 +236,21 @@ namespace ahaHLS {
       implementRAMWrite0(ramWrite,
           interfaces.getConstraints(ramWrite));
 
+      set<BasicBlock*> blocksToPipeline{loopBlock};
       ExecutionConstraints exec;
-      set<BasicBlock*> toPipeline{loopBlock};
-      Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
+
+      exec.toPipeline = {{true, {loopBlock}}};
+      createMemoryConstraints(f, hcs, exec);
+
+      //set<BasicBlock*> toPipeline{loopBlock};
+      Schedule s = scheduleInterface(f, hcs, interfaces, blocksToPipeline, exec);
       STG graph = buildSTG(s, f);
 
       cout << "Histogram STG Is" << endl;
       graph.print(cout);
 
+      REQUIRE(graph.pipelines.size() == 1);
+      REQUIRE(graph.pipelines[0].II() == 2);
       map<llvm::Value*, int> layout;
       auto arch = buildMicroArchitecture(graph, layout, hcs);
 
