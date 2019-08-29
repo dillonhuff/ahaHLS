@@ -149,8 +149,7 @@ namespace ahaHLS {
     SMDiagnostic err;
     LLVMContext context;
     setGlobalLLVMContext(&context);
-  }
-
+  } 
   TEST_CASE("Histogram") {
     SMDiagnostic err;
     LLVMContext context;
@@ -248,6 +247,11 @@ namespace ahaHLS {
       implementRAMRead0(ramRead,
           interfaces.getConstraints(ramRead));
 
+      Function* ramRead0 = ramLoadFunction(getArg(f, 1));
+      interfaces.addFunction(ramRead0);
+      implementRAMRead0(ramRead0,
+          interfaces.getConstraints(ramRead0));
+
       Function* ramWrite = ramStoreFunction(getArg(f, 1));
       interfaces.addFunction(ramWrite);
       implementRAMWrite0(ramWrite,
@@ -330,6 +334,12 @@ namespace ahaHLS {
       implementRAMRead0(ramRead,
           interfaces.getConstraints(ramRead));
 
+
+      Function* ramRead0 = ramLoadFunction(getArg(f, 0));
+      interfaces.addFunction(ramRead0);
+      implementRAMRead0(ramRead0,
+          interfaces.getConstraints(ramRead0));
+      
       Function* ramWrite = ramStoreFunction(getArg(f, 1));
       interfaces.addFunction(ramWrite);
       implementRAMWrite0(ramWrite,
