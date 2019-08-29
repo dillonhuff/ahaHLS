@@ -211,7 +211,12 @@ namespace ahaHLS {
       auto pix = loadRAMVal(loopBuilder, getArg(f, 0), indPhi);
       auto cnt = loadRAMVal(loopBuilder, getArg(f, 1), pix);
       auto cntN = loopBuilder.CreateAdd(cnt, one);
+      auto fwdCnt = loopBuilder.CreateAdd(lastCnt, one);
+
+      auto shouldFwd = loopBuilder.CreateAnd(loopBuilder.CreateICmpEQ(lastPix, pix), loopBuilder.CreateICmpNE(indPhi, zero));
+      auto storeVal = loopBuilder.CreateSelect(shouldFwd, fwdCnt, cntN);
       storeRAMVal(loopBuilder, getArg(f, 1), pix, cntN);
+      
       auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
       loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
 
@@ -309,7 +314,6 @@ namespace ahaHLS {
 
       IRBuilder<> exitBuilder(exitBlock);
       exitBuilder.CreateRet(nullptr);
-      // Build verilog
 
       HardwareConstraints hcs = standardConstraints();
       hcs.typeSpecs[string("SRAM_8_1024")] =
