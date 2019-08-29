@@ -181,7 +181,7 @@ namespace ahaHLS {
     setRAM(tb, setMemCycle, "arg_1", allZerosValues);
     checkRAM(tb, checkMemCycle, "arg_1", correct);
     
-    SECTION("without forwarding") {
+    SECTION("with forwarding") {
 
       auto mod = llvm::make_unique<Module>("histogram in LLVM", context);
       setGlobalLLVMModule(mod.get());
@@ -233,6 +233,9 @@ namespace ahaHLS {
       exitBuilder.CreateRet(nullptr);
       // Build verilog
 
+      cout << "Histogram function with forwarding" << endl;
+      cout << valueString(f) << endl;
+
       HardwareConstraints hcs = standardConstraints();
       hcs.typeSpecs[string("SRAM_8_1024")] =
         [](StructType* tp) { return ramSpec(32, 512); };
@@ -254,7 +257,7 @@ namespace ahaHLS {
       ExecutionConstraints exec;
 
       exec.toPipeline = {{true, {loopBlock}}};
-      createMemoryConstraints(f, hcs, exec);
+      //createMemoryConstraints(f, hcs, exec);
 
       //set<BasicBlock*> toPipeline{loopBlock};
       Schedule s = scheduleInterface(f, hcs, interfaces, blocksToPipeline, exec);
@@ -264,7 +267,7 @@ namespace ahaHLS {
       graph.print(cout);
 
       REQUIRE(graph.pipelines.size() == 1);
-      REQUIRE(graph.pipelines[0].II() == 2);
+      REQUIRE(graph.pipelines[0].II() == 1);
       map<llvm::Value*, int> layout;
       auto arch = buildMicroArchitecture(graph, layout, hcs);
 
@@ -278,7 +281,7 @@ namespace ahaHLS {
       emitVerilogTestBench(tb, arch, testLayout);
     }
 
-    SECTION("forwarding") {
+    SECTION("no forwarding") {
 
       auto mod = llvm::make_unique<Module>("forwarding histogram in LLVM", context);
       setGlobalLLVMModule(mod.get());
@@ -337,7 +340,7 @@ namespace ahaHLS {
 
       exec.toPipeline = {{true, {loopBlock}}};
       // Equivalent of pragma ignore dependencies
-      //createMemoryConstraints(f, hcs, exec);
+      createMemoryConstraints(f, hcs, exec);
 
       //set<BasicBlock*> toPipeline{loopBlock};
       Schedule s = scheduleInterface(f, hcs, interfaces, blocksToPipeline, exec);
@@ -347,7 +350,7 @@ namespace ahaHLS {
       graph.print(cout);
 
       REQUIRE(graph.pipelines.size() == 1);
-      REQUIRE(graph.pipelines[0].II() == 1);
+      REQUIRE(graph.pipelines[0].II() == 2);
       map<llvm::Value*, int> layout;
       auto arch = buildMicroArchitecture(graph, layout, hcs);
 

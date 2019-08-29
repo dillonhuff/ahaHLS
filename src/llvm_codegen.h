@@ -100,33 +100,10 @@ namespace ahaHLS {
     return builder.CreateLoad(ind, name);
   }
 
-  static inline
-  llvm::Function* ramLoadFunction(const int width, const int depth) {
-    // TODO: Add tostring
-    auto name = "ram.read.32.16";
 
-    auto& m = getGlobalLLVMModule();
-    llvm::Function* fifoRead = m.getFunction(name);
+  llvm::Function* ramLoadFunction(const int width, const int depth);
 
-    if (fifoRead != nullptr) {
-      return fifoRead;
-    }
-
-    llvm::FunctionType *tp =
-      llvm::FunctionType::get(intType(width), {sramType(width, depth)->getPointerTo(), intType(width)}, false);
-
-    auto c = m.getOrInsertFunction(name, tp);
-
-    assert(llvm::Function::classof(c));
-
-    return llvm::dyn_cast<llvm::Function>(c);
-  }
-
-  static inline
-  llvm::Function* ramLoadFunction(llvm::Value* ram) {
-    // TODO: Compute these values
-    return ramLoadFunction(32, 16);
-  }  
+  llvm::Function* ramLoadFunction(llvm::Value* ram);
 
   static inline
   llvm::Function* ramStoreFunction(const int width, const int depth) {

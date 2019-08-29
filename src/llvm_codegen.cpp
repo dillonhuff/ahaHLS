@@ -8,6 +8,48 @@ namespace ahaHLS {
   static LLVMContext* context;
   static Module* globalMod;
 
+  llvm::Function* ramLoadFunction(llvm::Value* ram) {
+    Type* tp = ram->getType();
+    assert(PointerType::classof(tp));
+    Type* btp = dyn_cast<PointerType>(tp)->getElementType();
+    assert(StructType::classof(btp));
+    StructType* stp = dyn_cast<StructType>(btp);
+    string name = stp->getName();
+    cout << "Ram name = " << name << endl;
+    vector<string> fields = splitRep("_", name);
+    cout << "# of fields = " << fields.size() << endl;
+    for (auto f : fields) {
+      cout << f << endl;
+    }
+    //assert(fields.size() == 3);
+
+    int width = stoi(fields[1]);
+    int depth = stoi(fields[2]);
+    return ramLoadFunction(width, depth);
+  }  
+  
+  llvm::Function* ramLoadFunction(const int width, const int depth) {
+    // TODO: Add tostring
+    //auto name = "ram.read.32.16";
+    auto name = "ram.read." + to_string(width) + "." + to_string(depth);
+
+    auto& m = getGlobalLLVMModule();
+    llvm::Function* fifoRead = m.getFunction(name);
+
+    if (fifoRead != nullptr) {
+      return fifoRead;
+    }
+
+    llvm::FunctionType *tp =
+      llvm::FunctionType::get(intType(width), {sramType(width, depth)->getPointerTo(), intType(width)}, false);
+
+    auto c = m.getOrInsertFunction(name, tp);
+
+    assert(llvm::Function::classof(c));
+
+    return llvm::dyn_cast<llvm::Function>(c);
+  }
+
   void setGlobalLLVMContext(llvm::LLVMContext* contextPtr) {
     context = contextPtr;
   }
