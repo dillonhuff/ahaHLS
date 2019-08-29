@@ -537,7 +537,17 @@ namespace ahaHLS {
       cout << "h = " << s.lower(h).get_numeral_int64() << endl;
       return sched;
     } else {
+
+     
+      // Minimize IIs
+      p.objectiveFunction = 0;
+      for (auto pipe : p.IInames) {
+        p.objectiveFunction = p.objectiveFunction + LinearExpression(pipe.second);        
+      }
+      optimize::handle h = s.minimize(toZ3(c, p.objectiveFunction));
       Schedule sched = extractModel(p, c, s);
+      cout << "h = " << s.lower(h).get_numeral_int64() << endl;
+      //Schedule sched = extractModel(p, c, s);
       return sched;
     }
   }
