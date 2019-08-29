@@ -538,12 +538,15 @@ namespace ahaHLS {
       return sched;
     } else {
 
-     
+    
       // Minimize IIs
       p.objectiveFunction = 0;
       for (auto pipe : p.IInames) {
         p.objectiveFunction = p.objectiveFunction + LinearExpression(pipe.second);        
       }
+
+      cout << "Minimizing " << p.objectiveFunction << endl;
+
       optimize::handle h = s.minimize(toZ3(c, p.objectiveFunction));
       Schedule sched = extractModel(p, c, s);
       cout << "h = " << s.lower(h).get_numeral_int64() << endl;
@@ -1728,7 +1731,7 @@ namespace ahaHLS {
               
               if (memRawDD > 0) {
 
-                Ordered* ddC = instrEnd(&instrA) < instrStart(&instrB);
+                Ordered* ddC = instrEnd(&instrA) <= instrStart(&instrB);
                 ddC->pipelineOffsets[IIName] = memRawDD;
                 exe.add(ddC);
                 
