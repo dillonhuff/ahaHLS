@@ -14,7 +14,27 @@ using namespace std;
 
 namespace ahaHLS {
 
-  // TODO: Add initiation interval
+  void checkRAM(TestBenchSpec& tb, const int startTime, const std::string& argName, vector<int>& expectedValues) {
+    map<string, int> layout{{argName, 0}};
+    map<string, vector<int> > valMap{{argName, expectedValues}};
+    checkRAM(tb, startTime, argName, valMap, layout);
+  }
+
+  void setRAM(TestBenchSpec& tb, const int startTime, const std::string& argName, vector<int>& values) {
+    map<string, int> layout{{argName, 0}};
+    map<string, vector<int> > valMap{{argName, values}};
+    setRAM(tb, startTime, argName, valMap, layout);
+  }
+
+  TestBenchSpec newTB(const std::string& name, const int runCycles) {
+    TestBenchSpec tb;
+    tb.maxCycles = runCycles;
+    tb.name = name;
+    tb.useModSpecs = true;
+
+    return tb;
+  }
+
   TEST_CASE("Vector add rams") {
 
     SMDiagnostic err;
@@ -107,7 +127,6 @@ namespace ahaHLS {
     map<string, vector<int> > memoryExpected{{"arg_2", ram2Vals}};
     
     int startSetMemCycle = 1;
-    //setRAM(tb, 1, "arg_0", memoryInit, testLayout);
 
     map<string, vector<int> > arg0Init{{"arg_0", ram0Vals}};
     map<string, vector<int> > arg1Init{{"arg_1", ram1Vals}};
@@ -127,18 +146,40 @@ namespace ahaHLS {
   }
 
   TEST_CASE("Vector add fifos") {
-
     SMDiagnostic err;
     LLVMContext context;
     setGlobalLLVMContext(&context);
-
   }
 
   TEST_CASE("Histogram") {
-
     SMDiagnostic err;
     LLVMContext context;
     setGlobalLLVMContext(&context);
+
+    TestBenchSpec tb = newTB("histogram", 1000);
+    vector<int> imageValues;
+    for (int i = 0; i < 1024; i++) {
+      imageValues.push_back((i*3 + 17) % 256);
+    }
+
+    vector<int> correct;
+    correct.resize(256);
+    vector<int> allZerosValues;
+    allZerosValues.resize(256);
+    for (int i = 0; i < 256; i++) {
+      correct[i] = 0;
+      allZerosValues[i] = 0;
+    }
+    for (int i = 0; i < imageValues.size(); i++) {
+      int pix = imageValues[i];
+      correct[pix] = correct[pix] + 1;
+    }
+
+    int setMemCycle = 1;
+    int checkMemCycle = 400;
+    setRAM(tb, setMemCycle, "arg_0", imageValues);
+    setRAM(tb, setMemCycle, "arg_1", allZerosValues);
+    checkRAM(tb, checkMemCycle, "arg_1", correct);
 
     SECTION("without forwarding") {
 
