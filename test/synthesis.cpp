@@ -194,6 +194,7 @@ namespace ahaHLS {
     Function* ramWrite = ramStoreFunction(getArg(f, 1));
     interfaces.addFunction(ramWrite);
     implementRAMWrite0(ramWrite,
+        1,
                        interfaces.getConstraints(ramWrite));
 
     ExecutionConstraints exec;
@@ -465,6 +466,7 @@ namespace ahaHLS {
       Function* ramWrite = ramStoreFunction(getArg(f, 1));
       interfaces.addFunction(ramWrite);
       implementRAMWrite0(ramWrite,
+          1,
           interfaces.getConstraints(ramWrite));
 
       set<BasicBlock*> blocksToPipeline{loopBlock};
