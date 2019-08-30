@@ -154,7 +154,8 @@ namespace ahaHLS {
     setGlobalLLVMModule(mod.get());
 
     std::vector<Type *> inputs{fifoType(32)->getPointerTo(),
-        fifoType(32)->getPointerTo()};
+      fifoType(32)->getPointerTo(),
+      fifoType(32)->getPointerTo()};
     Function* f = mkFunc(inputs, "vadd_fifo", mod.get());
 
     auto entryBlock = mkBB("entry_block", f);
