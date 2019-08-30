@@ -219,6 +219,7 @@ namespace ahaHLS {
     emitVerilog(arch, info);
 
     TestBenchSpec tb = newTB("vadd_fifo", 5000);
+    tb.injectVerilog("always @(posedge clk) begin $display(\"total cycles = %d\", total_cycles); end");
     int startRunCycle = 10;
 
     map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));

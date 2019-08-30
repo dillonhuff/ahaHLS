@@ -29,6 +29,10 @@ using namespace std;
 
 namespace ahaHLS {
 
+  void TestBenchSpec::injectVerilog(const std::string& str) {
+    verilogToInject += str;
+  }
+
   std::string assertString(const std::string& condition) {
     return "if (!(" + condition + ")) begin $display(\"assertion(" + condition + ")\"); $finish(); end";
   }
@@ -329,6 +333,11 @@ namespace ahaHLS {
     }
     out << tab(1) << "end" << endl;
 
+    out << endl;
+
+    for (auto str : debugInfo.misc) {
+      out << str << endl;
+    }
     out << endl;
 
     for (auto mem : debugInfo.memories) {
@@ -868,7 +877,8 @@ namespace ahaHLS {
     }
 
     comps.instances.push_back(dut);
-    
+   
+    comps.misc.push_back(tb.verilogToInject);
     vector<Port> pts;
     emitModule(out, modName, pts, comps);
 

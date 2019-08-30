@@ -63,6 +63,8 @@ namespace ahaHLS {
 
     bool useModSpecs;
 
+    std::string verilogToInject;
+
     TestBenchSpec() {
       maxCycles = 400;
       settableWires.insert("clk");
@@ -75,6 +77,7 @@ namespace ahaHLS {
       actionsOnConditions.push_back("if " + parens(condition) + " begin " + action + " end ");
     }
 
+    void injectVerilog(const std::string& str);
     void setArgPort(llvm::Argument* arg, std::string port, int cycleNo, std::string value);
     void setArgPort(llvm::Argument* arg, std::string port, int cycleNo, const int value);
     void settablePort(llvm::Argument* arg, std::string port);
@@ -94,6 +97,7 @@ namespace ahaHLS {
     std::vector<AlwaysDelayBlock> delayBlocks;
     std::vector<std::string> initStmts;
     std::vector<ModuleInstance> instances;    
+    std::vector<string> misc;
   };
 
   typedef VerilogComponents VerilogDebugInfo;
