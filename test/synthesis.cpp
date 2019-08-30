@@ -180,21 +180,55 @@ namespace ahaHLS {
     auto a = loopBuilder.CreateCall(fRead, {getArg(f, 0)});
     auto b = loopBuilder.CreateCall(fRead, {getArg(f, 1)});
     auto c = loopBuilder.CreateAdd(a, b);
-    loopBuilder.CreateCall(fWrite, {getArg(f, 2), c});
-
+    loopBuilder.CreateCall(fWrite, {c, getArg(f, 2)});
+    auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
+    loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
+    
     indPhi->addIncoming(zero, entryBlock);
     indPhi->addIncoming(nextInd, loopBlock);
     
     IRBuilder<> exitBuilder(exitBlock);
     exitBuilder.CreateRet(nullptr);
 
+    HardwareConstraints hcs = standardConstraints();
+    hcs.typeSpecs["builtin_fifo_32"] = fifoSpec32;
+    
+    InterfaceFunctions interfaces;
+    interfaces.addFunction(fRead);
+    implementRVFifoRead(fRead,
+        interfaces.getConstraints(fRead));
+
+    interfaces.addFunction(fWrite);
+    implementRVFifoWrite(fWrite,
+        interfaces.getConstraints(fWrite));
+
+    ExecutionConstraints exec;
+    set<BasicBlock*> toPipeline{loopBlock};
+    Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
+    STG graph = buildSTG(s, f);
+
+    cout << "STG Is" << endl;
+    graph.print(cout);
+
+    map<llvm::Value*, int> layout;
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
     TestBenchSpec tb = newTB("vadd_fifo", 1000);
     int startRunCycle = 10;
 
     map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
     map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
 
-    vector<int> inputValues;
+    int numIns = 512;
+    int writeTime = 3;
+    vector<pair<int, int> > fifoAIns;
+    for (int i = 0; i < numIns; i++) {
+      fifoAIns.push_back({writeTime, i});
+      writeTime += 2;
+    }
+    setRVChannel(tb, "arg_0", fifoAIns);
+
+    map<string, int> testLayout;
+    emitVerilogTestBench(tb, arch, testLayout);
   } 
   
   TEST_CASE("Histogram") {
