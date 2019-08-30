@@ -212,7 +212,13 @@ namespace ahaHLS {
 
     map<llvm::Value*, int> layout;
     auto arch = buildMicroArchitecture(graph, layout, hcs);
-    TestBenchSpec tb = newTB("vadd_fifo", 1000);
+
+    VerilogDebugInfo info;
+    addNoXChecks(arch, info);
+    printAllInstructions(arch, info);
+    emitVerilog(arch, info);
+
+    TestBenchSpec tb = newTB("vadd_fifo", 5000);
     int startRunCycle = 10;
 
     map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
@@ -221,14 +227,24 @@ namespace ahaHLS {
     int numIns = 512;
     int writeTime = 3;
     vector<pair<int, int> > fifoAIns;
+    vector<pair<int, int> > fifoBIns;
+    vector<pair<int, string> > fifoExpected;
+    int checkTime = 3000;
     for (int i = 0; i < numIns; i++) {
       fifoAIns.push_back({writeTime, i});
+      fifoBIns.push_back({writeTime, i});
+      fifoExpected.push_back({checkTime, to_string(i + i)});
+      checkTime += 2;
       writeTime += 2;
     }
-    setRVChannel(tb, "arg_0", fifoAIns);
+    setRVFifo(tb, "arg_0", fifoAIns);
+    setRVFifo(tb, "arg_1", fifoAIns);
 
+    checkRVFifo(tb, "arg_2", fifoExpected);
     map<string, int> testLayout;
     emitVerilogTestBench(tb, arch, testLayout);
+
+    REQUIRE(runIVerilogTB("vadd_fifo"));
   } 
   
   TEST_CASE("Histogram") {
