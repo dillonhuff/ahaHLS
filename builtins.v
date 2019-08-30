@@ -616,21 +616,42 @@ module phi( last_block, s, in, out);
 
   reg [WIDTH-1:0] out_reg;
 
- integer i;
- integer found;
+  integer i;
+  integer found;
+  integer lbInd;
+  integer correctInd;
   always @(*) begin
-    found = 0;
-    for (i = 0 ; i < NB_PAIR; i=i+1) begin
-      if (last_block == s[32*i +: 32]) begin
-        out_reg = in[i*WIDTH +: WIDTH];
-        found = 1;
+
+    lbInd = 0;
+    correctInd = 0;
+    for (lbInd = 0; lbInd < NB_PAIR; lbInd = lbInd + 1) begin
+      if (s[32*lbInd +: 32] == last_block) begin
+        correctInd = lbInd;
       end
     end
-    if (found == 0) begin
-      $display("Error: last_block: %b not in s : %b",last_block, s);
-      out_reg = {{WIDTH}{1'b0}};
-    end
+
+  
+    out_reg = in[correctInd*WIDTH +: WIDTH]; 
+
   end
+
+   //for (outBit = 0; outBit < WIDTH; outBit = outBit + 1) begin
+      //for (i = 0; i < NB_PAIR; i=i+1) begin
+
+      //end
+    //end
+    //found = 0;
+    //for (i = 0 ; i < NB_PAIR; i=i+1) begin
+      //if (last_block == s[32*i +: 32]) begin
+        //out_reg = in[i*WIDTH +: WIDTH];
+        //found = 1;
+      //end
+    //end
+    //if (found == 0) begin
+      //$display("Error: last_block: %b not in s : %b",last_block, s);
+      //out_reg = {{WIDTH}{1'b0}};
+    //end
+  //end
 
   assign out = out_reg;
   

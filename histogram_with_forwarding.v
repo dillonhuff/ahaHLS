@@ -998,7 +998,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	end
 	// controller for arg_1.arg_1_wdata_0_reg
 	always @(*) begin
-		if (andOp_49_out) begin 
+		if (andOp_50_out) begin 
 			arg_1_wdata_0_reg = add_add9_out;
 		end else begin
 			arg_1_wdata_0_reg = 0;

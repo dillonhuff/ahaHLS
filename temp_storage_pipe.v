@@ -46,6 +46,7 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	end
 
 
+
 	always @(posedge clk) begin
 		if (!((!(andOp_12_out === 1) || andOp_16_out !== 1))) begin $display("assertion((!(andOp_12_out === 1) || andOp_16_out !== 1))"); $finish(); end
 	end
@@ -231,47 +232,47 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	end
 
 	always @(posedge clk) begin
-		if (!(notOp_156_out || icmp_icmp4_in0 !== 32'dx)) begin $display("assertion(notOp_156_out || icmp_icmp4_in0 !== 32'dx)"); $finish(); end
+		if (!(notOp_156_out || icmp_icmp1_in0 !== 32'dx)) begin $display("assertion(notOp_156_out || icmp_icmp1_in0 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(notOp_157_out || icmp_icmp4_in1 !== 32'dx)) begin $display("assertion(notOp_157_out || icmp_icmp4_in1 !== 32'dx)"); $finish(); end
+		if (!(notOp_157_out || icmp_icmp1_in1 !== 32'dx)) begin $display("assertion(notOp_157_out || icmp_icmp1_in1 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_158_out) || add_add3_in0 !== 32'dx)) begin $display("assertion(!(andOp_158_out) || add_add3_in0 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_158_out) || add_add4_in0 !== 32'dx)) begin $display("assertion(!(andOp_158_out) || add_add4_in0 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_158_out) || add_add3_in1 !== 32'dx)) begin $display("assertion(!(andOp_158_out) || add_add3_in1 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_158_out) || add_add4_in1 !== 32'dx)) begin $display("assertion(!(andOp_158_out) || add_add4_in1 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_159_out) || add_add11_in0 !== 32'dx)) begin $display("assertion(!(andOp_159_out) || add_add11_in0 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_159_out) || add_add12_in0 !== 32'dx)) begin $display("assertion(!(andOp_159_out) || add_add12_in0 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_159_out) || add_add11_in1 !== 32'dx)) begin $display("assertion(!(andOp_159_out) || add_add11_in1 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_159_out) || add_add12_in1 !== 32'dx)) begin $display("assertion(!(andOp_159_out) || add_add12_in1 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_160_out) || mul_mul7_in0 !== 32'dx)) begin $display("assertion(!(andOp_160_out) || mul_mul7_in0 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_160_out) || mul_mul6_in0 !== 32'dx)) begin $display("assertion(!(andOp_160_out) || mul_mul6_in0 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_160_out) || mul_mul7_in1 !== 32'dx)) begin $display("assertion(!(andOp_160_out) || mul_mul7_in1 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_160_out) || mul_mul6_in1 !== 32'dx)) begin $display("assertion(!(andOp_160_out) || mul_mul6_in1 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_161_out) || mul_mul10_in0 !== 32'dx)) begin $display("assertion(!(andOp_161_out) || mul_mul10_in0 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_161_out) || mul_mul11_in0 !== 32'dx)) begin $display("assertion(!(andOp_161_out) || mul_mul11_in0 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_161_out) || mul_mul10_in1 !== 32'dx)) begin $display("assertion(!(andOp_161_out) || mul_mul10_in1 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_161_out) || mul_mul11_in1 !== 32'dx)) begin $display("assertion(!(andOp_161_out) || mul_mul11_in1 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_162_out) || phi_phi2_out !== 'dx))) begin $display("assertion((!(andOp_162_out) || phi_phi2_out !== 'dx))"); $finish(); end
+		if (!((!(andOp_162_out) || phi_phi3_out !== 'dx))) begin $display("assertion((!(andOp_162_out) || phi_phi3_out !== 'dx))"); $finish(); end
 	end
 
 	always @(posedge clk) begin
@@ -279,7 +280,7 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_164_out) || add_add11_out !== 32'dx))) begin $display("assertion((!(andOp_164_out) || add_add11_out !== 32'dx))"); $finish(); end
+		if (!((!(andOp_164_out) || add_add12_out !== 32'dx))) begin $display("assertion((!(andOp_164_out) || add_add12_out !== 32'dx))"); $finish(); end
 	end
 
 
@@ -288,38 +289,38 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	// End debug wires and ports
 
 	// Start Functional Units
-	wire [63:0] phi_phi2_in;
-	wire [31:0] phi_phi2_last_block;
-	wire [63:0] phi_phi2_s;
-	wire [31:0] phi_phi2_out;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi2(.in(phi_phi2_in), .last_block(phi_phi2_last_block), .out(phi_phi2_out), .s(phi_phi2_s));
+	wire [31:0] mul_mul6_in0;
+	wire [31:0] mul_mul6_in1;
+	wire [31:0] mul_mul6_out;
+	mul #(.WIDTH(32)) mul_mul6(.in0(mul_mul6_in0), .in1(mul_mul6_in1), .out(mul_mul6_out));
 
-	wire [31:0] add_add3_in0;
-	wire [31:0] add_add3_in1;
-	wire [31:0] add_add3_out;
-	add #(.WIDTH(32)) add_add3(.in0(add_add3_in0), .in1(add_add3_in1), .out(add_add3_out));
+	wire [31:0] mul_mul11_in0;
+	wire [31:0] mul_mul11_in1;
+	wire [31:0] mul_mul11_out;
+	mul #(.WIDTH(32)) mul_mul11(.in0(mul_mul11_in0), .in1(mul_mul11_in1), .out(mul_mul11_out));
 
-	wire [31:0] mul_mul7_in0;
-	wire [31:0] mul_mul7_in1;
-	wire [31:0] mul_mul7_out;
-	mul #(.WIDTH(32)) mul_mul7(.in0(mul_mul7_in0), .in1(mul_mul7_in1), .out(mul_mul7_out));
+	wire [31:0] add_add12_in0;
+	wire [31:0] add_add12_in1;
+	wire [31:0] add_add12_out;
+	add #(.WIDTH(32)) add_add12(.in0(add_add12_in0), .in1(add_add12_in1), .out(add_add12_out));
 
-	wire [31:0] mul_mul10_in0;
-	wire [31:0] mul_mul10_in1;
-	wire [31:0] mul_mul10_out;
-	mul #(.WIDTH(32)) mul_mul10(.in0(mul_mul10_in0), .in1(mul_mul10_in1), .out(mul_mul10_out));
-
-	wire [31:0] add_add11_in0;
-	wire [31:0] add_add11_in1;
-	wire [31:0] add_add11_out;
-	add #(.WIDTH(32)) add_add11(.in0(add_add11_in0), .in1(add_add11_in1), .out(add_add11_out));
-
-	wire [31:0] icmp_icmp4_in0;
-	wire [31:0] icmp_icmp4_in1;
-	wire [0:0] icmp_icmp4_out;
-	ne #(.WIDTH(32)) icmp_icmp4(.in0(icmp_icmp4_in0), .in1(icmp_icmp4_in1), .out(icmp_icmp4_out));
+	wire [31:0] icmp_icmp1_in0;
+	wire [31:0] icmp_icmp1_in1;
+	wire [0:0] icmp_icmp1_out;
+	ne #(.WIDTH(32)) icmp_icmp1(.in0(icmp_icmp1_in0), .in1(icmp_icmp1_in1), .out(icmp_icmp1_out));
 
 	br_dummy br_unit();
+
+	wire [63:0] phi_phi3_in;
+	wire [31:0] phi_phi3_last_block;
+	wire [63:0] phi_phi3_s;
+	wire [31:0] phi_phi3_out;
+	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi3(.in(phi_phi3_in), .last_block(phi_phi3_last_block), .out(phi_phi3_out), .s(phi_phi3_s));
+
+	wire [31:0] add_add4_in0;
+	wire [31:0] add_add4_in1;
+	wire [31:0] add_add4_out;
+	add #(.WIDTH(32)) add_add4(.in0(add_add4_in0), .in1(add_add4_in1), .out(add_add4_out));
 
 	reg [0:0] bb_0_active_in_state_0_in_data;
 	wire [0:0] bb_0_active_in_state_0_out_data;
@@ -674,20 +675,20 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	wire [0:0] andOp_61_out;
 	andOp #(.WIDTH(1)) andOp_61(.in0(andOp_61_in0), .in1(andOp_61_in1), .out(andOp_61_out));
 
-	wire [0:0] andOp_62_in0;
-	wire [0:0] andOp_62_in1;
-	wire [0:0] andOp_62_out;
-	andOp #(.WIDTH(1)) andOp_62(.in0(andOp_62_in0), .in1(andOp_62_in1), .out(andOp_62_out));
+	wire [31:0] concat_62_in0;
+	wire [31:0] concat_62_in1;
+	wire [63:0] concat_62_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_62(.in0(concat_62_in0), .in1(concat_62_in1), .out(concat_62_out));
 
 	wire [31:0] concat_63_in0;
 	wire [31:0] concat_63_in1;
 	wire [63:0] concat_63_out;
 	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_63(.in0(concat_63_in0), .in1(concat_63_in1), .out(concat_63_out));
 
-	wire [31:0] concat_64_in0;
-	wire [31:0] concat_64_in1;
-	wire [63:0] concat_64_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_64(.in0(concat_64_in0), .in1(concat_64_in1), .out(concat_64_out));
+	wire [0:0] andOp_64_in0;
+	wire [0:0] andOp_64_in1;
+	wire [0:0] andOp_64_out;
+	andOp #(.WIDTH(1)) andOp_64(.in0(andOp_64_in0), .in1(andOp_64_in1), .out(andOp_64_out));
 
 	wire [0:0] andOp_65_in0;
 	wire [0:0] andOp_65_in1;
@@ -1212,16 +1213,16 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	// Insensitive connections
 	assign add_100_in0 = counter__99;
 	assign add_100_in1 = 32'd1;
-	// controller for add_add11.add_add11_in0
-	// controller for add_add11.add_add11_in1
+	// controller for add_add12.add_add12_in0
+	// controller for add_add12.add_add12_in1
 	// Insensitive connections
-	assign add_add11_in0 = data_in_3_11_out_data;
-	assign add_add11_in1 = mul_mul10_out;
-	// controller for add_add3.add_add3_in0
-	// controller for add_add3.add_add3_in1
+	assign add_add12_in0 = data_in_3_9_out_data;
+	assign add_add12_in1 = mul_mul11_out;
+	// controller for add_add4.add_add4_in0
+	// controller for add_add4.add_add4_in1
 	// Insensitive connections
-	assign add_add3_in0 = phi_phi2_out;
-	assign add_add3_in1 = 32'd1;
+	assign add_add4_in0 = phi_phi3_out;
+	assign add_add4_in1 = 32'd1;
 	// controller for andOp_102.andOp_102_in0
 	// controller for andOp_102.andOp_102_in1
 	// Insensitive connections
@@ -1351,7 +1352,7 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	// controller for andOp_16.andOp_16_in1
 	// Insensitive connections
 	assign andOp_16_in0 = andOp_14_out;
-	assign andOp_16_in1 = icmp_icmp4_out;
+	assign andOp_16_in1 = icmp_icmp1_out;
 	// controller for andOp_160.andOp_160_in0
 	// controller for andOp_160.andOp_160_in1
 	// Insensitive connections
@@ -1391,7 +1392,7 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	// controller for andOp_21.andOp_21_in1
 	// Insensitive connections
 	assign andOp_21_in0 = andOp_19_out;
-	assign andOp_21_in1 = icmp_icmp4_out;
+	assign andOp_21_in1 = icmp_icmp1_out;
 	// controller for andOp_23.andOp_23_in0
 	// controller for andOp_23.andOp_23_in1
 	// Insensitive connections
@@ -1406,7 +1407,7 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	// controller for andOp_26.andOp_26_in1
 	// Insensitive connections
 	assign andOp_26_in0 = andOp_24_out;
-	assign andOp_26_in1 = icmp_icmp4_out;
+	assign andOp_26_in1 = icmp_icmp1_out;
 	// controller for andOp_28.andOp_28_in0
 	// controller for andOp_28.andOp_28_in1
 	// Insensitive connections
@@ -1421,7 +1422,7 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	// controller for andOp_31.andOp_31_in1
 	// Insensitive connections
 	assign andOp_31_in0 = andOp_29_out;
-	assign andOp_31_in1 = icmp_icmp4_out;
+	assign andOp_31_in1 = icmp_icmp1_out;
 	// controller for andOp_33.andOp_33_in0
 	// controller for andOp_33.andOp_33_in1
 	// Insensitive connections
@@ -1436,7 +1437,7 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	// controller for andOp_36.andOp_36_in1
 	// Insensitive connections
 	assign andOp_36_in0 = andOp_34_out;
-	assign andOp_36_in1 = icmp_icmp4_out;
+	assign andOp_36_in1 = icmp_icmp1_out;
 	// controller for andOp_38.andOp_38_in0
 	// controller for andOp_38.andOp_38_in1
 	// Insensitive connections
@@ -1451,7 +1452,7 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	// controller for andOp_41.andOp_41_in1
 	// Insensitive connections
 	assign andOp_41_in0 = andOp_39_out;
-	assign andOp_41_in1 = icmp_icmp4_out;
+	assign andOp_41_in1 = icmp_icmp1_out;
 	// controller for andOp_43.andOp_43_in0
 	// controller for andOp_43.andOp_43_in1
 	// Insensitive connections
@@ -1465,13 +1466,13 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	// controller for andOp_61.andOp_61_in0
 	// controller for andOp_61.andOp_61_in1
 	// Insensitive connections
-	assign andOp_61_in0 = bb_2_active_in_state_2_out_data;
-	assign andOp_61_in1 = state_2_is_active;
-	// controller for andOp_62.andOp_62_in0
-	// controller for andOp_62.andOp_62_in1
+	assign andOp_61_in0 = bb_2_active_in_state_1_out_data;
+	assign andOp_61_in1 = state_1_is_active;
+	// controller for andOp_64.andOp_64_in0
+	// controller for andOp_64.andOp_64_in1
 	// Insensitive connections
-	assign andOp_62_in0 = bb_2_active_in_state_1_out_data;
-	assign andOp_62_in1 = state_1_is_active;
+	assign andOp_64_in0 = bb_2_active_in_state_1_out_data;
+	assign andOp_64_in1 = state_1_is_active;
 	// controller for andOp_65.andOp_65_in0
 	// controller for andOp_65.andOp_65_in1
 	// Insensitive connections
@@ -1480,8 +1481,8 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	// controller for andOp_66.andOp_66_in0
 	// controller for andOp_66.andOp_66_in1
 	// Insensitive connections
-	assign andOp_66_in0 = bb_2_active_in_state_1_out_data;
-	assign andOp_66_in1 = state_1_is_active;
+	assign andOp_66_in0 = bb_2_active_in_state_2_out_data;
+	assign andOp_66_in1 = state_2_is_active;
 	// controller for andOp_67.andOp_67_in0
 	// controller for andOp_67.andOp_67_in1
 	// Insensitive connections
@@ -1594,15 +1595,15 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	assign andOp_98_in1 = out_of_pipe_bb_1_7;
 	// controller for arg_0.arg_0_raddr_0_reg
 	always @(*) begin
-		if (andOp_60_out) begin 
-			arg_0_raddr_0_reg = phi_phi2_out;
+		if (andOp_65_out) begin 
+			arg_0_raddr_0_reg = phi_phi3_out;
 		end else begin
 			arg_0_raddr_0_reg = 0;
 		end
 	end
 	// controller for arg_1.arg_1_waddr_0_reg
 	always @(*) begin
-		if (andOp_69_out) begin 
+		if (andOp_70_out) begin 
 			arg_1_waddr_0_reg = data_in_3_10_out_data;
 		end else begin
 			arg_1_waddr_0_reg = 0;
@@ -1611,14 +1612,14 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	// controller for arg_1.arg_1_wdata_0_reg
 	always @(*) begin
 		if (andOp_68_out) begin 
-			arg_1_wdata_0_reg = add_add11_out;
+			arg_1_wdata_0_reg = add_add12_out;
 		end else begin
 			arg_1_wdata_0_reg = 0;
 		end
 	end
 	// controller for arg_1.arg_1_wen_0_reg
 	always @(*) begin
-		if (andOp_70_out) begin 
+		if (andOp_69_out) begin 
 			arg_1_wen_0_reg = -(1'd1);
 		end else begin
 			arg_1_wen_0_reg = 0;
@@ -1822,16 +1823,16 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 			br_2_happened_in_state_6_in_data = 0;
 		end
 	end
+	// controller for concat_62.concat_62_in0
+	// controller for concat_62.concat_62_in1
+	// Insensitive connections
+	assign concat_62_in0 = data_in_1_4_out_data;
+	assign concat_62_in1 = 32'd0;
 	// controller for concat_63.concat_63_in0
 	// controller for concat_63.concat_63_in1
 	// Insensitive connections
-	assign concat_63_in0 = data_in_1_4_out_data;
+	assign concat_63_in0 = 32'd2;
 	assign concat_63_in1 = 32'd0;
-	// controller for concat_64.concat_64_in0
-	// controller for concat_64.concat_64_in1
-	// Insensitive connections
-	assign concat_64_in0 = 32'd2;
-	assign concat_64_in1 = 32'd0;
 	// controller for data_in_0_1.data_in_0_1_in_data
 	always @(*) begin
 		if (eq_136_out) begin 
@@ -2055,11 +2056,11 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	// Insensitive connections
 	assign eq_59_in0 = 32'd1;
 	assign eq_59_in1 = state_7_entry_BB_reg;
-	// controller for icmp_icmp4.icmp_icmp4_in0
-	// controller for icmp_icmp4.icmp_icmp4_in1
+	// controller for icmp_icmp1.icmp_icmp1_in0
+	// controller for icmp_icmp1.icmp_icmp1_in1
 	// Insensitive connections
-	assign icmp_icmp4_in0 = add_add3_out;
-	assign icmp_icmp4_in1 = 32'd5;
+	assign icmp_icmp1_in0 = add_add4_out;
+	assign icmp_icmp1_in1 = 32'd5;
 	// controller for in_pipeline_0.in_pipeline_0_in_data
 	always @(*) begin
 		if (1'd1) begin 
@@ -2068,16 +2069,16 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 			in_pipeline_0_in_data = 0;
 		end
 	end
-	// controller for mul_mul10.mul_mul10_in0
-	// controller for mul_mul10.mul_mul10_in1
+	// controller for mul_mul11.mul_mul11_in0
+	// controller for mul_mul11.mul_mul11_in1
 	// Insensitive connections
-	assign mul_mul10_in0 = data_in_3_9_out_data;
-	assign mul_mul10_in1 = 32'd7;
-	// controller for mul_mul7.mul_mul7_in0
-	// controller for mul_mul7.mul_mul7_in1
+	assign mul_mul11_in0 = data_in_3_11_out_data;
+	assign mul_mul11_in1 = 32'd7;
+	// controller for mul_mul6.mul_mul6_in0
+	// controller for mul_mul6.mul_mul6_in1
 	// Insensitive connections
-	assign mul_mul7_in0 = arg_0_rdata_0;
-	assign mul_mul7_in1 = 32'd3;
+	assign mul_mul6_in0 = arg_0_rdata_0;
+	assign mul_mul6_in1 = 32'd3;
 	// controller for notOp_101.notOp_101_in0
 	// Insensitive connections
 	assign notOp_101_in0 = state_1_is_active;
@@ -2122,37 +2123,37 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	assign notOp_157_in0 = state_1_is_active;
 	// controller for notOp_17.notOp_17_in0
 	// Insensitive connections
-	assign notOp_17_in0 = icmp_icmp4_out;
+	assign notOp_17_in0 = icmp_icmp1_out;
 	// controller for notOp_20.notOp_20_in0
 	// Insensitive connections
 	assign notOp_20_in0 = andOp_19_out;
 	// controller for notOp_22.notOp_22_in0
 	// Insensitive connections
-	assign notOp_22_in0 = icmp_icmp4_out;
+	assign notOp_22_in0 = icmp_icmp1_out;
 	// controller for notOp_25.notOp_25_in0
 	// Insensitive connections
 	assign notOp_25_in0 = andOp_24_out;
 	// controller for notOp_27.notOp_27_in0
 	// Insensitive connections
-	assign notOp_27_in0 = icmp_icmp4_out;
+	assign notOp_27_in0 = icmp_icmp1_out;
 	// controller for notOp_30.notOp_30_in0
 	// Insensitive connections
 	assign notOp_30_in0 = andOp_29_out;
 	// controller for notOp_32.notOp_32_in0
 	// Insensitive connections
-	assign notOp_32_in0 = icmp_icmp4_out;
+	assign notOp_32_in0 = icmp_icmp1_out;
 	// controller for notOp_35.notOp_35_in0
 	// Insensitive connections
 	assign notOp_35_in0 = andOp_34_out;
 	// controller for notOp_37.notOp_37_in0
 	// Insensitive connections
-	assign notOp_37_in0 = icmp_icmp4_out;
+	assign notOp_37_in0 = icmp_icmp1_out;
 	// controller for notOp_40.notOp_40_in0
 	// Insensitive connections
 	assign notOp_40_in0 = andOp_39_out;
 	// controller for notOp_42.notOp_42_in0
 	// Insensitive connections
-	assign notOp_42_in0 = icmp_icmp4_out;
+	assign notOp_42_in0 = icmp_icmp1_out;
 	// controller for notOp_74.notOp_74_in0
 	// Insensitive connections
 	assign notOp_74_in0 = state_1_is_active;
@@ -2213,13 +2214,13 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 	// Insensitive connections
 	assign orOp_135_in0 = state_6_is_active;
 	assign orOp_135_in1 = orOp_134_out;
-	// controller for phi_phi2.phi_phi2_in
-	// controller for phi_phi2.phi_phi2_last_block
-	// controller for phi_phi2.phi_phi2_s
+	// controller for phi_phi3.phi_phi3_in
+	// controller for phi_phi3.phi_phi3_last_block
+	// controller for phi_phi3.phi_phi3_s
 	// Insensitive connections
-	assign phi_phi2_in = concat_63_out;
-	assign phi_phi2_last_block = bb_2_predecessor_in_state_1_out_data;
-	assign phi_phi2_s = concat_64_out;
+	assign phi_phi3_in = concat_62_out;
+	assign phi_phi3_last_block = bb_2_predecessor_in_state_1_out_data;
+	assign phi_phi3_s = concat_63_out;
 	// controller for ret13.valid_reg
 	always @(*) begin
 		if (andOp_73_out) begin 
@@ -2257,7 +2258,7 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 			data_store_1_2 <= 0;
 		end else begin
 			if (andOp_139_out) begin
-				data_store_1_2 <= phi_phi2_out;
+				data_store_1_2 <= phi_phi3_out;
 			end
 		end
 	end
@@ -2267,7 +2268,7 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 			data_store_1_3 <= 0;
 		end else begin
 			if (andOp_140_out) begin
-				data_store_1_3 <= add_add3_out;
+				data_store_1_3 <= add_add4_out;
 			end
 		end
 	end
@@ -2277,7 +2278,7 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 			data_store_2_5 <= 0;
 		end else begin
 			if (andOp_143_out) begin
-				data_store_2_5 <= arg_0_rdata_0;
+				data_store_2_5 <= mul_mul6_out;
 			end
 		end
 	end
@@ -2297,7 +2298,7 @@ module temp_storage_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, o
 			data_store_2_8 <= 0;
 		end else begin
 			if (andOp_144_out) begin
-				data_store_2_8 <= mul_mul7_out;
+				data_store_2_8 <= arg_0_rdata_0;
 			end
 		end
 	end

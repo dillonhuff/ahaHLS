@@ -29,6 +29,8 @@ module mvmul_tb();
 		#1 num_clocks_after_reset = 0;
 	end
 
+
+
 	assign clk = clk_reg;
 	assign rst = rst_reg;
 

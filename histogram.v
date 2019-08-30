@@ -78,36 +78,36 @@ module histogram(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8
 	wire [31:0] add_add2_out;
 	add #(.WIDTH(32)) add_add2(.in0(add_add2_in0), .in1(add_add2_in1), .out(add_add2_out));
 
-	wire [31:0] add_add13_in0;
-	wire [31:0] add_add13_in1;
-	wire [31:0] add_add13_out;
-	add #(.WIDTH(32)) add_add13(.in0(add_add13_in0), .in1(add_add13_in1), .out(add_add13_out));
-
 	wire [31:0] add_add14_in0;
 	wire [31:0] add_add14_in1;
 	wire [31:0] add_add14_out;
 	add #(.WIDTH(32)) add_add14(.in0(add_add14_in0), .in1(add_add14_in1), .out(add_add14_out));
 
-	wire [7:0] icmp_icmp8_in0;
-	wire [7:0] icmp_icmp8_in1;
-	wire [0:0] icmp_icmp8_out;
-	eq #(.WIDTH(8)) icmp_icmp8(.in0(icmp_icmp8_in0), .in1(icmp_icmp8_in1), .out(icmp_icmp8_out));
+	wire [31:0] add_add15_in0;
+	wire [31:0] add_add15_in1;
+	wire [31:0] add_add15_out;
+	add #(.WIDTH(32)) add_add15(.in0(add_add15_in0), .in1(add_add15_in1), .out(add_add15_out));
+
+	wire [7:0] icmp_icmp9_in0;
+	wire [7:0] icmp_icmp9_in1;
+	wire [0:0] icmp_icmp9_out;
+	eq #(.WIDTH(8)) icmp_icmp9(.in0(icmp_icmp9_in0), .in1(icmp_icmp9_in1), .out(icmp_icmp9_out));
 
 	wire [31:0] icmp_icmp3_in0;
 	wire [31:0] icmp_icmp3_in1;
 	wire [0:0] icmp_icmp3_out;
 	ne #(.WIDTH(32)) icmp_icmp3(.in0(icmp_icmp3_in0), .in1(icmp_icmp3_in1), .out(icmp_icmp3_out));
 
-	wire [0:0] and_and9_in0;
-	wire [0:0] and_and9_in1;
-	wire [0:0] and_and9_out;
-	andOp #(.WIDTH(1)) and_and9(.in0(and_and9_in0), .in1(and_and9_in1), .out(and_and9_out));
+	wire [0:0] and_and10_in0;
+	wire [0:0] and_and10_in1;
+	wire [0:0] and_and10_out;
+	andOp #(.WIDTH(1)) and_and10(.in0(and_and10_in0), .in1(and_and10_in1), .out(and_and10_out));
 
-	reg [31:0] select_select15_in0;
-	reg [31:0] select_select15_in1;
-	reg [0:0] select_select15_sel;
-	wire [9:0] select_select15_out;
-	select #(.WIDTH(32)) select_select15(.in0(select_select15_in0), .in1(select_select15_in1), .out(select_select15_out), .sel(select_select15_sel));
+	reg [31:0] select_select16_in0;
+	reg [31:0] select_select16_in1;
+	reg [0:0] select_select16_sel;
+	wire [9:0] select_select16_out;
+	select #(.WIDTH(32)) select_select16(.in0(select_select16_in0), .in1(select_select16_in1), .out(select_select16_out), .sel(select_select16_sel));
 
 	wire [31:0] icmp_icmp4_in0;
 	wire [31:0] icmp_icmp4_in1;
@@ -822,16 +822,16 @@ module histogram(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8
 	reg [31:0] state_5_last_BB_reg;
 	reg [31:0] state_5_last_state;
 
-	// controller for add_add13.add_add13_in0
-	// controller for add_add13.add_add13_in1
-	// Insensitive connections
-	assign add_add13_in0 = arg_1_rdata_0;
-	assign add_add13_in1 = 32'd1;
 	// controller for add_add14.add_add14_in0
 	// controller for add_add14.add_add14_in1
 	// Insensitive connections
-	assign add_add14_in0 = phi_phi12_out;
+	assign add_add14_in0 = arg_1_rdata_0;
 	assign add_add14_in1 = 32'd1;
+	// controller for add_add15.add_add15_in0
+	// controller for add_add15.add_add15_in1
+	// Insensitive connections
+	assign add_add15_in0 = phi_phi12_out;
+	assign add_add15_in1 = 32'd1;
 	// controller for add_add2.add_add2_in0
 	// controller for add_add2.add_add2_in1
 	// Insensitive connections
@@ -1010,13 +1010,13 @@ module histogram(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8
 	// controller for andOp_68.andOp_68_in0
 	// controller for andOp_68.andOp_68_in1
 	// Insensitive connections
-	assign andOp_68_in0 = bb_1_active_in_state_2_out_data;
-	assign andOp_68_in1 = state_2_is_active;
+	assign andOp_68_in0 = bb_1_active_in_state_3_out_data;
+	assign andOp_68_in1 = state_3_is_active;
 	// controller for andOp_69.andOp_69_in0
 	// controller for andOp_69.andOp_69_in1
 	// Insensitive connections
-	assign andOp_69_in0 = bb_1_active_in_state_2_out_data;
-	assign andOp_69_in1 = state_2_is_active;
+	assign andOp_69_in0 = bb_1_active_in_state_3_out_data;
+	assign andOp_69_in1 = state_3_is_active;
 	// controller for andOp_70.andOp_70_in0
 	// controller for andOp_70.andOp_70_in1
 	// Insensitive connections
@@ -1030,13 +1030,13 @@ module histogram(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8
 	// controller for andOp_72.andOp_72_in0
 	// controller for andOp_72.andOp_72_in1
 	// Insensitive connections
-	assign andOp_72_in0 = bb_1_active_in_state_3_out_data;
-	assign andOp_72_in1 = state_3_is_active;
+	assign andOp_72_in0 = bb_1_active_in_state_2_out_data;
+	assign andOp_72_in1 = state_2_is_active;
 	// controller for andOp_73.andOp_73_in0
 	// controller for andOp_73.andOp_73_in1
 	// Insensitive connections
-	assign andOp_73_in0 = bb_1_active_in_state_3_out_data;
-	assign andOp_73_in1 = state_3_is_active;
+	assign andOp_73_in0 = bb_1_active_in_state_2_out_data;
+	assign andOp_73_in1 = state_2_is_active;
 	// controller for andOp_74.andOp_74_in0
 	// controller for andOp_74.andOp_74_in1
 	// Insensitive connections
@@ -1127,11 +1127,11 @@ module histogram(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8
 	// Insensitive connections
 	assign andOp_99_in0 = bb_1_active_in_state_2_out_data;
 	assign andOp_99_in1 = state_2_is_active;
-	// controller for and_and9.and_and9_in0
-	// controller for and_and9.and_and9_in1
+	// controller for and_and10.and_and10_in0
+	// controller for and_and10.and_and10_in1
 	// Insensitive connections
-	assign and_and9_in0 = icmp_icmp8_out;
-	assign and_and9_in1 = data_in_2_15_out_data;
+	assign and_and10_in0 = icmp_icmp9_out;
+	assign and_and10_in1 = data_in_2_15_out_data;
 	// controller for arg_0.arg_0_raddr_0_reg
 	always @(*) begin
 		if (andOp_62_out) begin 
@@ -1142,7 +1142,7 @@ module histogram(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8
 	end
 	// controller for arg_1.arg_1_raddr_0_reg
 	always @(*) begin
-		if (andOp_69_out) begin 
+		if (andOp_67_out) begin 
 			arg_1_raddr_0_reg = arg_0_rdata_0;
 		end else begin
 			arg_1_raddr_0_reg = 0;
@@ -1150,7 +1150,7 @@ module histogram(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8
 	end
 	// controller for arg_1.arg_1_waddr_0_reg
 	always @(*) begin
-		if (andOp_71_out) begin 
+		if (andOp_68_out) begin 
 			arg_1_waddr_0_reg = data_in_3_21_out_data;
 		end else begin
 			arg_1_waddr_0_reg = 0;
@@ -1158,15 +1158,15 @@ module histogram(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8
 	end
 	// controller for arg_1.arg_1_wdata_0_reg
 	always @(*) begin
-		if (andOp_72_out) begin 
-			arg_1_wdata_0_reg = add_add13_out;
+		if (andOp_70_out) begin 
+			arg_1_wdata_0_reg = add_add14_out;
 		end else begin
 			arg_1_wdata_0_reg = 0;
 		end
 	end
 	// controller for arg_1.arg_1_wen_0_reg
 	always @(*) begin
-		if (andOp_73_out) begin 
+		if (andOp_71_out) begin 
 			arg_1_wen_0_reg = -(1'd1);
 		end else begin
 			arg_1_wen_0_reg = 0;
@@ -1592,11 +1592,11 @@ module histogram(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8
 	// Insensitive connections
 	assign icmp_icmp4_in0 = add_add2_out;
 	assign icmp_icmp4_in1 = 32'd1024;
-	// controller for icmp_icmp8.icmp_icmp8_in0
-	// controller for icmp_icmp8.icmp_icmp8_in1
+	// controller for icmp_icmp9.icmp_icmp9_in0
+	// controller for icmp_icmp9.icmp_icmp9_in1
 	// Insensitive connections
-	assign icmp_icmp8_in0 = phi_phi7_out;
-	assign icmp_icmp8_in1 = arg_0_rdata_0;
+	assign icmp_icmp9_in0 = phi_phi7_out;
+	assign icmp_icmp9_in1 = arg_0_rdata_0;
 	// controller for in_pipeline_0.in_pipeline_0_in_data
 	always @(*) begin
 		if (1'd1) begin 
@@ -1720,28 +1720,28 @@ module histogram(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8
 			valid_reg = 0;
 		end
 	end
-	// controller for select_select15.select_select15_in0
+	// controller for select_select16.select_select16_in0
 	always @(*) begin
 		if (andOp_79_out) begin 
-			select_select15_in0 = add_add13_out;
+			select_select16_in0 = add_add14_out;
 		end else begin
-			select_select15_in0 = 0;
+			select_select16_in0 = 0;
 		end
 	end
-	// controller for select_select15.select_select15_in1
+	// controller for select_select16.select_select16_in1
 	always @(*) begin
 		if (andOp_79_out) begin 
-			select_select15_in1 = add_add14_out;
+			select_select16_in1 = add_add15_out;
 		end else begin
-			select_select15_in1 = 0;
+			select_select16_in1 = 0;
 		end
 	end
-	// controller for select_select15.select_select15_sel
+	// controller for select_select16.select_select16_sel
 	always @(*) begin
 		if (andOp_79_out) begin 
-			select_select15_sel = data_in_3_20_out_data;
+			select_select16_sel = data_in_3_20_out_data;
 		end else begin
-			select_select15_sel = 0;
+			select_select16_sel = 0;
 		end
 	end
 	// Register controllers
@@ -1830,7 +1830,7 @@ module histogram(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8
 			data_store_2_16 <= 0;
 		end else begin
 			if (andOp_127_out) begin
-				data_store_2_16 <= and_and9_out;
+				data_store_2_16 <= and_and10_out;
 			end
 		end
 	end
