@@ -149,6 +149,34 @@ namespace ahaHLS {
     SMDiagnostic err;
     LLVMContext context;
     setGlobalLLVMContext(&context);
+
+    auto mod = llvm::make_unique<Module>("vector add with fifos in LLVM", context);
+    setGlobalLLVMModule(mod.get());
+
+    std::vector<Type *> inputs{fifoType(32)->getPointerTo(),
+        fifoType(32)->getPointerTo()};
+    Function* f = mkFunc(inputs, "vadd_fifo", mod.get());
+
+    auto entryBlock = mkBB("entry_block", f);
+    auto loopBlock = mkBB("loop_block", f);
+    auto exitBlock = mkBB("exit_block", f);        
+    
+    auto fRead = fifoRead(32, mod.get());
+    auto fWrite = fifoWrite(32, mod.get());
+
+    IRBuilder<> entryBuilder(entryBlock);
+    entryBuilder.CreateBr(loopBlock);
+
+    IRBuilder<> exitBuilder(exitBlock);
+    exitBuilder.CreateRet(nullptr);
+
+    TestBenchSpec tb = newTB("vadd_fifo", 1000);
+    int startRunCycle = 10;
+
+    map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+    map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+
+    vector<int> inputValues;
   } 
   
   TEST_CASE("Histogram") {
