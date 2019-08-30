@@ -105,14 +105,16 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
-    //addNoXChecks(arch, info);
-    //printAllInstructions(arch, info);
+    addNoXChecks(arch, info);
+    printAllInstructions(arch, info);
     emitVerilog(arch, info);
 
-    int maxCycles = 200;
+    int maxCycles = 300;
     TestBenchSpec tb = newTB("vadd_fifo", maxCycles);
     tb.settableWires.insert("arg_1_write_valid");
-    tb.injectVerilog("always @(posedge clk) begin arg_1_write_valid = 1; $display(\"arg_1_in_data = %d\", arg_1_in_data); end");
+    tb.settableWires.insert("arg_1_read_valid");
+    tb.injectVerilog("always @(posedge clk) begin arg_1_read_valid = 1; $display(\"arg_1_in_data = %d\", arg_1_in_data); end");
+    tb.injectVerilog("\n\t");
     //tb.injectVerilog("always @(posedge clk) begin $display(\"total cycles = %d\", total_cycles); end");
     int startRunCycle = 10;
 
@@ -124,7 +126,7 @@ namespace ahaHLS {
     vector<pair<int, int> > fifoBIns;
     vector<pair<int, string> > fifoExpected;
     int checkTime = 100;
-    for (int i = 0; i < numIns + 5; i++) {
+    for (int i = 0; i < numIns; i++) {
       fifoAIns.push_back({writeTime, i});
       fifoBIns.push_back({writeTime, i});
       fifoExpected.push_back({checkTime, to_string(i + i)});
@@ -348,9 +350,8 @@ namespace ahaHLS {
       writeTime += 2;
     }
     setRVFifo(tb, "arg_0", fifoAIns);
-    setRVFifo(tb, "arg_1", fifoAIns);
+    //setRVFifo(tb, "arg_1", fifoAIns);
 
-    //checkRVFifo(tb, "arg_2", fifoExpected);
     map<string, int> testLayout;
     emitVerilogTestBench(tb, arch, testLayout);
 
