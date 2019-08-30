@@ -104,8 +104,8 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
-    addNoXChecks(arch, info);
-    printAllInstructions(arch, info);
+    //addNoXChecks(arch, info);
+    //printAllInstructions(arch, info);
     emitVerilog(arch, info);
 
     int maxCycles = 200;
@@ -208,7 +208,7 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
-    addNoXChecks(arch, info);
+    //addNoXChecks(arch, info);
     //printAllInstructions(arch, info);
 
     emitVerilog(arch, info);
@@ -319,8 +319,8 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
-    addNoXChecks(arch, info);
-    printAllInstructions(arch, info);
+    //addNoXChecks(arch, info);
+    //printAllInstructions(arch, info);
     emitVerilog(arch, info);
 
     TestBenchSpec tb = newTB("vadd_fifo", 5000);
@@ -486,7 +486,7 @@ namespace ahaHLS {
       auto arch = buildMicroArchitecture(graph, layout, hcs);
 
       VerilogDebugInfo info;
-      addNoXChecks(arch, info);
+      //addNoXChecks(arch, info);
       //printAllInstructions(arch, info);
 
       emitVerilog(arch, info);
@@ -577,7 +577,7 @@ namespace ahaHLS {
       auto arch = buildMicroArchitecture(graph, layout, hcs);
 
       VerilogDebugInfo info;
-      addNoXChecks(arch, info);
+      //addNoXChecks(arch, info);
       //printAllInstructions(arch, info);
 
       emitVerilog(arch, info);
