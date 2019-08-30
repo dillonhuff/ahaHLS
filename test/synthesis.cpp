@@ -3,6 +3,7 @@
 #include "verilog_backend.h"
 #include "llvm_codegen.h"
 #include "test_utils.h"
+#include "rams.h"
 
 #include <llvm/IR/Dominators.h>
 #include <llvm/Analysis/LoopInfo.h>
@@ -557,6 +558,7 @@ namespace ahaHLS {
       Function* ramWrite = ramStoreFunction(getArg(f, 1));
       interfaces.addFunction(ramWrite);
       implementRAMWrite0(ramWrite,
+          1,
           interfaces.getConstraints(ramWrite));
 
       set<BasicBlock*> blocksToPipeline{loopBlock};

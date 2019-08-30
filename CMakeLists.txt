@@ -23,6 +23,7 @@ SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${EXTRA_CXX_COMPILE_FLAGS}")
 INCLUDE_DIRECTORIES(./src/)
 
 SET(CPP_FILES ./src/scheduling.cpp
+              ./src/rams.cpp
               ./src/binding.cpp
               ./src/halide_arch.cpp
               ./src/parser.cpp

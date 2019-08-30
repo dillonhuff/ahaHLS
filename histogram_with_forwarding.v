@@ -47,226 +47,6 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 
 
 
-	always @(posedge clk) begin
-		if (!((!(andOp_10_out === 1) || andOp_6_out !== 1))) begin $display("assertion((!(andOp_10_out === 1) || andOp_6_out !== 1))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_6_out === 1) || andOp_10_out !== 1))) begin $display("assertion((!(andOp_6_out === 1) || andOp_10_out !== 1))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_105_out === 1) || andOp_12_out !== 1))) begin $display("assertion((!(andOp_105_out === 1) || andOp_12_out !== 1))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_12_out === 1) || andOp_105_out !== 1))) begin $display("assertion((!(andOp_12_out === 1) || andOp_105_out !== 1))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_10_out === 1) || andOp_6_out !== 1))) begin $display("assertion((!(andOp_10_out === 1) || andOp_6_out !== 1))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_6_out === 1) || andOp_10_out !== 1))) begin $display("assertion((!(andOp_6_out === 1) || andOp_10_out !== 1))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_105_out === 1) || andOp_99_out !== 1))) begin $display("assertion((!(andOp_105_out === 1) || andOp_99_out !== 1))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_99_out === 1) || andOp_105_out !== 1))) begin $display("assertion((!(andOp_99_out === 1) || andOp_105_out !== 1))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_109_out === 1) || andOp_6_out !== 1))) begin $display("assertion((!(andOp_109_out === 1) || andOp_6_out !== 1)) failed: Overlapping state active transition for state 1"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_109_out === 1) || andOp_74_out !== 1))) begin $display("assertion((!(andOp_109_out === 1) || andOp_74_out !== 1)) failed: Overlapping state active transition for state 1"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_6_out === 1) || andOp_109_out !== 1))) begin $display("assertion((!(andOp_6_out === 1) || andOp_109_out !== 1)) failed: Overlapping state active transition for state 1"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_6_out === 1) || andOp_74_out !== 1))) begin $display("assertion((!(andOp_6_out === 1) || andOp_74_out !== 1)) failed: Overlapping state active transition for state 1"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_74_out === 1) || andOp_109_out !== 1))) begin $display("assertion((!(andOp_74_out === 1) || andOp_109_out !== 1)) failed: Overlapping state active transition for state 1"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_74_out === 1) || andOp_6_out !== 1))) begin $display("assertion((!(andOp_74_out === 1) || andOp_6_out !== 1)) failed: Overlapping state active transition for state 1"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_100_out === 1) || andOp_111_out !== 1))) begin $display("assertion((!(andOp_100_out === 1) || andOp_111_out !== 1)) failed: Overlapping state active transition for state 2"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_111_out === 1) || andOp_100_out !== 1))) begin $display("assertion((!(andOp_111_out === 1) || andOp_100_out !== 1)) failed: Overlapping state active transition for state 2"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_101_out === 1) || andOp_113_out !== 1))) begin $display("assertion((!(andOp_101_out === 1) || andOp_113_out !== 1)) failed: Overlapping state active transition for state 3"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_113_out === 1) || andOp_101_out !== 1))) begin $display("assertion((!(andOp_113_out === 1) || andOp_101_out !== 1)) failed: Overlapping state active transition for state 3"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_102_out === 1) || andOp_115_out !== 1))) begin $display("assertion((!(andOp_102_out === 1) || andOp_115_out !== 1)) failed: Overlapping state active transition for state 4"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_115_out === 1) || andOp_102_out !== 1))) begin $display("assertion((!(andOp_115_out === 1) || andOp_102_out !== 1)) failed: Overlapping state active transition for state 4"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_103_out === 1) || andOp_117_out !== 1))) begin $display("assertion((!(andOp_103_out === 1) || andOp_117_out !== 1)) failed: Overlapping state active transition for state 5"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_117_out === 1) || andOp_103_out !== 1))) begin $display("assertion((!(andOp_117_out === 1) || andOp_103_out !== 1)) failed: Overlapping state active transition for state 5"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_104_out === 1) || andOp_119_out !== 1))) begin $display("assertion((!(andOp_104_out === 1) || andOp_119_out !== 1)) failed: Overlapping state active transition for state 6"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_119_out === 1) || andOp_104_out !== 1))) begin $display("assertion((!(andOp_119_out === 1) || andOp_104_out !== 1)) failed: Overlapping state active transition for state 6"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_105_out === 1) || andOp_123_out !== 1))) begin $display("assertion((!(andOp_105_out === 1) || andOp_123_out !== 1)) failed: Overlapping state active transition for state 7"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_105_out === 1) || andOp_87_out !== 1))) begin $display("assertion((!(andOp_105_out === 1) || andOp_87_out !== 1)) failed: Overlapping state active transition for state 7"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_123_out === 1) || andOp_105_out !== 1))) begin $display("assertion((!(andOp_123_out === 1) || andOp_105_out !== 1)) failed: Overlapping state active transition for state 7"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_123_out === 1) || andOp_87_out !== 1))) begin $display("assertion((!(andOp_123_out === 1) || andOp_87_out !== 1)) failed: Overlapping state active transition for state 7"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_87_out === 1) || andOp_105_out !== 1))) begin $display("assertion((!(andOp_87_out === 1) || andOp_105_out !== 1)) failed: Overlapping state active transition for state 7"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_87_out === 1) || andOp_123_out !== 1))) begin $display("assertion((!(andOp_87_out === 1) || andOp_123_out !== 1)) failed: Overlapping state active transition for state 7"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(state_1_is_active) || !(1'd0)))) begin $display("assertion((!(state_1_is_active) || !(1'd0)))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(state_2_is_active) || !(1'd0)))) begin $display("assertion((!(state_2_is_active) || !(1'd0)))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(state_3_is_active) || !(1'd0)))) begin $display("assertion((!(state_3_is_active) || !(1'd0)))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(state_4_is_active) || !(1'd0)))) begin $display("assertion((!(state_4_is_active) || !(1'd0)))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(state_5_is_active) || !(1'd0)))) begin $display("assertion((!(state_5_is_active) || !(1'd0)))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(state_6_is_active) || !(1'd0)))) begin $display("assertion((!(state_6_is_active) || !(1'd0)))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(state_7_is_active) || !(1'd0)))) begin $display("assertion((!(state_7_is_active) || !(1'd0)))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(state_0_is_active) || !(1'd0)))) begin $display("assertion((!(state_0_is_active) || !(1'd0)))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(state_7_is_active) || !(1'd0)))) begin $display("assertion((!(state_7_is_active) || !(1'd0)))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(state_0_is_active) || !(1'd0)))) begin $display("assertion((!(state_0_is_active) || !(1'd0)))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(state_1_is_active) || !(1'd0)))) begin $display("assertion((!(state_1_is_active) || !(1'd0)))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(state_2_is_active) || !(1'd0)))) begin $display("assertion((!(state_2_is_active) || !(1'd0)))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(state_3_is_active) || !(1'd0)))) begin $display("assertion((!(state_3_is_active) || !(1'd0)))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(state_4_is_active) || !(1'd0)))) begin $display("assertion((!(state_4_is_active) || !(1'd0)))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(state_5_is_active) || !(1'd0)))) begin $display("assertion((!(state_5_is_active) || !(1'd0)))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(state_6_is_active) || !(1'd0)))) begin $display("assertion((!(state_6_is_active) || !(1'd0)))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!(notOp_148_out || icmp_icmp3_in0 !== 32'dx)) begin $display("assertion(notOp_148_out || icmp_icmp3_in0 !== 32'dx)"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!(notOp_149_out || icmp_icmp3_in1 !== 32'dx)) begin $display("assertion(notOp_149_out || icmp_icmp3_in1 !== 32'dx)"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!(!(andOp_150_out) || add_add2_in0 !== 32'dx)) begin $display("assertion(!(andOp_150_out) || add_add2_in0 !== 32'dx)"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!(!(andOp_150_out) || add_add2_in1 !== 32'dx)) begin $display("assertion(!(andOp_150_out) || add_add2_in1 !== 32'dx)"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!(!(andOp_151_out) || add_add9_in0 !== 32'dx)) begin $display("assertion(!(andOp_151_out) || add_add9_in0 !== 32'dx)"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!(!(andOp_151_out) || add_add9_in1 !== 32'dx)) begin $display("assertion(!(andOp_151_out) || add_add9_in1 !== 32'dx)"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_152_out) || phi_phi1_out !== 'dx))) begin $display("assertion((!(andOp_152_out) || phi_phi1_out !== 'dx))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_153_out) || data_in_3_5_out_data !== 8'dx))) begin $display("assertion((!(andOp_153_out) || data_in_3_5_out_data !== 8'dx))"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_154_out) || add_add9_out !== 32'dx))) begin $display("assertion((!(andOp_154_out) || add_add9_out !== 32'dx))"); $finish(); end
-	end
-
 
 
 
@@ -356,37 +136,13 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	wire [0:0] br_1_happened_in_state_4_out_data;
 	hls_wire #(.WIDTH(1)) br_1_happened_in_state_4(.in_data(br_1_happened_in_state_4_in_data), .out_data(br_1_happened_in_state_4_out_data));
 
-	reg [0:0] bb_1_active_in_state_5_in_data;
-	wire [0:0] bb_1_active_in_state_5_out_data;
-	hls_wire #(.WIDTH(1)) bb_1_active_in_state_5(.in_data(bb_1_active_in_state_5_in_data), .out_data(bb_1_active_in_state_5_out_data));
+	reg [0:0] bb_2_active_in_state_5_in_data;
+	wire [0:0] bb_2_active_in_state_5_out_data;
+	hls_wire #(.WIDTH(1)) bb_2_active_in_state_5(.in_data(bb_2_active_in_state_5_in_data), .out_data(bb_2_active_in_state_5_out_data));
 
-	reg [31:0] bb_1_predecessor_in_state_5_in_data;
-	wire [31:0] bb_1_predecessor_in_state_5_out_data;
-	hls_wire #(.WIDTH(32)) bb_1_predecessor_in_state_5(.in_data(bb_1_predecessor_in_state_5_in_data), .out_data(bb_1_predecessor_in_state_5_out_data));
-
-	reg [0:0] br_1_happened_in_state_5_in_data;
-	wire [0:0] br_1_happened_in_state_5_out_data;
-	hls_wire #(.WIDTH(1)) br_1_happened_in_state_5(.in_data(br_1_happened_in_state_5_in_data), .out_data(br_1_happened_in_state_5_out_data));
-
-	reg [0:0] bb_1_active_in_state_6_in_data;
-	wire [0:0] bb_1_active_in_state_6_out_data;
-	hls_wire #(.WIDTH(1)) bb_1_active_in_state_6(.in_data(bb_1_active_in_state_6_in_data), .out_data(bb_1_active_in_state_6_out_data));
-
-	reg [31:0] bb_1_predecessor_in_state_6_in_data;
-	wire [31:0] bb_1_predecessor_in_state_6_out_data;
-	hls_wire #(.WIDTH(32)) bb_1_predecessor_in_state_6(.in_data(bb_1_predecessor_in_state_6_in_data), .out_data(bb_1_predecessor_in_state_6_out_data));
-
-	reg [0:0] br_1_happened_in_state_6_in_data;
-	wire [0:0] br_1_happened_in_state_6_out_data;
-	hls_wire #(.WIDTH(1)) br_1_happened_in_state_6(.in_data(br_1_happened_in_state_6_in_data), .out_data(br_1_happened_in_state_6_out_data));
-
-	reg [0:0] bb_2_active_in_state_7_in_data;
-	wire [0:0] bb_2_active_in_state_7_out_data;
-	hls_wire #(.WIDTH(1)) bb_2_active_in_state_7(.in_data(bb_2_active_in_state_7_in_data), .out_data(bb_2_active_in_state_7_out_data));
-
-	reg [31:0] bb_2_predecessor_in_state_7_in_data;
-	wire [31:0] bb_2_predecessor_in_state_7_out_data;
-	hls_wire #(.WIDTH(32)) bb_2_predecessor_in_state_7(.in_data(bb_2_predecessor_in_state_7_in_data), .out_data(bb_2_predecessor_in_state_7_out_data));
+	reg [31:0] bb_2_predecessor_in_state_5_in_data;
+	wire [31:0] bb_2_predecessor_in_state_5_out_data;
+	hls_wire #(.WIDTH(32)) bb_2_predecessor_in_state_5(.in_data(bb_2_predecessor_in_state_5_in_data), .out_data(bb_2_predecessor_in_state_5_out_data));
 
 	reg [31:0] data_in_0_1_in_data;
 	wire [31:0] data_in_0_1_out_data;
@@ -501,51 +257,55 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	wire [0:0] andOp_27_out;
 	andOp #(.WIDTH(1)) andOp_27(.in0(andOp_27_in0), .in1(andOp_27_in1), .out(andOp_27_out));
 
-	wire [0:0] andOp_28_in0;
-	wire [0:0] andOp_28_in1;
-	wire [0:0] andOp_28_out;
-	andOp #(.WIDTH(1)) andOp_28(.in0(andOp_28_in0), .in1(andOp_28_in1), .out(andOp_28_out));
+	wire [31:0] eq_28_in0;
+	wire [31:0] eq_28_in1;
+	wire [0:0] eq_28_out;
+	eq #(.WIDTH(32)) eq_28(.in0(eq_28_in0), .in1(eq_28_in1), .out(eq_28_out));
 
-	wire [0:0] notOp_29_in0;
-	wire [0:0] notOp_29_out;
-	notOp #(.WIDTH(1)) notOp_29(.in(notOp_29_in0), .out(notOp_29_out));
+	wire [31:0] eq_29_in0;
+	wire [31:0] eq_29_in1;
+	wire [0:0] eq_29_out;
+	eq #(.WIDTH(32)) eq_29(.in0(eq_29_in0), .in1(eq_29_in1), .out(eq_29_out));
 
-	wire [0:0] andOp_30_in0;
-	wire [0:0] andOp_30_in1;
-	wire [0:0] andOp_30_out;
-	andOp #(.WIDTH(1)) andOp_30(.in0(andOp_30_in0), .in1(andOp_30_in1), .out(andOp_30_out));
+	wire [31:0] eq_30_in0;
+	wire [31:0] eq_30_in1;
+	wire [0:0] eq_30_out;
+	eq #(.WIDTH(32)) eq_30(.in0(eq_30_in0), .in1(eq_30_in1), .out(eq_30_out));
 
-	wire [0:0] notOp_31_in0;
-	wire [0:0] notOp_31_out;
-	notOp #(.WIDTH(1)) notOp_31(.in(notOp_31_in0), .out(notOp_31_out));
+	wire [31:0] eq_31_in0;
+	wire [31:0] eq_31_in1;
+	wire [0:0] eq_31_out;
+	eq #(.WIDTH(32)) eq_31(.in0(eq_31_in0), .in1(eq_31_in1), .out(eq_31_out));
 
-	wire [0:0] andOp_32_in0;
-	wire [0:0] andOp_32_in1;
-	wire [0:0] andOp_32_out;
-	andOp #(.WIDTH(1)) andOp_32(.in0(andOp_32_in0), .in1(andOp_32_in1), .out(andOp_32_out));
+	wire [31:0] eq_32_in0;
+	wire [31:0] eq_32_in1;
+	wire [0:0] eq_32_out;
+	eq #(.WIDTH(32)) eq_32(.in0(eq_32_in0), .in1(eq_32_in1), .out(eq_32_out));
 
-	wire [0:0] andOp_33_in0;
-	wire [0:0] andOp_33_in1;
-	wire [0:0] andOp_33_out;
-	andOp #(.WIDTH(1)) andOp_33(.in0(andOp_33_in0), .in1(andOp_33_in1), .out(andOp_33_out));
+	wire [31:0] eq_33_in0;
+	wire [31:0] eq_33_in1;
+	wire [0:0] eq_33_out;
+	eq #(.WIDTH(32)) eq_33(.in0(eq_33_in0), .in1(eq_33_in1), .out(eq_33_out));
 
-	wire [0:0] notOp_34_in0;
-	wire [0:0] notOp_34_out;
-	notOp #(.WIDTH(1)) notOp_34(.in(notOp_34_in0), .out(notOp_34_out));
+	wire [31:0] eq_34_in0;
+	wire [31:0] eq_34_in1;
+	wire [0:0] eq_34_out;
+	eq #(.WIDTH(32)) eq_34(.in0(eq_34_in0), .in1(eq_34_in1), .out(eq_34_out));
 
-	wire [0:0] andOp_35_in0;
-	wire [0:0] andOp_35_in1;
-	wire [0:0] andOp_35_out;
-	andOp #(.WIDTH(1)) andOp_35(.in0(andOp_35_in0), .in1(andOp_35_in1), .out(andOp_35_out));
+	wire [31:0] eq_35_in0;
+	wire [31:0] eq_35_in1;
+	wire [0:0] eq_35_out;
+	eq #(.WIDTH(32)) eq_35(.in0(eq_35_in0), .in1(eq_35_in1), .out(eq_35_out));
 
-	wire [0:0] notOp_36_in0;
-	wire [0:0] notOp_36_out;
-	notOp #(.WIDTH(1)) notOp_36(.in(notOp_36_in0), .out(notOp_36_out));
+	wire [31:0] eq_36_in0;
+	wire [31:0] eq_36_in1;
+	wire [0:0] eq_36_out;
+	eq #(.WIDTH(32)) eq_36(.in0(eq_36_in0), .in1(eq_36_in1), .out(eq_36_out));
 
-	wire [0:0] andOp_37_in0;
-	wire [0:0] andOp_37_in1;
-	wire [0:0] andOp_37_out;
-	andOp #(.WIDTH(1)) andOp_37(.in0(andOp_37_in0), .in1(andOp_37_in1), .out(andOp_37_out));
+	wire [31:0] eq_37_in0;
+	wire [31:0] eq_37_in1;
+	wire [0:0] eq_37_out;
+	eq #(.WIDTH(32)) eq_37(.in0(eq_37_in0), .in1(eq_37_in1), .out(eq_37_out));
 
 	wire [31:0] eq_38_in0;
 	wire [31:0] eq_38_in1;
@@ -557,135 +317,121 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	wire [0:0] eq_39_out;
 	eq #(.WIDTH(32)) eq_39(.in0(eq_39_in0), .in1(eq_39_in1), .out(eq_39_out));
 
-	wire [31:0] eq_40_in0;
-	wire [31:0] eq_40_in1;
-	wire [0:0] eq_40_out;
-	eq #(.WIDTH(32)) eq_40(.in0(eq_40_in0), .in1(eq_40_in1), .out(eq_40_out));
+	wire [0:0] andOp_40_in0;
+	wire [0:0] andOp_40_in1;
+	wire [0:0] andOp_40_out;
+	andOp #(.WIDTH(1)) andOp_40(.in0(andOp_40_in0), .in1(andOp_40_in1), .out(andOp_40_out));
 
-	wire [31:0] eq_41_in0;
-	wire [31:0] eq_41_in1;
-	wire [0:0] eq_41_out;
-	eq #(.WIDTH(32)) eq_41(.in0(eq_41_in0), .in1(eq_41_in1), .out(eq_41_out));
+	wire [31:0] concat_41_in0;
+	wire [31:0] concat_41_in1;
+	wire [63:0] concat_41_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_41(.in0(concat_41_in0), .in1(concat_41_in1), .out(concat_41_out));
 
-	wire [31:0] eq_42_in0;
-	wire [31:0] eq_42_in1;
-	wire [0:0] eq_42_out;
-	eq #(.WIDTH(32)) eq_42(.in0(eq_42_in0), .in1(eq_42_in1), .out(eq_42_out));
+	wire [31:0] concat_42_in0;
+	wire [31:0] concat_42_in1;
+	wire [63:0] concat_42_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_42(.in0(concat_42_in0), .in1(concat_42_in1), .out(concat_42_out));
 
-	wire [31:0] eq_43_in0;
-	wire [31:0] eq_43_in1;
-	wire [0:0] eq_43_out;
-	eq #(.WIDTH(32)) eq_43(.in0(eq_43_in0), .in1(eq_43_in1), .out(eq_43_out));
+	wire [0:0] andOp_43_in0;
+	wire [0:0] andOp_43_in1;
+	wire [0:0] andOp_43_out;
+	andOp #(.WIDTH(1)) andOp_43(.in0(andOp_43_in0), .in1(andOp_43_in1), .out(andOp_43_out));
 
-	wire [31:0] eq_44_in0;
-	wire [31:0] eq_44_in1;
-	wire [0:0] eq_44_out;
-	eq #(.WIDTH(32)) eq_44(.in0(eq_44_in0), .in1(eq_44_in1), .out(eq_44_out));
+	wire [0:0] andOp_44_in0;
+	wire [0:0] andOp_44_in1;
+	wire [0:0] andOp_44_out;
+	andOp #(.WIDTH(1)) andOp_44(.in0(andOp_44_in0), .in1(andOp_44_in1), .out(andOp_44_out));
 
-	wire [31:0] eq_45_in0;
-	wire [31:0] eq_45_in1;
-	wire [0:0] eq_45_out;
-	eq #(.WIDTH(32)) eq_45(.in0(eq_45_in0), .in1(eq_45_in1), .out(eq_45_out));
+	wire [0:0] andOp_45_in0;
+	wire [0:0] andOp_45_in1;
+	wire [0:0] andOp_45_out;
+	andOp #(.WIDTH(1)) andOp_45(.in0(andOp_45_in0), .in1(andOp_45_in1), .out(andOp_45_out));
 
-	wire [31:0] eq_46_in0;
-	wire [31:0] eq_46_in1;
-	wire [0:0] eq_46_out;
-	eq #(.WIDTH(32)) eq_46(.in0(eq_46_in0), .in1(eq_46_in1), .out(eq_46_out));
+	wire [0:0] andOp_46_in0;
+	wire [0:0] andOp_46_in1;
+	wire [0:0] andOp_46_out;
+	andOp #(.WIDTH(1)) andOp_46(.in0(andOp_46_in0), .in1(andOp_46_in1), .out(andOp_46_out));
 
-	wire [31:0] eq_47_in0;
-	wire [31:0] eq_47_in1;
-	wire [0:0] eq_47_out;
-	eq #(.WIDTH(32)) eq_47(.in0(eq_47_in0), .in1(eq_47_in1), .out(eq_47_out));
+	wire [0:0] andOp_47_in0;
+	wire [0:0] andOp_47_in1;
+	wire [0:0] andOp_47_out;
+	andOp #(.WIDTH(1)) andOp_47(.in0(andOp_47_in0), .in1(andOp_47_in1), .out(andOp_47_out));
 
-	wire [31:0] eq_48_in0;
-	wire [31:0] eq_48_in1;
-	wire [0:0] eq_48_out;
-	eq #(.WIDTH(32)) eq_48(.in0(eq_48_in0), .in1(eq_48_in1), .out(eq_48_out));
+	wire [0:0] andOp_48_in0;
+	wire [0:0] andOp_48_in1;
+	wire [0:0] andOp_48_out;
+	andOp #(.WIDTH(1)) andOp_48(.in0(andOp_48_in0), .in1(andOp_48_in1), .out(andOp_48_out));
 
-	wire [31:0] eq_49_in0;
-	wire [31:0] eq_49_in1;
-	wire [0:0] eq_49_out;
-	eq #(.WIDTH(32)) eq_49(.in0(eq_49_in0), .in1(eq_49_in1), .out(eq_49_out));
+	wire [0:0] andOp_49_in0;
+	wire [0:0] andOp_49_in1;
+	wire [0:0] andOp_49_out;
+	andOp #(.WIDTH(1)) andOp_49(.in0(andOp_49_in0), .in1(andOp_49_in1), .out(andOp_49_out));
 
-	wire [31:0] eq_50_in0;
-	wire [31:0] eq_50_in1;
-	wire [0:0] eq_50_out;
-	eq #(.WIDTH(32)) eq_50(.in0(eq_50_in0), .in1(eq_50_in1), .out(eq_50_out));
+	wire [0:0] andOp_50_in0;
+	wire [0:0] andOp_50_in1;
+	wire [0:0] andOp_50_out;
+	andOp #(.WIDTH(1)) andOp_50(.in0(andOp_50_in0), .in1(andOp_50_in1), .out(andOp_50_out));
 
-	wire [31:0] eq_51_in0;
-	wire [31:0] eq_51_in1;
-	wire [0:0] eq_51_out;
-	eq #(.WIDTH(32)) eq_51(.in0(eq_51_in0), .in1(eq_51_in1), .out(eq_51_out));
+	wire [0:0] andOp_51_in0;
+	wire [0:0] andOp_51_in1;
+	wire [0:0] andOp_51_out;
+	andOp #(.WIDTH(1)) andOp_51(.in0(andOp_51_in0), .in1(andOp_51_in1), .out(andOp_51_out));
 
-	wire [31:0] eq_52_in0;
-	wire [31:0] eq_52_in1;
-	wire [0:0] eq_52_out;
-	eq #(.WIDTH(32)) eq_52(.in0(eq_52_in0), .in1(eq_52_in1), .out(eq_52_out));
+	wire [0:0] andOp_52_in0;
+	wire [0:0] andOp_52_in1;
+	wire [0:0] andOp_52_out;
+	andOp #(.WIDTH(1)) andOp_52(.in0(andOp_52_in0), .in1(andOp_52_in1), .out(andOp_52_out));
 
-	wire [31:0] eq_53_in0;
-	wire [31:0] eq_53_in1;
-	wire [0:0] eq_53_out;
-	eq #(.WIDTH(32)) eq_53(.in0(eq_53_in0), .in1(eq_53_in1), .out(eq_53_out));
+	wire [0:0] andOp_53_in0;
+	wire [0:0] andOp_53_in1;
+	wire [0:0] andOp_53_out;
+	andOp #(.WIDTH(1)) andOp_53(.in0(andOp_53_in0), .in1(andOp_53_in1), .out(andOp_53_out));
 
-	wire [0:0] andOp_54_in0;
-	wire [0:0] andOp_54_in1;
-	wire [0:0] andOp_54_out;
-	andOp #(.WIDTH(1)) andOp_54(.in0(andOp_54_in0), .in1(andOp_54_in1), .out(andOp_54_out));
+	wire [31:0] add_55_in0;
+	wire [31:0] add_55_in1;
+	wire [31:0] add_55_out;
+	add #(.WIDTH(32)) add_55(.in0(add_55_in0), .in1(add_55_in1), .out(add_55_out));
 
-	wire [31:0] concat_55_in0;
-	wire [31:0] concat_55_in1;
-	wire [63:0] concat_55_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_55(.in0(concat_55_in0), .in1(concat_55_in1), .out(concat_55_out));
-
-	wire [31:0] concat_56_in0;
-	wire [31:0] concat_56_in1;
-	wire [63:0] concat_56_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_56(.in0(concat_56_in0), .in1(concat_56_in1), .out(concat_56_out));
+	wire [0:0] notOp_56_in0;
+	wire [0:0] notOp_56_out;
+	notOp #(.WIDTH(1)) notOp_56(.in(notOp_56_in0), .out(notOp_56_out));
 
 	wire [0:0] andOp_57_in0;
 	wire [0:0] andOp_57_in1;
 	wire [0:0] andOp_57_out;
 	andOp #(.WIDTH(1)) andOp_57(.in0(andOp_57_in0), .in1(andOp_57_in1), .out(andOp_57_out));
 
-	wire [0:0] andOp_58_in0;
-	wire [0:0] andOp_58_in1;
-	wire [0:0] andOp_58_out;
-	andOp #(.WIDTH(1)) andOp_58(.in0(andOp_58_in0), .in1(andOp_58_in1), .out(andOp_58_out));
-
-	wire [0:0] andOp_59_in0;
-	wire [0:0] andOp_59_in1;
-	wire [0:0] andOp_59_out;
-	andOp #(.WIDTH(1)) andOp_59(.in0(andOp_59_in0), .in1(andOp_59_in1), .out(andOp_59_out));
+	wire [31:0] eq_58_in0;
+	wire [31:0] eq_58_in1;
+	wire [0:0] eq_58_out;
+	eq #(.WIDTH(32)) eq_58(.in0(eq_58_in0), .in1(eq_58_in1), .out(eq_58_out));
 
 	wire [0:0] andOp_60_in0;
 	wire [0:0] andOp_60_in1;
 	wire [0:0] andOp_60_out;
 	andOp #(.WIDTH(1)) andOp_60(.in0(andOp_60_in0), .in1(andOp_60_in1), .out(andOp_60_out));
 
-	wire [0:0] andOp_61_in0;
-	wire [0:0] andOp_61_in1;
-	wire [0:0] andOp_61_out;
-	andOp #(.WIDTH(1)) andOp_61(.in0(andOp_61_in0), .in1(andOp_61_in1), .out(andOp_61_out));
+	wire [0:0] notOp_61_in0;
+	wire [0:0] notOp_61_out;
+	notOp #(.WIDTH(1)) notOp_61(.in(notOp_61_in0), .out(notOp_61_out));
 
 	wire [0:0] andOp_62_in0;
 	wire [0:0] andOp_62_in1;
 	wire [0:0] andOp_62_out;
 	andOp #(.WIDTH(1)) andOp_62(.in0(andOp_62_in0), .in1(andOp_62_in1), .out(andOp_62_out));
 
-	wire [0:0] andOp_63_in0;
-	wire [0:0] andOp_63_in1;
-	wire [0:0] andOp_63_out;
-	andOp #(.WIDTH(1)) andOp_63(.in0(andOp_63_in0), .in1(andOp_63_in1), .out(andOp_63_out));
+	wire [0:0] notOp_63_in0;
+	wire [0:0] notOp_63_out;
+	notOp #(.WIDTH(1)) notOp_63(.in(notOp_63_in0), .out(notOp_63_out));
 
 	wire [0:0] andOp_64_in0;
 	wire [0:0] andOp_64_in1;
 	wire [0:0] andOp_64_out;
 	andOp #(.WIDTH(1)) andOp_64(.in0(andOp_64_in0), .in1(andOp_64_in1), .out(andOp_64_out));
 
-	wire [0:0] andOp_65_in0;
-	wire [0:0] andOp_65_in1;
-	wire [0:0] andOp_65_out;
-	andOp #(.WIDTH(1)) andOp_65(.in0(andOp_65_in0), .in1(andOp_65_in1), .out(andOp_65_out));
+	wire [0:0] notOp_65_in0;
+	wire [0:0] notOp_65_out;
+	notOp #(.WIDTH(1)) notOp_65(.in(notOp_65_in0), .out(notOp_65_out));
 
 	wire [0:0] andOp_66_in0;
 	wire [0:0] andOp_66_in1;
@@ -697,10 +443,15 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	wire [0:0] andOp_67_out;
 	andOp #(.WIDTH(1)) andOp_67(.in0(andOp_67_in0), .in1(andOp_67_in1), .out(andOp_67_out));
 
-	wire [31:0] add_69_in0;
-	wire [31:0] add_69_in1;
-	wire [31:0] add_69_out;
-	add #(.WIDTH(32)) add_69(.in0(add_69_in0), .in1(add_69_in1), .out(add_69_out));
+	wire [0:0] andOp_68_in0;
+	wire [0:0] andOp_68_in1;
+	wire [0:0] andOp_68_out;
+	andOp #(.WIDTH(1)) andOp_68(.in0(andOp_68_in0), .in1(andOp_68_in1), .out(andOp_68_out));
+
+	wire [0:0] andOp_69_in0;
+	wire [0:0] andOp_69_in1;
+	wire [0:0] andOp_69_out;
+	andOp #(.WIDTH(1)) andOp_69(.in0(andOp_69_in0), .in1(andOp_69_in1), .out(andOp_69_out));
 
 	wire [0:0] notOp_70_in0;
 	wire [0:0] notOp_70_out;
@@ -711,70 +462,75 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	wire [0:0] andOp_71_out;
 	andOp #(.WIDTH(1)) andOp_71(.in0(andOp_71_in0), .in1(andOp_71_in1), .out(andOp_71_out));
 
-	wire [31:0] eq_72_in0;
-	wire [31:0] eq_72_in1;
-	wire [0:0] eq_72_out;
-	eq #(.WIDTH(32)) eq_72(.in0(eq_72_in0), .in1(eq_72_in1), .out(eq_72_out));
+	wire [0:0] notOp_72_in0;
+	wire [0:0] notOp_72_out;
+	notOp #(.WIDTH(1)) notOp_72(.in(notOp_72_in0), .out(notOp_72_out));
 
-	wire [0:0] andOp_74_in0;
-	wire [0:0] andOp_74_in1;
-	wire [0:0] andOp_74_out;
-	andOp #(.WIDTH(1)) andOp_74(.in0(andOp_74_in0), .in1(andOp_74_in1), .out(andOp_74_out));
+	wire [0:0] andOp_73_in0;
+	wire [0:0] andOp_73_in1;
+	wire [0:0] andOp_73_out;
+	andOp #(.WIDTH(1)) andOp_73(.in0(andOp_73_in0), .in1(andOp_73_in1), .out(andOp_73_out));
 
-	wire [0:0] notOp_75_in0;
-	wire [0:0] notOp_75_out;
-	notOp #(.WIDTH(1)) notOp_75(.in(notOp_75_in0), .out(notOp_75_out));
+	wire [0:0] notOp_74_in0;
+	wire [0:0] notOp_74_out;
+	notOp #(.WIDTH(1)) notOp_74(.in(notOp_74_in0), .out(notOp_74_out));
+
+	wire [0:0] andOp_75_in0;
+	wire [0:0] andOp_75_in1;
+	wire [0:0] andOp_75_out;
+	andOp #(.WIDTH(1)) andOp_75(.in0(andOp_75_in0), .in1(andOp_75_in1), .out(andOp_75_out));
 
 	wire [0:0] andOp_76_in0;
 	wire [0:0] andOp_76_in1;
 	wire [0:0] andOp_76_out;
 	andOp #(.WIDTH(1)) andOp_76(.in0(andOp_76_in0), .in1(andOp_76_in1), .out(andOp_76_out));
 
-	wire [0:0] notOp_77_in0;
-	wire [0:0] notOp_77_out;
-	notOp #(.WIDTH(1)) notOp_77(.in(notOp_77_in0), .out(notOp_77_out));
+	wire [0:0] andOp_77_in0;
+	wire [0:0] andOp_77_in1;
+	wire [0:0] andOp_77_out;
+	andOp #(.WIDTH(1)) andOp_77(.in0(andOp_77_in0), .in1(andOp_77_in1), .out(andOp_77_out));
 
 	wire [0:0] andOp_78_in0;
 	wire [0:0] andOp_78_in1;
 	wire [0:0] andOp_78_out;
 	andOp #(.WIDTH(1)) andOp_78(.in0(andOp_78_in0), .in1(andOp_78_in1), .out(andOp_78_out));
 
-	wire [0:0] notOp_79_in0;
-	wire [0:0] notOp_79_out;
-	notOp #(.WIDTH(1)) notOp_79(.in(notOp_79_in0), .out(notOp_79_out));
+	wire [0:0] andOp_79_in0;
+	wire [0:0] andOp_79_in1;
+	wire [0:0] andOp_79_out;
+	andOp #(.WIDTH(1)) andOp_79(.in0(andOp_79_in0), .in1(andOp_79_in1), .out(andOp_79_out));
 
 	wire [0:0] andOp_80_in0;
 	wire [0:0] andOp_80_in1;
 	wire [0:0] andOp_80_out;
 	andOp #(.WIDTH(1)) andOp_80(.in0(andOp_80_in0), .in1(andOp_80_in1), .out(andOp_80_out));
 
-	wire [0:0] notOp_81_in0;
-	wire [0:0] notOp_81_out;
-	notOp #(.WIDTH(1)) notOp_81(.in(notOp_81_in0), .out(notOp_81_out));
+	wire [0:0] andOp_81_in0;
+	wire [0:0] andOp_81_in1;
+	wire [0:0] andOp_81_out;
+	andOp #(.WIDTH(1)) andOp_81(.in0(andOp_81_in0), .in1(andOp_81_in1), .out(andOp_81_out));
 
-	wire [0:0] andOp_82_in0;
-	wire [0:0] andOp_82_in1;
-	wire [0:0] andOp_82_out;
-	andOp #(.WIDTH(1)) andOp_82(.in0(andOp_82_in0), .in1(andOp_82_in1), .out(andOp_82_out));
+	wire [0:0] notOp_82_in0;
+	wire [0:0] notOp_82_out;
+	notOp #(.WIDTH(1)) notOp_82(.in(notOp_82_in0), .out(notOp_82_out));
 
-	wire [0:0] notOp_83_in0;
-	wire [0:0] notOp_83_out;
-	notOp #(.WIDTH(1)) notOp_83(.in(notOp_83_in0), .out(notOp_83_out));
+	wire [0:0] andOp_83_in0;
+	wire [0:0] andOp_83_in1;
+	wire [0:0] andOp_83_out;
+	andOp #(.WIDTH(1)) andOp_83(.in0(andOp_83_in0), .in1(andOp_83_in1), .out(andOp_83_out));
 
-	wire [0:0] andOp_84_in0;
-	wire [0:0] andOp_84_in1;
-	wire [0:0] andOp_84_out;
-	andOp #(.WIDTH(1)) andOp_84(.in0(andOp_84_in0), .in1(andOp_84_in1), .out(andOp_84_out));
+	wire [0:0] notOp_84_in0;
+	wire [0:0] notOp_84_out;
+	notOp #(.WIDTH(1)) notOp_84(.in(notOp_84_in0), .out(notOp_84_out));
 
 	wire [0:0] andOp_85_in0;
 	wire [0:0] andOp_85_in1;
 	wire [0:0] andOp_85_out;
 	andOp #(.WIDTH(1)) andOp_85(.in0(andOp_85_in0), .in1(andOp_85_in1), .out(andOp_85_out));
 
-	wire [0:0] andOp_86_in0;
-	wire [0:0] andOp_86_in1;
-	wire [0:0] andOp_86_out;
-	andOp #(.WIDTH(1)) andOp_86(.in0(andOp_86_in0), .in1(andOp_86_in1), .out(andOp_86_out));
+	wire [0:0] notOp_86_in0;
+	wire [0:0] notOp_86_out;
+	notOp #(.WIDTH(1)) notOp_86(.in(notOp_86_in0), .out(notOp_86_out));
 
 	wire [0:0] andOp_87_in0;
 	wire [0:0] andOp_87_in1;
@@ -817,303 +573,110 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	wire [0:0] andOp_95_out;
 	andOp #(.WIDTH(1)) andOp_95(.in0(andOp_95_in0), .in1(andOp_95_in1), .out(andOp_95_out));
 
-	wire [0:0] notOp_96_in0;
-	wire [0:0] notOp_96_out;
-	notOp #(.WIDTH(1)) notOp_96(.in(notOp_96_in0), .out(notOp_96_out));
+	reg [0:0] in_pipeline_0_in_data;
+	wire [0:0] in_pipeline_0_out_data;
+	hls_wire #(.WIDTH(1)) in_pipeline_0(.in_data(in_pipeline_0_in_data), .out_data(in_pipeline_0_out_data));
 
-	wire [0:0] andOp_97_in0;
-	wire [0:0] andOp_97_in1;
-	wire [0:0] andOp_97_out;
-	andOp #(.WIDTH(1)) andOp_97(.in0(andOp_97_in0), .in1(andOp_97_in1), .out(andOp_97_out));
+	wire [0:0] orOp_96_in0;
+	wire [0:0] orOp_96_in1;
+	wire [0:0] orOp_96_out;
+	orOp #(.WIDTH(1)) orOp_96(.in0(orOp_96_in0), .in1(orOp_96_in1), .out(orOp_96_out));
 
-	wire [0:0] andOp_98_in0;
-	wire [0:0] andOp_98_in1;
-	wire [0:0] andOp_98_out;
-	andOp #(.WIDTH(1)) andOp_98(.in0(andOp_98_in0), .in1(andOp_98_in1), .out(andOp_98_out));
+	wire [0:0] orOp_97_in0;
+	wire [0:0] orOp_97_in1;
+	wire [0:0] orOp_97_out;
+	orOp #(.WIDTH(1)) orOp_97(.in0(orOp_97_in0), .in1(orOp_97_in1), .out(orOp_97_out));
 
-	wire [0:0] andOp_99_in0;
-	wire [0:0] andOp_99_in1;
-	wire [0:0] andOp_99_out;
-	andOp #(.WIDTH(1)) andOp_99(.in0(andOp_99_in0), .in1(andOp_99_in1), .out(andOp_99_out));
+	wire [0:0] orOp_98_in0;
+	wire [0:0] orOp_98_in1;
+	wire [0:0] orOp_98_out;
+	orOp #(.WIDTH(1)) orOp_98(.in0(orOp_98_in0), .in1(orOp_98_in1), .out(orOp_98_out));
 
-	wire [0:0] andOp_100_in0;
-	wire [0:0] andOp_100_in1;
-	wire [0:0] andOp_100_out;
-	andOp #(.WIDTH(1)) andOp_100(.in0(andOp_100_in0), .in1(andOp_100_in1), .out(andOp_100_out));
+	wire [0:0] orOp_99_in0;
+	wire [0:0] orOp_99_in1;
+	wire [0:0] orOp_99_out;
+	orOp #(.WIDTH(1)) orOp_99(.in0(orOp_99_in0), .in1(orOp_99_in1), .out(orOp_99_out));
 
-	wire [0:0] andOp_101_in0;
-	wire [0:0] andOp_101_in1;
-	wire [0:0] andOp_101_out;
-	andOp #(.WIDTH(1)) andOp_101(.in0(andOp_101_in0), .in1(andOp_101_in1), .out(andOp_101_out));
+	wire [31:0] eq_100_in0;
+	wire [31:0] eq_100_in1;
+	wire [0:0] eq_100_out;
+	eq #(.WIDTH(32)) eq_100(.in0(eq_100_in0), .in1(eq_100_in1), .out(eq_100_out));
 
-	wire [0:0] andOp_102_in0;
-	wire [0:0] andOp_102_in1;
-	wire [0:0] andOp_102_out;
-	andOp #(.WIDTH(1)) andOp_102(.in0(andOp_102_in0), .in1(andOp_102_in1), .out(andOp_102_out));
+	wire [31:0] eq_101_in0;
+	wire [31:0] eq_101_in1;
+	wire [0:0] eq_101_out;
+	eq #(.WIDTH(32)) eq_101(.in0(eq_101_in0), .in1(eq_101_in1), .out(eq_101_out));
+
+	wire [31:0] eq_102_in0;
+	wire [31:0] eq_102_in1;
+	wire [0:0] eq_102_out;
+	eq #(.WIDTH(32)) eq_102(.in0(eq_102_in0), .in1(eq_102_in1), .out(eq_102_out));
 
 	wire [0:0] andOp_103_in0;
 	wire [0:0] andOp_103_in1;
 	wire [0:0] andOp_103_out;
 	andOp #(.WIDTH(1)) andOp_103(.in0(andOp_103_in0), .in1(andOp_103_in1), .out(andOp_103_out));
 
-	wire [0:0] andOp_104_in0;
-	wire [0:0] andOp_104_in1;
-	wire [0:0] andOp_104_out;
-	andOp #(.WIDTH(1)) andOp_104(.in0(andOp_104_in0), .in1(andOp_104_in1), .out(andOp_104_out));
+	wire [31:0] eq_104_in0;
+	wire [31:0] eq_104_in1;
+	wire [0:0] eq_104_out;
+	eq #(.WIDTH(32)) eq_104(.in0(eq_104_in0), .in1(eq_104_in1), .out(eq_104_out));
 
-	wire [0:0] andOp_105_in0;
-	wire [0:0] andOp_105_in1;
-	wire [0:0] andOp_105_out;
-	andOp #(.WIDTH(1)) andOp_105(.in0(andOp_105_in0), .in1(andOp_105_in1), .out(andOp_105_out));
+	wire [31:0] eq_105_in0;
+	wire [31:0] eq_105_in1;
+	wire [0:0] eq_105_out;
+	eq #(.WIDTH(32)) eq_105(.in0(eq_105_in0), .in1(eq_105_in1), .out(eq_105_out));
 
-	wire [0:0] notOp_106_in0;
-	wire [0:0] notOp_106_out;
-	notOp #(.WIDTH(1)) notOp_106(.in(notOp_106_in0), .out(notOp_106_out));
+	wire [0:0] andOp_106_in0;
+	wire [0:0] andOp_106_in1;
+	wire [0:0] andOp_106_out;
+	andOp #(.WIDTH(1)) andOp_106(.in0(andOp_106_in0), .in1(andOp_106_in1), .out(andOp_106_out));
 
-	wire [0:0] andOp_107_in0;
-	wire [0:0] andOp_107_in1;
-	wire [0:0] andOp_107_out;
-	andOp #(.WIDTH(1)) andOp_107(.in0(andOp_107_in0), .in1(andOp_107_in1), .out(andOp_107_out));
+	wire [31:0] eq_107_in0;
+	wire [31:0] eq_107_in1;
+	wire [0:0] eq_107_out;
+	eq #(.WIDTH(32)) eq_107(.in0(eq_107_in0), .in1(eq_107_in1), .out(eq_107_out));
 
-	wire [0:0] notOp_108_in0;
-	wire [0:0] notOp_108_out;
-	notOp #(.WIDTH(1)) notOp_108(.in(notOp_108_in0), .out(notOp_108_out));
+	wire [31:0] eq_108_in0;
+	wire [31:0] eq_108_in1;
+	wire [0:0] eq_108_out;
+	eq #(.WIDTH(32)) eq_108(.in0(eq_108_in0), .in1(eq_108_in1), .out(eq_108_out));
 
-	wire [0:0] andOp_109_in0;
-	wire [0:0] andOp_109_in1;
-	wire [0:0] andOp_109_out;
-	andOp #(.WIDTH(1)) andOp_109(.in0(andOp_109_in0), .in1(andOp_109_in1), .out(andOp_109_out));
+	wire [31:0] eq_109_in0;
+	wire [31:0] eq_109_in1;
+	wire [0:0] eq_109_out;
+	eq #(.WIDTH(32)) eq_109(.in0(eq_109_in0), .in1(eq_109_in1), .out(eq_109_out));
 
-	wire [0:0] notOp_110_in0;
-	wire [0:0] notOp_110_out;
-	notOp #(.WIDTH(1)) notOp_110(.in(notOp_110_in0), .out(notOp_110_out));
+	wire [31:0] eq_110_in0;
+	wire [31:0] eq_110_in1;
+	wire [0:0] eq_110_out;
+	eq #(.WIDTH(32)) eq_110(.in0(eq_110_in0), .in1(eq_110_in1), .out(eq_110_out));
 
-	wire [0:0] andOp_111_in0;
-	wire [0:0] andOp_111_in1;
-	wire [0:0] andOp_111_out;
-	andOp #(.WIDTH(1)) andOp_111(.in0(andOp_111_in0), .in1(andOp_111_in1), .out(andOp_111_out));
+	wire [31:0] eq_111_in0;
+	wire [31:0] eq_111_in1;
+	wire [0:0] eq_111_out;
+	eq #(.WIDTH(32)) eq_111(.in0(eq_111_in0), .in1(eq_111_in1), .out(eq_111_out));
 
-	wire [0:0] notOp_112_in0;
-	wire [0:0] notOp_112_out;
-	notOp #(.WIDTH(1)) notOp_112(.in(notOp_112_in0), .out(notOp_112_out));
+	wire [31:0] eq_112_in0;
+	wire [31:0] eq_112_in1;
+	wire [0:0] eq_112_out;
+	eq #(.WIDTH(32)) eq_112(.in0(eq_112_in0), .in1(eq_112_in1), .out(eq_112_out));
 
-	wire [0:0] andOp_113_in0;
-	wire [0:0] andOp_113_in1;
-	wire [0:0] andOp_113_out;
-	andOp #(.WIDTH(1)) andOp_113(.in0(andOp_113_in0), .in1(andOp_113_in1), .out(andOp_113_out));
-
-	wire [0:0] notOp_114_in0;
-	wire [0:0] notOp_114_out;
-	notOp #(.WIDTH(1)) notOp_114(.in(notOp_114_in0), .out(notOp_114_out));
-
-	wire [0:0] andOp_115_in0;
-	wire [0:0] andOp_115_in1;
-	wire [0:0] andOp_115_out;
-	andOp #(.WIDTH(1)) andOp_115(.in0(andOp_115_in0), .in1(andOp_115_in1), .out(andOp_115_out));
-
-	wire [0:0] notOp_116_in0;
-	wire [0:0] notOp_116_out;
-	notOp #(.WIDTH(1)) notOp_116(.in(notOp_116_in0), .out(notOp_116_out));
-
-	wire [0:0] andOp_117_in0;
-	wire [0:0] andOp_117_in1;
-	wire [0:0] andOp_117_out;
-	andOp #(.WIDTH(1)) andOp_117(.in0(andOp_117_in0), .in1(andOp_117_in1), .out(andOp_117_out));
-
-	wire [0:0] notOp_118_in0;
-	wire [0:0] notOp_118_out;
-	notOp #(.WIDTH(1)) notOp_118(.in(notOp_118_in0), .out(notOp_118_out));
-
-	wire [0:0] andOp_119_in0;
-	wire [0:0] andOp_119_in1;
-	wire [0:0] andOp_119_out;
-	andOp #(.WIDTH(1)) andOp_119(.in0(andOp_119_in0), .in1(andOp_119_in1), .out(andOp_119_out));
-
-	wire [0:0] notOp_120_in0;
-	wire [0:0] notOp_120_out;
-	notOp #(.WIDTH(1)) notOp_120(.in(notOp_120_in0), .out(notOp_120_out));
-
-	wire [0:0] andOp_121_in0;
-	wire [0:0] andOp_121_in1;
-	wire [0:0] andOp_121_out;
-	andOp #(.WIDTH(1)) andOp_121(.in0(andOp_121_in0), .in1(andOp_121_in1), .out(andOp_121_out));
-
-	wire [0:0] notOp_122_in0;
-	wire [0:0] notOp_122_out;
-	notOp #(.WIDTH(1)) notOp_122(.in(notOp_122_in0), .out(notOp_122_out));
-
-	wire [0:0] andOp_123_in0;
-	wire [0:0] andOp_123_in1;
-	wire [0:0] andOp_123_out;
-	andOp #(.WIDTH(1)) andOp_123(.in0(andOp_123_in0), .in1(andOp_123_in1), .out(andOp_123_out));
-
-	reg [0:0] in_pipeline_0_in_data;
-	wire [0:0] in_pipeline_0_out_data;
-	hls_wire #(.WIDTH(1)) in_pipeline_0(.in_data(in_pipeline_0_in_data), .out_data(in_pipeline_0_out_data));
-
-	wire [0:0] orOp_124_in0;
-	wire [0:0] orOp_124_in1;
-	wire [0:0] orOp_124_out;
-	orOp #(.WIDTH(1)) orOp_124(.in0(orOp_124_in0), .in1(orOp_124_in1), .out(orOp_124_out));
-
-	wire [0:0] orOp_125_in0;
-	wire [0:0] orOp_125_in1;
-	wire [0:0] orOp_125_out;
-	orOp #(.WIDTH(1)) orOp_125(.in0(orOp_125_in0), .in1(orOp_125_in1), .out(orOp_125_out));
-
-	wire [0:0] orOp_126_in0;
-	wire [0:0] orOp_126_in1;
-	wire [0:0] orOp_126_out;
-	orOp #(.WIDTH(1)) orOp_126(.in0(orOp_126_in0), .in1(orOp_126_in1), .out(orOp_126_out));
-
-	wire [0:0] orOp_127_in0;
-	wire [0:0] orOp_127_in1;
-	wire [0:0] orOp_127_out;
-	orOp #(.WIDTH(1)) orOp_127(.in0(orOp_127_in0), .in1(orOp_127_in1), .out(orOp_127_out));
-
-	wire [0:0] orOp_128_in0;
-	wire [0:0] orOp_128_in1;
-	wire [0:0] orOp_128_out;
-	orOp #(.WIDTH(1)) orOp_128(.in0(orOp_128_in0), .in1(orOp_128_in1), .out(orOp_128_out));
-
-	wire [0:0] orOp_129_in0;
-	wire [0:0] orOp_129_in1;
-	wire [0:0] orOp_129_out;
-	orOp #(.WIDTH(1)) orOp_129(.in0(orOp_129_in0), .in1(orOp_129_in1), .out(orOp_129_out));
-
-	wire [31:0] eq_130_in0;
-	wire [31:0] eq_130_in1;
-	wire [0:0] eq_130_out;
-	eq #(.WIDTH(32)) eq_130(.in0(eq_130_in0), .in1(eq_130_in1), .out(eq_130_out));
-
-	wire [31:0] eq_131_in0;
-	wire [31:0] eq_131_in1;
-	wire [0:0] eq_131_out;
-	eq #(.WIDTH(32)) eq_131(.in0(eq_131_in0), .in1(eq_131_in1), .out(eq_131_out));
-
-	wire [31:0] eq_132_in0;
-	wire [31:0] eq_132_in1;
-	wire [0:0] eq_132_out;
-	eq #(.WIDTH(32)) eq_132(.in0(eq_132_in0), .in1(eq_132_in1), .out(eq_132_out));
-
-	wire [0:0] andOp_133_in0;
-	wire [0:0] andOp_133_in1;
-	wire [0:0] andOp_133_out;
-	andOp #(.WIDTH(1)) andOp_133(.in0(andOp_133_in0), .in1(andOp_133_in1), .out(andOp_133_out));
-
-	wire [31:0] eq_134_in0;
-	wire [31:0] eq_134_in1;
-	wire [0:0] eq_134_out;
-	eq #(.WIDTH(32)) eq_134(.in0(eq_134_in0), .in1(eq_134_in1), .out(eq_134_out));
-
-	wire [31:0] eq_135_in0;
-	wire [31:0] eq_135_in1;
-	wire [0:0] eq_135_out;
-	eq #(.WIDTH(32)) eq_135(.in0(eq_135_in0), .in1(eq_135_in1), .out(eq_135_out));
-
-	wire [0:0] andOp_136_in0;
-	wire [0:0] andOp_136_in1;
-	wire [0:0] andOp_136_out;
-	andOp #(.WIDTH(1)) andOp_136(.in0(andOp_136_in0), .in1(andOp_136_in1), .out(andOp_136_out));
-
-	wire [31:0] eq_137_in0;
-	wire [31:0] eq_137_in1;
-	wire [0:0] eq_137_out;
-	eq #(.WIDTH(32)) eq_137(.in0(eq_137_in0), .in1(eq_137_in1), .out(eq_137_out));
-
-	wire [31:0] eq_138_in0;
-	wire [31:0] eq_138_in1;
-	wire [0:0] eq_138_out;
-	eq #(.WIDTH(32)) eq_138(.in0(eq_138_in0), .in1(eq_138_in1), .out(eq_138_out));
-
-	wire [31:0] eq_139_in0;
-	wire [31:0] eq_139_in1;
-	wire [0:0] eq_139_out;
-	eq #(.WIDTH(32)) eq_139(.in0(eq_139_in0), .in1(eq_139_in1), .out(eq_139_out));
-
-	wire [31:0] eq_140_in0;
-	wire [31:0] eq_140_in1;
-	wire [0:0] eq_140_out;
-	eq #(.WIDTH(32)) eq_140(.in0(eq_140_in0), .in1(eq_140_in1), .out(eq_140_out));
-
-	wire [31:0] eq_141_in0;
-	wire [31:0] eq_141_in1;
-	wire [0:0] eq_141_out;
-	eq #(.WIDTH(32)) eq_141(.in0(eq_141_in0), .in1(eq_141_in1), .out(eq_141_out));
-
-	wire [31:0] eq_142_in0;
-	wire [31:0] eq_142_in1;
-	wire [0:0] eq_142_out;
-	eq #(.WIDTH(32)) eq_142(.in0(eq_142_in0), .in1(eq_142_in1), .out(eq_142_out));
-
-	wire [31:0] eq_143_in0;
-	wire [31:0] eq_143_in1;
-	wire [0:0] eq_143_out;
-	eq #(.WIDTH(32)) eq_143(.in0(eq_143_in0), .in1(eq_143_in1), .out(eq_143_out));
-
-	wire [31:0] eq_144_in0;
-	wire [31:0] eq_144_in1;
-	wire [0:0] eq_144_out;
-	eq #(.WIDTH(32)) eq_144(.in0(eq_144_in0), .in1(eq_144_in1), .out(eq_144_out));
-
-	wire [31:0] eq_145_in0;
-	wire [31:0] eq_145_in1;
-	wire [0:0] eq_145_out;
-	eq #(.WIDTH(32)) eq_145(.in0(eq_145_in0), .in1(eq_145_in1), .out(eq_145_out));
-
-	wire [31:0] eq_146_in0;
-	wire [31:0] eq_146_in1;
-	wire [0:0] eq_146_out;
-	eq #(.WIDTH(32)) eq_146(.in0(eq_146_in0), .in1(eq_146_in1), .out(eq_146_out));
-
-	wire [31:0] eq_147_in0;
-	wire [31:0] eq_147_in1;
-	wire [0:0] eq_147_out;
-	eq #(.WIDTH(32)) eq_147(.in0(eq_147_in0), .in1(eq_147_in1), .out(eq_147_out));
-
-	wire [0:0] notOp_148_in0;
-	wire [0:0] notOp_148_out;
-	notOp #(.WIDTH(1)) notOp_148(.in(notOp_148_in0), .out(notOp_148_out));
-
-	wire [0:0] notOp_149_in0;
-	wire [0:0] notOp_149_out;
-	notOp #(.WIDTH(1)) notOp_149(.in(notOp_149_in0), .out(notOp_149_out));
-
-	wire [0:0] andOp_150_in0;
-	wire [0:0] andOp_150_in1;
-	wire [0:0] andOp_150_out;
-	andOp #(.WIDTH(1)) andOp_150(.in0(andOp_150_in0), .in1(andOp_150_in1), .out(andOp_150_out));
-
-	wire [0:0] andOp_151_in0;
-	wire [0:0] andOp_151_in1;
-	wire [0:0] andOp_151_out;
-	andOp #(.WIDTH(1)) andOp_151(.in0(andOp_151_in0), .in1(andOp_151_in1), .out(andOp_151_out));
-
-	wire [0:0] andOp_152_in0;
-	wire [0:0] andOp_152_in1;
-	wire [0:0] andOp_152_out;
-	andOp #(.WIDTH(1)) andOp_152(.in0(andOp_152_in0), .in1(andOp_152_in1), .out(andOp_152_out));
-
-	wire [0:0] andOp_153_in0;
-	wire [0:0] andOp_153_in1;
-	wire [0:0] andOp_153_out;
-	andOp #(.WIDTH(1)) andOp_153(.in0(andOp_153_in0), .in1(andOp_153_in1), .out(andOp_153_out));
-
-	wire [0:0] andOp_154_in0;
-	wire [0:0] andOp_154_in1;
-	wire [0:0] andOp_154_out;
-	andOp #(.WIDTH(1)) andOp_154(.in0(andOp_154_in0), .in1(andOp_154_in1), .out(andOp_154_out));
+	wire [31:0] eq_113_in0;
+	wire [31:0] eq_113_in1;
+	wire [0:0] eq_113_out;
+	eq #(.WIDTH(32)) eq_113(.in0(eq_113_in0), .in1(eq_113_in1), .out(eq_113_out));
 
 	// End Functional Units
 
-	reg [31:0] counter__68;
+	reg [31:0] counter__54;
 	reg [31:0] data_store_0_0;
 	reg [31:0] data_store_1_2;
 	reg [7:0] data_store_2_4;
-	reg [0:0] delayed_signal__73;
+	reg [0:0] delayed_signal__59;
 	reg [31:0] global_state;
-	reg [0:0] out_of_pipe_1_7;
-	reg [0:0] out_of_pipe_bb_1_7;
+	reg [0:0] out_of_pipe_1_5;
+	reg [0:0] out_of_pipe_bb_1_5;
 	reg [31:0] state_0_entry_BB_reg;
 	reg [0:0] state_0_is_active;
 	reg [31:0] state_0_last_BB_reg;
@@ -1138,20 +701,12 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	reg [0:0] state_5_is_active;
 	reg [31:0] state_5_last_BB_reg;
 	reg [31:0] state_5_last_state;
-	reg [31:0] state_6_entry_BB_reg;
-	reg [0:0] state_6_is_active;
-	reg [31:0] state_6_last_BB_reg;
-	reg [31:0] state_6_last_state;
-	reg [31:0] state_7_entry_BB_reg;
-	reg [0:0] state_7_is_active;
-	reg [31:0] state_7_last_BB_reg;
-	reg [31:0] state_7_last_state;
 
-	// controller for add_69.add_69_in0
-	// controller for add_69.add_69_in1
+	// controller for add_55.add_55_in0
+	// controller for add_55.add_55_in1
 	// Insensitive connections
-	assign add_69_in0 = counter__68;
-	assign add_69_in1 = 32'd1;
+	assign add_55_in0 = counter__54;
+	assign add_55_in1 = 32'd1;
 	// controller for add_add2.add_add2_in0
 	// controller for add_add2.add_add2_in1
 	// Insensitive connections
@@ -1167,131 +722,31 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// Insensitive connections
 	assign andOp_10_in0 = andOp_8_out;
 	assign andOp_10_in1 = icmp_icmp3_out;
-	// controller for andOp_100.andOp_100_in0
-	// controller for andOp_100.andOp_100_in1
-	// Insensitive connections
-	assign andOp_100_in0 = bb_1_active_in_state_1_out_data;
-	assign andOp_100_in1 = state_1_is_active;
-	// controller for andOp_101.andOp_101_in0
-	// controller for andOp_101.andOp_101_in1
-	// Insensitive connections
-	assign andOp_101_in0 = bb_1_active_in_state_2_out_data;
-	assign andOp_101_in1 = state_2_is_active;
-	// controller for andOp_102.andOp_102_in0
-	// controller for andOp_102.andOp_102_in1
-	// Insensitive connections
-	assign andOp_102_in0 = bb_1_active_in_state_3_out_data;
-	assign andOp_102_in1 = state_3_is_active;
 	// controller for andOp_103.andOp_103_in0
 	// controller for andOp_103.andOp_103_in1
 	// Insensitive connections
-	assign andOp_103_in0 = bb_1_active_in_state_4_out_data;
-	assign andOp_103_in1 = state_4_is_active;
-	// controller for andOp_104.andOp_104_in0
-	// controller for andOp_104.andOp_104_in1
+	assign andOp_103_in0 = bb_1_active_in_state_1_out_data;
+	assign andOp_103_in1 = state_1_is_active;
+	// controller for andOp_106.andOp_106_in0
+	// controller for andOp_106.andOp_106_in1
 	// Insensitive connections
-	assign andOp_104_in0 = bb_1_active_in_state_5_out_data;
-	assign andOp_104_in1 = state_5_is_active;
-	// controller for andOp_105.andOp_105_in0
-	// controller for andOp_105.andOp_105_in1
-	// Insensitive connections
-	assign andOp_105_in0 = bb_2_active_in_state_7_out_data;
-	assign andOp_105_in1 = state_7_is_active;
-	// controller for andOp_107.andOp_107_in0
-	// controller for andOp_107.andOp_107_in1
-	// Insensitive connections
-	assign andOp_107_in0 = notOp_106_out;
-	assign andOp_107_in1 = 1'd1;
-	// controller for andOp_109.andOp_109_in0
-	// controller for andOp_109.andOp_109_in1
-	// Insensitive connections
-	assign andOp_109_in0 = notOp_108_out;
-	assign andOp_109_in1 = andOp_107_out;
-	// controller for andOp_111.andOp_111_in0
-	// controller for andOp_111.andOp_111_in1
-	// Insensitive connections
-	assign andOp_111_in0 = notOp_110_out;
-	assign andOp_111_in1 = 1'd1;
-	// controller for andOp_113.andOp_113_in0
-	// controller for andOp_113.andOp_113_in1
-	// Insensitive connections
-	assign andOp_113_in0 = notOp_112_out;
-	assign andOp_113_in1 = 1'd1;
-	// controller for andOp_115.andOp_115_in0
-	// controller for andOp_115.andOp_115_in1
-	// Insensitive connections
-	assign andOp_115_in0 = notOp_114_out;
-	assign andOp_115_in1 = 1'd1;
-	// controller for andOp_117.andOp_117_in0
-	// controller for andOp_117.andOp_117_in1
-	// Insensitive connections
-	assign andOp_117_in0 = notOp_116_out;
-	assign andOp_117_in1 = 1'd1;
-	// controller for andOp_119.andOp_119_in0
-	// controller for andOp_119.andOp_119_in1
-	// Insensitive connections
-	assign andOp_119_in0 = notOp_118_out;
-	assign andOp_119_in1 = 1'd1;
+	assign andOp_106_in0 = bb_1_active_in_state_2_out_data;
+	assign andOp_106_in1 = state_2_is_active;
 	// controller for andOp_12.andOp_12_in0
 	// controller for andOp_12.andOp_12_in1
 	// Insensitive connections
 	assign andOp_12_in0 = andOp_8_out;
 	assign andOp_12_in1 = notOp_11_out;
-	// controller for andOp_121.andOp_121_in0
-	// controller for andOp_121.andOp_121_in1
-	// Insensitive connections
-	assign andOp_121_in0 = notOp_120_out;
-	assign andOp_121_in1 = 1'd1;
-	// controller for andOp_123.andOp_123_in0
-	// controller for andOp_123.andOp_123_in1
-	// Insensitive connections
-	assign andOp_123_in0 = notOp_122_out;
-	assign andOp_123_in1 = andOp_121_out;
 	// controller for andOp_13.andOp_13_in0
 	// controller for andOp_13.andOp_13_in1
 	// Insensitive connections
 	assign andOp_13_in0 = bb_1_active_in_state_1_out_data;
 	assign andOp_13_in1 = state_1_is_active;
-	// controller for andOp_133.andOp_133_in0
-	// controller for andOp_133.andOp_133_in1
-	// Insensitive connections
-	assign andOp_133_in0 = bb_1_active_in_state_1_out_data;
-	assign andOp_133_in1 = state_1_is_active;
-	// controller for andOp_136.andOp_136_in0
-	// controller for andOp_136.andOp_136_in1
-	// Insensitive connections
-	assign andOp_136_in0 = bb_1_active_in_state_2_out_data;
-	assign andOp_136_in1 = state_2_is_active;
 	// controller for andOp_15.andOp_15_in0
 	// controller for andOp_15.andOp_15_in1
 	// Insensitive connections
 	assign andOp_15_in0 = andOp_13_out;
 	assign andOp_15_in1 = icmp_icmp3_out;
-	// controller for andOp_150.andOp_150_in0
-	// controller for andOp_150.andOp_150_in1
-	// Insensitive connections
-	assign andOp_150_in0 = bb_1_active_in_state_1_out_data;
-	assign andOp_150_in1 = state_1_is_active;
-	// controller for andOp_151.andOp_151_in0
-	// controller for andOp_151.andOp_151_in1
-	// Insensitive connections
-	assign andOp_151_in0 = bb_1_active_in_state_3_out_data;
-	assign andOp_151_in1 = state_3_is_active;
-	// controller for andOp_152.andOp_152_in0
-	// controller for andOp_152.andOp_152_in1
-	// Insensitive connections
-	assign andOp_152_in0 = bb_1_active_in_state_1_out_data;
-	assign andOp_152_in1 = state_1_is_active;
-	// controller for andOp_153.andOp_153_in0
-	// controller for andOp_153.andOp_153_in1
-	// Insensitive connections
-	assign andOp_153_in0 = bb_1_active_in_state_3_out_data;
-	assign andOp_153_in1 = state_3_is_active;
-	// controller for andOp_154.andOp_154_in0
-	// controller for andOp_154.andOp_154_in1
-	// Insensitive connections
-	assign andOp_154_in0 = bb_1_active_in_state_3_out_data;
-	assign andOp_154_in1 = state_3_is_active;
 	// controller for andOp_17.andOp_17_in0
 	// controller for andOp_17.andOp_17_in1
 	// Insensitive connections
@@ -1327,56 +782,71 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// Insensitive connections
 	assign andOp_27_in0 = andOp_23_out;
 	assign andOp_27_in1 = notOp_26_out;
-	// controller for andOp_28.andOp_28_in0
-	// controller for andOp_28.andOp_28_in1
+	// controller for andOp_40.andOp_40_in0
+	// controller for andOp_40.andOp_40_in1
 	// Insensitive connections
-	assign andOp_28_in0 = bb_1_active_in_state_1_out_data;
-	assign andOp_28_in1 = state_1_is_active;
-	// controller for andOp_30.andOp_30_in0
-	// controller for andOp_30.andOp_30_in1
+	assign andOp_40_in0 = bb_1_active_in_state_1_out_data;
+	assign andOp_40_in1 = state_1_is_active;
+	// controller for andOp_43.andOp_43_in0
+	// controller for andOp_43.andOp_43_in1
 	// Insensitive connections
-	assign andOp_30_in0 = andOp_28_out;
-	assign andOp_30_in1 = icmp_icmp3_out;
-	// controller for andOp_32.andOp_32_in0
-	// controller for andOp_32.andOp_32_in1
+	assign andOp_43_in0 = bb_1_active_in_state_1_out_data;
+	assign andOp_43_in1 = state_1_is_active;
+	// controller for andOp_44.andOp_44_in0
+	// controller for andOp_44.andOp_44_in1
 	// Insensitive connections
-	assign andOp_32_in0 = andOp_28_out;
-	assign andOp_32_in1 = notOp_31_out;
-	// controller for andOp_33.andOp_33_in0
-	// controller for andOp_33.andOp_33_in1
+	assign andOp_44_in0 = bb_1_active_in_state_1_out_data;
+	assign andOp_44_in1 = state_1_is_active;
+	// controller for andOp_45.andOp_45_in0
+	// controller for andOp_45.andOp_45_in1
 	// Insensitive connections
-	assign andOp_33_in0 = bb_1_active_in_state_1_out_data;
-	assign andOp_33_in1 = state_1_is_active;
-	// controller for andOp_35.andOp_35_in0
-	// controller for andOp_35.andOp_35_in1
+	assign andOp_45_in0 = bb_1_active_in_state_1_out_data;
+	assign andOp_45_in1 = state_1_is_active;
+	// controller for andOp_46.andOp_46_in0
+	// controller for andOp_46.andOp_46_in1
 	// Insensitive connections
-	assign andOp_35_in0 = andOp_33_out;
-	assign andOp_35_in1 = icmp_icmp3_out;
-	// controller for andOp_37.andOp_37_in0
-	// controller for andOp_37.andOp_37_in1
+	assign andOp_46_in0 = bb_1_active_in_state_2_out_data;
+	assign andOp_46_in1 = state_2_is_active;
+	// controller for andOp_47.andOp_47_in0
+	// controller for andOp_47.andOp_47_in1
 	// Insensitive connections
-	assign andOp_37_in0 = andOp_33_out;
-	assign andOp_37_in1 = notOp_36_out;
-	// controller for andOp_54.andOp_54_in0
-	// controller for andOp_54.andOp_54_in1
+	assign andOp_47_in0 = bb_1_active_in_state_2_out_data;
+	assign andOp_47_in1 = state_2_is_active;
+	// controller for andOp_48.andOp_48_in0
+	// controller for andOp_48.andOp_48_in1
 	// Insensitive connections
-	assign andOp_54_in0 = bb_1_active_in_state_1_out_data;
-	assign andOp_54_in1 = state_1_is_active;
+	assign andOp_48_in0 = bb_1_active_in_state_3_out_data;
+	assign andOp_48_in1 = state_3_is_active;
+	// controller for andOp_49.andOp_49_in0
+	// controller for andOp_49.andOp_49_in1
+	// Insensitive connections
+	assign andOp_49_in0 = bb_1_active_in_state_3_out_data;
+	assign andOp_49_in1 = state_3_is_active;
+	// controller for andOp_50.andOp_50_in0
+	// controller for andOp_50.andOp_50_in1
+	// Insensitive connections
+	assign andOp_50_in0 = bb_1_active_in_state_3_out_data;
+	assign andOp_50_in1 = state_3_is_active;
+	// controller for andOp_51.andOp_51_in0
+	// controller for andOp_51.andOp_51_in1
+	// Insensitive connections
+	assign andOp_51_in0 = bb_1_active_in_state_3_out_data;
+	assign andOp_51_in1 = state_3_is_active;
+	// controller for andOp_52.andOp_52_in0
+	// controller for andOp_52.andOp_52_in1
+	// Insensitive connections
+	assign andOp_52_in0 = bb_1_active_in_state_3_out_data;
+	assign andOp_52_in1 = state_3_is_active;
+	// controller for andOp_53.andOp_53_in0
+	// controller for andOp_53.andOp_53_in1
+	// Insensitive connections
+	assign andOp_53_in0 = bb_2_active_in_state_5_out_data;
+	assign andOp_53_in1 = state_5_is_active;
 	// controller for andOp_57.andOp_57_in0
 	// controller for andOp_57.andOp_57_in1
 	// Insensitive connections
-	assign andOp_57_in0 = bb_1_active_in_state_1_out_data;
-	assign andOp_57_in1 = state_1_is_active;
-	// controller for andOp_58.andOp_58_in0
-	// controller for andOp_58.andOp_58_in1
-	// Insensitive connections
-	assign andOp_58_in0 = bb_1_active_in_state_1_out_data;
-	assign andOp_58_in1 = state_1_is_active;
-	// controller for andOp_59.andOp_59_in0
-	// controller for andOp_59.andOp_59_in1
-	// Insensitive connections
-	assign andOp_59_in0 = bb_1_active_in_state_1_out_data;
-	assign andOp_59_in1 = state_1_is_active;
+	assign andOp_57_in0 = notOp_56_out;
+	assign andOp_57_in1 = 1'd1;
 	// controller for andOp_6.andOp_6_in0
 	// controller for andOp_6.andOp_6_in1
 	// Insensitive connections
@@ -1385,63 +855,73 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// controller for andOp_60.andOp_60_in0
 	// controller for andOp_60.andOp_60_in1
 	// Insensitive connections
-	assign andOp_60_in0 = bb_1_active_in_state_2_out_data;
-	assign andOp_60_in1 = state_2_is_active;
-	// controller for andOp_61.andOp_61_in0
-	// controller for andOp_61.andOp_61_in1
-	// Insensitive connections
-	assign andOp_61_in0 = bb_1_active_in_state_2_out_data;
-	assign andOp_61_in1 = state_2_is_active;
+	assign andOp_60_in0 = delayed_signal__59;
+	assign andOp_60_in1 = eq_58_out;
 	// controller for andOp_62.andOp_62_in0
 	// controller for andOp_62.andOp_62_in1
 	// Insensitive connections
-	assign andOp_62_in0 = bb_1_active_in_state_3_out_data;
-	assign andOp_62_in1 = state_3_is_active;
-	// controller for andOp_63.andOp_63_in0
-	// controller for andOp_63.andOp_63_in1
-	// Insensitive connections
-	assign andOp_63_in0 = bb_1_active_in_state_3_out_data;
-	assign andOp_63_in1 = state_3_is_active;
+	assign andOp_62_in0 = 1'd1;
+	assign andOp_62_in1 = notOp_61_out;
 	// controller for andOp_64.andOp_64_in0
 	// controller for andOp_64.andOp_64_in1
 	// Insensitive connections
-	assign andOp_64_in0 = bb_1_active_in_state_3_out_data;
-	assign andOp_64_in1 = state_3_is_active;
-	// controller for andOp_65.andOp_65_in0
-	// controller for andOp_65.andOp_65_in1
-	// Insensitive connections
-	assign andOp_65_in0 = bb_1_active_in_state_3_out_data;
-	assign andOp_65_in1 = state_3_is_active;
+	assign andOp_64_in0 = andOp_62_out;
+	assign andOp_64_in1 = notOp_63_out;
 	// controller for andOp_66.andOp_66_in0
 	// controller for andOp_66.andOp_66_in1
 	// Insensitive connections
-	assign andOp_66_in0 = bb_1_active_in_state_3_out_data;
-	assign andOp_66_in1 = state_3_is_active;
+	assign andOp_66_in0 = andOp_64_out;
+	assign andOp_66_in1 = notOp_65_out;
 	// controller for andOp_67.andOp_67_in0
 	// controller for andOp_67.andOp_67_in1
 	// Insensitive connections
-	assign andOp_67_in0 = bb_2_active_in_state_7_out_data;
-	assign andOp_67_in1 = state_7_is_active;
+	assign andOp_67_in0 = in_pipeline_0_out_data;
+	assign andOp_67_in1 = andOp_66_out;
+	// controller for andOp_68.andOp_68_in0
+	// controller for andOp_68.andOp_68_in1
+	// Insensitive connections
+	assign andOp_68_in0 = andOp_67_out;
+	assign andOp_68_in1 = out_of_pipe_1_5;
+	// controller for andOp_69.andOp_69_in0
+	// controller for andOp_69.andOp_69_in1
+	// Insensitive connections
+	assign andOp_69_in0 = andOp_67_out;
+	assign andOp_69_in1 = out_of_pipe_1_5;
 	// controller for andOp_71.andOp_71_in0
 	// controller for andOp_71.andOp_71_in1
 	// Insensitive connections
-	assign andOp_71_in0 = notOp_70_out;
-	assign andOp_71_in1 = 1'd1;
-	// controller for andOp_74.andOp_74_in0
-	// controller for andOp_74.andOp_74_in1
+	assign andOp_71_in0 = 1'd1;
+	assign andOp_71_in1 = notOp_70_out;
+	// controller for andOp_73.andOp_73_in0
+	// controller for andOp_73.andOp_73_in1
 	// Insensitive connections
-	assign andOp_74_in0 = delayed_signal__73;
-	assign andOp_74_in1 = eq_72_out;
+	assign andOp_73_in0 = andOp_71_out;
+	assign andOp_73_in1 = notOp_72_out;
+	// controller for andOp_75.andOp_75_in0
+	// controller for andOp_75.andOp_75_in1
+	// Insensitive connections
+	assign andOp_75_in0 = andOp_73_out;
+	assign andOp_75_in1 = notOp_74_out;
 	// controller for andOp_76.andOp_76_in0
 	// controller for andOp_76.andOp_76_in1
 	// Insensitive connections
-	assign andOp_76_in0 = 1'd1;
-	assign andOp_76_in1 = notOp_75_out;
+	assign andOp_76_in0 = in_pipeline_0_out_data;
+	assign andOp_76_in1 = andOp_75_out;
+	// controller for andOp_77.andOp_77_in0
+	// controller for andOp_77.andOp_77_in1
+	// Insensitive connections
+	assign andOp_77_in0 = andOp_76_out;
+	assign andOp_77_in1 = out_of_pipe_bb_1_5;
 	// controller for andOp_78.andOp_78_in0
 	// controller for andOp_78.andOp_78_in1
 	// Insensitive connections
-	assign andOp_78_in0 = andOp_76_out;
-	assign andOp_78_in1 = notOp_77_out;
+	assign andOp_78_in0 = bb_1_active_in_state_1_out_data;
+	assign andOp_78_in1 = state_1_is_active;
+	// controller for andOp_79.andOp_79_in0
+	// controller for andOp_79.andOp_79_in1
+	// Insensitive connections
+	assign andOp_79_in0 = bb_1_active_in_state_2_out_data;
+	assign andOp_79_in1 = state_2_is_active;
 	// controller for andOp_8.andOp_8_in0
 	// controller for andOp_8.andOp_8_in1
 	// Insensitive connections
@@ -1450,71 +930,51 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// controller for andOp_80.andOp_80_in0
 	// controller for andOp_80.andOp_80_in1
 	// Insensitive connections
-	assign andOp_80_in0 = andOp_78_out;
-	assign andOp_80_in1 = notOp_79_out;
-	// controller for andOp_82.andOp_82_in0
-	// controller for andOp_82.andOp_82_in1
+	assign andOp_80_in0 = bb_1_active_in_state_3_out_data;
+	assign andOp_80_in1 = state_3_is_active;
+	// controller for andOp_81.andOp_81_in0
+	// controller for andOp_81.andOp_81_in1
 	// Insensitive connections
-	assign andOp_82_in0 = andOp_80_out;
-	assign andOp_82_in1 = notOp_81_out;
-	// controller for andOp_84.andOp_84_in0
-	// controller for andOp_84.andOp_84_in1
+	assign andOp_81_in0 = bb_2_active_in_state_5_out_data;
+	assign andOp_81_in1 = state_5_is_active;
+	// controller for andOp_83.andOp_83_in0
+	// controller for andOp_83.andOp_83_in1
 	// Insensitive connections
-	assign andOp_84_in0 = andOp_82_out;
-	assign andOp_84_in1 = notOp_83_out;
+	assign andOp_83_in0 = notOp_82_out;
+	assign andOp_83_in1 = 1'd1;
 	// controller for andOp_85.andOp_85_in0
 	// controller for andOp_85.andOp_85_in1
 	// Insensitive connections
-	assign andOp_85_in0 = in_pipeline_0_out_data;
-	assign andOp_85_in1 = andOp_84_out;
-	// controller for andOp_86.andOp_86_in0
-	// controller for andOp_86.andOp_86_in1
-	// Insensitive connections
-	assign andOp_86_in0 = andOp_85_out;
-	assign andOp_86_in1 = out_of_pipe_1_7;
+	assign andOp_85_in0 = notOp_84_out;
+	assign andOp_85_in1 = andOp_83_out;
 	// controller for andOp_87.andOp_87_in0
 	// controller for andOp_87.andOp_87_in1
 	// Insensitive connections
-	assign andOp_87_in0 = andOp_85_out;
-	assign andOp_87_in1 = out_of_pipe_1_7;
+	assign andOp_87_in0 = notOp_86_out;
+	assign andOp_87_in1 = 1'd1;
 	// controller for andOp_89.andOp_89_in0
 	// controller for andOp_89.andOp_89_in1
 	// Insensitive connections
-	assign andOp_89_in0 = 1'd1;
-	assign andOp_89_in1 = notOp_88_out;
+	assign andOp_89_in0 = notOp_88_out;
+	assign andOp_89_in1 = 1'd1;
 	// controller for andOp_91.andOp_91_in0
 	// controller for andOp_91.andOp_91_in1
 	// Insensitive connections
-	assign andOp_91_in0 = andOp_89_out;
-	assign andOp_91_in1 = notOp_90_out;
+	assign andOp_91_in0 = notOp_90_out;
+	assign andOp_91_in1 = 1'd1;
 	// controller for andOp_93.andOp_93_in0
 	// controller for andOp_93.andOp_93_in1
 	// Insensitive connections
-	assign andOp_93_in0 = andOp_91_out;
-	assign andOp_93_in1 = notOp_92_out;
+	assign andOp_93_in0 = notOp_92_out;
+	assign andOp_93_in1 = 1'd1;
 	// controller for andOp_95.andOp_95_in0
 	// controller for andOp_95.andOp_95_in1
 	// Insensitive connections
-	assign andOp_95_in0 = andOp_93_out;
-	assign andOp_95_in1 = notOp_94_out;
-	// controller for andOp_97.andOp_97_in0
-	// controller for andOp_97.andOp_97_in1
-	// Insensitive connections
-	assign andOp_97_in0 = andOp_95_out;
-	assign andOp_97_in1 = notOp_96_out;
-	// controller for andOp_98.andOp_98_in0
-	// controller for andOp_98.andOp_98_in1
-	// Insensitive connections
-	assign andOp_98_in0 = in_pipeline_0_out_data;
-	assign andOp_98_in1 = andOp_97_out;
-	// controller for andOp_99.andOp_99_in0
-	// controller for andOp_99.andOp_99_in1
-	// Insensitive connections
-	assign andOp_99_in0 = andOp_98_out;
-	assign andOp_99_in1 = out_of_pipe_bb_1_7;
+	assign andOp_95_in0 = notOp_94_out;
+	assign andOp_95_in1 = andOp_93_out;
 	// controller for arg_0.arg_0_raddr_0_reg
 	always @(*) begin
-		if (andOp_59_out) begin 
+		if (andOp_45_out) begin 
 			arg_0_raddr_0_reg = phi_phi1_out;
 		end else begin
 			arg_0_raddr_0_reg = 0;
@@ -1522,7 +982,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	end
 	// controller for arg_1.arg_1_raddr_0_reg
 	always @(*) begin
-		if (andOp_61_out) begin 
+		if (andOp_47_out) begin 
 			arg_1_raddr_0_reg = arg_0_rdata_0;
 		end else begin
 			arg_1_raddr_0_reg = 0;
@@ -1530,7 +990,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	end
 	// controller for arg_1.arg_1_waddr_0_reg
 	always @(*) begin
-		if (andOp_62_out) begin 
+		if (andOp_48_out) begin 
 			arg_1_waddr_0_reg = data_in_3_5_out_data;
 		end else begin
 			arg_1_waddr_0_reg = 0;
@@ -1538,7 +998,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	end
 	// controller for arg_1.arg_1_wdata_0_reg
 	always @(*) begin
-		if (andOp_63_out) begin 
+		if (andOp_49_out) begin 
 			arg_1_wdata_0_reg = add_add9_out;
 		end else begin
 			arg_1_wdata_0_reg = 0;
@@ -1546,7 +1006,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	end
 	// controller for arg_1.arg_1_wen_0_reg
 	always @(*) begin
-		if (andOp_65_out) begin 
+		if (andOp_51_out) begin 
 			arg_1_wen_0_reg = -(1'd1);
 		end else begin
 			arg_1_wen_0_reg = 0;
@@ -1555,14 +1015,14 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// controller for bb_0_active_in_state_0.bb_0_active_in_state_0_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_0_active_in_state_0_in_data = eq_38_out;
+			bb_0_active_in_state_0_in_data = eq_28_out;
 		end else begin
 			bb_0_active_in_state_0_in_data = 0;
 		end
 	end
 	// controller for bb_0_predecessor_in_state_0.bb_0_predecessor_in_state_0_in_data
 	always @(*) begin
-		if (eq_46_out) begin 
+		if (eq_34_out) begin 
 			bb_0_predecessor_in_state_0_in_data = state_0_last_BB_reg;
 		end else begin
 			bb_0_predecessor_in_state_0_in_data = 0;
@@ -1571,7 +1031,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// controller for bb_1_active_in_state_1.bb_1_active_in_state_1_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_1_active_in_state_1_in_data = eq_39_out;
+			bb_1_active_in_state_1_in_data = eq_29_out;
 		end else begin
 			bb_1_active_in_state_1_in_data = 0;
 		end
@@ -1579,7 +1039,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// controller for bb_1_active_in_state_2.bb_1_active_in_state_2_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_1_active_in_state_2_in_data = eq_40_out;
+			bb_1_active_in_state_2_in_data = eq_30_out;
 		end else begin
 			bb_1_active_in_state_2_in_data = 0;
 		end
@@ -1587,7 +1047,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// controller for bb_1_active_in_state_3.bb_1_active_in_state_3_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_1_active_in_state_3_in_data = eq_41_out;
+			bb_1_active_in_state_3_in_data = eq_31_out;
 		end else begin
 			bb_1_active_in_state_3_in_data = 0;
 		end
@@ -1595,30 +1055,14 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// controller for bb_1_active_in_state_4.bb_1_active_in_state_4_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_1_active_in_state_4_in_data = eq_42_out;
+			bb_1_active_in_state_4_in_data = eq_32_out;
 		end else begin
 			bb_1_active_in_state_4_in_data = 0;
 		end
 	end
-	// controller for bb_1_active_in_state_5.bb_1_active_in_state_5_in_data
-	always @(*) begin
-		if (1'd1) begin 
-			bb_1_active_in_state_5_in_data = eq_43_out;
-		end else begin
-			bb_1_active_in_state_5_in_data = 0;
-		end
-	end
-	// controller for bb_1_active_in_state_6.bb_1_active_in_state_6_in_data
-	always @(*) begin
-		if (1'd1) begin 
-			bb_1_active_in_state_6_in_data = eq_44_out;
-		end else begin
-			bb_1_active_in_state_6_in_data = 0;
-		end
-	end
 	// controller for bb_1_predecessor_in_state_1.bb_1_predecessor_in_state_1_in_data
 	always @(*) begin
-		if (eq_47_out) begin 
+		if (eq_35_out) begin 
 			bb_1_predecessor_in_state_1_in_data = state_1_last_BB_reg;
 		end else begin
 			bb_1_predecessor_in_state_1_in_data = 0;
@@ -1626,7 +1070,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	end
 	// controller for bb_1_predecessor_in_state_2.bb_1_predecessor_in_state_2_in_data
 	always @(*) begin
-		if (eq_48_out) begin 
+		if (eq_36_out) begin 
 			bb_1_predecessor_in_state_2_in_data = state_2_last_BB_reg;
 		end else begin
 			bb_1_predecessor_in_state_2_in_data = 0;
@@ -1634,7 +1078,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	end
 	// controller for bb_1_predecessor_in_state_3.bb_1_predecessor_in_state_3_in_data
 	always @(*) begin
-		if (eq_49_out) begin 
+		if (eq_37_out) begin 
 			bb_1_predecessor_in_state_3_in_data = state_3_last_BB_reg;
 		end else begin
 			bb_1_predecessor_in_state_3_in_data = 0;
@@ -1642,42 +1086,26 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	end
 	// controller for bb_1_predecessor_in_state_4.bb_1_predecessor_in_state_4_in_data
 	always @(*) begin
-		if (eq_50_out) begin 
+		if (eq_38_out) begin 
 			bb_1_predecessor_in_state_4_in_data = state_4_last_BB_reg;
 		end else begin
 			bb_1_predecessor_in_state_4_in_data = 0;
 		end
 	end
-	// controller for bb_1_predecessor_in_state_5.bb_1_predecessor_in_state_5_in_data
-	always @(*) begin
-		if (eq_51_out) begin 
-			bb_1_predecessor_in_state_5_in_data = state_5_last_BB_reg;
-		end else begin
-			bb_1_predecessor_in_state_5_in_data = 0;
-		end
-	end
-	// controller for bb_1_predecessor_in_state_6.bb_1_predecessor_in_state_6_in_data
-	always @(*) begin
-		if (eq_52_out) begin 
-			bb_1_predecessor_in_state_6_in_data = state_6_last_BB_reg;
-		end else begin
-			bb_1_predecessor_in_state_6_in_data = 0;
-		end
-	end
-	// controller for bb_2_active_in_state_7.bb_2_active_in_state_7_in_data
+	// controller for bb_2_active_in_state_5.bb_2_active_in_state_5_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_2_active_in_state_7_in_data = eq_45_out;
+			bb_2_active_in_state_5_in_data = eq_33_out;
 		end else begin
-			bb_2_active_in_state_7_in_data = 0;
+			bb_2_active_in_state_5_in_data = 0;
 		end
 	end
-	// controller for bb_2_predecessor_in_state_7.bb_2_predecessor_in_state_7_in_data
+	// controller for bb_2_predecessor_in_state_5.bb_2_predecessor_in_state_5_in_data
 	always @(*) begin
-		if (eq_53_out) begin 
-			bb_2_predecessor_in_state_7_in_data = state_7_last_BB_reg;
+		if (eq_39_out) begin 
+			bb_2_predecessor_in_state_5_in_data = state_5_last_BB_reg;
 		end else begin
-			bb_2_predecessor_in_state_7_in_data = 0;
+			bb_2_predecessor_in_state_5_in_data = 0;
 		end
 	end
 	// controller for br_0_happened_in_state_0.br_0_happened_in_state_0_in_data
@@ -1730,39 +1158,19 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 			br_1_happened_in_state_4_in_data = 0;
 		end
 	end
-	// controller for br_1_happened_in_state_5.br_1_happened_in_state_5_in_data
-	always @(*) begin
-		if (andOp_28_out) begin 
-			br_1_happened_in_state_5_in_data = 1'd1;
-		end else if (notOp_29_out) begin 
-			br_1_happened_in_state_5_in_data = 1'd0;
-		end else begin
-			br_1_happened_in_state_5_in_data = 0;
-		end
-	end
-	// controller for br_1_happened_in_state_6.br_1_happened_in_state_6_in_data
-	always @(*) begin
-		if (andOp_33_out) begin 
-			br_1_happened_in_state_6_in_data = 1'd1;
-		end else if (notOp_34_out) begin 
-			br_1_happened_in_state_6_in_data = 1'd0;
-		end else begin
-			br_1_happened_in_state_6_in_data = 0;
-		end
-	end
-	// controller for concat_55.concat_55_in0
-	// controller for concat_55.concat_55_in1
+	// controller for concat_41.concat_41_in0
+	// controller for concat_41.concat_41_in1
 	// Insensitive connections
-	assign concat_55_in0 = data_in_1_3_out_data;
-	assign concat_55_in1 = 32'd0;
-	// controller for concat_56.concat_56_in0
-	// controller for concat_56.concat_56_in1
+	assign concat_41_in0 = data_in_1_3_out_data;
+	assign concat_41_in1 = 32'd0;
+	// controller for concat_42.concat_42_in0
+	// controller for concat_42.concat_42_in1
 	// Insensitive connections
-	assign concat_56_in0 = 32'd1;
-	assign concat_56_in1 = 32'd0;
+	assign concat_42_in0 = 32'd1;
+	assign concat_42_in1 = 32'd0;
 	// controller for data_in_0_1.data_in_0_1_in_data
 	always @(*) begin
-		if (eq_130_out) begin 
+		if (eq_100_out) begin 
 			data_in_0_1_in_data = data_store_0_0;
 		end else begin
 			data_in_0_1_in_data = 0;
@@ -1770,9 +1178,9 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	end
 	// controller for data_in_1_3.data_in_1_3_in_data
 	always @(*) begin
-		if (eq_131_out) begin 
+		if (eq_101_out) begin 
 			data_in_1_3_in_data = data_store_0_0;
-		end else if (eq_132_out) begin 
+		end else if (eq_102_out) begin 
 			data_in_1_3_in_data = data_store_1_2;
 		end else begin
 			data_in_1_3_in_data = 0;
@@ -1780,179 +1188,139 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	end
 	// controller for data_in_3_5.data_in_3_5_in_data
 	always @(*) begin
-		if (eq_137_out) begin 
+		if (eq_107_out) begin 
 			data_in_3_5_in_data = data_store_2_4;
-		end else if (eq_138_out) begin 
+		end else if (eq_108_out) begin 
 			data_in_3_5_in_data = 8'd0;
 		end else begin
 			data_in_3_5_in_data = 0;
 		end
 	end
-	// controller for eq_130.eq_130_in0
-	// controller for eq_130.eq_130_in1
+	// controller for eq_100.eq_100_in0
+	// controller for eq_100.eq_100_in1
 	// Insensitive connections
-	assign eq_130_in0 = 32'd0;
-	assign eq_130_in1 = state_0_last_state;
-	// controller for eq_131.eq_131_in0
-	// controller for eq_131.eq_131_in1
+	assign eq_100_in0 = 32'd0;
+	assign eq_100_in1 = state_0_last_state;
+	// controller for eq_101.eq_101_in0
+	// controller for eq_101.eq_101_in1
 	// Insensitive connections
-	assign eq_131_in0 = 32'd0;
-	assign eq_131_in1 = state_1_last_state;
-	// controller for eq_132.eq_132_in0
-	// controller for eq_132.eq_132_in1
+	assign eq_101_in0 = 32'd0;
+	assign eq_101_in1 = state_1_last_state;
+	// controller for eq_102.eq_102_in0
+	// controller for eq_102.eq_102_in1
 	// Insensitive connections
-	assign eq_132_in0 = 32'd1;
-	assign eq_132_in1 = state_1_last_state;
-	// controller for eq_134.eq_134_in0
-	// controller for eq_134.eq_134_in1
+	assign eq_102_in0 = 32'd1;
+	assign eq_102_in1 = state_1_last_state;
+	// controller for eq_104.eq_104_in0
+	// controller for eq_104.eq_104_in1
 	// Insensitive connections
-	assign eq_134_in0 = 32'd1;
-	assign eq_134_in1 = state_2_last_state;
-	// controller for eq_135.eq_135_in0
-	// controller for eq_135.eq_135_in1
+	assign eq_104_in0 = 32'd1;
+	assign eq_104_in1 = state_2_last_state;
+	// controller for eq_105.eq_105_in0
+	// controller for eq_105.eq_105_in1
 	// Insensitive connections
-	assign eq_135_in0 = 32'd2;
-	assign eq_135_in1 = state_2_last_state;
-	// controller for eq_137.eq_137_in0
-	// controller for eq_137.eq_137_in1
+	assign eq_105_in0 = 32'd2;
+	assign eq_105_in1 = state_2_last_state;
+	// controller for eq_107.eq_107_in0
+	// controller for eq_107.eq_107_in1
 	// Insensitive connections
-	assign eq_137_in0 = 32'd2;
-	assign eq_137_in1 = state_3_last_state;
-	// controller for eq_138.eq_138_in0
-	// controller for eq_138.eq_138_in1
+	assign eq_107_in0 = 32'd2;
+	assign eq_107_in1 = state_3_last_state;
+	// controller for eq_108.eq_108_in0
+	// controller for eq_108.eq_108_in1
 	// Insensitive connections
-	assign eq_138_in0 = 32'd3;
-	assign eq_138_in1 = state_3_last_state;
-	// controller for eq_139.eq_139_in0
-	// controller for eq_139.eq_139_in1
+	assign eq_108_in0 = 32'd3;
+	assign eq_108_in1 = state_3_last_state;
+	// controller for eq_109.eq_109_in0
+	// controller for eq_109.eq_109_in1
 	// Insensitive connections
-	assign eq_139_in0 = 32'd3;
-	assign eq_139_in1 = state_4_last_state;
-	// controller for eq_140.eq_140_in0
-	// controller for eq_140.eq_140_in1
+	assign eq_109_in0 = 32'd3;
+	assign eq_109_in1 = state_4_last_state;
+	// controller for eq_110.eq_110_in0
+	// controller for eq_110.eq_110_in1
 	// Insensitive connections
-	assign eq_140_in0 = 32'd4;
-	assign eq_140_in1 = state_4_last_state;
-	// controller for eq_141.eq_141_in0
-	// controller for eq_141.eq_141_in1
+	assign eq_110_in0 = 32'd4;
+	assign eq_110_in1 = state_4_last_state;
+	// controller for eq_111.eq_111_in0
+	// controller for eq_111.eq_111_in1
 	// Insensitive connections
-	assign eq_141_in0 = 32'd4;
-	assign eq_141_in1 = state_5_last_state;
-	// controller for eq_142.eq_142_in0
-	// controller for eq_142.eq_142_in1
+	assign eq_111_in0 = 32'd1;
+	assign eq_111_in1 = state_5_last_state;
+	// controller for eq_112.eq_112_in0
+	// controller for eq_112.eq_112_in1
 	// Insensitive connections
-	assign eq_142_in0 = 32'd5;
-	assign eq_142_in1 = state_5_last_state;
-	// controller for eq_143.eq_143_in0
-	// controller for eq_143.eq_143_in1
+	assign eq_112_in0 = 32'd4;
+	assign eq_112_in1 = state_5_last_state;
+	// controller for eq_113.eq_113_in0
+	// controller for eq_113.eq_113_in1
 	// Insensitive connections
-	assign eq_143_in0 = 32'd5;
-	assign eq_143_in1 = state_6_last_state;
-	// controller for eq_144.eq_144_in0
-	// controller for eq_144.eq_144_in1
+	assign eq_113_in0 = 32'd5;
+	assign eq_113_in1 = state_5_last_state;
+	// controller for eq_28.eq_28_in0
+	// controller for eq_28.eq_28_in1
 	// Insensitive connections
-	assign eq_144_in0 = 32'd6;
-	assign eq_144_in1 = state_6_last_state;
-	// controller for eq_145.eq_145_in0
-	// controller for eq_145.eq_145_in1
+	assign eq_28_in0 = 32'd0;
+	assign eq_28_in1 = state_0_entry_BB_reg;
+	// controller for eq_29.eq_29_in0
+	// controller for eq_29.eq_29_in1
 	// Insensitive connections
-	assign eq_145_in0 = 32'd1;
-	assign eq_145_in1 = state_7_last_state;
-	// controller for eq_146.eq_146_in0
-	// controller for eq_146.eq_146_in1
+	assign eq_29_in0 = 32'd1;
+	assign eq_29_in1 = state_1_entry_BB_reg;
+	// controller for eq_30.eq_30_in0
+	// controller for eq_30.eq_30_in1
 	// Insensitive connections
-	assign eq_146_in0 = 32'd6;
-	assign eq_146_in1 = state_7_last_state;
-	// controller for eq_147.eq_147_in0
-	// controller for eq_147.eq_147_in1
+	assign eq_30_in0 = 32'd1;
+	assign eq_30_in1 = state_2_entry_BB_reg;
+	// controller for eq_31.eq_31_in0
+	// controller for eq_31.eq_31_in1
 	// Insensitive connections
-	assign eq_147_in0 = 32'd7;
-	assign eq_147_in1 = state_7_last_state;
+	assign eq_31_in0 = 32'd1;
+	assign eq_31_in1 = state_3_entry_BB_reg;
+	// controller for eq_32.eq_32_in0
+	// controller for eq_32.eq_32_in1
+	// Insensitive connections
+	assign eq_32_in0 = 32'd1;
+	assign eq_32_in1 = state_4_entry_BB_reg;
+	// controller for eq_33.eq_33_in0
+	// controller for eq_33.eq_33_in1
+	// Insensitive connections
+	assign eq_33_in0 = 32'd2;
+	assign eq_33_in1 = state_5_entry_BB_reg;
+	// controller for eq_34.eq_34_in0
+	// controller for eq_34.eq_34_in1
+	// Insensitive connections
+	assign eq_34_in0 = 32'd0;
+	assign eq_34_in1 = state_0_entry_BB_reg;
+	// controller for eq_35.eq_35_in0
+	// controller for eq_35.eq_35_in1
+	// Insensitive connections
+	assign eq_35_in0 = 32'd1;
+	assign eq_35_in1 = state_1_entry_BB_reg;
+	// controller for eq_36.eq_36_in0
+	// controller for eq_36.eq_36_in1
+	// Insensitive connections
+	assign eq_36_in0 = 32'd1;
+	assign eq_36_in1 = state_2_entry_BB_reg;
+	// controller for eq_37.eq_37_in0
+	// controller for eq_37.eq_37_in1
+	// Insensitive connections
+	assign eq_37_in0 = 32'd1;
+	assign eq_37_in1 = state_3_entry_BB_reg;
 	// controller for eq_38.eq_38_in0
 	// controller for eq_38.eq_38_in1
 	// Insensitive connections
-	assign eq_38_in0 = 32'd0;
-	assign eq_38_in1 = state_0_entry_BB_reg;
+	assign eq_38_in0 = 32'd1;
+	assign eq_38_in1 = state_4_entry_BB_reg;
 	// controller for eq_39.eq_39_in0
 	// controller for eq_39.eq_39_in1
 	// Insensitive connections
-	assign eq_39_in0 = 32'd1;
-	assign eq_39_in1 = state_1_entry_BB_reg;
-	// controller for eq_40.eq_40_in0
-	// controller for eq_40.eq_40_in1
+	assign eq_39_in0 = 32'd2;
+	assign eq_39_in1 = state_5_entry_BB_reg;
+	// controller for eq_58.eq_58_in0
+	// controller for eq_58.eq_58_in1
 	// Insensitive connections
-	assign eq_40_in0 = 32'd1;
-	assign eq_40_in1 = state_2_entry_BB_reg;
-	// controller for eq_41.eq_41_in0
-	// controller for eq_41.eq_41_in1
-	// Insensitive connections
-	assign eq_41_in0 = 32'd1;
-	assign eq_41_in1 = state_3_entry_BB_reg;
-	// controller for eq_42.eq_42_in0
-	// controller for eq_42.eq_42_in1
-	// Insensitive connections
-	assign eq_42_in0 = 32'd1;
-	assign eq_42_in1 = state_4_entry_BB_reg;
-	// controller for eq_43.eq_43_in0
-	// controller for eq_43.eq_43_in1
-	// Insensitive connections
-	assign eq_43_in0 = 32'd1;
-	assign eq_43_in1 = state_5_entry_BB_reg;
-	// controller for eq_44.eq_44_in0
-	// controller for eq_44.eq_44_in1
-	// Insensitive connections
-	assign eq_44_in0 = 32'd1;
-	assign eq_44_in1 = state_6_entry_BB_reg;
-	// controller for eq_45.eq_45_in0
-	// controller for eq_45.eq_45_in1
-	// Insensitive connections
-	assign eq_45_in0 = 32'd2;
-	assign eq_45_in1 = state_7_entry_BB_reg;
-	// controller for eq_46.eq_46_in0
-	// controller for eq_46.eq_46_in1
-	// Insensitive connections
-	assign eq_46_in0 = 32'd0;
-	assign eq_46_in1 = state_0_entry_BB_reg;
-	// controller for eq_47.eq_47_in0
-	// controller for eq_47.eq_47_in1
-	// Insensitive connections
-	assign eq_47_in0 = 32'd1;
-	assign eq_47_in1 = state_1_entry_BB_reg;
-	// controller for eq_48.eq_48_in0
-	// controller for eq_48.eq_48_in1
-	// Insensitive connections
-	assign eq_48_in0 = 32'd1;
-	assign eq_48_in1 = state_2_entry_BB_reg;
-	// controller for eq_49.eq_49_in0
-	// controller for eq_49.eq_49_in1
-	// Insensitive connections
-	assign eq_49_in0 = 32'd1;
-	assign eq_49_in1 = state_3_entry_BB_reg;
-	// controller for eq_50.eq_50_in0
-	// controller for eq_50.eq_50_in1
-	// Insensitive connections
-	assign eq_50_in0 = 32'd1;
-	assign eq_50_in1 = state_4_entry_BB_reg;
-	// controller for eq_51.eq_51_in0
-	// controller for eq_51.eq_51_in1
-	// Insensitive connections
-	assign eq_51_in0 = 32'd1;
-	assign eq_51_in1 = state_5_entry_BB_reg;
-	// controller for eq_52.eq_52_in0
-	// controller for eq_52.eq_52_in1
-	// Insensitive connections
-	assign eq_52_in0 = 32'd1;
-	assign eq_52_in1 = state_6_entry_BB_reg;
-	// controller for eq_53.eq_53_in0
-	// controller for eq_53.eq_53_in1
-	// Insensitive connections
-	assign eq_53_in0 = 32'd2;
-	assign eq_53_in1 = state_7_entry_BB_reg;
-	// controller for eq_72.eq_72_in0
-	// controller for eq_72.eq_72_in1
-	// Insensitive connections
-	assign eq_72_in0 = counter__68;
-	assign eq_72_in1 = 32'd4;
+	assign eq_58_in0 = counter__54;
+	assign eq_58_in1 = 32'd2;
 	// controller for icmp_icmp3.icmp_icmp3_in0
 	// controller for icmp_icmp3.icmp_icmp3_in1
 	// Insensitive connections
@@ -1961,50 +1329,17 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// controller for in_pipeline_0.in_pipeline_0_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			in_pipeline_0_in_data = orOp_129_out;
+			in_pipeline_0_in_data = orOp_99_out;
 		end else begin
 			in_pipeline_0_in_data = 0;
 		end
 	end
-	// controller for notOp_106.notOp_106_in0
-	// Insensitive connections
-	assign notOp_106_in0 = andOp_6_out;
-	// controller for notOp_108.notOp_108_in0
-	// Insensitive connections
-	assign notOp_108_in0 = andOp_74_out;
 	// controller for notOp_11.notOp_11_in0
 	// Insensitive connections
 	assign notOp_11_in0 = icmp_icmp3_out;
-	// controller for notOp_110.notOp_110_in0
-	// Insensitive connections
-	assign notOp_110_in0 = andOp_100_out;
-	// controller for notOp_112.notOp_112_in0
-	// Insensitive connections
-	assign notOp_112_in0 = andOp_101_out;
-	// controller for notOp_114.notOp_114_in0
-	// Insensitive connections
-	assign notOp_114_in0 = andOp_102_out;
-	// controller for notOp_116.notOp_116_in0
-	// Insensitive connections
-	assign notOp_116_in0 = andOp_103_out;
-	// controller for notOp_118.notOp_118_in0
-	// Insensitive connections
-	assign notOp_118_in0 = andOp_104_out;
-	// controller for notOp_120.notOp_120_in0
-	// Insensitive connections
-	assign notOp_120_in0 = andOp_105_out;
-	// controller for notOp_122.notOp_122_in0
-	// Insensitive connections
-	assign notOp_122_in0 = andOp_87_out;
 	// controller for notOp_14.notOp_14_in0
 	// Insensitive connections
 	assign notOp_14_in0 = andOp_13_out;
-	// controller for notOp_148.notOp_148_in0
-	// Insensitive connections
-	assign notOp_148_in0 = state_1_is_active;
-	// controller for notOp_149.notOp_149_in0
-	// Insensitive connections
-	assign notOp_149_in0 = state_1_is_active;
 	// controller for notOp_16.notOp_16_in0
 	// Insensitive connections
 	assign notOp_16_in0 = icmp_icmp3_out;
@@ -2020,97 +1355,84 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// controller for notOp_26.notOp_26_in0
 	// Insensitive connections
 	assign notOp_26_in0 = icmp_icmp3_out;
-	// controller for notOp_29.notOp_29_in0
+	// controller for notOp_56.notOp_56_in0
 	// Insensitive connections
-	assign notOp_29_in0 = andOp_28_out;
-	// controller for notOp_31.notOp_31_in0
+	assign notOp_56_in0 = state_1_is_active;
+	// controller for notOp_61.notOp_61_in0
 	// Insensitive connections
-	assign notOp_31_in0 = icmp_icmp3_out;
-	// controller for notOp_34.notOp_34_in0
+	assign notOp_61_in0 = state_1_is_active;
+	// controller for notOp_63.notOp_63_in0
 	// Insensitive connections
-	assign notOp_34_in0 = andOp_33_out;
-	// controller for notOp_36.notOp_36_in0
+	assign notOp_63_in0 = state_2_is_active;
+	// controller for notOp_65.notOp_65_in0
 	// Insensitive connections
-	assign notOp_36_in0 = icmp_icmp3_out;
+	assign notOp_65_in0 = state_3_is_active;
 	// controller for notOp_7.notOp_7_in0
 	// Insensitive connections
 	assign notOp_7_in0 = andOp_6_out;
 	// controller for notOp_70.notOp_70_in0
 	// Insensitive connections
 	assign notOp_70_in0 = state_1_is_active;
-	// controller for notOp_75.notOp_75_in0
+	// controller for notOp_72.notOp_72_in0
 	// Insensitive connections
-	assign notOp_75_in0 = state_1_is_active;
-	// controller for notOp_77.notOp_77_in0
+	assign notOp_72_in0 = state_2_is_active;
+	// controller for notOp_74.notOp_74_in0
 	// Insensitive connections
-	assign notOp_77_in0 = state_2_is_active;
-	// controller for notOp_79.notOp_79_in0
+	assign notOp_74_in0 = state_3_is_active;
+	// controller for notOp_82.notOp_82_in0
 	// Insensitive connections
-	assign notOp_79_in0 = state_3_is_active;
-	// controller for notOp_81.notOp_81_in0
+	assign notOp_82_in0 = andOp_60_out;
+	// controller for notOp_84.notOp_84_in0
 	// Insensitive connections
-	assign notOp_81_in0 = state_4_is_active;
-	// controller for notOp_83.notOp_83_in0
+	assign notOp_84_in0 = andOp_6_out;
+	// controller for notOp_86.notOp_86_in0
 	// Insensitive connections
-	assign notOp_83_in0 = state_5_is_active;
+	assign notOp_86_in0 = andOp_78_out;
 	// controller for notOp_88.notOp_88_in0
 	// Insensitive connections
-	assign notOp_88_in0 = state_1_is_active;
+	assign notOp_88_in0 = andOp_79_out;
 	// controller for notOp_9.notOp_9_in0
 	// Insensitive connections
 	assign notOp_9_in0 = andOp_8_out;
 	// controller for notOp_90.notOp_90_in0
 	// Insensitive connections
-	assign notOp_90_in0 = state_2_is_active;
+	assign notOp_90_in0 = andOp_80_out;
 	// controller for notOp_92.notOp_92_in0
 	// Insensitive connections
-	assign notOp_92_in0 = state_3_is_active;
+	assign notOp_92_in0 = andOp_69_out;
 	// controller for notOp_94.notOp_94_in0
 	// Insensitive connections
-	assign notOp_94_in0 = state_4_is_active;
-	// controller for notOp_96.notOp_96_in0
+	assign notOp_94_in0 = andOp_81_out;
+	// controller for orOp_96.orOp_96_in0
+	// controller for orOp_96.orOp_96_in1
 	// Insensitive connections
-	assign notOp_96_in0 = state_5_is_active;
-	// controller for orOp_124.orOp_124_in0
-	// controller for orOp_124.orOp_124_in1
+	assign orOp_96_in0 = state_1_is_active;
+	assign orOp_96_in1 = 1'd0;
+	// controller for orOp_97.orOp_97_in0
+	// controller for orOp_97.orOp_97_in1
 	// Insensitive connections
-	assign orOp_124_in0 = state_1_is_active;
-	assign orOp_124_in1 = 1'd0;
-	// controller for orOp_125.orOp_125_in0
-	// controller for orOp_125.orOp_125_in1
+	assign orOp_97_in0 = state_2_is_active;
+	assign orOp_97_in1 = orOp_96_out;
+	// controller for orOp_98.orOp_98_in0
+	// controller for orOp_98.orOp_98_in1
 	// Insensitive connections
-	assign orOp_125_in0 = state_2_is_active;
-	assign orOp_125_in1 = orOp_124_out;
-	// controller for orOp_126.orOp_126_in0
-	// controller for orOp_126.orOp_126_in1
+	assign orOp_98_in0 = state_3_is_active;
+	assign orOp_98_in1 = orOp_97_out;
+	// controller for orOp_99.orOp_99_in0
+	// controller for orOp_99.orOp_99_in1
 	// Insensitive connections
-	assign orOp_126_in0 = state_3_is_active;
-	assign orOp_126_in1 = orOp_125_out;
-	// controller for orOp_127.orOp_127_in0
-	// controller for orOp_127.orOp_127_in1
-	// Insensitive connections
-	assign orOp_127_in0 = state_4_is_active;
-	assign orOp_127_in1 = orOp_126_out;
-	// controller for orOp_128.orOp_128_in0
-	// controller for orOp_128.orOp_128_in1
-	// Insensitive connections
-	assign orOp_128_in0 = state_5_is_active;
-	assign orOp_128_in1 = orOp_127_out;
-	// controller for orOp_129.orOp_129_in0
-	// controller for orOp_129.orOp_129_in1
-	// Insensitive connections
-	assign orOp_129_in0 = state_6_is_active;
-	assign orOp_129_in1 = orOp_128_out;
+	assign orOp_99_in0 = state_4_is_active;
+	assign orOp_99_in1 = orOp_98_out;
 	// controller for phi_phi1.phi_phi1_in
 	// controller for phi_phi1.phi_phi1_last_block
 	// controller for phi_phi1.phi_phi1_s
 	// Insensitive connections
-	assign phi_phi1_in = concat_55_out;
+	assign phi_phi1_in = concat_41_out;
 	assign phi_phi1_last_block = bb_1_predecessor_in_state_1_out_data;
-	assign phi_phi1_s = concat_56_out;
+	assign phi_phi1_s = concat_42_out;
 	// controller for ret13.valid_reg
 	always @(*) begin
-		if (andOp_67_out) begin 
+		if (andOp_53_out) begin 
 			valid_reg = 1'd1;
 		end else begin
 			valid_reg = 0;
@@ -2119,13 +1441,13 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// Register controllers
 	always @(posedge clk) begin
 		if (rst) begin
-			counter__68 <= 0;
+			counter__54 <= 0;
 		end else begin
-			if (andOp_71_out) begin
-				counter__68 <= add_69_out;
+			if (andOp_57_out) begin
+				counter__54 <= add_55_out;
 			end
 			if (state_1_is_active) begin
-				counter__68 <= 32'd0;
+				counter__54 <= 32'd0;
 			end
 		end
 	end
@@ -2144,7 +1466,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			data_store_1_2 <= 0;
 		end else begin
-			if (andOp_133_out) begin
+			if (andOp_103_out) begin
 				data_store_1_2 <= add_add2_out;
 			end
 		end
@@ -2154,7 +1476,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			data_store_2_4 <= 0;
 		end else begin
-			if (andOp_136_out) begin
+			if (andOp_106_out) begin
 				data_store_2_4 <= arg_0_rdata_0;
 			end
 		end
@@ -2162,10 +1484,10 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 
 	always @(posedge clk) begin
 		if (rst) begin
-			delayed_signal__73 <= 0;
+			delayed_signal__59 <= 0;
 		end else begin
 			if (state_1_is_active) begin
-				delayed_signal__73 <= andOp_10_out;
+				delayed_signal__59 <= andOp_10_out;
 			end
 		end
 	end
@@ -2174,34 +1496,34 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			global_state <= 0;
 		end else begin
-			if (andOp_105_out) begin
-				global_state <= 32'd7;
+			if (andOp_68_out) begin
+				global_state <= 32'd5;
 			end
 			if (andOp_6_out) begin
 				global_state <= 32'd200000;
 			end
-			if (andOp_86_out) begin
-				global_state <= 32'd7;
+			if (andOp_81_out) begin
+				global_state <= 32'd5;
 			end
 		end
 	end
 
 	always @(posedge clk) begin
 		if (rst) begin
-			out_of_pipe_1_7 <= 0;
+			out_of_pipe_1_5 <= 0;
 		end else begin
 			if (andOp_12_out) begin
-				out_of_pipe_1_7 <= 1'd1;
+				out_of_pipe_1_5 <= 1'd1;
 			end
 		end
 	end
 
 	always @(posedge clk) begin
 		if (rst) begin
-			out_of_pipe_bb_1_7 <= 0;
+			out_of_pipe_bb_1_5 <= 0;
 		end else begin
 			if (andOp_12_out) begin
-				out_of_pipe_bb_1_7 <= 1'd1;
+				out_of_pipe_bb_1_5 <= 1'd1;
 			end
 		end
 	end
@@ -2254,14 +1576,14 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			state_1_is_active <= 0;
 		end else begin
-			if (andOp_109_out) begin
-				state_1_is_active <= 1'd0;
+			if (andOp_60_out) begin
+				state_1_is_active <= 1'd1;
 			end
 			if (andOp_6_out) begin
 				state_1_is_active <= 1'd1;
 			end
-			if (andOp_74_out) begin
-				state_1_is_active <= 1'd1;
+			if (andOp_85_out) begin
+				state_1_is_active <= 1'd0;
 			end
 		end
 	end
@@ -2296,7 +1618,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			state_2_entry_BB_reg <= 0;
 		end else begin
-			if (andOp_100_out) begin
+			if (andOp_78_out) begin
 				state_2_entry_BB_reg <= 32'd1;
 			end
 		end
@@ -2306,10 +1628,10 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			state_2_is_active <= 0;
 		end else begin
-			if (andOp_100_out) begin
+			if (andOp_78_out) begin
 				state_2_is_active <= 1'd1;
 			end
-			if (andOp_111_out) begin
+			if (andOp_87_out) begin
 				state_2_is_active <= 1'd0;
 			end
 		end
@@ -2319,7 +1641,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			state_2_last_BB_reg <= 0;
 		end else begin
-			if (andOp_100_out) begin
+			if (andOp_78_out) begin
 				state_2_last_BB_reg <= bb_1_predecessor_in_state_1_out_data;
 			end
 		end
@@ -2329,7 +1651,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			state_2_last_state <= 0;
 		end else begin
-			if (andOp_100_out) begin
+			if (andOp_78_out) begin
 				state_2_last_state <= 32'd1;
 			end
 		end
@@ -2339,7 +1661,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			state_3_entry_BB_reg <= 0;
 		end else begin
-			if (andOp_101_out) begin
+			if (andOp_79_out) begin
 				state_3_entry_BB_reg <= 32'd1;
 			end
 		end
@@ -2349,10 +1671,10 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			state_3_is_active <= 0;
 		end else begin
-			if (andOp_101_out) begin
+			if (andOp_79_out) begin
 				state_3_is_active <= 1'd1;
 			end
-			if (andOp_113_out) begin
+			if (andOp_89_out) begin
 				state_3_is_active <= 1'd0;
 			end
 		end
@@ -2362,7 +1684,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			state_3_last_BB_reg <= 0;
 		end else begin
-			if (andOp_101_out) begin
+			if (andOp_79_out) begin
 				state_3_last_BB_reg <= bb_1_predecessor_in_state_2_out_data;
 			end
 		end
@@ -2372,7 +1694,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			state_3_last_state <= 0;
 		end else begin
-			if (andOp_101_out) begin
+			if (andOp_79_out) begin
 				state_3_last_state <= 32'd2;
 			end
 		end
@@ -2382,7 +1704,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			state_4_entry_BB_reg <= 0;
 		end else begin
-			if (andOp_102_out) begin
+			if (andOp_80_out) begin
 				state_4_entry_BB_reg <= 32'd1;
 			end
 		end
@@ -2392,10 +1714,10 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			state_4_is_active <= 0;
 		end else begin
-			if (andOp_102_out) begin
+			if (andOp_80_out) begin
 				state_4_is_active <= 1'd1;
 			end
-			if (andOp_115_out) begin
+			if (andOp_91_out) begin
 				state_4_is_active <= 1'd0;
 			end
 		end
@@ -2405,7 +1727,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			state_4_last_BB_reg <= 0;
 		end else begin
-			if (andOp_102_out) begin
+			if (andOp_80_out) begin
 				state_4_last_BB_reg <= bb_1_predecessor_in_state_3_out_data;
 			end
 		end
@@ -2415,7 +1737,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			state_4_last_state <= 0;
 		end else begin
-			if (andOp_102_out) begin
+			if (andOp_80_out) begin
 				state_4_last_state <= 32'd3;
 			end
 		end
@@ -2425,8 +1747,11 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			state_5_entry_BB_reg <= 0;
 		end else begin
-			if (andOp_103_out) begin
-				state_5_entry_BB_reg <= 32'd1;
+			if (andOp_77_out) begin
+				state_5_entry_BB_reg <= 32'd2;
+			end
+			if (andOp_81_out) begin
+				state_5_entry_BB_reg <= 32'd2;
 			end
 		end
 	end
@@ -2435,10 +1760,13 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			state_5_is_active <= 0;
 		end else begin
-			if (andOp_103_out) begin
+			if (andOp_69_out) begin
 				state_5_is_active <= 1'd1;
 			end
-			if (andOp_117_out) begin
+			if (andOp_81_out) begin
+				state_5_is_active <= 1'd1;
+			end
+			if (andOp_95_out) begin
 				state_5_is_active <= 1'd0;
 			end
 		end
@@ -2448,8 +1776,11 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			state_5_last_BB_reg <= 0;
 		end else begin
-			if (andOp_103_out) begin
-				state_5_last_BB_reg <= bb_1_predecessor_in_state_4_out_data;
+			if (andOp_12_out) begin
+				state_5_last_BB_reg <= 32'd1;
+			end
+			if (andOp_81_out) begin
+				state_5_last_BB_reg <= bb_2_predecessor_in_state_5_out_data;
 			end
 		end
 	end
@@ -2458,106 +1789,11 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 		if (rst) begin
 			state_5_last_state <= 0;
 		end else begin
-			if (andOp_103_out) begin
-				state_5_last_state <= 32'd4;
-			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			state_6_entry_BB_reg <= 0;
-		end else begin
-			if (andOp_104_out) begin
-				state_6_entry_BB_reg <= 32'd1;
-			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			state_6_is_active <= 0;
-		end else begin
-			if (andOp_104_out) begin
-				state_6_is_active <= 1'd1;
-			end
-			if (andOp_119_out) begin
-				state_6_is_active <= 1'd0;
-			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			state_6_last_BB_reg <= 0;
-		end else begin
-			if (andOp_104_out) begin
-				state_6_last_BB_reg <= bb_1_predecessor_in_state_5_out_data;
-			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			state_6_last_state <= 0;
-		end else begin
-			if (andOp_104_out) begin
-				state_6_last_state <= 32'd5;
-			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			state_7_entry_BB_reg <= 0;
-		end else begin
-			if (andOp_105_out) begin
-				state_7_entry_BB_reg <= 32'd2;
-			end
-			if (andOp_99_out) begin
-				state_7_entry_BB_reg <= 32'd2;
-			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			state_7_is_active <= 0;
-		end else begin
-			if (andOp_105_out) begin
-				state_7_is_active <= 1'd1;
-			end
-			if (andOp_123_out) begin
-				state_7_is_active <= 1'd0;
-			end
-			if (andOp_87_out) begin
-				state_7_is_active <= 1'd1;
-			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			state_7_last_BB_reg <= 0;
-		end else begin
-			if (andOp_105_out) begin
-				state_7_last_BB_reg <= bb_2_predecessor_in_state_7_out_data;
-			end
 			if (andOp_12_out) begin
-				state_7_last_BB_reg <= 32'd1;
+				state_5_last_state <= 32'd1;
 			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			state_7_last_state <= 0;
-		end else begin
-			if (andOp_105_out) begin
-				state_7_last_state <= 32'd7;
-			end
-			if (andOp_12_out) begin
-				state_7_last_state <= 32'd1;
+			if (andOp_81_out) begin
+				state_5_last_state <= 32'd5;
 			end
 		end
 	end

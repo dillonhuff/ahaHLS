@@ -1,4 +1,5 @@
 #include "rams.h"
+#include "llvm_codegen.h"
 
 namespace ahaHLS {
 
