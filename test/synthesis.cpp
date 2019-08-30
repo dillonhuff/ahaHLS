@@ -158,6 +158,10 @@ namespace ahaHLS {
       fifoType(32)->getPointerTo()};
     Function* f = mkFunc(inputs, "vadd_fifo", mod.get());
 
+    ConstantInt* loopBound = mkInt("512", 32);
+    ConstantInt* zero = mkInt("0", 32);    
+    ConstantInt* one = mkInt("1", 32);
+
     auto entryBlock = mkBB("entry_block", f);
     auto loopBlock = mkBB("loop_block", f);
     auto exitBlock = mkBB("exit_block", f);        
@@ -168,6 +172,19 @@ namespace ahaHLS {
     IRBuilder<> entryBuilder(entryBlock);
     entryBuilder.CreateBr(loopBlock);
 
+    IRBuilder<> loopBuilder(loopBlock);
+  
+    auto indPhi = loopBuilder.CreatePHI(intType(32), 2);
+    auto nextInd = loopBuilder.CreateAdd(indPhi, one);
+    
+    auto a = loopBuilder.CreateCall(fRead, {getArg(f, 0)});
+    auto b = loopBuilder.CreateCall(fRead, {getArg(f, 1)});
+    auto c = loopBuilder.CreateAdd(a, b);
+    loopBuilder.CreateCall(fWrite, {getArg(f, 2), c});
+
+    indPhi->addIncoming(zero, entryBlock);
+    indPhi->addIncoming(nextInd, loopBlock);
+    
     IRBuilder<> exitBuilder(exitBlock);
     exitBuilder.CreateRet(nullptr);
 
