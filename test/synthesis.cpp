@@ -180,9 +180,9 @@ namespace ahaHLS {
     }
     tasks.insert(ts);
     set<PipelineSpec> toPipeline;
-    //DominatorTree dt(*f);
-    //LoopInfo li(dt);
-    //for (auto loop : li) {
+    DominatorTree dt(*f);
+    LoopInfo li(dt);
+    for (auto loop : li) {
 
       //auto& sl = loop->getSubLoops();
       //assert(sl.size() == 1);
@@ -194,12 +194,12 @@ namespace ahaHLS {
 
       //toPipeline.insert(spec);
 
-      ////PipelineSpec spec;
-      ////for (auto blk : loop->getBlocks()) {
-        ////spec.blks.insert(blk);
-      ////}
-      ////toPipeline.insert(spec);
-    //}
+      //PipelineSpec spec;
+      //for (auto blk : loop->getBlocks()) {
+        //spec.blks.insert(blk);
+      //}
+      //toPipeline.insert(spec);
+    }
 
     exec.toPipeline = toPipeline;
     //createMemoryConstraints(f, hcs, exec);
