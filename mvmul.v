@@ -34,11 +34,11 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 
 
 	always @(posedge clk) begin
-		if (!((!(andOp_70_out === 1) || andOp_75_out !== 1))) begin $display("assertion((!(andOp_70_out === 1) || andOp_75_out !== 1))"); $finish(); end
+		if (!((!(andOp_70_out === 1) || andOp_80_out !== 1))) begin $display("assertion((!(andOp_70_out === 1) || andOp_80_out !== 1))"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_75_out === 1) || andOp_70_out !== 1))) begin $display("assertion((!(andOp_75_out === 1) || andOp_70_out !== 1))"); $finish(); end
+		if (!((!(andOp_80_out === 1) || andOp_70_out !== 1))) begin $display("assertion((!(andOp_80_out === 1) || andOp_70_out !== 1))"); $finish(); end
 	end
 
 	always @(posedge clk) begin
@@ -50,11 +50,11 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_70_out === 1) || andOp_75_out !== 1))) begin $display("assertion((!(andOp_70_out === 1) || andOp_75_out !== 1))"); $finish(); end
+		if (!((!(andOp_70_out === 1) || andOp_80_out !== 1))) begin $display("assertion((!(andOp_70_out === 1) || andOp_80_out !== 1))"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_75_out === 1) || andOp_70_out !== 1))) begin $display("assertion((!(andOp_75_out === 1) || andOp_70_out !== 1))"); $finish(); end
+		if (!((!(andOp_80_out === 1) || andOp_70_out !== 1))) begin $display("assertion((!(andOp_80_out === 1) || andOp_70_out !== 1))"); $finish(); end
 	end
 
 	always @(posedge clk) begin
@@ -70,7 +70,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_167_out === 1) || andOp_75_out !== 1))) begin $display("assertion((!(andOp_167_out === 1) || andOp_75_out !== 1)) failed: Overlapping state active transition for state 0"); $finish(); end
+		if (!((!(andOp_167_out === 1) || andOp_80_out !== 1))) begin $display("assertion((!(andOp_167_out === 1) || andOp_80_out !== 1)) failed: Overlapping state active transition for state 0"); $finish(); end
 	end
 
 	always @(posedge clk) begin
@@ -78,15 +78,15 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_70_out === 1) || andOp_75_out !== 1))) begin $display("assertion((!(andOp_70_out === 1) || andOp_75_out !== 1)) failed: Overlapping state active transition for state 0"); $finish(); end
+		if (!((!(andOp_70_out === 1) || andOp_80_out !== 1))) begin $display("assertion((!(andOp_70_out === 1) || andOp_80_out !== 1)) failed: Overlapping state active transition for state 0"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_75_out === 1) || andOp_167_out !== 1))) begin $display("assertion((!(andOp_75_out === 1) || andOp_167_out !== 1)) failed: Overlapping state active transition for state 0"); $finish(); end
+		if (!((!(andOp_80_out === 1) || andOp_167_out !== 1))) begin $display("assertion((!(andOp_80_out === 1) || andOp_167_out !== 1)) failed: Overlapping state active transition for state 0"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_75_out === 1) || andOp_70_out !== 1))) begin $display("assertion((!(andOp_75_out === 1) || andOp_70_out !== 1)) failed: Overlapping state active transition for state 0"); $finish(); end
+		if (!((!(andOp_80_out === 1) || andOp_70_out !== 1))) begin $display("assertion((!(andOp_80_out === 1) || andOp_70_out !== 1)) failed: Overlapping state active transition for state 0"); $finish(); end
 	end
 
 	always @(posedge clk) begin
@@ -202,83 +202,83 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_197_out) || add_add2_in0 !== 32'dx)) begin $display("assertion(!(andOp_197_out) || add_add2_in0 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_197_out) || add_add1_in0 !== 32'dx)) begin $display("assertion(!(andOp_197_out) || add_add1_in0 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_197_out) || add_add2_in1 !== 32'dx)) begin $display("assertion(!(andOp_197_out) || add_add2_in1 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_197_out) || add_add1_in1 !== 32'dx)) begin $display("assertion(!(andOp_197_out) || add_add1_in1 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_198_out) || add_add6_in0 !== 32'dx)) begin $display("assertion(!(andOp_198_out) || add_add6_in0 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_198_out) || add_add2_in0 !== 32'dx)) begin $display("assertion(!(andOp_198_out) || add_add2_in0 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_198_out) || add_add6_in1 !== 32'dx)) begin $display("assertion(!(andOp_198_out) || add_add6_in1 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_198_out) || add_add2_in1 !== 32'dx)) begin $display("assertion(!(andOp_198_out) || add_add2_in1 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_199_out) || add_add7_in0 !== 32'dx)) begin $display("assertion(!(andOp_199_out) || add_add7_in0 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_199_out) || add_add3_in0 !== 32'dx)) begin $display("assertion(!(andOp_199_out) || add_add3_in0 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_199_out) || add_add7_in1 !== 32'dx)) begin $display("assertion(!(andOp_199_out) || add_add7_in1 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_199_out) || add_add3_in1 !== 32'dx)) begin $display("assertion(!(andOp_199_out) || add_add3_in1 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_200_out) || add_add18_in0 !== 32'dx)) begin $display("assertion(!(andOp_200_out) || add_add18_in0 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_200_out) || add_add12_in0 !== 32'dx)) begin $display("assertion(!(andOp_200_out) || add_add12_in0 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_200_out) || add_add18_in1 !== 32'dx)) begin $display("assertion(!(andOp_200_out) || add_add18_in1 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_200_out) || add_add12_in1 !== 32'dx)) begin $display("assertion(!(andOp_200_out) || add_add12_in1 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_201_out) || add_add20_in0 !== 32'dx)) begin $display("assertion(!(andOp_201_out) || add_add20_in0 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_201_out) || add_add15_in0 !== 32'dx)) begin $display("assertion(!(andOp_201_out) || add_add15_in0 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_201_out) || add_add20_in1 !== 32'dx)) begin $display("assertion(!(andOp_201_out) || add_add20_in1 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_201_out) || add_add15_in1 !== 32'dx)) begin $display("assertion(!(andOp_201_out) || add_add15_in1 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_202_out) || add_add21_in0 !== 32'dx)) begin $display("assertion(!(andOp_202_out) || add_add21_in0 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_202_out) || add_add16_in0 !== 32'dx)) begin $display("assertion(!(andOp_202_out) || add_add16_in0 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_202_out) || add_add21_in1 !== 32'dx)) begin $display("assertion(!(andOp_202_out) || add_add21_in1 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_202_out) || add_add16_in1 !== 32'dx)) begin $display("assertion(!(andOp_202_out) || add_add16_in1 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_203_out) || mul_mul10_in0 !== 32'dx)) begin $display("assertion(!(andOp_203_out) || mul_mul10_in0 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_203_out) || mul_mul11_in0 !== 32'dx)) begin $display("assertion(!(andOp_203_out) || mul_mul11_in0 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_203_out) || mul_mul10_in1 !== 32'dx)) begin $display("assertion(!(andOp_203_out) || mul_mul10_in1 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_203_out) || mul_mul11_in1 !== 32'dx)) begin $display("assertion(!(andOp_203_out) || mul_mul11_in1 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_204_out) || mul_mul17_in0 !== 32'dx)) begin $display("assertion(!(andOp_204_out) || mul_mul17_in0 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_204_out) || mul_mul14_in0 !== 32'dx)) begin $display("assertion(!(andOp_204_out) || mul_mul14_in0 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_204_out) || mul_mul17_in1 !== 32'dx)) begin $display("assertion(!(andOp_204_out) || mul_mul17_in1 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_204_out) || mul_mul14_in1 !== 32'dx)) begin $display("assertion(!(andOp_204_out) || mul_mul14_in1 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_205_out) || phi_phi4_out !== 'dx))) begin $display("assertion((!(andOp_205_out) || phi_phi4_out !== 'dx))"); $finish(); end
+		if (!((!(andOp_205_out) || phi_phi5_out !== 'dx))) begin $display("assertion((!(andOp_205_out) || phi_phi5_out !== 'dx))"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_206_out) || phi_phi5_out !== 'dx))) begin $display("assertion((!(andOp_206_out) || phi_phi5_out !== 'dx))"); $finish(); end
+		if (!((!(andOp_206_out) || phi_phi6_out !== 'dx))) begin $display("assertion((!(andOp_206_out) || phi_phi6_out !== 'dx))"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_207_out) || phi_phi8_out !== 'dx))) begin $display("assertion((!(andOp_207_out) || phi_phi8_out !== 'dx))"); $finish(); end
+		if (!((!(andOp_207_out) || phi_phi7_out !== 'dx))) begin $display("assertion((!(andOp_207_out) || phi_phi7_out !== 'dx))"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_208_out) || add_add20_out !== 32'dx))) begin $display("assertion((!(andOp_208_out) || add_add20_out !== 32'dx))"); $finish(); end
+		if (!((!(andOp_208_out) || add_add16_out !== 32'dx))) begin $display("assertion((!(andOp_208_out) || add_add16_out !== 32'dx))"); $finish(); end
 	end
 
 	always @(posedge clk) begin
@@ -291,48 +291,47 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// End debug wires and ports
 
 	// Start Functional Units
-	wire [31:0] mul_mul17_in0;
-	wire [31:0] mul_mul17_in1;
-	wire [31:0] mul_mul17_out;
-	mul #(.WIDTH(32)) mul_mul17(.in0(mul_mul17_in0), .in1(mul_mul17_in1), .out(mul_mul17_out));
+	wire [31:0] add_add12_in0;
+	wire [31:0] add_add12_in1;
+	wire [31:0] add_add12_out;
+	add #(.WIDTH(32)) add_add12(.in0(add_add12_in0), .in1(add_add12_in1), .out(add_add12_out));
 
-	wire [31:0] add_add18_in0;
-	wire [31:0] add_add18_in1;
-	wire [31:0] add_add18_out;
-	add #(.WIDTH(32)) add_add18(.in0(add_add18_in0), .in1(add_add18_in1), .out(add_add18_out));
+	wire [31:0] icmp_icmp0_in0;
+	wire [31:0] icmp_icmp0_in1;
+	wire [0:0] icmp_icmp0_out;
+	eq #(.WIDTH(32)) icmp_icmp0(.in0(icmp_icmp0_in0), .in1(icmp_icmp0_in1), .out(icmp_icmp0_out));
+
+	br_dummy br_unit();
+
+	wire [31:0] mul_mul14_in0;
+	wire [31:0] mul_mul14_in1;
+	wire [31:0] mul_mul14_out;
+	mul #(.WIDTH(32)) mul_mul14(.in0(mul_mul14_in0), .in1(mul_mul14_in1), .out(mul_mul14_out));
+
+	wire [31:0] add_add15_in0;
+	wire [31:0] add_add15_in1;
+	wire [31:0] add_add15_out;
+	add #(.WIDTH(32)) add_add15(.in0(add_add15_in0), .in1(add_add15_in1), .out(add_add15_out));
+
+	wire [31:0] add_add1_in0;
+	wire [31:0] add_add1_in1;
+	wire [31:0] add_add1_out;
+	add #(.WIDTH(32)) add_add1(.in0(add_add1_in0), .in1(add_add1_in1), .out(add_add1_out));
 
 	wire [31:0] add_add2_in0;
 	wire [31:0] add_add2_in1;
 	wire [31:0] add_add2_out;
 	add #(.WIDTH(32)) add_add2(.in0(add_add2_in0), .in1(add_add2_in1), .out(add_add2_out));
 
-	br_dummy br_unit();
+	wire [31:0] add_add16_in0;
+	wire [31:0] add_add16_in1;
+	wire [31:0] add_add16_out;
+	add #(.WIDTH(32)) add_add16(.in0(add_add16_in0), .in1(add_add16_in1), .out(add_add16_out));
 
-	wire [31:0] add_add20_in0;
-	wire [31:0] add_add20_in1;
-	wire [31:0] add_add20_out;
-	add #(.WIDTH(32)) add_add20(.in0(add_add20_in0), .in1(add_add20_in1), .out(add_add20_out));
-
-	wire [31:0] icmp_icmp3_in0;
-	wire [31:0] icmp_icmp3_in1;
-	wire [0:0] icmp_icmp3_out;
-	eq #(.WIDTH(32)) icmp_icmp3(.in0(icmp_icmp3_in0), .in1(icmp_icmp3_in1), .out(icmp_icmp3_out));
-
-	wire [31:0] add_add21_in0;
-	wire [31:0] add_add21_in1;
-	wire [31:0] add_add21_out;
-	add #(.WIDTH(32)) add_add21(.in0(add_add21_in0), .in1(add_add21_in1), .out(add_add21_out));
-
-	wire [31:0] icmp_icmp22_in0;
-	wire [31:0] icmp_icmp22_in1;
-	wire [0:0] icmp_icmp22_out;
-	eq #(.WIDTH(32)) icmp_icmp22(.in0(icmp_icmp22_in0), .in1(icmp_icmp22_in1), .out(icmp_icmp22_out));
-
-	wire [63:0] phi_phi4_in;
-	wire [31:0] phi_phi4_last_block;
-	wire [63:0] phi_phi4_s;
-	wire [31:0] phi_phi4_out;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi4(.in(phi_phi4_in), .last_block(phi_phi4_last_block), .out(phi_phi4_out), .s(phi_phi4_s));
+	wire [31:0] add_add3_in0;
+	wire [31:0] add_add3_in1;
+	wire [31:0] add_add3_out;
+	add #(.WIDTH(32)) add_add3(.in0(add_add3_in0), .in1(add_add3_in1), .out(add_add3_out));
 
 	wire [63:0] phi_phi5_in;
 	wire [31:0] phi_phi5_last_block;
@@ -340,38 +339,27 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	wire [31:0] phi_phi5_out;
 	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi5(.in(phi_phi5_in), .last_block(phi_phi5_last_block), .out(phi_phi5_out), .s(phi_phi5_s));
 
-	wire [31:0] add_add6_in0;
-	wire [31:0] add_add6_in1;
-	wire [31:0] add_add6_out;
-	add #(.WIDTH(32)) add_add6(.in0(add_add6_in0), .in1(add_add6_in1), .out(add_add6_out));
+	wire [63:0] phi_phi6_in;
+	wire [31:0] phi_phi6_last_block;
+	wire [63:0] phi_phi6_s;
+	wire [31:0] phi_phi6_out;
+	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi6(.in(phi_phi6_in), .last_block(phi_phi6_last_block), .out(phi_phi6_out), .s(phi_phi6_s));
 
-	wire [31:0] add_add7_in0;
-	wire [31:0] add_add7_in1;
-	wire [31:0] add_add7_out;
-	add #(.WIDTH(32)) add_add7(.in0(add_add7_in0), .in1(add_add7_in1), .out(add_add7_out));
+	wire [63:0] phi_phi7_in;
+	wire [31:0] phi_phi7_last_block;
+	wire [63:0] phi_phi7_s;
+	wire [31:0] phi_phi7_out;
+	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi7(.in(phi_phi7_in), .last_block(phi_phi7_last_block), .out(phi_phi7_out), .s(phi_phi7_s));
 
-	wire [63:0] phi_phi8_in;
-	wire [31:0] phi_phi8_last_block;
-	wire [63:0] phi_phi8_s;
-	wire [31:0] phi_phi8_out;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi8(.in(phi_phi8_in), .last_block(phi_phi8_last_block), .out(phi_phi8_out), .s(phi_phi8_s));
+	wire [31:0] icmp_icmp18_in0;
+	wire [31:0] icmp_icmp18_in1;
+	wire [0:0] icmp_icmp18_out;
+	eq #(.WIDTH(32)) icmp_icmp18(.in0(icmp_icmp18_in0), .in1(icmp_icmp18_in1), .out(icmp_icmp18_out));
 
-	wire [31:0] mul_mul10_in0;
-	wire [31:0] mul_mul10_in1;
-	wire [31:0] mul_mul10_out;
-	mul #(.WIDTH(32)) mul_mul10(.in0(mul_mul10_in0), .in1(mul_mul10_in1), .out(mul_mul10_out));
-
-	reg [0:0] bb_0_active_in_state_0_in_data;
-	wire [0:0] bb_0_active_in_state_0_out_data;
-	hls_wire #(.WIDTH(1)) bb_0_active_in_state_0(.in_data(bb_0_active_in_state_0_in_data), .out_data(bb_0_active_in_state_0_out_data));
-
-	reg [31:0] bb_0_predecessor_in_state_0_in_data;
-	wire [31:0] bb_0_predecessor_in_state_0_out_data;
-	hls_wire #(.WIDTH(32)) bb_0_predecessor_in_state_0(.in_data(bb_0_predecessor_in_state_0_in_data), .out_data(bb_0_predecessor_in_state_0_out_data));
-
-	reg [0:0] br_0_happened_in_state_0_in_data;
-	wire [0:0] br_0_happened_in_state_0_out_data;
-	hls_wire #(.WIDTH(1)) br_0_happened_in_state_0(.in_data(br_0_happened_in_state_0_in_data), .out_data(br_0_happened_in_state_0_out_data));
+	wire [31:0] mul_mul11_in0;
+	wire [31:0] mul_mul11_in1;
+	wire [31:0] mul_mul11_out;
+	mul #(.WIDTH(32)) mul_mul11(.in0(mul_mul11_in0), .in1(mul_mul11_in1), .out(mul_mul11_out));
 
 	reg [0:0] bb_1_active_in_state_0_in_data;
 	wire [0:0] bb_1_active_in_state_0_out_data;
@@ -385,6 +373,18 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	wire [0:0] br_1_happened_in_state_0_out_data;
 	hls_wire #(.WIDTH(1)) br_1_happened_in_state_0(.in_data(br_1_happened_in_state_0_in_data), .out_data(br_1_happened_in_state_0_out_data));
 
+	reg [0:0] bb_0_active_in_state_0_in_data;
+	wire [0:0] bb_0_active_in_state_0_out_data;
+	hls_wire #(.WIDTH(1)) bb_0_active_in_state_0(.in_data(bb_0_active_in_state_0_in_data), .out_data(bb_0_active_in_state_0_out_data));
+
+	reg [31:0] bb_0_predecessor_in_state_0_in_data;
+	wire [31:0] bb_0_predecessor_in_state_0_out_data;
+	hls_wire #(.WIDTH(32)) bb_0_predecessor_in_state_0(.in_data(bb_0_predecessor_in_state_0_in_data), .out_data(bb_0_predecessor_in_state_0_out_data));
+
+	reg [0:0] br_0_happened_in_state_0_in_data;
+	wire [0:0] br_0_happened_in_state_0_out_data;
+	hls_wire #(.WIDTH(1)) br_0_happened_in_state_0(.in_data(br_0_happened_in_state_0_in_data), .out_data(br_0_happened_in_state_0_out_data));
+
 	reg [0:0] bb_4_active_in_state_0_in_data;
 	wire [0:0] bb_4_active_in_state_0_out_data;
 	hls_wire #(.WIDTH(1)) bb_4_active_in_state_0(.in_data(bb_4_active_in_state_0_in_data), .out_data(bb_4_active_in_state_0_out_data));
@@ -397,18 +397,6 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	wire [0:0] br_4_happened_in_state_0_out_data;
 	hls_wire #(.WIDTH(1)) br_4_happened_in_state_0(.in_data(br_4_happened_in_state_0_in_data), .out_data(br_4_happened_in_state_0_out_data));
 
-	reg [0:0] bb_3_active_in_state_1_in_data;
-	wire [0:0] bb_3_active_in_state_1_out_data;
-	hls_wire #(.WIDTH(1)) bb_3_active_in_state_1(.in_data(bb_3_active_in_state_1_in_data), .out_data(bb_3_active_in_state_1_out_data));
-
-	reg [31:0] bb_3_predecessor_in_state_1_in_data;
-	wire [31:0] bb_3_predecessor_in_state_1_out_data;
-	hls_wire #(.WIDTH(32)) bb_3_predecessor_in_state_1(.in_data(bb_3_predecessor_in_state_1_in_data), .out_data(bb_3_predecessor_in_state_1_out_data));
-
-	reg [0:0] br_3_happened_in_state_1_in_data;
-	wire [0:0] br_3_happened_in_state_1_out_data;
-	hls_wire #(.WIDTH(1)) br_3_happened_in_state_1(.in_data(br_3_happened_in_state_1_in_data), .out_data(br_3_happened_in_state_1_out_data));
-
 	reg [0:0] bb_4_active_in_state_1_in_data;
 	wire [0:0] bb_4_active_in_state_1_out_data;
 	hls_wire #(.WIDTH(1)) bb_4_active_in_state_1(.in_data(bb_4_active_in_state_1_in_data), .out_data(bb_4_active_in_state_1_out_data));
@@ -420,6 +408,18 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	reg [0:0] br_4_happened_in_state_1_in_data;
 	wire [0:0] br_4_happened_in_state_1_out_data;
 	hls_wire #(.WIDTH(1)) br_4_happened_in_state_1(.in_data(br_4_happened_in_state_1_in_data), .out_data(br_4_happened_in_state_1_out_data));
+
+	reg [0:0] bb_3_active_in_state_1_in_data;
+	wire [0:0] bb_3_active_in_state_1_out_data;
+	hls_wire #(.WIDTH(1)) bb_3_active_in_state_1(.in_data(bb_3_active_in_state_1_in_data), .out_data(bb_3_active_in_state_1_out_data));
+
+	reg [31:0] bb_3_predecessor_in_state_1_in_data;
+	wire [31:0] bb_3_predecessor_in_state_1_out_data;
+	hls_wire #(.WIDTH(32)) bb_3_predecessor_in_state_1(.in_data(bb_3_predecessor_in_state_1_in_data), .out_data(bb_3_predecessor_in_state_1_out_data));
+
+	reg [0:0] br_3_happened_in_state_1_in_data;
+	wire [0:0] br_3_happened_in_state_1_out_data;
+	hls_wire #(.WIDTH(1)) br_3_happened_in_state_1(.in_data(br_3_happened_in_state_1_in_data), .out_data(br_3_happened_in_state_1_out_data));
 
 	reg [0:0] bb_3_active_in_state_2_in_data;
 	wire [0:0] bb_3_active_in_state_2_out_data;
@@ -465,53 +465,53 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	wire [0:0] br_3_happened_in_state_4_out_data;
 	hls_wire #(.WIDTH(1)) br_3_happened_in_state_4(.in_data(br_3_happened_in_state_4_in_data), .out_data(br_3_happened_in_state_4_out_data));
 
-	reg [31:0] data_in_0_0_in_data;
-	wire [31:0] data_in_0_0_out_data;
-	hls_wire #(.WIDTH(32)) data_in_0_0(.in_data(data_in_0_0_in_data), .out_data(data_in_0_0_out_data));
+	reg [31:0] data_in_0_1_in_data;
+	wire [31:0] data_in_0_1_out_data;
+	hls_wire #(.WIDTH(32)) data_in_0_1(.in_data(data_in_0_1_in_data), .out_data(data_in_0_1_out_data));
 
-	reg [31:0] data_in_0_2_in_data;
-	wire [31:0] data_in_0_2_out_data;
-	hls_wire #(.WIDTH(32)) data_in_0_2(.in_data(data_in_0_2_in_data), .out_data(data_in_0_2_out_data));
+	reg [31:0] data_in_0_3_in_data;
+	wire [31:0] data_in_0_3_out_data;
+	hls_wire #(.WIDTH(32)) data_in_0_3(.in_data(data_in_0_3_in_data), .out_data(data_in_0_3_out_data));
 
 	reg [31:0] data_in_0_5_in_data;
 	wire [31:0] data_in_0_5_out_data;
 	hls_wire #(.WIDTH(32)) data_in_0_5(.in_data(data_in_0_5_in_data), .out_data(data_in_0_5_out_data));
 
-	reg [0:0] data_in_0_7_in_data;
-	wire [0:0] data_in_0_7_out_data;
-	hls_wire #(.WIDTH(1)) data_in_0_7(.in_data(data_in_0_7_in_data), .out_data(data_in_0_7_out_data));
+	reg [31:0] data_in_0_8_in_data;
+	wire [31:0] data_in_0_8_out_data;
+	hls_wire #(.WIDTH(32)) data_in_0_8(.in_data(data_in_0_8_in_data), .out_data(data_in_0_8_out_data));
 
-	reg [31:0] data_in_0_10_in_data;
-	wire [31:0] data_in_0_10_out_data;
-	hls_wire #(.WIDTH(32)) data_in_0_10(.in_data(data_in_0_10_in_data), .out_data(data_in_0_10_out_data));
+	reg [0:0] data_in_0_10_in_data;
+	wire [0:0] data_in_0_10_out_data;
+	hls_wire #(.WIDTH(1)) data_in_0_10(.in_data(data_in_0_10_in_data), .out_data(data_in_0_10_out_data));
 
 	reg [31:0] data_in_0_12_in_data;
 	wire [31:0] data_in_0_12_out_data;
 	hls_wire #(.WIDTH(32)) data_in_0_12(.in_data(data_in_0_12_in_data), .out_data(data_in_0_12_out_data));
 
-	reg [31:0] data_in_1_15_in_data;
-	wire [31:0] data_in_1_15_out_data;
-	hls_wire #(.WIDTH(32)) data_in_1_15(.in_data(data_in_1_15_in_data), .out_data(data_in_1_15_out_data));
+	reg [31:0] data_in_1_14_in_data;
+	wire [31:0] data_in_1_14_out_data;
+	hls_wire #(.WIDTH(32)) data_in_1_14(.in_data(data_in_1_14_in_data), .out_data(data_in_1_14_out_data));
 
-	reg [0:0] data_in_1_16_in_data;
-	wire [0:0] data_in_1_16_out_data;
-	hls_wire #(.WIDTH(1)) data_in_1_16(.in_data(data_in_1_16_in_data), .out_data(data_in_1_16_out_data));
+	reg [0:0] data_in_1_15_in_data;
+	wire [0:0] data_in_1_15_out_data;
+	hls_wire #(.WIDTH(1)) data_in_1_15(.in_data(data_in_1_15_in_data), .out_data(data_in_1_15_out_data));
 
 	reg [31:0] data_in_1_18_in_data;
 	wire [31:0] data_in_1_18_out_data;
 	hls_wire #(.WIDTH(32)) data_in_1_18(.in_data(data_in_1_18_in_data), .out_data(data_in_1_18_out_data));
 
-	reg [0:0] data_in_1_20_in_data;
-	wire [0:0] data_in_1_20_out_data;
-	hls_wire #(.WIDTH(1)) data_in_1_20(.in_data(data_in_1_20_in_data), .out_data(data_in_1_20_out_data));
+	reg [31:0] data_in_1_19_in_data;
+	wire [31:0] data_in_1_19_out_data;
+	hls_wire #(.WIDTH(32)) data_in_1_19(.in_data(data_in_1_19_in_data), .out_data(data_in_1_19_out_data));
 
 	reg [31:0] data_in_1_21_in_data;
 	wire [31:0] data_in_1_21_out_data;
 	hls_wire #(.WIDTH(32)) data_in_1_21(.in_data(data_in_1_21_in_data), .out_data(data_in_1_21_out_data));
 
-	reg [31:0] data_in_1_23_in_data;
-	wire [31:0] data_in_1_23_out_data;
-	hls_wire #(.WIDTH(32)) data_in_1_23(.in_data(data_in_1_23_in_data), .out_data(data_in_1_23_out_data));
+	reg [0:0] data_in_1_23_in_data;
+	wire [0:0] data_in_1_23_out_data;
+	hls_wire #(.WIDTH(1)) data_in_1_23(.in_data(data_in_1_23_in_data), .out_data(data_in_1_23_out_data));
 
 	reg [31:0] data_in_1_25_in_data;
 	wire [31:0] data_in_1_25_out_data;
@@ -529,13 +529,13 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	wire [31:0] data_in_2_31_out_data;
 	hls_wire #(.WIDTH(32)) data_in_2_31(.in_data(data_in_2_31_in_data), .out_data(data_in_2_31_out_data));
 
-	reg [0:0] data_in_2_33_in_data;
-	wire [0:0] data_in_2_33_out_data;
-	hls_wire #(.WIDTH(1)) data_in_2_33(.in_data(data_in_2_33_in_data), .out_data(data_in_2_33_out_data));
+	reg [31:0] data_in_2_33_in_data;
+	wire [31:0] data_in_2_33_out_data;
+	hls_wire #(.WIDTH(32)) data_in_2_33(.in_data(data_in_2_33_in_data), .out_data(data_in_2_33_out_data));
 
-	reg [31:0] data_in_2_35_in_data;
-	wire [31:0] data_in_2_35_out_data;
-	hls_wire #(.WIDTH(32)) data_in_2_35(.in_data(data_in_2_35_in_data), .out_data(data_in_2_35_out_data));
+	reg [0:0] data_in_2_35_in_data;
+	wire [0:0] data_in_2_35_out_data;
+	hls_wire #(.WIDTH(1)) data_in_2_35(.in_data(data_in_2_35_in_data), .out_data(data_in_2_35_out_data));
 
 	reg [31:0] data_in_2_37_in_data;
 	wire [31:0] data_in_2_37_out_data;
@@ -553,13 +553,13 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	wire [31:0] data_in_3_43_out_data;
 	hls_wire #(.WIDTH(32)) data_in_3_43(.in_data(data_in_3_43_in_data), .out_data(data_in_3_43_out_data));
 
-	reg [0:0] data_in_3_45_in_data;
-	wire [0:0] data_in_3_45_out_data;
-	hls_wire #(.WIDTH(1)) data_in_3_45(.in_data(data_in_3_45_in_data), .out_data(data_in_3_45_out_data));
+	reg [31:0] data_in_3_45_in_data;
+	wire [31:0] data_in_3_45_out_data;
+	hls_wire #(.WIDTH(32)) data_in_3_45(.in_data(data_in_3_45_in_data), .out_data(data_in_3_45_out_data));
 
-	reg [31:0] data_in_3_47_in_data;
-	wire [31:0] data_in_3_47_out_data;
-	hls_wire #(.WIDTH(32)) data_in_3_47(.in_data(data_in_3_47_in_data), .out_data(data_in_3_47_out_data));
+	reg [0:0] data_in_3_47_in_data;
+	wire [0:0] data_in_3_47_out_data;
+	hls_wire #(.WIDTH(1)) data_in_3_47(.in_data(data_in_3_47_in_data), .out_data(data_in_3_47_out_data));
 
 	reg [31:0] data_in_3_49_in_data;
 	wire [31:0] data_in_3_49_out_data;
@@ -577,13 +577,13 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	wire [31:0] data_in_4_55_out_data;
 	hls_wire #(.WIDTH(32)) data_in_4_55(.in_data(data_in_4_55_in_data), .out_data(data_in_4_55_out_data));
 
-	reg [0:0] data_in_4_57_in_data;
-	wire [0:0] data_in_4_57_out_data;
-	hls_wire #(.WIDTH(1)) data_in_4_57(.in_data(data_in_4_57_in_data), .out_data(data_in_4_57_out_data));
+	reg [31:0] data_in_4_57_in_data;
+	wire [31:0] data_in_4_57_out_data;
+	hls_wire #(.WIDTH(32)) data_in_4_57(.in_data(data_in_4_57_in_data), .out_data(data_in_4_57_out_data));
 
-	reg [31:0] data_in_4_59_in_data;
-	wire [31:0] data_in_4_59_out_data;
-	hls_wire #(.WIDTH(32)) data_in_4_59(.in_data(data_in_4_59_in_data), .out_data(data_in_4_59_out_data));
+	reg [0:0] data_in_4_59_in_data;
+	wire [0:0] data_in_4_59_out_data;
+	hls_wire #(.WIDTH(1)) data_in_4_59(.in_data(data_in_4_59_in_data), .out_data(data_in_4_59_out_data));
 
 	reg [31:0] data_in_4_61_in_data;
 	wire [31:0] data_in_4_61_out_data;
@@ -750,15 +750,15 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	wire [0:0] eq_96_out;
 	eq #(.WIDTH(32)) eq_96(.in0(eq_96_in0), .in1(eq_96_in1), .out(eq_96_out));
 
-	wire [31:0] eq_97_in0;
-	wire [31:0] eq_97_in1;
-	wire [0:0] eq_97_out;
-	eq #(.WIDTH(32)) eq_97(.in0(eq_97_in0), .in1(eq_97_in1), .out(eq_97_out));
+	wire [0:0] orOp_97_in0;
+	wire [0:0] orOp_97_in1;
+	wire [0:0] orOp_97_out;
+	orOp #(.WIDTH(1)) orOp_97(.in0(orOp_97_in0), .in1(orOp_97_in1), .out(orOp_97_out));
 
-	wire [0:0] orOp_98_in0;
-	wire [0:0] orOp_98_in1;
-	wire [0:0] orOp_98_out;
-	orOp #(.WIDTH(1)) orOp_98(.in0(orOp_98_in0), .in1(orOp_98_in1), .out(orOp_98_out));
+	wire [31:0] eq_98_in0;
+	wire [31:0] eq_98_in1;
+	wire [0:0] eq_98_out;
+	eq #(.WIDTH(32)) eq_98(.in0(eq_98_in0), .in1(eq_98_in1), .out(eq_98_out));
 
 	wire [31:0] eq_99_in0;
 	wire [31:0] eq_99_in1;
@@ -775,15 +775,15 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	wire [0:0] eq_101_out;
 	eq #(.WIDTH(32)) eq_101(.in0(eq_101_in0), .in1(eq_101_in1), .out(eq_101_out));
 
-	wire [0:0] orOp_102_in0;
-	wire [0:0] orOp_102_in1;
-	wire [0:0] orOp_102_out;
-	orOp #(.WIDTH(1)) orOp_102(.in0(orOp_102_in0), .in1(orOp_102_in1), .out(orOp_102_out));
+	wire [31:0] eq_102_in0;
+	wire [31:0] eq_102_in1;
+	wire [0:0] eq_102_out;
+	eq #(.WIDTH(32)) eq_102(.in0(eq_102_in0), .in1(eq_102_in1), .out(eq_102_out));
 
-	wire [31:0] eq_103_in0;
-	wire [31:0] eq_103_in1;
-	wire [0:0] eq_103_out;
-	eq #(.WIDTH(32)) eq_103(.in0(eq_103_in0), .in1(eq_103_in1), .out(eq_103_out));
+	wire [0:0] orOp_103_in0;
+	wire [0:0] orOp_103_in1;
+	wire [0:0] orOp_103_out;
+	orOp #(.WIDTH(1)) orOp_103(.in0(orOp_103_in0), .in1(orOp_103_in1), .out(orOp_103_out));
 
 	wire [31:0] eq_104_in0;
 	wire [31:0] eq_104_in1;
@@ -815,19 +815,19 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	wire [0:0] eq_109_out;
 	eq #(.WIDTH(32)) eq_109(.in0(eq_109_in0), .in1(eq_109_in1), .out(eq_109_out));
 
-	wire [31:0] eq_110_in0;
-	wire [31:0] eq_110_in1;
-	wire [0:0] eq_110_out;
-	eq #(.WIDTH(32)) eq_110(.in0(eq_110_in0), .in1(eq_110_in1), .out(eq_110_out));
+	wire [0:0] notOp_110_in0;
+	wire [0:0] notOp_110_out;
+	notOp #(.WIDTH(1)) notOp_110(.in(notOp_110_in0), .out(notOp_110_out));
 
-	wire [0:0] notOp_111_in0;
-	wire [0:0] notOp_111_out;
-	notOp #(.WIDTH(1)) notOp_111(.in(notOp_111_in0), .out(notOp_111_out));
+	wire [0:0] andOp_111_in0;
+	wire [0:0] andOp_111_in1;
+	wire [0:0] andOp_111_out;
+	andOp #(.WIDTH(1)) andOp_111(.in0(andOp_111_in0), .in1(andOp_111_in1), .out(andOp_111_out));
 
-	wire [0:0] andOp_112_in0;
-	wire [0:0] andOp_112_in1;
-	wire [0:0] andOp_112_out;
-	andOp #(.WIDTH(1)) andOp_112(.in0(andOp_112_in0), .in1(andOp_112_in1), .out(andOp_112_out));
+	wire [31:0] eq_112_in0;
+	wire [31:0] eq_112_in1;
+	wire [0:0] eq_112_out;
+	eq #(.WIDTH(32)) eq_112(.in0(eq_112_in0), .in1(eq_112_in1), .out(eq_112_out));
 
 	wire [31:0] eq_113_in0;
 	wire [31:0] eq_113_in1;
@@ -848,19 +848,19 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	wire [0:0] eq_116_out;
 	eq #(.WIDTH(32)) eq_116(.in0(eq_116_in0), .in1(eq_116_in1), .out(eq_116_out));
 
-	wire [0:0] notOp_117_in0;
-	wire [0:0] notOp_117_out;
-	notOp #(.WIDTH(1)) notOp_117(.in(notOp_117_in0), .out(notOp_117_out));
+	wire [31:0] eq_117_in0;
+	wire [31:0] eq_117_in1;
+	wire [0:0] eq_117_out;
+	eq #(.WIDTH(32)) eq_117(.in0(eq_117_in0), .in1(eq_117_in1), .out(eq_117_out));
 
-	wire [0:0] andOp_118_in0;
-	wire [0:0] andOp_118_in1;
-	wire [0:0] andOp_118_out;
-	andOp #(.WIDTH(1)) andOp_118(.in0(andOp_118_in0), .in1(andOp_118_in1), .out(andOp_118_out));
+	wire [0:0] notOp_118_in0;
+	wire [0:0] notOp_118_out;
+	notOp #(.WIDTH(1)) notOp_118(.in(notOp_118_in0), .out(notOp_118_out));
 
-	wire [31:0] eq_119_in0;
-	wire [31:0] eq_119_in1;
-	wire [0:0] eq_119_out;
-	eq #(.WIDTH(32)) eq_119(.in0(eq_119_in0), .in1(eq_119_in1), .out(eq_119_out));
+	wire [0:0] andOp_119_in0;
+	wire [0:0] andOp_119_in1;
+	wire [0:0] andOp_119_out;
+	andOp #(.WIDTH(1)) andOp_119(.in0(andOp_119_in0), .in1(andOp_119_in1), .out(andOp_119_out));
 
 	wire [31:0] eq_120_in0;
 	wire [31:0] eq_120_in1;
@@ -906,24 +906,24 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	wire [0:0] andOp_128_out;
 	andOp #(.WIDTH(1)) andOp_128(.in0(andOp_128_in0), .in1(andOp_128_in1), .out(andOp_128_out));
 
-	wire [0:0] andOp_129_in0;
-	wire [0:0] andOp_129_in1;
-	wire [0:0] andOp_129_out;
-	andOp #(.WIDTH(1)) andOp_129(.in0(andOp_129_in0), .in1(andOp_129_in1), .out(andOp_129_out));
+	reg [31:0] tmp_output_129_in_data;
+	wire [31:0] tmp_output_129_out_data;
+	hls_wire #(.WIDTH(32)) tmp_output_129(.in_data(tmp_output_129_in_data), .out_data(tmp_output_129_out_data));
 
-	reg [31:0] tmp_output_130_in_data;
-	wire [31:0] tmp_output_130_out_data;
-	hls_wire #(.WIDTH(32)) tmp_output_130(.in_data(tmp_output_130_in_data), .out_data(tmp_output_130_out_data));
+	wire [31:0] eq_130_in0;
+	wire [31:0] eq_130_in1;
+	wire [0:0] eq_130_out;
+	eq #(.WIDTH(32)) eq_130(.in0(eq_130_in0), .in1(eq_130_in1), .out(eq_130_out));
 
 	wire [31:0] eq_131_in0;
 	wire [31:0] eq_131_in1;
 	wire [0:0] eq_131_out;
 	eq #(.WIDTH(32)) eq_131(.in0(eq_131_in0), .in1(eq_131_in1), .out(eq_131_out));
 
-	wire [0:0] andOp_132_in0;
-	wire [0:0] andOp_132_in1;
-	wire [0:0] andOp_132_out;
-	andOp #(.WIDTH(1)) andOp_132(.in0(andOp_132_in0), .in1(andOp_132_in1), .out(andOp_132_out));
+	wire [31:0] eq_132_in0;
+	wire [31:0] eq_132_in1;
+	wire [0:0] eq_132_out;
+	eq #(.WIDTH(32)) eq_132(.in0(eq_132_in0), .in1(eq_132_in1), .out(eq_132_out));
 
 	wire [0:0] andOp_133_in0;
 	wire [0:0] andOp_133_in1;
@@ -950,59 +950,59 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	wire [0:0] andOp_137_out;
 	andOp #(.WIDTH(1)) andOp_137(.in0(andOp_137_in0), .in1(andOp_137_in1), .out(andOp_137_out));
 
-	wire [31:0] concat_138_in0;
-	wire [31:0] concat_138_in1;
-	wire [63:0] concat_138_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_138(.in0(concat_138_in0), .in1(concat_138_in1), .out(concat_138_out));
+	wire [0:0] andOp_138_in0;
+	wire [0:0] andOp_138_in1;
+	wire [0:0] andOp_138_out;
+	andOp #(.WIDTH(1)) andOp_138(.in0(andOp_138_in0), .in1(andOp_138_in1), .out(andOp_138_out));
 
-	wire [31:0] concat_139_in0;
-	wire [31:0] concat_139_in1;
-	wire [63:0] concat_139_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_139(.in0(concat_139_in0), .in1(concat_139_in1), .out(concat_139_out));
+	wire [0:0] andOp_139_in0;
+	wire [0:0] andOp_139_in1;
+	wire [0:0] andOp_139_out;
+	andOp #(.WIDTH(1)) andOp_139(.in0(andOp_139_in0), .in1(andOp_139_in1), .out(andOp_139_out));
 
-	wire [0:0] andOp_140_in0;
-	wire [0:0] andOp_140_in1;
-	wire [0:0] andOp_140_out;
-	andOp #(.WIDTH(1)) andOp_140(.in0(andOp_140_in0), .in1(andOp_140_in1), .out(andOp_140_out));
+	reg [31:0] tmp_output_140_in_data;
+	wire [31:0] tmp_output_140_out_data;
+	hls_wire #(.WIDTH(32)) tmp_output_140(.in_data(tmp_output_140_in_data), .out_data(tmp_output_140_out_data));
 
-	wire [31:0] concat_141_in0;
-	wire [31:0] concat_141_in1;
-	wire [63:0] concat_141_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_141(.in0(concat_141_in0), .in1(concat_141_in1), .out(concat_141_out));
+	wire [31:0] eq_141_in0;
+	wire [31:0] eq_141_in1;
+	wire [0:0] eq_141_out;
+	eq #(.WIDTH(32)) eq_141(.in0(eq_141_in0), .in1(eq_141_in1), .out(eq_141_out));
 
-	wire [31:0] concat_142_in0;
-	wire [31:0] concat_142_in1;
-	wire [63:0] concat_142_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_142(.in0(concat_142_in0), .in1(concat_142_in1), .out(concat_142_out));
+	wire [0:0] andOp_142_in0;
+	wire [0:0] andOp_142_in1;
+	wire [0:0] andOp_142_out;
+	andOp #(.WIDTH(1)) andOp_142(.in0(andOp_142_in0), .in1(andOp_142_in1), .out(andOp_142_out));
 
 	wire [0:0] andOp_143_in0;
 	wire [0:0] andOp_143_in1;
 	wire [0:0] andOp_143_out;
 	andOp #(.WIDTH(1)) andOp_143(.in0(andOp_143_in0), .in1(andOp_143_in1), .out(andOp_143_out));
 
-	reg [31:0] tmp_output_144_in_data;
-	wire [31:0] tmp_output_144_out_data;
-	hls_wire #(.WIDTH(32)) tmp_output_144(.in_data(tmp_output_144_in_data), .out_data(tmp_output_144_out_data));
+	wire [31:0] concat_144_in0;
+	wire [31:0] concat_144_in1;
+	wire [63:0] concat_144_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_144(.in0(concat_144_in0), .in1(concat_144_in1), .out(concat_144_out));
 
-	wire [31:0] eq_145_in0;
-	wire [31:0] eq_145_in1;
-	wire [0:0] eq_145_out;
-	eq #(.WIDTH(32)) eq_145(.in0(eq_145_in0), .in1(eq_145_in1), .out(eq_145_out));
+	wire [31:0] concat_145_in0;
+	wire [31:0] concat_145_in1;
+	wire [63:0] concat_145_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_145(.in0(concat_145_in0), .in1(concat_145_in1), .out(concat_145_out));
 
-	wire [31:0] eq_146_in0;
-	wire [31:0] eq_146_in1;
-	wire [0:0] eq_146_out;
-	eq #(.WIDTH(32)) eq_146(.in0(eq_146_in0), .in1(eq_146_in1), .out(eq_146_out));
+	wire [0:0] andOp_146_in0;
+	wire [0:0] andOp_146_in1;
+	wire [0:0] andOp_146_out;
+	andOp #(.WIDTH(1)) andOp_146(.in0(andOp_146_in0), .in1(andOp_146_in1), .out(andOp_146_out));
 
-	wire [31:0] eq_147_in0;
-	wire [31:0] eq_147_in1;
-	wire [0:0] eq_147_out;
-	eq #(.WIDTH(32)) eq_147(.in0(eq_147_in0), .in1(eq_147_in1), .out(eq_147_out));
+	wire [31:0] concat_147_in0;
+	wire [31:0] concat_147_in1;
+	wire [63:0] concat_147_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_147(.in0(concat_147_in0), .in1(concat_147_in1), .out(concat_147_out));
 
-	wire [0:0] andOp_148_in0;
-	wire [0:0] andOp_148_in1;
-	wire [0:0] andOp_148_out;
-	andOp #(.WIDTH(1)) andOp_148(.in0(andOp_148_in0), .in1(andOp_148_in1), .out(andOp_148_out));
+	wire [31:0] concat_148_in0;
+	wire [31:0] concat_148_in1;
+	wire [63:0] concat_148_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_148(.in0(concat_148_in0), .in1(concat_148_in1), .out(concat_148_out));
 
 	wire [0:0] andOp_149_in0;
 	wire [0:0] andOp_149_in1;
@@ -1313,36 +1313,36 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 
 	// End Functional Units
 
-	reg [31:0] data_store_0_1;
+	reg [31:0] data_store_0_0;
 	reg [31:0] data_store_0_11;
-	reg [0:0] data_store_0_3;
+	reg [0:0] data_store_0_2;
 	reg [31:0] data_store_0_4;
-	reg [0:0] data_store_0_6;
-	reg [31:0] data_store_0_8;
-	reg [31:0] data_store_0_9;
+	reg [31:0] data_store_0_6;
+	reg [31:0] data_store_0_7;
+	reg [0:0] data_store_0_9;
 	reg [31:0] data_store_1_13;
-	reg [31:0] data_store_1_14;
+	reg [31:0] data_store_1_16;
 	reg [31:0] data_store_1_17;
-	reg [0:0] data_store_1_19;
-	reg [31:0] data_store_1_22;
+	reg [31:0] data_store_1_20;
+	reg [0:0] data_store_1_22;
 	reg [31:0] data_store_1_24;
 	reg [31:0] data_store_2_26;
 	reg [31:0] data_store_2_28;
 	reg [31:0] data_store_2_30;
-	reg [0:0] data_store_2_32;
-	reg [31:0] data_store_2_34;
+	reg [31:0] data_store_2_32;
+	reg [0:0] data_store_2_34;
 	reg [31:0] data_store_2_36;
 	reg [31:0] data_store_3_38;
 	reg [31:0] data_store_3_40;
 	reg [31:0] data_store_3_42;
-	reg [0:0] data_store_3_44;
-	reg [31:0] data_store_3_46;
+	reg [31:0] data_store_3_44;
+	reg [0:0] data_store_3_46;
 	reg [31:0] data_store_3_48;
 	reg [31:0] data_store_4_50;
 	reg [31:0] data_store_4_52;
 	reg [31:0] data_store_4_54;
-	reg [0:0] data_store_4_56;
-	reg [31:0] data_store_4_58;
+	reg [31:0] data_store_4_56;
+	reg [0:0] data_store_4_58;
 	reg [31:0] data_store_4_60;
 	reg [31:0] global_state;
 	reg [31:0] state_0_entry_BB_reg;
@@ -1366,56 +1366,56 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	reg [31:0] state_4_last_BB_reg;
 	reg [31:0] state_4_last_state;
 
-	// controller for add_add18.add_add18_in0
-	// controller for add_add18.add_add18_in1
+	// controller for add_add1.add_add1_in0
+	// controller for add_add1.add_add1_in1
 	// Insensitive connections
-	assign add_add18_in0 = mul_mul17_out;
-	assign add_add18_in1 = data_in_1_21_out_data;
+	assign add_add1_in0 = phi_phi5_out;
+	assign add_add1_in1 = 32'd1;
+	// controller for add_add12.add_add12_in0
+	// controller for add_add12.add_add12_in1
+	// Insensitive connections
+	assign add_add12_in0 = data_in_1_21_out_data;
+	assign add_add12_in1 = 32'd1;
+	// controller for add_add15.add_add15_in0
+	// controller for add_add15.add_add15_in1
+	// Insensitive connections
+	assign add_add15_in0 = mul_mul14_out;
+	assign add_add15_in1 = data_in_1_19_out_data;
+	// controller for add_add16.add_add16_in0
+	// controller for add_add16.add_add16_in1
+	// Insensitive connections
+	assign add_add16_in0 = data_in_1_21_out_data;
+	assign add_add16_in1 = 32'd12;
 	// controller for add_add2.add_add2_in0
 	// controller for add_add2.add_add2_in1
 	// Insensitive connections
-	assign add_add2_in0 = phi_phi4_out;
-	assign add_add2_in1 = 32'd1;
-	// controller for add_add20.add_add20_in0
-	// controller for add_add20.add_add20_in1
+	assign add_add2_in0 = phi_phi5_out;
+	assign add_add2_in1 = tmp_output_129_out_data;
+	// controller for add_add3.add_add3_in0
+	// controller for add_add3.add_add3_in1
 	// Insensitive connections
-	assign add_add20_in0 = data_in_1_23_out_data;
-	assign add_add20_in1 = 32'd12;
-	// controller for add_add21.add_add21_in0
-	// controller for add_add21.add_add21_in1
+	assign add_add3_in0 = phi_phi5_out;
+	assign add_add3_in1 = 32'd9;
+	// controller for andOp_111.andOp_111_in0
+	// controller for andOp_111.andOp_111_in1
 	// Insensitive connections
-	assign add_add21_in0 = data_in_1_23_out_data;
-	assign add_add21_in1 = 32'd1;
-	// controller for add_add6.add_add6_in0
-	// controller for add_add6.add_add6_in1
-	// Insensitive connections
-	assign add_add6_in0 = phi_phi4_out;
-	assign add_add6_in1 = tmp_output_144_out_data;
-	// controller for add_add7.add_add7_in0
-	// controller for add_add7.add_add7_in1
-	// Insensitive connections
-	assign add_add7_in0 = phi_phi4_out;
-	assign add_add7_in1 = 32'd9;
-	// controller for andOp_112.andOp_112_in0
-	// controller for andOp_112.andOp_112_in1
-	// Insensitive connections
-	assign andOp_112_in0 = notOp_111_out;
-	assign andOp_112_in1 = andOp_62_out;
+	assign andOp_111_in0 = notOp_110_out;
+	assign andOp_111_in1 = andOp_64_out;
 	// controller for andOp_115.andOp_115_in0
 	// controller for andOp_115.andOp_115_in1
 	// Insensitive connections
 	assign andOp_115_in0 = notOp_114_out;
-	assign andOp_115_in1 = andOp_64_out;
-	// controller for andOp_118.andOp_118_in0
-	// controller for andOp_118.andOp_118_in1
+	assign andOp_115_in1 = andOp_62_out;
+	// controller for andOp_119.andOp_119_in0
+	// controller for andOp_119.andOp_119_in1
 	// Insensitive connections
-	assign andOp_118_in0 = notOp_117_out;
-	assign andOp_118_in1 = andOp_68_out;
+	assign andOp_119_in0 = notOp_118_out;
+	assign andOp_119_in1 = andOp_68_out;
 	// controller for andOp_124.andOp_124_in0
 	// controller for andOp_124.andOp_124_in1
 	// Insensitive connections
 	assign andOp_124_in0 = notOp_123_out;
-	assign andOp_124_in1 = andOp_73_out;
+	assign andOp_124_in1 = andOp_78_out;
 	// controller for andOp_126.andOp_126_in0
 	// controller for andOp_126.andOp_126_in1
 	// Insensitive connections
@@ -1429,28 +1429,18 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for andOp_128.andOp_128_in0
 	// controller for andOp_128.andOp_128_in1
 	// Insensitive connections
-	assign andOp_128_in0 = bb_3_active_in_state_1_out_data;
-	assign andOp_128_in1 = state_1_is_active;
-	// controller for andOp_129.andOp_129_in0
-	// controller for andOp_129.andOp_129_in1
-	// Insensitive connections
-	assign andOp_129_in0 = bb_3_active_in_state_1_out_data;
-	assign andOp_129_in1 = state_1_is_active;
-	// controller for andOp_132.andOp_132_in0
-	// controller for andOp_132.andOp_132_in1
-	// Insensitive connections
-	assign andOp_132_in0 = bb_3_active_in_state_1_out_data;
-	assign andOp_132_in1 = state_1_is_active;
+	assign andOp_128_in0 = bb_4_active_in_state_0_out_data;
+	assign andOp_128_in1 = state_0_is_active;
 	// controller for andOp_133.andOp_133_in0
 	// controller for andOp_133.andOp_133_in1
 	// Insensitive connections
-	assign andOp_133_in0 = bb_4_active_in_state_1_out_data;
-	assign andOp_133_in1 = state_1_is_active;
+	assign andOp_133_in0 = bb_4_active_in_state_0_out_data;
+	assign andOp_133_in1 = state_0_is_active;
 	// controller for andOp_134.andOp_134_in0
 	// controller for andOp_134.andOp_134_in1
 	// Insensitive connections
-	assign andOp_134_in0 = bb_4_active_in_state_1_out_data;
-	assign andOp_134_in1 = state_1_is_active;
+	assign andOp_134_in0 = bb_4_active_in_state_0_out_data;
+	assign andOp_134_in1 = state_0_is_active;
 	// controller for andOp_135.andOp_135_in0
 	// controller for andOp_135.andOp_135_in1
 	// Insensitive connections
@@ -1459,28 +1449,38 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for andOp_136.andOp_136_in0
 	// controller for andOp_136.andOp_136_in1
 	// Insensitive connections
-	assign andOp_136_in0 = bb_4_active_in_state_0_out_data;
-	assign andOp_136_in1 = state_0_is_active;
+	assign andOp_136_in0 = bb_4_active_in_state_1_out_data;
+	assign andOp_136_in1 = state_1_is_active;
 	// controller for andOp_137.andOp_137_in0
 	// controller for andOp_137.andOp_137_in1
 	// Insensitive connections
-	assign andOp_137_in0 = bb_4_active_in_state_0_out_data;
-	assign andOp_137_in1 = state_0_is_active;
-	// controller for andOp_140.andOp_140_in0
-	// controller for andOp_140.andOp_140_in1
+	assign andOp_137_in0 = bb_3_active_in_state_1_out_data;
+	assign andOp_137_in1 = state_1_is_active;
+	// controller for andOp_138.andOp_138_in0
+	// controller for andOp_138.andOp_138_in1
 	// Insensitive connections
-	assign andOp_140_in0 = bb_4_active_in_state_0_out_data;
-	assign andOp_140_in1 = state_0_is_active;
+	assign andOp_138_in0 = bb_3_active_in_state_1_out_data;
+	assign andOp_138_in1 = state_1_is_active;
+	// controller for andOp_139.andOp_139_in0
+	// controller for andOp_139.andOp_139_in1
+	// Insensitive connections
+	assign andOp_139_in0 = bb_3_active_in_state_1_out_data;
+	assign andOp_139_in1 = state_1_is_active;
+	// controller for andOp_142.andOp_142_in0
+	// controller for andOp_142.andOp_142_in1
+	// Insensitive connections
+	assign andOp_142_in0 = bb_4_active_in_state_1_out_data;
+	assign andOp_142_in1 = state_1_is_active;
 	// controller for andOp_143.andOp_143_in0
 	// controller for andOp_143.andOp_143_in1
 	// Insensitive connections
 	assign andOp_143_in0 = bb_4_active_in_state_0_out_data;
 	assign andOp_143_in1 = state_0_is_active;
-	// controller for andOp_148.andOp_148_in0
-	// controller for andOp_148.andOp_148_in1
+	// controller for andOp_146.andOp_146_in0
+	// controller for andOp_146.andOp_146_in1
 	// Insensitive connections
-	assign andOp_148_in0 = bb_4_active_in_state_0_out_data;
-	assign andOp_148_in1 = state_0_is_active;
+	assign andOp_146_in0 = bb_4_active_in_state_0_out_data;
+	assign andOp_146_in1 = state_0_is_active;
 	// controller for andOp_149.andOp_149_in0
 	// controller for andOp_149.andOp_149_in1
 	// Insensitive connections
@@ -1494,7 +1494,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for andOp_153.andOp_153_in0
 	// controller for andOp_153.andOp_153_in1
 	// Insensitive connections
-	assign andOp_153_in0 = bb_4_active_in_state_1_out_data;
+	assign andOp_153_in0 = bb_3_active_in_state_1_out_data;
 	assign andOp_153_in1 = state_1_is_active;
 	// controller for andOp_154.andOp_154_in0
 	// controller for andOp_154.andOp_154_in1
@@ -1504,7 +1504,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for andOp_155.andOp_155_in0
 	// controller for andOp_155.andOp_155_in1
 	// Insensitive connections
-	assign andOp_155_in0 = bb_3_active_in_state_1_out_data;
+	assign andOp_155_in0 = bb_4_active_in_state_1_out_data;
 	assign andOp_155_in1 = state_1_is_active;
 	// controller for andOp_156.andOp_156_in0
 	// controller for andOp_156.andOp_156_in1
@@ -1609,12 +1609,12 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for andOp_188.andOp_188_in0
 	// controller for andOp_188.andOp_188_in1
 	// Insensitive connections
-	assign andOp_188_in0 = bb_4_active_in_state_1_out_data;
+	assign andOp_188_in0 = bb_3_active_in_state_1_out_data;
 	assign andOp_188_in1 = state_1_is_active;
 	// controller for andOp_189.andOp_189_in0
 	// controller for andOp_189.andOp_189_in1
 	// Insensitive connections
-	assign andOp_189_in0 = bb_3_active_in_state_1_out_data;
+	assign andOp_189_in0 = bb_4_active_in_state_1_out_data;
 	assign andOp_189_in1 = state_1_is_active;
 	// controller for andOp_190.andOp_190_in0
 	// controller for andOp_190.andOp_190_in1
@@ -1639,12 +1639,12 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for andOp_200.andOp_200_in0
 	// controller for andOp_200.andOp_200_in1
 	// Insensitive connections
-	assign andOp_200_in0 = bb_4_active_in_state_1_out_data;
+	assign andOp_200_in0 = bb_3_active_in_state_1_out_data;
 	assign andOp_200_in1 = state_1_is_active;
 	// controller for andOp_201.andOp_201_in0
 	// controller for andOp_201.andOp_201_in1
 	// Insensitive connections
-	assign andOp_201_in0 = bb_3_active_in_state_1_out_data;
+	assign andOp_201_in0 = bb_4_active_in_state_1_out_data;
 	assign andOp_201_in1 = state_1_is_active;
 	// controller for andOp_202.andOp_202_in0
 	// controller for andOp_202.andOp_202_in1
@@ -1689,12 +1689,12 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for andOp_62.andOp_62_in0
 	// controller for andOp_62.andOp_62_in1
 	// Insensitive connections
-	assign andOp_62_in0 = bb_0_active_in_state_0_out_data;
+	assign andOp_62_in0 = bb_1_active_in_state_0_out_data;
 	assign andOp_62_in1 = state_0_is_active;
 	// controller for andOp_64.andOp_64_in0
 	// controller for andOp_64.andOp_64_in1
 	// Insensitive connections
-	assign andOp_64_in0 = bb_1_active_in_state_0_out_data;
+	assign andOp_64_in0 = bb_0_active_in_state_0_out_data;
 	assign andOp_64_in1 = state_0_is_active;
 	// controller for andOp_66.andOp_66_in0
 	// controller for andOp_66.andOp_66_in1
@@ -1705,7 +1705,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for andOp_68.andOp_68_in1
 	// Insensitive connections
 	assign andOp_68_in0 = andOp_66_out;
-	assign andOp_68_in1 = data_in_1_16_out_data;
+	assign andOp_68_in1 = data_in_1_15_out_data;
 	// controller for andOp_70.andOp_70_in0
 	// controller for andOp_70.andOp_70_in1
 	// Insensitive connections
@@ -1714,13 +1714,13 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for andOp_71.andOp_71_in0
 	// controller for andOp_71.andOp_71_in1
 	// Insensitive connections
-	assign andOp_71_in0 = bb_3_active_in_state_4_out_data;
-	assign andOp_71_in1 = state_4_is_active;
+	assign andOp_71_in0 = bb_4_active_in_state_1_out_data;
+	assign andOp_71_in1 = state_1_is_active;
 	// controller for andOp_73.andOp_73_in0
 	// controller for andOp_73.andOp_73_in1
 	// Insensitive connections
 	assign andOp_73_in0 = andOp_71_out;
-	assign andOp_73_in1 = data_in_4_57_out_data;
+	assign andOp_73_in1 = data_in_1_15_out_data;
 	// controller for andOp_75.andOp_75_in0
 	// controller for andOp_75.andOp_75_in1
 	// Insensitive connections
@@ -1729,13 +1729,13 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for andOp_76.andOp_76_in0
 	// controller for andOp_76.andOp_76_in1
 	// Insensitive connections
-	assign andOp_76_in0 = bb_4_active_in_state_1_out_data;
-	assign andOp_76_in1 = state_1_is_active;
+	assign andOp_76_in0 = bb_3_active_in_state_4_out_data;
+	assign andOp_76_in1 = state_4_is_active;
 	// controller for andOp_78.andOp_78_in0
 	// controller for andOp_78.andOp_78_in1
 	// Insensitive connections
 	assign andOp_78_in0 = andOp_76_out;
-	assign andOp_78_in1 = data_in_1_16_out_data;
+	assign andOp_78_in1 = data_in_4_59_out_data;
 	// controller for andOp_80.andOp_80_in0
 	// controller for andOp_80.andOp_80_in1
 	// Insensitive connections
@@ -1750,7 +1750,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for andOp_83.andOp_83_in1
 	// Insensitive connections
 	assign andOp_83_in0 = andOp_81_out;
-	assign andOp_83_in1 = data_in_4_57_out_data;
+	assign andOp_83_in1 = data_in_4_59_out_data;
 	// controller for andOp_85.andOp_85_in0
 	// controller for andOp_85.andOp_85_in1
 	// Insensitive connections
@@ -1765,7 +1765,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for andOp_88.andOp_88_in1
 	// Insensitive connections
 	assign andOp_88_in0 = andOp_86_out;
-	assign andOp_88_in1 = data_in_4_57_out_data;
+	assign andOp_88_in1 = data_in_4_59_out_data;
 	// controller for andOp_90.andOp_90_in0
 	// controller for andOp_90.andOp_90_in1
 	// Insensitive connections
@@ -1780,7 +1780,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for andOp_93.andOp_93_in1
 	// Insensitive connections
 	assign andOp_93_in0 = andOp_91_out;
-	assign andOp_93_in1 = data_in_4_57_out_data;
+	assign andOp_93_in1 = data_in_4_59_out_data;
 	// controller for andOp_95.andOp_95_in0
 	// controller for andOp_95.andOp_95_in1
 	// Insensitive connections
@@ -1789,14 +1789,14 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for bb_0_active_in_state_0.bb_0_active_in_state_0_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_0_active_in_state_0_in_data = eq_96_out;
+			bb_0_active_in_state_0_in_data = eq_98_out;
 		end else begin
 			bb_0_active_in_state_0_in_data = 0;
 		end
 	end
 	// controller for bb_0_predecessor_in_state_0.bb_0_predecessor_in_state_0_in_data
 	always @(*) begin
-		if (eq_109_out) begin 
+		if (eq_112_out) begin 
 			bb_0_predecessor_in_state_0_in_data = state_0_last_BB_reg;
 		end else begin
 			bb_0_predecessor_in_state_0_in_data = 0;
@@ -1805,16 +1805,16 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for bb_1_active_in_state_0.bb_1_active_in_state_0_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_1_active_in_state_0_in_data = orOp_98_out;
+			bb_1_active_in_state_0_in_data = orOp_97_out;
 		end else begin
 			bb_1_active_in_state_0_in_data = 0;
 		end
 	end
 	// controller for bb_1_predecessor_in_state_0.bb_1_predecessor_in_state_0_in_data
 	always @(*) begin
-		if (andOp_112_out) begin 
+		if (andOp_111_out) begin 
 			bb_1_predecessor_in_state_0_in_data = 32'd0;
-		end else if (eq_110_out) begin 
+		end else if (eq_109_out) begin 
 			bb_1_predecessor_in_state_0_in_data = state_0_last_BB_reg;
 		end else begin
 			bb_1_predecessor_in_state_0_in_data = 0;
@@ -1841,7 +1841,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for bb_3_active_in_state_1.bb_3_active_in_state_1_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_3_active_in_state_1_in_data = orOp_102_out;
+			bb_3_active_in_state_1_in_data = orOp_103_out;
 		end else begin
 			bb_3_active_in_state_1_in_data = 0;
 		end
@@ -1872,9 +1872,9 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	end
 	// controller for bb_3_predecessor_in_state_1.bb_3_predecessor_in_state_1_in_data
 	always @(*) begin
-		if (andOp_118_out) begin 
+		if (andOp_119_out) begin 
 			bb_3_predecessor_in_state_1_in_data = 32'd4;
-		end else if (eq_116_out) begin 
+		end else if (eq_117_out) begin 
 			bb_3_predecessor_in_state_1_in_data = state_1_last_BB_reg;
 		end else begin
 			bb_3_predecessor_in_state_1_in_data = 0;
@@ -1915,7 +1915,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for bb_4_active_in_state_1.bb_4_active_in_state_1_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_4_active_in_state_1_in_data = eq_103_out;
+			bb_4_active_in_state_1_in_data = eq_101_out;
 		end else begin
 			bb_4_active_in_state_1_in_data = 0;
 		end
@@ -1932,7 +1932,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	end
 	// controller for bb_4_predecessor_in_state_1.bb_4_predecessor_in_state_1_in_data
 	always @(*) begin
-		if (eq_119_out) begin 
+		if (eq_116_out) begin 
 			bb_4_predecessor_in_state_1_in_data = state_1_last_BB_reg;
 		end else begin
 			bb_4_predecessor_in_state_1_in_data = 0;
@@ -1940,9 +1940,9 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	end
 	// controller for br_0_happened_in_state_0.br_0_happened_in_state_0_in_data
 	always @(*) begin
-		if (andOp_62_out) begin 
+		if (andOp_64_out) begin 
 			br_0_happened_in_state_0_in_data = 1'd1;
-		end else if (notOp_63_out) begin 
+		end else if (notOp_65_out) begin 
 			br_0_happened_in_state_0_in_data = 1'd0;
 		end else begin
 			br_0_happened_in_state_0_in_data = 0;
@@ -1950,9 +1950,9 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	end
 	// controller for br_1_happened_in_state_0.br_1_happened_in_state_0_in_data
 	always @(*) begin
-		if (andOp_64_out) begin 
+		if (andOp_62_out) begin 
 			br_1_happened_in_state_0_in_data = 1'd1;
-		end else if (notOp_65_out) begin 
+		end else if (notOp_63_out) begin 
 			br_1_happened_in_state_0_in_data = 1'd0;
 		end else begin
 			br_1_happened_in_state_0_in_data = 0;
@@ -1960,9 +1960,9 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	end
 	// controller for br_3_happened_in_state_1.br_3_happened_in_state_1_in_data
 	always @(*) begin
-		if (andOp_71_out) begin 
+		if (andOp_76_out) begin 
 			br_3_happened_in_state_1_in_data = 1'd1;
-		end else if (notOp_72_out) begin 
+		end else if (notOp_77_out) begin 
 			br_3_happened_in_state_1_in_data = 1'd0;
 		end else begin
 			br_3_happened_in_state_1_in_data = 0;
@@ -2010,54 +2010,54 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	end
 	// controller for br_4_happened_in_state_1.br_4_happened_in_state_1_in_data
 	always @(*) begin
-		if (andOp_76_out) begin 
+		if (andOp_71_out) begin 
 			br_4_happened_in_state_1_in_data = 1'd1;
-		end else if (notOp_77_out) begin 
+		end else if (notOp_72_out) begin 
 			br_4_happened_in_state_1_in_data = 1'd0;
 		end else begin
 			br_4_happened_in_state_1_in_data = 0;
 		end
 	end
-	// controller for concat_138.concat_138_in0
-	// controller for concat_138.concat_138_in1
+	// controller for concat_144.concat_144_in0
+	// controller for concat_144.concat_144_in1
 	// Insensitive connections
-	assign concat_138_in0 = data_in_0_2_out_data;
-	assign concat_138_in1 = 32'd0;
-	// controller for concat_139.concat_139_in0
-	// controller for concat_139.concat_139_in1
+	assign concat_144_in0 = data_in_0_5_out_data;
+	assign concat_144_in1 = 32'd0;
+	// controller for concat_145.concat_145_in0
+	// controller for concat_145.concat_145_in1
 	// Insensitive connections
-	assign concat_139_in0 = 32'd4;
-	assign concat_139_in1 = 32'd1;
-	// controller for concat_141.concat_141_in0
-	// controller for concat_141.concat_141_in1
+	assign concat_145_in0 = 32'd4;
+	assign concat_145_in1 = 32'd1;
+	// controller for concat_147.concat_147_in0
+	// controller for concat_147.concat_147_in1
 	// Insensitive connections
-	assign concat_141_in0 = data_in_0_0_out_data;
-	assign concat_141_in1 = 32'd0;
-	// controller for concat_142.concat_142_in0
-	// controller for concat_142.concat_142_in1
+	assign concat_147_in0 = data_in_0_3_out_data;
+	assign concat_147_in1 = 32'd0;
+	// controller for concat_148.concat_148_in0
+	// controller for concat_148.concat_148_in1
 	// Insensitive connections
-	assign concat_142_in0 = 32'd4;
-	assign concat_142_in1 = 32'd1;
+	assign concat_148_in0 = 32'd4;
+	assign concat_148_in1 = 32'd1;
 	// controller for concat_150.concat_150_in0
 	// controller for concat_150.concat_150_in1
 	// Insensitive connections
-	assign concat_150_in0 = data_in_0_5_out_data;
+	assign concat_150_in0 = data_in_0_1_out_data;
 	assign concat_150_in1 = 32'd0;
 	// controller for concat_151.concat_151_in0
 	// controller for concat_151.concat_151_in1
 	// Insensitive connections
 	assign concat_151_in0 = 32'd3;
 	assign concat_151_in1 = 32'd0;
-	// controller for data_in_0_0.data_in_0_0_in_data
+	// controller for data_in_0_1.data_in_0_1_in_data
 	always @(*) begin
 		if (eq_178_out) begin 
-			data_in_0_0_in_data = 32'd0;
+			data_in_0_1_in_data = data_store_0_0;
 		end else if (eq_179_out) begin 
-			data_in_0_0_in_data = data_store_1_13;
+			data_in_0_1_in_data = data_store_1_13;
 		end else if (eq_180_out) begin 
-			data_in_0_0_in_data = data_store_4_50;
+			data_in_0_1_in_data = data_store_4_50;
 		end else begin
-			data_in_0_0_in_data = 0;
+			data_in_0_1_in_data = 0;
 		end
 	end
 	// controller for data_in_0_10.data_in_0_10_in_data
@@ -2084,16 +2084,16 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 			data_in_0_12_in_data = 0;
 		end
 	end
-	// controller for data_in_0_2.data_in_0_2_in_data
+	// controller for data_in_0_3.data_in_0_3_in_data
 	always @(*) begin
 		if (eq_178_out) begin 
-			data_in_0_2_in_data = data_store_0_1;
+			data_in_0_3_in_data = 32'd0;
 		end else if (eq_179_out) begin 
-			data_in_0_2_in_data = data_store_1_14;
+			data_in_0_3_in_data = data_store_1_16;
 		end else if (eq_180_out) begin 
-			data_in_0_2_in_data = data_store_4_52;
+			data_in_0_3_in_data = data_store_4_52;
 		end else begin
-			data_in_0_2_in_data = 0;
+			data_in_0_3_in_data = 0;
 		end
 	end
 	// controller for data_in_0_5.data_in_0_5_in_data
@@ -2108,36 +2108,36 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 			data_in_0_5_in_data = 0;
 		end
 	end
-	// controller for data_in_0_7.data_in_0_7_in_data
+	// controller for data_in_0_8.data_in_0_8_in_data
 	always @(*) begin
 		if (eq_178_out) begin 
-			data_in_0_7_in_data = data_store_0_6;
+			data_in_0_8_in_data = data_store_0_7;
 		end else if (eq_179_out) begin 
-			data_in_0_7_in_data = data_store_1_19;
+			data_in_0_8_in_data = data_store_1_20;
 		end else if (eq_180_out) begin 
-			data_in_0_7_in_data = data_store_4_56;
+			data_in_0_8_in_data = data_store_4_56;
 		end else begin
-			data_in_0_7_in_data = 0;
+			data_in_0_8_in_data = 0;
+		end
+	end
+	// controller for data_in_1_14.data_in_1_14_in_data
+	always @(*) begin
+		if (eq_186_out) begin 
+			data_in_1_14_in_data = data_store_0_0;
+		end else if (eq_187_out) begin 
+			data_in_1_14_in_data = data_store_1_13;
+		end else begin
+			data_in_1_14_in_data = 0;
 		end
 	end
 	// controller for data_in_1_15.data_in_1_15_in_data
 	always @(*) begin
 		if (eq_186_out) begin 
-			data_in_1_15_in_data = data_store_0_1;
+			data_in_1_15_in_data = data_store_0_2;
 		end else if (eq_187_out) begin 
-			data_in_1_15_in_data = data_store_1_14;
+			data_in_1_15_in_data = 1'd0;
 		end else begin
 			data_in_1_15_in_data = 0;
-		end
-	end
-	// controller for data_in_1_16.data_in_1_16_in_data
-	always @(*) begin
-		if (eq_186_out) begin 
-			data_in_1_16_in_data = data_store_0_3;
-		end else if (eq_187_out) begin 
-			data_in_1_16_in_data = 1'd0;
-		end else begin
-			data_in_1_16_in_data = 0;
 		end
 	end
 	// controller for data_in_1_18.data_in_1_18_in_data
@@ -2150,22 +2150,22 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 			data_in_1_18_in_data = 0;
 		end
 	end
-	// controller for data_in_1_20.data_in_1_20_in_data
+	// controller for data_in_1_19.data_in_1_19_in_data
 	always @(*) begin
 		if (eq_186_out) begin 
-			data_in_1_20_in_data = data_store_0_6;
+			data_in_1_19_in_data = data_store_0_6;
 		end else if (eq_187_out) begin 
-			data_in_1_20_in_data = data_store_1_19;
+			data_in_1_19_in_data = 32'd0;
 		end else begin
-			data_in_1_20_in_data = 0;
+			data_in_1_19_in_data = 0;
 		end
 	end
 	// controller for data_in_1_21.data_in_1_21_in_data
 	always @(*) begin
 		if (eq_186_out) begin 
-			data_in_1_21_in_data = data_store_0_8;
+			data_in_1_21_in_data = data_store_0_7;
 		end else if (eq_187_out) begin 
-			data_in_1_21_in_data = 32'd0;
+			data_in_1_21_in_data = data_store_1_20;
 		end else begin
 			data_in_1_21_in_data = 0;
 		end
@@ -2203,7 +2203,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for data_in_2_29.data_in_2_29_in_data
 	always @(*) begin
 		if (eq_191_out) begin 
-			data_in_2_29_in_data = data_store_1_14;
+			data_in_2_29_in_data = data_store_1_16;
 		end else if (eq_192_out) begin 
 			data_in_2_29_in_data = data_store_2_28;
 		end else begin
@@ -2223,7 +2223,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for data_in_2_33.data_in_2_33_in_data
 	always @(*) begin
 		if (eq_191_out) begin 
-			data_in_2_33_in_data = data_store_1_19;
+			data_in_2_33_in_data = data_store_1_20;
 		end else if (eq_192_out) begin 
 			data_in_2_33_in_data = data_store_2_32;
 		end else begin
@@ -2373,13 +2373,13 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for eq_101.eq_101_in0
 	// controller for eq_101.eq_101_in1
 	// Insensitive connections
-	assign eq_101_in0 = 32'd3;
+	assign eq_101_in0 = 32'd4;
 	assign eq_101_in1 = state_1_entry_BB_reg;
-	// controller for eq_103.eq_103_in0
-	// controller for eq_103.eq_103_in1
+	// controller for eq_102.eq_102_in0
+	// controller for eq_102.eq_102_in1
 	// Insensitive connections
-	assign eq_103_in0 = 32'd4;
-	assign eq_103_in1 = state_1_entry_BB_reg;
+	assign eq_102_in0 = 32'd3;
+	assign eq_102_in1 = state_1_entry_BB_reg;
 	// controller for eq_104.eq_104_in0
 	// controller for eq_104.eq_104_in1
 	// Insensitive connections
@@ -2403,13 +2403,13 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for eq_109.eq_109_in0
 	// controller for eq_109.eq_109_in1
 	// Insensitive connections
-	assign eq_109_in0 = 32'd0;
+	assign eq_109_in0 = 32'd1;
 	assign eq_109_in1 = state_0_entry_BB_reg;
-	// controller for eq_110.eq_110_in0
-	// controller for eq_110.eq_110_in1
+	// controller for eq_112.eq_112_in0
+	// controller for eq_112.eq_112_in1
 	// Insensitive connections
-	assign eq_110_in0 = 32'd1;
-	assign eq_110_in1 = state_0_entry_BB_reg;
+	assign eq_112_in0 = 32'd0;
+	assign eq_112_in1 = state_0_entry_BB_reg;
 	// controller for eq_113.eq_113_in0
 	// controller for eq_113.eq_113_in1
 	// Insensitive connections
@@ -2418,13 +2418,13 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for eq_116.eq_116_in0
 	// controller for eq_116.eq_116_in1
 	// Insensitive connections
-	assign eq_116_in0 = 32'd3;
+	assign eq_116_in0 = 32'd4;
 	assign eq_116_in1 = state_1_entry_BB_reg;
-	// controller for eq_119.eq_119_in0
-	// controller for eq_119.eq_119_in1
+	// controller for eq_117.eq_117_in0
+	// controller for eq_117.eq_117_in1
 	// Insensitive connections
-	assign eq_119_in0 = 32'd4;
-	assign eq_119_in1 = state_1_entry_BB_reg;
+	assign eq_117_in0 = 32'd3;
+	assign eq_117_in1 = state_1_entry_BB_reg;
 	// controller for eq_120.eq_120_in0
 	// controller for eq_120.eq_120_in1
 	// Insensitive connections
@@ -2445,26 +2445,26 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// Insensitive connections
 	assign eq_125_in0 = 32'd3;
 	assign eq_125_in1 = state_4_entry_BB_reg;
+	// controller for eq_130.eq_130_in0
+	// controller for eq_130.eq_130_in1
+	// Insensitive connections
+	assign eq_130_in0 = 32'd1;
+	assign eq_130_in1 = state_0_entry_BB_reg;
 	// controller for eq_131.eq_131_in0
 	// controller for eq_131.eq_131_in1
 	// Insensitive connections
-	assign eq_131_in0 = 32'd4;
-	assign eq_131_in1 = state_1_entry_BB_reg;
-	// controller for eq_145.eq_145_in0
-	// controller for eq_145.eq_145_in1
+	assign eq_131_in0 = 32'd0;
+	assign eq_131_in1 = state_0_entry_BB_reg;
+	// controller for eq_132.eq_132_in0
+	// controller for eq_132.eq_132_in1
 	// Insensitive connections
-	assign eq_145_in0 = 32'd0;
-	assign eq_145_in1 = state_0_entry_BB_reg;
-	// controller for eq_146.eq_146_in0
-	// controller for eq_146.eq_146_in1
+	assign eq_132_in0 = 32'd4;
+	assign eq_132_in1 = state_0_entry_BB_reg;
+	// controller for eq_141.eq_141_in0
+	// controller for eq_141.eq_141_in1
 	// Insensitive connections
-	assign eq_146_in0 = 32'd1;
-	assign eq_146_in1 = state_0_entry_BB_reg;
-	// controller for eq_147.eq_147_in0
-	// controller for eq_147.eq_147_in1
-	// Insensitive connections
-	assign eq_147_in0 = 32'd4;
-	assign eq_147_in1 = state_0_entry_BB_reg;
+	assign eq_141_in0 = 32'd4;
+	assign eq_141_in1 = state_1_entry_BB_reg;
 	// controller for eq_178.eq_178_in0
 	// controller for eq_178.eq_178_in1
 	// Insensitive connections
@@ -2528,47 +2528,47 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for eq_96.eq_96_in0
 	// controller for eq_96.eq_96_in1
 	// Insensitive connections
-	assign eq_96_in0 = 32'd0;
+	assign eq_96_in0 = 32'd1;
 	assign eq_96_in1 = state_0_entry_BB_reg;
-	// controller for eq_97.eq_97_in0
-	// controller for eq_97.eq_97_in1
+	// controller for eq_98.eq_98_in0
+	// controller for eq_98.eq_98_in1
 	// Insensitive connections
-	assign eq_97_in0 = 32'd1;
-	assign eq_97_in1 = state_0_entry_BB_reg;
+	assign eq_98_in0 = 32'd0;
+	assign eq_98_in1 = state_0_entry_BB_reg;
 	// controller for eq_99.eq_99_in0
 	// controller for eq_99.eq_99_in1
 	// Insensitive connections
 	assign eq_99_in0 = 32'd4;
 	assign eq_99_in1 = state_0_entry_BB_reg;
-	// controller for icmp_icmp22.icmp_icmp22_in0
-	// controller for icmp_icmp22.icmp_icmp22_in1
+	// controller for icmp_icmp0.icmp_icmp0_in0
+	// controller for icmp_icmp0.icmp_icmp0_in1
 	// Insensitive connections
-	assign icmp_icmp22_in0 = add_add21_out;
-	assign icmp_icmp22_in1 = 32'd3;
-	// controller for icmp_icmp3.icmp_icmp3_in0
-	// controller for icmp_icmp3.icmp_icmp3_in1
+	assign icmp_icmp0_in0 = add_add1_out;
+	assign icmp_icmp0_in1 = 32'd3;
+	// controller for icmp_icmp18.icmp_icmp18_in0
+	// controller for icmp_icmp18.icmp_icmp18_in1
 	// Insensitive connections
-	assign icmp_icmp3_in0 = add_add2_out;
-	assign icmp_icmp3_in1 = 32'd3;
-	// controller for mul_mul10.mul_mul10_in0
-	// controller for mul_mul10.mul_mul10_in1
+	assign icmp_icmp18_in0 = add_add12_out;
+	assign icmp_icmp18_in1 = 32'd3;
+	// controller for mul_mul11.mul_mul11_in0
+	// controller for mul_mul11.mul_mul11_in1
 	// Insensitive connections
-	assign mul_mul10_in0 = phi_phi8_out;
-	assign mul_mul10_in1 = 32'd3;
-	// controller for mul_mul17.mul_mul17_in0
-	// controller for mul_mul17.mul_mul17_in1
+	assign mul_mul11_in0 = phi_phi7_out;
+	assign mul_mul11_in1 = 32'd3;
+	// controller for mul_mul14.mul_mul14_in0
+	// controller for mul_mul14.mul_mul14_in1
 	// Insensitive connections
-	assign mul_mul17_in0 = ram_rdata_2;
-	assign mul_mul17_in1 = ram_rdata_1;
-	// controller for notOp_111.notOp_111_in0
+	assign mul_mul14_in0 = ram_rdata_2;
+	assign mul_mul14_in1 = ram_rdata_1;
+	// controller for notOp_110.notOp_110_in0
 	// Insensitive connections
-	assign notOp_111_in0 = eq_110_out;
+	assign notOp_110_in0 = eq_109_out;
 	// controller for notOp_114.notOp_114_in0
 	// Insensitive connections
 	assign notOp_114_in0 = eq_113_out;
-	// controller for notOp_117.notOp_117_in0
+	// controller for notOp_118.notOp_118_in0
 	// Insensitive connections
-	assign notOp_117_in0 = eq_116_out;
+	assign notOp_118_in0 = eq_117_out;
 	// controller for notOp_123.notOp_123_in0
 	// Insensitive connections
 	assign notOp_123_in0 = eq_122_out;
@@ -2577,7 +2577,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	assign notOp_164_in0 = andOp_70_out;
 	// controller for notOp_166.notOp_166_in0
 	// Insensitive connections
-	assign notOp_166_in0 = andOp_75_out;
+	assign notOp_166_in0 = andOp_80_out;
 	// controller for notOp_168.notOp_168_in0
 	// Insensitive connections
 	assign notOp_168_in0 = andOp_159_out;
@@ -2604,119 +2604,119 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	assign notOp_67_in0 = andOp_66_out;
 	// controller for notOp_69.notOp_69_in0
 	// Insensitive connections
-	assign notOp_69_in0 = data_in_1_16_out_data;
+	assign notOp_69_in0 = data_in_1_15_out_data;
 	// controller for notOp_72.notOp_72_in0
 	// Insensitive connections
 	assign notOp_72_in0 = andOp_71_out;
 	// controller for notOp_74.notOp_74_in0
 	// Insensitive connections
-	assign notOp_74_in0 = data_in_4_57_out_data;
+	assign notOp_74_in0 = data_in_1_15_out_data;
 	// controller for notOp_77.notOp_77_in0
 	// Insensitive connections
 	assign notOp_77_in0 = andOp_76_out;
 	// controller for notOp_79.notOp_79_in0
 	// Insensitive connections
-	assign notOp_79_in0 = data_in_1_16_out_data;
+	assign notOp_79_in0 = data_in_4_59_out_data;
 	// controller for notOp_82.notOp_82_in0
 	// Insensitive connections
 	assign notOp_82_in0 = andOp_81_out;
 	// controller for notOp_84.notOp_84_in0
 	// Insensitive connections
-	assign notOp_84_in0 = data_in_4_57_out_data;
+	assign notOp_84_in0 = data_in_4_59_out_data;
 	// controller for notOp_87.notOp_87_in0
 	// Insensitive connections
 	assign notOp_87_in0 = andOp_86_out;
 	// controller for notOp_89.notOp_89_in0
 	// Insensitive connections
-	assign notOp_89_in0 = data_in_4_57_out_data;
+	assign notOp_89_in0 = data_in_4_59_out_data;
 	// controller for notOp_92.notOp_92_in0
 	// Insensitive connections
 	assign notOp_92_in0 = andOp_91_out;
 	// controller for notOp_94.notOp_94_in0
 	// Insensitive connections
-	assign notOp_94_in0 = data_in_4_57_out_data;
+	assign notOp_94_in0 = data_in_4_59_out_data;
 	// controller for orOp_100.orOp_100_in0
 	// controller for orOp_100.orOp_100_in1
 	// Insensitive connections
 	assign orOp_100_in0 = eq_99_out;
-	assign orOp_100_in1 = andOp_64_out;
-	// controller for orOp_102.orOp_102_in0
-	// controller for orOp_102.orOp_102_in1
+	assign orOp_100_in1 = andOp_62_out;
+	// controller for orOp_103.orOp_103_in0
+	// controller for orOp_103.orOp_103_in1
 	// Insensitive connections
-	assign orOp_102_in0 = eq_101_out;
-	assign orOp_102_in1 = andOp_68_out;
+	assign orOp_103_in0 = eq_102_out;
+	assign orOp_103_in1 = andOp_68_out;
 	// controller for orOp_107.orOp_107_in0
 	// controller for orOp_107.orOp_107_in1
 	// Insensitive connections
 	assign orOp_107_in0 = eq_106_out;
-	assign orOp_107_in1 = andOp_73_out;
-	// controller for orOp_98.orOp_98_in0
-	// controller for orOp_98.orOp_98_in1
+	assign orOp_107_in1 = andOp_78_out;
+	// controller for orOp_97.orOp_97_in0
+	// controller for orOp_97.orOp_97_in1
 	// Insensitive connections
-	assign orOp_98_in0 = eq_97_out;
-	assign orOp_98_in1 = andOp_62_out;
-	// controller for phi_phi4.phi_phi4_in
-	// controller for phi_phi4.phi_phi4_last_block
-	// controller for phi_phi4.phi_phi4_s
-	// Insensitive connections
-	assign phi_phi4_in = concat_138_out;
-	assign phi_phi4_last_block = bb_4_predecessor_in_state_0_out_data;
-	assign phi_phi4_s = concat_139_out;
+	assign orOp_97_in0 = eq_96_out;
+	assign orOp_97_in1 = andOp_64_out;
 	// controller for phi_phi5.phi_phi5_in
 	// controller for phi_phi5.phi_phi5_last_block
 	// controller for phi_phi5.phi_phi5_s
 	// Insensitive connections
-	assign phi_phi5_in = concat_141_out;
+	assign phi_phi5_in = concat_144_out;
 	assign phi_phi5_last_block = bb_4_predecessor_in_state_0_out_data;
-	assign phi_phi5_s = concat_142_out;
-	// controller for phi_phi8.phi_phi8_in
-	// controller for phi_phi8.phi_phi8_last_block
-	// controller for phi_phi8.phi_phi8_s
+	assign phi_phi5_s = concat_145_out;
+	// controller for phi_phi6.phi_phi6_in
+	// controller for phi_phi6.phi_phi6_last_block
+	// controller for phi_phi6.phi_phi6_s
 	// Insensitive connections
-	assign phi_phi8_in = concat_150_out;
-	assign phi_phi8_last_block = bb_1_predecessor_in_state_0_out_data;
-	assign phi_phi8_s = concat_151_out;
+	assign phi_phi6_in = concat_147_out;
+	assign phi_phi6_last_block = bb_4_predecessor_in_state_0_out_data;
+	assign phi_phi6_s = concat_148_out;
+	// controller for phi_phi7.phi_phi7_in
+	// controller for phi_phi7.phi_phi7_last_block
+	// controller for phi_phi7.phi_phi7_s
+	// Insensitive connections
+	assign phi_phi7_in = concat_150_out;
+	assign phi_phi7_last_block = bb_1_predecessor_in_state_0_out_data;
+	assign phi_phi7_s = concat_151_out;
 	// controller for ram.ram_raddr_1_reg
 	always @(*) begin
-		if (andOp_126_out) begin 
-			ram_raddr_1_reg = add_add6_out;
+		if (andOp_134_out) begin 
+			ram_raddr_1_reg = add_add2_out;
 		end else begin
 			ram_raddr_1_reg = 0;
 		end
 	end
 	// controller for ram.ram_raddr_2_reg
 	always @(*) begin
-		if (andOp_127_out) begin 
-			ram_raddr_2_reg = add_add7_out;
+		if (andOp_135_out) begin 
+			ram_raddr_2_reg = add_add3_out;
 		end else begin
 			ram_raddr_2_reg = 0;
 		end
 	end
 	// controller for ram.ram_waddr_0_reg
 	always @(*) begin
-		if (andOp_128_out) begin 
-			ram_waddr_0_reg = add_add20_out;
+		if (andOp_138_out) begin 
+			ram_waddr_0_reg = add_add16_out;
 		end else begin
 			ram_waddr_0_reg = 0;
 		end
 	end
 	// controller for ram.ram_wdata_0_reg
 	always @(*) begin
-		if (andOp_129_out) begin 
-			ram_wdata_0_reg = tmp_output_130_out_data;
+		if (andOp_139_out) begin 
+			ram_wdata_0_reg = tmp_output_140_out_data;
 		end else begin
 			ram_wdata_0_reg = 0;
 		end
 	end
 	// controller for ram.ram_wen_0_reg
 	always @(*) begin
-		if (andOp_132_out) begin 
+		if (andOp_137_out) begin 
 			ram_wen_0_reg = -(1'd1);
 		end else begin
 			ram_wen_0_reg = 0;
 		end
 	end
-	// controller for ret23.valid_reg
+	// controller for ret24.valid_reg
 	always @(*) begin
 		if (andOp_158_out) begin 
 			valid_reg = 1'd1;
@@ -2724,30 +2724,30 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 			valid_reg = 0;
 		end
 	end
-	// controller for tmp_output_130.tmp_output_130_in_data
+	// controller for tmp_output_129.tmp_output_129_in_data
 	always @(*) begin
-		if (eq_131_out) begin 
-			tmp_output_130_in_data = add_add18_out;
+		if (eq_130_out) begin 
+			tmp_output_129_in_data = mul_mul11_out;
+		end else if (eq_131_out) begin 
+			tmp_output_129_in_data = mul_mul11_out;
+		end else if (eq_132_out) begin 
+			tmp_output_129_in_data = data_in_0_12_out_data;
 		end else begin
-			tmp_output_130_in_data = 0;
+			tmp_output_129_in_data = 0;
 		end
 	end
-	// controller for tmp_output_144.tmp_output_144_in_data
+	// controller for tmp_output_140.tmp_output_140_in_data
 	always @(*) begin
-		if (eq_145_out) begin 
-			tmp_output_144_in_data = mul_mul10_out;
-		end else if (eq_146_out) begin 
-			tmp_output_144_in_data = mul_mul10_out;
-		end else if (eq_147_out) begin 
-			tmp_output_144_in_data = data_in_0_12_out_data;
+		if (eq_141_out) begin 
+			tmp_output_140_in_data = add_add15_out;
 		end else begin
-			tmp_output_144_in_data = 0;
+			tmp_output_140_in_data = 0;
 		end
 	end
 	// controller for tmp_output_210.tmp_output_210_in_data
 	always @(*) begin
 		if (eq_211_out) begin 
-			tmp_output_210_in_data = add_add18_out;
+			tmp_output_210_in_data = add_add15_out;
 		end else begin
 			tmp_output_210_in_data = 0;
 		end
@@ -2755,10 +2755,10 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// Register controllers
 	always @(posedge clk) begin
 		if (rst) begin
-			data_store_0_1 <= 0;
+			data_store_0_0 <= 0;
 		end else begin
-			if (andOp_181_out) begin
-				data_store_0_1 <= add_add2_out;
+			if (state_0_is_active) begin
+				data_store_0_0 <= data_in_0_1_out_data;
 			end
 		end
 	end
@@ -2768,17 +2768,17 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 			data_store_0_11 <= 0;
 		end else begin
 			if (andOp_185_out) begin
-				data_store_0_11 <= mul_mul10_out;
+				data_store_0_11 <= mul_mul11_out;
 			end
 		end
 	end
 
 	always @(posedge clk) begin
 		if (rst) begin
-			data_store_0_3 <= 0;
+			data_store_0_2 <= 0;
 		end else begin
-			if (andOp_182_out) begin
-				data_store_0_3 <= icmp_icmp3_out;
+			if (andOp_181_out) begin
+				data_store_0_2 <= icmp_icmp0_out;
 			end
 		end
 	end
@@ -2787,8 +2787,8 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 		if (rst) begin
 			data_store_0_4 <= 0;
 		end else begin
-			if (state_0_is_active) begin
-				data_store_0_4 <= data_in_0_5_out_data;
+			if (andOp_182_out) begin
+				data_store_0_4 <= add_add1_out;
 			end
 		end
 	end
@@ -2797,18 +2797,18 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 		if (rst) begin
 			data_store_0_6 <= 0;
 		end else begin
-			if (state_0_is_active) begin
-				data_store_0_6 <= data_in_0_7_out_data;
+			if (andOp_183_out) begin
+				data_store_0_6 <= phi_phi6_out;
 			end
 		end
 	end
 
 	always @(posedge clk) begin
 		if (rst) begin
-			data_store_0_8 <= 0;
+			data_store_0_7 <= 0;
 		end else begin
-			if (andOp_183_out) begin
-				data_store_0_8 <= phi_phi5_out;
+			if (andOp_184_out) begin
+				data_store_0_7 <= phi_phi7_out;
 			end
 		end
 	end
@@ -2817,8 +2817,8 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 		if (rst) begin
 			data_store_0_9 <= 0;
 		end else begin
-			if (andOp_184_out) begin
-				data_store_0_9 <= phi_phi8_out;
+			if (state_0_is_active) begin
+				data_store_0_9 <= data_in_0_10_out_data;
 			end
 		end
 	end
@@ -2828,17 +2828,17 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 			data_store_1_13 <= 0;
 		end else begin
 			if (andOp_188_out) begin
-				data_store_1_13 <= add_add18_out;
+				data_store_1_13 <= add_add12_out;
 			end
 		end
 	end
 
 	always @(posedge clk) begin
 		if (rst) begin
-			data_store_1_14 <= 0;
+			data_store_1_16 <= 0;
 		end else begin
-			if (state_1_is_active) begin
-				data_store_1_14 <= data_in_1_15_out_data;
+			if (andOp_189_out) begin
+				data_store_1_16 <= add_add15_out;
 			end
 		end
 	end
@@ -2847,18 +2847,18 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 		if (rst) begin
 			data_store_1_17 <= 0;
 		end else begin
-			if (andOp_189_out) begin
-				data_store_1_17 <= add_add21_out;
+			if (state_1_is_active) begin
+				data_store_1_17 <= data_in_1_18_out_data;
 			end
 		end
 	end
 
 	always @(posedge clk) begin
 		if (rst) begin
-			data_store_1_19 <= 0;
+			data_store_1_20 <= 0;
 		end else begin
-			if (andOp_190_out) begin
-				data_store_1_19 <= icmp_icmp22_out;
+			if (state_1_is_active) begin
+				data_store_1_20 <= data_in_1_21_out_data;
 			end
 		end
 	end
@@ -2867,8 +2867,8 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 		if (rst) begin
 			data_store_1_22 <= 0;
 		end else begin
-			if (state_1_is_active) begin
-				data_store_1_22 <= data_in_1_23_out_data;
+			if (andOp_190_out) begin
+				data_store_1_22 <= icmp_icmp18_out;
 			end
 		end
 	end
@@ -3085,7 +3085,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 			if (andOp_70_out) begin
 				global_state <= 32'd0;
 			end
-			if (andOp_75_out) begin
+			if (andOp_80_out) begin
 				global_state <= 32'd0;
 			end
 		end
@@ -3098,7 +3098,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 			if (andOp_70_out) begin
 				state_0_entry_BB_reg <= 32'd4;
 			end
-			if (andOp_75_out) begin
+			if (andOp_80_out) begin
 				state_0_entry_BB_reg <= 32'd1;
 			end
 		end
@@ -3114,7 +3114,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 			if (andOp_70_out) begin
 				state_0_is_active <= 1'd1;
 			end
-			if (andOp_75_out) begin
+			if (andOp_80_out) begin
 				state_0_is_active <= 1'd1;
 			end
 		end
@@ -3127,7 +3127,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 			if (andOp_70_out) begin
 				state_0_last_BB_reg <= 32'd4;
 			end
-			if (andOp_75_out) begin
+			if (andOp_80_out) begin
 				state_0_last_BB_reg <= 32'd3;
 			end
 		end
@@ -3140,7 +3140,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 			if (andOp_70_out) begin
 				state_0_last_state <= 32'd1;
 			end
-			if (andOp_75_out) begin
+			if (andOp_80_out) begin
 				state_0_last_state <= 32'd4;
 			end
 		end

@@ -36,6 +36,35 @@ namespace ahaHLS {
     return tb;
   }
 
+  set<TaskSpec> allOneTask(Function* const f) {
+    set<TaskSpec> tasks;
+    TaskSpec ts;
+    for (auto& bb : f->getBasicBlockList()) {
+      ts.blks.insert(&bb);
+    }
+    tasks.insert(ts);
+    return tasks;
+  }
+
+ 
+  set<PipelineSpec> pipelineAllLoops(Function* const f) {
+
+    set<PipelineSpec> toPipeline;
+    DominatorTree dt(*f);
+    LoopInfo li(dt);
+    for (auto loop : li) {
+
+      PipelineSpec spec;
+      for (auto blk : loop->getBlocks()) {
+        spec.blks.insert(blk);
+      }
+      toPipeline.insert(spec);
+
+    }
+
+    return toPipeline;
+  }
+
   TEST_CASE("Matrix add") {
 
     SMDiagnostic Err;
@@ -66,33 +95,35 @@ namespace ahaHLS {
     inlineWireCalls(f, exec, interfaces);
     auto preds = buildControlPreds(f);
 
-    set<TaskSpec> tasks;
-    TaskSpec ts;
-    for (auto& bb : f->getBasicBlockList()) {
-      ts.blks.insert(&bb);
-    }
-    tasks.insert(ts);
-    set<PipelineSpec> toPipeline;
-    DominatorTree dt(*f);
-    LoopInfo li(dt);
-    for (auto loop : li) {
+    auto tasks = allOneTask(f);
+    //set<TaskSpec> tasks;
+    //TaskSpec ts;
+    //for (auto& bb : f->getBasicBlockList()) {
+      //ts.blks.insert(&bb);
+    //}
+    //tasks.insert(ts);
+    set<PipelineSpec> toPipeline = pipelineAllLoops(f);
+    //set<PipelineSpec> toPipeline;
+    //DominatorTree dt(*f);
+    //LoopInfo li(dt);
+    //for (auto loop : li) {
 
-      //auto& sl = loop->getSubLoops();
-      //assert(sl.size() == 1);
-      //Loop* inner = sl[0];
+      ////auto& sl = loop->getSubLoops();
+      ////assert(sl.size() == 1);
+      ////Loop* inner = sl[0];
+      ////PipelineSpec spec;
+      ////for (auto blk : inner->getBlocks()) {
+        ////spec.blks.insert(blk);
+      ////}
+
+      ////toPipeline.insert(spec);
+
       //PipelineSpec spec;
-      //for (auto blk : inner->getBlocks()) {
+      //for (auto blk : loop->getBlocks()) {
         //spec.blks.insert(blk);
       //}
-
       //toPipeline.insert(spec);
-
-      PipelineSpec spec;
-      for (auto blk : loop->getBlocks()) {
-        spec.blks.insert(blk);
-      }
-      toPipeline.insert(spec);
-    }
+    //}
 
     exec.toPipeline = toPipeline;
     //createMemoryConstraints(f, hcs, exec);
@@ -324,10 +355,53 @@ namespace ahaHLS {
         interfaces.getConstraints(fWrite));
 
     ExecutionConstraints exec;
-    //set<BasicBlock*> toPipeline{loopBlock};
-    set<BasicBlock*> toPipeline{};
-    Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
+
+    addDataConstraints(f, exec);
+    inlineWireCalls(f, exec, interfaces);
+    auto preds = buildControlPreds(f);
+
+    set<TaskSpec> tasks;
+    TaskSpec ts;
+    for (auto& bb : f->getBasicBlockList()) {
+      ts.blks.insert(&bb);
+    }
+    tasks.insert(ts);
+    set<PipelineSpec> toPipeline;
+    DominatorTree dt(*f);
+    LoopInfo li(dt);
+    for (auto loop : li) {
+
+      //auto& sl = loop->getSubLoops();
+      //assert(sl.size() == 1);
+      //Loop* inner = sl[0];
+      //PipelineSpec spec;
+      //for (auto blk : inner->getBlocks()) {
+        //spec.blks.insert(blk);
+      //}
+
+      //toPipeline.insert(spec);
+
+      PipelineSpec spec;
+      for (auto blk : loop->getBlocks()) {
+        spec.blks.insert(blk);
+      }
+      toPipeline.insert(spec);
+    }
+
+    exec.toPipeline = toPipeline;
+    //createMemoryConstraints(f, hcs, exec);
+    SchedulingProblem p =
+      createSchedulingProblem(f, hcs, toPipeline, tasks, preds);
+    exec.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
     STG graph = buildSTG(s, f);
+    //ExecutionConstraints exec;
+    //set<BasicBlock*> toPipeline{loopBlock};
+    ////set<BasicBlock*> toPipeline{};
+    //Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
+    //STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
     graph.print(cout);
@@ -336,8 +410,8 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
-    //addNoXChecks(arch, info);
-    //printAllInstructions(arch, info);
+    addNoXChecks(arch, info);
+    printAllInstructions(arch, info);
     emitVerilog(arch, info);
 
     int maxCycles = 300;
