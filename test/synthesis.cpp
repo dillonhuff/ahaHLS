@@ -77,21 +77,21 @@ namespace ahaHLS {
     LoopInfo li(dt);
     for (auto loop : li) {
 
-      auto& sl = loop->getSubLoops();
-      assert(sl.size() == 1);
-      Loop* inner = sl[0];
-      PipelineSpec spec;
-      for (auto blk : inner->getBlocks()) {
-        spec.blks.insert(blk);
-      }
-
-      toPipeline.insert(spec);
-
+      //auto& sl = loop->getSubLoops();
+      //assert(sl.size() == 1);
+      //Loop* inner = sl[0];
       //PipelineSpec spec;
-      //for (auto blk : loop->getBlocks()) {
+      //for (auto blk : inner->getBlocks()) {
         //spec.blks.insert(blk);
       //}
+
       //toPipeline.insert(spec);
+
+      PipelineSpec spec;
+      for (auto blk : loop->getBlocks()) {
+        spec.blks.insert(blk);
+      }
+      toPipeline.insert(spec);
     }
 
     exec.toPipeline = toPipeline;
@@ -128,7 +128,7 @@ namespace ahaHLS {
 
     map<string, int> testLayout = {{"a", 0}, {"b", 9}, {"c", 0}};
     TestBenchSpec tb = newTB("matrix_add", 600);
-    tb.injectVerilog("always @(posedge clk) begin if (c_wen_0) begin $display(\"c_waddr_0 = %d, c_wdata_0 = %d\", c_wdata_0, c_wdata_0); end end\n");
+    tb.injectVerilog("always @(posedge clk) begin if (c_wen_0) begin $display(\"%d: c_waddr_0 = %d, c_wdata_0 = %d\", total_cycles, c_wdata_0, c_wdata_0); end end\n");
     int startCycle = 1;
     int endCycle = 300;
 
