@@ -350,7 +350,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_250_out) || phi_phi7_out !== 'dx))) begin $display("assertion((!(andOp_250_out) || phi_phi7_out !== 'dx))"); $finish(); end
+		if (!((!(andOp_250_out) || phi_phi8_out !== 'dx))) begin $display("assertion((!(andOp_250_out) || phi_phi8_out !== 'dx))"); $finish(); end
 	end
 
 	always @(posedge clk) begin
@@ -377,12 +377,6 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// Start Functional Units
 	br_dummy br_unit();
 
-	wire [63:0] phi_phi7_in;
-	wire [31:0] phi_phi7_last_block;
-	wire [63:0] phi_phi7_s;
-	wire [31:0] phi_phi7_out;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi7(.in(phi_phi7_in), .last_block(phi_phi7_last_block), .out(phi_phi7_out), .s(phi_phi7_s));
-
 	wire [63:0] phi_phi1_in;
 	wire [31:0] phi_phi1_last_block;
 	wire [63:0] phi_phi1_s;
@@ -408,6 +402,12 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	wire [31:0] icmp_icmp26_in1;
 	wire [0:0] icmp_icmp26_out;
 	eq #(.WIDTH(32)) icmp_icmp26(.in0(icmp_icmp26_in0), .in1(icmp_icmp26_in1), .out(icmp_icmp26_out));
+
+	wire [63:0] phi_phi8_in;
+	wire [31:0] phi_phi8_last_block;
+	wire [63:0] phi_phi8_s;
+	wire [31:0] phi_phi8_out;
+	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi8(.in(phi_phi8_in), .last_block(phi_phi8_last_block), .out(phi_phi8_out), .s(phi_phi8_s));
 
 	wire [31:0] add_add9_in0;
 	wire [31:0] add_add9_in1;
@@ -1645,12 +1645,12 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for add_add10.add_add10_in0
 	// controller for add_add10.add_add10_in1
 	// Insensitive connections
-	assign add_add10_in0 = phi_phi7_out;
+	assign add_add10_in0 = phi_phi8_out;
 	assign add_add10_in1 = 32'd9;
 	// controller for add_add11.add_add11_in0
 	// controller for add_add11.add_add11_in1
 	// Insensitive connections
-	assign add_add11_in0 = phi_phi7_out;
+	assign add_add11_in0 = phi_phi8_out;
 	assign add_add11_in1 = 32'd1;
 	// controller for add_add17.add_add17_in0
 	// controller for add_add17.add_add17_in1
@@ -1670,7 +1670,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	// controller for add_add9.add_add9_in0
 	// controller for add_add9.add_add9_in1
 	// Insensitive connections
-	assign add_add9_in0 = phi_phi7_out;
+	assign add_add9_in0 = phi_phi8_out;
 	assign add_add9_in1 = data_in_3_32_out_data;
 	// controller for andOp_100.andOp_100_in0
 	// controller for andOp_100.andOp_100_in1
@@ -3217,16 +3217,16 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	assign phi_phi1_in = concat_162_out;
 	assign phi_phi1_last_block = bb_2_predecessor_in_state_0_out_data;
 	assign phi_phi1_s = concat_163_out;
-	// controller for phi_phi7.phi_phi7_in
-	// controller for phi_phi7.phi_phi7_last_block
-	// controller for phi_phi7.phi_phi7_s
+	// controller for phi_phi8.phi_phi8_in
+	// controller for phi_phi8.phi_phi8_last_block
+	// controller for phi_phi8.phi_phi8_s
 	// Insensitive connections
-	assign phi_phi7_in = concat_179_out;
-	assign phi_phi7_last_block = bb_4_predecessor_in_state_3_out_data;
-	assign phi_phi7_s = concat_180_out;
+	assign phi_phi8_in = concat_179_out;
+	assign phi_phi8_last_block = bb_4_predecessor_in_state_3_out_data;
+	assign phi_phi8_s = concat_180_out;
 	// controller for ram.ram_raddr_0_reg
 	always @(*) begin
-		if (andOp_170_out) begin 
+		if (andOp_169_out) begin 
 			ram_raddr_0_reg = data_in_3_30_out_data;
 		end else begin
 			ram_raddr_0_reg = 0;
@@ -3234,7 +3234,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	end
 	// controller for ram.ram_raddr_1_reg
 	always @(*) begin
-		if (andOp_171_out) begin 
+		if (andOp_170_out) begin 
 			ram_raddr_1_reg = add_add9_out;
 		end else begin
 			ram_raddr_1_reg = 0;
@@ -3242,7 +3242,7 @@ module mvmul(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [4:0] 
 	end
 	// controller for ram.ram_raddr_2_reg
 	always @(*) begin
-		if (andOp_169_out) begin 
+		if (andOp_171_out) begin 
 			ram_raddr_2_reg = add_add10_out;
 		end else begin
 			ram_raddr_2_reg = 0;
