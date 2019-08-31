@@ -4,6 +4,6 @@
 
 namespace ahaHLS {
 
-  void implementRAMWrite0(Function* ramWrite0, const int latency, ExecutionConstraints& exec);
+  void implementRAMWriteP0(Function* ramWrite0, const int latency, ExecutionConstraints& exec);
 
 }
