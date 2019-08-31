@@ -855,30 +855,6 @@ namespace ahaHLS {
     REQUIRE(runIVerilogTB("loop_add_4_copy"));
   }
   
-  TestBenchSpec buildTB(std::string name,
-                        map<string, vector<int> >& memoryInit,
-                        map<string, vector<int> >& memoryExpected,
-                        map<string, int>& testLayout) {
-    TestBenchSpec tb;
-    tb.useModSpecs = true;
-    tb.memoryInit = memoryInit;
-    tb.memoryExpected = memoryExpected;
-    tb.runCycles = 200;
-    tb.name = name;
-
-    int startSetMemCycle = 1;
-    setRAM(tb, 1, "ram", memoryInit, testLayout);
-
-    int startRunCycle = startSetMemCycle + 10; 
-    map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
-    map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
-
-    int checkMemCycle = 150;
-    checkRAM(tb, checkMemCycle, "ram", memoryExpected, testLayout);
-
-    return tb;
-  }
-
   TEST_CASE("Blur without linebuffering") {
 
     SMDiagnostic Err;

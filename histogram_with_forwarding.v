@@ -53,28 +53,28 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// End debug wires and ports
 
 	// Start Functional Units
-	wire [31:0] add_add8_in0;
-	wire [31:0] add_add8_in1;
-	wire [31:0] add_add8_out;
-	add #(.WIDTH(32)) add_add8(.in0(add_add8_in0), .in1(add_add8_in1), .out(add_add8_out));
-
-	wire [31:0] icmp_icmp1_in0;
-	wire [31:0] icmp_icmp1_in1;
-	wire [0:0] icmp_icmp1_out;
-	ne #(.WIDTH(32)) icmp_icmp1(.in0(icmp_icmp1_in0), .in1(icmp_icmp1_in1), .out(icmp_icmp1_out));
-
 	br_dummy br_unit();
 
-	wire [63:0] phi_phi3_in;
-	wire [31:0] phi_phi3_last_block;
-	wire [63:0] phi_phi3_s;
-	wire [31:0] phi_phi3_out;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi3(.in(phi_phi3_in), .last_block(phi_phi3_last_block), .out(phi_phi3_out), .s(phi_phi3_s));
+	wire [63:0] phi_phi1_in;
+	wire [31:0] phi_phi1_last_block;
+	wire [63:0] phi_phi1_s;
+	wire [31:0] phi_phi1_out;
+	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi1(.in(phi_phi1_in), .last_block(phi_phi1_last_block), .out(phi_phi1_out), .s(phi_phi1_s));
 
-	wire [31:0] add_add4_in0;
-	wire [31:0] add_add4_in1;
-	wire [31:0] add_add4_out;
-	add #(.WIDTH(32)) add_add4(.in0(add_add4_in0), .in1(add_add4_in1), .out(add_add4_out));
+	wire [31:0] add_add2_in0;
+	wire [31:0] add_add2_in1;
+	wire [31:0] add_add2_out;
+	add #(.WIDTH(32)) add_add2(.in0(add_add2_in0), .in1(add_add2_in1), .out(add_add2_out));
+
+	wire [31:0] add_add9_in0;
+	wire [31:0] add_add9_in1;
+	wire [31:0] add_add9_out;
+	add #(.WIDTH(32)) add_add9(.in0(add_add9_in0), .in1(add_add9_in1), .out(add_add9_out));
+
+	wire [31:0] icmp_icmp3_in0;
+	wire [31:0] icmp_icmp3_in1;
+	wire [0:0] icmp_icmp3_out;
+	ne #(.WIDTH(32)) icmp_icmp3(.in0(icmp_icmp3_in0), .in1(icmp_icmp3_in1), .out(icmp_icmp3_out));
 
 	reg [0:0] bb_0_active_in_state_0_in_data;
 	wire [0:0] bb_0_active_in_state_0_out_data;
@@ -322,20 +322,20 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	wire [0:0] andOp_40_out;
 	andOp #(.WIDTH(1)) andOp_40(.in0(andOp_40_in0), .in1(andOp_40_in1), .out(andOp_40_out));
 
-	wire [0:0] andOp_41_in0;
-	wire [0:0] andOp_41_in1;
-	wire [0:0] andOp_41_out;
-	andOp #(.WIDTH(1)) andOp_41(.in0(andOp_41_in0), .in1(andOp_41_in1), .out(andOp_41_out));
+	wire [31:0] concat_41_in0;
+	wire [31:0] concat_41_in1;
+	wire [63:0] concat_41_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_41(.in0(concat_41_in0), .in1(concat_41_in1), .out(concat_41_out));
 
 	wire [31:0] concat_42_in0;
 	wire [31:0] concat_42_in1;
 	wire [63:0] concat_42_out;
 	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_42(.in0(concat_42_in0), .in1(concat_42_in1), .out(concat_42_out));
 
-	wire [31:0] concat_43_in0;
-	wire [31:0] concat_43_in1;
-	wire [63:0] concat_43_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_43(.in0(concat_43_in0), .in1(concat_43_in1), .out(concat_43_out));
+	wire [0:0] andOp_43_in0;
+	wire [0:0] andOp_43_in1;
+	wire [0:0] andOp_43_out;
+	andOp #(.WIDTH(1)) andOp_43(.in0(andOp_43_in0), .in1(andOp_43_in1), .out(andOp_43_out));
 
 	wire [0:0] andOp_44_in0;
 	wire [0:0] andOp_44_in1;
@@ -707,21 +707,21 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// Insensitive connections
 	assign add_55_in0 = counter__54;
 	assign add_55_in1 = 32'd1;
-	// controller for add_add4.add_add4_in0
-	// controller for add_add4.add_add4_in1
+	// controller for add_add2.add_add2_in0
+	// controller for add_add2.add_add2_in1
 	// Insensitive connections
-	assign add_add4_in0 = phi_phi3_out;
-	assign add_add4_in1 = 32'd1;
-	// controller for add_add8.add_add8_in0
-	// controller for add_add8.add_add8_in1
+	assign add_add2_in0 = phi_phi1_out;
+	assign add_add2_in1 = 32'd1;
+	// controller for add_add9.add_add9_in0
+	// controller for add_add9.add_add9_in1
 	// Insensitive connections
-	assign add_add8_in0 = arg_1_rdata_0;
-	assign add_add8_in1 = 32'd1;
+	assign add_add9_in0 = arg_1_rdata_0;
+	assign add_add9_in1 = 32'd1;
 	// controller for andOp_10.andOp_10_in0
 	// controller for andOp_10.andOp_10_in1
 	// Insensitive connections
 	assign andOp_10_in0 = andOp_8_out;
-	assign andOp_10_in1 = icmp_icmp1_out;
+	assign andOp_10_in1 = icmp_icmp3_out;
 	// controller for andOp_103.andOp_103_in0
 	// controller for andOp_103.andOp_103_in1
 	// Insensitive connections
@@ -746,7 +746,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// controller for andOp_15.andOp_15_in1
 	// Insensitive connections
 	assign andOp_15_in0 = andOp_13_out;
-	assign andOp_15_in1 = icmp_icmp1_out;
+	assign andOp_15_in1 = icmp_icmp3_out;
 	// controller for andOp_17.andOp_17_in0
 	// controller for andOp_17.andOp_17_in1
 	// Insensitive connections
@@ -761,7 +761,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// controller for andOp_20.andOp_20_in1
 	// Insensitive connections
 	assign andOp_20_in0 = andOp_18_out;
-	assign andOp_20_in1 = icmp_icmp1_out;
+	assign andOp_20_in1 = icmp_icmp3_out;
 	// controller for andOp_22.andOp_22_in0
 	// controller for andOp_22.andOp_22_in1
 	// Insensitive connections
@@ -776,7 +776,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// controller for andOp_25.andOp_25_in1
 	// Insensitive connections
 	assign andOp_25_in0 = andOp_23_out;
-	assign andOp_25_in1 = icmp_icmp1_out;
+	assign andOp_25_in1 = icmp_icmp3_out;
 	// controller for andOp_27.andOp_27_in0
 	// controller for andOp_27.andOp_27_in1
 	// Insensitive connections
@@ -787,11 +787,11 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// Insensitive connections
 	assign andOp_40_in0 = bb_1_active_in_state_1_out_data;
 	assign andOp_40_in1 = state_1_is_active;
-	// controller for andOp_41.andOp_41_in0
-	// controller for andOp_41.andOp_41_in1
+	// controller for andOp_43.andOp_43_in0
+	// controller for andOp_43.andOp_43_in1
 	// Insensitive connections
-	assign andOp_41_in0 = bb_1_active_in_state_1_out_data;
-	assign andOp_41_in1 = state_1_is_active;
+	assign andOp_43_in0 = bb_1_active_in_state_1_out_data;
+	assign andOp_43_in1 = state_1_is_active;
 	// controller for andOp_44.andOp_44_in0
 	// controller for andOp_44.andOp_44_in1
 	// Insensitive connections
@@ -975,7 +975,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// controller for arg_0.arg_0_raddr_0_reg
 	always @(*) begin
 		if (andOp_45_out) begin 
-			arg_0_raddr_0_reg = phi_phi3_out;
+			arg_0_raddr_0_reg = phi_phi1_out;
 		end else begin
 			arg_0_raddr_0_reg = 0;
 		end
@@ -990,7 +990,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	end
 	// controller for arg_1.arg_1_waddr_0_reg
 	always @(*) begin
-		if (andOp_49_out) begin 
+		if (andOp_48_out) begin 
 			arg_1_waddr_0_reg = data_in_3_5_out_data;
 		end else begin
 			arg_1_waddr_0_reg = 0;
@@ -998,8 +998,8 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	end
 	// controller for arg_1.arg_1_wdata_0_reg
 	always @(*) begin
-		if (andOp_50_out) begin 
-			arg_1_wdata_0_reg = add_add8_out;
+		if (andOp_49_out) begin 
+			arg_1_wdata_0_reg = add_add9_out;
 		end else begin
 			arg_1_wdata_0_reg = 0;
 		end
@@ -1158,16 +1158,16 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 			br_1_happened_in_state_4_in_data = 0;
 		end
 	end
+	// controller for concat_41.concat_41_in0
+	// controller for concat_41.concat_41_in1
+	// Insensitive connections
+	assign concat_41_in0 = data_in_1_3_out_data;
+	assign concat_41_in1 = 32'd0;
 	// controller for concat_42.concat_42_in0
 	// controller for concat_42.concat_42_in1
 	// Insensitive connections
-	assign concat_42_in0 = data_in_1_3_out_data;
+	assign concat_42_in0 = 32'd1;
 	assign concat_42_in1 = 32'd0;
-	// controller for concat_43.concat_43_in0
-	// controller for concat_43.concat_43_in1
-	// Insensitive connections
-	assign concat_43_in0 = 32'd1;
-	assign concat_43_in1 = 32'd0;
 	// controller for data_in_0_1.data_in_0_1_in_data
 	always @(*) begin
 		if (eq_100_out) begin 
@@ -1321,11 +1321,11 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// Insensitive connections
 	assign eq_58_in0 = counter__54;
 	assign eq_58_in1 = 32'd2;
-	// controller for icmp_icmp1.icmp_icmp1_in0
-	// controller for icmp_icmp1.icmp_icmp1_in1
+	// controller for icmp_icmp3.icmp_icmp3_in0
+	// controller for icmp_icmp3.icmp_icmp3_in1
 	// Insensitive connections
-	assign icmp_icmp1_in0 = add_add4_out;
-	assign icmp_icmp1_in1 = 32'd1024;
+	assign icmp_icmp3_in0 = add_add2_out;
+	assign icmp_icmp3_in1 = 32'd1024;
 	// controller for in_pipeline_0.in_pipeline_0_in_data
 	always @(*) begin
 		if (1'd1) begin 
@@ -1336,25 +1336,25 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	end
 	// controller for notOp_11.notOp_11_in0
 	// Insensitive connections
-	assign notOp_11_in0 = icmp_icmp1_out;
+	assign notOp_11_in0 = icmp_icmp3_out;
 	// controller for notOp_14.notOp_14_in0
 	// Insensitive connections
 	assign notOp_14_in0 = andOp_13_out;
 	// controller for notOp_16.notOp_16_in0
 	// Insensitive connections
-	assign notOp_16_in0 = icmp_icmp1_out;
+	assign notOp_16_in0 = icmp_icmp3_out;
 	// controller for notOp_19.notOp_19_in0
 	// Insensitive connections
 	assign notOp_19_in0 = andOp_18_out;
 	// controller for notOp_21.notOp_21_in0
 	// Insensitive connections
-	assign notOp_21_in0 = icmp_icmp1_out;
+	assign notOp_21_in0 = icmp_icmp3_out;
 	// controller for notOp_24.notOp_24_in0
 	// Insensitive connections
 	assign notOp_24_in0 = andOp_23_out;
 	// controller for notOp_26.notOp_26_in0
 	// Insensitive connections
-	assign notOp_26_in0 = icmp_icmp1_out;
+	assign notOp_26_in0 = icmp_icmp3_out;
 	// controller for notOp_56.notOp_56_in0
 	// Insensitive connections
 	assign notOp_56_in0 = state_1_is_active;
@@ -1423,13 +1423,13 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// Insensitive connections
 	assign orOp_99_in0 = state_4_is_active;
 	assign orOp_99_in1 = orOp_98_out;
-	// controller for phi_phi3.phi_phi3_in
-	// controller for phi_phi3.phi_phi3_last_block
-	// controller for phi_phi3.phi_phi3_s
+	// controller for phi_phi1.phi_phi1_in
+	// controller for phi_phi1.phi_phi1_last_block
+	// controller for phi_phi1.phi_phi1_s
 	// Insensitive connections
-	assign phi_phi3_in = concat_42_out;
-	assign phi_phi3_last_block = bb_1_predecessor_in_state_1_out_data;
-	assign phi_phi3_s = concat_43_out;
+	assign phi_phi1_in = concat_41_out;
+	assign phi_phi1_last_block = bb_1_predecessor_in_state_1_out_data;
+	assign phi_phi1_s = concat_42_out;
 	// controller for ret13.valid_reg
 	always @(*) begin
 		if (andOp_53_out) begin 
@@ -1467,7 +1467,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 			data_store_1_2 <= 0;
 		end else begin
 			if (andOp_103_out) begin
-				data_store_1_2 <= add_add4_out;
+				data_store_1_2 <= add_add2_out;
 			end
 		end
 	end

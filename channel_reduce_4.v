@@ -42,6 +42,16 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [31:0] ram_0_rdata;
 	register #(.WIDTH(32)) ram_0(.clk(clk), .raddr(ram_0_raddr), .rdata(ram_0_rdata), .rst(rst), .waddr(ram_0_waddr), .wdata(ram_0_wdata), .wen(ram_0_wen));
 
+	br_dummy br_unit();
+
+	add call18();
+
+	wire [63:0] phi_phi5_in;
+	wire [31:0] phi_phi5_last_block;
+	wire [63:0] phi_phi5_s;
+	wire [31:0] phi_phi5_out;
+	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi5(.in(phi_phi5_in), .last_block(phi_phi5_last_block), .out(phi_phi5_out), .s(phi_phi5_s));
+
 	wire [31:0] add_add12_in0;
 	wire [31:0] add_add12_in1;
 	wire [31:0] add_add12_out;
@@ -56,16 +66,6 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [31:0] icmp_icmp15_in1;
 	wire [0:0] icmp_icmp15_out;
 	eq #(.WIDTH(32)) icmp_icmp15(.in0(icmp_icmp15_in0), .in1(icmp_icmp15_in1), .out(icmp_icmp15_out));
-
-	br_dummy br_unit();
-
-	add call18();
-
-	wire [63:0] phi_phi5_in;
-	wire [31:0] phi_phi5_last_block;
-	wire [63:0] phi_phi5_s;
-	wire [31:0] phi_phi5_out;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi5(.in(phi_phi5_in), .last_block(phi_phi5_last_block), .out(phi_phi5_out), .s(phi_phi5_s));
 
 	reg [0:0] bb_0_active_in_state_0_in_data;
 	wire [0:0] bb_0_active_in_state_0_out_data;
@@ -103,18 +103,6 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [0:0] br_3_happened_in_state_1_out_data;
 	hls_wire #(.WIDTH(1)) br_3_happened_in_state_1(.in_data(br_3_happened_in_state_1_in_data), .out_data(br_3_happened_in_state_1_out_data));
 
-	reg [0:0] bb_9_active_in_state_1_in_data;
-	wire [0:0] bb_9_active_in_state_1_out_data;
-	hls_wire #(.WIDTH(1)) bb_9_active_in_state_1(.in_data(bb_9_active_in_state_1_in_data), .out_data(bb_9_active_in_state_1_out_data));
-
-	reg [31:0] bb_9_predecessor_in_state_1_in_data;
-	wire [31:0] bb_9_predecessor_in_state_1_out_data;
-	hls_wire #(.WIDTH(32)) bb_9_predecessor_in_state_1(.in_data(bb_9_predecessor_in_state_1_in_data), .out_data(bb_9_predecessor_in_state_1_out_data));
-
-	reg [0:0] br_9_happened_in_state_1_in_data;
-	wire [0:0] br_9_happened_in_state_1_out_data;
-	hls_wire #(.WIDTH(1)) br_9_happened_in_state_1(.in_data(br_9_happened_in_state_1_in_data), .out_data(br_9_happened_in_state_1_out_data));
-
 	reg [0:0] bb_8_active_in_state_1_in_data;
 	wire [0:0] bb_8_active_in_state_1_out_data;
 	hls_wire #(.WIDTH(1)) bb_8_active_in_state_1(.in_data(bb_8_active_in_state_1_in_data), .out_data(bb_8_active_in_state_1_out_data));
@@ -126,6 +114,18 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	reg [0:0] br_8_happened_in_state_1_in_data;
 	wire [0:0] br_8_happened_in_state_1_out_data;
 	hls_wire #(.WIDTH(1)) br_8_happened_in_state_1(.in_data(br_8_happened_in_state_1_in_data), .out_data(br_8_happened_in_state_1_out_data));
+
+	reg [0:0] bb_9_active_in_state_1_in_data;
+	wire [0:0] bb_9_active_in_state_1_out_data;
+	hls_wire #(.WIDTH(1)) bb_9_active_in_state_1(.in_data(bb_9_active_in_state_1_in_data), .out_data(bb_9_active_in_state_1_out_data));
+
+	reg [31:0] bb_9_predecessor_in_state_1_in_data;
+	wire [31:0] bb_9_predecessor_in_state_1_out_data;
+	hls_wire #(.WIDTH(32)) bb_9_predecessor_in_state_1(.in_data(bb_9_predecessor_in_state_1_in_data), .out_data(bb_9_predecessor_in_state_1_out_data));
+
+	reg [0:0] br_9_happened_in_state_1_in_data;
+	wire [0:0] br_9_happened_in_state_1_out_data;
+	hls_wire #(.WIDTH(1)) br_9_happened_in_state_1(.in_data(br_9_happened_in_state_1_in_data), .out_data(br_9_happened_in_state_1_out_data));
 
 	reg [0:0] bb_10_active_in_state_2_in_data;
 	wire [0:0] bb_10_active_in_state_2_out_data;
@@ -139,18 +139,6 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [0:0] br_10_happened_in_state_2_out_data;
 	hls_wire #(.WIDTH(1)) br_10_happened_in_state_2(.in_data(br_10_happened_in_state_2_in_data), .out_data(br_10_happened_in_state_2_out_data));
 
-	reg [0:0] bb_10_active_in_state_3_in_data;
-	wire [0:0] bb_10_active_in_state_3_out_data;
-	hls_wire #(.WIDTH(1)) bb_10_active_in_state_3(.in_data(bb_10_active_in_state_3_in_data), .out_data(bb_10_active_in_state_3_out_data));
-
-	reg [31:0] bb_10_predecessor_in_state_3_in_data;
-	wire [31:0] bb_10_predecessor_in_state_3_out_data;
-	hls_wire #(.WIDTH(32)) bb_10_predecessor_in_state_3(.in_data(bb_10_predecessor_in_state_3_in_data), .out_data(bb_10_predecessor_in_state_3_out_data));
-
-	reg [0:0] br_10_happened_in_state_3_in_data;
-	wire [0:0] br_10_happened_in_state_3_out_data;
-	hls_wire #(.WIDTH(1)) br_10_happened_in_state_3(.in_data(br_10_happened_in_state_3_in_data), .out_data(br_10_happened_in_state_3_out_data));
-
 	reg [0:0] bb_4_active_in_state_3_in_data;
 	wire [0:0] bb_4_active_in_state_3_out_data;
 	hls_wire #(.WIDTH(1)) bb_4_active_in_state_3(.in_data(bb_4_active_in_state_3_in_data), .out_data(bb_4_active_in_state_3_out_data));
@@ -162,6 +150,18 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	reg [0:0] br_4_happened_in_state_3_in_data;
 	wire [0:0] br_4_happened_in_state_3_out_data;
 	hls_wire #(.WIDTH(1)) br_4_happened_in_state_3(.in_data(br_4_happened_in_state_3_in_data), .out_data(br_4_happened_in_state_3_out_data));
+
+	reg [0:0] bb_10_active_in_state_3_in_data;
+	wire [0:0] bb_10_active_in_state_3_out_data;
+	hls_wire #(.WIDTH(1)) bb_10_active_in_state_3(.in_data(bb_10_active_in_state_3_in_data), .out_data(bb_10_active_in_state_3_out_data));
+
+	reg [31:0] bb_10_predecessor_in_state_3_in_data;
+	wire [31:0] bb_10_predecessor_in_state_3_out_data;
+	hls_wire #(.WIDTH(32)) bb_10_predecessor_in_state_3(.in_data(bb_10_predecessor_in_state_3_in_data), .out_data(bb_10_predecessor_in_state_3_out_data));
+
+	reg [0:0] br_10_happened_in_state_3_in_data;
+	wire [0:0] br_10_happened_in_state_3_out_data;
+	hls_wire #(.WIDTH(1)) br_10_happened_in_state_3(.in_data(br_10_happened_in_state_3_in_data), .out_data(br_10_happened_in_state_3_out_data));
 
 	reg [0:0] bb_1_active_in_state_4_in_data;
 	wire [0:0] bb_1_active_in_state_4_out_data;
@@ -183,17 +183,17 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [31:0] bb_2_predecessor_in_state_4_out_data;
 	hls_wire #(.WIDTH(32)) bb_2_predecessor_in_state_4(.in_data(bb_2_predecessor_in_state_4_in_data), .out_data(bb_2_predecessor_in_state_4_out_data));
 
-	reg [0:0] bb_5_active_in_state_4_in_data;
-	wire [0:0] bb_5_active_in_state_4_out_data;
-	hls_wire #(.WIDTH(1)) bb_5_active_in_state_4(.in_data(bb_5_active_in_state_4_in_data), .out_data(bb_5_active_in_state_4_out_data));
+	reg [0:0] bb_7_active_in_state_4_in_data;
+	wire [0:0] bb_7_active_in_state_4_out_data;
+	hls_wire #(.WIDTH(1)) bb_7_active_in_state_4(.in_data(bb_7_active_in_state_4_in_data), .out_data(bb_7_active_in_state_4_out_data));
 
-	reg [31:0] bb_5_predecessor_in_state_4_in_data;
-	wire [31:0] bb_5_predecessor_in_state_4_out_data;
-	hls_wire #(.WIDTH(32)) bb_5_predecessor_in_state_4(.in_data(bb_5_predecessor_in_state_4_in_data), .out_data(bb_5_predecessor_in_state_4_out_data));
+	reg [31:0] bb_7_predecessor_in_state_4_in_data;
+	wire [31:0] bb_7_predecessor_in_state_4_out_data;
+	hls_wire #(.WIDTH(32)) bb_7_predecessor_in_state_4(.in_data(bb_7_predecessor_in_state_4_in_data), .out_data(bb_7_predecessor_in_state_4_out_data));
 
-	reg [0:0] br_5_happened_in_state_4_in_data;
-	wire [0:0] br_5_happened_in_state_4_out_data;
-	hls_wire #(.WIDTH(1)) br_5_happened_in_state_4(.in_data(br_5_happened_in_state_4_in_data), .out_data(br_5_happened_in_state_4_out_data));
+	reg [0:0] br_7_happened_in_state_4_in_data;
+	wire [0:0] br_7_happened_in_state_4_out_data;
+	hls_wire #(.WIDTH(1)) br_7_happened_in_state_4(.in_data(br_7_happened_in_state_4_in_data), .out_data(br_7_happened_in_state_4_out_data));
 
 	reg [0:0] bb_6_active_in_state_4_in_data;
 	wire [0:0] bb_6_active_in_state_4_out_data;
@@ -207,17 +207,17 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [0:0] br_6_happened_in_state_4_out_data;
 	hls_wire #(.WIDTH(1)) br_6_happened_in_state_4(.in_data(br_6_happened_in_state_4_in_data), .out_data(br_6_happened_in_state_4_out_data));
 
-	reg [0:0] bb_7_active_in_state_4_in_data;
-	wire [0:0] bb_7_active_in_state_4_out_data;
-	hls_wire #(.WIDTH(1)) bb_7_active_in_state_4(.in_data(bb_7_active_in_state_4_in_data), .out_data(bb_7_active_in_state_4_out_data));
+	reg [0:0] bb_5_active_in_state_4_in_data;
+	wire [0:0] bb_5_active_in_state_4_out_data;
+	hls_wire #(.WIDTH(1)) bb_5_active_in_state_4(.in_data(bb_5_active_in_state_4_in_data), .out_data(bb_5_active_in_state_4_out_data));
 
-	reg [31:0] bb_7_predecessor_in_state_4_in_data;
-	wire [31:0] bb_7_predecessor_in_state_4_out_data;
-	hls_wire #(.WIDTH(32)) bb_7_predecessor_in_state_4(.in_data(bb_7_predecessor_in_state_4_in_data), .out_data(bb_7_predecessor_in_state_4_out_data));
+	reg [31:0] bb_5_predecessor_in_state_4_in_data;
+	wire [31:0] bb_5_predecessor_in_state_4_out_data;
+	hls_wire #(.WIDTH(32)) bb_5_predecessor_in_state_4(.in_data(bb_5_predecessor_in_state_4_in_data), .out_data(bb_5_predecessor_in_state_4_out_data));
 
-	reg [0:0] br_7_happened_in_state_4_in_data;
-	wire [0:0] br_7_happened_in_state_4_out_data;
-	hls_wire #(.WIDTH(1)) br_7_happened_in_state_4(.in_data(br_7_happened_in_state_4_in_data), .out_data(br_7_happened_in_state_4_out_data));
+	reg [0:0] br_5_happened_in_state_4_in_data;
+	wire [0:0] br_5_happened_in_state_4_out_data;
+	hls_wire #(.WIDTH(1)) br_5_happened_in_state_4(.in_data(br_5_happened_in_state_4_in_data), .out_data(br_5_happened_in_state_4_out_data));
 
 	reg [0:0] bb_4_active_in_state_4_in_data;
 	wire [0:0] bb_4_active_in_state_4_out_data;
@@ -251,21 +251,21 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [31:0] data_in_2_9_out_data;
 	hls_wire #(.WIDTH(32)) data_in_2_9(.in_data(data_in_2_9_in_data), .out_data(data_in_2_9_out_data));
 
-	reg [31:0] data_in_3_13_in_data;
-	wire [31:0] data_in_3_13_out_data;
-	hls_wire #(.WIDTH(32)) data_in_3_13(.in_data(data_in_3_13_in_data), .out_data(data_in_3_13_out_data));
+	reg [31:0] data_in_3_11_in_data;
+	wire [31:0] data_in_3_11_out_data;
+	hls_wire #(.WIDTH(32)) data_in_3_11(.in_data(data_in_3_11_in_data), .out_data(data_in_3_11_out_data));
 
 	reg [31:0] data_in_4_15_in_data;
 	wire [31:0] data_in_4_15_out_data;
 	hls_wire #(.WIDTH(32)) data_in_4_15(.in_data(data_in_4_15_in_data), .out_data(data_in_4_15_out_data));
 
-	reg [0:0] data_in_4_17_in_data;
-	wire [0:0] data_in_4_17_out_data;
-	hls_wire #(.WIDTH(1)) data_in_4_17(.in_data(data_in_4_17_in_data), .out_data(data_in_4_17_out_data));
+	reg [31:0] data_in_4_17_in_data;
+	wire [31:0] data_in_4_17_out_data;
+	hls_wire #(.WIDTH(32)) data_in_4_17(.in_data(data_in_4_17_in_data), .out_data(data_in_4_17_out_data));
 
-	reg [31:0] data_in_4_19_in_data;
-	wire [31:0] data_in_4_19_out_data;
-	hls_wire #(.WIDTH(32)) data_in_4_19(.in_data(data_in_4_19_in_data), .out_data(data_in_4_19_out_data));
+	reg [0:0] data_in_4_19_in_data;
+	wire [0:0] data_in_4_19_out_data;
+	hls_wire #(.WIDTH(1)) data_in_4_19(.in_data(data_in_4_19_in_data), .out_data(data_in_4_19_out_data));
 
 	wire [0:0] andOp_20_in0;
 	wire [0:0] andOp_20_in1;
@@ -317,14 +317,14 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [0:0] andOp_30_out;
 	andOp #(.WIDTH(1)) andOp_30(.in0(andOp_30_in0), .in1(andOp_30_in1), .out(andOp_30_out));
 
-	wire [0:0] andOp_31_in0;
-	wire [0:0] andOp_31_in1;
-	wire [0:0] andOp_31_out;
-	andOp #(.WIDTH(1)) andOp_31(.in0(andOp_31_in0), .in1(andOp_31_in1), .out(andOp_31_out));
+	wire [0:0] notOp_31_in0;
+	wire [0:0] notOp_31_out;
+	notOp #(.WIDTH(1)) notOp_31(.in(notOp_31_in0), .out(notOp_31_out));
 
-	wire [0:0] notOp_32_in0;
-	wire [0:0] notOp_32_out;
-	notOp #(.WIDTH(1)) notOp_32(.in(notOp_32_in0), .out(notOp_32_out));
+	wire [0:0] andOp_32_in0;
+	wire [0:0] andOp_32_in1;
+	wire [0:0] andOp_32_out;
+	andOp #(.WIDTH(1)) andOp_32(.in0(andOp_32_in0), .in1(andOp_32_in1), .out(andOp_32_out));
 
 	wire [0:0] andOp_33_in0;
 	wire [0:0] andOp_33_in1;
@@ -358,14 +358,14 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [0:0] andOp_39_out;
 	andOp #(.WIDTH(1)) andOp_39(.in0(andOp_39_in0), .in1(andOp_39_in1), .out(andOp_39_out));
 
-	wire [0:0] notOp_40_in0;
-	wire [0:0] notOp_40_out;
-	notOp #(.WIDTH(1)) notOp_40(.in(notOp_40_in0), .out(notOp_40_out));
+	wire [0:0] andOp_40_in0;
+	wire [0:0] andOp_40_in1;
+	wire [0:0] andOp_40_out;
+	andOp #(.WIDTH(1)) andOp_40(.in0(andOp_40_in0), .in1(andOp_40_in1), .out(andOp_40_out));
 
-	wire [0:0] andOp_41_in0;
-	wire [0:0] andOp_41_in1;
-	wire [0:0] andOp_41_out;
-	andOp #(.WIDTH(1)) andOp_41(.in0(andOp_41_in0), .in1(andOp_41_in1), .out(andOp_41_out));
+	wire [0:0] notOp_41_in0;
+	wire [0:0] notOp_41_out;
+	notOp #(.WIDTH(1)) notOp_41(.in(notOp_41_in0), .out(notOp_41_out));
 
 	wire [0:0] andOp_42_in0;
 	wire [0:0] andOp_42_in1;
@@ -490,15 +490,15 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [0:0] eq_67_out;
 	eq #(.WIDTH(32)) eq_67(.in0(eq_67_in0), .in1(eq_67_in1), .out(eq_67_out));
 
-	wire [31:0] eq_68_in0;
-	wire [31:0] eq_68_in1;
-	wire [0:0] eq_68_out;
-	eq #(.WIDTH(32)) eq_68(.in0(eq_68_in0), .in1(eq_68_in1), .out(eq_68_out));
+	wire [0:0] orOp_68_in0;
+	wire [0:0] orOp_68_in1;
+	wire [0:0] orOp_68_out;
+	orOp #(.WIDTH(1)) orOp_68(.in0(orOp_68_in0), .in1(orOp_68_in1), .out(orOp_68_out));
 
-	wire [0:0] orOp_69_in0;
-	wire [0:0] orOp_69_in1;
-	wire [0:0] orOp_69_out;
-	orOp #(.WIDTH(1)) orOp_69(.in0(orOp_69_in0), .in1(orOp_69_in1), .out(orOp_69_out));
+	wire [31:0] eq_69_in0;
+	wire [31:0] eq_69_in1;
+	wire [0:0] eq_69_out;
+	eq #(.WIDTH(32)) eq_69(.in0(eq_69_in0), .in1(eq_69_in1), .out(eq_69_out));
 
 	wire [31:0] eq_70_in0;
 	wire [31:0] eq_70_in1;
@@ -617,19 +617,19 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [0:0] eq_93_out;
 	eq #(.WIDTH(32)) eq_93(.in0(eq_93_in0), .in1(eq_93_in1), .out(eq_93_out));
 
-	wire [31:0] eq_94_in0;
-	wire [31:0] eq_94_in1;
-	wire [0:0] eq_94_out;
-	eq #(.WIDTH(32)) eq_94(.in0(eq_94_in0), .in1(eq_94_in1), .out(eq_94_out));
+	wire [0:0] notOp_94_in0;
+	wire [0:0] notOp_94_out;
+	notOp #(.WIDTH(1)) notOp_94(.in(notOp_94_in0), .out(notOp_94_out));
 
-	wire [0:0] notOp_95_in0;
-	wire [0:0] notOp_95_out;
-	notOp #(.WIDTH(1)) notOp_95(.in(notOp_95_in0), .out(notOp_95_out));
+	wire [0:0] andOp_95_in0;
+	wire [0:0] andOp_95_in1;
+	wire [0:0] andOp_95_out;
+	andOp #(.WIDTH(1)) andOp_95(.in0(andOp_95_in0), .in1(andOp_95_in1), .out(andOp_95_out));
 
-	wire [0:0] andOp_96_in0;
-	wire [0:0] andOp_96_in1;
-	wire [0:0] andOp_96_out;
-	andOp #(.WIDTH(1)) andOp_96(.in0(andOp_96_in0), .in1(andOp_96_in1), .out(andOp_96_out));
+	wire [31:0] eq_96_in0;
+	wire [31:0] eq_96_in1;
+	wire [0:0] eq_96_out;
+	eq #(.WIDTH(32)) eq_96(.in0(eq_96_in0), .in1(eq_96_in1), .out(eq_96_out));
 
 	wire [31:0] eq_97_in0;
 	wire [31:0] eq_97_in1;
@@ -985,11 +985,11 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	reg [31:0] data_store_1_6;
 	reg [31:0] data_store_2_8;
 	reg [31:0] data_store_3_10;
-	reg [0:0] data_store_3_11;
 	reg [31:0] data_store_3_12;
+	reg [0:0] data_store_3_13;
 	reg [31:0] data_store_4_14;
-	reg [0:0] data_store_4_16;
-	reg [31:0] data_store_4_18;
+	reg [31:0] data_store_4_16;
+	reg [0:0] data_store_4_18;
 	reg [31:0] global_state;
 	reg [31:0] state_0_entry_BB_reg;
 	reg [0:0] state_0_is_active;
@@ -1020,28 +1020,28 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for add_add14.add_add14_in0
 	// controller for add_add14.add_add14_in1
 	// Insensitive connections
-	assign add_add14_in0 = data_in_3_13_out_data;
+	assign add_add14_in0 = data_in_3_11_out_data;
 	assign add_add14_in1 = 32'd1;
 	// controller for andOp_102.andOp_102_in0
 	// controller for andOp_102.andOp_102_in1
 	// Insensitive connections
 	assign andOp_102_in0 = notOp_101_out;
-	assign andOp_102_in1 = andOp_51_out;
+	assign andOp_102_in1 = andOp_44_out;
 	// controller for andOp_105.andOp_105_in0
 	// controller for andOp_105.andOp_105_in1
 	// Insensitive connections
 	assign andOp_105_in0 = notOp_104_out;
-	assign andOp_105_in1 = andOp_42_out;
+	assign andOp_105_in1 = andOp_48_out;
 	// controller for andOp_108.andOp_108_in0
 	// controller for andOp_108.andOp_108_in1
 	// Insensitive connections
 	assign andOp_108_in0 = notOp_107_out;
-	assign andOp_108_in1 = andOp_44_out;
+	assign andOp_108_in1 = andOp_51_out;
 	// controller for andOp_111.andOp_111_in0
 	// controller for andOp_111.andOp_111_in1
 	// Insensitive connections
 	assign andOp_111_in0 = notOp_110_out;
-	assign andOp_111_in1 = andOp_48_out;
+	assign andOp_111_in1 = andOp_42_out;
 	// controller for andOp_113.andOp_113_in0
 	// controller for andOp_113.andOp_113_in1
 	// Insensitive connections
@@ -1230,23 +1230,23 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for andOp_26.andOp_26_in0
 	// controller for andOp_26.andOp_26_in1
 	// Insensitive connections
-	assign andOp_26_in0 = bb_9_active_in_state_1_out_data;
+	assign andOp_26_in0 = bb_8_active_in_state_1_out_data;
 	assign andOp_26_in1 = state_1_is_active;
 	// controller for andOp_28.andOp_28_in0
 	// controller for andOp_28.andOp_28_in1
 	// Insensitive connections
-	assign andOp_28_in0 = andOp_26_out;
-	assign andOp_28_in1 = in_read_ready;
+	assign andOp_28_in0 = bb_9_active_in_state_1_out_data;
+	assign andOp_28_in1 = state_1_is_active;
 	// controller for andOp_30.andOp_30_in0
 	// controller for andOp_30.andOp_30_in1
 	// Insensitive connections
-	assign andOp_30_in0 = andOp_26_out;
-	assign andOp_30_in1 = notOp_29_out;
-	// controller for andOp_31.andOp_31_in0
-	// controller for andOp_31.andOp_31_in1
+	assign andOp_30_in0 = andOp_28_out;
+	assign andOp_30_in1 = in_read_ready;
+	// controller for andOp_32.andOp_32_in0
+	// controller for andOp_32.andOp_32_in1
 	// Insensitive connections
-	assign andOp_31_in0 = bb_8_active_in_state_1_out_data;
-	assign andOp_31_in1 = state_1_is_active;
+	assign andOp_32_in0 = andOp_28_out;
+	assign andOp_32_in1 = notOp_31_out;
 	// controller for andOp_33.andOp_33_in0
 	// controller for andOp_33.andOp_33_in1
 	// Insensitive connections
@@ -1255,23 +1255,23 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for andOp_35.andOp_35_in0
 	// controller for andOp_35.andOp_35_in1
 	// Insensitive connections
-	assign andOp_35_in0 = bb_10_active_in_state_3_out_data;
-	assign andOp_35_in1 = state_3_is_active;
+	assign andOp_35_in0 = bb_4_active_in_state_4_out_data;
+	assign andOp_35_in1 = state_4_is_active;
 	// controller for andOp_37.andOp_37_in0
 	// controller for andOp_37.andOp_37_in1
 	// Insensitive connections
-	assign andOp_37_in0 = bb_4_active_in_state_4_out_data;
-	assign andOp_37_in1 = state_4_is_active;
+	assign andOp_37_in0 = andOp_35_out;
+	assign andOp_37_in1 = data_in_4_19_out_data;
 	// controller for andOp_39.andOp_39_in0
 	// controller for andOp_39.andOp_39_in1
 	// Insensitive connections
-	assign andOp_39_in0 = andOp_37_out;
-	assign andOp_39_in1 = data_in_4_17_out_data;
-	// controller for andOp_41.andOp_41_in0
-	// controller for andOp_41.andOp_41_in1
+	assign andOp_39_in0 = andOp_35_out;
+	assign andOp_39_in1 = notOp_38_out;
+	// controller for andOp_40.andOp_40_in0
+	// controller for andOp_40.andOp_40_in1
 	// Insensitive connections
-	assign andOp_41_in0 = andOp_37_out;
-	assign andOp_41_in1 = notOp_40_out;
+	assign andOp_40_in0 = bb_10_active_in_state_3_out_data;
+	assign andOp_40_in1 = state_3_is_active;
 	// controller for andOp_42.andOp_42_in0
 	// controller for andOp_42.andOp_42_in1
 	// Insensitive connections
@@ -1280,7 +1280,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for andOp_44.andOp_44_in0
 	// controller for andOp_44.andOp_44_in1
 	// Insensitive connections
-	assign andOp_44_in0 = bb_5_active_in_state_4_out_data;
+	assign andOp_44_in0 = bb_7_active_in_state_4_out_data;
 	assign andOp_44_in1 = state_4_is_active;
 	// controller for andOp_46.andOp_46_in0
 	// controller for andOp_46.andOp_46_in1
@@ -1300,7 +1300,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for andOp_51.andOp_51_in0
 	// controller for andOp_51.andOp_51_in1
 	// Insensitive connections
-	assign andOp_51_in0 = bb_7_active_in_state_4_out_data;
+	assign andOp_51_in0 = bb_5_active_in_state_4_out_data;
 	assign andOp_51_in1 = state_4_is_active;
 	// controller for andOp_53.andOp_53_in0
 	// controller for andOp_53.andOp_53_in1
@@ -1311,7 +1311,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for andOp_55.andOp_55_in1
 	// Insensitive connections
 	assign andOp_55_in0 = andOp_53_out;
-	assign andOp_55_in1 = data_in_4_17_out_data;
+	assign andOp_55_in1 = data_in_4_19_out_data;
 	// controller for andOp_57.andOp_57_in0
 	// controller for andOp_57.andOp_57_in1
 	// Insensitive connections
@@ -1326,22 +1326,22 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for andOp_88.andOp_88_in1
 	// Insensitive connections
 	assign andOp_88_in0 = notOp_87_out;
-	assign andOp_88_in1 = andOp_31_out;
+	assign andOp_88_in1 = andOp_24_out;
 	// controller for andOp_91.andOp_91_in0
 	// controller for andOp_91.andOp_91_in1
 	// Insensitive connections
 	assign andOp_91_in0 = notOp_90_out;
-	assign andOp_91_in1 = andOp_24_out;
-	// controller for andOp_96.andOp_96_in0
-	// controller for andOp_96.andOp_96_in1
+	assign andOp_91_in1 = andOp_26_out;
+	// controller for andOp_95.andOp_95_in0
+	// controller for andOp_95.andOp_95_in1
 	// Insensitive connections
-	assign andOp_96_in0 = notOp_95_out;
-	assign andOp_96_in1 = andOp_33_out;
+	assign andOp_95_in0 = notOp_94_out;
+	assign andOp_95_in1 = andOp_33_out;
 	// controller for andOp_99.andOp_99_in0
 	// controller for andOp_99.andOp_99_in1
 	// Insensitive connections
 	assign andOp_99_in0 = notOp_98_out;
-	assign andOp_99_in1 = andOp_39_out;
+	assign andOp_99_in1 = andOp_37_out;
 	// controller for bb_0_active_in_state_0.bb_0_active_in_state_0_in_data
 	always @(*) begin
 		if (1'd1) begin 
@@ -1385,7 +1385,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for bb_10_active_in_state_3.bb_10_active_in_state_3_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_10_active_in_state_3_in_data = eq_67_out;
+			bb_10_active_in_state_3_in_data = eq_69_out;
 		end else begin
 			bb_10_active_in_state_3_in_data = 0;
 		end
@@ -1400,7 +1400,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	end
 	// controller for bb_10_predecessor_in_state_3.bb_10_predecessor_in_state_3_in_data
 	always @(*) begin
-		if (eq_93_out) begin 
+		if (eq_96_out) begin 
 			bb_10_predecessor_in_state_3_in_data = state_3_last_BB_reg;
 		end else begin
 			bb_10_predecessor_in_state_3_in_data = 0;
@@ -1463,7 +1463,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for bb_4_active_in_state_3.bb_4_active_in_state_3_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_4_active_in_state_3_in_data = orOp_69_out;
+			bb_4_active_in_state_3_in_data = orOp_68_out;
 		end else begin
 			bb_4_active_in_state_3_in_data = 0;
 		end
@@ -1478,9 +1478,9 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	end
 	// controller for bb_4_predecessor_in_state_3.bb_4_predecessor_in_state_3_in_data
 	always @(*) begin
-		if (andOp_96_out) begin 
+		if (andOp_95_out) begin 
 			bb_4_predecessor_in_state_3_in_data = 32'd10;
-		end else if (eq_94_out) begin 
+		end else if (eq_93_out) begin 
 			bb_4_predecessor_in_state_3_in_data = state_3_last_BB_reg;
 		end else begin
 			bb_4_predecessor_in_state_3_in_data = 0;
@@ -1497,16 +1497,16 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for bb_5_active_in_state_4.bb_5_active_in_state_4_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_5_active_in_state_4_in_data = orOp_75_out;
+			bb_5_active_in_state_4_in_data = orOp_79_out;
 		end else begin
 			bb_5_active_in_state_4_in_data = 0;
 		end
 	end
 	// controller for bb_5_predecessor_in_state_4.bb_5_predecessor_in_state_4_in_data
 	always @(*) begin
-		if (andOp_105_out) begin 
+		if (andOp_111_out) begin 
 			bb_5_predecessor_in_state_4_in_data = 32'd1;
-		end else if (eq_103_out) begin 
+		end else if (eq_109_out) begin 
 			bb_5_predecessor_in_state_4_in_data = state_4_last_BB_reg;
 		end else begin
 			bb_5_predecessor_in_state_4_in_data = 0;
@@ -1533,16 +1533,16 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for bb_7_active_in_state_4.bb_7_active_in_state_4_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_7_active_in_state_4_in_data = orOp_79_out;
+			bb_7_active_in_state_4_in_data = orOp_75_out;
 		end else begin
 			bb_7_active_in_state_4_in_data = 0;
 		end
 	end
 	// controller for bb_7_predecessor_in_state_4.bb_7_predecessor_in_state_4_in_data
 	always @(*) begin
-		if (andOp_111_out) begin 
+		if (andOp_105_out) begin 
 			bb_7_predecessor_in_state_4_in_data = 32'd6;
-		end else if (eq_109_out) begin 
+		end else if (eq_103_out) begin 
 			bb_7_predecessor_in_state_4_in_data = state_4_last_BB_reg;
 		end else begin
 			bb_7_predecessor_in_state_4_in_data = 0;
@@ -1551,16 +1551,16 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for bb_8_active_in_state_1.bb_8_active_in_state_1_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_8_active_in_state_1_in_data = orOp_65_out;
+			bb_8_active_in_state_1_in_data = orOp_63_out;
 		end else begin
 			bb_8_active_in_state_1_in_data = 0;
 		end
 	end
 	// controller for bb_8_predecessor_in_state_1.bb_8_predecessor_in_state_1_in_data
 	always @(*) begin
-		if (andOp_91_out) begin 
+		if (andOp_88_out) begin 
 			bb_8_predecessor_in_state_1_in_data = 32'd3;
-		end else if (eq_89_out) begin 
+		end else if (eq_86_out) begin 
 			bb_8_predecessor_in_state_1_in_data = state_1_last_BB_reg;
 		end else begin
 			bb_8_predecessor_in_state_1_in_data = 0;
@@ -1569,16 +1569,16 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for bb_9_active_in_state_1.bb_9_active_in_state_1_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_9_active_in_state_1_in_data = orOp_63_out;
+			bb_9_active_in_state_1_in_data = orOp_65_out;
 		end else begin
 			bb_9_active_in_state_1_in_data = 0;
 		end
 	end
 	// controller for bb_9_predecessor_in_state_1.bb_9_predecessor_in_state_1_in_data
 	always @(*) begin
-		if (andOp_88_out) begin 
+		if (andOp_91_out) begin 
 			bb_9_predecessor_in_state_1_in_data = 32'd8;
-		end else if (eq_86_out) begin 
+		end else if (eq_89_out) begin 
 			bb_9_predecessor_in_state_1_in_data = state_1_last_BB_reg;
 		end else begin
 			bb_9_predecessor_in_state_1_in_data = 0;
@@ -1616,9 +1616,9 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	end
 	// controller for br_10_happened_in_state_3.br_10_happened_in_state_3_in_data
 	always @(*) begin
-		if (andOp_35_out) begin 
+		if (andOp_40_out) begin 
 			br_10_happened_in_state_3_in_data = 1'd1;
-		end else if (notOp_36_out) begin 
+		end else if (notOp_41_out) begin 
 			br_10_happened_in_state_3_in_data = 1'd0;
 		end else begin
 			br_10_happened_in_state_3_in_data = 0;
@@ -1646,9 +1646,9 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	end
 	// controller for br_4_happened_in_state_3.br_4_happened_in_state_3_in_data
 	always @(*) begin
-		if (andOp_37_out) begin 
+		if (andOp_35_out) begin 
 			br_4_happened_in_state_3_in_data = 1'd1;
-		end else if (notOp_38_out) begin 
+		end else if (notOp_36_out) begin 
 			br_4_happened_in_state_3_in_data = 1'd0;
 		end else begin
 			br_4_happened_in_state_3_in_data = 0;
@@ -1666,9 +1666,9 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	end
 	// controller for br_5_happened_in_state_4.br_5_happened_in_state_4_in_data
 	always @(*) begin
-		if (andOp_44_out) begin 
+		if (andOp_51_out) begin 
 			br_5_happened_in_state_4_in_data = 1'd1;
-		end else if (notOp_45_out) begin 
+		end else if (notOp_52_out) begin 
 			br_5_happened_in_state_4_in_data = 1'd0;
 		end else begin
 			br_5_happened_in_state_4_in_data = 0;
@@ -1686,9 +1686,9 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	end
 	// controller for br_7_happened_in_state_4.br_7_happened_in_state_4_in_data
 	always @(*) begin
-		if (andOp_51_out) begin 
+		if (andOp_44_out) begin 
 			br_7_happened_in_state_4_in_data = 1'd1;
-		end else if (notOp_52_out) begin 
+		end else if (notOp_45_out) begin 
 			br_7_happened_in_state_4_in_data = 1'd0;
 		end else begin
 			br_7_happened_in_state_4_in_data = 0;
@@ -1696,9 +1696,9 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	end
 	// controller for br_8_happened_in_state_1.br_8_happened_in_state_1_in_data
 	always @(*) begin
-		if (andOp_31_out) begin 
+		if (andOp_26_out) begin 
 			br_8_happened_in_state_1_in_data = 1'd1;
-		end else if (notOp_32_out) begin 
+		end else if (notOp_27_out) begin 
 			br_8_happened_in_state_1_in_data = 1'd0;
 		end else begin
 			br_8_happened_in_state_1_in_data = 0;
@@ -1706,9 +1706,9 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	end
 	// controller for br_9_happened_in_state_1.br_9_happened_in_state_1_in_data
 	always @(*) begin
-		if (andOp_26_out) begin 
+		if (andOp_28_out) begin 
 			br_9_happened_in_state_1_in_data = 1'd1;
-		end else if (notOp_27_out) begin 
+		end else if (notOp_29_out) begin 
 			br_9_happened_in_state_1_in_data = 1'd0;
 		end else begin
 			br_9_happened_in_state_1_in_data = 0;
@@ -1717,7 +1717,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for concat_121.concat_121_in0
 	// controller for concat_121.concat_121_in1
 	// Insensitive connections
-	assign concat_121_in0 = data_in_1_5_out_data;
+	assign concat_121_in0 = data_in_1_7_out_data;
 	assign concat_121_in1 = 32'd0;
 	// controller for concat_122.concat_122_in0
 	// controller for concat_122.concat_122_in1
@@ -1759,7 +1759,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 		end else if (eq_158_out) begin 
 			data_in_1_7_in_data = data_store_1_6;
 		end else if (eq_159_out) begin 
-			data_in_1_7_in_data = data_store_4_18;
+			data_in_1_7_in_data = data_store_4_16;
 		end else begin
 			data_in_1_7_in_data = 0;
 		end
@@ -1767,21 +1767,21 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for data_in_2_9.data_in_2_9_in_data
 	always @(*) begin
 		if (eq_161_out) begin 
-			data_in_2_9_in_data = data_store_1_6;
+			data_in_2_9_in_data = data_store_1_4;
 		end else if (eq_162_out) begin 
 			data_in_2_9_in_data = data_store_2_8;
 		end else begin
 			data_in_2_9_in_data = 0;
 		end
 	end
-	// controller for data_in_3_13.data_in_3_13_in_data
+	// controller for data_in_3_11.data_in_3_11_in_data
 	always @(*) begin
 		if (eq_163_out) begin 
-			data_in_3_13_in_data = data_store_2_8;
+			data_in_3_11_in_data = data_store_2_8;
 		end else if (eq_164_out) begin 
-			data_in_3_13_in_data = data_store_3_12;
+			data_in_3_11_in_data = data_store_3_10;
 		end else begin
-			data_in_3_13_in_data = 0;
+			data_in_3_11_in_data = 0;
 		end
 	end
 	// controller for data_in_4_15.data_in_4_15_in_data
@@ -1797,7 +1797,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for data_in_4_17.data_in_4_17_in_data
 	always @(*) begin
 		if (eq_167_out) begin 
-			data_in_4_17_in_data = data_store_3_11;
+			data_in_4_17_in_data = data_store_3_12;
 		end else if (eq_168_out) begin 
 			data_in_4_17_in_data = data_store_4_16;
 		end else begin
@@ -1807,7 +1807,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for data_in_4_19.data_in_4_19_in_data
 	always @(*) begin
 		if (eq_167_out) begin 
-			data_in_4_19_in_data = data_store_3_12;
+			data_in_4_19_in_data = data_store_3_13;
 		end else if (eq_168_out) begin 
 			data_in_4_19_in_data = data_store_4_18;
 		end else begin
@@ -1822,7 +1822,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for eq_103.eq_103_in0
 	// controller for eq_103.eq_103_in1
 	// Insensitive connections
-	assign eq_103_in0 = 32'd5;
+	assign eq_103_in0 = 32'd7;
 	assign eq_103_in1 = state_4_entry_BB_reg;
 	// controller for eq_106.eq_106_in0
 	// controller for eq_106.eq_106_in1
@@ -1832,7 +1832,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for eq_109.eq_109_in0
 	// controller for eq_109.eq_109_in1
 	// Insensitive connections
-	assign eq_109_in0 = 32'd7;
+	assign eq_109_in0 = 32'd5;
 	assign eq_109_in1 = state_4_entry_BB_reg;
 	// controller for eq_112.eq_112_in0
 	// controller for eq_112.eq_112_in1
@@ -1912,12 +1912,12 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for eq_62.eq_62_in0
 	// controller for eq_62.eq_62_in1
 	// Insensitive connections
-	assign eq_62_in0 = 32'd9;
+	assign eq_62_in0 = 32'd8;
 	assign eq_62_in1 = state_1_entry_BB_reg;
 	// controller for eq_64.eq_64_in0
 	// controller for eq_64.eq_64_in1
 	// Insensitive connections
-	assign eq_64_in0 = 32'd8;
+	assign eq_64_in0 = 32'd9;
 	assign eq_64_in1 = state_1_entry_BB_reg;
 	// controller for eq_66.eq_66_in0
 	// controller for eq_66.eq_66_in1
@@ -1927,13 +1927,13 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for eq_67.eq_67_in0
 	// controller for eq_67.eq_67_in1
 	// Insensitive connections
-	assign eq_67_in0 = 32'd10;
+	assign eq_67_in0 = 32'd4;
 	assign eq_67_in1 = state_3_entry_BB_reg;
-	// controller for eq_68.eq_68_in0
-	// controller for eq_68.eq_68_in1
+	// controller for eq_69.eq_69_in0
+	// controller for eq_69.eq_69_in1
 	// Insensitive connections
-	assign eq_68_in0 = 32'd4;
-	assign eq_68_in1 = state_3_entry_BB_reg;
+	assign eq_69_in0 = 32'd10;
+	assign eq_69_in1 = state_3_entry_BB_reg;
 	// controller for eq_70.eq_70_in0
 	// controller for eq_70.eq_70_in1
 	// Insensitive connections
@@ -1947,7 +1947,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for eq_74.eq_74_in0
 	// controller for eq_74.eq_74_in1
 	// Insensitive connections
-	assign eq_74_in0 = 32'd5;
+	assign eq_74_in0 = 32'd7;
 	assign eq_74_in1 = state_4_entry_BB_reg;
 	// controller for eq_76.eq_76_in0
 	// controller for eq_76.eq_76_in1
@@ -1957,7 +1957,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for eq_78.eq_78_in0
 	// controller for eq_78.eq_78_in1
 	// Insensitive connections
-	assign eq_78_in0 = 32'd7;
+	assign eq_78_in0 = 32'd5;
 	assign eq_78_in1 = state_4_entry_BB_reg;
 	// controller for eq_80.eq_80_in0
 	// controller for eq_80.eq_80_in1
@@ -1982,12 +1982,12 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for eq_86.eq_86_in0
 	// controller for eq_86.eq_86_in1
 	// Insensitive connections
-	assign eq_86_in0 = 32'd9;
+	assign eq_86_in0 = 32'd8;
 	assign eq_86_in1 = state_1_entry_BB_reg;
 	// controller for eq_89.eq_89_in0
 	// controller for eq_89.eq_89_in1
 	// Insensitive connections
-	assign eq_89_in0 = 32'd8;
+	assign eq_89_in0 = 32'd9;
 	assign eq_89_in1 = state_1_entry_BB_reg;
 	// controller for eq_92.eq_92_in0
 	// controller for eq_92.eq_92_in1
@@ -1997,13 +1997,13 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for eq_93.eq_93_in0
 	// controller for eq_93.eq_93_in1
 	// Insensitive connections
-	assign eq_93_in0 = 32'd10;
+	assign eq_93_in0 = 32'd4;
 	assign eq_93_in1 = state_3_entry_BB_reg;
-	// controller for eq_94.eq_94_in0
-	// controller for eq_94.eq_94_in1
+	// controller for eq_96.eq_96_in0
+	// controller for eq_96.eq_96_in1
 	// Insensitive connections
-	assign eq_94_in0 = 32'd4;
-	assign eq_94_in1 = state_3_entry_BB_reg;
+	assign eq_96_in0 = 32'd10;
+	assign eq_96_in1 = state_3_entry_BB_reg;
 	// controller for eq_97.eq_97_in0
 	// controller for eq_97.eq_97_in1
 	// Insensitive connections
@@ -2039,13 +2039,13 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	assign notOp_140_in0 = andOp_136_out;
 	// controller for notOp_142.notOp_142_in0
 	// Insensitive connections
-	assign notOp_142_in0 = andOp_30_out;
+	assign notOp_142_in0 = andOp_32_out;
 	// controller for notOp_144.notOp_144_in0
 	// Insensitive connections
-	assign notOp_144_in0 = andOp_41_out;
+	assign notOp_144_in0 = andOp_39_out;
 	// controller for notOp_146.notOp_146_in0
 	// Insensitive connections
-	assign notOp_146_in0 = andOp_28_out;
+	assign notOp_146_in0 = andOp_30_out;
 	// controller for notOp_148.notOp_148_in0
 	// Insensitive connections
 	assign notOp_148_in0 = andOp_137_out;
@@ -2072,10 +2072,10 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	assign notOp_27_in0 = andOp_26_out;
 	// controller for notOp_29.notOp_29_in0
 	// Insensitive connections
-	assign notOp_29_in0 = in_read_ready;
-	// controller for notOp_32.notOp_32_in0
+	assign notOp_29_in0 = andOp_28_out;
+	// controller for notOp_31.notOp_31_in0
 	// Insensitive connections
-	assign notOp_32_in0 = andOp_31_out;
+	assign notOp_31_in0 = in_read_ready;
 	// controller for notOp_34.notOp_34_in0
 	// Insensitive connections
 	assign notOp_34_in0 = andOp_33_out;
@@ -2084,10 +2084,10 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	assign notOp_36_in0 = andOp_35_out;
 	// controller for notOp_38.notOp_38_in0
 	// Insensitive connections
-	assign notOp_38_in0 = andOp_37_out;
-	// controller for notOp_40.notOp_40_in0
+	assign notOp_38_in0 = data_in_4_19_out_data;
+	// controller for notOp_41.notOp_41_in0
 	// Insensitive connections
-	assign notOp_40_in0 = data_in_4_17_out_data;
+	assign notOp_41_in0 = andOp_40_out;
 	// controller for notOp_43.notOp_43_in0
 	// Insensitive connections
 	assign notOp_43_in0 = andOp_42_out;
@@ -2108,7 +2108,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	assign notOp_54_in0 = andOp_53_out;
 	// controller for notOp_56.notOp_56_in0
 	// Insensitive connections
-	assign notOp_56_in0 = data_in_4_17_out_data;
+	assign notOp_56_in0 = data_in_4_19_out_data;
 	// controller for notOp_84.notOp_84_in0
 	// Insensitive connections
 	assign notOp_84_in0 = eq_83_out;
@@ -2118,9 +2118,9 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for notOp_90.notOp_90_in0
 	// Insensitive connections
 	assign notOp_90_in0 = eq_89_out;
-	// controller for notOp_95.notOp_95_in0
+	// controller for notOp_94.notOp_94_in0
 	// Insensitive connections
-	assign notOp_95_in0 = eq_94_out;
+	assign notOp_94_in0 = eq_93_out;
 	// controller for notOp_98.notOp_98_in0
 	// Insensitive connections
 	assign notOp_98_in0 = eq_97_out;
@@ -2133,45 +2133,45 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for orOp_63.orOp_63_in1
 	// Insensitive connections
 	assign orOp_63_in0 = eq_62_out;
-	assign orOp_63_in1 = andOp_31_out;
+	assign orOp_63_in1 = andOp_24_out;
 	// controller for orOp_65.orOp_65_in0
 	// controller for orOp_65.orOp_65_in1
 	// Insensitive connections
 	assign orOp_65_in0 = eq_64_out;
-	assign orOp_65_in1 = andOp_24_out;
-	// controller for orOp_69.orOp_69_in0
-	// controller for orOp_69.orOp_69_in1
+	assign orOp_65_in1 = andOp_26_out;
+	// controller for orOp_68.orOp_68_in0
+	// controller for orOp_68.orOp_68_in1
 	// Insensitive connections
-	assign orOp_69_in0 = eq_68_out;
-	assign orOp_69_in1 = andOp_33_out;
+	assign orOp_68_in0 = eq_67_out;
+	assign orOp_68_in1 = andOp_33_out;
 	// controller for orOp_71.orOp_71_in0
 	// controller for orOp_71.orOp_71_in1
 	// Insensitive connections
 	assign orOp_71_in0 = eq_70_out;
-	assign orOp_71_in1 = andOp_39_out;
+	assign orOp_71_in1 = andOp_37_out;
 	// controller for orOp_73.orOp_73_in0
 	// controller for orOp_73.orOp_73_in1
 	// Insensitive connections
 	assign orOp_73_in0 = eq_72_out;
-	assign orOp_73_in1 = andOp_51_out;
+	assign orOp_73_in1 = andOp_44_out;
 	// controller for orOp_75.orOp_75_in0
 	// controller for orOp_75.orOp_75_in1
 	// Insensitive connections
 	assign orOp_75_in0 = eq_74_out;
-	assign orOp_75_in1 = andOp_42_out;
+	assign orOp_75_in1 = andOp_48_out;
 	// controller for orOp_77.orOp_77_in0
 	// controller for orOp_77.orOp_77_in1
 	// Insensitive connections
 	assign orOp_77_in0 = eq_76_out;
-	assign orOp_77_in1 = andOp_44_out;
+	assign orOp_77_in1 = andOp_51_out;
 	// controller for orOp_79.orOp_79_in0
 	// controller for orOp_79.orOp_79_in1
 	// Insensitive connections
 	assign orOp_79_in0 = eq_78_out;
-	assign orOp_79_in1 = andOp_48_out;
+	assign orOp_79_in1 = andOp_42_out;
 	// controller for out.out_in_data_reg
 	always @(*) begin
-		if (andOp_133_out) begin 
+		if (andOp_134_out) begin 
 			out_in_data_reg = ram_0_rdata;
 		end else begin
 			out_in_data_reg = 0;
@@ -2179,7 +2179,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	end
 	// controller for out.out_write_valid_reg
 	always @(*) begin
-		if (andOp_134_out) begin 
+		if (andOp_133_out) begin 
 			out_write_valid_reg = -(1'd1);
 		end else begin
 			out_write_valid_reg = 0;
@@ -2273,8 +2273,8 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 		if (rst) begin
 			data_store_1_4 <= 0;
 		end else begin
-			if (state_1_is_active) begin
-				data_store_1_4 <= data_in_1_5_out_data;
+			if (andOp_160_out) begin
+				data_store_1_4 <= phi_phi5_out;
 			end
 		end
 	end
@@ -2283,8 +2283,8 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 		if (rst) begin
 			data_store_1_6 <= 0;
 		end else begin
-			if (andOp_160_out) begin
-				data_store_1_6 <= phi_phi5_out;
+			if (state_1_is_active) begin
+				data_store_1_6 <= data_in_1_7_out_data;
 			end
 		end
 	end
@@ -2303,18 +2303,8 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 		if (rst) begin
 			data_store_3_10 <= 0;
 		end else begin
-			if (andOp_165_out) begin
-				data_store_3_10 <= add_add14_out;
-			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			data_store_3_11 <= 0;
-		end else begin
-			if (andOp_166_out) begin
-				data_store_3_11 <= icmp_icmp15_out;
+			if (state_3_is_active) begin
+				data_store_3_10 <= data_in_3_11_out_data;
 			end
 		end
 	end
@@ -2323,8 +2313,18 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 		if (rst) begin
 			data_store_3_12 <= 0;
 		end else begin
-			if (state_3_is_active) begin
-				data_store_3_12 <= data_in_3_13_out_data;
+			if (andOp_165_out) begin
+				data_store_3_12 <= add_add14_out;
+			end
+		end
+	end
+
+	always @(posedge clk) begin
+		if (rst) begin
+			data_store_3_13 <= 0;
+		end else begin
+			if (andOp_166_out) begin
+				data_store_3_13 <= icmp_icmp15_out;
 			end
 		end
 	end
@@ -2375,13 +2375,13 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 			if (andOp_139_out) begin
 				global_state <= 32'd4;
 			end
-			if (andOp_28_out) begin
+			if (andOp_30_out) begin
 				global_state <= 32'd2;
 			end
-			if (andOp_30_out) begin
+			if (andOp_32_out) begin
 				global_state <= 32'd1;
 			end
-			if (andOp_41_out) begin
+			if (andOp_39_out) begin
 				global_state <= 32'd1;
 			end
 			if (andOp_50_out) begin
@@ -2428,10 +2428,10 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 			if (andOp_136_out) begin
 				state_1_entry_BB_reg <= 32'd0;
 			end
-			if (andOp_30_out) begin
+			if (andOp_32_out) begin
 				state_1_entry_BB_reg <= 32'd9;
 			end
-			if (andOp_41_out) begin
+			if (andOp_39_out) begin
 				state_1_entry_BB_reg <= 32'd3;
 			end
 		end
@@ -2447,10 +2447,10 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 			if (andOp_145_out) begin
 				state_1_is_active <= 1'd0;
 			end
-			if (andOp_30_out) begin
+			if (andOp_32_out) begin
 				state_1_is_active <= 1'd1;
 			end
-			if (andOp_41_out) begin
+			if (andOp_39_out) begin
 				state_1_is_active <= 1'd1;
 			end
 		end
@@ -2463,10 +2463,10 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 			if (andOp_136_out) begin
 				state_1_last_BB_reg <= bb_0_predecessor_in_state_0_out_data;
 			end
-			if (andOp_30_out) begin
+			if (andOp_32_out) begin
 				state_1_last_BB_reg <= 32'd9;
 			end
-			if (andOp_41_out) begin
+			if (andOp_39_out) begin
 				state_1_last_BB_reg <= 32'd4;
 			end
 		end
@@ -2479,10 +2479,10 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 			if (andOp_136_out) begin
 				state_1_last_state <= 32'd0;
 			end
-			if (andOp_30_out) begin
+			if (andOp_32_out) begin
 				state_1_last_state <= 32'd1;
 			end
-			if (andOp_41_out) begin
+			if (andOp_39_out) begin
 				state_1_last_state <= 32'd4;
 			end
 		end
@@ -2492,7 +2492,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 		if (rst) begin
 			state_2_entry_BB_reg <= 0;
 		end else begin
-			if (andOp_28_out) begin
+			if (andOp_30_out) begin
 				state_2_entry_BB_reg <= 32'd10;
 			end
 		end
@@ -2505,7 +2505,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 			if (andOp_147_out) begin
 				state_2_is_active <= 1'd0;
 			end
-			if (andOp_28_out) begin
+			if (andOp_30_out) begin
 				state_2_is_active <= 1'd1;
 			end
 		end
@@ -2515,7 +2515,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 		if (rst) begin
 			state_2_last_BB_reg <= 0;
 		end else begin
-			if (andOp_28_out) begin
+			if (andOp_30_out) begin
 				state_2_last_BB_reg <= 32'd9;
 			end
 		end
@@ -2525,7 +2525,7 @@ module channel_reduce_4(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 		if (rst) begin
 			state_2_last_state <= 0;
 		end else begin
-			if (andOp_28_out) begin
+			if (andOp_30_out) begin
 				state_2_last_state <= 32'd1;
 			end
 		end
