@@ -107,33 +107,35 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
-    //addNoXChecks(arch, info);
-    //printAllInstructions(arch, info);
+    addNoXChecks(arch, info);
+    printAllInstructions(arch, info);
     emitVerilog("matrix_add", arch, info);
-    
-    map<string, vector<int> > memoryInit{{"a", {6, 1, 2, 3, 7, 5, 5, 2, 9}},
-        {"b", {9, 3, 7}}};
-    map<string, vector<int> > memoryExpected{{"c", {}}};
-
-    auto ma = map_find(string("a"), memoryInit);
-    auto mb = map_find(string("b"), memoryInit);
-    for (int i = 0; i < 3; i++) {
-      int val = 0;
-      for (int j = 0; j < 3; j++) {
-        val += ma[i*3 + j] * mb[j];
+  
+    vector<int> aValues;
+    vector<int> bValues;
+    vector<int> cValues;
+    for (int r = 0; r < 16; r++) {
+      for (int c = 0; c < 16; c++) {
+        aValues.push_back(r + c);
+        bValues.push_back(r*c);
+        cValues.push_back(r + c + r*c);
       }
-      map_insert(memoryExpected, string("c"), val);
     }
 
-    cout << "Expected values" << endl;
-    for (auto val : map_find(string("c"), memoryExpected)) {
-      cout << "\t" << val << endl;
-    }
-    
     map<string, int> testLayout = {{"a", 0}, {"b", 9}, {"c", 0}};
-    //TestBenchSpec tb = buildTB("matrix_add", memoryInit, memoryExpected, testLayout);
-    TestBenchSpec tb = newTB("matrix_add", 500);
-    tb.useModSpecs = true;
+    TestBenchSpec tb = newTB("matrix_add", 600);
+    int startCycle = 1;
+    int endCycle = 300;
+
+    int startRunCycle = 20;
+    map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+    map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+    
+    setRAM(tb, startCycle, "a", aValues);
+    setRAM(tb, startCycle, "b", bValues);
+    checkRAM(tb, endCycle, "c", cValues);
+
+    emitVerilogTestBench(tb, arch, testLayout);
     emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("matrix_add"));
