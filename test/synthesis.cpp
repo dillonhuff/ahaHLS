@@ -46,7 +46,97 @@ namespace ahaHLS {
 
     Function* f = getFunctionByDemangledName(Mod.get(), "matrix_add");
     assert(f != nullptr);
-    getArg(f, 0)->setName("ram");
+    getArg(f, 0)->setName("a");
+    getArg(f, 1)->setName("b");
+    getArg(f, 2)->setName("c");
+
+    InterfaceFunctions interfaces;
+    interfaces.functionTemplates[string("read")] = implementRAMRead0;
+    interfaces.functionTemplates[string("write")] = implementRAMWrite0;
+
+    HardwareConstraints hcs = standardConstraints();
+    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+
+    ExecutionConstraints exec;
+
+    inlineWireCalls(f, exec, interfaces);
+    auto preds = buildControlPreds(f);
+
+    set<TaskSpec> tasks;
+    TaskSpec ts;
+    for (auto& bb : f->getBasicBlockList()) {
+      ts.blks.insert(&bb);
+    }
+    tasks.insert(ts);
+    set<PipelineSpec> toPipeline;
+    //DominatorTree dt(*f);
+    //LoopInfo li(dt);
+    //for (auto loop : li) {
+
+      //auto& sl = loop->getSubLoops();
+      //assert(sl.size() == 1);
+      //Loop* inner = sl[0];
+      //PipelineSpec spec;
+      //for (auto blk : inner->getBlocks()) {
+        //spec.blks.insert(blk);
+      //}
+
+      //toPipeline.insert(spec);
+
+      ////PipelineSpec spec;
+      ////for (auto blk : loop->getBlocks()) {
+        ////spec.blks.insert(blk);
+      ////}
+      ////toPipeline.insert(spec);
+    //}
+
+    exec.toPipeline = toPipeline;
+    //createMemoryConstraints(f, hcs, exec);
+    SchedulingProblem p =
+      createSchedulingProblem(f, hcs, toPipeline, tasks, preds);
+    exec.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
+    STG graph = buildSTG(s, f);
+    cout << "STG for matrix add..." << endl;
+    graph.print(cout);
+
+    map<Value*, int> layout;
+
+    auto arch = buildMicroArchitecture(graph, layout, hcs);
+
+    VerilogDebugInfo info;
+    //addNoXChecks(arch, info);
+    //printAllInstructions(arch, info);
+    emitVerilog("matrix_add", arch, info);
+    
+    map<string, vector<int> > memoryInit{{"a", {6, 1, 2, 3, 7, 5, 5, 2, 9}},
+        {"b", {9, 3, 7}}};
+    map<string, vector<int> > memoryExpected{{"c", {}}};
+
+    auto ma = map_find(string("a"), memoryInit);
+    auto mb = map_find(string("b"), memoryInit);
+    for (int i = 0; i < 3; i++) {
+      int val = 0;
+      for (int j = 0; j < 3; j++) {
+        val += ma[i*3 + j] * mb[j];
+      }
+      map_insert(memoryExpected, string("c"), val);
+    }
+
+    cout << "Expected values" << endl;
+    for (auto val : map_find(string("c"), memoryExpected)) {
+      cout << "\t" << val << endl;
+    }
+    
+    map<string, int> testLayout = {{"a", 0}, {"b", 9}, {"c", 0}};
+    //TestBenchSpec tb = buildTB("matrix_add", memoryInit, memoryExpected, testLayout);
+    TestBenchSpec tb = newTB("matrix_add", 500);
+    tb.useModSpecs = true;
+    emitVerilogTestBench(tb, arch, testLayout);
+
+    REQUIRE(runIVerilogTB("matrix_add"));
   }
 
   TEST_CASE("Matrix vector multiply") {
