@@ -280,4 +280,9 @@ namespace ahaHLS {
                      MicroArchitecture& arch,
                      VerilogDebugInfo& info);
   
+  TestBenchSpec buildTB(std::string name,
+                        map<string, vector<int> >& memoryInit,
+                        map<string, vector<int> >& memoryExpected,
+                        map<string, int>& testLayout);
+  
 }

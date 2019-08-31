@@ -39,11 +39,6 @@ namespace ahaHLS {
                        interfaces.getConstraints(ramWrite));
   }
   
-  TestBenchSpec buildTB(std::string name,
-                        map<string, vector<int> >& memoryInit,
-                        map<string, vector<int> >& memoryExpected,
-                        map<string, int>& testLayout);
-  
   ModuleSpec axiWriterSpec(llvm::StructType* tp) {
     map<string, string> modParams;
     map<string, Port> ports{{"write_data", inputPort(32, "write_data")},
