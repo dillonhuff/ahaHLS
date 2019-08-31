@@ -70,6 +70,29 @@ namespace ahaHLS {
     }
     tasks.insert(ts);
     set<PipelineSpec> toPipeline;
+    //DominatorTree dt(*f);
+    //LoopInfo li(dt);
+    //for (auto loop : li) {
+
+      //auto& sl = loop->getSubLoops();
+      //assert(sl.size() == 1);
+      //Loop* inner = sl[0];
+      //PipelineSpec spec;
+      //for (auto blk : inner->getBlocks()) {
+        //spec.blks.insert(blk);
+      //}
+
+      //toPipeline.insert(spec);
+
+      ////PipelineSpec spec;
+      ////for (auto blk : loop->getBlocks()) {
+        ////spec.blks.insert(blk);
+      ////}
+      ////toPipeline.insert(spec);
+    //}
+
+    exec.toPipeline = toPipeline;
+    //createMemoryConstraints(f, hcs, exec);
     SchedulingProblem p =
       createSchedulingProblem(f, hcs, toPipeline, tasks, preds);
     exec.addConstraints(p, f);
@@ -525,7 +548,7 @@ namespace ahaHLS {
       auto fwdCnt = loopBuilder.CreateAdd(lastCnt, one);
 
       auto shouldFwd = loopBuilder.CreateAnd(loopBuilder.CreateICmpEQ(lastPix, pix), loopBuilder.CreateICmpNE(indPhi, zero));
-      auto storeVal = loopBuilder.CreateSelect(shouldFwd, fwdCnt, cntN);
+      loopBuilder.CreateSelect(shouldFwd, fwdCnt, cntN);
       storeRAMVal(loopBuilder, getArg(f, 1), pix, cntN);
       
       auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
