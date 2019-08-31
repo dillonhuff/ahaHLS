@@ -55,7 +55,11 @@ namespace ahaHLS {
     interfaces.functionTemplates[string("write")] = implementRAMWrite0;
 
     HardwareConstraints hcs = standardConstraints();
-    hcs.typeSpecs["class.RAM"] = ramSpecFunc;
+    hcs.typeSpecs["class.RAM"] =
+      [](StructType* tp) {
+        return ramSpec(32, 512, 1, 1);
+      };
+      //ramSpecFunc;
 
     ExecutionConstraints exec;
 
@@ -69,26 +73,26 @@ namespace ahaHLS {
     }
     tasks.insert(ts);
     set<PipelineSpec> toPipeline;
-    //DominatorTree dt(*f);
-    //LoopInfo li(dt);
-    //for (auto loop : li) {
+    DominatorTree dt(*f);
+    LoopInfo li(dt);
+    for (auto loop : li) {
 
-      //auto& sl = loop->getSubLoops();
-      //assert(sl.size() == 1);
-      //Loop* inner = sl[0];
+      auto& sl = loop->getSubLoops();
+      assert(sl.size() == 1);
+      Loop* inner = sl[0];
+      PipelineSpec spec;
+      for (auto blk : inner->getBlocks()) {
+        spec.blks.insert(blk);
+      }
+
+      toPipeline.insert(spec);
+
       //PipelineSpec spec;
-      //for (auto blk : inner->getBlocks()) {
+      //for (auto blk : loop->getBlocks()) {
         //spec.blks.insert(blk);
       //}
-
       //toPipeline.insert(spec);
-
-      ////PipelineSpec spec;
-      ////for (auto blk : loop->getBlocks()) {
-        ////spec.blks.insert(blk);
-      ////}
-      ////toPipeline.insert(spec);
-    //}
+    }
 
     exec.toPipeline = toPipeline;
     //createMemoryConstraints(f, hcs, exec);
@@ -107,8 +111,8 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
-    addNoXChecks(arch, info);
-    printAllInstructions(arch, info);
+    //addNoXChecks(arch, info);
+    //printAllInstructions(arch, info);
     emitVerilog("matrix_add", arch, info);
   
     vector<int> aValues;
@@ -124,6 +128,7 @@ namespace ahaHLS {
 
     map<string, int> testLayout = {{"a", 0}, {"b", 9}, {"c", 0}};
     TestBenchSpec tb = newTB("matrix_add", 600);
+    tb.injectVerilog("always @(posedge clk) begin if (c_wen_0) begin $display(\"c_waddr_0 = %d, c_wdata_0 = %d\", c_wdata_0, c_wdata_0); end end\n");
     int startCycle = 1;
     int endCycle = 300;
 
