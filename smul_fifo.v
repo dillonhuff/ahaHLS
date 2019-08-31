@@ -31,26 +31,26 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// Start Functional Units
 	br_dummy br_unit();
 
-	wire [63:0] phi_phi5_in;
-	wire [31:0] phi_phi5_last_block;
-	wire [63:0] phi_phi5_s;
-	wire [31:0] phi_phi5_out;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi5(.in(phi_phi5_in), .last_block(phi_phi5_last_block), .out(phi_phi5_out), .s(phi_phi5_s));
+	wire [63:0] phi_phi3_in;
+	wire [31:0] phi_phi3_last_block;
+	wire [63:0] phi_phi3_s;
+	wire [31:0] phi_phi3_out;
+	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi3(.in(phi_phi3_in), .last_block(phi_phi3_last_block), .out(phi_phi3_out), .s(phi_phi3_s));
 
-	wire [31:0] add_add6_in0;
-	wire [31:0] add_add6_in1;
-	wire [31:0] add_add6_out;
-	add #(.WIDTH(32)) add_add6(.in0(add_add6_in0), .in1(add_add6_in1), .out(add_add6_out));
+	wire [31:0] add_add4_in0;
+	wire [31:0] add_add4_in1;
+	wire [31:0] add_add4_out;
+	add #(.WIDTH(32)) add_add4(.in0(add_add4_in0), .in1(add_add4_in1), .out(add_add4_out));
 
-	wire [31:0] mul_mul14_in0;
-	wire [31:0] mul_mul14_in1;
-	wire [31:0] mul_mul14_out;
-	mul #(.WIDTH(32)) mul_mul14(.in0(mul_mul14_in0), .in1(mul_mul14_in1), .out(mul_mul14_out));
+	wire [31:0] mul_mul17_in0;
+	wire [31:0] mul_mul17_in1;
+	wire [31:0] mul_mul17_out;
+	mul #(.WIDTH(32)) mul_mul17(.in0(mul_mul17_in0), .in1(mul_mul17_in1), .out(mul_mul17_out));
 
-	wire [31:0] icmp_icmp15_in0;
-	wire [31:0] icmp_icmp15_in1;
-	wire [0:0] icmp_icmp15_out;
-	ne #(.WIDTH(32)) icmp_icmp15(.in0(icmp_icmp15_in0), .in1(icmp_icmp15_in1), .out(icmp_icmp15_out));
+	wire [31:0] icmp_icmp18_in0;
+	wire [31:0] icmp_icmp18_in1;
+	wire [0:0] icmp_icmp18_out;
+	ne #(.WIDTH(32)) icmp_icmp18(.in0(icmp_icmp18_in0), .in1(icmp_icmp18_in1), .out(icmp_icmp18_out));
 
 	reg [0:0] bb_5_active_in_state_0_in_data;
 	wire [0:0] bb_5_active_in_state_0_out_data;
@@ -76,18 +76,6 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	wire [0:0] br_6_happened_in_state_0_out_data;
 	hls_wire #(.WIDTH(1)) br_6_happened_in_state_0(.in_data(br_6_happened_in_state_0_in_data), .out_data(br_6_happened_in_state_0_out_data));
 
-	reg [0:0] bb_0_active_in_state_0_in_data;
-	wire [0:0] bb_0_active_in_state_0_out_data;
-	hls_wire #(.WIDTH(1)) bb_0_active_in_state_0(.in_data(bb_0_active_in_state_0_in_data), .out_data(bb_0_active_in_state_0_out_data));
-
-	reg [31:0] bb_0_predecessor_in_state_0_in_data;
-	wire [31:0] bb_0_predecessor_in_state_0_out_data;
-	hls_wire #(.WIDTH(32)) bb_0_predecessor_in_state_0(.in_data(bb_0_predecessor_in_state_0_in_data), .out_data(bb_0_predecessor_in_state_0_out_data));
-
-	reg [0:0] br_0_happened_in_state_0_in_data;
-	wire [0:0] br_0_happened_in_state_0_out_data;
-	hls_wire #(.WIDTH(1)) br_0_happened_in_state_0(.in_data(br_0_happened_in_state_0_in_data), .out_data(br_0_happened_in_state_0_out_data));
-
 	reg [0:0] bb_1_active_in_state_0_in_data;
 	wire [0:0] bb_1_active_in_state_0_out_data;
 	hls_wire #(.WIDTH(1)) bb_1_active_in_state_0(.in_data(bb_1_active_in_state_0_in_data), .out_data(bb_1_active_in_state_0_out_data));
@@ -99,6 +87,18 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	reg [0:0] br_1_happened_in_state_0_in_data;
 	wire [0:0] br_1_happened_in_state_0_out_data;
 	hls_wire #(.WIDTH(1)) br_1_happened_in_state_0(.in_data(br_1_happened_in_state_0_in_data), .out_data(br_1_happened_in_state_0_out_data));
+
+	reg [0:0] bb_0_active_in_state_0_in_data;
+	wire [0:0] bb_0_active_in_state_0_out_data;
+	hls_wire #(.WIDTH(1)) bb_0_active_in_state_0(.in_data(bb_0_active_in_state_0_in_data), .out_data(bb_0_active_in_state_0_out_data));
+
+	reg [31:0] bb_0_predecessor_in_state_0_in_data;
+	wire [31:0] bb_0_predecessor_in_state_0_out_data;
+	hls_wire #(.WIDTH(32)) bb_0_predecessor_in_state_0(.in_data(bb_0_predecessor_in_state_0_in_data), .out_data(bb_0_predecessor_in_state_0_out_data));
+
+	reg [0:0] br_0_happened_in_state_0_in_data;
+	wire [0:0] br_0_happened_in_state_0_out_data;
+	hls_wire #(.WIDTH(1)) br_0_happened_in_state_0(.in_data(br_0_happened_in_state_0_in_data), .out_data(br_0_happened_in_state_0_out_data));
 
 	reg [0:0] bb_7_active_in_state_1_in_data;
 	wire [0:0] bb_7_active_in_state_1_out_data;
@@ -112,41 +112,17 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	wire [0:0] br_7_happened_in_state_1_out_data;
 	hls_wire #(.WIDTH(1)) br_7_happened_in_state_1(.in_data(br_7_happened_in_state_1_in_data), .out_data(br_7_happened_in_state_1_out_data));
 
-	reg [0:0] bb_7_active_in_state_2_in_data;
-	wire [0:0] bb_7_active_in_state_2_out_data;
-	hls_wire #(.WIDTH(1)) bb_7_active_in_state_2(.in_data(bb_7_active_in_state_2_in_data), .out_data(bb_7_active_in_state_2_out_data));
+	reg [0:0] bb_3_active_in_state_2_in_data;
+	wire [0:0] bb_3_active_in_state_2_out_data;
+	hls_wire #(.WIDTH(1)) bb_3_active_in_state_2(.in_data(bb_3_active_in_state_2_in_data), .out_data(bb_3_active_in_state_2_out_data));
 
-	reg [31:0] bb_7_predecessor_in_state_2_in_data;
-	wire [31:0] bb_7_predecessor_in_state_2_out_data;
-	hls_wire #(.WIDTH(32)) bb_7_predecessor_in_state_2(.in_data(bb_7_predecessor_in_state_2_in_data), .out_data(bb_7_predecessor_in_state_2_out_data));
+	reg [31:0] bb_3_predecessor_in_state_2_in_data;
+	wire [31:0] bb_3_predecessor_in_state_2_out_data;
+	hls_wire #(.WIDTH(32)) bb_3_predecessor_in_state_2(.in_data(bb_3_predecessor_in_state_2_in_data), .out_data(bb_3_predecessor_in_state_2_out_data));
 
-	reg [0:0] br_7_happened_in_state_2_in_data;
-	wire [0:0] br_7_happened_in_state_2_out_data;
-	hls_wire #(.WIDTH(1)) br_7_happened_in_state_2(.in_data(br_7_happened_in_state_2_in_data), .out_data(br_7_happened_in_state_2_out_data));
-
-	reg [0:0] bb_10_active_in_state_2_in_data;
-	wire [0:0] bb_10_active_in_state_2_out_data;
-	hls_wire #(.WIDTH(1)) bb_10_active_in_state_2(.in_data(bb_10_active_in_state_2_in_data), .out_data(bb_10_active_in_state_2_out_data));
-
-	reg [31:0] bb_10_predecessor_in_state_2_in_data;
-	wire [31:0] bb_10_predecessor_in_state_2_out_data;
-	hls_wire #(.WIDTH(32)) bb_10_predecessor_in_state_2(.in_data(bb_10_predecessor_in_state_2_in_data), .out_data(bb_10_predecessor_in_state_2_out_data));
-
-	reg [0:0] br_10_happened_in_state_2_in_data;
-	wire [0:0] br_10_happened_in_state_2_out_data;
-	hls_wire #(.WIDTH(1)) br_10_happened_in_state_2(.in_data(br_10_happened_in_state_2_in_data), .out_data(br_10_happened_in_state_2_out_data));
-
-	reg [0:0] bb_8_active_in_state_2_in_data;
-	wire [0:0] bb_8_active_in_state_2_out_data;
-	hls_wire #(.WIDTH(1)) bb_8_active_in_state_2(.in_data(bb_8_active_in_state_2_in_data), .out_data(bb_8_active_in_state_2_out_data));
-
-	reg [31:0] bb_8_predecessor_in_state_2_in_data;
-	wire [31:0] bb_8_predecessor_in_state_2_out_data;
-	hls_wire #(.WIDTH(32)) bb_8_predecessor_in_state_2(.in_data(bb_8_predecessor_in_state_2_in_data), .out_data(bb_8_predecessor_in_state_2_out_data));
-
-	reg [0:0] br_8_happened_in_state_2_in_data;
-	wire [0:0] br_8_happened_in_state_2_out_data;
-	hls_wire #(.WIDTH(1)) br_8_happened_in_state_2(.in_data(br_8_happened_in_state_2_in_data), .out_data(br_8_happened_in_state_2_out_data));
+	reg [0:0] br_3_happened_in_state_2_in_data;
+	wire [0:0] br_3_happened_in_state_2_out_data;
+	hls_wire #(.WIDTH(1)) br_3_happened_in_state_2(.in_data(br_3_happened_in_state_2_in_data), .out_data(br_3_happened_in_state_2_out_data));
 
 	reg [0:0] bb_9_active_in_state_2_in_data;
 	wire [0:0] bb_9_active_in_state_2_out_data;
@@ -160,6 +136,30 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	wire [0:0] br_9_happened_in_state_2_out_data;
 	hls_wire #(.WIDTH(1)) br_9_happened_in_state_2(.in_data(br_9_happened_in_state_2_in_data), .out_data(br_9_happened_in_state_2_out_data));
 
+	reg [0:0] bb_10_active_in_state_2_in_data;
+	wire [0:0] bb_10_active_in_state_2_out_data;
+	hls_wire #(.WIDTH(1)) bb_10_active_in_state_2(.in_data(bb_10_active_in_state_2_in_data), .out_data(bb_10_active_in_state_2_out_data));
+
+	reg [31:0] bb_10_predecessor_in_state_2_in_data;
+	wire [31:0] bb_10_predecessor_in_state_2_out_data;
+	hls_wire #(.WIDTH(32)) bb_10_predecessor_in_state_2(.in_data(bb_10_predecessor_in_state_2_in_data), .out_data(bb_10_predecessor_in_state_2_out_data));
+
+	reg [0:0] br_10_happened_in_state_2_in_data;
+	wire [0:0] br_10_happened_in_state_2_out_data;
+	hls_wire #(.WIDTH(1)) br_10_happened_in_state_2(.in_data(br_10_happened_in_state_2_in_data), .out_data(br_10_happened_in_state_2_out_data));
+
+	reg [0:0] bb_7_active_in_state_2_in_data;
+	wire [0:0] bb_7_active_in_state_2_out_data;
+	hls_wire #(.WIDTH(1)) bb_7_active_in_state_2(.in_data(bb_7_active_in_state_2_in_data), .out_data(bb_7_active_in_state_2_out_data));
+
+	reg [31:0] bb_7_predecessor_in_state_2_in_data;
+	wire [31:0] bb_7_predecessor_in_state_2_out_data;
+	hls_wire #(.WIDTH(32)) bb_7_predecessor_in_state_2(.in_data(bb_7_predecessor_in_state_2_in_data), .out_data(bb_7_predecessor_in_state_2_out_data));
+
+	reg [0:0] br_7_happened_in_state_2_in_data;
+	wire [0:0] br_7_happened_in_state_2_out_data;
+	hls_wire #(.WIDTH(1)) br_7_happened_in_state_2(.in_data(br_7_happened_in_state_2_in_data), .out_data(br_7_happened_in_state_2_out_data));
+
 	reg [0:0] bb_2_active_in_state_2_in_data;
 	wire [0:0] bb_2_active_in_state_2_out_data;
 	hls_wire #(.WIDTH(1)) bb_2_active_in_state_2(.in_data(bb_2_active_in_state_2_in_data), .out_data(bb_2_active_in_state_2_out_data));
@@ -172,6 +172,18 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	wire [0:0] br_2_happened_in_state_2_out_data;
 	hls_wire #(.WIDTH(1)) br_2_happened_in_state_2(.in_data(br_2_happened_in_state_2_in_data), .out_data(br_2_happened_in_state_2_out_data));
 
+	reg [0:0] bb_8_active_in_state_2_in_data;
+	wire [0:0] bb_8_active_in_state_2_out_data;
+	hls_wire #(.WIDTH(1)) bb_8_active_in_state_2(.in_data(bb_8_active_in_state_2_in_data), .out_data(bb_8_active_in_state_2_out_data));
+
+	reg [31:0] bb_8_predecessor_in_state_2_in_data;
+	wire [31:0] bb_8_predecessor_in_state_2_out_data;
+	hls_wire #(.WIDTH(32)) bb_8_predecessor_in_state_2(.in_data(bb_8_predecessor_in_state_2_in_data), .out_data(bb_8_predecessor_in_state_2_out_data));
+
+	reg [0:0] br_8_happened_in_state_2_in_data;
+	wire [0:0] br_8_happened_in_state_2_out_data;
+	hls_wire #(.WIDTH(1)) br_8_happened_in_state_2(.in_data(br_8_happened_in_state_2_in_data), .out_data(br_8_happened_in_state_2_out_data));
+
 	reg [0:0] bb_4_active_in_state_2_in_data;
 	wire [0:0] bb_4_active_in_state_2_out_data;
 	hls_wire #(.WIDTH(1)) bb_4_active_in_state_2(.in_data(bb_4_active_in_state_2_in_data), .out_data(bb_4_active_in_state_2_out_data));
@@ -179,18 +191,6 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	reg [31:0] bb_4_predecessor_in_state_2_in_data;
 	wire [31:0] bb_4_predecessor_in_state_2_out_data;
 	hls_wire #(.WIDTH(32)) bb_4_predecessor_in_state_2(.in_data(bb_4_predecessor_in_state_2_in_data), .out_data(bb_4_predecessor_in_state_2_out_data));
-
-	reg [0:0] bb_3_active_in_state_2_in_data;
-	wire [0:0] bb_3_active_in_state_2_out_data;
-	hls_wire #(.WIDTH(1)) bb_3_active_in_state_2(.in_data(bb_3_active_in_state_2_in_data), .out_data(bb_3_active_in_state_2_out_data));
-
-	reg [31:0] bb_3_predecessor_in_state_2_in_data;
-	wire [31:0] bb_3_predecessor_in_state_2_out_data;
-	hls_wire #(.WIDTH(32)) bb_3_predecessor_in_state_2(.in_data(bb_3_predecessor_in_state_2_in_data), .out_data(bb_3_predecessor_in_state_2_out_data));
-
-	reg [0:0] br_3_happened_in_state_2_in_data;
-	wire [0:0] br_3_happened_in_state_2_out_data;
-	hls_wire #(.WIDTH(1)) br_3_happened_in_state_2(.in_data(br_3_happened_in_state_2_in_data), .out_data(br_3_happened_in_state_2_out_data));
 
 	reg [31:0] data_in_0_1_in_data;
 	wire [31:0] data_in_0_1_out_data;
@@ -298,64 +298,64 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	wire [0:0] andOp_29_out;
 	andOp #(.WIDTH(1)) andOp_29(.in0(andOp_29_in0), .in1(andOp_29_in1), .out(andOp_29_out));
 
-	wire [0:0] notOp_30_in0;
-	wire [0:0] notOp_30_out;
-	notOp #(.WIDTH(1)) notOp_30(.in(notOp_30_in0), .out(notOp_30_out));
+	wire [0:0] andOp_30_in0;
+	wire [0:0] andOp_30_in1;
+	wire [0:0] andOp_30_out;
+	andOp #(.WIDTH(1)) andOp_30(.in0(andOp_30_in0), .in1(andOp_30_in1), .out(andOp_30_out));
 
-	wire [0:0] andOp_31_in0;
-	wire [0:0] andOp_31_in1;
-	wire [0:0] andOp_31_out;
-	andOp #(.WIDTH(1)) andOp_31(.in0(andOp_31_in0), .in1(andOp_31_in1), .out(andOp_31_out));
+	wire [0:0] notOp_31_in0;
+	wire [0:0] notOp_31_out;
+	notOp #(.WIDTH(1)) notOp_31(.in(notOp_31_in0), .out(notOp_31_out));
 
-	wire [0:0] notOp_32_in0;
-	wire [0:0] notOp_32_out;
-	notOp #(.WIDTH(1)) notOp_32(.in(notOp_32_in0), .out(notOp_32_out));
+	wire [0:0] andOp_32_in0;
+	wire [0:0] andOp_32_in1;
+	wire [0:0] andOp_32_out;
+	andOp #(.WIDTH(1)) andOp_32(.in0(andOp_32_in0), .in1(andOp_32_in1), .out(andOp_32_out));
 
-	wire [0:0] andOp_33_in0;
-	wire [0:0] andOp_33_in1;
-	wire [0:0] andOp_33_out;
-	andOp #(.WIDTH(1)) andOp_33(.in0(andOp_33_in0), .in1(andOp_33_in1), .out(andOp_33_out));
+	wire [0:0] notOp_33_in0;
+	wire [0:0] notOp_33_out;
+	notOp #(.WIDTH(1)) notOp_33(.in(notOp_33_in0), .out(notOp_33_out));
 
-	wire [0:0] notOp_34_in0;
-	wire [0:0] notOp_34_out;
-	notOp #(.WIDTH(1)) notOp_34(.in(notOp_34_in0), .out(notOp_34_out));
+	wire [0:0] andOp_34_in0;
+	wire [0:0] andOp_34_in1;
+	wire [0:0] andOp_34_out;
+	andOp #(.WIDTH(1)) andOp_34(.in0(andOp_34_in0), .in1(andOp_34_in1), .out(andOp_34_out));
 
 	wire [0:0] andOp_35_in0;
 	wire [0:0] andOp_35_in1;
 	wire [0:0] andOp_35_out;
 	andOp #(.WIDTH(1)) andOp_35(.in0(andOp_35_in0), .in1(andOp_35_in1), .out(andOp_35_out));
 
-	wire [0:0] andOp_36_in0;
-	wire [0:0] andOp_36_in1;
-	wire [0:0] andOp_36_out;
-	andOp #(.WIDTH(1)) andOp_36(.in0(andOp_36_in0), .in1(andOp_36_in1), .out(andOp_36_out));
+	wire [0:0] notOp_36_in0;
+	wire [0:0] notOp_36_out;
+	notOp #(.WIDTH(1)) notOp_36(.in(notOp_36_in0), .out(notOp_36_out));
 
-	wire [0:0] notOp_37_in0;
-	wire [0:0] notOp_37_out;
-	notOp #(.WIDTH(1)) notOp_37(.in(notOp_37_in0), .out(notOp_37_out));
+	wire [0:0] andOp_37_in0;
+	wire [0:0] andOp_37_in1;
+	wire [0:0] andOp_37_out;
+	andOp #(.WIDTH(1)) andOp_37(.in0(andOp_37_in0), .in1(andOp_37_in1), .out(andOp_37_out));
 
-	wire [0:0] andOp_38_in0;
-	wire [0:0] andOp_38_in1;
-	wire [0:0] andOp_38_out;
-	andOp #(.WIDTH(1)) andOp_38(.in0(andOp_38_in0), .in1(andOp_38_in1), .out(andOp_38_out));
+	wire [0:0] notOp_38_in0;
+	wire [0:0] notOp_38_out;
+	notOp #(.WIDTH(1)) notOp_38(.in(notOp_38_in0), .out(notOp_38_out));
 
-	wire [0:0] notOp_39_in0;
-	wire [0:0] notOp_39_out;
-	notOp #(.WIDTH(1)) notOp_39(.in(notOp_39_in0), .out(notOp_39_out));
+	wire [0:0] andOp_39_in0;
+	wire [0:0] andOp_39_in1;
+	wire [0:0] andOp_39_out;
+	andOp #(.WIDTH(1)) andOp_39(.in0(andOp_39_in0), .in1(andOp_39_in1), .out(andOp_39_out));
 
-	wire [0:0] andOp_40_in0;
-	wire [0:0] andOp_40_in1;
-	wire [0:0] andOp_40_out;
-	andOp #(.WIDTH(1)) andOp_40(.in0(andOp_40_in0), .in1(andOp_40_in1), .out(andOp_40_out));
+	wire [0:0] notOp_40_in0;
+	wire [0:0] notOp_40_out;
+	notOp #(.WIDTH(1)) notOp_40(.in(notOp_40_in0), .out(notOp_40_out));
 
-	wire [0:0] notOp_41_in0;
-	wire [0:0] notOp_41_out;
-	notOp #(.WIDTH(1)) notOp_41(.in(notOp_41_in0), .out(notOp_41_out));
+	wire [0:0] andOp_41_in0;
+	wire [0:0] andOp_41_in1;
+	wire [0:0] andOp_41_out;
+	andOp #(.WIDTH(1)) andOp_41(.in0(andOp_41_in0), .in1(andOp_41_in1), .out(andOp_41_out));
 
-	wire [0:0] andOp_42_in0;
-	wire [0:0] andOp_42_in1;
-	wire [0:0] andOp_42_out;
-	andOp #(.WIDTH(1)) andOp_42(.in0(andOp_42_in0), .in1(andOp_42_in1), .out(andOp_42_out));
+	wire [0:0] notOp_42_in0;
+	wire [0:0] notOp_42_out;
+	notOp #(.WIDTH(1)) notOp_42(.in(notOp_42_in0), .out(notOp_42_out));
 
 	wire [31:0] eq_43_in0;
 	wire [31:0] eq_43_in1;
@@ -382,15 +382,15 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	wire [0:0] eq_47_out;
 	eq #(.WIDTH(32)) eq_47(.in0(eq_47_in0), .in1(eq_47_in1), .out(eq_47_out));
 
-	wire [31:0] eq_48_in0;
-	wire [31:0] eq_48_in1;
-	wire [0:0] eq_48_out;
-	eq #(.WIDTH(32)) eq_48(.in0(eq_48_in0), .in1(eq_48_in1), .out(eq_48_out));
+	wire [0:0] orOp_48_in0;
+	wire [0:0] orOp_48_in1;
+	wire [0:0] orOp_48_out;
+	orOp #(.WIDTH(1)) orOp_48(.in0(orOp_48_in0), .in1(orOp_48_in1), .out(orOp_48_out));
 
-	wire [0:0] orOp_49_in0;
-	wire [0:0] orOp_49_in1;
-	wire [0:0] orOp_49_out;
-	orOp #(.WIDTH(1)) orOp_49(.in0(orOp_49_in0), .in1(orOp_49_in1), .out(orOp_49_out));
+	wire [31:0] eq_49_in0;
+	wire [31:0] eq_49_in1;
+	wire [0:0] eq_49_out;
+	eq #(.WIDTH(32)) eq_49(.in0(eq_49_in0), .in1(eq_49_in1), .out(eq_49_out));
 
 	wire [31:0] eq_50_in0;
 	wire [31:0] eq_50_in1;
@@ -402,35 +402,35 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	wire [0:0] eq_51_out;
 	eq #(.WIDTH(32)) eq_51(.in0(eq_51_in0), .in1(eq_51_in1), .out(eq_51_out));
 
-	wire [31:0] eq_52_in0;
-	wire [31:0] eq_52_in1;
-	wire [0:0] eq_52_out;
-	eq #(.WIDTH(32)) eq_52(.in0(eq_52_in0), .in1(eq_52_in1), .out(eq_52_out));
+	wire [0:0] orOp_52_in0;
+	wire [0:0] orOp_52_in1;
+	wire [0:0] orOp_52_out;
+	orOp #(.WIDTH(1)) orOp_52(.in0(orOp_52_in0), .in1(orOp_52_in1), .out(orOp_52_out));
 
-	wire [0:0] orOp_53_in0;
-	wire [0:0] orOp_53_in1;
-	wire [0:0] orOp_53_out;
-	orOp #(.WIDTH(1)) orOp_53(.in0(orOp_53_in0), .in1(orOp_53_in1), .out(orOp_53_out));
+	wire [31:0] eq_53_in0;
+	wire [31:0] eq_53_in1;
+	wire [0:0] eq_53_out;
+	eq #(.WIDTH(32)) eq_53(.in0(eq_53_in0), .in1(eq_53_in1), .out(eq_53_out));
 
-	wire [31:0] eq_54_in0;
-	wire [31:0] eq_54_in1;
-	wire [0:0] eq_54_out;
-	eq #(.WIDTH(32)) eq_54(.in0(eq_54_in0), .in1(eq_54_in1), .out(eq_54_out));
+	wire [0:0] orOp_54_in0;
+	wire [0:0] orOp_54_in1;
+	wire [0:0] orOp_54_out;
+	orOp #(.WIDTH(1)) orOp_54(.in0(orOp_54_in0), .in1(orOp_54_in1), .out(orOp_54_out));
 
-	wire [0:0] orOp_55_in0;
-	wire [0:0] orOp_55_in1;
-	wire [0:0] orOp_55_out;
-	orOp #(.WIDTH(1)) orOp_55(.in0(orOp_55_in0), .in1(orOp_55_in1), .out(orOp_55_out));
+	wire [31:0] eq_55_in0;
+	wire [31:0] eq_55_in1;
+	wire [0:0] eq_55_out;
+	eq #(.WIDTH(32)) eq_55(.in0(eq_55_in0), .in1(eq_55_in1), .out(eq_55_out));
 
-	wire [31:0] eq_56_in0;
-	wire [31:0] eq_56_in1;
-	wire [0:0] eq_56_out;
-	eq #(.WIDTH(32)) eq_56(.in0(eq_56_in0), .in1(eq_56_in1), .out(eq_56_out));
+	wire [0:0] orOp_56_in0;
+	wire [0:0] orOp_56_in1;
+	wire [0:0] orOp_56_out;
+	orOp #(.WIDTH(1)) orOp_56(.in0(orOp_56_in0), .in1(orOp_56_in1), .out(orOp_56_out));
 
-	wire [0:0] orOp_57_in0;
-	wire [0:0] orOp_57_in1;
-	wire [0:0] orOp_57_out;
-	orOp #(.WIDTH(1)) orOp_57(.in0(orOp_57_in0), .in1(orOp_57_in1), .out(orOp_57_out));
+	wire [31:0] eq_57_in0;
+	wire [31:0] eq_57_in1;
+	wire [0:0] eq_57_out;
+	eq #(.WIDTH(32)) eq_57(.in0(eq_57_in0), .in1(eq_57_in1), .out(eq_57_out));
 
 	wire [31:0] eq_58_in0;
 	wire [31:0] eq_58_in1;
@@ -495,19 +495,19 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	wire [0:0] eq_70_out;
 	eq #(.WIDTH(32)) eq_70(.in0(eq_70_in0), .in1(eq_70_in1), .out(eq_70_out));
 
-	wire [31:0] eq_71_in0;
-	wire [31:0] eq_71_in1;
-	wire [0:0] eq_71_out;
-	eq #(.WIDTH(32)) eq_71(.in0(eq_71_in0), .in1(eq_71_in1), .out(eq_71_out));
+	wire [0:0] notOp_71_in0;
+	wire [0:0] notOp_71_out;
+	notOp #(.WIDTH(1)) notOp_71(.in(notOp_71_in0), .out(notOp_71_out));
 
-	wire [0:0] notOp_72_in0;
-	wire [0:0] notOp_72_out;
-	notOp #(.WIDTH(1)) notOp_72(.in(notOp_72_in0), .out(notOp_72_out));
+	wire [0:0] andOp_72_in0;
+	wire [0:0] andOp_72_in1;
+	wire [0:0] andOp_72_out;
+	andOp #(.WIDTH(1)) andOp_72(.in0(andOp_72_in0), .in1(andOp_72_in1), .out(andOp_72_out));
 
-	wire [0:0] andOp_73_in0;
-	wire [0:0] andOp_73_in1;
-	wire [0:0] andOp_73_out;
-	andOp #(.WIDTH(1)) andOp_73(.in0(andOp_73_in0), .in1(andOp_73_in1), .out(andOp_73_out));
+	wire [31:0] eq_73_in0;
+	wire [31:0] eq_73_in1;
+	wire [0:0] eq_73_out;
+	eq #(.WIDTH(32)) eq_73(.in0(eq_73_in0), .in1(eq_73_in1), .out(eq_73_out));
 
 	wire [31:0] eq_74_in0;
 	wire [31:0] eq_74_in1;
@@ -519,47 +519,47 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	wire [0:0] eq_75_out;
 	eq #(.WIDTH(32)) eq_75(.in0(eq_75_in0), .in1(eq_75_in1), .out(eq_75_out));
 
-	wire [31:0] eq_76_in0;
-	wire [31:0] eq_76_in1;
-	wire [0:0] eq_76_out;
-	eq #(.WIDTH(32)) eq_76(.in0(eq_76_in0), .in1(eq_76_in1), .out(eq_76_out));
+	wire [0:0] notOp_76_in0;
+	wire [0:0] notOp_76_out;
+	notOp #(.WIDTH(1)) notOp_76(.in(notOp_76_in0), .out(notOp_76_out));
 
-	wire [0:0] notOp_77_in0;
-	wire [0:0] notOp_77_out;
-	notOp #(.WIDTH(1)) notOp_77(.in(notOp_77_in0), .out(notOp_77_out));
+	wire [0:0] andOp_77_in0;
+	wire [0:0] andOp_77_in1;
+	wire [0:0] andOp_77_out;
+	andOp #(.WIDTH(1)) andOp_77(.in0(andOp_77_in0), .in1(andOp_77_in1), .out(andOp_77_out));
 
-	wire [0:0] andOp_78_in0;
-	wire [0:0] andOp_78_in1;
-	wire [0:0] andOp_78_out;
-	andOp #(.WIDTH(1)) andOp_78(.in0(andOp_78_in0), .in1(andOp_78_in1), .out(andOp_78_out));
+	wire [31:0] eq_78_in0;
+	wire [31:0] eq_78_in1;
+	wire [0:0] eq_78_out;
+	eq #(.WIDTH(32)) eq_78(.in0(eq_78_in0), .in1(eq_78_in1), .out(eq_78_out));
 
-	wire [31:0] eq_79_in0;
-	wire [31:0] eq_79_in1;
-	wire [0:0] eq_79_out;
-	eq #(.WIDTH(32)) eq_79(.in0(eq_79_in0), .in1(eq_79_in1), .out(eq_79_out));
+	wire [0:0] notOp_79_in0;
+	wire [0:0] notOp_79_out;
+	notOp #(.WIDTH(1)) notOp_79(.in(notOp_79_in0), .out(notOp_79_out));
 
-	wire [0:0] notOp_80_in0;
-	wire [0:0] notOp_80_out;
-	notOp #(.WIDTH(1)) notOp_80(.in(notOp_80_in0), .out(notOp_80_out));
+	wire [0:0] andOp_80_in0;
+	wire [0:0] andOp_80_in1;
+	wire [0:0] andOp_80_out;
+	andOp #(.WIDTH(1)) andOp_80(.in0(andOp_80_in0), .in1(andOp_80_in1), .out(andOp_80_out));
 
-	wire [0:0] andOp_81_in0;
-	wire [0:0] andOp_81_in1;
-	wire [0:0] andOp_81_out;
-	andOp #(.WIDTH(1)) andOp_81(.in0(andOp_81_in0), .in1(andOp_81_in1), .out(andOp_81_out));
+	wire [31:0] eq_81_in0;
+	wire [31:0] eq_81_in1;
+	wire [0:0] eq_81_out;
+	eq #(.WIDTH(32)) eq_81(.in0(eq_81_in0), .in1(eq_81_in1), .out(eq_81_out));
 
-	wire [31:0] eq_82_in0;
-	wire [31:0] eq_82_in1;
-	wire [0:0] eq_82_out;
-	eq #(.WIDTH(32)) eq_82(.in0(eq_82_in0), .in1(eq_82_in1), .out(eq_82_out));
+	wire [0:0] notOp_82_in0;
+	wire [0:0] notOp_82_out;
+	notOp #(.WIDTH(1)) notOp_82(.in(notOp_82_in0), .out(notOp_82_out));
 
-	wire [0:0] notOp_83_in0;
-	wire [0:0] notOp_83_out;
-	notOp #(.WIDTH(1)) notOp_83(.in(notOp_83_in0), .out(notOp_83_out));
+	wire [0:0] andOp_83_in0;
+	wire [0:0] andOp_83_in1;
+	wire [0:0] andOp_83_out;
+	andOp #(.WIDTH(1)) andOp_83(.in0(andOp_83_in0), .in1(andOp_83_in1), .out(andOp_83_out));
 
-	wire [0:0] andOp_84_in0;
-	wire [0:0] andOp_84_in1;
-	wire [0:0] andOp_84_out;
-	andOp #(.WIDTH(1)) andOp_84(.in0(andOp_84_in0), .in1(andOp_84_in1), .out(andOp_84_out));
+	wire [31:0] eq_84_in0;
+	wire [31:0] eq_84_in1;
+	wire [0:0] eq_84_out;
+	eq #(.WIDTH(32)) eq_84(.in0(eq_84_in0), .in1(eq_84_in1), .out(eq_84_out));
 
 	wire [31:0] eq_85_in0;
 	wire [31:0] eq_85_in1;
@@ -608,30 +608,30 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	wire [0:0] andOp_94_out;
 	andOp #(.WIDTH(1)) andOp_94(.in0(andOp_94_in0), .in1(andOp_94_in1), .out(andOp_94_out));
 
-	wire [0:0] andOp_95_in0;
-	wire [0:0] andOp_95_in1;
-	wire [0:0] andOp_95_out;
-	andOp #(.WIDTH(1)) andOp_95(.in0(andOp_95_in0), .in1(andOp_95_in1), .out(andOp_95_out));
+	wire [31:0] concat_95_in0;
+	wire [31:0] concat_95_in1;
+	wire [63:0] concat_95_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_95(.in0(concat_95_in0), .in1(concat_95_in1), .out(concat_95_out));
 
-	wire [0:0] andOp_96_in0;
-	wire [0:0] andOp_96_in1;
-	wire [0:0] andOp_96_out;
-	andOp #(.WIDTH(1)) andOp_96(.in0(andOp_96_in0), .in1(andOp_96_in1), .out(andOp_96_out));
+	wire [31:0] concat_96_in0;
+	wire [31:0] concat_96_in1;
+	wire [63:0] concat_96_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_96(.in0(concat_96_in0), .in1(concat_96_in1), .out(concat_96_out));
 
 	wire [0:0] andOp_97_in0;
 	wire [0:0] andOp_97_in1;
 	wire [0:0] andOp_97_out;
 	andOp #(.WIDTH(1)) andOp_97(.in0(andOp_97_in0), .in1(andOp_97_in1), .out(andOp_97_out));
 
-	wire [31:0] concat_98_in0;
-	wire [31:0] concat_98_in1;
-	wire [63:0] concat_98_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_98(.in0(concat_98_in0), .in1(concat_98_in1), .out(concat_98_out));
+	wire [0:0] andOp_98_in0;
+	wire [0:0] andOp_98_in1;
+	wire [0:0] andOp_98_out;
+	andOp #(.WIDTH(1)) andOp_98(.in0(andOp_98_in0), .in1(andOp_98_in1), .out(andOp_98_out));
 
-	wire [31:0] concat_99_in0;
-	wire [31:0] concat_99_in1;
-	wire [63:0] concat_99_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_99(.in0(concat_99_in0), .in1(concat_99_in1), .out(concat_99_out));
+	wire [0:0] andOp_99_in0;
+	wire [0:0] andOp_99_in1;
+	wire [0:0] andOp_99_out;
+	andOp #(.WIDTH(1)) andOp_99(.in0(andOp_99_in0), .in1(andOp_99_in1), .out(andOp_99_out));
 
 	wire [0:0] andOp_100_in0;
 	wire [0:0] andOp_100_in1;
@@ -648,48 +648,48 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	wire [0:0] andOp_102_out;
 	andOp #(.WIDTH(1)) andOp_102(.in0(andOp_102_in0), .in1(andOp_102_in1), .out(andOp_102_out));
 
-	wire [0:0] andOp_103_in0;
-	wire [0:0] andOp_103_in1;
-	wire [0:0] andOp_103_out;
-	andOp #(.WIDTH(1)) andOp_103(.in0(andOp_103_in0), .in1(andOp_103_in1), .out(andOp_103_out));
+	reg [31:0] tmp_output_103_in_data;
+	wire [31:0] tmp_output_103_out_data;
+	hls_wire #(.WIDTH(32)) tmp_output_103(.in_data(tmp_output_103_in_data), .out_data(tmp_output_103_out_data));
 
-	reg [31:0] tmp_output_104_in_data;
-	wire [31:0] tmp_output_104_out_data;
-	hls_wire #(.WIDTH(32)) tmp_output_104(.in_data(tmp_output_104_in_data), .out_data(tmp_output_104_out_data));
+	wire [31:0] eq_104_in0;
+	wire [31:0] eq_104_in1;
+	wire [0:0] eq_104_out;
+	eq #(.WIDTH(32)) eq_104(.in0(eq_104_in0), .in1(eq_104_in1), .out(eq_104_out));
 
 	wire [31:0] eq_105_in0;
 	wire [31:0] eq_105_in1;
 	wire [0:0] eq_105_out;
 	eq #(.WIDTH(32)) eq_105(.in0(eq_105_in0), .in1(eq_105_in1), .out(eq_105_out));
 
-	wire [31:0] eq_106_in0;
-	wire [31:0] eq_106_in1;
-	wire [0:0] eq_106_out;
-	eq #(.WIDTH(32)) eq_106(.in0(eq_106_in0), .in1(eq_106_in1), .out(eq_106_out));
+	wire [0:0] andOp_106_in0;
+	wire [0:0] andOp_106_in1;
+	wire [0:0] andOp_106_out;
+	andOp #(.WIDTH(1)) andOp_106(.in0(andOp_106_in0), .in1(andOp_106_in1), .out(andOp_106_out));
 
 	wire [0:0] andOp_107_in0;
 	wire [0:0] andOp_107_in1;
 	wire [0:0] andOp_107_out;
 	andOp #(.WIDTH(1)) andOp_107(.in0(andOp_107_in0), .in1(andOp_107_in1), .out(andOp_107_out));
 
-	reg [31:0] tmp_output_108_in_data;
-	wire [31:0] tmp_output_108_out_data;
-	hls_wire #(.WIDTH(32)) tmp_output_108(.in_data(tmp_output_108_in_data), .out_data(tmp_output_108_out_data));
+	wire [0:0] andOp_108_in0;
+	wire [0:0] andOp_108_in1;
+	wire [0:0] andOp_108_out;
+	andOp #(.WIDTH(1)) andOp_108(.in0(andOp_108_in0), .in1(andOp_108_in1), .out(andOp_108_out));
 
-	wire [31:0] eq_109_in0;
-	wire [31:0] eq_109_in1;
-	wire [0:0] eq_109_out;
-	eq #(.WIDTH(32)) eq_109(.in0(eq_109_in0), .in1(eq_109_in1), .out(eq_109_out));
+	reg [31:0] tmp_output_109_in_data;
+	wire [31:0] tmp_output_109_out_data;
+	hls_wire #(.WIDTH(32)) tmp_output_109(.in_data(tmp_output_109_in_data), .out_data(tmp_output_109_out_data));
 
 	wire [31:0] eq_110_in0;
 	wire [31:0] eq_110_in1;
 	wire [0:0] eq_110_out;
 	eq #(.WIDTH(32)) eq_110(.in0(eq_110_in0), .in1(eq_110_in1), .out(eq_110_out));
 
-	wire [0:0] andOp_111_in0;
-	wire [0:0] andOp_111_in1;
-	wire [0:0] andOp_111_out;
-	andOp #(.WIDTH(1)) andOp_111(.in0(andOp_111_in0), .in1(andOp_111_in1), .out(andOp_111_out));
+	wire [31:0] eq_111_in0;
+	wire [31:0] eq_111_in1;
+	wire [0:0] eq_111_out;
+	eq #(.WIDTH(32)) eq_111(.in0(eq_111_in0), .in1(eq_111_in1), .out(eq_111_out));
 
 	wire [0:0] andOp_112_in0;
 	wire [0:0] andOp_112_in1;
@@ -822,16 +822,16 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	reg [31:0] state_2_last_BB_reg;
 	reg [31:0] state_2_last_state;
 
-	// controller for add_add6.add_add6_in0
-	// controller for add_add6.add_add6_in1
+	// controller for add_add4.add_add4_in0
+	// controller for add_add4.add_add4_in1
 	// Insensitive connections
-	assign add_add6_in0 = phi_phi5_out;
-	assign add_add6_in1 = 32'd1;
+	assign add_add4_in0 = phi_phi3_out;
+	assign add_add4_in1 = 32'd1;
 	// controller for andOp_100.andOp_100_in0
 	// controller for andOp_100.andOp_100_in1
 	// Insensitive connections
-	assign andOp_100_in0 = bb_1_active_in_state_0_out_data;
-	assign andOp_100_in1 = state_0_is_active;
+	assign andOp_100_in0 = bb_7_active_in_state_2_out_data;
+	assign andOp_100_in1 = state_2_is_active;
 	// controller for andOp_101.andOp_101_in0
 	// controller for andOp_101.andOp_101_in1
 	// Insensitive connections
@@ -840,27 +840,27 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for andOp_102.andOp_102_in0
 	// controller for andOp_102.andOp_102_in1
 	// Insensitive connections
-	assign andOp_102_in0 = bb_9_active_in_state_2_out_data;
+	assign andOp_102_in0 = bb_10_active_in_state_2_out_data;
 	assign andOp_102_in1 = state_2_is_active;
-	// controller for andOp_103.andOp_103_in0
-	// controller for andOp_103.andOp_103_in1
+	// controller for andOp_106.andOp_106_in0
+	// controller for andOp_106.andOp_106_in1
 	// Insensitive connections
-	assign andOp_103_in0 = bb_10_active_in_state_2_out_data;
-	assign andOp_103_in1 = state_2_is_active;
+	assign andOp_106_in0 = bb_9_active_in_state_2_out_data;
+	assign andOp_106_in1 = state_2_is_active;
 	// controller for andOp_107.andOp_107_in0
 	// controller for andOp_107.andOp_107_in1
 	// Insensitive connections
-	assign andOp_107_in0 = bb_2_active_in_state_2_out_data;
+	assign andOp_107_in0 = bb_4_active_in_state_2_out_data;
 	assign andOp_107_in1 = state_2_is_active;
-	// controller for andOp_111.andOp_111_in0
-	// controller for andOp_111.andOp_111_in1
+	// controller for andOp_108.andOp_108_in0
+	// controller for andOp_108.andOp_108_in1
 	// Insensitive connections
-	assign andOp_111_in0 = bb_3_active_in_state_2_out_data;
-	assign andOp_111_in1 = state_2_is_active;
+	assign andOp_108_in0 = bb_2_active_in_state_2_out_data;
+	assign andOp_108_in1 = state_2_is_active;
 	// controller for andOp_112.andOp_112_in0
 	// controller for andOp_112.andOp_112_in1
 	// Insensitive connections
-	assign andOp_112_in0 = bb_4_active_in_state_2_out_data;
+	assign andOp_112_in0 = bb_3_active_in_state_2_out_data;
 	assign andOp_112_in1 = state_2_is_active;
 	// controller for andOp_113.andOp_113_in0
 	// controller for andOp_113.andOp_113_in1
@@ -935,12 +935,12 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for andOp_19.andOp_19_in0
 	// controller for andOp_19.andOp_19_in1
 	// Insensitive connections
-	assign andOp_19_in0 = bb_0_active_in_state_0_out_data;
+	assign andOp_19_in0 = bb_1_active_in_state_0_out_data;
 	assign andOp_19_in1 = state_0_is_active;
 	// controller for andOp_21.andOp_21_in0
 	// controller for andOp_21.andOp_21_in1
 	// Insensitive connections
-	assign andOp_21_in0 = bb_1_active_in_state_0_out_data;
+	assign andOp_21_in0 = bb_0_active_in_state_0_out_data;
 	assign andOp_21_in1 = state_0_is_active;
 	// controller for andOp_23.andOp_23_in0
 	// controller for andOp_23.andOp_23_in1
@@ -950,83 +950,83 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for andOp_25.andOp_25_in0
 	// controller for andOp_25.andOp_25_in1
 	// Insensitive connections
-	assign andOp_25_in0 = bb_7_active_in_state_2_out_data;
+	assign andOp_25_in0 = bb_3_active_in_state_2_out_data;
 	assign andOp_25_in1 = state_2_is_active;
 	// controller for andOp_27.andOp_27_in0
 	// controller for andOp_27.andOp_27_in1
 	// Insensitive connections
-	assign andOp_27_in0 = bb_10_active_in_state_2_out_data;
-	assign andOp_27_in1 = state_2_is_active;
+	assign andOp_27_in0 = andOp_25_out;
+	assign andOp_27_in1 = icmp_icmp18_out;
 	// controller for andOp_29.andOp_29_in0
 	// controller for andOp_29.andOp_29_in1
 	// Insensitive connections
-	assign andOp_29_in0 = bb_8_active_in_state_2_out_data;
-	assign andOp_29_in1 = state_2_is_active;
-	// controller for andOp_31.andOp_31_in0
-	// controller for andOp_31.andOp_31_in1
+	assign andOp_29_in0 = andOp_25_out;
+	assign andOp_29_in1 = notOp_28_out;
+	// controller for andOp_30.andOp_30_in0
+	// controller for andOp_30.andOp_30_in1
 	// Insensitive connections
-	assign andOp_31_in0 = bb_9_active_in_state_2_out_data;
-	assign andOp_31_in1 = state_2_is_active;
-	// controller for andOp_33.andOp_33_in0
-	// controller for andOp_33.andOp_33_in1
+	assign andOp_30_in0 = bb_9_active_in_state_2_out_data;
+	assign andOp_30_in1 = state_2_is_active;
+	// controller for andOp_32.andOp_32_in0
+	// controller for andOp_32.andOp_32_in1
 	// Insensitive connections
-	assign andOp_33_in0 = andOp_31_out;
-	assign andOp_33_in1 = arg_1_write_ready;
+	assign andOp_32_in0 = andOp_30_out;
+	assign andOp_32_in1 = arg_1_write_ready;
+	// controller for andOp_34.andOp_34_in0
+	// controller for andOp_34.andOp_34_in1
+	// Insensitive connections
+	assign andOp_34_in0 = andOp_30_out;
+	assign andOp_34_in1 = notOp_33_out;
 	// controller for andOp_35.andOp_35_in0
 	// controller for andOp_35.andOp_35_in1
 	// Insensitive connections
-	assign andOp_35_in0 = andOp_31_out;
-	assign andOp_35_in1 = notOp_34_out;
-	// controller for andOp_36.andOp_36_in0
-	// controller for andOp_36.andOp_36_in1
+	assign andOp_35_in0 = bb_10_active_in_state_2_out_data;
+	assign andOp_35_in1 = state_2_is_active;
+	// controller for andOp_37.andOp_37_in0
+	// controller for andOp_37.andOp_37_in1
 	// Insensitive connections
-	assign andOp_36_in0 = bb_2_active_in_state_2_out_data;
-	assign andOp_36_in1 = state_2_is_active;
-	// controller for andOp_38.andOp_38_in0
-	// controller for andOp_38.andOp_38_in1
+	assign andOp_37_in0 = bb_7_active_in_state_2_out_data;
+	assign andOp_37_in1 = state_2_is_active;
+	// controller for andOp_39.andOp_39_in0
+	// controller for andOp_39.andOp_39_in1
 	// Insensitive connections
-	assign andOp_38_in0 = bb_3_active_in_state_2_out_data;
-	assign andOp_38_in1 = state_2_is_active;
-	// controller for andOp_40.andOp_40_in0
-	// controller for andOp_40.andOp_40_in1
+	assign andOp_39_in0 = bb_2_active_in_state_2_out_data;
+	assign andOp_39_in1 = state_2_is_active;
+	// controller for andOp_41.andOp_41_in0
+	// controller for andOp_41.andOp_41_in1
 	// Insensitive connections
-	assign andOp_40_in0 = andOp_38_out;
-	assign andOp_40_in1 = icmp_icmp15_out;
-	// controller for andOp_42.andOp_42_in0
-	// controller for andOp_42.andOp_42_in1
-	// Insensitive connections
-	assign andOp_42_in0 = andOp_38_out;
-	assign andOp_42_in1 = notOp_41_out;
+	assign andOp_41_in0 = bb_8_active_in_state_2_out_data;
+	assign andOp_41_in1 = state_2_is_active;
 	// controller for andOp_66.andOp_66_in0
 	// controller for andOp_66.andOp_66_in1
 	// Insensitive connections
 	assign andOp_66_in0 = notOp_65_out;
-	assign andOp_66_in1 = andOp_21_out;
+	assign andOp_66_in1 = andOp_19_out;
 	// controller for andOp_69.andOp_69_in0
 	// controller for andOp_69.andOp_69_in1
 	// Insensitive connections
 	assign andOp_69_in0 = notOp_68_out;
 	assign andOp_69_in1 = andOp_12_out;
-	// controller for andOp_73.andOp_73_in0
-	// controller for andOp_73.andOp_73_in1
+	// controller for andOp_72.andOp_72_in0
+	// controller for andOp_72.andOp_72_in1
 	// Insensitive connections
-	assign andOp_73_in0 = notOp_72_out;
-	assign andOp_73_in1 = andOp_19_out;
-	// controller for andOp_78.andOp_78_in0
-	// controller for andOp_78.andOp_78_in1
+	assign andOp_72_in0 = notOp_71_out;
+	assign andOp_72_in1 = andOp_21_out;
+	// controller for andOp_77.andOp_77_in0
+	// controller for andOp_77.andOp_77_in1
 	// Insensitive connections
-	assign andOp_78_in0 = notOp_77_out;
-	assign andOp_78_in1 = andOp_33_out;
-	// controller for andOp_81.andOp_81_in0
-	// controller for andOp_81.andOp_81_in1
+	assign andOp_77_in0 = notOp_76_out;
+	assign andOp_77_in1 = andOp_35_out;
+	// controller for andOp_80.andOp_80_in0
+	// controller for andOp_80.andOp_80_in1
 	// Insensitive connections
-	assign andOp_81_in0 = notOp_80_out;
-	assign andOp_81_in1 = andOp_36_out;
-	// controller for andOp_84.andOp_84_in0
-	// controller for andOp_84.andOp_84_in1
+	assign andOp_80_in0 = notOp_79_out;
+	assign andOp_80_in1 = andOp_41_out;
+	// controller for andOp_83.andOp_83_in0
+	// controller for andOp_83.andOp_83_in1
 	// Insensitive connections
-	assign andOp_84_in0 = notOp_83_out;
-	assign andOp_84_in1 = andOp_29_out;
+	assign andOp_83_in0 = notOp_82_out;
+	assign andOp_83_in1 = andOp_32_out;
 	// controller for andOp_87.andOp_87_in0
 	// controller for andOp_87.andOp_87_in1
 	// Insensitive connections
@@ -1036,35 +1036,35 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for andOp_90.andOp_90_in1
 	// Insensitive connections
 	assign andOp_90_in0 = notOp_89_out;
-	assign andOp_90_in1 = andOp_42_out;
+	assign andOp_90_in1 = andOp_39_out;
 	// controller for andOp_93.andOp_93_in0
 	// controller for andOp_93.andOp_93_in1
 	// Insensitive connections
 	assign andOp_93_in0 = notOp_92_out;
-	assign andOp_93_in1 = andOp_27_out;
+	assign andOp_93_in1 = andOp_29_out;
 	// controller for andOp_94.andOp_94_in0
 	// controller for andOp_94.andOp_94_in1
 	// Insensitive connections
-	assign andOp_94_in0 = bb_6_active_in_state_0_out_data;
+	assign andOp_94_in0 = bb_1_active_in_state_0_out_data;
 	assign andOp_94_in1 = state_0_is_active;
-	// controller for andOp_95.andOp_95_in0
-	// controller for andOp_95.andOp_95_in1
-	// Insensitive connections
-	assign andOp_95_in0 = bb_7_active_in_state_1_out_data;
-	assign andOp_95_in1 = state_1_is_active;
-	// controller for andOp_96.andOp_96_in0
-	// controller for andOp_96.andOp_96_in1
-	// Insensitive connections
-	assign andOp_96_in0 = bb_7_active_in_state_2_out_data;
-	assign andOp_96_in1 = state_2_is_active;
 	// controller for andOp_97.andOp_97_in0
 	// controller for andOp_97.andOp_97_in1
 	// Insensitive connections
 	assign andOp_97_in0 = bb_1_active_in_state_0_out_data;
 	assign andOp_97_in1 = state_0_is_active;
+	// controller for andOp_98.andOp_98_in0
+	// controller for andOp_98.andOp_98_in1
+	// Insensitive connections
+	assign andOp_98_in0 = bb_6_active_in_state_0_out_data;
+	assign andOp_98_in1 = state_0_is_active;
+	// controller for andOp_99.andOp_99_in0
+	// controller for andOp_99.andOp_99_in1
+	// Insensitive connections
+	assign andOp_99_in0 = bb_7_active_in_state_1_out_data;
+	assign andOp_99_in1 = state_1_is_active;
 	// controller for arg_0.arg_0_read_valid_reg
 	always @(*) begin
-		if (andOp_95_out) begin 
+		if (andOp_99_out) begin 
 			arg_0_read_valid_reg = -(1'd1);
 		end else begin
 			arg_0_read_valid_reg = 0;
@@ -1072,8 +1072,8 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	end
 	// controller for arg_1.arg_1_in_data_reg
 	always @(*) begin
-		if (andOp_103_out) begin 
-			arg_1_in_data_reg = tmp_output_104_out_data;
+		if (andOp_102_out) begin 
+			arg_1_in_data_reg = tmp_output_103_out_data;
 		end else begin
 			arg_1_in_data_reg = 0;
 		end
@@ -1089,14 +1089,14 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for bb_0_active_in_state_0.bb_0_active_in_state_0_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_0_active_in_state_0_in_data = eq_47_out;
+			bb_0_active_in_state_0_in_data = eq_49_out;
 		end else begin
 			bb_0_active_in_state_0_in_data = 0;
 		end
 	end
 	// controller for bb_0_predecessor_in_state_0.bb_0_predecessor_in_state_0_in_data
 	always @(*) begin
-		if (eq_70_out) begin 
+		if (eq_73_out) begin 
 			bb_0_predecessor_in_state_0_in_data = state_0_last_BB_reg;
 		end else begin
 			bb_0_predecessor_in_state_0_in_data = 0;
@@ -1105,16 +1105,16 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for bb_10_active_in_state_2.bb_10_active_in_state_2_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_10_active_in_state_2_in_data = orOp_53_out;
+			bb_10_active_in_state_2_in_data = orOp_56_out;
 		end else begin
 			bb_10_active_in_state_2_in_data = 0;
 		end
 	end
 	// controller for bb_10_predecessor_in_state_2.bb_10_predecessor_in_state_2_in_data
 	always @(*) begin
-		if (andOp_78_out) begin 
+		if (andOp_83_out) begin 
 			bb_10_predecessor_in_state_2_in_data = 32'd9;
-		end else if (eq_76_out) begin 
+		end else if (eq_81_out) begin 
 			bb_10_predecessor_in_state_2_in_data = state_2_last_BB_reg;
 		end else begin
 			bb_10_predecessor_in_state_2_in_data = 0;
@@ -1123,16 +1123,16 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for bb_1_active_in_state_0.bb_1_active_in_state_0_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_1_active_in_state_0_in_data = orOp_49_out;
+			bb_1_active_in_state_0_in_data = orOp_48_out;
 		end else begin
 			bb_1_active_in_state_0_in_data = 0;
 		end
 	end
 	// controller for bb_1_predecessor_in_state_0.bb_1_predecessor_in_state_0_in_data
 	always @(*) begin
-		if (andOp_73_out) begin 
+		if (andOp_72_out) begin 
 			bb_1_predecessor_in_state_0_in_data = 32'd0;
-		end else if (eq_71_out) begin 
+		end else if (eq_70_out) begin 
 			bb_1_predecessor_in_state_0_in_data = state_0_last_BB_reg;
 		end else begin
 			bb_1_predecessor_in_state_0_in_data = 0;
@@ -1159,16 +1159,16 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for bb_3_active_in_state_2.bb_3_active_in_state_2_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_3_active_in_state_2_in_data = orOp_63_out;
+			bb_3_active_in_state_2_in_data = orOp_52_out;
 		end else begin
 			bb_3_active_in_state_2_in_data = 0;
 		end
 	end
 	// controller for bb_3_predecessor_in_state_2.bb_3_predecessor_in_state_2_in_data
 	always @(*) begin
-		if (andOp_93_out) begin 
+		if (andOp_77_out) begin 
 			bb_3_predecessor_in_state_2_in_data = 32'd10;
-		end else if (eq_91_out) begin 
+		end else if (eq_75_out) begin 
 			bb_3_predecessor_in_state_2_in_data = state_2_last_BB_reg;
 		end else begin
 			bb_3_predecessor_in_state_2_in_data = 0;
@@ -1177,16 +1177,16 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for bb_4_active_in_state_2.bb_4_active_in_state_2_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_4_active_in_state_2_in_data = orOp_61_out;
+			bb_4_active_in_state_2_in_data = orOp_63_out;
 		end else begin
 			bb_4_active_in_state_2_in_data = 0;
 		end
 	end
 	// controller for bb_4_predecessor_in_state_2.bb_4_predecessor_in_state_2_in_data
 	always @(*) begin
-		if (andOp_90_out) begin 
+		if (andOp_93_out) begin 
 			bb_4_predecessor_in_state_2_in_data = 32'd3;
-		end else if (eq_88_out) begin 
+		end else if (eq_91_out) begin 
 			bb_4_predecessor_in_state_2_in_data = state_2_last_BB_reg;
 		end else begin
 			bb_4_predecessor_in_state_2_in_data = 0;
@@ -1239,7 +1239,7 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for bb_7_active_in_state_2.bb_7_active_in_state_2_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_7_active_in_state_2_in_data = eq_51_out;
+			bb_7_active_in_state_2_in_data = eq_57_out;
 		end else begin
 			bb_7_active_in_state_2_in_data = 0;
 		end
@@ -1254,7 +1254,7 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	end
 	// controller for bb_7_predecessor_in_state_2.bb_7_predecessor_in_state_2_in_data
 	always @(*) begin
-		if (eq_75_out) begin 
+		if (eq_84_out) begin 
 			bb_7_predecessor_in_state_2_in_data = state_2_last_BB_reg;
 		end else begin
 			bb_7_predecessor_in_state_2_in_data = 0;
@@ -1263,16 +1263,16 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for bb_8_active_in_state_2.bb_8_active_in_state_2_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_8_active_in_state_2_in_data = orOp_55_out;
+			bb_8_active_in_state_2_in_data = orOp_61_out;
 		end else begin
 			bb_8_active_in_state_2_in_data = 0;
 		end
 	end
 	// controller for bb_8_predecessor_in_state_2.bb_8_predecessor_in_state_2_in_data
 	always @(*) begin
-		if (andOp_81_out) begin 
+		if (andOp_90_out) begin 
 			bb_8_predecessor_in_state_2_in_data = 32'd2;
-		end else if (eq_79_out) begin 
+		end else if (eq_88_out) begin 
 			bb_8_predecessor_in_state_2_in_data = state_2_last_BB_reg;
 		end else begin
 			bb_8_predecessor_in_state_2_in_data = 0;
@@ -1281,16 +1281,16 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for bb_9_active_in_state_2.bb_9_active_in_state_2_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_9_active_in_state_2_in_data = orOp_57_out;
+			bb_9_active_in_state_2_in_data = orOp_54_out;
 		end else begin
 			bb_9_active_in_state_2_in_data = 0;
 		end
 	end
 	// controller for bb_9_predecessor_in_state_2.bb_9_predecessor_in_state_2_in_data
 	always @(*) begin
-		if (andOp_84_out) begin 
+		if (andOp_80_out) begin 
 			bb_9_predecessor_in_state_2_in_data = 32'd8;
-		end else if (eq_82_out) begin 
+		end else if (eq_78_out) begin 
 			bb_9_predecessor_in_state_2_in_data = state_2_last_BB_reg;
 		end else begin
 			bb_9_predecessor_in_state_2_in_data = 0;
@@ -1298,9 +1298,9 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	end
 	// controller for br_0_happened_in_state_0.br_0_happened_in_state_0_in_data
 	always @(*) begin
-		if (andOp_19_out) begin 
+		if (andOp_21_out) begin 
 			br_0_happened_in_state_0_in_data = 1'd1;
-		end else if (notOp_20_out) begin 
+		end else if (notOp_22_out) begin 
 			br_0_happened_in_state_0_in_data = 1'd0;
 		end else begin
 			br_0_happened_in_state_0_in_data = 0;
@@ -1308,9 +1308,9 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	end
 	// controller for br_10_happened_in_state_2.br_10_happened_in_state_2_in_data
 	always @(*) begin
-		if (andOp_27_out) begin 
+		if (andOp_35_out) begin 
 			br_10_happened_in_state_2_in_data = 1'd1;
-		end else if (notOp_28_out) begin 
+		end else if (notOp_36_out) begin 
 			br_10_happened_in_state_2_in_data = 1'd0;
 		end else begin
 			br_10_happened_in_state_2_in_data = 0;
@@ -1318,9 +1318,9 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	end
 	// controller for br_1_happened_in_state_0.br_1_happened_in_state_0_in_data
 	always @(*) begin
-		if (andOp_21_out) begin 
+		if (andOp_19_out) begin 
 			br_1_happened_in_state_0_in_data = 1'd1;
-		end else if (notOp_22_out) begin 
+		end else if (notOp_20_out) begin 
 			br_1_happened_in_state_0_in_data = 1'd0;
 		end else begin
 			br_1_happened_in_state_0_in_data = 0;
@@ -1328,9 +1328,9 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	end
 	// controller for br_2_happened_in_state_2.br_2_happened_in_state_2_in_data
 	always @(*) begin
-		if (andOp_36_out) begin 
+		if (andOp_39_out) begin 
 			br_2_happened_in_state_2_in_data = 1'd1;
-		end else if (notOp_37_out) begin 
+		end else if (notOp_40_out) begin 
 			br_2_happened_in_state_2_in_data = 1'd0;
 		end else begin
 			br_2_happened_in_state_2_in_data = 0;
@@ -1338,9 +1338,9 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	end
 	// controller for br_3_happened_in_state_2.br_3_happened_in_state_2_in_data
 	always @(*) begin
-		if (andOp_38_out) begin 
+		if (andOp_25_out) begin 
 			br_3_happened_in_state_2_in_data = 1'd1;
-		end else if (notOp_39_out) begin 
+		end else if (notOp_26_out) begin 
 			br_3_happened_in_state_2_in_data = 1'd0;
 		end else begin
 			br_3_happened_in_state_2_in_data = 0;
@@ -1378,9 +1378,9 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	end
 	// controller for br_7_happened_in_state_2.br_7_happened_in_state_2_in_data
 	always @(*) begin
-		if (andOp_25_out) begin 
+		if (andOp_37_out) begin 
 			br_7_happened_in_state_2_in_data = 1'd1;
-		end else if (notOp_26_out) begin 
+		end else if (notOp_38_out) begin 
 			br_7_happened_in_state_2_in_data = 1'd0;
 		end else begin
 			br_7_happened_in_state_2_in_data = 0;
@@ -1388,9 +1388,9 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	end
 	// controller for br_8_happened_in_state_2.br_8_happened_in_state_2_in_data
 	always @(*) begin
-		if (andOp_29_out) begin 
+		if (andOp_41_out) begin 
 			br_8_happened_in_state_2_in_data = 1'd1;
-		end else if (notOp_30_out) begin 
+		end else if (notOp_42_out) begin 
 			br_8_happened_in_state_2_in_data = 1'd0;
 		end else begin
 			br_8_happened_in_state_2_in_data = 0;
@@ -1398,24 +1398,24 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	end
 	// controller for br_9_happened_in_state_2.br_9_happened_in_state_2_in_data
 	always @(*) begin
-		if (andOp_31_out) begin 
+		if (andOp_30_out) begin 
 			br_9_happened_in_state_2_in_data = 1'd1;
-		end else if (notOp_32_out) begin 
+		end else if (notOp_31_out) begin 
 			br_9_happened_in_state_2_in_data = 1'd0;
 		end else begin
 			br_9_happened_in_state_2_in_data = 0;
 		end
 	end
-	// controller for concat_98.concat_98_in0
-	// controller for concat_98.concat_98_in1
+	// controller for concat_95.concat_95_in0
+	// controller for concat_95.concat_95_in1
 	// Insensitive connections
-	assign concat_98_in0 = data_in_0_1_out_data;
-	assign concat_98_in1 = 32'd0;
-	// controller for concat_99.concat_99_in0
-	// controller for concat_99.concat_99_in1
+	assign concat_95_in0 = data_in_0_1_out_data;
+	assign concat_95_in1 = 32'd0;
+	// controller for concat_96.concat_96_in0
+	// controller for concat_96.concat_96_in1
 	// Insensitive connections
-	assign concat_99_in0 = 32'd3;
-	assign concat_99_in1 = 32'd0;
+	assign concat_96_in0 = 32'd3;
+	assign concat_96_in1 = 32'd0;
 	// controller for data_in_0_1.data_in_0_1_in_data
 	always @(*) begin
 		if (eq_127_out) begin 
@@ -1476,26 +1476,26 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 			data_in_2_9_in_data = 0;
 		end
 	end
+	// controller for eq_104.eq_104_in0
+	// controller for eq_104.eq_104_in1
+	// Insensitive connections
+	assign eq_104_in0 = 32'd9;
+	assign eq_104_in1 = state_2_entry_BB_reg;
 	// controller for eq_105.eq_105_in0
 	// controller for eq_105.eq_105_in1
 	// Insensitive connections
 	assign eq_105_in0 = 32'd7;
 	assign eq_105_in1 = state_2_entry_BB_reg;
-	// controller for eq_106.eq_106_in0
-	// controller for eq_106.eq_106_in1
-	// Insensitive connections
-	assign eq_106_in0 = 32'd9;
-	assign eq_106_in1 = state_2_entry_BB_reg;
-	// controller for eq_109.eq_109_in0
-	// controller for eq_109.eq_109_in1
-	// Insensitive connections
-	assign eq_109_in0 = 32'd7;
-	assign eq_109_in1 = state_2_entry_BB_reg;
 	// controller for eq_110.eq_110_in0
 	// controller for eq_110.eq_110_in1
 	// Insensitive connections
 	assign eq_110_in0 = 32'd9;
 	assign eq_110_in1 = state_2_entry_BB_reg;
+	// controller for eq_111.eq_111_in0
+	// controller for eq_111.eq_111_in1
+	// Insensitive connections
+	assign eq_111_in0 = 32'd7;
+	assign eq_111_in1 = state_2_entry_BB_reg;
 	// controller for eq_127.eq_127_in0
 	// controller for eq_127.eq_127_in1
 	// Insensitive connections
@@ -1539,13 +1539,13 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for eq_47.eq_47_in0
 	// controller for eq_47.eq_47_in1
 	// Insensitive connections
-	assign eq_47_in0 = 32'd0;
+	assign eq_47_in0 = 32'd1;
 	assign eq_47_in1 = state_0_entry_BB_reg;
-	// controller for eq_48.eq_48_in0
-	// controller for eq_48.eq_48_in1
+	// controller for eq_49.eq_49_in0
+	// controller for eq_49.eq_49_in1
 	// Insensitive connections
-	assign eq_48_in0 = 32'd1;
-	assign eq_48_in1 = state_0_entry_BB_reg;
+	assign eq_49_in0 = 32'd0;
+	assign eq_49_in1 = state_0_entry_BB_reg;
 	// controller for eq_50.eq_50_in0
 	// controller for eq_50.eq_50_in1
 	// Insensitive connections
@@ -1554,23 +1554,23 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for eq_51.eq_51_in0
 	// controller for eq_51.eq_51_in1
 	// Insensitive connections
-	assign eq_51_in0 = 32'd7;
+	assign eq_51_in0 = 32'd3;
 	assign eq_51_in1 = state_2_entry_BB_reg;
-	// controller for eq_52.eq_52_in0
-	// controller for eq_52.eq_52_in1
+	// controller for eq_53.eq_53_in0
+	// controller for eq_53.eq_53_in1
 	// Insensitive connections
-	assign eq_52_in0 = 32'd10;
-	assign eq_52_in1 = state_2_entry_BB_reg;
-	// controller for eq_54.eq_54_in0
-	// controller for eq_54.eq_54_in1
+	assign eq_53_in0 = 32'd9;
+	assign eq_53_in1 = state_2_entry_BB_reg;
+	// controller for eq_55.eq_55_in0
+	// controller for eq_55.eq_55_in1
 	// Insensitive connections
-	assign eq_54_in0 = 32'd8;
-	assign eq_54_in1 = state_2_entry_BB_reg;
-	// controller for eq_56.eq_56_in0
-	// controller for eq_56.eq_56_in1
+	assign eq_55_in0 = 32'd10;
+	assign eq_55_in1 = state_2_entry_BB_reg;
+	// controller for eq_57.eq_57_in0
+	// controller for eq_57.eq_57_in1
 	// Insensitive connections
-	assign eq_56_in0 = 32'd9;
-	assign eq_56_in1 = state_2_entry_BB_reg;
+	assign eq_57_in0 = 32'd7;
+	assign eq_57_in1 = state_2_entry_BB_reg;
 	// controller for eq_58.eq_58_in0
 	// controller for eq_58.eq_58_in1
 	// Insensitive connections
@@ -1579,12 +1579,12 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for eq_60.eq_60_in0
 	// controller for eq_60.eq_60_in1
 	// Insensitive connections
-	assign eq_60_in0 = 32'd4;
+	assign eq_60_in0 = 32'd8;
 	assign eq_60_in1 = state_2_entry_BB_reg;
 	// controller for eq_62.eq_62_in0
 	// controller for eq_62.eq_62_in1
 	// Insensitive connections
-	assign eq_62_in0 = 32'd3;
+	assign eq_62_in0 = 32'd4;
 	assign eq_62_in1 = state_2_entry_BB_reg;
 	// controller for eq_64.eq_64_in0
 	// controller for eq_64.eq_64_in1
@@ -1599,13 +1599,13 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for eq_70.eq_70_in0
 	// controller for eq_70.eq_70_in1
 	// Insensitive connections
-	assign eq_70_in0 = 32'd0;
+	assign eq_70_in0 = 32'd1;
 	assign eq_70_in1 = state_0_entry_BB_reg;
-	// controller for eq_71.eq_71_in0
-	// controller for eq_71.eq_71_in1
+	// controller for eq_73.eq_73_in0
+	// controller for eq_73.eq_73_in1
 	// Insensitive connections
-	assign eq_71_in0 = 32'd1;
-	assign eq_71_in1 = state_0_entry_BB_reg;
+	assign eq_73_in0 = 32'd0;
+	assign eq_73_in1 = state_0_entry_BB_reg;
 	// controller for eq_74.eq_74_in0
 	// controller for eq_74.eq_74_in1
 	// Insensitive connections
@@ -1614,23 +1614,23 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for eq_75.eq_75_in0
 	// controller for eq_75.eq_75_in1
 	// Insensitive connections
-	assign eq_75_in0 = 32'd7;
+	assign eq_75_in0 = 32'd3;
 	assign eq_75_in1 = state_2_entry_BB_reg;
-	// controller for eq_76.eq_76_in0
-	// controller for eq_76.eq_76_in1
+	// controller for eq_78.eq_78_in0
+	// controller for eq_78.eq_78_in1
 	// Insensitive connections
-	assign eq_76_in0 = 32'd10;
-	assign eq_76_in1 = state_2_entry_BB_reg;
-	// controller for eq_79.eq_79_in0
-	// controller for eq_79.eq_79_in1
+	assign eq_78_in0 = 32'd9;
+	assign eq_78_in1 = state_2_entry_BB_reg;
+	// controller for eq_81.eq_81_in0
+	// controller for eq_81.eq_81_in1
 	// Insensitive connections
-	assign eq_79_in0 = 32'd8;
-	assign eq_79_in1 = state_2_entry_BB_reg;
-	// controller for eq_82.eq_82_in0
-	// controller for eq_82.eq_82_in1
+	assign eq_81_in0 = 32'd10;
+	assign eq_81_in1 = state_2_entry_BB_reg;
+	// controller for eq_84.eq_84_in0
+	// controller for eq_84.eq_84_in1
 	// Insensitive connections
-	assign eq_82_in0 = 32'd9;
-	assign eq_82_in1 = state_2_entry_BB_reg;
+	assign eq_84_in0 = 32'd7;
+	assign eq_84_in1 = state_2_entry_BB_reg;
 	// controller for eq_85.eq_85_in0
 	// controller for eq_85.eq_85_in1
 	// Insensitive connections
@@ -1639,29 +1639,29 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for eq_88.eq_88_in0
 	// controller for eq_88.eq_88_in1
 	// Insensitive connections
-	assign eq_88_in0 = 32'd4;
+	assign eq_88_in0 = 32'd8;
 	assign eq_88_in1 = state_2_entry_BB_reg;
 	// controller for eq_91.eq_91_in0
 	// controller for eq_91.eq_91_in1
 	// Insensitive connections
-	assign eq_91_in0 = 32'd3;
+	assign eq_91_in0 = 32'd4;
 	assign eq_91_in1 = state_2_entry_BB_reg;
-	// controller for icmp_icmp15.icmp_icmp15_in0
-	// controller for icmp_icmp15.icmp_icmp15_in1
+	// controller for icmp_icmp18.icmp_icmp18_in0
+	// controller for icmp_icmp18.icmp_icmp18_in1
 	// Insensitive connections
-	assign icmp_icmp15_in0 = data_in_2_9_out_data;
-	assign icmp_icmp15_in1 = 32'd15;
-	// controller for mul_mul14.mul_mul14_in0
-	// controller for mul_mul14.mul_mul14_in1
+	assign icmp_icmp18_in0 = data_in_2_9_out_data;
+	assign icmp_icmp18_in1 = 32'd15;
+	// controller for mul_mul17.mul_mul17_in0
+	// controller for mul_mul17.mul_mul17_in1
 	// Insensitive connections
-	assign mul_mul14_in0 = 32'd2;
-	assign mul_mul14_in1 = tmp_output_108_out_data;
+	assign mul_mul17_in0 = 32'd2;
+	assign mul_mul17_in1 = tmp_output_109_out_data;
 	// controller for notOp_115.notOp_115_in0
 	// Insensitive connections
 	assign notOp_115_in0 = andOp_18_out;
 	// controller for notOp_117.notOp_117_in0
 	// Insensitive connections
-	assign notOp_117_in0 = andOp_40_out;
+	assign notOp_117_in0 = andOp_27_out;
 	// controller for notOp_119.notOp_119_in0
 	// Insensitive connections
 	assign notOp_119_in0 = andOp_16_out;
@@ -1673,7 +1673,7 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	assign notOp_123_in0 = andOp_114_out;
 	// controller for notOp_125.notOp_125_in0
 	// Insensitive connections
-	assign notOp_125_in0 = andOp_35_out;
+	assign notOp_125_in0 = andOp_34_out;
 	// controller for notOp_13.notOp_13_in0
 	// Insensitive connections
 	assign notOp_13_in0 = andOp_12_out;
@@ -1697,43 +1697,43 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	assign notOp_26_in0 = andOp_25_out;
 	// controller for notOp_28.notOp_28_in0
 	// Insensitive connections
-	assign notOp_28_in0 = andOp_27_out;
-	// controller for notOp_30.notOp_30_in0
+	assign notOp_28_in0 = icmp_icmp18_out;
+	// controller for notOp_31.notOp_31_in0
 	// Insensitive connections
-	assign notOp_30_in0 = andOp_29_out;
-	// controller for notOp_32.notOp_32_in0
+	assign notOp_31_in0 = andOp_30_out;
+	// controller for notOp_33.notOp_33_in0
 	// Insensitive connections
-	assign notOp_32_in0 = andOp_31_out;
-	// controller for notOp_34.notOp_34_in0
+	assign notOp_33_in0 = arg_1_write_ready;
+	// controller for notOp_36.notOp_36_in0
 	// Insensitive connections
-	assign notOp_34_in0 = arg_1_write_ready;
-	// controller for notOp_37.notOp_37_in0
+	assign notOp_36_in0 = andOp_35_out;
+	// controller for notOp_38.notOp_38_in0
 	// Insensitive connections
-	assign notOp_37_in0 = andOp_36_out;
-	// controller for notOp_39.notOp_39_in0
+	assign notOp_38_in0 = andOp_37_out;
+	// controller for notOp_40.notOp_40_in0
 	// Insensitive connections
-	assign notOp_39_in0 = andOp_38_out;
-	// controller for notOp_41.notOp_41_in0
+	assign notOp_40_in0 = andOp_39_out;
+	// controller for notOp_42.notOp_42_in0
 	// Insensitive connections
-	assign notOp_41_in0 = icmp_icmp15_out;
+	assign notOp_42_in0 = andOp_41_out;
 	// controller for notOp_65.notOp_65_in0
 	// Insensitive connections
 	assign notOp_65_in0 = eq_64_out;
 	// controller for notOp_68.notOp_68_in0
 	// Insensitive connections
 	assign notOp_68_in0 = eq_67_out;
-	// controller for notOp_72.notOp_72_in0
+	// controller for notOp_71.notOp_71_in0
 	// Insensitive connections
-	assign notOp_72_in0 = eq_71_out;
-	// controller for notOp_77.notOp_77_in0
+	assign notOp_71_in0 = eq_70_out;
+	// controller for notOp_76.notOp_76_in0
 	// Insensitive connections
-	assign notOp_77_in0 = eq_76_out;
-	// controller for notOp_80.notOp_80_in0
+	assign notOp_76_in0 = eq_75_out;
+	// controller for notOp_79.notOp_79_in0
 	// Insensitive connections
-	assign notOp_80_in0 = eq_79_out;
-	// controller for notOp_83.notOp_83_in0
+	assign notOp_79_in0 = eq_78_out;
+	// controller for notOp_82.notOp_82_in0
 	// Insensitive connections
-	assign notOp_83_in0 = eq_82_out;
+	assign notOp_82_in0 = eq_81_out;
 	// controller for notOp_86.notOp_86_in0
 	// Insensitive connections
 	assign notOp_86_in0 = eq_85_out;
@@ -1747,32 +1747,32 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for orOp_44.orOp_44_in1
 	// Insensitive connections
 	assign orOp_44_in0 = eq_43_out;
-	assign orOp_44_in1 = andOp_21_out;
+	assign orOp_44_in1 = andOp_19_out;
 	// controller for orOp_46.orOp_46_in0
 	// controller for orOp_46.orOp_46_in1
 	// Insensitive connections
 	assign orOp_46_in0 = eq_45_out;
 	assign orOp_46_in1 = andOp_12_out;
-	// controller for orOp_49.orOp_49_in0
-	// controller for orOp_49.orOp_49_in1
+	// controller for orOp_48.orOp_48_in0
+	// controller for orOp_48.orOp_48_in1
 	// Insensitive connections
-	assign orOp_49_in0 = eq_48_out;
-	assign orOp_49_in1 = andOp_19_out;
-	// controller for orOp_53.orOp_53_in0
-	// controller for orOp_53.orOp_53_in1
+	assign orOp_48_in0 = eq_47_out;
+	assign orOp_48_in1 = andOp_21_out;
+	// controller for orOp_52.orOp_52_in0
+	// controller for orOp_52.orOp_52_in1
 	// Insensitive connections
-	assign orOp_53_in0 = eq_52_out;
-	assign orOp_53_in1 = andOp_33_out;
-	// controller for orOp_55.orOp_55_in0
-	// controller for orOp_55.orOp_55_in1
+	assign orOp_52_in0 = eq_51_out;
+	assign orOp_52_in1 = andOp_35_out;
+	// controller for orOp_54.orOp_54_in0
+	// controller for orOp_54.orOp_54_in1
 	// Insensitive connections
-	assign orOp_55_in0 = eq_54_out;
-	assign orOp_55_in1 = andOp_36_out;
-	// controller for orOp_57.orOp_57_in0
-	// controller for orOp_57.orOp_57_in1
+	assign orOp_54_in0 = eq_53_out;
+	assign orOp_54_in1 = andOp_41_out;
+	// controller for orOp_56.orOp_56_in0
+	// controller for orOp_56.orOp_56_in1
 	// Insensitive connections
-	assign orOp_57_in0 = eq_56_out;
-	assign orOp_57_in1 = andOp_29_out;
+	assign orOp_56_in0 = eq_55_out;
+	assign orOp_56_in1 = andOp_32_out;
 	// controller for orOp_59.orOp_59_in0
 	// controller for orOp_59.orOp_59_in1
 	// Insensitive connections
@@ -1782,43 +1782,43 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 	// controller for orOp_61.orOp_61_in1
 	// Insensitive connections
 	assign orOp_61_in0 = eq_60_out;
-	assign orOp_61_in1 = andOp_42_out;
+	assign orOp_61_in1 = andOp_39_out;
 	// controller for orOp_63.orOp_63_in0
 	// controller for orOp_63.orOp_63_in1
 	// Insensitive connections
 	assign orOp_63_in0 = eq_62_out;
-	assign orOp_63_in1 = andOp_27_out;
-	// controller for phi_phi5.phi_phi5_in
-	// controller for phi_phi5.phi_phi5_last_block
-	// controller for phi_phi5.phi_phi5_s
+	assign orOp_63_in1 = andOp_29_out;
+	// controller for phi_phi3.phi_phi3_in
+	// controller for phi_phi3.phi_phi3_last_block
+	// controller for phi_phi3.phi_phi3_s
 	// Insensitive connections
-	assign phi_phi5_in = concat_98_out;
-	assign phi_phi5_last_block = bb_1_predecessor_in_state_0_out_data;
-	assign phi_phi5_s = concat_99_out;
-	// controller for ret17.valid_reg
+	assign phi_phi3_in = concat_95_out;
+	assign phi_phi3_last_block = bb_1_predecessor_in_state_0_out_data;
+	assign phi_phi3_s = concat_96_out;
+	// controller for ret15.valid_reg
 	always @(*) begin
-		if (andOp_112_out) begin 
+		if (andOp_107_out) begin 
 			valid_reg = 1'd1;
 		end else begin
 			valid_reg = 0;
 		end
 	end
-	// controller for tmp_output_104.tmp_output_104_in_data
+	// controller for tmp_output_103.tmp_output_103_in_data
 	always @(*) begin
-		if (eq_105_out) begin 
-			tmp_output_104_in_data = mul_mul14_out;
-		end else if (eq_106_out) begin 
-			tmp_output_104_in_data = data_in_2_11_out_data;
+		if (eq_104_out) begin 
+			tmp_output_103_in_data = data_in_2_11_out_data;
+		end else if (eq_105_out) begin 
+			tmp_output_103_in_data = mul_mul17_out;
 		end else begin
-			tmp_output_104_in_data = 0;
+			tmp_output_103_in_data = 0;
 		end
 	end
-	// controller for tmp_output_108.tmp_output_108_in_data
+	// controller for tmp_output_109.tmp_output_109_in_data
 	always @(*) begin
-		if (eq_109_out) begin 
-			tmp_output_108_in_data = arg_0_out_data;
+		if (eq_111_out) begin 
+			tmp_output_109_in_data = arg_0_out_data;
 		end else begin
-			tmp_output_108_in_data = 0;
+			tmp_output_109_in_data = 0;
 		end
 	end
 	// Register controllers
@@ -1827,7 +1827,7 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 			data_store_0_0 <= 0;
 		end else begin
 			if (andOp_129_out) begin
-				data_store_0_0 <= add_add6_out;
+				data_store_0_0 <= add_add4_out;
 			end
 		end
 	end
@@ -1867,7 +1867,7 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 			data_store_2_10 <= 0;
 		end else begin
 			if (andOp_134_out) begin
-				data_store_2_10 <= mul_mul14_out;
+				data_store_2_10 <= mul_mul17_out;
 			end
 		end
 	end
@@ -1898,11 +1898,11 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 			if (andOp_18_out) begin
 				global_state <= 32'd0;
 			end
-			if (andOp_35_out) begin
-				global_state <= 32'd2;
-			end
-			if (andOp_40_out) begin
+			if (andOp_27_out) begin
 				global_state <= 32'd0;
+			end
+			if (andOp_34_out) begin
+				global_state <= 32'd2;
 			end
 		end
 	end
@@ -1914,7 +1914,7 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 			if (andOp_18_out) begin
 				state_0_entry_BB_reg <= 32'd6;
 			end
-			if (andOp_40_out) begin
+			if (andOp_27_out) begin
 				state_0_entry_BB_reg <= 32'd1;
 			end
 		end
@@ -1930,7 +1930,7 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 			if (andOp_18_out) begin
 				state_0_is_active <= 1'd1;
 			end
-			if (andOp_40_out) begin
+			if (andOp_27_out) begin
 				state_0_is_active <= 1'd1;
 			end
 		end
@@ -1943,7 +1943,7 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 			if (andOp_18_out) begin
 				state_0_last_BB_reg <= 32'd6;
 			end
-			if (andOp_40_out) begin
+			if (andOp_27_out) begin
 				state_0_last_BB_reg <= 32'd3;
 			end
 		end
@@ -1956,7 +1956,7 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 			if (andOp_18_out) begin
 				state_0_last_state <= 32'd0;
 			end
-			if (andOp_40_out) begin
+			if (andOp_27_out) begin
 				state_0_last_state <= 32'd2;
 			end
 		end
@@ -2015,7 +2015,7 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 			if (andOp_114_out) begin
 				state_2_entry_BB_reg <= 32'd4;
 			end
-			if (andOp_35_out) begin
+			if (andOp_34_out) begin
 				state_2_entry_BB_reg <= 32'd9;
 			end
 		end
@@ -2034,7 +2034,7 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 			if (andOp_126_out) begin
 				state_2_is_active <= 1'd0;
 			end
-			if (andOp_35_out) begin
+			if (andOp_34_out) begin
 				state_2_is_active <= 1'd1;
 			end
 		end
@@ -2050,7 +2050,7 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 			if (andOp_114_out) begin
 				state_2_last_BB_reg <= bb_4_predecessor_in_state_2_out_data;
 			end
-			if (andOp_35_out) begin
+			if (andOp_34_out) begin
 				state_2_last_BB_reg <= 32'd9;
 			end
 		end
@@ -2066,7 +2066,7 @@ module smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [3
 			if (andOp_114_out) begin
 				state_2_last_state <= 32'd2;
 			end
-			if (andOp_35_out) begin
+			if (andOp_34_out) begin
 				state_2_last_state <= 32'd2;
 			end
 		end

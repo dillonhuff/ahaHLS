@@ -1037,9 +1037,14 @@ namespace ahaHLS {
     hcs.typeSpecs["class.RAM_2"] = ram2SpecFunc;
     hcs.typeSpecs["class.RAM_3"] = ram3SpecFunc;    
 
-    Schedule s = scheduleInterface(f, hcs, interfaces);
-    
+    ExecutionConstraints exec;
+    set<BasicBlock*> toPipeline;
+    Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
     STG graph = buildSTG(s, f);
+    
+    //Schedule s = scheduleInterface(f, hcs, interfaces);
+    
+    //STG graph = buildSTG(s, f);
 
     cout << "STG Is" << endl;
     graph.print(cout);
