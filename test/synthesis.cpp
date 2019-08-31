@@ -59,9 +59,29 @@ namespace ahaHLS {
     hcs.typeSpecs["class.RAM_3"] = ram3SpecFunc;    
 
     ExecutionConstraints exec;
-    set<BasicBlock*> toPipeline;
-    Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
+
+    inlineWireCalls(f, exec, interfaces);
+    auto preds = buildControlPreds(f);
+
+    set<TaskSpec> tasks;
+    TaskSpec ts;
+    for (auto& bb : f->getBasicBlockList()) {
+      ts.blks.insert(&bb);
+    }
+    tasks.insert(ts);
+    set<PipelineSpec> toPipeline;
+    SchedulingProblem p =
+      createSchedulingProblem(f, hcs, toPipeline, tasks, preds);
+    exec.addConstraints(p, f);
+
+    map<Function*, SchedulingProblem> constraints{{f, p}};
+    Schedule s = scheduleFunction(f, hcs, toPipeline, constraints);
     STG graph = buildSTG(s, f);
+    
+    //ExecutionConstraints exec;
+    //set<BasicBlock*> toPipeline;
+    //Schedule s = scheduleInterface(f, hcs, interfaces, toPipeline, exec);
+    //STG graph = buildSTG(s, f);
     
     //Schedule s = scheduleInterface(f, hcs, interfaces);
     
