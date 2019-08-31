@@ -36,6 +36,19 @@ namespace ahaHLS {
     return tb;
   }
 
+  TEST_CASE("Matrix add") {
+
+    SMDiagnostic Err;
+    LLVMContext Context;
+    setGlobalLLVMContext(&Context);
+    std::unique_ptr<Module> Mod = loadCppModule(Context, Err, "matrix_add");
+    setGlobalLLVMModule(Mod.get());
+
+    Function* f = getFunctionByDemangledName(Mod.get(), "matrix_add");
+    assert(f != nullptr);
+    getArg(f, 0)->setName("ram");
+  }
+
   TEST_CASE("Matrix vector multiply") {
     SMDiagnostic Err;
     LLVMContext Context;
