@@ -1320,7 +1320,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	// controller for eq_58.eq_58_in1
 	// Insensitive connections
 	assign eq_58_in0 = counter__54;
-	assign eq_58_in1 = 32'd2;
+	assign eq_58_in1 = 32'd1;
 	// controller for icmp_icmp3.icmp_icmp3_in0
 	// controller for icmp_icmp3.icmp_icmp3_in1
 	// Insensitive connections

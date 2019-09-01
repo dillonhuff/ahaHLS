@@ -71,28 +71,28 @@ module vadd(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8:0] a
 	// End debug wires and ports
 
 	// Start Functional Units
-	br_dummy br_unit();
+	wire [63:0] phi_phi1_in;
+	wire [31:0] phi_phi1_last_block;
+	wire [63:0] phi_phi1_s;
+	wire [31:0] phi_phi1_out;
+	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi1(.in(phi_phi1_in), .last_block(phi_phi1_last_block), .out(phi_phi1_out), .s(phi_phi1_s));
 
-	wire [31:0] add_add8_in0;
-	wire [31:0] add_add8_in1;
-	wire [31:0] add_add8_out;
-	add #(.WIDTH(32)) add_add8(.in0(add_add8_in0), .in1(add_add8_in1), .out(add_add8_out));
+	wire [31:0] add_add2_in0;
+	wire [31:0] add_add2_in1;
+	wire [31:0] add_add2_out;
+	add #(.WIDTH(32)) add_add2(.in0(add_add2_in0), .in1(add_add2_in1), .out(add_add2_out));
 
-	wire [31:0] add_add3_in0;
-	wire [31:0] add_add3_in1;
-	wire [31:0] add_add3_out;
-	add #(.WIDTH(32)) add_add3(.in0(add_add3_in0), .in1(add_add3_in1), .out(add_add3_out));
+	wire [31:0] add_add10_in0;
+	wire [31:0] add_add10_in1;
+	wire [31:0] add_add10_out;
+	add #(.WIDTH(32)) add_add10(.in0(add_add10_in0), .in1(add_add10_in1), .out(add_add10_out));
 
 	wire [31:0] icmp_icmp4_in0;
 	wire [31:0] icmp_icmp4_in1;
 	wire [0:0] icmp_icmp4_out;
 	ne #(.WIDTH(32)) icmp_icmp4(.in0(icmp_icmp4_in0), .in1(icmp_icmp4_in1), .out(icmp_icmp4_out));
 
-	wire [63:0] phi_phi5_in;
-	wire [31:0] phi_phi5_last_block;
-	wire [63:0] phi_phi5_s;
-	wire [31:0] phi_phi5_out;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi5(.in(phi_phi5_in), .last_block(phi_phi5_last_block), .out(phi_phi5_out), .s(phi_phi5_s));
+	br_dummy br_unit();
 
 	reg [0:0] bb_0_active_in_state_0_in_data;
 	wire [0:0] bb_0_active_in_state_0_out_data;
@@ -154,9 +154,9 @@ module vadd(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8:0] a
 	wire [31:0] data_in_0_1_out_data;
 	hls_wire #(.WIDTH(32)) data_in_0_1(.in_data(data_in_0_1_in_data), .out_data(data_in_0_1_out_data));
 
-	reg [31:0] data_in_1_3_in_data;
-	wire [31:0] data_in_1_3_out_data;
-	hls_wire #(.WIDTH(32)) data_in_1_3(.in_data(data_in_1_3_in_data), .out_data(data_in_1_3_out_data));
+	reg [31:0] data_in_1_4_in_data;
+	wire [31:0] data_in_1_4_out_data;
+	hls_wire #(.WIDTH(32)) data_in_1_4(.in_data(data_in_1_4_in_data), .out_data(data_in_1_4_out_data));
 
 	reg [31:0] data_in_2_5_in_data;
 	wire [31:0] data_in_2_5_out_data;
@@ -295,15 +295,15 @@ module vadd(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8:0] a
 	wire [0:0] andOp_33_out;
 	andOp #(.WIDTH(1)) andOp_33(.in0(andOp_33_in0), .in1(andOp_33_in1), .out(andOp_33_out));
 
-	wire [0:0] andOp_34_in0;
-	wire [0:0] andOp_34_in1;
-	wire [0:0] andOp_34_out;
-	andOp #(.WIDTH(1)) andOp_34(.in0(andOp_34_in0), .in1(andOp_34_in1), .out(andOp_34_out));
+	wire [31:0] concat_34_in0;
+	wire [31:0] concat_34_in1;
+	wire [63:0] concat_34_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_34(.in0(concat_34_in0), .in1(concat_34_in1), .out(concat_34_out));
 
-	wire [0:0] andOp_35_in0;
-	wire [0:0] andOp_35_in1;
-	wire [0:0] andOp_35_out;
-	andOp #(.WIDTH(1)) andOp_35(.in0(andOp_35_in0), .in1(andOp_35_in1), .out(andOp_35_out));
+	wire [31:0] concat_35_in0;
+	wire [31:0] concat_35_in1;
+	wire [63:0] concat_35_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_35(.in0(concat_35_in0), .in1(concat_35_in1), .out(concat_35_out));
 
 	wire [0:0] andOp_36_in0;
 	wire [0:0] andOp_36_in1;
@@ -315,15 +315,15 @@ module vadd(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8:0] a
 	wire [0:0] andOp_37_out;
 	andOp #(.WIDTH(1)) andOp_37(.in0(andOp_37_in0), .in1(andOp_37_in1), .out(andOp_37_out));
 
-	wire [31:0] concat_38_in0;
-	wire [31:0] concat_38_in1;
-	wire [63:0] concat_38_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_38(.in0(concat_38_in0), .in1(concat_38_in1), .out(concat_38_out));
+	wire [0:0] andOp_38_in0;
+	wire [0:0] andOp_38_in1;
+	wire [0:0] andOp_38_out;
+	andOp #(.WIDTH(1)) andOp_38(.in0(andOp_38_in0), .in1(andOp_38_in1), .out(andOp_38_out));
 
-	wire [31:0] concat_39_in0;
-	wire [31:0] concat_39_in1;
-	wire [63:0] concat_39_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_39(.in0(concat_39_in0), .in1(concat_39_in1), .out(concat_39_out));
+	wire [0:0] andOp_39_in0;
+	wire [0:0] andOp_39_in1;
+	wire [0:0] andOp_39_out;
+	andOp #(.WIDTH(1)) andOp_39(.in0(andOp_39_in0), .in1(andOp_39_in1), .out(andOp_39_out));
 
 	wire [0:0] andOp_40_in0;
 	wire [0:0] andOp_40_in1;
@@ -573,7 +573,7 @@ module vadd(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8:0] a
 
 	reg [31:0] data_store_0_0;
 	reg [31:0] data_store_1_2;
-	reg [31:0] data_store_1_4;
+	reg [31:0] data_store_1_3;
 	reg [31:0] global_state;
 	reg [0:0] out_of_pipe_1_4;
 	reg [0:0] out_of_pipe_bb_1_4;
@@ -598,16 +598,16 @@ module vadd(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8:0] a
 	reg [31:0] state_4_last_BB_reg;
 	reg [31:0] state_4_last_state;
 
-	// controller for add_add3.add_add3_in0
-	// controller for add_add3.add_add3_in1
+	// controller for add_add10.add_add10_in0
+	// controller for add_add10.add_add10_in1
 	// Insensitive connections
-	assign add_add3_in0 = phi_phi5_out;
-	assign add_add3_in1 = 32'd1;
-	// controller for add_add8.add_add8_in0
-	// controller for add_add8.add_add8_in1
+	assign add_add10_in0 = arg_0_rdata_0;
+	assign add_add10_in1 = arg_1_rdata_0;
+	// controller for add_add2.add_add2_in0
+	// controller for add_add2.add_add2_in1
 	// Insensitive connections
-	assign add_add8_in0 = arg_0_rdata_0;
-	assign add_add8_in1 = arg_1_rdata_0;
+	assign add_add2_in0 = phi_phi1_out;
+	assign add_add2_in1 = 32'd1;
 	// controller for andOp_10.andOp_10_in0
 	// controller for andOp_10.andOp_10_in1
 	// Insensitive connections
@@ -653,16 +653,6 @@ module vadd(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8:0] a
 	// Insensitive connections
 	assign andOp_33_in0 = bb_1_active_in_state_1_out_data;
 	assign andOp_33_in1 = state_1_is_active;
-	// controller for andOp_34.andOp_34_in0
-	// controller for andOp_34.andOp_34_in1
-	// Insensitive connections
-	assign andOp_34_in0 = bb_1_active_in_state_2_out_data;
-	assign andOp_34_in1 = state_2_is_active;
-	// controller for andOp_35.andOp_35_in0
-	// controller for andOp_35.andOp_35_in1
-	// Insensitive connections
-	assign andOp_35_in0 = bb_1_active_in_state_1_out_data;
-	assign andOp_35_in1 = state_1_is_active;
 	// controller for andOp_36.andOp_36_in0
 	// controller for andOp_36.andOp_36_in1
 	// Insensitive connections
@@ -673,6 +663,16 @@ module vadd(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8:0] a
 	// Insensitive connections
 	assign andOp_37_in0 = bb_1_active_in_state_1_out_data;
 	assign andOp_37_in1 = state_1_is_active;
+	// controller for andOp_38.andOp_38_in0
+	// controller for andOp_38.andOp_38_in1
+	// Insensitive connections
+	assign andOp_38_in0 = bb_1_active_in_state_2_out_data;
+	assign andOp_38_in1 = state_2_is_active;
+	// controller for andOp_39.andOp_39_in0
+	// controller for andOp_39.andOp_39_in1
+	// Insensitive connections
+	assign andOp_39_in0 = bb_1_active_in_state_1_out_data;
+	assign andOp_39_in1 = state_1_is_active;
 	// controller for andOp_40.andOp_40_in0
 	// controller for andOp_40.andOp_40_in1
 	// Insensitive connections
@@ -821,22 +821,22 @@ module vadd(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8:0] a
 	// controller for arg_0.arg_0_raddr_0_reg
 	always @(*) begin
 		if (andOp_40_out) begin 
-			arg_0_raddr_0_reg = phi_phi5_out;
+			arg_0_raddr_0_reg = phi_phi1_out;
 		end else begin
 			arg_0_raddr_0_reg = 0;
 		end
 	end
 	// controller for arg_1.arg_1_raddr_0_reg
 	always @(*) begin
-		if (andOp_33_out) begin 
-			arg_1_raddr_0_reg = phi_phi5_out;
+		if (andOp_37_out) begin 
+			arg_1_raddr_0_reg = phi_phi1_out;
 		end else begin
 			arg_1_raddr_0_reg = 0;
 		end
 	end
 	// controller for arg_2.arg_2_waddr_0_reg
 	always @(*) begin
-		if (andOp_42_out) begin 
+		if (andOp_43_out) begin 
 			arg_2_waddr_0_reg = data_in_2_5_out_data;
 		end else begin
 			arg_2_waddr_0_reg = 0;
@@ -844,8 +844,8 @@ module vadd(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8:0] a
 	end
 	// controller for arg_2.arg_2_wdata_0_reg
 	always @(*) begin
-		if (andOp_43_out) begin 
-			arg_2_wdata_0_reg = add_add8_out;
+		if (andOp_42_out) begin 
+			arg_2_wdata_0_reg = add_add10_out;
 		end else begin
 			arg_2_wdata_0_reg = 0;
 		end
@@ -978,16 +978,16 @@ module vadd(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8:0] a
 			br_1_happened_in_state_3_in_data = 0;
 		end
 	end
-	// controller for concat_38.concat_38_in0
-	// controller for concat_38.concat_38_in1
+	// controller for concat_34.concat_34_in0
+	// controller for concat_34.concat_34_in1
 	// Insensitive connections
-	assign concat_38_in0 = data_in_1_3_out_data;
-	assign concat_38_in1 = 32'd0;
-	// controller for concat_39.concat_39_in0
-	// controller for concat_39.concat_39_in1
+	assign concat_34_in0 = data_in_1_4_out_data;
+	assign concat_34_in1 = 32'd0;
+	// controller for concat_35.concat_35_in0
+	// controller for concat_35.concat_35_in1
 	// Insensitive connections
-	assign concat_39_in0 = 32'd1;
-	assign concat_39_in1 = 32'd0;
+	assign concat_35_in0 = 32'd1;
+	assign concat_35_in1 = 32'd0;
 	// controller for data_in_0_1.data_in_0_1_in_data
 	always @(*) begin
 		if (eq_78_out) begin 
@@ -996,20 +996,20 @@ module vadd(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8:0] a
 			data_in_0_1_in_data = 0;
 		end
 	end
-	// controller for data_in_1_3.data_in_1_3_in_data
+	// controller for data_in_1_4.data_in_1_4_in_data
 	always @(*) begin
 		if (eq_79_out) begin 
-			data_in_1_3_in_data = data_store_0_0;
+			data_in_1_4_in_data = data_store_0_0;
 		end else if (eq_80_out) begin 
-			data_in_1_3_in_data = data_store_1_2;
+			data_in_1_4_in_data = data_store_1_3;
 		end else begin
-			data_in_1_3_in_data = 0;
+			data_in_1_4_in_data = 0;
 		end
 	end
 	// controller for data_in_2_5.data_in_2_5_in_data
 	always @(*) begin
 		if (eq_83_out) begin 
-			data_in_2_5_in_data = data_store_1_4;
+			data_in_2_5_in_data = data_store_1_2;
 		end else if (eq_84_out) begin 
 			data_in_2_5_in_data = 32'd0;
 		end else begin
@@ -1119,7 +1119,7 @@ module vadd(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8:0] a
 	// controller for icmp_icmp4.icmp_icmp4_in0
 	// controller for icmp_icmp4.icmp_icmp4_in1
 	// Insensitive connections
-	assign icmp_icmp4_in0 = add_add3_out;
+	assign icmp_icmp4_in0 = add_add2_out;
 	assign icmp_icmp4_in1 = 32'd512;
 	// controller for in_pipeline_0.in_pipeline_0_in_data
 	always @(*) begin
@@ -1195,13 +1195,13 @@ module vadd(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8:0] a
 	// Insensitive connections
 	assign orOp_77_in0 = state_3_is_active;
 	assign orOp_77_in1 = orOp_76_out;
-	// controller for phi_phi5.phi_phi5_in
-	// controller for phi_phi5.phi_phi5_last_block
-	// controller for phi_phi5.phi_phi5_s
+	// controller for phi_phi1.phi_phi1_in
+	// controller for phi_phi1.phi_phi1_last_block
+	// controller for phi_phi1.phi_phi1_s
 	// Insensitive connections
-	assign phi_phi5_in = concat_38_out;
-	assign phi_phi5_last_block = bb_1_predecessor_in_state_1_out_data;
-	assign phi_phi5_s = concat_39_out;
+	assign phi_phi1_in = concat_34_out;
+	assign phi_phi1_last_block = bb_1_predecessor_in_state_1_out_data;
+	assign phi_phi1_s = concat_35_out;
 	// controller for ret13.valid_reg
 	always @(*) begin
 		if (andOp_46_out) begin 
@@ -1226,17 +1226,17 @@ module vadd(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8:0] a
 			data_store_1_2 <= 0;
 		end else begin
 			if (andOp_81_out) begin
-				data_store_1_2 <= add_add3_out;
+				data_store_1_2 <= phi_phi1_out;
 			end
 		end
 	end
 
 	always @(posedge clk) begin
 		if (rst) begin
-			data_store_1_4 <= 0;
+			data_store_1_3 <= 0;
 		end else begin
 			if (andOp_82_out) begin
-				data_store_1_4 <= phi_phi5_out;
+				data_store_1_3 <= add_add2_out;
 			end
 		end
 	end

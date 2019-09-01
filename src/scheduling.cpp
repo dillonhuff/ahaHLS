@@ -545,6 +545,10 @@ namespace ahaHLS {
         p.objectiveFunction = p.objectiveFunction + LinearExpression(pipe.second);        
       }
 
+      cout << "Scheduling problem..." << endl;
+      for (auto constr : p.constraints) {
+        cout << "\t" << constr << endl;
+      }
       cout << "Minimizing " << p.objectiveFunction << endl;
 
       optimize::handle h = s.minimize(toZ3(c, p.objectiveFunction));
@@ -1502,13 +1506,16 @@ namespace ahaHLS {
 
   bool couldHaveRAWDep(Instruction* before, Instruction* after) {
     if (StoreInst::classof(before) && LoadInst::classof(after)) {
-      return true;
+        return true;
     }
 
     //cout << "No raw dep between " << valueString(before) << " and " << valueString(after) << endl;
 
     if (isRAMStore(before) && isRAMLoad(after)) {
-      return true;
+
+      if (before->getOperand(0) == after->getOperand(0)) {
+        return true;
+      }
     }
     return false;
   }

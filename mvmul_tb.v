@@ -183,7 +183,15 @@ module mvmul_tb();
 	end
 
 	always @(*) begin
+		if (10 == total_cycles) begin rst_reg = 1; end
+	end
+
+	always @(*) begin
 		if (11 == total_cycles) begin rst_reg = 1; end
+	end
+
+	always @(*) begin
+		if (11 == total_cycles) begin rst_reg = 0; end
 	end
 
 	always @(*) begin

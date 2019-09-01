@@ -204,36 +204,38 @@ namespace ahaHLS {
     inlineWireCalls(f, exec, interfaces);
     auto preds = buildControlPreds(f);
 
-    set<TaskSpec> tasks;
-    TaskSpec ts;
-    for (auto& bb : f->getBasicBlockList()) {
-      ts.blks.insert(&bb);
-    }
-    tasks.insert(ts);
-    set<PipelineSpec> toPipeline;
-    DominatorTree dt(*f);
-    LoopInfo li(dt);
-    for (auto loop : li) {
+    set<TaskSpec> tasks = allOneTask(f);
+    set<PipelineSpec> toPipeline = pipelineAllLoops(f);
+    //set<TaskSpec> tasks;
+    //TaskSpec ts;
+    //for (auto& bb : f->getBasicBlockList()) {
+      //ts.blks.insert(&bb);
+    //}
+    //tasks.insert(ts);
+    //set<PipelineSpec> toPipeline;
+    //DominatorTree dt(*f);
+    //LoopInfo li(dt);
+    //for (auto loop : li) {
 
-      //auto& sl = loop->getSubLoops();
-      //assert(sl.size() == 1);
-      //Loop* inner = sl[0];
-      //PipelineSpec spec;
-      //for (auto blk : inner->getBlocks()) {
-        //spec.blks.insert(blk);
-      //}
+      ////auto& sl = loop->getSubLoops();
+      ////assert(sl.size() == 1);
+      ////Loop* inner = sl[0];
+      ////PipelineSpec spec;
+      ////for (auto blk : inner->getBlocks()) {
+        ////spec.blks.insert(blk);
+      ////}
 
-      //toPipeline.insert(spec);
+      ////toPipeline.insert(spec);
 
-      //PipelineSpec spec;
-      //for (auto blk : loop->getBlocks()) {
-        //spec.blks.insert(blk);
-      //}
-      //toPipeline.insert(spec);
-    }
+      ////PipelineSpec spec;
+      ////for (auto blk : loop->getBlocks()) {
+        ////spec.blks.insert(blk);
+      ////}
+      ////toPipeline.insert(spec);
+    //}
 
-    exec.toPipeline = toPipeline;
-    //createMemoryConstraints(f, hcs, exec);
+    //exec.toPipeline = toPipeline;
+    createMemoryConstraints(f, hcs, exec);
     SchedulingProblem p =
       createSchedulingProblem(f, hcs, toPipeline, tasks, preds);
     exec.addConstraints(p, f);
@@ -263,7 +265,8 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
-    addNoXChecks(arch, info);
+    //addNoXChecks(arch, info);
+    printAllInstructions(arch, info);
     // addControlSanityChecks(arch, info);
     // noAddsTakeXInputs(arch, info);
     // noMulsTakeXInputs(arch, info);
@@ -292,7 +295,12 @@ namespace ahaHLS {
     }
     
     TestBenchSpec tb = buildTB("mvmul", memoryInit, memoryExpected, testLayout);
-    tb.useModSpecs = true;
+    tb.useModSpecs = true; 
+
+    int startRunCycle = 10;
+    map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
+    map_insert(tb.actionsInCycles, startRunCycle + 1, string("rst_reg = 0;"));
+    
     emitVerilogTestBench(tb, arch, testLayout);
 
     REQUIRE(runIVerilogTB("mvmul"));
@@ -496,9 +504,13 @@ namespace ahaHLS {
       [](StructType* tp) { return ramSpec(32, 512); };
     InterfaceFunctions interfaces;
     Function* ramRead = ramLoadFunction(getArg(f, 0));
+
     interfaces.addFunction(ramRead);
     implementRAMRead0(ramRead,
                       interfaces.getConstraints(ramRead));
+
+    cout << "RAM read function..." << endl;
+    cout << valueString(ramRead) << endl;
 
     Function* ramWrite = ramStoreFunction(getArg(f, 1));
     interfaces.addFunction(ramWrite);
