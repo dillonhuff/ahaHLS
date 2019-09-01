@@ -205,7 +205,8 @@ namespace ahaHLS {
     auto preds = buildControlPreds(f);
 
     set<TaskSpec> tasks = allOneTask(f);
-    set<PipelineSpec> toPipeline = pipelineAllLoops(f);
+    set<PipelineSpec> toPipeline;
+    //set<PipelineSpec> toPipeline = pipelineAllLoops(f);
     //set<TaskSpec> tasks;
     //TaskSpec ts;
     //for (auto& bb : f->getBasicBlockList()) {
@@ -266,7 +267,7 @@ namespace ahaHLS {
 
     VerilogDebugInfo info;
     //addNoXChecks(arch, info);
-    printAllInstructions(arch, info);
+    //printAllInstructions(arch, info);
     // addControlSanityChecks(arch, info);
     // noAddsTakeXInputs(arch, info);
     // noMulsTakeXInputs(arch, info);
@@ -389,11 +390,11 @@ namespace ahaHLS {
 
       //toPipeline.insert(spec);
 
-      PipelineSpec spec;
-      for (auto blk : loop->getBlocks()) {
-        spec.blks.insert(blk);
-      }
-      toPipeline.insert(spec);
+      //PipelineSpec spec;
+      //for (auto blk : loop->getBlocks()) {
+        //spec.blks.insert(blk);
+      //}
+      //toPipeline.insert(spec);
     }
 
     exec.toPipeline = toPipeline;
@@ -419,7 +420,7 @@ namespace ahaHLS {
 
     VerilogDebugInfo info;
     addNoXChecks(arch, info);
-    printAllInstructions(arch, info);
+    //printAllInstructions(arch, info);
     emitVerilog(arch, info);
 
     int maxCycles = 300;
