@@ -1,5 +1,18 @@
 #include "catch.hpp"
 
+#include "verilog_backend.h"
+#include "llvm_codegen.h"
+#include "test_utils.h"
+#include "rams.h"
+
+#include <llvm/IR/Dominators.h>
+#include <llvm/Analysis/LoopInfo.h>
+#include <llvm/Transforms/Utils/BasicBlockUtils.h>
+
+using namespace dbhc;
+using namespace llvm;
+using namespace std;
+
 namespace ahaHLS {
 
   TEST_CASE("Matrix vector multiply pipelined") {

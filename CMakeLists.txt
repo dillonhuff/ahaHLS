@@ -48,6 +48,7 @@ endif()
 SET(ALL_TEST_FILES ./test/scheduling.cpp
                    ./test/synthesis.cpp
                    ./test/coreir_backend_tests.cpp
+                   ./test/outer_loop_pipelines.cpp
                    ./test/parser.cpp
                    ./test/halide_stencils.cpp
                    ./test/dependence.cpp)

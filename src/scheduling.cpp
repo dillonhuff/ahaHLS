@@ -5697,4 +5697,36 @@ namespace ahaHLS {
     return {};
   }
   
+  set<TaskSpec> oneTaskPerLoopNest(Function* const f) {
+    return halideTaskSpecs(f);
+  }
+
+  set<TaskSpec> allOneTask(Function* const f) {
+    set<TaskSpec> tasks;
+    TaskSpec ts;
+    for (auto& bb : f->getBasicBlockList()) {
+      ts.blks.insert(&bb);
+    }
+    tasks.insert(ts);
+    return tasks;
+  }
+
+ 
+  set<PipelineSpec> pipelineAllLoops(Function* const f) {
+
+    set<PipelineSpec> toPipeline;
+    DominatorTree dt(*f);
+    LoopInfo li(dt);
+    for (auto loop : li) {
+
+      PipelineSpec spec;
+      for (auto blk : loop->getBlocks()) {
+        spec.blks.insert(blk);
+      }
+      toPipeline.insert(spec);
+
+    }
+
+    return toPipeline;
+  }
 }

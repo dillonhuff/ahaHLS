@@ -1390,6 +1390,13 @@ namespace ahaHLS {
                      llvm::Instruction* const maybeAfter);
 
   z3::expr scevToExpr(const llvm::SCEV* scev, std::map<llvm::Value*, std::vector<z3::expr > >& valueNames, z3::context& c);
+
+  std::set<TaskSpec> oneTaskPerLoopNest(llvm::Function* const f);
+
+  std::set<TaskSpec> allOneTask(Function* const f);
+
+
+  set<PipelineSpec> pipelineAllLoops(Function* const f);
 }
 
 
