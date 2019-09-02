@@ -364,7 +364,7 @@ namespace ahaHLS {
     //auto a = loopBuilder.CreateCall(fRead, {getArg(f, 0)});
     auto a = loopBuilder.CreateCall(fRead, middleFifo);
     auto c = loopBuilder.CreateMul(mkInt(2, 32), a);
-    loopBuilder.CreateCall(fWrite, {c, getArg(f, 1)});
+    loopBuilder.CreateCall(fWrite, {c, getArg(f, 2)});
     auto exitCond = loopBuilder.CreateICmpNE(nextInd, loopBound);
     loopBuilder.CreateCondBr(exitCond, loopBlock, exitBlock);
     
@@ -415,8 +415,8 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
-    addNoXChecks(arch, info);
-    printAllInstructions(arch, info);
+    //addNoXChecks(arch, info);
+    //printAllInstructions(arch, info);
     emitVerilog(arch, info);
 
     int maxCycles = 300;
@@ -426,7 +426,9 @@ namespace ahaHLS {
     //tb.injectVerilog("always @(posedge clk) begin arg_1_read_valid = 1; $display(\"arg_1_in_data = %d\", arg_1_in_data); end");
     //tb.injectVerilog("\n\t");
     //tb.injectVerilog("always @(posedge clk) begin $display(\"total cycles = %d\", total_cycles); end");
-    //tb.injectVerilog("always @(posedge clk) begin $display(\"arg_1_out_data = %d\", arg_1_out_data); end");
+    
+    //tb.injectVerilog("always @(posedge clk) begin if (arg_2_write_valid) begin $display(\"arg_2_in_data = %d\", arg_2_in_data); end end\n");
+    //tb.injectVerilog("always @(posedge clk) begin $display(\"arg_2_out_data = %d\", arg_2_out_data); end");
     int startRunCycle = 0;
 
     map_insert(tb.actionsInCycles, startRunCycle, string("rst_reg = 1;"));
@@ -436,7 +438,7 @@ namespace ahaHLS {
     vector<pair<int, int> > fifoAIns;
     vector<pair<int, int> > fifoBIns;
     vector<pair<int, string> > fifoExpected;
-    int checkTime = 50;
+    int checkTime = 100;
     for (int i = 0; i < numIns; i++) {
       fifoAIns.push_back({writeTime, i});
       fifoBIns.push_back({writeTime, i + 2});
