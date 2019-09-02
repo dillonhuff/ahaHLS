@@ -15,6 +15,19 @@ using namespace std;
 
 namespace ahaHLS {
 
+  void nameBlocks(Function* f) {
+    int i =0;
+    llvm::Function::BasicBlockListType& blks = f->getBasicBlockList();
+    for (BasicBlock& bb : blks) {
+
+      if (bb.getName() == "") {
+        bb.setName("anon_bb_" + to_string(i));
+        i++;
+      }
+
+    }
+  }
+
   TEST_CASE("Matrix vector multiply pipelined") {
     SMDiagnostic Err;
     LLVMContext Context;
@@ -40,6 +53,7 @@ namespace ahaHLS {
     ExecutionConstraints exec;
 
     inlineWireCalls(f, exec, interfaces);
+    nameBlocks(f);
     auto preds = buildControlPreds(f);
 
     set<TaskSpec> tasks = allOneTask(f);
@@ -63,13 +77,8 @@ namespace ahaHLS {
     auto arch = buildMicroArchitecture(graph, layout, hcs);
 
     VerilogDebugInfo info;
-    //addNoXChecks(arch, info);
-    //printAllInstructions(arch, info);
-    // addControlSanityChecks(arch, info);
-    // noAddsTakeXInputs(arch, info);
-    // noMulsTakeXInputs(arch, info);
-    // noPhiOutputsXWhenUsed(arch, info);
-    // noStoredValuesXWhenUsed(arch, info);
+    addNoXChecks(arch, info);
+    printAllInstructions(arch, info);
 
     emitVerilog("mvmul_pipelined", arch, info);
 

@@ -1402,6 +1402,7 @@ namespace ahaHLS {
 
             addAssert(implies(cond0 + " === 1",
                               cond1 + " !== 1"),
+                "Problem: Overlapping last basic block transition",
                       info);
 
           }
@@ -1519,6 +1520,7 @@ namespace ahaHLS {
             if (state0OutBranch && state1OutBranch) {
               addAssert(implies(stateActiveReg(state0, arch).valueString(),
                                 notStr(stateActiveReg(state1, arch).valueString())),
+                  "Problem: pipeline has multiple active out of state branches",
                         info);
             }
             
@@ -1580,8 +1582,6 @@ namespace ahaHLS {
 
     noBlocksActiveInStatesWhereTheyAreNotScheduled(arch, info);
     atLeastOneValidPhiInput(arch, info);
-
-    
     
     //printEdgeTakenWires(arch, info);
     //printAllActiveStates(arch, info);
