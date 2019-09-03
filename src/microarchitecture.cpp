@@ -2950,6 +2950,14 @@ namespace ahaHLS {
     map<Instruction*, InstructionBinding> unitAssignment =
       assignFunctionalUnits(stg, hcs);
 
+    int id = 1;
+    for (auto& binding : unitAssignment) {
+      ModuleSpec& mSpec = binding.second.unit.module;
+      if (mSpec.name == "phi") {
+        mSpec.params["DEBUG_ID"] = to_string(id);
+        id++;
+      }
+    }
     // map<Instruction*, FunctionalUnit> unitAssignment =
     //   assignFunctionalUnits(stg, hcs);
     

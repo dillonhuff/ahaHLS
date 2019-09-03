@@ -605,6 +605,7 @@ endmodule
 
 module phi( last_block, s, in, out);
 
+  parameter integer DEBUG_ID = 0;
   parameter integer WIDTH = 32;
   parameter integer NB_PAIR = 2;
 
@@ -626,7 +627,7 @@ module phi( last_block, s, in, out);
     correctInd = 0;
     for (lbInd = 0; lbInd < NB_PAIR; lbInd = lbInd + 1) begin
       if (s[32*lbInd +: 32] == last_block) begin
-        $display("found correct ind = %d, segment = %d, s = %b, last_block = %d, in = %b", lbInd, s[32*lbInd +: 32], s, last_block, in);
+        $display("In phi %d: found correct ind = %d, segment = %d, s = %b, last_block = %d, in = %b", DEBUG_ID, lbInd, s[32*lbInd +: 32], s, last_block, in);
         $display("out_reg = %d", out_reg);
         correctInd = lbInd;
         //correctInd = 1;
