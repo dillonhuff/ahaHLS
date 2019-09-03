@@ -15,17 +15,8 @@ using namespace std;
 // Pull zip file for z3 via travis? https://github.com/Z3Prover/z3/releases/download/z3-4.8.4/z3-4.8.4.d6df51951f4c-x64-ubuntu-14.04.zip
 
 // What to do next?
-//   1. CoreIR backend
-//   2. Pipelined code cleanup / outer loops
 //   3. CGRA linebuffer mapping
 //   4. Refactor the state code to use data structures from STG
-//   5. Start thinking about task parallel optimizations
-
-// I think a CoreIR backend should precede the other CGRA mapping
-// stuff. Better to fill out the pipeline then get things working.
-// Also: The loop task parallelism will be a critical optimization
-// so getting scheduling working for multiple, independent sections of
-// the CDFG will be important
 
 namespace ahaHLS {
 
@@ -966,11 +957,40 @@ namespace ahaHLS {
                          VerilogDebugInfo& debugInfo) {
     auto iStr = sanitizeFormatForVerilog(instructionString(instr));
 
+    // TODO: Handle the fact that operands are set in the start state, which may not be this state
+    vector<string> operandStrings;
+    for (int i = 0; i < instr->getNumOperands(); i++) {
+      Value* op = instr->getOperand(i);
+      if (Instruction::classof(op) && IntegerType::classof(op->getType())) {
+        operandStrings.push_back(dataOutput(dyn_cast<Instruction>(op), arch));
+      } else {
+        operandStrings.push_back("blank");
+      }
+    }
+
+    vector<string> displayStrs;
+    vector<string> argList;
+    for (auto op : operandStrings) {
+      if (op == "blank") {
+        displayStrs.push_back("non-int");
+      } else {
+        displayStrs.push_back("%d");
+        argList.push_back(op);
+      }
+    }
+    
+    if (PHINode::classof(instr)) {
+      argList.push_back(predecessor(st, instr->getParent(), arch).valueString());
+      displayStrs.push_back("PHI-PRED");
+    }
+    auto argStr = commaListString(argList);
+    auto displayStr = commaListString(argList);
+
     if (hasOutput(instr)) {
       auto unitOutput = dataOutput(instr, arch);
-      addAlwaysBlock({"clk"}, "if(" + blockActiveInState(st, instr->getParent(), arch).valueString() + ") begin $display(\"" + iStr + " == %d\", " + unitOutput + "); end", debugInfo);      
+      addAlwaysBlock({"clk"}, "if(" + blockActiveInState(st, instr->getParent(), arch).valueString() + ") begin $display(\"" + iStr + ", " + displayStr + ", res == %d\", " + argStr + ", " + unitOutput + "); end", debugInfo);      
     } else {
-      addAlwaysBlock({"clk"}, "if(" + blockActiveInState(st, instr->getParent(), arch).valueString() + ") begin $display(\"" + iStr + "\"); end", debugInfo);      
+      addAlwaysBlock({"clk"}, "if(" + blockActiveInState(st, instr->getParent(), arch).valueString() + ") begin $display(\"" + iStr + ", " + displayStr + "\", " + argStr + "); end", debugInfo);      
     }
   }
 
@@ -1379,6 +1399,7 @@ namespace ahaHLS {
           if (cond0 != cond1) {
             addAssert(implies(cond0 + " === 1",
                               cond1 + " !== 1"),
+                "Problem: Overlapping block transition",
                       info);
 
           }
@@ -1572,7 +1593,7 @@ namespace ahaHLS {
     noOverlappingBlockTransitions(arch, info);
     noOverlappingStateTransitions(arch, info);
 
-    noPipelinesWithMultipleActiveOutOfStateBranches(arch, info);
+    //noPipelinesWithMultipleActiveOutOfStateBranches(arch, info);
 
     noOverlappingSetsOnPort("wen_0", arch, info);
 

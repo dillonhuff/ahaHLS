@@ -1043,9 +1043,10 @@ namespace ahaHLS {
   }
   
   void addDataConstraints(llvm::Function* f, ExecutionConstraints& exe) {
+    cout << "Adding data constraints to..." << endl;
+    cout << valueString(f) << endl;
     for (auto& bb : f->getBasicBlockList()) {
 
-      //Instruction* term = bb.getTerminator();
       
       for (auto& instr : bb) {
         Instruction* iptr = &instr;
@@ -1056,7 +1057,15 @@ namespace ahaHLS {
 
           if (!PHINode::classof(userInstr)) {
             // Instructions must finish before their dependencies
-            exe.addConstraint(instrEnd(iptr) <= instrStart(userInstr));
+            if (userInstr->getParent() == iptr->getParent()) {
+              exe.addConstraint(instrEnd(iptr) <= instrStart(userInstr));
+            } else {
+              cout << "Adding constraint across blocks on " << valueString(userInstr) << " and " << valueString(iptr) << endl;
+
+              //exe.addConstraint(instrEnd(iptr) <= instrStart(userInstr));
+
+              exe.addConstraint(instrEnd(iptr) < instrStart(userInstr));
+            }
           }
         }
 

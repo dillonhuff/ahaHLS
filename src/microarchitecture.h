@@ -630,5 +630,6 @@ namespace ahaHLS {
   Wire nextBBReg(const StateId state, MicroArchitecture& arch);
   Wire lastBBReg(const StateId state, MicroArchitecture& arch);
 
+  Wire predecessor(const StateId state, BasicBlock* const bb, MicroArchitecture& arch);
   void convertRegisterControllersToPortControllers(MicroArchitecture& arch);
 }
