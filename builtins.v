@@ -626,7 +626,8 @@ module phi( last_block, s, in, out);
     correctInd = 0;
     for (lbInd = 0; lbInd < NB_PAIR; lbInd = lbInd + 1) begin
       if (s[32*lbInd +: 32] == last_block) begin
-        $display("found correct ind = %d, segment = %d, s = %b, last_block = %d", lbInd, s[32*lbInd +: 32], s, last_block);
+        $display("found correct ind = %d, segment = %d, s = %b, last_block = %d, in = %b", lbInd, s[32*lbInd +: 32], s, last_block, in);
+        $display("out_reg = %d", out_reg);
         correctInd = lbInd;
         //correctInd = 1;
       end
@@ -635,6 +636,7 @@ module phi( last_block, s, in, out);
   
     out_reg = in[correctInd*WIDTH +: WIDTH]; 
 
+    $display("out_reg after update= %d", out_reg);
   end
 
    //for (outBit = 0; outBit < WIDTH; outBit = outBit + 1) begin
