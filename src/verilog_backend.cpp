@@ -962,7 +962,10 @@ namespace ahaHLS {
     for (int i = 0; i < instr->getNumOperands(); i++) {
       Value* op = instr->getOperand(i);
       if (Instruction::classof(op) && IntegerType::classof(op->getType())) {
-        operandStrings.push_back(dataOutput(dyn_cast<Instruction>(op), arch));
+        //operandStrings.push_back(dataOutput(dyn_cast<Instruction>(op), arch));
+
+        ControlFlowPosition pos = position(st, instr, arch);
+        operandStrings.push_back(outputWire(op, pos, arch).valueString());
       } else {
         operandStrings.push_back("blank");
       }

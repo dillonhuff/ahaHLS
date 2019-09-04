@@ -272,15 +272,15 @@ namespace ahaHLS {
       cout << "STG Is" << endl;
       graph.print(cout);
 
-      map<llvm::Value*, int> layout = {};
-      auto arch = buildMicroArchitecture(graph, layout, hcs);
+      //map<llvm::Value*, int> layout = {};
+      //auto arch = buildMicroArchitecture(graph, layout, hcs);
 
-      VerilogDebugInfo info;
-      addNoXChecks(arch, info);
-      emitVerilog("hist_forwarded", arch, info);
+      //VerilogDebugInfo info;
+      //addNoXChecks(arch, info);
+      //emitVerilog("hist_forwarded", arch, info);
 
-      tb.name = "hist_forwarded";
-      emitVerilogTestBench(tb, arch, testLayout);
+      //tb.name = "hist_forwarded";
+      //emitVerilogTestBench(tb, arch, testLayout);
 
       //REQUIRE(runIVerilogTB("hist_forwarded"));    
     }
@@ -4626,44 +4626,43 @@ namespace ahaHLS {
 
     //emitVerilatorBinding(graph);
     
-    map<Value*, int> layout;
-    // ArchOptions options;
-    auto arch = buildMicroArchitecture(graph,
-                                       layout,
-                                       hcs);
+    //map<Value*, int> layout;
+    //auto arch = buildMicroArchitecture(graph,
+                                       //layout,
+                                       //hcs);
 
-    VerilogDebugInfo info;
-    addNoXChecks(arch, info);
-    info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
-    info.debugAssigns.push_back({"global_state_dbg", "global_state"});
+    //VerilogDebugInfo info;
+    //addNoXChecks(arch, info);
+    //info.wiresToWatch.push_back({false, 32, "global_state_dbg"});
+    //info.debugAssigns.push_back({"global_state_dbg", "global_state"});
     
-    emitVerilog(arch, info);
+    //emitVerilog(arch, info);
 
-    float af = 3.0;
-    float bf = 4.0;
-    float cf = af + bf;
+    //float af = 3.0;
+    //float bf = 4.0;
+    //float cf = af + bf;
 
-    cout << "Sum bits = " << floatBits(cf) << endl;
+    //cout << "Sum bits = " << floatBits(cf) << endl;
     
-    TestBenchSpec tb;
-    map<string, int> testLayout = {};
-    tb.memoryInit = {};
-    tb.memoryExpected = {};
-    tb.runCycles = 30;
-    tb.maxCycles = 50;
-    tb.name = "direct_port_fp_add";
-    tb.settableWires.insert("arg_0_out_data");
-    tb.settableWires.insert("arg_1_out_data");    
-    map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
-    map_insert(tb.actionsOnCycles, 18, assertString("arg_2_in_data == " + floatBits(cf)));
+    //TestBenchSpec tb;
+    //map<string, int> testLayout = {};
+    //tb.memoryInit = {};
+    //tb.memoryExpected = {};
+    //tb.runCycles = 30;
+    //tb.maxCycles = 50;
+    //tb.name = "direct_port_fp_add";
+    //tb.settableWires.insert("arg_0_out_data");
+    //tb.settableWires.insert("arg_1_out_data");    
+    //map_insert(tb.actionsOnCycles, 0, string("rst_reg <= 0;"));
+    //map_insert(tb.actionsOnCycles, 18, assertString("arg_2_in_data == " + floatBits(cf)));
 
-    map_insert(tb.actionsInCycles, 1, string("arg_0_out_data_reg = " + floatBits(af) + ";"));
-    map_insert(tb.actionsInCycles, 1, string("arg_1_out_data_reg = " + floatBits(bf) + ";"));
-    map_insert(tb.actionsInCycles, 1, string("arg_1_out_data_reg = " + floatBits(bf) + ";"));
-    map_insert(tb.actionsInCycles, 8, string("$display(\"arg_2_in_data = %d\", arg_2_in_data);"));
-    emitVerilogTestBench(tb, arch, testLayout);
+    //map_insert(tb.actionsInCycles, 1, string("arg_0_out_data_reg = " + floatBits(af) + ";"));
+    //map_insert(tb.actionsInCycles, 1, string("arg_1_out_data_reg = " + floatBits(bf) + ";"));
+    //map_insert(tb.actionsInCycles, 1, string("arg_1_out_data_reg = " + floatBits(bf) + ";"));
+    //map_insert(tb.actionsInCycles, 8, string("$display(\"arg_2_in_data = %d\", arg_2_in_data);"));
+    //emitVerilogTestBench(tb, arch, testLayout);
     
-    REQUIRE(runIVerilogTB("direct_port_fp_add"));
+    //REQUIRE(runIVerilogTB("direct_port_fp_add"));
   }
   
   TEST_CASE("Creating memory interface functions") {

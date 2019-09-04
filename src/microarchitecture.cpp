@@ -2528,10 +2528,12 @@ namespace ahaHLS {
       for (pair<Instruction*, Wire> valStorage : dataRegisters.values) {
 
         Instruction* instr = valStorage.first;
-        
+       
+        cout << "Checking instruction " << valueString(instr) << endl;
         RegController& rc = arch.getController(valStorage.second);
 
         Wire stateActive = atStateWire(state, arch);
+        cout << tab(1) << "is produced in " << arch.stg.instructionEndState(instr) << endl;
         bool producedInStateVar =
           arch.stg.instructionEndState(instr) == state;
 
@@ -2541,6 +2543,8 @@ namespace ahaHLS {
 
           Wire blkActiveInState = blockActiveInState(state, instr->getParent(), arch);
           rc.values[blkActiveInState] = outputWire(instr, pos, arch);
+
+          cout << valueString(instr) << " is produced in state " << state << endl;
 
           // Note: I think this should include a not produced in state forwarding
           // decision?
@@ -2851,10 +2855,10 @@ namespace ahaHLS {
     set<Instruction*> allValuesMayNeedStorage =
       allValuesThatMayNeedStorage(arch.stg.getFunction(), arch.stg);
 
-    //cout << "# of values in function that may need storage = " << allValuesMayNeedStorage.size() << endl;
-    // for (auto v : allValuesMayNeedStorage) {
-    //   cout << tab(1) << valueString(v) << endl;
-    // }
+    cout << "# of values in function that may need storage = " << allValuesMayNeedStorage.size() << endl;
+     for (auto v : allValuesMayNeedStorage) {
+       cout << tab(1) << valueString(v) << endl;
+     }
 
     allValues = allValuesMayNeedStorage;
 
@@ -2886,8 +2890,61 @@ namespace ahaHLS {
           }
       }
     }
+
+    cout << "state data inputs..." << endl;
+    for (auto val : arch.dp.stateDataInputs) {
+      cout << tab(1) << val.first << endl;
+      WorldState ws = val.second;
+      for (auto ws : ws.values) {
+        cout << tab(2) << valueString(ws.first) << " -> " << ws.second.valueString() << endl;
+      }
+    }
+
+    cout << "state data sources..." << endl;
+    for (auto val : arch.dp.stateData) {
+      cout << tab(1) << val.first << endl;
+      for (auto ws : val.second.values) {
+        cout << tab(2) << valueString(ws.first) << " -> " << ws.second.valueString() << endl;
+      }
+    }
   }
 
+  void sanityCheckArch(MicroArchitecture& arch) {
+    // For each instruction: get the output wire and then
+    // check if the wire is used anywhere?
+    for (auto instr : allInstrs(arch.stg.getFunction())) {
+      if (hasOutput(instr) && instr->getNumUses() > 0) {
+        // Check that the instructions output wire is used somewhere?
+        bool outputUsed = false;
+        string dataOut = dataOutput(instr, arch);
+        for (auto rc : arch.regControllers) {
+          for (auto vls : rc.second.values) {
+            if (vls.second.valueString() == dataOut) {
+              outputUsed = true;
+              break;
+            }
+          }
+        }
+
+        for (auto pc : arch.portControllers) {
+          for (auto iControllers : pc.second.inputControllers) {
+            for (auto wv : iControllers.second.portVals) {
+              if (wv.second.valueString() == dataOut) {
+                outputUsed = true;
+                break;
+              }
+            }
+          }
+        }
+
+        if (!outputUsed) {
+          cout << "Error: Output of " << valueString(instr) << " is not connected to any register or port controller" << endl;
+          assert(outputUsed);
+        }
+      }
+    }
+  }
+  
   void buildControlWires(MicroArchitecture& arch)  {
     addBasicBlockControllers(arch);
 
@@ -2998,6 +3055,8 @@ namespace ahaHLS {
     buildPortControllers(arch);
     emitControlCode(arch);
     buildDataPathSetLogic(arch);
+
+    sanityCheckArch(arch);
 
     return arch;
   }  
