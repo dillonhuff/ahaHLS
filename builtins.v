@@ -535,24 +535,13 @@ module fifo(input clk,
 
             empty <= 0;
          end
-      end
-   end
+      //end
+   ////end
 
 
    
-   assign next_read_addr = (DEPTH == (read_addr + 1)) ? 0 : read_addr + 1;
-   assign next_write_addr = (DEPTH == (write_addr + 1)) ? 0 : write_addr + 1;
-
-   // always @(*) begin
-   //    $display("READ data is %d, at address 0", ram[0]);
-   // end
-
-   always @(posedge clk) begin
-      `assert(read_ready && read_valid && write_ready && write_valid, 1'd0)      
-   end   
-
-   always @(posedge clk) begin
-      if (!rst) begin
+   ////always @(posedge clk) begin
+      //if (!rst) begin
          if (read_valid) begin
             `assert(read_ready, 1'd1)
 
@@ -566,6 +555,17 @@ module fifo(input clk,
          end
       end
    end
+
+   assign next_read_addr = (DEPTH == (read_addr + 1)) ? 0 : read_addr + 1;
+   assign next_write_addr = (DEPTH == (write_addr + 1)) ? 0 : write_addr + 1;
+
+   // always @(*) begin
+   //    $display("READ data is %d, at address 0", ram[0]);
+   // end
+
+   always @(posedge clk) begin
+      `assert(read_ready && read_valid && write_ready && write_valid, 1'd0)      
+   end   
 
    reg [WIDTH - 1 : 0] out_data_reg;
 
@@ -627,8 +627,8 @@ module phi( last_block, s, in, out);
     correctInd = 0;
     for (lbInd = 0; lbInd < NB_PAIR; lbInd = lbInd + 1) begin
       if (s[32*lbInd +: 32] == last_block) begin
-        $display("In phi %d: found correct ind = %d, segment = %d, s = %b, last_block = %d, in = %b", DEBUG_ID, lbInd, s[32*lbInd +: 32], s, last_block, in);
-        $display("out_reg = %d", out_reg);
+        //$display("In phi %d: found correct ind = %d, segment = %d, s = %b, last_block = %d, in = %b", DEBUG_ID, lbInd, s[32*lbInd +: 32], s, last_block, in);
+        //$display("out_reg = %d", out_reg);
         correctInd = lbInd;
         //correctInd = 1;
       end
@@ -637,7 +637,7 @@ module phi( last_block, s, in, out);
   
     out_reg = in[correctInd*WIDTH +: WIDTH]; 
 
-    $display("out_reg after update= %d", out_reg);
+    //$display("out_reg after update= %d", out_reg);
   end
 
    //for (outBit = 0; outBit < WIDTH; outBit = outBit + 1) begin
