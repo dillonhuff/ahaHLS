@@ -565,15 +565,15 @@ module fifo(input clk,
             end
          end
       end
-   end
+   //end
 
-   always @(posedge clk) begin
+   //always @(posedge clk) begin
       if (read_valid && read_ready) begin
          out_data_reg <= ram[read_addr];
       end
-   end
+   //end
 
-   always @(posedge clk) begin
+   //always @(posedge clk) begin
       `assert(read_ready && read_valid && write_ready && write_valid, 1'd0)      
    end   
    

@@ -45,6 +45,11 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	wire [0:0] _____dlr_0___eq___alloca___dlr_builtin_fifo_32_write_ready;
 	fifo #(.DEPTH(16), .WIDTH(32)) _____dlr_0___eq___alloca___dlr_builtin_fifo_32(.clk(clk), .in_data(_____dlr_0___eq___alloca___dlr_builtin_fifo_32_in_data), .out_data(_____dlr_0___eq___alloca___dlr_builtin_fifo_32_out_data), .read_ready(_____dlr_0___eq___alloca___dlr_builtin_fifo_32_read_ready), .read_valid(_____dlr_0___eq___alloca___dlr_builtin_fifo_32_read_valid), .rst(rst), .write_ready(_____dlr_0___eq___alloca___dlr_builtin_fifo_32_write_ready), .write_valid(_____dlr_0___eq___alloca___dlr_builtin_fifo_32_write_valid));
 
+	wire [31:0] icmp_icmp45_in0;
+	wire [31:0] icmp_icmp45_in1;
+	wire [0:0] icmp_icmp45_out;
+	ne #(.WIDTH(32)) icmp_icmp45(.in0(icmp_icmp45_in0), .in1(icmp_icmp45_in1), .out(icmp_icmp45_out));
+
 	wire [63:0] phi_phi6_in;
 	wire [31:0] phi_phi6_last_block;
 	wire [63:0] phi_phi6_s;
@@ -66,26 +71,21 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	wire [0:0] icmp_icmp26_out;
 	ne #(.WIDTH(32)) icmp_icmp26(.in0(icmp_icmp26_in0), .in1(icmp_icmp26_in1), .out(icmp_icmp26_out));
 
-	wire [63:0] phi_phi28_in;
-	wire [31:0] phi_phi28_last_block;
-	wire [63:0] phi_phi28_s;
-	wire [31:0] phi_phi28_out;
-	phi #(.DEBUG_ID(2), .NB_PAIR(2), .WIDTH(32)) phi_phi28(.in(phi_phi28_in), .last_block(phi_phi28_last_block), .out(phi_phi28_out), .s(phi_phi28_s));
+	wire [63:0] phi_phi32_in;
+	wire [31:0] phi_phi32_last_block;
+	wire [63:0] phi_phi32_s;
+	wire [31:0] phi_phi32_out;
+	phi #(.DEBUG_ID(2), .NB_PAIR(2), .WIDTH(32)) phi_phi32(.in(phi_phi32_in), .last_block(phi_phi32_last_block), .out(phi_phi32_out), .s(phi_phi32_s));
 
-	wire [31:0] add_add29_in0;
-	wire [31:0] add_add29_in1;
-	wire [31:0] add_add29_out;
-	add #(.WIDTH(32)) add_add29(.in0(add_add29_in0), .in1(add_add29_in1), .out(add_add29_out));
+	wire [31:0] add_add33_in0;
+	wire [31:0] add_add33_in1;
+	wire [31:0] add_add33_out;
+	add #(.WIDTH(32)) add_add33(.in0(add_add33_in0), .in1(add_add33_in1), .out(add_add33_out));
 
 	wire [31:0] mul_mul41_in0;
 	wire [31:0] mul_mul41_in1;
 	wire [31:0] mul_mul41_out;
 	mul #(.WIDTH(32)) mul_mul41(.in0(mul_mul41_in0), .in1(mul_mul41_in1), .out(mul_mul41_out));
-
-	wire [31:0] icmp_icmp45_in0;
-	wire [31:0] icmp_icmp45_in1;
-	wire [0:0] icmp_icmp45_out;
-	ne #(.WIDTH(32)) icmp_icmp45(.in0(icmp_icmp45_in0), .in1(icmp_icmp45_in1), .out(icmp_icmp45_out));
 
 	reg [0:0] bb_0_active_in_state_0_in_data;
 	wire [0:0] bb_0_active_in_state_0_out_data;
@@ -99,18 +99,6 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	wire [0:0] br_0_happened_in_state_0_out_data;
 	hls_wire #(.WIDTH(1)) br_0_happened_in_state_0(.in_data(br_0_happened_in_state_0_in_data), .out_data(br_0_happened_in_state_0_out_data));
 
-	reg [0:0] bb_15_active_in_state_1_in_data;
-	wire [0:0] bb_15_active_in_state_1_out_data;
-	hls_wire #(.WIDTH(1)) bb_15_active_in_state_1(.in_data(bb_15_active_in_state_1_in_data), .out_data(bb_15_active_in_state_1_out_data));
-
-	reg [31:0] bb_15_predecessor_in_state_1_in_data;
-	wire [31:0] bb_15_predecessor_in_state_1_out_data;
-	hls_wire #(.WIDTH(32)) bb_15_predecessor_in_state_1(.in_data(bb_15_predecessor_in_state_1_in_data), .out_data(bb_15_predecessor_in_state_1_out_data));
-
-	reg [0:0] br_15_happened_in_state_1_in_data;
-	wire [0:0] br_15_happened_in_state_1_out_data;
-	hls_wire #(.WIDTH(1)) br_15_happened_in_state_1(.in_data(br_15_happened_in_state_1_in_data), .out_data(br_15_happened_in_state_1_out_data));
-
 	reg [0:0] bb_16_active_in_state_1_in_data;
 	wire [0:0] bb_16_active_in_state_1_out_data;
 	hls_wire #(.WIDTH(1)) bb_16_active_in_state_1(.in_data(bb_16_active_in_state_1_in_data), .out_data(bb_16_active_in_state_1_out_data));
@@ -122,6 +110,18 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	reg [0:0] br_16_happened_in_state_1_in_data;
 	wire [0:0] br_16_happened_in_state_1_out_data;
 	hls_wire #(.WIDTH(1)) br_16_happened_in_state_1(.in_data(br_16_happened_in_state_1_in_data), .out_data(br_16_happened_in_state_1_out_data));
+
+	reg [0:0] bb_15_active_in_state_1_in_data;
+	wire [0:0] bb_15_active_in_state_1_out_data;
+	hls_wire #(.WIDTH(1)) bb_15_active_in_state_1(.in_data(bb_15_active_in_state_1_in_data), .out_data(bb_15_active_in_state_1_out_data));
+
+	reg [31:0] bb_15_predecessor_in_state_1_in_data;
+	wire [31:0] bb_15_predecessor_in_state_1_out_data;
+	hls_wire #(.WIDTH(32)) bb_15_predecessor_in_state_1(.in_data(bb_15_predecessor_in_state_1_in_data), .out_data(bb_15_predecessor_in_state_1_out_data));
+
+	reg [0:0] br_15_happened_in_state_1_in_data;
+	wire [0:0] br_15_happened_in_state_1_out_data;
+	hls_wire #(.WIDTH(1)) br_15_happened_in_state_1(.in_data(br_15_happened_in_state_1_in_data), .out_data(br_15_happened_in_state_1_out_data));
 
 	reg [0:0] bb_4_active_in_state_1_in_data;
 	wire [0:0] bb_4_active_in_state_1_out_data;
@@ -267,18 +267,6 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	wire [0:0] br_22_happened_in_state_6_out_data;
 	hls_wire #(.WIDTH(1)) br_22_happened_in_state_6(.in_data(br_22_happened_in_state_6_in_data), .out_data(br_22_happened_in_state_6_out_data));
 
-	reg [0:0] bb_23_active_in_state_7_in_data;
-	wire [0:0] bb_23_active_in_state_7_out_data;
-	hls_wire #(.WIDTH(1)) bb_23_active_in_state_7(.in_data(bb_23_active_in_state_7_in_data), .out_data(bb_23_active_in_state_7_out_data));
-
-	reg [31:0] bb_23_predecessor_in_state_7_in_data;
-	wire [31:0] bb_23_predecessor_in_state_7_out_data;
-	hls_wire #(.WIDTH(32)) bb_23_predecessor_in_state_7(.in_data(bb_23_predecessor_in_state_7_in_data), .out_data(bb_23_predecessor_in_state_7_out_data));
-
-	reg [0:0] br_23_happened_in_state_7_in_data;
-	wire [0:0] br_23_happened_in_state_7_out_data;
-	hls_wire #(.WIDTH(1)) br_23_happened_in_state_7(.in_data(br_23_happened_in_state_7_in_data), .out_data(br_23_happened_in_state_7_out_data));
-
 	reg [0:0] bb_7_active_in_state_7_in_data;
 	wire [0:0] bb_7_active_in_state_7_out_data;
 	hls_wire #(.WIDTH(1)) bb_7_active_in_state_7(.in_data(bb_7_active_in_state_7_in_data), .out_data(bb_7_active_in_state_7_out_data));
@@ -291,17 +279,17 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	wire [0:0] br_7_happened_in_state_7_out_data;
 	hls_wire #(.WIDTH(1)) br_7_happened_in_state_7(.in_data(br_7_happened_in_state_7_in_data), .out_data(br_7_happened_in_state_7_out_data));
 
-	reg [0:0] bb_1_active_in_state_8_in_data;
-	wire [0:0] bb_1_active_in_state_8_out_data;
-	hls_wire #(.WIDTH(1)) bb_1_active_in_state_8(.in_data(bb_1_active_in_state_8_in_data), .out_data(bb_1_active_in_state_8_out_data));
+	reg [0:0] bb_23_active_in_state_7_in_data;
+	wire [0:0] bb_23_active_in_state_7_out_data;
+	hls_wire #(.WIDTH(1)) bb_23_active_in_state_7(.in_data(bb_23_active_in_state_7_in_data), .out_data(bb_23_active_in_state_7_out_data));
 
-	reg [31:0] bb_1_predecessor_in_state_8_in_data;
-	wire [31:0] bb_1_predecessor_in_state_8_out_data;
-	hls_wire #(.WIDTH(32)) bb_1_predecessor_in_state_8(.in_data(bb_1_predecessor_in_state_8_in_data), .out_data(bb_1_predecessor_in_state_8_out_data));
+	reg [31:0] bb_23_predecessor_in_state_7_in_data;
+	wire [31:0] bb_23_predecessor_in_state_7_out_data;
+	hls_wire #(.WIDTH(32)) bb_23_predecessor_in_state_7(.in_data(bb_23_predecessor_in_state_7_in_data), .out_data(bb_23_predecessor_in_state_7_out_data));
 
-	reg [0:0] br_1_happened_in_state_8_in_data;
-	wire [0:0] br_1_happened_in_state_8_out_data;
-	hls_wire #(.WIDTH(1)) br_1_happened_in_state_8(.in_data(br_1_happened_in_state_8_in_data), .out_data(br_1_happened_in_state_8_out_data));
+	reg [0:0] br_23_happened_in_state_7_in_data;
+	wire [0:0] br_23_happened_in_state_7_out_data;
+	hls_wire #(.WIDTH(1)) br_23_happened_in_state_7(.in_data(br_23_happened_in_state_7_in_data), .out_data(br_23_happened_in_state_7_out_data));
 
 	reg [0:0] bb_9_active_in_state_8_in_data;
 	wire [0:0] bb_9_active_in_state_8_out_data;
@@ -327,6 +315,18 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	wire [0:0] br_10_happened_in_state_8_out_data;
 	hls_wire #(.WIDTH(1)) br_10_happened_in_state_8(.in_data(br_10_happened_in_state_8_in_data), .out_data(br_10_happened_in_state_8_out_data));
 
+	reg [0:0] bb_1_active_in_state_8_in_data;
+	wire [0:0] bb_1_active_in_state_8_out_data;
+	hls_wire #(.WIDTH(1)) bb_1_active_in_state_8(.in_data(bb_1_active_in_state_8_in_data), .out_data(bb_1_active_in_state_8_out_data));
+
+	reg [31:0] bb_1_predecessor_in_state_8_in_data;
+	wire [31:0] bb_1_predecessor_in_state_8_out_data;
+	hls_wire #(.WIDTH(32)) bb_1_predecessor_in_state_8(.in_data(bb_1_predecessor_in_state_8_in_data), .out_data(bb_1_predecessor_in_state_8_out_data));
+
+	reg [0:0] br_1_happened_in_state_8_in_data;
+	wire [0:0] br_1_happened_in_state_8_out_data;
+	hls_wire #(.WIDTH(1)) br_1_happened_in_state_8(.in_data(br_1_happened_in_state_8_in_data), .out_data(br_1_happened_in_state_8_out_data));
+
 	reg [0:0] bb_11_active_in_state_9_in_data;
 	wire [0:0] bb_11_active_in_state_9_out_data;
 	hls_wire #(.WIDTH(1)) bb_11_active_in_state_9(.in_data(bb_11_active_in_state_9_in_data), .out_data(bb_11_active_in_state_9_out_data));
@@ -351,6 +351,18 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	wire [0:0] br_11_happened_in_state_10_out_data;
 	hls_wire #(.WIDTH(1)) br_11_happened_in_state_10(.in_data(br_11_happened_in_state_10_in_data), .out_data(br_11_happened_in_state_10_out_data));
 
+	reg [0:0] bb_2_active_in_state_11_in_data;
+	wire [0:0] bb_2_active_in_state_11_out_data;
+	hls_wire #(.WIDTH(1)) bb_2_active_in_state_11(.in_data(bb_2_active_in_state_11_in_data), .out_data(bb_2_active_in_state_11_out_data));
+
+	reg [31:0] bb_2_predecessor_in_state_11_in_data;
+	wire [31:0] bb_2_predecessor_in_state_11_out_data;
+	hls_wire #(.WIDTH(32)) bb_2_predecessor_in_state_11(.in_data(bb_2_predecessor_in_state_11_in_data), .out_data(bb_2_predecessor_in_state_11_out_data));
+
+	reg [0:0] br_2_happened_in_state_11_in_data;
+	wire [0:0] br_2_happened_in_state_11_out_data;
+	hls_wire #(.WIDTH(1)) br_2_happened_in_state_11(.in_data(br_2_happened_in_state_11_in_data), .out_data(br_2_happened_in_state_11_out_data));
+
 	reg [0:0] bb_12_active_in_state_11_in_data;
 	wire [0:0] bb_12_active_in_state_11_out_data;
 	hls_wire #(.WIDTH(1)) bb_12_active_in_state_11(.in_data(bb_12_active_in_state_11_in_data), .out_data(bb_12_active_in_state_11_out_data));
@@ -374,18 +386,6 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	reg [0:0] br_13_happened_in_state_11_in_data;
 	wire [0:0] br_13_happened_in_state_11_out_data;
 	hls_wire #(.WIDTH(1)) br_13_happened_in_state_11(.in_data(br_13_happened_in_state_11_in_data), .out_data(br_13_happened_in_state_11_out_data));
-
-	reg [0:0] bb_2_active_in_state_11_in_data;
-	wire [0:0] bb_2_active_in_state_11_out_data;
-	hls_wire #(.WIDTH(1)) bb_2_active_in_state_11(.in_data(bb_2_active_in_state_11_in_data), .out_data(bb_2_active_in_state_11_out_data));
-
-	reg [31:0] bb_2_predecessor_in_state_11_in_data;
-	wire [31:0] bb_2_predecessor_in_state_11_out_data;
-	hls_wire #(.WIDTH(32)) bb_2_predecessor_in_state_11(.in_data(bb_2_predecessor_in_state_11_in_data), .out_data(bb_2_predecessor_in_state_11_out_data));
-
-	reg [0:0] br_2_happened_in_state_11_in_data;
-	wire [0:0] br_2_happened_in_state_11_out_data;
-	hls_wire #(.WIDTH(1)) br_2_happened_in_state_11(.in_data(br_2_happened_in_state_11_in_data), .out_data(br_2_happened_in_state_11_out_data));
 
 	reg [0:0] bb_3_active_in_state_12_in_data;
 	wire [0:0] bb_3_active_in_state_12_out_data;
@@ -523,13 +523,13 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	wire [31:0] data_in_9_52_out_data;
 	hls_wire #(.WIDTH(32)) data_in_9_52(.in_data(data_in_9_52_in_data), .out_data(data_in_9_52_out_data));
 
-	reg [31:0] data_in_10_54_in_data;
-	wire [31:0] data_in_10_54_out_data;
-	hls_wire #(.WIDTH(32)) data_in_10_54(.in_data(data_in_10_54_in_data), .out_data(data_in_10_54_out_data));
+	reg [31:0] data_in_10_55_in_data;
+	wire [31:0] data_in_10_55_out_data;
+	hls_wire #(.WIDTH(32)) data_in_10_55(.in_data(data_in_10_55_in_data), .out_data(data_in_10_55_out_data));
 
-	reg [31:0] data_in_10_56_in_data;
-	wire [31:0] data_in_10_56_out_data;
-	hls_wire #(.WIDTH(32)) data_in_10_56(.in_data(data_in_10_56_in_data), .out_data(data_in_10_56_out_data));
+	reg [31:0] data_in_10_57_in_data;
+	wire [31:0] data_in_10_57_out_data;
+	hls_wire #(.WIDTH(32)) data_in_10_57(.in_data(data_in_10_57_in_data), .out_data(data_in_10_57_out_data));
 
 	reg [31:0] data_in_11_59_in_data;
 	wire [31:0] data_in_11_59_out_data;
@@ -583,14 +583,14 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	wire [0:0] andOp_74_out;
 	andOp #(.WIDTH(1)) andOp_74(.in0(andOp_74_in0), .in1(andOp_74_in1), .out(andOp_74_out));
 
-	wire [0:0] notOp_75_in0;
-	wire [0:0] notOp_75_out;
-	notOp #(.WIDTH(1)) notOp_75(.in(notOp_75_in0), .out(notOp_75_out));
+	wire [0:0] andOp_75_in0;
+	wire [0:0] andOp_75_in1;
+	wire [0:0] andOp_75_out;
+	andOp #(.WIDTH(1)) andOp_75(.in0(andOp_75_in0), .in1(andOp_75_in1), .out(andOp_75_out));
 
-	wire [0:0] andOp_76_in0;
-	wire [0:0] andOp_76_in1;
-	wire [0:0] andOp_76_out;
-	andOp #(.WIDTH(1)) andOp_76(.in0(andOp_76_in0), .in1(andOp_76_in1), .out(andOp_76_out));
+	wire [0:0] notOp_76_in0;
+	wire [0:0] notOp_76_out;
+	notOp #(.WIDTH(1)) notOp_76(.in(notOp_76_in0), .out(notOp_76_out));
 
 	wire [0:0] andOp_77_in0;
 	wire [0:0] andOp_77_in1;
@@ -751,14 +751,14 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	wire [0:0] andOp_111_out;
 	andOp #(.WIDTH(1)) andOp_111(.in0(andOp_111_in0), .in1(andOp_111_in1), .out(andOp_111_out));
 
-	wire [0:0] notOp_112_in0;
-	wire [0:0] notOp_112_out;
-	notOp #(.WIDTH(1)) notOp_112(.in(notOp_112_in0), .out(notOp_112_out));
+	wire [0:0] andOp_112_in0;
+	wire [0:0] andOp_112_in1;
+	wire [0:0] andOp_112_out;
+	andOp #(.WIDTH(1)) andOp_112(.in0(andOp_112_in0), .in1(andOp_112_in1), .out(andOp_112_out));
 
-	wire [0:0] andOp_113_in0;
-	wire [0:0] andOp_113_in1;
-	wire [0:0] andOp_113_out;
-	andOp #(.WIDTH(1)) andOp_113(.in0(andOp_113_in0), .in1(andOp_113_in1), .out(andOp_113_out));
+	wire [0:0] notOp_113_in0;
+	wire [0:0] notOp_113_out;
+	notOp #(.WIDTH(1)) notOp_113(.in(notOp_113_in0), .out(notOp_113_out));
 
 	wire [0:0] andOp_114_in0;
 	wire [0:0] andOp_114_in1;
@@ -792,14 +792,14 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	wire [0:0] andOp_120_out;
 	andOp #(.WIDTH(1)) andOp_120(.in0(andOp_120_in0), .in1(andOp_120_in1), .out(andOp_120_out));
 
-	wire [0:0] notOp_121_in0;
-	wire [0:0] notOp_121_out;
-	notOp #(.WIDTH(1)) notOp_121(.in(notOp_121_in0), .out(notOp_121_out));
+	wire [0:0] andOp_121_in0;
+	wire [0:0] andOp_121_in1;
+	wire [0:0] andOp_121_out;
+	andOp #(.WIDTH(1)) andOp_121(.in0(andOp_121_in0), .in1(andOp_121_in1), .out(andOp_121_out));
 
-	wire [0:0] andOp_122_in0;
-	wire [0:0] andOp_122_in1;
-	wire [0:0] andOp_122_out;
-	andOp #(.WIDTH(1)) andOp_122(.in0(andOp_122_in0), .in1(andOp_122_in1), .out(andOp_122_out));
+	wire [0:0] notOp_122_in0;
+	wire [0:0] notOp_122_out;
+	notOp #(.WIDTH(1)) notOp_122(.in(notOp_122_in0), .out(notOp_122_out));
 
 	wire [0:0] andOp_123_in0;
 	wire [0:0] andOp_123_in1;
@@ -851,14 +851,14 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	wire [0:0] andOp_133_out;
 	andOp #(.WIDTH(1)) andOp_133(.in0(andOp_133_in0), .in1(andOp_133_in1), .out(andOp_133_out));
 
-	wire [0:0] andOp_134_in0;
-	wire [0:0] andOp_134_in1;
-	wire [0:0] andOp_134_out;
-	andOp #(.WIDTH(1)) andOp_134(.in0(andOp_134_in0), .in1(andOp_134_in1), .out(andOp_134_out));
+	wire [0:0] notOp_134_in0;
+	wire [0:0] notOp_134_out;
+	notOp #(.WIDTH(1)) notOp_134(.in(notOp_134_in0), .out(notOp_134_out));
 
-	wire [0:0] notOp_135_in0;
-	wire [0:0] notOp_135_out;
-	notOp #(.WIDTH(1)) notOp_135(.in(notOp_135_in0), .out(notOp_135_out));
+	wire [0:0] andOp_135_in0;
+	wire [0:0] andOp_135_in1;
+	wire [0:0] andOp_135_out;
+	andOp #(.WIDTH(1)) andOp_135(.in0(andOp_135_in0), .in1(andOp_135_in1), .out(andOp_135_out));
 
 	wire [0:0] andOp_136_in0;
 	wire [0:0] andOp_136_in1;
@@ -1012,40 +1012,40 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	wire [0:0] eq_166_out;
 	eq #(.WIDTH(32)) eq_166(.in0(eq_166_in0), .in1(eq_166_in1), .out(eq_166_out));
 
-	wire [31:0] eq_167_in0;
-	wire [31:0] eq_167_in1;
-	wire [0:0] eq_167_out;
-	eq #(.WIDTH(32)) eq_167(.in0(eq_167_in0), .in1(eq_167_in1), .out(eq_167_out));
+	wire [0:0] orOp_167_in0;
+	wire [0:0] orOp_167_in1;
+	wire [0:0] orOp_167_out;
+	orOp #(.WIDTH(1)) orOp_167(.in0(orOp_167_in0), .in1(orOp_167_in1), .out(orOp_167_out));
 
-	wire [0:0] orOp_168_in0;
-	wire [0:0] orOp_168_in1;
-	wire [0:0] orOp_168_out;
-	orOp #(.WIDTH(1)) orOp_168(.in0(orOp_168_in0), .in1(orOp_168_in1), .out(orOp_168_out));
+	wire [31:0] eq_168_in0;
+	wire [31:0] eq_168_in1;
+	wire [0:0] eq_168_out;
+	eq #(.WIDTH(32)) eq_168(.in0(eq_168_in0), .in1(eq_168_in1), .out(eq_168_out));
 
 	wire [31:0] eq_169_in0;
 	wire [31:0] eq_169_in1;
 	wire [0:0] eq_169_out;
 	eq #(.WIDTH(32)) eq_169(.in0(eq_169_in0), .in1(eq_169_in1), .out(eq_169_out));
 
-	wire [31:0] eq_170_in0;
-	wire [31:0] eq_170_in1;
-	wire [0:0] eq_170_out;
-	eq #(.WIDTH(32)) eq_170(.in0(eq_170_in0), .in1(eq_170_in1), .out(eq_170_out));
+	wire [0:0] orOp_170_in0;
+	wire [0:0] orOp_170_in1;
+	wire [0:0] orOp_170_out;
+	orOp #(.WIDTH(1)) orOp_170(.in0(orOp_170_in0), .in1(orOp_170_in1), .out(orOp_170_out));
 
-	wire [0:0] orOp_171_in0;
-	wire [0:0] orOp_171_in1;
-	wire [0:0] orOp_171_out;
-	orOp #(.WIDTH(1)) orOp_171(.in0(orOp_171_in0), .in1(orOp_171_in1), .out(orOp_171_out));
+	wire [31:0] eq_171_in0;
+	wire [31:0] eq_171_in1;
+	wire [0:0] eq_171_out;
+	eq #(.WIDTH(32)) eq_171(.in0(eq_171_in0), .in1(eq_171_in1), .out(eq_171_out));
 
-	wire [31:0] eq_172_in0;
-	wire [31:0] eq_172_in1;
-	wire [0:0] eq_172_out;
-	eq #(.WIDTH(32)) eq_172(.in0(eq_172_in0), .in1(eq_172_in1), .out(eq_172_out));
+	wire [0:0] orOp_172_in0;
+	wire [0:0] orOp_172_in1;
+	wire [0:0] orOp_172_out;
+	orOp #(.WIDTH(1)) orOp_172(.in0(orOp_172_in0), .in1(orOp_172_in1), .out(orOp_172_out));
 
-	wire [0:0] orOp_173_in0;
-	wire [0:0] orOp_173_in1;
-	wire [0:0] orOp_173_out;
-	orOp #(.WIDTH(1)) orOp_173(.in0(orOp_173_in0), .in1(orOp_173_in1), .out(orOp_173_out));
+	wire [31:0] eq_173_in0;
+	wire [31:0] eq_173_in1;
+	wire [0:0] eq_173_out;
+	eq #(.WIDTH(32)) eq_173(.in0(eq_173_in0), .in1(eq_173_in1), .out(eq_173_out));
 
 	wire [31:0] eq_174_in0;
 	wire [31:0] eq_174_in1;
@@ -1062,25 +1062,25 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	wire [0:0] eq_176_out;
 	eq #(.WIDTH(32)) eq_176(.in0(eq_176_in0), .in1(eq_176_in1), .out(eq_176_out));
 
-	wire [0:0] orOp_177_in0;
-	wire [0:0] orOp_177_in1;
-	wire [0:0] orOp_177_out;
-	orOp #(.WIDTH(1)) orOp_177(.in0(orOp_177_in0), .in1(orOp_177_in1), .out(orOp_177_out));
+	wire [31:0] eq_177_in0;
+	wire [31:0] eq_177_in1;
+	wire [0:0] eq_177_out;
+	eq #(.WIDTH(32)) eq_177(.in0(eq_177_in0), .in1(eq_177_in1), .out(eq_177_out));
 
-	wire [31:0] eq_178_in0;
-	wire [31:0] eq_178_in1;
-	wire [0:0] eq_178_out;
-	eq #(.WIDTH(32)) eq_178(.in0(eq_178_in0), .in1(eq_178_in1), .out(eq_178_out));
+	wire [0:0] orOp_178_in0;
+	wire [0:0] orOp_178_in1;
+	wire [0:0] orOp_178_out;
+	orOp #(.WIDTH(1)) orOp_178(.in0(orOp_178_in0), .in1(orOp_178_in1), .out(orOp_178_out));
 
-	wire [0:0] orOp_179_in0;
-	wire [0:0] orOp_179_in1;
-	wire [0:0] orOp_179_out;
-	orOp #(.WIDTH(1)) orOp_179(.in0(orOp_179_in0), .in1(orOp_179_in1), .out(orOp_179_out));
+	wire [31:0] eq_179_in0;
+	wire [31:0] eq_179_in1;
+	wire [0:0] eq_179_out;
+	eq #(.WIDTH(32)) eq_179(.in0(eq_179_in0), .in1(eq_179_in1), .out(eq_179_out));
 
-	wire [31:0] eq_180_in0;
-	wire [31:0] eq_180_in1;
-	wire [0:0] eq_180_out;
-	eq #(.WIDTH(32)) eq_180(.in0(eq_180_in0), .in1(eq_180_in1), .out(eq_180_out));
+	wire [0:0] orOp_180_in0;
+	wire [0:0] orOp_180_in1;
+	wire [0:0] orOp_180_out;
+	orOp #(.WIDTH(1)) orOp_180(.in0(orOp_180_in0), .in1(orOp_180_in1), .out(orOp_180_out));
 
 	wire [31:0] eq_181_in0;
 	wire [31:0] eq_181_in1;
@@ -1254,52 +1254,52 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	wire [0:0] eq_216_out;
 	eq #(.WIDTH(32)) eq_216(.in0(eq_216_in0), .in1(eq_216_in1), .out(eq_216_out));
 
-	wire [31:0] eq_217_in0;
-	wire [31:0] eq_217_in1;
-	wire [0:0] eq_217_out;
-	eq #(.WIDTH(32)) eq_217(.in0(eq_217_in0), .in1(eq_217_in1), .out(eq_217_out));
+	wire [0:0] notOp_217_in0;
+	wire [0:0] notOp_217_out;
+	notOp #(.WIDTH(1)) notOp_217(.in(notOp_217_in0), .out(notOp_217_out));
 
-	wire [0:0] notOp_218_in0;
-	wire [0:0] notOp_218_out;
-	notOp #(.WIDTH(1)) notOp_218(.in(notOp_218_in0), .out(notOp_218_out));
+	wire [0:0] andOp_218_in0;
+	wire [0:0] andOp_218_in1;
+	wire [0:0] andOp_218_out;
+	andOp #(.WIDTH(1)) andOp_218(.in0(andOp_218_in0), .in1(andOp_218_in1), .out(andOp_218_out));
 
-	wire [0:0] andOp_219_in0;
-	wire [0:0] andOp_219_in1;
-	wire [0:0] andOp_219_out;
-	andOp #(.WIDTH(1)) andOp_219(.in0(andOp_219_in0), .in1(andOp_219_in1), .out(andOp_219_out));
+	wire [31:0] eq_219_in0;
+	wire [31:0] eq_219_in1;
+	wire [0:0] eq_219_out;
+	eq #(.WIDTH(32)) eq_219(.in0(eq_219_in0), .in1(eq_219_in1), .out(eq_219_out));
 
 	wire [31:0] eq_220_in0;
 	wire [31:0] eq_220_in1;
 	wire [0:0] eq_220_out;
 	eq #(.WIDTH(32)) eq_220(.in0(eq_220_in0), .in1(eq_220_in1), .out(eq_220_out));
 
-	wire [31:0] eq_221_in0;
-	wire [31:0] eq_221_in1;
-	wire [0:0] eq_221_out;
-	eq #(.WIDTH(32)) eq_221(.in0(eq_221_in0), .in1(eq_221_in1), .out(eq_221_out));
+	wire [0:0] notOp_221_in0;
+	wire [0:0] notOp_221_out;
+	notOp #(.WIDTH(1)) notOp_221(.in(notOp_221_in0), .out(notOp_221_out));
 
-	wire [0:0] notOp_222_in0;
-	wire [0:0] notOp_222_out;
-	notOp #(.WIDTH(1)) notOp_222(.in(notOp_222_in0), .out(notOp_222_out));
+	wire [0:0] andOp_222_in0;
+	wire [0:0] andOp_222_in1;
+	wire [0:0] andOp_222_out;
+	andOp #(.WIDTH(1)) andOp_222(.in0(andOp_222_in0), .in1(andOp_222_in1), .out(andOp_222_out));
 
-	wire [0:0] andOp_223_in0;
-	wire [0:0] andOp_223_in1;
-	wire [0:0] andOp_223_out;
-	andOp #(.WIDTH(1)) andOp_223(.in0(andOp_223_in0), .in1(andOp_223_in1), .out(andOp_223_out));
+	wire [31:0] eq_223_in0;
+	wire [31:0] eq_223_in1;
+	wire [0:0] eq_223_out;
+	eq #(.WIDTH(32)) eq_223(.in0(eq_223_in0), .in1(eq_223_in1), .out(eq_223_out));
 
-	wire [31:0] eq_224_in0;
-	wire [31:0] eq_224_in1;
-	wire [0:0] eq_224_out;
-	eq #(.WIDTH(32)) eq_224(.in0(eq_224_in0), .in1(eq_224_in1), .out(eq_224_out));
+	wire [0:0] notOp_224_in0;
+	wire [0:0] notOp_224_out;
+	notOp #(.WIDTH(1)) notOp_224(.in(notOp_224_in0), .out(notOp_224_out));
 
-	wire [0:0] notOp_225_in0;
-	wire [0:0] notOp_225_out;
-	notOp #(.WIDTH(1)) notOp_225(.in(notOp_225_in0), .out(notOp_225_out));
+	wire [0:0] andOp_225_in0;
+	wire [0:0] andOp_225_in1;
+	wire [0:0] andOp_225_out;
+	andOp #(.WIDTH(1)) andOp_225(.in0(andOp_225_in0), .in1(andOp_225_in1), .out(andOp_225_out));
 
-	wire [0:0] andOp_226_in0;
-	wire [0:0] andOp_226_in1;
-	wire [0:0] andOp_226_out;
-	andOp #(.WIDTH(1)) andOp_226(.in0(andOp_226_in0), .in1(andOp_226_in1), .out(andOp_226_out));
+	wire [31:0] eq_226_in0;
+	wire [31:0] eq_226_in1;
+	wire [0:0] eq_226_out;
+	eq #(.WIDTH(32)) eq_226(.in0(eq_226_in0), .in1(eq_226_in1), .out(eq_226_out));
 
 	wire [31:0] eq_227_in0;
 	wire [31:0] eq_227_in1;
@@ -1316,33 +1316,33 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	wire [0:0] eq_229_out;
 	eq #(.WIDTH(32)) eq_229(.in0(eq_229_in0), .in1(eq_229_in1), .out(eq_229_out));
 
-	wire [0:0] notOp_230_in0;
-	wire [0:0] notOp_230_out;
-	notOp #(.WIDTH(1)) notOp_230(.in(notOp_230_in0), .out(notOp_230_out));
+	wire [31:0] eq_230_in0;
+	wire [31:0] eq_230_in1;
+	wire [0:0] eq_230_out;
+	eq #(.WIDTH(32)) eq_230(.in0(eq_230_in0), .in1(eq_230_in1), .out(eq_230_out));
 
-	wire [0:0] andOp_231_in0;
-	wire [0:0] andOp_231_in1;
-	wire [0:0] andOp_231_out;
-	andOp #(.WIDTH(1)) andOp_231(.in0(andOp_231_in0), .in1(andOp_231_in1), .out(andOp_231_out));
+	wire [0:0] notOp_231_in0;
+	wire [0:0] notOp_231_out;
+	notOp #(.WIDTH(1)) notOp_231(.in(notOp_231_in0), .out(notOp_231_out));
 
-	wire [31:0] eq_232_in0;
-	wire [31:0] eq_232_in1;
-	wire [0:0] eq_232_out;
-	eq #(.WIDTH(32)) eq_232(.in0(eq_232_in0), .in1(eq_232_in1), .out(eq_232_out));
+	wire [0:0] andOp_232_in0;
+	wire [0:0] andOp_232_in1;
+	wire [0:0] andOp_232_out;
+	andOp #(.WIDTH(1)) andOp_232(.in0(andOp_232_in0), .in1(andOp_232_in1), .out(andOp_232_out));
 
-	wire [0:0] notOp_233_in0;
-	wire [0:0] notOp_233_out;
-	notOp #(.WIDTH(1)) notOp_233(.in(notOp_233_in0), .out(notOp_233_out));
+	wire [31:0] eq_233_in0;
+	wire [31:0] eq_233_in1;
+	wire [0:0] eq_233_out;
+	eq #(.WIDTH(32)) eq_233(.in0(eq_233_in0), .in1(eq_233_in1), .out(eq_233_out));
 
-	wire [0:0] andOp_234_in0;
-	wire [0:0] andOp_234_in1;
-	wire [0:0] andOp_234_out;
-	andOp #(.WIDTH(1)) andOp_234(.in0(andOp_234_in0), .in1(andOp_234_in1), .out(andOp_234_out));
+	wire [0:0] notOp_234_in0;
+	wire [0:0] notOp_234_out;
+	notOp #(.WIDTH(1)) notOp_234(.in(notOp_234_in0), .out(notOp_234_out));
 
-	wire [31:0] eq_235_in0;
-	wire [31:0] eq_235_in1;
-	wire [0:0] eq_235_out;
-	eq #(.WIDTH(32)) eq_235(.in0(eq_235_in0), .in1(eq_235_in1), .out(eq_235_out));
+	wire [0:0] andOp_235_in0;
+	wire [0:0] andOp_235_in1;
+	wire [0:0] andOp_235_out;
+	andOp #(.WIDTH(1)) andOp_235(.in0(andOp_235_in0), .in1(andOp_235_in1), .out(andOp_235_out));
 
 	wire [31:0] eq_236_in0;
 	wire [31:0] eq_236_in1;
@@ -1925,8 +1925,8 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// End Functional Units
 
 	reg [31:0] data_store_10_53;
-	reg [31:0] data_store_10_55;
-	reg [31:0] data_store_10_57;
+	reg [31:0] data_store_10_54;
+	reg [31:0] data_store_10_56;
 	reg [31:0] data_store_11_58;
 	reg [31:0] data_store_11_60;
 	reg [31:0] data_store_11_62;
@@ -2046,11 +2046,11 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// Insensitive connections
 	assign add_add22_in0 = data_in_6_32_out_data;
 	assign add_add22_in1 = data_in_6_34_out_data;
-	// controller for add_add29.add_add29_in0
-	// controller for add_add29.add_add29_in1
+	// controller for add_add33.add_add33_in0
+	// controller for add_add33.add_add33_in1
 	// Insensitive connections
-	assign add_add29_in0 = phi_phi28_out;
-	assign add_add29_in1 = 32'd1;
+	assign add_add33_in0 = phi_phi32_out;
+	assign add_add33_in1 = 32'd1;
 	// controller for add_add7.add_add7_in0
 	// controller for add_add7.add_add7_in1
 	// Insensitive connections
@@ -2079,48 +2079,48 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for andOp_107.andOp_107_in0
 	// controller for andOp_107.andOp_107_in1
 	// Insensitive connections
-	assign andOp_107_in0 = bb_23_active_in_state_7_out_data;
+	assign andOp_107_in0 = bb_7_active_in_state_7_out_data;
 	assign andOp_107_in1 = state_7_is_active;
 	// controller for andOp_109.andOp_109_in0
 	// controller for andOp_109.andOp_109_in1
 	// Insensitive connections
-	assign andOp_109_in0 = bb_7_active_in_state_7_out_data;
-	assign andOp_109_in1 = state_7_is_active;
+	assign andOp_109_in0 = andOp_107_out;
+	assign andOp_109_in1 = icmp_icmp26_out;
 	// controller for andOp_111.andOp_111_in0
 	// controller for andOp_111.andOp_111_in1
 	// Insensitive connections
-	assign andOp_111_in0 = andOp_109_out;
-	assign andOp_111_in1 = icmp_icmp26_out;
-	// controller for andOp_113.andOp_113_in0
-	// controller for andOp_113.andOp_113_in1
+	assign andOp_111_in0 = andOp_107_out;
+	assign andOp_111_in1 = notOp_110_out;
+	// controller for andOp_112.andOp_112_in0
+	// controller for andOp_112.andOp_112_in1
 	// Insensitive connections
-	assign andOp_113_in0 = andOp_109_out;
-	assign andOp_113_in1 = notOp_112_out;
+	assign andOp_112_in0 = bb_23_active_in_state_7_out_data;
+	assign andOp_112_in1 = state_7_is_active;
 	// controller for andOp_114.andOp_114_in0
 	// controller for andOp_114.andOp_114_in1
 	// Insensitive connections
-	assign andOp_114_in0 = bb_1_active_in_state_8_out_data;
+	assign andOp_114_in0 = bb_9_active_in_state_8_out_data;
 	assign andOp_114_in1 = state_8_is_active;
 	// controller for andOp_116.andOp_116_in0
 	// controller for andOp_116.andOp_116_in1
 	// Insensitive connections
-	assign andOp_116_in0 = bb_9_active_in_state_8_out_data;
+	assign andOp_116_in0 = bb_10_active_in_state_8_out_data;
 	assign andOp_116_in1 = state_8_is_active;
 	// controller for andOp_118.andOp_118_in0
 	// controller for andOp_118.andOp_118_in1
 	// Insensitive connections
-	assign andOp_118_in0 = bb_10_active_in_state_8_out_data;
-	assign andOp_118_in1 = state_8_is_active;
+	assign andOp_118_in0 = andOp_116_out;
+	assign andOp_118_in1 = _____dlr_0___eq___alloca___dlr_builtin_fifo_32_read_ready;
 	// controller for andOp_120.andOp_120_in0
 	// controller for andOp_120.andOp_120_in1
 	// Insensitive connections
-	assign andOp_120_in0 = andOp_118_out;
-	assign andOp_120_in1 = _____dlr_0___eq___alloca___dlr_builtin_fifo_32_read_ready;
-	// controller for andOp_122.andOp_122_in0
-	// controller for andOp_122.andOp_122_in1
+	assign andOp_120_in0 = andOp_116_out;
+	assign andOp_120_in1 = notOp_119_out;
+	// controller for andOp_121.andOp_121_in0
+	// controller for andOp_121.andOp_121_in1
 	// Insensitive connections
-	assign andOp_122_in0 = andOp_118_out;
-	assign andOp_122_in1 = notOp_121_out;
+	assign andOp_121_in0 = bb_1_active_in_state_8_out_data;
+	assign andOp_121_in1 = state_8_is_active;
 	// controller for andOp_123.andOp_123_in0
 	// controller for andOp_123.andOp_123_in1
 	// Insensitive connections
@@ -2134,28 +2134,28 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for andOp_127.andOp_127_in0
 	// controller for andOp_127.andOp_127_in1
 	// Insensitive connections
-	assign andOp_127_in0 = bb_12_active_in_state_11_out_data;
+	assign andOp_127_in0 = bb_2_active_in_state_11_out_data;
 	assign andOp_127_in1 = state_11_is_active;
 	// controller for andOp_129.andOp_129_in0
 	// controller for andOp_129.andOp_129_in1
 	// Insensitive connections
-	assign andOp_129_in0 = bb_13_active_in_state_11_out_data;
+	assign andOp_129_in0 = bb_12_active_in_state_11_out_data;
 	assign andOp_129_in1 = state_11_is_active;
 	// controller for andOp_131.andOp_131_in0
 	// controller for andOp_131.andOp_131_in1
 	// Insensitive connections
-	assign andOp_131_in0 = andOp_129_out;
-	assign andOp_131_in1 = arg_2_write_ready;
+	assign andOp_131_in0 = bb_13_active_in_state_11_out_data;
+	assign andOp_131_in1 = state_11_is_active;
 	// controller for andOp_133.andOp_133_in0
 	// controller for andOp_133.andOp_133_in1
 	// Insensitive connections
-	assign andOp_133_in0 = andOp_129_out;
-	assign andOp_133_in1 = notOp_132_out;
-	// controller for andOp_134.andOp_134_in0
-	// controller for andOp_134.andOp_134_in1
+	assign andOp_133_in0 = andOp_131_out;
+	assign andOp_133_in1 = arg_2_write_ready;
+	// controller for andOp_135.andOp_135_in0
+	// controller for andOp_135.andOp_135_in1
 	// Insensitive connections
-	assign andOp_134_in0 = bb_2_active_in_state_11_out_data;
-	assign andOp_134_in1 = state_11_is_active;
+	assign andOp_135_in0 = andOp_131_out;
+	assign andOp_135_in1 = notOp_134_out;
 	// controller for andOp_136.andOp_136_in0
 	// controller for andOp_136.andOp_136_in1
 	// Insensitive connections
@@ -2180,12 +2180,12 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for andOp_188.andOp_188_in1
 	// Insensitive connections
 	assign andOp_188_in0 = notOp_187_out;
-	assign andOp_188_in1 = andOp_77_out;
+	assign andOp_188_in1 = andOp_75_out;
 	// controller for andOp_191.andOp_191_in0
 	// controller for andOp_191.andOp_191_in1
 	// Insensitive connections
 	assign andOp_191_in0 = notOp_190_out;
-	assign andOp_191_in1 = andOp_70_out;
+	assign andOp_191_in1 = andOp_77_out;
 	// controller for andOp_196.andOp_196_in0
 	// controller for andOp_196.andOp_196_in1
 	// Insensitive connections
@@ -2216,31 +2216,31 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// Insensitive connections
 	assign andOp_215_in0 = notOp_214_out;
 	assign andOp_215_in1 = andOp_100_out;
-	// controller for andOp_219.andOp_219_in0
-	// controller for andOp_219.andOp_219_in1
+	// controller for andOp_218.andOp_218_in0
+	// controller for andOp_218.andOp_218_in1
 	// Insensitive connections
-	assign andOp_219_in0 = notOp_218_out;
-	assign andOp_219_in1 = andOp_107_out;
-	// controller for andOp_223.andOp_223_in0
-	// controller for andOp_223.andOp_223_in1
+	assign andOp_218_in0 = notOp_217_out;
+	assign andOp_218_in1 = andOp_112_out;
+	// controller for andOp_222.andOp_222_in0
+	// controller for andOp_222.andOp_222_in1
 	// Insensitive connections
-	assign andOp_223_in0 = notOp_222_out;
-	assign andOp_223_in1 = andOp_114_out;
-	// controller for andOp_226.andOp_226_in0
-	// controller for andOp_226.andOp_226_in1
+	assign andOp_222_in0 = notOp_221_out;
+	assign andOp_222_in1 = andOp_121_out;
+	// controller for andOp_225.andOp_225_in0
+	// controller for andOp_225.andOp_225_in1
 	// Insensitive connections
-	assign andOp_226_in0 = notOp_225_out;
-	assign andOp_226_in1 = andOp_116_out;
-	// controller for andOp_231.andOp_231_in0
-	// controller for andOp_231.andOp_231_in1
+	assign andOp_225_in0 = notOp_224_out;
+	assign andOp_225_in1 = andOp_114_out;
+	// controller for andOp_232.andOp_232_in0
+	// controller for andOp_232.andOp_232_in1
 	// Insensitive connections
-	assign andOp_231_in0 = notOp_230_out;
-	assign andOp_231_in1 = andOp_134_out;
-	// controller for andOp_234.andOp_234_in0
-	// controller for andOp_234.andOp_234_in1
+	assign andOp_232_in0 = notOp_231_out;
+	assign andOp_232_in1 = andOp_127_out;
+	// controller for andOp_235.andOp_235_in0
+	// controller for andOp_235.andOp_235_in1
 	// Insensitive connections
-	assign andOp_234_in0 = notOp_233_out;
-	assign andOp_234_in1 = andOp_127_out;
+	assign andOp_235_in0 = notOp_234_out;
+	assign andOp_235_in1 = andOp_129_out;
 	// controller for andOp_238.andOp_238_in0
 	// controller for andOp_238.andOp_238_in1
 	// Insensitive connections
@@ -2559,23 +2559,23 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for andOp_70.andOp_70_in0
 	// controller for andOp_70.andOp_70_in1
 	// Insensitive connections
-	assign andOp_70_in0 = bb_15_active_in_state_1_out_data;
+	assign andOp_70_in0 = bb_16_active_in_state_1_out_data;
 	assign andOp_70_in1 = state_1_is_active;
 	// controller for andOp_72.andOp_72_in0
 	// controller for andOp_72.andOp_72_in1
 	// Insensitive connections
-	assign andOp_72_in0 = bb_16_active_in_state_1_out_data;
-	assign andOp_72_in1 = state_1_is_active;
+	assign andOp_72_in0 = andOp_70_out;
+	assign andOp_72_in1 = arg_0_read_ready;
 	// controller for andOp_74.andOp_74_in0
 	// controller for andOp_74.andOp_74_in1
 	// Insensitive connections
-	assign andOp_74_in0 = andOp_72_out;
-	assign andOp_74_in1 = arg_0_read_ready;
-	// controller for andOp_76.andOp_76_in0
-	// controller for andOp_76.andOp_76_in1
+	assign andOp_74_in0 = andOp_70_out;
+	assign andOp_74_in1 = notOp_73_out;
+	// controller for andOp_75.andOp_75_in0
+	// controller for andOp_75.andOp_75_in1
 	// Insensitive connections
-	assign andOp_76_in0 = andOp_72_out;
-	assign andOp_76_in1 = notOp_75_out;
+	assign andOp_75_in0 = bb_15_active_in_state_1_out_data;
+	assign andOp_75_in1 = state_1_is_active;
 	// controller for andOp_77.andOp_77_in0
 	// controller for andOp_77.andOp_77_in1
 	// Insensitive connections
@@ -2687,16 +2687,16 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for bb_10_active_in_state_8.bb_10_active_in_state_8_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_10_active_in_state_8_in_data = orOp_173_out;
+			bb_10_active_in_state_8_in_data = orOp_172_out;
 		end else begin
 			bb_10_active_in_state_8_in_data = 0;
 		end
 	end
 	// controller for bb_10_predecessor_in_state_8.bb_10_predecessor_in_state_8_in_data
 	always @(*) begin
-		if (andOp_226_out) begin 
+		if (andOp_225_out) begin 
 			bb_10_predecessor_in_state_8_in_data = 32'd9;
-		end else if (eq_224_out) begin 
+		end else if (eq_223_out) begin 
 			bb_10_predecessor_in_state_8_in_data = state_8_last_BB_reg;
 		end else begin
 			bb_10_predecessor_in_state_8_in_data = 0;
@@ -2737,16 +2737,16 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for bb_12_active_in_state_11.bb_12_active_in_state_11_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_12_active_in_state_11_in_data = orOp_177_out;
+			bb_12_active_in_state_11_in_data = orOp_178_out;
 		end else begin
 			bb_12_active_in_state_11_in_data = 0;
 		end
 	end
 	// controller for bb_12_predecessor_in_state_11.bb_12_predecessor_in_state_11_in_data
 	always @(*) begin
-		if (andOp_231_out) begin 
+		if (andOp_232_out) begin 
 			bb_12_predecessor_in_state_11_in_data = 32'd2;
-		end else if (eq_229_out) begin 
+		end else if (eq_230_out) begin 
 			bb_12_predecessor_in_state_11_in_data = state_11_last_BB_reg;
 		end else begin
 			bb_12_predecessor_in_state_11_in_data = 0;
@@ -2755,16 +2755,16 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for bb_13_active_in_state_11.bb_13_active_in_state_11_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_13_active_in_state_11_in_data = orOp_179_out;
+			bb_13_active_in_state_11_in_data = orOp_180_out;
 		end else begin
 			bb_13_active_in_state_11_in_data = 0;
 		end
 	end
 	// controller for bb_13_predecessor_in_state_11.bb_13_predecessor_in_state_11_in_data
 	always @(*) begin
-		if (andOp_234_out) begin 
+		if (andOp_235_out) begin 
 			bb_13_predecessor_in_state_11_in_data = 32'd12;
-		end else if (eq_232_out) begin 
+		end else if (eq_233_out) begin 
 			bb_13_predecessor_in_state_11_in_data = state_11_last_BB_reg;
 		end else begin
 			bb_13_predecessor_in_state_11_in_data = 0;
@@ -2789,16 +2789,16 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for bb_15_active_in_state_1.bb_15_active_in_state_1_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_15_active_in_state_1_in_data = orOp_145_out;
+			bb_15_active_in_state_1_in_data = orOp_147_out;
 		end else begin
 			bb_15_active_in_state_1_in_data = 0;
 		end
 	end
 	// controller for bb_15_predecessor_in_state_1.bb_15_predecessor_in_state_1_in_data
 	always @(*) begin
-		if (andOp_188_out) begin 
+		if (andOp_191_out) begin 
 			bb_15_predecessor_in_state_1_in_data = 32'd4;
-		end else if (eq_186_out) begin 
+		end else if (eq_189_out) begin 
 			bb_15_predecessor_in_state_1_in_data = state_1_last_BB_reg;
 		end else begin
 			bb_15_predecessor_in_state_1_in_data = 0;
@@ -2807,16 +2807,16 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for bb_16_active_in_state_1.bb_16_active_in_state_1_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_16_active_in_state_1_in_data = orOp_147_out;
+			bb_16_active_in_state_1_in_data = orOp_145_out;
 		end else begin
 			bb_16_active_in_state_1_in_data = 0;
 		end
 	end
 	// controller for bb_16_predecessor_in_state_1.bb_16_predecessor_in_state_1_in_data
 	always @(*) begin
-		if (andOp_191_out) begin 
+		if (andOp_188_out) begin 
 			bb_16_predecessor_in_state_1_in_data = 32'd15;
-		end else if (eq_189_out) begin 
+		end else if (eq_186_out) begin 
 			bb_16_predecessor_in_state_1_in_data = state_1_last_BB_reg;
 		end else begin
 			bb_16_predecessor_in_state_1_in_data = 0;
@@ -2893,14 +2893,14 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for bb_1_active_in_state_8.bb_1_active_in_state_8_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_1_active_in_state_8_in_data = eq_169_out;
+			bb_1_active_in_state_8_in_data = eq_173_out;
 		end else begin
 			bb_1_active_in_state_8_in_data = 0;
 		end
 	end
 	// controller for bb_1_predecessor_in_state_8.bb_1_predecessor_in_state_8_in_data
 	always @(*) begin
-		if (eq_220_out) begin 
+		if (eq_226_out) begin 
 			bb_1_predecessor_in_state_8_in_data = state_8_last_BB_reg;
 		end else begin
 			bb_1_predecessor_in_state_8_in_data = 0;
@@ -2993,14 +2993,14 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for bb_23_active_in_state_7.bb_23_active_in_state_7_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_23_active_in_state_7_in_data = eq_166_out;
+			bb_23_active_in_state_7_in_data = eq_168_out;
 		end else begin
 			bb_23_active_in_state_7_in_data = 0;
 		end
 	end
 	// controller for bb_23_predecessor_in_state_7.bb_23_predecessor_in_state_7_in_data
 	always @(*) begin
-		if (eq_216_out) begin 
+		if (eq_219_out) begin 
 			bb_23_predecessor_in_state_7_in_data = state_7_last_BB_reg;
 		end else begin
 			bb_23_predecessor_in_state_7_in_data = 0;
@@ -3009,14 +3009,14 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for bb_2_active_in_state_11.bb_2_active_in_state_11_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_2_active_in_state_11_in_data = eq_180_out;
+			bb_2_active_in_state_11_in_data = eq_176_out;
 		end else begin
 			bb_2_active_in_state_11_in_data = 0;
 		end
 	end
 	// controller for bb_2_predecessor_in_state_11.bb_2_predecessor_in_state_11_in_data
 	always @(*) begin
-		if (eq_235_out) begin 
+		if (eq_229_out) begin 
 			bb_2_predecessor_in_state_11_in_data = state_11_last_BB_reg;
 		end else begin
 			bb_2_predecessor_in_state_11_in_data = 0;
@@ -3095,16 +3095,16 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for bb_7_active_in_state_7.bb_7_active_in_state_7_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_7_active_in_state_7_in_data = orOp_168_out;
+			bb_7_active_in_state_7_in_data = orOp_167_out;
 		end else begin
 			bb_7_active_in_state_7_in_data = 0;
 		end
 	end
 	// controller for bb_7_predecessor_in_state_7.bb_7_predecessor_in_state_7_in_data
 	always @(*) begin
-		if (andOp_219_out) begin 
+		if (andOp_218_out) begin 
 			bb_7_predecessor_in_state_7_in_data = 32'd23;
-		end else if (eq_217_out) begin 
+		end else if (eq_216_out) begin 
 			bb_7_predecessor_in_state_7_in_data = state_7_last_BB_reg;
 		end else begin
 			bb_7_predecessor_in_state_7_in_data = 0;
@@ -3129,16 +3129,16 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for bb_9_active_in_state_8.bb_9_active_in_state_8_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_9_active_in_state_8_in_data = orOp_171_out;
+			bb_9_active_in_state_8_in_data = orOp_170_out;
 		end else begin
 			bb_9_active_in_state_8_in_data = 0;
 		end
 	end
 	// controller for bb_9_predecessor_in_state_8.bb_9_predecessor_in_state_8_in_data
 	always @(*) begin
-		if (andOp_223_out) begin 
+		if (andOp_222_out) begin 
 			bb_9_predecessor_in_state_8_in_data = 32'd1;
-		end else if (eq_221_out) begin 
+		end else if (eq_220_out) begin 
 			bb_9_predecessor_in_state_8_in_data = state_8_last_BB_reg;
 		end else begin
 			bb_9_predecessor_in_state_8_in_data = 0;
@@ -3156,9 +3156,9 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	end
 	// controller for br_10_happened_in_state_8.br_10_happened_in_state_8_in_data
 	always @(*) begin
-		if (andOp_118_out) begin 
+		if (andOp_116_out) begin 
 			br_10_happened_in_state_8_in_data = 1'd1;
-		end else if (notOp_119_out) begin 
+		end else if (notOp_117_out) begin 
 			br_10_happened_in_state_8_in_data = 1'd0;
 		end else begin
 			br_10_happened_in_state_8_in_data = 0;
@@ -3186,9 +3186,9 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	end
 	// controller for br_12_happened_in_state_11.br_12_happened_in_state_11_in_data
 	always @(*) begin
-		if (andOp_127_out) begin 
+		if (andOp_129_out) begin 
 			br_12_happened_in_state_11_in_data = 1'd1;
-		end else if (notOp_128_out) begin 
+		end else if (notOp_130_out) begin 
 			br_12_happened_in_state_11_in_data = 1'd0;
 		end else begin
 			br_12_happened_in_state_11_in_data = 0;
@@ -3196,9 +3196,9 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	end
 	// controller for br_13_happened_in_state_11.br_13_happened_in_state_11_in_data
 	always @(*) begin
-		if (andOp_129_out) begin 
+		if (andOp_131_out) begin 
 			br_13_happened_in_state_11_in_data = 1'd1;
-		end else if (notOp_130_out) begin 
+		end else if (notOp_132_out) begin 
 			br_13_happened_in_state_11_in_data = 1'd0;
 		end else begin
 			br_13_happened_in_state_11_in_data = 0;
@@ -3216,9 +3216,9 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	end
 	// controller for br_15_happened_in_state_1.br_15_happened_in_state_1_in_data
 	always @(*) begin
-		if (andOp_70_out) begin 
+		if (andOp_75_out) begin 
 			br_15_happened_in_state_1_in_data = 1'd1;
-		end else if (notOp_71_out) begin 
+		end else if (notOp_76_out) begin 
 			br_15_happened_in_state_1_in_data = 1'd0;
 		end else begin
 			br_15_happened_in_state_1_in_data = 0;
@@ -3226,9 +3226,9 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	end
 	// controller for br_16_happened_in_state_1.br_16_happened_in_state_1_in_data
 	always @(*) begin
-		if (andOp_72_out) begin 
+		if (andOp_70_out) begin 
 			br_16_happened_in_state_1_in_data = 1'd1;
-		end else if (notOp_73_out) begin 
+		end else if (notOp_71_out) begin 
 			br_16_happened_in_state_1_in_data = 1'd0;
 		end else begin
 			br_16_happened_in_state_1_in_data = 0;
@@ -3276,9 +3276,9 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	end
 	// controller for br_1_happened_in_state_8.br_1_happened_in_state_8_in_data
 	always @(*) begin
-		if (andOp_114_out) begin 
+		if (andOp_121_out) begin 
 			br_1_happened_in_state_8_in_data = 1'd1;
-		end else if (notOp_115_out) begin 
+		end else if (notOp_122_out) begin 
 			br_1_happened_in_state_8_in_data = 1'd0;
 		end else begin
 			br_1_happened_in_state_8_in_data = 0;
@@ -3336,9 +3336,9 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	end
 	// controller for br_23_happened_in_state_7.br_23_happened_in_state_7_in_data
 	always @(*) begin
-		if (andOp_107_out) begin 
+		if (andOp_112_out) begin 
 			br_23_happened_in_state_7_in_data = 1'd1;
-		end else if (notOp_108_out) begin 
+		end else if (notOp_113_out) begin 
 			br_23_happened_in_state_7_in_data = 1'd0;
 		end else begin
 			br_23_happened_in_state_7_in_data = 0;
@@ -3346,9 +3346,9 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	end
 	// controller for br_2_happened_in_state_11.br_2_happened_in_state_11_in_data
 	always @(*) begin
-		if (andOp_134_out) begin 
+		if (andOp_127_out) begin 
 			br_2_happened_in_state_11_in_data = 1'd1;
-		end else if (notOp_135_out) begin 
+		end else if (notOp_128_out) begin 
 			br_2_happened_in_state_11_in_data = 1'd0;
 		end else begin
 			br_2_happened_in_state_11_in_data = 0;
@@ -3396,9 +3396,9 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	end
 	// controller for br_7_happened_in_state_7.br_7_happened_in_state_7_in_data
 	always @(*) begin
-		if (andOp_109_out) begin 
+		if (andOp_107_out) begin 
 			br_7_happened_in_state_7_in_data = 1'd1;
-		end else if (notOp_110_out) begin 
+		end else if (notOp_108_out) begin 
 			br_7_happened_in_state_7_in_data = 1'd0;
 		end else begin
 			br_7_happened_in_state_7_in_data = 0;
@@ -3406,9 +3406,9 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	end
 	// controller for br_9_happened_in_state_8.br_9_happened_in_state_8_in_data
 	always @(*) begin
-		if (andOp_116_out) begin 
+		if (andOp_114_out) begin 
 			br_9_happened_in_state_8_in_data = 1'd1;
-		end else if (notOp_117_out) begin 
+		end else if (notOp_115_out) begin 
 			br_9_happened_in_state_8_in_data = 1'd0;
 		end else begin
 			br_9_happened_in_state_8_in_data = 0;
@@ -3434,24 +3434,24 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// Insensitive connections
 	assign concat_262_in0 = 32'd3;
 	assign concat_262_in1 = 32'd7;
-	// controller for data_in_10_54.data_in_10_54_in_data
+	// controller for data_in_10_55.data_in_10_55_in_data
 	always @(*) begin
 		if (eq_346_out) begin 
-			data_in_10_54_in_data = data_store_9_49;
+			data_in_10_55_in_data = data_store_9_49;
 		end else if (eq_347_out) begin 
-			data_in_10_54_in_data = data_store_10_53;
+			data_in_10_55_in_data = data_store_10_54;
 		end else begin
-			data_in_10_54_in_data = 0;
+			data_in_10_55_in_data = 0;
 		end
 	end
-	// controller for data_in_10_56.data_in_10_56_in_data
+	// controller for data_in_10_57.data_in_10_57_in_data
 	always @(*) begin
 		if (eq_346_out) begin 
-			data_in_10_56_in_data = data_store_9_51;
+			data_in_10_57_in_data = data_store_9_51;
 		end else if (eq_347_out) begin 
-			data_in_10_56_in_data = data_store_10_55;
+			data_in_10_57_in_data = data_store_10_56;
 		end else begin
-			data_in_10_56_in_data = 0;
+			data_in_10_57_in_data = 0;
 		end
 	end
 	// controller for data_in_11_59.data_in_11_59_in_data
@@ -3467,7 +3467,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for data_in_11_61.data_in_11_61_in_data
 	always @(*) begin
 		if (eq_349_out) begin 
-			data_in_11_61_in_data = data_store_10_55;
+			data_in_11_61_in_data = data_store_10_54;
 		end else if (eq_350_out) begin 
 			data_in_11_61_in_data = data_store_11_60;
 		end else begin
@@ -3477,7 +3477,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for data_in_11_63.data_in_11_63_in_data
 	always @(*) begin
 		if (eq_349_out) begin 
-			data_in_11_63_in_data = data_store_10_57;
+			data_in_11_63_in_data = data_store_10_56;
 		end else if (eq_350_out) begin 
 			data_in_11_63_in_data = data_store_11_62;
 		end else begin
@@ -3487,7 +3487,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for data_in_12_65.data_in_12_65_in_data
 	always @(*) begin
 		if (eq_352_out) begin 
-			data_in_12_65_in_data = data_store_11_58;
+			data_in_12_65_in_data = data_store_11_60;
 		end else if (eq_353_out) begin 
 			data_in_12_65_in_data = data_store_12_64;
 		end else begin
@@ -3497,7 +3497,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for data_in_12_67.data_in_12_67_in_data
 	always @(*) begin
 		if (eq_352_out) begin 
-			data_in_12_67_in_data = data_store_11_60;
+			data_in_12_67_in_data = data_store_11_62;
 		end else if (eq_353_out) begin 
 			data_in_12_67_in_data = data_store_12_66;
 		end else begin
@@ -3782,12 +3782,12 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for eq_144.eq_144_in0
 	// controller for eq_144.eq_144_in1
 	// Insensitive connections
-	assign eq_144_in0 = 32'd15;
+	assign eq_144_in0 = 32'd16;
 	assign eq_144_in1 = state_1_entry_BB_reg;
 	// controller for eq_146.eq_146_in0
 	// controller for eq_146.eq_146_in1
 	// Insensitive connections
-	assign eq_146_in0 = 32'd16;
+	assign eq_146_in0 = 32'd15;
 	assign eq_146_in1 = state_1_entry_BB_reg;
 	// controller for eq_148.eq_148_in0
 	// controller for eq_148.eq_148_in1
@@ -3852,28 +3852,28 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for eq_166.eq_166_in0
 	// controller for eq_166.eq_166_in1
 	// Insensitive connections
-	assign eq_166_in0 = 32'd23;
+	assign eq_166_in0 = 32'd7;
 	assign eq_166_in1 = state_7_entry_BB_reg;
-	// controller for eq_167.eq_167_in0
-	// controller for eq_167.eq_167_in1
+	// controller for eq_168.eq_168_in0
+	// controller for eq_168.eq_168_in1
 	// Insensitive connections
-	assign eq_167_in0 = 32'd7;
-	assign eq_167_in1 = state_7_entry_BB_reg;
+	assign eq_168_in0 = 32'd23;
+	assign eq_168_in1 = state_7_entry_BB_reg;
 	// controller for eq_169.eq_169_in0
 	// controller for eq_169.eq_169_in1
 	// Insensitive connections
-	assign eq_169_in0 = 32'd1;
+	assign eq_169_in0 = 32'd9;
 	assign eq_169_in1 = state_8_entry_BB_reg;
-	// controller for eq_170.eq_170_in0
-	// controller for eq_170.eq_170_in1
+	// controller for eq_171.eq_171_in0
+	// controller for eq_171.eq_171_in1
 	// Insensitive connections
-	assign eq_170_in0 = 32'd9;
-	assign eq_170_in1 = state_8_entry_BB_reg;
-	// controller for eq_172.eq_172_in0
-	// controller for eq_172.eq_172_in1
+	assign eq_171_in0 = 32'd10;
+	assign eq_171_in1 = state_8_entry_BB_reg;
+	// controller for eq_173.eq_173_in0
+	// controller for eq_173.eq_173_in1
 	// Insensitive connections
-	assign eq_172_in0 = 32'd10;
-	assign eq_172_in1 = state_8_entry_BB_reg;
+	assign eq_173_in0 = 32'd1;
+	assign eq_173_in1 = state_8_entry_BB_reg;
 	// controller for eq_174.eq_174_in0
 	// controller for eq_174.eq_174_in1
 	// Insensitive connections
@@ -3887,18 +3887,18 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for eq_176.eq_176_in0
 	// controller for eq_176.eq_176_in1
 	// Insensitive connections
-	assign eq_176_in0 = 32'd12;
+	assign eq_176_in0 = 32'd2;
 	assign eq_176_in1 = state_11_entry_BB_reg;
-	// controller for eq_178.eq_178_in0
-	// controller for eq_178.eq_178_in1
+	// controller for eq_177.eq_177_in0
+	// controller for eq_177.eq_177_in1
 	// Insensitive connections
-	assign eq_178_in0 = 32'd13;
-	assign eq_178_in1 = state_11_entry_BB_reg;
-	// controller for eq_180.eq_180_in0
-	// controller for eq_180.eq_180_in1
+	assign eq_177_in0 = 32'd12;
+	assign eq_177_in1 = state_11_entry_BB_reg;
+	// controller for eq_179.eq_179_in0
+	// controller for eq_179.eq_179_in1
 	// Insensitive connections
-	assign eq_180_in0 = 32'd2;
-	assign eq_180_in1 = state_11_entry_BB_reg;
+	assign eq_179_in0 = 32'd13;
+	assign eq_179_in1 = state_11_entry_BB_reg;
 	// controller for eq_181.eq_181_in0
 	// controller for eq_181.eq_181_in1
 	// Insensitive connections
@@ -3922,12 +3922,12 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for eq_186.eq_186_in0
 	// controller for eq_186.eq_186_in1
 	// Insensitive connections
-	assign eq_186_in0 = 32'd15;
+	assign eq_186_in0 = 32'd16;
 	assign eq_186_in1 = state_1_entry_BB_reg;
 	// controller for eq_189.eq_189_in0
 	// controller for eq_189.eq_189_in1
 	// Insensitive connections
-	assign eq_189_in0 = 32'd16;
+	assign eq_189_in0 = 32'd15;
 	assign eq_189_in1 = state_1_entry_BB_reg;
 	// controller for eq_192.eq_192_in0
 	// controller for eq_192.eq_192_in1
@@ -3992,28 +3992,28 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for eq_216.eq_216_in0
 	// controller for eq_216.eq_216_in1
 	// Insensitive connections
-	assign eq_216_in0 = 32'd23;
+	assign eq_216_in0 = 32'd7;
 	assign eq_216_in1 = state_7_entry_BB_reg;
-	// controller for eq_217.eq_217_in0
-	// controller for eq_217.eq_217_in1
+	// controller for eq_219.eq_219_in0
+	// controller for eq_219.eq_219_in1
 	// Insensitive connections
-	assign eq_217_in0 = 32'd7;
-	assign eq_217_in1 = state_7_entry_BB_reg;
+	assign eq_219_in0 = 32'd23;
+	assign eq_219_in1 = state_7_entry_BB_reg;
 	// controller for eq_220.eq_220_in0
 	// controller for eq_220.eq_220_in1
 	// Insensitive connections
-	assign eq_220_in0 = 32'd1;
+	assign eq_220_in0 = 32'd9;
 	assign eq_220_in1 = state_8_entry_BB_reg;
-	// controller for eq_221.eq_221_in0
-	// controller for eq_221.eq_221_in1
+	// controller for eq_223.eq_223_in0
+	// controller for eq_223.eq_223_in1
 	// Insensitive connections
-	assign eq_221_in0 = 32'd9;
-	assign eq_221_in1 = state_8_entry_BB_reg;
-	// controller for eq_224.eq_224_in0
-	// controller for eq_224.eq_224_in1
+	assign eq_223_in0 = 32'd10;
+	assign eq_223_in1 = state_8_entry_BB_reg;
+	// controller for eq_226.eq_226_in0
+	// controller for eq_226.eq_226_in1
 	// Insensitive connections
-	assign eq_224_in0 = 32'd10;
-	assign eq_224_in1 = state_8_entry_BB_reg;
+	assign eq_226_in0 = 32'd1;
+	assign eq_226_in1 = state_8_entry_BB_reg;
 	// controller for eq_227.eq_227_in0
 	// controller for eq_227.eq_227_in1
 	// Insensitive connections
@@ -4027,18 +4027,18 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for eq_229.eq_229_in0
 	// controller for eq_229.eq_229_in1
 	// Insensitive connections
-	assign eq_229_in0 = 32'd12;
+	assign eq_229_in0 = 32'd2;
 	assign eq_229_in1 = state_11_entry_BB_reg;
-	// controller for eq_232.eq_232_in0
-	// controller for eq_232.eq_232_in1
+	// controller for eq_230.eq_230_in0
+	// controller for eq_230.eq_230_in1
 	// Insensitive connections
-	assign eq_232_in0 = 32'd13;
-	assign eq_232_in1 = state_11_entry_BB_reg;
-	// controller for eq_235.eq_235_in0
-	// controller for eq_235.eq_235_in1
+	assign eq_230_in0 = 32'd12;
+	assign eq_230_in1 = state_11_entry_BB_reg;
+	// controller for eq_233.eq_233_in0
+	// controller for eq_233.eq_233_in1
 	// Insensitive connections
-	assign eq_235_in0 = 32'd2;
-	assign eq_235_in1 = state_11_entry_BB_reg;
+	assign eq_233_in0 = 32'd13;
+	assign eq_233_in1 = state_11_entry_BB_reg;
 	// controller for eq_236.eq_236_in0
 	// controller for eq_236.eq_236_in1
 	// Insensitive connections
@@ -4213,7 +4213,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for mul_mul41.mul_mul41_in1
 	// Insensitive connections
 	assign mul_mul41_in0 = 32'd2;
-	assign mul_mul41_in1 = data_in_11_63_out_data;
+	assign mul_mul41_in1 = data_in_11_59_out_data;
 	// controller for notOp_101.notOp_101_in0
 	// Insensitive connections
 	assign notOp_101_in0 = andOp_100_out;
@@ -4228,10 +4228,10 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	assign notOp_108_in0 = andOp_107_out;
 	// controller for notOp_110.notOp_110_in0
 	// Insensitive connections
-	assign notOp_110_in0 = andOp_109_out;
-	// controller for notOp_112.notOp_112_in0
+	assign notOp_110_in0 = icmp_icmp26_out;
+	// controller for notOp_113.notOp_113_in0
 	// Insensitive connections
-	assign notOp_112_in0 = icmp_icmp26_out;
+	assign notOp_113_in0 = andOp_112_out;
 	// controller for notOp_115.notOp_115_in0
 	// Insensitive connections
 	assign notOp_115_in0 = andOp_114_out;
@@ -4240,10 +4240,10 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	assign notOp_117_in0 = andOp_116_out;
 	// controller for notOp_119.notOp_119_in0
 	// Insensitive connections
-	assign notOp_119_in0 = andOp_118_out;
-	// controller for notOp_121.notOp_121_in0
+	assign notOp_119_in0 = _____dlr_0___eq___alloca___dlr_builtin_fifo_32_read_ready;
+	// controller for notOp_122.notOp_122_in0
 	// Insensitive connections
-	assign notOp_121_in0 = _____dlr_0___eq___alloca___dlr_builtin_fifo_32_read_ready;
+	assign notOp_122_in0 = andOp_121_out;
 	// controller for notOp_124.notOp_124_in0
 	// Insensitive connections
 	assign notOp_124_in0 = andOp_123_out;
@@ -4258,10 +4258,10 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	assign notOp_130_in0 = andOp_129_out;
 	// controller for notOp_132.notOp_132_in0
 	// Insensitive connections
-	assign notOp_132_in0 = arg_2_write_ready;
-	// controller for notOp_135.notOp_135_in0
+	assign notOp_132_in0 = andOp_131_out;
+	// controller for notOp_134.notOp_134_in0
 	// Insensitive connections
-	assign notOp_135_in0 = andOp_134_out;
+	assign notOp_134_in0 = arg_2_write_ready;
 	// controller for notOp_137.notOp_137_in0
 	// Insensitive connections
 	assign notOp_137_in0 = andOp_136_out;
@@ -4295,36 +4295,36 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for notOp_214.notOp_214_in0
 	// Insensitive connections
 	assign notOp_214_in0 = eq_213_out;
-	// controller for notOp_218.notOp_218_in0
+	// controller for notOp_217.notOp_217_in0
 	// Insensitive connections
-	assign notOp_218_in0 = eq_217_out;
-	// controller for notOp_222.notOp_222_in0
+	assign notOp_217_in0 = eq_216_out;
+	// controller for notOp_221.notOp_221_in0
 	// Insensitive connections
-	assign notOp_222_in0 = eq_221_out;
-	// controller for notOp_225.notOp_225_in0
+	assign notOp_221_in0 = eq_220_out;
+	// controller for notOp_224.notOp_224_in0
 	// Insensitive connections
-	assign notOp_225_in0 = eq_224_out;
-	// controller for notOp_230.notOp_230_in0
+	assign notOp_224_in0 = eq_223_out;
+	// controller for notOp_231.notOp_231_in0
 	// Insensitive connections
-	assign notOp_230_in0 = eq_229_out;
-	// controller for notOp_233.notOp_233_in0
+	assign notOp_231_in0 = eq_230_out;
+	// controller for notOp_234.notOp_234_in0
 	// Insensitive connections
-	assign notOp_233_in0 = eq_232_out;
+	assign notOp_234_in0 = eq_233_out;
 	// controller for notOp_237.notOp_237_in0
 	// Insensitive connections
 	assign notOp_237_in0 = eq_236_out;
 	// controller for notOp_278.notOp_278_in0
 	// Insensitive connections
-	assign notOp_278_in0 = andOp_111_out;
+	assign notOp_278_in0 = andOp_109_out;
 	// controller for notOp_280.notOp_280_in0
 	// Insensitive connections
 	assign notOp_280_in0 = andOp_270_out;
 	// controller for notOp_282.notOp_282_in0
 	// Insensitive connections
-	assign notOp_282_in0 = andOp_76_out;
+	assign notOp_282_in0 = andOp_74_out;
 	// controller for notOp_284.notOp_284_in0
 	// Insensitive connections
-	assign notOp_284_in0 = andOp_74_out;
+	assign notOp_284_in0 = andOp_72_out;
 	// controller for notOp_286.notOp_286_in0
 	// Insensitive connections
 	assign notOp_286_in0 = andOp_271_out;
@@ -4348,7 +4348,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	assign notOp_298_in0 = andOp_104_out;
 	// controller for notOp_300.notOp_300_in0
 	// Insensitive connections
-	assign notOp_300_in0 = andOp_122_out;
+	assign notOp_300_in0 = andOp_120_out;
 	// controller for notOp_302.notOp_302_in0
 	// Insensitive connections
 	assign notOp_302_in0 = andOp_138_out;
@@ -4357,7 +4357,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	assign notOp_304_in0 = andOp_274_out;
 	// controller for notOp_306.notOp_306_in0
 	// Insensitive connections
-	assign notOp_306_in0 = andOp_120_out;
+	assign notOp_306_in0 = andOp_118_out;
 	// controller for notOp_308.notOp_308_in0
 	// Insensitive connections
 	assign notOp_308_in0 = andOp_275_out;
@@ -4366,10 +4366,10 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	assign notOp_310_in0 = andOp_123_out;
 	// controller for notOp_312.notOp_312_in0
 	// Insensitive connections
-	assign notOp_312_in0 = andOp_133_out;
+	assign notOp_312_in0 = andOp_135_out;
 	// controller for notOp_314.notOp_314_in0
 	// Insensitive connections
-	assign notOp_314_in0 = andOp_131_out;
+	assign notOp_314_in0 = andOp_133_out;
 	// controller for notOp_316.notOp_316_in0
 	// Insensitive connections
 	assign notOp_316_in0 = andOp_276_out;
@@ -4384,10 +4384,10 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	assign notOp_71_in0 = andOp_70_out;
 	// controller for notOp_73.notOp_73_in0
 	// Insensitive connections
-	assign notOp_73_in0 = andOp_72_out;
-	// controller for notOp_75.notOp_75_in0
+	assign notOp_73_in0 = arg_0_read_ready;
+	// controller for notOp_76.notOp_76_in0
 	// Insensitive connections
-	assign notOp_75_in0 = arg_0_read_ready;
+	assign notOp_76_in0 = andOp_75_out;
 	// controller for notOp_78.notOp_78_in0
 	// Insensitive connections
 	assign notOp_78_in0 = andOp_77_out;
@@ -4425,12 +4425,12 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// controller for orOp_145.orOp_145_in1
 	// Insensitive connections
 	assign orOp_145_in0 = eq_144_out;
-	assign orOp_145_in1 = andOp_77_out;
+	assign orOp_145_in1 = andOp_75_out;
 	// controller for orOp_147.orOp_147_in0
 	// controller for orOp_147.orOp_147_in1
 	// Insensitive connections
 	assign orOp_147_in0 = eq_146_out;
-	assign orOp_147_in1 = andOp_70_out;
+	assign orOp_147_in1 = andOp_77_out;
 	// controller for orOp_151.orOp_151_in0
 	// controller for orOp_151.orOp_151_in1
 	// Insensitive connections
@@ -4461,43 +4461,43 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 	// Insensitive connections
 	assign orOp_165_in0 = eq_164_out;
 	assign orOp_165_in1 = andOp_100_out;
-	// controller for orOp_168.orOp_168_in0
-	// controller for orOp_168.orOp_168_in1
+	// controller for orOp_167.orOp_167_in0
+	// controller for orOp_167.orOp_167_in1
 	// Insensitive connections
-	assign orOp_168_in0 = eq_167_out;
-	assign orOp_168_in1 = andOp_107_out;
-	// controller for orOp_171.orOp_171_in0
-	// controller for orOp_171.orOp_171_in1
+	assign orOp_167_in0 = eq_166_out;
+	assign orOp_167_in1 = andOp_112_out;
+	// controller for orOp_170.orOp_170_in0
+	// controller for orOp_170.orOp_170_in1
 	// Insensitive connections
-	assign orOp_171_in0 = eq_170_out;
-	assign orOp_171_in1 = andOp_114_out;
-	// controller for orOp_173.orOp_173_in0
-	// controller for orOp_173.orOp_173_in1
+	assign orOp_170_in0 = eq_169_out;
+	assign orOp_170_in1 = andOp_121_out;
+	// controller for orOp_172.orOp_172_in0
+	// controller for orOp_172.orOp_172_in1
 	// Insensitive connections
-	assign orOp_173_in0 = eq_172_out;
-	assign orOp_173_in1 = andOp_116_out;
-	// controller for orOp_177.orOp_177_in0
-	// controller for orOp_177.orOp_177_in1
+	assign orOp_172_in0 = eq_171_out;
+	assign orOp_172_in1 = andOp_114_out;
+	// controller for orOp_178.orOp_178_in0
+	// controller for orOp_178.orOp_178_in1
 	// Insensitive connections
-	assign orOp_177_in0 = eq_176_out;
-	assign orOp_177_in1 = andOp_134_out;
-	// controller for orOp_179.orOp_179_in0
-	// controller for orOp_179.orOp_179_in1
+	assign orOp_178_in0 = eq_177_out;
+	assign orOp_178_in1 = andOp_127_out;
+	// controller for orOp_180.orOp_180_in0
+	// controller for orOp_180.orOp_180_in1
 	// Insensitive connections
-	assign orOp_179_in0 = eq_178_out;
-	assign orOp_179_in1 = andOp_127_out;
+	assign orOp_180_in0 = eq_179_out;
+	assign orOp_180_in1 = andOp_129_out;
 	// controller for orOp_182.orOp_182_in0
 	// controller for orOp_182.orOp_182_in1
 	// Insensitive connections
 	assign orOp_182_in0 = eq_181_out;
 	assign orOp_182_in1 = andOp_141_out;
-	// controller for phi_phi28.phi_phi28_in
-	// controller for phi_phi28.phi_phi28_last_block
-	// controller for phi_phi28.phi_phi28_s
+	// controller for phi_phi32.phi_phi32_in
+	// controller for phi_phi32.phi_phi32_last_block
+	// controller for phi_phi32.phi_phi32_s
 	// Insensitive connections
-	assign phi_phi28_in = concat_261_out;
-	assign phi_phi28_last_block = bb_1_predecessor_in_state_8_out_data;
-	assign phi_phi28_s = concat_262_out;
+	assign phi_phi32_in = concat_261_out;
+	assign phi_phi32_last_block = bb_1_predecessor_in_state_8_out_data;
+	assign phi_phi32_s = concat_262_out;
 	// controller for phi_phi6.phi_phi6_in
 	// controller for phi_phi6.phi_phi6_last_block
 	// controller for phi_phi6.phi_phi6_s
@@ -4518,28 +4518,28 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			data_store_10_53 <= 0;
 		end else begin
-			if (state_10_is_active) begin
-				data_store_10_53 <= data_in_10_54_out_data;
-			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			data_store_10_55 <= 0;
-		end else begin
-			if (state_10_is_active) begin
-				data_store_10_55 <= data_in_10_56_out_data;
-			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			data_store_10_57 <= 0;
-		end else begin
 			if (andOp_348_out) begin
-				data_store_10_57 <= _____dlr_0___eq___alloca___dlr_builtin_fifo_32_out_data;
+				data_store_10_53 <= _____dlr_0___eq___alloca___dlr_builtin_fifo_32_out_data;
+			end
+		end
+	end
+
+	always @(posedge clk) begin
+		if (rst) begin
+			data_store_10_54 <= 0;
+		end else begin
+			if (state_10_is_active) begin
+				data_store_10_54 <= data_in_10_55_out_data;
+			end
+		end
+	end
+
+	always @(posedge clk) begin
+		if (rst) begin
+			data_store_10_56 <= 0;
+		end else begin
+			if (state_10_is_active) begin
+				data_store_10_56 <= data_in_10_57_out_data;
 			end
 		end
 	end
@@ -4558,8 +4558,8 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			data_store_11_60 <= 0;
 		end else begin
-			if (andOp_351_out) begin
-				data_store_11_60 <= mul_mul41_out;
+			if (state_11_is_active) begin
+				data_store_11_60 <= data_in_11_61_out_data;
 			end
 		end
 	end
@@ -4568,8 +4568,8 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			data_store_11_62 <= 0;
 		end else begin
-			if (state_11_is_active) begin
-				data_store_11_62 <= data_in_11_63_out_data;
+			if (andOp_351_out) begin
+				data_store_11_62 <= mul_mul41_out;
 			end
 		end
 	end
@@ -4829,7 +4829,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 			data_store_8_45 <= 0;
 		end else begin
 			if (andOp_343_out) begin
-				data_store_8_45 <= add_add29_out;
+				data_store_8_45 <= add_add33_out;
 			end
 		end
 	end
@@ -4874,22 +4874,22 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 			if (andOp_106_out) begin
 				global_state <= 32'd6;
 			end
-			if (andOp_111_out) begin
+			if (andOp_109_out) begin
 				global_state <= 32'd1;
 			end
-			if (andOp_120_out) begin
+			if (andOp_118_out) begin
 				global_state <= 32'd9;
 			end
-			if (andOp_122_out) begin
+			if (andOp_120_out) begin
 				global_state <= 32'd8;
 			end
 			if (andOp_123_out) begin
 				global_state <= 32'd11;
 			end
-			if (andOp_131_out) begin
+			if (andOp_133_out) begin
 				global_state <= 32'd12;
 			end
-			if (andOp_133_out) begin
+			if (andOp_135_out) begin
 				global_state <= 32'd11;
 			end
 			if (andOp_138_out) begin
@@ -4919,10 +4919,10 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 			if (andOp_277_out) begin
 				global_state <= 32'd13;
 			end
-			if (andOp_74_out) begin
+			if (andOp_72_out) begin
 				global_state <= 32'd2;
 			end
-			if (andOp_76_out) begin
+			if (andOp_74_out) begin
 				global_state <= 32'd1;
 			end
 			if (andOp_89_out) begin
@@ -5015,7 +5015,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 			if (andOp_123_out) begin
 				state_11_entry_BB_reg <= 32'd2;
 			end
-			if (andOp_133_out) begin
+			if (andOp_135_out) begin
 				state_11_entry_BB_reg <= 32'd13;
 			end
 		end
@@ -5028,7 +5028,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 			if (andOp_123_out) begin
 				state_11_is_active <= 1'd1;
 			end
-			if (andOp_133_out) begin
+			if (andOp_135_out) begin
 				state_11_is_active <= 1'd1;
 			end
 			if (andOp_313_out) begin
@@ -5044,7 +5044,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 			if (andOp_123_out) begin
 				state_11_last_BB_reg <= 32'd11;
 			end
-			if (andOp_133_out) begin
+			if (andOp_135_out) begin
 				state_11_last_BB_reg <= 32'd13;
 			end
 		end
@@ -5057,7 +5057,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 			if (andOp_123_out) begin
 				state_11_last_state <= 32'd10;
 			end
-			if (andOp_133_out) begin
+			if (andOp_135_out) begin
 				state_11_last_state <= 32'd11;
 			end
 		end
@@ -5067,7 +5067,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_12_entry_BB_reg <= 0;
 		end else begin
-			if (andOp_131_out) begin
+			if (andOp_133_out) begin
 				state_12_entry_BB_reg <= 32'd14;
 			end
 		end
@@ -5077,7 +5077,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_12_is_active <= 0;
 		end else begin
-			if (andOp_131_out) begin
+			if (andOp_133_out) begin
 				state_12_is_active <= 1'd1;
 			end
 			if (andOp_315_out) begin
@@ -5090,7 +5090,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_12_last_BB_reg <= 0;
 		end else begin
-			if (andOp_131_out) begin
+			if (andOp_133_out) begin
 				state_12_last_BB_reg <= 32'd13;
 			end
 		end
@@ -5100,7 +5100,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_12_last_state <= 0;
 		end else begin
-			if (andOp_131_out) begin
+			if (andOp_133_out) begin
 				state_12_last_state <= 32'd11;
 			end
 		end
@@ -5165,13 +5165,13 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_1_entry_BB_reg <= 0;
 		end else begin
-			if (andOp_111_out) begin
+			if (andOp_109_out) begin
 				state_1_entry_BB_reg <= 32'd4;
 			end
 			if (andOp_270_out) begin
 				state_1_entry_BB_reg <= 32'd4;
 			end
-			if (andOp_76_out) begin
+			if (andOp_74_out) begin
 				state_1_entry_BB_reg <= 32'd16;
 			end
 		end
@@ -5181,7 +5181,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_1_is_active <= 1;
 		end else begin
-			if (andOp_111_out) begin
+			if (andOp_109_out) begin
 				state_1_is_active <= 1'd1;
 			end
 			if (andOp_270_out) begin
@@ -5190,7 +5190,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 			if (andOp_283_out) begin
 				state_1_is_active <= 1'd0;
 			end
-			if (andOp_76_out) begin
+			if (andOp_74_out) begin
 				state_1_is_active <= 1'd1;
 			end
 		end
@@ -5200,13 +5200,13 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_1_last_BB_reg <= 0;
 		end else begin
-			if (andOp_111_out) begin
+			if (andOp_109_out) begin
 				state_1_last_BB_reg <= 32'd7;
 			end
 			if (andOp_270_out) begin
 				state_1_last_BB_reg <= 32'd0;
 			end
-			if (andOp_76_out) begin
+			if (andOp_74_out) begin
 				state_1_last_BB_reg <= 32'd16;
 			end
 		end
@@ -5216,13 +5216,13 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_1_last_state <= 0;
 		end else begin
-			if (andOp_111_out) begin
+			if (andOp_109_out) begin
 				state_1_last_state <= 32'd7;
 			end
 			if (andOp_270_out) begin
 				state_1_last_state <= 32'd0;
 			end
-			if (andOp_76_out) begin
+			if (andOp_74_out) begin
 				state_1_last_state <= 32'd1;
 			end
 		end
@@ -5232,7 +5232,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_2_entry_BB_reg <= 0;
 		end else begin
-			if (andOp_74_out) begin
+			if (andOp_72_out) begin
 				state_2_entry_BB_reg <= 32'd17;
 			end
 		end
@@ -5245,7 +5245,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 			if (andOp_285_out) begin
 				state_2_is_active <= 1'd0;
 			end
-			if (andOp_74_out) begin
+			if (andOp_72_out) begin
 				state_2_is_active <= 1'd1;
 			end
 		end
@@ -5255,7 +5255,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_2_last_BB_reg <= 0;
 		end else begin
-			if (andOp_74_out) begin
+			if (andOp_72_out) begin
 				state_2_last_BB_reg <= 32'd16;
 			end
 		end
@@ -5265,7 +5265,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_2_last_state <= 0;
 		end else begin
-			if (andOp_74_out) begin
+			if (andOp_72_out) begin
 				state_2_last_state <= 32'd1;
 			end
 		end
@@ -5514,7 +5514,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_8_entry_BB_reg <= 0;
 		end else begin
-			if (andOp_122_out) begin
+			if (andOp_120_out) begin
 				state_8_entry_BB_reg <= 32'd10;
 			end
 			if (andOp_138_out) begin
@@ -5530,7 +5530,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_8_is_active <= 1;
 		end else begin
-			if (andOp_122_out) begin
+			if (andOp_120_out) begin
 				state_8_is_active <= 1'd1;
 			end
 			if (andOp_138_out) begin
@@ -5549,7 +5549,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_8_last_BB_reg <= 0;
 		end else begin
-			if (andOp_122_out) begin
+			if (andOp_120_out) begin
 				state_8_last_BB_reg <= 32'd10;
 			end
 			if (andOp_138_out) begin
@@ -5565,7 +5565,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_8_last_state <= 0;
 		end else begin
-			if (andOp_122_out) begin
+			if (andOp_120_out) begin
 				state_8_last_state <= 32'd8;
 			end
 			if (andOp_138_out) begin
@@ -5581,7 +5581,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_9_entry_BB_reg <= 0;
 		end else begin
-			if (andOp_120_out) begin
+			if (andOp_118_out) begin
 				state_9_entry_BB_reg <= 32'd11;
 			end
 		end
@@ -5591,7 +5591,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_9_is_active <= 0;
 		end else begin
-			if (andOp_120_out) begin
+			if (andOp_118_out) begin
 				state_9_is_active <= 1'd1;
 			end
 			if (andOp_307_out) begin
@@ -5604,7 +5604,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_9_last_BB_reg <= 0;
 		end else begin
-			if (andOp_120_out) begin
+			if (andOp_118_out) begin
 				state_9_last_BB_reg <= 32'd10;
 			end
 		end
@@ -5614,7 +5614,7 @@ module vadd_smul_fifo(input [0:0] clk, input [0:0] rst, output [0:0] valid, outp
 		if (rst) begin
 			state_9_last_state <= 0;
 		end else begin
-			if (andOp_120_out) begin
+			if (andOp_118_out) begin
 				state_9_last_state <= 32'd8;
 			end
 		end
