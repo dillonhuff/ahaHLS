@@ -523,28 +523,30 @@ module fifo(input clk,
 
    reg [WIDTH - 1 : 0] out_data_reg;
 
+   wire do_write;
+   wire do_read;
+   assign do_write = write_valid && write_ready;
+   assign do_read = read_valid && read_ready;
+
    always @(posedge clk) begin
       if (!rst) begin
 
-         if (write_valid && write_ready) begin
+        if (do_write && do_read) begin
+          empty <= empty;
+        end else if (do_write) begin
+          empty <= 0;
+        end else if (do_read) begin
+          empty <= !empty && (next_read_addr == write_addr);
+        end 
 
-            //$display("writing %d to address %d", in_data, write_addr);
-//            $display("write_addr = %b, next_write_addr = %b, depth = %b", write_addr, next_write_addr, DEPTH);            
-            
-            `assert(write_ready, 1'd1)
+        if (write_valid && write_ready) begin
 
             ram[write_addr] <= in_data;
             write_addr <= next_write_addr;
 
-            empty <= 0;
+            //empty <= 0;
          end
-      //end
-   ////end
-
-
    
-   ////always @(posedge clk) begin
-      //if (!rst) begin
          if (read_valid) begin
             `assert(read_ready, 1'd1)
 
@@ -553,7 +555,7 @@ module fifo(input clk,
 
             if (!empty && (next_read_addr == write_addr) && !write_valid) begin
 //               $display("FIFO empty: next_read_addr = %d, write_addr = %d", next_read_addr, write_addr);
-               empty <= 1;
+               //empty <= 1;
             end
          end
       end
@@ -561,9 +563,6 @@ module fifo(input clk,
 
    always @(posedge clk) begin
       if (read_valid && read_ready) begin
-         //$display("reading from address %d", read_addr);
-         //$display("reading %d, from address %d", ram[read_addr], read_addr);
-         
          out_data_reg <= ram[read_addr];
       end
    end
