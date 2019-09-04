@@ -531,6 +531,9 @@ module fifo(input clk,
    always @(posedge clk) begin
      if (rst) begin
        empty <= 1;
+
+       write_addr <= 0;
+       read_addr <= 0;
      end else begin
        //end else  (!rst) begin
 
@@ -588,16 +591,16 @@ module fifo(input clk,
 
    assign read_ready = !empty;
 
-   always @(posedge clk) begin
-      if (rst) begin
-         //empty <= 1;
+   //always @(posedge clk) begin
+      //if (rst) begin
+         ////empty <= 1;
 
-//         $display("reseting");
-         write_addr <= 0;
-         read_addr <= 0;
+////         $display("reseting");
+         //write_addr <= 0;
+         //read_addr <= 0;
 
-      end
-   end
+      //end
+   //end
    
 endmodule
 
