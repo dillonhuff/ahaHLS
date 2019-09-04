@@ -521,8 +521,11 @@ module fifo(input clk,
    wire [$clog2(DEPTH) - 1 : 0]                next_read_addr;
    wire [$clog2(DEPTH) - 1 : 0]                next_write_addr;
 
+   reg [WIDTH - 1 : 0] out_data_reg;
+
    always @(posedge clk) begin
       if (!rst) begin
+
          if (write_valid && write_ready) begin
 
             //$display("writing %d to address %d", in_data, write_addr);
@@ -556,19 +559,6 @@ module fifo(input clk,
       end
    end
 
-   assign next_read_addr = (DEPTH == (read_addr + 1)) ? 0 : read_addr + 1;
-   assign next_write_addr = (DEPTH == (write_addr + 1)) ? 0 : write_addr + 1;
-
-   // always @(*) begin
-   //    $display("READ data is %d, at address 0", ram[0]);
-   // end
-
-   always @(posedge clk) begin
-      `assert(read_ready && read_valid && write_ready && write_valid, 1'd0)      
-   end   
-
-   reg [WIDTH - 1 : 0] out_data_reg;
-
    always @(posedge clk) begin
       if (read_valid && read_ready) begin
          //$display("reading from address %d", read_addr);
@@ -578,6 +568,12 @@ module fifo(input clk,
       end
    end
 
+   always @(posedge clk) begin
+      `assert(read_ready && read_valid && write_ready && write_valid, 1'd0)      
+   end   
+   
+   assign next_read_addr = (DEPTH == (read_addr + 1)) ? 0 : read_addr + 1;
+   assign next_write_addr = (DEPTH == (write_addr + 1)) ? 0 : write_addr + 1;
    assign out_data = out_data_reg;
    
    assign full = !empty && (write_addr == read_addr);
