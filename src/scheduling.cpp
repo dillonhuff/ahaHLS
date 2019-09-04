@@ -1056,16 +1056,18 @@ namespace ahaHLS {
           auto userInstr = dyn_cast<Instruction>(user.getUser());
 
           if (!PHINode::classof(userInstr)) {
-            // Instructions must finish before their dependencies
-            if (userInstr->getParent() == iptr->getParent()) {
-              exe.addConstraint(instrEnd(iptr) <= instrStart(userInstr));
-            } else {
-              cout << "Adding constraint across blocks on " << valueString(userInstr) << " and " << valueString(iptr) << endl;
-
+            
+            exe.addConstraint(instrEnd(iptr) <= instrStart(userInstr));
+            //// Instructions must finish before their dependencies
+            //if (userInstr->getParent() == iptr->getParent()) {
               //exe.addConstraint(instrEnd(iptr) <= instrStart(userInstr));
+            //} else {
+              //cout << "Adding constraint across blocks on " << valueString(userInstr) << " and " << valueString(iptr) << endl;
 
-              exe.addConstraint(instrEnd(iptr) < instrStart(userInstr));
-            }
+              ////exe.addConstraint(instrEnd(iptr) <= instrStart(userInstr));
+
+              //exe.addConstraint(instrEnd(iptr) < instrStart(userInstr));
+            //}
           }
         }
 

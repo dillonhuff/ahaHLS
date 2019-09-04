@@ -54,23 +54,11 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_111_out === 1) || andOp_98_out !== 1))) begin $display("assertion((!(andOp_111_out === 1) || andOp_98_out !== 1)) failed: Problem: Overlapping block transition"); $finish(); end
+		if (!((!(andOp_105_out === 1) || andOp_111_out !== 1))) begin $display("assertion((!(andOp_105_out === 1) || andOp_111_out !== 1)) failed: Problem: Overlapping block transition"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_98_out === 1) || andOp_111_out !== 1))) begin $display("assertion((!(andOp_98_out === 1) || andOp_111_out !== 1)) failed: Problem: Overlapping block transition"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_105_out === 1) || andOp_115_out !== 1))) begin $display("assertion((!(andOp_105_out === 1) || andOp_115_out !== 1)) failed: Overlapping state active transition for state 1"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_105_out === 1) || andOp_12_out !== 1))) begin $display("assertion((!(andOp_105_out === 1) || andOp_12_out !== 1)) failed: Overlapping state active transition for state 1"); $finish(); end
-	end
-
-	always @(posedge clk) begin
-		if (!((!(andOp_115_out === 1) || andOp_105_out !== 1))) begin $display("assertion((!(andOp_115_out === 1) || andOp_105_out !== 1)) failed: Overlapping state active transition for state 1"); $finish(); end
+		if (!((!(andOp_111_out === 1) || andOp_105_out !== 1))) begin $display("assertion((!(andOp_111_out === 1) || andOp_105_out !== 1)) failed: Problem: Overlapping block transition"); $finish(); end
 	end
 
 	always @(posedge clk) begin
@@ -78,11 +66,23 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_12_out === 1) || andOp_105_out !== 1))) begin $display("assertion((!(andOp_12_out === 1) || andOp_105_out !== 1)) failed: Overlapping state active transition for state 1"); $finish(); end
+		if (!((!(andOp_115_out === 1) || andOp_80_out !== 1))) begin $display("assertion((!(andOp_115_out === 1) || andOp_80_out !== 1)) failed: Overlapping state active transition for state 1"); $finish(); end
 	end
 
 	always @(posedge clk) begin
 		if (!((!(andOp_12_out === 1) || andOp_115_out !== 1))) begin $display("assertion((!(andOp_12_out === 1) || andOp_115_out !== 1)) failed: Overlapping state active transition for state 1"); $finish(); end
+	end
+
+	always @(posedge clk) begin
+		if (!((!(andOp_12_out === 1) || andOp_80_out !== 1))) begin $display("assertion((!(andOp_12_out === 1) || andOp_80_out !== 1)) failed: Overlapping state active transition for state 1"); $finish(); end
+	end
+
+	always @(posedge clk) begin
+		if (!((!(andOp_80_out === 1) || andOp_115_out !== 1))) begin $display("assertion((!(andOp_80_out === 1) || andOp_115_out !== 1)) failed: Overlapping state active transition for state 1"); $finish(); end
+	end
+
+	always @(posedge clk) begin
+		if (!((!(andOp_80_out === 1) || andOp_12_out !== 1))) begin $display("assertion((!(andOp_80_out === 1) || andOp_12_out !== 1)) failed: Overlapping state active transition for state 1"); $finish(); end
 	end
 
 	always @(posedge clk) begin
@@ -130,7 +130,7 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_111_out === 1) || andOp_86_out !== 1))) begin $display("assertion((!(andOp_111_out === 1) || andOp_86_out !== 1)) failed: Overlapping state active transition for state 7"); $finish(); end
+		if (!((!(andOp_111_out === 1) || andOp_93_out !== 1))) begin $display("assertion((!(andOp_111_out === 1) || andOp_93_out !== 1)) failed: Overlapping state active transition for state 7"); $finish(); end
 	end
 
 	always @(posedge clk) begin
@@ -138,15 +138,15 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_129_out === 1) || andOp_86_out !== 1))) begin $display("assertion((!(andOp_129_out === 1) || andOp_86_out !== 1)) failed: Overlapping state active transition for state 7"); $finish(); end
+		if (!((!(andOp_129_out === 1) || andOp_93_out !== 1))) begin $display("assertion((!(andOp_129_out === 1) || andOp_93_out !== 1)) failed: Overlapping state active transition for state 7"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_86_out === 1) || andOp_111_out !== 1))) begin $display("assertion((!(andOp_86_out === 1) || andOp_111_out !== 1)) failed: Overlapping state active transition for state 7"); $finish(); end
+		if (!((!(andOp_93_out === 1) || andOp_111_out !== 1))) begin $display("assertion((!(andOp_93_out === 1) || andOp_111_out !== 1)) failed: Overlapping state active transition for state 7"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_86_out === 1) || andOp_129_out !== 1))) begin $display("assertion((!(andOp_86_out === 1) || andOp_129_out !== 1)) failed: Overlapping state active transition for state 7"); $finish(); end
+		if (!((!(andOp_93_out === 1) || andOp_129_out !== 1))) begin $display("assertion((!(andOp_93_out === 1) || andOp_129_out !== 1)) failed: Overlapping state active transition for state 7"); $finish(); end
 	end
 
 	always @(posedge clk) begin
@@ -238,31 +238,31 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_160_out) || mul_mul7_in0 !== 32'dx)) begin $display("assertion(!(andOp_160_out) || mul_mul7_in0 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_160_out) || mul_mul8_in0 !== 32'dx)) begin $display("assertion(!(andOp_160_out) || mul_mul8_in0 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_160_out) || mul_mul7_in1 !== 32'dx)) begin $display("assertion(!(andOp_160_out) || mul_mul7_in1 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_160_out) || mul_mul8_in1 !== 32'dx)) begin $display("assertion(!(andOp_160_out) || mul_mul8_in1 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_161_out) || mul_mul10_in0 !== 32'dx)) begin $display("assertion(!(andOp_161_out) || mul_mul10_in0 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_161_out) || mul_mul12_in0 !== 32'dx)) begin $display("assertion(!(andOp_161_out) || mul_mul12_in0 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_161_out) || mul_mul10_in1 !== 32'dx)) begin $display("assertion(!(andOp_161_out) || mul_mul10_in1 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_161_out) || mul_mul12_in1 !== 32'dx)) begin $display("assertion(!(andOp_161_out) || mul_mul12_in1 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_162_out) || phi_phi1_out !== 'dx))) begin $display("assertion((!(andOp_162_out) || phi_phi1_out !== 'dx))"); $finish(); end
+		if (!((!(andOp_162_out) || phi_phi6_out !== 'dx))) begin $display("assertion((!(andOp_162_out) || phi_phi6_out !== 'dx))"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_163_out) || data_in_3_10_out_data !== 32'dx))) begin $display("assertion((!(andOp_163_out) || data_in_3_10_out_data !== 32'dx))"); $finish(); end
+		if (!((!(andOp_163_out) || data_in_3_11_out_data !== 32'dx))) begin $display("assertion((!(andOp_163_out) || data_in_3_11_out_data !== 32'dx))"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_164_out) || mul_mul10_out !== 32'dx))) begin $display("assertion((!(andOp_164_out) || mul_mul10_out !== 32'dx))"); $finish(); end
+		if (!((!(andOp_164_out) || mul_mul12_out !== 32'dx))) begin $display("assertion((!(andOp_164_out) || mul_mul12_out !== 32'dx))"); $finish(); end
 	end
 
 
@@ -271,38 +271,38 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// End debug wires and ports
 
 	// Start Functional Units
-	wire [63:0] phi_phi1_in;
-	wire [31:0] phi_phi1_last_block;
-	wire [63:0] phi_phi1_s;
-	wire [31:0] phi_phi1_out;
-	phi #(.DEBUG_ID(1), .NB_PAIR(2), .WIDTH(32)) phi_phi1(.in(phi_phi1_in), .last_block(phi_phi1_last_block), .out(phi_phi1_out), .s(phi_phi1_s));
+	wire [31:0] mul_mul8_in0;
+	wire [31:0] mul_mul8_in1;
+	wire [31:0] mul_mul8_out;
+	mul #(.WIDTH(32)) mul_mul8(.in0(mul_mul8_in0), .in1(mul_mul8_in1), .out(mul_mul8_out));
+
+	wire [31:0] mul_mul12_in0;
+	wire [31:0] mul_mul12_in1;
+	wire [31:0] mul_mul12_out;
+	mul #(.WIDTH(32)) mul_mul12(.in0(mul_mul12_in0), .in1(mul_mul12_in1), .out(mul_mul12_out));
 
 	wire [31:0] add_add2_in0;
 	wire [31:0] add_add2_in1;
 	wire [31:0] add_add2_out;
 	add #(.WIDTH(32)) add_add2(.in0(add_add2_in0), .in1(add_add2_in1), .out(add_add2_out));
 
-	wire [31:0] mul_mul7_in0;
-	wire [31:0] mul_mul7_in1;
-	wire [31:0] mul_mul7_out;
-	mul #(.WIDTH(32)) mul_mul7(.in0(mul_mul7_in0), .in1(mul_mul7_in1), .out(mul_mul7_out));
-
-	wire [31:0] mul_mul10_in0;
-	wire [31:0] mul_mul10_in1;
-	wire [31:0] mul_mul10_out;
-	mul #(.WIDTH(32)) mul_mul10(.in0(mul_mul10_in0), .in1(mul_mul10_in1), .out(mul_mul10_out));
-
 	wire [31:0] add_add3_in0;
 	wire [31:0] add_add3_in1;
 	wire [31:0] add_add3_out;
 	add #(.WIDTH(32)) add_add3(.in0(add_add3_in0), .in1(add_add3_in1), .out(add_add3_out));
+
+	br_dummy br_unit();
 
 	wire [31:0] icmp_icmp4_in0;
 	wire [31:0] icmp_icmp4_in1;
 	wire [0:0] icmp_icmp4_out;
 	ne #(.WIDTH(32)) icmp_icmp4(.in0(icmp_icmp4_in0), .in1(icmp_icmp4_in1), .out(icmp_icmp4_out));
 
-	br_dummy br_unit();
+	wire [63:0] phi_phi6_in;
+	wire [31:0] phi_phi6_last_block;
+	wire [63:0] phi_phi6_s;
+	wire [31:0] phi_phi6_out;
+	phi #(.DEBUG_ID(1), .NB_PAIR(2), .WIDTH(32)) phi_phi6(.in(phi_phi6_in), .last_block(phi_phi6_last_block), .out(phi_phi6_out), .s(phi_phi6_s));
 
 	reg [0:0] bb_0_active_in_state_0_in_data;
 	wire [0:0] bb_0_active_in_state_0_out_data;
@@ -404,9 +404,9 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [31:0] data_in_1_3_out_data;
 	hls_wire #(.WIDTH(32)) data_in_1_3(.in_data(data_in_1_3_in_data), .out_data(data_in_1_3_out_data));
 
-	reg [31:0] data_in_2_7_in_data;
-	wire [31:0] data_in_2_7_out_data;
-	hls_wire #(.WIDTH(32)) data_in_2_7(.in_data(data_in_2_7_in_data), .out_data(data_in_2_7_out_data));
+	reg [31:0] data_in_2_8_in_data;
+	wire [31:0] data_in_2_8_out_data;
+	hls_wire #(.WIDTH(32)) data_in_2_8(.in_data(data_in_2_8_in_data), .out_data(data_in_2_8_out_data));
 
 	reg [31:0] data_in_3_9_in_data;
 	wire [31:0] data_in_3_9_out_data;
@@ -652,15 +652,15 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [0:0] andOp_60_out;
 	andOp #(.WIDTH(1)) andOp_60(.in0(andOp_60_in0), .in1(andOp_60_in1), .out(andOp_60_out));
 
-	wire [31:0] concat_61_in0;
-	wire [31:0] concat_61_in1;
-	wire [63:0] concat_61_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_61(.in0(concat_61_in0), .in1(concat_61_in1), .out(concat_61_out));
+	wire [0:0] andOp_61_in0;
+	wire [0:0] andOp_61_in1;
+	wire [0:0] andOp_61_out;
+	andOp #(.WIDTH(1)) andOp_61(.in0(andOp_61_in0), .in1(andOp_61_in1), .out(andOp_61_out));
 
-	wire [31:0] concat_62_in0;
-	wire [31:0] concat_62_in1;
-	wire [63:0] concat_62_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_62(.in0(concat_62_in0), .in1(concat_62_in1), .out(concat_62_out));
+	wire [0:0] andOp_62_in0;
+	wire [0:0] andOp_62_in1;
+	wire [0:0] andOp_62_out;
+	andOp #(.WIDTH(1)) andOp_62(.in0(andOp_62_in0), .in1(andOp_62_in1), .out(andOp_62_out));
 
 	wire [0:0] andOp_63_in0;
 	wire [0:0] andOp_63_in1;
@@ -692,15 +692,15 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [0:0] andOp_68_out;
 	andOp #(.WIDTH(1)) andOp_68(.in0(andOp_68_in0), .in1(andOp_68_in1), .out(andOp_68_out));
 
-	wire [0:0] andOp_69_in0;
-	wire [0:0] andOp_69_in1;
-	wire [0:0] andOp_69_out;
-	andOp #(.WIDTH(1)) andOp_69(.in0(andOp_69_in0), .in1(andOp_69_in1), .out(andOp_69_out));
+	wire [31:0] concat_69_in0;
+	wire [31:0] concat_69_in1;
+	wire [63:0] concat_69_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_69(.in0(concat_69_in0), .in1(concat_69_in1), .out(concat_69_out));
 
-	wire [0:0] andOp_70_in0;
-	wire [0:0] andOp_70_in1;
-	wire [0:0] andOp_70_out;
-	andOp #(.WIDTH(1)) andOp_70(.in0(andOp_70_in0), .in1(andOp_70_in1), .out(andOp_70_out));
+	wire [31:0] concat_70_in0;
+	wire [31:0] concat_70_in1;
+	wire [63:0] concat_70_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_70(.in0(concat_70_in0), .in1(concat_70_in1), .out(concat_70_out));
 
 	wire [0:0] andOp_71_in0;
 	wire [0:0] andOp_71_in1;
@@ -717,14 +717,10 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [0:0] andOp_73_out;
 	andOp #(.WIDTH(1)) andOp_73(.in0(andOp_73_in0), .in1(andOp_73_in1), .out(andOp_73_out));
 
-	wire [0:0] notOp_74_in0;
-	wire [0:0] notOp_74_out;
-	notOp #(.WIDTH(1)) notOp_74(.in(notOp_74_in0), .out(notOp_74_out));
-
-	wire [0:0] andOp_75_in0;
-	wire [0:0] andOp_75_in1;
-	wire [0:0] andOp_75_out;
-	andOp #(.WIDTH(1)) andOp_75(.in0(andOp_75_in0), .in1(andOp_75_in1), .out(andOp_75_out));
+	wire [31:0] add_75_in0;
+	wire [31:0] add_75_in1;
+	wire [31:0] add_75_out;
+	add #(.WIDTH(32)) add_75(.in0(add_75_in0), .in1(add_75_in1), .out(add_75_out));
 
 	wire [0:0] notOp_76_in0;
 	wire [0:0] notOp_76_out;
@@ -735,42 +731,37 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [0:0] andOp_77_out;
 	andOp #(.WIDTH(1)) andOp_77(.in0(andOp_77_in0), .in1(andOp_77_in1), .out(andOp_77_out));
 
-	wire [0:0] notOp_78_in0;
-	wire [0:0] notOp_78_out;
-	notOp #(.WIDTH(1)) notOp_78(.in(notOp_78_in0), .out(notOp_78_out));
+	wire [31:0] eq_78_in0;
+	wire [31:0] eq_78_in1;
+	wire [0:0] eq_78_out;
+	eq #(.WIDTH(32)) eq_78(.in0(eq_78_in0), .in1(eq_78_in1), .out(eq_78_out));
 
-	wire [0:0] andOp_79_in0;
-	wire [0:0] andOp_79_in1;
-	wire [0:0] andOp_79_out;
-	andOp #(.WIDTH(1)) andOp_79(.in0(andOp_79_in0), .in1(andOp_79_in1), .out(andOp_79_out));
+	wire [0:0] andOp_80_in0;
+	wire [0:0] andOp_80_in1;
+	wire [0:0] andOp_80_out;
+	andOp #(.WIDTH(1)) andOp_80(.in0(andOp_80_in0), .in1(andOp_80_in1), .out(andOp_80_out));
 
-	wire [0:0] notOp_80_in0;
-	wire [0:0] notOp_80_out;
-	notOp #(.WIDTH(1)) notOp_80(.in(notOp_80_in0), .out(notOp_80_out));
+	wire [0:0] notOp_81_in0;
+	wire [0:0] notOp_81_out;
+	notOp #(.WIDTH(1)) notOp_81(.in(notOp_81_in0), .out(notOp_81_out));
 
-	wire [0:0] andOp_81_in0;
-	wire [0:0] andOp_81_in1;
-	wire [0:0] andOp_81_out;
-	andOp #(.WIDTH(1)) andOp_81(.in0(andOp_81_in0), .in1(andOp_81_in1), .out(andOp_81_out));
+	wire [0:0] andOp_82_in0;
+	wire [0:0] andOp_82_in1;
+	wire [0:0] andOp_82_out;
+	andOp #(.WIDTH(1)) andOp_82(.in0(andOp_82_in0), .in1(andOp_82_in1), .out(andOp_82_out));
 
-	wire [0:0] notOp_82_in0;
-	wire [0:0] notOp_82_out;
-	notOp #(.WIDTH(1)) notOp_82(.in(notOp_82_in0), .out(notOp_82_out));
-
-	wire [0:0] andOp_83_in0;
-	wire [0:0] andOp_83_in1;
-	wire [0:0] andOp_83_out;
-	andOp #(.WIDTH(1)) andOp_83(.in0(andOp_83_in0), .in1(andOp_83_in1), .out(andOp_83_out));
+	wire [0:0] notOp_83_in0;
+	wire [0:0] notOp_83_out;
+	notOp #(.WIDTH(1)) notOp_83(.in(notOp_83_in0), .out(notOp_83_out));
 
 	wire [0:0] andOp_84_in0;
 	wire [0:0] andOp_84_in1;
 	wire [0:0] andOp_84_out;
 	andOp #(.WIDTH(1)) andOp_84(.in0(andOp_84_in0), .in1(andOp_84_in1), .out(andOp_84_out));
 
-	wire [0:0] andOp_85_in0;
-	wire [0:0] andOp_85_in1;
-	wire [0:0] andOp_85_out;
-	andOp #(.WIDTH(1)) andOp_85(.in0(andOp_85_in0), .in1(andOp_85_in1), .out(andOp_85_out));
+	wire [0:0] notOp_85_in0;
+	wire [0:0] notOp_85_out;
+	notOp #(.WIDTH(1)) notOp_85(.in(notOp_85_in0), .out(notOp_85_out));
 
 	wire [0:0] andOp_86_in0;
 	wire [0:0] andOp_86_in1;
@@ -795,61 +786,70 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	wire [0:0] andOp_90_out;
 	andOp #(.WIDTH(1)) andOp_90(.in0(andOp_90_in0), .in1(andOp_90_in1), .out(andOp_90_out));
 
-	wire [0:0] notOp_91_in0;
-	wire [0:0] notOp_91_out;
-	notOp #(.WIDTH(1)) notOp_91(.in(notOp_91_in0), .out(notOp_91_out));
+	wire [0:0] andOp_91_in0;
+	wire [0:0] andOp_91_in1;
+	wire [0:0] andOp_91_out;
+	andOp #(.WIDTH(1)) andOp_91(.in0(andOp_91_in0), .in1(andOp_91_in1), .out(andOp_91_out));
 
 	wire [0:0] andOp_92_in0;
 	wire [0:0] andOp_92_in1;
 	wire [0:0] andOp_92_out;
 	andOp #(.WIDTH(1)) andOp_92(.in0(andOp_92_in0), .in1(andOp_92_in1), .out(andOp_92_out));
 
-	wire [0:0] notOp_93_in0;
-	wire [0:0] notOp_93_out;
-	notOp #(.WIDTH(1)) notOp_93(.in(notOp_93_in0), .out(notOp_93_out));
+	wire [0:0] andOp_93_in0;
+	wire [0:0] andOp_93_in1;
+	wire [0:0] andOp_93_out;
+	andOp #(.WIDTH(1)) andOp_93(.in0(andOp_93_in0), .in1(andOp_93_in1), .out(andOp_93_out));
 
-	wire [0:0] andOp_94_in0;
-	wire [0:0] andOp_94_in1;
-	wire [0:0] andOp_94_out;
-	andOp #(.WIDTH(1)) andOp_94(.in0(andOp_94_in0), .in1(andOp_94_in1), .out(andOp_94_out));
+	wire [0:0] notOp_94_in0;
+	wire [0:0] notOp_94_out;
+	notOp #(.WIDTH(1)) notOp_94(.in(notOp_94_in0), .out(notOp_94_out));
 
-	wire [0:0] notOp_95_in0;
-	wire [0:0] notOp_95_out;
-	notOp #(.WIDTH(1)) notOp_95(.in(notOp_95_in0), .out(notOp_95_out));
+	wire [0:0] andOp_95_in0;
+	wire [0:0] andOp_95_in1;
+	wire [0:0] andOp_95_out;
+	andOp #(.WIDTH(1)) andOp_95(.in0(andOp_95_in0), .in1(andOp_95_in1), .out(andOp_95_out));
 
-	wire [0:0] andOp_96_in0;
-	wire [0:0] andOp_96_in1;
-	wire [0:0] andOp_96_out;
-	andOp #(.WIDTH(1)) andOp_96(.in0(andOp_96_in0), .in1(andOp_96_in1), .out(andOp_96_out));
+	wire [0:0] notOp_96_in0;
+	wire [0:0] notOp_96_out;
+	notOp #(.WIDTH(1)) notOp_96(.in(notOp_96_in0), .out(notOp_96_out));
 
 	wire [0:0] andOp_97_in0;
 	wire [0:0] andOp_97_in1;
 	wire [0:0] andOp_97_out;
 	andOp #(.WIDTH(1)) andOp_97(.in0(andOp_97_in0), .in1(andOp_97_in1), .out(andOp_97_out));
 
-	wire [0:0] andOp_98_in0;
-	wire [0:0] andOp_98_in1;
-	wire [0:0] andOp_98_out;
-	andOp #(.WIDTH(1)) andOp_98(.in0(andOp_98_in0), .in1(andOp_98_in1), .out(andOp_98_out));
+	wire [0:0] notOp_98_in0;
+	wire [0:0] notOp_98_out;
+	notOp #(.WIDTH(1)) notOp_98(.in(notOp_98_in0), .out(notOp_98_out));
 
-	wire [31:0] add_100_in0;
-	wire [31:0] add_100_in1;
-	wire [31:0] add_100_out;
-	add #(.WIDTH(32)) add_100(.in0(add_100_in0), .in1(add_100_in1), .out(add_100_out));
+	wire [0:0] andOp_99_in0;
+	wire [0:0] andOp_99_in1;
+	wire [0:0] andOp_99_out;
+	andOp #(.WIDTH(1)) andOp_99(.in0(andOp_99_in0), .in1(andOp_99_in1), .out(andOp_99_out));
 
-	wire [0:0] notOp_101_in0;
-	wire [0:0] notOp_101_out;
-	notOp #(.WIDTH(1)) notOp_101(.in(notOp_101_in0), .out(notOp_101_out));
+	wire [0:0] notOp_100_in0;
+	wire [0:0] notOp_100_out;
+	notOp #(.WIDTH(1)) notOp_100(.in(notOp_100_in0), .out(notOp_100_out));
 
-	wire [0:0] andOp_102_in0;
-	wire [0:0] andOp_102_in1;
-	wire [0:0] andOp_102_out;
-	andOp #(.WIDTH(1)) andOp_102(.in0(andOp_102_in0), .in1(andOp_102_in1), .out(andOp_102_out));
+	wire [0:0] andOp_101_in0;
+	wire [0:0] andOp_101_in1;
+	wire [0:0] andOp_101_out;
+	andOp #(.WIDTH(1)) andOp_101(.in0(andOp_101_in0), .in1(andOp_101_in1), .out(andOp_101_out));
 
-	wire [31:0] eq_103_in0;
-	wire [31:0] eq_103_in1;
-	wire [0:0] eq_103_out;
-	eq #(.WIDTH(32)) eq_103(.in0(eq_103_in0), .in1(eq_103_in1), .out(eq_103_out));
+	wire [0:0] notOp_102_in0;
+	wire [0:0] notOp_102_out;
+	notOp #(.WIDTH(1)) notOp_102(.in(notOp_102_in0), .out(notOp_102_out));
+
+	wire [0:0] andOp_103_in0;
+	wire [0:0] andOp_103_in1;
+	wire [0:0] andOp_103_out;
+	andOp #(.WIDTH(1)) andOp_103(.in0(andOp_103_in0), .in1(andOp_103_in1), .out(andOp_103_out));
+
+	wire [0:0] andOp_104_in0;
+	wire [0:0] andOp_104_in1;
+	wire [0:0] andOp_104_out;
+	andOp #(.WIDTH(1)) andOp_104(.in0(andOp_104_in0), .in1(andOp_104_in1), .out(andOp_104_out));
 
 	wire [0:0] andOp_105_in0;
 	wire [0:0] andOp_105_in1;
@@ -1146,14 +1146,14 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 
 	// End Functional Units
 
-	reg [31:0] counter__99;
+	reg [31:0] counter__74;
 	reg [31:0] data_store_0_0;
 	reg [31:0] data_store_1_2;
 	reg [31:0] data_store_1_4;
 	reg [31:0] data_store_2_5;
 	reg [31:0] data_store_2_6;
-	reg [31:0] data_store_2_8;
-	reg [0:0] delayed_signal__104;
+	reg [31:0] data_store_2_7;
+	reg [0:0] delayed_signal__79;
 	reg [31:0] global_state;
 	reg [0:0] out_of_pipe_1_7;
 	reg [0:0] out_of_pipe_bb_1_7;
@@ -1190,31 +1190,41 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	reg [31:0] state_7_last_BB_reg;
 	reg [31:0] state_7_last_state;
 
-	// controller for add_100.add_100_in0
-	// controller for add_100.add_100_in1
+	// controller for add_75.add_75_in0
+	// controller for add_75.add_75_in1
 	// Insensitive connections
-	assign add_100_in0 = counter__99;
-	assign add_100_in1 = 32'd1;
+	assign add_75_in0 = counter__74;
+	assign add_75_in1 = 32'd1;
 	// controller for add_add2.add_add2_in0
 	// controller for add_add2.add_add2_in1
 	// Insensitive connections
-	assign add_add2_in0 = phi_phi1_out;
+	assign add_add2_in0 = phi_phi6_out;
 	assign add_add2_in1 = 32'd1;
 	// controller for add_add3.add_add3_in0
 	// controller for add_add3.add_add3_in1
 	// Insensitive connections
-	assign add_add3_in0 = phi_phi1_out;
+	assign add_add3_in0 = phi_phi6_out;
 	assign add_add3_in1 = 32'd5;
-	// controller for andOp_102.andOp_102_in0
-	// controller for andOp_102.andOp_102_in1
+	// controller for andOp_101.andOp_101_in0
+	// controller for andOp_101.andOp_101_in1
 	// Insensitive connections
-	assign andOp_102_in0 = notOp_101_out;
-	assign andOp_102_in1 = 1'd1;
+	assign andOp_101_in0 = andOp_99_out;
+	assign andOp_101_in1 = notOp_100_out;
+	// controller for andOp_103.andOp_103_in0
+	// controller for andOp_103.andOp_103_in1
+	// Insensitive connections
+	assign andOp_103_in0 = andOp_101_out;
+	assign andOp_103_in1 = notOp_102_out;
+	// controller for andOp_104.andOp_104_in0
+	// controller for andOp_104.andOp_104_in1
+	// Insensitive connections
+	assign andOp_104_in0 = in_pipeline_0_out_data;
+	assign andOp_104_in1 = andOp_103_out;
 	// controller for andOp_105.andOp_105_in0
 	// controller for andOp_105.andOp_105_in1
 	// Insensitive connections
-	assign andOp_105_in0 = delayed_signal__104;
-	assign andOp_105_in1 = eq_103_out;
+	assign andOp_105_in0 = andOp_104_out;
+	assign andOp_105_in1 = out_of_pipe_bb_1_7;
 	// controller for andOp_106.andOp_106_in0
 	// controller for andOp_106.andOp_106_in1
 	// Insensitive connections
@@ -1445,16 +1455,26 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// Insensitive connections
 	assign andOp_60_in0 = bb_2_active_in_state_1_out_data;
 	assign andOp_60_in1 = state_1_is_active;
+	// controller for andOp_61.andOp_61_in0
+	// controller for andOp_61.andOp_61_in1
+	// Insensitive connections
+	assign andOp_61_in0 = bb_2_active_in_state_2_out_data;
+	assign andOp_61_in1 = state_2_is_active;
+	// controller for andOp_62.andOp_62_in0
+	// controller for andOp_62.andOp_62_in1
+	// Insensitive connections
+	assign andOp_62_in0 = bb_2_active_in_state_3_out_data;
+	assign andOp_62_in1 = state_3_is_active;
 	// controller for andOp_63.andOp_63_in0
 	// controller for andOp_63.andOp_63_in1
 	// Insensitive connections
-	assign andOp_63_in0 = bb_2_active_in_state_1_out_data;
-	assign andOp_63_in1 = state_1_is_active;
+	assign andOp_63_in0 = bb_2_active_in_state_3_out_data;
+	assign andOp_63_in1 = state_3_is_active;
 	// controller for andOp_64.andOp_64_in0
 	// controller for andOp_64.andOp_64_in1
 	// Insensitive connections
-	assign andOp_64_in0 = bb_2_active_in_state_1_out_data;
-	assign andOp_64_in1 = state_1_is_active;
+	assign andOp_64_in0 = bb_2_active_in_state_3_out_data;
+	assign andOp_64_in1 = state_3_is_active;
 	// controller for andOp_65.andOp_65_in0
 	// controller for andOp_65.andOp_65_in1
 	// Insensitive connections
@@ -1468,23 +1488,13 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for andOp_67.andOp_67_in0
 	// controller for andOp_67.andOp_67_in1
 	// Insensitive connections
-	assign andOp_67_in0 = bb_2_active_in_state_2_out_data;
-	assign andOp_67_in1 = state_2_is_active;
+	assign andOp_67_in0 = bb_2_active_in_state_1_out_data;
+	assign andOp_67_in1 = state_1_is_active;
 	// controller for andOp_68.andOp_68_in0
 	// controller for andOp_68.andOp_68_in1
 	// Insensitive connections
-	assign andOp_68_in0 = bb_2_active_in_state_3_out_data;
-	assign andOp_68_in1 = state_3_is_active;
-	// controller for andOp_69.andOp_69_in0
-	// controller for andOp_69.andOp_69_in1
-	// Insensitive connections
-	assign andOp_69_in0 = bb_2_active_in_state_3_out_data;
-	assign andOp_69_in1 = state_3_is_active;
-	// controller for andOp_70.andOp_70_in0
-	// controller for andOp_70.andOp_70_in1
-	// Insensitive connections
-	assign andOp_70_in0 = bb_2_active_in_state_3_out_data;
-	assign andOp_70_in1 = state_3_is_active;
+	assign andOp_68_in0 = bb_2_active_in_state_1_out_data;
+	assign andOp_68_in1 = state_1_is_active;
 	// controller for andOp_71.andOp_71_in0
 	// controller for andOp_71.andOp_71_in1
 	// Insensitive connections
@@ -1500,108 +1510,98 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// Insensitive connections
 	assign andOp_73_in0 = bb_1_active_in_state_7_out_data;
 	assign andOp_73_in1 = state_7_is_active;
-	// controller for andOp_75.andOp_75_in0
-	// controller for andOp_75.andOp_75_in1
-	// Insensitive connections
-	assign andOp_75_in0 = 1'd1;
-	assign andOp_75_in1 = notOp_74_out;
 	// controller for andOp_77.andOp_77_in0
 	// controller for andOp_77.andOp_77_in1
 	// Insensitive connections
-	assign andOp_77_in0 = andOp_75_out;
-	assign andOp_77_in1 = notOp_76_out;
-	// controller for andOp_79.andOp_79_in0
-	// controller for andOp_79.andOp_79_in1
+	assign andOp_77_in0 = notOp_76_out;
+	assign andOp_77_in1 = 1'd1;
+	// controller for andOp_80.andOp_80_in0
+	// controller for andOp_80.andOp_80_in1
 	// Insensitive connections
-	assign andOp_79_in0 = andOp_77_out;
-	assign andOp_79_in1 = notOp_78_out;
-	// controller for andOp_81.andOp_81_in0
-	// controller for andOp_81.andOp_81_in1
+	assign andOp_80_in0 = delayed_signal__79;
+	assign andOp_80_in1 = eq_78_out;
+	// controller for andOp_82.andOp_82_in0
+	// controller for andOp_82.andOp_82_in1
 	// Insensitive connections
-	assign andOp_81_in0 = andOp_79_out;
-	assign andOp_81_in1 = notOp_80_out;
-	// controller for andOp_83.andOp_83_in0
-	// controller for andOp_83.andOp_83_in1
-	// Insensitive connections
-	assign andOp_83_in0 = andOp_81_out;
-	assign andOp_83_in1 = notOp_82_out;
+	assign andOp_82_in0 = 1'd1;
+	assign andOp_82_in1 = notOp_81_out;
 	// controller for andOp_84.andOp_84_in0
 	// controller for andOp_84.andOp_84_in1
 	// Insensitive connections
-	assign andOp_84_in0 = in_pipeline_0_out_data;
-	assign andOp_84_in1 = andOp_83_out;
-	// controller for andOp_85.andOp_85_in0
-	// controller for andOp_85.andOp_85_in1
-	// Insensitive connections
-	assign andOp_85_in0 = andOp_84_out;
-	assign andOp_85_in1 = out_of_pipe_1_7;
+	assign andOp_84_in0 = andOp_82_out;
+	assign andOp_84_in1 = notOp_83_out;
 	// controller for andOp_86.andOp_86_in0
 	// controller for andOp_86.andOp_86_in1
 	// Insensitive connections
 	assign andOp_86_in0 = andOp_84_out;
-	assign andOp_86_in1 = out_of_pipe_1_7;
+	assign andOp_86_in1 = notOp_85_out;
 	// controller for andOp_88.andOp_88_in0
 	// controller for andOp_88.andOp_88_in1
 	// Insensitive connections
-	assign andOp_88_in0 = 1'd1;
+	assign andOp_88_in0 = andOp_86_out;
 	assign andOp_88_in1 = notOp_87_out;
 	// controller for andOp_90.andOp_90_in0
 	// controller for andOp_90.andOp_90_in1
 	// Insensitive connections
 	assign andOp_90_in0 = andOp_88_out;
 	assign andOp_90_in1 = notOp_89_out;
+	// controller for andOp_91.andOp_91_in0
+	// controller for andOp_91.andOp_91_in1
+	// Insensitive connections
+	assign andOp_91_in0 = in_pipeline_0_out_data;
+	assign andOp_91_in1 = andOp_90_out;
 	// controller for andOp_92.andOp_92_in0
 	// controller for andOp_92.andOp_92_in1
 	// Insensitive connections
-	assign andOp_92_in0 = andOp_90_out;
-	assign andOp_92_in1 = notOp_91_out;
-	// controller for andOp_94.andOp_94_in0
-	// controller for andOp_94.andOp_94_in1
+	assign andOp_92_in0 = andOp_91_out;
+	assign andOp_92_in1 = out_of_pipe_1_7;
+	// controller for andOp_93.andOp_93_in0
+	// controller for andOp_93.andOp_93_in1
 	// Insensitive connections
-	assign andOp_94_in0 = andOp_92_out;
-	assign andOp_94_in1 = notOp_93_out;
-	// controller for andOp_96.andOp_96_in0
-	// controller for andOp_96.andOp_96_in1
+	assign andOp_93_in0 = andOp_91_out;
+	assign andOp_93_in1 = out_of_pipe_1_7;
+	// controller for andOp_95.andOp_95_in0
+	// controller for andOp_95.andOp_95_in1
 	// Insensitive connections
-	assign andOp_96_in0 = andOp_94_out;
-	assign andOp_96_in1 = notOp_95_out;
+	assign andOp_95_in0 = 1'd1;
+	assign andOp_95_in1 = notOp_94_out;
 	// controller for andOp_97.andOp_97_in0
 	// controller for andOp_97.andOp_97_in1
 	// Insensitive connections
-	assign andOp_97_in0 = in_pipeline_0_out_data;
-	assign andOp_97_in1 = andOp_96_out;
-	// controller for andOp_98.andOp_98_in0
-	// controller for andOp_98.andOp_98_in1
+	assign andOp_97_in0 = andOp_95_out;
+	assign andOp_97_in1 = notOp_96_out;
+	// controller for andOp_99.andOp_99_in0
+	// controller for andOp_99.andOp_99_in1
 	// Insensitive connections
-	assign andOp_98_in0 = andOp_97_out;
-	assign andOp_98_in1 = out_of_pipe_bb_1_7;
+	assign andOp_99_in0 = andOp_97_out;
+	assign andOp_99_in1 = notOp_98_out;
 	// controller for arg_0.arg_0_raddr_0_reg
 	always @(*) begin
-		if (andOp_66_out) begin 
-			arg_0_raddr_0_reg = phi_phi1_out;
+		if (andOp_60_out) begin 
+			arg_0_raddr_0_reg = phi_phi6_out;
 		end else begin
 			arg_0_raddr_0_reg = 0;
 		end
 	end
 	// controller for arg_0.arg_0_waddr_0_reg
 	always @(*) begin
-		if (andOp_68_out) begin 
-			arg_0_waddr_0_reg = data_in_3_10_out_data;
+		if (andOp_64_out) begin 
+			arg_0_waddr_0_reg = data_in_3_11_out_data;
 		end else begin
 			arg_0_waddr_0_reg = 0;
 		end
 	end
 	// controller for arg_0.arg_0_wdata_0_reg
 	always @(*) begin
-		if (andOp_69_out) begin 
-			arg_0_wdata_0_reg = mul_mul10_out;
+		if (andOp_63_out) begin 
+			arg_0_wdata_0_reg = mul_mul12_out;
 		end else begin
 			arg_0_wdata_0_reg = 0;
 		end
 	end
 	// controller for arg_0.arg_0_wen_0_reg
 	always @(*) begin
-		if (andOp_70_out) begin 
+		if (andOp_62_out) begin 
 			arg_0_wen_0_reg = -(1'd1);
 		end else begin
 			arg_0_wen_0_reg = 0;
@@ -1805,16 +1805,16 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 			br_2_happened_in_state_6_in_data = 0;
 		end
 	end
-	// controller for concat_61.concat_61_in0
-	// controller for concat_61.concat_61_in1
+	// controller for concat_69.concat_69_in0
+	// controller for concat_69.concat_69_in1
 	// Insensitive connections
-	assign concat_61_in0 = data_in_1_3_out_data;
-	assign concat_61_in1 = 32'd0;
-	// controller for concat_62.concat_62_in0
-	// controller for concat_62.concat_62_in1
+	assign concat_69_in0 = data_in_1_3_out_data;
+	assign concat_69_in1 = 32'd0;
+	// controller for concat_70.concat_70_in0
+	// controller for concat_70.concat_70_in1
 	// Insensitive connections
-	assign concat_62_in0 = 32'd2;
-	assign concat_62_in1 = 32'd0;
+	assign concat_70_in0 = 32'd2;
+	assign concat_70_in1 = 32'd0;
 	// controller for data_in_0_1.data_in_0_1_in_data
 	always @(*) begin
 		if (eq_136_out) begin 
@@ -1833,14 +1833,14 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 			data_in_1_3_in_data = 0;
 		end
 	end
-	// controller for data_in_2_7.data_in_2_7_in_data
+	// controller for data_in_2_8.data_in_2_8_in_data
 	always @(*) begin
 		if (eq_141_out) begin 
-			data_in_2_7_in_data = data_store_1_4;
+			data_in_2_8_in_data = data_store_1_4;
 		end else if (eq_142_out) begin 
-			data_in_2_7_in_data = data_store_2_6;
+			data_in_2_8_in_data = data_store_2_7;
 		end else begin
-			data_in_2_7_in_data = 0;
+			data_in_2_8_in_data = 0;
 		end
 	end
 	// controller for data_in_3_10.data_in_3_10_in_data
@@ -1856,7 +1856,7 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for data_in_3_11.data_in_3_11_in_data
 	always @(*) begin
 		if (eq_145_out) begin 
-			data_in_3_11_in_data = data_store_2_8;
+			data_in_3_11_in_data = data_store_2_7;
 		end else if (eq_146_out) begin 
 			data_in_3_11_in_data = 32'd0;
 		end else begin
@@ -1873,11 +1873,6 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 			data_in_3_9_in_data = 0;
 		end
 	end
-	// controller for eq_103.eq_103_in0
-	// controller for eq_103.eq_103_in1
-	// Insensitive connections
-	assign eq_103_in0 = counter__99;
-	assign eq_103_in1 = 32'd1;
 	// controller for eq_136.eq_136_in0
 	// controller for eq_136.eq_136_in1
 	// Insensitive connections
@@ -2038,6 +2033,11 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// Insensitive connections
 	assign eq_59_in0 = 32'd1;
 	assign eq_59_in1 = state_7_entry_BB_reg;
+	// controller for eq_78.eq_78_in0
+	// controller for eq_78.eq_78_in1
+	// Insensitive connections
+	assign eq_78_in0 = counter__74;
+	assign eq_78_in1 = 32'd1;
 	// controller for icmp_icmp4.icmp_icmp4_in0
 	// controller for icmp_icmp4.icmp_icmp4_in1
 	// Insensitive connections
@@ -2051,25 +2051,28 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 			in_pipeline_0_in_data = 0;
 		end
 	end
-	// controller for mul_mul10.mul_mul10_in0
-	// controller for mul_mul10.mul_mul10_in1
+	// controller for mul_mul12.mul_mul12_in0
+	// controller for mul_mul12.mul_mul12_in1
 	// Insensitive connections
-	assign mul_mul10_in0 = data_in_3_9_out_data;
-	assign mul_mul10_in1 = data_in_3_11_out_data;
-	// controller for mul_mul7.mul_mul7_in0
-	// controller for mul_mul7.mul_mul7_in1
+	assign mul_mul12_in0 = data_in_3_10_out_data;
+	assign mul_mul12_in1 = data_in_3_9_out_data;
+	// controller for mul_mul8.mul_mul8_in0
+	// controller for mul_mul8.mul_mul8_in1
 	// Insensitive connections
-	assign mul_mul7_in0 = arg_0_rdata_0;
-	assign mul_mul7_in1 = arg_0_rdata_0;
-	// controller for notOp_101.notOp_101_in0
+	assign mul_mul8_in0 = arg_0_rdata_0;
+	assign mul_mul8_in1 = arg_0_rdata_0;
+	// controller for notOp_100.notOp_100_in0
 	// Insensitive connections
-	assign notOp_101_in0 = state_1_is_active;
+	assign notOp_100_in0 = state_4_is_active;
+	// controller for notOp_102.notOp_102_in0
+	// Insensitive connections
+	assign notOp_102_in0 = state_5_is_active;
 	// controller for notOp_112.notOp_112_in0
 	// Insensitive connections
-	assign notOp_112_in0 = andOp_105_out;
+	assign notOp_112_in0 = andOp_12_out;
 	// controller for notOp_114.notOp_114_in0
 	// Insensitive connections
-	assign notOp_114_in0 = andOp_12_out;
+	assign notOp_114_in0 = andOp_80_out;
 	// controller for notOp_116.notOp_116_in0
 	// Insensitive connections
 	assign notOp_116_in0 = andOp_106_out;
@@ -2090,7 +2093,7 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	assign notOp_126_in0 = andOp_111_out;
 	// controller for notOp_128.notOp_128_in0
 	// Insensitive connections
-	assign notOp_128_in0 = andOp_86_out;
+	assign notOp_128_in0 = andOp_93_out;
 	// controller for notOp_13.notOp_13_in0
 	// Insensitive connections
 	assign notOp_13_in0 = andOp_12_out;
@@ -2136,36 +2139,33 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// controller for notOp_42.notOp_42_in0
 	// Insensitive connections
 	assign notOp_42_in0 = icmp_icmp4_out;
-	// controller for notOp_74.notOp_74_in0
-	// Insensitive connections
-	assign notOp_74_in0 = state_1_is_active;
 	// controller for notOp_76.notOp_76_in0
 	// Insensitive connections
-	assign notOp_76_in0 = state_2_is_active;
-	// controller for notOp_78.notOp_78_in0
+	assign notOp_76_in0 = state_1_is_active;
+	// controller for notOp_81.notOp_81_in0
 	// Insensitive connections
-	assign notOp_78_in0 = state_3_is_active;
-	// controller for notOp_80.notOp_80_in0
+	assign notOp_81_in0 = state_1_is_active;
+	// controller for notOp_83.notOp_83_in0
 	// Insensitive connections
-	assign notOp_80_in0 = state_4_is_active;
-	// controller for notOp_82.notOp_82_in0
+	assign notOp_83_in0 = state_2_is_active;
+	// controller for notOp_85.notOp_85_in0
 	// Insensitive connections
-	assign notOp_82_in0 = state_5_is_active;
+	assign notOp_85_in0 = state_3_is_active;
 	// controller for notOp_87.notOp_87_in0
 	// Insensitive connections
-	assign notOp_87_in0 = state_1_is_active;
+	assign notOp_87_in0 = state_4_is_active;
 	// controller for notOp_89.notOp_89_in0
 	// Insensitive connections
-	assign notOp_89_in0 = state_2_is_active;
-	// controller for notOp_91.notOp_91_in0
+	assign notOp_89_in0 = state_5_is_active;
+	// controller for notOp_94.notOp_94_in0
 	// Insensitive connections
-	assign notOp_91_in0 = state_3_is_active;
-	// controller for notOp_93.notOp_93_in0
+	assign notOp_94_in0 = state_1_is_active;
+	// controller for notOp_96.notOp_96_in0
 	// Insensitive connections
-	assign notOp_93_in0 = state_4_is_active;
-	// controller for notOp_95.notOp_95_in0
+	assign notOp_96_in0 = state_2_is_active;
+	// controller for notOp_98.notOp_98_in0
 	// Insensitive connections
-	assign notOp_95_in0 = state_5_is_active;
+	assign notOp_98_in0 = state_3_is_active;
 	// controller for orOp_130.orOp_130_in0
 	// controller for orOp_130.orOp_130_in1
 	// Insensitive connections
@@ -2196,13 +2196,13 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// Insensitive connections
 	assign orOp_135_in0 = state_6_is_active;
 	assign orOp_135_in1 = orOp_134_out;
-	// controller for phi_phi1.phi_phi1_in
-	// controller for phi_phi1.phi_phi1_last_block
-	// controller for phi_phi1.phi_phi1_s
+	// controller for phi_phi6.phi_phi6_in
+	// controller for phi_phi6.phi_phi6_last_block
+	// controller for phi_phi6.phi_phi6_s
 	// Insensitive connections
-	assign phi_phi1_in = concat_61_out;
-	assign phi_phi1_last_block = bb_2_predecessor_in_state_1_out_data;
-	assign phi_phi1_s = concat_62_out;
+	assign phi_phi6_in = concat_69_out;
+	assign phi_phi6_last_block = bb_2_predecessor_in_state_1_out_data;
+	assign phi_phi6_s = concat_70_out;
 	// controller for ret13.valid_reg
 	always @(*) begin
 		if (andOp_73_out) begin 
@@ -2214,13 +2214,13 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 	// Register controllers
 	always @(posedge clk) begin
 		if (rst) begin
-			counter__99 <= 0;
+			counter__74 <= 0;
 		end else begin
-			if (andOp_102_out) begin
-				counter__99 <= add_100_out;
+			if (andOp_77_out) begin
+				counter__74 <= add_75_out;
 			end
 			if (state_1_is_active) begin
-				counter__99 <= 32'd0;
+				counter__74 <= 32'd0;
 			end
 		end
 	end
@@ -2260,7 +2260,7 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 			data_store_2_5 <= 0;
 		end else begin
 			if (andOp_143_out) begin
-				data_store_2_5 <= mul_mul7_out;
+				data_store_2_5 <= arg_0_rdata_0;
 			end
 		end
 	end
@@ -2269,28 +2269,28 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 		if (rst) begin
 			data_store_2_6 <= 0;
 		end else begin
-			if (state_2_is_active) begin
-				data_store_2_6 <= data_in_2_7_out_data;
-			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			data_store_2_8 <= 0;
-		end else begin
 			if (andOp_144_out) begin
-				data_store_2_8 <= arg_0_rdata_0;
+				data_store_2_6 <= mul_mul8_out;
 			end
 		end
 	end
 
 	always @(posedge clk) begin
 		if (rst) begin
-			delayed_signal__104 <= 0;
+			data_store_2_7 <= 0;
+		end else begin
+			if (state_2_is_active) begin
+				data_store_2_7 <= data_in_2_8_out_data;
+			end
+		end
+	end
+
+	always @(posedge clk) begin
+		if (rst) begin
+			delayed_signal__79 <= 0;
 		end else begin
 			if (state_1_is_active) begin
-				delayed_signal__104 <= andOp_16_out;
+				delayed_signal__79 <= andOp_16_out;
 			end
 		end
 	end
@@ -2305,7 +2305,7 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 			if (andOp_12_out) begin
 				global_state <= 32'd200000;
 			end
-			if (andOp_85_out) begin
+			if (andOp_92_out) begin
 				global_state <= 32'd7;
 			end
 		end
@@ -2379,13 +2379,13 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 		if (rst) begin
 			state_1_is_active <= 0;
 		end else begin
-			if (andOp_105_out) begin
-				state_1_is_active <= 1'd1;
-			end
 			if (andOp_115_out) begin
 				state_1_is_active <= 1'd0;
 			end
 			if (andOp_12_out) begin
+				state_1_is_active <= 1'd1;
+			end
+			if (andOp_80_out) begin
 				state_1_is_active <= 1'd1;
 			end
 		end
@@ -2636,10 +2636,10 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 		if (rst) begin
 			state_7_entry_BB_reg <= 0;
 		end else begin
-			if (andOp_111_out) begin
+			if (andOp_105_out) begin
 				state_7_entry_BB_reg <= 32'd1;
 			end
-			if (andOp_98_out) begin
+			if (andOp_111_out) begin
 				state_7_entry_BB_reg <= 32'd1;
 			end
 		end
@@ -2655,7 +2655,7 @@ module constrained_pipe(input [0:0] clk, input [0:0] rst, output [0:0] valid, ou
 			if (andOp_129_out) begin
 				state_7_is_active <= 1'd0;
 			end
-			if (andOp_86_out) begin
+			if (andOp_93_out) begin
 				state_7_is_active <= 1'd1;
 			end
 		end

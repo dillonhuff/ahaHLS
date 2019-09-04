@@ -712,10 +712,6 @@ namespace ahaHLS {
       }
     }
 
-    // No more binding 
-    //bindUnits(stg, hcs);
-    //bindUnits(stg.getFunction(), hcs);
-    
     ResourceUsage used;
     for (auto state : stg.opStates) {
       
@@ -723,10 +719,7 @@ namespace ahaHLS {
 
         Instruction* instr = instrG;
 
-        //ModuleSpec modSpec = map_find(dyn_cast<Value>(instr), hcs.modSpecs);
         ModuleSpec modSpec = hcs.getModSpec(instr); //map_find(dyn_cast<Value>(instr), hcs.modSpecs);
-        // ModuleSpec modSpec =
-        //   buildModSpec(memNames, memSrcs, hcs, used, instr);
 
         auto unit =
           createUnit(modSpec, memNames, memSrcs, hcs, used, instr);
@@ -2939,7 +2932,7 @@ namespace ahaHLS {
 
         if (!outputUsed) {
           cout << "Error: Output of " << valueString(instr) << " is not connected to any register or port controller" << endl;
-          assert(outputUsed);
+          //assert(outputUsed);
         }
       }
     }

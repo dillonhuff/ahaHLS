@@ -59,7 +59,7 @@ module histogram_with_forwarding(input [0:0] clk, input [0:0] rst, output [0:0] 
 	wire [31:0] phi_phi1_last_block;
 	wire [63:0] phi_phi1_s;
 	wire [31:0] phi_phi1_out;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi1(.in(phi_phi1_in), .last_block(phi_phi1_last_block), .out(phi_phi1_out), .s(phi_phi1_s));
+	phi #(.DEBUG_ID(1), .NB_PAIR(2), .WIDTH(32)) phi_phi1(.in(phi_phi1_in), .last_block(phi_phi1_last_block), .out(phi_phi1_out), .s(phi_phi1_s));
 
 	wire [31:0] add_add2_in0;
 	wire [31:0] add_add2_in1;

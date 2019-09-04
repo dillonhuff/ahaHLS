@@ -34,51 +34,51 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 
 
 	always @(posedge clk) begin
-		if (!((!(andOp_16_out === 1) || andOp_60_out !== 1))) begin $display("assertion((!(andOp_16_out === 1) || andOp_60_out !== 1))"); $finish(); end
+		if (!((!(andOp_16_out === 1) || andOp_60_out !== 1))) begin $display("assertion((!(andOp_16_out === 1) || andOp_60_out !== 1)) failed: Problem: Overlapping last basic block transition"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_16_out === 1) || andOp_8_out !== 1))) begin $display("assertion((!(andOp_16_out === 1) || andOp_8_out !== 1))"); $finish(); end
+		if (!((!(andOp_16_out === 1) || andOp_8_out !== 1))) begin $display("assertion((!(andOp_16_out === 1) || andOp_8_out !== 1)) failed: Problem: Overlapping last basic block transition"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_60_out === 1) || andOp_16_out !== 1))) begin $display("assertion((!(andOp_60_out === 1) || andOp_16_out !== 1))"); $finish(); end
+		if (!((!(andOp_60_out === 1) || andOp_16_out !== 1))) begin $display("assertion((!(andOp_60_out === 1) || andOp_16_out !== 1)) failed: Problem: Overlapping last basic block transition"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_60_out === 1) || andOp_8_out !== 1))) begin $display("assertion((!(andOp_60_out === 1) || andOp_8_out !== 1))"); $finish(); end
+		if (!((!(andOp_60_out === 1) || andOp_8_out !== 1))) begin $display("assertion((!(andOp_60_out === 1) || andOp_8_out !== 1)) failed: Problem: Overlapping last basic block transition"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_8_out === 1) || andOp_16_out !== 1))) begin $display("assertion((!(andOp_8_out === 1) || andOp_16_out !== 1))"); $finish(); end
+		if (!((!(andOp_8_out === 1) || andOp_16_out !== 1))) begin $display("assertion((!(andOp_8_out === 1) || andOp_16_out !== 1)) failed: Problem: Overlapping last basic block transition"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_8_out === 1) || andOp_60_out !== 1))) begin $display("assertion((!(andOp_8_out === 1) || andOp_60_out !== 1))"); $finish(); end
+		if (!((!(andOp_8_out === 1) || andOp_60_out !== 1))) begin $display("assertion((!(andOp_8_out === 1) || andOp_60_out !== 1)) failed: Problem: Overlapping last basic block transition"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_16_out === 1) || andOp_60_out !== 1))) begin $display("assertion((!(andOp_16_out === 1) || andOp_60_out !== 1))"); $finish(); end
+		if (!((!(andOp_16_out === 1) || andOp_60_out !== 1))) begin $display("assertion((!(andOp_16_out === 1) || andOp_60_out !== 1)) failed: Problem: Overlapping block transition"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_16_out === 1) || andOp_8_out !== 1))) begin $display("assertion((!(andOp_16_out === 1) || andOp_8_out !== 1))"); $finish(); end
+		if (!((!(andOp_16_out === 1) || andOp_8_out !== 1))) begin $display("assertion((!(andOp_16_out === 1) || andOp_8_out !== 1)) failed: Problem: Overlapping block transition"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_60_out === 1) || andOp_16_out !== 1))) begin $display("assertion((!(andOp_60_out === 1) || andOp_16_out !== 1))"); $finish(); end
+		if (!((!(andOp_60_out === 1) || andOp_16_out !== 1))) begin $display("assertion((!(andOp_60_out === 1) || andOp_16_out !== 1)) failed: Problem: Overlapping block transition"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_60_out === 1) || andOp_8_out !== 1))) begin $display("assertion((!(andOp_60_out === 1) || andOp_8_out !== 1))"); $finish(); end
+		if (!((!(andOp_60_out === 1) || andOp_8_out !== 1))) begin $display("assertion((!(andOp_60_out === 1) || andOp_8_out !== 1)) failed: Problem: Overlapping block transition"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_8_out === 1) || andOp_16_out !== 1))) begin $display("assertion((!(andOp_8_out === 1) || andOp_16_out !== 1))"); $finish(); end
+		if (!((!(andOp_8_out === 1) || andOp_16_out !== 1))) begin $display("assertion((!(andOp_8_out === 1) || andOp_16_out !== 1)) failed: Problem: Overlapping block transition"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_8_out === 1) || andOp_60_out !== 1))) begin $display("assertion((!(andOp_8_out === 1) || andOp_60_out !== 1))"); $finish(); end
+		if (!((!(andOp_8_out === 1) || andOp_60_out !== 1))) begin $display("assertion((!(andOp_8_out === 1) || andOp_60_out !== 1)) failed: Problem: Overlapping block transition"); $finish(); end
 	end
 
 	always @(posedge clk) begin
@@ -174,19 +174,19 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_79_out) || trunc_trunc21_out !== 20'dx))) begin $display("assertion((!(andOp_79_out) || trunc_trunc21_out !== 20'dx))"); $finish(); end
+		if (!((!(andOp_79_out) || trunc_trunc19_out !== 20'dx))) begin $display("assertion((!(andOp_79_out) || trunc_trunc19_out !== 20'dx))"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_80_out) || add_add20_in0 !== 32'dx)) begin $display("assertion(!(andOp_80_out) || add_add20_in0 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_80_out) || add_add18_in0 !== 32'dx)) begin $display("assertion(!(andOp_80_out) || add_add18_in0 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!(!(andOp_80_out) || add_add20_in1 !== 32'dx)) begin $display("assertion(!(andOp_80_out) || add_add20_in1 !== 32'dx)"); $finish(); end
+		if (!(!(andOp_80_out) || add_add18_in1 !== 32'dx)) begin $display("assertion(!(andOp_80_out) || add_add18_in1 !== 32'dx)"); $finish(); end
 	end
 
 	always @(posedge clk) begin
-		if (!((!(andOp_81_out) || phi_phi16_out !== 'dx))) begin $display("assertion((!(andOp_81_out) || phi_phi16_out !== 'dx))"); $finish(); end
+		if (!((!(andOp_81_out) || phi_phi7_out !== 'dx))) begin $display("assertion((!(andOp_81_out) || phi_phi7_out !== 'dx))"); $finish(); end
 	end
 
 
@@ -197,33 +197,33 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	// Start Functional Units
 	br_dummy br_unit();
 
-	wire [31:0] sext_sext11_in;
-	wire [63:0] sext_sext11_out;
-	sext sext_sext11(.in(sext_sext11_in), .out(sext_sext11_out));
+	wire [39:0] phi_phi7_in;
+	wire [31:0] phi_phi7_last_block;
+	wire [63:0] phi_phi7_s;
+	wire [31:0] phi_phi7_out;
+	phi #(.DEBUG_ID(1), .NB_PAIR(2), .WIDTH(20)) phi_phi7(.in(phi_phi7_in), .last_block(phi_phi7_last_block), .out(phi_phi7_out), .s(phi_phi7_s));
 
-	wire [31:0] icmp_icmp12_in0;
-	wire [31:0] icmp_icmp12_in1;
-	wire [0:0] icmp_icmp12_out;
-	slt #(.WIDTH(32)) icmp_icmp12(.in0(icmp_icmp12_in0), .in1(icmp_icmp12_in1), .out(icmp_icmp12_out));
+	wire [31:0] sext_sext13_in;
+	wire [63:0] sext_sext13_out;
+	sext sext_sext13(.in(sext_sext13_in), .out(sext_sext13_out));
 
-	wire [39:0] phi_phi16_in;
-	wire [31:0] phi_phi16_last_block;
-	wire [63:0] phi_phi16_s;
-	wire [31:0] phi_phi16_out;
-	phi #(.NB_PAIR(2), .WIDTH(20)) phi_phi16(.in(phi_phi16_in), .last_block(phi_phi16_last_block), .out(phi_phi16_out), .s(phi_phi16_s));
+	wire [31:0] icmp_icmp14_in0;
+	wire [31:0] icmp_icmp14_in1;
+	wire [0:0] icmp_icmp14_out;
+	slt #(.WIDTH(32)) icmp_icmp14(.in0(icmp_icmp14_in0), .in1(icmp_icmp14_in1), .out(icmp_icmp14_out));
 
-	wire [31:0] sext_sext19_in;
-	wire [63:0] sext_sext19_out;
-	sext sext_sext19(.in(sext_sext19_in), .out(sext_sext19_out));
+	wire [31:0] sext_sext17_in;
+	wire [63:0] sext_sext17_out;
+	sext sext_sext17(.in(sext_sext17_in), .out(sext_sext17_out));
 
-	wire [31:0] add_add20_in0;
-	wire [31:0] add_add20_in1;
-	wire [31:0] add_add20_out;
-	add #(.WIDTH(32)) add_add20(.in0(add_add20_in0), .in1(add_add20_in1), .out(add_add20_out));
+	wire [31:0] add_add18_in0;
+	wire [31:0] add_add18_in1;
+	wire [31:0] add_add18_out;
+	add #(.WIDTH(32)) add_add18(.in0(add_add18_in0), .in1(add_add18_in1), .out(add_add18_out));
 
-	wire [31:0] trunc_trunc21_in;
-	wire [19:0] trunc_trunc21_out;
-	trunc #(.IN_WIDTH(32), .OUT_WIDTH(20)) trunc_trunc21(.in(trunc_trunc21_in), .out(trunc_trunc21_out));
+	wire [31:0] trunc_trunc19_in;
+	wire [19:0] trunc_trunc19_out;
+	trunc #(.IN_WIDTH(32), .OUT_WIDTH(20)) trunc_trunc19(.in(trunc_trunc19_in), .out(trunc_trunc19_out));
 
 	reg [0:0] bb_0_active_in_state_0_in_data;
 	wire [0:0] bb_0_active_in_state_0_out_data;
@@ -261,14 +261,6 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	wire [0:0] br_0_happened_in_state_2_out_data;
 	hls_wire #(.WIDTH(1)) br_0_happened_in_state_2(.in_data(br_0_happened_in_state_2_in_data), .out_data(br_0_happened_in_state_2_out_data));
 
-	reg [0:0] bb_2_active_in_state_3_in_data;
-	wire [0:0] bb_2_active_in_state_3_out_data;
-	hls_wire #(.WIDTH(1)) bb_2_active_in_state_3(.in_data(bb_2_active_in_state_3_in_data), .out_data(bb_2_active_in_state_3_out_data));
-
-	reg [31:0] bb_2_predecessor_in_state_3_in_data;
-	wire [31:0] bb_2_predecessor_in_state_3_out_data;
-	hls_wire #(.WIDTH(32)) bb_2_predecessor_in_state_3(.in_data(bb_2_predecessor_in_state_3_in_data), .out_data(bb_2_predecessor_in_state_3_out_data));
-
 	reg [0:0] bb_1_active_in_state_3_in_data;
 	wire [0:0] bb_1_active_in_state_3_out_data;
 	hls_wire #(.WIDTH(1)) bb_1_active_in_state_3(.in_data(bb_1_active_in_state_3_in_data), .out_data(bb_1_active_in_state_3_out_data));
@@ -280,6 +272,14 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	reg [0:0] br_1_happened_in_state_3_in_data;
 	wire [0:0] br_1_happened_in_state_3_out_data;
 	hls_wire #(.WIDTH(1)) br_1_happened_in_state_3(.in_data(br_1_happened_in_state_3_in_data), .out_data(br_1_happened_in_state_3_out_data));
+
+	reg [0:0] bb_2_active_in_state_3_in_data;
+	wire [0:0] bb_2_active_in_state_3_out_data;
+	hls_wire #(.WIDTH(1)) bb_2_active_in_state_3(.in_data(bb_2_active_in_state_3_in_data), .out_data(bb_2_active_in_state_3_out_data));
+
+	reg [31:0] bb_2_predecessor_in_state_3_in_data;
+	wire [31:0] bb_2_predecessor_in_state_3_out_data;
+	hls_wire #(.WIDTH(32)) bb_2_predecessor_in_state_3(.in_data(bb_2_predecessor_in_state_3_in_data), .out_data(bb_2_predecessor_in_state_3_out_data));
 
 	reg [19:0] data_in_0_1_in_data;
 	wire [19:0] data_in_0_1_out_data;
@@ -367,15 +367,15 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	wire [0:0] eq_22_out;
 	eq #(.WIDTH(32)) eq_22(.in0(eq_22_in0), .in1(eq_22_in1), .out(eq_22_out));
 
-	wire [0:0] orOp_23_in0;
-	wire [0:0] orOp_23_in1;
-	wire [0:0] orOp_23_out;
-	orOp #(.WIDTH(1)) orOp_23(.in0(orOp_23_in0), .in1(orOp_23_in1), .out(orOp_23_out));
+	wire [31:0] eq_23_in0;
+	wire [31:0] eq_23_in1;
+	wire [0:0] eq_23_out;
+	eq #(.WIDTH(32)) eq_23(.in0(eq_23_in0), .in1(eq_23_in1), .out(eq_23_out));
 
-	wire [31:0] eq_24_in0;
-	wire [31:0] eq_24_in1;
-	wire [0:0] eq_24_out;
-	eq #(.WIDTH(32)) eq_24(.in0(eq_24_in0), .in1(eq_24_in1), .out(eq_24_out));
+	wire [0:0] orOp_24_in0;
+	wire [0:0] orOp_24_in1;
+	wire [0:0] orOp_24_out;
+	orOp #(.WIDTH(1)) orOp_24(.in0(orOp_24_in0), .in1(orOp_24_in1), .out(orOp_24_out));
 
 	wire [31:0] eq_25_in0;
 	wire [31:0] eq_25_in1;
@@ -397,19 +397,19 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	wire [0:0] eq_28_out;
 	eq #(.WIDTH(32)) eq_28(.in0(eq_28_in0), .in1(eq_28_in1), .out(eq_28_out));
 
-	wire [0:0] notOp_29_in0;
-	wire [0:0] notOp_29_out;
-	notOp #(.WIDTH(1)) notOp_29(.in(notOp_29_in0), .out(notOp_29_out));
+	wire [31:0] eq_29_in0;
+	wire [31:0] eq_29_in1;
+	wire [0:0] eq_29_out;
+	eq #(.WIDTH(32)) eq_29(.in0(eq_29_in0), .in1(eq_29_in1), .out(eq_29_out));
 
-	wire [0:0] andOp_30_in0;
-	wire [0:0] andOp_30_in1;
-	wire [0:0] andOp_30_out;
-	andOp #(.WIDTH(1)) andOp_30(.in0(andOp_30_in0), .in1(andOp_30_in1), .out(andOp_30_out));
+	wire [0:0] notOp_30_in0;
+	wire [0:0] notOp_30_out;
+	notOp #(.WIDTH(1)) notOp_30(.in(notOp_30_in0), .out(notOp_30_out));
 
-	wire [31:0] eq_31_in0;
-	wire [31:0] eq_31_in1;
-	wire [0:0] eq_31_out;
-	eq #(.WIDTH(32)) eq_31(.in0(eq_31_in0), .in1(eq_31_in1), .out(eq_31_out));
+	wire [0:0] andOp_31_in0;
+	wire [0:0] andOp_31_in1;
+	wire [0:0] andOp_31_out;
+	andOp #(.WIDTH(1)) andOp_31(.in0(andOp_31_in0), .in1(andOp_31_in1), .out(andOp_31_out));
 
 	wire [0:0] andOp_32_in0;
 	wire [0:0] andOp_32_in1;
@@ -481,25 +481,25 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	wire [0:0] andOp_45_out;
 	andOp #(.WIDTH(1)) andOp_45(.in0(andOp_45_in0), .in1(andOp_45_in1), .out(andOp_45_out));
 
-	wire [0:0] andOp_46_in0;
-	wire [0:0] andOp_46_in1;
-	wire [0:0] andOp_46_out;
-	andOp #(.WIDTH(1)) andOp_46(.in0(andOp_46_in0), .in1(andOp_46_in1), .out(andOp_46_out));
+	wire [19:0] concat_46_in0;
+	wire [19:0] concat_46_in1;
+	wire [39:0] concat_46_out;
+	concat #(.IN0_WIDTH(20), .IN1_WIDTH(20)) concat_46(.in0(concat_46_in0), .in1(concat_46_in1), .out(concat_46_out));
 
-	wire [0:0] andOp_47_in0;
-	wire [0:0] andOp_47_in1;
-	wire [0:0] andOp_47_out;
-	andOp #(.WIDTH(1)) andOp_47(.in0(andOp_47_in0), .in1(andOp_47_in1), .out(andOp_47_out));
+	wire [31:0] concat_47_in0;
+	wire [31:0] concat_47_in1;
+	wire [63:0] concat_47_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_47(.in0(concat_47_in0), .in1(concat_47_in1), .out(concat_47_out));
 
-	wire [19:0] concat_48_in0;
-	wire [19:0] concat_48_in1;
-	wire [39:0] concat_48_out;
-	concat #(.IN0_WIDTH(20), .IN1_WIDTH(20)) concat_48(.in0(concat_48_in0), .in1(concat_48_in1), .out(concat_48_out));
+	wire [0:0] andOp_48_in0;
+	wire [0:0] andOp_48_in1;
+	wire [0:0] andOp_48_out;
+	andOp #(.WIDTH(1)) andOp_48(.in0(andOp_48_in0), .in1(andOp_48_in1), .out(andOp_48_out));
 
-	wire [31:0] concat_49_in0;
-	wire [31:0] concat_49_in1;
-	wire [63:0] concat_49_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_49(.in0(concat_49_in0), .in1(concat_49_in1), .out(concat_49_out));
+	wire [0:0] andOp_49_in0;
+	wire [0:0] andOp_49_in1;
+	wire [0:0] andOp_49_out;
+	andOp #(.WIDTH(1)) andOp_49(.in0(andOp_49_in0), .in1(andOp_49_in1), .out(andOp_49_out));
 
 	wire [0:0] andOp_50_in0;
 	wire [0:0] andOp_50_in1;
@@ -680,11 +680,11 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	reg [31:0] state_3_last_BB_reg;
 	reg [31:0] state_3_last_state;
 
-	// controller for add_add20.add_add20_in0
-	// controller for add_add20.add_add20_in1
+	// controller for add_add18.add_add18_in0
+	// controller for add_add18.add_add18_in1
 	// Insensitive connections
-	assign add_add20_in0 = sext_sext19_out;
-	assign add_add20_in1 = 32'd1;
+	assign add_add18_in0 = sext_sext17_out;
+	assign add_add18_in1 = 32'd1;
 	// controller for andOp_10.andOp_10_in0
 	// controller for andOp_10.andOp_10_in1
 	// Insensitive connections
@@ -704,17 +704,17 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	// controller for andOp_16.andOp_16_in1
 	// Insensitive connections
 	assign andOp_16_in0 = andOp_14_out;
-	assign andOp_16_in1 = icmp_icmp12_out;
+	assign andOp_16_in1 = icmp_icmp14_out;
 	// controller for andOp_18.andOp_18_in0
 	// controller for andOp_18.andOp_18_in1
 	// Insensitive connections
 	assign andOp_18_in0 = andOp_14_out;
 	assign andOp_18_in1 = notOp_17_out;
-	// controller for andOp_30.andOp_30_in0
-	// controller for andOp_30.andOp_30_in1
+	// controller for andOp_31.andOp_31_in0
+	// controller for andOp_31.andOp_31_in1
 	// Insensitive connections
-	assign andOp_30_in0 = notOp_29_out;
-	assign andOp_30_in1 = andOp_18_out;
+	assign andOp_31_in0 = notOp_30_out;
+	assign andOp_31_in1 = andOp_18_out;
 	// controller for andOp_32.andOp_32_in0
 	// controller for andOp_32.andOp_32_in1
 	// Insensitive connections
@@ -778,27 +778,27 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	// controller for andOp_44.andOp_44_in0
 	// controller for andOp_44.andOp_44_in1
 	// Insensitive connections
-	assign andOp_44_in0 = bb_1_active_in_state_3_out_data;
+	assign andOp_44_in0 = bb_2_active_in_state_3_out_data;
 	assign andOp_44_in1 = state_3_is_active;
 	// controller for andOp_45.andOp_45_in0
 	// controller for andOp_45.andOp_45_in1
 	// Insensitive connections
 	assign andOp_45_in0 = bb_1_active_in_state_3_out_data;
 	assign andOp_45_in1 = state_3_is_active;
-	// controller for andOp_46.andOp_46_in0
-	// controller for andOp_46.andOp_46_in1
+	// controller for andOp_48.andOp_48_in0
+	// controller for andOp_48.andOp_48_in1
 	// Insensitive connections
-	assign andOp_46_in0 = bb_1_active_in_state_3_out_data;
-	assign andOp_46_in1 = state_3_is_active;
-	// controller for andOp_47.andOp_47_in0
-	// controller for andOp_47.andOp_47_in1
+	assign andOp_48_in0 = bb_1_active_in_state_3_out_data;
+	assign andOp_48_in1 = state_3_is_active;
+	// controller for andOp_49.andOp_49_in0
+	// controller for andOp_49.andOp_49_in1
 	// Insensitive connections
-	assign andOp_47_in0 = bb_1_active_in_state_3_out_data;
-	assign andOp_47_in1 = state_3_is_active;
+	assign andOp_49_in0 = bb_1_active_in_state_3_out_data;
+	assign andOp_49_in1 = state_3_is_active;
 	// controller for andOp_50.andOp_50_in0
 	// controller for andOp_50.andOp_50_in1
 	// Insensitive connections
-	assign andOp_50_in0 = bb_2_active_in_state_3_out_data;
+	assign andOp_50_in0 = bb_1_active_in_state_3_out_data;
 	assign andOp_50_in1 = state_3_is_active;
 	// controller for andOp_51.andOp_51_in0
 	// controller for andOp_51.andOp_51_in1
@@ -914,7 +914,7 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	end
 	// controller for arg_0.arg_0_word0_reg
 	always @(*) begin
-		if (andOp_37_out) begin 
+		if (andOp_35_out) begin 
 			arg_0_word0_reg = arg_1_out_wire;
 		end else begin
 			arg_0_word0_reg = 0;
@@ -922,7 +922,7 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	end
 	// controller for arg_0.arg_0_word1_reg
 	always @(*) begin
-		if (andOp_39_out) begin 
+		if (andOp_37_out) begin 
 			arg_0_word1_reg = arg_2_out_wire;
 		end else begin
 			arg_0_word1_reg = 0;
@@ -930,7 +930,7 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	end
 	// controller for arg_0.arg_0_word2_reg
 	always @(*) begin
-		if (andOp_35_out) begin 
+		if (andOp_38_out) begin 
 			arg_0_word2_reg = arg_3_out_wire;
 		end else begin
 			arg_0_word2_reg = 0;
@@ -946,7 +946,7 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	end
 	// controller for arg_5.arg_5_in_wire_reg
 	always @(*) begin
-		if (andOp_55_out) begin 
+		if (andOp_43_out) begin 
 			arg_5_in_wire_reg = arg_0_pixel2;
 		end else begin
 			arg_5_in_wire_reg = 0;
@@ -954,7 +954,7 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	end
 	// controller for arg_6.arg_6_in_wire_reg
 	always @(*) begin
-		if (andOp_45_out) begin 
+		if (andOp_42_out) begin 
 			arg_6_in_wire_reg = arg_0_pixel3;
 		end else begin
 			arg_6_in_wire_reg = 0;
@@ -962,7 +962,7 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	end
 	// controller for arg_7.arg_7_in_wire_reg
 	always @(*) begin
-		if (andOp_54_out) begin 
+		if (andOp_55_out) begin 
 			arg_7_in_wire_reg = arg_0_pixel4;
 		end else begin
 			arg_7_in_wire_reg = 0;
@@ -1019,14 +1019,14 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	// controller for bb_1_active_in_state_3.bb_1_active_in_state_3_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_1_active_in_state_3_in_data = eq_24_out;
+			bb_1_active_in_state_3_in_data = eq_22_out;
 		end else begin
 			bb_1_active_in_state_3_in_data = 0;
 		end
 	end
 	// controller for bb_1_predecessor_in_state_3.bb_1_predecessor_in_state_3_in_data
 	always @(*) begin
-		if (eq_31_out) begin 
+		if (eq_28_out) begin 
 			bb_1_predecessor_in_state_3_in_data = state_3_last_BB_reg;
 		end else begin
 			bb_1_predecessor_in_state_3_in_data = 0;
@@ -1035,16 +1035,16 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	// controller for bb_2_active_in_state_3.bb_2_active_in_state_3_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_2_active_in_state_3_in_data = orOp_23_out;
+			bb_2_active_in_state_3_in_data = orOp_24_out;
 		end else begin
 			bb_2_active_in_state_3_in_data = 0;
 		end
 	end
 	// controller for bb_2_predecessor_in_state_3.bb_2_predecessor_in_state_3_in_data
 	always @(*) begin
-		if (andOp_30_out) begin 
+		if (andOp_31_out) begin 
 			bb_2_predecessor_in_state_3_in_data = 32'd1;
-		end else if (eq_28_out) begin 
+		end else if (eq_29_out) begin 
 			bb_2_predecessor_in_state_3_in_data = state_3_last_BB_reg;
 		end else begin
 			bb_2_predecessor_in_state_3_in_data = 0;
@@ -1090,16 +1090,16 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 			br_1_happened_in_state_3_in_data = 0;
 		end
 	end
-	// controller for concat_48.concat_48_in0
-	// controller for concat_48.concat_48_in1
+	// controller for concat_46.concat_46_in0
+	// controller for concat_46.concat_46_in1
 	// Insensitive connections
-	assign concat_48_in0 = 20'd0;
-	assign concat_48_in1 = data_in_3_7_out_data;
-	// controller for concat_49.concat_49_in0
-	// controller for concat_49.concat_49_in1
+	assign concat_46_in0 = 20'd0;
+	assign concat_46_in1 = data_in_3_7_out_data;
+	// controller for concat_47.concat_47_in0
+	// controller for concat_47.concat_47_in1
 	// Insensitive connections
-	assign concat_49_in0 = 32'd0;
-	assign concat_49_in1 = 32'd1;
+	assign concat_47_in0 = 32'd0;
+	assign concat_47_in1 = 32'd1;
 	// controller for data_in_0_1.data_in_0_1_in_data
 	always @(*) begin
 		if (eq_71_out) begin 
@@ -1156,13 +1156,13 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	// controller for eq_22.eq_22_in0
 	// controller for eq_22.eq_22_in1
 	// Insensitive connections
-	assign eq_22_in0 = 32'd2;
+	assign eq_22_in0 = 32'd1;
 	assign eq_22_in1 = state_3_entry_BB_reg;
-	// controller for eq_24.eq_24_in0
-	// controller for eq_24.eq_24_in1
+	// controller for eq_23.eq_23_in0
+	// controller for eq_23.eq_23_in1
 	// Insensitive connections
-	assign eq_24_in0 = 32'd1;
-	assign eq_24_in1 = state_3_entry_BB_reg;
+	assign eq_23_in0 = 32'd2;
+	assign eq_23_in1 = state_3_entry_BB_reg;
 	// controller for eq_25.eq_25_in0
 	// controller for eq_25.eq_25_in1
 	// Insensitive connections
@@ -1181,13 +1181,13 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	// controller for eq_28.eq_28_in0
 	// controller for eq_28.eq_28_in1
 	// Insensitive connections
-	assign eq_28_in0 = 32'd2;
+	assign eq_28_in0 = 32'd1;
 	assign eq_28_in1 = state_3_entry_BB_reg;
-	// controller for eq_31.eq_31_in0
-	// controller for eq_31.eq_31_in1
+	// controller for eq_29.eq_29_in0
+	// controller for eq_29.eq_29_in1
 	// Insensitive connections
-	assign eq_31_in0 = 32'd1;
-	assign eq_31_in1 = state_3_entry_BB_reg;
+	assign eq_29_in0 = 32'd2;
+	assign eq_29_in1 = state_3_entry_BB_reg;
 	// controller for eq_71.eq_71_in0
 	// controller for eq_71.eq_71_in1
 	// Insensitive connections
@@ -1223,11 +1223,11 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	// Insensitive connections
 	assign eq_77_in0 = 32'd3;
 	assign eq_77_in1 = state_3_last_state;
-	// controller for icmp_icmp12.icmp_icmp12_in0
-	// controller for icmp_icmp12.icmp_icmp12_in1
+	// controller for icmp_icmp14.icmp_icmp14_in0
+	// controller for icmp_icmp14.icmp_icmp14_in1
 	// Insensitive connections
-	assign icmp_icmp12_in0 = sext_sext11_out;
-	assign icmp_icmp12_in1 = 32'd101125;
+	assign icmp_icmp14_in0 = sext_sext13_out;
+	assign icmp_icmp14_in1 = 32'd101125;
 	// controller for notOp_11.notOp_11_in0
 	// Insensitive connections
 	assign notOp_11_in0 = andOp_10_out;
@@ -1239,10 +1239,10 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	assign notOp_15_in0 = andOp_14_out;
 	// controller for notOp_17.notOp_17_in0
 	// Insensitive connections
-	assign notOp_17_in0 = icmp_icmp12_out;
-	// controller for notOp_29.notOp_29_in0
+	assign notOp_17_in0 = icmp_icmp14_out;
+	// controller for notOp_30.notOp_30_in0
 	// Insensitive connections
-	assign notOp_29_in0 = eq_28_out;
+	assign notOp_30_in0 = eq_29_out;
 	// controller for notOp_61.notOp_61_in0
 	// Insensitive connections
 	assign notOp_61_in0 = andOp_58_out;
@@ -1261,35 +1261,35 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 	// controller for notOp_9.notOp_9_in0
 	// Insensitive connections
 	assign notOp_9_in0 = andOp_8_out;
-	// controller for orOp_23.orOp_23_in0
-	// controller for orOp_23.orOp_23_in1
+	// controller for orOp_24.orOp_24_in0
+	// controller for orOp_24.orOp_24_in1
 	// Insensitive connections
-	assign orOp_23_in0 = eq_22_out;
-	assign orOp_23_in1 = andOp_18_out;
-	// controller for phi_phi16.phi_phi16_in
-	// controller for phi_phi16.phi_phi16_last_block
-	// controller for phi_phi16.phi_phi16_s
+	assign orOp_24_in0 = eq_23_out;
+	assign orOp_24_in1 = andOp_18_out;
+	// controller for phi_phi7.phi_phi7_in
+	// controller for phi_phi7.phi_phi7_last_block
+	// controller for phi_phi7.phi_phi7_s
 	// Insensitive connections
-	assign phi_phi16_in = concat_48_out;
-	assign phi_phi16_last_block = bb_1_predecessor_in_state_3_out_data;
-	assign phi_phi16_s = concat_49_out;
-	// controller for ret17.valid_reg
+	assign phi_phi7_in = concat_46_out;
+	assign phi_phi7_last_block = bb_1_predecessor_in_state_3_out_data;
+	assign phi_phi7_s = concat_47_out;
+	// controller for ret6.valid_reg
 	always @(*) begin
-		if (andOp_50_out) begin 
+		if (andOp_44_out) begin 
 			valid_reg = 1'd1;
 		end else begin
 			valid_reg = 0;
 		end
 	end
-	// controller for sext_sext11.sext_sext11_in
+	// controller for sext_sext13.sext_sext13_in
 	// Insensitive connections
-	assign sext_sext11_in = trunc_trunc21_out;
-	// controller for sext_sext19.sext_sext19_in
+	assign sext_sext13_in = trunc_trunc19_out;
+	// controller for sext_sext17.sext_sext17_in
 	// Insensitive connections
-	assign sext_sext19_in = phi_phi16_out;
-	// controller for trunc_trunc21.trunc_trunc21_in
+	assign sext_sext17_in = phi_phi7_out;
+	// controller for trunc_trunc19.trunc_trunc19_in
 	// Insensitive connections
-	assign trunc_trunc21_in = add_add20_out;
+	assign trunc_trunc19_in = add_add18_out;
 	// Register controllers
 	always @(posedge clk) begin
 		if (rst) begin
@@ -1326,7 +1326,7 @@ module run_median_func(input [0:0] clk, input [0:0] rst, output [0:0] valid, inp
 			data_store_3_6 <= 0;
 		end else begin
 			if (andOp_78_out) begin
-				data_store_3_6 <= trunc_trunc21_out;
+				data_store_3_6 <= trunc_trunc19_out;
 			end
 		end
 	end

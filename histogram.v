@@ -59,19 +59,19 @@ module histogram(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [8
 	wire [31:0] phi_phi1_last_block;
 	wire [63:0] phi_phi1_s;
 	wire [31:0] phi_phi1_out;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi1(.in(phi_phi1_in), .last_block(phi_phi1_last_block), .out(phi_phi1_out), .s(phi_phi1_s));
+	phi #(.DEBUG_ID(1), .NB_PAIR(2), .WIDTH(32)) phi_phi1(.in(phi_phi1_in), .last_block(phi_phi1_last_block), .out(phi_phi1_out), .s(phi_phi1_s));
 
 	wire [63:0] phi_phi12_in;
 	wire [31:0] phi_phi12_last_block;
 	wire [63:0] phi_phi12_s;
 	wire [31:0] phi_phi12_out;
-	phi #(.NB_PAIR(2), .WIDTH(32)) phi_phi12(.in(phi_phi12_in), .last_block(phi_phi12_last_block), .out(phi_phi12_out), .s(phi_phi12_s));
+	phi #(.DEBUG_ID(2), .NB_PAIR(2), .WIDTH(32)) phi_phi12(.in(phi_phi12_in), .last_block(phi_phi12_last_block), .out(phi_phi12_out), .s(phi_phi12_s));
 
 	wire [15:0] phi_phi7_in;
 	wire [31:0] phi_phi7_last_block;
 	wire [63:0] phi_phi7_s;
 	wire [31:0] phi_phi7_out;
-	phi #(.NB_PAIR(2), .WIDTH(8)) phi_phi7(.in(phi_phi7_in), .last_block(phi_phi7_last_block), .out(phi_phi7_out), .s(phi_phi7_s));
+	phi #(.DEBUG_ID(3), .NB_PAIR(2), .WIDTH(8)) phi_phi7(.in(phi_phi7_in), .last_block(phi_phi7_last_block), .out(phi_phi7_out), .s(phi_phi7_s));
 
 	wire [31:0] add_add2_in0;
 	wire [31:0] add_add2_in1;
