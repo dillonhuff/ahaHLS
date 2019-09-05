@@ -71,7 +71,18 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// End debug wires and ports
 
 	// Start Functional Units
+	wire [63:0] phi_phi2_in;
+	wire [31:0] phi_phi2_last_block;
+	wire [63:0] phi_phi2_s;
+	wire [31:0] phi_phi2_out;
+	phi #(.DEBUG_ID(1), .NB_PAIR(2), .WIDTH(32)) phi_phi2(.in(phi_phi2_in), .last_block(phi_phi2_last_block), .out(phi_phi2_out), .s(phi_phi2_s));
+
 	br_dummy br_unit();
+
+	wire [31:0] shl_shl3_in0;
+	wire [31:0] shl_shl3_in1;
+	wire [31:0] shl_shl3_out;
+	shlOp #(.WIDTH(32)) shl_shl3(.in0(shl_shl3_in0), .in1(shl_shl3_in1), .out(shl_shl3_out));
 
 	wire [31:0] add_add17_in0;
 	wire [31:0] add_add17_in1;
@@ -83,42 +94,31 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	wire [0:0] icmp_icmp18_out;
 	eq #(.WIDTH(32)) icmp_icmp18(.in0(icmp_icmp18_in0), .in1(icmp_icmp18_in1), .out(icmp_icmp18_out));
 
-	wire [63:0] phi_phi2_in;
-	wire [31:0] phi_phi2_last_block;
-	wire [63:0] phi_phi2_s;
-	wire [31:0] phi_phi2_out;
-	phi #(.DEBUG_ID(1), .NB_PAIR(2), .WIDTH(32)) phi_phi2(.in(phi_phi2_in), .last_block(phi_phi2_last_block), .out(phi_phi2_out), .s(phi_phi2_s));
+	wire [63:0] phi_phi5_in;
+	wire [31:0] phi_phi5_last_block;
+	wire [63:0] phi_phi5_s;
+	wire [31:0] phi_phi5_out;
+	phi #(.DEBUG_ID(2), .NB_PAIR(2), .WIDTH(32)) phi_phi5(.in(phi_phi5_in), .last_block(phi_phi5_last_block), .out(phi_phi5_out), .s(phi_phi5_s));
 
-	wire [31:0] add_add3_in0;
-	wire [31:0] add_add3_in1;
-	wire [31:0] add_add3_out;
-	add #(.WIDTH(32)) add_add3(.in0(add_add3_in0), .in1(add_add3_in1), .out(add_add3_out));
+	wire [31:0] add_add6_in0;
+	wire [31:0] add_add6_in1;
+	wire [31:0] add_add6_out;
+	add #(.WIDTH(32)) add_add6(.in0(add_add6_in0), .in1(add_add6_in1), .out(add_add6_out));
 
-	wire [31:0] add_add15_in0;
-	wire [31:0] add_add15_in1;
-	wire [31:0] add_add15_out;
-	add #(.WIDTH(32)) add_add15(.in0(add_add15_in0), .in1(add_add15_in1), .out(add_add15_out));
+	wire [31:0] add_add13_in0;
+	wire [31:0] add_add13_in1;
+	wire [31:0] add_add13_out;
+	add #(.WIDTH(32)) add_add13(.in0(add_add13_in0), .in1(add_add13_in1), .out(add_add13_out));
 
-	wire [31:0] add_add4_in0;
-	wire [31:0] add_add4_in1;
-	wire [31:0] add_add4_out;
-	add #(.WIDTH(32)) add_add4(.in0(add_add4_in0), .in1(add_add4_in1), .out(add_add4_out));
+	wire [31:0] add_add7_in0;
+	wire [31:0] add_add7_in1;
+	wire [31:0] add_add7_out;
+	add #(.WIDTH(32)) add_add7(.in0(add_add7_in0), .in1(add_add7_in1), .out(add_add7_out));
 
-	wire [31:0] icmp_icmp5_in0;
-	wire [31:0] icmp_icmp5_in1;
-	wire [0:0] icmp_icmp5_out;
-	eq #(.WIDTH(32)) icmp_icmp5(.in0(icmp_icmp5_in0), .in1(icmp_icmp5_in1), .out(icmp_icmp5_out));
-
-	wire [63:0] phi_phi7_in;
-	wire [31:0] phi_phi7_last_block;
-	wire [63:0] phi_phi7_s;
-	wire [31:0] phi_phi7_out;
-	phi #(.DEBUG_ID(2), .NB_PAIR(2), .WIDTH(32)) phi_phi7(.in(phi_phi7_in), .last_block(phi_phi7_last_block), .out(phi_phi7_out), .s(phi_phi7_s));
-
-	wire [31:0] shl_shl8_in0;
-	wire [31:0] shl_shl8_in1;
-	wire [31:0] shl_shl8_out;
-	shlOp #(.WIDTH(32)) shl_shl8(.in0(shl_shl8_in0), .in1(shl_shl8_in1), .out(shl_shl8_out));
+	wire [31:0] icmp_icmp8_in0;
+	wire [31:0] icmp_icmp8_in1;
+	wire [0:0] icmp_icmp8_out;
+	eq #(.WIDTH(32)) icmp_icmp8(.in0(icmp_icmp8_in0), .in1(icmp_icmp8_in1), .out(icmp_icmp8_out));
 
 	reg [0:0] bb_0_active_in_state_0_in_data;
 	wire [0:0] bb_0_active_in_state_0_out_data;
@@ -132,18 +132,6 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	wire [0:0] br_0_happened_in_state_0_out_data;
 	hls_wire #(.WIDTH(1)) br_0_happened_in_state_0(.in_data(br_0_happened_in_state_0_in_data), .out_data(br_0_happened_in_state_0_out_data));
 
-	reg [0:0] bb_4_active_in_state_1_in_data;
-	wire [0:0] bb_4_active_in_state_1_out_data;
-	hls_wire #(.WIDTH(1)) bb_4_active_in_state_1(.in_data(bb_4_active_in_state_1_in_data), .out_data(bb_4_active_in_state_1_out_data));
-
-	reg [31:0] bb_4_predecessor_in_state_1_in_data;
-	wire [31:0] bb_4_predecessor_in_state_1_out_data;
-	hls_wire #(.WIDTH(32)) bb_4_predecessor_in_state_1(.in_data(bb_4_predecessor_in_state_1_in_data), .out_data(bb_4_predecessor_in_state_1_out_data));
-
-	reg [0:0] br_4_happened_in_state_1_in_data;
-	wire [0:0] br_4_happened_in_state_1_out_data;
-	hls_wire #(.WIDTH(1)) br_4_happened_in_state_1(.in_data(br_4_happened_in_state_1_in_data), .out_data(br_4_happened_in_state_1_out_data));
-
 	reg [0:0] bb_1_active_in_state_1_in_data;
 	wire [0:0] bb_1_active_in_state_1_out_data;
 	hls_wire #(.WIDTH(1)) bb_1_active_in_state_1(.in_data(bb_1_active_in_state_1_in_data), .out_data(bb_1_active_in_state_1_out_data));
@@ -155,6 +143,18 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	reg [0:0] br_1_happened_in_state_1_in_data;
 	wire [0:0] br_1_happened_in_state_1_out_data;
 	hls_wire #(.WIDTH(1)) br_1_happened_in_state_1(.in_data(br_1_happened_in_state_1_in_data), .out_data(br_1_happened_in_state_1_out_data));
+
+	reg [0:0] bb_4_active_in_state_1_in_data;
+	wire [0:0] bb_4_active_in_state_1_out_data;
+	hls_wire #(.WIDTH(1)) bb_4_active_in_state_1(.in_data(bb_4_active_in_state_1_in_data), .out_data(bb_4_active_in_state_1_out_data));
+
+	reg [31:0] bb_4_predecessor_in_state_1_in_data;
+	wire [31:0] bb_4_predecessor_in_state_1_out_data;
+	hls_wire #(.WIDTH(32)) bb_4_predecessor_in_state_1(.in_data(bb_4_predecessor_in_state_1_in_data), .out_data(bb_4_predecessor_in_state_1_out_data));
+
+	reg [0:0] br_4_happened_in_state_1_in_data;
+	wire [0:0] br_4_happened_in_state_1_out_data;
+	hls_wire #(.WIDTH(1)) br_4_happened_in_state_1(.in_data(br_4_happened_in_state_1_in_data), .out_data(br_4_happened_in_state_1_out_data));
 
 	reg [0:0] bb_4_active_in_state_2_in_data;
 	wire [0:0] bb_4_active_in_state_2_out_data;
@@ -204,18 +204,6 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	wire [0:0] br_4_happened_in_state_5_out_data;
 	hls_wire #(.WIDTH(1)) br_4_happened_in_state_5(.in_data(br_4_happened_in_state_5_in_data), .out_data(br_4_happened_in_state_5_out_data));
 
-	reg [0:0] bb_4_active_in_state_6_in_data;
-	wire [0:0] bb_4_active_in_state_6_out_data;
-	hls_wire #(.WIDTH(1)) bb_4_active_in_state_6(.in_data(bb_4_active_in_state_6_in_data), .out_data(bb_4_active_in_state_6_out_data));
-
-	reg [31:0] bb_4_predecessor_in_state_6_in_data;
-	wire [31:0] bb_4_predecessor_in_state_6_out_data;
-	hls_wire #(.WIDTH(32)) bb_4_predecessor_in_state_6(.in_data(bb_4_predecessor_in_state_6_in_data), .out_data(bb_4_predecessor_in_state_6_out_data));
-
-	reg [0:0] br_4_happened_in_state_6_in_data;
-	wire [0:0] br_4_happened_in_state_6_out_data;
-	hls_wire #(.WIDTH(1)) br_4_happened_in_state_6(.in_data(br_4_happened_in_state_6_in_data), .out_data(br_4_happened_in_state_6_out_data));
-
 	reg [0:0] bb_3_active_in_state_6_in_data;
 	wire [0:0] bb_3_active_in_state_6_out_data;
 	hls_wire #(.WIDTH(1)) bb_3_active_in_state_6(.in_data(bb_3_active_in_state_6_in_data), .out_data(bb_3_active_in_state_6_out_data));
@@ -227,6 +215,18 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	reg [0:0] br_3_happened_in_state_6_in_data;
 	wire [0:0] br_3_happened_in_state_6_out_data;
 	hls_wire #(.WIDTH(1)) br_3_happened_in_state_6(.in_data(br_3_happened_in_state_6_in_data), .out_data(br_3_happened_in_state_6_out_data));
+
+	reg [0:0] bb_4_active_in_state_6_in_data;
+	wire [0:0] bb_4_active_in_state_6_out_data;
+	hls_wire #(.WIDTH(1)) bb_4_active_in_state_6(.in_data(bb_4_active_in_state_6_in_data), .out_data(bb_4_active_in_state_6_out_data));
+
+	reg [31:0] bb_4_predecessor_in_state_6_in_data;
+	wire [31:0] bb_4_predecessor_in_state_6_out_data;
+	hls_wire #(.WIDTH(32)) bb_4_predecessor_in_state_6(.in_data(bb_4_predecessor_in_state_6_in_data), .out_data(bb_4_predecessor_in_state_6_out_data));
+
+	reg [0:0] br_4_happened_in_state_6_in_data;
+	wire [0:0] br_4_happened_in_state_6_out_data;
+	hls_wire #(.WIDTH(1)) br_4_happened_in_state_6(.in_data(br_4_happened_in_state_6_in_data), .out_data(br_4_happened_in_state_6_out_data));
 
 	reg [0:0] bb_2_active_in_state_7_in_data;
 	wire [0:0] bb_2_active_in_state_7_out_data;
@@ -256,41 +256,41 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	wire [31:0] data_in_1_9_out_data;
 	hls_wire #(.WIDTH(32)) data_in_1_9(.in_data(data_in_1_9_in_data), .out_data(data_in_1_9_out_data));
 
-	reg [31:0] data_in_1_12_in_data;
-	wire [31:0] data_in_1_12_out_data;
-	hls_wire #(.WIDTH(32)) data_in_1_12(.in_data(data_in_1_12_in_data), .out_data(data_in_1_12_out_data));
+	reg [31:0] data_in_1_11_in_data;
+	wire [31:0] data_in_1_11_out_data;
+	hls_wire #(.WIDTH(32)) data_in_1_11(.in_data(data_in_1_11_in_data), .out_data(data_in_1_11_out_data));
 
-	reg [31:0] data_in_1_14_in_data;
-	wire [31:0] data_in_1_14_out_data;
-	hls_wire #(.WIDTH(32)) data_in_1_14(.in_data(data_in_1_14_in_data), .out_data(data_in_1_14_out_data));
+	reg [31:0] data_in_1_13_in_data;
+	wire [31:0] data_in_1_13_out_data;
+	hls_wire #(.WIDTH(32)) data_in_1_13(.in_data(data_in_1_13_in_data), .out_data(data_in_1_13_out_data));
 
 	reg [31:0] data_in_1_16_in_data;
 	wire [31:0] data_in_1_16_out_data;
 	hls_wire #(.WIDTH(32)) data_in_1_16(.in_data(data_in_1_16_in_data), .out_data(data_in_1_16_out_data));
 
-	reg [31:0] data_in_2_18_in_data;
-	wire [31:0] data_in_2_18_out_data;
-	hls_wire #(.WIDTH(32)) data_in_2_18(.in_data(data_in_2_18_in_data), .out_data(data_in_2_18_out_data));
+	reg [31:0] data_in_2_19_in_data;
+	wire [31:0] data_in_2_19_out_data;
+	hls_wire #(.WIDTH(32)) data_in_2_19(.in_data(data_in_2_19_in_data), .out_data(data_in_2_19_out_data));
 
-	reg [31:0] data_in_2_20_in_data;
-	wire [31:0] data_in_2_20_out_data;
-	hls_wire #(.WIDTH(32)) data_in_2_20(.in_data(data_in_2_20_in_data), .out_data(data_in_2_20_out_data));
+	reg [31:0] data_in_2_21_in_data;
+	wire [31:0] data_in_2_21_out_data;
+	hls_wire #(.WIDTH(32)) data_in_2_21(.in_data(data_in_2_21_in_data), .out_data(data_in_2_21_out_data));
 
-	reg [31:0] data_in_2_22_in_data;
-	wire [31:0] data_in_2_22_out_data;
-	hls_wire #(.WIDTH(32)) data_in_2_22(.in_data(data_in_2_22_in_data), .out_data(data_in_2_22_out_data));
+	reg [31:0] data_in_2_23_in_data;
+	wire [31:0] data_in_2_23_out_data;
+	hls_wire #(.WIDTH(32)) data_in_2_23(.in_data(data_in_2_23_in_data), .out_data(data_in_2_23_out_data));
 
-	reg [31:0] data_in_2_24_in_data;
-	wire [31:0] data_in_2_24_out_data;
-	hls_wire #(.WIDTH(32)) data_in_2_24(.in_data(data_in_2_24_in_data), .out_data(data_in_2_24_out_data));
+	reg [31:0] data_in_2_25_in_data;
+	wire [31:0] data_in_2_25_out_data;
+	hls_wire #(.WIDTH(32)) data_in_2_25(.in_data(data_in_2_25_in_data), .out_data(data_in_2_25_out_data));
 
-	reg [31:0] data_in_2_26_in_data;
-	wire [31:0] data_in_2_26_out_data;
-	hls_wire #(.WIDTH(32)) data_in_2_26(.in_data(data_in_2_26_in_data), .out_data(data_in_2_26_out_data));
+	reg [31:0] data_in_2_27_in_data;
+	wire [31:0] data_in_2_27_out_data;
+	hls_wire #(.WIDTH(32)) data_in_2_27(.in_data(data_in_2_27_in_data), .out_data(data_in_2_27_out_data));
 
-	reg [31:0] data_in_3_29_in_data;
-	wire [31:0] data_in_3_29_out_data;
-	hls_wire #(.WIDTH(32)) data_in_3_29(.in_data(data_in_3_29_in_data), .out_data(data_in_3_29_out_data));
+	reg [31:0] data_in_3_28_in_data;
+	wire [31:0] data_in_3_28_out_data;
+	hls_wire #(.WIDTH(32)) data_in_3_28(.in_data(data_in_3_28_in_data), .out_data(data_in_3_28_out_data));
 
 	reg [31:0] data_in_3_30_in_data;
 	wire [31:0] data_in_3_30_out_data;
@@ -304,9 +304,9 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	wire [31:0] data_in_3_34_out_data;
 	hls_wire #(.WIDTH(32)) data_in_3_34(.in_data(data_in_3_34_in_data), .out_data(data_in_3_34_out_data));
 
-	reg [31:0] data_in_3_36_in_data;
-	wire [31:0] data_in_3_36_out_data;
-	hls_wire #(.WIDTH(32)) data_in_3_36(.in_data(data_in_3_36_in_data), .out_data(data_in_3_36_out_data));
+	reg [31:0] data_in_3_35_in_data;
+	wire [31:0] data_in_3_35_out_data;
+	hls_wire #(.WIDTH(32)) data_in_3_35(.in_data(data_in_3_35_in_data), .out_data(data_in_3_35_out_data));
 
 	reg [31:0] data_in_3_37_in_data;
 	wire [31:0] data_in_3_37_out_data;
@@ -392,14 +392,14 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	wire [0:0] andOp_68_out;
 	andOp #(.WIDTH(1)) andOp_68(.in0(andOp_68_in0), .in1(andOp_68_in1), .out(andOp_68_out));
 
-	wire [0:0] andOp_69_in0;
-	wire [0:0] andOp_69_in1;
-	wire [0:0] andOp_69_out;
-	andOp #(.WIDTH(1)) andOp_69(.in0(andOp_69_in0), .in1(andOp_69_in1), .out(andOp_69_out));
+	wire [0:0] notOp_69_in0;
+	wire [0:0] notOp_69_out;
+	notOp #(.WIDTH(1)) notOp_69(.in(notOp_69_in0), .out(notOp_69_out));
 
-	wire [0:0] notOp_70_in0;
-	wire [0:0] notOp_70_out;
-	notOp #(.WIDTH(1)) notOp_70(.in(notOp_70_in0), .out(notOp_70_out));
+	wire [0:0] andOp_70_in0;
+	wire [0:0] andOp_70_in1;
+	wire [0:0] andOp_70_out;
+	andOp #(.WIDTH(1)) andOp_70(.in0(andOp_70_in0), .in1(andOp_70_in1), .out(andOp_70_out));
 
 	wire [0:0] andOp_71_in0;
 	wire [0:0] andOp_71_in1;
@@ -549,15 +549,15 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	wire [0:0] eq_102_out;
 	eq #(.WIDTH(32)) eq_102(.in0(eq_102_in0), .in1(eq_102_in1), .out(eq_102_out));
 
-	wire [0:0] orOp_103_in0;
-	wire [0:0] orOp_103_in1;
-	wire [0:0] orOp_103_out;
-	orOp #(.WIDTH(1)) orOp_103(.in0(orOp_103_in0), .in1(orOp_103_in1), .out(orOp_103_out));
+	wire [31:0] eq_103_in0;
+	wire [31:0] eq_103_in1;
+	wire [0:0] eq_103_out;
+	eq #(.WIDTH(32)) eq_103(.in0(eq_103_in0), .in1(eq_103_in1), .out(eq_103_out));
 
-	wire [31:0] eq_104_in0;
-	wire [31:0] eq_104_in1;
-	wire [0:0] eq_104_out;
-	eq #(.WIDTH(32)) eq_104(.in0(eq_104_in0), .in1(eq_104_in1), .out(eq_104_out));
+	wire [0:0] orOp_104_in0;
+	wire [0:0] orOp_104_in1;
+	wire [0:0] orOp_104_out;
+	orOp #(.WIDTH(1)) orOp_104(.in0(orOp_104_in0), .in1(orOp_104_in1), .out(orOp_104_out));
 
 	wire [31:0] eq_105_in0;
 	wire [31:0] eq_105_in1;
@@ -584,15 +584,15 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	wire [0:0] eq_109_out;
 	eq #(.WIDTH(32)) eq_109(.in0(eq_109_in0), .in1(eq_109_in1), .out(eq_109_out));
 
-	wire [31:0] eq_110_in0;
-	wire [31:0] eq_110_in1;
-	wire [0:0] eq_110_out;
-	eq #(.WIDTH(32)) eq_110(.in0(eq_110_in0), .in1(eq_110_in1), .out(eq_110_out));
+	wire [0:0] orOp_110_in0;
+	wire [0:0] orOp_110_in1;
+	wire [0:0] orOp_110_out;
+	orOp #(.WIDTH(1)) orOp_110(.in0(orOp_110_in0), .in1(orOp_110_in1), .out(orOp_110_out));
 
-	wire [0:0] orOp_111_in0;
-	wire [0:0] orOp_111_in1;
-	wire [0:0] orOp_111_out;
-	orOp #(.WIDTH(1)) orOp_111(.in0(orOp_111_in0), .in1(orOp_111_in1), .out(orOp_111_out));
+	wire [31:0] eq_111_in0;
+	wire [31:0] eq_111_in1;
+	wire [0:0] eq_111_out;
+	eq #(.WIDTH(32)) eq_111(.in0(eq_111_in0), .in1(eq_111_in1), .out(eq_111_out));
 
 	wire [31:0] eq_112_in0;
 	wire [31:0] eq_112_in1;
@@ -609,19 +609,19 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	wire [0:0] eq_114_out;
 	eq #(.WIDTH(32)) eq_114(.in0(eq_114_in0), .in1(eq_114_in1), .out(eq_114_out));
 
-	wire [0:0] notOp_115_in0;
-	wire [0:0] notOp_115_out;
-	notOp #(.WIDTH(1)) notOp_115(.in(notOp_115_in0), .out(notOp_115_out));
+	wire [31:0] eq_115_in0;
+	wire [31:0] eq_115_in1;
+	wire [0:0] eq_115_out;
+	eq #(.WIDTH(32)) eq_115(.in0(eq_115_in0), .in1(eq_115_in1), .out(eq_115_out));
 
-	wire [0:0] andOp_116_in0;
-	wire [0:0] andOp_116_in1;
-	wire [0:0] andOp_116_out;
-	andOp #(.WIDTH(1)) andOp_116(.in0(andOp_116_in0), .in1(andOp_116_in1), .out(andOp_116_out));
+	wire [0:0] notOp_116_in0;
+	wire [0:0] notOp_116_out;
+	notOp #(.WIDTH(1)) notOp_116(.in(notOp_116_in0), .out(notOp_116_out));
 
-	wire [31:0] eq_117_in0;
-	wire [31:0] eq_117_in1;
-	wire [0:0] eq_117_out;
-	eq #(.WIDTH(32)) eq_117(.in0(eq_117_in0), .in1(eq_117_in1), .out(eq_117_out));
+	wire [0:0] andOp_117_in0;
+	wire [0:0] andOp_117_in1;
+	wire [0:0] andOp_117_out;
+	andOp #(.WIDTH(1)) andOp_117(.in0(andOp_117_in0), .in1(andOp_117_in1), .out(andOp_117_out));
 
 	wire [31:0] eq_118_in0;
 	wire [31:0] eq_118_in1;
@@ -648,19 +648,19 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	wire [0:0] eq_122_out;
 	eq #(.WIDTH(32)) eq_122(.in0(eq_122_in0), .in1(eq_122_in1), .out(eq_122_out));
 
-	wire [31:0] eq_123_in0;
-	wire [31:0] eq_123_in1;
-	wire [0:0] eq_123_out;
-	eq #(.WIDTH(32)) eq_123(.in0(eq_123_in0), .in1(eq_123_in1), .out(eq_123_out));
+	wire [0:0] notOp_123_in0;
+	wire [0:0] notOp_123_out;
+	notOp #(.WIDTH(1)) notOp_123(.in(notOp_123_in0), .out(notOp_123_out));
 
-	wire [0:0] notOp_124_in0;
-	wire [0:0] notOp_124_out;
-	notOp #(.WIDTH(1)) notOp_124(.in(notOp_124_in0), .out(notOp_124_out));
+	wire [0:0] andOp_124_in0;
+	wire [0:0] andOp_124_in1;
+	wire [0:0] andOp_124_out;
+	andOp #(.WIDTH(1)) andOp_124(.in0(andOp_124_in0), .in1(andOp_124_in1), .out(andOp_124_out));
 
-	wire [0:0] andOp_125_in0;
-	wire [0:0] andOp_125_in1;
-	wire [0:0] andOp_125_out;
-	andOp #(.WIDTH(1)) andOp_125(.in0(andOp_125_in0), .in1(andOp_125_in1), .out(andOp_125_out));
+	wire [31:0] eq_125_in0;
+	wire [31:0] eq_125_in1;
+	wire [0:0] eq_125_out;
+	eq #(.WIDTH(32)) eq_125(.in0(eq_125_in0), .in1(eq_125_in1), .out(eq_125_out));
 
 	wire [31:0] eq_126_in0;
 	wire [31:0] eq_126_in1;
@@ -672,64 +672,64 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	wire [0:0] andOp_127_out;
 	andOp #(.WIDTH(1)) andOp_127(.in0(andOp_127_in0), .in1(andOp_127_in1), .out(andOp_127_out));
 
-	wire [31:0] concat_128_in0;
-	wire [31:0] concat_128_in1;
-	wire [63:0] concat_128_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_128(.in0(concat_128_in0), .in1(concat_128_in1), .out(concat_128_out));
+	wire [0:0] andOp_128_in0;
+	wire [0:0] andOp_128_in1;
+	wire [0:0] andOp_128_out;
+	andOp #(.WIDTH(1)) andOp_128(.in0(andOp_128_in0), .in1(andOp_128_in1), .out(andOp_128_out));
 
-	wire [31:0] concat_129_in0;
-	wire [31:0] concat_129_in1;
-	wire [63:0] concat_129_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_129(.in0(concat_129_in0), .in1(concat_129_in1), .out(concat_129_out));
+	wire [0:0] andOp_129_in0;
+	wire [0:0] andOp_129_in1;
+	wire [0:0] andOp_129_out;
+	andOp #(.WIDTH(1)) andOp_129(.in0(andOp_129_in0), .in1(andOp_129_in1), .out(andOp_129_out));
 
-	wire [0:0] andOp_130_in0;
-	wire [0:0] andOp_130_in1;
-	wire [0:0] andOp_130_out;
-	andOp #(.WIDTH(1)) andOp_130(.in0(andOp_130_in0), .in1(andOp_130_in1), .out(andOp_130_out));
+	wire [31:0] concat_130_in0;
+	wire [31:0] concat_130_in1;
+	wire [63:0] concat_130_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_130(.in0(concat_130_in0), .in1(concat_130_in1), .out(concat_130_out));
 
-	reg [31:0] tmp_output_131_in_data;
-	wire [31:0] tmp_output_131_out_data;
-	hls_wire #(.WIDTH(32)) tmp_output_131(.in_data(tmp_output_131_in_data), .out_data(tmp_output_131_out_data));
+	wire [31:0] concat_131_in0;
+	wire [31:0] concat_131_in1;
+	wire [63:0] concat_131_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_131(.in0(concat_131_in0), .in1(concat_131_in1), .out(concat_131_out));
 
-	wire [31:0] eq_132_in0;
-	wire [31:0] eq_132_in1;
-	wire [0:0] eq_132_out;
-	eq #(.WIDTH(32)) eq_132(.in0(eq_132_in0), .in1(eq_132_in1), .out(eq_132_out));
+	wire [0:0] andOp_132_in0;
+	wire [0:0] andOp_132_in1;
+	wire [0:0] andOp_132_out;
+	andOp #(.WIDTH(1)) andOp_132(.in0(andOp_132_in0), .in1(andOp_132_in1), .out(andOp_132_out));
 
-	wire [31:0] eq_133_in0;
-	wire [31:0] eq_133_in1;
-	wire [0:0] eq_133_out;
-	eq #(.WIDTH(32)) eq_133(.in0(eq_133_in0), .in1(eq_133_in1), .out(eq_133_out));
+	wire [0:0] andOp_133_in0;
+	wire [0:0] andOp_133_in1;
+	wire [0:0] andOp_133_out;
+	andOp #(.WIDTH(1)) andOp_133(.in0(andOp_133_in0), .in1(andOp_133_in1), .out(andOp_133_out));
 
-	wire [0:0] andOp_134_in0;
-	wire [0:0] andOp_134_in1;
-	wire [0:0] andOp_134_out;
-	andOp #(.WIDTH(1)) andOp_134(.in0(andOp_134_in0), .in1(andOp_134_in1), .out(andOp_134_out));
+	wire [31:0] concat_134_in0;
+	wire [31:0] concat_134_in1;
+	wire [63:0] concat_134_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_134(.in0(concat_134_in0), .in1(concat_134_in1), .out(concat_134_out));
 
-	wire [0:0] andOp_135_in0;
-	wire [0:0] andOp_135_in1;
-	wire [0:0] andOp_135_out;
-	andOp #(.WIDTH(1)) andOp_135(.in0(andOp_135_in0), .in1(andOp_135_in1), .out(andOp_135_out));
+	wire [31:0] concat_135_in0;
+	wire [31:0] concat_135_in1;
+	wire [63:0] concat_135_out;
+	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_135(.in0(concat_135_in0), .in1(concat_135_in1), .out(concat_135_out));
 
 	wire [0:0] andOp_136_in0;
 	wire [0:0] andOp_136_in1;
 	wire [0:0] andOp_136_out;
 	andOp #(.WIDTH(1)) andOp_136(.in0(andOp_136_in0), .in1(andOp_136_in1), .out(andOp_136_out));
 
-	wire [31:0] concat_137_in0;
-	wire [31:0] concat_137_in1;
-	wire [63:0] concat_137_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_137(.in0(concat_137_in0), .in1(concat_137_in1), .out(concat_137_out));
+	reg [31:0] tmp_output_137_in_data;
+	wire [31:0] tmp_output_137_out_data;
+	hls_wire #(.WIDTH(32)) tmp_output_137(.in_data(tmp_output_137_in_data), .out_data(tmp_output_137_out_data));
 
-	wire [31:0] concat_138_in0;
-	wire [31:0] concat_138_in1;
-	wire [63:0] concat_138_out;
-	concat #(.IN0_WIDTH(32), .IN1_WIDTH(32)) concat_138(.in0(concat_138_in0), .in1(concat_138_in1), .out(concat_138_out));
+	wire [31:0] eq_138_in0;
+	wire [31:0] eq_138_in1;
+	wire [0:0] eq_138_out;
+	eq #(.WIDTH(32)) eq_138(.in0(eq_138_in0), .in1(eq_138_in1), .out(eq_138_out));
 
-	wire [0:0] andOp_139_in0;
-	wire [0:0] andOp_139_in1;
-	wire [0:0] andOp_139_out;
-	andOp #(.WIDTH(1)) andOp_139(.in0(andOp_139_in0), .in1(andOp_139_in1), .out(andOp_139_out));
+	wire [31:0] eq_139_in0;
+	wire [31:0] eq_139_in1;
+	wire [0:0] eq_139_out;
+	eq #(.WIDTH(32)) eq_139(.in0(eq_139_in0), .in1(eq_139_in1), .out(eq_139_out));
 
 	wire [0:0] andOp_140_in0;
 	wire [0:0] andOp_140_in1;
@@ -1186,20 +1186,20 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	reg [31:0] data_store_0_4;
 	reg [31:0] data_store_0_6;
 	reg [31:0] data_store_1_10;
-	reg [31:0] data_store_1_11;
-	reg [31:0] data_store_1_13;
+	reg [31:0] data_store_1_12;
+	reg [31:0] data_store_1_14;
 	reg [31:0] data_store_1_15;
 	reg [31:0] data_store_1_8;
 	reg [31:0] data_store_2_17;
-	reg [31:0] data_store_2_19;
-	reg [31:0] data_store_2_21;
-	reg [31:0] data_store_2_23;
-	reg [31:0] data_store_2_25;
-	reg [31:0] data_store_2_27;
-	reg [31:0] data_store_3_28;
+	reg [31:0] data_store_2_18;
+	reg [31:0] data_store_2_20;
+	reg [31:0] data_store_2_22;
+	reg [31:0] data_store_2_24;
+	reg [31:0] data_store_2_26;
+	reg [31:0] data_store_3_29;
 	reg [31:0] data_store_3_31;
 	reg [31:0] data_store_3_33;
-	reg [31:0] data_store_3_35;
+	reg [31:0] data_store_3_36;
 	reg [31:0] data_store_4_38;
 	reg [31:0] data_store_4_40;
 	reg [31:0] data_store_4_42;
@@ -1250,77 +1250,77 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 
 	// controller for a.a_raddr_0_reg
 	always @(*) begin
-		if (andOp_140_out) begin 
-			a_raddr_0_reg = add_add3_out;
+		if (andOp_127_out) begin 
+			a_raddr_0_reg = add_add6_out;
 		end else begin
 			a_raddr_0_reg = 0;
 		end
 	end
-	// controller for add_add15.add_add15_in0
-	// controller for add_add15.add_add15_in1
+	// controller for add_add13.add_add13_in0
+	// controller for add_add13.add_add13_in1
 	// Insensitive connections
-	assign add_add15_in0 = b_rdata_0;
-	assign add_add15_in1 = data_in_3_37_out_data;
+	assign add_add13_in0 = b_rdata_0;
+	assign add_add13_in1 = data_in_3_28_out_data;
 	// controller for add_add17.add_add17_in0
 	// controller for add_add17.add_add17_in1
 	// Insensitive connections
-	assign add_add17_in0 = data_in_6_59_out_data;
+	assign add_add17_in0 = data_in_6_55_out_data;
 	assign add_add17_in1 = 32'd1;
-	// controller for add_add3.add_add3_in0
-	// controller for add_add3.add_add3_in1
+	// controller for add_add6.add_add6_in0
+	// controller for add_add6.add_add6_in1
 	// Insensitive connections
-	assign add_add3_in0 = phi_phi2_out;
-	assign add_add3_in1 = tmp_output_131_out_data;
-	// controller for add_add4.add_add4_in0
-	// controller for add_add4.add_add4_in1
+	assign add_add6_in0 = phi_phi5_out;
+	assign add_add6_in1 = tmp_output_137_out_data;
+	// controller for add_add7.add_add7_in0
+	// controller for add_add7.add_add7_in1
 	// Insensitive connections
-	assign add_add4_in0 = phi_phi2_out;
-	assign add_add4_in1 = 32'd1;
+	assign add_add7_in0 = phi_phi5_out;
+	assign add_add7_in1 = 32'd1;
 	// controller for andOp_100.andOp_100_in0
 	// controller for andOp_100.andOp_100_in1
 	// Insensitive connections
 	assign andOp_100_in0 = andOp_96_out;
 	assign andOp_100_in1 = notOp_99_out;
-	// controller for andOp_116.andOp_116_in0
-	// controller for andOp_116.andOp_116_in1
+	// controller for andOp_117.andOp_117_in0
+	// controller for andOp_117.andOp_117_in1
 	// Insensitive connections
-	assign andOp_116_in0 = notOp_115_out;
-	assign andOp_116_in1 = andOp_69_out;
-	// controller for andOp_125.andOp_125_in0
-	// controller for andOp_125.andOp_125_in1
+	assign andOp_117_in0 = notOp_116_out;
+	assign andOp_117_in1 = andOp_64_out;
+	// controller for andOp_124.andOp_124_in0
+	// controller for andOp_124.andOp_124_in1
 	// Insensitive connections
-	assign andOp_125_in0 = notOp_124_out;
-	assign andOp_125_in1 = andOp_66_out;
+	assign andOp_124_in0 = notOp_123_out;
+	assign andOp_124_in1 = andOp_68_out;
 	// controller for andOp_127.andOp_127_in0
 	// controller for andOp_127.andOp_127_in1
 	// Insensitive connections
 	assign andOp_127_in0 = bb_4_active_in_state_1_out_data;
 	assign andOp_127_in1 = state_1_is_active;
-	// controller for andOp_130.andOp_130_in0
-	// controller for andOp_130.andOp_130_in1
+	// controller for andOp_128.andOp_128_in0
+	// controller for andOp_128.andOp_128_in1
 	// Insensitive connections
-	assign andOp_130_in0 = bb_4_active_in_state_1_out_data;
-	assign andOp_130_in1 = state_1_is_active;
-	// controller for andOp_134.andOp_134_in0
-	// controller for andOp_134.andOp_134_in1
+	assign andOp_128_in0 = bb_4_active_in_state_2_out_data;
+	assign andOp_128_in1 = state_2_is_active;
+	// controller for andOp_129.andOp_129_in0
+	// controller for andOp_129.andOp_129_in1
 	// Insensitive connections
-	assign andOp_134_in0 = bb_4_active_in_state_1_out_data;
-	assign andOp_134_in1 = state_1_is_active;
-	// controller for andOp_135.andOp_135_in0
-	// controller for andOp_135.andOp_135_in1
+	assign andOp_129_in0 = bb_1_active_in_state_1_out_data;
+	assign andOp_129_in1 = state_1_is_active;
+	// controller for andOp_132.andOp_132_in0
+	// controller for andOp_132.andOp_132_in1
 	// Insensitive connections
-	assign andOp_135_in0 = bb_4_active_in_state_1_out_data;
-	assign andOp_135_in1 = state_1_is_active;
+	assign andOp_132_in0 = bb_1_active_in_state_1_out_data;
+	assign andOp_132_in1 = state_1_is_active;
+	// controller for andOp_133.andOp_133_in0
+	// controller for andOp_133.andOp_133_in1
+	// Insensitive connections
+	assign andOp_133_in0 = bb_4_active_in_state_1_out_data;
+	assign andOp_133_in1 = state_1_is_active;
 	// controller for andOp_136.andOp_136_in0
 	// controller for andOp_136.andOp_136_in1
 	// Insensitive connections
-	assign andOp_136_in0 = bb_1_active_in_state_1_out_data;
+	assign andOp_136_in0 = bb_4_active_in_state_1_out_data;
 	assign andOp_136_in1 = state_1_is_active;
-	// controller for andOp_139.andOp_139_in0
-	// controller for andOp_139.andOp_139_in1
-	// Insensitive connections
-	assign andOp_139_in0 = bb_1_active_in_state_1_out_data;
-	assign andOp_139_in1 = state_1_is_active;
 	// controller for andOp_140.andOp_140_in0
 	// controller for andOp_140.andOp_140_in1
 	// Insensitive connections
@@ -1329,8 +1329,8 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for andOp_141.andOp_141_in0
 	// controller for andOp_141.andOp_141_in1
 	// Insensitive connections
-	assign andOp_141_in0 = bb_4_active_in_state_2_out_data;
-	assign andOp_141_in1 = state_2_is_active;
+	assign andOp_141_in0 = bb_4_active_in_state_1_out_data;
+	assign andOp_141_in1 = state_1_is_active;
 	// controller for andOp_142.andOp_142_in0
 	// controller for andOp_142.andOp_142_in1
 	// Insensitive connections
@@ -1539,22 +1539,22 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for andOp_214.andOp_214_in0
 	// controller for andOp_214.andOp_214_in1
 	// Insensitive connections
-	assign andOp_214_in0 = bb_4_active_in_state_1_out_data;
+	assign andOp_214_in0 = bb_1_active_in_state_1_out_data;
 	assign andOp_214_in1 = state_1_is_active;
 	// controller for andOp_215.andOp_215_in0
 	// controller for andOp_215.andOp_215_in1
 	// Insensitive connections
-	assign andOp_215_in0 = bb_4_active_in_state_1_out_data;
+	assign andOp_215_in0 = bb_1_active_in_state_1_out_data;
 	assign andOp_215_in1 = state_1_is_active;
 	// controller for andOp_216.andOp_216_in0
 	// controller for andOp_216.andOp_216_in1
 	// Insensitive connections
-	assign andOp_216_in0 = bb_1_active_in_state_1_out_data;
+	assign andOp_216_in0 = bb_4_active_in_state_1_out_data;
 	assign andOp_216_in1 = state_1_is_active;
 	// controller for andOp_217.andOp_217_in0
 	// controller for andOp_217.andOp_217_in1
 	// Insensitive connections
-	assign andOp_217_in0 = bb_1_active_in_state_1_out_data;
+	assign andOp_217_in0 = bb_4_active_in_state_1_out_data;
 	assign andOp_217_in1 = state_1_is_active;
 	// controller for andOp_220.andOp_220_in0
 	// controller for andOp_220.andOp_220_in1
@@ -1574,23 +1574,23 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for andOp_64.andOp_64_in0
 	// controller for andOp_64.andOp_64_in1
 	// Insensitive connections
-	assign andOp_64_in0 = bb_4_active_in_state_1_out_data;
+	assign andOp_64_in0 = bb_1_active_in_state_1_out_data;
 	assign andOp_64_in1 = state_1_is_active;
 	// controller for andOp_66.andOp_66_in0
 	// controller for andOp_66.andOp_66_in1
 	// Insensitive connections
-	assign andOp_66_in0 = andOp_64_out;
-	assign andOp_66_in1 = icmp_icmp5_out;
+	assign andOp_66_in0 = bb_4_active_in_state_1_out_data;
+	assign andOp_66_in1 = state_1_is_active;
 	// controller for andOp_68.andOp_68_in0
 	// controller for andOp_68.andOp_68_in1
 	// Insensitive connections
-	assign andOp_68_in0 = andOp_64_out;
-	assign andOp_68_in1 = notOp_67_out;
-	// controller for andOp_69.andOp_69_in0
-	// controller for andOp_69.andOp_69_in1
+	assign andOp_68_in0 = andOp_66_out;
+	assign andOp_68_in1 = icmp_icmp8_out;
+	// controller for andOp_70.andOp_70_in0
+	// controller for andOp_70.andOp_70_in1
 	// Insensitive connections
-	assign andOp_69_in0 = bb_1_active_in_state_1_out_data;
-	assign andOp_69_in1 = state_1_is_active;
+	assign andOp_70_in0 = andOp_66_out;
+	assign andOp_70_in1 = notOp_69_out;
 	// controller for andOp_71.andOp_71_in0
 	// controller for andOp_71.andOp_71_in1
 	// Insensitive connections
@@ -1600,7 +1600,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for andOp_73.andOp_73_in1
 	// Insensitive connections
 	assign andOp_73_in0 = andOp_71_out;
-	assign andOp_73_in1 = icmp_icmp5_out;
+	assign andOp_73_in1 = icmp_icmp8_out;
 	// controller for andOp_75.andOp_75_in0
 	// controller for andOp_75.andOp_75_in1
 	// Insensitive connections
@@ -1615,7 +1615,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for andOp_78.andOp_78_in1
 	// Insensitive connections
 	assign andOp_78_in0 = andOp_76_out;
-	assign andOp_78_in1 = icmp_icmp5_out;
+	assign andOp_78_in1 = icmp_icmp8_out;
 	// controller for andOp_80.andOp_80_in0
 	// controller for andOp_80.andOp_80_in1
 	// Insensitive connections
@@ -1630,7 +1630,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for andOp_83.andOp_83_in1
 	// Insensitive connections
 	assign andOp_83_in0 = andOp_81_out;
-	assign andOp_83_in1 = icmp_icmp5_out;
+	assign andOp_83_in1 = icmp_icmp8_out;
 	// controller for andOp_85.andOp_85_in0
 	// controller for andOp_85.andOp_85_in1
 	// Insensitive connections
@@ -1645,7 +1645,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for andOp_88.andOp_88_in1
 	// Insensitive connections
 	assign andOp_88_in0 = andOp_86_out;
-	assign andOp_88_in1 = icmp_icmp5_out;
+	assign andOp_88_in1 = icmp_icmp8_out;
 	// controller for andOp_90.andOp_90_in0
 	// controller for andOp_90.andOp_90_in1
 	// Insensitive connections
@@ -1654,13 +1654,13 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for andOp_91.andOp_91_in0
 	// controller for andOp_91.andOp_91_in1
 	// Insensitive connections
-	assign andOp_91_in0 = bb_4_active_in_state_1_out_data;
-	assign andOp_91_in1 = state_1_is_active;
+	assign andOp_91_in0 = bb_3_active_in_state_6_out_data;
+	assign andOp_91_in1 = state_6_is_active;
 	// controller for andOp_93.andOp_93_in0
 	// controller for andOp_93.andOp_93_in1
 	// Insensitive connections
 	assign andOp_93_in0 = andOp_91_out;
-	assign andOp_93_in1 = icmp_icmp5_out;
+	assign andOp_93_in1 = icmp_icmp18_out;
 	// controller for andOp_95.andOp_95_in0
 	// controller for andOp_95.andOp_95_in1
 	// Insensitive connections
@@ -1669,17 +1669,17 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for andOp_96.andOp_96_in0
 	// controller for andOp_96.andOp_96_in1
 	// Insensitive connections
-	assign andOp_96_in0 = bb_3_active_in_state_6_out_data;
-	assign andOp_96_in1 = state_6_is_active;
+	assign andOp_96_in0 = bb_4_active_in_state_1_out_data;
+	assign andOp_96_in1 = state_1_is_active;
 	// controller for andOp_98.andOp_98_in0
 	// controller for andOp_98.andOp_98_in1
 	// Insensitive connections
 	assign andOp_98_in0 = andOp_96_out;
-	assign andOp_98_in1 = icmp_icmp18_out;
+	assign andOp_98_in1 = icmp_icmp8_out;
 	// controller for b.b_raddr_0_reg
 	always @(*) begin
 		if (andOp_142_out) begin 
-			b_raddr_0_reg = data_in_2_20_out_data;
+			b_raddr_0_reg = data_in_2_25_out_data;
 		end else begin
 			b_raddr_0_reg = 0;
 		end
@@ -1703,14 +1703,14 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for bb_1_active_in_state_1.bb_1_active_in_state_1_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_1_active_in_state_1_in_data = eq_104_out;
+			bb_1_active_in_state_1_in_data = eq_102_out;
 		end else begin
 			bb_1_active_in_state_1_in_data = 0;
 		end
 	end
 	// controller for bb_1_predecessor_in_state_1.bb_1_predecessor_in_state_1_in_data
 	always @(*) begin
-		if (eq_117_out) begin 
+		if (eq_114_out) begin 
 			bb_1_predecessor_in_state_1_in_data = state_1_last_BB_reg;
 		end else begin
 			bb_1_predecessor_in_state_1_in_data = 0;
@@ -1735,16 +1735,16 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for bb_3_active_in_state_6.bb_3_active_in_state_6_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_3_active_in_state_6_in_data = orOp_111_out;
+			bb_3_active_in_state_6_in_data = orOp_110_out;
 		end else begin
 			bb_3_active_in_state_6_in_data = 0;
 		end
 	end
 	// controller for bb_3_predecessor_in_state_6.bb_3_predecessor_in_state_6_in_data
 	always @(*) begin
-		if (andOp_125_out) begin 
+		if (andOp_124_out) begin 
 			bb_3_predecessor_in_state_6_in_data = 32'd4;
-		end else if (eq_123_out) begin 
+		end else if (eq_122_out) begin 
 			bb_3_predecessor_in_state_6_in_data = state_6_last_BB_reg;
 		end else begin
 			bb_3_predecessor_in_state_6_in_data = 0;
@@ -1753,7 +1753,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for bb_4_active_in_state_1.bb_4_active_in_state_1_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_4_active_in_state_1_in_data = orOp_103_out;
+			bb_4_active_in_state_1_in_data = orOp_104_out;
 		end else begin
 			bb_4_active_in_state_1_in_data = 0;
 		end
@@ -1793,16 +1793,16 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for bb_4_active_in_state_6.bb_4_active_in_state_6_in_data
 	always @(*) begin
 		if (1'd1) begin 
-			bb_4_active_in_state_6_in_data = eq_109_out;
+			bb_4_active_in_state_6_in_data = eq_111_out;
 		end else begin
 			bb_4_active_in_state_6_in_data = 0;
 		end
 	end
 	// controller for bb_4_predecessor_in_state_1.bb_4_predecessor_in_state_1_in_data
 	always @(*) begin
-		if (andOp_116_out) begin 
+		if (andOp_117_out) begin 
 			bb_4_predecessor_in_state_1_in_data = 32'd1;
-		end else if (eq_114_out) begin 
+		end else if (eq_115_out) begin 
 			bb_4_predecessor_in_state_1_in_data = state_1_last_BB_reg;
 		end else begin
 			bb_4_predecessor_in_state_1_in_data = 0;
@@ -1842,7 +1842,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	end
 	// controller for bb_4_predecessor_in_state_6.bb_4_predecessor_in_state_6_in_data
 	always @(*) begin
-		if (eq_122_out) begin 
+		if (eq_125_out) begin 
 			bb_4_predecessor_in_state_6_in_data = state_6_last_BB_reg;
 		end else begin
 			bb_4_predecessor_in_state_6_in_data = 0;
@@ -1860,9 +1860,9 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	end
 	// controller for br_1_happened_in_state_1.br_1_happened_in_state_1_in_data
 	always @(*) begin
-		if (andOp_69_out) begin 
+		if (andOp_64_out) begin 
 			br_1_happened_in_state_1_in_data = 1'd1;
-		end else if (notOp_70_out) begin 
+		end else if (notOp_65_out) begin 
 			br_1_happened_in_state_1_in_data = 1'd0;
 		end else begin
 			br_1_happened_in_state_1_in_data = 0;
@@ -1870,9 +1870,9 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	end
 	// controller for br_3_happened_in_state_6.br_3_happened_in_state_6_in_data
 	always @(*) begin
-		if (andOp_96_out) begin 
+		if (andOp_91_out) begin 
 			br_3_happened_in_state_6_in_data = 1'd1;
-		end else if (notOp_97_out) begin 
+		end else if (notOp_92_out) begin 
 			br_3_happened_in_state_6_in_data = 1'd0;
 		end else begin
 			br_3_happened_in_state_6_in_data = 0;
@@ -1880,9 +1880,9 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	end
 	// controller for br_4_happened_in_state_1.br_4_happened_in_state_1_in_data
 	always @(*) begin
-		if (andOp_64_out) begin 
+		if (andOp_66_out) begin 
 			br_4_happened_in_state_1_in_data = 1'd1;
-		end else if (notOp_65_out) begin 
+		end else if (notOp_67_out) begin 
 			br_4_happened_in_state_1_in_data = 1'd0;
 		end else begin
 			br_4_happened_in_state_1_in_data = 0;
@@ -1930,9 +1930,9 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	end
 	// controller for br_4_happened_in_state_6.br_4_happened_in_state_6_in_data
 	always @(*) begin
-		if (andOp_91_out) begin 
+		if (andOp_96_out) begin 
 			br_4_happened_in_state_6_in_data = 1'd1;
-		end else if (notOp_92_out) begin 
+		end else if (notOp_97_out) begin 
 			br_4_happened_in_state_6_in_data = 1'd0;
 		end else begin
 			br_4_happened_in_state_6_in_data = 0;
@@ -1941,7 +1941,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for c.c_waddr_0_reg
 	always @(*) begin
 		if (andOp_145_out) begin 
-			c_waddr_0_reg = data_in_3_30_out_data;
+			c_waddr_0_reg = data_in_3_35_out_data;
 		end else begin
 			c_waddr_0_reg = 0;
 		end
@@ -1949,39 +1949,39 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for c.c_wdata_0_reg
 	always @(*) begin
 		if (andOp_146_out) begin 
-			c_wdata_0_reg = add_add15_out;
+			c_wdata_0_reg = add_add13_out;
 		end else begin
 			c_wdata_0_reg = 0;
 		end
 	end
 	// controller for c.c_wen_0_reg
 	always @(*) begin
-		if (andOp_144_out) begin 
+		if (andOp_147_out) begin 
 			c_wen_0_reg = -(1'd1);
 		end else begin
 			c_wen_0_reg = 0;
 		end
 	end
-	// controller for concat_128.concat_128_in0
-	// controller for concat_128.concat_128_in1
+	// controller for concat_130.concat_130_in0
+	// controller for concat_130.concat_130_in1
 	// Insensitive connections
-	assign concat_128_in0 = data_in_1_12_out_data;
-	assign concat_128_in1 = 32'd0;
-	// controller for concat_129.concat_129_in0
-	// controller for concat_129.concat_129_in1
+	assign concat_130_in0 = data_in_1_13_out_data;
+	assign concat_130_in1 = 32'd0;
+	// controller for concat_131.concat_131_in0
+	// controller for concat_131.concat_131_in1
 	// Insensitive connections
-	assign concat_129_in0 = 32'd4;
-	assign concat_129_in1 = 32'd1;
-	// controller for concat_137.concat_137_in0
-	// controller for concat_137.concat_137_in1
+	assign concat_131_in0 = 32'd3;
+	assign concat_131_in1 = 32'd0;
+	// controller for concat_134.concat_134_in0
+	// controller for concat_134.concat_134_in1
 	// Insensitive connections
-	assign concat_137_in0 = data_in_1_9_out_data;
-	assign concat_137_in1 = 32'd0;
-	// controller for concat_138.concat_138_in0
-	// controller for concat_138.concat_138_in1
+	assign concat_134_in0 = data_in_1_16_out_data;
+	assign concat_134_in1 = 32'd0;
+	// controller for concat_135.concat_135_in0
+	// controller for concat_135.concat_135_in1
 	// Insensitive connections
-	assign concat_138_in0 = 32'd3;
-	assign concat_138_in1 = 32'd0;
+	assign concat_135_in0 = 32'd4;
+	assign concat_135_in1 = 32'd1;
 	// controller for data_in_0_1.data_in_0_1_in_data
 	always @(*) begin
 		if (eq_210_out) begin 
@@ -2014,28 +2014,28 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 			data_in_0_7_in_data = 0;
 		end
 	end
-	// controller for data_in_1_12.data_in_1_12_in_data
+	// controller for data_in_1_11.data_in_1_11_in_data
 	always @(*) begin
 		if (eq_211_out) begin 
-			data_in_1_12_in_data = data_store_0_2;
+			data_in_1_11_in_data = data_store_0_2;
 		end else if (eq_212_out) begin 
-			data_in_1_12_in_data = data_store_1_11;
+			data_in_1_11_in_data = data_store_1_10;
 		end else if (eq_213_out) begin 
-			data_in_1_12_in_data = data_store_6_56;
+			data_in_1_11_in_data = data_store_6_56;
 		end else begin
-			data_in_1_12_in_data = 0;
+			data_in_1_11_in_data = 0;
 		end
 	end
-	// controller for data_in_1_14.data_in_1_14_in_data
+	// controller for data_in_1_13.data_in_1_13_in_data
 	always @(*) begin
 		if (eq_211_out) begin 
-			data_in_1_14_in_data = data_store_0_4;
+			data_in_1_13_in_data = data_store_0_4;
 		end else if (eq_212_out) begin 
-			data_in_1_14_in_data = data_store_1_13;
+			data_in_1_13_in_data = data_store_1_12;
 		end else if (eq_213_out) begin 
-			data_in_1_14_in_data = data_store_6_58;
+			data_in_1_13_in_data = data_store_6_58;
 		end else begin
-			data_in_1_14_in_data = 0;
+			data_in_1_13_in_data = 0;
 		end
 	end
 	// controller for data_in_1_16.data_in_1_16_in_data
@@ -2062,72 +2062,72 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 			data_in_1_9_in_data = 0;
 		end
 	end
-	// controller for data_in_2_18.data_in_2_18_in_data
+	// controller for data_in_2_19.data_in_2_19_in_data
 	always @(*) begin
 		if (eq_218_out) begin 
-			data_in_2_18_in_data = data_store_1_8;
+			data_in_2_19_in_data = data_store_1_8;
 		end else if (eq_219_out) begin 
-			data_in_2_18_in_data = data_store_2_17;
+			data_in_2_19_in_data = data_store_2_18;
 		end else begin
-			data_in_2_18_in_data = 0;
+			data_in_2_19_in_data = 0;
 		end
 	end
-	// controller for data_in_2_20.data_in_2_20_in_data
+	// controller for data_in_2_21.data_in_2_21_in_data
 	always @(*) begin
 		if (eq_218_out) begin 
-			data_in_2_20_in_data = data_store_1_10;
+			data_in_2_21_in_data = data_store_1_10;
 		end else if (eq_219_out) begin 
-			data_in_2_20_in_data = data_store_2_19;
+			data_in_2_21_in_data = data_store_2_20;
 		end else begin
-			data_in_2_20_in_data = 0;
+			data_in_2_21_in_data = 0;
 		end
 	end
-	// controller for data_in_2_22.data_in_2_22_in_data
+	// controller for data_in_2_23.data_in_2_23_in_data
 	always @(*) begin
 		if (eq_218_out) begin 
-			data_in_2_22_in_data = data_store_1_11;
+			data_in_2_23_in_data = data_store_1_12;
 		end else if (eq_219_out) begin 
-			data_in_2_22_in_data = data_store_2_21;
+			data_in_2_23_in_data = data_store_2_22;
 		end else begin
-			data_in_2_22_in_data = 0;
+			data_in_2_23_in_data = 0;
 		end
 	end
-	// controller for data_in_2_24.data_in_2_24_in_data
+	// controller for data_in_2_25.data_in_2_25_in_data
 	always @(*) begin
 		if (eq_218_out) begin 
-			data_in_2_24_in_data = data_store_1_13;
+			data_in_2_25_in_data = data_store_1_14;
 		end else if (eq_219_out) begin 
-			data_in_2_24_in_data = data_store_2_23;
+			data_in_2_25_in_data = data_store_2_24;
 		end else begin
-			data_in_2_24_in_data = 0;
+			data_in_2_25_in_data = 0;
 		end
 	end
-	// controller for data_in_2_26.data_in_2_26_in_data
+	// controller for data_in_2_27.data_in_2_27_in_data
 	always @(*) begin
 		if (eq_218_out) begin 
-			data_in_2_26_in_data = data_store_1_15;
+			data_in_2_27_in_data = data_store_1_15;
 		end else if (eq_219_out) begin 
-			data_in_2_26_in_data = data_store_2_25;
+			data_in_2_27_in_data = data_store_2_26;
 		end else begin
-			data_in_2_26_in_data = 0;
+			data_in_2_27_in_data = 0;
 		end
 	end
-	// controller for data_in_3_29.data_in_3_29_in_data
+	// controller for data_in_3_28.data_in_3_28_in_data
 	always @(*) begin
 		if (eq_221_out) begin 
-			data_in_3_29_in_data = data_store_2_17;
+			data_in_3_28_in_data = data_store_2_17;
 		end else if (eq_222_out) begin 
-			data_in_3_29_in_data = data_store_3_28;
+			data_in_3_28_in_data = 32'd0;
 		end else begin
-			data_in_3_29_in_data = 0;
+			data_in_3_28_in_data = 0;
 		end
 	end
 	// controller for data_in_3_30.data_in_3_30_in_data
 	always @(*) begin
 		if (eq_221_out) begin 
-			data_in_3_30_in_data = data_store_2_19;
+			data_in_3_30_in_data = data_store_2_18;
 		end else if (eq_222_out) begin 
-			data_in_3_30_in_data = 32'd0;
+			data_in_3_30_in_data = data_store_3_29;
 		end else begin
 			data_in_3_30_in_data = 0;
 		end
@@ -2135,7 +2135,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for data_in_3_32.data_in_3_32_in_data
 	always @(*) begin
 		if (eq_221_out) begin 
-			data_in_3_32_in_data = data_store_2_21;
+			data_in_3_32_in_data = data_store_2_20;
 		end else if (eq_222_out) begin 
 			data_in_3_32_in_data = data_store_3_31;
 		end else begin
@@ -2145,29 +2145,29 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for data_in_3_34.data_in_3_34_in_data
 	always @(*) begin
 		if (eq_221_out) begin 
-			data_in_3_34_in_data = data_store_2_23;
+			data_in_3_34_in_data = data_store_2_22;
 		end else if (eq_222_out) begin 
 			data_in_3_34_in_data = data_store_3_33;
 		end else begin
 			data_in_3_34_in_data = 0;
 		end
 	end
-	// controller for data_in_3_36.data_in_3_36_in_data
+	// controller for data_in_3_35.data_in_3_35_in_data
 	always @(*) begin
 		if (eq_221_out) begin 
-			data_in_3_36_in_data = data_store_2_25;
+			data_in_3_35_in_data = data_store_2_24;
 		end else if (eq_222_out) begin 
-			data_in_3_36_in_data = data_store_3_35;
+			data_in_3_35_in_data = 32'd0;
 		end else begin
-			data_in_3_36_in_data = 0;
+			data_in_3_35_in_data = 0;
 		end
 	end
 	// controller for data_in_3_37.data_in_3_37_in_data
 	always @(*) begin
 		if (eq_221_out) begin 
-			data_in_3_37_in_data = data_store_2_27;
+			data_in_3_37_in_data = data_store_2_26;
 		end else if (eq_222_out) begin 
-			data_in_3_37_in_data = 32'd0;
+			data_in_3_37_in_data = data_store_3_36;
 		end else begin
 			data_in_3_37_in_data = 0;
 		end
@@ -2175,7 +2175,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for data_in_4_39.data_in_4_39_in_data
 	always @(*) begin
 		if (eq_223_out) begin 
-			data_in_4_39_in_data = data_store_3_28;
+			data_in_4_39_in_data = data_store_3_29;
 		end else if (eq_224_out) begin 
 			data_in_4_39_in_data = data_store_4_38;
 		end else begin
@@ -2205,7 +2205,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for data_in_4_45.data_in_4_45_in_data
 	always @(*) begin
 		if (eq_223_out) begin 
-			data_in_4_45_in_data = data_store_3_35;
+			data_in_4_45_in_data = data_store_3_36;
 		end else if (eq_224_out) begin 
 			data_in_4_45_in_data = data_store_4_44;
 		end else begin
@@ -2267,7 +2267,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for data_in_6_57.data_in_6_57_in_data
 	always @(*) begin
 		if (eq_227_out) begin 
-			data_in_6_57_in_data = data_store_1_11;
+			data_in_6_57_in_data = data_store_1_10;
 		end else if (eq_228_out) begin 
 			data_in_6_57_in_data = data_store_5_48;
 		end else if (eq_229_out) begin 
@@ -2279,7 +2279,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for data_in_6_59.data_in_6_59_in_data
 	always @(*) begin
 		if (eq_227_out) begin 
-			data_in_6_59_in_data = data_store_1_13;
+			data_in_6_59_in_data = data_store_1_12;
 		end else if (eq_228_out) begin 
 			data_in_6_59_in_data = data_store_5_50;
 		end else if (eq_229_out) begin 
@@ -2308,13 +2308,13 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for eq_102.eq_102_in0
 	// controller for eq_102.eq_102_in1
 	// Insensitive connections
-	assign eq_102_in0 = 32'd4;
+	assign eq_102_in0 = 32'd1;
 	assign eq_102_in1 = state_1_entry_BB_reg;
-	// controller for eq_104.eq_104_in0
-	// controller for eq_104.eq_104_in1
+	// controller for eq_103.eq_103_in0
+	// controller for eq_103.eq_103_in1
 	// Insensitive connections
-	assign eq_104_in0 = 32'd1;
-	assign eq_104_in1 = state_1_entry_BB_reg;
+	assign eq_103_in0 = 32'd4;
+	assign eq_103_in1 = state_1_entry_BB_reg;
 	// controller for eq_105.eq_105_in0
 	// controller for eq_105.eq_105_in1
 	// Insensitive connections
@@ -2338,13 +2338,13 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for eq_109.eq_109_in0
 	// controller for eq_109.eq_109_in1
 	// Insensitive connections
-	assign eq_109_in0 = 32'd4;
+	assign eq_109_in0 = 32'd3;
 	assign eq_109_in1 = state_6_entry_BB_reg;
-	// controller for eq_110.eq_110_in0
-	// controller for eq_110.eq_110_in1
+	// controller for eq_111.eq_111_in0
+	// controller for eq_111.eq_111_in1
 	// Insensitive connections
-	assign eq_110_in0 = 32'd3;
-	assign eq_110_in1 = state_6_entry_BB_reg;
+	assign eq_111_in0 = 32'd4;
+	assign eq_111_in1 = state_6_entry_BB_reg;
 	// controller for eq_112.eq_112_in0
 	// controller for eq_112.eq_112_in1
 	// Insensitive connections
@@ -2358,13 +2358,13 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for eq_114.eq_114_in0
 	// controller for eq_114.eq_114_in1
 	// Insensitive connections
-	assign eq_114_in0 = 32'd4;
+	assign eq_114_in0 = 32'd1;
 	assign eq_114_in1 = state_1_entry_BB_reg;
-	// controller for eq_117.eq_117_in0
-	// controller for eq_117.eq_117_in1
+	// controller for eq_115.eq_115_in0
+	// controller for eq_115.eq_115_in1
 	// Insensitive connections
-	assign eq_117_in0 = 32'd1;
-	assign eq_117_in1 = state_1_entry_BB_reg;
+	assign eq_115_in0 = 32'd4;
+	assign eq_115_in1 = state_1_entry_BB_reg;
 	// controller for eq_118.eq_118_in0
 	// controller for eq_118.eq_118_in1
 	// Insensitive connections
@@ -2388,28 +2388,28 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for eq_122.eq_122_in0
 	// controller for eq_122.eq_122_in1
 	// Insensitive connections
-	assign eq_122_in0 = 32'd4;
+	assign eq_122_in0 = 32'd3;
 	assign eq_122_in1 = state_6_entry_BB_reg;
-	// controller for eq_123.eq_123_in0
-	// controller for eq_123.eq_123_in1
+	// controller for eq_125.eq_125_in0
+	// controller for eq_125.eq_125_in1
 	// Insensitive connections
-	assign eq_123_in0 = 32'd3;
-	assign eq_123_in1 = state_6_entry_BB_reg;
+	assign eq_125_in0 = 32'd4;
+	assign eq_125_in1 = state_6_entry_BB_reg;
 	// controller for eq_126.eq_126_in0
 	// controller for eq_126.eq_126_in1
 	// Insensitive connections
 	assign eq_126_in0 = 32'd2;
 	assign eq_126_in1 = state_7_entry_BB_reg;
-	// controller for eq_132.eq_132_in0
-	// controller for eq_132.eq_132_in1
+	// controller for eq_138.eq_138_in0
+	// controller for eq_138.eq_138_in1
 	// Insensitive connections
-	assign eq_132_in0 = 32'd4;
-	assign eq_132_in1 = state_1_entry_BB_reg;
-	// controller for eq_133.eq_133_in0
-	// controller for eq_133.eq_133_in1
+	assign eq_138_in0 = 32'd1;
+	assign eq_138_in1 = state_1_entry_BB_reg;
+	// controller for eq_139.eq_139_in0
+	// controller for eq_139.eq_139_in1
 	// Insensitive connections
-	assign eq_133_in0 = 32'd1;
-	assign eq_133_in1 = state_1_entry_BB_reg;
+	assign eq_139_in0 = 32'd4;
+	assign eq_139_in1 = state_1_entry_BB_reg;
 	// controller for eq_210.eq_210_in0
 	// controller for eq_210.eq_210_in1
 	// Insensitive connections
@@ -2500,11 +2500,11 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// Insensitive connections
 	assign icmp_icmp18_in0 = add_add17_out;
 	assign icmp_icmp18_in1 = 32'd16;
-	// controller for icmp_icmp5.icmp_icmp5_in0
-	// controller for icmp_icmp5.icmp_icmp5_in1
+	// controller for icmp_icmp8.icmp_icmp8_in0
+	// controller for icmp_icmp8.icmp_icmp8_in1
 	// Insensitive connections
-	assign icmp_icmp5_in0 = add_add4_out;
-	assign icmp_icmp5_in1 = 32'd16;
+	assign icmp_icmp8_in0 = add_add7_out;
+	assign icmp_icmp8_in1 = 32'd16;
 	// controller for in_pipeline_0.in_pipeline_0_in_data
 	always @(*) begin
 		if (1'd1) begin 
@@ -2513,12 +2513,12 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 			in_pipeline_0_in_data = 0;
 		end
 	end
-	// controller for notOp_115.notOp_115_in0
+	// controller for notOp_116.notOp_116_in0
 	// Insensitive connections
-	assign notOp_115_in0 = eq_114_out;
-	// controller for notOp_124.notOp_124_in0
+	assign notOp_116_in0 = eq_115_out;
+	// controller for notOp_123.notOp_123_in0
 	// Insensitive connections
-	assign notOp_124_in0 = eq_123_out;
+	assign notOp_123_in0 = eq_122_out;
 	// controller for notOp_156.notOp_156_in0
 	// Insensitive connections
 	assign notOp_156_in0 = state_1_is_active;
@@ -2551,13 +2551,13 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	assign notOp_177_in0 = state_5_is_active;
 	// controller for notOp_182.notOp_182_in0
 	// Insensitive connections
-	assign notOp_182_in0 = andOp_100_out;
+	assign notOp_182_in0 = andOp_62_out;
 	// controller for notOp_184.notOp_184_in0
 	// Insensitive connections
-	assign notOp_184_in0 = andOp_62_out;
+	assign notOp_184_in0 = andOp_70_out;
 	// controller for notOp_186.notOp_186_in0
 	// Insensitive connections
-	assign notOp_186_in0 = andOp_68_out;
+	assign notOp_186_in0 = andOp_95_out;
 	// controller for notOp_188.notOp_188_in0
 	// Insensitive connections
 	assign notOp_188_in0 = andOp_151_out;
@@ -2575,7 +2575,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	assign notOp_196_in0 = andOp_155_out;
 	// controller for notOp_198.notOp_198_in0
 	// Insensitive connections
-	assign notOp_198_in0 = andOp_66_out;
+	assign notOp_198_in0 = andOp_68_out;
 	// controller for notOp_200.notOp_200_in0
 	// Insensitive connections
 	assign notOp_200_in0 = andOp_168_out;
@@ -2590,56 +2590,56 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	assign notOp_65_in0 = andOp_64_out;
 	// controller for notOp_67.notOp_67_in0
 	// Insensitive connections
-	assign notOp_67_in0 = icmp_icmp5_out;
-	// controller for notOp_70.notOp_70_in0
+	assign notOp_67_in0 = andOp_66_out;
+	// controller for notOp_69.notOp_69_in0
 	// Insensitive connections
-	assign notOp_70_in0 = andOp_69_out;
+	assign notOp_69_in0 = icmp_icmp8_out;
 	// controller for notOp_72.notOp_72_in0
 	// Insensitive connections
 	assign notOp_72_in0 = andOp_71_out;
 	// controller for notOp_74.notOp_74_in0
 	// Insensitive connections
-	assign notOp_74_in0 = icmp_icmp5_out;
+	assign notOp_74_in0 = icmp_icmp8_out;
 	// controller for notOp_77.notOp_77_in0
 	// Insensitive connections
 	assign notOp_77_in0 = andOp_76_out;
 	// controller for notOp_79.notOp_79_in0
 	// Insensitive connections
-	assign notOp_79_in0 = icmp_icmp5_out;
+	assign notOp_79_in0 = icmp_icmp8_out;
 	// controller for notOp_82.notOp_82_in0
 	// Insensitive connections
 	assign notOp_82_in0 = andOp_81_out;
 	// controller for notOp_84.notOp_84_in0
 	// Insensitive connections
-	assign notOp_84_in0 = icmp_icmp5_out;
+	assign notOp_84_in0 = icmp_icmp8_out;
 	// controller for notOp_87.notOp_87_in0
 	// Insensitive connections
 	assign notOp_87_in0 = andOp_86_out;
 	// controller for notOp_89.notOp_89_in0
 	// Insensitive connections
-	assign notOp_89_in0 = icmp_icmp5_out;
+	assign notOp_89_in0 = icmp_icmp8_out;
 	// controller for notOp_92.notOp_92_in0
 	// Insensitive connections
 	assign notOp_92_in0 = andOp_91_out;
 	// controller for notOp_94.notOp_94_in0
 	// Insensitive connections
-	assign notOp_94_in0 = icmp_icmp5_out;
+	assign notOp_94_in0 = icmp_icmp18_out;
 	// controller for notOp_97.notOp_97_in0
 	// Insensitive connections
 	assign notOp_97_in0 = andOp_96_out;
 	// controller for notOp_99.notOp_99_in0
 	// Insensitive connections
-	assign notOp_99_in0 = icmp_icmp18_out;
-	// controller for orOp_103.orOp_103_in0
-	// controller for orOp_103.orOp_103_in1
+	assign notOp_99_in0 = icmp_icmp8_out;
+	// controller for orOp_104.orOp_104_in0
+	// controller for orOp_104.orOp_104_in1
 	// Insensitive connections
-	assign orOp_103_in0 = eq_102_out;
-	assign orOp_103_in1 = andOp_69_out;
-	// controller for orOp_111.orOp_111_in0
-	// controller for orOp_111.orOp_111_in1
+	assign orOp_104_in0 = eq_103_out;
+	assign orOp_104_in1 = andOp_64_out;
+	// controller for orOp_110.orOp_110_in0
+	// controller for orOp_110.orOp_110_in1
 	// Insensitive connections
-	assign orOp_111_in0 = eq_110_out;
-	assign orOp_111_in1 = andOp_66_out;
+	assign orOp_110_in0 = eq_109_out;
+	assign orOp_110_in1 = andOp_68_out;
 	// controller for orOp_204.orOp_204_in0
 	// controller for orOp_204.orOp_204_in1
 	// Insensitive connections
@@ -2674,16 +2674,16 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 	// controller for phi_phi2.phi_phi2_last_block
 	// controller for phi_phi2.phi_phi2_s
 	// Insensitive connections
-	assign phi_phi2_in = concat_128_out;
-	assign phi_phi2_last_block = bb_4_predecessor_in_state_1_out_data;
-	assign phi_phi2_s = concat_129_out;
-	// controller for phi_phi7.phi_phi7_in
-	// controller for phi_phi7.phi_phi7_last_block
-	// controller for phi_phi7.phi_phi7_s
+	assign phi_phi2_in = concat_130_out;
+	assign phi_phi2_last_block = bb_1_predecessor_in_state_1_out_data;
+	assign phi_phi2_s = concat_131_out;
+	// controller for phi_phi5.phi_phi5_in
+	// controller for phi_phi5.phi_phi5_last_block
+	// controller for phi_phi5.phi_phi5_s
 	// Insensitive connections
-	assign phi_phi7_in = concat_137_out;
-	assign phi_phi7_last_block = bb_1_predecessor_in_state_1_out_data;
-	assign phi_phi7_s = concat_138_out;
+	assign phi_phi5_in = concat_134_out;
+	assign phi_phi5_last_block = bb_4_predecessor_in_state_1_out_data;
+	assign phi_phi5_s = concat_135_out;
 	// controller for ret20.valid_reg
 	always @(*) begin
 		if (andOp_150_out) begin 
@@ -2692,19 +2692,19 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 			valid_reg = 0;
 		end
 	end
-	// controller for shl_shl8.shl_shl8_in0
-	// controller for shl_shl8.shl_shl8_in1
+	// controller for shl_shl3.shl_shl3_in0
+	// controller for shl_shl3.shl_shl3_in1
 	// Insensitive connections
-	assign shl_shl8_in0 = phi_phi7_out;
-	assign shl_shl8_in1 = 32'd4;
-	// controller for tmp_output_131.tmp_output_131_in_data
+	assign shl_shl3_in0 = phi_phi2_out;
+	assign shl_shl3_in1 = 32'd4;
+	// controller for tmp_output_137.tmp_output_137_in_data
 	always @(*) begin
-		if (eq_132_out) begin 
-			tmp_output_131_in_data = data_in_1_16_out_data;
-		end else if (eq_133_out) begin 
-			tmp_output_131_in_data = shl_shl8_out;
+		if (eq_138_out) begin 
+			tmp_output_137_in_data = shl_shl3_out;
+		end else if (eq_139_out) begin 
+			tmp_output_137_in_data = data_in_1_11_out_data;
 		end else begin
-			tmp_output_131_in_data = 0;
+			tmp_output_137_in_data = 0;
 		end
 	end
 	// Register controllers
@@ -2752,28 +2752,28 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 		if (rst) begin
 			data_store_1_10 <= 0;
 		end else begin
-			if (andOp_214_out) begin
-				data_store_1_10 <= add_add3_out;
-			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			data_store_1_11 <= 0;
-		end else begin
 			if (andOp_215_out) begin
-				data_store_1_11 <= add_add4_out;
+				data_store_1_10 <= shl_shl3_out;
 			end
 		end
 	end
 
 	always @(posedge clk) begin
 		if (rst) begin
-			data_store_1_13 <= 0;
+			data_store_1_12 <= 0;
+		end else begin
+			if (state_1_is_active) begin
+				data_store_1_12 <= data_in_1_13_out_data;
+			end
+		end
+	end
+
+	always @(posedge clk) begin
+		if (rst) begin
+			data_store_1_14 <= 0;
 		end else begin
 			if (andOp_216_out) begin
-				data_store_1_13 <= phi_phi7_out;
+				data_store_1_14 <= add_add6_out;
 			end
 		end
 	end
@@ -2783,7 +2783,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 			data_store_1_15 <= 0;
 		end else begin
 			if (andOp_217_out) begin
-				data_store_1_15 <= shl_shl8_out;
+				data_store_1_15 <= add_add7_out;
 			end
 		end
 	end
@@ -2792,8 +2792,8 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 		if (rst) begin
 			data_store_1_8 <= 0;
 		end else begin
-			if (state_1_is_active) begin
-				data_store_1_8 <= data_in_1_9_out_data;
+			if (andOp_214_out) begin
+				data_store_1_8 <= phi_phi2_out;
 			end
 		end
 	end
@@ -2802,68 +2802,68 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 		if (rst) begin
 			data_store_2_17 <= 0;
 		end else begin
-			if (state_2_is_active) begin
-				data_store_2_17 <= data_in_2_18_out_data;
-			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			data_store_2_19 <= 0;
-		end else begin
-			if (state_2_is_active) begin
-				data_store_2_19 <= data_in_2_20_out_data;
-			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			data_store_2_21 <= 0;
-		end else begin
-			if (state_2_is_active) begin
-				data_store_2_21 <= data_in_2_22_out_data;
-			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			data_store_2_23 <= 0;
-		end else begin
-			if (state_2_is_active) begin
-				data_store_2_23 <= data_in_2_24_out_data;
-			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			data_store_2_25 <= 0;
-		end else begin
-			if (state_2_is_active) begin
-				data_store_2_25 <= data_in_2_26_out_data;
-			end
-		end
-	end
-
-	always @(posedge clk) begin
-		if (rst) begin
-			data_store_2_27 <= 0;
-		end else begin
 			if (andOp_220_out) begin
-				data_store_2_27 <= a_rdata_0;
+				data_store_2_17 <= a_rdata_0;
 			end
 		end
 	end
 
 	always @(posedge clk) begin
 		if (rst) begin
-			data_store_3_28 <= 0;
+			data_store_2_18 <= 0;
+		end else begin
+			if (state_2_is_active) begin
+				data_store_2_18 <= data_in_2_19_out_data;
+			end
+		end
+	end
+
+	always @(posedge clk) begin
+		if (rst) begin
+			data_store_2_20 <= 0;
+		end else begin
+			if (state_2_is_active) begin
+				data_store_2_20 <= data_in_2_21_out_data;
+			end
+		end
+	end
+
+	always @(posedge clk) begin
+		if (rst) begin
+			data_store_2_22 <= 0;
+		end else begin
+			if (state_2_is_active) begin
+				data_store_2_22 <= data_in_2_23_out_data;
+			end
+		end
+	end
+
+	always @(posedge clk) begin
+		if (rst) begin
+			data_store_2_24 <= 0;
+		end else begin
+			if (state_2_is_active) begin
+				data_store_2_24 <= data_in_2_25_out_data;
+			end
+		end
+	end
+
+	always @(posedge clk) begin
+		if (rst) begin
+			data_store_2_26 <= 0;
+		end else begin
+			if (state_2_is_active) begin
+				data_store_2_26 <= data_in_2_27_out_data;
+			end
+		end
+	end
+
+	always @(posedge clk) begin
+		if (rst) begin
+			data_store_3_29 <= 0;
 		end else begin
 			if (state_3_is_active) begin
-				data_store_3_28 <= data_in_3_29_out_data;
+				data_store_3_29 <= data_in_3_30_out_data;
 			end
 		end
 	end
@@ -2890,10 +2890,10 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 
 	always @(posedge clk) begin
 		if (rst) begin
-			data_store_3_35 <= 0;
+			data_store_3_36 <= 0;
 		end else begin
 			if (state_3_is_active) begin
-				data_store_3_35 <= data_in_3_36_out_data;
+				data_store_3_36 <= data_in_3_37_out_data;
 			end
 		end
 	end
@@ -2982,8 +2982,8 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 		if (rst) begin
 			data_store_6_54 <= 0;
 		end else begin
-			if (andOp_230_out) begin
-				data_store_6_54 <= add_add17_out;
+			if (state_6_is_active) begin
+				data_store_6_54 <= data_in_6_55_out_data;
 			end
 		end
 	end
@@ -3002,8 +3002,8 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 		if (rst) begin
 			data_store_6_58 <= 0;
 		end else begin
-			if (state_6_is_active) begin
-				data_store_6_58 <= data_in_6_59_out_data;
+			if (andOp_230_out) begin
+				data_store_6_58 <= add_add17_out;
 			end
 		end
 	end
@@ -3038,7 +3038,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 		if (rst) begin
 			out_of_pipe_6_7 <= 0;
 		end else begin
-			if (andOp_98_out) begin
+			if (andOp_93_out) begin
 				out_of_pipe_6_7 <= 1'd1;
 			end
 		end
@@ -3048,7 +3048,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 		if (rst) begin
 			out_of_pipe_bb_6_7 <= 0;
 		end else begin
-			if (andOp_98_out) begin
+			if (andOp_93_out) begin
 				out_of_pipe_bb_6_7 <= 1'd1;
 			end
 		end
@@ -3089,14 +3089,14 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 		if (rst) begin
 			state_1_entry_BB_reg <= 0;
 		end else begin
-			if (andOp_100_out) begin
-				state_1_entry_BB_reg <= 32'd1;
-			end
 			if (andOp_62_out) begin
 				state_1_entry_BB_reg <= 32'd1;
 			end
-			if (andOp_68_out) begin
+			if (andOp_70_out) begin
 				state_1_entry_BB_reg <= 32'd4;
+			end
+			if (andOp_95_out) begin
+				state_1_entry_BB_reg <= 32'd1;
 			end
 		end
 	end
@@ -3105,16 +3105,16 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 		if (rst) begin
 			state_1_is_active <= 0;
 		end else begin
-			if (andOp_100_out) begin
-				state_1_is_active <= 1'd1;
-			end
 			if (andOp_187_out) begin
 				state_1_is_active <= 1'd0;
 			end
 			if (andOp_62_out) begin
 				state_1_is_active <= 1'd1;
 			end
-			if (andOp_68_out) begin
+			if (andOp_70_out) begin
+				state_1_is_active <= 1'd1;
+			end
+			if (andOp_95_out) begin
 				state_1_is_active <= 1'd1;
 			end
 		end
@@ -3124,14 +3124,14 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 		if (rst) begin
 			state_1_last_BB_reg <= 0;
 		end else begin
-			if (andOp_100_out) begin
-				state_1_last_BB_reg <= 32'd3;
-			end
 			if (andOp_62_out) begin
 				state_1_last_BB_reg <= 32'd0;
 			end
-			if (andOp_68_out) begin
+			if (andOp_70_out) begin
 				state_1_last_BB_reg <= 32'd4;
+			end
+			if (andOp_95_out) begin
+				state_1_last_BB_reg <= 32'd3;
 			end
 		end
 	end
@@ -3140,14 +3140,14 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 		if (rst) begin
 			state_1_last_state <= 0;
 		end else begin
-			if (andOp_100_out) begin
-				state_1_last_state <= 32'd6;
-			end
 			if (andOp_62_out) begin
 				state_1_last_state <= 32'd0;
 			end
-			if (andOp_68_out) begin
+			if (andOp_70_out) begin
 				state_1_last_state <= 32'd1;
+			end
+			if (andOp_95_out) begin
+				state_1_last_state <= 32'd6;
 			end
 		end
 	end
@@ -3331,7 +3331,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 			if (andOp_155_out) begin
 				state_6_entry_BB_reg <= 32'd4;
 			end
-			if (andOp_66_out) begin
+			if (andOp_68_out) begin
 				state_6_entry_BB_reg <= 32'd3;
 			end
 		end
@@ -3347,7 +3347,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 			if (andOp_199_out) begin
 				state_6_is_active <= 1'd0;
 			end
-			if (andOp_66_out) begin
+			if (andOp_68_out) begin
 				state_6_is_active <= 1'd1;
 			end
 		end
@@ -3360,7 +3360,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 			if (andOp_155_out) begin
 				state_6_last_BB_reg <= bb_4_predecessor_in_state_5_out_data;
 			end
-			if (andOp_66_out) begin
+			if (andOp_68_out) begin
 				state_6_last_BB_reg <= 32'd4;
 			end
 		end
@@ -3373,7 +3373,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 			if (andOp_155_out) begin
 				state_6_last_state <= 32'd5;
 			end
-			if (andOp_66_out) begin
+			if (andOp_68_out) begin
 				state_6_last_state <= 32'd1;
 			end
 		end
@@ -3415,7 +3415,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 			if (andOp_181_out) begin
 				state_7_last_BB_reg <= bb_2_predecessor_in_state_7_out_data;
 			end
-			if (andOp_98_out) begin
+			if (andOp_93_out) begin
 				state_7_last_BB_reg <= 32'd3;
 			end
 		end
@@ -3428,7 +3428,7 @@ module matrix_add(input [0:0] clk, input [0:0] rst, output [0:0] valid, output [
 			if (andOp_181_out) begin
 				state_7_last_state <= 32'd7;
 			end
-			if (andOp_98_out) begin
+			if (andOp_93_out) begin
 				state_7_last_state <= 32'd6;
 			end
 		end

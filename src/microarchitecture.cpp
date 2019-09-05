@@ -450,7 +450,7 @@ namespace ahaHLS {
     assert(LoadInst::classof(instr) || StoreInst::classof(instr));
     string modName = "add";
 
-    auto rStr = unitName;
+    //auto rStr = unitName;
 
     Value* memVal = map_find(instr, memSrcs);
     string memSrc = memName(instr, memSrcs, memNames);
@@ -719,8 +719,7 @@ namespace ahaHLS {
 
         Instruction* instr = instrG;
 
-        ModuleSpec modSpec = hcs.getModSpec(instr); //map_find(dyn_cast<Value>(instr), hcs.modSpecs);
-
+        ModuleSpec modSpec = hcs.getModSpec(instr);
         auto unit =
           createUnit(modSpec, memNames, memSrcs, hcs, used, instr);
 
