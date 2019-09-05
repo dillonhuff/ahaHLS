@@ -440,6 +440,17 @@ namespace ahaHLS {
 
     ResourceUsage() : resSuffix(0) {}
 
+    maybe<int> allocate(const std::string& name) {
+      if (availableUnits[name].size() == 0) {
+        return {};
+      }
+
+      int nextUnit = *begin(availableUnits[name]);
+      availableUnits[name].erase(nextUnit);
+      occupiedUnits[name].insert(nextUnit);
+      return nextUnit;
+    }
+
     void releaseUnits(const std::string& name) {
       assert(contains_key(name, availableUnits));
       assert(contains_key(name, occupiedUnits));
@@ -574,9 +585,14 @@ namespace ahaHLS {
       auto opCode = instr->getOpcode();
       if (opCode == Instruction::Mul && hcs.isLimitedResource(MUL_OP)) {
         cout << "Resource limited multiplier!!!" << endl;
+        auto nextAvailable = usage.allocate("mul");
+        assert(nextAvailable.has_value());
+        unitName = string(instr->getOpcodeName()) + "_" + to_string(nextAvailable.get_value());
+        return functionalUnitForSpec(unitName, modSpec);
+      } else {
+        unitName = string(instr->getOpcodeName()) + "_" + rStr;
+        return functionalUnitForSpec(unitName, modSpec);
       }
-      unitName = string(instr->getOpcodeName()) + "_" + rStr;
-      return functionalUnitForSpec(unitName, modSpec);
 
     } else if (ReturnInst::classof(instr)) {
 
