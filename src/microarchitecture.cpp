@@ -435,7 +435,21 @@ namespace ahaHLS {
 
     int resSuffix;
 
+    map<string, set<int> > availableUnits;
+    map<string, set<int> > occupiedUnits;
+
     ResourceUsage() : resSuffix(0) {}
+
+    void releaseUnits(const std::string& name) {
+      assert(contains_key(name, availableUnits));
+      assert(contains_key(name, occupiedUnits));
+
+      for (auto val : map_find(name, occupiedUnits)) {
+        availableUnits[name].insert(val);
+      }
+
+      occupiedUnits[name] = {};
+    }
   };
 
   InstructionBinding
@@ -557,6 +571,10 @@ namespace ahaHLS {
       
       return memUnit;
     } else if (BinaryOperator::classof(instr)) {
+      auto opCode = instr->getOpcode();
+      if (opCode == Instruction::Mul && hcs.isLimitedResource(MUL_OP)) {
+        cout << "Resource limited multiplier!!!" << endl;
+      }
       unitName = string(instr->getOpcodeName()) + "_" + rStr;
       return functionalUnitForSpec(unitName, modSpec);
 
@@ -713,6 +731,12 @@ namespace ahaHLS {
     }
 
     ResourceUsage used;
+    if (hcs.isLimitedResource(MUL_OP)) {
+      for (int i = 0; i < hcs.getCount(MUL_OP); i++) {
+        used.availableUnits["mul"].insert(i);
+      }
+      used.occupiedUnits["mul"] = {};
+    }
     for (auto state : stg.opStates) {
       
       for (auto instrG : stg.instructionsStartingAt(state.first)) {
@@ -727,6 +751,10 @@ namespace ahaHLS {
         units[instr] = unit;
 
         used.resSuffix++;
+      }
+
+      if (hcs.isLimitedResource(MUL_OP)) {
+        used.releaseUnits("mul");
       }
     }
 
